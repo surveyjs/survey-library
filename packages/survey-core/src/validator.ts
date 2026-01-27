@@ -217,23 +217,13 @@ export class NumericValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get minValue(): number {
-    return this.getPropertyValue("minValue");
-  }
-  public set minValue(val: number) {
-    this.setPropertyValue("minValue", val);
-  }
+  @property() minValue: number;
   /**
    * A maximum allowed numeric value.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get maxValue(): number {
-    return this.getPropertyValue("maxValue");
-  }
-  public set maxValue(val: number) {
-    this.setPropertyValue("maxValue", val);
-  }
+  @property() maxValue: number;
 }
 /**
  * A class that implements a validator for text values.
@@ -279,12 +269,7 @@ export class TextValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get minLength(): number {
-    return this.getPropertyValue("minLength");
-  }
-  public set minLength(val: number) {
-    this.setPropertyValue("minLength", val);
-  }
+  @property() minLength: number;
   /**
    * The maximum length of a text value measured in characters.
    *
@@ -292,23 +277,13 @@ export class TextValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get maxLength(): number {
-    return this.getPropertyValue("maxLength");
-  }
-  public set maxLength(val: number) {
-    this.setPropertyValue("maxLength", val);
-  }
+  @property() maxLength: number;
   /**
    * Specifies whether a text value can include numerical digits.
    *
    * Default value: `true`
    */
-  public get allowDigits(): boolean {
-    return this.getPropertyValue("allowDigits");
-  }
-  public set allowDigits(val: boolean) {
-    this.setPropertyValue("allowDigits", val);
-  }
+  @property() allowDigits: boolean;
 }
 
 /**
@@ -353,23 +328,13 @@ export class AnswerCountValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get minCount(): number {
-    return this.getPropertyValue("minCount");
-  }
-  public set minCount(val: number) {
-    this.setPropertyValue("minCount", val);
-  }
+  @property() minCount: number;
   /**
    * A maximum number of selected answers.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get maxCount(): number {
-    return this.getPropertyValue("maxCount");
-  }
-  public set maxCount(val: number) {
-    this.setPropertyValue("maxCount", val);
-  }
+  @property() maxCount: number;
 }
 /**
  * A class that implements validation using regular expressions.
@@ -404,23 +369,13 @@ export class RegexValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get regex(): string {
-    return this.getPropertyValue("regex");
-  }
-  public set regex(val: string) {
-    this.setPropertyValue("regex", val);
-  }
+  @property() regex: string;
   /**
    * Specifies whether uppercase and lowercase letters must be treated as distinct or equivalent when validating values.
    *
    * Default value: `false` (uppercase and lowercase letters are treated as distinct)
    */
-  public get caseInsensitive(): boolean {
-    return this.getPropertyValue("caseInsensitive");
-  }
-  public set caseInsensitive(val: boolean) {
-    this.setPropertyValue("caseInsensitive", val);
-  }
+  @property() caseInsensitive: boolean;
   public get insensitive(): boolean { return this.caseInsensitive; }
   public set insensitive(val: boolean) {
     this.caseInsensitive = val;
@@ -510,12 +465,7 @@ export class ExpressionValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  public get expression(): string {
-    return this.getPropertyValue("expression");
-  }
-  public set expression(val: string) {
-    this.setPropertyValue("expression", val);
-  }
+  @property() expression: string;
   public getValueGetterContext(): IValueGetterContext {
     const owner = <any>this.owner;
     if (!!owner && !!owner.getValueGetterContext) return owner.getValueGetterContext();

@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
 import { ValueGetter } from "./conditionProcessValue";
@@ -80,18 +80,8 @@ export class Trigger extends Base {
     if (!Trigger.operators[value]) return;
     this.setPropertyValue("operator", value);
   }
-  public get value(): any {
-    return this.getPropertyValue("value", null);
-  }
-  public set value(val: any) {
-    this.setPropertyValue("value", val);
-  }
-  public get name(): string {
-    return this.getPropertyValue("name", "");
-  }
-  public set name(val: string) {
-    this.setPropertyValue("name", val);
-  }
+  @property() value: any;
+  @property() name: string;
 
   public get expression(): string {
     return this.getPropertyValue("expression", this.buildExpression());
@@ -312,24 +302,9 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
       this.setValue = undefined;
     }
   }
-  public get setToName(): string {
-    return this.getPropertyValue("setToName", "");
-  }
-  public set setToName(val: string) {
-    this.setPropertyValue("setToName", val);
-  }
-  public get setValue(): any {
-    return this.getPropertyValue("setValue");
-  }
-  public set setValue(val: any) {
-    this.setPropertyValue("setValue", val);
-  }
-  public get isVariable(): boolean {
-    return this.getPropertyValue("isVariable");
-  }
-  public set isVariable(val: boolean) {
-    this.setPropertyValue("isVariable", val);
-  }
+  @property() setToName: string;
+  @property() setValue: any;
+  @property() isVariable: boolean;
   protected onSuccess(properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
     this.owner.setTriggerValue(this.setToName, Helpers.getUnbindValue(this.setValue), this.isVariable);
@@ -346,12 +321,7 @@ export class SurveyTriggerSkip extends SurveyTrigger {
     return "skiptrigger";
   }
   public get requireValidQuestion(): boolean { return this.canBeExecuted(false); }
-  public get gotoName(): string {
-    return this.getPropertyValue("gotoName", "");
-  }
-  public set gotoName(val: string) {
-    this.setPropertyValue("gotoName", val);
-  }
+  @property() gotoName: string;
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return isOnNextPage === !settings.triggers.executeSkipOnValueChanged;
   }
@@ -370,18 +340,8 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
   public getType(): string {
     return "runexpressiontrigger";
   }
-  public get setToName(): string {
-    return this.getPropertyValue("setToName", "");
-  }
-  public set setToName(val: string) {
-    this.setPropertyValue("setToName", val);
-  }
-  public get runExpression(): string {
-    return this.getPropertyValue("runExpression", "");
-  }
-  public set runExpression(val: string) {
-    this.setPropertyValue("runExpression", val);
-  }
+  @property() setToName: string;
+  @property() runExpression: string;
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return !isOnNextPage;
   }
@@ -408,24 +368,9 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return !isOnNextPage && !!this.setToName && !!this.fromName;
   }
-  public get setToName(): string {
-    return this.getPropertyValue("setToName", "");
-  }
-  public set setToName(val: string) {
-    this.setPropertyValue("setToName", val);
-  }
-  public get fromName(): string {
-    return this.getPropertyValue("fromName", "");
-  }
-  public set fromName(val: string) {
-    this.setPropertyValue("fromName", val);
-  }
-  public get copyDisplayValue(): boolean {
-    return this.getPropertyValue("copyDisplayValue");
-  }
-  public set copyDisplayValue(val: boolean) {
-    this.setPropertyValue("copyDisplayValue", val);
-  }
+  @property() setToName: string;
+  @property() fromName: string;
+  @property() copyDisplayValue: boolean;
   public getType(): string {
     return "copyvaluetrigger";
   }

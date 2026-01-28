@@ -2,7 +2,7 @@ import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { ISurvey, ISurveyVariables } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 
 /**
  * The calculated value is a way to define the variable in Survey Creator.
@@ -22,6 +22,12 @@ export class CalculatedValue extends Base {
     }
     if (!!expression) {
       this.expression = expression;
+    }
+  }
+  protected override onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "expression") {
+      this.rerunExpression();
     }
   }
   public setOwner(data: ISurveyVariables) {
@@ -45,32 +51,16 @@ export class CalculatedValue extends Base {
   /**
    * The calculated value name. It should be non empty and unique.
    */
-  public get name(): string {
-    return this.getPropertyValue("name") || "";
-  }
-  public set name(val: string) {
-    this.setPropertyValue("name", val);
-  }
+  @property() name: string;
   /**
    * Set this property to true to include the non-empty calculated value into survey result, survey.data property.
    */
-  public get includeIntoResult(): boolean {
-    return this.getPropertyValue("includeIntoResult");
-  }
-  public set includeIntoResult(val: boolean) {
-    this.setPropertyValue("includeIntoResult", val);
-  }
+  @property() includeIntoResult: boolean;
   /**
    * The Expression that used to calculate the value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}.
    * Example: "({quantity} * {price}) * (100 - {discount}) / 100"
    */
-  public get expression(): string {
-    return this.getPropertyValue("expression") || "";
-  }
-  public set expression(val: string) {
-    this.setPropertyValue("expression", val);
-    this.rerunExpression();
-  }
+  @property() expression: string;
   public locCalculation() {
     this.expressionIsRunning = true;
   }

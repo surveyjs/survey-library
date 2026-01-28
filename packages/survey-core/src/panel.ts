@@ -99,6 +99,12 @@ export class QuestionRowModel extends Base {
     this.createNewArray("elements");
     this.createNewArray("visibleElements");
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "visible") {
+      this.onVisibleChangedCallback && this.onVisibleChangedCallback();
+    }
+  }
   private isLazyRenderingValue: boolean;
   public setIsLazyRendering(val: boolean) {
     this.isLazyRenderingValue = val;
@@ -166,21 +172,9 @@ export class QuestionRowModel extends Base {
   public get visibleElements(): Array<IElement> {
     return this.getPropertyValue("visibleElements");
   }
-
   public onVisibleChangedCallback: () => void;
-  public get visible(): boolean {
-    return this.getPropertyValue("visible", true);
-  }
-  public set visible(val: boolean) {
-    this.setPropertyValue("visible", val);
-    this.onVisibleChangedCallback && this.onVisibleChangedCallback();
-  }
-  public get isNeedRender(): boolean {
-    return this.getPropertyValue("isneedrender", true);
-  }
-  public set isNeedRender(val: boolean) {
-    this.setPropertyValue("isneedrender", val);
-  }
+  @property({ defaultValue: true }) visible: boolean;
+  @property() isNeedRender: boolean;
 
   public updateVisible() {
     var visElements: Array<IElement> = [];
@@ -404,6 +398,10 @@ export class PanelModelBase extends SurveyElement<Question>
     if (name === "title") {
       this.resetHasTextInTitle();
     }
+    if (name === "visible") {
+      this.setPropertyValue("isVisible", this.isVisible);
+      this.onVisibleChanged();
+    }
   }
   public getType(): string {
     return "panelbase";
@@ -547,12 +545,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * - `"default"` (default) - Inherits the setting from the `SurveyModel`'s [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionOrder) property.
    * @see areQuestionsRandomized
    */
-  public get questionOrder(): string {
-    return this.getPropertyValue("questionOrder");
-  }
-  public set questionOrder(val: string) {
-    this.setPropertyValue("questionOrder", val);
-  }
+  @property() questionOrder: string;
   /**
    * @deprecated Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
    */
@@ -575,12 +568,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
    * @see showQuestionNumbers
    */
-  public get questionStartIndex(): string {
-    return this.getPropertyValue("questionStartIndex", "");
-  }
-  public set questionStartIndex(val: string) {
-    this.setPropertyValue("questionStartIndex", val);
-  }
+  @property({ returnValue: "" }) questionStartIndex: string;
   public addNoFromChild(no: string): string { return no; }
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
@@ -641,12 +629,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see visible
    * @see isVisible
    */
-  public get visibleIf(): string {
-    return this.getPropertyValue("visibleIf", "");
-  }
-  public set visibleIf(val: string) {
-    this.setPropertyValue("visibleIf", val);
-  }
+  @property() visibleIf: string;
   protected calcCssClasses(css: any): any {
     var classes = { panel: {}, error: {}, row: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
@@ -680,12 +663,7 @@ export class PanelModelBase extends SurveyElement<Question>
   /**
    * An auto-generated unique element identifier.
    */
-  public get id(): string {
-    return this.getPropertyValue("id");
-  }
-  public set id(val: string) {
-    this.setPropertyValue("id", val);
-  }
+  @property() id: string;
   public get isPanel(): boolean {
     return false;
   }
@@ -930,12 +908,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see requiredIf
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired");
-  }
-  public set isRequired(val: boolean) {
-    this.setPropertyValue("isRequired", val);
-  }
+  @property() isRequired: boolean;
   /**
    * A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have an answer).
    *
@@ -944,12 +917,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isRequired
    */
-  public get requiredIf(): string {
-    return this.getPropertyValue("requiredIf", "");
-  }
-  public set requiredIf(val: string) {
-    this.setPropertyValue("requiredIf", val);
-  }
+  @property() requiredIf: string;
   public searchText(text: string, founded: Array<IFindElement>): void {
     super.searchText(text, founded);
     for (var i = 0; i < this.elements.length; i++) {
@@ -1262,12 +1230,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    */
-  public get questionTitleLocation(): string {
-    return this.getPropertyValue("questionTitleLocation");
-  }
-  public set questionTitleLocation(value: string) {
-    this.setPropertyValue("questionTitleLocation", value.toLowerCase());
-  }
+  @property({ onSet: (val) =>val.toLowerCase() }) questionTitleLocation: string;
   getQuestionTitleLocation(): string {
     if (this.onGetQuestionTitleLocation)
       return this.onGetQuestionTitleLocation();
@@ -1771,15 +1734,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see visibleIf
    * @see isVisible
    */
-  public get visible(): boolean {
-    return this.getPropertyValue("visible");
-  }
-  public set visible(value: boolean) {
-    if (value === this.visible) return;
-    this.setPropertyValue("visible", value);
-    this.setPropertyValue("isVisible", this.isVisible);
-    if (!this.isLoadingFromJson)this.onVisibleChanged();
-  }
+  @property() visible: boolean;
   public onHidingContent(): void {
     this.questions.forEach(q => q.onHidingContent());
   }
@@ -1895,12 +1850,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see readOnly
    * @see isReadOnly
    */
-  public get enableIf(): string {
-    return this.getPropertyValue("enableIf", "");
-  }
-  public set enableIf(val: string) {
-    this.setPropertyValue("enableIf", val);
-  }
+  @property() enableIf: string;
   /**
    * Adds a survey element (question or panel) to this panel/page. Returns `true` if the element was added successfully; `false` otherwise.
    * @param element A survey element to add.
@@ -2098,12 +2048,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * [View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
    */
-  public get questionErrorLocation(): string {
-    return this.getPropertyValue("questionErrorLocation");
-  }
-  public set questionErrorLocation(val: string) {
-    this.setPropertyValue("questionErrorLocation", val);
-  }
+  @property() questionErrorLocation: string;
   public getQuestionErrorLocation(): string {
     if (this.questionErrorLocation !== "default") return this.questionErrorLocation;
     if (this.parent) return this.parent.getQuestionErrorLocation();
@@ -2177,6 +2122,9 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (name === "colSpan" && this.parent) {
       this.parent.updateColumns();
     }
+    if (name === "showNumber" || name === "showQuestionNumbers") {
+      this.notifySurveyOnVisibilityChanged();
+    }
   }
   public getType(): string {
     return "panel";
@@ -2230,13 +2178,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see SurveyModel.showQuestionNumbers
    * @see SurveyModel.questionTitlePattern
    */
-  public get showNumber(): boolean {
-    return this.getPropertyValue("showNumber");
-  }
-  public set showNumber(val: boolean) {
-    this.setPropertyValue("showNumber", val);
-    this.notifySurveyOnVisibilityChanged();
-  }
+  @property() showNumber: boolean;
   public addNoFromChild(no: string): string {
     let parentNo = this.getRecursiveNo();
     if (!!parentNo) {
@@ -2268,13 +2210,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * @see showNumber
    * @see questionStartIndex
    */
-  public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers");
-  }
-  public set showQuestionNumbers(value: string) {
-    this.setPropertyValue("showQuestionNumbers", value);
-    this.notifySurveyOnVisibilityChanged();
-  }
+  @property() showQuestionNumbers: string;
   protected getPageVisibleIndex(): number { return (<any>this.page)?.visibleIndex || -1; }
   getQuestionStartIndex(): string {
     const res = this.questionStartIndex;
@@ -2370,38 +2306,15 @@ export class PanelModel extends PanelModelBase implements IElement {
   /**
    * Increases or decreases an indent of panel content from the left edge. Accepts positive integer values and 0.
    */
-  public get innerIndent(): number {
-    return this.getPropertyValue("innerIndent");
-  }
-  public set innerIndent(val: number) {
-    this.setPropertyValue("innerIndent", val);
-  }
+  @property() innerIndent: number;
   /**
    * Disable this property if you want to render the current panel on the same line or row with the previous question or panel.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/arrange-multiple-questions-in-single-line/ (linkStyle))
    */
-  public get startWithNewLine(): boolean {
-    return this.getPropertyValue("startWithNewLine");
-  }
-  public set startWithNewLine(value: boolean) {
-    this.setPropertyValue("startWithNewLine", value);
-  }
-  public get allowAdaptiveActions(): boolean {
-    return this.getPropertyValue("allowAdaptiveActions");
-  }
-  public set allowAdaptiveActions(val: boolean) {
-    this.setPropertyValue("allowAdaptiveActions", val);
-  }
-  get innerPaddingLeft(): string {
-    const func = (): string => {
-      return this.getIndentSize(this.innerIndent);
-    };
-    return this.getPropertyValue("innerPaddingLeft", undefined, func);
-  }
-  set innerPaddingLeft(val: string) {
-    this.setPropertyValue("innerPaddingLeft", val);
-  }
+  @property() startWithNewLine: boolean;
+  @property() allowAdaptiveActions: boolean;
+  @property({ calcFunc: (obj: PanelModel) => obj.getIndentSize(obj.innerIndent) }) innerPaddingLeft: string;
   protected calcPaddingLeft(): string {
     return this.getIndentSize(this.indent);
   }

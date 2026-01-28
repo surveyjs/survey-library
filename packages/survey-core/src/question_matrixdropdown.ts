@@ -129,12 +129,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * Specifies whether to hide the question when the matrix has no visible rows.
    * @see rowsVisibleIf
    */
-  public get hideIfRowsEmpty(): boolean {
-    return this.getPropertyValue("hideIfRowsEmpty");
-  }
-  public set hideIfRowsEmpty(val: boolean) {
-    this.setPropertyValue("hideIfRowsEmpty", val);
-  }
+  @property() hideIfRowsEmpty: boolean;
+
   protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixDropdownValueGetterContext(this);

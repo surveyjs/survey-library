@@ -273,12 +273,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    *
    * Default value: 1
    */
-  public get colSpan(): number {
-    return this.getPropertyValue("colSpan", 1);
-  }
-  public set colSpan(val: number) {
-    this.setPropertyValue("colSpan", val);
-  }
+  @property({ defaultValue: 1 }) colSpan: number;
 
   constructor(name: string) {
     super();
@@ -1009,12 +1004,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see minWidth
    * @see maxWidth
   */
-  public get width(): string {
-    return this.getPropertyValue("width", "");
-  }
-  public set width(val: string) {
-    this.setPropertyValue("width", val);
-  }
+  @property({ defaultValue: "" }) width: string;
   /**
    * Gets or sets minimum survey element width in CSS values.
    *
@@ -1023,12 +1013,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see renderWidth
    * @see width
    */
-  public get minWidth(): string {
-    return this.getPropertyValue("minWidth");
-  }
-  public set minWidth(val: string) {
-    this.setPropertyValue("minWidth", val);
-  }
+  @property() minWidth: string;
   /**
    * Gets or sets maximum survey element width in CSS values.
    *
@@ -1037,12 +1022,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see renderWidth
    * @see width
    */
-  public get maxWidth(): string {
-    return this.getPropertyValue("maxWidth");
-  }
-  public set maxWidth(val: string) {
-    this.setPropertyValue("maxWidth", val);
-  }
+  @property() maxWidth: string;
 
   /**
    * Returns a calculated width of the rendered survey element in CSS values.
@@ -1050,28 +1030,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see minWidth
    * @see maxWidth
    */
-  public get renderWidth(): string {
-    return this.getPropertyValue("renderWidth", "");
-  }
-  public set renderWidth(val: string) {
-    this.setPropertyValue("renderWidth", val);
-  }
+  @property({ defaultValue: "" }) renderWidth: string;
 
   /**
    * Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0.
    */
-  public get indent(): number {
-    return this.getPropertyValue("indent");
-  }
-  public set indent(val: number) {
-    this.setPropertyValue("indent", val);
-  }
-  public get rightIndent(): number {
-    return this.getPropertyValue("rightIndent", 0);
-  }
-  public set rightIndent(val: number) {
-    this.setPropertyValue("rightIndent", val);
-  }
+  @property() indent: number;
+  @property({ defaultValue: 0 }) rightIndent: number;
   public getRootStyle(): object {
     const style: any = {};
     if (!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }

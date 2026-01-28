@@ -29,12 +29,7 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   /**
    * The expression property. If this expression returns true, then survey will use html property to show on complete page.
    */
-  public get expression(): string {
-    return this.getPropertyValue("expression", "");
-  }
-  public set expression(val: string) {
-    this.setPropertyValue("expression", val);
-  }
+  @property({ returnValue: "" }) expression: string;
   get locHtml(): LocalizableString {
     return this.getLocalizableString("html");
   }

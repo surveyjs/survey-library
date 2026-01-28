@@ -88,6 +88,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "tablet-dropdown-overlay" | "dropdown-overlay" | "plain";
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
+  @property({ defaultValue: false }) isVisible: boolean;
 
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
   public onFooterActionsCreated: EventBase<Base> = this.addEvent<Base>();
@@ -112,15 +113,11 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
       }
     }
   }
-  public get isVisible(): boolean {
-    return this.getPropertyValue("isVisible", false);
-  }
-  public set isVisible(value: boolean) {
-    if (this.isVisible === value) {
-      return;
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "isVisible") {
+      this.onVisibilityChanged.fire(this, { model: this, isVisible: newValue });
     }
-    this.setPropertyValue("isVisible", value);
-    this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
   }
   public toggleVisibility(): void {
     this.isVisible = !this.isVisible;

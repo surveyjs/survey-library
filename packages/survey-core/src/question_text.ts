@@ -216,12 +216,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    */
-  public get inputSize(): number {
-    return this.getPropertyValue("inputSize");
-  }
-  public set inputSize(val: number) {
-    this.setPropertyValue("inputSize", val);
-  }
+  @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
    */
@@ -264,12 +259,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
-  public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete");
-  }
-  public set autocomplete(val: string) {
-    this.setPropertyValue("autocomplete", val);
-  }
+  @property() autocomplete: string;
   /**
    * A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
    * @see minValueExpression
@@ -302,22 +292,12 @@ export class QuestionTextModel extends QuestionTextBase {
    * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
    * @see min
    */
-  public get minValueExpression(): string {
-    return this.getPropertyValue("minValueExpression", "");
-  }
-  public set minValueExpression(val: string) {
-    this.setPropertyValue("minValueExpression", val);
-  }
+  @property() minValueExpression: string;
   /**
    * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
    * @see max
    */
-  public get maxValueExpression(): string {
-    return this.getPropertyValue("maxValueExpression", "");
-  }
-  public set maxValueExpression(val: string) {
-    this.setPropertyValue("maxValueExpression", val);
-  }
+  @property() maxValueExpression: string;
   public get renderedMin(): any {
     return this.getPropertyValue("renderedMin");
   }
@@ -581,12 +561,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
    */
-  public get step(): string {
-    return this.getPropertyValue("step");
-  }
-  public set step(val: string) {
-    this.setPropertyValue("step", val);
-  }
+  @property() step: string;
   public get renderedStep(): string {
     if (this.isValueEmpty(this.step)) {
       return this.inputType !== "number" ? undefined : "any";

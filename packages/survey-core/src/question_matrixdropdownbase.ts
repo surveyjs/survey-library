@@ -511,28 +511,14 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue || this.isCreatingDetailPanel) return;
+    const changedQuestion = this.getQuestionByName(name);
+    const newValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
+    const changedName = isComment ? name + Base.commentSuffix : name;
+    if (!this.isValueChanged(changedName, newValue)) return;
+    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newColumnValue);
     }
-    var newValue = this.value;
-    var changedName = isComment ? name + Base.commentSuffix : name;
-    var changedValue = newColumnValue;
-    var changedQuestion = this.getQuestionByName(name);
-    var changingValue = this.data.onRowChanging(this, changedName, newValue);
-    if (
-      !!changedQuestion &&
-      !this.isTwoValueEquals(changingValue, changedValue)
-    ) {
-      this.isSettingValue = true;
-      if (isComment) {
-        changedQuestion.comment = changingValue;
-      } else {
-        changedQuestion.value = changingValue;
-      }
-      this.isSettingValue = false;
-      newValue = this.value;
-    }
-    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
@@ -541,6 +527,24 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       this.runTriggersOnSetValue(changedName, newColumnValue);
     }
     this.onAnyValueChanged(rowName, "");
+  }
+
+  private onCellValueChanging(question: Question, newValue: any, isComment: boolean): any {
+    if (!question) return newValue;
+    const name = question.getValueName();
+    const changedName = isComment ? name + Base.commentSuffix : name;
+    const changingValue = this.data.onRowChanging(this, changedName, newValue);
+    if (!this.isTwoValueEquals(changingValue, question.value)) {
+      this.isSettingValue = true;
+      if (isComment) {
+        question.comment = changingValue;
+      } else {
+        question.value = changingValue;
+      }
+      this.isSettingValue = false;
+      return this.value;
+    }
+    return newValue;
   }
   private validateCellQuestion(question: Question): boolean {
     if (!question) return true;

@@ -1208,9 +1208,6 @@ export class QuestionPanelDynamicModel extends Question
   public set allowAddPanel(val: boolean) {
     this.setPropertyValue("allowAddPanel", val);
   }
-  public get addButtonId(): string {
-    return this.id + "addPanel";
-  }
   /**
    * Specifies the position of newly added panels.
    *
@@ -2793,20 +2790,8 @@ export class QuestionPanelDynamicModel extends Question
       this.updateFooterActionsCallback();
     }
   }
-  private addPanelActionValue: Action;
   public get addPanelAction(): Action {
-    if (!this.addPanelActionValue) {
-      this.addPanelActionValue = new Action({
-        id: "sv-pd-add-btn",
-        action: () => {
-          this.addPanelUI();
-        },
-        locTitle: this.locAddPanelText,
-        innerCss: this.getAddButtonCss()
-      });
-      this.addPanelActionValue.cssClasses = this.survey.getCss().actionBar;
-    }
-    return this.addPanelActionValue;
+    return this.footerToolbar.getActionById("sv-pd-add-btn");
   }
   private initFooterToolbar() {
     this.footerToolbarValue = this.createActionContainer();
@@ -2830,7 +2815,14 @@ export class QuestionPanelDynamicModel extends Question
       component: "sv-paneldynamic-progress-text",
       data: { question: this }
     });
-    const addBtn = this.addPanelAction;
+    const addBtn = new Action({
+      id: "sv-pd-add-btn",
+      action: () => {
+        this.addPanelUI();
+      },
+      locTitle: this.locAddPanelText,
+      innerCss: this.getAddButtonCss()
+    });
     items.push(prevTextBtn, nextTextBtn, addBtn, progressText);
     this.updateFooterActionsCallback = () => {
       const isRenderModeList = this.isRenderModeList;

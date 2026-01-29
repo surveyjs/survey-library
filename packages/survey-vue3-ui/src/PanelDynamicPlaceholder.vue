@@ -8,7 +8,7 @@
         :locString="question.locNoEntriesText"
       ></SvComponent>
     </span>
-    <SvComponent :is="'sv-action'" v-if="question.canAddPanel" :item="question.addPanelAction" />
+    <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar"></SvComponent>
   </div>
 </template>
 

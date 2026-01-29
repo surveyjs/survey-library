@@ -678,6 +678,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       }
     });
   }
+  private inputElementValue: HTMLElement;
+  public setInputElement(val: HTMLElement) {
+    this.inputElementValue = val;
+  }
+  public getInputElement() {
+    return this.inputElementValue;
+  }
 }
 
 export class ActionDropdownViewModel {

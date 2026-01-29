@@ -989,7 +989,7 @@ export class QuestionMatrixModel
     const col = ItemValue.getItemByValue(this.columns, val);
     return !!col && col.isVisible ? col : null;
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (rows.length > 0 && this.visibleColumns.length > 0) {

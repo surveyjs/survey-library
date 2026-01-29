@@ -75,6 +75,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   IActionBarItemProps,
   any
 > {
+  private ref: React.RefObject<any> = React.createRef();
   get item(): Action {
     return this.props.item;
   }
@@ -114,6 +115,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
     const tabIndex = this.item.disableTabStop ? -1 : undefined;
     const button = attachKey2click(
       <button
+        ref={this.ref}
         className={className}
         type="button"
         disabled={this.item.disabled}
@@ -131,6 +133,14 @@ export class SurveyActionBarItem extends SurveyElementBase<
       </button>, this.item, { processEsc: false });
 
     return button;
+  }
+  componentDidMount(): void {
+    super.componentDidMount();
+    this.props.item.setInputElement(this.ref.current);
+  }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    this.props.item.setInputElement(undefined);
   }
 }
 

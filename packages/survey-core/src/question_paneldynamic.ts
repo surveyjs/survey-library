@@ -332,13 +332,13 @@ export class QuestionPanelDynamicModel extends Question
     if (this.showAddPanelButton && (!withError || this.currentErrorCount > 0)) return this;
     return null;
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     const question = this.getFirstQuestionToFocus(false);
     if (question && question !== this) return question.inputId;
-    if (this.showAddPanelButton) return this.addButtonId;
+    if (this.showAddPanelButton) return () => this.addPanelAction.getInputElement();
     return super.getFirstInputElementId();
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     const question = this.getFirstQuestionToFocus(true);
     return question ? question.inputId : super.getFirstErrorInputElementId();
   }
@@ -1864,9 +1864,9 @@ export class QuestionPanelDynamicModel extends Question
         this.removePanelCore(visIndex);
         const pnlCount = this.visiblePanelCount;
         const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
-        let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
-        if (!!id) {
-          SurveyElement.FocusElement(id, true, this.survey?.rootElement);
+        const element = pnlCount === 0 ? () => this.addPanelAction.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex]).getInputElement() : "");
+        if (!!element) {
+          SurveyElement.FocusElement(element, true, this.survey?.rootElement);
         }
       };
       if (confirmDelete) {
@@ -2841,7 +2841,7 @@ export class QuestionPanelDynamicModel extends Question
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
       addBtn.visible = this.canAddPanel;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
-      progressText.visible = !this.isRenderModeList && !isMobile;
+      progressText.visible = !this.isRenderModeList && !isMobile && !this.getShowNoEntriesPlaceholder();
       progressText.needSpace = !this.isMobile;
     };
     this.updateFooterActionsCallback();

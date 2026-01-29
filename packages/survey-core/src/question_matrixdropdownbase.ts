@@ -2494,11 +2494,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     var question = this.getFirstCellQuestion(false);
     return question ? question.inputId : super.getFirstInputElementId();
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     var question = this.getFirstCellQuestion(true);
     return question ? question.inputId : super.getFirstErrorInputElementId();
   }

@@ -1,5 +1,6 @@
 <template>
   <button
+    ref="root"
     :class="item.getActionBarItemCss()"
     type="button"
     v-on:click="
@@ -53,6 +54,14 @@ import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { Action } from "survey-core";
 import StringViewer from "@/StringViewer.vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 const props = defineProps<{ item: Action }>();
+const root = ref<HTMLElement>();
 useBase(() => props.item);
+onMounted(() => {
+    props.item.setInputElement(root.value as HTMLElement);
+})
+onBeforeUnmount(() => {
+  props.item.setInputElement(undefined as any);
+})
 </script>

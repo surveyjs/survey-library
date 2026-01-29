@@ -151,13 +151,9 @@ export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
     return (
       <div className={cssClasses.noEntriesPlaceholder}>
         <span>{this.renderLocString(question.locNoEntriesText)}</span>
-        {this.renderAddRowButton(question)}
+        {<SurveyActionBar model={this.props.question.footerToolbar}></SurveyActionBar>}
       </div>
     );
-  }
-  protected renderAddRowButton(question: QuestionPanelDynamicModel): React.JSX.Element {
-    if (!question.canAddPanel) return null;
-    return <SurveyAction item={question.addPanelAction}></SurveyAction>;
   }
 }
 

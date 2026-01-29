@@ -560,7 +560,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await expect(page.getByRole("button", { name: "Add new" })).toBeFocused();
+      await expect(page.locator("button[title='Add new']")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "name" })).toBeFocused();
       await page.keyboard.type("123");
@@ -596,7 +596,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.waitForTimeout(200);
       await page.keyboard.press("Space");
-      await expect(page.getByRole("button", { name: "Add new" })).toBeFocused();
+      await expect(page.locator("button[title='Add new']")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "name" }).first()).toBeFocused();
       await page.keyboard.type("123");

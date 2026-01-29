@@ -62,9 +62,7 @@ import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
 import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import MatrixDynamicPlaceholder from "./MatrixDynamicPlaceholder.vue";
-import RemoveButton from "./components/matrix-actions/remove-button/RemoveButton.vue";
 import DragDropIcon from "./components/matrix-actions/drag-drop-icon/DragDropIcon.vue";
-import DetailButton from "./components/matrix-actions/detail-button/DetailButton.vue";
 
 import PanelDynamic from "./PanelDynamic.vue";
 import PanelDynamicProgress from "./PanelDynamicProgress.vue";
@@ -236,9 +234,7 @@ function registerComponents(
   registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   registerComponent("survey-matrixdynamic", MatrixDynamic);
   registerComponent("survey-placeholder-matrixdynamic", MatrixDynamicPlaceholder);
-  registerComponent("sv-matrix-remove-button", RemoveButton);
   registerComponent("sv-matrix-drag-drop-icon", DragDropIcon);
-  registerComponent("sv-matrix-detail-button", DetailButton);
 
   registerComponent("survey-paneldynamic", PanelDynamic);
   registerComponent("survey-paneldynamicprogress", PanelDynamicProgress);

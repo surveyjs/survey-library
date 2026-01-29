@@ -1,23 +1,6 @@
 <template>
   <div ref="root">
-    <div
-      v-if="question.renderedTable.showAddRowOnTop"
-      :class="question.cssClasses.footer"
-    >
-      <button
-        type="button"
-        :class="question.getAddRowButtonCss()"
-        @click="addRowClick"
-      >
-        <SvComponent
-          :is="'survey-string'"
-          :locString="question.locAddRowText"
-        />
-        <span :class="question.cssClasses.iconAdd">
-          <svg v-if="question.cssClasses.iconAddId"><use :xlink:href="question.cssClasses.iconAddId"></use></svg>
-        </span>
-      </button>
-    </div>
+    <SvComponent v-if="question.getShowToolbar('top')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     <SvComponent
       :is="'survey-matrixtable'"
       v-if="question.renderedTable.showTable"
@@ -28,37 +11,17 @@
       v-else
       :question="question"
     />
-    <div
-      v-if="question.renderedTable.showAddRowOnBottom"
-      :class="question.cssClasses.footer"
-    >
-      <button
-        type="button"
-        :class="question.getAddRowButtonCss()"
-        @click="addRowClick"
-      >
-        <SvComponent
-          :is="'survey-string'"
-          :locString="question.locAddRowText"
-        />
-        <span :class="question.cssClasses.iconAdd">
-          <svg v-if="question.cssClasses.iconAddId"><use :xlink:href="question.cssClasses.iconAddId"></use></svg>
-        </span>
-      </button>
-    </div>
+    <SvComponent v-if="question.getShowToolbar('bottom')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixDynamicModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+import SvComponent from "@/SvComponent.vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionMatrixDynamicModel }>();
 const root = ref(null);
 useQuestion(props, root);
-const addRowClick = () => {
-  props.question.addRowUI();
-};
 </script>

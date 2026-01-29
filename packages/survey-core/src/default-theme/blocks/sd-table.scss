@@ -319,27 +319,25 @@
   }
 }
 
-.sd-table__cell--detail-button {
+.sd-table__cell--detail-button.sd-action--icon {
   border: none;
   background: transparent;
   border-radius: calcSize(2);
   padding: calcSize(1);
-  transition: background $transition-duration;
+  transition: background-color $transition-duration;
 
-  svg {
+  .sd-action__icon {
     display: block;
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);
-    fill: $font-questiondescription-color;
-    transition: fill $transition-duration;
   }
 
   &:hover,
   &:focus {
-    background: $primary-light;
+    background-color: $primary-light;
     outline: none;
 
-    svg {
+    use {
       fill: $primary;
     }
   }

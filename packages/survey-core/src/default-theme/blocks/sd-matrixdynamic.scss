@@ -7,8 +7,7 @@
   z-index: 12;
 }
 
-.sd-question--mobile .sd-matrixdynamic__footer::before
-{
+.sd-question--mobile .sd-matrixdynamic__footer::before {
   z-index: 12;
   content: " ";
   display: block;
@@ -31,27 +30,13 @@
 .sd-matrixdynamic__footer {
   padding-top: calcSize(2);
 }
-
-.sd-action.sd-matrixdynamic__remove-btn {
+.sd-matrixdynamic__remove-btn {
   opacity: 0.5;
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
 }
-
-.sd-action.sd-matrixdynamic__remove-btn .sd-action__icon {
-  width: multiply(1.5, $font-editorfont-size);
-  height: multiply(1.5, $font-editorfont-size);
-}
-
-.sd-matrixdynamic__btn {
-  appearance: none;
-  background: transparent;
-  border: none;
-  line-height: calcLineHeight(1.5);
-  font-size: calcFontSize(1);
-  font-family: $font-family;
-  font-weight: 600;
-  padding: calcSize(1) 0;
-}
-
 .sd-matrixdynamic__drag-element {
   padding: calcSize(2);
 
@@ -83,7 +68,7 @@
 }
 
 .sd-table__cell.sd-table__cell--drag {
-  >div {
+  > div {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -129,9 +114,11 @@
 }
 
 @keyframes empty {
-  from {}
+  from {
+  }
 
-  to {}
+  to {
+  }
 }
 
 .sd-table__row--leave,
@@ -141,7 +128,7 @@
   --fade-whole-animation-duration: calc(var(--fade-animation-duration) + var(--fade-animation-delay));
   animation-duration: max(var(--fade-whole-animation-duration), var(--move-whole-animation-duration));
 
-  &>td {
+  & > td {
     animation-name: borderAnimation;
     animation-direction: var(--animation-direction);
     animation-timing-function: var(--animation-timing-function);
@@ -149,7 +136,7 @@
     animation-fill-mode: forwards;
     animation-delay: var(--move-animation-delay);
 
-    &>div {
+    & > div {
       animation-name: fadeIn, moveInWithOverflow;
       opacity: 0;
       animation-direction: var(--animation-direction);
@@ -180,10 +167,9 @@
 }
 
 .sd-table__row--detail {
-
   &.sd-table__row--enter,
   &.sd-table__row--leave {
-    &>td {
+    & > td {
       animation-name: borderAnimation, paddingAnimation;
       animation-duration: var(--move-animation-duration);
       animation-fill-mode: forwards;

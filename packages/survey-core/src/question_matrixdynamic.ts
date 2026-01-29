@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
 import { Question, QuestionValueGetterContext } from "./question";
@@ -22,6 +22,8 @@ import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
+import { ActionContainer } from "./actions/container";
+import { ComputedUpdater } from "./base";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -104,9 +106,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "hideColumnsIfEmpty" || name === "allowAddRows") {
-      this.updateShowTableAndAddRow();
-    }
     const resetTableProps = ["allowRowReorder", "isReadOnly", "lockedRowCount"];
     if (resetTableProps.indexOf(name) > -1) {
       this.resetRenderedTable();
@@ -662,11 +661,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   public focusAddBUtton(): void {
-    const rootElement = this.getRootElement();
-    if (!!rootElement && !!this.cssClasses.buttonAdd) {
-      const addButton = rootElement.querySelectorAll("." + this.cssClasses.buttonAdd)[0] as HTMLButtonElement;
-      addButton && addButton.focus();
-    }
+    this.toolbar.getActionById("sv-md-add-btn")?.getInputElement()?.focus();
   }
   public getActionCellIndex(row: MatrixDropdownRowModelBase): number {
     const headerShift = this.showHeader ? 1 : 0;
@@ -1177,21 +1172,44 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!res && create) res = {};
     return res;
   }
-  public getAddRowButtonCss(isEmptySection: boolean = false): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonAdd)
-      .append(this.cssClasses.emptyRowsButton, isEmptySection)
-      .toString();
-  }
-  public getRemoveRowButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.button)
-      .append(this.cssClasses.buttonRemove)
-      .toString();
-  }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, !this.renderedTable?.showTable).toString();
+  }
+  public getShowToolbar(location?: "top" | "bottom") {
+    const showToolbar = !this.isDesignMode && this.canAddRow;
+    if (!location) return showToolbar;
+    if (this.renderedTable.showTable && showToolbar) {
+      if (this.getAddRowLocation() === "default") {
+        return this.isColumnLayoutHorizontal ? location == "bottom" : location == "top";
+      } else {
+        return this.getAddRowLocation().toLowerCase().indexOf(location) >= 0;
+      }
+    }
+    return false;
+  }
+  private initFooterToolbar() {
+    this.toolbarValue = this.createActionContainer();
+    const addBtnAction = new Action({
+      locTitle: this.locAddRowText,
+      visible: new ComputedUpdater(() => this.canAddRow),
+      action: () => {
+        this.addRowUI();
+      },
+      innerCss: new ComputedUpdater(() => new CssClassBuilder().append(this.cssClasses.button).append(this.cssClasses.buttonAdd).toString()) as any as string,
+      id: "sv-md-add-btn"
+    });
+    this.toolbarValue.containerCss = this.cssClasses.footer;
+    this.toolbarValue.addAction(addBtnAction);
+  }
+  private toolbarValue: ActionContainer;
+  public get toolbar(): ActionContainer {
+    if (!this.toolbarValue) {
+      this.initFooterToolbar();
+    }
+    return this.toolbarValue;
+  }
+  public getTableCss(): string {
+    return new CssClassBuilder().append(super.getTableCss()).append(this.cssClasses.hasFooter, !!this.getShowToolbar("bottom")).toString();
   }
 }
 

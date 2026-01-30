@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
 
 frameworks.forEach(framework => {
   test.beforeEach(async ({ page }) => {
@@ -551,7 +551,7 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = page.locator(".sd-question");
-      await page.getByRole("button").getByText("Complete").click();
+      await getButtonByText(page, "Complete").click();
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-required.png", 0);
       await questionRoot.nth(0).locator(".sd-rating__item-smiley").nth(1).hover();

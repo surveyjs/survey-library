@@ -589,7 +589,7 @@
   }
 
   .sd-table__row--expanded {
-    .sd-table__cell-action--show-detail-mobile {
+    .sd-table__cell-action--show-detail {
       display: none;
     }
   }
@@ -646,7 +646,7 @@
   }
 
   .sd-table:not(.sd-table--has-footer) .sd-table__row:last-of-type {
-    .sd-table__cell-action--show-detail-mobile,
+    .sd-table__cell-action--show-detail,
     .sd-table__cell-action--remove-row {
       margin-bottom: calcSize(-2);
     }

@@ -1,8 +1,12 @@
 <ng-template #template>
   <div #contentElement>
-    <sv-ng-action-bar *ngIf="model.getShowToolbar('top')" [model]="model.toolbar"></sv-ng-action-bar>
+    <div *ngIf="model.getShowToolbar('top')" [class]="model.cssClasses.footer">
+      <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
+    </div>
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
     <sv-ng-placeholder-matrixdynamic *ngIf="!model.renderedTable.showTable" [question]="model"></sv-ng-placeholder-matrixdynamic>
-    <sv-ng-action-bar *ngIf="model.getShowToolbar('bottom')" [model]="model.toolbar"></sv-ng-action-bar>
+    <div *ngIf="model.getShowToolbar('bottom')" [class]="model.cssClasses.footer">
+      <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
+    </div>
   </div>
 </ng-template>

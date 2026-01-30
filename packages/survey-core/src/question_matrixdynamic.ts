@@ -1198,7 +1198,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       innerCss: new ComputedUpdater(() => new CssClassBuilder().append(this.cssClasses.button).append(this.cssClasses.buttonAdd).toString()) as any as string,
       id: "sv-md-add-btn"
     });
-    this.toolbarValue.containerCss = this.cssClasses.footer;
     this.toolbarValue.addAction(addBtnAction);
   }
   private toolbarValue: ActionContainer;

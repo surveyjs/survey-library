@@ -1,6 +1,8 @@
 <template>
   <div ref="root">
-    <SvComponent v-if="question.getShowToolbar('top')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    <div v-if="question.getShowToolbar('top')" :class="question.cssClasses.footer">
+      <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    </div>
     <SvComponent
       :is="'survey-matrixtable'"
       v-if="question.renderedTable.showTable"
@@ -11,7 +13,9 @@
       v-else
       :question="question"
     />
-    <SvComponent v-if="question.getShowToolbar('bottom')" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    <div v-if="question.getShowToolbar('bottom')" :class="question.cssClasses.footer">
+      <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
+    </div>
   </div>
 </template>
 

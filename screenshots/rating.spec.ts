@@ -551,7 +551,7 @@ frameworks.forEach(framework => {
       });
 
       const questionRoot = page.locator(".sd-question");
-      await page.click("input[value=Complete]");
+      await page.getByRole("button").getByText("Complete").click();
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-required.png", 0);
       await questionRoot.nth(0).locator(".sd-rating__item-smiley").nth(1).hover();

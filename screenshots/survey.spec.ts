@@ -630,7 +630,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
-      await page.click("input[value=\"Complete\"]");
+      await page.getByRole("button").getByText("Complete").click();
       await compareScreenshot(page, ".sv-save-data_root", "save-data-saving.png");
       await page.evaluate(() => {
         (window as any).Survey.settings.notifications.lifetime = 2000;
@@ -662,7 +662,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
-      await page.click("input[value=\"Complete\"]");
+      await page.getByRole("button").getByText("Complete").click();
       await compareScreenshot(page, ".sv-save-data_root.sv-save-data_error", "save-data-error.png");
       await page.evaluate(() => {
         (window as any).survey.notify("An error occurred and we could not save the results.", "error", false);
@@ -698,7 +698,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
-      await page.click("input[value=\"Complete\"]");
+      await page.getByRole("button").getByText("Complete").click();
       await compareScreenshot(page, ".sv-save-data_root.sv-save-data_success", "save-data-success.png");
       await page.evaluate(() => {
         (window as any).Survey.settings.notifications.lifetime = 2000;
@@ -1294,12 +1294,12 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
 
-      await page.click("input[title='Complete']");
+      await page.getByRole("button").getByText("Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-page-with-error-with-title.png");
       await page.evaluate(() => (window as any).survey.isCompact = true);
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-page-with-error-with-title.png");
       await page.evaluate(() => { (window as any).survey.questionsOnPageMode = "singlePage"; });
-      await page.click("input[title='Complete']");
+      await page.getByRole("button").getByText("Complete").click();
       // if (framework !== "vue" && framework !== "knockout") {
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-spm-page-with-error-with-title.png");
       // }
@@ -1329,12 +1329,12 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
 
-      await page.click("input[title='Complete']");
+      await page.getByRole("button").getByText("Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-page-with-error-without-title.png");
       await page.evaluate(() => (window as any).survey.isCompact = true);
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-page-with-error-without-title.png");
       await page.evaluate(() => { (window as any).survey.questionsOnPageMode = "singlePage"; });
-      await page.click("input[title='Complete']");
+      await page.getByRole("button").getByText("Complete").click();
       await compareScreenshot(page, ".sd-root-modern", "survey-compact-spm-page-with-error-without-title.png");
       await page.evaluate(() => (window as any).survey.isCompact = false);
       await compareScreenshot(page, ".sd-root-modern", "survey-spm-page-with-error-without-title.png");

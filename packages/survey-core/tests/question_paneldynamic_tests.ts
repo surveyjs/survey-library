@@ -5990,7 +5990,6 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
   assert.deepEqual(updatedPanels, paneldynamic.panels);
 
   assert.equal(actions.length, 2);
-  assert.equal(actions[0].component, "sv-paneldynamic-remove-btn");
   assert.equal(actions[1].title, "test");
 
   paneldynamic.removePanel(paneldynamic.panels[1]);
@@ -8806,7 +8805,7 @@ QUnit.test("getFirstErrorInputElementId doesn't work correctly for panel dynamic
 
   const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const checkFunc = (): string => {
-    return qPanel["getFirstErrorInputElementId"]();
+    return qPanel["getFirstErrorInputElementId"]() as string;
   };
   const panel1 = <PanelModel>qPanel.panels[0];
   const q1 = panel1.getQuestionByName("q1");

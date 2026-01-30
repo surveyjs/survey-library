@@ -1861,7 +1861,7 @@ export class QuestionPanelDynamicModel extends Question
         this.removePanelCore(visIndex);
         const pnlCount = this.visiblePanelCount;
         const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
-        const element = pnlCount === 0 ? () => this.addPanelAction.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex]).getInputElement() : "");
+        const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
         if (!!element) {
           SurveyElement.FocusElement(element, true, this.survey?.rootElement);
         }
@@ -2398,6 +2398,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private removePanelActions: {[index: number]: Action} = { };
   public getRemovePanelAction(panel: PanelModel) {
+    if (!panel) return undefined;
     if (!this.removePanelActions[panel.uniqueId]) {
       const action = new Action({
         id: `remove-panel-${panel.id}`,

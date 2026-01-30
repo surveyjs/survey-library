@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, test, expect, checkSurveyData } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, test, expect, checkSurveyData, getButtonByText } from "../helper";
 
 const title = "matrix";
 
@@ -34,7 +34,7 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator("tr").filter({ hasText: "Product is easy to use" }).locator(".sd-item__decorator").nth(4).click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality["easy to use"]).toBe(5);
@@ -43,7 +43,7 @@ frameworks.forEach((framework) => {
     test("choose several values", async ({ page }) => {
       await page.locator("tr").filter({ hasText: "Product does what it claims" }).locator(".sd-item__decorator").nth(3).click();
       await page.locator("tr").filter({ hasText: "Product is easy to use" }).locator(".sd-item__decorator").nth(4).click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality).toEqual({
@@ -54,7 +54,7 @@ frameworks.forEach((framework) => {
 
     test("require answer for all rows", async ({ page }) => {
       await setOptions(page, "Quality", { isAllRowRequired: true });
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       await expect(page.locator(".sv-string-viewer").getByText("Response required: answer questions in all rows.")).toBeVisible();
 
       let surveyResult = await getSurveyResult(page);
@@ -64,7 +64,7 @@ frameworks.forEach((framework) => {
       await page.locator("tr").filter({ hasText: "Product does what it claims" }).locator(".sd-item__decorator").nth(3).click();
       await page.locator("tr").filter({ hasText: "Product is better than other" }).locator(".sd-item__decorator").nth(1).click();
       await page.locator("tr").filter({ hasText: "Product is easy to use" }).locator(".sd-item__decorator").nth(4).click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality).toEqual({

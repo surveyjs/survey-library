@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "cookie";
 
@@ -44,7 +44,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       await firstElement.click();
-      await page.click("button[title=Complete]");
+      await getButtonByText(page, "Complete").click();
       await page.goto("about:blank");
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);

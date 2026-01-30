@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection, test, expect, getButtonByText } from "../helper";
 
 const title = "checkboxes";
 
@@ -48,7 +48,7 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-item__control-label").getByText("Audi").click();
       await page.locator(".sd-item__control-label").getByText("Vauxhall").click();
       await page.locator(".sd-item__control-label").getByText("None").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual(["none"]);
@@ -56,7 +56,7 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator(".sd-item__control-label").getByText("Nissan").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual(["Nissan"]);
@@ -65,7 +65,7 @@ frameworks.forEach((framework) => {
     test("choose several values", async ({ page }) => {
       await page.locator(".sd-item__control-label").getByText("BMW").click();
       await page.locator(".sd-item__control-label").getByText("Nissan").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual(["BMW", "Nissan"]);
@@ -267,7 +267,7 @@ frameworks.forEach((framework) => {
 
       await page.locator("span").getByText("Other (describe)").click();
       await getOtherInput().fill("Zaporozec");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toStrictEqual(["other"]);
@@ -287,7 +287,7 @@ frameworks.forEach((framework) => {
 
       await page.locator("span").getByText("Other (describe)").click();
       await getOtherInput().fill("New_Producer");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual(["New_Producer"]);
@@ -307,7 +307,7 @@ frameworks.forEach((framework) => {
       await page.locator("span").getByText("Other (describe)").click();
       await getOtherInput().click();
       await page.keyboard.type("Comment");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual(["other"]);
@@ -330,7 +330,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
       await getOtherInput().pressSequentially("cd  ");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toStrictEqual(["other"]);
@@ -423,7 +423,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Delete");
       await getOtherInput().fill("Other value");
       await getCommentInput().fill("Comment value");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toStrictEqual(["Other value"]);
@@ -497,7 +497,7 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-item__control-label").getByText("Ford").click({ force: true });
       await page.locator(".sd-item__control-label").getByText("Audi").click({ force: true });
       await page.locator(".sd-item__control-label").getByText("BMW").click({ force: true });
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual(["Nissan", "BMW"]);
@@ -543,7 +543,7 @@ frameworks.forEach((framework) => {
       await checks.nth(2).click({ force: true });
       await checks.nth(3).click({ force: true });
       await checks.nth(4).click({ force: true });
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1.row1.col1).toEqual(["a", "b"]);

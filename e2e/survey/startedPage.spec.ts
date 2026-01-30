@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "First Page is Started";
 
@@ -16,9 +16,9 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
       await page.locator("input[type=text]").fill("Jon Snow");
-      await page.locator("button[title=Start]").click();
+      await getButtonByText(page, "Start").click();
       await page.locator("input[type=text]").fill("Winterfell");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         name: "Jon Snow",

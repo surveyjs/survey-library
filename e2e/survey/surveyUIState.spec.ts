@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "Restore survey state";
 
@@ -30,7 +30,7 @@ frameworks.forEach((framework) => {
       });
       await page.waitForTimeout(100);
       await page.keyboard.type("abc");
-      await page.click("button[title=Complete]");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -94,7 +94,7 @@ frameworks.forEach((framework) => {
       const q3 = page.locator("div[data-name=q3] input");
       await expect(q3).toBeVisible();
       await page.keyboard.type("abc");
-      await page.click("button[title=Complete]");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleListItemByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, checkSurveyWithEmptyQuestion, test, expect, getVisibleListItemByText, getButtonByText } from "../helper";
 import { registerCustomItemComponent } from "../registerCustomComponents";
 
 const title = "Dropdown question";
@@ -64,7 +64,7 @@ frameworks.forEach((framework) => {
     test("choose value", async ({ page }) => {
       await page.locator(".sd-dropdown").first().click();
       await getVisibleListItemByText(page, "Nissan").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("Nissan");
@@ -211,7 +211,7 @@ frameworks.forEach((framework) => {
       await page.locator(".sd-dropdown").first().click();
       await getVisibleListItemByText(page, "Other").click();
       await page.locator("textarea").fill("Zaporozec");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("other");
@@ -1952,7 +1952,7 @@ frameworks.forEach((framework) => {
       await page.locator(".sv-list__item span").filter({ hasText: "item2" }).filter({ visible: true }).click();
       await page.locator("textarea").fill("ABC");
       await page.locator(".sd-editor-clean-button").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ "q1-Comment": "ABC" });
@@ -1981,7 +1981,7 @@ frameworks.forEach((framework) => {
       await getVisibleListItemByText(page, "Other").click();
       await expect(page.getByRole("textbox", { name: "row row1, column col1" })).toBeFocused();
       await page.keyboard.type("ABC");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: { row1: { col1: "other", "col1-Comment": "ABC" } } });

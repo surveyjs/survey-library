@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "setValueTrigger";
 
@@ -91,7 +91,7 @@ frameworks.forEach((framework) => {
     });
 
     test("check visibility", async ({ page }) => {
-      const completeSelector = page.locator("button[title=Complete]").filter({ visible: true });
+      const completeSelector = getButtonByText(page, "Complete").filter({ visible: true });
       const yesSelector = page.locator("label").filter({ hasText: "Yes" }).locator("span").first();
 
       await yesSelector.click();

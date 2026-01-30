@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "customCss";
 
@@ -44,7 +44,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const completeButton = page.locator("button[title=Complete]");
+      const completeButton = getButtonByText(page, "Complete");
       await expect(completeButton).toHaveClass(/btn-lg/);
     });
   });

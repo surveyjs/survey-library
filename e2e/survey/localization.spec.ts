@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "localization";
 
@@ -88,27 +88,27 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         window["survey"].locale = "ru";
       });
-      await page.hover('button[title="Далее"]'); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      await getButtonByText(page, "Далее").hover(); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
       await page.evaluate(() => {
         window["survey"].locale = "en";
       });
-      await page.hover('button[title="Next"]');
+      await getButtonByText(page, "Next").hover();
 
       await page.evaluate(() => {
         window["survey"].locale = "de";
       });
-      await page.hover('button[title="Weiter"]');
+      await getButtonByText(page, "Weiter").hover();
 
       await page.evaluate(() => {
         window["survey"].locale = "fi";
       });
-      await page.hover('button[title="Seuraava"]');
+      await getButtonByText(page, "Seuraava").hover();
 
       await page.evaluate(() => {
         window["survey"].locale = "fr";
       });
-      await page.hover('button[title="Suivant"]');
+      await getButtonByText(page, "Suivant").hover();
     });
 
     test("check dropdown localization", async ({ page }) => {

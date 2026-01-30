@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, test, expect, getButtonByText } from "../helper";
 
 const title = "imagepicker question";
 
@@ -52,7 +52,7 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(2)").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.choosepicture).toBe("giraffe");

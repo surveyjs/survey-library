@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect, getButtonByText } from "../helper";
 
 const title = "multiple comments support in select questions";
 
@@ -59,7 +59,7 @@ frameworks.forEach((framework) => {
 
       const finalResult = { "q1": { "value": "c", "comment": "Comment for c" } };
       expect(await getData(page)).toEqual(finalResult);
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
     });
     test("multiple comment support in radiogroup", async ({ page }) => {
@@ -100,7 +100,7 @@ frameworks.forEach((framework) => {
 
       const finalResult = { "q1": "other", "q1-Comment": "Comment for d" };
       expect(await getData(page)).toEqual(finalResult);
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
     });
     test("multiple comment support in checkbox", async ({ page }) => {
@@ -145,7 +145,7 @@ frameworks.forEach((framework) => {
         { value: "c", "comment": "Comment for c" }, { value: "Comment for d" }] };
       expect(await getData(page)).toEqual(finalResult);
 
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
     });
   });

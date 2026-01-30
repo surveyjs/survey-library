@@ -1,4 +1,4 @@
-import { frameworks, url, test, expect } from "../helper";
+import { frameworks, url, test, expect, getButtonByText } from "../helper";
 
 const title = "popupSurvey";
 
@@ -101,7 +101,7 @@ frameworks.forEach((framework) => {
       await expandCollapseButton.click();
       await page.locator(".sd-item__control-label", { hasText: "Nissan" }).click();
       await page.locator(".sd-item__control-label", { hasText: "Audi" }).click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await page.evaluate(() => window["SurveyResult"]);
       expect(surveyResult.car).toEqual(["Nissan", "Audi"]);

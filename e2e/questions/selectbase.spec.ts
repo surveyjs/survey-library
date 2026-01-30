@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "selectbase";
 
@@ -52,7 +52,7 @@ frameworks.forEach((framework) => {
       expect(phoneChoiceItem.isVisible).toBeTruthy();
 
       phoneChoiceItem.fill("+1-111-11");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         checkbox: ["phone_call"],
@@ -103,7 +103,7 @@ frameworks.forEach((framework) => {
       expect(phoneChoiceItem.isVisible).toBeTruthy();
 
       phoneChoiceItem.fill("+1-111-11");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         checkbox: "phone_call",

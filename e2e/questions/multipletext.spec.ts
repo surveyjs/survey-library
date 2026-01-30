@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, test, expect, getButtonByText } from "../helper";
 
 const title = "multipletext";
 
@@ -50,7 +50,7 @@ frameworks.forEach((framework) => {
       let surveyResult;
       await page.locator("tr > td:nth-child(1) input").fill("All my money");
       await page.locator("tr > td:nth-child(2) input").fill("Zero");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       surveyResult = await getSurveyResult(page);
 

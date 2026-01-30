@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, urlV2, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, urlV2, test, expect, getButtonByText } from "../helper";
 
 const title = "rating";
 
@@ -30,7 +30,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       const label3 = page.locator("label").filter({ hasText: "3" });
       await label3.click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -157,7 +157,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, jsonStars);
       const label3 = page.locator(".sd-rating__item-star").nth(2);
       await label3.click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -182,7 +182,7 @@ frameworks.forEach(framework => {
       const label3 = page.locator(".sd-rating__item-smiley").nth(2);
 
       await label3.click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         satisfaction: 3
@@ -223,7 +223,7 @@ frameworks.forEach(framework => {
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("ArrowRight");
 
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
 
       expect(surveyResult).toEqual({

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "autoAdvanceEnabled";
 
@@ -25,9 +25,9 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       await page.locator("input[type=text]").first().fill("val1");
-      await page.locator("button[title=Next]").click();
+      await getButtonByText(page, "Next").click();
       await page.locator("input[type=text]").first().fill("val2");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getData, setOptions, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getData, setOptions, test, expect, getButtonByText } from "../helper";
 
 const title = "file";
 const folderPath = "../../resources/";
@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
     test("choose file", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
       await page.locator("input[type=file] + div label").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -71,7 +71,7 @@ frameworks.forEach((framework) => {
     test("choose multiple files", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg"]);
       await page.locator("input[type=file] + div label").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image.length).toBe(2);
@@ -94,7 +94,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "logo.jpg");
       await page.locator("input[type=file] + div label").click();
       await page.locator("img").hover();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image[0].content.indexOf("image/jpeg")).not.toBe(-1);
@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file] + div label").click();
       await expect(page.locator("img")).not.toBeVisible();
 
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image[0].content.indexOf("image/jpeg")).not.toBe(-1);
     });
@@ -115,7 +115,7 @@ frameworks.forEach((framework) => {
       await setOptions(page, "image", { storeDataAsText: false });
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
       await page.locator("input[type=file] + div label").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({});
@@ -263,11 +263,11 @@ frameworks.forEach((framework) => {
     test("choose file actions readOnly are reactive", async ({ page }) => {
       await page.locator(".sd-file input[type=file] + div label").click();
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
-      await expect(page.locator("button[title='Clear']")).not.toHaveAttribute("disabled");
+      await expect(getButtonByText(page, "Clear")).not.toHaveAttribute("disabled");
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].readOnly = true;
       });
-      await expect(page.locator("button[title='Clear']")).toHaveAttribute("disabled");
+      await expect(getButtonByText(page, "Clear")).toHaveAttribute("disabled");
     });
   });
 });

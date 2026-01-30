@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "Test text markdown";
 
@@ -46,7 +46,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
 
       await page.locator(".markdownclass", { hasText: "*item 2*" }).click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.question1).toEqual([2]);
@@ -77,7 +77,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.locator(".markdownclass", { hasText: "*choice 2*" }).click();
       await page.waitForTimeout(500);
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.question2).toEqual(2);

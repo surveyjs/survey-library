@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getVisibleListItemByText, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getVisibleListItemByText, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "component_single_question";
 const questionDropdownSelect = ".sd-dropdown";
@@ -48,7 +48,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json_question);
       await page.locator(questionDropdownSelect).click();
       await getVisibleListItemByText(page, "b").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1).toBe("b");
     });
@@ -58,7 +58,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json_matrix);
       await page.locator(questionDropdownSelect).click();
       await getVisibleListItemByText(page, "b").click();
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.matrix[0].col1).toBe("b");
     });

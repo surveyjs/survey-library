@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, setOptions, test, expect, getButtonByText } from "../helper";
 
 const title = "comment";
 
@@ -287,7 +287,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("puppies");
       await page.keyboard.press("Enter");
       await page.keyboard.type("money");
-      await page.locator("button[title=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ suggestions: "puppies\nmoney" });

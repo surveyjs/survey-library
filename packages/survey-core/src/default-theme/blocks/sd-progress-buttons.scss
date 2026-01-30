@@ -335,7 +335,18 @@
   .sd-progress-buttons__list {
     li {
       &:not(:first-child) > .sd-progress-buttons__connector {
-        transform: translateX(100%);
+        transform: translateX(calc(100% + 20px));
+      }
+    }
+  }
+
+  .sd-root-modern--mobile,
+  .sd-progress-buttons--no-titles {
+    .sd-progress-buttons__list {
+      li {
+        &:not(:first-child) > .sd-progress-buttons__connector {
+          transform: translateX(100%);
+        }
       }
     }
   }

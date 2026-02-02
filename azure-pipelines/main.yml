@@ -21,18 +21,16 @@ resources:
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
   CurrentBranch: $(Build.SourceBranchName)
+  ProjectId: "d79f2855-7b94-4261-9daf-4cace0a06c03"
 
-# trigger:
-#   batch: true
-#   branches:
-#     include:
-#       - master
-#       - V3
-#   tags:
-#     exclude:
-#       - v*.*.*
-
-trigger: none
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  tags:
+    exclude:
+      - v*.*.*
 pr: none
 
 pool:
@@ -114,7 +112,7 @@ jobs:
       - task: DownloadBuildArtifacts@0
         inputs:
           buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          project: "$(ProjectId)"
           pipeline: "47"
           buildVersionToDownload: "latest"
           downloadType: "single"
@@ -311,7 +309,7 @@ jobs:
       - task: DownloadBuildArtifacts@0
         inputs:
           buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          project: "$(ProjectId)"
           pipeline: "47"
           buildVersionToDownload: "latest"
           downloadType: "single"
@@ -466,7 +464,7 @@ jobs:
       - task: DownloadBuildArtifacts@0
         inputs:
           buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          project: "$(ProjectId)"
           pipeline: "47"
           buildVersionToDownload: "latest"
           downloadType: "single"
@@ -631,7 +629,7 @@ jobs:
       - task: DownloadBuildArtifacts@0
         inputs:
           buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          project: "$(ProjectId)"
           pipeline: "47"
           buildVersionToDownload: "latest"
           downloadType: "single"
@@ -795,7 +793,7 @@ jobs:
       - task: DownloadBuildArtifacts@0
         inputs:
           buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          project: "$(ProjectId)"
           pipeline: "47"
           buildVersionToDownload: "latest"
           downloadType: "single"

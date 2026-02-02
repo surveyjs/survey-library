@@ -754,8 +754,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.filteredChoicesValue = [];
     const calcVisibility = this.changeItemVisibility();
     const condition = this.areInvisibleElementsShowing ? null : this.getChoicesCondition("choicesVisibleIf");
+    const choices = this.activeChoices;
     return ItemValue.runConditionsForItems(
-      this.activeChoices,
+      choices,
       this.getFilteredChoices(),
       condition,
       properties,
@@ -763,7 +764,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       (item: ItemValue, val: boolean): boolean => {
         return !!calcVisibility ? calcVisibility(item, val) : val;
       }
-    );
+    ) || this.isCarryForwardChanged(choices);
+  }
+  private isCarryForwardChanged(choices: Array<ItemValue>): boolean {
+    if (!this.isUsingCarryForward) return false;
+    const visChoices = this.visibleChoices;
+    if (visChoices.length !== choices.length) return true;
+    for (let i = 0; i < choices.length; i++) {
+      if (visChoices[i].value !== choices[i].value) return true;
+    }
+    return false;
   }
   protected isOtherValue(val: any): boolean {
     if (Array.isArray(val)) {

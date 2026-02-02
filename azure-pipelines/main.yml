@@ -22,16 +22,17 @@ variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
   CurrentBranch: $(Build.SourceBranchName)
 
-trigger:
-  batch: true
-  branches:
-    include:
-      - master
-      - V3
-  tags:
-    exclude:
-      - v*.*.*
+# trigger:
+#   batch: true
+#   branches:
+#     include:
+#       - master
+#       - V3
+#   tags:
+#     exclude:
+#       - v*.*.*
 
+trigger: none
 pr: none
 
 pool:

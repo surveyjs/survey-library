@@ -644,11 +644,10 @@ export class OperandMaker {
       return true;
     },
     containsCore: function(left: any, right: any, isContains: any): boolean {
+      if (Array.isArray(left) && !left.length) return !isContains;
       if (!left && left !== 0 && left !== false) return false;
       if (!left.length) {
         left = left.toString();
-        if (typeof right === "string" || right instanceof String) {
-        }
       }
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;

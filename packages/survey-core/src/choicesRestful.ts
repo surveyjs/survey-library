@@ -552,7 +552,7 @@ export class ChoicesRestful extends Base {
     ChoicesRestful.unregisterSameRequests(this, items);
   }
   private setItemValueProperties(item: ItemValue, itemValue: any) {
-    const props = ["isExclusive", "showCommentArea", "isCommentRequired"];
+    const props = ["isExclusive", "showCommentArea", "isCommentRequired", "visibleIf", "enableIf"];
     props.forEach(propName => {
       if (itemValue[propName] !== undefined) {
         (item as any)[propName] = itemValue[propName];

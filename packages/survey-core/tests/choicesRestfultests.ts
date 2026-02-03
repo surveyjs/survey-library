@@ -992,7 +992,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Map isExclusive, showCommentArea, isCommentRequired property from restful automatically, #10865", (assert) => {
+QUnit.test("Map isExclusive, showCommentArea, isCommentRequired, visibleIf, enableIf property from restful automatically, #10865", (assert) => {
   const test = new ChoicesRestfulTester();
   const question = new QuestionCheckboxModel("q1");
   test.createItemValue = (item: any): ItemValue => {
@@ -1005,24 +1005,30 @@ QUnit.test("Map isExclusive, showCommentArea, isCommentRequired property from re
     choices = res;
   };
   var loadedItems = [
-    { value: 1, text: "A", isExclusive: true },
+    { value: 1, text: "A", isExclusive: true, visibleIf: "{q1} notcontains 2" },
     { value: 2, text: "B", showCommentArea: true, isCommentRequired: true },
-    { value: 3, text: "C", showCommentArea: true }
+    { value: 3, text: "C", showCommentArea: true, enableIf: "{q1} contains 2" },
   ];
   test.doLoad(loadedItems);
   assert.equal(choices.length, 3, "There are 3 choices loaded");
   assert.equal(choices[0].getType(), "choiceitem", "It is choice item");
   assert.ok(choices[0].isExclusive, "isExclusive is set correctly [0]");
+  assert.equal(choices[0].visibleIf, "{q1} notcontains 2", "visibleIf is set correctly [0]");
+  assert.notOk(choices[0].enableIf, "enableIf is not set [0]");
   assert.equal(choices[0].showCommentArea, false, "showCommentArea is set correctly [0]");
   assert.equal(choices[0].isCommentRequired, false, "isCommentRequired is set correctly [0]");
 
   assert.notOk(choices[1].isExclusive, "isExclusive is set correctly [1]");
   assert.equal(choices[1].showCommentArea, true, "showCommentArea is set correctly [1]");
   assert.equal(choices[1].isCommentRequired, true, "isCommentRequired is set correctly [1]");
+  assert.notOk(choices[1].visibleIf, "visibleIf is not set [1]");
+  assert.notOk(choices[1].enableIf, "enableIf is not set [1]");
 
   assert.notOk(choices[2].isExclusive, "isExclusive is set correctly [2]");
   assert.equal(choices[2].showCommentArea, true, "showCommentArea is set correctly [2]");
   assert.equal(choices[2].isCommentRequired, false, "isCommentRequired is set correctly [2]");
+  assert.notOk(choices[2].visibleIf, "visibleIf is not set [2]");
+  assert.equal(choices[2].enableIf, "{q1} contains 2", "enableIf is set correctly [2]");
 });
 
 QUnit.test(

@@ -514,26 +514,27 @@ export class ChoicesRestful extends Base {
     if (!loadingObjHash) {
       loadingObjHash = this.objHash;
     }
-    var items = new Array<ItemValue>();
-    var updatedResult = this.getResultAfterPath(result);
+    let items = new Array<ItemValue>();
+    const updatedResult = this.getResultAfterPath(result);
     if (updatedResult && updatedResult["length"]) {
-      for (var i = 0; i < updatedResult.length; i++) {
-        var itemValue = updatedResult[i];
+      for (let i = 0; i < updatedResult.length; i++) {
+        const itemValue = updatedResult[i];
         if (!itemValue) continue;
-        var value = !!this.getItemValueCallback
+        const value = !!this.getItemValueCallback
           ? this.getItemValueCallback(itemValue)
           : this.getValue(itemValue);
-        var item = this.createItemValue(value);
+        const item = this.createItemValue(value);
         this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
         if (this.attachData) {
           item.originalItem = itemValue;
           item.data = itemValue;
         }
-        var imageLink = this.getImageLink(itemValue);
+        const imageLink = this.getImageLink(itemValue);
         if (!!imageLink) {
           item.imageLink = imageLink;
         }
+        this.setItemValueProperties(item, itemValue);
         items.push(item);
       }
     } else {
@@ -549,6 +550,14 @@ export class ChoicesRestful extends Base {
     }
     this.callResultCallback(items, loadingObjHash);
     ChoicesRestful.unregisterSameRequests(this, items);
+  }
+  private setItemValueProperties(item: ItemValue, itemValue: any) {
+    const props = ["isExclusive", "showCommentArea", "isCommentRequired"];
+    props.forEach(propName => {
+      if (itemValue[propName] !== undefined) {
+        (item as any)[propName] = itemValue[propName];
+      }
+    });
   }
   protected callResultCallback(
     items: Array<ItemValue>,

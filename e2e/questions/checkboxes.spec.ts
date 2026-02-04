@@ -314,7 +314,7 @@ frameworks.forEach((framework) => {
       expect(surveyResult["car-Comment"]).toEqual("Comment");
     });
 
-    test("trim other", async ({ page }) => {
+    test("trim other when there is only spaces", async ({ page }) => {
       const getOtherInput = () => page.locator("textarea").first();
 
       await page.evaluate(() => {
@@ -325,7 +325,7 @@ frameworks.forEach((framework) => {
       await getOtherInput().fill("     ");
       await page.keyboard.press("Shift+Tab");
       await page.keyboard.press("Tab");
-      await getOtherInput().fill("ab  ");
+      await getOtherInput().fill("  ab  ");
       await page.keyboard.press("Shift+Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
@@ -334,7 +334,7 @@ frameworks.forEach((framework) => {
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toStrictEqual(["other"]);
-      expect(surveyResult["car-Comment"]).toEqual("abcd");
+      expect(surveyResult["car-Comment"]).toEqual("  ab cd  ");
     });
 
     test("checked class", async ({ page }) => {

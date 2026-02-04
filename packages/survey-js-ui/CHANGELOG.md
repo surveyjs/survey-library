@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.5.9](https://github.com/surveyjs/survey-creator/compare/v2.5.8...v2.5.9) (2026-02-04)
+
 ## [2.5.8](https://github.com/surveyjs/survey-creator/compare/v2.5.7...v2.5.8) (2026-01-27)
 
 ## [2.5.7](https://github.com/surveyjs/survey-creator/compare/v2.5.6...v2.5.7) (2026-01-22)

@@ -3,28 +3,27 @@ import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner, ExpressionExecutor } from "./conditions";
 
+interface IFunctionInfo {
+  func: (params: any[], originalParams?: any[]) => any;
+  isAsync: boolean;
+  useCache: boolean;
+}
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
-  private functionHash: HashTable<(params: any[], originalParams?: any[]) => any> = {};
-  private isAsyncHash: HashTable<boolean> = {};
+  private functionHash: HashTable<IFunctionInfo> = {};
 
-  public register(
-    name: string,
-    func: (params: any[], originalParams?: any[]) => any,
-    isAsync: boolean = false
-  ): void {
-    this.functionHash[name] = func;
-    if (isAsync)this.isAsyncHash[name] = true;
+  public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
+    this.functionHash[name] = { func, isAsync: !!isAsync, useCache: !!useCache };
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
-    delete this.isAsyncHash[name];
   }
   public hasFunction(name: string): boolean {
     return !!this.functionHash[name];
   }
   public isAsyncFunction(name: string): boolean {
-    return !!this.isAsyncHash[name];
+    const funcInfo = this.functionHash[name];
+    return !!funcInfo && funcInfo.isAsync;
   }
 
   public clear(): void {
@@ -38,13 +37,13 @@ export class FunctionFactory {
     return result.sort();
   }
   public run(name: string, params: any[], properties: HashTable<any> = null, originalParams: any[]): any {
-    const func = this.functionHash[name];
-    if (!func) {
+    const funcInfo = this.functionHash[name];
+    if (!funcInfo) {
       ConsoleWarnings.warn(this.getUnknownFunctionErrorText(name, properties));
       return null;
     }
     let classRunner = {
-      func: func,
+      func: funcInfo.func,
     };
 
     if (properties) {
@@ -59,7 +58,8 @@ export class FunctionFactory {
   }
 }
 
-export var registerFunction = FunctionFactory.Instance.register;
+export var registerFunction = FunctionFactory.Instance.register.bind(FunctionFactory.Instance);
+export var unRegisterFunction = FunctionFactory.Instance.unregister.bind(FunctionFactory.Instance);
 
 function getParamsAsArray(value: any, arr: any[]) {
   if (value === undefined || value === null) return;

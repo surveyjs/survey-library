@@ -2599,3 +2599,69 @@ QUnit.test("Select All and Deselect All text", function (assert) {
   question.clickItemHandler(item);
   assert.equal(item.title, "Deselect all", "default deselect all text after set value");
 });
+
+QUnit.test("auto-select custom item on Tab when only custom item is visible", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      allowCustomChoices: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const customValue = "abc";
+
+  dropdownListModel.inputStringRendered = customValue;
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.deepEqual(question.value, [], "value empty before Tab");
+  assert.equal(question.selectedItems.length, 0);
+  assert.equal(list.visibleItems.length, 1, "only custom item visible");
+  assert.equal(list.visibleItems[0].id, "newCustomItem", "visible item is custom");
+
+  const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
+  dropdownListModel.keyHandler(event);
+
+  assert.deepEqual(question.value, [customValue], "custom value selected on Tab");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0]?.value, customValue, "selectedItem is custom");
+  assert.equal(list.visibleItems.length, 4);
+  assert.equal(list.visibleItems[0].id, customValue);
+});
+
+QUnit.test("auto-select custom item on blur when only custom item is visible", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      allowCustomChoices: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const customValue = "abc";
+
+  dropdownListModel.inputStringRendered = customValue;
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.deepEqual(question.value, [], "value empty before blur");
+  assert.equal(question.selectedItems.length, 0);
+  assert.equal(list.visibleItems.length, 1, "only custom item visible");
+
+  dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
+
+  assert.deepEqual(question.value, [customValue], "custom value selected on blur");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0]?.value, customValue, "selectedItem is custom");
+  assert.equal(list.visibleItems.length, 4);
+  assert.equal(list.visibleItems[0].id, customValue);
+});

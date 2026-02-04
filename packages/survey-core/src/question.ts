@@ -2614,13 +2614,9 @@ export class Question extends SurveyElement<Question>
   }
   public set comment(newValue: string) {
     newValue = this.getTrimmedComment(newValue);
-    if (!!newValue && newValue !== this.comment) {
-      if (newValue === this.comment) {
-        this.setPropertyValueDirectly("comment", newValue);
-      }
+    if (this.comment !== newValue) {
+      this.setNewComment(newValue);
     }
-    if (this.comment == newValue) return;
-    this.setNewComment(newValue);
   }
   protected getTrimmedComment(val: string): string {
     return typeof val === "string" && !val.trim() ? "" : val;

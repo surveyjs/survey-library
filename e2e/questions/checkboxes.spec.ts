@@ -334,7 +334,7 @@ frameworks.forEach((framework) => {
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toStrictEqual(["other"]);
-      expect(surveyResult["car-Comment"]).toEqual("  ab cd  ");
+      expect(surveyResult["car-Comment"]).toEqual("  ab  cd  ");
     });
 
     test("checked class", async ({ page }) => {

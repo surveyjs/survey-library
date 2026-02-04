@@ -355,6 +355,18 @@ export class DropdownListModel extends Base {
     }
   }
 
+  protected selectCustomItemIfOnlyVisible(): boolean {
+    if (this.allowCustomChoices && this.popupModel.isVisible) {
+      const visibleItems = this.listModel.visibleItems;
+      const onlyCustomItemAvailable = visibleItems.length === 1 && visibleItems[0] === this.customItemValue;
+      if (onlyCustomItemAvailable) {
+        this.listModel.onItemClick(this.customItemValue);
+        return true;
+      }
+    }
+    return false;
+  }
+
   protected createCustomItem(): ItemValue {
     const newChoice = new ItemValue(this.customValue);
     const options: CreateCustomChoiceItemEvent = {
@@ -828,6 +840,7 @@ export class DropdownListModel extends Base {
   }
 
   private handleTab(): { stopPropagation: boolean } {
+    this.selectCustomItemIfOnlyVisible();
     this.popupModel.hide();
     return { stopPropagation: false };
   }
@@ -902,8 +915,10 @@ export class DropdownListModel extends Base {
       return;
     }
     doKey2ClickBlur(event);
+    if (!this.selectCustomItemIfOnlyVisible()) {
+      this.resetFilterString();
+    }
     this._popupModel.hide();
-    this.resetFilterString();
     event.stopPropagation();
   }
   onFocus(event: any): void {

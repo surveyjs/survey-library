@@ -233,7 +233,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.hasUnknownValueItem(this.getPropertyNameArray([val]).getValue(0), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    newValue = this.trimCommentValue(newValue);
+    newValue = this.getTrimmedComment(newValue);
     if (this.isOtherItemByValue(item)) {
       super.setCommentValueCore(item, newValue);
     } else {

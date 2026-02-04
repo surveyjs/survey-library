@@ -378,12 +378,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.getStoreOthersAsComment()) return this.getQuestionComment();
     return this.otherValueCore;
   }
-  protected trimCommentValue(val: string): string {
-    if (val === "" || !!val && val.toString().trim() === "") return undefined;
-    return val;
-  }
   public set otherValue(val: string) {
-    val = this.trimCommentValue(val);
+    val = this.getTrimmedComment(val);
     if (!this.isSettingComment && this.otherValue !== val) {
       this.onUpdateCommentOnAutoOtherMode(val);
       this.updatePrevOtherErrorValue(val);
@@ -983,9 +979,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     let val = this.otherValue;
-    if (!val) return false;
-    val = val.trim();
-    if (!val) return false;
+    if (!this.getTrimmedComment(val)) return false;
     return this.hasUnknownValue(val, true, false);
   }
   protected getIsQuestionReady(): boolean {
@@ -1795,10 +1789,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
   }
   private onOtherValueChange(item: ItemValue, event: any): void {
-    this.setCommentValueCore(item, (event.target?.value || "").trim());
+    const target = event.target;
+    if (!target) return;
+    this.setCommentValueCore(item, target.value || "");
     const val = this.getCommentValueCore(item);
-    if (val !== event.target.value) {
-      event.target.value = val || "";
+    if (val !== target.value) {
+      target.value = val || "";
     }
   }
   private isRunningChoicesValue: boolean = false;

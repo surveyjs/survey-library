@@ -2613,19 +2613,14 @@ export class Question extends SurveyElement<Question>
     return this.getQuestionComment();
   }
   public set comment(newValue: string) {
-    if (!!newValue && newValue !== this.comment) {
-      const trimmedValue = newValue.toString().trim();
-      if (trimmedValue !== newValue) {
-        newValue = trimmedValue;
-        if (newValue === this.comment) {
-          this.setPropertyValueDirectly("comment", newValue);
-        }
-      }
+    newValue = this.getTrimmedComment(newValue);
+    if (this.comment !== newValue) {
+      this.setNewComment(newValue);
     }
-    if (this.comment == newValue) return;
-    this.setNewComment(newValue);
   }
-
+  protected getTrimmedComment(val: string): string {
+    return typeof val === "string" && !val.trim() ? "" : val;
+  }
   public getCommentAreaCss(isOther: boolean = false): string {
     return new CssClassBuilder()
       .append("form-group", isOther)

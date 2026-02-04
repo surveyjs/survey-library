@@ -3480,6 +3480,35 @@ QUnit.test("commentPlaceholder serialization", (assert) => {
   q.choices[0].locCommentPlaceholder.clear();
   assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder #2");
 });
+QUnit.test("Do not remove spaces in other area, bug#10875", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        showOtherItem: true,
+        choices: [
+          "Item 1",
+          "Item 2",
+          "Item 3"
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = "other";
+  const otherArea = q1.otherTextAreaModel;
+  assert.ok(!!otherArea, "otherText is created");
+  otherArea.onTextAreaBlur({ target: { value: "   some text   " } });
+  assert.equal(q1.otherValue, "   some text   ", "do not trim spaces");
+  assert.deepEqual(survey.data, { q1: "other", "q1-Comment": "   some text   " }, "data is correct");
+  assert.equal(q1.validate(), true, "no error on validation");
+  otherArea.onTextAreaBlur({ target: { value: "      " } });
+  assert.equal(q1.otherValue, "", "trim spaces to empty, #2");
+  assert.equal(q1.validate(), false, "there is an error on validation");
+  assert.deepEqual(survey.data, { q1: "other" }, "There is no comment in data");
+});
 QUnit.test("checbox question and choices has comment - custom placeholder", (assert) => {
   const survey = new SurveyModel({
     "elements": [
@@ -3611,7 +3640,7 @@ QUnit.test("showOtherItem & textUpdateMode = 'onTyping' , Bug#10402", (assert) =
   assert.equal(q1.otherValue, "abc ", "q1.otherValue #1");
   assert.equal(survey.getComment("q1"), "abc ", "survey.data #1");
   q1.getCommentTextAreaModel(q1.otherItem).onTextAreaChange({ target: { value: "abc xy " } });
-  assert.equal(q1.otherValue, "abc xy", "q1.otherValue #2");
+  assert.equal(q1.otherValue, "abc xy ", "q1.otherValue #2");
 });
 QUnit.test("radiogroup & checkbox questions and choices has comment - display value, Bug#10193", (assert) => {
   const survey = new SurveyModel({

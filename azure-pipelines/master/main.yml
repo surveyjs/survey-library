@@ -127,7 +127,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(System.SourcesDirectory)/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true

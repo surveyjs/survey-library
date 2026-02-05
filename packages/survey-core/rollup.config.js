@@ -26,10 +26,15 @@ module.exports = (options) => {
 
     plugins: [
       nodeResolve(),
-      typescript({ inlineSources: true, sourceMap: true, tsconfig: options.tsconfig, compilerOptions: {
-        declaration: false,
-        declarationDir: null
-      } }),
+      typescript({
+        inlineSources: true,
+        sourceMap: true,
+        tsconfig: options.tsconfig,
+        compilerOptions: {
+          declaration: false,
+          declarationDir: null
+        }
+      }),
       replace({
         preventAssignment: false,
         values: {

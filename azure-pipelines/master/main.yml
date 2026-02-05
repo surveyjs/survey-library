@@ -125,13 +125,13 @@ jobs:
       #     artifactName: "ReleaseVersionFile"
       #     downloadPath: "$(System.ArtifactsDirectory)"
 
-      # - task: CopyFiles@2
-      #   inputs:
-      #     SourceFolder: "$(Build.SourcesDirectory)/ReleaseVersionFile/"
-      #     Contents: "version.txt"
-      #     TargetFolder: "$(Build.SourcesDirectory)/"
-      #     OverWrite: true
-      #   displayName: "Copy Build Artifact - SurveyJSVersion File"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersionFile/"
+          Contents: "version.txt"
+          TargetFolder: "$(Build.SourcesDirectory)/"
+          OverWrite: true
+        displayName: "Copy Build Artifact - SurveyJSVersion File"
 
       - powershell: |
           $version = Get-Content $(Build.SourcesDirectory)/ReleaseVersionFile/version.txt

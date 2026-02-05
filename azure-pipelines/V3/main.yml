@@ -17,6 +17,10 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-utils
+  pipelines:
+    - pipeline: ReleaseVersion
+      source: Release Version
+      trigger: true
 
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
@@ -87,6 +91,8 @@ jobs:
         persistCredentials: true
         clean: true
         fetchDepth: 1
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -109,19 +115,9 @@ jobs:
         displayName: Cache NPM
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "$(ProjectId)"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -285,6 +281,8 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -306,19 +304,9 @@ jobs:
         displayName: Cache NPM
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "$(ProjectId)"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -439,6 +427,8 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -461,19 +451,9 @@ jobs:
         displayName: Cache NPMs
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "$(ProjectId)"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -604,6 +584,8 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -626,19 +608,9 @@ jobs:
         displayName: Cache NPMs
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "$(ProjectId)"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -769,6 +741,8 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -790,19 +764,9 @@ jobs:
         displayName: Cache NPM
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "$(ProjectId)"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true

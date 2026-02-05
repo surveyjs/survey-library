@@ -89,6 +89,7 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
+import { FunctionFactory } from "./functionsfactory";
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
@@ -6758,7 +6759,12 @@ export class SurveyModel extends SurveyElementCore
   public getVariable(name: string): any {
     if (!name) return null;
     name = name.toLowerCase();
-    var res = this.variablesHash[name];
+    const res = this.getVariableCore(name);
+    FunctionFactory.Instance.addSurveyCachedValue(name, res, true);
+    return res;
+  }
+  private getVariableCore(name: string): any {
+    const res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
       return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
@@ -6818,7 +6824,9 @@ export class SurveyModel extends SurveyElementCore
   public getValue(name: string): any {
     if (!name || name.length == 0) return null;
     var value = this.getDataValueCore(this.valuesHash, name);
-    return this.getUnbindValue(value);
+    const res = this.getUnbindValue(value);
+    FunctionFactory.Instance.addSurveyCachedValue(name, res);
+    return res;
   }
   /**
    * Sets a question value (answer).

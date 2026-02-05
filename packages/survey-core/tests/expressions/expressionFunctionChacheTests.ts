@@ -58,3 +58,102 @@ QUnit.test("Async caching by parameter", (assert) => {
 
   unRegisterFunction("func1");
 });
+QUnit.test("Simple caching by accessing survey values", (assert) => {
+  let counter = 0;
+  function func1(): any {
+    counter ++;
+    const q1Val = this.survey.getValue("q1");
+    return (q1Val || 0) + 10;
+  }
+  registerFunction("func1", func1, false, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "expression", name: "exp1", expression: "func1()" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const exp = survey.getQuestionByName("exp1");
+
+  assert.equal(counter, 1, "func1 was not called one time");
+  assert.equal(exp.value, 10, "undefined + 10 = 10");
+
+  q1.value = 5;
+  assert.equal(counter, 2, "func1 was not called one more time");
+  assert.equal(exp.value, 15, "5 + 10 = 15");
+  q1.value = 7;
+  assert.equal(counter, 3, "func1 was not called one more time");
+  assert.equal(exp.value, 17, "7 + 10 = 17");
+
+  q1.value = 5;
+  assert.equal(counter, 3, "func1 was not called one more time, the value was taken from cache, #1");
+  assert.equal(exp.value, 15, "5 + 10 = 15");
+
+  q1.value = 7;
+  assert.equal(counter, 3, "func1 was not called one more time, the value was taken from cache, #2");
+  assert.equal(exp.value, 17, "7 + 10 = 17");
+
+  q1.value = 15;
+  assert.equal(counter, 4, "func1 was not called with new value");
+  assert.equal(exp.value, 25, "15 + 10 = 25");
+
+  q1.value = 5;
+  assert.equal(counter, 4, "func1 was not called one more time, the value was taken from cache, #3");
+  assert.equal(exp.value, 15, "5 + 10 = 15");
+
+  unRegisterFunction("func1");
+});
+QUnit.test("Simple caching by accessing survey values & variables", (assert) => {
+  let counter = 0;
+  function func1(): any {
+    counter ++;
+    const q1Val = this.survey.getValue("q1");
+    const var1 = this.survey.getVariable("var1");
+    return (q1Val || 0) + (var1 || 0) + 10;
+  }
+  registerFunction("func1", func1, false, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "expression", name: "exp1", expression: "func1()" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const exp = survey.getQuestionByName("exp1");
+
+  assert.equal(counter, 1, "func1 was not called one time");
+  assert.equal(exp.value, 10, "undefined + 10 = 10");
+
+  q1.value = 5;
+  assert.equal(counter, 2, "func1 was not called one more time");
+  assert.equal(exp.value, 15, "5 + 10 = 15");
+  survey.setVariable("var1", 2);
+  assert.equal(counter, 3, "func1 was not called one more time");
+  assert.equal(exp.value, 17, "5 + 2 + 10 = 17");
+
+  survey.setVariable("var1", 3);
+  assert.equal(counter, 4, "func1 was not called one more time");
+  assert.equal(exp.value, 18, "5 + 3 + 10 = 18");
+
+  survey.setVariable("var1", 2);
+  assert.equal(counter, 4, "func1 was not called one more time, the value was taken from cache, #1");
+  assert.equal(exp.value, 17, "5 + 2 + 10 = 17");
+
+  q1.value = 7;
+  assert.equal(counter, 5, "call func1 with new q1 value");
+  assert.equal(exp.value, 19, "7 + 2 + 10 = 19");
+
+  survey.setVariable("var1", 3);
+  assert.equal(counter, 6, "call func1 with new var1 value");
+  assert.equal(exp.value, 20, "7 + 3 + 10 = 20");
+
+  q1.value = 5;
+  assert.equal(counter, 6, "func1 was not called one more time, the value was taken from cache, #3");
+  assert.equal(exp.value, 18, "5 + 3 + 10 = 18");
+
+  survey.setVariable("var1", 2);
+  assert.equal(counter, 6, "func1 was not called one more time, the value was taken from cache, #4");
+  assert.equal(exp.value, 17, "5 + 2 + 10 = 17");
+
+  unRegisterFunction("func1");
+});

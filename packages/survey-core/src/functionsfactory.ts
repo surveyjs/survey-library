@@ -12,14 +12,15 @@ interface IFunctionInfo {
   isAsync: boolean;
   useCache: boolean;
 }
-interface IFunctionChachedInfo {
+interface IFunctionCachedInfo {
   parameters: any[];
+  surveyValues: any[];
   result: any;
 }
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
   private functionHash: HashTable<IFunctionInfo> = {};
-  private functionCache: HashTable<Array<IFunctionChachedInfo>> = {};
+  private functionCache: HashTable<Array<IFunctionCachedInfo>> = {};
 
   public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
     this.clearCache(name);
@@ -62,7 +63,7 @@ export class FunctionFactory {
       ConsoleWarnings.warn(this.getUnknownFunctionErrorText(name, properties));
       return null;
     }
-    const cachedRes = this.getCachedValue(funcInfo, params);
+    const cachedRes = this.getCachedValue(funcInfo, params, properties.survey);
     if (cachedRes) {
       const res = cachedRes.result;
       if (!!properties.returnResult) {
@@ -75,39 +76,64 @@ export class FunctionFactory {
       if (key === "returnResult" && funcInfo.useCache) {
         const self = this;
         classRunner[key] = (res: any) => {
-          self.addToCache(funcInfo, params, res);
+          self.addToCache(funcInfo, params, properties, res);
           properties.returnResult(res);
         };
       } else {
         (<any>classRunner)[key] = properties[key];
       }
     }
+    this.surveyCachedValues = funcInfo.useCache ? [] : undefined;
     const res = classRunner.func(params, originalParams);
+    properties.surveyCachedValues = this.surveyCachedValues;
+    this.surveyCachedValues = undefined;
     if (!funcInfo.isAsync) {
-      this.addToCache(funcInfo, params, res);
+      this.addToCache(funcInfo, params, properties, res);
     }
     return res;
   }
-  private addToCache(funcInfo: IFunctionInfo, params: any[], result: any): void {
+  public addSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
+    if (!this.surveyCachedValues) return;
+    this.surveyCachedValues.push({ name, value, isVariable: !!isVariable });
+  }
+  private surveyCachedValues: any[];
+  private addToCache(funcInfo: IFunctionInfo, params: any[], properties: HashTable<any>, result: any): void {
     if (!funcInfo.useCache) return;
+    const values = properties.surveyCachedValues;
+    if (params.length === 0 && values.length === 0) return;
     let cachedList = this.functionCache[funcInfo.name];
     if (!Array.isArray(cachedList)) {
       cachedList = [];
       this.functionCache[funcInfo.name] = cachedList;
     }
-    cachedList.push({ parameters: params, result: result });
+    cachedList.push({ parameters: params, result: result, surveyValues: values });
   }
-  private getCachedValue(funcInfo: IFunctionInfo, params: any[]): IFunctionCachedResult | undefined {
+  private getCachedValue(funcInfo: IFunctionInfo, params: any[], survey: any): IFunctionCachedResult | undefined {
     if (funcInfo && !funcInfo.useCache) return undefined;
     const cachedList = this.functionCache[funcInfo.name];
     if (!Array.isArray(cachedList)) return undefined;
     for (let i = cachedList.length - 1; i >= 0; i--) {
       const item = cachedList[i];
-      if (Helpers.isTwoValueEquals(item.parameters, params)) {
+      if (this.isChachedItemValid(item, params, survey)) {
         return { result: item.result };
       }
     }
     return undefined;
+  }
+  private isChachedItemValid(item: IFunctionCachedInfo, params: any[], survey: any): boolean {
+    if (!Helpers.isTwoValueEquals(item.parameters, params)) return false;
+    const sValues = item.surveyValues;
+    if (Array.isArray(sValues) && sValues.length > 0) {
+      if (!survey) return false;
+      for (let i = 0; i < sValues.length; i++) {
+        const item = sValues[i];
+        const name = item.name;
+        const value = item.value;
+        const newValue = item.isVariable ? survey.getVariable(name) : survey.getValue(name);
+        if (!Helpers.isTwoValueEquals(newValue, value)) return false;
+      }
+    }
+    return true;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
     return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);

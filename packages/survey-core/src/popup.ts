@@ -59,6 +59,7 @@ export interface IDialogOptions extends IPopupOptionsBase {
    */
   onApply: () => boolean;
   isFocusedContent?: boolean;
+  showCloseButton?: boolean;
 }
 
 export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
@@ -79,6 +80,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   @property({ defaultValue: "bottom" }) verticalPosition: VerticalPosition;
   @property({ defaultValue: "left" }) horizontalPosition: HorizontalPosition;
   @property({ defaultValue: true }) showPointer: boolean;
+  @property({ defaultValue: true }) showCloseButton: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: true }) canShrink: boolean;
   @property({ defaultValue: true }) isFocusedContent: boolean;

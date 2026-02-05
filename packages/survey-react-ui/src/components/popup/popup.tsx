@@ -3,6 +3,7 @@ import { Base, PopupModel, PopupBaseViewModel, PopupDropdownViewModel, createPop
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SurveyActionBar } from "../action-bar/action-bar";
+import { SvgIcon } from "../svg-icon/svg-icon";
 
 interface IPopupProps {
   model: PopupModel;
@@ -133,7 +134,13 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
 
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
-    return null;
+    return popupModel.showCloseButton ? <div className="sv-popup__close-button sd-action sd-action--icon" onClick={() => this.model.clickClose()}>
+      <SvgIcon
+        className="sv-popup__close-button-icon"
+        iconName="icon-close-24x24"
+        size={"auto"}
+      ></SvgIcon>
+    </div> : null;
   }
   protected renderFooter(popuModel: PopupBaseViewModel): React.JSX.Element | null {
     return (

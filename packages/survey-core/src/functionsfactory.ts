@@ -3,17 +3,26 @@ import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner, ExpressionExecutor } from "./conditions";
 
+export interface IFunctionCachedResult {
+  result: any;
+}
 interface IFunctionInfo {
   func: (params: any[], originalParams?: any[]) => any;
+  name: string;
   isAsync: boolean;
   useCache: boolean;
+}
+interface IFunctionChachedInfo {
+  parameters: any[];
+  result: any;
 }
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
   private functionHash: HashTable<IFunctionInfo> = {};
+  private functionCache: HashTable<Array<IFunctionChachedInfo>> = {};
 
   public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
-    this.functionHash[name] = { func, isAsync: !!isAsync, useCache: !!useCache };
+    this.functionHash[name] = { name, func, isAsync: !!isAsync, useCache: !!useCache };
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
@@ -25,9 +34,16 @@ export class FunctionFactory {
     const funcInfo = this.functionHash[name];
     return !!funcInfo && funcInfo.isAsync;
   }
-
   public clear(): void {
     this.functionHash = {};
+    this.clearCache();
+  }
+  public clearCache(functionName?: string): void {
+    if (functionName) {
+      delete this.functionCache[functionName];
+    } else {
+      this.functionCache = {};
+    }
   }
   public getAll(): Array<string> {
     var result = [];
@@ -36,22 +52,61 @@ export class FunctionFactory {
     }
     return result.sort();
   }
-  public run(name: string, params: any[], properties: HashTable<any> = null, originalParams: any[]): any {
+  public run(name: string, params: any[], properties: HashTable<any>, originalParams: any[]): any {
+    if (!properties) {
+      properties = {};
+    }
     const funcInfo = this.functionHash[name];
     if (!funcInfo) {
       ConsoleWarnings.warn(this.getUnknownFunctionErrorText(name, properties));
       return null;
     }
-    let classRunner = {
-      func: funcInfo.func,
-    };
-
-    if (properties) {
-      for (var key in properties) {
+    const cachedRes = this.getCachedValue(funcInfo, params);
+    if (cachedRes) {
+      const res = cachedRes.result;
+      if (!!properties.returnResult) {
+        properties.returnResult(res);
+      }
+      return res;
+    }
+    const classRunner = { func: funcInfo.func };
+    for (var key in properties) {
+      if (key === "returnResult" && funcInfo.useCache) {
+        const self = this;
+        classRunner[key] = (res: any) => {
+          self.addToCache(funcInfo, params, res);
+          properties.returnResult(res);
+        };
+      } else {
         (<any>classRunner)[key] = properties[key];
       }
     }
-    return classRunner.func(params, originalParams);
+    const res = classRunner.func(params, originalParams);
+    if (!funcInfo.isAsync) {
+      this.addToCache(funcInfo, params, res);
+    }
+    return res;
+  }
+  private addToCache(funcInfo: IFunctionInfo, params: any[], result: any): void {
+    if (!funcInfo.useCache) return;
+    let cachedList = this.functionCache[funcInfo.name];
+    if (!Array.isArray(cachedList)) {
+      cachedList = [];
+      this.functionCache[funcInfo.name] = cachedList;
+    }
+    cachedList.push({ parameters: params, result: result });
+  }
+  private getCachedValue(funcInfo: IFunctionInfo, params: any[]): IFunctionCachedResult | undefined {
+    if (funcInfo && !funcInfo.useCache) return undefined;
+    const cachedList = this.functionCache[funcInfo.name];
+    if (!Array.isArray(cachedList)) return undefined;
+    for (let i = cachedList.length - 1; i >= 0; i--) {
+      const item = cachedList[i];
+      if (Helpers.isTwoValueEquals(item.parameters, params)) {
+        return { result: item.result };
+      }
+    }
+    return undefined;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
     return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);

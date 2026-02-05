@@ -261,6 +261,12 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
       const panels = this.visiblePanelsCore;
       if (panels) panels.forEach((panel) => { panel.updateElementCss(true); });
     }
+    if (name === "showQuestionNumbers" && this.survey) {
+      this.survey.questionVisibilityChanged(this, this.visible, true);
+    }
+    if (name === "tabAlign" && this.isRenderModeTab) {
+      this.tabbedMenu.containerCss = this.getTabbedMenuCss();
+    }
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
@@ -782,22 +788,12 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see confirmDeleteText
    */
-  public get confirmDelete(): boolean {
-    return this.getPropertyValue("confirmDelete");
-  }
-  public set confirmDelete(val: boolean) {
-    this.setPropertyValue("confirmDelete", val);
-  }
+  @property() confirmDelete: boolean;
   /**
    * Specifies a key question. Set this property to the name of a question used in the template, and Dynamic Panel will display `keyDuplicationError` if a user tries to enter a duplicate value in this question.
    * @see keyDuplicationError
    */
-  public get keyName(): string {
-    return this.getPropertyValue("keyName", "");
-  }
-  public set keyName(val: string) {
-    this.setPropertyValue("keyName", val);
-  }
+  @property({ defaultValue: "" }) keyName: string;
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a panel.
    * @see confirmDelete
@@ -1004,12 +1000,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see displayMode
    * @see templateTitle
    */
-  public get panelsState(): string {
-    return this.getPropertyValue("panelsState");
-  }
-  public set panelsState(val: string) {
-    this.setPropertyValue("panelsState", val);
-  }
+  @property() panelsState: string;
+
   public getStructuredValue(level: number = -1): any {
     if (level < 0 || this.isEmpty() || !Array.isArray(this.value)) return this.value;
     const data = new Array<any>();
@@ -1071,13 +1063,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see maxPanelCount
    * @see allowRemovePanel
    */
-  public get minPanelCount(): number {
-    return this.getPropertyValue("minPanelCount");
-  }
-  public set minPanelCount(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minPanelCount", val);
-  }
+  @property({ onSetting: (val: number) => val < 0 ? 0 : val }) minPanelCount: number;
+
   private onMinPanelCountChanged(): void {
     const val = this.minPanelCount;
     if (val > this.maxPanelCount)this.maxPanelCount = val;
@@ -1093,16 +1080,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see minPanelCount
    * @see allowAddPanel
    */
-  public get maxPanelCount(): number {
-    return this.getPropertyValue("maxPanelCount");
-  }
-  public set maxPanelCount(val: number) {
-    if (val <= 0) return;
-    if (val > settings.panel.maxPanelCount)
-      val = settings.panel.maxPanelCount;
-    this.setPropertyValue("maxPanelCount", val);
-    this.updateFooterActions();
-  }
+  @property({ onSetting: (val: number) => val <= 0 ? 1 : val < settings.panel.maxPanelCount ? val : settings.panel.maxPanelCount }) maxPanelCount: number;
+
   private onMaxPanelCountChanged(): void {
     const val = this.maxPanelCount;
     if (val < this.minPanelCount)this.minPanelCount = val;
@@ -1118,12 +1097,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see canAddPanel
    * @see allowRemovePanel
    */
-  public get allowAddPanel(): boolean {
-    return this.getPropertyValue("allowAddPanel");
-  }
-  public set allowAddPanel(val: boolean) {
-    this.setPropertyValue("allowAddPanel", val);
-  }
+  @property() allowAddPanel: boolean;
+
   public get addButtonId(): string {
     return this.id + "addPanel";
   }
@@ -1137,12 +1112,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see allowAddPanel
    * @see addPanel
    */
-  public get newPanelPosition(): string {
-    return this.getPropertyValue("newPanelPosition");
-  }
-  public set newPanelPosition(val: string) {
-    this.setPropertyValue("newPanelPosition", val);
-  }
+  @property() newPanelPosition: string;
   /**
    * Specifies whether users are allowed to delete panels.
    *
@@ -1150,12 +1120,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see canRemovePanel
    * @see allowAddPanel
    */
-  public get allowRemovePanel(): boolean {
-    return this.getPropertyValue("allowRemovePanel");
-  }
-  public set allowRemovePanel(val: boolean) {
-    this.setPropertyValue("allowRemovePanel", val);
-  }
+  @property() allowRemovePanel: boolean;
   /**
    * Gets or sets the location of question titles relative to their input fields.
    *
@@ -1166,12 +1131,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * - `"hidden"` - Hides question titles.
    * @see titleLocation
    */
-  public get templateQuestionTitleLocation(): string {
-    return this.getPropertyValue("templateQuestionTitleLocation");
-  }
-  public set templateQuestionTitleLocation(val: string) {
-    this.setPropertyValue("templateQuestionTitleLocation", val);
-  }
+  @property() templateQuestionTitleLocation: string;
   /**
    * @deprecated Use the [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) property instead.
    */
@@ -1186,12 +1146,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    *
    * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
    */
-  public get templateQuestionTitleWidth(): string {
-    return this.template.questionTitleWidth;
-  }
-  public set templateQuestionTitleWidth(val: string) {
-    this.template.questionTitleWidth = val;
-  }
+  @property() templateQuestionTitleWidth: string;
   /**
    * Specifies the error message position.
    *
@@ -1201,12 +1156,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * - `"top"` - Displays error messages above questions.
    * - `"bottom"` - Displays error messages below questions.
    */
-  public get templateErrorLocation(): string {
-    return this.getPropertyValue("templateErrorLocation");
-  }
-  public set templateErrorLocation(value: string) {
-    this.setPropertyValue("templateErrorLocation", value.toLowerCase());
-  }
+  @property() templateErrorLocation: string;
+
   public resetSingleInput(): void {
     super.resetSingleInput();
     this.locTemplateTitle.onGetTextCallback = null;
@@ -1323,22 +1274,13 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see questionStartIndex
    * @see showNumber
    */
-  public get showQuestionNumbers(): string {
-    return this.getPropertyValue("showQuestionNumbers");
-  }
-  public set showQuestionNumbers(val: string) {
-    if (!val) {
-      val = "off";
-    }
+  @property({ onSetting: (val: string) => {
+    if (!val) return "off";
     val = val.toLowerCase();
-    if (val === "onsurvey") {
-      val = "default";
-    }
-    this.setPropertyValue("showQuestionNumbers", val);
-    if (!this.isLoadingFromJson && this.survey) {
-      this.survey.questionVisibilityChanged(this, this.visible, true);
-    }
-  }
+    if (val === "onsurvey") return "default";
+    return val;
+  } }) showQuestionNumbers: string;
+
   private getShowQuestionNumbers(): string {
     const res = this.showQuestionNumbers;
     if (res === "default") {
@@ -1359,12 +1301,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * - `"right"` - Displays the Remove Panel button to the right of panel content.
    * @see removePanelText
    */
-  public get removePanelButtonLocation(): string {
-    return this.getPropertyValue("removePanelButtonLocation");
-  }
-  public set removePanelButtonLocation(val: string) {
-    this.setPropertyValue("removePanelButtonLocation", val);
-  }
+  @property() removePanelButtonLocation: string;
   /**
    * @deprecated Use the [`removePanelButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelButtonLocation) property instead.
    */
@@ -1459,15 +1396,8 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
       // target.updatePanelView();
     }
   }) progressBarLocation: "top" | "bottom" | "topBottom";
-  public get tabAlign(): "center" | "left" | "right" {
-    return this.getPropertyValue("tabAlign");
-  }
-  public set tabAlign(val: "center" | "left" | "right") {
-    this.setPropertyValue("tabAlign", val);
-    if (this.isRenderModeTab) {
-      this.tabbedMenu.containerCss = this.getTabbedMenuCss();
-    }
-  }
+  @property() tabAlign: "center" | "left" | "right";
+
   public get isRenderModeList(): boolean {
     return this.displayMode === "list" || this.isSingleInputActive;
   }
@@ -1577,24 +1507,14 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
    * @see defaultValue
    * @see copyDefaultValueFromLastEntry
    */
-  public get defaultPanelValue(): any {
-    return this.getPropertyValue("defaultPanelValue");
-  }
-  public set defaultPanelValue(val: any) {
-    this.setPropertyValue("defaultPanelValue", val);
-  }
+  @property() defaultPanelValue: any;
   /**
    * Specifies whether default values for a new panel should be copied from the last panel.
    *
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
-  public get copyDefaultValueFromLastEntry(): boolean {
-    return this.getPropertyValue("copyDefaultValueFromLastEntry");
-  }
-  public set copyDefaultValueFromLastEntry(val: boolean) {
-    this.setPropertyValue("copyDefaultValueFromLastEntry", val);
-  }
+  @property() copyDefaultValueFromLastEntry: boolean;
   /**
    * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#copyDefaultValueFromLastEntry) property instead.
    */

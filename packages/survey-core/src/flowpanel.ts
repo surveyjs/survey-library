@@ -30,13 +30,8 @@ export class FlowPanelModel extends PanelModel {
     super.onSurveyLoad();
     this.onContentChanged();
   }
-  @property({ localizable: true }) content;
-  public get html(): string {
-    return this.getPropertyValue("html", "");
-  }
-  public set html(val: string) {
-    this.setPropertyValue("html", val);
-  }
+  @property({ localizable: true }) content: string;
+  @property ({ returnValue: "" }) html: string;
   protected onContentChanged(): any {
     var html = "";
     if (!!this.onCustomHtmlProducing) {

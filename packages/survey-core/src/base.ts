@@ -413,6 +413,43 @@ export class Base implements IObjectValueContext {
     return "base";
   }
   /**
+   * Returns the survey element that owns this element. Returns `undefined` if called on a `SurveyModel` instance.
+   * @returns The owner survey element, or `undefined` if none exists.
+   */
+  public getOwner(): any {
+    return undefined;
+  }
+  /**
+   * Returns `true` if the survey element is a page.
+   *
+   * This property returns `false` for [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) objects in the following cases:
+   *
+   * - `SurveyModel`'s [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) is set to `"singlePage"`.
+   * - The page is included in a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   *
+   * In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and all regular pages become panels.
+   */
+  public get isPage(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a panel or acts as one.
+   *
+   * This property returns `true` for `PageModel` objects in the following cases:
+   *
+   * - `SurveyModel`'s [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) is set to `"singlePage"`.
+   * - The page is included in a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   *
+   * In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and all regular pages become panels.
+   */
+  public get isPanel(): boolean { return false; }
+  /**
+   * Returns `true` if the survey element is a question.
+   */
+  public get isQuestion(): boolean { return false; }
+  /**
+   * Returns `true` if the element is a survey.
+   */
+  public get isSurvey(): boolean { return false; }
+  /**
    * Use this method to find out if the current object is of a given `typeName` or inherited from it.
    *
    * @param typeName One of the values listed in the [getType()](https://surveyjs.io/form-library/documentation/question#getType) description.
@@ -957,7 +994,7 @@ export class Base implements IObjectValueContext {
    *   variables: false,
    *   functions: false,
    *   semantics: false
-   * })
+   * });
    * ```
    * @param options Configuration options that control which validation checks are performed.
    * @param {boolean} options.variables Pass `false` to disable validation of unknown variables.

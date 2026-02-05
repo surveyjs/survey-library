@@ -1,15 +1,11 @@
 import { property, Serializer } from "./jsonobject";
-import { Helpers } from "./helpers";
 import {
   IPage,
   IPanel,
   IElement,
-  ISurveyElement,
-  ISurveyImpl,
   ISurvey,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
-import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 
@@ -32,6 +28,9 @@ export class PageModel extends PanelModel implements IPage {
   }
   public get isPanel(): boolean {
     return !!this.parent;
+  }
+  public getOwner(): any {
+    return this.survey;
   }
   public get showPanelAsPage(): boolean {
     return true;
@@ -125,12 +124,7 @@ export class PageModel extends PanelModel implements IPage {
     }
     return result;
   }
-  public get passed(): boolean {
-    return this.getPropertyValue("passed", false);
-  }
-  public set passed(val: boolean) {
-    this.setPropertyValue("passed", val);
-  }
+  @property({ defaultValue: false }) passed: boolean;
   protected removeFromParent(): void {
     if (!!this.survey) {
       this.removeSelfFromList(this.survey.pages);
@@ -349,12 +343,7 @@ export class PageModel extends PanelModel implements IPage {
    * Alternatively, you can use the `SurveyModel`'s [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/surveymodel#timeLimitPerPage) property to specify identical time periods for all survey pages.
    * @see timeSpent
    */
-  public get timeLimit(): number {
-    return this.getPropertyValue("timeLimit", 0);
-  }
-  public set timeLimit(val: number) {
-    this.setPropertyValue("timeLimit", val);
-  }
+  @property({ defaultValue: 0 }) timeLimit: number;
   /**
    * @deprecated Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property instead.
    */

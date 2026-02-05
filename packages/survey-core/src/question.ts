@@ -333,10 +333,8 @@ export class Question extends SurveyElement<Question>
     this._isMobile = val;
   }
   public themeChanged(theme: ITheme): void { }
-  private get _isMobile(): boolean { return this.getPropertyValue("_isMobile", false); }
-  private set _isMobile(val: boolean) { this.setPropertyValue("_isMobile", val); }
-  public get forceIsInputReadOnly(): boolean { return this.getPropertyValue("forceIsInputReadOnly"); }
-  public set forceIsInputReadOnly(val: boolean) { this.setPropertyValue("forceIsInputReadOnly", val); }
+  @property({ defaultValue: false }) private _isMobile: boolean;
+  @property() forceIsInputReadOnly: boolean;
   public get ariaExpanded(): "true" | "false" {
     if (this.isNewA11yStructure) {
       return null;
@@ -361,6 +359,9 @@ export class Question extends SurveyElement<Question>
     const updateQuestionCssProps = ["readOnly", "hasVisibleErrors", "containsErrors"];
     if (updateQuestionCssProps.indexOf(name) > -1) {
       this.updateQuestionCss();
+    }
+    if (name === "showNumber") {
+      this.notifySurveyVisibilityChanged();
     }
     if (name === "no") {
       this.resetCssTitle();
@@ -392,6 +393,9 @@ export class Question extends SurveyElement<Question>
     }
     if (name === "colSpan") {
       this.parent?.updateColumns();
+    }
+    if (name === "descriptionLocation") {
+      this.updateQuestionCss();
     }
   }
   protected getDefaultTitle(): string { return this.name; }
@@ -640,15 +644,10 @@ export class Question extends SurveyElement<Question>
    * @see isVisible
    * @see visibleIf
    */
-  public get visible(): boolean {
-    return this.getPropertyValue("visible");
-  }
-  public set visible(val: boolean) {
-    if (val == this.visible) return;
-    this.setPropertyValue("visible", val);
-    this.onVisibleChangedCore();
-    this.notifySurveyVisibilityChanged();
-  }
+  @property({ onSet: (val, obj) => {
+    obj.onVisibleChangedCore();
+    obj.notifySurveyVisibilityChanged();
+  } }) visible: boolean;
   protected onVisibleChanged(): void {
     const prevVal = this.getPropertyValue("isVisible");
     this.onVisibleChangedCore();
@@ -699,12 +698,8 @@ export class Question extends SurveyElement<Question>
    *
    * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
    */
-  public get useDisplayValuesInDynamicTexts(): boolean {
-    return this.getPropertyValue("useDisplayValuesInDynamicTexts");
-  }
-  public set useDisplayValuesInDynamicTexts(val: boolean) {
-    this.setPropertyValue("useDisplayValuesInDynamicTexts", val);
-  }
+  @property() useDisplayValuesInDynamicTexts: boolean;
+
   protected getUseDisplayValuesInDynamicTexts(): boolean { return this.useDisplayValuesInDynamicTexts; }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes hidden.
@@ -717,12 +712,7 @@ export class Question extends SurveyElement<Question>
    * @see visible
    * @see isVisible
    */
-  public get visibleIf(): string {
-    return this.getPropertyValue("visibleIf", "");
-  }
-  public set visibleIf(val: string) {
-    this.setPropertyValue("visibleIf", val);
-  }
+  @property() visibleIf: string;
   /**
    * Returns `true` if the question is visible or the survey is currently in design mode.
    *
@@ -761,13 +751,7 @@ export class Question extends SurveyElement<Question>
    * @see showQuestionNumbers
    * @see questionStartIndex
    */
-  public get showNumber(): boolean {
-    return this.getPropertyValue("showNumber");
-  }
-  public set showNumber(val: boolean) {
-    this.setPropertyValue("showNumber", val);
-    this.notifySurveyVisibilityChanged();
-  }
+  @property() showNumber: boolean;
   /**
    * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
    */
@@ -816,6 +800,9 @@ export class Question extends SurveyElement<Question>
   }
   public get isQuestion(): boolean {
     return true;
+  }
+  public getOwner() {
+    return this.parentQuestion || this.parent;
   }
   public moveTo(container: IPanel, insertBefore: any = null): boolean {
     return this.moveToBase(this.parent, container, insertBefore);
@@ -1412,12 +1399,7 @@ export class Question extends SurveyElement<Question>
    * - `"top"` - Displays error messages above questions.
    * - `"bottom"` - Displays error messages below questions.
    */
-  public get errorLocation(): string {
-    return this.getPropertyValue("errorLocation");
-  }
-  public set errorLocation(val: string) {
-    this.setPropertyValue("errorLocation", val);
-  }
+  @property() errorLocation: string;
   public getErrorLocation(): string {
     if (this.errorLocation !== "default") return this.errorLocation;
     if (this.parentQuestion) return this.parentQuestion.getChildErrorLocation(this);
@@ -1459,13 +1441,8 @@ export class Question extends SurveyElement<Question>
    * @see description
    * @see hasDescription
    */
-  public get descriptionLocation(): string {
-    return this.getPropertyValue("descriptionLocation");
-  }
-  public set descriptionLocation(val: string) {
-    this.setPropertyValue("descriptionLocation", val);
-    this.updateQuestionCss();
-  }
+  @property() descriptionLocation: string;
+
   get hasDescriptionUnderTitle(): boolean {
     return this.getDescriptionLocation() == "underTitle" && this.hasDescription;
   }
@@ -1625,13 +1602,7 @@ export class Question extends SurveyElement<Question>
    *
    * [View Demo](https://surveyjs.io/form-library/examples/arrange-multiple-questions-in-single-line/ (linkStyle))
    */
-  public get startWithNewLine(): boolean {
-    return this.getPropertyValue("startWithNewLine");
-  }
-  public set startWithNewLine(val: boolean) {
-    if (this.startWithNewLine == val) return;
-    this.setPropertyValue("startWithNewLine", val);
-  }
+  @property() startWithNewLine: boolean;
   protected calcCssClasses(css: any): any {
     const classes = { error: {} };
     this.copyCssClasses(classes, css.question);
@@ -1974,12 +1945,7 @@ export class Question extends SurveyElement<Question>
    * @see requiredIf
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired");
-  }
-  public set isRequired(val: boolean) {
-    this.setPropertyValue("isRequired", val);
-  }
+  @property() isRequired: boolean;
   /**
    * A Boolean expression. If it evaluates to `true`, this question becomes required.
    *
@@ -1988,12 +1954,7 @@ export class Question extends SurveyElement<Question>
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isRequired
    */
-  public get requiredIf(): string {
-    return this.getPropertyValue("requiredIf", "");
-  }
-  public set requiredIf(val: string) {
-    this.setPropertyValue("requiredIf", val);
-  }
+  @property() requiredIf: string;
   /**
    * Specifies whether to display a comment area.
    * @see comment
@@ -2018,12 +1979,7 @@ export class Question extends SurveyElement<Question>
   /**
    * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
    */
-  public get id(): string {
-    return this.getPropertyValue("id");
-  }
-  public set id(val: string) {
-    this.setPropertyValue("id", val);
-  }
+  @property() id: string;
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }
@@ -2080,12 +2036,7 @@ export class Question extends SurveyElement<Question>
    * @see readOnly
    * @see isReadOnly
    */
-  public get enableIf(): string {
-    return this.getPropertyValue("enableIf", "");
-  }
-  public set enableIf(val: string) {
-    this.setPropertyValue("enableIf", val);
-  }
+  @property() enableIf: string;
   public surveyChoiceItemVisibilityChange(): void { }
   public runCondition(properties: HashTable<any>): void {
     if (this.isDesignMode) return;
@@ -2330,12 +2281,7 @@ export class Question extends SurveyElement<Question>
    * @see visible
    * @see SurveyModel.onComplete
    */
-  public get clearIfInvisible(): string {
-    return this.getPropertyValue("clearIfInvisible");
-  }
-  public set clearIfInvisible(val: string) {
-    this.setPropertyValue("clearIfInvisible", val);
-  }
+  @property() clearIfInvisible: string;
   protected getClearIfInvisible(): string {
     const res = this.clearIfInvisible;
     if (!!this.survey) return this.survey.getQuestionClearIfInvisible(res);
@@ -2431,12 +2377,7 @@ export class Question extends SurveyElement<Question>
    * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see setValueIf
    */
-  public get resetValueIf(): string {
-    return this.getPropertyValue("resetValueIf");
-  }
-  public set resetValueIf(val: string) {
-    this.setPropertyValue("resetValueIf", val);
-  }
+  @property() resetValueIf: string;
   /**
    * A Boolean [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). If it evaluates to `true`, the question value is set to a value calculated using the [`setValueExpression`](#setValueExpression).
    *
@@ -2445,12 +2386,7 @@ export class Question extends SurveyElement<Question>
    * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see resetValueIf
    */
-  public get setValueIf(): string {
-    return this.getPropertyValue("setValueIf");
-  }
-  public set setValueIf(val: string) {
-    this.setPropertyValue("setValueIf", val);
-  }
+  @property() setValueIf: string;
   /**
    * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) that calculates the question value.
    *
@@ -2460,12 +2396,7 @@ export class Question extends SurveyElement<Question>
    * @see defaultValueExpression
    * @see resetValueIf
    */
-  public get setValueExpression(): string {
-    return this.getPropertyValue("setValueExpression");
-  }
-  public set setValueExpression(val: string) {
-    this.setPropertyValue("setValueExpression", val);
-  }
+  @property() setValueExpression: string;
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
   }
@@ -2525,12 +2456,7 @@ export class Question extends SurveyElement<Question>
    * @see SurveyModel.getCorrectAnswerCount
    * @see SurveyModel.getIncorrectAnswerCount
    */
-  public get correctAnswer(): any {
-    return this.getPropertyValue("correctAnswer");
-  }
-  public set correctAnswer(val: any) {
-    this.setPropertyValue("correctAnswer", this.valueToData(val));
-  }
+  @property({ onSetting: (val: any, obj: Question) => obj.valueToData(val) }) correctAnswer: any;
   /**
    * The number of quiz questions. A question counts if it is visible, has an input field, and specifies `correctAnswer`.
    * @see [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)
@@ -2687,19 +2613,14 @@ export class Question extends SurveyElement<Question>
     return this.getQuestionComment();
   }
   public set comment(newValue: string) {
-    if (!!newValue && newValue !== this.comment) {
-      const trimmedValue = newValue.toString().trim();
-      if (trimmedValue !== newValue) {
-        newValue = trimmedValue;
-        if (newValue === this.comment) {
-          this.setPropertyValueDirectly("comment", newValue);
-        }
-      }
+    newValue = this.getTrimmedComment(newValue);
+    if (this.comment !== newValue) {
+      this.setNewComment(newValue);
     }
-    if (this.comment == newValue) return;
-    this.setNewComment(newValue);
   }
-
+  protected getTrimmedComment(val: string): string {
+    return typeof val === "string" && !val.trim() ? "" : val;
+  }
   public getCommentAreaCss(isOther: boolean = false): string {
     return new CssClassBuilder()
       .append("form-group", isOther)
@@ -2718,12 +2639,7 @@ export class Question extends SurveyElement<Question>
   public isEmpty(): boolean {
     return this.isValueEmpty(this.value, !this.allowSpaceAsAnswer);
   }
-  public get isAnswered(): boolean {
-    return this.getPropertyValue("isAnswered") || false;
-  }
-  public set isAnswered(val: boolean) {
-    this.setPropertyValue("isAnswered", val);
-  }
+  @property({ returnValue: false }) isAnswered: boolean;
   protected updateIsAnswered(): void {
     const oldVal = this.isAnswered;
     this.setPropertyValue("isAnswered", this.getIsAnswered());
@@ -3220,11 +3136,8 @@ export class Question extends SurveyElement<Question>
       this.getComponentName() === "default"
     );
   }
-  public get renderAs(): string { return this.getPropertyValue("renderAs"); }
-  public set renderAs(val: string) { this.setPropertyValue("renderAs", val); }
-
-  public get inMatrixMode(): boolean { return this.getPropertyValue("inMatrixMode", false); }
-  public set inMatrixMode(val: boolean) { this.setPropertyValue("inMatrixMode", val); }
+  @property() renderAs: string;
+  @property({ defaultValue: false }) inMatrixMode: boolean;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

@@ -32,22 +32,8 @@ export class QuestionImageMapModel extends Question {
   public get isMultiSelect(): boolean {
     return this.isDesignMode ? false : this.multiSelect;
   }
-
-  public get maxSelectedAreas(): number {
-    return this.getPropertyValue("maxSelectedAreas");
-  }
-  public set maxSelectedAreas(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("maxSelectedAreas", val);
-  }
-
-  public get minSelectedAreas(): number {
-    return this.getPropertyValue("minSelectedAreas");
-  }
-  public set minSelectedAreas(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedAreas", val);
-  }
+  @property({ onSetting: (val: number) => val < 0 ? 0 : val }) maxSelectedAreas: number;
+  @property({ onSetting: (val: number) => val < 0 ? 0 : val }) minSelectedAreas: number;
 
   @property() shape: string;
 

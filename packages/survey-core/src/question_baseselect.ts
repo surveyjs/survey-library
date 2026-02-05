@@ -40,26 +40,15 @@ export class ChoiceItem extends ItemValue {
     ];
   }
   public get choiceOwner(): IChoiceOwner { return this.locOwner as IChoiceOwner; }
-  public get showCommentArea(): boolean {
-    return this.getPropertyValue("showCommentArea");
-  }
   public get supportElements(): boolean { return this.choiceOwner?.supportElementsInChoice() === true; }
-  public set showCommentArea(val: boolean) {
-    if (val && !this.supportComment) {
-      val = false;
-    }
-    this.setPropertyValue("showCommentArea", val);
-  }
-  public get isCommentRequired(): boolean {
-    return this.getPropertyValue("isCommentRequired");
-  }
-  public set isCommentRequired(val: boolean) {
-    this.setPropertyValue("isCommentRequired", val);
-  }
+
+  @property({ onSetting: (val: boolean, obj: ChoiceItem) => obj.supportComment ? val : false }) showCommentArea: boolean;
+  @property() isCommentRequired: boolean;
+  @property({ localizable: true }) commentPlaceholder: string;
+
   public get isCommentShowing(): boolean {
     return this.getPropertyValue("isCommentShowing", false);
   }
-  @property({ localizable: true }) commentPlaceholder: string;
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
   }
@@ -165,8 +154,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
-  protected get selectedItemValues(): any { return this.getPropertyValue("selectedItemValues"); }
-  protected set selectedItemValues(val: any) { this.setPropertyValue("selectedItemValues", val); }
+  @property() protected selectedItemValues: any;
 
   constructor(name: string) {
     super(name);
@@ -176,7 +164,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const visibleChoicesChangedProps = ["choices", "customChoices", "choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
-      "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible"];
+      "choiceTextsFromQuestion", "showOtherItem", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible",
+      "choicesOrder"];
     if (visibleChoicesChangedProps.indexOf(name) > -1 && (name !== "choices" || !this.filterItems())) {
       this.onVisibleChoicesChanged();
     }
@@ -185,6 +174,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     if (name === "selectedItemValues") {
       this.onSelectedItemValuesChangedHandler(newValue);
+    }
+    if (name === "choicesVisibleIf" || name === "choicesEnableIf") {
+      this.filterItems();
     }
   }
   public getType(): string {
@@ -386,12 +378,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.getStoreOthersAsComment()) return this.getQuestionComment();
     return this.otherValueCore;
   }
-  protected trimCommentValue(val: string): string {
-    if (val === "" || !!val && val.toString().trim() === "") return undefined;
-    return val;
-  }
   public set otherValue(val: string) {
-    val = this.trimCommentValue(val);
+    val = this.getTrimmedComment(val);
     if (!this.isSettingComment && this.otherValue !== val) {
       this.onUpdateCommentOnAutoOtherMode(val);
       this.updatePrevOtherErrorValue(val);
@@ -500,12 +488,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see [settings.noneItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#noneItemValue)
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get showNoneItem(): boolean {
-    return this.getPropertyValue("showNoneItem");
-  }
-  public set showNoneItem(val: boolean) {
-    this.setPropertyValue("showNoneItem", val);
-  }
+  @property() showNoneItem: boolean;
   public get hasNone(): boolean {
     return this.showNoneItem;
   }
@@ -544,12 +527,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see [settings.refuseItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#refuseItemValue)
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get showRefuseItem(): boolean {
-    return this.getPropertyValue("showRefuseItem");
-  }
-  public set showRefuseItem(val: boolean) {
-    this.setPropertyValue("showRefuseItem", val);
-  }
+  @property() showRefuseItem: boolean;
   /**
    * Returns the "Refuse to answer" choice item. Use this property to change the item's `value` or `text`.
    * @see showRefuseItem
@@ -582,12 +560,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see [settings.dontKnowItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#dontKnowItemValue)
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get showDontKnowItem(): boolean {
-    return this.getPropertyValue("showDontKnowItem");
-  }
-  public set showDontKnowItem(val: boolean) {
-    this.setPropertyValue("showDontKnowItem", val);
-  }
+  @property() showDontKnowItem: boolean;
   /**
    * Returns the "Don't know" choice item. Use this property to change the item's `value` or `text`.
    * @see showDontKnowItem
@@ -635,13 +608,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see visibleIf
    * @see choicesEnableIf
    */
-  public get choicesVisibleIf(): string {
-    return this.getPropertyValue("choicesVisibleIf", "");
-  }
-  public set choicesVisibleIf(val: string) {
-    this.setPropertyValue("choicesVisibleIf", val);
-    this.filterItems();
-  }
+  @property() choicesVisibleIf: string;
   /**
    * A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes read-only.
    *
@@ -653,13 +620,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see enableIf
    * @see choicesVisibleIf
    */
-  public get choicesEnableIf(): string {
-    return this.getPropertyValue("choicesEnableIf", "");
-  }
-  public set choicesEnableIf(val: string) {
-    this.setPropertyValue("choicesEnableIf", val);
-    this.filterItems();
-  }
+  @property() choicesEnableIf: string;
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
@@ -789,8 +750,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.filteredChoicesValue = [];
     const calcVisibility = this.changeItemVisibility();
     const condition = this.areInvisibleElementsShowing ? null : this.getChoicesCondition("choicesVisibleIf");
+    const choices = this.activeChoices;
     return ItemValue.runConditionsForItems(
-      this.activeChoices,
+      choices,
       this.getFilteredChoices(),
       condition,
       properties,
@@ -798,7 +760,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       (item: ItemValue, val: boolean): boolean => {
         return !!calcVisibility ? calcVisibility(item, val) : val;
       }
-    );
+    ) || this.isCarryForwardChanged(choices);
+  }
+  private isCarryForwardChanged(choices: Array<ItemValue>): boolean {
+    if (!this.isUsingCarryForward) return false;
+    const visChoices = this.visibleChoices;
+    if (visChoices.length !== choices.length) return true;
+    for (let i = 0; i < choices.length; i++) {
+      if (visChoices[i].value !== choices[i].value) return true;
+    }
+    return false;
   }
   protected isOtherValue(val: any): boolean {
     if (Array.isArray(val)) {
@@ -815,12 +786,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected createRestful(): ChoicesRestful {
     return new ChoicesRestful();
   }
-  get autoOtherMode(): boolean {
-    return this.getPropertyValue("autoOtherMode");
-  }
-  set autoOtherMode(val: boolean) {
-    this.setPropertyValue("autoOtherMode", val);
-  }
+  @property() autoOtherMode: boolean;
   protected getQuestionComment(): string {
     if (this.showCommentArea) return super.getQuestionComment();
     if (!!this.otherValueCore) return this.otherValueCore;
@@ -1013,9 +979,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     let val = this.otherValue;
-    if (!val) return false;
-    val = val.trim();
-    if (!val) return false;
+    if (!this.getTrimmedComment(val)) return false;
     return this.hasUnknownValue(val, true, false);
   }
   protected getIsQuestionReady(): boolean {
@@ -1184,12 +1148,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see choicesFromQuestion
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get choices(): Array<any> {
-    return this.getPropertyValue("choices");
-  }
-  public set choices(newValue: Array<any>) {
-    this.setPropertyValue("choices", newValue);
-  }
+  @property() choices: Array<any>;
   /**
    * Copies choice items from a specified question. Accepts a question name.
    *
@@ -1228,12 +1187,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * > Use the [`visibleChoices`](#visibleChoices) property to access copied choice items in code.
    */
-  public get choicesFromQuestionMode(): string {
-    return this.getPropertyValue("choicesFromQuestionMode");
-  }
-  public set choicesFromQuestionMode(val: string) {
-    this.setPropertyValue("choicesFromQuestionMode", val);
-  }
+  @property() choicesFromQuestionMode: string;
   /**
    * Specifies which matrix column or dynamic panel question supplies choice values. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
    *
@@ -1241,12 +1195,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/pipe-answers-from-dynamic-matrix-or-panel/ (linkStyle))
    */
-  public get choiceValuesFromQuestion(): string {
-    return this.getPropertyValue("choiceValuesFromQuestion");
-  }
-  public set choiceValuesFromQuestion(val: string) {
-    this.setPropertyValue("choiceValuesFromQuestion", val);
-  }
+  @property() choiceValuesFromQuestion: string;
   /**
    * Specifies which matrix column or dynamic panel question supplies choice texts. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
    *
@@ -1254,42 +1203,22 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/pipe-answers-from-dynamic-matrix-or-panel/ (linkStyle))
    */
-  public get choiceTextsFromQuestion(): string {
-    return this.getPropertyValue("choiceTextsFromQuestion");
-  }
-  public set choiceTextsFromQuestion(val: string) {
-    this.setPropertyValue("choiceTextsFromQuestion", val);
-  }
+  @property() choiceTextsFromQuestion: string;
   /**
    * Specifies whether to hide the question if no choice items are visible.
    *
    * This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
    */
-  public get hideIfChoicesEmpty(): boolean {
-    return this.getPropertyValue("hideIfChoicesEmpty");
-  }
-  public set hideIfChoicesEmpty(val: boolean) {
-    this.setPropertyValue("hideIfChoicesEmpty", val);
-  }
+  @property() hideIfChoicesEmpty: boolean;
   /**
    * Specifies whether to keep values that cannot be assigned to this question, for example, choices unlisted in the `choices` array.
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    * @see clearIncorrectValues
    */
-  public get keepIncorrectValues(): boolean {
-    return this.getPropertyValue("keepIncorrectValues", false);
-  }
-  public set keepIncorrectValues(val: boolean) {
-    this.setPropertyValue("keepIncorrectValues", val);
-  }
+  @property() keepIncorrectValues: boolean;
 
-  public get storeOthersAsComment(): any {
-    return this.getPropertyValue("storeOthersAsComment");
-  }
-  public set storeOthersAsComment(val: any) {
-    this.setPropertyValue("storeOthersAsComment", val);
-  }
+  @property() storeOthersAsComment: any;
   /**
    * Specifies the sort order of choice items.
    *
@@ -1301,15 +1230,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * - `"random"` - Displays choice items in random order.
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get choicesOrder(): string {
-    return this.getPropertyValue("choicesOrder");
-  }
-  public set choicesOrder(val: string) {
-    val = val.toLowerCase();
-    if (val == this.choicesOrder) return;
-    this.setPropertyValue("choicesOrder", val);
-    this.onVisibleChoicesChanged();
-  }
+  @property({ isLowerCase: true }) choicesOrder: string;
   /**
    * Gets or sets a caption for the "Other" choice item.
    * @see showOtherItem
@@ -1334,8 +1255,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get separateSpecialChoices(): boolean { return this.getPropertyValue("separateSpecialChoices"); }
-  public set separateSpecialChoices(val: boolean) { this.setPropertyValue("separateSpecialChoices", val); }
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem
@@ -1596,12 +1516,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.isEmptyActiveChoicesInDesign) return [];
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
-  public get isMessagePanelVisible(): boolean {
-    return this.getPropertyValue("isMessagePanelVisible", false);
-  }
-  public set isMessagePanelVisible(val: boolean) {
-    this.setPropertyValue("isMessagePanelVisible", val);
-  }
+  @property() isMessagePanelVisible: boolean;
   private get isEmptyActiveChoicesInDesign(): boolean {
     return this.isInDesignMode && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
@@ -1727,15 +1642,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showCommentArea
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get showOtherItem(): boolean {
-    return this.getPropertyValue("showOtherItem", false);
-  }
-  public set showOtherItem(val: boolean) {
-    if (!this.supportOther() || this.showOtherItem == val) return;
-    this.setPropertyValue("showOtherItem", val);
-    this.onVisibleChoicesChanged();
-  }
-
+  @property({ onSetting: (val: boolean, obj: QuestionSelectBase) => obj.supportOther() ? val : false }) showOtherItem: boolean;
   public get hasOther(): boolean {
     return this.showOtherItem;
   }
@@ -1882,10 +1789,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
   }
   private onOtherValueChange(item: ItemValue, event: any): void {
-    this.setCommentValueCore(item, (event.target?.value || "").trim());
+    const target = event.target;
+    if (!target) return;
+    this.setCommentValueCore(item, target.value || "");
     const val = this.getCommentValueCore(item);
-    if (val !== event.target.value) {
-      event.target.value = val || "";
+    if (val !== target.value) {
+      target.value = val || "";
     }
   }
   private isRunningChoicesValue: boolean = false;
@@ -2493,12 +2402,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * [Checkboxes and Radio Button Group Demo](https://surveyjs.io/form-library/examples/add-custom-items-to-single-and-multi-select-questions/ (linkStyle))
    */
-  public get itemComponent(): string {
-    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
-  }
-  public set itemComponent(value: string) {
-    this.setPropertyValue("itemComponent", value);
-  }
+  @property({ getDefaultValue: (obj: QuestionSelectBase) => obj.getDefaultItemComponent() }) itemComponent: string;
 }
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).

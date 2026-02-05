@@ -1,4 +1,4 @@
-<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" 
+<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" [style.--sd-progress-buttons-pages-count]="survey.visiblePages.length"
 role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="model.progressBarAriaLabel"
 >
   <div *ngIf="canShowHeader" [class]="survey.css.progressButtonsHeader">

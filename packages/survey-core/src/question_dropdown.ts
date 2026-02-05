@@ -137,12 +137,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMax
    * @see choicesStep
    */
-  public get choicesMin(): number {
-    return this.getPropertyValue("choicesMin");
-  }
-  public set choicesMin(val: number) {
-    this.setPropertyValue("choicesMin", val);
-  }
+  @property() choicesMin: number;
   /**
    * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
@@ -154,12 +149,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMin
    * @see choicesStep
    */
-  public get choicesMax(): number {
-    return this.getPropertyValue("choicesMax");
-  }
-  public set choicesMax(val: number) {
-    this.setPropertyValue("choicesMax", val);
-  }
+  @property() choicesMax: number;
   /**
    * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
@@ -173,20 +163,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMin
    * @see choicesMax
    */
-  public get choicesStep(): number {
-    return this.getPropertyValue("choicesStep");
-  }
-  public set choicesStep(val: number) {
-    if (val < 1) val = 1;
-    this.setPropertyValue("choicesStep", val);
-  }
+  @property({ onSetting: (val) => val < 1 ? 1 : val }) choicesStep: number;
 
-  public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete");
-  }
-  public set autocomplete(val: string) {
-    this.setPropertyValue("autocomplete", val);
-  }
+  @property() autocomplete: string;
 
   /**
    * Specifies whether to display a button that clears the selected value.

@@ -1676,6 +1676,74 @@ QUnit.test("Use carryForward with matrix dynamic + choiceValuesFromQuestion", fu
   assert.equal(q2.visibleChoices.length, 3, "There are three choice");
   assert.equal(q2.visibleChoices[2].value, "CC", "the third value is correct");
 });
+QUnit.test("Use carryForward with matrix dynamic & expression value + choiceValuesFromQuestion, Bug#10859", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q1",
+      columns: [
+        { name: "col1", cellType: "text" },
+        { name: "col2", cellType: "text" },
+        { name: "col3", cellType: "expression", expression: "iif({row.col1} notempty and {row.col2} notempty, {row.col1} + '-' + {row.col2}, '')" }
+      ] },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "col3" }
+  ] });
+  const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.choiceValuesFromQuestion, "col3", "choiceValuesFromQuestion is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  q1.visibleRows[0].cells[0].value = "A";
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, col2 is empty");
+  q1.visibleRows[0].cells[1].value = "AA";
+  assert.equal(q1.visibleRows[0].getValue("col3"), "A-AA", "The expression value is correct");
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "A-AA", "the first value is correct");
+  q1.visibleRows[1].cells[0].value = "B";
+  q1.visibleRows[1].cells[1].value = "BB";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "B-BB", "the second value is correct");
+  q1.addRow();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new row is empty");
+  q1.visibleRows[2].cells[0].value = "C";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, col2 is empty");
+  q1.visibleRows[2].cells[1].value = "CC";
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "C-CC", "the third value is correct");
+});
+QUnit.test("Use carryForward with panel dynamic & expression value + choiceValuesFromQuestion, Bug#10859", (assert) => {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1",
+      templateElements: [
+        { name: "col1", type: "text" },
+        { name: "col2", type: "text" },
+        { name: "col3", type: "expression", expression: "iif({panel.col1} notempty and {panel.col2} notempty, {panel.col1} + '-' + {panel.col2}, '')" }
+      ] },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "col3" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.choiceValuesFromQuestion, "col3", "choiceValuesFromQuestion is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  let panel = q1.addPanel();
+  panel.questions[0].value = "A";
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, col2 is empty");
+  panel.questions[1].value = "AA";
+  assert.equal(panel.getQuestionByName("col3").value, "A-AA", "The expression value is correct");
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "A-AA", "the first value is correct");
+  panel = q1.addPanel();
+  panel.questions[0].value = "B";
+  panel.questions[1].value = "BB";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "B-BB", "the second value is correct");
+  panel = q1.addPanel();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new panel is empty");
+  panel.questions[0].value = "C";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, col2 is empty");
+  panel.questions[1].value = "CC";
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "C-CC", "the third value is correct");
+});
 QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion&choiceTextsFromQuestion", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", panelCount: 2,
@@ -3412,6 +3480,35 @@ QUnit.test("commentPlaceholder serialization", (assert) => {
   q.choices[0].locCommentPlaceholder.clear();
   assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder #2");
 });
+QUnit.test("Do not remove spaces in other area, bug#10875", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        showOtherItem: true,
+        choices: [
+          "Item 1",
+          "Item 2",
+          "Item 3"
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = "other";
+  const otherArea = q1.otherTextAreaModel;
+  assert.ok(!!otherArea, "otherText is created");
+  otherArea.onTextAreaBlur({ target: { value: "   some text   " } });
+  assert.equal(q1.otherValue, "   some text   ", "do not trim spaces");
+  assert.deepEqual(survey.data, { q1: "other", "q1-Comment": "   some text   " }, "data is correct");
+  assert.equal(q1.validate(), true, "no error on validation");
+  otherArea.onTextAreaBlur({ target: { value: "      " } });
+  assert.equal(q1.otherValue, "", "trim spaces to empty, #2");
+  assert.equal(q1.validate(), false, "there is an error on validation");
+  assert.deepEqual(survey.data, { q1: "other" }, "There is no comment in data");
+});
 QUnit.test("checbox question and choices has comment - custom placeholder", (assert) => {
   const survey = new SurveyModel({
     "elements": [
@@ -3543,7 +3640,7 @@ QUnit.test("showOtherItem & textUpdateMode = 'onTyping' , Bug#10402", (assert) =
   assert.equal(q1.otherValue, "abc ", "q1.otherValue #1");
   assert.equal(survey.getComment("q1"), "abc ", "survey.data #1");
   q1.getCommentTextAreaModel(q1.otherItem).onTextAreaChange({ target: { value: "abc xy " } });
-  assert.equal(q1.otherValue, "abc xy", "q1.otherValue #2");
+  assert.equal(q1.otherValue, "abc xy ", "q1.otherValue #2");
 });
 QUnit.test("radiogroup & checkbox questions and choices has comment - display value, Bug#10193", (assert) => {
   const survey = new SurveyModel({

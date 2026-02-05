@@ -65,29 +65,14 @@ export class QuestionCommentModel extends QuestionTextBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
    */
-  public get rows(): number {
-    return this.getPropertyValue("rows");
-  }
-  public set rows(val: number) {
-    this.setPropertyValue("rows", val);
-  }
-  public get cols(): number {
-    return this.getPropertyValue("cols");
-  }
-  public set cols(val: number) {
-    this.setPropertyValue("cols", val);
-  }
+  @property() rows: number;
+  @property() cols: number;
   /**
    * Specifies whether the question allows line breaks.
    *
    * When this property is enabled, a user can press Enter to insert line breaks. They are saved as `\n` in survey results. The Comment question also recognizes and interprets the `\n` sequence as a line break when you set the question `value` in code.
    */
-  public get acceptCarriageReturn(): boolean {
-    return this.getPropertyValue("acceptCarriageReturn");
-  }
-  public set acceptCarriageReturn(val: boolean) {
-    this.setPropertyValue("acceptCarriageReturn", val);
-  }
+  @property() acceptCarriageReturn: boolean;
   /**
    * Specifies whether the comment area automatically increases its height to accomodate multi-line content.
    *
@@ -96,12 +81,7 @@ export class QuestionCommentModel extends QuestionTextBase {
    * [View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
    * @see allowResize
    */
-  public get autoGrow(): boolean | undefined {
-    return this.getPropertyValue("autoGrow");
-  }
-  public set autoGrow(val: boolean | undefined) {
-    this.setPropertyValue("autoGrow", val);
-  }
+  @property() autoGrow: boolean | undefined;
   public get renderedAutoGrow(): boolean {
     const autoGrow = this.autoGrow;
     return autoGrow === undefined && this.survey ? this.survey.autoGrowComment : !!autoGrow;
@@ -114,12 +94,7 @@ export class QuestionCommentModel extends QuestionTextBase {
    * [View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
    * @see autoGrow
    */
-  public get allowResize(): boolean | undefined {
-    return this.getPropertyValue("allowResize");
-  }
-  public set allowResize(val: boolean | undefined) {
-    this.setPropertyValue("allowResize", val);
-  }
+  @property() allowResize: boolean | undefined;
   public get renderedAllowResize(): boolean {
     const res = this.allowResize;
     if (res === undefined && this.survey) {

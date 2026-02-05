@@ -47,7 +47,7 @@ import {
   UrlConditionItem,
   ExpressionItem,
 } from "./expressionItems";
-import { ExpressionRunner, ConditionRunner } from "./conditions";
+import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
 import { settings } from "./settings";
 import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
 import { SurveyError } from "./survey-error";
@@ -89,7 +89,6 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
-import { FunctionFactory } from "./functionsfactory";
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
@@ -6760,7 +6759,7 @@ export class SurveyModel extends SurveyElementCore
     if (!name) return null;
     name = name.toLowerCase();
     const res = this.getVariableCore(name);
-    FunctionFactory.Instance.addSurveyCachedValue(name, res, true);
+    expressionSurveyCachedValue(name, res, true);
     return res;
   }
   private getVariableCore(name: string): any {
@@ -6825,7 +6824,7 @@ export class SurveyModel extends SurveyElementCore
     if (!name || name.length == 0) return null;
     var value = this.getDataValueCore(this.valuesHash, name);
     const res = this.getUnbindValue(value);
-    FunctionFactory.Instance.addSurveyCachedValue(name, res);
+    expressionSurveyCachedValue(name, res);
     return res;
   }
   /**

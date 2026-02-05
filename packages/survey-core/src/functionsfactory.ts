@@ -12,9 +12,20 @@ interface IFunctionInfo {
   isAsync: boolean;
   useCache: boolean;
 }
+interface IFunctionCachedSurveyValue {
+  name: string;
+  value: any;
+  isVariable: boolean;
+}
+interface IFunctionCachedObjectValue {
+  obj: any;
+  name: string;
+  value: any;
+}
 interface IFunctionCachedInfo {
   parameters: any[];
-  surveyValues: any[];
+  surveyValues: IFunctionCachedSurveyValue[];
+  objectValues: IFunctionCachedObjectValue[];
   result: any;
 }
 export class FunctionFactory {
@@ -84,9 +95,12 @@ export class FunctionFactory {
       }
     }
     this.surveyCachedValues = funcInfo.useCache ? [] : undefined;
+    this.objsCachedValues = funcInfo.useCache ? [] : undefined;
     const res = classRunner.func(params, originalParams);
     properties.surveyCachedValues = this.surveyCachedValues;
+    properties.objsCachedValues = this.objsCachedValues;
     this.surveyCachedValues = undefined;
+    this.objsCachedValues = undefined;
     if (!funcInfo.isAsync) {
       this.addToCache(funcInfo, params, properties, res);
     }
@@ -96,17 +110,23 @@ export class FunctionFactory {
     if (!this.surveyCachedValues) return;
     this.surveyCachedValues.push({ name, value, isVariable: !!isVariable });
   }
-  private surveyCachedValues: any[];
+  public addObjectCachedValue(obj: any, name: string, value: any): void {
+    if (!this.objsCachedValues) return;
+    this.objsCachedValues.push({ obj, name, value });
+  }
+  private surveyCachedValues: IFunctionCachedSurveyValue[];
+  private objsCachedValues: IFunctionCachedObjectValue[];
   private addToCache(funcInfo: IFunctionInfo, params: any[], properties: HashTable<any>, result: any): void {
     if (!funcInfo.useCache) return;
-    const values = properties.surveyCachedValues;
-    if (params.length === 0 && values.length === 0) return;
+    const surveyValues = properties.surveyCachedValues;
+    const objectValues = properties.objsCachedValues;
+    if (params.length === 0 && surveyValues.length === 0 && objectValues.length === 0) return;
     let cachedList = this.functionCache[funcInfo.name];
     if (!Array.isArray(cachedList)) {
       cachedList = [];
       this.functionCache[funcInfo.name] = cachedList;
     }
-    cachedList.push({ parameters: params, result: result, surveyValues: values });
+    cachedList.push({ parameters: params, result: result, surveyValues: surveyValues, objectValues: objectValues });
   }
   private getCachedValue(funcInfo: IFunctionInfo, params: any[], survey: any): IFunctionCachedResult | undefined {
     if (funcInfo && !funcInfo.useCache) return undefined;
@@ -114,6 +134,10 @@ export class FunctionFactory {
     if (!Array.isArray(cachedList)) return undefined;
     for (let i = cachedList.length - 1; i >= 0; i--) {
       const item = cachedList[i];
+      if (this.hasDisposedObj(item.objectValues)) {
+        cachedList.splice(i, 1);
+        continue;
+      }
       if (this.isChachedItemValid(item, params, survey)) {
         return { result: item.result };
       }
@@ -133,7 +157,26 @@ export class FunctionFactory {
         if (!Helpers.isTwoValueEquals(newValue, value)) return false;
       }
     }
+    const objsValues = item.objectValues;
+    if (Array.isArray(objsValues) && objsValues.length > 0) {
+      for (let i = 0; i < objsValues.length; i++) {
+        const item = objsValues[i];
+        const obj = item.obj;
+        const name = item.name;
+        const newValue = obj.getPropertyValueWithoutDefault(name);
+        if (!Helpers.isTwoValueEquals(newValue, item.value) &&
+          (item.value !== undefined || newValue !== obj.getDefaultPropertyValue(name))) return false;
+      }
+    }
     return true;
+  }
+  private hasDisposedObj(objectValues: IFunctionCachedObjectValue[]): boolean {
+    if (!Array.isArray(objectValues)) return false;
+    for (let i = 0; i < objectValues.length; i++) {
+      const obj = objectValues[i].obj;
+      if (obj.isDisposed === true) return true;
+    }
+    return false;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
     return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);

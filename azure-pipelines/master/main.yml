@@ -127,7 +127,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true

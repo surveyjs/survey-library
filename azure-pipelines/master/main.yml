@@ -134,7 +134,7 @@ jobs:
         displayName: "Copy Build Artifact - SurveyJSVersion File"
 
       - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/ReleaseVersionFile/version.txt
+          $version = Get-Content $(Build.SourcesDirectory)/version.txt
           Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
         displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
       ##########################################################################

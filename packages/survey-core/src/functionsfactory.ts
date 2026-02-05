@@ -22,6 +22,7 @@ export class FunctionFactory {
   private functionCache: HashTable<Array<IFunctionChachedInfo>> = {};
 
   public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
+    this.clearCache(name);
     this.functionHash[name] = { name, func, isAsync: !!isAsync, useCache: !!useCache };
   }
   public unregister(name: string): void {

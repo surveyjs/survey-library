@@ -8,6 +8,7 @@ export * from "./components/text-area/text-area.component";
 export * from "./components/popup/popup-pointer.component";
 export * from "./components/popup/popup.component";
 export * from "./components/popup/popup-container.component";
+export * from "./components/popup/popup-close-button.component";
 export * from "./components/skeleton.component";
 export * from "./components/scroll/scroll.component";
 export * from "./components/dropdown/dropdown.component";

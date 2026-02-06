@@ -113,7 +113,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return !!this.model.showCloseButton;
   }
   protected getPopupHeaderTemplate(): string {
-    return undefined;
+    return this.model.showCloseButton ? "popup-close-button" : undefined;
   }
   protected createFooterActionBar(): void {
     this.footerToolbarValue = new ActionContainer();

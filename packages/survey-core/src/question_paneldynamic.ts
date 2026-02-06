@@ -146,7 +146,6 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
       }
       return { isFound: false };
     }
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
       if (index >= 0 && index < pd.panels.length) {
         const item = <QuestionPanelDynamicItem>pd.panels[index].data;
@@ -155,6 +154,7 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
       }
       return { isFound: false, value: undefined, context: this };
     }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     return super.getValue(params);
   }
 }

@@ -250,3 +250,37 @@ QUnit.test("Caching by accessing elements values & properties", (assert) => {
 
   unRegisterFunction("func1");
 });
+QUnit.test("Do not cache surveyjs objects", (assert) => {
+  function func1(): any {
+    const page = this.survey.pages[0];
+    const questions = page.questions;
+    const val1 = questions[0].value;
+    return (val1 || 0) + 10;
+  }
+  registerFunction("func1", func1, false, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "expression", name: "exp1", expression: "func1()" }
+    ]
+  });
+  FunctionFactory.Instance.clearCache();
+  const q1 = survey.getQuestionByName("q1");
+  const exp = survey.getQuestionByName("exp1");
+  q1.value = 5;
+  assert.equal(exp.value, 15, "5 + 10 = 15");
+
+  const cache = FunctionFactory.Instance["functionCache"]["func1"];
+  assert.equal(cache.length, 1, "There is one survey cached value");
+  const item = cache[0];
+  assert.equal(item.surveyValues.length, 0, "There is no survey cached value item");
+  assert.equal(item.parameters.length, 0, "There is no parameters in cache");
+  assert.equal(item.objectValues.length, 1, "There is one object cached value item");
+  const objItem = item.objectValues[0];
+  assert.equal(objItem.obj.name, "q1", "The cached object is q1");
+  assert.equal(objItem.name, "value", "The cached property name is value");
+  assert.equal(objItem.value, 5, "The cached value is 5");
+
+  unRegisterFunction("func1");
+});

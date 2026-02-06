@@ -112,7 +112,13 @@ export class FunctionFactory {
   }
   public addObjectCachedValue(obj: any, name: string, value: any): void {
     if (!this.objsCachedValues) return;
-    this.objsCachedValues.push({ obj, name, value });
+    if (!this.isSurveyObjectValue(value)) {
+      this.objsCachedValues.push({ obj, name, value });
+    }
+  }
+  private isSurveyObjectValue(value: any): boolean {
+    const checkedValue = Array.isArray(value) && value.length > 0 ? value[0] : value;
+    return !!checkedValue && typeof checkedValue === "object" && typeof checkedValue.getType === "function";
   }
   private surveyCachedValues: IFunctionCachedSurveyValue[];
   private objsCachedValues: IFunctionCachedObjectValue[];

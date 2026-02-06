@@ -420,6 +420,7 @@ frameworks.forEach(framework => {
     test("Popup modal with close button", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
       await page.evaluate(() => {
         const locStr = new window["Survey"].LocalizableString(undefined, false);
         locStr.defaultValue = "Message";

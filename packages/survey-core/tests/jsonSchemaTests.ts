@@ -15,6 +15,13 @@ QUnit.test("generate survey schema", function (assert) {
   assert.notOk(schema.properties.isSinglePage, "isSinglePage is not seriazable");
   assert.equal(schema.properties.locale.type, "string", "locale is string");
   assert.notOk(schema.properties.locale.enum, "locale enum is not seriazable");
+  assert.deepEqual(schema.properties.completedHtml,
+    { "oneOf": [
+      { "type": "string" },
+      { "$ref": "#/definitions/locstring" }
+    ] },
+    "survey.completedHtml is Localization property"
+  );
   assert.equal(
     schema.properties.showPreviewBeforeComplete.type,
     "boolean",

@@ -2467,6 +2467,7 @@ export class QuestionPanelDynamicModel extends Question
   private isSetPanelItemData: HashTable<number> = {};
   private static maxCheckCount = 3;
   setPanelItemData(item: ISurveyData, name: string, val: any): void {
+    if (item === this.template.data) return;
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
     if (!this.isSetPanelItemData[name]) {

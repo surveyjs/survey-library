@@ -656,11 +656,8 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    const maxLength = this.getMaxLength();
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99);
+  protected getRootCssClassBuilder(): CssClassBuilder {
+    return super.getRootCssClassBuilder();
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

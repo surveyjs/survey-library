@@ -6,16 +6,6 @@ import { CharacterCounterComponent } from "./components/character-counter";
 import { TextAreaComponent } from "./components/text-area";
 
 export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<QuestionCommentModel> {
-  private renderCharacterCounter(): React.JSX.Element | null {
-    let counter: React.JSX.Element | null = null;
-    if (!!this.question.getMaxLength()) {
-      counter = <CharacterCounterComponent
-        counter={this.question.characterCounter}
-        remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}>
-      </CharacterCounterComponent>;
-    }
-    return counter;
-  }
   constructor(props: any) {
     super(props);
   }
@@ -24,12 +14,10 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
       return <div>{this.question.value}</div>;
     }
 
-    const counter = this.renderCharacterCounter();
     const textAreaModel: TextAreaModel = this.props.question.textAreaModel;
     return (
       <>
         <TextAreaComponent viewModel={textAreaModel}></TextAreaComponent>
-        {counter}
       </>
     );
   }

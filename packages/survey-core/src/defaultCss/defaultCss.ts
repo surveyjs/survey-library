@@ -399,16 +399,16 @@ export var defaultCss = {
     svgIconCheckedId: "#icon-check-16x16",
   },
   text: {
-    root: "sd-input sd-text",
+    root: "sd-formbox sd-text",
     small: "sd-row__question--small",
-    controlDisabled: "sd-input--disabled",
-    controlReadOnly: "sd-input--readonly",
-    controlPreview: "sd-input--preview",
-    constrolWithCharacterCounter: "sd-text__character-counter",
-    characterCounterBig: "sd-text__character-counter--big",
+    group: "sd-formbox__group",
+    rootDisabled: "sd-formbox--disabled",
+    rootReadOnly: "sd-formbox--readonly",
+    rootPreview: "sd-formbox--preview",
+    control: "sd-formbox__input",
     content: "sd-text__content sd-question__content",
-    remainingCharacterCounter: "sd-remaining-character-counter",
-    onError: "sd-input--error"
+    characterCounter: "sd-formbox__character-counter",
+    onError: "sd-formbox--error"
   },
   multipletext: {
     root: "sd-multipletext",
@@ -717,14 +717,18 @@ export var defaultCss = {
     clearButton: "",
   },
   comment: {
-    root: "sd-input sd-comment",
+    root: "sd-formbox sd-comment",
     small: "sd-row__question--small",
-    controlDisabled: "sd-input--disabled",
-    controlReadOnly: "sd-input--readonly",
-    controlPreview: "sd-input--preview",
+    rootDisabled: "sd-formbox--disabled",
+    rootReadOnly: "sd-formbox--readonly",
+    rootPreview: "sd-formbox--preview",
+    control: "sd-formbox__input sd-comment__input",
+    group: "sd-formbox__group sd-comment__group",
+    grip: "sd-comment__grip",
+    gripIconId: "icon-grip",
     content: "sd-comment__content sd-question__content",
-    remainingCharacterCounter: "sd-remaining-character-counter",
-    onError: "sd-input--error"
+    characterCounter: "sd-formbox__character-counter sd-comment__character-counter",
+    onError: "sd-formbox--error"
   },
   expression: "sd-expression",
   file: {

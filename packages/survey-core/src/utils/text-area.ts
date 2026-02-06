@@ -1,11 +1,20 @@
 import { increaseHeightByContent } from "./utils";
 import { Question } from "../question";
+import { CharacterCounter } from "../question_textbase";
 
+interface ITextAreaCssClasses {
+    root?: string;
+    group?: string;
+    grip?: string;
+    control?: string;
+    gripIconId?: string;
+    characterCounter?: string;
+}
 export interface ITextArea {
   question: any;
   id: () => string;
   propertyNames: Array<string>;
-  className: () => string;
+  cssClasses: () => ITextAreaCssClasses;
   isDisabledAttr: () => boolean;
   isReadOnlyAttr?: () => boolean;
   placeholder: () => string;
@@ -19,7 +28,7 @@ export interface ITextArea {
   onTextAreaKeyDown?: (event: any) => void;
   onTextAreaBlur?: (event: any) => void;
   onTextAreaFocus?: (event: any) => void;
-
+  characterCounter?: () => CharacterCounter;
   ariaRequired: () => "true" | "false";
   ariaLabel: () => string;
   ariaInvalid?: () => "true" | "false";
@@ -100,8 +109,11 @@ export class TextAreaModel {
   get placeholder(): string {
     return this.options.placeholder();
   }
-  get className(): string {
-    return this.options.className();
+  getCssClasses(): ITextAreaCssClasses {
+    return this.options.cssClasses();
+  }
+  get characterCounter(): CharacterCounter {
+    return this.options.characterCounter && this.options.characterCounter();
   }
   get maxLength(): number {
     if (this.options.maxLength)

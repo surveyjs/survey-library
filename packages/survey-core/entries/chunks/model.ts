@@ -333,6 +333,7 @@ export { InputMaskDateTime } from "../../src/mask/mask_datetime";
 export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
+export * from "../../src/utils/resize-manager";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

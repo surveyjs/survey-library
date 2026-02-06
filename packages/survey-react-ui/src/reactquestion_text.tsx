@@ -3,6 +3,7 @@ import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
+import { group } from "console";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel
@@ -12,6 +13,11 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     super(props);
     //this.controlRef = React.createRef();
   }
+  private onContainerClick(event: any) {
+    if (event.target == event.currentTarget) {
+      this.control?.focus();
+    }
+  }
   protected renderInput() {
     const inputClass = (this.question as QuestionTextModel).getControlClass();
 
@@ -19,9 +25,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.inputValue}</div>;
     }
-    const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
+    const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.characterCounter}></CharacterCounterComponent>) : null;
+    const group = counter ? <div className={this.question.cssClasses.group}>{counter}</div> : null;
     return (
-      <>
+      <div className={this.question.cssClasses.root} onClick={(event) => this.onContainerClick(event)}>
         <input
           id={this.question.inputId}
           // disabled={this.isDisplayMode}
@@ -55,8 +62,8 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           aria-invalid={this.question.a11y_input_ariaInvalid}
           aria-errormessage={this.question.a11y_input_ariaErrormessage}
         />
-        {counter}
-      </>
+        {group}
+      </div>
     );
   }
   protected renderElement(): React.JSX.Element {

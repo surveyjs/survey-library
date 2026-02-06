@@ -3,11 +3,42 @@
 .sd-comment {
   display: block;
   height: auto;
-  min-width: calcSize(6);
-  min-height: calcSize(6);
+  width: 100%;
   max-width: 100%;
 }
+.sd-comment:has(.sd-comment__input[style*="width"]) {
+  width: fit-content;
+}
+.sd-comment__input {
+  max-width: 100%;
+  min-width: calcSize(6);
+  min-height: calcSize(6);
+}
 
-.sd-comment__content {
+.sd-comment {
   position: relative;
+  flex-direction: column;
+  gap: calcSize(1);
+}
+.sd-comment__grip {
+  cursor: se-resize;
+  position: absolute;
+  right: calcSize(0.25);
+  bottom: calcSize(0.25);
+  .sv-svg-icon {
+    display: block;
+    fill: #1c1b2066;
+    width: calcSize(2);
+    height: calcSize(2);
+  }
+}
+.sd-comment__character-counter {
+  display: block;
+  opacity: 0;
+}
+
+.sd-comment:focus-within {
+  .sd-comment__character-counter {
+    opacity: 1;
+  }
 }

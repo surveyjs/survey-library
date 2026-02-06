@@ -188,9 +188,18 @@ export class FunctionFactory {
     return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);
   }
 }
-
-export var registerFunction = FunctionFactory.Instance.register.bind(FunctionFactory.Instance);
-export var unRegisterFunction = FunctionFactory.Instance.unregister.bind(FunctionFactory.Instance);
+export interface IFunctionRegistration {
+  name: string;
+  func: (params: any[], originalParams?: any[]) => any;
+  isAsync?: boolean;
+  useCache?: boolean;
+}
+export function registerFunction(info: IFunctionRegistration): void {
+  FunctionFactory.Instance.register(info.name, info.func, info.isAsync, info.useCache);
+}
+export function unRegisterFunction(name: string): void {
+  FunctionFactory.Instance.unregister(name);
+}
 
 function getParamsAsArray(value: any, arr: any[]) {
   if (value === undefined || value === null) return;

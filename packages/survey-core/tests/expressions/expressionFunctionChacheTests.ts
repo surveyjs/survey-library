@@ -10,7 +10,7 @@ QUnit.test("Simple caching by parameter", (assert) => {
     counter++;
     return params[0] + 10;
   }
-  registerFunction("func1", func1, false, true);
+  registerFunction({ name: "func1", func: func1, useCache: true });
   var runner = new ExpressionRunner("func1({val})");
   const values = { val: 5 };
   assert.equal(runner.runValues(values), 15, "5 + 10 = 15");
@@ -29,7 +29,7 @@ QUnit.test("Async caching by parameter", (assert) => {
   function func1(params: any[]): any {
     resolveFuncs.push(this.returnResult);
   }
-  registerFunction("func1", func1, true, true);
+  registerFunction({ name: "func1", func: func1, isAsync: true, useCache: true });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -65,7 +65,7 @@ QUnit.test("Simple caching by accessing survey values", (assert) => {
     const q1Val = this.survey.getValue("q1");
     return (q1Val || 0) + 10;
   }
-  registerFunction("func1", func1, false, true);
+  registerFunction({ name: "func1", func: func1, useCache: true });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -111,7 +111,7 @@ QUnit.test("Simple caching by accessing survey values & variables", (assert) => 
     const var1 = this.survey.getVariable("var1");
     return (q1Val || 0) + (var1 || 0) + 10;
   }
-  registerFunction("func1", func1, false, true);
+  registerFunction({ name: "func1", func: func1, useCache: true });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -165,7 +165,7 @@ QUnit.test("Simple caching by accessing question value", (assert) => {
     const q1Val = q1.value;
     return (q1Val || 0) + 10;
   }
-  registerFunction("func1", func1, false, true);
+  registerFunction({ name: "func1", func: func1, useCache: true });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -214,7 +214,7 @@ QUnit.test("Caching by accessing elements values & properties", (assert) => {
     const val = q1.isVisible ? q1Val : q2Val;
     return (val || 0) + 10;
   }
-  registerFunction("func1", func1, false, true);
+  registerFunction({ name: "func1", func: func1, useCache: true });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -257,7 +257,7 @@ QUnit.test("Do not cache surveyjs objects", (assert) => {
     const val1 = questions[0].value;
     return (val1 || 0) + 10;
   }
-  registerFunction("func1", func1, false, true);
+  registerFunction({ name: "func1", func: func1, useCache: true });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },

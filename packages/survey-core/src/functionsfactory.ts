@@ -144,13 +144,13 @@ export class FunctionFactory {
         cachedList.splice(i, 1);
         continue;
       }
-      if (this.isChachedItemValid(item, params, survey)) {
+      if (this.isCachedItemValid(item, params, survey)) {
         return { result: item.result };
       }
     }
     return undefined;
   }
-  private isChachedItemValid(item: IFunctionCachedInfo, params: any[], survey: any): boolean {
+  private isCachedItemValid(item: IFunctionCachedInfo, params: any[], survey: any): boolean {
     if (!Helpers.isTwoValueEquals(item.parameters, params)) return false;
     const sValues = item.surveyValues;
     if (Array.isArray(sValues) && sValues.length > 0) {
@@ -197,7 +197,7 @@ export interface IFunctionRegistration {
 export function registerFunction(info: IFunctionRegistration): void {
   FunctionFactory.Instance.register(info.name, info.func, info.isAsync, info.useCache);
 }
-export function unRegisterFunction(name: string): void {
+export function unregisterFunction(name: string): void {
   FunctionFactory.Instance.unregister(name);
 }
 

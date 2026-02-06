@@ -1,5 +1,5 @@
 import { ExpressionRunner } from "../../src/conditions";
-import { FunctionFactory, registerFunction, unRegisterFunction } from "../../src/functionsfactory";
+import { FunctionFactory, registerFunction, unregisterFunction } from "../../src/functionsfactory";
 import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Expressions Function Cache Tests");
@@ -22,7 +22,7 @@ QUnit.test("Simple caching by parameter", (assert) => {
   assert.equal(counter, 2, "func1 called one more time with new parameter");
   assert.equal(runner.runValues(values), 20, "10 + 10 = 20");
   assert.equal(counter, 2, "func1 called one more time again, the result was taken from cache");
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });
 QUnit.test("Async caching by parameter", (assert) => {
   let resolveFuncs = new Array<(value: any) => void>();
@@ -56,7 +56,7 @@ QUnit.test("Async caching by parameter", (assert) => {
   assert.equal(resolveFuncs.length, 3, "Take from cache, #2");
   assert.equal(exp.value, 18, "The value is set to 18");
 
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });
 QUnit.test("Simple caching by accessing survey values", (assert) => {
   let counter = 0;
@@ -101,7 +101,7 @@ QUnit.test("Simple caching by accessing survey values", (assert) => {
   assert.equal(counter, 4, "func1 was not called one more time, the value was taken from cache, #3");
   assert.equal(exp.value, 15, "5 + 10 = 15");
 
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });
 QUnit.test("Simple caching by accessing survey values & variables", (assert) => {
   let counter = 0;
@@ -155,7 +155,7 @@ QUnit.test("Simple caching by accessing survey values & variables", (assert) => 
   assert.equal(counter, 6, "func1 was not called one more time, the value was taken from cache, #4");
   assert.equal(exp.value, 17, "5 + 2 + 10 = 17");
 
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });
 QUnit.test("Simple caching by accessing question value", (assert) => {
   let counter = 0;
@@ -201,7 +201,7 @@ QUnit.test("Simple caching by accessing question value", (assert) => {
   assert.equal(counter, 4, "func1 was not called one more time, the value was taken from cache, #3");
   assert.equal(exp.value, 15, "5 + 10 = 15");
 
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });
 QUnit.test("Caching by accessing elements values & properties", (assert) => {
   let counter = 0;
@@ -248,7 +248,7 @@ QUnit.test("Caching by accessing elements values & properties", (assert) => {
   assert.equal(counter, 4, "func1 was not called one more time, the value was taken from cache, #2");
   assert.equal(exp.value, 30, "20 + 10 = 30");
 
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });
 QUnit.test("Do not cache surveyjs objects", (assert) => {
   function func1(): any {
@@ -282,5 +282,5 @@ QUnit.test("Do not cache surveyjs objects", (assert) => {
   assert.equal(objItem.name, "value", "The cached property name is value");
   assert.equal(objItem.value, 5, "The cached value is 5");
 
-  unRegisterFunction("func1");
+  unregisterFunction("func1");
 });

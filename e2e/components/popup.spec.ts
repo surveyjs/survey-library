@@ -172,6 +172,7 @@ frameworks.forEach((framework) => {
 
     test("check closeButton in showDialog", async ({ page }) => {
       await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
       await page.evaluate(() => {
         const locStr = new window["Survey"].LocalizableString(undefined, false);
         locStr.defaultValue = "Message";

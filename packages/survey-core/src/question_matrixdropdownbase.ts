@@ -1,11 +1,11 @@
 import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { Question, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { TextContextProcessor } from "./textPreProcessor";
+
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -19,10 +19,11 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { ConditionRunner } from "./conditions";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
+import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 
-export interface IMatrixDropdownData extends IObjectValueContext {
+export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemModelData {
   value: any;
   getFilteredData(): any;
   getSharedQuestionFromArray(name: string, rowIndex: number): Question;
@@ -38,8 +39,6 @@ export interface IMatrixDropdownData extends IObjectValueContext {
     rowValue: any
   ): any;
   isValidateOnValueChanging: boolean;
-  getRowIndex(row: MatrixDropdownRowModelBase): number;
-  getRowValue(rowIndex: number): any;
   checkIfValueInRowDuplicated(
     checkedRow: MatrixDropdownRowModelBase,
     cellQuestion: Question
@@ -66,9 +65,7 @@ export interface IMatrixDropdownData extends IObjectValueContext {
   getProcessedText(text: string, context?: any): string;
   getParentTextProcessor(): ITextProcessor;
   getSharedQuestionByName(columnName: string, row: MatrixDropdownRowModelBase): Question;
-  runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void;
   onTotalValueChanged(): any;
-  getSurvey(): ISurvey;
   isMatrixReadOnly(): boolean;
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void;
 }
@@ -195,74 +192,40 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
 }
 
-export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
-  constructor(private row: MatrixDropdownRowModelBase) {
-    super();
+export class MatrixRowGetterContext extends DynamicItemGetterContext {
+  constructor(protected row: MatrixDropdownRowModelBase) {
+    super(row);
   }
-  protected getIndex(): number { return this.row.rowIndex - 1; }
-  protected getQuestionData(): Question { return <Question>(<any>this.row.data); }
-  private get visibleIndex(): number {
+  protected get visibleIndex(): number {
     return this.getQuestionData().visibleRows.indexOf(this.row);
   }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+  protected getNextName(): string {
+    return settings.expressionVariables.nextRow;
+  }
+  protected getPrevName(): string {
+    return settings.expressionVariables.prevRow;
+  }
+  protected getVisibleItem(index: number): DynamicItemModelBase {
+    const matrix = this.getQuestionData();
+    if (index < 0 || index >= matrix.visibleRows.length) return null;
+    return matrix.visibleRows[index];
+  }
+  protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (path.length === 0) return undefined;
-    const setVar = settings.expressionVariables;
-    if (path.length === 1) {
-      const rowVal = this.getRowValue(path[0].name);
-      if (rowVal !== undefined) {
-        return { isFound: true, value: rowVal };
-      }
-      if (path[0].name === setVar.matrix) {
-        const matrix = this.row.data;
-        return { isFound: true, context: matrix.getValueGetterContext(), value: matrix.getFilteredData() };
-      }
-    }
-    if (path.length > 1) {
-      const dIndex = path[0].name === setVar.prevRow ? -1 : path[0].name === setVar.nextRow ? 1 : 0;
-      if (dIndex !== 0) {
-        const index = this.visibleIndex + dIndex;
-        const matrix = this.getQuestionData();
-        if (index < 0 || index >= matrix.visibleRows.length) return { isFound: true, value: undefined, context: this };
-        const row = matrix.visibleRows[index];
-        path[0].name = setVar.row;
-        params.index = index;
-        return row.getValueGetterContext().getValue(params);
-      }
-    }
-    if (path.length > 1 && path[0].name === setVar.totalRow) {
+    if (path.length > 1 && path[0].name === settings.expressionVariables.totalRow) {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
         return totalRow.getValueGetterContext().getValue(params);
       }
     }
-    const isRowPrefix = path[0].name === setVar.row;
-    if (isRowPrefix || !params.isRoot) {
-      if (isRowPrefix) {
-        path.shift();
-      }
-      let res = super.getValue(params);
-      if (!!res && res.isFound) return res;
-      const allValues = this.row.getAllValues();
-      if (params.isRoot) {
-        res = this.getValueFromBindedQuestions(path, allValues);
-        if (!!res) return res;
-      }
-      return new VariableGetterContext(allValues).getValue(params);
-    }
-    return undefined;
+    return null;
+  }
+  protected get questionName(): string {
+    return settings.expressionVariables.matrix;
   }
   getRootObj(): IObjectValueContext { return this.row.data; }
-  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const qs = this.row.getQuestionsByValueName(name, true);
-    if (qs.length > 0) {
-      res.isFound = true;
-      res.obj = qs[0];
-      res.context = qs[0].getValueGetterContext();
-    }
-  }
-  private getRowValue(name: string): any {
+  protected getItemValue(name: string): any {
     const setVar = settings.expressionVariables;
     name = name.toLocaleLowerCase();
     if (name === setVar.rowIndex.toLocaleLowerCase()) {
@@ -281,14 +244,13 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   }
 }
 
-export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILocalizableOwner, IObjectValueContext {
+export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
   private static idCounter: number = 1;
   private static getId(): string {
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
   }
-  protected isSettingValue: boolean = false;
+
   private idValue: string;
-  private textPreProcessor: TextContextProcessor;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
 
@@ -298,9 +260,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public visibleIndex: number = -1;
 
   constructor(public data: IMatrixDropdownData, value: any) {
+    super(data);
     this.data = data;
     this.subscribeToChanges(value);
-    this.textPreProcessor = new TextContextProcessor(this);
     this.showHideDetailPanelClick = () => {
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
@@ -466,12 +428,12 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
-  getFilteredProperties(): any {
-    return { survey: this.getSurvey(), row: this };
+  public getVariableName(): string {
+    return settings.expressionVariables.row;
   }
   private getDataRowValue(): any {
     if (!this.data) return null;
-    return this.data.getRowValue(this.data.getRowIndex(this));
+    return this.data.getItemData(this);
   }
   public runCondition(properties: HashTable<any>, rowsVisibleIf?: string, alwaysVisible?: boolean): void {
     if (!this.data) return;
@@ -537,10 +499,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       return valuesHash[key];
     }
   }
-  public getValue(name: string): any {
-    var question = this.getQuestionByName(name);
-    return !!question ? question.value : null;
-  }
   public setValue(name: string, newColumnValue: any) {
     this.setValueCore(name, newColumnValue, false);
   }
@@ -551,88 +509,42 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public setComment(name: string, newValue: string, locNotification: any) {
     this.setValueCore(name, newValue, true);
   }
-  findQuestionByName(name: string): IQuestion {
-    if (!name) return undefined;
-    const prefix = settings.expressionVariables.row + ".";
-    if (name.indexOf(prefix) === 0) {
-      return this.getQuestionByName(name.substring(prefix.length));
-    }
-    const survey = this.getSurvey();
-    return !!survey ? survey.getQuestionByName(name) : null;
-  }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue || this.isCreatingDetailPanel) return;
-    this.updateQuestionsValue(name, newColumnValue, isComment);
+    const changedQuestion = this.getQuestionByName(name);
+    const newValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
+    const changedName = isComment ? name + Base.commentSuffix : name;
+    if (!this.isValueChanged(changedName, newValue)) return;
+    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newColumnValue);
     }
-    var newValue = this.value;
-    var changedName = isComment ? name + Base.commentSuffix : name;
-    var changedValue = newColumnValue;
-    var changedQuestion = this.getQuestionByName(name);
-    var changingValue = this.data.onRowChanging(this, changedName, newValue);
-    if (
-      !!changedQuestion &&
-      !this.isTwoValueEquals(changingValue, changedValue)
-    ) {
-      this.isSettingValue = true;
-      if (isComment) {
-        changedQuestion.comment = changingValue;
-      } else {
-        changedQuestion.value = changingValue;
-      }
-      this.isSettingValue = false;
-      newValue = this.value;
-    }
-    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
     const rowName = settings.expressionVariables.row;
     if (changedName) {
-      const runName = rowName + "." + changedName;
-      this.runTriggers(runName, newValue);
-      this.data.runTriggersInRow(this, runName, newValue);
+      this.runTriggersOnSetValue(changedName, newColumnValue);
     }
     this.onAnyValueChanged(rowName, "");
   }
-  private updateQuestionsValue(
-    name: string,
-    newColumnValue: any,
-    isComment: boolean
-  ) {
-    if (!this.detailPanel) return;
-    var colQuestion = this.getQuestionByColumnName(name);
-    var detailQuestion = this.detailPanel.getQuestionByName(name);
-    if (!colQuestion || !detailQuestion) return;
-    var isColQuestion = this.isTwoValueEquals(
-      newColumnValue,
-      isComment ? colQuestion.comment : colQuestion.value
-    );
-    var question = isColQuestion ? detailQuestion : colQuestion;
-    this.isSettingValue = true;
-    if (!isComment) {
-      question.value = newColumnValue;
-    } else {
-      question.comment = newColumnValue;
-    }
-    this.isSettingValue = false;
-  }
-  private updateSharedQuestionsValue(name: string, value: any): void {
-    const questions = this.getQuestionsByValueName(name);
-    if (questions.length > 1) {
-      for (let i = 0; i < questions.length; i ++) {
-        if (!Helpers.isTwoValueEquals(questions[i].value, value)) {
-          this.isSettingValue = true;
-          questions[i].updateValueFromSurvey(value);
-          this.isSettingValue = false;
-        }
+
+  private onCellValueChanging(question: Question, newValue: any, isComment: boolean): any {
+    if (!question) return newValue;
+    const name = question.getValueName();
+    const changedName = isComment ? name + Base.commentSuffix : name;
+    const changingValue = this.data.onRowChanging(this, changedName, newValue);
+    if (!this.isTwoValueEquals(changingValue, question.value)) {
+      this.isSettingValue = true;
+      if (isComment) {
+        question.comment = changingValue;
+      } else {
+        question.value = changingValue;
       }
+      this.isSettingValue = false;
+      return this.value;
     }
-  }
-  public runTriggers(name: string, value: any, keys?: any): void {
-    if (!name && !keys) return;
-    this.questions.forEach(q => q.runTriggers(name, value, keys));
+    return newValue;
   }
   private validateCellQuestion(question: Question): boolean {
     if (!question) return true;
@@ -843,7 +755,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
-
   protected updateCellOnColumnChanged(cell: MatrixDropdownCell, name: string, newValue: any): void {
     if (name === "choices" && Array.isArray(newValue) && newValue.length === 0 && this.data) {
       newValue = this.data.choices;
@@ -894,20 +805,14 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   protected createCell(column: MatrixDropdownColumn): MatrixDropdownCell {
     return new MatrixDropdownCell(column, this, this.data);
   }
-  getSurveyData(): ISurveyData {
-    return this;
-  }
-  getSurvey(): ISurvey {
-    return this.data ? this.data.getSurvey() : null;
-  }
-  getTextProcessor(): ITextProcessor {
-    return this.textPreProcessor;
-  }
   public get rowIndex(): number {
-    return this.getRowIndex();
+    return this.getItemIndex();
   }
-  protected getRowIndex(): number {
-    return !!this.data ? this.data.getRowIndex(this) + 1 : -1;
+  public getIndex(): number {
+    return this.getItemIndex() - 1;
+  }
+  protected getItemIndex(): number {
+    return !!this.data ? this.data.getItemIndex(this) + 1 : -1;
   }
   public get editingObj(): Base {
     return this.editingObjValue;
@@ -940,6 +845,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.isSettingValue = false;
   }
 }
+
 export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
   constructor(data: IMatrixDropdownData) {
     super(data, null);
@@ -1981,6 +1887,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (this.isValueSurveyElement(val)) return rowVal;
     return Helpers.getUnbindValue(rowVal);
   }
+  public getItemData(item: ISurveyData): any {
+    return this.getRowValue(this.getItemIndex(item));
+  }
   public checkIfValueInRowDuplicated(
     checkedRow: MatrixDropdownRowModelBase,
     cellQuestion: Question
@@ -2646,9 +2555,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return { value: newValue, rowValue: rowValue };
   }
   protected correctValueForMinMaxRows(newValue: any): any { return newValue; }
-  getRowIndex(row: MatrixDropdownRowModelBase): number {
+  getItemIndex(item: ISurveyData): number {
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
-    return this.generatedVisibleRows.indexOf(row);
+    return this.generatedVisibleRows.indexOf(<any>item);
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     let elements: Array<IElement>;
@@ -2742,7 +2651,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     row: MatrixDropdownRowModelBase
   ): Question {
     if (!this.survey || !this.valueName) return null;
-    var index = this.getRowIndex(row);
+    var index = this.getItemIndex(row);
     if (index < 0) return null;
     return <Question>(
       this.survey.getQuestionByValueNameFromArray(
@@ -2752,16 +2661,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       )
     );
   }
-  runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void {
-    if (!this.survey || !this.valueName) return;
-    var index = this.getRowIndex(row);
-    if (index < 0) return;
-    this.survey.getQuestionsByValueName(this.valueName).forEach((q: any) => {
-      const rows = q.visibleRows;
-      if (Array.isArray(rows) && index < rows.length && rows[0] instanceof MatrixDropdownRowModelBase) {
-        rows[index].runTriggers(runName, newValue);
-      }
-    });
+  getBindedQuestions(): Array<IQuestion> {
+    if (!this.survey || !this.valueName) return [];
+    return this.survey.getQuestionsByValueName(this.valueName);
+  }
+  getItem(index: number): DynamicItemModelBase {
+    if (index < 0 || !this.generatedVisibleRows || index >= this.generatedVisibleRows.length) return null;
+    return this.generatedVisibleRows[index];
   }
   onTotalValueChanged(): any {
     if (

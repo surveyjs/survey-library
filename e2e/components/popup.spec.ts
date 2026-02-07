@@ -180,7 +180,7 @@ frameworks.forEach((framework) => {
           componentName: "sv-string-viewer",
           data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
           showCloseButton: true,
-        });
+        }, window["survey"].rootElement);
       });
 
       const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup").first();

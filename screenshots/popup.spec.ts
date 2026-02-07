@@ -428,7 +428,7 @@ frameworks.forEach(framework => {
           componentName: "sv-string-viewer",
           data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
           showCloseButton: true,
-        });
+        }, window["survey"].rootElement);
       });
 
       await compareScreenshot(page, ".sv-popup__container", "popup-modal-close-button.png");

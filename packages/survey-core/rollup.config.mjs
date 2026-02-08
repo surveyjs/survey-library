@@ -2,24 +2,11 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { createEsmConfigs, createUmdConfigs, createCssConfig } from "./rollup.helpers.mjs";
 import fs from "fs-extra";
-import rollupResolve from "@rollup/plugin-node-resolve";
-import rollupReplace from "@rollup/plugin-replace";
-import typescript from "@rollup/plugin-typescript";
-import postcss from "rollup-plugin-postcss";
-import svg from "rollup-plugin-svg";
-import rollupPluginLicense from "rollup-plugin-license";
-import terser from "@rollup/plugin-terser";
 import pkg from "./package.json" assert { type: "json" };
 import process from "process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
-
-const banner = [
-  "surveyjs - Survey JavaScript library v" + pkg.version,
-  "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
-].join("\n");
 
 var buildPlatformJson = {
   "name": pkg.name,
@@ -106,7 +93,7 @@ var buildPlatformJson = {
   "typings": "./typings/entries/index.d.ts"
 };
 
-function emitNonSourceFiles() {
+if (process.env.emitNonSourceFiles === "true") {
   fs.copySync("./README.md", resolve(buildPath, "README.md"));
   fs.writeJsonSync(
     resolve(buildPath, "package.json"),
@@ -115,34 +102,26 @@ function emitNonSourceFiles() {
   );
 }
 
-const external = [];
-const umdGlobals = {};
-const globalName = "Survey";
-
-if (process.env.emitNonSourceFiles === "true") {
-  emitNonSourceFiles();
-}
-
 export default (options = {}) => {
 
   const configs = [
     ...createEsmConfigs({
       sharedFileName: "survey.core-shared.mjs",
       tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url)),
-      external: external,
+      external: [],
       dir: resolve(buildPath, "./fesm"),
       input: {
-        "survey.core": resolve("./entries/index.ts")
+        "survey-core": resolve("./entries/index.ts")
       }
     }),
     ...createUmdConfigs({
       tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url)),
-      external: external,
+      external: [],
       declarationDir: resolve(buildPath, "./typings"),
       dir: resolve(buildPath),
       emitMinified: process.env.emitMinified === "true",
-      globalName: globalName,
-      globals: umdGlobals,
+      globalName: "Survey",
+      globals: {},
       input: {
         "survey.core": resolve("./entries/index.ts")
       },

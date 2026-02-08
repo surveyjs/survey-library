@@ -3,27 +3,49 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import bannerPlugin from "rollup-plugin-license";
 import terser from "@rollup/plugin-terser";
-import { format, resolve } from "node:path";
-import packageJSON from "./package.json" assert { type: "json" };
+import { resolve } from "node:path";
+import pkg from "./package.json" assert { type: "json" };
 
 import postcss from "rollup-plugin-postcss";
 
-const VERSION = packageJSON.version;
-
 const banner = [
-  "surveyjs - Survey JavaScript library v" + packageJSON.version,
+  "surveyjs - Survey JavaScript library v" + pkg.version,
   "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 
+function omit(fn) {
+  return {
+    generateBundle(_, bundle) {
+      for (const file of Object.keys(bundle)) {
+        if (fn(file)) {
+          delete bundle[file];
+        }
+      }
+    }
+  };
+}
+
+function addBannerToCss(text) {
+  return {
+    generateBundle(_, bundle) {
+      for (const file of Object.keys(bundle)) {
+        if (file.endsWith(".css")) {
+          bundle[file].source = text + "\n" + bundle[file].source;
+        }
+      }
+    }
+  };
+}
+
 export function createUmdConfigs(options) {
 
-  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified } = options;
+  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports } = options;
 
   const commonOutput = {
     dir: dir,
     format: "umd",
-    exports: "named",
+    exports: exports || "named",
     name: globalName,
     globals: globals
   };
@@ -40,7 +62,7 @@ export function createUmdConfigs(options) {
       preventAssignment: false,
       values: {
         "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
-        "process.env.VERSION": JSON.stringify(VERSION),
+        "process.env.VERSION": JSON.stringify(pkg.version),
       }
     }),
   ];
@@ -121,7 +143,7 @@ export function createEsmConfigs(options) {
         preventAssignment: false,
         values: {
           "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
-          "process.env.VERSION": JSON.stringify(VERSION),
+          "process.env.VERSION": JSON.stringify(pkg.version),
         }
       }),
       typescript({
@@ -155,30 +177,6 @@ export function createEsmConfigs(options) {
       }
     ],
   }];
-}
-
-function omit(fn) {
-  return {
-    generateBundle(_, bundle) {
-      for (const file of Object.keys(bundle)) {
-        if (fn(file)) {
-          delete bundle[file];
-        }
-      }
-    }
-  };
-}
-
-function addBannerToCss(text) {
-  return {
-    generateBundle(_, bundle) {
-      for (const file of Object.keys(bundle)) {
-        if (file.endsWith(".css")) {
-          bundle[file].source = text + "\n" + bundle[file].source;
-        }
-      }
-    }
-  };
 }
 
 export function createCssConfig(options) {

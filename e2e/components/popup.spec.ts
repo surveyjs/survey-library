@@ -170,6 +170,26 @@ frameworks.forEach((framework) => {
       expect(Math.abs(popupClientRect.x + popupClientRect.width - popupPointerClientRect.x)).toBeLessThanOrEqual(1.0);
     });
 
+    test("check closeButton in showDialog", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
+      await page.evaluate(() => {
+        const locStr = new window["Survey"].LocalizableString(undefined, false);
+        locStr.defaultValue = "Message";
+        window["Survey"].settings.showDialog({
+          componentName: "sv-string-viewer",
+          data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+          showCloseButton: true,
+        }, window["survey"].rootElement);
+      });
+
+      const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup").first();
+      const closeButton = page.locator(".sv-popup__close-button").first();
+      await expect(popupModalSelector).toBeVisible();
+      await closeButton.click();
+      await expect(popupModalSelector).not.toBeVisible();
+    });
+
     test("check survey in showModal", async ({ page }) => {
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {

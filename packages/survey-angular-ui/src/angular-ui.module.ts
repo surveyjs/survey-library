@@ -8,6 +8,7 @@ import { PageComponent } from "./page.component";
 import { QuestionComponent } from "./question.component";
 import { StringViewerComponent } from "./string-viewer.component";
 import { PopupPointerComponent } from "./components/popup/popup-pointer.component";
+import { PopupCloseButtonComponent } from "./components/popup/popup-close-button.component";
 import { PopupComponent } from "./components/popup/popup.component";
 import { PopupBaseContainerComponent } from "./components/popup/popup-container.component";
 import { QuestionSkeletonComponent } from "./components/skeleton.component";
@@ -144,7 +145,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     TextAreaComponent,
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
-    PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
+    PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,
@@ -168,7 +169,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
     CharacterCounterComponent,
     DropdownComponent, DropdownQuestionComponent, DropdownSelectComponent, DropdownOptionItemComponent,
-    PopupComponent, PopupBaseContainerComponent, PopupPointerComponent,
+    PopupComponent, PopupBaseContainerComponent, PopupPointerComponent, PopupCloseButtonComponent,
     CharacterCounterComponent, ListComponent, ListItemComponent, ListItemContentComponent, ListItemGroupComponent, RatingItemComponent, RatingItemStarComponent, RatingItemSmileyComponent,
     TagboxFilterComponent, TagboxComponent, TagboxQuestionComponent, TagboxItemComponent,
     ActionBarComponent, ActionComponent, ActionBarItemComponent, ActionBarItemDropdownComponent, HtmlQuestionComponent,

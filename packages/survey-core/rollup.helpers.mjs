@@ -189,7 +189,7 @@ export function createCssConfig(options) {
       {
         file: resolve(dir, `${name}.omitted`),
       },
-      {
+      emitMinified && {
         file: resolve(dir, `${name}.min.omitted`),
         plugins: [
           omit(e => e.endsWith(".css.map")),

@@ -325,3 +325,10 @@ export class ExpressionRunner extends ExpressionRunnerBase {
     super.doOnComplete(res, id);
   }
 }
+
+export function expressionSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
+  FunctionFactory.Instance.addSurveyCachedValue(name, value, isVariable);
+}
+export function expressionObjectCachedValue(obj: any, name: string, value: any): void {
+  FunctionFactory.Instance.addObjectCachedValue(obj, name, value);
+}

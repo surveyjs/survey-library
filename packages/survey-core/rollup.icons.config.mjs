@@ -4,6 +4,7 @@ import svgo from "rollup-plugin-svgo";
 import virtual from "@rollup/plugin-virtual";
 import fs from "fs";
 import terser from "@rollup/plugin-terser";
+import typescript from "@rollup/plugin-typescript";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -26,12 +27,8 @@ function generateIconsModule(importBase) {
 }
 
 export default () => {
-
   return [
-    ...[
-      ["iconsV1", "./src/images-v1"],
-      ["iconsV2", "./src/images-v2"]
-    ].map(([name, path]) => {
+    ...[["iconsV1", "./src/images-v1"], ["iconsV2", "./src/images-v2"]].map(([name, path]) => {
       return {
         input: { [`${name}`]: `virtual:${ name }` },
         output: [{
@@ -47,15 +44,16 @@ export default () => {
           plugins: [
             terser({ format: { comments: false } })
           ]
-        }, {
-          dir: resolve(buildPath, "fesm", "icons"),
-          format: "esm",
-          entryFileNames: "[name].mjs",
-          name: "Survey",
         }],
         plugins: [
-          virtual({
-            [`virtual:${ name }`]: generateIconsModule(path)
+          virtual({ [`virtual:${ name }`]: generateIconsModule(path) }),
+          typescript({
+            tsconfig: resolve(__dirname, "tsconfig.icons.json"),
+            compilerOptions: {
+              sourceMap: false,
+              declaration: true,
+              emitDeclarationOnly: true,
+            }
           }),
           svgo({
             plugins: [
@@ -65,7 +63,30 @@ export default () => {
               { name: "removeUselessDefs", active: true },
               { name: "removeXMLNS", active: false },
             ]
-          }),
+          })
+        ],
+      };
+    }),
+    ...[["iconsV1", "./src/images-v1"], ["iconsV2", "./src/images-v2"]].map(([name, path]) => {
+      return {
+        input: { [`${name}`]: `virtual:${ name }` },
+        output: [{
+          dir: resolve(buildPath, "fesm", "icons"),
+          format: "esm",
+          entryFileNames: "[name].mjs",
+          name: "Survey",
+        }],
+        plugins: [
+          virtual({ [`virtual:${ name }`]: generateIconsModule(path) }),
+          svgo({
+            plugins: [
+              { name: "removeDimensions", active: true },
+              { name: "removeTitle", active: true },
+              { name: "removeDesc", active: true },
+              { name: "removeUselessDefs", active: true },
+              { name: "removeXMLNS", active: false },
+            ]
+          })
         ],
       };
     })

@@ -38,7 +38,6 @@ export default () => {
       globalName: name == "themes/index" ? "SurveyTheme" : "SurveyTheme." + name.split("/").pop().split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(""),
       exports: name == "themes/index" ? "named" : "default",
       globals: { "survey-core": "Survey" },
-      useEsbuild: true,
     }))
   ];
 };

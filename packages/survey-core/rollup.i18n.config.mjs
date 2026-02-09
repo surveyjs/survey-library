@@ -43,6 +43,7 @@ export default () => {
       emitMinified: process.env.emitMinified === "true",
       globalName: name,
       globals: { "survey-core": "Survey" },
+      useEsbuild: true,
     }))
   ];
 

@@ -5,7 +5,7 @@ import bannerPlugin from "rollup-plugin-license";
 import terser from "@rollup/plugin-terser";
 import { resolve } from "node:path";
 import pkg from "./package.json" assert { type: "json" };
-
+import rollupEsbuild, { minify as rollupEsbuildMinify } from "rollup-plugin-esbuild";
 import rollupPostcss from "rollup-plugin-postcss";
 import postcss from "postcss";
 import cssnano from "cssnano";
@@ -46,7 +46,7 @@ function addBanner(fn, text) {
 
 export function createUmdConfig(options) {
 
-  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports } = options;
+  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild } = options;
 
   const commonOutput = {
     dir: dir,
@@ -71,15 +71,17 @@ export function createUmdConfig(options) {
           "process.env.VERSION": JSON.stringify(pkg.version),
         }
       }),
-      typescript({
-        tsconfig: tsconfig,
-        compilerOptions: declarationDir ? {
-          inlineSources: true,
-          sourceMap: true,
-          declaration: true,
-          declarationDir: declarationDir
-        } : {}
-      }),
+      useEsbuild
+        ? rollupEsbuild({ tsconfig: tsconfig })
+        : typescript({
+          tsconfig: tsconfig,
+          compilerOptions: declarationDir ? {
+            inlineSources: true,
+            sourceMap: true,
+            declaration: true,
+            declarationDir: declarationDir
+          } : {}
+        }),
     ],
     output: [
       {
@@ -100,7 +102,7 @@ export function createUmdConfig(options) {
         entryFileNames: "[name].min.js",
         sourcemap: false,
         plugins: [
-          terser({ format: { comments: false } }),
+          rollupEsbuildMinify(),
           bannerPlugin({
             banner: {
               content: `For license information please see ${Object.keys(input)[0]}.min.js.LICENSE.txt`,

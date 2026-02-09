@@ -3,32 +3,60 @@ import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
 import { ConditionRunner, ExpressionExecutor } from "./conditions";
 
+export interface IFunctionCachedResult {
+  result: any;
+}
+interface IFunctionInfo {
+  func: (params: any[], originalParams?: any[]) => any;
+  name: string;
+  isAsync: boolean;
+  useCache: boolean;
+}
+interface IFunctionCachedSurveyValue {
+  name: string;
+  value: any;
+  isVariable: boolean;
+}
+interface IFunctionCachedObjectValue {
+  obj: any;
+  name: string;
+  value: any;
+}
+interface IFunctionCachedInfo {
+  parameters: any[];
+  surveyValues: IFunctionCachedSurveyValue[];
+  objectValues: IFunctionCachedObjectValue[];
+  result: any;
+}
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
-  private functionHash: HashTable<(params: any[], originalParams?: any[]) => any> = {};
-  private isAsyncHash: HashTable<boolean> = {};
+  private functionHash: HashTable<IFunctionInfo> = {};
+  private functionCache: HashTable<Array<IFunctionCachedInfo>> = {};
 
-  public register(
-    name: string,
-    func: (params: any[], originalParams?: any[]) => any,
-    isAsync: boolean = false
-  ): void {
-    this.functionHash[name] = func;
-    if (isAsync)this.isAsyncHash[name] = true;
+  public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
+    this.clearCache(name);
+    this.functionHash[name] = { name, func, isAsync: !!isAsync, useCache: !!useCache };
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
-    delete this.isAsyncHash[name];
   }
   public hasFunction(name: string): boolean {
     return !!this.functionHash[name];
   }
   public isAsyncFunction(name: string): boolean {
-    return !!this.isAsyncHash[name];
+    const funcInfo = this.functionHash[name];
+    return !!funcInfo && funcInfo.isAsync;
   }
-
   public clear(): void {
     this.functionHash = {};
+    this.clearCache();
+  }
+  public clearCache(functionName?: string): void {
+    if (functionName) {
+      delete this.functionCache[functionName];
+    } else {
+      this.functionCache = {};
+    }
   }
   public getAll(): Array<string> {
     var result = [];
@@ -37,29 +65,141 @@ export class FunctionFactory {
     }
     return result.sort();
   }
-  public run(name: string, params: any[], properties: HashTable<any> = null, originalParams: any[]): any {
-    const func = this.functionHash[name];
-    if (!func) {
+  public run(name: string, params: any[], properties: HashTable<any>, originalParams: any[]): any {
+    if (!properties) {
+      properties = {};
+    }
+    const funcInfo = this.functionHash[name];
+    if (!funcInfo) {
       ConsoleWarnings.warn(this.getUnknownFunctionErrorText(name, properties));
       return null;
     }
-    let classRunner = {
-      func: func,
-    };
-
-    if (properties) {
-      for (var key in properties) {
+    const cachedRes = this.getCachedValue(funcInfo, params, properties.survey);
+    if (cachedRes) {
+      const res = cachedRes.result;
+      if (!!properties.returnResult) {
+        properties.returnResult(res);
+      }
+      return res;
+    }
+    const classRunner = { func: funcInfo.func };
+    for (var key in properties) {
+      if (key === "returnResult" && funcInfo.useCache) {
+        const self = this;
+        classRunner[key] = (res: any) => {
+          self.addToCache(funcInfo, params, properties, res);
+          properties.returnResult(res);
+        };
+      } else {
         (<any>classRunner)[key] = properties[key];
       }
     }
-    return classRunner.func(params, originalParams);
+    this.surveyCachedValues = funcInfo.useCache ? [] : undefined;
+    this.objsCachedValues = funcInfo.useCache ? [] : undefined;
+    const res = classRunner.func(params, originalParams);
+    properties.surveyCachedValues = this.surveyCachedValues;
+    properties.objsCachedValues = this.objsCachedValues;
+    this.surveyCachedValues = undefined;
+    this.objsCachedValues = undefined;
+    if (!funcInfo.isAsync) {
+      this.addToCache(funcInfo, params, properties, res);
+    }
+    return res;
+  }
+  public addSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
+    if (!this.surveyCachedValues) return;
+    this.surveyCachedValues.push({ name, value, isVariable: !!isVariable });
+  }
+  public addObjectCachedValue(obj: any, name: string, value: any): void {
+    if (!this.objsCachedValues) return;
+    if (!this.isSurveyObjectValue(value)) {
+      this.objsCachedValues.push({ obj, name, value });
+    }
+  }
+  private isSurveyObjectValue(value: any): boolean {
+    const checkedValue = Array.isArray(value) && value.length > 0 ? value[0] : value;
+    return !!checkedValue && typeof checkedValue === "object" && typeof checkedValue.getType === "function";
+  }
+  private surveyCachedValues: IFunctionCachedSurveyValue[];
+  private objsCachedValues: IFunctionCachedObjectValue[];
+  private addToCache(funcInfo: IFunctionInfo, params: any[], properties: HashTable<any>, result: any): void {
+    if (!funcInfo.useCache) return;
+    const surveyValues = properties.surveyCachedValues;
+    const objectValues = properties.objsCachedValues;
+    if (params.length === 0 && surveyValues.length === 0 && objectValues.length === 0) return;
+    let cachedList = this.functionCache[funcInfo.name];
+    if (!Array.isArray(cachedList)) {
+      cachedList = [];
+      this.functionCache[funcInfo.name] = cachedList;
+    }
+    cachedList.push({ parameters: params, result: result, surveyValues: surveyValues, objectValues: objectValues });
+  }
+  private getCachedValue(funcInfo: IFunctionInfo, params: any[], survey: any): IFunctionCachedResult | undefined {
+    if (funcInfo && !funcInfo.useCache) return undefined;
+    const cachedList = this.functionCache[funcInfo.name];
+    if (!Array.isArray(cachedList)) return undefined;
+    for (let i = cachedList.length - 1; i >= 0; i--) {
+      const item = cachedList[i];
+      if (this.hasDisposedObj(item.objectValues)) {
+        cachedList.splice(i, 1);
+        continue;
+      }
+      if (this.isCachedItemValid(item, params, survey)) {
+        return { result: item.result };
+      }
+    }
+    return undefined;
+  }
+  private isCachedItemValid(item: IFunctionCachedInfo, params: any[], survey: any): boolean {
+    if (!Helpers.isTwoValueEquals(item.parameters, params)) return false;
+    const sValues = item.surveyValues;
+    if (Array.isArray(sValues) && sValues.length > 0) {
+      if (!survey) return false;
+      for (let i = 0; i < sValues.length; i++) {
+        const item = sValues[i];
+        const name = item.name;
+        const value = item.value;
+        const newValue = item.isVariable ? survey.getVariable(name) : survey.getValue(name);
+        if (!Helpers.isTwoValueEquals(newValue, value)) return false;
+      }
+    }
+    const objsValues = item.objectValues;
+    if (Array.isArray(objsValues) && objsValues.length > 0) {
+      for (let i = 0; i < objsValues.length; i++) {
+        const item = objsValues[i];
+        const obj = item.obj;
+        const name = item.name;
+        const newValue = obj.getPropertyValueWithoutDefault(name);
+        if (!Helpers.isTwoValueEquals(newValue, item.value) &&
+          (item.value !== undefined || newValue !== obj.getDefaultPropertyValue(name))) return false;
+      }
+    }
+    return true;
+  }
+  private hasDisposedObj(objectValues: IFunctionCachedObjectValue[]): boolean {
+    if (!Array.isArray(objectValues)) return false;
+    for (let i = 0; i < objectValues.length; i++) {
+      const obj = objectValues[i].obj;
+      if (obj.isDisposed === true) return true;
+    }
+    return false;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
     return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);
   }
 }
-
-export var registerFunction = FunctionFactory.Instance.register;
+export interface IFunctionRegistration {
+  name: string;
+  func: (params: any[], originalParams?: any[]) => any;
+  isAsync?: boolean;
+  useCache?: boolean;
+}
+export function registerFunction(info: IFunctionRegistration): void {
+  FunctionFactory.Instance.register(info.name, info.func, info.isAsync, info.useCache);
+}
+export function unregisterFunction(name: string): void {
+  FunctionFactory.Instance.unregister(name);
+}
 
 function getParamsAsArray(value: any, arr: any[]) {
   if (value === undefined || value === null) return;

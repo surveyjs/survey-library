@@ -134,7 +134,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
 
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
-    return popupModel.showCloseButton ? <button className="sv-popup__close-button sd-action sd-action--icon" onClick={() => this.model.clickClose()}>
+    return popupModel.showCloseButton ? <button tabIndex={-1} className="sv-popup__close-button sd-action sd-action--icon" onClick={() => this.model.clickClose()}>
       <SvgIcon
         className="sv-popup__close-button-icon"
         iconName="icon-close-24x24"

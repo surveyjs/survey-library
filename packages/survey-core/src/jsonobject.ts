@@ -563,8 +563,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     this.dataListValue = val;
   }
   public mergeWith(prop: JsonObjectProperty) {
-    const mergableValues = Object.keys(prop);
-    mergableValues.forEach(name => {
+    Object.keys(prop).forEach(name => {
       this.mergeValue(prop, name);
     });
     this.isArray = prop.isArray;

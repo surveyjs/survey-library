@@ -803,3 +803,28 @@ QUnit.test("validate expressions in empty matrixdynamic by arrays, but with set 
   let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
   assert.equal(results.length, 0, "There are 0 invalid expressions");
 });
+QUnit.test("validateExpressions() creates extra panel instances when defaultValue set on question inside templateElements[], Bug#10881", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q2",
+            inputType: "number",
+            defaultValue: 1
+          },
+        ],
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.panelCount, 1, "panelCount is 1 before validateExpressions");
+  const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  assert.equal(results.length, 0, "There are 0 invalid expressions");
+  assert.equal(q1.panelCount, 1, "panelCount is 1 after validateExpressions");
+});

@@ -1,6 +1,6 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, URL } from "node:url";
-import { createEsmConfigs, createUmdConfigs, createCssConfig } from "./rollup.helpers.mjs";
+import { createEsmConfig, createUmdConfig, createCssConfig } from "./rollup.helpers.mjs";
 import fs from "fs-extra";
 import pkg from "./package.json" assert { type: "json" };
 import process from "process";
@@ -105,16 +105,19 @@ if (process.env.emitNonSourceFiles === "true") {
 export default (options = {}) => {
 
   const configs = [
-    ...createEsmConfigs({
+    createEsmConfig({
+      input: {
+        "survey-core": resolve("./entries/index.ts")
+      },
       sharedFileName: "survey.core-shared.mjs",
       tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url)),
       external: [],
       dir: resolve(buildPath, "./fesm"),
-      input: {
-        "survey-core": resolve("./entries/index.ts")
-      }
     }),
-    ...createUmdConfigs({
+    createUmdConfig({
+      input: {
+        "survey.core": resolve("./entries/index.ts")
+      },
       tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url)),
       external: [],
       declarationDir: resolve(buildPath, "./typings"),
@@ -122,17 +125,20 @@ export default (options = {}) => {
       emitMinified: process.env.emitMinified === "true",
       globalName: "Survey",
       globals: {},
-      input: {
-        "survey.core": resolve("./entries/index.ts")
-      },
     }),
-    ...createCssConfig({
-      inputs: {
+    createCssConfig({
+      input: {
         "survey-core": resolve("./src/default-theme/default.scss"),
+      },
+      dir: buildPath,
+      emitMinified: process.env.emitMinified === "true",
+    }),
+    createCssConfig({
+      input: {
         "survey-core.fontless": resolve("./src/default-theme/default.fontless.scss"),
       },
-      output: buildPath,
-      minified: process.env.emitMinified === "true",
+      dir: buildPath,
+      emitMinified: process.env.emitMinified === "true",
     })
   ];
 

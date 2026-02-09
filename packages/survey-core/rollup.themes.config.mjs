@@ -5,7 +5,7 @@
 import { resolve, dirname, extname, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readdirSync } from "fs";
-import { createEsmConfigs, createUmdConfigs } from "./rollup.helpers.mjs";
+import { createEsmConfig, createUmdConfig } from "./rollup.helpers.mjs";
 import process from "process";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,21 +23,21 @@ function getEntries() {
 
 export default () => {
   return [
-    ...createEsmConfigs({
+    createEsmConfig({
       input: { "themes/index": resolve(__dirname, "./src/themes/index.ts") },
       dir: resolve(buildPath, "fesm"),
       external: ["survey-core"],
       tsconfig: resolve(__dirname, "tsconfig.themes.json"),
     }),
-    ...Object.entries(getEntries()).map(([k, v]) => createUmdConfigs({
-      input: { [k]: v },
+    ...Object.entries(getEntries()).map(([name, path]) => createUmdConfig({
+      input: { [name]: path },
       tsconfig: resolve(__dirname, "tsconfig.themes.json"),
       external: ["survey-core"],
       dir: resolve(buildPath),
       emitMinified: process.env.emitMinified === "true",
-      globalName: k == "themes/index" ? "SurveyTheme" : "SurveyTheme." + k.split("/").pop().split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(""),
-      exports: k == "themes/index" ? "named" : "default",
+      globalName: name == "themes/index" ? "SurveyTheme" : "SurveyTheme." + name.split("/").pop().split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(""),
+      exports: name == "themes/index" ? "named" : "default",
       globals: { "survey-core": "Survey" },
-    })).flat()
+    }))
   ];
 };

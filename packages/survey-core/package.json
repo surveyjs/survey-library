@@ -2,7 +2,7 @@
   "name": "survey-core",
   "version": "2.5.8",
   "scripts": {
-    "build": "rollup -c --environment emitMinified,emitNonSourceFiles",
+    "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
     "build:themes": "rollup -c rollup.themes.config.mjs --environment emitMinified",
     "build:icons": "rollup -c rollup.icons.config.mjs --environment emitMinified",
@@ -47,6 +47,7 @@
     "karma-webpack": "5.0.0",
     "merge-files": "^0.1.2",
     "mini-css-extract-plugin": "^2.9.0",
+    "nano-css": "^5.6.2",
     "peggy": "^5.0.6",
     "postcss": "8.4.31",
     "postcss-calc": "9.0.1",

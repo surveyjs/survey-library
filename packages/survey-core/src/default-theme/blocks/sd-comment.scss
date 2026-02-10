@@ -1,11 +1,5 @@
 @use "../variables.scss" as *;
 
-.sd-comment {
-  display: block;
-  height: auto;
-  width: 100%;
-  max-width: 100%;
-}
 .sd-comment:has(.sd-comment__input[style*="width"]) {
   width: fit-content;
 }
@@ -18,6 +12,9 @@
 .sd-comment {
   position: relative;
   flex-direction: column;
+  height: auto;
+  width: 100%;
+  max-width: 100%;
   gap: calcSize(1);
 }
 .sd-comment__grip {

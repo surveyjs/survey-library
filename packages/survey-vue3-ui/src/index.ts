@@ -99,6 +99,7 @@ import ListItemGroup from "./components/list/ListItemGroup.vue";
 import Popup from "./components/popup/Popup.vue";
 import PopupContainer from "./components/popup/PopupContainer.vue";
 import PopupPointer from "./components/popup/PopupPointer.vue";
+import PopupCloseButton from "./components/popup/PopupCloseButton.vue";
 
 import Container from "./components/Container.vue";
 
@@ -287,6 +288,7 @@ function registerComponents(
   registerComponent("sv-popup", Popup);
   registerComponent("sv-popup-container", PopupContainer);
   registerComponent("popup-pointer", PopupPointer);
+  registerComponent("popup-close-button", PopupCloseButton);
 
   registerComponent("sv-notifier", Notifier);
   registerComponent("survey-other-choice", OtherChoice);

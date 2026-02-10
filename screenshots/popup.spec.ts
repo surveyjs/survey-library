@@ -417,5 +417,24 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(300);
       await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-with-selected-elements.png");
     });
+    test("Popup modal with close button", async ({ page }) => {
+      await page.setViewportSize({ width: 1000, height: 600 });
+      await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
+      await page.evaluate(() => {
+        const locStr = new window["Survey"].LocalizableString(undefined, false);
+        locStr.defaultValue = "Message";
+        window["Survey"].settings.showDialog({
+          componentName: "sv-string-viewer",
+          data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+          showCloseButton: true,
+        }, window["survey"].rootElement);
+      });
+
+      await compareScreenshot(page, ".sv-popup__container", "popup-modal-close-button.png");
+      await page.locator(".sv-popup__close-button").hover({ position: { x: 5, y: 10 } });
+      await page.waitForTimeout(500);
+      await compareScreenshot(page, ".sv-popup__container", "popup-modal-close-button-hover.png");
+    });
   });
 });

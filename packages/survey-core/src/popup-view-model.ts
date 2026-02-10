@@ -10,7 +10,12 @@ import { getActiveElement, getElement } from "./utils/utils";
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper } from "./global_variables_utils";
 
-export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
+export const FOCUS_INPUT_SELECTOR = [
+  "input:not(:disabled):not([readonly]):not([type=hidden])",
+  "select:not(:disabled)",
+  "textarea:not(:disabled):not([readonly])",
+  "button:not(:disabled):not([tabindex=\"-1\"])",
+  "[tabindex]:not([tabindex^=\"-\"])"].join(",");
 
 export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected popupSelector = ".sv-popup";
@@ -107,10 +112,13 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return this.isOverlay;
   }
   protected getShowHeader(): boolean {
-    return false;
+    return this.getShowCloseButton();
+  }
+  protected getShowCloseButton(): boolean {
+    return !!this.model.showCloseButton;
   }
   protected getPopupHeaderTemplate(): string {
-    return undefined;
+    return this.model.showCloseButton ? "popup-close-button" : undefined;
   }
   protected createFooterActionBar(): void {
     this.footerToolbarValue = new ActionContainer();
@@ -177,6 +185,9 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   public get showHeader(): boolean {
     return this.getShowHeader();
+  }
+  public get showCloseButton(): boolean {
+    return this.getShowCloseButton();
   }
   public get popupHeaderTemplate(): string {
     return this.getPopupHeaderTemplate();
@@ -266,6 +277,10 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
       if (!!el) (<HTMLElement>el).focus();
       else this.focusContainer();
     }, 100);
+  }
+  public clickClose(event?: Event): void {
+    this.hidePopup();
+    event?.stopPropagation();
   }
   public clickOutside(event?: Event): void {
     this.hidePopup();

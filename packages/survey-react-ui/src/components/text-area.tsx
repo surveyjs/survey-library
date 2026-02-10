@@ -82,9 +82,11 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
             </CharacterCounterComponent>
           </div> : null
         }
-        {this.viewModel.question.resizeStyle !== "none" ? <div className={cssClasses.grip} ref={this.anchorRef}>
-          <SvgIcon iconName={cssClasses.gripIconId} size={"auto"}></SvgIcon>
-        </div> : null}
+        {this.viewModel.question.resizeStyle !== "none" ?
+          <div className={cssClasses.grip} ref={this.anchorRef}>
+            <SvgIcon iconName={cssClasses.gripIconId} size={"auto"}></SvgIcon>
+          </div> : null
+        }
       </div>
     );
   }

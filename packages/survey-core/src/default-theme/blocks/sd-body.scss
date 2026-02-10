@@ -66,7 +66,6 @@
 
 .sd-root-modern--mobile {
   .sd-body {
-
     &.sd-body--with-timer.sd-body--responsive {
       max-width: initial;
       margin-left: 0;
@@ -77,10 +76,15 @@
     &.sd-body--static {
       padding: calcSize(3);
 
+      .sv-components-container-contentBottom .sd-body__navigation {
+        padding-bottom: 0;
+      }
+      .sv-components-container-contentTop .sd-body__navigation {
+        padding-top: 0;
+      }
       .sd-body__navigation {
         padding-left: 0;
         padding-right: 0;
-        padding-bottom: 0;
       }
     }
   }
@@ -88,10 +92,8 @@
 
 .sd-root--compact {
   .sd-body {
-
     &.sd-body--responsive,
     &.sd-body--static {
-
       .sd-body__navigation {
         padding-top: calcSize(7);
       }

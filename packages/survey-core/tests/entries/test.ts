@@ -32,9 +32,10 @@ export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdropcoretests";
 export * from "../dragdrophelpertests";
-export * from "../expressions/expressionsTest"; //
-export * from "../expressions/expressionParserTest"; //
-export * from "../expressions/expressionValidationTest"; //
+export * from "../expressions/expressionsTest";
+export * from "../expressions/expressionParserTest";
+export * from "../expressions/expressionValidationTest";
+export * from "../expressions/expressionFunctionCacheTests";
 export * from "../questionDropdownTests";
 export * from "../questionImagepicker";
 export * from "../questionBooleanTests";
@@ -86,6 +87,7 @@ export * from "../surveyServiceRemovingTests";
 export * from "../surveyStateTests";
 export * from "../propertyNameArray_tests";
 export * from "../surveySeparateLocalesTests";
+export * from "../getOwner_test";
 
 // localization
 import "../../src/localization/russian";

@@ -30,12 +30,7 @@ export class SliderLabelItemValue extends ItemValue {
     }
     return this.value || 0;
   }
-  public get showValue(): boolean {
-    return this.getPropertyValue("showValue", false);
-  }
-  public set showValue(val: boolean) {
-    this.setPropertyValue("showValue", val);
-  }
+  @property({ defaultValue: false }) showValue: boolean;
 }
 
 /**
@@ -148,15 +143,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    *
    * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
    */
-  public get step(): number {
-    // if (this.segmentCount) {
-    //   return (this.renderedMax - this.renderedMin) / this.segmentCount;
-    // }
-    return this.getPropertyValue("step");
-  }
-  public set step(val: number) {
-    this.setPropertyValue("step", val);
-  }
+  @property() step: number;
   // @property({ defaultValue: null }) segmentCount: number | null;
   /**
    * Specifies whether the slider displays value labels along the scale.
@@ -229,12 +216,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * @see labelCount
    * @see labelFormat
    */
-  public get customLabels(): SliderLabelItemValue[] {
-    return this.getPropertyValue("customLabels");
-  }
-  public set customLabels(val: SliderLabelItemValue[]) {
-    this.setPropertyValue("customLabels", val);
-  }
+  @property() customLabels: SliderLabelItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   /**

@@ -2830,3 +2830,65 @@ QUnit.test("Dropdown getInputId & getFirstInputElementId, bug#10567", assert => 
   assert.equal(q.getInputId(), q.id + "i", "getInputId #4");
   assert.equal(q.getFirstInputElementId(), q.id + "i", "getFirstInputElementId #4");
 });
+
+QUnit.test("auto-select custom item on Tab when only custom item is visible", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "dropdown",
+      name: "q1",
+      searchEnabled: true,
+      allowCustomChoices: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const customValue = "abc";
+
+  dropdownListModel.inputStringRendered = customValue;
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.equal(question.value, undefined, "value empty before Tab");
+  assert.equal(list.visibleItems.length, 1, "only custom item visible");
+  assert.equal(list.visibleItems[0].id, "newCustomItem", "visible item is custom");
+
+  const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
+  dropdownListModel.keyHandler(event);
+
+  assert.equal(question.value, customValue, "custom value selected on Tab");
+  assert.equal(question.selectedItem?.value, customValue, "selectedItem is custom");
+  assert.equal(list.visibleItems.length, 4);
+  assert.equal(list.visibleItems[0].id, customValue);
+});
+
+QUnit.test("auto-select custom item on blur when only custom item is visible", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "dropdown",
+      name: "q1",
+      searchEnabled: true,
+      allowCustomChoices: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const customValue = "abc";
+
+  dropdownListModel.inputStringRendered = customValue;
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.equal(question.value, undefined, "value empty before blur");
+  assert.equal(list.visibleItems.length, 1, "only custom item visible");
+
+  dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
+
+  assert.equal(question.value, customValue, "custom value selected on blur");
+  assert.equal(question.selectedItem?.value, customValue, "selectedItem is custom");
+  assert.equal(list.visibleItems.length, 4);
+  assert.equal(list.visibleItems[0].id, customValue);
+});

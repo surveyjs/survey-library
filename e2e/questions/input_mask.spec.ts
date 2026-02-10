@@ -124,6 +124,46 @@ frameworks.forEach((framework) => {
       expect(await getQuestionValue()).toBe("12345");
     });
 
+    test("Show placeholder if value is empty", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            name: "question1",
+            type: "text",
+            maskType: "pattern",
+            maskSettings: {
+              pattern: "99-99"
+            },
+            placeholder: "Enter value..."
+          }
+        ]
+      });
+
+      const input = page.locator("input").first();
+
+      await expect(input).toHaveAttribute("placeholder", "Enter value...");
+      await expect(input).toHaveValue("");
+
+      await input.click();
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("__-__");
+
+      await input.blur();
+      await expect(input).toHaveValue("");
+
+      await input.click();
+      await expect(input).toBeFocused();
+      await page.keyboard.type("1234");
+      await expect(input).toHaveValue("12-34");
+
+      await input.blur();
+      await expect(input).toHaveValue("12-34");
+
+      await input.click();
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("12-34");
+    });
+
     test("mask and maxlength", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,

@@ -355,6 +355,18 @@ export class DropdownListModel extends Base {
     }
   }
 
+  protected selectCustomItemIfOnlyVisible(): boolean {
+    if (this.allowCustomChoices && this.popupModel.isVisible) {
+      const visibleItems = this.listModel.visibleItems;
+      const onlyCustomItemAvailable = visibleItems.length === 1 && visibleItems[0] === this.customItemValue;
+      if (onlyCustomItemAvailable) {
+        this.listModel.onItemClick(this.customItemValue);
+        return true;
+      }
+    }
+    return false;
+  }
+
   protected createCustomItem(): ItemValue {
     const newChoice = new ItemValue(this.customValue);
     const options: CreateCustomChoiceItemEvent = {
@@ -780,56 +792,108 @@ export class DropdownListModel extends Base {
     this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
 
-  keyHandler(event: any): void {
-    let isStopPropagation = false;
-    const char: number = event.which || event.keyCode;
-    if (this.popupModel.isVisible && event.keyCode === 38) {
-      this.changeSelectionWithKeyboard(true);
-      isStopPropagation = true;
-    } else if (event.keyCode === 40) {
-      this.popupModel.show();
-      this.changeSelectionWithKeyboard(false);
-      isStopPropagation = true;
-    } else if (event.keyCode === 9) {
-      this.popupModel.hide();
-    } else if (!this.popupModel.isVisible && event.keyCode === 32) {
-      this.popupModel.show();
-      this.changeSelectionWithKeyboard(false);
-      isStopPropagation = true;
-    } else if (!this.popupModel.isVisible && event.keyCode === 13) {
-      (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
-      isStopPropagation = true;
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.searchEnabled || !this.inputString))) {
-      if (event.keyCode === 13 && this.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
-        this._popupModel.hide();
-        this.onClear(event);
-      } else {
-        this.listModel.selectFocusedItem();
-        this.onFocus(event);
-      }
-      isStopPropagation = true;
-    } else if (char === 46 || char === 8) {
-      if (!this.inputAvailable) {
-        this.onClear(event);
-      }
-    } else if (event.keyCode === 27) {
-      this._popupModel.hide();
-      this.hintString = "";
-      this.onEscape();
-    } else {
-      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.searchEnabled) {
-        isStopPropagation = true;
-      }
-      if (event.keyCode === 32 && this.searchEnabled) {
-        return;
-      }
-      doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
-    }
+  private static readonly KEY_UP = 38;
+  private static readonly KEY_DOWN = 40;
+  private static readonly KEY_TAB = 9;
+  private static readonly KEY_ENTER = 13;
+  private static readonly KEY_ESCAPE = 27;
+  private static readonly KEY_SPACE = 32;
+  private static readonly KEY_DELETE = 46;
+  private static readonly KEY_BACKSPACE = 8;
 
-    if (isStopPropagation) {
+  keyHandler(event: any): void {
+    const keyCode = event.keyCode;
+    const char = event.which || keyCode;
+
+    const handled = this.handleKeyEvent(keyCode, char, event);
+    if (handled.stopPropagation) {
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+
+  private handleKeyEvent(keyCode: number, char: number, event: any): { stopPropagation: boolean } {
+    if (keyCode === DropdownListModel.KEY_UP) return this.handleArrowUp(event);
+    if (keyCode === DropdownListModel.KEY_DOWN) return this.handleArrowDown();
+    if (keyCode === DropdownListModel.KEY_TAB) return this.handleTab();
+    if (keyCode === DropdownListModel.KEY_SPACE) return this.handleSpace(event);
+    if (keyCode === DropdownListModel.KEY_ENTER) return this.handleEnter(event);
+    if (char === DropdownListModel.KEY_DELETE || char === DropdownListModel.KEY_BACKSPACE) return this.handleDelete(event);
+    if (keyCode === DropdownListModel.KEY_ESCAPE) return this.handleEscape();
+
+    return this.handleOtherKeys(event);
+  }
+
+  private handleArrowUp(event: any): { stopPropagation: boolean } {
+    if (this.popupModel.isVisible) {
+      this.changeSelectionWithKeyboard(true);
+      return { stopPropagation: true };
+    }
+    doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
+    return { stopPropagation: true };
+  }
+
+  private handleArrowDown(): { stopPropagation: boolean } {
+    this.popupModel.show();
+    this.changeSelectionWithKeyboard(false);
+    return { stopPropagation: true };
+  }
+
+  private handleTab(): { stopPropagation: boolean } {
+    this.selectCustomItemIfOnlyVisible();
+    this.popupModel.hide();
+    return { stopPropagation: false };
+  }
+
+  private handleSpace(event: any): { stopPropagation: boolean } {
+    if (!this.popupModel.isVisible) {
+      this.popupModel.show();
+      this.changeSelectionWithKeyboard(false);
+      return { stopPropagation: true };
+    }
+    if (!this.searchEnabled || !this.inputString) {
+      this.listModel.selectFocusedItem();
+      this.onFocus(event);
+      return { stopPropagation: true };
+    }
+    return { stopPropagation: false };
+  }
+
+  private handleEnter(event: any): { stopPropagation: boolean } {
+    if (!this.popupModel.isVisible) {
+      (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+      return { stopPropagation: true };
+    }
+    const shouldClearOnEnter = this.searchEnabled && !this.inputString &&
+      this.question instanceof QuestionDropdownModel && !this._markdownMode && !!this.question.value;
+
+    if (shouldClearOnEnter) {
+      this._popupModel.hide();
+      this.onClear(event);
+    } else {
+      this.listModel.selectFocusedItem();
+      this.onFocus(event);
+    }
+    return { stopPropagation: true };
+  }
+
+  private handleDelete(event: any): { stopPropagation: boolean } {
+    if (!this.inputAvailable) {
+      this.onClear(event);
+    }
+    return { stopPropagation: false };
+  }
+
+  private handleEscape(): { stopPropagation: boolean } {
+    this._popupModel.hide();
+    this.hintString = "";
+    this.onEscape();
+    return { stopPropagation: false };
+  }
+
+  private handleOtherKeys(event: any): { stopPropagation: boolean } {
+    doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
+    return { stopPropagation: false };
   }
   protected onEscape() {
     if (this.searchEnabled)
@@ -851,8 +915,10 @@ export class DropdownListModel extends Base {
       return;
     }
     doKey2ClickBlur(event);
+    if (!this.selectCustomItemIfOnlyVisible()) {
+      this.resetFilterString();
+    }
     this._popupModel.hide();
-    this.resetFilterString();
     event.stopPropagation();
   }
   onFocus(event: any): void {

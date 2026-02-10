@@ -1,7 +1,7 @@
 import { Base } from "./base";
 import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
-import { Serializer, JsonObjectProperty } from "./jsonobject";
+import { Serializer, JsonObjectProperty, property } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 import { IBeforeRequestChoicesOptions, settings } from "./settings";
 import { SurveyError } from "./survey-error";
@@ -143,8 +143,19 @@ export class ChoicesRestful extends Base {
   };
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "url" && this.owner) {
-      (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!newValue);
+    if (name === "url") {
+      if (this.owner) {
+        (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!newValue);
+      }
+      this.isUsingCacheFromUrl = undefined;
+      if (!newValue) return;
+      if (newValue.indexOf(ChoicesRestful.cacheText) > -1) {
+        this.isUsingCacheFromUrl = true;
+      } else {
+        if (newValue.indexOf(ChoicesRestful.noCacheText) > -1) {
+          this.isUsingCacheFromUrl = false;
+        }
+      }
     }
   }
   public getSurvey(live: boolean = false): ISurvey {
@@ -388,21 +399,7 @@ export class ChoicesRestful extends Base {
    * @see valueName
    * @see titleName
    */
-  public get url(): string {
-    return this.getPropertyValue("url") || "";
-  }
-  public set url(val: string) {
-    this.setPropertyValue("url", val);
-    this.isUsingCacheFromUrl = undefined;
-    if (!val) return;
-    if (val.indexOf(ChoicesRestful.cacheText) > -1) {
-      this.isUsingCacheFromUrl = true;
-    } else {
-      if (val.indexOf(ChoicesRestful.noCacheText) > -1) {
-        this.isUsingCacheFromUrl = false;
-      }
-    }
-  }
+  @property({ returnValue: "" }) url: string;
   /**
    * Path to the array of choices. The following path separators are allowed: semicolon `;`, comma `,`.
    *
@@ -420,13 +417,7 @@ export class ChoicesRestful extends Base {
    * @see valueName
    * @see titleName
    */
-
-  public get path(): string {
-    return this.getPropertyValue("path") || "";
-  }
-  public set path(val: string) {
-    this.setPropertyValue("path", val);
-  }
+  @property({ returnValue: "" }) path: string;
   /**
    * Specifies which property in the obtained data object contains choice values.
    *
@@ -436,13 +427,7 @@ export class ChoicesRestful extends Base {
    * @see path
    * @see titleName
    */
-
-  public get valueName(): string {
-    return this.getPropertyValue("valueName") || "";
-  }
-  public set valueName(val: string) {
-    this.setPropertyValue("valueName", val);
-  }
+  @property({ returnValue: "" }) valueName: string;
   /**
    * Specifies which property in the obtained data object contains display texts for choices.
    *
@@ -450,14 +435,7 @@ export class ChoicesRestful extends Base {
    * @see path
    * @see valueName
    */
-
-  public get titleName(): string {
-    return this.getPropertyValue("titleName") || "";
-  }
-  public set titleName(val: string) {
-    this.setPropertyValue("titleName", val);
-  }
-
+  @property({ returnValue: "" }) titleName: string;
   /**
    * Specifies which property in the obtained data object contains image URLs. Used only in [Image Picker](https://surveyjs.io/Examples/Library?id=questiontype-imagepicker) questions.
    *
@@ -465,23 +443,13 @@ export class ChoicesRestful extends Base {
    * @see path
    * @see valueName
    */
-  public get imageLinkName(): string {
-    return this.getPropertyValue("imageLinkName") || "";
-  }
-  public set imageLinkName(val: string) {
-    this.setPropertyValue("imageLinkName", val);
-  }
+  @property({ returnValue: "" }) imageLinkName: string;
   /**
    * Specifies whether the service is allowed to return an empty response or an empty array in a response.
    *
    * Default value: `false`
    */
-  public get allowEmptyResponse(): boolean {
-    return this.getPropertyValue("allowEmptyResponse");
-  }
-  public set allowEmptyResponse(val: boolean) {
-    this.setPropertyValue("allowEmptyResponse", val);
-  }
+  @property() allowEmptyResponse: boolean;
   public get attachOriginalItems(): boolean {
     return this.attachData;
   }
@@ -522,12 +490,7 @@ export class ChoicesRestful extends Base {
    * }
    * ```
    */
-  public get attachData(): boolean {
-    return this.getPropertyValue("attachData");
-  }
-  public set attachData(val: boolean) {
-    this.setPropertyValue("attachData", val);
-  }
+  @property() attachData: boolean;
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
     var prop = Serializer.findProperty(this.owner.getType(), "choices");
@@ -551,26 +514,27 @@ export class ChoicesRestful extends Base {
     if (!loadingObjHash) {
       loadingObjHash = this.objHash;
     }
-    var items = new Array<ItemValue>();
-    var updatedResult = this.getResultAfterPath(result);
+    let items = new Array<ItemValue>();
+    const updatedResult = this.getResultAfterPath(result);
     if (updatedResult && updatedResult["length"]) {
-      for (var i = 0; i < updatedResult.length; i++) {
-        var itemValue = updatedResult[i];
+      for (let i = 0; i < updatedResult.length; i++) {
+        const itemValue = updatedResult[i];
         if (!itemValue) continue;
-        var value = !!this.getItemValueCallback
+        const value = !!this.getItemValueCallback
           ? this.getItemValueCallback(itemValue)
           : this.getValue(itemValue);
-        var item = this.createItemValue(value);
+        const item = this.createItemValue(value);
         this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
         if (this.attachData) {
           item.originalItem = itemValue;
           item.data = itemValue;
         }
-        var imageLink = this.getImageLink(itemValue);
+        const imageLink = this.getImageLink(itemValue);
         if (!!imageLink) {
           item.imageLink = imageLink;
         }
+        this.setItemValueProperties(item, itemValue);
         items.push(item);
       }
     } else {
@@ -586,6 +550,14 @@ export class ChoicesRestful extends Base {
     }
     this.callResultCallback(items, loadingObjHash);
     ChoicesRestful.unregisterSameRequests(this, items);
+  }
+  private setItemValueProperties(item: ItemValue, itemValue: any) {
+    const props = ["isExclusive", "showCommentArea", "isCommentRequired", "visibleIf", "enableIf"];
+    props.forEach(propName => {
+      if (itemValue[propName] !== undefined) {
+        (item as any)[propName] = itemValue[propName];
+      }
+    });
   }
   protected callResultCallback(
     items: Array<ItemValue>,

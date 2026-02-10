@@ -73,24 +73,6 @@ export class ProgressButtons extends Base {
     }
     return true;
   }
-  public clearConnectorsWidth(element: HTMLElement): void {
-    const listContainerElements = element.querySelectorAll(".sd-progress-buttons__connector");
-    for (let i = 0; i < listContainerElements.length; i++) {
-      (listContainerElements[i] as HTMLDivElement).style.width = "";
-    }
-  }
-  public adjustConnectors(element: HTMLElement): void {
-    const listContainerElement = element.querySelector("ul");
-    if (!listContainerElement) return;
-    const listContainerElements = element.querySelectorAll(".sd-progress-buttons__connector");
-    const circleWidth = this.showItemNumbers ? 36 : 20;
-    // const sideCorrection = this.survey.isMobile ? circleWidth : listContainerElement.children[0].clientWidth;
-    // const connectorWidth = (listContainerElement.clientWidth - sideCorrection) / (listContainerElement.children.length - 1) - circleWidth;
-    const connectorWidth = (listContainerElement.clientWidth - circleWidth) / (listContainerElement.children.length - 1) - circleWidth;
-    for (let i = 0; i < listContainerElements.length; i++) {
-      (listContainerElements[i] as HTMLDivElement).style.width = connectorWidth + "px";
-    }
-  }
   public get isFitToSurveyWidth(): boolean {
     if (surveyCss.currentType !== "default") {
       return false;
@@ -152,8 +134,6 @@ export interface IProgressButtonsViewModel {
 
 export class ProgressButtonsResponsivityManager {
   private criticalProperties = ["progressBarType", "progressBarShowPageTitles"];
-  private timer: any;
-  private prevWidth: number;
   private canShowItemTitles = true;
   constructor(private model: ProgressButtons, private element: HTMLElement, private viewModel: IProgressButtonsViewModel) {
     this.model.survey.registerFunctionOnPropertiesValueChanged(this.criticalProperties, () => this.forceUpdate(), "ProgressButtonsResponsivityManager" + this.viewModel.container);
@@ -166,32 +146,18 @@ export class ProgressButtonsResponsivityManager {
   }
   private processResponsiveness = (model: ProgressButtons, options: { width: number }) => {
     this.viewModel.onUpdateScroller(model.isListContainerHasScroller(this.element));
-    this.model.clearConnectorsWidth(this.element);
     if (!model.showItemTitles) {
-      this.model.adjustConnectors(this.element);
       return;
     }
     if (model.survey.isMobile) {
-      this.prevWidth = options.width;
       this.canShowItemTitles = false;
-      this.model.adjustConnectors(this.element);
       this.viewModel.onResize(this.canShowItemTitles);
       return;
     }
-    if (this.timer !== undefined) {
-      clearTimeout(this.timer);
-    }
-    this.timer = setTimeout(() => {
-      if (this.prevWidth === undefined || this.prevWidth < options.width && !this.canShowItemTitles || this.prevWidth > options.width && this.canShowItemTitles) {
-        this.prevWidth = options.width;
-        this.canShowItemTitles = model.isCanShowItemTitles(this.element);
-        this.viewModel.onResize(this.canShowItemTitles);
-        this.timer = undefined;
-      }
-    }, 10);
+    this.canShowItemTitles = model.isCanShowItemTitles(this.element);
+    this.viewModel.onResize(this.canShowItemTitles);
   };
   dispose(): void {
-    clearTimeout(this.timer);
     this.model.onResize.remove(this.processResponsiveness);
     this.model.survey.unRegisterFunctionOnPropertiesValueChanged(this.criticalProperties, "ProgressButtonsResponsivityManager" + this.viewModel.container);
     this.element = undefined;

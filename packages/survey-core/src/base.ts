@@ -10,7 +10,7 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ExpressionRunner, IExpressionError } from "./conditions";
+import { expressionObjectCachedValue, ExpressionRunner, IExpressionError } from "./conditions";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditionProcessValue";
@@ -746,7 +746,9 @@ export class Base implements IObjectValueContext {
     return !!obj.getPropertyByName(propName) ? obj : this;
   }
   protected getPropertyValueWithoutDefault(name: string): any {
-    return this.getPropertyValueCore(this.propertyHash, name);
+    const res = this.getPropertyValueCore(this.propertyHash, name);
+    expressionObjectCachedValue(this, name, res);
+    return res;
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
     if (!this.isLoadingFromJson) {

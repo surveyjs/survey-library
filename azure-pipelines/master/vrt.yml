@@ -6,24 +6,25 @@
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
   CurrentBranch: $(Build.SourceBranchName)
-  ProjectId: "2cf848f9-83d5-4ec4-b2e3-ef3321ccc99f"
+  ProjectId: "d79f2855-7b94-4261-9daf-4cace0a06c03"
 
-trigger: none
-
-pr:
+trigger:
+  batch: true
   branches:
     include:
-      - V3
+      - master
+  tags:
+    exclude:
+      - v*.*.*
+pr: none
 
 pool:
-  vmImage: "Ubuntu-22.04"
+  vmImage: "windows-latest"
 
 jobs:
   - job: Core
     steps:
       - checkout: self
-        persistCredentials: true
-        clean: true
 
       - task: NodeTool@0
         inputs:
@@ -57,10 +58,6 @@ jobs:
         displayName: "run lint command"
 
       - script: |
-          npx puppeteer browsers install chrome
-        displayName: "install chrome"
-
-      - script: |
           cd packages/survey-core
           npm install
         displayName: "NPM install packages/survey-core"
@@ -70,16 +67,6 @@ jobs:
           npm run build:all
         displayName: "Build core"
 
-      - script: |
-          cd packages/survey-core
-          npm test
-        displayName: "run unit test"
-
-      - script: |
-          cd packages/survey-core
-          npm run test:postcss
-        displayName: "check postcss compatibility"
-
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
@@ -88,15 +75,13 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
-          ArtifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          ArtifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
           publishLocation: "Container"
 
   - job: React
     dependsOn: Core
     steps:
       - checkout: self
-        persistCredentials: true
-        clean: true
 
       - task: NodeTool@0
         inputs:
@@ -137,12 +122,12 @@ jobs:
         inputs:
           buildType: "current"
           downloadType: "single"
-          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
           downloadPath: "$(System.ArtifactsDirectory)"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
           TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
       - script: |
@@ -157,30 +142,47 @@ jobs:
 
       - script: |
           cd packages/survey-react-ui
-          npm run test
-        displayName: "run markup tests"
+          npm run scr:ci
+        displayName: "run scr tests"
 
-      - script: |
-          cd packages/survey-react-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+      # - script: |
+      #     cd packages/survey-react-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
+
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
+
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_VRT/"
+      #     ArtifactName: "Library_React_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results/"
           Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_SCR"
           OverWrite: true
         condition: always()
-        displayName: "copy e2e artifacts"
+        displayName: "copy scr artifacts"
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
-          ArtifactName: "Library_React_E2E"
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_SCR/"
+          ArtifactName: "Library_React_SCR"
           publishLocation: "Container"
         condition: always()
-        displayName: "publish e2e artifacts"
+        displayName: "publish scr artifacts"
 
       - task: PublishTestResults@2
         displayName: "Publish test results"
@@ -190,22 +192,13 @@ jobs:
           testResultsFiles: "e2e-junit-results.xml"
           mergeTestResults: true
           failTaskOnFailedTests: true
-          testRunTitle: "React End-To-End Tests"
+          testRunTitle: "React SCR Tests"
         condition: succeededOrFailed()
-
-      # - task: PublishPipelineArtifact@1
-      #   inputs:
-      #     targetPath: "$(Build.SourcesDirectory)/packages/survey-react-ui/playwright-report"
-      #     artifact: react-playwright-report
-      #     publishLocation: "pipeline"
-      #   condition: succeededOrFailed()
 
   - job: Angular
     dependsOn: Core
     steps:
       - checkout: self
-        persistCredentials: true
-        clean: true
 
       - task: NodeTool@0
         inputs:
@@ -246,12 +239,12 @@ jobs:
         inputs:
           buildType: "current"
           downloadType: "single"
-          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
           downloadPath: "$(System.ArtifactsDirectory)"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
           TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
       - script: |
@@ -276,30 +269,47 @@ jobs:
 
       - script: |
           cd packages/survey-angular-ui
-          npm run test
-        displayName: "run unit and markup tests"
+          npm run scr:ci
+        displayName: "run scr tests"
 
-      - script: |
-          cd packages/survey-angular-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+      # - script: |
+      #     cd packages/survey-angular-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
+
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
+
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/"
+      #     ArtifactName: "Library_Angular_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results"
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results/"
           Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR"
           OverWrite: true
         condition: always()
-        displayName: "copy e2e artifacts"
+        displayName: "copy scr artifacts"
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E/"
-          ArtifactName: "Library_Angular_E2E"
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR/"
+          ArtifactName: "Library_Angular_SCR"
           publishLocation: "Container"
         condition: always()
-        displayName: "publish e2e artifacts"
+        displayName: "publish scr artifacts"
 
       - task: PublishTestResults@2
         displayName: "Publish test results"
@@ -309,22 +319,13 @@ jobs:
           testResultsFiles: "e2e-junit-results.xml"
           mergeTestResults: true
           failTaskOnFailedTests: true
-          testRunTitle: "Angular End-To-End Tests"
+          testRunTitle: "Angular SCR Tests"
         condition: succeededOrFailed()
-
-      # - task: PublishPipelineArtifact@1
-      #   inputs:
-      #     targetPath: "$(Build.SourcesDirectory)/packages/survey-angular-ui/playwright-report"
-      #     artifact: angular-playwright-report
-      #     publishLocation: "pipeline"
-      #   condition: succeededOrFailed()
 
   - job: Vue3
     dependsOn: Core
     steps:
       - checkout: self
-        persistCredentials: true
-        clean: true
 
       - task: NodeTool@0
         inputs:
@@ -365,12 +366,12 @@ jobs:
         inputs:
           buildType: "current"
           downloadType: "single"
-          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
           downloadPath: "$(System.ArtifactsDirectory)"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
           TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
       - script: |
@@ -395,30 +396,47 @@ jobs:
 
       - script: |
           cd packages/survey-vue3-ui
-          npm run test
-        displayName: "run unit and markup tests"
+          npm run scr:ci
+        displayName: "run scr tests"
 
-      - script: |
-          cd packages/survey-vue3-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+      # - script: |
+      #     cd packages/survey-vue3-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
+
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
+
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/"
+      #     ArtifactName: "Library_Vue_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results"
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results/"
           Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
           OverWrite: true
         condition: always()
-        displayName: "copy e2e artifacts"
+        displayName: "copy scr artifacts"
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
-          ArtifactName: "Library_Vue3_E2E"
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
+          ArtifactName: "Library_Vue3_SCR"
           publishLocation: "Container"
         condition: always()
-        displayName: "publish e2e artifacts"
+        displayName: "publish scr artifacts"
 
       - task: PublishTestResults@2
         displayName: "Publish test results"
@@ -428,22 +446,13 @@ jobs:
           testResultsFiles: "e2e-junit-results.xml"
           mergeTestResults: true
           failTaskOnFailedTests: true
-          testRunTitle: "Vue3 End-To-End Tests"
+          testRunTitle: "Vue3 SCR Tests"
         condition: succeededOrFailed()
-
-      # - task: PublishPipelineArtifact@1
-      #   inputs:
-      #     targetPath: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/playwright-report"
-      #     artifact: vue3-playwright-report
-      #     publishLocation: "pipeline"
-      #   condition: succeededOrFailed()
 
   - job: Preact_ShadowDOM_BoxSizing
     dependsOn: Core
     steps:
       - checkout: self
-        persistCredentials: true
-        clean: true
 
       - task: NodeTool@0
         inputs:
@@ -484,12 +493,12 @@ jobs:
         inputs:
           buildType: "current"
           downloadType: "single"
-          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
           downloadPath: "$(System.ArtifactsDirectory)"
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
           TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
 
       - script: |
@@ -502,32 +511,27 @@ jobs:
           npm run build
         displayName: "Build UI"
 
-      # - script: |
-      #     cd packages/survey-js-ui
-      #     npm run test
-      #   displayName: "run markup tests"
-
       - script: |
           cd packages/survey-js-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
-
+          npm run scr:ci
+        displayName: "run scr tests"
+      
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results/"
           Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
           OverWrite: true
         condition: always()
-        displayName: "copy e2e artifacts"
+        displayName: "copy scr artifacts"
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
-          ArtifactName: "Library_React_E2E"
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
+          ArtifactName: "Library_Survey-UI_SCR"
           publishLocation: "Container"
         condition: always()
-        displayName: "publish e2e artifacts"
+        displayName: "publish scr artifacts"
 
       - task: PublishTestResults@2
         displayName: "Publish test results"
@@ -537,16 +541,5 @@ jobs:
           testResultsFiles: "e2e-junit-results.xml"
           mergeTestResults: true
           failTaskOnFailedTests: true
-          testRunTitle: "React End-To-End Tests"
+          testRunTitle: "Vue3 SCR Tests"
         condition: succeededOrFailed()
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/build"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-js-ui"
-
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-          ArtifactName: "SurveyJSLibraryBuildSurveyUI"
-          publishLocation: "Container"

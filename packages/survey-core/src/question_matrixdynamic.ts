@@ -33,7 +33,6 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
     const index = params.index;
     const md = <QuestionMatrixDynamicModel>this.question;
     if (index > -1 && md.isDesignMode) return md.getDesignRowContext().getValue(params);
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
       const rows = md.allRows;
       if (index >= 0 && index < rows.length) {
@@ -42,6 +41,7 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
       }
       return { isFound: false, value: undefined, context: this };
     }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     return super.getValue(params);
   }
 }

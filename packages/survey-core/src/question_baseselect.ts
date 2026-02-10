@@ -281,7 +281,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       question: this,
       id: () => this.getItemCommentId(item),
       propertyNames: [this.getCommentPropertyValue(item)],
-      cssClasses: () => { return { root: this.cssClasses.comment }; },
+      cssClasses: () => {
+        return {
+          root: this.cssClasses.comment,
+          control: this.cssClasses.commentControl,
+          grip: this.cssClasses.commentGrip,
+          gripIconId: this.cssClasses.commentGripIconId
+        };
+      },
       placeholder: () => this.getCommentPlaceholder(item),
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,

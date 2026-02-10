@@ -33,8 +33,8 @@ select.sd-dropdown {
   padding-block: calcSize(1.5);
 }
 
-.sd-dropdown--empty:not(.sd-input--disabled),
-.sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__value {
+.sd-dropdown--empty:not(.sd-formbox--disabled),
+.sd-dropdown--empty:not(.sd-formbox--disabled) .sd-dropdown__value {
   color: $foreground-light;
 }
 
@@ -96,8 +96,8 @@ select.sd-dropdown {
   }
 }
 
-.sd-input--readonly .sd-editor-button-item:hover,
-.sd-input--readonly .sd-editor-button-item:focus {
+.sd-formbox--readonly .sd-editor-button-item:hover,
+.sd-formbox--readonly .sd-editor-button-item:focus {
   background: transparent;
 }
 
@@ -149,13 +149,13 @@ select.sd-dropdown {
   opacity: 0.24;
 }
 
-.sd-input.sd-dropdown:focus-within {
+.sd-formbox.sd-dropdown:focus-within {
   box-shadow:
     $shadow-inner-reset,
     0 0 0 2px $primary;
 }
 
-.sd-input.sd-dropdown.sd-input--readonly {
+.sd-formbox.sd-dropdown.sd-formbox--readonly {
   box-shadow: none;
   transition: none;
 }
@@ -183,7 +183,7 @@ select.sd-dropdown {
   appearance: none;
 }
 
-.sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
+.sd-dropdown--empty:not(.sd-formbox--disabled) .sd-dropdown__filter-string-input::placeholder {
   color: $font-editorfont-placeholdercolor;
 }
 
@@ -217,9 +217,9 @@ select.sd-dropdown {
   }
 }
 
-.sd-dropdown.sd-input--disabled,
-.sd-dropdown.sd-input--readonly,
-.sd-dropdown.sd-input--preview {
+.sd-dropdown.sd-formbox--disabled,
+.sd-dropdown.sd-formbox--readonly,
+.sd-dropdown.sd-formbox--preview {
   .sv-string-viewer {
     width: 100%;
     max-width: 100%;

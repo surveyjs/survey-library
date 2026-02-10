@@ -15,50 +15,26 @@
   padding-left: calcSize(2);
 }
 
-.sd-multipletext__item-container:has(.sd-input:focus) {
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
-}
-
 .sd-multipletext__item-container {
   display: flex;
   align-items: flex-start;
   height: 100%;
-  padding-top: 0;
-  padding-bottom: 0;
-
-  .sd-input {
-    padding-top: 0;
-    padding-right: 0;
-    padding-bottom: 0;
-    border: none;
-    box-shadow: none;
-  }
-}
-
-.sd-multipletext__item-container .sd-input,
-.sd-multipletext__item-title {
-  margin-top: calcSize(1.5);
-  margin-bottom: calcSize(1.5);
-}
-
-.sd-multipletext__item-title {
-  font-size: 0;
-  line-height: 0;
-
-  span {
-    font-size: $font-editorfont-size;
-    line-height: multiply(1.5, $font-editorfont-size);
-  }
 }
 
 .sd-multipletext__item-title {
   height: calc(100% - #{$base-unit} * 3);
+  padding: calcSize(1) calcSize(2) calcSize(1) calcSize(1.5);
+  font-size: 0;
+  line-height: 0;
   max-width: 30%;
-  padding-right: calcSize(2);
   border-right: 1px solid $border;
+  box-sizing: content-box;
   white-space: normal;
   color: $font-editorfont-placeholdercolor;
-  box-sizing: content-box;
+  span {
+    font-size: $font-editorfont-size;
+    line-height: multiply(1.5, $font-editorfont-size);
+  }
 }
 
 .sd-question--preview .sd-multipletext__item-title {
@@ -74,20 +50,6 @@
 
 .sd-multipletext__item-container--error {
   background-color: $red-light;
-
-  .sd-input--error {
-    background-color: transparent;
-  }
-}
-
-.sd-multipletext-item__character-counter {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sd-question__content:focus-within .sd-multipletext-item__character-counter {
-  padding-inline-end: calcSize(8);
 }
 
 .sd-multipletext__cell {
@@ -111,8 +73,4 @@
   .sd-question__erbox {
     margin: 0;
   }
-}
-
-.sd-multipletext .sd-input .sd-input {
-  background: transparent;
 }

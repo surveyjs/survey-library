@@ -13,10 +13,16 @@
     border: none;
     border-radius: $editor-corner-radius;
     text-align: start;
+    align-items: center;
     box-shadow:
         $shadow-inner,
         0 0 0 0px $primary;
     transition: box-shadow $transition-duration;
+}
+.sd-formbox {
+    .sd-formbox {
+        display: contents;
+    }
 }
 .sd-formbox__group {
     display: flex;

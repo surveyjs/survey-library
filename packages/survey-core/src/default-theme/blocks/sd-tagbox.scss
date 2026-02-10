@@ -1,6 +1,6 @@
 @use "../variables.scss" as *;
 
-.sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
+.sd-formbox.sd-tagbox:not(.sd-tagbox--empty).sd-formbox--editable {
   height: auto;
   // padding: calcSize(0.5);
   // padding-inline-end: calcSize(6); //padding-right
@@ -12,9 +12,9 @@
 }
 
 .sd-tagbox {
-  &.sd-input--disabled,
-  &.sd-input--readonly,
-  &.sd-input--preview {
+  &.sd-formbox--disabled,
+  &.sd-formbox--readonly,
+  &.sd-formbox--preview {
     .sd-tagbox__value {
       white-space: normal;
     }
@@ -34,7 +34,7 @@
   margin: auto 0;
 }
 
-.sd-input.sd-tagbox:focus-within {
+.sd-formbox.sd-tagbox:focus-within {
   box-shadow:
     $shadow-inner-reset,
     0 0 0 2px $primary;

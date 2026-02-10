@@ -10,7 +10,12 @@ import { getActiveElement, getElement } from "./utils/utils";
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper } from "./global_variables_utils";
 
-export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled),textarea:not(:disabled), button:not(:disabled):not([tabindex=\"-1\"]), [tabindex]:not([tabindex^=\"-\"])";
+export const FOCUS_INPUT_SELECTOR = [
+  "input:not(:disabled):not([readonly]):not([type=hidden])",
+  "select:not(:disabled)",
+  "textarea:not(:disabled):not([readonly])",
+  "button:not(:disabled):not([tabindex=\"-1\"])",
+  "[tabindex]:not([tabindex^=\"-\"])"].join(",");
 
 export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected popupSelector = ".sv-popup";

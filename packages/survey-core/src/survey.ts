@@ -47,7 +47,7 @@ import {
   UrlConditionItem,
   ExpressionItem,
 } from "./expressionItems";
-import { ExpressionRunner, ConditionRunner } from "./conditions";
+import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
 import { settings } from "./settings";
 import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
 import { SurveyError } from "./survey-error";
@@ -6758,7 +6758,12 @@ export class SurveyModel extends SurveyElementCore
   public getVariable(name: string): any {
     if (!name) return null;
     name = name.toLowerCase();
-    var res = this.variablesHash[name];
+    const res = this.getVariableCore(name);
+    expressionSurveyCachedValue(name, res, true);
+    return res;
+  }
+  private getVariableCore(name: string): any {
+    const res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
       return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
@@ -6818,7 +6823,9 @@ export class SurveyModel extends SurveyElementCore
   public getValue(name: string): any {
     if (!name || name.length == 0) return null;
     var value = this.getDataValueCore(this.valuesHash, name);
-    return this.getUnbindValue(value);
+    const res = this.getUnbindValue(value);
+    expressionSurveyCachedValue(name, res);
+    return res;
   }
   /**
    * Sets a question value (answer).

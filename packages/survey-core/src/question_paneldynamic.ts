@@ -146,7 +146,6 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
       }
       return { isFound: false };
     }
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
       if (index >= 0 && index < pd.panels.length) {
         const item = <QuestionPanelDynamicItem>pd.panels[index].data;
@@ -155,6 +154,7 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
       }
       return { isFound: false, value: undefined, context: this };
     }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     return super.getValue(params);
   }
 }
@@ -2467,6 +2467,7 @@ export class QuestionPanelDynamicModel extends Question
   private isSetPanelItemData: HashTable<number> = {};
   private static maxCheckCount = 3;
   setPanelItemData(item: ISurveyData, name: string, val: any): void {
+    if (item === this.template.data) return;
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
     if (!this.isSetPanelItemData[name]) {

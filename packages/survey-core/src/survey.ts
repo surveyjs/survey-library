@@ -4510,7 +4510,7 @@ export class SurveyModel extends SurveyElementCore
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
-      this.currentPage.passed = true;
+      if (this.currentPage)this.currentPage.passed = true;
       return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
     }
     this.doNextPage();
@@ -4649,6 +4649,7 @@ export class SurveyModel extends SurveyElementCore
         this.visiblePages.forEach(page => page.updateRows());
       }
     }
+    let isCurrentPageSet = false;
     if (!this.isSinglePage && !this.isShowingPreview) {
       this.disposeContainerPage();
       let curPage = this.gotoPageFromPreview;
@@ -4657,12 +4658,13 @@ export class SurveyModel extends SurveyElementCore
         curPage = this.visiblePages[this.visiblePageCount - 1];
       }
       if (!!curPage) {
+        isCurrentPageSet = true;
         this.changeCurrentPageFromPreview = true;
         this.currentPage = curPage;
         this.changeCurrentPageFromPreview = false;
       }
     }
-    if (!this.currentPage && this.visiblePageCount > 0) {
+    if (!this.currentPage && this.visiblePageCount > 0 && !isCurrentPageSet) {
       this.currentPage = this.visiblePages[0];
     }
     if (this.isShowingPreview) {

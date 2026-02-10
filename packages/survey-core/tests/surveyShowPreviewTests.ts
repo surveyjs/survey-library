@@ -1,5 +1,4 @@
 import { SurveyModel } from "../src/survey";
-import { surveyLocalization } from "../src/surveyStrings";
 import { PanelModel } from "../src/panel";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
@@ -176,6 +175,60 @@ QUnit.test(
     survey.tryComplete();
     assert.equal(survey.visiblePages.length, 2, "We have two pages again");
     assert.equal(survey.currentPageNo, 1, "Current page is the last one");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = true, check onCurrentPageChanging and onCurrentPageChanged calls count",
+  (assert) => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = true;
+    const calls = [0, 0];
+    survey.onCurrentPageChanging.add(() => { calls[0]++; });
+    survey.onCurrentPageChanged.add(() => { calls[1]++; });
+    assert.deepEqual(calls, [0, 0], "There is no calls yet");
+    survey.nextPage();
+    assert.deepEqual(calls, [1, 1], "must be called one time on nextPage");
+    survey.showPreview();
+    assert.deepEqual(calls, [1, 1], "no extra calls on showPreview");
+    survey.tryComplete();
+    assert.deepEqual(calls, [2, 2], "extra calls on tryComplete");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = true, check async onCurrentPageChanging and async onCurrentPageChanged calls count",
+  (assert) => {
+    const done = assert.async(3);
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = true;
+    const calls = [0, 0];
+    survey.onCurrentPageChanging.add(async () => { calls[0]++; });
+    survey.onCurrentPageChanged.add(async () => { calls[1]++; });
+    assert.deepEqual(calls, [0, 0], "There is no calls yet");
+    survey.nextPage();
+    setTimeout(() => {
+      assert.deepEqual(calls, [1, 1], "must be called one time on nextPage");
+      done();
+      survey.showPreview();
+      setTimeout(() => {
+        assert.deepEqual(calls, [1, 1], "no extra calls on showPreview");
+        done();
+        survey.tryComplete();
+        setTimeout(() => {
+          assert.deepEqual(calls, [2, 2], "extra calls on tryComplete");
+          done();
+        }, 100);
+      }, 100);
+    }, 100);
   }
 );
 QUnit.test(

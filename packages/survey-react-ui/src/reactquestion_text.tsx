@@ -3,7 +3,6 @@ import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
-import { group } from "console";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel
@@ -25,55 +24,54 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.inputValue}</div>;
     }
+    return (
+      <input
+        id={this.question.inputId}
+        // disabled={this.isDisplayMode}
+        disabled={this.question.isDisabledAttr}
+        readOnly={this.question.isReadOnlyAttr}
+        className={inputClass}
+        type={this.question.inputType}
+        //ref={this.controlRef}
+        ref={(input) => (this.setControl(input))}
+        style={this.question.inputStyle}
+        maxLength={this.question.getMaxLength()}
+        min={this.question.renderedMin}
+        max={this.question.renderedMax}
+        step={this.question.renderedStep}
+        size={this.question.inputSize}
+        placeholder={placeholder}
+        list={this.question.dataListId}
+        autoComplete={this.question.autocomplete}
+        onBlur={(event) => { this.question.onBlur(event); }}
+        onFocus={(event) => { this.question.onFocus(event); }}
+        onChange={this.question.onChange}
+        onClick={this.question.readOnlyBlocker}
+        onPointerDown={this.question.readOnlyBlocker}
+        onKeyUp={this.question.onKeyUp}
+        onKeyDown={this.question.onKeyDown}
+        onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
+        aria-required={this.question.a11y_input_ariaRequired}
+        aria-label={this.question.a11y_input_ariaLabel}
+        aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+        aria-describedby={this.question.a11y_input_ariaDescribedBy}
+        aria-invalid={this.question.a11y_input_ariaInvalid}
+        aria-errormessage={this.question.a11y_input_ariaErrormessage}
+      />
+    );
+  }
+  protected renderGroup(): React.JSX.Element {
     const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.characterCounter}></CharacterCounterComponent>) : null;
     const group = counter ? <div className={this.question.cssClasses.group}>{counter}</div> : null;
-    return (
-      <div className={this.question.cssClasses.root} onClick={(event) => this.onContainerClick(event)}>
-        <input
-          id={this.question.inputId}
-          // disabled={this.isDisplayMode}
-          disabled={this.question.isDisabledAttr}
-          readOnly={this.question.isReadOnlyAttr}
-          className={inputClass}
-          type={this.question.inputType}
-          //ref={this.controlRef}
-          ref={(input) => (this.setControl(input))}
-          style={this.question.inputStyle}
-          maxLength={this.question.getMaxLength()}
-          min={this.question.renderedMin}
-          max={this.question.renderedMax}
-          step={this.question.renderedStep}
-          size={this.question.inputSize}
-          placeholder={placeholder}
-          list={this.question.dataListId}
-          autoComplete={this.question.autocomplete}
-          onBlur={(event) => { this.question.onBlur(event); }}
-          onFocus={(event) => { this.question.onFocus(event); }}
-          onChange={this.question.onChange}
-          onClick={this.question.readOnlyBlocker}
-          onPointerDown={this.question.readOnlyBlocker}
-          onKeyUp={this.question.onKeyUp}
-          onKeyDown={this.question.onKeyDown}
-          onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
-          aria-required={this.question.a11y_input_ariaRequired}
-          aria-label={this.question.a11y_input_ariaLabel}
-          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-          aria-describedby={this.question.a11y_input_ariaDescribedBy}
-          aria-invalid={this.question.a11y_input_ariaInvalid}
-          aria-errormessage={this.question.a11y_input_ariaErrormessage}
-        />
-        {group}
-      </div>
-    );
+    return group;
   }
   protected renderElement(): React.JSX.Element {
     return (
-      this.question.dataListId ?
-        <div>
-          {this.renderInput()}
-          {this.renderDataList()}
-        </div> :
-        this.renderInput()
+      <div className={this.question.cssClasses.root} onClick={(event) => this.onContainerClick(event)}>
+        {this.renderInput()}
+        {this.renderDataList()}
+        {this.renderGroup()}
+      </div>
     );
   }
   protected setValueCore(newValue: any) {

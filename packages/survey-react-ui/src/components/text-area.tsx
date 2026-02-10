@@ -46,6 +46,15 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
       this.textareaRef.current?.focus();
     }
   }
+  protected renderGroup(cssClasses: any) {
+    if (!this.viewModel.characterCounter) return null;
+    return <div className={cssClasses.group}>
+      <CharacterCounterComponent
+        counter={this.viewModel.characterCounter}
+        remainingCharacterCounter={cssClasses.characterCounter}>
+      </CharacterCounterComponent>
+    </div>;
+  }
 
   protected renderElement(): React.JSX.Element {
     const cssClasses = this.viewModel.getCssClasses();
@@ -74,14 +83,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
           aria-errormessage={this.viewModel.ariaErrormessage}
           style={{ resize: "none" }}
         />
-        {this.viewModel.characterCounter ?
-          <div className={cssClasses.group}>
-            <CharacterCounterComponent
-              counter={this.viewModel.characterCounter}
-              remainingCharacterCounter={cssClasses.characterCounter}>
-            </CharacterCounterComponent>
-          </div> : null
-        }
+        {this.renderGroup(cssClasses)}
         {this.viewModel.question.resizeStyle !== "none" ?
           <div className={cssClasses.grip} ref={this.anchorRef}>
             <SvgIcon iconName={cssClasses.gripIconId} size={"auto"}></SvgIcon>

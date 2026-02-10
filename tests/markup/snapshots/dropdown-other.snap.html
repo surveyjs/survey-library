@@ -1,6 +1,6 @@
 <div class="sd-selectbase">
 	<div class="sv-dropdown_select-wrapper">
-		<select aria-invalid="false" aria-label="Question title" aria-required="false" class="sd-dropdown sd-input">
+		<select aria-invalid="false" aria-label="Question title" aria-required="false" class="sd-dropdown sd-formbox">
 			<option value="">Select...</option>
 			<option value="item1">item1</option>
 			<option value="item2">item2</option>
@@ -15,7 +15,11 @@
 		</div>
 	</div>
 	<div class="form-group sd-question__comment-area">
-		<textarea aria-label="Question title" aria-required="false" class="sd-comment sd-input" placeholder="" style="resize:both;">
-		</textarea>
+		<div class="sd-comment sd-formbox">
+			<textarea aria-label="Question title" aria-required="false" placeholder="" style="resize:none;">
+			</textarea>
+			<div>
+			</div>
+		</div>
 	</div>
 </div>

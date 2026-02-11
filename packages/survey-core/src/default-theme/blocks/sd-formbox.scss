@@ -82,8 +82,11 @@
     transition: none;
     border-bottom: 1px solid $foreground;
     border-radius: 0;
-    padding-left: 0;
-    padding-right: 0;
+    &,
+    .sd-formbox__input {
+        padding-left: 0;
+        padding-right: 0;
+    }
 }
 
 .sd-formbox__input::placeholder {

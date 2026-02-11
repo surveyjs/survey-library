@@ -355,12 +355,11 @@ export class DropdownListModel extends Base {
     }
   }
 
-  protected selectCustomItemIfOnlyVisible(): boolean {
-    if (this.allowCustomChoices && this.popupModel.isVisible) {
+  protected selectAvailableItem(): boolean {
+    if (!IsTouch && settings.dropdownSaveOnOutsideClick && this.popupModel.isVisible) {
       const visibleItems = this.listModel.visibleItems;
-      const onlyCustomItemAvailable = visibleItems.length === 1 && visibleItems[0] === this.customItemValue;
-      if (onlyCustomItemAvailable) {
-        this.listModel.onItemClick(this.customItemValue);
+      if (visibleItems.length > 0) {
+        this.listModel.onItemClick(visibleItems[0]);
         return true;
       }
     }
@@ -815,7 +814,7 @@ export class DropdownListModel extends Base {
   private handleKeyEvent(keyCode: number, char: number, event: any): { stopPropagation: boolean } {
     if (keyCode === DropdownListModel.KEY_UP) return this.handleArrowUp(event);
     if (keyCode === DropdownListModel.KEY_DOWN) return this.handleArrowDown();
-    if (keyCode === DropdownListModel.KEY_TAB) return this.handleTab();
+    if (keyCode === DropdownListModel.KEY_TAB) return this.handleTab(event);
     if (keyCode === DropdownListModel.KEY_SPACE) return this.handleSpace(event);
     if (keyCode === DropdownListModel.KEY_ENTER) return this.handleEnter(event);
     if (char === DropdownListModel.KEY_DELETE || char === DropdownListModel.KEY_BACKSPACE) return this.handleDelete(event);
@@ -839,8 +838,8 @@ export class DropdownListModel extends Base {
     return { stopPropagation: true };
   }
 
-  private handleTab(): { stopPropagation: boolean } {
-    this.selectCustomItemIfOnlyVisible();
+  private handleTab(event: any): { stopPropagation: boolean } {
+    this.handleEnter(event);
     this.popupModel.hide();
     return { stopPropagation: false };
   }
@@ -886,7 +885,7 @@ export class DropdownListModel extends Base {
 
   private handleEscape(): { stopPropagation: boolean } {
     this._popupModel.hide();
-    this.hintString = "";
+    this.resetFilterString();
     this.onEscape();
     return { stopPropagation: false };
   }
@@ -915,7 +914,7 @@ export class DropdownListModel extends Base {
       return;
     }
     doKey2ClickBlur(event);
-    if (!this.selectCustomItemIfOnlyVisible()) {
+    if (!this.selectAvailableItem()) {
       this.resetFilterString();
     }
     this._popupModel.hide();

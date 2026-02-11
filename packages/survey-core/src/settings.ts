@@ -442,6 +442,14 @@ export var settings = {
    */
   dropdownSearchDelay: 500,
   /**
+   * Specifies whether [Single-](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/) and [Multi-Select Dropdown](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) questions save the currently focused value when the user clicks outside the editor. Applies only in desktop environments.
+   *
+   * Default value: `false`
+   *
+   * If [custom choices are enabled](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices), and this property is set to `true`, clicking outside the editor also saves the entered custom value.
+   */
+  dropdownSaveOnOutsideClick: false,
+  /**
    * A function used to display a custom confirmation dialog.
    *
    * This function is `undefined` by default. To enable a custom dialog, assign a function that returns `true` if the user confirms the action or `false` otherwise. For example, the following code uses the built-in `window.confirm()` method to open a confirmation dialog window:

@@ -1208,6 +1208,7 @@ export class SurveyModel extends SurveyElementCore
     return this.tocModelValue;
   }
   @property() sjsVersion: string;
+  @property() $schema: string;
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -8460,6 +8461,7 @@ Serializer.addClass("survey", [
     className: "calculatedvalue", isArray: true
   },
   { name: "sjsVersion", visible: false },
+  { name: "$schema", visible: false },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
   { name: "surveyShowDataSaving:boolean", visible: false },

@@ -885,7 +885,7 @@ export class DropdownListModel extends Base {
 
   private handleEscape(): { stopPropagation: boolean } {
     this._popupModel.hide();
-    this.hintString = "";
+    this.resetFilterString();
     this.onEscape();
     return { stopPropagation: false };
   }

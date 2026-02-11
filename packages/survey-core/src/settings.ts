@@ -441,6 +441,7 @@ export var settings = {
    * [View Demo](https://surveyjs.io/form-library/examples/lazy-loading-dropdown/ (linkStyle))
    */
   dropdownSearchDelay: 500,
+  dropdownSaveOnOutsideClick: false,
   /**
    * A function used to display a custom confirmation dialog.
    *

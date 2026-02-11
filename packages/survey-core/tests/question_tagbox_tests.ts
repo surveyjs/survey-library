@@ -2600,7 +2600,38 @@ QUnit.test("Select All and Deselect All text", function (assert) {
   assert.equal(item.title, "Deselect all", "default deselect all text after set value");
 });
 
-QUnit.test("auto-select custom item on Tab when only custom item is visible", (assert) => {
+QUnit.test("auto-select focused item on Tab", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const focusedItem = "item1";
+
+  dropdownListModel.inputStringRendered = "item";
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.deepEqual(question.value, [], "value empty before Tab");
+  assert.equal(question.selectedItems.length, 0);
+  assert.equal(list.visibleItems.length, 3);
+
+  const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
+  dropdownListModel.keyHandler(event);
+
+  assert.deepEqual(question.value, [focusedItem], "custom value selected on Tab");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0]?.value, focusedItem, "selectedItem is item1");
+  assert.equal(list.visibleItems.length, 3);
+});
+
+QUnit.test("auto-select custom item on Tab", (assert) => {
   const survey = new SurveyModel({
     elements: [{
       type: "tagbox",
@@ -2634,7 +2665,9 @@ QUnit.test("auto-select custom item on Tab when only custom item is visible", (a
   assert.equal(list.visibleItems[0].id, customValue);
 });
 
-QUnit.test("auto-select custom item on blur when only custom item is visible", (assert) => {
+QUnit.test("auto-select custom item on blur", (assert) => {
+  settings.dropdownSaveOnOutsideClick = true;
+
   const survey = new SurveyModel({
     elements: [{
       type: "tagbox",
@@ -2664,4 +2697,68 @@ QUnit.test("auto-select custom item on blur when only custom item is visible", (
   assert.equal(question.selectedItems[0]?.value, customValue, "selectedItem is custom");
   assert.equal(list.visibleItems.length, 4);
   assert.equal(list.visibleItems[0].id, customValue);
+
+  settings.dropdownSaveOnOutsideClick = false;
+});
+
+QUnit.test("focused item is not selected on blur, settings.dropdownSaveOnOutsideClick = false", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  dropdownListModel.inputStringRendered = "item";
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.deepEqual(question.value, [], "value empty before blur");
+  assert.equal(question.selectedItems.length, 0);
+  assert.equal(list.visibleItems.length, 3);
+
+  dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
+
+  assert.deepEqual(question.value, [], "value empty after blur");
+  assert.equal(question.selectedItems.length, 0);
+  assert.equal(list.visibleItems.length, 3);
+});
+
+QUnit.test("auto-select focused item on blur, settings.dropdownSaveOnOutsideClick = true ", (assert) => {
+  settings.dropdownSaveOnOutsideClick = true;
+
+  const survey = new SurveyModel({
+    elements: [{
+      type: "tagbox",
+      name: "q1",
+      searchEnabled: true,
+      choices: ["item1", "item2", "item3"]
+    }]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const focusedItem = "item1";
+
+  dropdownListModel.inputStringRendered = "item";
+  dropdownListModel.popupModel.show();
+  list.flushUpdates();
+
+  assert.deepEqual(question.value, [], "value empty before blur");
+  assert.equal(question.selectedItems.length, 0);
+  assert.equal(list.visibleItems.length, 3);
+
+  dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
+
+  assert.deepEqual(question.value, [focusedItem]), "focused item is selected on blur";
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0]?.value, focusedItem, "selectedItem is focused item");
+  assert.equal(list.visibleItems.length, 3);
+
+  settings.dropdownSaveOnOutsideClick = false;
 });

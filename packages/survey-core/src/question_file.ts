@@ -1297,7 +1297,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
 Serializer.addClass(
   "file",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     { name: "showPreview:boolean", default: true, visible: false },
     "allowMultiple:boolean",
     {

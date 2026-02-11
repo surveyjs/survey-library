@@ -3550,7 +3550,7 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea:switch", visible: false, default: false, alternativeName: "hasComment", category: "general" },
+  { name: "showCommentArea:switch", visible: false, layout: "row", alternativeName: "hasComment" },
   {
     name: "commentText",
     dependsOn: "showCommentArea",

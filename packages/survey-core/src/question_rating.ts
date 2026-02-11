@@ -971,7 +971,7 @@ Serializer.addClass(
 Serializer.addClass(
   "rating",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     {
       name: "rateType",
       alternativeName: "rateDisplayMode",

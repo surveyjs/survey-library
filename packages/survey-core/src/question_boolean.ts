@@ -336,7 +336,7 @@ export class QuestionBooleanModel extends Question {
 Serializer.addClass(
   "boolean",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     { name: "label:text", serializationProperty: "locLabel", isSerializable: false, visible: false },
     {
       name: "labelTrue",

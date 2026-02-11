@@ -33,7 +33,7 @@ frameworks.forEach(framework => {
 
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "mutlipletext.png");
-      await questionRoot.locator("input.sd-input").first().click();
+      await questionRoot.locator("input.sd-formbox__input").first().click();
       await compareScreenshot(page, questionRoot, "mutlipletext-focus.png");
     });
 

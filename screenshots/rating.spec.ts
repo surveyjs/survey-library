@@ -102,7 +102,7 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, ".sd-question", "question-rating-dropdown.png");
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup__container", "question-rating-dropdown-popup.png");
     });

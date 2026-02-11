@@ -305,7 +305,7 @@ frameworks.forEach(framework => {
         });
       });
       await page.waitForTimeout(500);
-      await page.click(".sd-input.sd-dropdown");
+      await page.click(".sd-formbox.sd-dropdown");
       await page.hover("text=Item 2");
       await compareScreenshot(page, ".sv-popup__container", "survey-theme-dropdown-elements.png");
     });
@@ -418,7 +418,7 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-desktop-input-size.png");
 
-      await page.locator(".sd-input.sd-dropdown").first().click();
+      await page.locator(".sd-formbox.sd-dropdown").first().click();
       await compareScreenshot(page, ".sv-popup__container", "survey-theme-desktop-popup-input-size.png");
     });
 

@@ -23,14 +23,14 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      const questionTagbox = page.locator(".sd-input.sd-tagbox");
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question.png");
+      const questionTagbox = page.locator(".sd-formbox.sd-tagbox");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question.png");
 
       await questionTagbox.click();
       await getVisibleListItemByText(page, "item10").click();
       await getVisibleListItemByText(page, "item15").click();
       await compareScreenshot(page, ".sv-popup__container", "tagbox-popup-selected-items.png");
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-input-selected-items.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-input-selected-items.png");
 
       await page.keyboard.press("Escape");
       await page.locator(".sv-tagbox__item").first().hover();
@@ -55,7 +55,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question-without-clear-button.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question-without-clear-button.png");
     });
 
     test("Check tagbox disabled items", async ({ page }) => {
@@ -81,7 +81,7 @@ frameworks.forEach(framework => {
         selectQuestion.onOpened.add(updateChoiceEnabled);
       });
 
-      const questionTagbox = page.locator(".sd-input.sd-tagbox");
+      const questionTagbox = page.locator(".sd-formbox.sd-tagbox");
 
       await page.keyboard.press("Escape");
       await questionTagbox.click();
@@ -104,12 +104,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question-multiline-selected-items.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question-multiline-selected-items.png");
 
       await page.evaluate(() => {
         window["survey"].getQuestionByName("q1").readOnly = true;
       });
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-question-multiline-selected-items-readonly.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-question-multiline-selected-items-readonly.png");
     });
 
     test("Check rtl tagbox question", async ({ page }) => {
@@ -307,7 +307,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await compareScreenshot(page, ".sd-input.sd-tagbox", "tagbox-readonly-with-markdown.png");
+      await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-readonly-with-markdown.png");
     });
 
     test("Resize input & popup", async ({ page }) => {

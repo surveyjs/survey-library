@@ -282,7 +282,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.fill(".sd-input", "This is my answer");
+      await page.fill(".sd-formbox__input", "This is my answer");
       await resetFocusToBody(page);
       await page.evaluate(() => {
         (window as any).survey.showPreview();

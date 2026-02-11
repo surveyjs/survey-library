@@ -442,7 +442,7 @@ export var settings = {
    */
   dropdownSearchDelay: 500,
   /**
-   * Specifies whether [Single-](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/) and [Multi-Select Dropdown](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) questions save the currently focused value when the user clicks outside the editor.
+   * Specifies whether [Single-](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/) and [Multi-Select Dropdown](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/) questions save the currently focused value when the user clicks outside the editor. Applies only in desktop environments.
    *
    * Default value: `false`
    *

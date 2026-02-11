@@ -21,6 +21,8 @@
   display: flex;
   justify-content: space-between;
   word-spacing: normal;
+  align-items: stretch;
+  gap: 0;
 }
 
 .sd-dropdown[disabled] {
@@ -31,6 +33,16 @@ select.sd-dropdown {
   padding-inline-start: calcSize(2); //padding-left
   padding-inline-end: calcSize(0.5); //padding-right
   padding-block: calcSize(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  font-size: $font-editorfont-size;
+  &:focus {
+    outline: none;
+    box-shadow:
+      $shadow-inner-reset,
+      0 0 0 2px $primary;
+  }
 }
 
 .sd-dropdown--empty:not(.sd-formbox--disabled),

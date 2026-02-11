@@ -348,7 +348,7 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
-    { name: "swapOrder:boolean", category: "general" },
+    { name: "swapOrder:boolean" },
     { name: "renderAs", default: "default", visible: false },
     { name: "useTitleAsLabel", default: false, visible: false },
   ],

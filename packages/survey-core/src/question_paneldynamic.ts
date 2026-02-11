@@ -2863,7 +2863,7 @@ Serializer.addClass(
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
-    { name: "newPanelPosition", choices: ["next", "last"], default: "last", category: "layout" },
+    { name: "newPanelPosition", choices: ["next", "last"], default: "last" },
     {
       name: "panelCount:number",
       isBindable: true,
@@ -2952,10 +2952,7 @@ Serializer.addClass(
       }
     },
     { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
-    {
-      name: "templateVisibleIf:expression",
-      category: "logic"
-    },
+    { name: "templateVisibleIf:expression" },
     {
       name: "removePanelButtonLocation", alternativeName: "panelRemoveButtonLocation",
       default: "bottom",

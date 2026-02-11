@@ -3518,10 +3518,7 @@ Serializer.addClass("question", [
   "setValueIf:condition",
   "setValueExpression:expression",
   "defaultValue:value",
-  {
-    name: "defaultValueExpression:expression",
-    category: "logic",
-  },
+  "defaultValueExpression:expression",
   "correctAnswer:value",
   {
     name: "clearIfInvisible",

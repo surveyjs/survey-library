@@ -862,7 +862,6 @@ Serializer.addClass(
     },
     {
       name: "minValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
@@ -870,7 +869,6 @@ Serializer.addClass(
     },
     {
       name: "maxValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);

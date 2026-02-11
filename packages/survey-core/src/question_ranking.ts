@@ -719,7 +719,6 @@ Serializer.addClass(
     {
       name: "selectToRankEmptyRankedAreaText:text",
       serializationProperty: "locSelectToRankEmptyRankedAreaText",
-      category: "general",
       dependsOn: "selectToRankEnabled",
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
@@ -728,7 +727,6 @@ Serializer.addClass(
     {
       name: "selectToRankEmptyUnrankedAreaText:text",
       serializationProperty: "locSelectToRankEmptyUnrankedAreaText",
-      category: "general",
       dependsOn: "selectToRankEnabled",
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;

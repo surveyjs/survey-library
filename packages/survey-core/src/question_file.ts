@@ -1336,11 +1336,11 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true },
-    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general" },
-    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general" },
-    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general" },
-    { name: "allowCameraAccess:switch", category: "general", visible: false },
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file" },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder" },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
+    { name: "allowCameraAccess:switch" },
   ],
   function () {
     return new QuestionFileModel("");

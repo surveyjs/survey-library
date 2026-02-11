@@ -781,10 +781,7 @@ Serializer.addClass(
         return obj.showSelectAllItem;
       }
     },
-    {
-      name: "valuePropertyName",
-      category: "data"
-    },
+    "valuePropertyName",
     { name: "itemComponent", visible: false, default: "survey-checkbox-item" }
   ],
   function () {

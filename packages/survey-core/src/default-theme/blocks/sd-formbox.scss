@@ -13,7 +13,6 @@
     border: none;
     border-radius: $editor-corner-radius;
     text-align: start;
-    align-items: center;
     box-shadow:
         $shadow-inner,
         0 0 0 0px $primary;
@@ -31,7 +30,6 @@
     gap: calcSize(0.5);
 }
 .sd-formbox__input {
-    padding: calcSize(1) calcSize(1.5);
     box-sizing: border-box;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -39,13 +37,18 @@
     background: none;
     border: none;
     width: 100%;
-    color: inherit;
     line-height: multiply(1.5, $font-editorfont-size);
-    font-family: $font-editorfont-family;
+    min-height: calc(#{multiply(1.5, $font-editorfont-size)} + #{calcSize(2)});
+    padding: calcSize(1) calcSize(1.5);
+    margin: 0;
     font-weight: $font-editorfont-weight;
     font-size: $font-editorfont-size;
+    font-family: $font-editorfont-family;
+    color: inherit;
 }
-
+.sd-formbox__input::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
 .sd-formbox:focus-within {
     box-shadow:
         $shadow-inner-reset,
@@ -146,22 +149,6 @@
     background-color: $primary;
     height: calcSize(3);
     width: calcSize(3);
-}
-
-.sd-formbox__input[type="time"],
-.sd-formbox__input[type="date"],
-.sd-formbox__input[type="datetime-local"],
-.sd-formbox__input[type="week"],
-.sd-formbox__input[type="month"],
-.sd-formbox__input[type="tel"],
-.sd-formbox__input[type="password"],
-.sd-formbox__input[type="url"],
-.sd-formbox__input[type="email"],
-.sd-formbox__input[type="color"],
-.sd-formbox__input[type="range"] {
-    box-sizing: content-box;
-    width: calc(100% - 4 * #{$base-unit});
-    height: multiply(1.5, $font-editorfont-size);
 }
 
 .sd-formbox__input[type="range"]::-webkit-slider-runnable-track {

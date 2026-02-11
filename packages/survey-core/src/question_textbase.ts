@@ -117,16 +117,13 @@ export class QuestionTextBase extends Question {
     return val;
   }
   protected getValueSeparator(): string { return ", "; }
-  protected getRootCssClassBuilder(): CssClassBuilder {
+  public getRootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
       .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.rootPreview, this.isPreviewStyle);
-  }
-  public getRootClass(): string {
-    return this.getRootCssClassBuilder().toString();
+      .append(this.cssClasses.rootPreview, this.isPreviewStyle).toString();
   }
   public getControlClass(): string {
     return this.cssClasses.control;

@@ -15,7 +15,8 @@
   height: auto;
   width: 100%;
   max-width: 100%;
-  gap: calcSize(1);
+  gap: 0;
+  align-items: flex-end;
 }
 .sd-comment__grip {
   cursor: se-resize;

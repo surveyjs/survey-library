@@ -67,7 +67,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   }
   protected renderElement(): React.JSX.Element {
     return (
-      <div className={this.question.cssClasses.root} onClick={(event) => this.onContainerClick(event)}>
+      <div className={this.question.getRootClass()} onClick={(event) => this.onContainerClick(event)}>
         {this.renderInput()}
         {this.renderDataList()}
         {this.renderGroup()}

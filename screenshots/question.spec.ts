@@ -337,7 +337,7 @@ frameworks.forEach(framework => {
 
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.waitForTimeout(500);
-      await page.fill(".sd-input", "some-text");
+      await page.fill(".sd-formbox__input", "some-text");
       await page.click(".sd-navigation__complete-btn");
       await resetFocusToBody(page);
       await compareScreenshot(page, qRoot, "question-with-long-error.png");

@@ -10,7 +10,7 @@
         "url": "https://github.com/surveyjs/surveyjs.git"
     },
     "scripts": {
-        "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && rollup -c",
+        "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
         "watch:dev": "concurrently \"webpack --env buildType=dev --watch --env emitDeclarations\" \"rollup -c -w\" ",
         "start": "webpack-dev-server --env buildType=dev --open",
         "lint": "eslint . --max-warnings=0",
@@ -68,7 +68,10 @@
         "typescript": "^5.7.0",
         "webpack": "5.98.0",
         "webpack-cli": "^5.1.4",
-        "webpack-dev-server": "^5.0.4"
+        "webpack-dev-server": "^5.0.4",
+        "rollup-plugin-esbuild": "^6.2.1",
+        "rollup-plugin-postcss": "^4.0.2",
+        "rollup-plugin-svgo": "^2.0.0"
     },
     "commit-and-tag-version": {
         "bumpFiles": [

@@ -72,12 +72,18 @@
     .sd-formbox__input {
       padding: 0;
       margin: 0;
+      min-height: multiply(1.5, $font-editorfont-size);
+    }
+    .sd-formbox__character-counter {
+      padding-top: 0;
+      padding-bottom: 0;
     }
   }
 
   .sd-multipletext__item-container--answered,
   .sd-multipletext__item-container--allow-focus:focus-within {
     flex-direction: column;
+    gap: 0;
 
     .sd-multipletext__item-title {
       padding: 0;

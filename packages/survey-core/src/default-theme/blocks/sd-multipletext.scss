@@ -42,6 +42,8 @@
 }
 .sd-multipletext__item {
   flex-grow: 1;
+  display: flex;
+  gap: calcSize(0.5);
 }
 
 .sd-multipletext__content .sd-multipletext__item-container {

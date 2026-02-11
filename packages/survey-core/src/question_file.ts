@@ -1340,7 +1340,7 @@ Serializer.addClass(
     { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder" },
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
-    { name: "allowCameraAccess:switch" },
+    { name: "allowCameraAccess:switch", visible: false },
   ],
   function () {
     return new QuestionFileModel("");

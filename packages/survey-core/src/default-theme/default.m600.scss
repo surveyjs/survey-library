@@ -54,8 +54,7 @@
   }
 
   .sd-multipletext__item-container {
-    padding-top: calcSize(1);
-    padding-bottom: calcSize(1);
+    padding: calcSize(1) calcSize(2);
   }
 
   .sd-multipletext__item-title {
@@ -70,7 +69,7 @@
     flex-basis: 0;
     min-width: 0;
 
-    .sd-input {
+    .sd-formbox__input {
       padding: 0;
       margin: 0;
     }
@@ -94,7 +93,7 @@
       min-width: auto;
       width: 100%;
 
-      .sd-input {
+      .sd-formbox__input {
         width: 100%;
       }
     }

@@ -385,7 +385,7 @@ frameworks.forEach(framework => {
       });
 
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-empty.png");
-      await page.locator(".sd-formbox__input").first().click();
+      await page.locator(".sd-formbox").nth(0).click();
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-focus.png");
       await page.locator(".sd-formbox__input").nth(0).fill("Jon Snow");
       await page.locator(".sd-formbox__input").nth(2).fill("jon@snow.com");
@@ -421,11 +421,11 @@ frameworks.forEach(framework => {
       });
 
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-date-empty.png");
-      await page.locator(".sd-formbox__input").first().click();
+      await page.locator(".sd-formbox").nth(0).click();
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-date-focus.png");
-      await page.locator(".sd-formbox__input").nth(1).fill("2004-01-12");
-      await page.locator(".sd-formbox__input").nth(2).click();
-      await page.locator(".sd-formbox__input").nth(3).fill("2004-02-12");
+      await page.locator(".sd-formbox__input").nth(0).fill("2004-01-12");
+      await page.locator(".sd-formbox").nth(1).click();
+      await page.locator(".sd-formbox__input").nth(1).fill("2004-02-12");
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-date.png");
     });

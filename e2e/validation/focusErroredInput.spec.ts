@@ -60,7 +60,7 @@ frameworks.forEach((framework) => {
 
     test("validate on error", async ({ page }) => {
       await initSurvey(page, framework, json1);
-      await expect(page.locator(".sd-input").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("a");
@@ -77,7 +77,7 @@ frameworks.forEach((framework) => {
 
     test("validate on error in matrix", async ({ page }) => {
       await initSurvey(page, framework, json2);
-      await expect(page.locator(".sd-input").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox__input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("a");

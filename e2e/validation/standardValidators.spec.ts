@@ -55,7 +55,7 @@ frameworks.forEach((framework) => {
       };
 
       const getTextInputByIndex = (index: number) => {
-        return page.locator(".sd-text").nth(index);
+        return page.locator(".sd-formbox__input").nth(index);
       };
 
       const getTextarea = () => {

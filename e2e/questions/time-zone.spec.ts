@@ -38,7 +38,7 @@ frameworks.forEach((framework) => {
       });
 
       expect(await getTimeZone(page)).toBe("America/Los_Angeles");
-      await expect(page.locator(".sd-text").first()).toBeFocused();
+      await expect(page.locator(".sd-formbox .sd-formbox__input").first()).toBeFocused();
       await page.keyboard.type("1234");
       await page.keyboard.press("Tab");
       await page.keyboard.type("2022");

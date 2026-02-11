@@ -174,7 +174,7 @@ frameworks.forEach((framework) => {
       await commentQuestion1.click();
       const resize = await commentQuestion1.evaluate((el) => window.getComputedStyle(el).resize);
       expect(resize).toBe("none");
-      const clientHeight1 = await commentQuestion1.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight1 = await commentQuestion1.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight1).toBe(120);
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
@@ -184,36 +184,36 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
-      const clientHeight2 = await commentQuestion1.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight2 = await commentQuestion1.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight2).toBe(144);
 
       await page.keyboard.press("Backspace");
-      const clientHeight3 = await commentQuestion1.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight3 = await commentQuestion1.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight3).toBe(120);
 
       const commentQuestion2 = page.locator(commentQuestion).nth(1);
       await page.keyboard.press("Tab");
       const resize2 = await commentQuestion2.evaluate((el) => window.getComputedStyle(el).resize);
       expect(resize2).toBe("none");
-      const clientHeight4 = await commentQuestion2.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight4 = await commentQuestion2.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight4).toBe(72);
 
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
-      const clientHeight5 = await commentQuestion2.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight5 = await commentQuestion2.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight5).toBe(96);
 
       await page.keyboard.press("Backspace");
-      const clientHeight6 = await commentQuestion2.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight6 = await commentQuestion2.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight6).toBe(72);
 
       const commentQuestion3 = page.locator(commentQuestion).nth(2);
       await page.keyboard.press("Tab");
       const resize3 = await commentQuestion3.evaluate((el) => window.getComputedStyle(el).resize);
       expect(resize3).toBe("none");
-      const clientHeight7 = await commentQuestion3.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight7 = await commentQuestion3.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight7).toBe(120);
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
@@ -223,7 +223,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await page.keyboard.press("a");
       await page.keyboard.press("Enter");
-      const clientHeight8 = await commentQuestion3.evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight8 = await commentQuestion3.evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight8).toBe(120);
       const value1 = await commentQuestion3.inputValue();
       expect(value1).toBe("aaaa");
@@ -246,13 +246,13 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      const clientHeight1 = await page.locator(commentQuestion).evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight1 = await page.locator(commentQuestion).evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight1).toBe(48);
 
       await page.evaluate(() => {
         window["survey"].data = { "question1": "<h3>Thank you for your feedback.</h3> <h5> We are glad that you share with us your ideas.We highly value all suggestions from our customers. We do our best to improve the product and reach your expectation.</h5><br/>" };
       });
-      const clientHeight2 = await page.locator(commentQuestion).evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight2 = await page.locator(commentQuestion).evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight2).toBe(120);
     });
 
@@ -277,7 +277,7 @@ frameworks.forEach((framework) => {
 
       const value = await page.locator(commentQuestion).inputValue();
       expect(value).toBe("The comment area has an initial height of two rows and automatically expands or shrinks to accomodate the content.");
-      const clientHeight = await page.locator(commentQuestion).evaluate((el) => (el as HTMLElement).clientHeight);
+      const clientHeight = await page.locator(commentQuestion).evaluate((el) => (el as HTMLElement).parentElement?.clientHeight);
       expect(clientHeight).toBe(96);
     });
 
@@ -320,7 +320,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Remaining character counter", async ({ page }) => {
-      const characterCounter = page.locator(".sd-remaining-character-counter");
+      const characterCounter = page.locator(".sd-formbox__character-counter");
 
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,

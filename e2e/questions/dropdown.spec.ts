@@ -1760,7 +1760,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const questionDropdownV2Select = page.locator(".sd-dropdown");
-      const questionTextSelect = page.locator(".sd-text");
+      const questionTextSelect = page.locator(".sd-text.sd-formbox .sd-formbox__input");
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const dropdownWidth = await questionDropdownV2Select.evaluate((el) => (el as HTMLElement).getBoundingClientRect().width);
       await questionDropdownV2Select.click({ position: { x: dropdownWidth - 20, y: 20 } });
@@ -1889,7 +1889,7 @@ frameworks.forEach((framework) => {
 
       const questionDropdownV2Select = page.locator(".sd-dropdown");
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const textQuestion = page.locator(".sd-input.sd-text");
+      const textQuestion = page.locator(".sd-formbox.sd-text .sd-formbox__input");
       await expect(textQuestion).not.toBeFocused();
 
       await questionDropdownV2Select.click();

@@ -102,7 +102,7 @@ export class QuestionComment extends Question {
 export class QuestionDropdown extends Question {
   public async click(): Promise<void> {
     await this.scrollIntoViewIfNeeded();
-    const loc = this.question.locator(".sd-input.sd-dropdown");
+    const loc = this.question.locator(".sd-formbox.sd-dropdown");
     await loc.focus();
     await loc.click();
   }

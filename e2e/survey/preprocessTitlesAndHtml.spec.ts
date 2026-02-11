@@ -58,8 +58,8 @@ frameworks.forEach((framework) => {
       await expect(await titleLocator.nth(1).textContent()).toBe(text);
 
       // Fill first page
-      await page.locator(".sd-text").nth(0).fill("wombat");
-      await page.locator(".sd-text").nth(1).fill("wombat@mail.mail");
+      await page.locator(".sd-formbox__input").nth(0).fill("wombat");
+      await page.locator(".sd-formbox__input").nth(1).fill("wombat@mail.mail");
       await page.locator("input[value='Next']").click();
 
       // Check third title

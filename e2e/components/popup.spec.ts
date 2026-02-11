@@ -254,7 +254,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const inputInPopup = page.locator(".sv-popup .sd-text");
+      const inputInPopup = page.locator(".sv-popup .sd-formbox__input");
       const clickButton = page.locator(".sd-action").first();
 
       await clickButton.click();
@@ -297,7 +297,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const inputInPopup = page.locator(".sv-popup .sd-text");
+      const inputInPopup = page.locator(".sv-popup .sd-formbox__input");
       const clickButton = page.locator(".sd-action").first();
       const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup");
 

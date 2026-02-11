@@ -99,6 +99,8 @@ export var teluguStrings = {
   urlGetChoicesError: "విన్నపము ఖాళీ డేటాని తిరిగిచ్చింది, లేదా path తప్పైన ది",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ఫైల్ పరిమాణం{0} కంటే పెద్దదిగా ఉండకూడదు",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "మీరు అప్ లోడ్ చేయగల గరిష్ట ఫైళ్ల సంఖ్య {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి.",
   // "Response required: enter another value."

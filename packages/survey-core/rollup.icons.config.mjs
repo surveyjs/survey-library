@@ -1,8 +1,8 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import fs from "fs";
 import svgo from "rollup-plugin-svgo";
 import virtual from "@rollup/plugin-virtual";
-import fs from "fs";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 

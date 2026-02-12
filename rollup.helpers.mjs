@@ -3,19 +3,20 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import bannerPlugin from "rollup-plugin-license";
 import { resolve } from "node:path";
-import pkg from "./package.json" assert { type: "json" };
 import rollupEsbuild, { minify as rollupEsbuildMinify } from "rollup-plugin-esbuild";
 import rollupPostcss from "rollup-plugin-postcss";
 import postcss from "postcss";
 import cssnano from "cssnano";
 
-const banner = [
-  "surveyjs - Survey JavaScript library v" + pkg.version,
-  "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
-].join("\n");
+function getOwnBanner(version) {
+  return [
+    "surveyjs - Survey JavaScript library v" + version,
+    "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
+  ].join("\n");
+}
 
-function createBanner(e) {
+function wrapBanner(e) {
   return `/*!\n${e.split("\n").map(str => " * " + str).join("\n")}\n */`;
 }
 
@@ -31,7 +32,7 @@ function omit(fn) {
   };
 }
 
-function addBanner(fn, text) {
+function pluginAddBanner(fn, text) {
   return {
     generateBundle(_, bundle) {
       for (const file of Object.keys(bundle)) {
@@ -45,7 +46,7 @@ function addBanner(fn, text) {
 
 export function createUmdConfig(options) {
 
-  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild } = options;
+  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild, version } = options;
 
   const commonOutput = {
     dir: dir,
@@ -67,7 +68,7 @@ export function createUmdConfig(options) {
         preventAssignment: false,
         values: {
           "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
-          "process.env.VERSION": JSON.stringify(pkg.version),
+          "process.env.VERSION": JSON.stringify(version),
         }
       }),
       useEsbuild
@@ -90,7 +91,7 @@ export function createUmdConfig(options) {
         plugins: [
           bannerPlugin({
             banner: {
-              content: banner,
+              content: getOwnBanner(version),
               commentStyle: "ignored",
             }
           }),
@@ -111,8 +112,8 @@ export function createUmdConfig(options) {
               output: {
                 file: resolve(dir, `${Object.keys(input)[0]}.min.js.LICENSE.txt`),
                 template: (dependencies) => {
-                  return createBanner(banner) + "\n\n" + dependencies.map(e => {
-                    return createBanner([
+                  return wrapBanner(getOwnBanner(version)) + "\n\n" + dependencies.map(e => {
+                    return wrapBanner([
                       `${ e.name } v${e.version } | ${ e.homepage }`,
                       `(c) ${ e.author.name } | Released under the ${ e.license } license`
                     ].join("\n"));
@@ -129,7 +130,7 @@ export function createUmdConfig(options) {
 
 export function createEsmConfig(options) {
 
-  const { input, external, dir, tsconfig, sharedFileName } = options;
+  const { input, external, dir, tsconfig, sharedFileName, version } = options;
 
   return {
     context: "this",
@@ -140,7 +141,7 @@ export function createEsmConfig(options) {
         preventAssignment: false,
         values: {
           "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
-          "process.env.VERSION": JSON.stringify(pkg.version),
+          "process.env.VERSION": JSON.stringify(version),
         }
       }),
       typescript({
@@ -153,7 +154,7 @@ export function createEsmConfig(options) {
       }),
       bannerPlugin({
         banner: {
-          content: banner,
+          content: getOwnBanner(version),
           commentStyle: "ignored",
         }
       })
@@ -178,7 +179,7 @@ export function createEsmConfig(options) {
 
 export function createCssConfig(options) {
 
-  const { input, dir, emitMinified } = options;
+  const { input, dir, emitMinified, version } = options;
 
   if (Object.keys(input).length > 1) throw Error("css config accepts only one input");
 
@@ -220,7 +221,7 @@ export function createCssConfig(options) {
         }
       }),
       omit(e => e.endsWith(".omitted")),
-      addBanner(e => e.endsWith(".css"), `/*!\n${banner.split("\n").map(str => " * " + str).join("\n")}\n */`),
+      pluginAddBanner(e => e.endsWith(".css"), wrapBanner(getOwnBanner(version))),
     ]
   };
 }

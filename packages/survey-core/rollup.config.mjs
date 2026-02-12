@@ -1,14 +1,14 @@
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, URL } from "node:url";
-import { createEsmConfig, createUmdConfig, createCssConfig } from "./rollup.helpers.mjs";
+import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.helpers.mjs";
 import fs from "fs-extra";
-import pkg from "./package.json" assert { type: "json" };
 import process from "process";
+import pkg from "./package.json" assert { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
 
-var buildPlatformJson = {
+const buildPlatformJson = {
   "name": pkg.name,
   "version": pkg.version,
   "license": "MIT",
@@ -113,6 +113,7 @@ export default (options = {}) => {
       tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url)),
       external: [],
       dir: resolve(buildPath, "./fesm"),
+      version: pkg.version,
     }),
     createUmdConfig({
       input: {
@@ -125,6 +126,7 @@ export default (options = {}) => {
       emitMinified: process.env.emitMinified === "true",
       globalName: "Survey",
       globals: {},
+      version: pkg.version,
     }),
     createCssConfig({
       input: {
@@ -132,6 +134,7 @@ export default (options = {}) => {
       },
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
+      version: pkg.version,
     }),
     createCssConfig({
       input: {
@@ -139,6 +142,7 @@ export default (options = {}) => {
       },
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
+      version: pkg.version,
     })
   ];
 

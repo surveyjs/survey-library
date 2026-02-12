@@ -1,21 +1,9 @@
-import typescript from "@rollup/plugin-typescript";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import replace from "@rollup/plugin-replace";
-import bannerPlugin from "rollup-plugin-license";
-import path from "path";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, URL } from "node:url";
-import { createEsmConfig, createUmdConfig, createCssConfig } from "./rollup.helpers.mjs";
+import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" assert { type: "json" };
-const VERSION = pkg.version;
-
-const banner = [
-  "surveyjs - Survey JavaScript library v" + pkg.version,
-  "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
-].join("\n");
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -104,6 +92,7 @@ export default (options = {}) => {
         "survey-core"
       ],
       dir: resolve(buildPath, "./fesm"),
+      version: pkg.version,
     }),
     createUmdConfig({
       input: {
@@ -124,6 +113,7 @@ export default (options = {}) => {
         "react-dom": "ReactDOM",
         "survey-core": "Survey"
       },
+      version: pkg.version,
     }),
   ];
 };

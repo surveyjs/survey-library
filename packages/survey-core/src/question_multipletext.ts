@@ -968,7 +968,6 @@ Serializer.addClass(
     { name: "defaultValueExpression:expression", visible: false },
     {
       name: "minValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
@@ -976,7 +975,6 @@ Serializer.addClass(
     },
     {
       name: "maxValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
@@ -1000,7 +998,7 @@ Serializer.addClass(
     { name: "inputSize:number", minValue: 0, visible: false, alternativeName: "itemSize" },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
-    { name: "itemTitleWidth", category: "layout" }
+    { name: "itemTitleWidth" }
   ],
   function () {
     return new QuestionMultipleTextModel("");

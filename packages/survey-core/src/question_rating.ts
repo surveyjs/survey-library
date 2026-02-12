@@ -971,47 +971,37 @@ Serializer.addClass(
 Serializer.addClass(
   "rating",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     {
       name: "rateType",
       alternativeName: "rateDisplayMode",
       default: "labels",
-      category: "rateValues",
-      choices: ["labels", "stars", "smileys"],
-      visibleIndex: 1
+      choices: ["labels", "stars", "smileys"]
     },
     {
       name: "scaleColorMode",
-      category: "rateValues",
       default: "monochrome",
       choices: ["monochrome", "colored"],
       visibleIf: function (obj: any) {
         return obj.rateType == "smileys";
-      },
-      visibleIndex: 2
+      }
     },
     {
       name: "rateColorMode",
-      category: "rateValues",
       default: "scale",
       choices: ["default", "scale"],
       visibleIf: function (obj: any) {
         return obj.rateType == "smileys" && obj.scaleColorMode == "monochrome";
-      },
-      visibleIndex: 3
+      }
     },
     {
       name: "autoGenerate",
-      category: "rateValues",
       default: true,
-      choices: [true, false],
-      visibleIndex: 5
+      choices: [true, false]
     },
     {
       name: "rateCount:number",
       default: 5,
-      category: "rateValues",
-      visibleIndex: 4,
       onSettingValue: (obj: any, val: any): any => {
         if (val < 2) return 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
@@ -1024,11 +1014,9 @@ Serializer.addClass(
       baseValue: function () {
         return getLocaleString("choices_Item");
       },
-      category: "rateValues",
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
-      },
-      visibleIndex: 6
+      }
     },
     {
       name: "rateMin:number", default: 1,
@@ -1037,8 +1025,7 @@ Serializer.addClass(
       },
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
-      },
-      visibleIndex: 7
+      }
     },
     {
       name: "rateMax:number", default: 5,
@@ -1047,8 +1034,7 @@ Serializer.addClass(
       },
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
-      },
-      visibleIndex: 8
+      }
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -1060,25 +1046,21 @@ Serializer.addClass(
       },
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
-      },
-      visibleIndex: 9
+      }
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
-      serializationProperty: "locMinRateDescription",
-      visibleIndex: 18
+      serializationProperty: "locMinRateDescription"
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
-      serializationProperty: "locMaxRateDescription",
-      visibleIndex: 19
+      serializationProperty: "locMaxRateDescription"
     },
     {
       name: "displayRateDescriptionsAsExtremeItems:boolean",
       default: false,
-      visibleIndex: 21,
       visibleIf: function (obj: any) {
         return obj.rateType == "labels";
       }
@@ -1086,14 +1068,12 @@ Serializer.addClass(
     {
       name: "rateDescriptionLocation",
       default: "leftRight",
-      choices: ["leftRight", "top", "bottom", "topBottom"],
-      visibleIndex: 20
+      choices: ["leftRight", "top", "bottom", "topBottom"]
     },
     {
       name: "displayMode",
       default: "auto",
-      choices: ["auto", "buttons", "dropdown"],
-      visibleIndex: 0
+      choices: ["auto", "buttons", "dropdown"]
     },
     { name: "itemComponent", visible: false,
       defaultFunc: (obj: any): any => {

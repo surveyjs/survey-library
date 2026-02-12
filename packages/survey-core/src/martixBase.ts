@@ -252,7 +252,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
 Serializer.addClass(
   "matrixbase",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     "columnsVisibleIf:condition",
     "rowsVisibleIf:condition",
     "columnMinWidth",

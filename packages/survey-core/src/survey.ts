@@ -8545,20 +8545,16 @@ Serializer.addClass("survey", [
   },
   {
     name: "progressBarShowPageTitles:switch",
-    category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "progressBarShowPageNumbers:switch",
-    default: false,
-    category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "progressBarInheritWidthFrom",
     default: "container",
     choices: ["container", "survey"],
-    category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {

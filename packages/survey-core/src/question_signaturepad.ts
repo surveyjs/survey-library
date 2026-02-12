@@ -461,72 +461,32 @@ function correctFormatData(val: string): string {
 Serializer.addClass(
   "signaturepad",
   [
-    {
-      name: "signatureWidth:number",
-      category: "general",
-      default: 300,
-    },
-    {
-      name: "signatureHeight:number",
-      category: "general",
-      default: 200,
-    },
-    {
-      name: "signatureAutoScaleEnabled:boolean",
-      category: "general",
-      default: false,
-    },
-    {
-      name: "penMinWidth:number",
-      category: "general",
-      default: 0.5,
-    },
-    {
-      name: "penMaxWidth:number",
-      category: "general",
-      default: 2.5,
-    },
+    { name: "signatureWidth:number", default: 300 },
+    { name: "signatureHeight:number", default: 200 },
+    { name: "signatureAutoScaleEnabled:boolean", default: false },
+    { name: "penMinWidth:number", default: 0.5 },
+    { name: "penMaxWidth:number", default: 2.5 },
     //need to remove this property
-    {
-      name: "height:number",
-      category: "general",
-      visible: false
-    },
-    {
-      name: "allowClear:boolean",
-      category: "general",
-      default: true,
-    },
-    { name: "showPlaceholder:boolean", category: "general", default: true },
+    { name: "height:number", visible: false },
+    { name: "allowClear:boolean", default: true },
+    { name: "showPlaceholder:boolean", default: true },
     {
       name: "placeholder:text",
       serializationProperty: "locPlaceholder",
-      category: "general",
       dependsOn: "showPlaceholder",
       visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder
     },
     {
       name: "placeholderReadOnly:text",
       serializationProperty: "locPlaceholderReadOnly",
-      category: "general",
       dependsOn: "showPlaceholder",
       visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder
     },
-    {
-      name: "backgroundImage:file",
-      category: "general",
-    },
-    {
-      name: "penColor:color",
-      category: "general",
-    },
-    {
-      name: "backgroundColor:color",
-      category: "general",
-    },
+    { name: "backgroundImage:file" },
+    { name: "penColor:color" },
+    { name: "backgroundColor:color" },
     {
       name: "dataFormat",
-      category: "general",
       default: "png",
       choices: [
         { value: "png", text: "PNG" },

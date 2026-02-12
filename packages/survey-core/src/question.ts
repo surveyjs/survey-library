@@ -3518,10 +3518,7 @@ Serializer.addClass("question", [
   "setValueIf:condition",
   "setValueExpression:expression",
   "defaultValue:value",
-  {
-    name: "defaultValueExpression:expression",
-    category: "logic",
-  },
+  "defaultValueExpression:expression",
   "correctAnswer:value",
   {
     name: "clearIfInvisible",
@@ -3550,7 +3547,7 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea:switch", visible: false, default: false, alternativeName: "hasComment", category: "general" },
+  { name: "showCommentArea:switch", visible: false, layout: "row", alternativeName: "hasComment" },
   {
     name: "commentText",
     dependsOn: "showCommentArea",

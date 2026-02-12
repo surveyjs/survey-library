@@ -2460,7 +2460,7 @@ Serializer.addClass("choiceitem",
 Serializer.addClass(
   "selectbase",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     "choicesFromQuestion:question_carryforward",
     {
       name: "choices:choiceitem[]", uniqueProperty: "value",

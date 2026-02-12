@@ -3210,6 +3210,34 @@ QUnit.test("checkbox vs selectAll and isExclusive", (assert) => {
   q.renderedValue = ["none2", "none"];
   assert.deepEqual(q.value, ["none"], "#12");
 });
+QUnit.test("checkbox vs selectAll and enableIf, Bug#10895", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["item1", { value: "item2", enableIf: "{q2} = 1" }, { value: "item3", enableIf: "{q2} = 2" }, "item4"],
+        showSelectAllItem: true
+      },
+      { type: "radiogroup", name: "q2", choices: [1, 2] }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  q1.toggleSelectAll();
+  assert.deepEqual(q1.value, ["item1", "item4"], "#1");
+  assert.equal(q1.isAllSelected, true, "#1, all is selected");
+  q2.value = 1;
+  assert.equal(q1.isAllSelected, false, "#2, all is not selected");
+  q1.toggleSelectAll();
+  assert.deepEqual(q1.value, ["item1", "item2", "item4"], "#3");
+  q2.value = 2;
+  assert.equal(q1.isAllSelected, false, "#4, all is not selected");
+  q1.toggleSelectAll();
+  assert.deepEqual(q1.value, ["item1", "item2", "item3", "item4"], "#5");
+  q1.toggleSelectAll();
+  assert.deepEqual(q1.value, ["item2"], "#6");
+});
 QUnit.test("Focus element on selecting showCommentArea element", (assert) => {
   const oldFunc = SurveyElement.FocusElement;
   const els = new Array<string>();

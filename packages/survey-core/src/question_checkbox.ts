@@ -137,7 +137,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val) {
       this.selectAll();
     } else {
-      this.clearValueFromUI();
+      this.unselectAll();
     }
   }
   public toggleSelectAll(): void {
@@ -179,10 +179,19 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see clearValue
    */
   public selectAll(): void {
+    this.selectAllCore((item) => item.isEnabled || this.isItemSelected(item));
+  }
+  public unselectAll(): void {
+    this.selectAllCore((item) => !item.isEnabled && this.isItemSelected(item));
+  }
+  private selectAllCore(func: (item: ItemValue) => boolean): void {
     const val: Array<any> = [];
-    const items = this.getVisibleEnableItems();
+    const items = this.getVisibleEnableItems(true);
     for (let i = 0; i < items.length; i++) {
-      val.push(items[i].value);
+      const item = items[i];
+      if (func(item)) {
+        val.push(item.value);
+      }
     }
     this.renderedValue = val;
   }
@@ -385,12 +394,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (max > 0 && max < visCount) return false;
     return visCount > 0;
   }
-  private getVisibleEnableItems(): Array<ItemValue> {
+  private getVisibleEnableItems(includeDisable?: boolean): Array<ItemValue> {
     const res = new Array<ItemValue>();
     const items = this.visibleChoices;
     for (let i = 0; i < items.length; i ++) {
       const item = items[i];
-      if (item.isEnabled && !this.isBuiltInChoice(item) && !item.isExclusive) {
+      if ((includeDisable || item.isEnabled) && !this.isBuiltInChoice(item) && !item.isExclusive) {
         res.push(item);
       }
     }

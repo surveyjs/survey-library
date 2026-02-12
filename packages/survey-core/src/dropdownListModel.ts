@@ -163,7 +163,7 @@ export class DropdownListModel extends Base {
 
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
-    this.editorButtons.containerCss = "sd-dropdown-action-bar";
+    this.editorButtons.setCssClasses(this.question.survey.getCss().inputActionBar, false);
 
     this.chevronButton = new Action({
       id: "chevron",
@@ -206,11 +206,6 @@ export class DropdownListModel extends Base {
     });
 
     this.editorButtons.setItems([this.clearButton, this.chevronButton]);
-    this.editorButtons.actions.forEach(action => action.cssClasses = {
-      item: "sd-editor-button-item",
-      itemIcon: "sv-editor-button-item__icon",
-      itemPressed: "sd-editor-button-item--pressed",
-    });
   }
 
   protected createPopup(): void {

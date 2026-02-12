@@ -170,3 +170,11 @@
 .sd-formbox__input[type="range"]::-moz-range-thumb {
     @include slider-thumb;
 }
+.sd-formbox--readonly .sd-formbox__button:hover,
+.sd-formbox--readonly .sd-formbox__button:focus {
+    background: transparent;
+}
+.sd-question--readonly .sd-formbox__button {
+    opacity: var(--lbr-editor-button-icon-opacity-disabled, 0.25);
+    cursor: default;
+}

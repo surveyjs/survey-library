@@ -450,7 +450,8 @@ export var defaultCss = {
     chevronButtonIconId: "icon-chevron",
     control: "sd-formbox sd-dropdown",
     controlInputFieldComponent: "sd-dropdown__input-field-component",
-    controlValue: "sd-dropdown__value",
+    controlValue: "sd-formbox__input sd-dropdown__input",
+    inputPrefixWrapper: "sd-dropdown__input-prefix-wrapper",
     controlDisabled: "sd-formbox--disabled",
     controlReadOnly: "sd-formbox--readonly",
     controlPreview: "sd-formbox--preview",
@@ -934,7 +935,6 @@ export var defaultCss = {
     itemDecorator: "sd-item__svg sd-checkbox__svg",
     itemEnter: "sd-item--enter",
     itemLeave: "sd-item--leave",
-    // cleanButton: "sd-tagbox_clean-button sd-editor-clean-button",
     cleanButtonIconId: "icon-cancel-24x24",
     cleanItemButton: "sd-tagbox-item_clean-button",
     cleanItemButtonSvg: "sd-tagbox-item_clean-button-svg",
@@ -966,6 +966,14 @@ export var defaultCss = {
     svgItemSelected: "sd-imagemap-svg-item sd-imagemap-svg-item--selected",
     svgItemDisabled: "sd-imagemap-svg-item sd-imagemap-svg-item--disabled",
     svgControlPoint: "sd-imagemap-control-point",
+  },
+  inputActionBar: {
+    root: "sd-formbox__group",
+    item: "sd-formbox-button sd-formbox__button",
+    itemPressed: "sd-formbox-button--pressed",
+    itemAsIcon: "sd-formbox-button--icon",
+    itemIcon: "sd-formbox-button__icon",
+    itemTitle: "sd-formbox-button__title",
   }
 };
 

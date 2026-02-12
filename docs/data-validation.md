@@ -113,14 +113,17 @@ survey.onValidateQuestion.add((survey, options) => {
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create a [custom function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#custom-functions), register it, and then call it from within your expression. The following code uses this technique to implement the same value validation scenario:
 
 ```js
-import { FunctionFactory } from "survey-core";
+import { registerFunction } from "survey-core";
 
 function validateComment (params) {
   const value = params[0];
   return value.indexOf("survey");
 }
 
-FunctionFactory.Instance.register("validateComment", validateComment);
+registerFunction({
+  name: "validateComment",
+  func: validateComment
+});
 
 const surveyJson = {
   "elements": [{
@@ -189,7 +192,7 @@ survey.onServerValidateQuestions.add(validateCountry);
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create an [asynchronous function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#asynchronous-functions), register it, and then call it within your expression. The following code uses this technique to implement the previously demonstrated validation scenario:
 
 ```js
-import { FunctionFactory } from "survey-core";
+import { registerFunction } from "survey-core";
 
 function doesCountryExist([ countryName ]) {
   if (!countryName) {
@@ -209,7 +212,12 @@ function doesCountryExist([ countryName ]) {
     });
 }
 
-FunctionFactory.Instance.register("doesCountryExist", doesCountryExist, true);
+registerFunction({
+  name: "doesCountryExist",
+  func: doesCountryExist,
+  isAsync: true,
+  useCache: true
+});
 
 const surveyJson = {
   "elements": [{

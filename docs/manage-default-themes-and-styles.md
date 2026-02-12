@@ -93,11 +93,11 @@ survey.applyTheme(SurveyTheme.ContrastLight);
 
 SurveyJS themes use CSS variables to specify colors, fonts, sizes, and other survey appearance settings. To create a custom theme, you need to change these variables. You can do this in Theme Editor&mdash;a UI theme designer with a user-friendly interface.
 
-![SurveyJS Theme Editor](images/theme-editor.png)
+<img src="images/theme-editor.png" alt="SurveyJS Theme Editor" width="1544" height="790">
 
 Theme Editor is integrated into Survey Creator. Open our [all-in-one demo](/create-free-survey), switch to the Themes tab, and change theme settings using UI controls. Once you finish customization, click the Export button to download a JSON object with CSS variables and other theme settings:
 
-![SurveyJS Theme Export](images/theme-export.png)
+<img src="images/theme-export.png" alt="SurveyJS Theme Export" width="1544" height="1212">
 
 To apply your custom theme, pass the downloaded JSON object to `SurveyModel`'s [`applyTheme(theme)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#applyTheme) method:
 

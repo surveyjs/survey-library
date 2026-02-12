@@ -16,9 +16,14 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 
 As a result, you will create a form displayed below:
 
+<details>
+  <summary>View Live Example</summary>
+  
 <iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
+
+</details>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/angular (linkStyle))
 
@@ -47,7 +52,7 @@ npm install survey-angular-ui --save
 
 SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
-![Themes in SurveyJS Form Library](images/survey-library-themes.png)
+<img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
 To add SurveyJS themes to your Angular application, open the `angular.json` file and reference the Form Library style sheet:
 
@@ -211,7 +216,7 @@ To render a survey, add a `<survey>` element to your component template and bind
 
 If you replicate the code correctly, you should see the following survey:
 
-![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
+<img src="images/get-started-primitive-survey.png" alt="Get Started with SurveyJS - Simple Survey" width="772" height="513">
 
 <details>
     <summary>View Full Code</summary>  
@@ -352,7 +357,7 @@ export class AppComponent implements OnInit {
 }
 ```
 
-![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
+<img src="images/get-started-primitive-survey-alert.png" alt="Get Started with SurveyJS - Survey Results" width="772" height="516">
 
 As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 

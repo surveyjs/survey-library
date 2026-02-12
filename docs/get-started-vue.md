@@ -8,9 +8,14 @@ SurveyJS Form Library for Vue.js is a client-side component that uses JSON objec
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue.js application. As a result, you will create a form displayed below:
 
+<details>
+  <summary>View Live Example</summary>
+  
 <iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
+
+</details>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 
@@ -26,11 +31,11 @@ SurveyJS Form Library for Vue 3 consists of two npm packages: [`survey-core`](ht
 npm install survey-vue3-ui --save
 ```
 
-### Configure Styles
+## Configure Styles
 
 SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
-![Themes in SurveyJS Form Library](images/survey-library-themes.png)
+<img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
 To add SurveyJS themes to your application, open the Vue component that will render your form and import the Form Library style sheet:
 
@@ -143,7 +148,7 @@ createApp(App).use(surveyPlugin).mount('#app');
 
 If you replicate the code correctly, you should see the following survey:
 
-![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
+<img src="images/get-started-primitive-survey.png" alt="Get Started with SurveyJS - Simple Survey" width="772" height="513">
 
 <details>
     <summary>View Full Code</summary>  
@@ -244,7 +249,7 @@ const alertResults = (sender: any) => {
 </template>
 ```
 
-![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
+<img src="images/get-started-primitive-survey-alert.png" alt="Get Started with SurveyJS - Survey Results" width="772" height="516">
 
 As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 

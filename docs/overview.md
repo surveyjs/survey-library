@@ -6,7 +6,7 @@ description: SurveyJS Form Library is a free MIT-licensed client-side component 
 
 SurveyJS Form Library is a free MIT-licensed UI component that allows you to render dynamic JSON-based forms in any JavaScript application, collect responses from users, and send all form data to your database. You can use it for multi-page forms of any length and complexity, pop-up surveys, quizzes, scored surveys, calculator forms, and more.
 
-![SurveyJS Form Library](images/overview.png)
+<img src="images/overview.png" alt="SurveyJS Form Library" width="1024" height="675">
 
 ## Get Started
 

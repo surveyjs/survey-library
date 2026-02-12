@@ -1966,6 +1966,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.clearGeneratedRows();
     this.generatedTotalRow = null;
     this.updateHasFooter();
+    this.genetateColumnsName();
+  }
+  private genetateColumnsName(): void {
+    this.columns.forEach(column => {
+      if (!column.name || column.name === "") {
+        column.name = this.generateNewName(this.columns, "question");
+      }
+    });
+  }
+  private generateNewName(elements: Array<any>, baseName: string): string {
+    return (this.getSurvey() as SurveyModel).getNewGeneratedName(elements, baseName);
   }
   /**
    * Returns an object with row values. If a row has no answers, this method returns an empty object.

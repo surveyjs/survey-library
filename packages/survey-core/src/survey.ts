@@ -6977,6 +6977,9 @@ export class SurveyModel extends SurveyElementCore
     while(keys[baseName + index]) index++;
     return baseName + index;
   }
+  public getNewGeneratedName(elements: Array<any>, baseName: string): string {
+    return this.generateNewName(elements, baseName);
+  }
   protected tryGoNextPageAutomatic(name: string): void {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
     const question = <Question>this.getQuestionByValueName(name);

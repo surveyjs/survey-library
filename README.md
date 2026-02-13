@@ -110,3 +110,5 @@ https://github.com/surveyjs/survey-library/assets/102306951/844563b2-c7c3-400c-9
 ## Licensing
 
 SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).
+
+sjs

@@ -1,0 +1,62 @@
+@mixin sjs2--typography--large {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-basic);
+  font-size: var(--sjs2-typography-font-size-large);
+  line-height: var(--sjs2-typography-line-height-large);
+}
+
+@mixin sjs2--typography--large-strong {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-strong);
+  font-size: var(--sjs2-typography-font-size-large);
+  line-height: var(--sjs2-typography-line-height-large);
+}
+
+@mixin sjs2--typography--medium {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-basic);
+  font-size: var(--sjs2-typography-font-size-medium);
+  line-height: var(--sjs2-typography-line-height-medium);
+}
+
+@mixin sjs2--typography--medium-strong {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-strong);
+  font-size: var(--sjs2-typography-font-size-medium);
+  line-height: var(--sjs2-typography-line-height-medium);
+}
+
+@mixin sjs2--typography--default {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-basic);
+  font-size: var(--sjs2-typography-font-size-default);
+  line-height: var(--sjs2-typography-line-height-default);
+}
+
+@mixin sjs2--typography--default-strong {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-strong);
+  font-size: var(--sjs2-typography-font-size-default);
+  line-height: var(--sjs2-typography-line-height-default);
+}
+
+@mixin sjs2--typography--default-code {
+  font-family: var(--sjs2-typography-font-family-code);
+  font-weight: var(--sjs2-typography-font-weight-basic);
+  font-size: var(--sjs2-typography-font-size-default);
+  line-height: var(--sjs2-typography-line-height-default);
+}
+
+@mixin sjs2--typography--small {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-basic);
+  font-size: var(--sjs2-typography-font-size-small);
+  line-height: var(--sjs2-typography-line-height-small);
+}
+
+@mixin sjs2--typography--small-strong {
+  font-family: var(--sjs2-typography-font-family-text);
+  font-weight: var(--sjs2-typography-font-weight-strong);
+  font-size: var(--sjs2-typography-font-size-small);
+  line-height: var(--sjs2-typography-line-height-small);
+}

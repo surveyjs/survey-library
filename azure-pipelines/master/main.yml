@@ -21,9 +21,9 @@ resources:
     - pipeline: ReleaseVersion
       source: Set Custom Release Version
       trigger: true
-    - pipeline: RunRelease
-      source: Run Release
-      trigger: true
+    # - pipeline: RunRelease
+    #   source: Run Release
+    #   trigger: true
 
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
@@ -96,8 +96,8 @@ jobs:
         fetchDepth: 1
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
+      # - download: RunRelease
+      #   artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -288,8 +288,8 @@ jobs:
         clean: true
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
+      # - download: RunRelease
+      #   artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -436,8 +436,8 @@ jobs:
         clean: true
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
+      # - download: RunRelease
+      #   artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -595,8 +595,8 @@ jobs:
         clean: true
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
+      # - download: RunRelease
+      #   artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -754,8 +754,8 @@ jobs:
         clean: true
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
+      # - download: RunRelease
+      #   artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:

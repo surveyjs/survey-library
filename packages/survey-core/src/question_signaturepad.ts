@@ -21,6 +21,14 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) hasDrawnStroke: boolean;
   @property({ defaultValue: false }) isReadyForUpload: boolean;
 
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "penColor" || name === "backgroundColor" || name === "backgroundImage") {
+      if (this.signaturePad) {
+        this.updateColors(this.signaturePad);
+      }
+    }
+  }
   private getPenColorFromTheme(): string {
     const _survey = this.survey as SurveyModel;
     return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
@@ -277,32 +285,17 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    * - `"jpeg"`
    * - `"svg"`
    */
-  public get dataFormat(): string {
-    return this.getPropertyValue("dataFormat");
-  }
-  public set dataFormat(val: string) {
-    this.setPropertyValue("dataFormat", correctFormatData(val));
-  }
+  @property({ onSetting: (val: string) => correctFormatData(val) }) dataFormat: string;
   /**
    * Specifies the width of the signature area. Accepts positive integer numbers.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
    */
-  public get signatureWidth(): number {
-    return this.getPropertyValue("signatureWidth");
-  }
-  public set signatureWidth(val: number) {
-    this.setPropertyValue("signatureWidth", val);
-  }
+  @property() signatureWidth: number;
   /**
    * Specifies the height of the signature area. Accepts positive integer numbers.
    */
-  public get signatureHeight(): number {
-    return this.getPropertyValue("signatureHeight");
-  }
-  public set signatureHeight(val: number) {
-    this.setPropertyValue("signatureHeight", val);
-  }
+  @property() signatureHeight: number;
   /**
    * Specifies whether the signature area should be scaled to fit into the question width.
    *
@@ -339,24 +332,14 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   //todo: need to remove this property
-  public get height(): number {
-    return this.getPropertyValue("height");
-  }
-  public set height(val: number) {
-    this.setPropertyValue("height", val);
-  }
+  @property() height: number;
 
   /**
    * Specifies whether to display a button that clears the signature area.
    *
    * Default value: `true`
    */
-  public get allowClear(): boolean {
-    return this.getPropertyValue("allowClear");
-  }
-  public set allowClear(val: boolean) {
-    this.setPropertyValue("allowClear", val);
-  }
+  @property() allowClear: boolean;
   public get canShowClearButton(): boolean {
     const hasSignature = !this.nothingIsDrawn();
     const isUploading = this.isUploading;
@@ -374,13 +357,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    * [View Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see backgroundColor
    */
-  public get penColor(): string {
-    return this.getPropertyValue("penColor");
-  }
-  public set penColor(val: string) {
-    this.setPropertyValue("penColor", val);
-    !!this.signaturePad && this.updateColors(this.signaturePad);
-  }
+  @property() penColor: string;
   /**
    * Specifies a color for the signature area background. Ignored if [`backgroundImage`](#backgroundImage) is set.
    *
@@ -391,24 +368,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    * - Color names (`"red"`)
    * @see penColor
    */
-  public get backgroundColor(): string {
-    return this.getPropertyValue("backgroundColor");
-  }
-  public set backgroundColor(val: string) {
-    this.setPropertyValue("backgroundColor", val);
-    !!this.signaturePad && this.updateColors(this.signaturePad);
-  }
+  @property() backgroundColor: string;
   /**
    * An image to display in the background of the signature area. Accepts a base64 or URL string value.
    * @see backgroundColor
    */
-  public get backgroundImage(): string {
-    return this.getPropertyValue("backgroundImage");
-  }
-  public set backgroundImage(val: string) {
-    this.setPropertyValue("backgroundImage", val);
-    !!this.signaturePad && this.updateColors(this.signaturePad);
-  }
+  @property() backgroundImage: string;
+
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
   }
@@ -439,12 +405,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   /**
    * A placeholder text for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
-  @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
+  @property({ localizable: { defaultStr: "signaturePlaceHolder", markdown: true } }) placeholder: string;
 
   /**
    * A placeholder text for the signature area in read-only or preview mode. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
-  @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly" } }) placeholderReadOnly: string;
+  @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly", markdown: true } }) placeholderReadOnly: string;
   protected onBlurCore(event: any): void {
     super.onBlurCore(event);
     if (!this.storeDataAsText) {

@@ -38,7 +38,7 @@ const registerComponent_onValueChanging = async (page) => {
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
-    test("check custom markup in list behavior", async ({ page }) => {
+    test("onValueChanging callback doesn't work in composite component", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       await registerComponent_onValueChanging(page);
       await initSurvey(page, framework, json);

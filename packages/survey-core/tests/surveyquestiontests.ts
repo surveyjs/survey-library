@@ -2846,10 +2846,8 @@ QUnit.test(
   }
 );
 
-QUnit.test("space in others does not work correctly , bug #1214", function (
-  assert
-) {
-  var json = {
+QUnit.test("space in others does not work correctly , bug #1214", (assert) => {
+  const survey = new SurveyModel({
     elements: [
       {
         type: "radiogroup",
@@ -2859,9 +2857,8 @@ QUnit.test("space in others does not work correctly , bug #1214", function (
         storeOthersAsComment: false,
       },
     ],
-  };
-  var survey = new SurveyModel(json);
-  var q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  });
+  const q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   q.value = q.otherItem.value;
   assert.equal(q.isOtherSelected, true, "other is selected");
   assert.equal(q.validate(), false, "other is not entered");
@@ -4868,6 +4865,29 @@ QUnit.test("question.isInputTextUpdate", function (assert) {
   question.inputType = "date";
   assert.equal(question.isInputTextUpdate, true, "inputType = date && settings.updateDateOnTyping = true");
 });
+
+QUnit.test("Possible to submit a survey without selecting color #10808", (assert) =>{
+
+  const input = document.createElement("input");
+  input.type = "color";
+
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "text",
+      "name": "q1",
+      "isRequired": true,
+      "inputType": "color"
+    }],
+  });
+
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+
+  q1.onBlur({ target: input });
+  assert.equal(q1.isEmpty(), true, "value is empty");
+  q1.onChange({ target: input });
+  assert.equal(q1.isEmpty(), false, "value is not empty");
+});
+
 QUnit.test("question.isInputTextUpdate && mask", function (assert) {
   const survey = new SurveyModel({
     textUpdateMode: "onTyping",
@@ -8258,6 +8278,34 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(textAreaOptions.maxLength, undefined, "textAreaOptions maxLength");
   assert.equal(textAreaOptions.cols, 50, "textAreaOptions cols");
   assert.equal(textAreaOptions.rows, 4, "textAreaOptions rows");
+});
+QUnit.test("Do not remove spaces in comment area, bug#10875", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        showCommentArea: true,
+        choices: [
+          "Item 1",
+          "Item 2",
+          "Item 3"
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionCommentModel>survey.getQuestionByName("q1");
+  q1.value = "text";
+  const commentArea = q1.commentTextAreaModel;
+  assert.ok(!!commentArea, "comment is created");
+  commentArea.onTextAreaBlur({ target: { value: "   some text   " } });
+  assert.equal(q1.comment, "   some text   ", "do not trim spaces");
+  assert.deepEqual(survey.data, { q1: "text", "q1-Comment": "   some text   " }, "data is correct");
+  assert.equal(q1.validate(), true, "no error on validation");
+  commentArea.onTextAreaBlur({ target: { value: "      " } });
+  assert.equal(q1.comment, "", "trim spaces to empty, #2");
+  assert.deepEqual(survey.data, { q1: "text" }, "there is no comment in data");
 });
 QUnit.test("The text area value is not updated on setting the question comment/other value in the code", function (assert) {
   const survey = new SurveyModel({

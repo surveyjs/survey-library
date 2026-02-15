@@ -17,21 +17,27 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-utils
+  pipelines:
+    - pipeline: ReleaseVersion
+      source: Set Custom Release Version
+      trigger: true
+    - pipeline: RunRelease
+      source: Run Release
+      trigger: true
 
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
   CurrentBranch: $(Build.SourceBranchName)
+  ProjectId: "2cf848f9-83d5-4ec4-b2e3-ef3321ccc99f"
 
 trigger:
   batch: true
   branches:
     include:
-      - master
       - V3
   tags:
     exclude:
       - v*.*.*
-
 pr: none
 
 pool:
@@ -88,6 +94,10 @@ jobs:
         persistCredentials: true
         clean: true
         fetchDepth: 1
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
+      - download: RunRelease
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -110,19 +120,9 @@ jobs:
         displayName: Cache NPM
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -286,6 +286,10 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
+      - download: RunRelease
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -307,19 +311,9 @@ jobs:
         displayName: Cache NPM
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -440,6 +434,10 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
+      - download: RunRelease
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -462,19 +460,9 @@ jobs:
         displayName: Cache NPMs
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -605,6 +593,10 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
+      - download: RunRelease
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -627,19 +619,9 @@ jobs:
         displayName: Cache NPMs
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -770,6 +752,10 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
+      - download: ReleaseVersion
+        artifact: ReleaseVersionFile
+      - download: RunRelease
+        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -791,19 +777,9 @@ jobs:
         displayName: Cache NPM
 
       # setup next release version
-      - task: DownloadBuildArtifacts@0
-        inputs:
-          buildType: "specific"
-          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-          pipeline: "47"
-          buildVersionToDownload: "latest"
-          downloadType: "single"
-          artifactName: "ReleaseVersionFile"
-          downloadPath: "$(System.ArtifactsDirectory)"
-
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
           Contents: "version.txt"
           TargetFolder: "$(Build.SourcesDirectory)/"
           OverWrite: true
@@ -895,7 +871,7 @@ jobs:
           testResultsFormat: "JUnit"
           testResultsFiles: "e2e-junit-results.xml"
           mergeTestResults: true
-          failTask onFailedTests: true
+          failTaskOnFailedTests: true
           testRunTitle: "React End-To-End Tests"
         condition: succeededOrFailed()
 

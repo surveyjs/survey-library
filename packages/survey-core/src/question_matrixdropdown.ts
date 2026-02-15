@@ -3,7 +3,7 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
 } from "./question_matrixdropdownbase";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -106,20 +106,19 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdown";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.columns,
+      ...this.rows,
+    ];
+  }
   /**
    * A title for the total row. Applies if at least one column displays total values.
    * @see rowTitleWidth
    * @see columns
    */
-  public get totalText() {
-    return this.getLocStringText(this.locTotalText) || "";
-  }
-  public set totalText(val: string) {
-    this.setLocStringText(this.locTotalText, val);
-  }
-  public get locTotalText(): LocalizableString {
-    return this.getOrCreateLocStr("totalText", true);
-  }
+  @property ({ localizable: { markdown: true } }) totalText: string;
   public getFooterText(): LocalizableString {
     return this.locTotalText;
   }
@@ -130,12 +129,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * Specifies whether to hide the question when the matrix has no visible rows.
    * @see rowsVisibleIf
    */
-  public get hideIfRowsEmpty(): boolean {
-    return this.getPropertyValue("hideIfRowsEmpty");
-  }
-  public set hideIfRowsEmpty(val: boolean) {
-    this.setPropertyValue("hideIfRowsEmpty", val);
-  }
+  @property() hideIfRowsEmpty: boolean;
+
   protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixDropdownValueGetterContext(this);

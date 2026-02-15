@@ -50,7 +50,7 @@
     flex-direction: column;
     cursor: pointer;
 
-    &:not(:first-child)>.sd-progress-buttons__connector {
+    &:not(:first-child) > .sd-progress-buttons__connector {
       display: block;
       content: "";
       height: calcSize(0.25);
@@ -131,7 +131,7 @@
   }
 
   .sd-progress-buttons__list-element--passed {
-    &:not(:first-child)>.sd-progress-buttons__connector {
+    &:not(:first-child) > .sd-progress-buttons__connector {
       background-color: $primary;
       opacity: 1;
     }
@@ -147,7 +147,7 @@
   }
 
   .sd-progress-buttons__list-element--current {
-    &:not(:first-child)>.sd-progress-buttons__connector {
+    &:not(:first-child) > .sd-progress-buttons__connector {
       background-color: $primary;
       opacity: 1;
     }
@@ -210,7 +210,7 @@
     li {
       flex-direction: column-reverse;
 
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         top: calcSize(1.125);
       }
     }
@@ -243,7 +243,7 @@
 
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         bottom: calcSize(2.175);
         right: calc(50% + 18px);
         width: calc(100% - 36px);
@@ -257,7 +257,6 @@
           height: calcSize(3);
           width: calcSize(4.5);
         }
-
       }
 
       &:hover .sd-progress-buttons__button {
@@ -278,9 +277,31 @@
   .sd-progress-buttons__list {
     justify-content: space-between;
     width: 100%;
-
+    position: relative;
     li {
       flex-grow: 0;
+      position: static;
+      &:not(:first-child) > .sd-progress-buttons__connector {
+        bottom: calc(50% - 1px);
+        right: auto;
+        width: calc(
+          (100% - calc(20px * var(--sd-progress-buttons-pages-count))) / (var(--sd-progress-buttons-pages-count) - 1)
+        );
+        transform: translatex(-100%);
+      }
+    }
+  }
+}
+
+.sd-progress-buttons--no-titles.sd-progress-buttons--numbered,
+.sd-root-modern--mobile .sd-progress-buttons--numbered {
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child) > .sd-progress-buttons__connector {
+        width: calc(
+          (100% - calc(36px * var(--sd-progress-buttons-pages-count))) / (var(--sd-progress-buttons-pages-count) - 1)
+        );
+      }
     }
   }
 }
@@ -288,7 +309,7 @@
 .sd-progress-buttons--bottom.sd-progress-buttons--numbered {
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         top: calcSize(2.175);
       }
     }
@@ -308,25 +329,23 @@
   margin: auto;
 }
 
-[dir="rtl"],
+:dir(rtl),
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
-
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child)>.sd-progress-buttons__connector {
-        right: unset;
-        left: calc(50% + 10px);
+      &:not(:first-child) > .sd-progress-buttons__connector {
+        transform: translateX(calc(100% + 20px));
       }
     }
   }
 
-  .sd-progress-buttons--numbered {
+  .sd-root-modern--mobile,
+  .sd-progress-buttons--no-titles {
     .sd-progress-buttons__list {
       li {
-        &:not(:first-child)>.sd-progress-buttons__connector {
-          right: unset;
-          left: calc(50% + 20px);
+        &:not(:first-child) > .sd-progress-buttons__connector {
+          transform: translateX(100%);
         }
       }
     }

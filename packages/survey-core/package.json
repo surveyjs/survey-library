@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "2.5.6",
+  "version": "2.5.9",
   "scripts": {
     "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && rollup -c",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod && rollup -c rollup.i18n.config.js",

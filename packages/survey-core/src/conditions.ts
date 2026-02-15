@@ -1,13 +1,28 @@
 import { HashTable } from "./helpers";
 import { IValueGetterContext, ProcessValue, VariableGetterContextEx } from "./conditionProcessValue";
 import { ConsoleWarnings } from "./console-warnings";
-import { Operand, FunctionOperand, AsyncFunctionItem } from "./expressions/expressions";
+import { Operand, FunctionOperand, AsyncFunctionItem, Variable, Const } from "./expressions/expressions";
 import { ConditionsParser } from "./conditionsParser";
+import { FunctionFactory } from "./functionsfactory";
+import { IExpressionValidationOptions } from "./base";
+
+export enum ExpressionErrorType {
+  SyntaxError,
+  UnknownFunction,
+  UnknownVariable,
+  SemanticError
+}
+
+export interface IExpressionError {
+  errorType: ExpressionErrorType;
+  functionName?: string;
+  variableName?: string;
+}
 
 /**
  * Base interface for expression execution
  */
-export interface IExpresionExecutor {
+export interface IExpressionExecutor {
   /**
    * This call back runs on executing expression if there is at least one async function
    */
@@ -40,6 +55,7 @@ export interface IExpresionExecutor {
    * Returns true if there is an async function in the expression
    */
   isAsync: boolean;
+  validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
 }
 
 export class ExpressionExecutorRunner {
@@ -118,8 +134,8 @@ export class ExpressionExecutorRunner {
   }
 }
 
-export class ExpressionExecutor implements IExpresionExecutor {
-  public static createExpressionExecutor: (expression: string) => IExpresionExecutor =
+export class ExpressionExecutor implements IExpressionExecutor {
+  public static createExpressionExecutor: (expression: string) => IExpressionExecutor =
     (expression: string) => { return new ExpressionExecutor(expression); };
   public static getQuestionErrorText(properties: HashTable<any>): string {
     if (!!properties) {
@@ -183,10 +199,47 @@ export class ExpressionExecutor implements IExpresionExecutor {
     const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, properties, context);
     return runner.run(this.isAsync);
   }
+  public validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[] {
+    let errors: IExpressionError[] = [];
+    if (!this.operand) { errors.push({ errorType: ExpressionErrorType.SyntaxError }); return errors; }
+
+    const list = new Array<Operand>();
+    this.operand.addOperandsToList(list);
+
+    if (options.semantics && isCondition && list.length == 1 && list[0].getType() === "const" && !(<Const>list[0]).isBoolean()) {
+      errors.push({ errorType: ExpressionErrorType.SemanticError });
+      return errors;
+    }
+
+    const operands = list.reduce((acc, operand) => {
+      const type = operand.getType();
+      if (!acc[type]) { acc[type] = []; }
+      acc[type].push(operand);
+      return acc;
+    }, {} as { [key: string]: Operand[] });
+
+    if (options.functions) {
+      for (const operand of (operands.function || []) as FunctionOperand[]) {
+        if (!FunctionFactory.Instance.hasFunction(operand.functionName)) {
+          errors.push({ errorType: ExpressionErrorType.UnknownFunction, functionName: operand.functionName });
+        }
+      }
+    }
+
+    if (options.variables) {
+      for (const operand of (operands.variable || []) as Variable[]) {
+        if (!new ProcessValue(context).hasValue(operand.variable)) {
+          errors.push({ errorType: ExpressionErrorType.UnknownVariable, variableName: operand.variable });
+        }
+      }
+    }
+
+    return errors;
+  }
 }
 
 export class ExpressionRunnerBase {
-  private expressionExecutor: IExpresionExecutor;
+  private expressionExecutor: IExpressionExecutor;
   private variables: string[];
   private containsFunc: boolean;
   private static IdRunnerCounter = 1;
@@ -234,6 +287,9 @@ export class ExpressionRunnerBase {
       this.onBeforeAsyncRun(id);
     }
     return this.expressionExecutor.runContext(context, properties, id);
+  }
+  public validate(context: IValueGetterContext, options: IExpressionValidationOptions, isCondition: boolean): IExpressionError[] {
+    return this.expressionExecutor.validate(context, isCondition, options);
   }
   protected doOnComplete(res: any, id: number): void {
     if (this.onAfterAsyncRun && this.isAsync) {

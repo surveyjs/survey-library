@@ -17,19 +17,9 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   /**
    * The image or video link property.
    */
-  public get imageLink(): string {
-    return this.getLocStringText(this.locImageLink);
-  }
-  public set imageLink(val: string) {
-    this.setLocStringText(this.locImageLink, val);
-    this.imageNotLoaded = false;
-    this.videoNotLoaded = false;
-  }
-  private aspectRatio: number;
+  @property({ localizable: true }) imageLink: string;
 
-  get locImageLink(): LocalizableString {
-    return this.getOrCreateLocStr("imageLink");
-  }
+  private aspectRatio: number;
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "imageLink" && super.isPropertyStoredInHash(name);
   }
@@ -86,6 +76,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     if (name === "imageWidth" || name === "imageHeight") {
       this.calcIsResponsive();
     }
+    if (name === "imageLink") {
+      this.imageNotLoaded = false;
+      this.videoNotLoaded = false;
+    }
   }
   public getType(): string {
     return "imagepicker";
@@ -120,12 +114,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
-  public get multiSelect(): boolean {
-    return this.getPropertyValue("multiSelect");
-  }
-  public set multiSelect(newValue: boolean) {
-    this.setPropertyValue("multiSelect", newValue);
-  }
+  @property() multiSelect: boolean;
+
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     const imageItemValue = item as ImageItemValue;
@@ -177,12 +167,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
-  public get showLabel(): boolean {
-    return this.getPropertyValue("showLabel");
-  }
-  public set showLabel(newValue: boolean) {
-    this.setPropertyValue("showLabel", newValue);
-  }
+  @property() showLabel: boolean;
+
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.isDesignMode && this.multiSelect) {
@@ -222,12 +208,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageWidth
    */
-  public get imageHeight() {
-    return this.getPropertyValue("imageHeight");
-  }
-  public set imageHeight(val: number) {
-    this.setPropertyValue("imageHeight", val);
-  }
+  @property() imageHeight: number;
+
   public get imageScale() {
     return this.survey ? (this.survey as any)["widthScale"] / 100 : 1;
   }
@@ -246,12 +228,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageHeight
    */
-  public get imageWidth() {
-    return this.getPropertyValue("imageWidth");
-  }
-  public set imageWidth(val: number) {
-    this.setPropertyValue("imageWidth", val);
-  }
+  @property() imageWidth: number;
 
   @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth(): number {
@@ -265,12 +242,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * @see imageHeight
    * @see imageWidth
    */
-  public get imageFit(): string {
-    return this.getPropertyValue("imageFit");
-  }
-  public set imageFit(val: string) {
-    this.setPropertyValue("imageFit", val);
-  }
+  @property() imageFit: string;
   /**
    * Specifies the type of content that choice items display.
    *
@@ -279,15 +251,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * - `"image"` (default) - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
    * - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
    */
-  public get contentMode(): string {
-    return this.getPropertyValue("contentMode");
-  }
-  public set contentMode(val: string) {
-    this.setPropertyValue("contentMode", val);
+  @property({ onSet: (val, obj) => {
     if (val === "video") {
-      this.showLabel = true;
+      obj.showLabel = true;
     }
-  }
+  } }) contentMode: string;
   protected valueToData(val: any): any {
     return val;
   }

@@ -89,22 +89,79 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const emptyValue = "_____";
+      const getQuestionValue = async () => {
+        return await page.evaluate(() => {
+          return (window as any).survey.getAllQuestions()[0].value;
+        });
+      };
+      expect(await page.locator("input").first().inputValue()).toBe("_____");
+      expect(await getQuestionValue()).toBeUndefined();
 
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
-
-      await page.keyboard.type("1234");
-      expect(await page.locator("input").first().inputValue()).toBe("1234_");
-
-      await page.keyboard.press("Tab");
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
-
-      await page.locator("input").first().click();
       await page.keyboard.type("123");
       expect(await page.locator("input").first().inputValue()).toBe("123__");
+      expect(await getQuestionValue()).toBeUndefined();
 
       await page.keyboard.press("Tab");
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
+      expect(await page.locator("input").first().inputValue()).toBe("123__");
+      expect(await getQuestionValue()).toBeUndefined();
+
+      await page.locator("input").first().click();
+      await page.keyboard.type("4");
+      expect(await page.locator("input").first().inputValue()).toBe("1234_");
+      expect(await getQuestionValue()).toBeUndefined();
+
+      await page.keyboard.press("Tab");
+      expect(await page.locator("input").first().inputValue()).toBe("1234_");
+      expect(await getQuestionValue()).toBeUndefined();
+
+      await page.locator("input").first().click();
+      await page.keyboard.type("5");
+      expect(await page.locator("input").first().inputValue()).toBe("12345");
+      expect(await getQuestionValue()).toBeUndefined();
+
+      await page.keyboard.press("Tab");
+      expect(await page.locator("input").first().inputValue()).toBe("12345");
+      expect(await getQuestionValue()).toBe("12345");
+    });
+
+    test("Show placeholder if value is empty", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            name: "question1",
+            type: "text",
+            maskType: "pattern",
+            maskSettings: {
+              pattern: "99-99"
+            },
+            placeholder: "Enter value..."
+          }
+        ]
+      });
+
+      const input = page.locator("input").first();
+
+      await expect(input).toHaveAttribute("placeholder", "Enter value...");
+      await expect(input).toHaveValue("");
+
+      await input.click();
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("__-__");
+
+      await input.blur();
+      await expect(input).toHaveValue("");
+
+      await input.click();
+      await expect(input).toBeFocused();
+      await page.keyboard.type("1234");
+      await expect(input).toHaveValue("12-34");
+
+      await input.blur();
+      await expect(input).toHaveValue("12-34");
+
+      await input.click();
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("12-34");
     });
 
     test("mask and maxlength", async ({ page }) => {

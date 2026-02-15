@@ -24,6 +24,7 @@ import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInf
 import { ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { ComputedUpdater } from "./base";
+import { Base } from "./base";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -116,6 +117,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (name === "maxRowCount") {
       this.onMaxRowCountChanged();
     }
+    if (name === "allowRemoveRows" && !this.isUpdateLocked) {
+      this.resetRenderedTable();
+    }
   }
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
@@ -148,7 +152,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
-
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.columns,
+      ...this.choices
+    ];
+  }
   public get isRowsDynamic(): boolean {
     return true;
   }
@@ -160,46 +170,27 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see confirmDeleteText
    */
-  public get confirmDelete(): boolean {
-    return this.getPropertyValue("confirmDelete");
-  }
-  public set confirmDelete(val: boolean) {
-    this.setPropertyValue("confirmDelete", val);
-  }
+  @property() confirmDelete: boolean;
+
   public get isValueArray(): boolean { return true; }
   /**
    * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
    * @see keyDuplicationError
    */
-  public get keyName(): string {
-    return this.getPropertyValue("keyName", "");
-  }
-  public set keyName(val: string) {
-    this.setPropertyValue("keyName", val);
-  }
+  @property({ defaultValue: "" }) keyName: string;
   /**
    * If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
    * @see defaultValue
    * @see copyDefaultValueFromLastEntry
    */
-  public get defaultRowValue(): any {
-    return this.getPropertyValue("defaultRowValue");
-  }
-  public set defaultRowValue(val: any) {
-    this.setPropertyValue("defaultRowValue", val);
-  }
+  @property() defaultRowValue: any;
   /**
    * Specifies whether default values for a new row/column should be copied from the last row/column.
    *
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
    */
-  public get copyDefaultValueFromLastEntry(): boolean {
-    return this.getPropertyValue("copyDefaultValueFromLastEntry");
-  }
-  public set copyDefaultValueFromLastEntry(val: boolean) {
-    this.setPropertyValue("copyDefaultValueFromLastEntry", val);
-  }
+  @property() copyDefaultValueFromLastEntry: boolean;
   /**
    * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
    */
@@ -363,12 +354,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * Default value: `false`
    */
-  public get allowRowReorder(): boolean {
-    return this.getPropertyValue("allowRowReorder");
-  }
-  public set allowRowReorder(val: boolean) {
-    this.setPropertyValue("allowRowReorder", val);
-  }
+  @property() allowRowReorder: boolean;
   /**
    * @deprecated Use the [`allowRowReorder`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#allowRowReorder) property instead.
    */
@@ -384,12 +370,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public get isRowsDragAndDrop(): boolean {
     return this.allowRowReorder && !this.isReadOnly;
   }
-  public get lockedRowCount(): number {
-    return this.getPropertyValue("lockedRowCount", 0);
-  }
-  public set lockedRowCount(val: number) {
-    this.setPropertyValue("lockedRowCount", val);
-  }
+  @property({ defaultValue: 0 }) lockedRowCount: number;
 
   public get iconDragElement(): string {
     return this.cssClasses.iconDragElement;
@@ -398,7 +379,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDynamicRenderedTable(this);
   }
-
   private get rowCountValue(): number {
     return this.getPropertyValue("rowCount");
   }
@@ -415,13 +395,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see maxRowCount
    * @see allowRemoveRows
    */
-  public get minRowCount(): number {
-    return this.getPropertyValue("minRowCount");
-  }
-  public set minRowCount(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minRowCount", val);
-  }
+  @property({ onSetting: (val: number) => val < 0 ? 0 : val }) minRowCount: number;
+
   private onMinRowCountChanged(): void {
     const val = this.minRowCount;
     if (val > this.maxRowCount)this.maxRowCount = val;
@@ -438,16 +413,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see minRowCount
    * @see allowAddRows
    */
-  public get maxRowCount(): number {
-    return this.getPropertyValue("maxRowCount");
-  }
-  public set maxRowCount(val: number) {
-    if (val <= 0) return;
-    if (val > settings.matrix.maxRowCount)
-      val = settings.matrix.maxRowCount;
-    if (val == this.maxRowCount) return;
-    this.setPropertyValue("maxRowCount", val);
-  }
+  @property({ onSetting: (val: number) => val <= 0 ? 1 : val > settings.matrix.maxRowCount ? settings.matrix.maxRowCount : val }) maxRowCount: number;
+
   private onMaxRowCountChanged(): void {
     const val = this.maxRowCount;
     if (val < this.minRowCount)this.minRowCount = val;
@@ -460,12 +427,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see canAddRow
    * @see allowRemoveRows
    */
-  public get allowAddRows(): boolean {
-    return this.getPropertyValue("allowAddRows");
-  }
-  public set allowAddRows(val: boolean) {
-    this.setPropertyValue("allowAddRows", val);
-  }
+  @property() allowAddRows: boolean;
   /**
    * Specifies whether users are allowed to delete rows.
    *
@@ -473,15 +435,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @see canRemoveRows
    * @see allowAddRows
    */
-  public get allowRemoveRows(): boolean {
-    return this.getPropertyValue("allowRemoveRows");
-  }
-  public set allowRemoveRows(val: boolean) {
-    this.setPropertyValue("allowRemoveRows", val);
-    if (!this.isUpdateLocked) {
-      this.resetRenderedTable();
-    }
-  }
+  @property() allowRemoveRows: boolean;
   /**
    * Indicates whether it is possible to add a new row.
    *
@@ -577,12 +531,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see detailPanelMode
    */
-  public get detailPanelShowOnAdding(): boolean {
-    return this.getPropertyValue("detailPanelShowOnAdding");
-  }
-  public set detailPanelShowOnAdding(val: boolean) {
-    this.setPropertyValue("detailPanelShowOnAdding", val);
-  }
+  @property() detailPanelShowOnAdding: boolean;
+
   protected runConditionsForColumns(properties: HashTable<any>): boolean { return false; }
   public unbindValue() {
     this.clearGeneratedRows();
@@ -834,34 +784,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see confirmDelete
    */
-  public get confirmDeleteText() {
-    return this.getLocStringText(this.locConfirmDeleteText);
-  }
-  public set confirmDeleteText(val: string) {
-    this.setLocStringText(this.locConfirmDeleteText, val);
-  }
-  get locConfirmDeleteText() {
-    return this.getOrCreateLocStr("confirmDeleteText", false, "confirmDelete");
-  }
+  @property ({ localizable: { defaultStr: "confirmDelete" } }) confirmDeleteText: string;
   /**
    * A caption for the Add Row button.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see addRowButtonLocation
    */
-  public get addRowText() {
-    return this.getLocStringText(this.locAddRowText);
-  }
-  public set addRowText(val: string) {
-    this.setLocStringText(this.locAddRowText, val);
-  }
-  get locAddRowText() {
-    return this.getOrCreateLocStr("addRowText", false, "addRow", (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (text: string): string => {
-        return text || this.defaultAddRowText;
-      };
-    });
-  }
+  @property ({ localizable: { defaultStr: "addRow",
+    onCreate: (obj: QuestionMatrixDynamicModel, locStr: LocalizableString) =>
+      locStr.onGetTextCallback = (text: string): string => text || obj.defaultAddRowText
+  } }) addRowText: string;
   private get defaultAddRowText(): string {
     return this.getLocalizationString(
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
@@ -880,12 +813,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
    * @see addRowText
    */
-  public get addRowButtonLocation(): string {
-    return this.getPropertyValue("addRowButtonLocation");
-  }
-  public set addRowButtonLocation(val: string) {
-    this.setPropertyValue("addRowButtonLocation", val);
-  }
+  @property() addRowButtonLocation: string;
   /**
    * @deprecated Use the [`addRowButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#addRowButtonLocation) property instead.
    */
@@ -904,12 +832,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Default value: `false`
    * @see noRowsText
    */
-  public get hideColumnsIfEmpty(): boolean {
-    return this.getPropertyValue("hideColumnsIfEmpty");
-  }
-  public set hideColumnsIfEmpty(val: boolean) {
-    this.setPropertyValue("hideColumnsIfEmpty", val);
-  }
+  @property() hideColumnsIfEmpty: boolean;
+
   public getShowColumnsIfEmpty() {
     return this.hideColumnsIfEmpty;
   }
@@ -918,28 +842,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    */
-  public get removeRowText() {
-    return this.getLocStringText(this.locRemoveRowText);
-  }
-  public set removeRowText(val: string) {
-    this.setLocStringText(this.locRemoveRowText, val);
-  }
-  get locRemoveRowText() {
-    return this.getOrCreateLocStr("removeRowText", false, "removeRow");
-  }
+  @property({ localizable: { defaultStr: "removeRow" } }) removeRowText: string;
   /**
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
    * @see hideColumnsIfEmpty
    */
-  public get noRowsText(): string {
-    return this.getLocStringText(this.locNoRowsText);
-  }
-  public set noRowsText(val: string) {
-    this.setLocStringText(this.locNoRowsText, val);
-  }
-  public get locNoRowsText(): LocalizableString {
-    return this.getOrCreateLocStr("noRowsText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) noRowsText: string;
   public get locEditRowText(): LocalizableString {
     return this.getOrCreateLocStr("editRowText", false, "editText");
   }

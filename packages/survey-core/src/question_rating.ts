@@ -14,6 +14,7 @@ import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
+import { Base } from "./base";
 
 function getColorFromProperty(varName: string) {
   if ("function" === typeof getComputedStyle) {
@@ -260,12 +261,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
    */
-  public get rateValues(): Array<any> {
-    return this.getPropertyValue("rateValues");
-  }
-  public set rateValues(val: Array<any>) {
-    this.setPropertyValue("rateValues", val);
-  }
+  @property() rateValues: Array<any>;
   public selectItem(item: ItemValue): void {
     if (!this.isReadOnly && !!item) {
       this.value = item.value;
@@ -281,12 +277,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateStep
    * @see rateCount
    */
-  public get rateMin(): number {
-    return this.getPropertyValue("rateMin");
-  }
-  public set rateMin(val: number) {
-    this.setPropertyValue("rateMin", val);
-  }
+  @property() rateMin: number;
   /**
    * Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
@@ -297,12 +288,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateStep
    * @see rateCount
    */
-  public get rateMax(): number {
-    return this.getPropertyValue("rateMax");
-  }
-  public set rateMax(val: number) {
-    this.setPropertyValue("rateMax", val);
-  }
+  @property() rateMax: number;
   /**
    * Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
@@ -313,12 +299,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateMax
    * @see rateCount
    */
-  public get rateStep(): number {
-    return this.getPropertyValue("rateStep");
-  }
-  public set rateStep(val: number) {
-    this.setPropertyValue("rateStep", val);
-  }
+  @property() rateStep: number;
   /**
    * Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
@@ -475,6 +456,13 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public getType(): string {
     return "rating";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.rateValues
+    ];
+  }
+
   protected getItemValueType() {
     return "ratingitem";
   }
@@ -506,19 +494,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateValues
    * @see rateMin
    */
-  public get minRateDescription(): string {
-    return this.getLocStringText(this.locMinRateDescription);
-  }
-  public set minRateDescription(val: string) {
-    this.setLocStringText(this.locMinRateDescription, val);
-  }
-  get locMinRateDescription(): LocalizableString {
-    return this.getOrCreateLocStr("minRateDescription", true, false, (strLoc: LocalizableString) => {
-      strLoc.onStringChanged.add(() => {
-        this.setPropertyValue("hasMinRateDescription", !strLoc.isEmpty);
-      });
-    });
-  }
+  @property({ localizable: { markdown: true, onCreate: (obj: Base, loc: LocalizableString) =>
+    loc.onStringChanged.add(() => obj.setPropertyValue("hasMinRateDescription", !loc.isEmpty))
+  } }) minRateDescription: string;
   /**
    * Specifies a description for the maximum (last) rate value.
    * @see rateDescriptionLocation
@@ -526,19 +504,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateValues
    * @see rateMax
    */
-  public get maxRateDescription(): string {
-    return this.getLocStringText(this.locMaxRateDescription);
-  }
-  public set maxRateDescription(val: string) {
-    this.setLocStringText(this.locMaxRateDescription, val);
-  }
-  get locMaxRateDescription(): LocalizableString {
-    return this.getOrCreateLocStr("maxRateDescription", true, false, (strLoc: LocalizableString) => {
-      strLoc.onStringChanged.add(() => {
-        this.setPropertyValue("hasMaxRateDescription", !strLoc.isEmpty);
-      });
-    });
-  }
+  @property({ localizable: { markdown: true, onCreate: (obj: Base, loc: LocalizableString) =>
+    loc.onStringChanged.add(() => obj.setPropertyValue("hasMaxRateDescription", !loc.isEmpty))
+  } }) maxRateDescription: string;
   public get hasMinRateDescription(): boolean {
     return this.getPropertyValue("hasMinRateDescription", undefined, () => !!this.minRateDescription);
   }
@@ -672,12 +640,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   /**
    * The name of a component used to render items.
    */
-  public get itemComponent(): string {
-    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
-  }
-  public set itemComponent(value: string) {
-    this.setPropertyValue("itemComponent", value);
-  }
+  @property({ getDefaultValue: (obj: QuestionRatingModel) => obj.getDefaultItemComponent() }) itemComponent: string;
 
   protected valueToData(val: any): any {
     if (this.useRateValues()) {
@@ -888,15 +851,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
       .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
   }
-  public get placeholder(): string {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-  }
-  get locPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("ratingOptionsCaption", false, true);
-  }
+  @property({ localizable: { defaultStr: "ratingOptionsCaption" } }) placeholder: string;
   get allowClear(): boolean {
     return true;
   }

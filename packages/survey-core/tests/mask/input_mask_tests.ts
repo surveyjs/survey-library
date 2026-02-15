@@ -180,3 +180,62 @@ QUnit.test("InputElementAdapter saveMaskedValue constructor", function (assert) 
 
   testInput.remove();
 });
+
+QUnit.test("Input mask with placeholder attribute - should hide mask when not focused", function (assert) {
+  const testInput = document.createElement("input");
+  testInput.placeholder = "test";
+  const inputMaskPattern = new InputMaskPattern();
+  inputMaskPattern.pattern = "999-99-99";
+  let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
+
+  assert.equal(testInput.placeholder, "test", "#1");
+  assert.equal(testInput.value, "", "value is empty before focus");
+
+  testInput.dispatchEvent(new Event("focus"));
+  assert.equal(testInput.placeholder, "test", "#2");
+  assert.equal(testInput.value, "___-__-__", "Mask visible when focused");
+
+  testInput.dispatchEvent(new Event("blur"));
+  assert.equal(testInput.placeholder, "test", "#3");
+  assert.equal(testInput.value, "", "value is empty after blur");
+
+  testInput.value = "123-45-78";
+  testInput.dispatchEvent(new Event("focus"));
+  assert.equal(testInput.placeholder, "test", "#4");
+  assert.equal(testInput.value, "123-45-78", "focused");
+
+  testInput.dispatchEvent(new Event("blur"));
+  assert.equal(testInput.placeholder, "test", "#5");
+  assert.equal(testInput.value, "123-45-78", "blur");
+
+  testInput.remove();
+});
+
+QUnit.test("Input mask without placeholder attribute - should show mask always", function (assert) {
+  const testInput = document.createElement("input");
+  const inputMaskPattern = new InputMaskPattern();
+  inputMaskPattern.pattern = "999-99-99";
+  let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
+
+  assert.equal(testInput.placeholder, "", "#1");
+  assert.equal(testInput.value, "___-__-__", "#1");
+
+  testInput.dispatchEvent(new Event("focus"));
+  assert.equal(testInput.placeholder, "", "#2");
+  assert.equal(testInput.value, "___-__-__", "#2");
+
+  testInput.dispatchEvent(new Event("blur"));
+  assert.equal(testInput.placeholder, "", "#3");
+  assert.equal(testInput.value, "___-__-__", "#3");
+
+  testInput.value = "123-45-78";
+  testInput.dispatchEvent(new Event("focus"));
+  assert.equal(testInput.placeholder, "", "#4");
+  assert.equal(testInput.value, "123-45-78", "focused");
+
+  testInput.dispatchEvent(new Event("blur"));
+  assert.equal(testInput.placeholder, "", "#5");
+  assert.equal(testInput.value, "123-45-78", "blur");
+
+  testInput.remove();
+});

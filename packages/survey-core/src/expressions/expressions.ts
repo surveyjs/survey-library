@@ -306,6 +306,10 @@ export class Const extends Operand {
     }
     return value;
   }
+  public isBoolean(): boolean {
+    if (!this.value || typeof this.value != "string") return this.value === true || this.value === false;
+    return OperandMaker.isBooleanValue(this.value);
+  }
   protected isContentEqual(op: Operand): boolean {
     const cOp = <Const>op;
     return cOp.value == this.value;
@@ -640,11 +644,10 @@ export class OperandMaker {
       return true;
     },
     containsCore: function(left: any, right: any, isContains: any): boolean {
+      if (Array.isArray(left) && !left.length) return !isContains;
       if (!left && left !== 0 && left !== false) return false;
       if (!left.length) {
         left = left.toString();
-        if (typeof right === "string" || right instanceof String) {
-        }
       }
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;
@@ -681,6 +684,7 @@ export class OperandMaker {
   static convertValForDateCompare(val: any, second: any): any {
     if (second instanceof Date && typeof val === "string") {
       const res = createDate("expression-operand", val);
+      second.setMilliseconds(0);
       if (second.getHours() > 0 || second.getMinutes() > 0 || second.getSeconds() > 0) return res;
       res.setHours(0, 0, 0);
       return res;

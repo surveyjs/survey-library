@@ -9261,3 +9261,62 @@ QUnit.test("ProcessValue.hasValue to access panel array in design mode", (assert
   assert.equal(processValue.hasValue("q1[0].a"), true, "there is a question a, #2");
   assert.equal(processValue.hasValue("q1[0].c"), false, "there is no question c, #2");
 });
+QUnit.test("Exception on validation panel dynamic if questions in validation are not exists", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "titleLocation": "top",
+        "templateElements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix1",
+            "validators": [
+              {
+                "type": "expression",
+                "expression": "{panel.nonfound3} = sum({panel.nonfound2},{panel.nonfound1})"
+              }
+            ],
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "text",
+                "validators": [
+                  {
+                    "type": "expression",
+                    "expression": "{row.col1} <> 0"
+                  }
+                ],
+                "totalType": "sum"
+              },
+              {
+                "name": "col2",
+                "cellType": "text",
+                "validators": [
+                  {
+                    "type": "expression",
+                    "expression": "{row.col2} <> 0"
+                  }
+                ],
+                "totalType": "sum"
+              }
+            ],
+            "cellType": "text",
+            "rowCount": 1,
+            "minRowCount": 1,
+          }
+        ],
+        "panelCount": 1,
+        "minPanelCount": 1,
+      }
+    ],
+    "checkErrorsMode": "onValueChanged"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const matrix = panel.panels[0].getQuestionByName("matrix1");
+  const row = matrix.visibleRows[0];
+  const cellQuestion = row.cells[0].question;
+  cellQuestion.value = 10;
+  assert.equal(cellQuestion.errors.length, 0, "There is no errors on");
+});

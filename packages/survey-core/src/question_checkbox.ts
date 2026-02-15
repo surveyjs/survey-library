@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
   ChoiceItem,
@@ -12,14 +12,10 @@ import { IQuestion } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
+import { PropertyNameArray } from "./propertyNameArray";
 
 export class CheckboxItem extends ChoiceItem {
-  public get isExclusive(): boolean {
-    return this.getPropertyValue("isExclusive");
-  }
-  public set isExclusive(val: boolean) {
-    this.setPropertyValue("isExclusive", val);
-  }
+  @property() isExclusive: boolean;
   protected getBaseType(): string { return "checkboxitem"; }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -45,6 +41,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     if (name === "choices") {
       this.onItemHasCommentChanged();
+    }
+    if (name === "maxSelectedChoices" || name === "minSelectedChoices") {
+      this.filterItems();
     }
   }
   supportElementsInChoice(): boolean { return true; }
@@ -72,12 +71,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/merge-question-values/ (linkStyle))
    */
-  public get valuePropertyName(): string {
-    return this.getPropertyValue("valuePropertyName");
-  }
-  public set valuePropertyName(val: string) {
-    this.setPropertyValue("valuePropertyName", val);
-  }
+  @property() valuePropertyName: string;
   public getValuePropertyName(): string {
     return this.valuePropertyName || (!this.isTheOnlyComment ? "value" : "");
   }
@@ -124,12 +118,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see isAllSelected
    * @see separateSpecialChoices
    */
-  public get showSelectAllItem(): boolean {
-    return this.getPropertyValue("showSelectAllItem");
-  }
-  public set showSelectAllItem(val: boolean) {
-    this.setPropertyValue("showSelectAllItem", val);
-  }
+  @property() showSelectAllItem: boolean;
 
   public get hasSelectAll(): boolean {
     return this.showSelectAllItem;
@@ -161,10 +150,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const val = this.value;
     if (!val || !Array.isArray(val) || val.length === 0) return false;
     if (val.length < items.length) return false;
-    const rVal = [];
-    for (let i = 0; i < val.length; i ++) {
-      rVal.push(this.getRealValue(val[i]));
-    }
+    const rVal = this.getPropertyNameArray(val).getValues();
     for (let i = 0; i < items.length; i ++) {
       if (rVal.indexOf(items[i].value) < 0) return false;
     }
@@ -244,10 +230,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected hasUnknownValueItem(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
-    return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
+    return super.hasUnknownValueItem(this.getPropertyNameArray([val]).getValue(0), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    newValue = this.trimCommentValue(newValue);
+    newValue = this.getTrimmedComment(newValue);
     if (this.isOtherItemByValue(item)) {
       super.setCommentValueCore(item, newValue);
     } else {
@@ -270,13 +256,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return index > -1 ? this.value[index][this.commentPropertyValue] : undefined;
   }
   private getItemValIndexByItemValue(itemValue: any): number {
-    const val = this.value;
-    if (!Array.isArray(val)) return -1;
-    for (let i = 0; i < val.length; i++) {
-      const rValue = this.getRealValue(val[i]);
-      if (Helpers.isTwoValueEquals(rValue, itemValue)) return i;
-    }
-    return -1;
+    return this.getPropertyNameArray(this.value).indexOf(itemValue);
   }
   public get isTheOnlyComment(): boolean {
     return this.getPropertyValue("isTheOnlyComment", undefined, () => this.calcIsTheOnlyComment());
@@ -291,19 +271,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   onItemHasCommentChanged(): void {
     this.resetPropertyValue("isTheOnlyComment");
   }
-  private getRealValue(val: any): any {
-    if (!val || typeof val !== "object") return val;
-    const valProp = this.getValuePropertyName();
-    return !valProp ? val : val[valProp];
-  }
   private getValueFromReal(val: any): any {
-    const valProp = this.getValuePropertyName();
-    if (!!valProp) {
-      const res: any = {};
-      res[valProp] = val;
-      return res;
-    }
-    return val;
+    return this.getPropertyNameArray([]).getNamedValue(val);
   }
   public get isValueArray(): boolean { return true; }
   /**
@@ -316,14 +285,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see minSelectedChoices
    */
-  public get maxSelectedChoices(): number {
-    return this.getPropertyValue("maxSelectedChoices");
-  }
-  public set maxSelectedChoices(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("maxSelectedChoices", val);
-    this.filterItems();
-  }
+  @property({ onSetting: (val) => val < 0 ? 0 : val }) maxSelectedChoices: number;
   /**
    * Specifies the minimum number of selected choices.
    *
@@ -334,13 +296,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see maxSelectedChoices
    */
-  public get minSelectedChoices(): number {
-    return this.getPropertyValue("minSelectedChoices");
-  }
-  public set minSelectedChoices(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedChoices", val);
-  }
+  @property({ onSetting: (val) => val < 0 ? 0 : val }) minSelectedChoices: number;
   /**
    * An array of selected choice items. Includes the "Other", "None", "Refuse to answer", and "Don't know" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
    * @see visibleChoices
@@ -471,14 +427,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.onItemHasCommentChanged();
     super.onSurveyLoad();
   }
+  private getPropertyNameArray(val: any): PropertyNameArray {
+    return new PropertyNameArray(val, this.getValuePropertyName());
+  }
   protected setDefaultUnknownValue(val : any): void {
     if (!Array.isArray(val)) {
       super.setDefaultUnknownValue(val);
       return;
     }
+    const propArray = this.getPropertyNameArray(val);
     if (!this.hasActiveChoices) {
       for (var i = 0; i < val.length; i++) {
-        const rVal = this.getRealValue(val[i]);
+        const rVal = propArray.getValue(i);
         this.addIntoInvisibleOldValues(rVal);
       }
       this.value = val;
@@ -486,7 +446,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       const newVal = [];
       let otherVal = "";
       for (var i = 0; i < val.length; i++) {
-        const rVal = this.getRealValue(val[i]);
+        const rVal = propArray.getValue(i);
         if (!this.hasUnknownValue(rVal)) {
           newVal.push(rVal);
         } else {
@@ -530,14 +490,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected setOtherValueIntoValue(newValue: any): any {
     var ind = this.getFirstUnknownIndex(newValue);
     if (ind < 0) return newValue;
-    let otherVal: any = this.otherItem.value;
-    const propName = this.getValuePropertyName();
-    if (propName) {
-      const obj: any = {};
-      obj[propName] = otherVal;
-      otherVal = obj;
-    }
-    newValue.splice(ind, 1, otherVal);
+    newValue.splice(ind, 1, this.getPropertyNameArray([]).getNamedValue(this.otherItem.value));
     return newValue;
   }
   private getFirstUnknownIndex(newValue: any): number {
@@ -548,8 +501,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return -1;
   }
   protected removeNoneItemsValues(value: Array<any>, newValue: Array<any>): void {
-    if (value.length === 1 && newValue.length === 1
-      && this.getRealValue(value[0]) === this.getRealValue(newValue[0])) return;
+    if (this.getPropertyNameArray(value).equals(newValue)) return;
     const noneValues = this.getNoneItems().map(item => item.value);
     if (noneValues.length > 0) {
       const prevNone = this.noneIndexInArray(value, noneValues);
@@ -575,8 +527,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 
   private noneIndexInArray(val: any, noneValues: Array<any>): { index: number, val: any } {
     if (!Array.isArray(val)) return { index: -1, val: undefined };
+    const propArray = this.getPropertyNameArray(val);
     for (var i = val.length - 1; i >= 0; i--) {
-      const index = noneValues.indexOf(this.getRealValue(val[i]));
+      const index = noneValues.indexOf(propArray.getValue(i));
       if (index > -1) return { index: i, val: noneValues[index] };
     }
     return { index: -1, val: undefined };
@@ -604,13 +557,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!Array.isArray(value))
       return super.getDisplayValueCore(keysAsText, value);
-    const valuePropName = this.getValuePropertyName();
     const onGetValueCallback = (index: number): any => {
-      let val = value[index];
-      if (!!valuePropName && !!val[valuePropName]) {
-        val = val[valuePropName];
-      }
-      return val;
+      return this.getPropertyNameArray(value).getValue(index);
     };
     return this.getDisplayArrayValue(keysAsText, value, onGetValueCallback);
   }
@@ -640,8 +588,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       val = [];
     }
     var newValue = [];
+    const propArray = this.getPropertyNameArray(val);
     for (var i = 0; i < val.length; i++) {
-      const rItemVal = this.getRealValue(val[i]);
+      const rItemVal = propArray.getValue(i);
       var isUnkown = this.canClearValueAnUnknown(rItemVal);
       if (
         (!clearDisabled && !isUnkown) ||
@@ -722,13 +671,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.rendredValueFromData(val);
   }
   private convertValueFromObject(val: any): any {
-    const valProp = this.getValuePropertyName();
-    if (!valProp || !Array.isArray(val)) return val;
-    const res = [];
-    for (let i = 0; i < val.length; i++) {
-      res.push(this.getRealValue(val[i]));
-    }
-    return res;
+    if (!Array.isArray(val)) return val;
+    return this.getPropertyNameArray(val).getValues();
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];
@@ -773,14 +717,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!Array.isArray(val)) {
       val = [val];
     }
-    const valProp = this.getValuePropertyName();
-    if (!valProp) return val;
-    const res = [];
-    for (let i = 0; i < val.length; i++) {
-      const item = val[i];
-      res.push(typeof item === "object" ? item : this.getValueFromReal(item));
-    }
-    return res;
+    return this.getPropertyNameArray(val).convert(val);
   }
   protected selectOtherValueFromComment(val: boolean): void {
     var newVal = [];

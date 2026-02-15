@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { IElement, IQuestion } from "./base-interfaces";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
@@ -30,21 +30,8 @@ export class FlowPanelModel extends PanelModel {
     super.onSurveyLoad();
     this.onContentChanged();
   }
-  public get content(): string {
-    return this.getLocStringText(this.locContent);
-  }
-  public set content(val: string) {
-    this.setLocStringText(this.locContent, val);
-  }
-  public get locContent(): LocalizableString {
-    return this.getOrCreateLocStr("content");
-  }
-  public get html(): string {
-    return this.getPropertyValue("html", "");
-  }
-  public set html(val: string) {
-    this.setPropertyValue("html", val);
-  }
+  @property({ localizable: true }) content: string;
+  @property ({ returnValue: "" }) html: string;
   protected onContentChanged(): any {
     var html = "";
     if (!!this.onCustomHtmlProducing) {

@@ -40,33 +40,17 @@ export class QuestionImageModel extends QuestionNonValue {
    * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    * @see contentMode
    */
-  public get imageLink(): string {
-    return this.getLocStringText(this.locImageLink);
-  }
-  public set imageLink(val: string) {
-    this.setLocStringText(this.locImageLink, val);
-  }
-  get locImageLink(): LocalizableString {
-    return this.getOrCreateLocStr("imageLink", false, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (text: string): string => {
-        return getCorrectImageLink(text, this.contentMode == "youtube");
-      };
-    });
-  }
+  @property({ localizable: { onCreate: (obj: QuestionImageModel, locStr: LocalizableString) => {
+    locStr.onGetTextCallback = (text: string): string => {
+      return getCorrectImageLink(text, obj.contentMode == "youtube");
+    };
+  } } }) imageLink: string;
   /**
    * Specifies a value for the `alt` attribute of the underlying `<img>` element.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    */
-  public get altText(): string {
-    return this.getLocStringText(this.locAltText);
-  }
-  public set altText(val: string) {
-    this.setLocStringText(this.locAltText, val);
-  }
-  get locAltText(): LocalizableString {
-    return this.getOrCreateLocStr("altText");
-  }
+  @property({ localizable: true }) altText: string;
   /**
    * Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.
    *
@@ -77,12 +61,7 @@ export class QuestionImageModel extends QuestionNonValue {
    * > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
    * @see imageWidth
    */
-  public get imageHeight(): string {
-    return this.getPropertyValue("imageHeight");
-  }
-  public set imageHeight(val: string) {
-    this.setPropertyValue("imageHeight", val);
-  }
+  @property() imageHeight: string;
 
   public get renderedStyleHeight(): string {
     return this.imageHeight ? getRenderedStyleSize(this.imageHeight) : undefined;
@@ -101,12 +80,8 @@ export class QuestionImageModel extends QuestionNonValue {
    * > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
    * @see imageHeight
    */
-  public get imageWidth(): string {
-    return this.getPropertyValue("imageWidth");
-  }
-  public set imageWidth(val: string) {
-    this.setPropertyValue("imageWidth", val);
-  }
+  @property() imageWidth: string;
+
   public get renderedStyleWidth(): string {
     return this.imageWidth ? getRenderedStyleSize(this.imageWidth) : undefined;
   }
@@ -120,12 +95,7 @@ export class QuestionImageModel extends QuestionNonValue {
    * @see imageHeight
    * @see imageWidth
    */
-  public get imageFit(): string {
-    return this.getPropertyValue("imageFit");
-  }
-  public set imageFit(val: string) {
-    this.setPropertyValue("imageFit", val);
-  }
+  @property() imageFit: string;
   /**
    * Specifies the type of content that the Image question displays.
    *
@@ -136,15 +106,11 @@ export class QuestionImageModel extends QuestionNonValue {
    * - `"youtube"` - A link to a YouTube video.
    * - `"auto"` (default) - Selects one of the above based on the [`imageLink`](https://surveyjs.io/form-library/documentation/questionimagemodel#imageLink) property.
    */
-  public get contentMode(): string {
-    return this.getPropertyValue("contentMode");
-  }
-  public set contentMode(val: string) {
-    this.setPropertyValue("contentMode", val);
+  @property({ onSet: (val, obj) => {
     if (val === "video") {
-      this.showLabel = true;
+      obj.showLabel = true;
     }
-  }
+  } }) contentMode: string;
   /**
    * Returns the type of content that the Image question displays: `"image"`, `"video"`, or `"youtube"`.
    * @see contentMode

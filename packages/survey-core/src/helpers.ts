@@ -443,17 +443,22 @@ export class Helpers {
     };
     return date.getFullYear() + "-" + toStr(date.getMonth() + 1) + "-" + toStr(date.getDate());
   }
-  public static convertDateTimeToString(date: Date, isLocal?: boolean): string {
+  public static convertDateTimeToString(date: Date, isLocal?: boolean, withSeconds?: boolean): string {
     const toStr = (val: number): string => {
       if (val < 10) return "0" + val.toString();
       return val.toString();
     };
     const seperator = isLocal ? "T" : " ";
-    return this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
+    let result = this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
+    if (withSeconds) {
+      result += ":" + toStr(date.getSeconds());
+    }
+    return result;
   }
   public static convertValToQuestionVal(val: any, inputType?: string): any {
     if (val instanceof Date) {
       if (inputType === "datetime-local") return Helpers.convertDateTimeToString(val, true);
+      if (inputType === "datetime-seconds") return Helpers.convertDateTimeToString(val, true, true);
       return Helpers.convertDateToString(val);
     }
     return this.getUnbindValue(val);

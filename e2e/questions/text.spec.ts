@@ -355,7 +355,7 @@ frameworks.forEach((framework) => {
       expect(exceptionsCount).toBe(2);
 
       const surveyResult = await getSurveyData(page);
-      expect(surveyResult.question2).toEqual("#000000");
+      expect(surveyResult.question2).toEqual(undefined);
       expect(surveyResult.question3).toEqual(undefined);
     });
   });

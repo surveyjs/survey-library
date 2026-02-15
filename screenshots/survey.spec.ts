@@ -1464,5 +1464,27 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling.png");
     });
+    test("Check survey navigation bar top", async({ page }) => {
+      const json = {
+        showQuestionNumbers: true,
+        navigationButtonsLocation: "top",
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1"
+              },
+            ]
+          },
+        ]
+      };
+      await page.evaluate;
+      await initSurvey(page, framework, json);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top.png");
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-mobile.png");
+    });
   });
 });

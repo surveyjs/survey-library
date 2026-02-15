@@ -159,6 +159,18 @@ QUnit.test("Condition: on item - no spaces", function(assert) {
   assert.equal(expr.evaluate(), true);
 });
 
+QUnit.test("[] notcontains 0 returns false #10869", (assert) => {
+  let runner = new ConditionRunner("{a} notcontains 0");
+  assert.equal(runner.runValues({ a: [] }), true, "[] notcontains 0");
+  assert.equal(runner.runValues({ a: [1, 2] }), true, "[1,2] notcontains 0");
+  assert.equal(runner.runValues({ a: [0, 1] }), false, "[0,1] notcontains 0");
+
+  runner = new ConditionRunner("{a} notcontains '0'");
+  assert.equal(runner.runValues({ a: [] }), true, "[] notcontains '0'");
+  assert.equal(runner.runValues({ a: [1, 2] }), true, "[1,2] notcontains '0'");
+  assert.equal(runner.runValues({ a: [0, 1] }), false, "[0,1] notcontains '0'");
+});
+
 QUnit.test("Run one condition", function(assert) {
   var runner = new ConditionRunner("{a} > 5");
   var values = { a: 6 };
@@ -492,6 +504,46 @@ QUnit.test("Run dateAdd() for years", function(assert) {
   assert.deepEqual(runner.runValues(values), new Date("2022-03-01"), "March 1, 2022");
   runner = new ExpressionRunner("dateAdd({d1}, -2, 'years')");
   assert.deepEqual(runner.runValues(values), new Date("2018-03-01"), "March 1, 2018");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.runValues(values), null, "a value is undefined");
+});
+QUnit.test("Run dateAdd() for hours", function(assert) {
+  const d1 = new Date("2026-02-28T00:00:00");
+  const values = { d1: d1 };
+  var runner = new ExpressionRunner("dateAdd({d1}, 2, 'hours')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-28T02:00:00"), "Add 2 hours to 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, -2, 'hours')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-27T22:00:00"), "Subtract 2 hours from 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, 48, 'hours')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-03-02T00:00:00"), "Add 48 (2 days) hours to 2026-02-28T00:00:00");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.runValues(values), null, "a value is undefined");
+});
+QUnit.test("Run dateAdd() for minutes", function(assert) {
+  const d1 = new Date("2026-02-28T00:00:00");
+  const values = { d1: d1 };
+  var runner = new ExpressionRunner("dateAdd({d1}, 2, 'minutes')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-28T00:02:00"), "Add 2 minutes to 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, -2, 'minutes')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-27T23:58:00"), "Subtract 2 minutes from 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, 48, 'minutes')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-28T00:48:00"), "Add 48 minutes to 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, 2880, 'minutes')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-03-02T00:00:00"), "Add 2880 (2 days) minutes to 2026-02-28T00:00:00");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.runValues(values), null, "a value is undefined");
+});
+QUnit.test("Run dateAdd() for seconds", function(assert) {
+  const d1 = new Date("2026-02-28T00:00:00");
+  const values = { d1: d1 };
+  var runner = new ExpressionRunner("dateAdd({d1}, 2, 'seconds')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-28T00:00:02"), "Add 2 seconds to 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, -2, 'seconds')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-27T23:59:58"), "Subtract 2 seconds from 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, 48, 'seconds')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-02-28T00:00:48"), "Add 48 seconds to 2026-02-28T00:00:00");
+  runner = new ExpressionRunner("dateAdd({d1}, 172800, 'seconds')");
+  assert.deepEqual(runner.runValues(values), new Date("2026-03-02T00:00:00"), "Add 172800 (2 days) seconds to 2026-02-28T00:00:00");
   (<any>values).d1 = undefined;
   assert.equal(runner.runValues(values), null, "a value is undefined");
 });

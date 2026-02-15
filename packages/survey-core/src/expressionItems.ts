@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -16,6 +16,9 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   public getType(): string {
     return "expressionitem";
   }
+  public getOwner() {
+    return this.locOwner;
+  }
   public runCondition(properties: any): boolean {
     let res = false;
     this.runExpressionByProperty("expression", properties, (val: any) => {
@@ -26,12 +29,7 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   /**
    * The expression property. If this expression returns true, then survey will use html property to show on complete page.
    */
-  public get expression(): string {
-    return this.getPropertyValue("expression", "");
-  }
-  public set expression(val: string) {
-    this.setPropertyValue("expression", val);
-  }
+  @property({ returnValue: "" }) expression: string;
   get locHtml(): LocalizableString {
     return this.getLocalizableString("html");
   }
@@ -75,15 +73,7 @@ export class HtmlConditionItem extends ExpressionItem {
    * The html that shows on completed ('Thank you') page. The expression should return true
    * @see expression
    */
-  public get html(): string {
-    return this.getLocStringText(this.locHtml);
-  }
-  public set html(value: string) {
-    this.setLocStringText(this.locHtml, value);
-  }
-  get locHtml(): LocalizableString {
-    return this.getOrCreateLocStr("html");
-  }
+  @property({ localizable: { markdown: true } }) html: string;
 }
 
 /**
@@ -105,15 +95,7 @@ export class UrlConditionItem extends ExpressionItem {
    * The url that survey navigates to on completing the survey. The expression should return true
    * @see expression
    */
-  public get url(): string {
-    return this.getLocStringText(this.locUrl);
-  }
-  public set url(value: string) {
-    this.setLocStringText(this.locUrl, value);
-  }
-  get locUrl(): LocalizableString {
-    return this.getOrCreateLocStr("url");
-  }
+  @property({ localizable: true }) url: string;
 }
 
 Serializer.addClass(

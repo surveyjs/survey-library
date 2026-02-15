@@ -6,6 +6,7 @@ import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
+import { Base } from "./base";
 
 function createSVGElement(name: string): SVGElement {
   const document = DomDocumentHelper.getDocument();
@@ -31,22 +32,8 @@ export class QuestionImageMapModel extends Question {
   public get isMultiSelect(): boolean {
     return this.isDesignMode ? false : this.multiSelect;
   }
-
-  public get maxSelectedAreas(): number {
-    return this.getPropertyValue("maxSelectedAreas");
-  }
-  public set maxSelectedAreas(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("maxSelectedAreas", val);
-  }
-
-  public get minSelectedAreas(): number {
-    return this.getPropertyValue("minSelectedAreas");
-  }
-  public set minSelectedAreas(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedAreas", val);
-  }
+  @property({ onSetting: (val: number) => val < 0 ? 0 : val }) maxSelectedAreas: number;
+  @property({ onSetting: (val: number) => val < 0 ? 0 : val }) minSelectedAreas: number;
 
   @property() shape: string;
 
@@ -66,6 +53,13 @@ export class QuestionImageMapModel extends Question {
 
   public getType(): string {
     return "imagemap";
+  }
+
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.areas
+    ];
   }
 
   protected onValueChanged() {

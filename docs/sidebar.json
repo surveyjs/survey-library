@@ -328,6 +328,10 @@
               "Title": "ISaveToJSONOptions"
             },
             {
+              "Name": "IExpressionValidationResult",
+              "Title": "IExpressionValidationResult"
+            },
+            {
               "Name": "ICustomQuestionTypeConfiguration",
               "Title": "ICustomQuestionTypeConfiguration"
             }

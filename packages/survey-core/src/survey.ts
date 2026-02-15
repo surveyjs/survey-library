@@ -49,7 +49,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -1152,6 +1152,8 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
   }
+  matrixDragHandleArea: string;
+  locEditText: LocalizableString;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "questionsOnPageMode") {
@@ -1205,12 +1207,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.tocModelValue;
   }
-  public get sjsVersion(): string {
-    return this.getPropertyValue("sjsVersion");
-  }
-  public set sjsVersion(val: string) {
-    this.setPropertyValue("sjsVersion", val);
-  }
+  @property() sjsVersion: string;
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -1478,30 +1475,15 @@ export class SurveyModel extends SurveyElementCore
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
-  public get surveyId(): string {
-    return this.getPropertyValue("surveyId", "");
-  }
-  public set surveyId(val: string) {
-    this.setPropertyValue("surveyId", val);
-  }
+  @property() surveyId: string;
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
-  public get surveyPostId(): string {
-    return this.getPropertyValue("surveyPostId", "");
-  }
-  public set surveyPostId(val: string) {
-    this.setPropertyValue("surveyPostId", val);
-  }
+  @property() surveyPostId: string;
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
-  public get clientId(): string {
-    return this.getPropertyValue("clientId", "");
-  }
-  public set clientId(val: string) {
-    this.setPropertyValue("clientId", val);
-  }
+  @property() clientId: string;
   /**
    * A cookie name used to save information about survey completion.
    *
@@ -1510,41 +1492,21 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
    * @see clientId
    */
-  public get cookieName(): string {
-    return this.getPropertyValue("cookieName", "");
-  }
-  public set cookieName(val: string) {
-    this.setPropertyValue("cookieName", val);
-  }
+  @property() cookieName: string;
   /**
    * Specifies whether to save survey results when respondents switch between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
    *
    * Alternatively, you can handle the [`onCurrentPageChanged`](#onCurrentPageChanged) and [`onValueChanged`](#onValueChanged) events, as shown in the following demo: [Continue an Incomplete Survey](https://surveyjs.io/form-library/examples/survey-editprevious/).
    */
-  public get partialSendEnabled(): boolean {
-    return this.getPropertyValue("partialSendEnabled");
-  }
-  public set partialSendEnabled(val: boolean) {
-    this.setPropertyValue("partialSendEnabled", val);
-  }
+  @property() partialSendEnabled: boolean;
   /**
    * @deprecated Use the [`partialSendEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSendEnabled) property instead.
    */
-  public get sendResultOnPageNext(): boolean {
-    return this.partialSendEnabled;
-  }
-  public set sendResultOnPageNext(val: boolean) {
-    this.partialSendEnabled = val;
-  }
+  @property() sendResultOnPageNext: boolean;
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
-  public get surveyShowDataSaving(): boolean {
-    return this.getPropertyValue("surveyShowDataSaving");
-  }
-  public set surveyShowDataSaving(val: boolean) {
-    this.setPropertyValue("surveyShowDataSaving", val);
-  }
+  @property() surveyShowDataSaving: boolean;
   /**
    * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
    *
@@ -1553,12 +1515,7 @@ export class SurveyModel extends SurveyElementCore
    * @see focusFirstQuestion
    * @see focusQuestion
    */
-  public get autoFocusFirstQuestion(): boolean {
-    return this.getPropertyValue("autoFocusFirstQuestion");
-  }
-  public set autoFocusFirstQuestion(val: boolean) {
-    this.setPropertyValue("autoFocusFirstQuestion", val);
-  }
+  @property() autoFocusFirstQuestion: boolean;
   /**
    * @deprecated Use the [`autoFocusFirstQuestion`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstQuestion) property instead.
    */
@@ -1575,12 +1532,7 @@ export class SurveyModel extends SurveyElementCore
    * @see validate
    * @see autoFocusFirstQuestion
    */
-  public get autoFocusFirstError(): boolean {
-    return this.getPropertyValue("autoFocusFirstError");
-  }
-  public set autoFocusFirstError(val: boolean) {
-    this.setPropertyValue("autoFocusFirstError", val);
-  }
+  @property() autoFocusFirstError: boolean;
   /**
    * @deprecated Use the [`autoFocusFirstError`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoFocusFirstError) property instead.
    */
@@ -1628,34 +1580,19 @@ export class SurveyModel extends SurveyElementCore
    * @see showPrevButton
    * @see showCompleteButton
    */
-  public get navigationButtonsLocation(): string | any {
-    return this.getPropertyValue("navigationButtonsLocation");
-  }
-  public set navigationButtonsLocation(val: string | any) {
-    this.setPropertyValue("navigationButtonsLocation", val);
-  }
+  @property() navigationButtonsLocation: string | any;
   /**
    * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
    * @see showNavigationButtons
    * @see showCompleteButton
    */
-  public get showPrevButton(): boolean {
-    return this.getPropertyValue("showPrevButton");
-  }
-  public set showPrevButton(val: boolean) {
-    this.setPropertyValue("showPrevButton", val);
-  }
+  @property() showPrevButton: boolean;
   /**
    * Specifies whether to display the Complete button. Set this property to `false` if respondents should not complete the survey.
    * @see showNavigationButtons
    * @see showPrevButton
    */
-  public get showCompleteButton(): boolean {
-    return this.getPropertyValue("showCompleteButton", true);
-  }
-  public set showCompleteButton(val: boolean) {
-    this.setPropertyValue("showCompleteButton", val);
-  }
+  @property({ defaultValue: true }) showCompleteButton: boolean;
   /**
    * Gets or sets the visibility of the table of contents.
    *
@@ -1664,12 +1601,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see tocLocation
    */
-  public get showTOC(): boolean {
-    return this.getPropertyValue("showTOC");
-  }
-  public set showTOC(val: boolean) {
-    this.setPropertyValue("showTOC", val);
-  }
+  @property() showTOC: boolean;
   /**
    * Gets or sets the position of the table of contents. Applies only when the table of contents is visible.
    *
@@ -1681,44 +1613,24 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see showTOC
    */
-  public get tocLocation(): "left" | "right" {
-    return this.getPropertyValue("tocLocation");
-  }
-  public set tocLocation(val: "left" | "right") {
-    this.setPropertyValue("tocLocation", val);
-  }
+  @property() tocLocation: "left" | "right";
   /**
    * Specifies whether to display the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
    * @see title
    */
-  public get showTitle(): boolean {
-    return this.getPropertyValue("showTitle");
-  }
-  public set showTitle(val: boolean) {
-    this.setPropertyValue("showTitle", val);
-  }
+  @property() showTitle: boolean;
   /**
    * Specifies whether to display [page titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title).
    */
-  public get showPageTitles(): boolean {
-    return this.getPropertyValue("showPageTitles");
-  }
-  public set showPageTitles(val: boolean) {
-    this.setPropertyValue("showPageTitles", val);
-  }
+  @property() showPageTitles: boolean;
   /**
    * Specifies whether to show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see onComplete
    * @see navigateToUrl
    */
-  public get showCompletePage(): boolean {
-    return this.getPropertyValue("showCompletePage");
-  }
-  public set showCompletePage(val: boolean) {
-    this.setPropertyValue("showCompletePage", val);
-  }
+  @property() showCompletePage: boolean;
   /**
    * @deprecated Use the [`showCompletePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showCompletePage) property instead.
    */
@@ -1729,12 +1641,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onNavigateToUrl
    * @see navigateToUrlOnCondition
    */
-  public get navigateToUrl(): string {
-    return this.getPropertyValue("navigateToUrl");
-  }
-  public set navigateToUrl(val: string) {
-    this.setPropertyValue("navigateToUrl", val);
-  }
+  @property() navigateToUrl: string;
   /**
    * An array of objects that allows you to navigate respondents to different URLs after survey completion.
    *
@@ -1775,12 +1682,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
    */
-  public get requiredMark(): string {
-    return this.getPropertyValue("requiredMark");
-  }
-  public set requiredMark(val: string) {
-    this.setPropertyValue("requiredMark", val);
-  }
+  @property() requiredMark: string;
   /**
    * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#requiredMark) property instead.
    */
@@ -1819,12 +1721,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [Question Numbers](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#question-numbers (linkStyle))
    */
-  public get questionStartIndex(): string {
-    return this.getPropertyValue("questionStartIndex") || "";
-  }
-  public set questionStartIndex(val: string) {
-    this.setPropertyValue("questionStartIndex", val);
-  }
+  @property({ returnValue: "" }) questionStartIndex: string;
   getQuestionStartIndex(pageVisibleIndex: number): string {
     if (pageVisibleIndex >= 0 && pageVisibleIndex < this.visiblePages.length) {
       for (let i = pageVisibleIndex; i >= 0; i--) {
@@ -1842,12 +1739,7 @@ export class SurveyModel extends SurveyElementCore
    * Respondents can leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. Comment values are saved in a separate property. The property name is composed of the question `name` and [`commentSuffix`](#commentSuffix). However, you can use the question `name` as a key to store the comment value instead. Disable the `storeOthersAsComment` property in this case.
    * @see maxCommentLength
    */
-  public get storeOthersAsComment(): boolean {
-    return this.getPropertyValue("storeOthersAsComment");
-  }
-  public set storeOthersAsComment(val: boolean) {
-    this.setPropertyValue("storeOthersAsComment", val);
-  }
+  @property() storeOthersAsComment: boolean;
   /**
    * Specifies the maximum text length in textual questions ([Single-Line Input](https://surveyjs.io/form-library/examples/text-entry-question/), [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/), [Multiple Textboxes](https://surveyjs.io/form-library/examples/multiple-text-box-question/)), measured in characters.
    *
@@ -1856,24 +1748,14 @@ export class SurveyModel extends SurveyElementCore
    * You can override this setting for individual questions if you specify their [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property.
    * @see maxCommentLength
    */
-  public get maxTextLength(): number {
-    return this.getPropertyValue("maxTextLength");
-  }
-  public set maxTextLength(val: number) {
-    this.setPropertyValue("maxTextLength", val);
-  }
+  @property() maxTextLength: number;
   /**
    * Specifies the maximum text length for question comments. Applies to questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property set to `true`.
    *
    * Default value: 0 (unlimited)
    * @see maxTextLength
    */
-  public get maxCommentLength(): number {
-    return this.getPropertyValue("maxCommentLength");
-  }
-  public set maxCommentLength(val: number) {
-    this.setPropertyValue("maxCommentLength", val);
-  }
+  @property() maxCommentLength: number;
   /**
    * @deprecated Use the [`maxCommentLength`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxCommentLength) property instead.
    */
@@ -1896,12 +1778,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
-  public get autoAdvanceEnabled(): boolean {
-    return this.getPropertyValue("autoAdvanceEnabled");
-  }
-  public set autoAdvanceEnabled(val: boolean) {
-    this.setPropertyValue("autoAdvanceEnabled", val);
-  }
+  @property() autoAdvanceEnabled: boolean;
   /**
    * @deprecated Use the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property instead.
    */
@@ -1917,12 +1794,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `true`
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
-  public get autoAdvanceAllowComplete(): boolean {
-    return this.getPropertyValue("autoAdvanceAllowComplete");
-  }
-  public set autoAdvanceAllowComplete(val: boolean) {
-    this.setPropertyValue("autoAdvanceAllowComplete", val);
-  }
+  @property() autoAdvanceAllowComplete: boolean;
   /**
    * @deprecated Use the [`autoAdvanceAllowComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceAllowComplete) property instead.
    */
@@ -1949,12 +1821,7 @@ export class SurveyModel extends SurveyElementCore
    * @see validationAllowComplete
    * @see validate
    */
-  public get checkErrorsMode(): string {
-    return this.getPropertyValue("checkErrorsMode");
-  }
-  public set checkErrorsMode(val: string) {
-    this.setPropertyValue("checkErrorsMode", val);
-  }
+  @property() checkErrorsMode: string;
   /**
    * Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. Applies only if [`checkErrorsMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#checkErrorsMode) is set to `"onValueChanged"`.
    *
@@ -1970,12 +1837,7 @@ export class SurveyModel extends SurveyElementCore
    * @see validationAllowComplete
    * @see validate
    */
-  public get validateVisitedEmptyFields(): boolean {
-    return this.getPropertyValue("validateVisitedEmptyFields");
-  }
-  public set validateVisitedEmptyFields(val: boolean) {
-    this.setPropertyValue("validateVisitedEmptyFields", val);
-  }
+  @property() validateVisitedEmptyFields: boolean;
   getValidateVisitedEmptyFields(): boolean { return this.validateVisitedEmptyFields && this.isValidateOnValueChange; }
   /**
    * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
@@ -1986,12 +1848,7 @@ export class SurveyModel extends SurveyElementCore
    * @see allowResizeComment
    * @see commentAreaRows
    */
-  public get autoGrowComment(): boolean {
-    return this.getPropertyValue("autoGrowComment");
-  }
-  public set autoGrowComment(val: boolean) {
-    this.setPropertyValue("autoGrowComment", val);
-  }
+  @property() autoGrowComment: boolean;
   /**
    * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
    *
@@ -2001,13 +1858,7 @@ export class SurveyModel extends SurveyElementCore
    * @see autoGrowComment
    * @see commentAreaRows
    */
-  public get allowResizeComment(): boolean {
-    return this.getPropertyValue("allowResizeComment");
-  }
-  public set allowResizeComment(val: boolean) {
-    this.setPropertyValue("allowResizeComment", val);
-  }
-
+  @property() allowResizeComment: boolean;
   /**
    * Specifies the visible height of comment areas, measured in lines. Applies to the questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property enabled.
    *
@@ -2017,12 +1868,7 @@ export class SurveyModel extends SurveyElementCore
    * @see autoGrowComment
    * @see allowResizeComment
    */
-  public get commentAreaRows(): number {
-    return this.getPropertyValue("commentAreaRows");
-  }
-  public set commentAreaRows(val: number) {
-    this.setPropertyValue("commentAreaRows", val);
-  }
+  @property() commentAreaRows: number;
   /**
    * Specifies when to update the question value in questions with a text input field.
    *
@@ -2037,12 +1883,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this setting for individual questions: [`textUpdateMode`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#textUpdateMode).
    */
-  public get textUpdateMode(): string {
-    return this.getPropertyValue("textUpdateMode");
-  }
-  public set textUpdateMode(val: string) {
-    this.setPropertyValue("textUpdateMode", val);
-  }
+  @property() textUpdateMode: string;
   /**
    * Specifies when to remove values of invisible questions from [survey results](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data).
    *
@@ -2057,14 +1898,7 @@ export class SurveyModel extends SurveyElementCore
    * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    * @see onComplete
    */
-  public get clearInvisibleValues(): any {
-    return this.getPropertyValue("clearInvisibleValues");
-  }
-  public set clearInvisibleValues(val: any) {
-    if (val === true) val = "onComplete";
-    if (val === false) val = "none";
-    this.setPropertyValue("clearInvisibleValues", val);
-  }
+  @property({ onSetting: (val) => val === true ? "onComplete" : val === false ? "none" : val }) clearInvisibleValues: any;
   /**
    * Removes values that cannot be assigned to a question, for example, choices unlisted in the `choices` array.
    *
@@ -2112,12 +1946,7 @@ export class SurveyModel extends SurveyElementCore
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    * @see clearIncorrectValues
    */
-  public get keepIncorrectValues(): boolean {
-    return this.getPropertyValue("keepIncorrectValues");
-  }
-  public set keepIncorrectValues(val: boolean) {
-    this.setPropertyValue("keepIncorrectValues", val);
-  }
+  @property() keepIncorrectValues: boolean;
   /**
    * Specifies the survey's locale.
    *
@@ -2198,6 +2027,15 @@ export class SurveyModel extends SurveyElementCore
     }
     this.navigationBarValue?.locStrsChanged();
   }
+  protected getAllChildren(): Base[] {
+    let result = super.getAllChildren();
+    result.push(...this.pages);
+    result.push(...this.calculatedValues);
+    result.push(...this.triggers);
+    result.push(...this.completedHtmlOnCondition);
+    result.push(...this.navigateToUrlOnCondition);
+    return result;
+  }
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.getSurveyMarkdownHtml(this, text, name, item);
   }
@@ -2273,15 +2111,7 @@ export class SurveyModel extends SurveyElementCore
    * A message that is displayed when a survey does not contain visible pages or questions.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get emptySurveyText(): string {
-    return this.getLocStringText(this.locEmptySurveyText);
-  }
-  public set emptySurveyText(val: string) {
-    this.setLocStringText(this.locEmptySurveyText, val);
-  }
-  public get locEmptySurveyText(): LocalizableString {
-    return this.getOrCreateLocStr("emptySurveyText", true, "emptySurvey");
-  }
+  @property({ localizable: { defaultStr: "emptySurvey", markdown: true } }) emptySurveyText: string;
   //#region Title/Header options
   /**
    * An image URL or a Base64-encoded image to use as a survey logo.
@@ -2290,15 +2120,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  public get logo(): string {
-    return this.getLocStringText(this.locLogo);
-  }
-  public set logo(value: string) {
-    this.setLocStringText(this.locLogo, value);
-  }
-  get locLogo(): LocalizableString {
-    return this.getOrCreateLocStr("logo");
-  }
+  @property({ localizable: true }) logo: string;
   /**
    * A logo width in CSS-accepted values.
    *
@@ -2309,20 +2131,13 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  public get logoWidth(): any {
-    return this.getPropertyValue("logoWidth");
-  }
-  public set logoWidth(value: any) {
-    this.setPropertyValue("logoWidth", value);
-  }
-
+  @property() logoWidth: any;
   public get renderedLogoWidth(): number {
     return this.logoWidth ? getRenderedSize(this.logoWidth) : undefined;
   }
   public get renderedStyleLogoWidth(): string {
     return this.logoWidth ? getRenderedStyleSize(this.logoWidth) : undefined;
   }
-
   /**
    * A logo height in CSS-accepted values.
    *
@@ -2334,12 +2149,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  public get logoHeight(): any {
-    return this.getPropertyValue("logoHeight");
-  }
-  public set logoHeight(value: any) {
-    this.setPropertyValue("logoHeight", value);
-  }
+  @property() logoHeight: any;
   public get renderedLogoHeight(): number {
     return this.logoHeight ? getRenderedSize(this.logoHeight) : undefined;
   }
@@ -2359,12 +2169,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logo
    * @see logoFit
    */
-  public get logoPosition(): string {
-    return this.getPropertyValue("logoPosition");
-  }
-  public set logoPosition(value: string) {
-    this.setPropertyValue("logoPosition", value);
-  }
+  @property() logoPosition: string;
   public get hasLogo(): boolean {
     return this.getPropertyValue("hasLogo", undefined, () => !!this.logo && this.logoPosition !== "none");
   }
@@ -2432,12 +2237,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logo
    * @see logoPosition
    */
-  public get logoFit(): string {
-    return this.getPropertyValue("logoFit");
-  }
-  public set logoFit(val: string) {
-    this.setPropertyValue("logoFit", val);
-  }
+  @property() logoFit: string;
   //#endregion
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
@@ -2494,12 +2294,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
-  public get backgroundOpacity(): number {
-    return this.getPropertyValue("backgroundOpacity");
-  }
-  public set backgroundOpacity(val: number) {
-    this.setPropertyValue("backgroundOpacity", val);
-  }
+  @property() backgroundOpacity: number;
   public get backgroundImageStyle(): any {
     return this.getPropertyValue("backgroundImageStyle", undefined, () => this.calcBackgroundImageStyle());
   }
@@ -2747,84 +2542,37 @@ export class SurveyModel extends SurveyElementCore
    * @see firstPageIsStartPage
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get startSurveyText(): string {
-    return this.getLocStringText(this.locStartSurveyText);
-  }
-  public set startSurveyText(newValue: string) {
-    this.setLocStringText(this.locStartSurveyText, newValue);
-  }
-  get locStartSurveyText(): LocalizableString {
-    return this.getOrCreateLocStr("startSurveyText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) startSurveyText: string;
   /**
    * Gets or sets a caption for the Previous button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get pagePrevText(): string {
-    return this.getLocStringText(this.locPagePrevText);
-  }
-  public set pagePrevText(newValue: string) {
-    this.setLocStringText(this.locPagePrevText, newValue);
-  }
-  get locPagePrevText(): LocalizableString {
-    return this.getOrCreateLocStr("pagePrevText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) pagePrevText: string;
   /**
    * Gets or sets a caption for the Next button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get pageNextText(): string {
-    return this.getLocStringText(this.locPageNextText);
-  }
-  public set pageNextText(newValue: string) {
-    this.setLocStringText(this.locPageNextText, newValue);
-  }
-  get locPageNextText(): LocalizableString {
-    return this.getOrCreateLocStr("pageNextText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) pageNextText: string;
   /**
    * Gets or sets a caption for the Complete button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get completeText(): string {
-    return this.getLocStringText(this.locCompleteText);
-  }
-  public set completeText(newValue: string) {
-    this.setLocStringText(this.locCompleteText, newValue);
-  }
-  get locCompleteText(): LocalizableString {
-    return this.getOrCreateLocStr("completeText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) completeText: string;
   /**
    * Gets or sets a caption for the Preview button.
    * @see showPreviewBeforeComplete
    * @see showPreview
    * @see editText
    */
-  public get previewText(): string {
-    return this.getLocStringText(this.locPreviewText);
-  }
-  public set previewText(newValue: string) {
-    this.setLocStringText(this.locPreviewText, newValue);
-  }
-  get locPreviewText(): LocalizableString {
-    return this.getOrCreateLocStr("previewText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) previewText: string;
   /**
    * Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
    * @see showPreviewBeforeComplete
    * @see cancelPreview
    * @see previewText
    */
-  public get editText(): string {
-    return this.getLocStringText(this.locEditText);
-  }
-  public set editText(newValue: string) {
-    this.setLocStringText(this.locEditText, newValue);
-  }
-  get locEditText(): LocalizableString {
-    return this.getOrCreateLocStr("editText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) editText: string;
+
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -2836,19 +2584,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * Refer to the following help topic for more information: [Title Pattern](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#title-pattern).
    */
-  public get questionTitlePattern(): string {
-    return this.getPropertyValue("questionTitlePattern", "numTitleRequire");
-  }
-  public set questionTitlePattern(val: string) {
-    if (
-      val !== "numRequireTitle" &&
-      val !== "requireNumTitle" &&
-      val != "numTitle"
-    ) {
-      val = "numTitleRequire";
-    }
-    this.setPropertyValue("questionTitlePattern", val);
-  }
+  @property({ defaultValue: "numTitleRequire", onSetting: (val: string) =>
+    (val !== "numRequireTitle" && val !== "requireNumTitle" && val != "numTitle") ? "numTitleRequire" : val
+  }) questionTitlePattern: string;
   getQuestionTitlePatternOptions(): Array<any> {
     const res = new Array<any>();
     const title = this.getLocalizationString("questionTitlePatternText");
@@ -2980,14 +2718,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
    * @see onGetPageNumber
    */
-  public get showPageNumbers(): boolean {
-    return this.getPropertyValue("showPageNumbers");
-  }
-  public set showPageNumbers(value: boolean) {
-    if (value === this.showPageNumbers) return;
-    this.setPropertyValue("showPageNumbers", value);
-    this.updateVisibleIndexes();
-  }
+  @property({ onSet: (val: boolean, obj: SurveyModel) => obj.updateVisibleIndexes() }) showPageNumbers: boolean;
   /**
    * Specifies whether to display survey element numbers and how to calculate them.
    *
@@ -3070,12 +2801,7 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarType
    * @see progressValue
    */
-  public get progressBarLocation(): string {
-    return this.getPropertyValue("progressBarLocation");
-  }
-  public set progressBarLocation(newValue: string) {
-    this.setPropertyValue("progressBarLocation", newValue.toLowerCase());
-  }
+  @property({ onSetting: (val: string) => val.toLowerCase() }) progressBarLocation: string;
   /**
    * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
    *
@@ -3092,18 +2818,11 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
    * @see progressValue
    */
-  public get progressBarType(): string {
-    return this.getPropertyValue("progressBarType");
-  }
-  public set progressBarType(newValue: string) {
-    if (newValue === "correctquestion") newValue = "correctQuestion";
-    if (newValue === "requiredquestion") newValue = "requiredQuestion";
-    // if (newValue === "buttons") {
-    //   newValue = "pages";
-    //   this.progressBarShowPageTitles = true;
-    // }
-    this.setPropertyValue("progressBarType", newValue);
-  }
+  @property({ onSetting: (val: string) => {
+    if (val === "correctquestion") return "correctQuestion";
+    if (val === "requiredquestion") return "requiredQuestion";
+    return val;
+  } }) progressBarType: string;
   private get progressBarComponentName(): string {
     let actualProgressBarType = this.progressBarType;
     if (!settings.legacyProgressBarView && surveyCss.currentType === "default") {
@@ -3215,12 +2934,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * You can override this setting if you specify the `questionErrorLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionErrorLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionErrorLocation) or set the `errorLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#errorLocation).
    */
-  public get questionErrorLocation(): string {
-    return this.getPropertyValue("questionErrorLocation");
-  }
-  public set questionErrorLocation(value: string) {
-    this.setPropertyValue("questionErrorLocation", value.toLowerCase());
-  }
+  @property({ onSetting: (val: string) => val.toLowerCase() }) questionErrorLocation: string;
   /**
    * Specifies where to display question descriptions.
    *
@@ -3232,12 +2946,7 @@ export class SurveyModel extends SurveyElementCore
    * You can override this setting for individual questions if you specify their [`descriptionLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#descriptionLocation) property.
    *
    */
-  public get questionDescriptionLocation(): string {
-    return this.getPropertyValue("questionDescriptionLocation");
-  }
-  public set questionDescriptionLocation(value: string) {
-    this.setPropertyValue("questionDescriptionLocation", value);
-  }
+  @property() questionDescriptionLocation: string;
   /**
    * @deprecated Use the [`readOnly`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#readOnly) property.
    */
@@ -3257,12 +2966,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
    */
-  public get readOnly(): boolean {
-    return this.getPropertyValue("readOnly");
-  }
-  public set readOnly(val: boolean) {
-    this.setPropertyValue("readOnly", val);
-  }
+  @property() readOnly: boolean;
 
   private onReadOnlyChanged() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -3884,12 +3588,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"entireItem"` (default) - Users can use the entire matrix row as a drag handle.
    * - `"icon"` - Users can only use a drag icon as a drag handle.
    */
-  public get matrixDragHandleArea(): string {
-    return this.getPropertyValue("matrixDragHandleArea", "entireItem");
-  }
-  public set matrixDragHandleArea(val: string) {
-    this.setPropertyValue("matrixDragHandleArea", val);
-  }
+  @property({ defaultValue: "entireItem" }) matraixDragHandleArea: string;
   public get isShowingPage(): boolean {
     return this.state == "running" || this.state == "preview" || this.isStartPageActive;
   }
@@ -3942,12 +3641,7 @@ export class SurveyModel extends SurveyElementCore
    * @see PageModel.questionOrder
    * @see PanelModel.questionOrder
    */
-  public get questionOrder(): string {
-    return this.getPropertyValue("questionOrder");
-  }
-  public set questionOrder(val: string) {
-    this.setPropertyValue("questionOrder", val);
-  }
+  @property() questionOrder: string;
   /**
    * @deprecated Use the [`questionOrder`](#questionOrder) property instead.
    */
@@ -4009,12 +3703,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isShowingPreview) return this.currentPage ? "preview" : "empty";
     return this.currentPage ? "running" : "empty";
   }
-  private get isCompleted(): boolean {
-    return this.getPropertyValue("isCompleted", false);
-  }
-  private set isCompleted(val: boolean) {
-    this.setPropertyValue("isCompleted", val);
-  }
+  @property({ defaultValue: false }) private isCompleted: boolean;
   private get isShowingPreview(): boolean {
     return this.getPropertyValue("isShowingPreview", false);
   }
@@ -4023,24 +3712,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("isShowingPreview", val);
     this.onShowingPreviewChanged();
   }
-  private get isStartedState(): boolean {
-    return this.getPropertyValue("isStartedState", false);
-  }
-  private set isStartedState(val: boolean) {
-    this.setPropertyValue("isStartedState", val);
-  }
-  private get isCompletedBefore(): boolean {
-    return this.getPropertyValue("isCompletedBefore", false);
-  }
-  private set isCompletedBefore(val: boolean) {
-    this.setPropertyValue("isCompletedBefore", val);
-  }
-  private get isLoading(): boolean {
-    return this.getPropertyValue("isLoading", false);
-  }
-  private set isLoading(val: boolean) {
-    this.setPropertyValue("isLoading", val);
-  }
+  @property({ defaultValue: false }) private isStartedState: boolean;
+  @property({ defaultValue: false }) private isCompletedBefore: boolean;
+  @property({ defaultValue: false }) private isLoading: boolean;
   /**
    * Displays the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
    * @see endLoading
@@ -4144,12 +3818,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  private get isNavigationBlocked(): boolean {
-    return this.getPropertyValue("isNavigationBlocked", false);
-  }
-  private set isNavigationBlocked(val: boolean) {
-    this.setPropertyValue("isNavigationBlocked", val);
-  }
+  @property({ defaultValue: false }) private isNavigationBlocked: boolean;
   private currentPageChanging(options: any, onSuccess: () => void): void {
     options.allow = true;
     options.allowChanging = true;
@@ -4809,12 +4478,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page. [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/)
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
-  public get questionsOnPageMode(): string {
-    return this.getPropertyValue("questionsOnPageMode");
-  }
-  public set questionsOnPageMode(val: string) {
-    this.setPropertyValue("questionsOnPageMode", val);
-  }
+  @property() questionsOnPageMode: string;
   /**
    * Gets or sets a Boolean value that specifies whether the first page is a start page.
    *
@@ -4822,12 +4486,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startPage
    * @see activePage
    */
-  public get firstPageIsStartPage(): boolean {
-    return this.getPropertyValue("firstPageIsStartPage");
-  }
-  public set firstPageIsStartPage(val: boolean) {
-    this.setPropertyValue("firstPageIsStartPage", val);
-  }
+  @property() firstPageIsStartPage: boolean;
   /**
    * @deprecated Use the [`firstPageIsStartPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStartPage) property instead.
    */
@@ -4852,12 +4511,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showPreview
    * @see cancelPreview
    */
-  public get showPreviewBeforeComplete(): boolean | any {
-    return this.getPropertyValue("showPreviewBeforeComplete");
-  }
-  public set showPreviewBeforeComplete(val: boolean | any) {
-    this.setShowPreviewBeforeComplete(val);
-  }
+  @property() showPreviewBeforeComplete: boolean | any;
   public setShowPreviewBeforeComplete(val: boolean | any) {
     if (val === undefined || val === "noPreview" || val === false) {
       this.setPropertyValue("showPreviewBeforeComplete", false);
@@ -4877,12 +4531,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
    */
-  public get previewMode(): string {
-    return this.getPropertyValue("previewMode");
-  }
-  public set previewMode(val: string) {
-    this.setPropertyValue("previewMode", val);
-  }
+  @property() previewMode: string;
   protected onFirstPageIsStartedChanged(): void {
     this.isStartedState = this.firstPageIsStartPage && this.pages.length > 1;
     this.pageVisibilityChanged(this.pages[0], !this.isStartedState);
@@ -5755,8 +5404,8 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    const root = htmlElement?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(htmlElement);
+    if (!root) return;
     if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {
@@ -7364,12 +7013,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    */
-  public get clearDisabledChoices(): boolean {
-    return this.getPropertyValue("clearDisabledChoices", false);
-  }
-  public set clearDisabledChoices(val: boolean) {
-    this.setPropertyValue("clearDisabledChoices", val);
-  }
+  @property({ defaultValue: false }) clearDisabledChoices: boolean;
   /**
    * @deprecated Use the [`clearDisabledChoices`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#clearDisabledChoices) property instead.
    */
@@ -7771,12 +7415,7 @@ export class SurveyModel extends SurveyElementCore
    * @see timeSpent
    * @see onTimerTick
    */
-  public get showTimer(): boolean {
-    return this.getPropertyValue("showTimer");
-  }
-  public set showTimer(val: boolean) {
-    this.setPropertyValue("showTimer", val);
-  }
+  @property() showTimer: boolean;
   /**
    * Specifies the timer's position relative to the survey. Applies only if the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) property is set to `true`.
    *
@@ -7786,12 +7425,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"bottom"` - Displays the timer at the bottom of the survey.
    * @see onTimerTick
    */
-  public get timerLocation(): string {
-    return this.getPropertyValue("timerLocation");
-  }
-  public set timerLocation(val: string) {
-    this.setPropertyValue("timerLocation", val);
-  }
+  @property() timerLocation: string;
   public get isTimerPanelShowingOnTop(): boolean {
     return this.showTimer && this.timerLocation === "top";
   }
@@ -7855,12 +7489,7 @@ export class SurveyModel extends SurveyElementCore
     * - `"auto"` (default) - Survey width depends on a question type and corresponds to the `"static"` or `"responsive"` mode.
   */
   // `custom/precise` - The survey width is specified by the width property. // in-future
-  public get widthMode(): string {
-    return this.getPropertyValue("widthMode");
-  }
-  public set widthMode(val: string) {
-    this.setPropertyValue("widthMode", val);
-  }
+  @property() widthMode: string;
   private calculatedWidthModeUpdater: ComputedUpdater;
   public setCalculatedWidthModeUpdater(): void {
     if (this.isLoadingFromJson) return;
@@ -7888,12 +7517,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `undefined` (the survey inherits the width from its container)
    * @see onResize
    */
-  public get width(): string {
-    return this.getPropertyValue("width");
-  }
-  public set width(val: string) {
-    this.setPropertyValue("width", val);
-  }
+  @property() width: string;
   public get renderedWidth(): string {
     const isStaticWidth = this.getPropertyValue("calculatedWidthMode") == "static";
     let width: any = this.getPropertyValue("width");
@@ -8108,12 +7732,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startTimer
    * @see timeSpent
    */
-  public get timeLimit(): number {
-    return this.getPropertyValue("timeLimit", 0);
-  }
-  public set timeLimit(val: number) {
-    this.setPropertyValue("timeLimit", val);
-  }
+  @property({ defaultValue: 0 }) timeLimit: number;
   /**
    * @deprecated Use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) property instead.
    */
@@ -8135,12 +7754,7 @@ export class SurveyModel extends SurveyElementCore
    * @see startTimer
    * @see timeSpent
    */
-  public get timeLimitPerPage(): number {
-    return this.getPropertyValue("timeLimitPerPage", 0);
-  }
-  public set timeLimitPerPage(val: number) {
-    this.setPropertyValue("timeLimitPerPage", val);
-  }
+  @property({ defaultValue: 0 }) timeLimitPerPage: number;
   /**
    * @deprecated Use the [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) property instead.
    */

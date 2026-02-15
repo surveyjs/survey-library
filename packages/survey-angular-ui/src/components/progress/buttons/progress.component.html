@@ -1,4 +1,4 @@
-<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" 
+<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" [style.--sd-progress-buttons-pages-count]="survey.visiblePages.length"
 role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="model.progressBarAriaLabel"
 >
   <div *ngIf="canShowHeader" [class]="survey.css.progressButtonsHeader">
@@ -27,9 +27,9 @@ role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="mode
           </div>
           <div *ngIf="canShowItemTitles"
             [class]="survey.css.progressButtonsPageDescription"
-            [title]="page.locNavigationDescription.renderedHtml"
+            [title]="page.navigationDescription"
           >
-            {{ page.locNavigationDescription.renderedHtml }}
+            {{ page.navigationDescription }}
           </div>
           <div [class]="survey.css.progressButtonsButton"><div [class]="survey.css.progressButtonsButtonBackground"></div><div [class]="survey.css.progressButtonsButtonContent"></div><span>{{model.getItemNumber(page)}}</span></div>
         </li>

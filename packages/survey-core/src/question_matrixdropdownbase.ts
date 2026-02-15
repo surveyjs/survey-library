@@ -1061,6 +1061,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getType(): string {
     return "matrixdropdownbase";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...(<any>this.detailElements)
+    ];
+  }
   public dispose(): void {
     super.dispose();
     this.clearGeneratedRows();
@@ -1106,12 +1112,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/transpose-dynamic-rows-to-columns-in-matrix/ (linkStyle))
    */
-  public get transposeData(): boolean {
-    return this.getPropertyValue("transposeData");
-  }
-  public set transposeData(val: boolean) {
-    this.setPropertyValue("transposeData", val);
-  }
+  @property() transposeData: boolean;
   /**
    * @deprecated Use the [`transposeData`](#transposeData) property instead.
    */
@@ -1137,12 +1138,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"bottom"` - Displays error messages below questions.
    * @see cellErrorLocation
    */
-  public get detailErrorLocation(): string {
-    return this.getPropertyValue("detailErrorLocation");
-  }
-  public set detailErrorLocation(value: string) {
-    this.setPropertyValue("detailErrorLocation", value.toLowerCase());
-  }
+  @property({ isLowerCase: true }) detailErrorLocation: string;
+
   /**
    * Specifies the error message position relative to matrix cells.
    *
@@ -1153,12 +1150,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"bottom"` - Displays error messages below matrix cells.
    * @see detailErrorLocation
    */
-  public get cellErrorLocation(): string {
-    return this.getPropertyValue("cellErrorLocation");
-  }
-  public set cellErrorLocation(value: string) {
-    this.setPropertyValue("cellErrorLocation", value.toLowerCase());
-  }
+  @property({ isLowerCase: true }) cellErrorLocation: string;
+
   public getChildErrorLocation(child: Question): string {
     const errLocation = !!child.parent ? this.detailErrorLocation : this.cellErrorLocation;
     if (errLocation !== "default") return errLocation;
@@ -1210,12 +1203,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see detailPanel
    */
-  public get detailPanelMode(): string {
-    return this.getPropertyValue("detailPanelMode");
-  }
-  public set detailPanelMode(val: string) {
-    this.setPropertyValue("detailPanelMode", val);
-  }
+  @property() detailPanelMode: string;
   /**
    * Contains a [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) instance that represents a detail section template.
    * @see detailElements
@@ -1404,13 +1392,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    */
-  public get cellType(): string {
-    return this.getPropertyValue("cellType", settings.matrix.defaultCellType);
-  }
-  public set cellType(val: string) {
-    val = val.toLowerCase();
-    this.setPropertyValue("cellType", val);
-  }
+  @property({ isLowerCase: true, defaultValue: settings.matrix.defaultCellType }) cellType: string;
   isSelectCellType(): boolean {
     return Serializer.isDescendantOf(this.cellType, "selectbase");
   }
@@ -1430,19 +1412,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * Default value: 0 (the number of columns is selected automatically based on the available column width)
    * @see cellType
    */
-  public get columnColCount(): number {
-    return this.getPropertyValue("columnColCount");
-  }
-  public set columnColCount(value: number) {
-    if (value < 0 || value > 4) return;
-    this.setPropertyValue("columnColCount", value);
-  }
-  public get horizontalScroll(): boolean {
-    return this.getPropertyValue("horizontalScroll");
-  }
-  public set horizontalScroll(val: boolean) {
-    this.setPropertyValue("horizontalScroll", val);
-  }
+  @property({ onSetting: (val: any) => val < 0 ? 0 : val > 4 ? 4 : val }) columnColCount: number;
+  @property() horizontalScroll: boolean;
   public get allowAdaptiveActions(): boolean {
     return this.getPropertyValue("allowAdaptiveActions");
   }
@@ -1821,36 +1792,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * A placeholder for Dropdown matrix cells.
    * @see cellType
    */
-  public get placeholder() {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-  }
-  public get locPlaceholder() {
-    return this.getOrCreateLocStr("placeholder", false, true);
-  }
-  public get optionsCaption() {
-    return this.placeholder;
-  }
-  public set optionsCaption(val: string) {
-    this.placeholder = val;
-  }
+  @property ({ localizable: { defaultStr: true } }) placeholder: string;
+  public get optionsCaption() { return this.placeholder; }
+  public set optionsCaption(val: string) { this.placeholder = val; }
   /**
    * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
    * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see useCaseSensitiveComparison
    */
-  public get keyDuplicationError(): string {
-    return this.getLocStringText(this.locKeyDuplicationError);
-  }
-  public set keyDuplicationError(val: string) {
-    this.setLocStringText(this.locKeyDuplicationError, val);
-  }
-  get locKeyDuplicationError(): LocalizableString {
-    return this.getOrCreateLocStr("keyDuplicationError", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) keyDuplicationError: string;
   /**
    * A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
    *

@@ -677,9 +677,9 @@ Returns a Date value converted from a given question's value.
 
 #### `dateAdd`
 
-*Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "months" | "years"): Date`
+*Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): Date`
 
-Adds or subtracts a specified number of full days (default), months, or years to or from a date value.
+Adds or subtracts a specified number of full days (default), hours, minutes, seconds, months, or years to or from a date value.
 
 *Example*: `"expression": "dateAdd({startDate}, 14, "days")"`
 

@@ -840,3 +840,13 @@ QUnit.test("Create dataList strings on demand", (assert) => {
   q1.toJSON();
   assert.equal(obj.locDataListValue, undefined, "dataList is not created on toJSON");
 });
+QUnit.test("The dataList property value is not saved in a survey JSON definition Bug#10849", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionTextModel;
+  q1.dataList = ["item1", "item2"];
+  const json = q1.toJSON();
+  assert.deepEqual(json.dataList, ["item1", "item2"], "dataList is stored in the JSON");
+});

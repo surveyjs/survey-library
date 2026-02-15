@@ -1,5 +1,5 @@
 import { Action } from "./actions/action";
-import { ComputedUpdater } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable, Helpers } from "./helpers";
@@ -10,6 +10,7 @@ import { Question } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { getRootNode } from "./utils/utils";
 
 interface ISliderLabelItemOwner extends ILocalizableOwner{
   getTextByItem(item: ItemValue):string;
@@ -29,12 +30,7 @@ export class SliderLabelItemValue extends ItemValue {
     }
     return this.value || 0;
   }
-  public get showValue(): boolean {
-    return this.getPropertyValue("showValue", false);
-  }
-  public set showValue(val: boolean) {
-    this.setPropertyValue("showValue", val);
-  }
+  @property({ defaultValue: false }) showValue: boolean;
 }
 
 /**
@@ -147,15 +143,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    *
    * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
    */
-  public get step(): number {
-    // if (this.segmentCount) {
-    //   return (this.renderedMax - this.renderedMin) / this.segmentCount;
-    // }
-    return this.getPropertyValue("step");
-  }
-  public set step(val: number) {
-    this.setPropertyValue("step", val);
-  }
+  @property() step: number;
   // @property({ defaultValue: null }) segmentCount: number | null;
   /**
    * Specifies whether the slider displays value labels along the scale.
@@ -228,12 +216,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * @see labelCount
    * @see labelFormat
    */
-  public get customLabels(): SliderLabelItemValue[] {
-    return this.getPropertyValue("customLabels");
-  }
-  public set customLabels(val: SliderLabelItemValue[]) {
-    this.setPropertyValue("customLabels", val);
-  }
+  @property() customLabels: SliderLabelItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   /**
@@ -297,6 +280,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public getType(): string {
     return "slider";
+  }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.customLabels
+    ];
   }
 
   public get rootCss(): string {
@@ -489,10 +478,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.animatedThumb = false;
 
     //const inputNode = this.rangeInputRef.current;
-    const rootNode = questionRootNode.getRootNode();
-    if (!(rootNode instanceof Document || rootNode instanceof ShadowRoot)) {
-      return;
-    }
+    const rootNode = getRootNode(questionRootNode);
+    if (!rootNode) return;
     const inputNode = <HTMLInputElement>rootNode.querySelector("#" + this.id + "-sjs-slider-input-range-input");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");

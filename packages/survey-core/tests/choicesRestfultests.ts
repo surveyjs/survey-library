@@ -20,6 +20,7 @@ import {
   ComponentCollection,
 } from "../src/question_custom";
 import { ListModel } from "../src/list";
+import { ChoiceItem } from "../src/question_baseselect";
 
 export default QUnit.module("choicesRestful");
 
@@ -78,6 +79,9 @@ class ChoicesRestfulTester extends ChoicesRestful {
       this.onLoad(this.parseResponse(getXmlResponse()));
     if (this.processedUrl.indexOf("text") > -1)
       this.onLoad(this.parseResponse(getTextResponse()));
+  }
+  public doLoad(result: Array<any>) {
+    this.onLoad(result);
   }
   protected onLoad(result: any, loadingObjHash: string = null) {
     this.beforeLoadRequest();
@@ -987,6 +991,45 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test("Map isExclusive, showCommentArea, isCommentRequired, visibleIf, enableIf property from restful automatically, #10865", (assert) => {
+  const test = new ChoicesRestfulTester();
+  const question = new QuestionCheckboxModel("q1");
+  test.createItemValue = (item: any): ItemValue => {
+    const res = new ChoiceItem(item.value, item.text);
+    res.locOwner = question;
+    return res;
+  };
+  let choices: Array<ItemValue> = [];
+  test.getResultCallback = function(res: Array<ItemValue>) {
+    choices = res;
+  };
+  var loadedItems = [
+    { value: 1, text: "A", isExclusive: true, visibleIf: "{q1} notcontains 2" },
+    { value: 2, text: "B", showCommentArea: true, isCommentRequired: true },
+    { value: 3, text: "C", showCommentArea: true, enableIf: "{q1} contains 2" },
+  ];
+  test.doLoad(loadedItems);
+  assert.equal(choices.length, 3, "There are 3 choices loaded");
+  assert.equal(choices[0].getType(), "choiceitem", "It is choice item");
+  assert.ok(choices[0].isExclusive, "isExclusive is set correctly [0]");
+  assert.equal(choices[0].visibleIf, "{q1} notcontains 2", "visibleIf is set correctly [0]");
+  assert.notOk(choices[0].enableIf, "enableIf is not set [0]");
+  assert.equal(choices[0].showCommentArea, false, "showCommentArea is set correctly [0]");
+  assert.equal(choices[0].isCommentRequired, false, "isCommentRequired is set correctly [0]");
+
+  assert.notOk(choices[1].isExclusive, "isExclusive is set correctly [1]");
+  assert.equal(choices[1].showCommentArea, true, "showCommentArea is set correctly [1]");
+  assert.equal(choices[1].isCommentRequired, true, "isCommentRequired is set correctly [1]");
+  assert.notOk(choices[1].visibleIf, "visibleIf is not set [1]");
+  assert.notOk(choices[1].enableIf, "enableIf is not set [1]");
+
+  assert.notOk(choices[2].isExclusive, "isExclusive is set correctly [2]");
+  assert.equal(choices[2].showCommentArea, true, "showCommentArea is set correctly [2]");
+  assert.equal(choices[2].isCommentRequired, false, "isCommentRequired is set correctly [2]");
+  assert.notOk(choices[2].visibleIf, "visibleIf is not set [2]");
+  assert.equal(choices[2].enableIf, "{q1} contains 2", "enableIf is set correctly [2]");
+});
 
 QUnit.test(
   "valueChanged shouldn't be risen on choicesByUrl loaded - T3372 - onValueChanging (bug)",

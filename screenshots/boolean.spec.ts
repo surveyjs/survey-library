@@ -194,14 +194,6 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await page.evaluate(() => {
-        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const surveyElement = document.querySelector("#surveyElement");
-        if (surveyElement && surveyElement.shadowRoot) {
-          surveyElement.shadowRoot.querySelector("div")?.setAttribute("dir", "rtl");
-        }
-      });
-
       const questionRoot = page.locator(".sd-question--boolean");
       await compareScreenshot(page, questionRoot, "boolean-question-rtl.png");
 

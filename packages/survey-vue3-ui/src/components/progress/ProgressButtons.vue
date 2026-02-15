@@ -1,7 +1,7 @@
 <template>
   <div
     :class="model.getRootCss(container)"
-    :style="{ maxWidth: model.progressWidth }"
+    :style="{ maxWidth: model.progressWidth, '--sd-progress-buttons-pages-count': survey.visiblePages.length }"
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"
@@ -51,9 +51,9 @@
             <div
               v-if="canShowItemTitles"
               :class="css.progressButtonsPageDescription"
-              :title="page.locNavigationDescription.renderedHtml"
+              :title="page.navigationDescription"
             >
-              {{ page.locNavigationDescription.renderedHtml }}
+              {{ page.navigationDescription }}
             </div>
             <div :class="css.progressButtonsButton">
               <div :class="css.progressButtonsButtonBackground"></div>

@@ -656,5 +656,59 @@ frameworks.forEach((framework) => {
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
     });
+    test("Check multiple modal windows", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, false, undefined, async () => {
+        await page.evaluate(() => {
+          window["survey"].onGetQuestionTitleActions.add((_, options) => {
+            const actionsContainer = new window["Survey"].ActionContainer();
+            actionsContainer.addAction(new window["Survey"].Action({
+              title: "Show Message",
+              action: () => {
+                window["Survey"].settings.confirmActionAsync("message", () => { });
+              }
+            }));
+            options.actions.push(new window["Survey"].Action({
+              title: "Show Action Bar",
+              action: () => {
+                window["Survey"].settings.showDialog(<any>{
+                  componentName: "sv-action-bar",
+                  data: {
+                    model: actionsContainer
+                  },
+                });
+              }
+            }));
+          });
+        });
+      });
+      const showActionBarLocator = page.locator("button[title='Show Action Bar']");
+      const showMessageLocator = page.locator("button[title='Show Message']");
+      const popupModalLocator = page.locator("body > div > .sv-popup--modal-popup, body > div > sv-ng-popup-container > .sv-popup--modal-popup");
+      const cancelLocator = page.locator("button[title='Cancel']");
+      const messageLocator = page.locator("span").getByText("message", { exact: true });
+      await showActionBarLocator.click();
+      expect(await popupModalLocator.count()).toBe(1);
+      await expect(showMessageLocator).toBeVisible({ visible: true });
+      await expect(messageLocator).toBeVisible({ visible: false });
+      await showMessageLocator.click();
+      expect(await popupModalLocator.count()).toBe(2);
+      await expect(showMessageLocator).toBeVisible({ visible: true });
+      await expect(messageLocator).toBeVisible({ visible: true });
+      await cancelLocator.nth(1).click();
+      expect(await popupModalLocator.count()).toBe(1);
+      await expect(showMessageLocator).toBeVisible({ visible: true });
+      await expect(messageLocator).toBeVisible({ visible: false });
+      await cancelLocator.click();
+      expect(await popupModalLocator.count()).toBe(0);
+      await expect(showMessageLocator).toBeVisible({ visible: false });
+      await expect(messageLocator).toBeVisible({ visible: false });
+    });
   });
 });

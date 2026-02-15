@@ -96,7 +96,17 @@ export {
   ValidatorRunner
 } from "../../src/validator";
 export { ItemValue } from "../../src/itemvalue";
-export { Base, Event, EventBase, ArrayChanges, ComputedUpdater, IPropertyValueChangedEvent, IPropertyArrayValueChangedEvent } from "../../src/base";
+export {
+  Base,
+  Event,
+  EventBase,
+  ArrayChanges,
+  ComputedUpdater,
+  IPropertyValueChangedEvent,
+  IPropertyArrayValueChangedEvent,
+  IExpressionValidationOptions,
+  IExpressionValidationResult,
+} from "../../src/base";
 export {
   ISurvey,
   ISurveyElement,
@@ -134,7 +144,14 @@ export {
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
 export { FunctionFactory, registerFunction } from "../../src/functionsfactory";
-export { ConditionRunner, ExpressionRunner, IExpresionExecutor, ExpressionExecutor } from "../../src/conditions";
+export {
+  ConditionRunner,
+  ExpressionRunner,
+  IExpressionExecutor,
+  IExpressionExecutor as IExpresionExecutor,
+  ExpressionExecutor,
+  IExpressionError,
+  ExpressionErrorType } from "../../src/conditions";
 export {
   Operand,
   Const,
@@ -281,6 +298,7 @@ export { PopupBaseViewModel } from "../../src/popup-view-model";
 export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";
 export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup-utils";
+export { PopupModalManager } from "../../src/popup-modal-manager";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
 export {

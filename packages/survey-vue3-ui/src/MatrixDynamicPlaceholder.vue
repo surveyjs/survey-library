@@ -16,11 +16,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixDynamicModel } from "survey-core";
 
-const props = defineProps<{
+defineProps<{
   question: QuestionMatrixDynamicModel;
 }>();
-
-const addRowClick = () => {
-  props.question.addRowUI();
-};
 </script> 

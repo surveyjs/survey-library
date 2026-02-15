@@ -1,4 +1,4 @@
-import { frameworks, initSurvey, url, getSurveyResult, test, expect } from "../helper";
+import { frameworks, initSurvey, url, getSurveyResult, test, expect, getButtonByText } from "../helper";
 const title = "ShowPreview";
 
 const json = {
@@ -26,17 +26,17 @@ frameworks.forEach((framework) => {
         window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;
       });
 
-      await page.click("input[value=Preview]");
-      const editButtons = await page.locator("input[title=Edit]").count();
+      await getButtonByText(page, "Preview").click();
+      const editButtons = await getButtonByText(page, "Edit").count();
       await expect(editButtons).toBe(4);
 
-      await page.locator("input[title=Edit]").nth(1).click();
+      await getButtonByText(page, "Edit").nth(1).click();
       await page.locator("input[type=text]").nth(1).fill("val3");
 
-      await page.click("input[value=Next]");
-      await page.click("input[value=Next]");
-      await page.click("input[value=Preview]");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Preview").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -56,17 +56,17 @@ frameworks.forEach((framework) => {
         window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;
       });
 
-      await page.click("input[value=Preview]");
-      const editButtons = await page.locator("input[title=Edit]").count();
+      await getButtonByText(page, "Preview").click();
+      const editButtons = await getButtonByText(page, "Edit").count();
       await expect(editButtons).toBe(2);
 
-      await page.locator("input[title=Edit]").nth(0).click();
+      await getButtonByText(page, "Edit").nth(0).click();
       await page.locator("input[type=text]").nth(1).fill("val3");
 
-      await page.click("input[value=Next]");
-      await page.click("input[value=Next]");
-      await page.click("input[value=Preview]");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Preview").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -93,13 +93,13 @@ frameworks.forEach((framework) => {
         ],
         showPreviewBeforeComplete: true
       });
-      await page.click("input[value=Preview]");
-      const editButtons = await page.locator("input[title=Edit]").count();
+      await getButtonByText(page, "Preview").click();
+      const editButtons = await getButtonByText(page, "Edit").count();
       expect(editButtons).toBe(1);
-      await page.locator("input[title=Edit]").click();
+      await getButtonByText(page, "Edit").click();
       await page.locator("input[type=text]").fill("val");
-      await page.click("input[value=Preview]");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Preview").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         question1: "val"

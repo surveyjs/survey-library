@@ -17,6 +17,8 @@
 @use "blocks/sv-scroll.scss";
 @use "blocks/sv-save-data.scss";
 @use "blocks/sv-string-viewer.scss";
+@use "blocks/sd-action-bar.scss";
+@use "blocks/sd-action.scss";
 
 @use "blocks/sd-element.scss";
 @use "blocks/sd-question.scss";
@@ -57,8 +59,6 @@
 @use "blocks/sd-button.scss";
 @use "blocks/sd-body.scss";
 @use "blocks/sd-multipletext.scss";
-@use "blocks/sd-action.scss";
-@use "blocks/sd-action-bar.scss";
 @use "blocks/sd-context-btn.scss";
 @use "blocks/sd-completedpage.scss";
 @use "blocks/sd-progress-buttons.scss";

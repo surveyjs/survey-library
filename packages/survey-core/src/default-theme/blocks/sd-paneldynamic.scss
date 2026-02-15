@@ -141,6 +141,9 @@
 }
 
 .sd-paneldynamic__placeholder {
+    .sd-action-bar--empty {
+        margin-top: calcSize(-0.5);
+    }
     .sd-paneldynamic__add-btn {
         display: initial;
         margin-left: 0;
@@ -341,9 +344,11 @@
 .sd-paneldynamic__panel-wrapper--enter.sv-pd-animation-right {
     --sjs-pd-tab-animation-delay: 0ms;
     animation-name: movePanel, changeHeight, paddingFadeIn, fadeIn;
-    animation-duration: $pd-tab-move-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration,
+    animation-duration:
+        $pd-tab-move-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration,
         $pd-tab-fade-in-duration;
-    animation-delay: calc(#{$pd-tab-move-in-delay} + var(--sjs-pd-tab-animation-delay)),
+    animation-delay:
+        calc(#{$pd-tab-move-in-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-fade-in-delay} + var(--sjs-pd-tab-animation-delay));
@@ -385,7 +390,8 @@
 .sd-paneldynamic__panel-wrapper--enter.sv-pd-animation-adding {
     animation-name: fadeIn, changeHeight, paddingFadeIn;
     animation-duration: $pd-tab-add-fade-in-duration, $pd-tab-height-change-duration, $pd-tab-height-change-duration;
-    animation-delay: calc(#{$pd-tab-add-fade-in-delay} + var(--sjs-pd-tab-animation-delay)),
+    animation-delay:
+        calc(#{$pd-tab-add-fade-in-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay)),
         calc(#{$pd-tab-height-change-delay} + var(--sjs-pd-tab-animation-delay));
     animation-timing-function: $ease-out;

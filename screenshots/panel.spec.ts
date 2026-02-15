@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
 
 const title = "Panel Screenshot";
 
@@ -265,7 +265,7 @@ frameworks.forEach(framework => {
         panel.footerActions.push({ id: "test", locTitle: locstr });
       });
 
-      await page.click("input[title=Next]");
+      await getButtonByText(page, "Next").click();
       const panelRoot = page.locator(".sd-panel");
       await compareScreenshot(page, panelRoot, "panel-with-actions.png");
     });
@@ -488,7 +488,7 @@ frameworks.forEach(framework => {
       });
       const panelRoot = page.locator(".sd-panel");
       await resetFocusToBody(page);
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, panelRoot, "panel-with-question-errors-above.png");
     });
 
@@ -527,7 +527,7 @@ frameworks.forEach(framework => {
       });
       const panelRoot = page.locator(".sd-panel");
       await resetFocusToBody(page);
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, panelRoot, "panel-with-question-title-left-and-errors-above.png");
     });
 
@@ -565,7 +565,7 @@ frameworks.forEach(framework => {
       });
       const panelRoot = page.locator(".sd-panel");
       await resetFocusToBody(page);
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, panelRoot, "panel-with-question-errors-below.png");
     });
 
@@ -775,7 +775,7 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(500);
 
       const panelRoot = page.locator(".sd-panel");
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, panelRoot, "panel-with-errors.png");
     });
 
@@ -794,7 +794,7 @@ frameworks.forEach(framework => {
       });
       const panelRoot = page.locator(".sd-panel");
       await resetFocusToBody(page);
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
       await compareScreenshot(page, panelRoot, "panel-with-errors-without-title.png");
     });
 

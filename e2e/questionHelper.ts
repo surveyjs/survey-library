@@ -1,5 +1,6 @@
 import type { Page, Locator } from "@playwright/test";
 import { expect } from "@playwright/test";
+import { getButtonByText } from "./helper";
 
 export class Question {
   private questionValue: Locator;
@@ -173,7 +174,7 @@ export class QuestionExpression extends Question {
 export class QuestionFileCore extends Question {
   public async clickClear(): Promise<void> {
     await this.scrollIntoViewIfNeeded();
-    await this.question.locator("button[title='Clear']").click();
+    await getButtonByText(this.question, "Clear").click();
   }
 }
 export class QuestionFile extends QuestionFileCore {}

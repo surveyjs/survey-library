@@ -187,7 +187,7 @@ export async function setOptions(page: Page, questionName: string, modValue: any
 export async function checkSurveyWithEmptyQuestion(page: Page) {
   const requiredMessage = page.locator(".sv-string-viewer").getByText("Response required.");
   await expect(requiredMessage).toHaveCount(0);
-  await page.locator("input[value=Complete]").click();
+  await getButtonByText(page, "Complete").click();
   await expect(requiredMessage).toHaveCount(1);
   const surveyResult = await getSurveyResult(page);
   expect(surveyResult).toEqual(undefined);
@@ -298,6 +298,10 @@ export async function waitUntilAllImagesLoad(page: Page): Promise<void> {
     await expect(img).toHaveJSProperty("complete", true);
     await expect(img).not.toHaveJSProperty("naturalWidth", 0);
   }
+}
+
+export function getButtonByText(locator: Locator | Page, text: string) {
+  return locator.locator("button").filter({ has: locator.getByText(text, { exact: true }) });
 }
 
 export { expect };

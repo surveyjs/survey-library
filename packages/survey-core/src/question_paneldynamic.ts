@@ -348,13 +348,13 @@ export class QuestionPanelDynamicModel extends Question
     if (this.showAddPanelButton && (!withError || this.currentErrorCount > 0)) return this;
     return null;
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     const question = this.getFirstQuestionToFocus(false);
     if (question && question !== this) return question.inputId;
-    if (this.showAddPanelButton) return this.addButtonId;
+    if (this.showAddPanelButton) return () => this.addPanelAction.getInputElement();
     return super.getFirstInputElementId();
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     const question = this.getFirstQuestionToFocus(true);
     return question ? question.inputId : super.getFirstErrorInputElementId();
   }
@@ -1154,10 +1154,6 @@ export class QuestionPanelDynamicModel extends Question
    * @see allowRemovePanel
    */
   @property() allowAddPanel: boolean;
-
-  public get addButtonId(): string {
-    return this.id + "addPanel";
-  }
   /**
    * Specifies the position of newly added panels.
    *
@@ -1506,7 +1502,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if (!this.legacyNavigation && !this.isRenderModeList &&
+    if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
     }
@@ -1756,9 +1752,9 @@ export class QuestionPanelDynamicModel extends Question
         this.removePanelCore(visIndex);
         const pnlCount = this.visiblePanelCount;
         const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
-        let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
-        if (!!id) {
-          SurveyElement.FocusElement(id, true, this.survey?.rootElement);
+        const element = pnlCount === 0 ? () => this.addPanelAction?.getInputElement() : (nextIndex > -1 ? () => this.getRemovePanelAction(this.visiblePanels[nextIndex])?.getInputElement() : "");
+        if (!!element) {
+          SurveyElement.FocusElement(element, true, this.survey?.rootElement);
         }
       };
       if (confirmDelete) {
@@ -2291,15 +2287,34 @@ export class QuestionPanelDynamicModel extends Question
     keyValues.push(value);
     return false;
   }
+  private removePanelActions: {[index: number]: Action} = { };
+  public getRemovePanelAction(panel: PanelModel) {
+    if (!panel) return undefined;
+    if (!this.removePanelActions[panel.uniqueId]) {
+      const action = new Action({
+        id: `remove-panel-${panel.id}`,
+        locTitle: this.locRemovePanelText,
+        innerCss: this.getPanelRemoveButtonCss(),
+        action: () => {
+          if (!this.isInputReadOnly) {
+            this.removePanelUI(panel);
+            if (panel.isDisposed) {
+              delete this.removePanelActions[panel.uniqueId];
+            }
+          }
+        },
+        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
+        data: { question: this, panel: panel }
+      });
+      action.cssClasses = this.survey.getCss().actionBar;
+      this.removePanelActions[panel.uniqueId] = action;
+    }
+    return this.removePanelActions[panel.uniqueId];
+  }
   public getPanelActions(panel: PanelModel): Array<IAction> {
     let actions = panel.footerActions;
     if (this.removePanelButtonLocation !== "right") {
-      actions.push(new Action({
-        id: `remove-panel-${panel.id}`,
-        component: "sv-paneldynamic-remove-btn",
-        visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel, "bottom")].every((val: boolean) => val === true)),
-        data: { question: this, panel: panel }
-      }));
+      actions.push(this.getRemovePanelAction(panel));
     }
     if (!!this.survey) {
       actions = this.survey.getUpdatedPanelFooterActions(panel, actions, this);
@@ -2309,10 +2324,10 @@ export class QuestionPanelDynamicModel extends Question
   public canRenderRemovePanelOnRight(panel: PanelModel): boolean {
     return this.canRenderRemovePanel(panel, "right");
   }
-  private canRenderRemovePanel(panel: PanelModel, side: string): boolean {
+  private canRenderRemovePanel(panel: PanelModel, side?: string): boolean {
     const canRemove = this.canRemovePanel;
     const notCollpased = panel.state !== "collapsed";
-    return this.removePanelButtonLocation === side && canRemove && notCollpased;
+    return (side !== undefined ? this.removePanelButtonLocation === side : true) && canRemove && notCollpased;
   }
   protected createNewPanel(): PanelModel {
     var panel = this.createAndSetupNewPanelObject();
@@ -2654,8 +2669,6 @@ export class QuestionPanelDynamicModel extends Question
     }
     return this.footerToolbarValue;
   }
-  @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
-    legacyNavigation: boolean;
 
   public get ariaRole() {
     return "group";
@@ -2671,6 +2684,9 @@ export class QuestionPanelDynamicModel extends Question
     if (!!this.updateFooterActionsCallback) {
       this.updateFooterActionsCallback();
     }
+  }
+  public get addPanelAction(): Action {
+    return this.footerToolbar.getActionById("sv-pd-add-btn");
   }
   private initFooterToolbar() {
     this.footerToolbarValue = this.createActionContainer();
@@ -2689,44 +2705,31 @@ export class QuestionPanelDynamicModel extends Question
         this.goToNextPanel();
       }
     });
-    const addBtn = new Action({
-      id: "sv-pd-add-btn",
-      component: "sv-paneldynamic-add-btn",
-      data: { question: this }
-    });
-    const prevBtnIcon = new Action({
-      id: "sv-prev-btn-icon",
-      component: "sv-paneldynamic-prev-btn",
-      data: { question: this }
-    });
     const progressText = new Action({
       id: "sv-pd-progress-text",
       component: "sv-paneldynamic-progress-text",
       data: { question: this }
     });
-    const nextBtnIcon = new Action({
-      id: "sv-pd-next-btn-icon",
-      component: "sv-paneldynamic-next-btn",
-      data: { question: this }
+    const addBtn = new Action({
+      id: "sv-pd-add-btn",
+      action: () => {
+        this.addPanelUI();
+      },
+      locTitle: this.locAddPanelText,
+      innerCss: this.getAddButtonCss()
     });
-    items.push(prevTextBtn, nextTextBtn, addBtn, prevBtnIcon, progressText, nextBtnIcon);
+    items.push(prevTextBtn, nextTextBtn, addBtn, progressText);
     this.updateFooterActionsCallback = () => {
-      const isLegacyNavigation = this.legacyNavigation;
       const isRenderModeList = this.isRenderModeList;
       const isMobile = this.isMobile;
-      const showNavigation = !isLegacyNavigation && !isRenderModeList;
+      const showNavigation = !isRenderModeList;
       prevTextBtn.visible = showNavigation && this.currentIndex > 0;
       nextTextBtn.visible = showNavigation && this.currentIndex < this.visiblePanelCount - 1;
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
       addBtn.visible = this.canAddPanel;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
-      progressText.visible = !this.isRenderModeList && !isMobile;
-      progressText.needSpace = !isLegacyNavigation && !this.isMobile;
-
-      const showLegacyNavigation = isLegacyNavigation && !isRenderModeList;
-      prevBtnIcon.visible = showLegacyNavigation;
-      nextBtnIcon.visible = showLegacyNavigation;
-      prevBtnIcon.needSpace = showLegacyNavigation;
+      progressText.visible = !this.isRenderModeList && !isMobile && !this.getShowNoEntriesPlaceholder();
+      progressText.needSpace = !this.isMobile;
     };
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);

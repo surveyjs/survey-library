@@ -260,7 +260,7 @@ frameworks.forEach((framework) => {
       await clickButton.click();
       await expect(inputInPopup).toBeFocused();
       await page.keyboard.press("Tab");
-      await expect(page.locator(".sv-popup .sd-navigation__complete-btn")).toBeFocused();
+      await expect(page.locator(".sv-popup button[title=Complete]")).toBeFocused();
       await page.keyboard.press("Tab");
       await expect(page.locator(".sv-popup__button--cancel")).toBeFocused();
       await page.keyboard.press("Tab");

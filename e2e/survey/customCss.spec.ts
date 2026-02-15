@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "customCss";
 
@@ -38,13 +38,13 @@ frameworks.forEach((framework) => {
       await page.evaluate((json) => {
         const myCss = {
           matrix: { root: "table table-striped" },
-          navigationButton: "button btn-lg",
+          navigation: { complete: "button btn-lg" },
         };
         window["survey"].css = myCss;
         window["survey"].fromJSON(json);
       }, json);
 
-      const completeButton = page.locator('input[value="Complete"]');
+      const completeButton = getButtonByText(page, "Complete");
       await expect(completeButton).toHaveClass(/btn-lg/);
     });
   });

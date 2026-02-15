@@ -63,8 +63,8 @@ svg.sd-action--icon {
   }
 }
 
-.sd-action:not(.sd-action--pressed):hover,
-.sd-action:not(.sd-action--pressed):focus {
+.sd-action:where(:not(.sd-action--pressed)):hover,
+.sd-action:where(:not(.sd-action--pressed)):focus {
   outline: none;
   background-color: $primary-light;
   cursor: pointer;

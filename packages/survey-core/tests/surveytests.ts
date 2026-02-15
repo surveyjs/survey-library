@@ -17060,22 +17060,17 @@ QUnit.test("Check addNavigationItem", function (assert) {
       }
     ]
   });
-  setOldTheme(survey);
   const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
   assert.ok(action1 === survey.navigationBar.actions[0]);
   assert.equal(action1.id, "custom-btn");
-  assert.equal(action1.innerCss, "sv_nav_btn");
-  assert.equal(action1.component, "sv-nav-btn");
 
   const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+  assert.equal(action2.innerCss, "custom-css");
   assert.ok(action2 === survey.navigationBar.actions[2]);
   assert.equal(action2.id, "custom-btn-2");
-  assert.equal(action2.innerCss, "custom-css");
-  assert.equal(action2.component, "sv-nav-btn");
 
   const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
   assert.ok(action3 === survey.navigationBar.actions[4]);
-  assert.equal(action3.id, "custom-btn-3");
   assert.equal(action3.component, "custom-component");
 });
 
@@ -17089,7 +17084,6 @@ QUnit.test("Check addNavigationItem with taskManager.waitAndExecute", function (
       }
     ]
   });
-  setOldTheme(survey);
 
   let actionExecuted = false;
   let actionExecutionOrder: string[] = [];
@@ -17103,8 +17097,6 @@ QUnit.test("Check addNavigationItem with taskManager.waitAndExecute", function (
   });
   assert.ok(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar");
   assert.equal(action.id, "test-btn", "Action should have correct id");
-  assert.equal(action.component, "sv-nav-btn", "Action should have default component");
-  assert.equal(action.innerCss, "sv_nav_btn", "Action should have default innerCss");
 
   survey["taskManager"].runTask("test-task", (completed) => {
     actionExecutionOrder.push("task-started");
@@ -17204,7 +17196,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
     ]
   });
   setOldTheme(survey);
-  survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
+  survey.css = { navigationBar: { item: "custom-action custom-css" }, navigation: { start: "custom-start" } };
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";
@@ -17237,7 +17229,7 @@ QUnit.test("Check navigation bar css update", function (assert) {
       }
     ]
   });
-  survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
+  survey.css = { navigationBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
   survey.navigationBar.flushUpdates();
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });

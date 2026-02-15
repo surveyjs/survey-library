@@ -1516,9 +1516,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getShowColumnsIfEmpty(): boolean {
     return false;
   }
-  protected updateShowTableAndAddRow() {
+  protected updateShowTable() {
     if (!!this.renderedTable) {
-      this.renderedTable.updateShowTableAndAddRow();
+      this.renderedTable.updateShowTable();
     }
   }
   protected updateHasFooter() {
@@ -1623,7 +1623,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!rows) {
       rows.forEach(row => row.updateElementVisibility());
     }
-    this.updateShowTableAndAddRow();
+    this.updateShowTable();
   }
   protected shouldRunColumnExpression(): boolean {
     return false;
@@ -2445,11 +2445,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     var question = this.getFirstCellQuestion(false);
     return question ? question.inputId : super.getFirstInputElementId();
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     var question = this.getFirstCellQuestion(true);
     return question ? question.inputId : super.getFirstErrorInputElementId();
   }
@@ -2690,36 +2690,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
     this.setPropertyValue("isRowShowing" + row.id, val);
-    this.updateDetailPanelButtonCss(row);
     if (!!this.renderedTable) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
       this.survey.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
     }
-  }
-  public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {
-    const builder = new CssClassBuilder().append(this.getPropertyValue("detailButtonCss" + row.id));
-    return builder.append(this.cssClasses.detailButton, builder.toString() === "").toString();
-  }
-  public getDetailPanelIconCss(row: MatrixDropdownRowModelBase): string {
-    const builder = new CssClassBuilder().append(this.getPropertyValue("detailIconCss" + row.id));
-    return builder.append(this.cssClasses.detailIcon, builder.toString() === "").toString();
-  }
-  public getDetailPanelIconId(row: MatrixDropdownRowModelBase): string {
-    return this.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId;
-  }
-  private updateDetailPanelButtonCss(row: MatrixDropdownRowModelBase) {
-    const classes = this.cssClasses;
-    const isPanelShowing = this.getIsDetailPanelShowing(row);
-
-    const iconBuilder = new CssClassBuilder().append(classes.detailIcon)
-      .append(classes.detailIconExpanded, isPanelShowing);
-    this.setPropertyValue("detailIconCss" + row.id, iconBuilder.toString());
-
-    const buttonBuilder = new CssClassBuilder().append(classes.detailButton)
-      .append(classes.detailButtonExpanded, isPanelShowing);
-    this.setPropertyValue("detailButtonCss" + row.id, buttonBuilder.toString());
   }
   createRowDetailPanel(row: MatrixDropdownRowModelBase): PanelModel {
     if (this.isDesignMode) return this.detailPanel;

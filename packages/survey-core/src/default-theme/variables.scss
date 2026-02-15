@@ -22,7 +22,10 @@ $question-background: var(
 $background: var(--sjs-general-backcolor, var(--background, #fff));
 $background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));
 $background-dim-light: var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9));
-$background-semitransparent: var(--lbr-dialog-screen-color, var(--background-semitransparent, rgba(144, 144, 144, 0.5)));
+$background-semitransparent: var(
+  --lbr-dialog-screen-color,
+  var(--background-semitransparent, rgba(144, 144, 144, 0.5))
+);
 $background-dark: var(--sjs-questionpanel-hovercolor, var(--sjs-general-backcolor-dark, rgb(248, 248, 248)));
 $background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-backcolor-dim-dark, rgb(243, 243, 243)));
 
@@ -196,6 +199,20 @@ $pd-list-fade-in-delay: var(--sjs-pd-list-fade-in-delay, 250ms);
 $pd-list-fade-out-duration: var(--sjs-pd-list-fade-out-duration, 150ms);
 $pd-list-move-out-duration: var(--sjs-pd-list-move-out-duration, 250ms);
 $pd-list-move-out-delay: var(--sjs-pd-list-move-out-delay, 100ms);
+
+$item-panel-fade-in-duration: var(--sjs-item-panel-fade-in-duration, 300ms);
+$item-panel-move-in-duration: var(--sjs-item-panel-move-in-duration, 300ms);
+$item-panel-fade-in-delay: var(--sjs-item-panel-fade-in-delay, 100ms);
+$item-panel-fade-out-duration: var(--sjs-item-panel-fade-out-duration, 150ms);
+$item-panel-move-out-duration: var(--sjs-item-panel-move-out-duration, 250ms);
+$item-panel-move-out-delay: var(--sjs-item-panel-move-out-delay, 100ms);
+
+$item-comment-fade-in-duration: var(--sjs-item-comment-fade-in-duration, 300ms);
+$item-comment-move-in-duration: var(--sjs-item-comment-move-in-duration, 200ms);
+$item-comment-fade-in-delay: var(--sjs-item-comment-fade-in-delay, 150ms);
+$item-comment-fade-out-duration: var(--sjs-item-comment-fade-out-duration, 150ms);
+$item-comment-move-out-duration: var(--sjs-item-comment-move-out-duration, 250ms);
+$item-comment-move-out-delay: var(--sjs-item-comment-move-out-delay, 100ms);
 
 $transition-duration: var(--sjs-transition-duration, 150ms);
 

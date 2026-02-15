@@ -316,6 +316,10 @@ export var defaultCss = {
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
     otherArea: "sd-selectbase__other",
     column: "sd-selectbase__column",
+    itemPanelEnter: "sd-selectbase__item-panel--enter",
+    itemPanelLeave: "sd-selectbase__item-panel--leave",
+    itemCommentEnter: "sd-selectbase__item-comment--enter",
+    itemCommentLeave: "sd-selectbase__item-comment--leave"
   },
   radiogroup: {
     root: "sd-selectbase",
@@ -341,7 +345,11 @@ export var defaultCss = {
     materialDecorator: "sd-item__decorator sd-radio__decorator",
     otherArea: "sd-selectbase__other",
     clearButton: "",
-    column: "sd-selectbase__column"
+    column: "sd-selectbase__column",
+    itemPanelEnter: "sd-selectbase__item-panel--enter",
+    itemPanelLeave: "sd-selectbase__item-panel--leave",
+    itemCommentEnter: "sd-selectbase__item-comment--enter",
+    itemCommentLeave: "sd-selectbase__item-comment--leave"
   },
   boolean: {
     mainRoot: "sd-element sd-question sd-row__question sd-question--boolean",

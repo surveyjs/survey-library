@@ -19,10 +19,7 @@ resources:
       name: surveyjs/survey-utils
   pipelines:
     - pipeline: ReleaseVersion
-      source: Set Custom Release Version
-      trigger: true
-    - pipeline: RunRelease
-      source: Run Release
+      source: Release Version
       trigger: true
 
 variables:
@@ -95,8 +92,6 @@ jobs:
         clean: true
         fetchDepth: 1
       - download: ReleaseVersion
-        artifact: ReleaseVersionFile
-      - download: RunRelease
         artifact: ReleaseVersionFile
 
       - task: NodeTool@0
@@ -288,8 +283,6 @@ jobs:
         clean: true
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -435,8 +428,6 @@ jobs:
         persistCredentials: true
         clean: true
       - download: ReleaseVersion
-        artifact: ReleaseVersionFile
-      - download: RunRelease
         artifact: ReleaseVersionFile
 
       - task: NodeTool@0
@@ -595,8 +586,6 @@ jobs:
         clean: true
       - download: ReleaseVersion
         artifact: ReleaseVersionFile
-      - download: RunRelease
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -753,8 +742,6 @@ jobs:
         persistCredentials: true
         clean: true
       - download: ReleaseVersion
-        artifact: ReleaseVersionFile
-      - download: RunRelease
         artifact: ReleaseVersionFile
 
       - task: NodeTool@0

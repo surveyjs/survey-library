@@ -853,8 +853,7 @@ export class QuestionMatrixModel
             this.visibleColumns,
             values[rowName]
           ),
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val,
+          getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };
         var item = ItemValue.getItemByValue(

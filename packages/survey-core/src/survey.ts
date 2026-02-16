@@ -3305,8 +3305,7 @@ export class SurveyModel extends SurveyElementCore
               value: dataValue,
               displayValue: dataValue,
               isNode: false,
-              getString: (val: any) =>
-                typeof val === "object" ? JSON.stringify(val) : val,
+              getString: (val: any) => this.getValueAsString(val),
             });
           }
         }

@@ -997,8 +997,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           title: "File",
           value: (dataValue.content && dataValue.content) || dataValue,
           displayValue: (dataValue.name && dataValue.name) || dataValue,
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val,
+          getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };
       });

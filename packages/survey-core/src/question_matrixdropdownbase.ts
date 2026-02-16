@@ -2082,8 +2082,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
             title: row.text,
             value: row.value,
             displayValue: this.getRowDisplayValue(false, row, row.value),
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: true,
             data: row.cells
               .map((cell: MatrixDropdownCell) =>

@@ -214,27 +214,6 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
    */
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
-  public get readOnlyText(): string {
-    return this.locReadOnlyText.calculatedText;
-  }
-  public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (): string => {
-        return this.calculateReadOnlyText();
-      };
-    });
-  }
-  protected resetReadOnlyText(): void {
-    this.clearPropertyValue("readOnlyText");
-  }
-  private calculateReadOnlyText(): string {
-    if (!this.useDropdownList) {
-      if (this.isOtherSelected) return this.otherText;
-      if (this.isNoneSelected) return this.noneText;
-      if (!!this.selectedItem) return this.selectedItemText;
-    }
-    return !!this.selectedItem ? this.selectedItemText : this.placeholder;
-  }
   /**
    * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
    * @see choicesLazyLoadPageSize

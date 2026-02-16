@@ -50,9 +50,12 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
     public get locReadOnlyText(): LocalizableString {
       return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
         locStr.onGetTextCallback = (): string => {
-          return this.displayValue || this.placeholder;
+          return this.calculateReadOnlyText() || this.placeholder;
         };
       });
+    }
+    protected calculateReadOnlyText(): string {
+      return this.displayValue;
     }
     protected resetReadOnlyText(): void {
       this.resetPropertyValue("readOnlyText");

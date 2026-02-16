@@ -267,7 +267,11 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();
   }
-  private get selectedItemText(): string {
+  protected calculateReadOnlyText(): string {
+    if (!this.useDropdownList) {
+      if (this.isOtherSelected) return this.otherText;
+      if (this.isNoneSelected) return this.noneText;
+    }
     const item = this.selectedItem;
     return !!item ? item.text : "";
   }

@@ -10,16 +10,15 @@ import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
 import { updateListCssValues } from "./utils/utils";
 import { Helpers } from "./helpers";
+import { questionDropdownMixin } from "./question_dropdown_mixin";
 
 /**
  * A class that describes the Dropdown question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
-export class QuestionDropdownModel extends QuestionSelectBase {
-  dropdownListModelValue: DropdownListModel;
+export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectBase) {
   lastSelectedItemValue: ItemValue = null;
-  private isChoicesLoading: boolean;
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -41,11 +40,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.resetReadOnlyText();
     this.updateInputPlaceholder(this.placeholder);
   }
-  protected onSelectedItemValuesUpdated(): void {
-    super.onSelectedItemValuesUpdated();
-    this.resetReadOnlyText();
-  }
-
   private updateInputPlaceholder(val: string) {
     if (!!this.dropdownListModelValue) {
       this.dropdownListModel.setInputPlaceholder(val);
@@ -56,9 +50,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public set showOptionsCaption(val: boolean) {
     this.allowClear = val;
-  }
-  public get showClearButton(): boolean {
-    return this.allowClear && !this.isEmpty();
   }
   public get optionsCaption(): string {
     return this.placeholder;
@@ -233,7 +224,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       };
     });
   }
-  private resetReadOnlyText(): void {
+  protected resetReadOnlyText(): void {
     this.clearPropertyValue("readOnlyText");
   }
   private calculateReadOnlyText(): string {
@@ -283,14 +274,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       updateListCssValues(res, css);
     }
   }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
-  }
-
   @property() suggestedItem: ItemValue;
   public get selectedItemLocText() {
     const item = this.suggestedItem || this.selectedItem;
@@ -319,75 +302,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
   }
-  public get popupModel(): PopupModel {
-    return this.dropdownListModel.popupModel;
-  }
-
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
-  public onOpenedCallBack(): void {
-    this.onOpened.fire(this, { question: this, choices: this.choices });
-  }
+
   protected onSelectedItemValuesChangedHandler(newValue: any): void {
     this.dropdownListModelValue?.setInputStringFromSelectedItem(newValue);
     super.onSelectedItemValuesChangedHandler(newValue);
   }
-  protected hasUnknownValue(
-    val: any,
-    includeOther: boolean,
-    isFilteredChoices: boolean,
-    checkEmptyValue: boolean
-  ): boolean {
-    if (this.choicesLazyLoadEnabled) { return false; }
-    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
-  }
-  protected needConvertRenderedOtherToDataValue(): boolean {
-    const val = this.otherValue?.trim();
-    if (!val) return false;
-    return super.hasUnknownValue(val, true, false);
-  }
-  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if (this.choicesLazyLoadEnabled) {
-      return this.createItemValue(value, text);
-    } else {
-      return super.getItemIfChoicesNotContainThisValue(value, text);
-    }
-  }
-  protected onVisibleChoicesChanged(): void {
-    super.onVisibleChoicesChanged();
-
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModel.updateItems();
-    }
-  }
-  protected canAddCustomChoices(): boolean {
-    return this.allowCustomChoices;
-  }
-
-  protected getIsQuestionReady(): boolean {
-    return super.getIsQuestionReady() && !this.isChoicesLoading;
-  }
-
-  protected ensureQuestionIsReady(): void {
-    super.ensureQuestionIsReady();
-    if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
-      this.dropdownListModel.loadQuestionChoices();
-    }
-  }
-
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
-    this.updateCustomChoices(this.value, array);
-    super.onLoadChoicesFromUrl(array);
-  }
-
-  protected valueFromData(val: any): any {
-    const value = super.valueFromData(val);
-    if (!!this.survey && this.survey.isSettingData()) {
-      this.updateCustomChoices(value, this.visibleChoices);
-    }
-    return value;
-  }
-
-  private updateCustomChoices(value: any, items: Array<ItemValue>) {
+  protected updateCustomChoices(value: any, items: Array<ItemValue>): void {
     if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
       const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
@@ -395,11 +316,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
       }
     }
-  }
-
-  public setIsChoicesLoading(value: boolean) {
-    this.isChoicesLoading = value;
-    this.updateIsReady();
   }
 
   protected getFirstInputElementId(): string {
@@ -415,7 +331,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     super.clearValue(keepComment, fromUI);
     this.lastSelectedItemValue = null;
-    this.dropdownListModelValue?.clear();
   }
 
   public afterRenderCore(el: any): void {
@@ -435,23 +350,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.clearValueFromUI();
       event.preventDefault();
       event.stopPropagation();
-    }
-  }
-  protected supportEmptyValidation(): boolean { return true; }
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel.onBlur(event);
-    super.onBlurCore(event);
-  }
-  protected onFocusCore(event: any): void {
-    this.dropdownListModel.onFocus(event);
-    super.onFocusCore(event);
-  }
-
-  public dispose(): void {
-    super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
     }
   }
 }

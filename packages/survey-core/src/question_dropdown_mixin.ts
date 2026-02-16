@@ -2,6 +2,7 @@ import type { DropdownListModel } from "./dropdownListModel";
 import type { PopupModel } from "./popup";
 import type { EventBase } from "./base";
 import type { ItemValue } from "./itemvalue";
+import type { LocalizableString } from "./localizablestring";
 import { QuestionSelectBase } from "./question_baseselect";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
@@ -9,6 +10,8 @@ type Constructor<T = {}> = new (...args: any[]) => T;
 export interface IQuestionDropdownMixin {
   dropdownListModelValue: DropdownListModel;
   dropdownListModel: DropdownListModel;
+  readonly readOnlyText: string;
+  readonly locReadOnlyText: LocalizableString;
   readonly popupModel: PopupModel;
   readonly showClearButton: boolean;
   onOpenedCallBack(): void;
@@ -43,7 +46,22 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
       return this.allowClear && !this.isEmpty();
     }
 
-    protected resetReadOnlyText(): void { }
+    public get readOnlyText(): string {
+      return this.locReadOnlyText.calculatedText;
+    }
+    public get locReadOnlyText(): LocalizableString {
+      return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
+        locStr.onGetTextCallback = (): string => {
+          return this.getReadOnlyText();
+        };
+      });
+    }
+    protected getReadOnlyText(): string {
+      return this.displayValue || this.placeholder;
+    }
+    protected resetReadOnlyText(): void {
+      this.resetPropertyValue("readOnlyText");
+    }
 
     protected updateCustomChoices(value: any, items: Array<ItemValue>): void { }
 

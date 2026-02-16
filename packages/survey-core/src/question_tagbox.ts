@@ -129,19 +129,6 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    * A text displayed in the input field when it doesn't have a value.
    */
   @property({ localizable: { defaultStr: true } }) placeholder: string;
-  public get readOnlyText(): string {
-    return this.locReadOnlyText.calculatedText;
-  }
-  public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (): string => {
-        return this.displayValue || this.placeholder;
-      };
-    });
-  }
-  protected resetReadOnlyText(): void {
-    this.resetPropertyValue("readOnlyText");
-  }
   public getType(): string {
     return "tagbox";
   }

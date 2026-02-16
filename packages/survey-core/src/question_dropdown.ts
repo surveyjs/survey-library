@@ -224,9 +224,6 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       };
     });
   }
-  protected resetReadOnlyText(): void {
-    this.clearPropertyValue("readOnlyText");
-  }
   private calculateReadOnlyText(): string {
     if (!this.useDropdownList) {
       if (this.isOtherSelected) return this.otherText;

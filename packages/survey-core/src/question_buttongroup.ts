@@ -2,6 +2,7 @@ import { Serializer, property } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
+import { questionReadOnlyTextMixin } from "./question_readonlytext_mixin";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
 import { updateListCssValues } from "./utils/utils";
@@ -29,7 +30,7 @@ export class ButtonGroupItemValue extends ChoiceItem {
 /**
  * A Model for a button group question.
  */
-export class QuestionButtonGroupModel extends QuestionCheckboxBase {
+export class QuestionButtonGroupModel extends questionReadOnlyTextMixin(QuestionCheckboxBase) {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
@@ -84,19 +85,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   public isItemSelected(item: ItemValue): boolean {
     return item.value == this.value;
   }
-  public get readOnlyText(): string {
-    return this.locReadOnlyText.calculatedText;
-  }
-  public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (): string => {
-        return this.displayValue || this.placeholder;
-      };
-    });
-  }
-  private resetReadOnlyText(): void {
-    this.resetPropertyValue("readOnlyText");
-  }
+
   @property({ defaultValue: false }) inputHasValue: boolean;
 
   public get showSelectedItemLocText(): boolean {

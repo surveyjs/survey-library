@@ -3,6 +3,7 @@ import { Question } from "./question";
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { questionReadOnlyTextMixin } from "./question_readonlytext_mixin";
 import { settings } from "./settings";
 import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -101,7 +102,7 @@ export class RatingItem extends ItemValue {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
-export class QuestionRatingModel extends Question implements IRatingItemOwner {
+export class QuestionRatingModel extends questionReadOnlyTextMixin(Question) implements IRatingItemOwner {
   constructor(name: string) {
     super(name);
 
@@ -867,19 +868,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public isItemSelected(item: ItemValue): boolean {
     return item.value == this.value;
   }
-  public get readOnlyText(): string {
-    return this.locReadOnlyText.calculatedText;
-  }
-  public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (): string => {
-        return this.displayValue || this.placeholder;
-      };
-    });
-  }
-  private resetReadOnlyText(): void {
-    this.resetPropertyValue("readOnlyText");
-  }
+
   public needResponsiveWidth() {
     const rateStep = this.getPropertyValue("rateStep");
     const rateMax = this.getPropertyValue("rateMax");

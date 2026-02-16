@@ -1430,8 +1430,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
               this.visibleChoices,
               dataValue
             ),
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: false,
           };
           if (!!choice) {

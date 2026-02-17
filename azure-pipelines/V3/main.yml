@@ -228,7 +228,7 @@ jobs:
         displayName: "Copy generated docs to the local surveyjs-site-data repo"
 
       - powershell: |
-          $branch = "$(CurrentBranch)"
+          $branch = "main"
           cd $(Build.SourcesDirectory)/surveyjs-site-data
           $env:GIT_REDIRECT_STDERR = '2>&1'
           git config --global user.email "surveyjs.org@gmail.com"

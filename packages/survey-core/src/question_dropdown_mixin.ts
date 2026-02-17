@@ -3,6 +3,7 @@ import type { PopupModel } from "./popup";
 import type { EventBase } from "./base";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
+import { LocalizableString } from "./localizablestring";
 
 type Constructor<T = {}> = new (...args: any[]) => T;
 
@@ -43,7 +44,22 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
       return this.allowClear && !this.isEmpty();
     }
 
-    protected resetReadOnlyText(): void { }
+    public get readOnlyText(): string {
+      return this.locReadOnlyText.calculatedText;
+    }
+    public get locReadOnlyText(): LocalizableString {
+      return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
+        locStr.onGetTextCallback = (): string => {
+          return this.calculateReadOnlyText() || this.placeholder;
+        };
+      });
+    }
+    protected calculateReadOnlyText(): string {
+      return this.displayValue;
+    }
+    protected resetReadOnlyText(): void {
+      this.resetPropertyValue("readOnlyText");
+    }
 
     protected updateCustomChoices(value: any, items: Array<ItemValue>): void { }
 

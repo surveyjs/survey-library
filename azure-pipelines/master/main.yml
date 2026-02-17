@@ -243,7 +243,7 @@ jobs:
               git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
               git push origin $branch
           }
-        displayName: "git surveyjs-site-data push updated docs for $(CurrentBranch)"
+        displayName: "Git surveyjs-site-data push updated docs for main"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-utils

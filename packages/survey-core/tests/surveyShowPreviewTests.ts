@@ -358,7 +358,7 @@ QUnit.test(
     );
     var action = actionContainer.actions[0];
     assert.equal(action.title, "Edit");
-    assert.equal(action.innerCss, "sv_nav_btn sv_edit_btn");
+    assert.equal(action.innerCss, "sv_edit_btn");
     var panel = <PanelModel>survey.currentPage.elements[1].elements[0];
     assert.equal(panel.hasEditButton, false, "The standard panel doesn't have edit button");
     action.action();
@@ -861,15 +861,15 @@ QUnit.test("Add row button on showPreview",
       ]
     });
     survey.showPreview();
-    assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix rendered first time)");
+    assert.notOk(survey.getAllQuestions()[1].getShowToolbar("bottom"), "do not show AddRow on preview (matrix rendered first time)");
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview");
+    assert.ok(survey.getAllQuestions()[1].getShowToolbar("bottom"), "show AddRow on cancel preview");
 
     survey.getAllQuestions()[1].resetRenderedTable();
-    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow");
+    assert.ok(survey.getAllQuestions()[1].getShowToolbar("bottom"), "show AddRow");
     survey.showPreview();
-    assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix has been rendered already)");
+    assert.notOk(survey.getAllQuestions()[1].getShowToolbar("bottom"), "do not show AddRow on preview (matrix has been rendered already)");
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview again");
+    assert.ok(survey.getAllQuestions()[1].getShowToolbar("bottom"), "show AddRow on cancel preview again");
   }
 );

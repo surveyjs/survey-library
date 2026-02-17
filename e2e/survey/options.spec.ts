@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "options";
 
@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
       const firstElement = page.locator(".sd-item__decorator").first();
 
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
+      await getButtonByText(page, "Next").click();
       await expect(questionNumber).toHaveText("2.");
 
       await page.evaluate(() => {
@@ -161,7 +161,7 @@ frameworks.forEach(framework => {
       await expect(pageTitle).toContainText(pageTitleText);
 
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
+      await getButtonByText(page, "Next").click();
 
       await expect(pageTitle).toContainText("2. ");
       await expect(pageTitle).toContainText("What language(s) are you currently using?");
@@ -238,7 +238,7 @@ frameworks.forEach(framework => {
       await expect(progressbar).toContainText("Page 1 of 3");
 
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
+      await getButtonByText(page, "Next").click();
 
       await expect(progressbar).toContainText("Page 2 of 3");
     });
@@ -251,10 +251,10 @@ frameworks.forEach(framework => {
       const firstElement = page.locator(".sd-item__decorator").first();
 
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
+      await getButtonByText(page, "Next").click();
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Complete").click();
 
       await expect(page.locator(".sd-completedpage h1", { hasText: "Wombat" })).toBeVisible();
     });
@@ -264,11 +264,11 @@ frameworks.forEach(framework => {
       const firstElement = page.locator(".sd-item__decorator").first();
 
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
+      await getButtonByText(page, "Next").click();
       await firstElement.click();
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Previous\"]").click();
-      await page.locator("input[value=\"Previous\"]").click();
+      await getButtonByText(page, "Next").click();
+      await getButtonByText(page, "Previous").click();
+      await getButtonByText(page, "Previous").click();
 
       await expect(await pageTitle.textContent()).toBe("What operating system do you use?");
     });

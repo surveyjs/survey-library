@@ -1332,45 +1332,6 @@ export class SurveyModel extends SurveyElementCore
   public get bodyContainerCss(): string {
     return this.css.bodyContainer;
   }
-  private get cssNavigationComplete() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.complete
-    );
-  }
-  private get cssNavigationPreview() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.preview
-    );
-  }
-  public get cssNavigationEdit() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.edit
-    );
-  }
-  private get cssNavigationPrev() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.prev
-    );
-  }
-  private get cssNavigationStart() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.start
-    );
-  }
-  private get cssNavigationNext() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.next
-    );
-  }
-  private get cssSurveyNavigationButton(): string {
-    return new CssClassBuilder().append(this.css.navigationButton).append(this.css.bodyNavigationButton).toString();
-  }
   @property() completedCss: string;
   @property() completedBeforeCss: string;
   @property() loadingBodyCss: string;
@@ -2479,11 +2440,6 @@ export class SurveyModel extends SurveyElementCore
     return this.getOrCreateHtmlLocString("loadingHtml", "loadingSurvey", "loading");
   }
 
-  private getNavigationCss(main: string, btn: string) {
-    return new CssClassBuilder().append(main)
-      .append(btn).toString();
-  }
-
   private navigationBarValue: ActionContainer;
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
@@ -2507,12 +2463,6 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
   public addNavigationItem(val: IAction): Action {
-    if (!val.component) {
-      val.component = "sv-nav-btn";
-    }
-    if (!val.innerCss) {
-      val.innerCss = this.cssSurveyNavigationButton;
-    }
     const originalActionFunc = val.action;
     val.action = () => {
       this.waitAndExecute(() => originalActionFunc());
@@ -2524,76 +2474,63 @@ export class SurveyModel extends SurveyElementCore
   }
   private _updateNavigationItemCssCallback: () => void;
   protected createNavigationActions(): Array<IAction> {
-    const defaultComponent = "sv-nav-btn";
+    const onMouseDownCallback = () => this.navigationMouseDown();
     const navStart = new Action({
       id: "sv-nav-start",
       visible: <any>new ComputedUpdater<boolean>(() => this.isStartPageActive),
       visibleIndex: 10,
       locTitle: this.locStartSurveyText,
       action: () => this.start(),
-      component: defaultComponent
     });
     const navPrev = new Action({
       id: "sv-nav-prev",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
       enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 20,
-      data: {
-        mouseDown: () => this.navigationMouseDown(),
-      },
+      onMouseDown: onMouseDownCallback,
       locTitle: this.locPagePrevText,
       action: () => this.performPrevious(),
-      component: defaultComponent
     });
     const navNext = new Action({
       id: "sv-nav-next",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
       enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 30,
-      data: {
-        mouseDown: () => this.nextPageMouseDown(),
-      },
+      onMouseDown: onMouseDownCallback,
       locTitle: this.locPageNextText,
       action: () => this.nextPageUIClick(),
-      component: defaultComponent
     });
     const navPreview = new Action({
       id: "sv-nav-preview",
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
       enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 40,
-      data: {
-        mouseDown: () => this.navigationMouseDown(),
-      },
+      onMouseDown: onMouseDownCallback,
       locTitle: this.locPreviewText,
       action: () => this.showPreview(),
-      component: defaultComponent
     });
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
       enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 50,
-      data: {
-        mouseDown: () => this.navigationMouseDown(),
-      },
+      onMouseDown: onMouseDownCallback,
       locTitle: this.locCompleteText,
       action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
-      component: defaultComponent
     });
     this._updateNavigationItemCssCallback = () => {
-      navStart.innerCss = this.cssNavigationStart;
-      navPrev.innerCss = this.cssNavigationPrev;
-      navNext.innerCss = this.cssNavigationNext;
-      navPreview.innerCss = this.cssNavigationPreview;
-      navComplete.innerCss = this.cssNavigationComplete;
+      navStart.innerCss = this.css.navigation.start;
+      navPrev.innerCss = this.css.navigation.prev;
+      navNext.innerCss = this.css.navigation.next;
+      navPreview.innerCss = this.css.navigation.preview;
+      navComplete.innerCss = this.css.navigation.complete;
     };
     return [navStart, navPrev, navNext, navPreview, navComplete];
   }
   private updateNavigationCss() {
     const val = this.navigationBarValue;
     if (!!val) {
-      val.cssClasses = this.css.actionBar;
+      val.cssClasses = this.css.navigationBar;
       val.containerCss = this.css.footer;
       !!this._updateNavigationItemCssCallback && this._updateNavigationItemCssCallback();
     }

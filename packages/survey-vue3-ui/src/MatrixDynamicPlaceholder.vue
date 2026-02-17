@@ -8,18 +8,7 @@
         :locString="question.locNoRowsText"
       />
     </div>
-    <button
-      v-if="question.renderedTable.showAddRow"
-      type="button"
-      :class="question.getAddRowButtonCss(true)"
-      @click="addRowClick"
-    >
-      <SvComponent
-        :is="'survey-string'"
-        :locString="question.locAddRowText"
-      />
-      <span :class="question.cssClasses.iconAdd"></span>
-    </button>
+    <SvComponent v-if="!question.isDesignMode" :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
   </div>
 </template>
 
@@ -27,11 +16,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionMatrixDynamicModel } from "survey-core";
 
-const props = defineProps<{
+defineProps<{
   question: QuestionMatrixDynamicModel;
 }>();
-
-const addRowClick = () => {
-  props.question.addRowUI();
-};
 </script> 

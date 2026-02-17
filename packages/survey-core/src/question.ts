@@ -1927,10 +1927,10 @@ export class Question extends SurveyElement<Question>
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.hasInput && (!withError || this.currentErrorCount > 0) ? this : null;
   }
-  protected getFirstInputElementId(): string {
+  protected getFirstInputElementId(): string | (() => HTMLElement) {
     return this.inputId;
   }
-  protected getFirstErrorInputElementId(): string {
+  protected getFirstErrorInputElementId(): string | (() => HTMLElement) {
     return this.getFirstInputElementId();
   }
   public supportComment(): boolean {

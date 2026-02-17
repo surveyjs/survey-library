@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getVisibleListItemByText, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionJson, getVisibleListItemByText, test, expect, getButtonByText } from "../helper";
 
 const title = "paneldynamic";
 
@@ -178,8 +178,8 @@ frameworks.forEach((framework) => {
       const deceasedAgeDropdown = page.locator("div[data-name='deceasedage'] .sd-dropdown");
       const relativeillnessDropdown = page.locator("div[data-name='relativeillness'] .sd-dropdown");
 
-      const nextButtonSelector = page.locator("button[title='Next']");
-      const prevButtonSelector = page.locator("button[title='Previous']");
+      const nextButtonSelector = getButtonByText(page, "Next");
+      const prevButtonSelector = getButtonByText(page, "Previous");
 
       const addRowSelector = page.locator("button").locator("span").filter({ hasText: "Add Row" });
 
@@ -225,7 +225,7 @@ frameworks.forEach((framework) => {
 
       await nextButtonSelector.click();
       await page.getByRole("button", { name: "Remove the relative" }).click();
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -291,7 +291,7 @@ frameworks.forEach((framework) => {
       await textSelector.fill("4");
       await addNewSelector.click();
       await textSelector.fill("5");
-      await page.locator("input[title='Complete']").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.panel).toEqual([{ q1: "1" }, { q1: "2" }, { q1: "3" }, { q1: "4" }, { q1: "5" }]);
@@ -409,7 +409,7 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.getByRole("button", { name: "Add new" }).first().click();
-      await page.locator("input[value='Complete']").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         sharedData: [
@@ -474,7 +474,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("456");
       await page.locator("button").filter({ hasText: "Add" }).click();
       await page.keyboard.type("789");
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -508,7 +508,7 @@ frameworks.forEach((framework) => {
       await page.locator("button").filter({ hasText: "Add" }).click();
       await page.waitForTimeout(1000);
       await page.keyboard.type("789");
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -560,11 +560,11 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await expect(page.getByRole("button", { name: "Add new" })).toBeFocused();
+      await expect(getButtonByText(page, "Add new")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "name" })).toBeFocused();
       await page.keyboard.type("123");
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ panel1: [{ name: "123" }] });
@@ -596,11 +596,11 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.waitForTimeout(200);
       await page.keyboard.press("Space");
-      await expect(page.getByRole("button", { name: "Add new" })).toBeFocused();
+      await expect(getButtonByText(page, "Add new")).toBeFocused();
       await page.keyboard.press("Space");
       await expect(page.getByRole("textbox", { name: "name" }).first()).toBeFocused();
       await page.keyboard.type("123");
-      await page.locator(".sd-navigation__complete-btn").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ panel1: [{ name: "abc123" }] });
@@ -645,7 +645,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.type("I eat orange");
 
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         "data1": [

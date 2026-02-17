@@ -18,10 +18,11 @@
 						<div class="sd-action-bar">
 							<div class="sv-action">
 								<div class="sv-action__content">
-									<button aria-controls="testid0row2cell1detailPanel" aria-expanded="true" class="sd-table__cell--detail-button sd-table__cell--detail-button--expanded" title="Hide Details" type="button">
-										<svg class="sd-detail-panel__icon sd-detail-panel__icon--expanded sv-svg-icon" role="presentation">
+									<button aria-expanded="true" class="sd-action sd-action--icon sd-table__cell--detail-button" role="button" tabindex="0" title="Hide Details" type="button">
+										<svg class="sd-action__icon sv-svg-icon" role="presentation">
 											<use xlink:href="#icon-collapsedetails-16x16" class="">
 											</use>
+											<title class="">Hide Details</title>
 										</svg>
 									</button>
 								</div>
@@ -75,10 +76,11 @@
 						<div class="sd-action-bar">
 							<div class="sv-action">
 								<div class="sv-action__content">
-									<button aria-expanded="false" class="sd-table__cell--detail-button" title="Show Details" type="button">
-										<svg class="sd-detail-panel__icon sv-svg-icon" role="presentation">
+									<button aria-expanded="false" class="sd-action sd-action--icon sd-table__cell--detail-button" role="button" tabindex="0" title="Show Details" type="button">
+										<svg class="sd-action__icon sv-svg-icon" role="presentation">
 											<use xlink:href="#icon-expanddetails-16x16" class="">
 											</use>
+											<title class="">Show Details</title>
 										</svg>
 									</button>
 								</div>
@@ -110,10 +112,14 @@
 		</table>
 	</div>
 	<div class="sd-matrixdynamic__footer">
-		<button class="sd-action sd-matrixdynamic__add-btn sd-matrixdynamic__btn" type="button">
-			<span class="sv-string-viewer">Add Row</span>
-			<span class="sd-hidden">
-			</span>
-		</button>
+		<div class="sd-action-bar">
+			<div class="sv-action">
+				<div class="sv-action__content">
+					<button class="sd-action sd-matrixdynamic__add-btn sd-matrixdynamic__btn" role="button" tabindex="0" title="Add Row" type="button">
+						<span class="sd-action__title">Add Row</span>
+					</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>

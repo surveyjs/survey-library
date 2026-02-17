@@ -8,7 +8,7 @@
         :locString="question.locNoEntriesText"
       ></SvComponent>
     </span>
-    <SvComponent :is="'sv-paneldynamic-add-btn'" :data="{ question }" />
+    <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar"></SvComponent>
   </div>
 </template>
 

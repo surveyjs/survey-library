@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getVisibleListItemByText, getData } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getVisibleListItemByText, getData, getButtonByText } from "../helper";
 
 const title = "dropdownRestful";
 
@@ -63,7 +63,7 @@ frameworks.forEach(framework => {
 
       await page.waitForTimeout(1000);
       await page.selectOption("select", "Cuba");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.country).toEqual("Cuba");
@@ -80,7 +80,7 @@ frameworks.forEach(framework => {
       await expect(page.locator("select option[value=\"Cuba\"]")).toHaveCount(0);
       await expect(page.locator("select option[value=\"CU\"]")).toHaveCount(1);
       await page.selectOption("select", "Cuba");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.country).toEqual("CU");
@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(1000);
       await questionDropdownSelect.click();
       await getVisibleListItemByText(page, "Cuba").click();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.country).toEqual("Cuba");
@@ -122,7 +122,7 @@ frameworks.forEach(framework => {
       surveyData = await getData(page);
       expect(surveyData.country).toEqual("CU");
 
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.country).toEqual("CU");
     });
@@ -159,7 +159,7 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(1000);
       await questionDropdownSelect.click();
       await expect(getVisibleListItemByText(page, "Romania")).toBeVisible();
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q2).toEqual("Romania");

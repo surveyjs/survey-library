@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone, getButtonByText } from "../helper";
 
 const title = "Text question in western timezone";
 
@@ -46,7 +46,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       expect(await page.locator("input").nth(0).inputValue()).toBe("12:34");
       expect(await page.locator("input").nth(1).inputValue()).toBe("2022");
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

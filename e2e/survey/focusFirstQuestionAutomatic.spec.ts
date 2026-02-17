@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewportForShadowDom, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewportForShadowDom, test, expect, getButtonByText } from "../helper";
 
 const title = "autoFocusFirstQuestion";
 
@@ -26,9 +26,9 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.waitForTimeout(500);
       await page.keyboard.type("val1");
-      await page.click("input[value=Next]");
+      await getButtonByText(page, "Next").click();
       await page.keyboard.type("val2");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: "val1", q2: "val2" });
@@ -37,9 +37,9 @@ frameworks.forEach((framework) => {
     test("Check first focused question, avoid focusing question in code", async ({ page }) => {
       await initSurvey(page, framework, json, false, { autoFocusFirstQuestion: false });
       await page.keyboard.type("val1");
-      await page.click("input[value=Next]");
+      await getButtonByText(page, "Next").click();
       await page.keyboard.type("val2");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({});
@@ -50,9 +50,9 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       json["autoFocusFirstQuestion"] = true;
       await page.keyboard.type("val1");
-      await page.click("input[value=Next]");
+      await getButtonByText(page, "Next").click();
       await page.keyboard.type("val2");
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({});
@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
       elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 0);
       await expect(elementVisisbleInViewPort).toBeFalsy();
 
-      await page.click("input[value=Complete]");
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: "b", panel1_q1: "a" });
     });

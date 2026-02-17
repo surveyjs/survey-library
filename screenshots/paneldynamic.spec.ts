@@ -63,12 +63,6 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-without-remove-button.png");
 
       await page.evaluate(() => {
-        (window as any).survey.getAllQuestions()[0].allowRemovePanel = true;
-        (window as any).survey.getQuestionByName("applications").legacyNavigation = true;
-      });
-      await compareScreenshot(page, paneldynamicRoot, "paneldynamic-progress-top-legacy-navigation.png");
-
-      await page.evaluate(() => {
         (window as any).survey.getQuestionByName("applications").panelCount = 0;
       });
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-empty.png");

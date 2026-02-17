@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, test, expect } from "../helper";
+import { frameworks, url, initSurvey, test, expect, getButtonByText } from "../helper";
 
 const title = "Survey";
 
@@ -160,7 +160,7 @@ frameworks.forEach((framework) => {
       });
 
       await page.getByRole("button", { name: "Preview" }).click();
-      await page.click("input[value='Complete']");
+      await getButtonByText(page, "Complete").click();
     });
   });
 });

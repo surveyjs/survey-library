@@ -131,7 +131,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   lazyRenderFirstBatchSize: number;
   cancelPreviewByPage(panel: IPanel): any;
   locEditText: LocalizableString;
-  cssNavigationEdit: string;
   rootElement?: HTMLElement;
 
   requiredMark: string;

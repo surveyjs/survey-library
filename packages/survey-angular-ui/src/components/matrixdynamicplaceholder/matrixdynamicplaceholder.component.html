@@ -2,13 +2,5 @@
   <div [class]="question.cssClasses.noRowsText">
     <sv-ng-string [model]="question.locNoRowsText"></sv-ng-string>
   </div>
-  <button
-    *ngIf="question.renderedTable.showAddRow"
-    type="button"
-    [class]="question.getAddRowButtonCss(true)"
-    (click)="addRowClick()"
-  >
-    <sv-ng-string [model]="question.locAddRowText"></sv-ng-string>
-    <span [class]="question.cssClasses.iconAdd"></span>
-  </button>
+  <sv-ng-action-bar *ngIf="question.getShowToolbar()" [model]="question.toolbar"></sv-ng-action-bar>
 </div> 

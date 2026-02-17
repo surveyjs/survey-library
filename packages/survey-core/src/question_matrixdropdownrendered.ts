@@ -340,15 +340,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get showHeader(): boolean {
     return this.getPropertyValue("showHeader");
   }
-  public get showAddRow(): boolean {
-    return this.getPropertyValue("showAddRow", false);
-  }
-  public get showAddRowOnTop(): boolean {
-    return this.getPropertyValue("showAddRowOnTop", false);
-  }
-  public get showAddRowOnBottom(): boolean {
-    return this.getPropertyValue("showAddRowOnBottom", false);
-  }
   public get showFooter(): boolean {
     return this.matrix.hasFooter && this.matrix.isColumnLayoutHorizontal;
   }
@@ -394,31 +385,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.buildHeader();
     this.buildRows();
     this.buildFooter();
-    this.updateShowTableAndAddRow();
+    this.updateShowTable();
   }
-  public updateShowTableAndAddRow() {
+  public updateShowTable() {
     const showTable =
       this.rows.length > 0 ||
       this.matrix.isDesignMode ||
       !this.matrix.getShowColumnsIfEmpty();
     this.setPropertyValue("showTable", showTable);
-    const isDesignMode = this.matrix.isDesignMode;
-    const showAddRow = !isDesignMode && this.matrix.canAddRow && showTable;
-    let showAddRowOnTop = showAddRow;
-    let showAddRowOnBottom = showAddRow;
-    if (showAddRowOnTop) {
-      if (this.matrix.getAddRowLocation() === "default") {
-        showAddRowOnTop = !this.matrix.isColumnLayoutHorizontal;
-      } else {
-        showAddRowOnTop = this.matrix.getAddRowLocation() !== "bottom";
-      }
-    }
-    if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
-      showAddRowOnBottom = !showAddRowOnTop;
-    }
-    this.setPropertyValue("showAddRow", !isDesignMode && this.matrix.canAddRow);
-    this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
-    this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }
   public onAddedRow(row: MatrixDropdownRowModelBase, index: number): void {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
@@ -426,7 +400,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     let rowIndex = this.getRenderedRowIndexByIndex(index);
     this.rowsActions.splice(index, 0, this.buildRowActions(row));
     this.addHorizontalRow(this.rows, row, rowIndex);
-    this.updateShowTableAndAddRow();
+    this.updateShowTable();
   }
   private getRenderedRowIndexByIndex(index: number): number {
     let res = 0;
@@ -479,7 +453,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       removeCount++;
     }
     this.rows.splice(rowIndex, removeCount);
-    this.updateShowTableAndAddRow();
+    this.updateShowTable();
   }
   public onDetailPanelChangeVisibility(row: MatrixDropdownRowModelBase, isShowing: boolean): void {
     const rowIndex = this.getRenderedRowIndex(row);
@@ -763,65 +737,45 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ) {
     const matrix = <QuestionMatrixDynamicModel>this.matrix;
     if (this.hasRemoveRows && this.canRemoveRow(row)) {
-      if (!this.showRemoveButtonAsIcon) {
-        actions.push(
-          new Action({
-            id: "remove-row",
-            css: "sv-action--remove-row",
-            location: "end",
-            enabled: !this.matrix.isInputReadOnly,
-            component: "sv-matrix-remove-button",
-            data: { row: row, question: this.matrix },
-          })
-        );
-      } else {
-        actions.push(
-          new Action({
-            id: "remove-row",
-            css: "sv-action--remove-row",
-            iconName: "icon-delete-24x24",
-            iconSize: "auto",
-            component: "sv-action-bar-item",
-            innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
-            location: "end",
-            showTitle: false,
-            title: matrix.removeRowText,
-            enabled: !matrix.isInputReadOnly,
-            data: { row: row, question: matrix },
-            action: () => {
-              matrix.removeRowUI(row);
-            },
-          })
-        );
-      }
+      actions.push(
+        new Action({
+          id: "remove-row",
+          css: "sv-action--remove-row",
+          iconSize: "auto",
+          innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
+          location: "end",
+          iconName: !this.showRemoveButtonAsIcon ? "" : "icon-delete-24x24",
+          showTitle: !this.showRemoveButtonAsIcon as boolean,
+          locTitle: matrix.locRemoveRowText,
+          enabled: !matrix.isInputReadOnly,
+          visibleIndex: this.matrix.isMobile ? 20 : undefined,
+          data: { row: row, question: matrix },
+          action: () => {
+            matrix.removeRowUI(row);
+          },
+        })
+      );
     }
 
     if (row.hasPanel) {
-      if (this.matrix.isMobile) {
-        actions.unshift(
-          new Action({
-            id: "show-detail-mobile",
-            css: "sv-action--show-detail-mobile",
-            title: <any>new ComputedUpdater(() => row.isDetailPanelShowing ? this.matrix.getLocalizationString("hideDetails") : this.matrix.getLocalizationString("showDetails")),
-            showTitle: true,
-            location: "end",
-            action: (context) => {
-              row.showHideDetailPanelClick();
-            },
-          })
-        );
-      } else {
-        actions.push(
-          new Action({
-            id: "show-detail",
-            title: <any>new ComputedUpdater(() => row.isDetailPanelShowing ? this.matrix.getLocalizationString("hideDetails") : this.matrix.getLocalizationString("showDetails")),
-            showTitle: false,
-            location: "start",
-            component: "sv-matrix-detail-button",
-            data: { row: row, question: this.matrix },
-          })
-        );
-      }
+      actions.push(
+        new Action({
+          id: "show-detail",
+          css: this.matrix.isMobile ? "sv-action--show-detail-mobile" : undefined,
+          innerCss: this.matrix.cssClasses.detailButton,
+          title: <any>new ComputedUpdater(() => row.isDetailPanelShowing ? this.matrix.getLocalizationString("hideDetails") : this.matrix.getLocalizationString("showDetails")),
+          showTitle: this.matrix.isMobile,
+          location: this.matrix.isMobile ? "end" : "start",
+          iconName: this.matrix.isMobile ? "" : new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId) as any as string,
+          visibleIndex: this.matrix.isMobile ? 10 : undefined,
+          ariaExpanded: new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row)) as any as boolean,
+          ariaControls: new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row) ? row.detailPanelId : null) as any as string,
+          iconSize: "auto",
+          action: () => {
+            row.showHideDetailPanelClick();
+          },
+        })
+      );
     }
   }
   private createErrorRow(

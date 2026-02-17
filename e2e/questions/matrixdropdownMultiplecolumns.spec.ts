@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "matrixdropdownMultiplecolumns";
 
@@ -63,7 +63,7 @@ frameworks.forEach((framework) => {
       await page.locator(`${baseSelectorFunc`${5}${6}`} label`).click();
       await page.locator(`${baseSelectorFunc`${1}${7}`} textarea`).fill("Some comment");
 
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult.question1.Excited).toEqual({
@@ -95,7 +95,7 @@ frameworks.forEach((framework) => {
       await page.locator(`${baseSelectorFunc`${5}${6}`} label`).click();
       await page.locator(`${baseSelectorFunc`${1}${7}`} textarea`).fill("Some comment");
 
-      await page.locator("input[value=Complete]").click();
+      await getButtonByText(page, "Complete").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult.question1.Excited).toEqual({

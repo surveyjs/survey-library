@@ -1030,6 +1030,7 @@ var json = {
   ]
 };
 
+/*
 json = {
         showQuestionNumbers: true,
         "elements": [
@@ -1042,7 +1043,7 @@ json = {
           }
         ]
 };
-
+*/
 // json = {
 //       elements: [
 //         {
@@ -1060,6 +1061,7 @@ json = {
 
 var model = new Survey.Model(json);
 //model.setDesignMode(true);
+model.applyTheme(SurveyTheme.DefaultDark);
 window.survey = model;
 
 // class CustomTOCItem extends React.Component {

@@ -89,7 +89,7 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
-
+import { legacyCssVariables } from "./legacy-vars";
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
@@ -8260,6 +8260,15 @@ export class SurveyModel extends SurveyElementCore
     this.onCreateCustomChoiceItem.fire(this, options);
   }
 
+  private patchLegacyCSSVariables(newCssVariable: any) {
+    Object.keys(legacyCssVariables).forEach((variable) => {
+      if (!!newCssVariable[variable]) {
+        newCssVariable[legacyCssVariables[variable]] = newCssVariable[variable];
+        delete newCssVariable[variable];
+      }
+    });
+  }
+
   /**
    * Applies a specified theme to the survey.
    *
@@ -8269,6 +8278,7 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
+    this.patchLegacyCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;

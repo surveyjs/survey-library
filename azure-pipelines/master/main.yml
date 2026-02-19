@@ -9,6 +9,10 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/service
+    - repository: SiteData
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/surveyjs-site-data
     - repository: EmptyRepo
       type: github
       endpoint: github.com_surveyjsdeveloper
@@ -84,6 +88,10 @@ jobs:
       - checkout: self
         persistCredentials: true
       - checkout: Service
+        persistCredentials: true
+        clean: true
+        fetchDepth: 1
+      - checkout: SiteData
         persistCredentials: true
         clean: true
         fetchDepth: 1
@@ -206,6 +214,36 @@ jobs:
               git push origin $branch
           }
         displayName: "git surveyjs/service push updated docs for $(CurrentBranch)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
+          Contents: |
+            classes.json
+            pmes.json
+            surveyjs_definition.json
+          TargetFolder: "$(Build.SourcesDirectory)/surveyjs-site-data/DocsLibrary"
+          OverWrite: true
+          CleanTargetFolder: false
+        displayName: "Copy generated docs to the local surveyjs-site-data repo"
+
+      - powershell: |
+          $branch = "main"
+          cd $(Build.SourcesDirectory)/surveyjs-site-data
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+          
+          git fetch origin $branch
+          git checkout -B $branch origin/$branch
+          git reset --hard origin/$branch
+
+          git add DocsLibrary
+          if (git status --porcelain) {
+              git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
+              git push origin $branch
+          }
+        displayName: "Git surveyjs-site-data push updated docs for main"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-utils

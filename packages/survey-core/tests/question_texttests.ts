@@ -738,6 +738,21 @@ QUnit.test("Show error if number is not valid because of step, #10348", (assert)
   q1.value = 9;
   assert.equal(q1.validate(), true, "9 is valid");
 });
+QUnit.test("Incorrect floating point validation of a numeric input, #10927", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "inputType": "number",
+        "step": 0.01
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 1.13;
+  assert.equal(q1.validate(), true, "1.13 is valid");
+});
 QUnit.test("Numeric Single-Line Input: step validation floating point issues, #10393", (assert) => {
   const survey = new SurveyModel({
     elements: [

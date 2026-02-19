@@ -1103,6 +1103,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       action: () => {
         this.addRowUI();
       },
+      iconName: <any>new ComputedUpdater(() => this.cssClasses.iconAddId),
       innerCss: new ComputedUpdater(() => new CssClassBuilder().append(this.cssClasses.button).append(this.cssClasses.buttonAdd).toString()) as any as string,
       id: "sv-md-add-btn"
     });

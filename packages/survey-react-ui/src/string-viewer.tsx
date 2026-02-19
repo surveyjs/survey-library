@@ -9,7 +9,7 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   }
   private rootRef: React.RefObject<HTMLSpanElement>;
   private get locStr(): LocalizableString {
-    return this.props.locStr;
+    return this.props.model || this.props.locStr;
   }
   private get style(): any {
     return this.props.style;

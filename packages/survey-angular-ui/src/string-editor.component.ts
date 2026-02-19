@@ -8,7 +8,7 @@ import { AngularComponentFactory } from "./component-factory";
 })
 export class StringEditorComponent {
   @Input() model!: LocalizableString;
-
+  @Input() textClass?: string;
   onInput = (event: any) => {
     this.model.text = event.target.innerText;
   };
@@ -16,5 +16,9 @@ export class StringEditorComponent {
     event.preventDefault();
     event.stopPropagation();
   };
+  className: string = "";
+  ngOnInit(): void {
+    this.className = this.model.getStringViewerClassName(this.textClass);
+  }
 }
 AngularComponentFactory.Instance.registerComponent(LocalizableString.editableRenderer, StringEditorComponent);

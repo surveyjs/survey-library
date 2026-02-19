@@ -11,9 +11,11 @@
 import type { LocalizableString } from "survey-core";
 import { useLocString } from "./base";
 const props = defineProps<{
-  locString: LocalizableString;
+  locString?: LocalizableString; //deprecated, use model instead
+  model?: LocalizableString;
   textClass?: string;
 }>();
-const renderedHtml = useLocString(() => props.locString);
-const className = props.locString.getStringViewerClassName(props.textClass);
+const locString = props.model || props.locString;
+const renderedHtml = useLocString(() => locString);
+const className = locString.getStringViewerClassName(props.textClass);
 </script>

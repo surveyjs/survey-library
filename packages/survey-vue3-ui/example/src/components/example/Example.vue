@@ -5,12 +5,9 @@
   let survey = new Model({
         elements: [
           {
-            type: "slider",
+            type: "boolean",
             name: "slider1",
-            min: -2,
-            max: 2,
-            step: 1,
-            labelCount: 5
+           // swapOrder: true,
           },
           {
             type: "slider",

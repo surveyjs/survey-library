@@ -11,7 +11,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     key?: string
   ): React.JSX.Element {
     return ReactElementFactory.Instance.createElement(locStr.renderAs, {
-      locStr: locStr.renderAsData,
+      model: locStr.renderAsData,
       style: style,
       key: key
     });

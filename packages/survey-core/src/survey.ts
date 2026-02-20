@@ -8261,6 +8261,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   private patchLegacyCSSVariables(newCssVariable: any) {
+    if (!newCssVariable) return;
     Object.keys(legacyCssVariables).forEach((variable) => {
       if (!!newCssVariable[variable]) {
         newCssVariable[legacyCssVariables[variable]] = newCssVariable[variable];

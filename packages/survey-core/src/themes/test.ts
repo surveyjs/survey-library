@@ -1,12 +1,12 @@
-// Auto-generated theme: default
-const DefaultLight = {
-  "themeName": "default",
+// Auto-generated theme: test
+const Test = {
+  "themeName": "test",
   "iconSet": "v2",
   "isLight": true,
   "cssVariables": {
     "--sjs2-base-unit-size": "8px",
     "--sjs2-base-unit-spacing": "8px",
-    "--sjs2-base-unit-radius": "8px",
+    "--sjs2-base-unit-radius": "4px",
     "--sjs2-base-unit-border-width": "1px",
     "--sjs2-base-unit-font-size": "8px",
     "--sjs2-base-unit-line-height": "8px",
@@ -947,4 +947,4 @@ const DefaultLight = {
   }
 };
 
-export default DefaultLight;
+export default Test;

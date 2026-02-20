@@ -723,6 +723,29 @@ QUnit.test("Load choices from url on changing locale", function(assert) {
   survey.locale = "";
   ChoicesRestful.clearCache();
 });
+QUnit.test("Keep choices on changing locale Bug#10921", function(assert) {
+  const survey = new SurveyModel();
+  survey.locale = "fr";
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.titleName = "text";
+  question.restFulTest.items = [
+    { value: "A", text: "AAA" },
+    { value: "B", text: "BBB" }
+  ];
+  const page = survey.pages[0];
+  page.addQuestion(question);
+  question.onSurveyLoad();
+  question.doResultsCallback();
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].text, "AAA", "Load choices #1");
+  assert.deepEqual(question.visibleChoices[0].toJSON(), { value: "A", text: "AAA" }, "Data is correct");
+  survey.locale = "de";
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].text, "AAA", "Load choices #2");
+});
 /*
 QUnit.test("Clear choices on changing variables", function (assert) {
   var survey = new SurveyModel();

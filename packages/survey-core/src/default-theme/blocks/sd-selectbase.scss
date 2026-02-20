@@ -102,3 +102,62 @@ div[class*="sv-q-column-"] {
 .sd-selectbase__other:not(:last-of-type) {
   margin-bottom: calcSize(2);
 }
+.sd-selectbase__item-panel--leave,
+.sd-selectbase__item-panel--enter {
+  animation-name: fadeIn, moveInWithOverflow;
+  animation-fill-mode: forwards;
+  animation-timing-function: var(--animation-timing-function);
+  animation-direction: var(--animation-direction);
+  animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+  animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
+  min-height: 0 !important;
+}
+.sd-selectbase__item-panel--enter {
+  opacity: 0;
+  height: 0;
+  --animation-direction: normal;
+  --animation-timing-function: #{$ease-out};
+  --move-animation-duration: #{$item-panel-move-in-duration};
+  --move-animation-delay: 0s;
+  --fade-animation-duration: #{$item-panel-fade-in-duration};
+  --fade-animation-delay: #{$item-panel-fade-in-delay};
+}
+
+.sd-selectbase__item-panel--leave {
+  --animation-direction: reverse;
+  --animation-timing-function: #{$reverse-ease-out};
+  --move-animation-duration: #{$item-panel-move-out-duration};
+  --move-animation-delay: #{$item-panel-move-out-delay};
+  --fade-animation-duration: #{$item-panel-fade-out-duration};
+  --fade-animation-delay: 0s;
+}
+
+.sd-selectbase__item-comment--leave,
+.sd-selectbase__item-comment--enter {
+  animation-name: fadeIn, moveInWithOverflow;
+  animation-fill-mode: forwards;
+  animation-timing-function: var(--animation-timing-function);
+  animation-direction: var(--animation-direction);
+  animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+  animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
+  min-height: 0 !important;
+}
+.sd-selectbase__item-comment--enter {
+  opacity: 0;
+  height: 0;
+  --animation-direction: normal;
+  --animation-timing-function: #{$ease-out};
+  --move-animation-duration: #{$item-comment-move-in-duration};
+  --move-animation-delay: 0s;
+  --fade-animation-duration: #{$item-comment-fade-in-duration};
+  --fade-animation-delay: #{$item-comment-fade-in-delay};
+}
+
+.sd-selectbase__item-comment--leave {
+  --animation-direction: reverse;
+  --animation-timing-function: #{$reverse-ease-out};
+  --move-animation-duration: #{$item-comment-move-out-duration};
+  --move-animation-delay: #{$item-comment-move-out-delay};
+  --fade-animation-duration: #{$item-comment-fade-out-duration};
+  --fade-animation-delay: 0s;
+}

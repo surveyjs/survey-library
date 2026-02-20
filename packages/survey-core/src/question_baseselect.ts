@@ -15,7 +15,7 @@ import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
-import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
+import { AnimationBoolean, AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -25,6 +25,8 @@ const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
   getSurvey(): ISurvey;
+  getCssClassesForCommentPanelAnimation(type: "comment" | "panel"): { onLeave: string, onEnter: string };
+  getWrapperElement(): HTMLElement;
   isItemSelected(item: ItemValue): boolean;
   isDesignMode: boolean;
   parent: IPanel;
@@ -49,8 +51,45 @@ export class ChoiceItem extends ItemValue {
   public get isCommentShowing(): boolean {
     return this.getPropertyValue("isCommentShowing", false);
   }
+  @property() private renderedIsCommentShowingValue: boolean;
+  private commentAnimaionValue: AnimationBoolean;
+  private get commentAnimation(): AnimationBoolean {
+    if (!this.commentAnimaionValue) {
+      const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("comment");
+      this.commentAnimaionValue = new AnimationBoolean({
+        getAnimatedElement: ()=> {
+          const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
+          return this.choiceOwner.getWrapperElement()?.querySelector(`#${id}`).parentElement as HTMLElement;
+        },
+        getEnterOptions() {
+          return { cssClass: cssClasses.onEnter,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        getLeaveOptions() {
+          return { cssClass: cssClasses.onLeave,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        isAnimationEnabled: () => {
+          return settings.animationEnabled;
+        },
+        getRerenderEvent: ()=> {
+          return this.onElementRerendered;
+        },
+      }, (val) => this.renderedIsCommentShowingValue = val, () => this.renderedIsCommentShowingValue);
+    }
+    return this.commentAnimaionValue;
+  }
+  public get renderedIsCommentShowing() {
+    return this.renderedIsCommentShowingValue;
+  }
+  public set renderedIsCommentShowing(val: boolean) {
+    this.commentAnimation.sync(val);
+  }
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
+    this.renderedIsCommentShowing = val;
   }
   public get supportComment(): boolean {
     const owner: any = this.locOwner;
@@ -78,9 +117,49 @@ export class ChoiceItem extends ItemValue {
     }
     return this.onExpandPanelAtDesignValue;
   }
+  @property() private renderedIsPanelShowingValue: boolean;
+  private panelAnimationValue: AnimationBoolean;
+  private get panelAnimation() {
+    if (!this.panelAnimationValue) {
+      const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("panel");
+      this.panelAnimationValue = new AnimationBoolean({
+        getAnimatedElement: ()=> {
+          return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+        },
+        getEnterOptions() {
+          return { cssClass: cssClasses.onEnter,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        getLeaveOptions() {
+          return { cssClass: cssClasses.onLeave,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        isAnimationEnabled: () => {
+          return settings.animationEnabled;
+        },
+        getRerenderEvent: ()=> {
+          return this.onElementRerendered;
+        },
+      }, (val) => this.renderedIsPanelShowingValue = val, () => this.renderedIsPanelShowingValue);
+    }
+    return this.panelAnimationValue;
+  }
+  public get renderedIsPanelShowing() {
+    return this.renderedIsPanelShowingValue;
+  }
+  public set renderedIsPanelShowing(value: boolean) {
+    const panel = this.panel;
+    panel.forceRenderRows(panel.visibleRows);
+    this.panelAnimation.sync(value);
+  }
+  public setIsPanelShowing(val: boolean) {
+    this.setPropertyValue("isPanelShowing", val);
+    this.renderedIsPanelShowing = val;
+  }
   public get isPanelShowing(): boolean {
-    if (!this.panelValue || !this.choiceOwner) return false;
-    return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
+    return this.getPropertyValue("isPanelShowing", false);
   }
   public get hasElements(): boolean {
     const pnl = this.panelValue;
@@ -844,9 +923,17 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.onRenderedValueChagned(changeValue);
   }
   protected onRenderedValueChagned(updateComment: boolean): void {
-    this.choices.forEach(item => this.updateItemIsCommentShowing(item, updateComment));
+    this.choices.forEach(item => {
+      this.updateItemIsCommentShowing(item, updateComment);
+      this.updateItemIsPanelShowing(item);
+    });
     if (this.showOtherItem) {
       this.updateItemIsCommentShowing(this.otherItem, updateComment);
+    }
+  }
+  private updateItemIsPanelShowing(item: ChoiceItem) {
+    if (item && item.supportElements) {
+      item.setIsPanelShowing(item.hasElements && this.isItemSelected(item));
     }
   }
   private updateItemIsCommentShowing(item: ItemValue, updateComment: boolean): void {
@@ -2402,6 +2489,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * [Checkboxes and Radio Button Group Demo](https://surveyjs.io/form-library/examples/add-custom-items-to-single-and-multi-select-questions/ (linkStyle))
    */
   @property({ getDefaultValue: (obj: QuestionSelectBase) => obj.getDefaultItemComponent() }) itemComponent: string;
+
+  public getCssClassesForCommentPanelAnimation(type: "comment" | "panel"): { onLeave: string, onEnter: string } {
+    const correctedType = type.charAt(0).toUpperCase() + type.slice(1);
+    return { onEnter: this.cssClasses[`item${correctedType}Enter`], onLeave: this.cssClasses[`item${correctedType}Leave`] };
+  }
 }
 /**
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).

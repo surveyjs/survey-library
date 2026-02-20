@@ -25,7 +25,7 @@
       :size="item.iconSize"
       :title="item.tooltip || item.title"
     ></SvComponent>
-    <StringViewer v-if="item.hasTitle" :locString="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
+    <StringViewer v-if="item.hasTitle" :model="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
   </button>
   <SvComponent :is="'sv-popup'" :model="item.popupModel"></SvComponent>
 </template>

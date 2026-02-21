@@ -1,11 +1,11 @@
 $primary: var(--sjs2-color-bg-brand-primary, var(--primary, #19b394));
-$primary-light: var(--sjs2-color-fg-basic-secondary, var(--primary-light, rgba(25, 179, 148, 0.1)));
+$primary-light: var(--sjs2-color-bg-brand-secondary, var(--primary-light, rgba(25, 179, 148, 0.1)));
 $primary-background-dark: var(--sjs2-color-bg-brand-primary-dim, rgb(20, 164, 139));
 $primary-foreground: var(--sjs2-color-fg-brand-on-primary, var(--primary-foreground, #fff));
 $primary-foreground-disabled: var(--sjs2-color-fg-brand-primary-disabled, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
 
 $secondary: var(--sjs2-color-bg-accent-primary, var(--secondary, #ff9814));
-$secondary-light: var(--sjs2-color-bg-brand-secondary, var(--secondary-light, rgba(255, 152, 20, 0.25)));
+$secondary-light: var(--sjs2-color-bg-accent-secondary, var(--secondary-light, rgba(255, 152, 20, 0.25)));
 $secondary-backcolor-semi-light: var(--sjs2-color-bg-accent-secondary-dim, rgba(255, 152, 20, 0.1));
 $secondary-forecolor: var(--sjs2-color-fg-accent-on-primary, #fff);
 $secondary-forecolor-light: var(--sjs2-color-fg-accent-primary-disabled, rgba(#fff, 0.25));
@@ -33,7 +33,7 @@ $panel-corner-radius: var(--sjs2-radius-container-panel, var(--sjs2-base-unit-ra
 $foreground: var(--sjs2-color-fg-basic-primary, var(--foreground, #161616));
 $foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090));
 $foreground-dim: var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91));
-$foreground-dim-light: var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.45));
+$foreground-dim-light: var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45));
 
 $border: var(--sjs2-color-control-input-default-line, var(--border, #d6d6d6));
 $border-light: var(--sjs2-color-border-basic-secondary, var(--border-light, #eaeaea));
@@ -86,7 +86,7 @@ $font-pagedescription-family: var(--sjs-font-pagedescription-family, #{$font-fam
 $font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
 $font-pagedescription-color: var(
   --sjs-font-pagedescription-color,
-  var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.45))
+  var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
 $font-pagedescription-size: var(--sjs-font-pagedescription-size, $font-size);
 

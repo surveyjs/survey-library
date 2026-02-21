@@ -9,14 +9,14 @@ export const legacyCssVariables = {
   //"--sjs-general-dim-forecolor": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.91)",
   //"--sjs-general-dim-forecolor-light": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.45)",
   "--sjs-primary-backcolor": "--sjs2-color-bg-brand-primary", //"rgba(25, 179, 148, 1)",
-  "--sjs-primary-backcolor-light": "--sjs2-color-fg-basic-secondary", //"rgba(25, 179, 148, 0.1)",
+  "--sjs-primary-backcolor-light": "--sjs2-color-bg-brand-secondary", //"rgba(25, 179, 148, 0.1)",
   "--sjs-primary-backcolor-dark": "--sjs2-color-bg-brand-primary-dim", //rgba(20, 164, 139, 1)",
   "--sjs-primary-forecolor": "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
   "--sjs-primary-forecolor-light": "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
   "--sjs-base-unit": "--sjs2-base-unit-size", //"8px"
   "--sjs-corner-radius": "--sjs2-base-unit-radius", //"4px"
   "--sjs-secondary-backcolor": "--sjs2-color-bg-accent-primary", //rgba(255, 152, 20, 1)",
-  "--sjs-secondary-backcolor-light": "--sjs2-color-bg-brand-secondary", //rgba(255, 152, 20, 0.1)",
+  "--sjs-secondary-backcolor-light": "--sjs2-color-bg-accent-secondary", //rgba(255, 152, 20, 0.1)",
   "--sjs-secondary-backcolor-semi-light": "--sjs2-color-bg-accent-secondary-dim", //rgba(255, 152, 20, 0.25)",
   "--sjs-secondary-forecolor": "--sjs2-color-fg-accent-on-primary", //rgba(255, 255, 255, 1)",
   "--sjs-secondary-forecolor-light": "--sjs2-color-fg-accent-primary-disabled", //rgba(255, 255, 255, 0.25)",

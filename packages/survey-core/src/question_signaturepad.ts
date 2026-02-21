@@ -31,7 +31,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   private getPenColorFromTheme(): string {
     const _survey = this.survey as SurveyModel;
-    return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
+    return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs2-color-bg-brand-primary"];
   }
   private updateColors(signaturePad: SignaturePad) {
     const penColorFromTheme = this.getPenColorFromTheme();

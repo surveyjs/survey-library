@@ -1,12 +1,12 @@
-// Auto-generated theme: default
-const DefaultLight = {
-  "themeName": "default",
+// Auto-generated theme: test
+const Test = {
+  "themeName": "test",
   "iconSet": "v2",
   "isLight": true,
   "cssVariables": {
     "--sjs2-base-unit-size": "8px",
     "--sjs2-base-unit-spacing": "8px",
-    "--sjs2-base-unit-radius": "8px",
+    "--sjs2-base-unit-radius": "4px",
     "--sjs2-base-unit-border-width": "1px",
     "--sjs2-base-unit-font-size": "8px",
     "--sjs2-base-unit-line-height": "8px",
@@ -447,7 +447,7 @@ const DefaultLight = {
     "--sjs2-color-fg-static-2-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-border-basic-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-border-basic-secondary": "var(--sjs2-palette-gray-250)",
-    "--sjs2-color-border-basic-secondary-overlay": "rgba(from var(--sjs2-palette-gray-900) r g b / var(--sjs2-opacity-x040))",
+    "--sjs2-color-border-basic-secondary-overlay": "rgba(0, 0, 0, 0.16)",
     "--sjs2-color-border-neutral-primary": "var(--sjs2-palette-gray-000)",
     "--sjs2-color-border-neutral-on-primary": "var(--sjs2-palette-gray-000)",
     "--sjs2-color-border-brand-primary": "var(--sjs2-color-project-brand-600)",
@@ -947,4 +947,4 @@ const DefaultLight = {
   }
 };
 
-export default DefaultLight;
+export default Test;

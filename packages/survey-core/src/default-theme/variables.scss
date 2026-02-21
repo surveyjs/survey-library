@@ -35,9 +35,9 @@ $foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, 
 $foreground-dim: var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45));
 
-$border: var(--sjs2-color-control-input-default-line, var(--border, #d6d6d6));
+$border: var(--sjs2-color-border-basic-primary, var(--border, #d6d6d6));
 $border-light: var(--sjs2-color-border-basic-secondary, var(--border-light, #eaeaea));
-$border-inside: var(--sjs2-color-border-basic-primary, var(--border-inside, rgba(0, 0, 0, 0.16)));
+$border-inside: var(--sjs2-color-border-basic-secondary-overlay, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
 $shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
 $shadow-small-reset: var(--sjs-shadow-small-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));

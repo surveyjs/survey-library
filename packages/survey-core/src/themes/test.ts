@@ -447,7 +447,7 @@ const Test = {
     "--sjs2-color-fg-static-2-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-border-basic-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-border-basic-secondary": "var(--sjs2-palette-gray-250)",
-    "--sjs2-color-border-basic-secondary-overlay": "rgba(from var(--sjs2-palette-gray-900) r g b / var(--sjs2-opacity-x040))",
+    "--sjs2-color-border-basic-secondary-overlay": "rgba(0, 0, 0, 0.16)",
     "--sjs2-color-border-neutral-primary": "var(--sjs2-palette-gray-000)",
     "--sjs2-color-border-neutral-on-primary": "var(--sjs2-palette-gray-000)",
     "--sjs2-color-border-brand-primary": "var(--sjs2-color-project-brand-600)",

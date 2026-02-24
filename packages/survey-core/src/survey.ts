@@ -8263,8 +8263,22 @@ export class SurveyModel extends SurveyElementCore
   private patchLegacyCSSVariables(newCssVariable: any) {
     if (!newCssVariable) return;
     Object.keys(legacyCssVariables).forEach((variable) => {
-      if (!!newCssVariable[variable]) {
-        newCssVariable[legacyCssVariables[variable]] = newCssVariable[variable];
+      const varValue = newCssVariable[variable];
+      const mapping = legacyCssVariables[variable];
+      if (!!varValue) {
+        const isJoinMapping = typeof mapping === "object" && mapping !== null && "var" in mapping && "join" in mapping;
+        if (isJoinMapping) {
+          const targetVar = (mapping as { var: string, join: string }).var;
+          const joinStr = (mapping as { var: string, join: string }).join;
+          if (newCssVariable[targetVar]) {
+            newCssVariable[targetVar] += joinStr;
+          } else {
+            newCssVariable[targetVar] = "";
+          }
+          newCssVariable[targetVar] += varValue;
+        } else {
+          newCssVariable[mapping as string] = varValue;
+        }
         delete newCssVariable[variable];
       }
     });

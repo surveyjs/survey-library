@@ -859,7 +859,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.evaluate(() => {
         document.body.focus();
-        document.body.style.setProperty("--base-unit", "4px");
+        document.body.style.setProperty("--sjs2-base-unit-size", "4px");
       });
 
       await initSurvey(page, framework, {
@@ -882,7 +882,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.evaluate(() => {
         document.body.focus();
-        document.body.style.setProperty("--base-unit", "4px");
+        document.body.style.setProperty("--sjs2-base-unit-size", "4px");
       });
 
       await initSurvey(page, framework, {

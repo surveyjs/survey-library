@@ -8,7 +8,6 @@ import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
-import { uniq } from "lodash";
 
 export default QUnit.module("Helpers");
 

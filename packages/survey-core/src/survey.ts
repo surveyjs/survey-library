@@ -1162,6 +1162,9 @@ export class SurveyModel extends SurveyElementCore
     if (name === "locale") {
       this.onSurveyLocaleChanged();
     }
+    if (name === "randomSeed") {
+      this.randomSeedChanged();
+    }
     if (name === "firstPageIsStartPage") {
       this.onFirstPageIsStartedChanged();
     }
@@ -3102,6 +3105,10 @@ export class SurveyModel extends SurveyElementCore
     if (this.lastActiveQuestion) {
       res.activeElementName = this.lastActiveQuestion.rootParentQuestion.name;
     }
+    const randomSeed = this.getPropertyValueWithoutDefault("randomSeed");
+    if (randomSeed) {
+      res.randomSeed = randomSeed;
+    }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
         const s = e.uiState;
@@ -3132,6 +3139,25 @@ export class SurveyModel extends SurveyElementCore
     if (state.activeElementName) {
       // If we focused dynamic pannel?
       this.getQuestionByName(state.activeElementName)?.focus();
+    }
+    if (state.randomSeed) {
+      this.randomSeed = state.randomSeed;
+    }
+  }
+  public get randomSeed (): number {
+    return this.getPropertyValue("randomSeed", undefined, () => {
+      return Math.floor((Date.now() / 4) + (Math.random() * 1000));
+    });
+  }
+  public set randomSeed (val: number) {
+    this.setPropertyValue("randomSeed", val);
+  }
+  public randomSeedChanged(): void {
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].randomSeedChanged();
+    }
+    for (const question of this.getAllQuestions()) {
+      question.randomSeedChanged();
     }
   }
   private isSettingDataValue: boolean;

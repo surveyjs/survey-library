@@ -8083,6 +8083,11 @@ QUnit.test("Randomize questions in page and panels & single question per page", 
 
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("Random seed generator", (assert) => {
+  const survey = new SurveyModel();
+  const seed = survey.randomSeed;
+  assert.equal(seed, survey.randomSeed, "Seed generated on demand and is the same on next call");
+});
 QUnit.test("questionPerPage vs nextPage&prevPage & Bug#9617 (isLastPage/isFirstPage)", function (assert) {
   const survey = new SurveyModel({
     questionsOnPageMode: "questionPerPage",

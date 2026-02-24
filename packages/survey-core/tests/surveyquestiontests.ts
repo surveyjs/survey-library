@@ -550,6 +550,53 @@ QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
+QUnit.test("choicesOrder:random with seed", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "p1",
+        questionOrder: "random",
+        elements: [
+          {
+            type: "dropdown",
+            name: "q1",
+            choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            choicesOrder: "random"
+          },
+          {
+            type: "checkbox",
+            name: "q2",
+            choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            choicesOrder: "random"
+          },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" },
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" },
+          { type: "text", name: "q7" },
+          { type: "text", name: "q8" },
+          { type: "text", name: "q9" }
+        ]
+      }
+    ],
+  });
+
+  survey.randomSeed = 123456;
+
+  const p1 = survey.pages[0];
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+
+  assert.equal(survey.randomSeed, 123456, "survey randomSeed is correct");
+  assert.equal(p1.randomSeed, 2042968784, "p1 randomSeed is correct");
+  assert.equal(q1.randomSeed, -447444863, "q1 randomSeed is correct");
+  assert.equal(q2.randomSeed, 1931033524, "q2 randomSeed is correct");
+
+  assert.deepEqual(p1.visibleQuestions.map(q => q.name), ["q5", "q4", "q2", "q7", "q8", "q3", "q9", "q1", "q6"], "page questions order");
+  assert.deepEqual(q1.visibleChoices.map((e: any) => e.value), [2, 7, 3, 6, 4, 8, 1, 9, 5], "dropdown choices order");
+  assert.deepEqual(q2.visibleChoices.map((e: any) => e.value), [1, 2, 7, 6, 9, 3, 8, 5, 4], "checkbox choices order");
+});
+
 QUnit.test("Matrix Question supportAutoAdvance property", function (
   assert
 ) {

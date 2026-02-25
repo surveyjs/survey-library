@@ -1,4 +1,3 @@
-import { getLocaleString } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
 import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
@@ -8,10 +7,14 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
+  calcFunc?: (objectInstance?: any) => T;
+  returnValue?: T;
   localizable?:
   | { name?: string, onCreate?: (obj: Base, locStr: any) => void, defaultStr?: string | boolean, markdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
+  onSetting?: (val: T, objectInstance: any, prevVal?: T) => T;
+  isLowerCase?: boolean;
 }
 function getLocalizablePropertyName(propertyName: string): string {
   return "loc" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
@@ -42,7 +45,13 @@ export function property(options: IPropertyDecoratorOptions = {}) {
           //   ConsoleWarnings.error("remove defaultValue from @property for class " + target.getType() + " property name is " + key);
           // }
           let defaultVal = null;
+          let returnValue = undefined;
+          let calcFunc = undefined;
           if (!!options) {
+            returnValue = options.returnValue;
+            if (options.calcFunc) {
+              calcFunc = () => options.calcFunc(this);
+            }
             if (typeof options.getDefaultValue === "function") {
               defaultVal = options.getDefaultValue(this);
             }
@@ -50,11 +59,21 @@ export function property(options: IPropertyDecoratorOptions = {}) {
               defaultVal = options.defaultValue;
             }
           }
-          return this.getPropertyValue(key, defaultVal);
+          const res = this.getPropertyValue(key, defaultVal, calcFunc);
+          return returnValue !== undefined && res === undefined ? returnValue : res;
         },
         set: function (val: any) {
-          const newValue = processComputedUpdater(this, val);
+          let newValue = processComputedUpdater(this, val);
           const prevValue = this.getPropertyValue(key);
+          if (!!options) {
+            if (options.isLowerCase) {
+              if (!newValue || typeof newValue !== "string") return;
+              newValue = newValue.toLowerCase();
+            }
+            if (!!options.onSetting) {
+              newValue = options.onSetting(newValue, this, prevValue);
+            }
+          }
           if (newValue !== prevValue) {
             this.setPropertyValue(key, newValue);
             if (!!options && options.onSet) {
@@ -215,50 +234,6 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public static getItemValuesDefaultValue: (val: any, type: string) => any;
   [key: string]: any;
   private static Index = 1;
-  private static mergableValues = [
-    "typeValue",
-    "choicesValue",
-    "baseValue",
-    "readOnlyValue",
-    "visibleValue",
-    "isSerializable",
-    "isLightSerializable",
-    "isCustom",
-    "isBindable",
-    "isUnique",
-    "uniquePropertyName",
-    "isDynamicChoices",
-    "isLocalizableValue",
-    "className",
-    "alternativeName",
-    "oldName",
-    "layout",
-    "version",
-    "classNamePart",
-    "baseClassName",
-    "defaultValue",
-    "defaultValueFunc",
-    "serializationProperty",
-    "onGetValue",
-    "onSetValue",
-    "onSettingValue",
-    "displayName",
-    "category",
-    "categoryIndex",
-    "visibleIndex",
-    "nextToProperty",
-    "overridingProperty",
-    "locationInTable",
-    "dependedProperties",
-    "visibleIf",
-    "enableIf",
-    "onExecuteExpression",
-    "onPropertyEditorUpdate",
-    "maxLength",
-    "maxValue",
-    "minValue",
-    "dataListValue",
-  ];
   private idValue: number;
   private classInfoValue: JsonMetadataClass;
   private typeValue: string;
@@ -588,10 +563,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     this.dataListValue = val;
   }
   public mergeWith(prop: JsonObjectProperty) {
-    var valuesNames = JsonObjectProperty.mergableValues;
-    for (var i = 0; i < valuesNames.length; i++) {
-      this.mergeValue(prop, valuesNames[i]);
-    }
+    Object.keys(prop).forEach(name => {
+      this.mergeValue(prop, name);
+    });
     this.isArray = prop.isArray;
   }
   public addDependedProperty(name: string) {

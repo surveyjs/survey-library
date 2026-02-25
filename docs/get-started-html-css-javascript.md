@@ -6,9 +6,14 @@ description: A step-by-step tutorial on how to add SurveyJS Form Library to a Ja
 
 This step-by-step tutorial will guide you through the process of integrating the SurveyJS Form Library into any application built with HTML, CSS, and JavaScript (without frontend frameworks). By the end, you'll have created and displayed a fully functional survey as shown below:
 
+<details>
+  <summary>View Live Example</summary>
+  
 <iframe src="/proxy/github/code-examples/get-started-library/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
+
+</details>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/html-css-js (linkStyle))
 
@@ -33,7 +38,7 @@ SurveyJS Form Library is composed of two key parts: `survey-core` (platform-inde
 
 The style sheet above applies the Default theme. SurveyJS Form Library also includes several other predefined themes, which are illustrated below, along with a flexible theme customization mechanism based on CSS variables.
 
-![Themes in SurveyJS Form Library](images/survey-library-themes.png)
+<img src="images/survey-library-themes.png" alt="Themes in SurveyJS Form Library" width="1544" height="820">
 
 If you wish to apply a predefined theme other than Default or create your own custom theme, refer to the following help topic for detailed instructions:
 
@@ -132,7 +137,7 @@ $(function() {
 
 As a result, you should see the following survey:
 
-![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
+<img src="images/get-started-primitive-survey.png" alt="Get Started with SurveyJS - Simple Survey" width="772" height="513">
 
 <details>
     <summary>View Full Code</summary>  
@@ -231,7 +236,7 @@ const survey = new Survey.Model(surveyJson);
 survey.onComplete.add(alertResults);
 ```
 
-![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
+<img src="images/get-started-primitive-survey-alert.png" alt="Get Started with SurveyJS - Survey Results" width="772" height="516">
 
 As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 

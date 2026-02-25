@@ -10,16 +10,15 @@ import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { updateListCssValues } from "./utils/utils";
 import { Helpers } from "./helpers";
+import { questionDropdownMixin } from "./question_dropdown_mixin";
 
 /**
  * A class that describes the Multi-Select Dropdown (Tag Box) question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/ (linkStyle))
  */
-export class QuestionTagboxModel extends QuestionCheckboxModel {
-  private dropdownListModelValue: DropdownMultiSelectListModel;
+export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxModel) {
   private itemDisplayNameMap: { [key: string]: string} = {};
-  private isChoicesLoading: boolean;
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -37,10 +36,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.resetReadOnlyText();
     this.dropdownListModelValue?.locStrsChanged();
   }
-  protected onSelectedItemValuesUpdated(): void {
-    super.onSelectedItemValuesUpdated();
-    this.resetReadOnlyText();
-  }
   protected getDefaultItemComponent(): string {
     return "";
   }
@@ -48,7 +43,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if (!this.isDisposed && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
     }
-    return this.dropdownListModelValue;
+    return this.dropdownListModelValue as DropdownMultiSelectListModel;
   }
   public set dropdownListModel(val: DropdownMultiSelectListModel) {
     this.dropdownListModelValue = val;
@@ -134,19 +129,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * A text displayed in the input field when it doesn't have a value.
    */
   @property({ localizable: { defaultStr: true } }) placeholder: string;
-  public get readOnlyText(): string {
-    return this.locReadOnlyText.calculatedText;
-  }
-  public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (): string => {
-        return this.displayValue || this.placeholder;
-      };
-    });
-  }
-  private resetReadOnlyText(): void {
-    this.resetPropertyValue("readOnlyText");
-  }
   public getType(): string {
     return "tagbox";
   }
@@ -154,10 +136,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public get a11yInputAriaRole(): string | null {
     return "combobox";
   }
-  public get popupModel(): PopupModel {
-    return this.dropdownListModel.popupModel;
-  }
-
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
@@ -173,42 +151,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super.updateCssClasses(res, css);
     updateListCssValues(res, css);
   }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
-  }
   public onOpened: EventBase<QuestionTagboxModel> = this.addEvent<QuestionTagboxModel>();
-  public onOpenedCallBack(): void {
-    this.onOpened.fire(this, { question: this, choices: this.choices });
-  }
 
-  protected hasUnknownValue(val: any, includeOther: boolean = false,
-    isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
-    if (this.choicesLazyLoadEnabled) return false;
-    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
-  }
-  protected needConvertRenderedOtherToDataValue(): boolean {
-    const val = this.otherValue?.trim();
-    if (!val) return false;
-    return super.hasUnknownValue(val, true, false);
-  }
-  protected onVisibleChoicesChanged(): void {
-    super.onVisibleChoicesChanged();
-
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModel.updateItems();
-    }
-  }
-  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if (this.choicesLazyLoadEnabled) {
-      return this.createItemValue(value, text);
-    } else {
-      return super.getItemIfChoicesNotContainThisValue(value, text);
-    }
-  }
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
     this.updateItemDisplayNameMap();
     const val = this.renderedValue as Array<any>;
@@ -238,31 +182,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.visibleChoices.forEach(func);
   }
 
-  protected getIsQuestionReady(): boolean {
-    return super.getIsQuestionReady() && !this.isChoicesLoading;
-  }
-
-  protected ensureQuestionIsReady(): void {
-    super.ensureQuestionIsReady();
-    if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
-      this.dropdownListModel.loadQuestionChoices();
-    }
-  }
-
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
-    this.updateCustomChoices(this.value, array);
-    super.onLoadChoicesFromUrl(array);
-  }
-
-  protected valueFromData(val: any, items?: Array<ItemValue>): any {
-    const value = super.valueFromData(val);
-    if (!!this.survey && this.survey.isSettingData()) {
-      this.updateCustomChoices(value, this.visibleChoices);
-    }
-    return value;
-  }
-
-  private updateCustomChoices(value: any, items: Array<ItemValue>) {
+  protected updateCustomChoices(value: any, items: Array<ItemValue>): void {
     if (value !== undefined && value !== null && value.length > 0 && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
       const newArr = [];
@@ -278,28 +198,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   }
 
-  public setIsChoicesLoading(value: boolean) {
-    this.isChoicesLoading = value;
-    this.updateIsReady();
-  }
-
-  protected canAddCustomChoices(): boolean {
-    return this.allowCustomChoices;
-  }
   protected getFirstInputElementId(): string {
     return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");
   }
   public getInputId(): string {
     return this.inputId + "_0";
-  }
-  protected supportEmptyValidation(): boolean { return true; }
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel.onBlur(event);
-    super.onBlurCore(event);
-  }
-  protected onFocusCore(event: any): void {
-    this.dropdownListModel.onFocus(event);
-    super.onFocusCore(event);
   }
   protected allElementsSelected(): boolean {
     const result = super.allElementsSelected();
@@ -320,20 +223,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return this.deselectAllTextValue;
   }
 
-  public dispose(): void {
-    super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
-    }
-  }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    super.clearValue(keepComment, fromUI);
-    this.dropdownListModelValue?.clear();
-  }
-  public get showClearButton(): boolean {
-    return this.allowClear && !this.isEmpty();
-  }
 }
 
 Serializer.addClass(

@@ -97,6 +97,9 @@ export class MultipleTextItemModel extends Base
   public getType(): string {
     return "multipletextitem";
   }
+  public getOwner() {
+    return this.question;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -530,12 +533,7 @@ export class QuestionMultipleTextModel extends Question
    * @see itemTitleWidth
    * @see addItem
    */
-  public get items(): Array<MultipleTextItemModel> {
-    return this.getPropertyValue("items");
-  }
-  public set items(val: Array<MultipleTextItemModel>) {
-    this.setPropertyValue("items", val);
-  }
+  @property() items: Array<MultipleTextItemModel>;
   /**
    * Adds a new input item.
    * @param name An item name.
@@ -603,12 +601,7 @@ export class QuestionMultipleTextModel extends Question
    * - `"top"` - Displays error messages above input fields.
    * - `"bottom"` - Displays error messages below input fields.
    */
-  public get itemErrorLocation(): string {
-    return this.getPropertyValue("itemErrorLocation");
-  }
-  public set itemErrorLocation(val: string) {
-    this.setPropertyValue("itemErrorLocation", val);
-  }
+  @property() itemErrorLocation: string;
   public getQuestionErrorLocation(): string {
     if (this.itemErrorLocation !== "default") return this.itemErrorLocation;
     return this.getErrorLocation();
@@ -636,22 +629,11 @@ export class QuestionMultipleTextModel extends Question
    *
    * Default value: 1
    */
-  public get colCount(): number {
-    return this.getPropertyValue("colCount");
-  }
-  public set colCount(val: number) {
-    if (val < 1 || val > 5) return;
-    this.setPropertyValue("colCount", val);
-  }
+  @property({ onSetting: (val: number) => val < 1 ? 1 : val > 5 ? 5 : val }) colCount: number;
   /**
    * A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
    */
-  public get inputSize(): number {
-    return this.getPropertyValue("inputSize");
-  }
-  public set inputSize(val: number) {
-    this.setPropertyValue("inputSize", val);
-  }
+  @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property instead.
    */
@@ -664,12 +646,8 @@ export class QuestionMultipleTextModel extends Question
    * @see items
    * @see itemErrorLocation
    */
-  public get itemTitleWidth(): string {
-    return this.getPropertyValue("itemTitleWidth") || "";
-  }
-  public set itemTitleWidth(val: string) {
-    this.setPropertyValue("itemTitleWidth", val);
-  }
+  @property({ returnValue: "" }) itemTitleWidth: string;
+
   @propertyArray() rows: Array<MutlipleTextRow>;
 
   protected onRowCreated(row: MutlipleTextRow) {
@@ -990,7 +968,6 @@ Serializer.addClass(
     { name: "defaultValueExpression:expression", visible: false },
     {
       name: "minValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
@@ -998,7 +975,6 @@ Serializer.addClass(
     },
     {
       name: "maxValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
@@ -1022,7 +998,7 @@ Serializer.addClass(
     { name: "inputSize:number", minValue: 0, visible: false, alternativeName: "itemSize" },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
-    { name: "itemTitleWidth", category: "layout" }
+    { name: "itemTitleWidth" }
   ],
   function () {
     return new QuestionMultipleTextModel("");

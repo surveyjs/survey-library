@@ -87,7 +87,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
   renderText() {
     if (!this.item.hasTitle) return null;
-    return <SurveyLocStringViewer locStr={this.item.locTitle} textClass={this.item.getActionBarItemTitleCss()} />;
+    return <SurveyLocStringViewer model={this.item.locTitle} textClass={this.item.getActionBarItemTitleCss()} />;
   }
   renderButtonContent() {
     const text = this.renderText();

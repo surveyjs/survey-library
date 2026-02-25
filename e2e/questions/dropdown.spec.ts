@@ -715,7 +715,55 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-dropdown__value input").nth(1)).toHaveValue("item21");
     });
 
-    test("Select item after switching focus", async ({ page }) => {
+    test("Esc key press", async ({ page }) => {
+      const json = {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            type: "dropdown",
+            name: "cars",
+            title: "Dropdown",
+            choices: [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen"
+            ]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
+
+      await expect(popupContainer).not.toBeVisible();
+
+      await page.keyboard.press("a");
+      await expect(popupContainer).toBeVisible();
+
+      await page.keyboard.press("u");
+      await page.keyboard.press("Escape");
+      await expect(popupContainer).not.toBeVisible();
+      await expect(page.locator(".sd-dropdown__value")).toHaveText("");
+
+      await page.locator(".sd-dropdown").click();
+      await getVisibleListItemByText(page, "Nissan").click();
+      await expect(page.locator(".sd-dropdown__value input")).toHaveValue("Nissan");
+
+      await page.keyboard.press("Control+a");
+      await page.keyboard.press("Backspace");
+      await page.keyboard.type("au");
+      await page.keyboard.press("Escape");
+      await expect(popupContainer).not.toBeVisible();
+      await expect(page.locator(".sd-dropdown__value")).toHaveText("Nissan");
+    });
+
+    test("Select item after tab press", async ({ page }) => {
       const json = {
         autoFocusFirstQuestion: true,
         elements: [
@@ -749,7 +797,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("u");
       await page.keyboard.press("Tab");
       await expect(popupContainer).not.toBeVisible();
-      await expect(page.locator(".sd-dropdown__value")).toHaveText("");
+      await expect(page.locator(".sd-dropdown__value")).toHaveText("Vauxhall");
 
       await page.locator(".sd-dropdown").click();
       await getVisibleListItemByText(page, "Nissan").click();

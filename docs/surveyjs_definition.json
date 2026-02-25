@@ -3,7 +3,17 @@
     "title": "SurveyJS Library json schema",
     "type": "object",
     "properties": {
+        "matrixDragHandleArea": {
+            "type": "string",
+            "enum": [
+                "entireItem",
+                "icon"
+            ]
+        },
         "sjsVersion": {
+            "type": "string"
+        },
+        "$schema": {
             "type": "string"
         },
         "pages": {
@@ -395,13 +405,6 @@
         },
         "readOnly": {
             "type": "boolean"
-        },
-        "matrixDragHandleArea": {
-            "type": "string",
-            "enum": [
-                "entireItem",
-                "icon"
-            ]
         },
         "questionOrder": {
             "type": "string",
@@ -3935,11 +3938,7 @@
                 {
                     "properties": {
                         "content": {
-                            "type": [
-                                "string",
-                                "numeric",
-                                "boolean"
-                            ]
+                            "type": "string"
                         }
                     }
                 }

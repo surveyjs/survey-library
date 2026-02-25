@@ -3,6 +3,7 @@ import { ITextInputParams } from "./mask_utils";
 
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
+  private maskedEmptyValue : string;
 
   private setInputValue(value: string) {
     if (this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
@@ -10,12 +11,19 @@ export class InputElementAdapter {
     }
     this.inputElement.value = value;
   }
+  private updateInputValue() {
+    if (!!this.inputElement.placeholder && this.inputElement.value == this.maskedEmptyValue) {
+      this.inputElement.value = "";
+    }
+  }
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: any) {
     let _value: any = value;
     if (_value === null || _value === undefined) {
       _value = "";
     }
+    this.maskedEmptyValue = this.inputMaskInstance.getMaskedValue("");
     this.setInputValue(inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value));
+    this.updateInputValue();
     this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);
@@ -30,9 +38,20 @@ export class InputElementAdapter {
   };
 
   clickHandler = (event: any) => {
-    if (this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
+    if (this.inputElement.value == this.maskedEmptyValue) {
       this.inputElement.setSelectionRange(0, 0);
     }
+  };
+
+  focusHandler = (event: any) => {
+    if (!!this.inputElement.placeholder && this.inputElement.value == "") {
+      this.setInputValue(this.maskedEmptyValue);
+    }
+    this.clickHandler(event);
+  };
+
+  blurHandler = (event: any) => {
+    this.updateInputValue();
   };
 
   beforeInputHandler = (event: any) => {
@@ -80,7 +99,8 @@ export class InputElementAdapter {
     if (!!this.inputElement) {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.addEventListener("click", this.clickHandler);
-      this.inputElement.addEventListener("focus", this.clickHandler);
+      this.inputElement.addEventListener("focus", this.focusHandler);
+      this.inputElement.addEventListener("blur", this.blurHandler);
       this.inputElement.addEventListener("change", this.changeHandler);
     }
   }
@@ -88,7 +108,8 @@ export class InputElementAdapter {
     if (!!this.inputElement) {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.removeEventListener("click", this.clickHandler);
-      this.inputElement.removeEventListener("focus", this.clickHandler);
+      this.inputElement.removeEventListener("focus", this.focusHandler);
+      this.inputElement.removeEventListener("blur", this.blurHandler);
       this.inputElement.removeEventListener("change", this.changeHandler);
     }
   }

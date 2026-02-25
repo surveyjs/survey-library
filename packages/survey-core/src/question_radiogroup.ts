@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
@@ -33,12 +33,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
    *
    * Default value: `false`
    */
-  public get allowClear(): boolean {
-    return this.getPropertyValue("allowClear");
-  }
-  public set allowClear(val: boolean) {
-    this.setPropertyValue("allowClear", val);
-  }
+  @property() allowClear: boolean;
   /**
    * @deprecated Use the [`allowClear`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model#allowClear) property instead.
    */

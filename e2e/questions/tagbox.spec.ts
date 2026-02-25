@@ -226,8 +226,9 @@ frameworks.forEach((framework) => {
       await expect(popupContainer).not.toBeVisible();
       await expect(await questionHint.innerText()).toBe("");
       await expect(await questionValueInput.inputValue()).toBe("");
-      await expect(selectedItems).toHaveCount(1);
+      await expect(selectedItems).toHaveCount(2);
       await expect(selectedItems.nth(0)).toContainText("item23");
+      await expect(selectedItems.nth(1)).toContainText("item14");
     });
 
     test("Check tagbox key press", async ({ page }) => {
@@ -318,8 +319,9 @@ frameworks.forEach((framework) => {
       await expect(await questionHint.innerText()).toBe("");
       await expect(await questionValueInput.inputValue()).toBe("");
       await expect(popupContainer).not.toBeVisible();
-      await expect(selectedItems).toHaveCount(1);
+      await expect(selectedItems).toHaveCount(2);
       await expect(selectedItems.nth(0)).toContainText("item23");
+      await expect(selectedItems.nth(1)).toContainText("item14");
     });
 
     test("Check tagbox key press. CloseOnSelect is default", async ({ page }) => {

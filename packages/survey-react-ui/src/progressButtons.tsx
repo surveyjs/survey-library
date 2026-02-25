@@ -30,7 +30,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   render(): React.JSX.Element {
     return (
-      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth }}
+      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth, ["--sd-progress-buttons-pages-count" as any]: this.survey.visiblePages.length }}
         role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label={this.model.progressBarAriaLabel}
       >
         {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>

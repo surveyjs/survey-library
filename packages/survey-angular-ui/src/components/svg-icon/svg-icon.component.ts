@@ -1,5 +1,6 @@
 import { Component, HostBinding, Input, OnChanges, ViewContainerRef } from "@angular/core";
 import * as Survey from "survey-core";
+import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
   selector: "'[sv-ng-svg-icon]'",

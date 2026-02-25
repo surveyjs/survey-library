@@ -74,12 +74,7 @@ export class QuestionFileModelBase extends Question {
    *
    * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    */
-  public get storeDataAsText(): boolean {
-    return this.getPropertyValue("storeDataAsText");
-  }
-  public set storeDataAsText(val: boolean) {
-    this.setPropertyValue("storeDataAsText", val);
-  }
+  @property() storeDataAsText: boolean;
   /**
    * Enable this property if you want to wait until files are uploaded to complete the survey.
    *
@@ -89,12 +84,7 @@ export class QuestionFileModelBase extends Question {
    *
    * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    */
-  public get waitForUpload(): boolean {
-    return this.getPropertyValue("waitForUpload");
-  }
-  public set waitForUpload(val: boolean) {
-    this.setPropertyValue("waitForUpload", val);
-  }
+  @property() waitForUpload: boolean;
 
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     this.clearOnDeletingContainer();
@@ -253,6 +243,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "acceptedTypes") {
       this.updateAcceptedCategories();
+    }
+    if (name === "acceptedCategories") {
+      if (!Array.isArray(newValue) || newValue.indexOf(customCategory) < 0) {
+        this.acceptedTypes = undefined;
+      }
     }
   }
   private actionsContainerValue: ActionContainer;
@@ -560,12 +555,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * [View Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
    * @see allowImagesPreview
    */
-  public get showPreview() {
-    return this.getPropertyValue("showPreview");
-  }
-  public set showPreview(val: boolean) {
-    this.setPropertyValue("showPreview", val);
-  }
+  @property() showPreview: boolean;
   /**
    * Specifies whether users can upload multiple files.
    *
@@ -574,12 +564,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see maxFiles
    */
-  public get allowMultiple(): boolean {
-    return this.getPropertyValue("allowMultiple");
-  }
-  public set allowMultiple(val: boolean) {
-    this.setPropertyValue("allowMultiple", val);
-  }
+  @property() allowMultiple: boolean;
   /**
    * The height of the following images:
    *
@@ -590,12 +575,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in [multiple file upload mode](#allowMultiple).
    * @see imageWidth
    */
-  public get imageHeight(): string {
-    return this.getPropertyValue("imageHeight");
-  }
-  public set imageHeight(val: string) {
-    this.setPropertyValue("imageHeight", val);
-  }
+  @property() imageHeight: string;
   /**
    * The width of the following images:
    *
@@ -606,12 +586,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in [multiple file upload mode](#allowMultiple).
    * @see imageHeight
    */
-  public get imageWidth(): string {
-    return this.getPropertyValue("imageWidth");
-  }
-  public set imageWidth(val: string) {
-    this.setPropertyValue("imageWidth", val);
-  }
+  @property() imageWidth: string;
   /**
    * An array of predefined file category names used to control which files users can upload.
    *
@@ -629,15 +604,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * To add or remove file extensions within a category, modify the [`acceptedFileCategories`](https://surveyjs.io/form-library/documentation/api-reference/settings#acceptedFileCategories) object in the global settings.
    */
-  public get acceptedCategories(): Array<string> {
-    return this.getPropertyValue("acceptedCategories");
-  }
-  public set acceptedCategories(val: Array<string>) {
-    this.setPropertyValue("acceptedCategories", val);
-    if (!this.isLoadingFromJson && (!Array.isArray(val) || val.indexOf(customCategory) < 0)) {
-      this.acceptedTypes = undefined;
-    }
-  }
+  @property() acceptedCategories: Array<string>;
+
   private updateAcceptedCategories(): void {
     if (this.acceptedTypes && this.acceptedCategories.indexOf(customCategory) < 0) {
       this.acceptedCategories.push(customCategory);
@@ -649,12 +617,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
    * @see acceptedCategories
    */
-  public get acceptedTypes(): string {
-    return this.getPropertyValue("acceptedTypes");
-  }
-  public set acceptedTypes(val: string) {
-    this.setPropertyValue("acceptedTypes", val);
-  }
+  @property() acceptedTypes: string;
+
   public get renderedAcceptedTypes(): string {
     const res = [];
     this.acceptedCategories.forEach(category => {
@@ -680,12 +644,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   /**
    * Specifies whether to show a preview of image files.
    */
-  public get allowImagesPreview(): boolean {
-    return this.getPropertyValue("allowImagesPreview");
-  }
-  public set allowImagesPreview(val: boolean) {
-    this.setPropertyValue("allowImagesPreview", val);
-  }
+  @property() allowImagesPreview: boolean;
   /**
    * Maximum allowed file size, measured in bytes.
    *
@@ -694,24 +653,15 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see maxFiles
    */
-  public get maxSize(): number {
-    return this.getPropertyValue("maxSize");
-  }
-  public set maxSize(val: number) {
-    this.setPropertyValue("maxSize", val);
-  }
+  @property() maxSize: number;
   /**
    * Maximum number of files a user can upload. Applies only if [`allowMultiple`](https://surveyjs.io/form-library/documentation/api-reference/file-model#allowMultiple) is `true`.
    *
    * Default value: 1000
    * @see maxSize
    */
-  public get maxFiles(): number {
-    return this.getPropertyValue("maxFiles");
-  }
-  public set maxFiles(val: number) {
-    this.setPropertyValue("maxFiles", val);
-  }
+  @property() maxFiles: number;
+
   public chooseFile(event: MouseEvent): void {
     if (!this.rootElement) return;
 
@@ -733,12 +683,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
    *
    * Default value: `false`
    */
-  public get needConfirmRemoveFile(): boolean {
-    return this.getPropertyValue("needConfirmRemoveFile");
-  }
-  public set needConfirmRemoveFile(val: boolean) {
-    this.setPropertyValue("needConfirmRemoveFile", val);
-  }
+  @property() needConfirmRemoveFile: boolean;
+
   public getConfirmRemoveMessage(fileName: string): string {
     return (<any>this.confirmRemoveMessage).format(fileName);
   }
@@ -1051,8 +997,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           title: "File",
           value: (dataValue.content && dataValue.content) || dataValue,
           displayValue: (dataValue.name && dataValue.name) || dataValue,
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val,
+          getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };
       });
@@ -1351,7 +1296,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
 Serializer.addClass(
   "file",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     { name: "showPreview:boolean", default: true, visible: false },
     "allowMultiple:boolean",
     {
@@ -1390,11 +1335,11 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true },
-    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general" },
-    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general" },
-    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general" },
-    { name: "allowCameraAccess:switch", category: "general", visible: false },
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file" },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder" },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder" },
+    { name: "allowCameraAccess:switch", visible: false },
   ],
   function () {
     return new QuestionFileModel("");

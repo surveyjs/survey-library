@@ -405,23 +405,21 @@ export class FunctionOperand extends Operand {
   }
   private evaluateCore(processValue?: ProcessValue): any {
     let properties = processValue.properties;
-    if (this.isAsyncFunction) {
-      properties = Helpers.createCopy(processValue.properties);
+    const parameters = this.parameters.evaluate(processValue);
+    if (this.isAsyncFunction()) {
       const id = this.id;
       const asyncValues = processValue.asyncValues;
       const onComplete = processValue.onCompleteAsyncFunc;
-      const item = this;
-      properties.returnResult = (result: any) => {
-        asyncValues[id] = { value: result };
-        onComplete(item);
-      };
+      if (!!asyncValues && !!onComplete) {
+        const item = this;
+        properties = Helpers.createCopy(processValue.properties);
+        properties.returnResult = (result: any) => {
+          asyncValues[id] = { value: result };
+          onComplete(item);
+        };
+      }
     }
-    let res = FunctionFactory.Instance.run(
-      this.originalValue,
-      this.parameters.evaluate(processValue),
-      properties,
-      this.parameters.values
-    );
+    const res = FunctionFactory.Instance.run(this.functionName, parameters, properties, this.parameters.values);
     if (res instanceof Promise) {
       res.then((value) => {
         properties.returnResult(value);
@@ -644,11 +642,10 @@ export class OperandMaker {
       return true;
     },
     containsCore: function(left: any, right: any, isContains: any): boolean {
+      if (Array.isArray(left) && !left.length) return !isContains;
       if (!left && left !== 0 && left !== false) return false;
       if (!left.length) {
         left = left.toString();
-        if (typeof right === "string" || right instanceof String) {
-        }
       }
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;

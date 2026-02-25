@@ -261,12 +261,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
    */
-  public get rateValues(): Array<any> {
-    return this.getPropertyValue("rateValues");
-  }
-  public set rateValues(val: Array<any>) {
-    this.setPropertyValue("rateValues", val);
-  }
+  @property() rateValues: Array<any>;
   public selectItem(item: ItemValue): void {
     if (!this.isReadOnly && !!item) {
       this.value = item.value;
@@ -282,12 +277,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateStep
    * @see rateCount
    */
-  public get rateMin(): number {
-    return this.getPropertyValue("rateMin");
-  }
-  public set rateMin(val: number) {
-    this.setPropertyValue("rateMin", val);
-  }
+  @property() rateMin: number;
   /**
    * Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
@@ -298,12 +288,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateStep
    * @see rateCount
    */
-  public get rateMax(): number {
-    return this.getPropertyValue("rateMax");
-  }
-  public set rateMax(val: number) {
-    this.setPropertyValue("rateMax", val);
-  }
+  @property() rateMax: number;
   /**
    * Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
@@ -314,12 +299,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateMax
    * @see rateCount
    */
-  public get rateStep(): number {
-    return this.getPropertyValue("rateStep");
-  }
-  public set rateStep(val: number) {
-    this.setPropertyValue("rateStep", val);
-  }
+  @property() rateStep: number;
   /**
    * Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
@@ -660,12 +640,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   /**
    * The name of a component used to render items.
    */
-  public get itemComponent(): string {
-    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
-  }
-  public set itemComponent(value: string) {
-    this.setPropertyValue("itemComponent", value);
-  }
+  @property({ getDefaultValue: (obj: QuestionRatingModel) => obj.getDefaultItemComponent() }) itemComponent: string;
 
   protected valueToData(val: any): any {
     if (this.useRateValues()) {
@@ -996,47 +971,37 @@ Serializer.addClass(
 Serializer.addClass(
   "rating",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     {
       name: "rateType",
       alternativeName: "rateDisplayMode",
       default: "labels",
-      category: "rateValues",
-      choices: ["labels", "stars", "smileys"],
-      visibleIndex: 1
+      choices: ["labels", "stars", "smileys"]
     },
     {
       name: "scaleColorMode",
-      category: "rateValues",
       default: "monochrome",
       choices: ["monochrome", "colored"],
       visibleIf: function (obj: any) {
         return obj.rateType == "smileys";
-      },
-      visibleIndex: 2
+      }
     },
     {
       name: "rateColorMode",
-      category: "rateValues",
       default: "scale",
       choices: ["default", "scale"],
       visibleIf: function (obj: any) {
         return obj.rateType == "smileys" && obj.scaleColorMode == "monochrome";
-      },
-      visibleIndex: 3
+      }
     },
     {
       name: "autoGenerate",
-      category: "rateValues",
       default: true,
-      choices: [true, false],
-      visibleIndex: 5
+      choices: [true, false]
     },
     {
       name: "rateCount:number",
       default: 5,
-      category: "rateValues",
-      visibleIndex: 4,
       onSettingValue: (obj: any, val: any): any => {
         if (val < 2) return 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
@@ -1049,11 +1014,9 @@ Serializer.addClass(
       baseValue: function () {
         return getLocaleString("choices_Item");
       },
-      category: "rateValues",
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
-      },
-      visibleIndex: 6
+      }
     },
     {
       name: "rateMin:number", default: 1,
@@ -1062,8 +1025,7 @@ Serializer.addClass(
       },
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
-      },
-      visibleIndex: 7
+      }
     },
     {
       name: "rateMax:number", default: 5,
@@ -1072,8 +1034,7 @@ Serializer.addClass(
       },
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
-      },
-      visibleIndex: 8
+      }
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -1085,25 +1046,21 @@ Serializer.addClass(
       },
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
-      },
-      visibleIndex: 9
+      }
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
-      serializationProperty: "locMinRateDescription",
-      visibleIndex: 18
+      serializationProperty: "locMinRateDescription"
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
-      serializationProperty: "locMaxRateDescription",
-      visibleIndex: 19
+      serializationProperty: "locMaxRateDescription"
     },
     {
       name: "displayRateDescriptionsAsExtremeItems:boolean",
       default: false,
-      visibleIndex: 21,
       visibleIf: function (obj: any) {
         return obj.rateType == "labels";
       }
@@ -1111,14 +1068,12 @@ Serializer.addClass(
     {
       name: "rateDescriptionLocation",
       default: "leftRight",
-      choices: ["leftRight", "top", "bottom", "topBottom"],
-      visibleIndex: 20
+      choices: ["leftRight", "top", "bottom", "topBottom"]
     },
     {
       name: "displayMode",
       default: "auto",
-      choices: ["auto", "buttons", "dropdown"],
-      visibleIndex: 0
+      choices: ["auto", "buttons", "dropdown"]
     },
     { name: "itemComponent", visible: false,
       defaultFunc: (obj: any): any => {

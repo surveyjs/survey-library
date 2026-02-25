@@ -94,6 +94,9 @@ frameworks.forEach((framework) => {
       for (let i = 0; i < 15; i++) {
         await setOptions(page, questionName, { choicesOrder: "asc" });
         await setOptions(page, questionName, { choicesOrder: "random" });
+        await page.evaluate(() => {
+          return (window as any).survey.randomSeed = Date.now() + Math.random();
+        });
         first_2 = await getFirst.textContent();
 
         if (first?.trim() !== first_2?.trim()) {
@@ -134,6 +137,9 @@ frameworks.forEach((framework) => {
       for (let i = 0; i < 15; i++) {
         await setOptions(page, "car", { choicesOrder: "asc" });
         await setOptions(page, "car", { choicesOrder: "random" });
+        await page.evaluate(() => {
+          return (window as any).survey.randomSeed = Date.now() + Math.random();
+        });
         firstItemValueCurrent = await page.locator(".sv-list__item span").nth(0).textContent();
 
         if (prevFirstItemValue?.trim() !== firstItemValueCurrent?.trim()) {

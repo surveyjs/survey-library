@@ -634,7 +634,7 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   locStr.defaultValue = message || options.message;
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
-    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+    data: { model: locStr },
     onApply: () => {
       callback(true);
       return true;

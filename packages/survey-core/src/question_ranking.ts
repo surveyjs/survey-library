@@ -668,6 +668,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public get isNewA11yStructure(): boolean {
     return false;
   }
+  public get ariaRole(): string {
+    return "group";
+  }
   // EO a11y
 }
 

@@ -645,7 +645,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return true; //for comments and others
   }
   protected setDefaultIntoValue(val: any): void {
-    if (!this.isValueEmpty(val) && this.showOtherItem && this.hasUnknownValue(val, true)) {
+    if (!this.isValueEmpty(val) && !this.waitingChoicesByURL && this.showOtherItem && this.hasUnknownValue(val, true)) {
       this.setDefaultUnknownValue(val);
     } else {
       super.setDefaultIntoValue(val);
@@ -1430,8 +1430,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
               this.visibleChoices,
               dataValue
             ),
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: false,
           };
           if (!!choice) {

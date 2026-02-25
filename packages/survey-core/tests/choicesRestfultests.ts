@@ -26,6 +26,7 @@ export default QUnit.module("choicesRestful");
 
 class ChoicesRestfulTester extends ChoicesRestful {
   private delaySentRequestValue: boolean = false;
+  public static doNotSendRequest = false;
   private nonProceedUrls = {};
   public noCaching: boolean = false;
   public lastProcesedUrl: string;
@@ -52,7 +53,7 @@ class ChoicesRestfulTester extends ChoicesRestful {
     if (this.isRequestRunning !== undefined) return this.isRequestRunning;
     return super.getIsRunning();
   }
-  public blockSendingRequest: boolean;
+  public blockSendingRequest: boolean = ChoicesRestfulTester.doNotSendRequest;
   public unblockSendRequest() {
     this.blockSendingRequest = undefined;
     this.sendRequest();
@@ -723,6 +724,29 @@ QUnit.test("Load choices from url on changing locale", function(assert) {
   survey.locale = "";
   ChoicesRestful.clearCache();
 });
+QUnit.test("Keep choices on changing locale Bug#10921", function(assert) {
+  const survey = new SurveyModel();
+  survey.locale = "fr";
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.titleName = "text";
+  question.restFulTest.items = [
+    { value: "A", text: "AAA" },
+    { value: "B", text: "BBB" }
+  ];
+  const page = survey.pages[0];
+  page.addQuestion(question);
+  question.onSurveyLoad();
+  question.doResultsCallback();
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].text, "AAA", "Load choices #1");
+  assert.deepEqual(question.visibleChoices[0].toJSON(), { value: "A", text: "AAA" }, "Data is correct");
+  survey.locale = "de";
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].text, "AAA", "Load choices #2");
+});
 /*
 QUnit.test("Clear choices on changing variables", function (assert) {
   var survey = new SurveyModel();
@@ -1361,7 +1385,26 @@ QUnit.test("Process text in url with default text, bug#1000", function(assert) {
     "The value is set correctly from defaultValue"
   );
 });
-
+QUnit.test("Process text in url with default text & showOtherItem, bug#10926", (assert) => {
+  ChoicesRestfulTester.doNotSendRequest = true;
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdownrestfultester",
+        name: "q1",
+        choicesByUrl: { url: "ca_cities" },
+        defaultValue: "Los Angeles",
+        showOtherItem: true
+      }
+    ],
+  });
+  const question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 1, "We have only other item on loading survey");
+  (<any>question.choicesByUrl).unblockSendRequest();
+  assert.equal(question.value, "Los Angeles", "The value is set correctly from defaultValue");
+  assert.equal(question.visibleChoices.length, 3, "We have two cities + other on loading survey, CA");
+  ChoicesRestfulTester.doNotSendRequest = false;
+});
 QUnit.test("Cascad dropdown in matrix dynamic", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");

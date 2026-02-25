@@ -80,6 +80,7 @@ export * from "./components/file/file-item.component";
 export * from "./components/file/file-preview.component";
 export * from "./questions/matrix.component";
 export * from "./components/svg-icon/svg-icon.component";
+export * from "./components/svg-icon/svg-icon-registered.component";
 export * from "./questions/file.component";
 export * from "./utils/ng-show.directive";
 export * from "./utils/ng-key2click.directive";

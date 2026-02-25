@@ -2418,8 +2418,7 @@ export class Question extends SurveyElement<Question>
         value: this.value,
         displayValue: this.displayValue,
         isNode: false,
-        getString: (val: any) =>
-          typeof val === "object" ? JSON.stringify(val) : val,
+        getString: (val: any) => this.getValueAsString(val),
       };
       if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();
@@ -2436,8 +2435,7 @@ export class Question extends SurveyElement<Question>
             title: "Comment",
             value: settings.commentSuffix,
             displayValue: this.comment,
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: false,
           },
         ];

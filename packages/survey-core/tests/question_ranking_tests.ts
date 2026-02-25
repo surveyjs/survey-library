@@ -843,3 +843,7 @@ QUnit.test("Response is reset on changing questionsOnPageMode", (assert) => {
   assert.deepEqual(q1.renderedRankingChoices[0].value, 3, "#4");
 });
 // EO selectToRankEnabled
+
+QUnit.test("A11Y", (assert) => {
+  assert.deepEqual(new QuestionRankingModel("q1").ariaRole, "group", "aria-role");
+});

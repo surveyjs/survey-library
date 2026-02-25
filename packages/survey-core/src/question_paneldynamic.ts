@@ -2522,8 +2522,7 @@ export class QuestionPanelDynamicModel extends Question
             title: panel.title || "Panel",
             value: panel.getValue(),
             displayValue: panel.getValue(),
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: true,
             data: panel.questions
               .map((question: Question) => question.getPlainData(options))

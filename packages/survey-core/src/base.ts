@@ -658,6 +658,10 @@ export class Base implements IObjectValueContext {
       }
     }
   }
+  protected getValueAsString(value: any): string {
+    if (value === undefined || value === null) return "";
+    return typeof value === "object" ? JSON.stringify(value) : value.toString();
+  }
   /**
    * Returns the value of a property with a specified name.
    *

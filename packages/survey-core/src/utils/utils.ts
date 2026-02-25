@@ -848,6 +848,14 @@ export function getActiveElement(): Element | null {
   return activeElement;
 }
 
+export function getColorFromProperty(varName: string) {
+  if ("function" === typeof getComputedStyle) {
+    const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
+    return style.getPropertyValue && style.getPropertyValue(varName);
+  }
+  return "";
+}
+
 export {
   mergeValues,
   updateListCssValues,

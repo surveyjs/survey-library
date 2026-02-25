@@ -11,18 +11,11 @@ import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
+import { getColorFromProperty } from "./utils/utils";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
 import { Base } from "./base";
-
-function getColorFromProperty(varName: string) {
-  if ("function" === typeof getComputedStyle) {
-    const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
-    return style.getPropertyValue && style.getPropertyValue(varName);
-  }
-  return "";
-}
 
 function getRGBColor(themeVariables: any, colorName: string, varName: string) {
   let str: string = !!themeVariables && themeVariables[colorName] as any;

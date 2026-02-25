@@ -857,10 +857,6 @@ frameworks.forEach(framework => {
 
     test("Check question - baseunit", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.evaluate(() => {
-        document.body.focus();
-        document.body.style.setProperty("--sjs2-base-unit-size", "4px");
-      });
 
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
@@ -873,18 +869,16 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
+      await page.evaluate(() => {
+        document.body.focus();
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+      });
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "question-baseunit.png");
     });
 
     test("Check question - multiline description", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.evaluate(() => {
-        document.body.focus();
-        document.body.style.setProperty("--sjs2-base-unit-size", "4px");
-      });
-
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
         elements: [
@@ -895,6 +889,10 @@ frameworks.forEach(framework => {
             description: "First Line\nSecond Line"
           }
         ]
+      });
+      await page.evaluate(() => {
+        document.body.focus();
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
       });
 
       const questionRoot = page.locator(".sd-question");

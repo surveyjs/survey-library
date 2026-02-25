@@ -301,9 +301,6 @@ frameworks.forEach(framework => {
 
     test("Check rating stars question - baseunit", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.evaluate(() => {
-        document.body.style.setProperty("--sjs2-base-unit-size", "4px");
-      });
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
         width: "900px",
@@ -322,6 +319,9 @@ frameworks.forEach(framework => {
             width: "708px"
           }
         ]
+      });
+      await page.evaluate(() => {
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
       });
       await compareScreenshot(page, ".sd-question", "question-rating-stars-baseunit.png");
     });

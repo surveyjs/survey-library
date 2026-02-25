@@ -40,7 +40,7 @@ sv-popup {
   & > .sv-popup__container {
     background: var(--lbr-popup-menu-background-color-global, $background-dim);
     border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
-    box-shadow: $shadow-medium, $shadow-large;
+    box-shadow: $shadow-medium-large;
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
@@ -397,7 +397,7 @@ sv-popup {
     max-width: var(--sv-popup-overlay-max-width);
     border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
     overflow: hidden;
-    box-shadow: $shadow-medium, $shadow-large;
+    box-shadow: $shadow-medium-large;
   }
 
   & > .sv-popup__container > .sv-popup__body-content {

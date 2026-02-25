@@ -243,7 +243,7 @@ export default {
     "--sjs2-color-utility-shadow-surface-focused": "var(--sjs2-color-project-brand-600)",
     "--sjs2-color-utility-shadow-surface-disabled": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-surface-dragging": "rgba(from #004C44 r g b / var(--sjs2-opacity-x015))",
-    "--sjs2-color-utility-shadow-floating-default": "rgba(from #004C44 r g b / var(--sjs2-opacity-x015))",
+    "--sjs2-color-utility-shadow-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1)",
     "--sjs2-color-bg-basic-primary": "var(--sjs2-palette-gray-000)",
     "--sjs2-color-bg-basic-secondary": "var(--sjs2-palette-gray-100)",
     "--sjs2-color-bg-basic-tertiary": "var(--sjs2-palette-gray-150)",

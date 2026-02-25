@@ -23,9 +23,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 import { ValidationContext } from "./question";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 
-export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemModelData {
-  value: any;
-  getFilteredData(): any;
+export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemModelData, ILocalizableOwner {
   onRowChanging(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -51,13 +49,6 @@ export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemMo
     column: MatrixDropdownColumn
   ): Question;
   choices: Array<ItemValue>;
-  getLocale(): string;
-  getMarkdownHtml(text: string, name: string, item?: any): string;
-  getRenderer(name: string): string;
-  getRendererContext(locStr: LocalizableString): any;
-  getProcessedText(text: string, context?: any): string;
-  getParentTextProcessor(): ITextProcessor;
-  getSharedQuestionByName(columnName: string, row: MatrixDropdownRowModelBase): Question;
   onTotalValueChanged(): any;
   isMatrixReadOnly(): boolean;
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void;
@@ -639,11 +630,6 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       res = res.concat(this.detailPanel.getQuestionsByValueName(name, caseInsensitive));
     }
     return res;
-  }
-  protected getSharedQuestionByName(columnName: string): Question {
-    return !!this.data
-      ? this.data.getSharedQuestionByName(columnName, this)
-      : null;
   }
   public clearIncorrectValues(val: any): void {
     for (var key in val) {
@@ -2685,13 +2671,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         false
       );
     }
-  }
-  getParentTextProcessor(): ITextProcessor {
-    if (!this.parentQuestion || !this.parent) return null;
-    const data = (<any>this.parent).data;
-    if (!!data && !!data.getTextProcessor)
-      return data.getTextProcessor();
-    return null;
   }
   isMatrixReadOnly(): boolean { return this.isReadOnly; }
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {

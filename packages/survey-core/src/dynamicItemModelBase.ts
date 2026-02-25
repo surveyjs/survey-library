@@ -198,4 +198,10 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
     return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
   }
+
+  protected getSharedQuestionByName(columnName: string): Question {
+    return !!this.data
+      ? this.data.getSharedQuestionFromArray(columnName, this.getIndex())
+      : null;
+  }
 }

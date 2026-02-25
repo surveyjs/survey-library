@@ -34,6 +34,9 @@ export class FunctionFactory {
   private functionCache: HashTable<Array<IFunctionCachedInfo>> = {};
 
   public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
+    if (isAsync && useCache === undefined) {
+      useCache = true;
+    }
     this.clearCache(name);
     this.functionHash[name] = { name, func, isAsync: !!isAsync, useCache: !!useCache };
   }
@@ -640,7 +643,7 @@ function displayValue(params: any[]): any {
   }
   return undefined;
 }
-FunctionFactory.Instance.register("displayValue", displayValue, true);
+FunctionFactory.Instance.register("displayValue", displayValue, true, false);
 
 function propertyValue(params: any[]): any {
   if (params.length !== 2 || !params[0] || !params[1]) return undefined;

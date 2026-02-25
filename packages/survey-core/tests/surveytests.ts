@@ -20204,10 +20204,10 @@ QUnit.test("Test displayValue() function in survey.runExpression, Bug#8858", fun
     ]
   });
   survey.setValue("q1", 2);
-  assert.equal(survey.runExpression("displayValue('q1'"), "Item 2", "#1");
+  assert.equal(survey.runExpression("displayValue('q1')"), "Item 2", "#1");
   let funcRes = undefined;
   survey.setValue("q1", 1);
-  survey.runExpression("displayValue('q1'", (res: any): void => funcRes = res);
+  survey.runExpression("displayValue('q1')", (res: any): void => funcRes = res);
   assert.equal(funcRes, "Item 1", "#2");
 });
 QUnit.test("Test propertyValue() function", function (assert) {

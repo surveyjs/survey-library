@@ -29,7 +29,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
-import { FunctionFactory } from "../src/functionsfactory";
+import { FunctionFactory, registerFunction } from "../src/functionsfactory";
 import { Base, ArrayChanges, IPropertyArrayValueChangedEvent } from "../src/base";
 import { RequreNumericError } from "../src/error";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
@@ -8695,7 +8695,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
     returnResults.push(this.returnResult);
     return false;
   }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  registerFunction({ name: "asyncFunc", func: asyncFunc, isAsync: true, useCache: false });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },

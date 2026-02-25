@@ -33,12 +33,6 @@ import { getLocaleString } from "./surveyStrings";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 
-export interface IQuestionPanelDynamicData extends IDynamicItemModelData {
-  getVisibleItemIndex(item: ISurveyData): number;
-  setPanelItemData(item: ISurveyData, name: string, val: any): any;
-  getSharedQuestionFromArray(name: string, panelIndex: number): Question;
-  getRootData(): ISurveyData;
-}
 export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   constructor(protected item: QuestionPanelDynamicItem) {
     super(item);
@@ -139,7 +133,7 @@ class PanelDynamicTabbedMenuItem extends Action {
 
 export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   private panelValue: PanelModel;
-  constructor(public data: IQuestionPanelDynamicData, panel: PanelModel) {
+  constructor(public data: IDynamicItemModelData, panel: PanelModel) {
     super(data);
     this.data = data;
     this.panelValue = panel;
@@ -173,7 +167,7 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   public setValue(name: string, newValue: any): void {
     if (this.isSettingValue || !this.isValueChanged(name, newValue)) return;
     this.updateSharedQuestionsValue(name, newValue);
-    this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
+    this.data.updateItemValue(this, name, Helpers.getUnbindValue(newValue), false);
     this.runTriggersOnSetValue(name, newValue);
   }
   public getComment(name: string): string {
@@ -183,16 +177,10 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   public setComment(name: string, newValue: string, locNotification: boolean | "text") {
     this.setValue(name + settings.commentSuffix, newValue);
   }
-  getFilteredProperties(): any {
-    // TODO review
-    if (!!this.data && !!this.data.getRootData())
-      return this.data.getRootData().getFilteredProperties();
-    return { survey: this.getSurvey() };
-  }
 }
 
 export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
-  constructor(public data: IQuestionPanelDynamicData) { }
+  constructor(public data: IDynamicItemModelData) { }
   getSurveyData(): ISurveyData {
     return null;
   }
@@ -211,7 +199,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
+export class QuestionPanelDynamicModel extends Question implements IDynamicItemModelData {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
@@ -2387,13 +2375,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
   }
-  getVisibleItemIndex(item: ISurveyData): number {
-    const visPanels = this.visiblePanelsCore;
-    for (var i = 0; i < visPanels.length; i++) {
-      if (visPanels[i].data === item) return i;
-    }
-    return visPanels.length;
-  }
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }
@@ -2416,7 +2397,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     return qValue[index];
   }
   private isSetPanelItemData: HashTable<number> = {};
-  setPanelItemData(item: ISurveyData, name: string, val: any): void {
+  updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): void {
     if (item === this.template.data) return;
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
@@ -2456,9 +2437,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     if (this.isSetPanelItemData[name] - 1) {
       delete this.isSetPanelItemData[name];
     }
-  }
-  getRootData(): ISurveyData {
-    return this.data;
   }
   public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);

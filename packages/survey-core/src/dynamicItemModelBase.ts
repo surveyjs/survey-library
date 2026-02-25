@@ -13,6 +13,8 @@ export interface IDynamicItemModelData {
     getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
     getFilteredData(): any;
     getBindedQuestions(): IQuestion[];
+    getSharedQuestionFromArray(name: string, index: number): Question;
+    updateItemValue(item: ISurveyData, name: string, val: any, isDeletingValue: boolean): any;
 }
 
 export abstract class DynamicItemGetterContext extends QuestionItemValueGetterContext {

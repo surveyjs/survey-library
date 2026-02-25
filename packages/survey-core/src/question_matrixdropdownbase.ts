@@ -26,13 +26,6 @@ import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData }
 export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemModelData {
   value: any;
   getFilteredData(): any;
-  getSharedQuestionFromArray(name: string, rowIndex: number): Question;
-  onRowChanged(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    newRowValue: any,
-    isDeletingValue: boolean
-  ): void;
   onRowChanging(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -521,7 +514,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
-    this.data.onRowChanged(this, changedName, newValue, isDeleting);
+    this.data.updateItemValue(this, changedName, newValue, isDeleting);
     const rowName = settings.expressionVariables.row;
     if (changedName) {
       this.runTriggersOnSetValue(changedName, newColumnValue);
@@ -1919,7 +1912,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var visRows = this.visibleRows;
     if (rowIndex >= visRows.length) return null;
     visRows[rowIndex].value = rowValue;
-    this.onRowChanged(visRows[rowIndex], "", rowValue, false);
+    this.updateItemValue(visRows[rowIndex], "", rowValue, false);
   }
   protected generateRows(): Array<MatrixDropdownRowModelBase> {
     return null;
@@ -2509,7 +2502,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   getSharedQuestionFromArray(name: string, rowIndex: number): Question {
     return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromArray(this.valueName, name, rowIndex)) : null;
   }
-  onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
+  updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
       var columnValue = null;

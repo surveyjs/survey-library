@@ -173,6 +173,9 @@ export class MatrixDropdownColumn extends Base
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }
+  public getOwner() {
+    return this.colOwner;
+  }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
@@ -372,19 +375,8 @@ export class MatrixDropdownColumn extends Base
    * @see visible
    * @see readOnly
    */
-  public get isRequired(): boolean {
-    return this.getPropertyValue("isRequired");
-  }
-  public set isRequired(val: boolean) {
-    this.setPropertyValue("isRequired", val);
-    this.templateQuestion.isRequired = val;
-  }
-  public get isRenderedRequired(): boolean {
-    return this.getPropertyValue("isRenderedRequired", this.isRequired);
-  }
-  public set isRenderedRequired(val: boolean) {
-    this.setPropertyValue("isRenderedRequired", val);
-  }
+  @property({ onSet: (val: boolean, obj: MatrixDropdownColumn) => obj.templateQuestion.isRequired = val }) isRequired: boolean;
+  @property({ getDefaultValue: (obj: MatrixDropdownColumn) => obj.isRequired }) isRenderedRequired: boolean;
   public updateIsRenderedRequired(val: boolean): void {
     this.isRenderedRequired = val || this.isRequired;
   }
@@ -523,23 +515,13 @@ export class MatrixDropdownColumn extends Base
    *
    * Default value: `false`
    */
-  public get isUnique(): boolean {
-    return this.getPropertyValue("isUnique");
-  }
-  public set isUnique(val: boolean) {
-    this.setPropertyValue("isUnique", val);
-  }
+  @property() isUnique: boolean;
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/columnize-choice-options-of-matrix-cell/ (linkStyle))
    */
-  public get showInMultipleColumns(): boolean {
-    return this.getPropertyValue("showInMultipleColumns");
-  }
-  public set showInMultipleColumns(val: boolean) {
-    this.setPropertyValue("showInMultipleColumns", val);
-  }
+  @property() showInMultipleColumns: boolean;
   public get isSupportMultipleColumns(): boolean {
     return ["checkbox", "radiogroup"].indexOf(this.cellType) > -1;
   }
@@ -574,23 +556,14 @@ export class MatrixDropdownColumn extends Base
    * @see totalFormat
    * @see totalDisplayStyle
    */
-  public get totalType(): string {
-    return this.getPropertyValue("totalType");
-  }
-  public set totalType(val: string) {
-    this.setPropertyValue("totalType", val);
-  }
+  @property() totalType: string;
   /**
    * An expression used to calculate total values. Overrides the [`totalType`](#totalType) property.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
    */
-  public get totalExpression(): string {
-    return this.getPropertyValue("totalExpression");
-  }
-  public set totalExpression(val: string) {
-    this.setPropertyValue("totalExpression", val);
-  }
+  @property() totalExpression: string;
+
   public get hasTotal(): boolean {
     return this.totalType != "none" || !!this.totalExpression;
   }
@@ -605,29 +578,10 @@ export class MatrixDropdownColumn extends Base
 
   @property ({ localizable: true }) cellHint: string;
 
-  public get renderAs(): string {
-    return this.getPropertyValue("renderAs");
-  }
-  public set renderAs(val: string) {
-    this.setPropertyValue("renderAs", val);
-    if (!!this.templateQuestion) {
-      this.templateQuestion.renderAs = val;
-    }
-  }
-  public get totalMaximumFractionDigits(): number {
-    return this.getPropertyValue("totalMaximumFractionDigits");
-  }
-  public set totalMaximumFractionDigits(val: number) {
-    if (val < -1 || val > 20) return;
-    this.setPropertyValue("totalMaximumFractionDigits", val);
-  }
-  public get totalMinimumFractionDigits(): number {
-    return this.getPropertyValue("totalMinimumFractionDigits");
-  }
-  public set totalMinimumFractionDigits(val: number) {
-    if (val < -1 || val > 20) return;
-    this.setPropertyValue("totalMinimumFractionDigits", val);
-  }
+  @property({ onSet: (val: string, obj: MatrixDropdownColumn) => obj.templateQuestion.renderAs = val }) renderAs: string;
+
+  @property({ onSetting: (val: number) => val < -1 ? -1 : val > 20 ? 20 : val }) totalMaximumFractionDigits: number;
+  @property({ onSetting: (val: number) => val < -1 ? -1 : val > 20 ? 20 : val }) totalMinimumFractionDigits: number;
   /**
    * A format for calculated total values.
    *
@@ -643,12 +597,7 @@ export class MatrixDropdownColumn extends Base
    * @see totalFormat
    * @see totalCurrency
    */
-  public get totalDisplayStyle(): string {
-    return this.getPropertyValue("totalDisplayStyle");
-  }
-  public set totalDisplayStyle(val: string) {
-    this.setPropertyValue("totalDisplayStyle", val);
-  }
+  @property() totalDisplayStyle: string;
   /**
    * An alignment for calculated total values.
    *
@@ -665,33 +614,17 @@ export class MatrixDropdownColumn extends Base
    * @see totalCurrency
    * @see totalDisplayStyle
    */
-  public get totalAlignment(): string {
-    return this.getPropertyValue("totalAlignment");
-  }
-  public set totalAlignment(val: string) {
-    this.setPropertyValue("totalAlignment", val);
-  }
+  @property() totalAlignment: string;
   /**
    * Specifies a currency used to display calculated total values. Applies only if [`totalDisplayStyle`](#totalDisplayStyle) is set to `"currency"`.
    * @see totalType
    */
-  public get totalCurrency(): string {
-    return this.getPropertyValue("totalCurrency");
-  }
-  public set totalCurrency(val: string) {
-    if (getCurrecyCodes().indexOf(val) < 0) return;
-    this.setPropertyValue("totalCurrency", val);
-  }
+  @property({ onSetting: (val: string, obj: MatrixDropdownColumn) => getCurrecyCodes().indexOf(val) < 0 ? obj.totalCurrency : val }) totalCurrency: string;
   /**
    * Gets or sets minimum column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
    * @see width
    */
-  public get minWidth(): string {
-    return this.getPropertyValue("minWidth", "");
-  }
-  public set minWidth(val: string) {
-    this.setPropertyValue("minWidth", val);
-  }
+  @property({ defaultValue: "" }) minWidth: string;
   /**
    * Gets or sets column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
    * @see minWidth
@@ -709,13 +642,8 @@ export class MatrixDropdownColumn extends Base
    *
    * [View Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    */
-  public get colCount(): number {
-    return this.getPropertyValue("colCount");
-  }
-  public set colCount(val: number) {
-    if (val < -1 || val > 4) return;
-    this.setPropertyValue("colCount", val);
-  }
+  @property({ onSetting: (val: number) => val < -1 || val > 4 ? -1 : val }) colCount: number;
+
   public getLocale(): string {
     return this.colOwner ? this.colOwner.getLocale() : "";
   }

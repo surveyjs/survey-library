@@ -19,9 +19,14 @@ This step-by-step tutorial will help you create a survey with multiple pages.
 
 The survey below illustrates the result:
 
+<details>
+  <summary>View Live Example</summary>
+
 <iframe src="/proxy/github/code-examples/multi-page-survey/html-css-js/index.html"
     style="width:100%; border:0; border-radius: 4px; overflow:hidden;"
 ></iframe>
+
+</details>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/multi-page-survey (linkStyle))
 

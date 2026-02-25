@@ -10,16 +10,15 @@ import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
 import { updateListCssValues } from "./utils/utils";
 import { Helpers } from "./helpers";
+import { questionDropdownMixin } from "./question_dropdown_mixin";
 
 /**
  * A class that describes the Dropdown question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))
  */
-export class QuestionDropdownModel extends QuestionSelectBase {
-  dropdownListModelValue: DropdownListModel;
+export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectBase) {
   lastSelectedItemValue: ItemValue = null;
-  private isChoicesLoading: boolean;
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -41,11 +40,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.resetReadOnlyText();
     this.updateInputPlaceholder(this.placeholder);
   }
-  protected onSelectedItemValuesUpdated(): void {
-    super.onSelectedItemValuesUpdated();
-    this.resetReadOnlyText();
-  }
-
   private updateInputPlaceholder(val: string) {
     if (!!this.dropdownListModelValue) {
       this.dropdownListModel.setInputPlaceholder(val);
@@ -56,9 +50,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public set showOptionsCaption(val: boolean) {
     this.allowClear = val;
-  }
-  public get showClearButton(): boolean {
-    return this.allowClear && !this.isEmpty();
   }
   public get optionsCaption(): string {
     return this.placeholder;
@@ -137,12 +128,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMax
    * @see choicesStep
    */
-  public get choicesMin(): number {
-    return this.getPropertyValue("choicesMin");
-  }
-  public set choicesMin(val: number) {
-    this.setPropertyValue("choicesMin", val);
-  }
+  @property() choicesMin: number;
   /**
    * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
@@ -154,12 +140,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMin
    * @see choicesStep
    */
-  public get choicesMax(): number {
-    return this.getPropertyValue("choicesMax");
-  }
-  public set choicesMax(val: number) {
-    this.setPropertyValue("choicesMax", val);
-  }
+  @property() choicesMax: number;
   /**
    * Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
    *
@@ -173,20 +154,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesMin
    * @see choicesMax
    */
-  public get choicesStep(): number {
-    return this.getPropertyValue("choicesStep");
-  }
-  public set choicesStep(val: number) {
-    if (val < 1) val = 1;
-    this.setPropertyValue("choicesStep", val);
-  }
+  @property({ onSetting: (val) => val < 1 ? 1 : val }) choicesStep: number;
 
-  public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete");
-  }
-  public set autocomplete(val: string) {
-    this.setPropertyValue("autocomplete", val);
-  }
+  @property() autocomplete: string;
 
   /**
    * Specifies whether to display a button that clears the selected value.
@@ -244,27 +214,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
-  public get readOnlyText(): string {
-    return this.locReadOnlyText.calculatedText;
-  }
-  public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (): string => {
-        return this.calculateReadOnlyText();
-      };
-    });
-  }
-  private resetReadOnlyText(): void {
-    this.clearPropertyValue("readOnlyText");
-  }
-  private calculateReadOnlyText(): string {
-    if (!this.useDropdownList) {
-      if (this.isOtherSelected) return this.otherText;
-      if (this.isNoneSelected) return this.noneText;
-      if (!!this.selectedItem) return this.selectedItemText;
-    }
-    return !!this.selectedItem ? this.selectedItemText : this.placeholder;
-  }
   /**
    * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
    * @see choicesLazyLoadPageSize
@@ -304,14 +253,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       updateListCssValues(res, css);
     }
   }
-  protected calcCssClasses(css: any): any {
-    const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
-      this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
-    }
-    return classes;
-  }
-
   @property() suggestedItem: ItemValue;
   public get selectedItemLocText() {
     const item = this.suggestedItem || this.selectedItem;
@@ -326,7 +267,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();
   }
-  private get selectedItemText(): string {
+  protected calculateReadOnlyText(): string {
+    if (!this.useDropdownList) {
+      if (this.isOtherSelected) return this.otherText;
+      if (this.isNoneSelected) return this.noneText;
+    }
     const item = this.selectedItem;
     return !!item ? item.text : "";
   }
@@ -340,75 +285,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
   }
-  public get popupModel(): PopupModel {
-    return this.dropdownListModel.popupModel;
-  }
-
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
-  public onOpenedCallBack(): void {
-    this.onOpened.fire(this, { question: this, choices: this.choices });
-  }
+
   protected onSelectedItemValuesChangedHandler(newValue: any): void {
     this.dropdownListModelValue?.setInputStringFromSelectedItem(newValue);
     super.onSelectedItemValuesChangedHandler(newValue);
   }
-  protected hasUnknownValue(
-    val: any,
-    includeOther: boolean,
-    isFilteredChoices: boolean,
-    checkEmptyValue: boolean
-  ): boolean {
-    if (this.choicesLazyLoadEnabled) { return false; }
-    return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
-  }
-  protected needConvertRenderedOtherToDataValue(): boolean {
-    const val = this.otherValue?.trim();
-    if (!val) return false;
-    return super.hasUnknownValue(val, true, false);
-  }
-  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if (this.choicesLazyLoadEnabled) {
-      return this.createItemValue(value, text);
-    } else {
-      return super.getItemIfChoicesNotContainThisValue(value, text);
-    }
-  }
-  protected onVisibleChoicesChanged(): void {
-    super.onVisibleChoicesChanged();
-
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModel.updateItems();
-    }
-  }
-  protected canAddCustomChoices(): boolean {
-    return this.allowCustomChoices;
-  }
-
-  protected getIsQuestionReady(): boolean {
-    return super.getIsQuestionReady() && !this.isChoicesLoading;
-  }
-
-  protected ensureQuestionIsReady(): void {
-    super.ensureQuestionIsReady();
-    if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
-      this.dropdownListModel.loadQuestionChoices();
-    }
-  }
-
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
-    this.updateCustomChoices(this.value, array);
-    super.onLoadChoicesFromUrl(array);
-  }
-
-  protected valueFromData(val: any): any {
-    const value = super.valueFromData(val);
-    if (!!this.survey && this.survey.isSettingData()) {
-      this.updateCustomChoices(value, this.visibleChoices);
-    }
-    return value;
-  }
-
-  private updateCustomChoices(value: any, items: Array<ItemValue>) {
+  protected updateCustomChoices(value: any, items: Array<ItemValue>): void {
     if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       this.customChoices.splice(0, this.customChoices.length);
       const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
@@ -416,11 +299,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
       }
     }
-  }
-
-  public setIsChoicesLoading(value: boolean) {
-    this.isChoicesLoading = value;
-    this.updateIsReady();
   }
 
   protected getFirstInputElementId(): string {
@@ -436,7 +314,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     super.clearValue(keepComment, fromUI);
     this.lastSelectedItemValue = null;
-    this.dropdownListModelValue?.clear();
   }
 
   public afterRenderCore(el: any): void {
@@ -456,23 +333,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.clearValueFromUI();
       event.preventDefault();
       event.stopPropagation();
-    }
-  }
-  protected supportEmptyValidation(): boolean { return true; }
-  protected onBlurCore(event: any): void {
-    this.dropdownListModel.onBlur(event);
-    super.onBlurCore(event);
-  }
-  protected onFocusCore(event: any): void {
-    this.dropdownListModel.onFocus(event);
-    super.onFocusCore(event);
-  }
-
-  public dispose(): void {
-    super.dispose();
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
-      this.dropdownListModelValue = undefined;
     }
   }
 }

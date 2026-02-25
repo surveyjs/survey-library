@@ -14,17 +14,27 @@ This help topic describes SVG icons built into SurveyJS Form Library and Survey 
 
 The following SVG icons are available if your application includes the `survey-core` bundle or package:
 
+<details>
+  <summary>View Icon Gallery</summary>
+
 <iframe src="/proxy/github/code-examples/icons/index-form-library.html"
   style="width:100%; border:0; overflow:hidden;">
 </iframe>
+
+</details>
 
 ### Survey Creator Icons
 
 The SVG icons below are available if your application includes the `survey-creator-core` bundle or package. It depends on the `survey-core` bundle, and thus makes [Form Library icons](#form-library-icons) available as well.
 
+<details>
+  <summary>View Icon Gallery</summary>
+
 <iframe src="/proxy/github/code-examples/icons/index.html"
   style="width:100%; border:0; overflow:hidden;">
 </iframe>
+
+</details>
 
 ## Icon Customization
 

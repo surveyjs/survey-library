@@ -2665,3 +2665,18 @@ QUnit.test("ProcessValue.hasValue to access matrix rows & columns in design mode
   assert.equal(processValue.hasValue("q1.row2.b"), true, "#3");
   assert.equal(processValue.hasValue("q1.row3.b"), false, "#4");
 });
+
+QUnit.test("generate column names", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrixdropdown",
+      name: "q1",
+      columns: [{ title: "col1" }, { name: "question1", title: "col2" }, { title: "col3" }],
+      rows: ["row1", "row2"]
+    }],
+  });
+  const result = survey.toJSON();
+  assert.equal(result.pages[0].elements[0].columns[0].name, "question2", "name is generated for column 1");
+  assert.equal(result.pages[0].elements[0].columns[1].name, "question1", "name is generated for column 2");
+  assert.equal(result.pages[0].elements[0].columns[2].name, "question3", "name is generated for column 3");
+});

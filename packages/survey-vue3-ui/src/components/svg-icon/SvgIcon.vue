@@ -1,12 +1,12 @@
 <template>
-  <svg ref="svgIconElement" class="sv-svg-icon" role="presentation">
+  <svg ref="svgIconElement" :class="css" role="presentation">
     <use></use>
   </svg>
 </template>
 
 <script lang="ts" setup>
 import { createSvg } from "survey-core";
-import { ref, onUpdated, onMounted } from "vue";
+import { ref, onUpdated, onMounted, computed } from "vue";
 
 const props = defineProps<{
   size: string | number;
@@ -14,6 +14,8 @@ const props = defineProps<{
   height?: number;
   iconName: string;
   title?: string;
+  className?: string;
+  css?: string;
 }>();
 const svgIconElement = ref();
 const updateCallback = () => {
@@ -26,6 +28,7 @@ const updateCallback = () => {
     props.title as string
   );
 };
+const css = computed(() => props.css || ("sv-svg-icon" + (props.className ? " " + props.className : "")));
 onUpdated(() => {
   updateCallback();
 });

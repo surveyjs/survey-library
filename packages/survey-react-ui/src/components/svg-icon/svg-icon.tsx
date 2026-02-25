@@ -28,6 +28,9 @@ export class SvgIcon extends React.Component<any, any> {
     if (this.props.className) {
       className += " " + this.props.className;
     }
+    if (this.props.css) {
+      className = this.props.css;
+    }
     return (
       this.props.iconName ?
         <svg className={className} style={this.props.style} onClick={this.props.onClick} ref={this.svgIconRef} role="presentation"><use></use></svg>

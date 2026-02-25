@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
   ChoiceItem,
@@ -15,12 +15,7 @@ import { settings } from "./settings";
 import { PropertyNameArray } from "./propertyNameArray";
 
 export class CheckboxItem extends ChoiceItem {
-  public get isExclusive(): boolean {
-    return this.getPropertyValue("isExclusive");
-  }
-  public set isExclusive(val: boolean) {
-    this.setPropertyValue("isExclusive", val);
-  }
+  @property() isExclusive: boolean;
   protected getBaseType(): string { return "checkboxitem"; }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -46,6 +41,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     if (name === "choices") {
       this.onItemHasCommentChanged();
+    }
+    if (name === "maxSelectedChoices" || name === "minSelectedChoices") {
+      this.filterItems();
     }
   }
   supportElementsInChoice(): boolean { return true; }
@@ -73,12 +71,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/merge-question-values/ (linkStyle))
    */
-  public get valuePropertyName(): string {
-    return this.getPropertyValue("valuePropertyName");
-  }
-  public set valuePropertyName(val: string) {
-    this.setPropertyValue("valuePropertyName", val);
-  }
+  @property() valuePropertyName: string;
   public getValuePropertyName(): string {
     return this.valuePropertyName || (!this.isTheOnlyComment ? "value" : "");
   }
@@ -125,12 +118,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see isAllSelected
    * @see separateSpecialChoices
    */
-  public get showSelectAllItem(): boolean {
-    return this.getPropertyValue("showSelectAllItem");
-  }
-  public set showSelectAllItem(val: boolean) {
-    this.setPropertyValue("showSelectAllItem", val);
-  }
+  @property() showSelectAllItem: boolean;
 
   public get hasSelectAll(): boolean {
     return this.showSelectAllItem;
@@ -149,7 +137,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val) {
       this.selectAll();
     } else {
-      this.clearValueFromUI();
+      this.unselectAll();
     }
   }
   public toggleSelectAll(): void {
@@ -191,10 +179,19 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see clearValue
    */
   public selectAll(): void {
+    this.selectAllCore((item) => item.isEnabled || this.isItemSelected(item));
+  }
+  public unselectAll(): void {
+    this.selectAllCore((item) => !item.isEnabled && this.isItemSelected(item));
+  }
+  private selectAllCore(func: (item: ItemValue) => boolean): void {
     const val: Array<any> = [];
-    const items = this.getVisibleEnableItems();
+    const items = this.getVisibleEnableItems(true);
     for (let i = 0; i < items.length; i++) {
-      val.push(items[i].value);
+      const item = items[i];
+      if (func(item)) {
+        val.push(item.value);
+      }
     }
     this.renderedValue = val;
   }
@@ -245,7 +242,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.hasUnknownValueItem(this.getPropertyNameArray([val]).getValue(0), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    newValue = this.trimCommentValue(newValue);
+    newValue = this.getTrimmedComment(newValue);
     if (this.isOtherItemByValue(item)) {
       super.setCommentValueCore(item, newValue);
     } else {
@@ -297,14 +294,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see minSelectedChoices
    */
-  public get maxSelectedChoices(): number {
-    return this.getPropertyValue("maxSelectedChoices");
-  }
-  public set maxSelectedChoices(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("maxSelectedChoices", val);
-    this.filterItems();
-  }
+  @property({ onSetting: (val) => val < 0 ? 0 : val }) maxSelectedChoices: number;
   /**
    * Specifies the minimum number of selected choices.
    *
@@ -315,13 +305,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see maxSelectedChoices
    */
-  public get minSelectedChoices(): number {
-    return this.getPropertyValue("minSelectedChoices");
-  }
-  public set minSelectedChoices(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedChoices", val);
-  }
+  @property({ onSetting: (val) => val < 0 ? 0 : val }) minSelectedChoices: number;
   /**
    * An array of selected choice items. Includes the "Other", "None", "Refuse to answer", and "Don't know" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
    * @see visibleChoices
@@ -410,12 +394,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (max > 0 && max < visCount) return false;
     return visCount > 0;
   }
-  private getVisibleEnableItems(): Array<ItemValue> {
+  private getVisibleEnableItems(includeDisable?: boolean): Array<ItemValue> {
     const res = new Array<ItemValue>();
     const items = this.visibleChoices;
     for (let i = 0; i < items.length; i ++) {
       const item = items[i];
-      if (item.isEnabled && !this.isBuiltInChoice(item) && !item.isExclusive) {
+      if ((includeDisable || item.isEnabled) && !this.isBuiltInChoice(item) && !item.isExclusive) {
         res.push(item);
       }
     }
@@ -806,10 +790,7 @@ Serializer.addClass(
         return obj.showSelectAllItem;
       }
     },
-    {
-      name: "valuePropertyName",
-      category: "data"
-    },
+    "valuePropertyName",
     { name: "itemComponent", visible: false, default: "survey-checkbox-item" }
   ],
   function () {

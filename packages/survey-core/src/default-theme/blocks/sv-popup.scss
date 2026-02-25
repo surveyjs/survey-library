@@ -56,6 +56,23 @@ sv-popup {
   padding: 0;
 }
 
+.sv-popup__close-button {
+  position: absolute;
+  top: calcSize(1);
+  right: calcSize(1);
+  padding: calcSize(1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sv-popup__close-button-icon {
+  width: calcSize(3);
+  height: calcSize(3);
+  fill: $foreground-light;
+}
+
 .sv-popup__content {
   min-width: 100%;
   height: 100%;
@@ -87,7 +104,7 @@ sv-popup {
 
 .sv-popup--modal-popup {
   & > .sv-popup__container {
-    position: static;
+    position: relative;
     display: flex;
     background-color: var(--lbr-dialog-background-color, $background-dim-light);
     border-radius: var(--lbr-dialog-corner-radius, calcCornerRadius(2));

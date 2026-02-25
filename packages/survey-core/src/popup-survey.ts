@@ -40,7 +40,16 @@ export class PopupSurveyModel extends Base {
       callback && callback();
     }
     if (name === "isExpanded") {
+      if (!!this.isFullScreen && !newValue) {
+        this.isFullScreen = false;
+      }
       this.onExpandedChanged();
+    }
+    if (name === "isFullScreen") {
+      if (newValue && !this.isExpanded) {
+        this.isExpanded = true;
+      }
+      this.setCssRoot();
     }
   }
   public getType(): string {
@@ -67,23 +76,9 @@ export class PopupSurveyModel extends Base {
    *
    * You can set this property to `true` or `false` to control visibility of the pop-up survey. Alternatively, you can use the [`show()`](#show) and [`hide()`](#hide) methods.
    */
-  public get isShowing(): boolean {
-    return this.getPropertyValue("isShowing", false);
-  }
-  public set isShowing(val: boolean) {
-    this.setPropertyValue("isShowing", val);
-  }
+  @property({ defaultValue: false }) isShowing: boolean;
 
-  public get isFullScreen(): boolean {
-    return this.getPropertyValue("isFullScreen", false);
-  }
-  public set isFullScreen(val: boolean) {
-    if (!this.isExpanded && !!val) {
-      this.isExpanded = true;
-    }
-    this.setPropertyValue("isFullScreen", val);
-    this.setCssRoot();
-  }
+  @property({ defaultValue: false }) isFullScreen: boolean;
   /**
    * Shows the pop-up survey. The survey may appear [expanded or collapsed](#isExpanded).
    *
@@ -114,15 +109,7 @@ export class PopupSurveyModel extends Base {
    *
    * You can set this property to `true` or `false` to control the expand state of the pop-up survey. Alternatively, you can use the [`expand()`](#expand) and [`collapse()`](#collapse) methods.
    */
-  public get isExpanded(): boolean {
-    return this.getPropertyValue("isExpanded", false);
-  }
-  public set isExpanded(val: boolean) {
-    if (!!this.isFullScreen && !val) {
-      this.isFullScreen = false;
-    }
-    this.setPropertyValue("isExpanded", val);
-  }
+  @property({ defaultValue: false }) isExpanded: boolean;
   public get isCollapsed(): boolean {
     return !this.isExpanded;
   }
@@ -182,23 +169,13 @@ export class PopupSurveyModel extends Base {
    * @see collapse
    * @see hide
    */
-  public get allowClose(): boolean {
-    return this.getPropertyValue("allowClose", false);
-  }
-  public set allowClose(val: boolean) {
-    this.setPropertyValue("allowClose", val);
-  }
+  @property({ defaultValue: false }) allowClose: boolean;
   /**
    * Specifies whether to display a button that allows respondents to show the pop-up survey in full screen mode.
    *
    * Default value: `false`
    */
-  public get allowFullScreen(): boolean {
-    return this.getPropertyValue("allowFullScreen", false);
-  }
-  public set allowFullScreen(val: boolean) {
-    this.setPropertyValue("allowFullScreen", val);
-  }
+  @property({ defaultValue: false }) allowFullScreen: boolean;
   public get css(): any {
     return this.survey.css;
   }

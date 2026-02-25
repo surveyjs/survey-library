@@ -159,6 +159,18 @@ QUnit.test("Condition: on item - no spaces", function(assert) {
   assert.equal(expr.evaluate(), true);
 });
 
+QUnit.test("[] notcontains 0 returns false #10869", (assert) => {
+  let runner = new ConditionRunner("{a} notcontains 0");
+  assert.equal(runner.runValues({ a: [] }), true, "[] notcontains 0");
+  assert.equal(runner.runValues({ a: [1, 2] }), true, "[1,2] notcontains 0");
+  assert.equal(runner.runValues({ a: [0, 1] }), false, "[0,1] notcontains 0");
+
+  runner = new ConditionRunner("{a} notcontains '0'");
+  assert.equal(runner.runValues({ a: [] }), true, "[] notcontains '0'");
+  assert.equal(runner.runValues({ a: [1, 2] }), true, "[1,2] notcontains '0'");
+  assert.equal(runner.runValues({ a: [0, 1] }), false, "[0,1] notcontains '0'");
+});
+
 QUnit.test("Run one condition", function(assert) {
   var runner = new ConditionRunner("{a} > 5");
   var values = { a: 6 };

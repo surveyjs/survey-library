@@ -1,7 +1,7 @@
 <template>
   <div
     :class="model.getRootCss(container)"
-    :style="{ maxWidth: model.progressWidth }"
+    :style="{ maxWidth: model.progressWidth, '--sd-progress-buttons-pages-count': survey.visiblePages.length }"
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"

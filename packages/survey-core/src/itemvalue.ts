@@ -100,6 +100,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     return result;
   }
+  public getOwner() {
+    return this.locOwner || super.getOwner();
+  }
   public static getItemByValue(items: Array<ItemValue>, val: any): ItemValue {
     if (!Array.isArray(items)) return null;
     const valIsEmpty = Helpers.isValueEmpty(val);
@@ -523,8 +526,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected setLocTitle(val: LocalizableString): void {}
   protected setTitle(val: string): void {}
-  public get icon(): string { return this.getPropertyValue("icon", ""); }
-  public set icon(val: string) { this.setPropertyValue("icon", val); }
+  @property({ defaultValue: "" }) icon: string;
 }
 
 Base.createItemValue = function (source: any, type?: string): any {

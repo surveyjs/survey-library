@@ -11,8 +11,8 @@ $secondary-forecolor: var(--sjs2-color-fg-accent-on-primary, #fff);
 $secondary-forecolor-light: var(--sjs2-color-fg-accent-primary-disabled, rgba(#fff, 0.25));
 
 $editor-background: var(
-  --sjs2-color-control-formbox-default-bg,
-  var(--sjs-editor-background, var(--sjs2-color-control-formbox-default-bg, var(--background-dim-light, #f9f9f9)))
+  --sjs2-color-component-formbox-default-bg,
+  var(--sjs-editor-background, var(--sjs2-color-component-formbox-default-bg, var(--background-dim-light, #f9f9f9)))
 );
 $question-background: var(
   --sjs2-color-bg-basic-primary,
@@ -21,7 +21,7 @@ $question-background: var(
 
 $background: var(--sjs2-color-bg-basic-primary, var(--background, #fff));
 $background-dim: var(--sjs2-color-bg-neutral-tertiary-dim, var(--background-dim, #f3f3f3));
-$background-dim-light: var(--sjs2-color-control-formbox-default-bg, var(--background-dim-light, #f9f9f9));
+$background-dim-light: var(--sjs2-color-component-formbox-default-bg, var(--background-dim-light, #f9f9f9));
 $background-semitransparent: var(--lbr-dialog-screen-color, var(--background-semitransparent, rgba(144, 144, 144, 0.5)));
 $background-dark: var(--sjs2-color-bg-basic-primary-dim, var(--sjs2-color-bg-basic-primary-dim, rgb(248, 248, 248)));
 $background-dim-dark: var(--sjs2-color-bg-basic-secondary-dim, var(--sjs2-color-bg-basic-secondary-dim, rgb(243, 243, 243)));
@@ -35,7 +35,7 @@ $foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, 
 $foreground-dim: var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45));
 
-$border: var(--sjs2-color-control-input-default-line, var(--border, #d6d6d6));
+$border: var(--sjs2-color-component-input-default-line, var(--border, #d6d6d6));
 $border-light: var(--sjs2-color-border-basic-secondary, var(--border-light, #eaeaea));
 $border-inside: var(--sjs2-color-border-basic-secondary-overlay, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
@@ -44,10 +44,10 @@ $shadow-small-reset: var(--sjs2-border-effect-surface-default-reset, 0px 0px 0px
 $shadow-medium-large: var(--sjs2-border-effect-floating-default, 0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
 $shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
 
-$shadow-inner: var(--sjs2-border-effect-form-formbox-default, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-$shadow-inner-reset: var(--sjs2-border-effect-form-formbox-default-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
-$shadow-focused: var(--sjs2-border-effect-form-formbox-focused, 0px 0px 0px 2px $primary);
-$shadow-focused-reset: var(--sjs2-border-effect-form-formbox-focused-reset, 0px 0px 0px 0px $primary);
+$shadow-inner: var(--sjs2-border-effect-component-formbox-default, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-inner-reset: var(--sjs2-border-effect-component-formbox-default-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
+$shadow-focused: var(--sjs2-border-effect-component-formbox-focused, 0px 0px 0px 2px $primary);
+$shadow-focused-reset: var(--sjs2-border-effect-component-formbox-focused-reset, 0px 0px 0px 0px $primary);
 
 $red: var(--sjs2-color-bg-alert-primary, var(--red, #e60a3e));
 $red-light: var(--sjs2-color-bg-alert-secondary, var(--red-light, rgba(230, 10, 62, 0.1)));
@@ -113,14 +113,14 @@ $font-questionplaceholder-color: var(
   var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
 
-$font-editorfont-family: var(--sjs2-typography-font-family-component-editor-text, #{$font-family});
-$font-editorfont-weight: var(--sjs2-typography-font-weight-component-editor-text, 400);
-$font-editorfont-color: var(--sjs2-color-control-editor-input-default-value, var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91)));
+$font-editorfont-family: var(--sjs2-typography-font-family-component-input-content, #{$font-family});
+$font-editorfont-weight: var(--sjs2-typography-font-weight-component-input-content, 400);
+$font-editorfont-color: var(--sjs2-color-component-editor-input-default-value, var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91)));
 $font-editorfont-placeholdercolor: var(
-  --sjs2-color-control-editor-input-default-placeholder,
+  --sjs2-color-component-editor-input-default-placeholder,
   var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090))
 );
-$font-editorfont-size: var(--sjs2-typography-font-size-component-editor-text, $font-size);
+$font-editorfont-size: var(--sjs2-typography-font-size-component-input-content, $font-size);
 $base-unit: var(--sjs2-base-unit-size, var(--base-unit, 8px));
 
 $sd-panel-normal-min-width: 496px;

@@ -8289,8 +8289,8 @@ export class SurveyModel extends SurveyElementCore
     const targetVars = [
       "--sjs2-border-effect-surface-default",
       "--sjs2-border-effect-surface-focused",
-      "--sjs2-border-effect-form-formbox-default",
-      "--sjs2-border-effect-form-formbox-focused"
+      "--sjs2-border-effect-component-formbox-default",
+      "--sjs2-border-effect-component-formbox-focused"
     ];
 
     targetVars.forEach((varName) => {

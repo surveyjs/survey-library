@@ -23,7 +23,7 @@ import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from ".
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
 import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
-import { template } from "lodash";
+import { template, templateSettings } from "lodash";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -9328,4 +9328,129 @@ QUnit.test("Exception on validation panel dynamic if questions in validation are
   const cellQuestion = row.cells[0].question;
   cellQuestion.value = 10;
   assert.equal(cellQuestion.errors.length, 0, "There is no errors on");
+});
+
+QUnit.test("question valueName vs two paneldynamic & question triggers", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel1",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col1", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel2",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] },
+          { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+          { name: "col4", type: "text" }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel3",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
+        ]
+      }
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+  panel1.panels[0].getQuestionByName("col1").value = "m1_r1_col1";
+  panel1.panels[1].getQuestionByName("col1").value = "m1_r2_col1";
+  panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
+  panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
+  panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
+  panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
+  panel1.panels[0].getQuestionByName("col2").value = "a";
+  panel2.panels[1].getQuestionByName("col2").value = "a";
+  assert.equal(panel1.panels[0].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row1, col1");
+  assert.equal(panel1.panels[1].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row2, col1");
+  assert.equal(panel2.panels[0].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row1, col3");
+  assert.equal(panel2.panels[1].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row2, col3");
+  assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
+  assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
+});
+
+QUnit.test("question valueName vs matrixdynamic and paneldynamic & question triggers", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic",
+        name: "matrix1",
+        valueName: "panelA",
+        rowCount: 2,
+        columns: [
+          { name: "col1", type: "text", resetValueIf: "{row.col2} = 'a'" },
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel2",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] },
+          { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+          { name: "col4", type: "text" }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel3",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
+        ]
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+  matrix1.visibleRows[0].getQuestionByName("col1").value = "m1_r1_col1";
+  matrix1.visibleRows[1].getQuestionByName("col1").value = "m1_r2_col1";
+  panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
+  panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
+  panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
+  panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
+  matrix1.visibleRows[0].getQuestionByName("col2").value = "a";
+  panel2.panels[1].getQuestionByName("col2").value = "a";
+  assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row1, col1");
+  assert.equal(matrix1.visibleRows[1].getQuestionByName("col1").isEmpty(), true, "Check value for matrix, row2, col1");
+  assert.equal(panel2.panels[0].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row1, col3");
+  assert.equal(panel2.panels[1].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row2, col3");
+  assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
+  assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
+});
+
+QUnit.test("paneldynamic shared question value", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text", valueName: "qa" },
+          { name: "q2", type: "text", valueName: "qa" }
+        ]
+      }
+    ]
+  });
+
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+
+  const q1 = panel1.panels[0].getQuestionByName("q1");
+  const q2 = panel1.panels[0].getQuestionByName("q2");
+
+  q1.value = "value1";
+  assert.equal(q2.value, "value1", "q2.value equals to q1.value");
 });

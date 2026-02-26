@@ -1845,6 +1845,12 @@ export class QuestionPanelDynamicModel extends Question
       this.tabbedMenu.locStrsChanged();
     }
   }
+  public randomSeedChanged(): void {
+    const panels = this.panelsCore;
+    for (var i = 0; i < panels.length; i++) {
+      panels[i].randomSeedChanged();
+    }
+  }
   public clearIncorrectValues() {
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.clearIncorrectValuesInPanel(i);

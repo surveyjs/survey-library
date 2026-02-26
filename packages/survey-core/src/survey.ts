@@ -3152,12 +3152,9 @@ export class SurveyModel extends SurveyElementCore
   public set randomSeed (val: number) {
     this.setPropertyValue("randomSeed", val);
   }
-  public randomSeedChanged(): void {
+  private randomSeedChanged(): void {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].randomSeedChanged();
-    }
-    for (const question of this.getAllQuestions()) {
-      question.randomSeedChanged();
     }
   }
   private isSettingDataValue: boolean;

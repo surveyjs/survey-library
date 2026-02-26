@@ -479,6 +479,12 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
+  public randomSeedChanged(): void {
+    this.randomizeElements(this.areQuestionsRandomized);
+    this.elements.forEach(el => {
+      (<any>el).randomSeedChanged();
+    });
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -588,9 +594,6 @@ export class PanelModelBase extends SurveyElement<Question>
     this.updateVisibleIndexes();
     this.isRandomizing = false;
     return true;
-  }
-  public randomSeedChanged(): void {
-    this.randomizeElements(this.areQuestionsRandomized);
   }
   /**
    * Returns `true` if elements in this panel/page are arranged in random order.

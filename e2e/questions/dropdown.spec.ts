@@ -2133,7 +2133,6 @@ frameworks.forEach((framework) => {
       expect(await page.locator(".sd-dropdown").textContent()).toEqual("PeugeotSelect");
       await expect(page.locator(".sv-list__item").filter({ visible: true })).toHaveCount(2);
     });
-
     test("Dropdown with lazyLoadEnabled and onGetChoicesDisplayValue event - #10302", async({ page }) => {
       const json = {
         "elements": [
@@ -2155,6 +2154,60 @@ frameworks.forEach((framework) => {
         });
       });
       expect(await page.locator(".sd-dropdown__value", { hasText: "Test" }).isVisible()).toBeTruthy();
+    });
+    test("Dropdown other text is displayed after selection - #10942", async({ page }) => {
+      const json = {
+        name: "page1",
+        elements: [
+          {
+            type: "dropdown",
+            name: "q1",
+            title: "q1",
+            choices: ["Item 1", "Item 2", "Item 3"],
+            showOtherItem: true,
+          },
+        ],
+      };
+      await initSurvey(page, framework, json);
+
+      const dropdown = page.locator(".sd-dropdown");
+      const filterInputString = page.locator(".sd-dropdown__filter-string-input");
+      const item = page.locator(".sv-list__item span");
+      const body = page.locator("body");
+      expect(await filterInputString.inputValue()).toBe("");
+
+      await dropdown.click();
+      await item.filter({ hasText: "Item 1" }).filter({ visible: true }).click();
+      expect(filterInputString).toBeFocused();
+      expect(await filterInputString.inputValue()).toBe("Item 1");
+      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      await body.click({ position: { x: 0, y: 0 } });
+      expect(filterInputString).not.toBeFocused();
+      expect(await filterInputString.inputValue()).toBe("");
+      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("Item 1");
+
+      await dropdown.click();
+      await item.filter({ hasText: "Other (describe)" }).filter({ visible: true }).click();
+      await page.waitForTimeout(1000);
+      expect(filterInputString).not.toBeFocused();
+      expect(await filterInputString.inputValue()).toBe("Other (describe)");
+      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      await dropdown.click();
+      expect(filterInputString).toBeFocused();
+      expect(await filterInputString.inputValue()).toBe("Other (describe)");
+      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+
+      await body.click({ position: { x: 0, y: 0 } });
+
+      await dropdown.click();
+      await item.filter({ hasText: "Item 2" }).filter({ visible: true }).click();
+      expect(filterInputString).toBeFocused();
+      expect(await filterInputString.inputValue()).toBe("Item 2");
+      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("");
+      await body.click({ position: { x: 0, y: 0 } });
+      expect(filterInputString).not.toBeFocused();
+      expect(await filterInputString.inputValue()).toBe("");
+      expect(await page.locator(".sd-dropdown__value").innerText()).toBe("Item 2");
     });
   });
 });

@@ -17,13 +17,13 @@
   border: none;
   border-radius: $editor-corner-radius;
   text-align: start;
-  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  box-shadow: $shadow-inner, $shadow-focused-reset;
   transition: box-shadow $transition-duration;
   display: block;
 }
 
 .sd-input:focus {
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, $shadow-focused;
 }
 
 .sd-input.sd-input:focus {

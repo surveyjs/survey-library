@@ -49,7 +49,7 @@ import {
 } from "./expressionItems";
 import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode, getValueFromStyleProperty, computeStyle } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -90,6 +90,7 @@ import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
 import { legacyCssVariables } from "./legacy-vars";
+import { createBoxShadowReset } from "./utils/shadow-effects";
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
@@ -8283,6 +8284,23 @@ export class SurveyModel extends SurveyElementCore
     });
   }
 
+  private addAnimationResetCSSVariables(newCssVariable: any) {
+    if (!newCssVariable) return;
+    const targetVars = [
+      "--sjs2-border-effect-surface-default",
+      "--sjs2-border-effect-surface-focused",
+      "--sjs2-border-effect-form-formbox-default",
+      "--sjs2-border-effect-form-formbox-focused"
+    ];
+
+    targetVars.forEach((varName) => {
+      const boxShadow = newCssVariable[varName];
+      if (typeof boxShadow === "string") {
+        newCssVariable[`${varName}-reset`] = createBoxShadowReset(boxShadow);
+      }
+    });
+  }
+
   /**
    * Applies a specified theme to the survey.
    *
@@ -8293,6 +8311,7 @@ export class SurveyModel extends SurveyElementCore
     if (!theme) return;
 
     this.patchLegacyCSSVariables(theme.cssVariables);
+    this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;

@@ -10,13 +10,13 @@
   border-radius: calcSize(12.5);
   box-shadow:
     $shadow-inner,
-    0 0 0 0px $primary;
+    $shadow-focused-reset;
   transition: box-shadow $transition-duration;
 
   &.sd-boolean--allowhover:focus-within {
     box-shadow:
       $shadow-inner-reset,
-      0 0 0 2px $primary;
+      $shadow-focused;
   }
 }
 

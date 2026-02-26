@@ -40,12 +40,14 @@ $border-light: var(--sjs2-color-border-basic-secondary, var(--border-light, #eae
 $border-inside: var(--sjs2-color-border-basic-secondary-overlay, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
 $shadow-small: var(--sjs2-border-effect-surface-default, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-$shadow-small-reset: var(--sjs2-border-effect-surface-focused, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
+$shadow-small-reset: var(--sjs2-border-effect-surface-default-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
 $shadow-medium-large: var(--sjs2-border-effect-floating-default, 0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
 $shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
 
 $shadow-inner: var(--sjs2-border-effect-form-formbox-default, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-$shadow-inner-reset: var(--sjs2-border-effect-form-formbox-focused, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
+$shadow-inner-reset: var(--sjs2-border-effect-form-formbox-default-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
+$shadow-focused: var(--sjs2-border-effect-form-formbox-focused, 0px 0px 0px 2px $primary);
+$shadow-focused-reset: var(--sjs2-border-effect-form-formbox-focused-reset, 0px 0px 0px 0px $primary);
 
 $red: var(--sjs2-color-bg-alert-primary, var(--red, #e60a3e));
 $red-light: var(--sjs2-color-bg-alert-secondary, var(--red-light, rgba(230, 10, 62, 0.1)));

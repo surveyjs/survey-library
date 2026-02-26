@@ -6,7 +6,7 @@
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
     "build:themes": "rollup -c rollup.themes.config.mjs --environment emitMinified",
     "build:icons": "rollup -c rollup.icons.config.mjs --environment emitMinified",
-    "watch:dev": "concurrently \"webpack --env buildType=dev --watch --env emitDeclarations\" \"rollup -c -w\" ",
+    "watch:dev": "rollup -c rollup.config.mjs -w",
     "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",

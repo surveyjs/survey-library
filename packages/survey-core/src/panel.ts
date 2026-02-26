@@ -479,6 +479,12 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
+  public randomSeedChanged(): void {
+    this.randomizeElements(this.areQuestionsRandomized);
+    this.elements.forEach(el => {
+      (<any>el).randomSeedChanged();
+    });
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),
@@ -582,7 +588,7 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < elements.length; i++) {
       oldElements.push(elements[i]);
     }
-    const newElements = Helpers.randomizeArray<IElement>(oldElements);
+    const newElements = Helpers.randomizeArray<IElement>(oldElements, this.randomSeed);
     this.setArrayPropertyDirectly("elements", newElements, false);
     this.updateRows();
     this.updateVisibleIndexes();

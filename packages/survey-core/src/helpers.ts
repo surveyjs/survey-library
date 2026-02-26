@@ -1,4 +1,5 @@
 import { settings } from "./settings";
+import { mulberry32 } from "./utils/utils";
 
 export interface HashTable<T = any> {
   [key: string]: T;
@@ -184,9 +185,11 @@ export class Helpers {
   ): boolean {
     return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
   }
-  public static randomizeArray<T>(array: Array<T>): Array<T> {
+  public static randomizeArray<T>(array: Array<T>, seed?: number): Array<T> {
+    array.sort((a: any, b: any) => a.uniqueId - b.uniqueId);
+    const random = mulberry32(seed || Date.now());
     for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
+      var j = Math.floor(random() * (i + 1));
       var temp = array[i];
       array[i] = array[j];
       array[j] = temp;

@@ -1996,8 +1996,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       return Helpers.compareStrings(a.calculatedText, b.calculatedText) * mult;
     });
   }
+  public randomSeedChanged(): void {
+    this.updateVisibleChoices();
+  }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
-    return Helpers.randomizeArray<ItemValue>(array);
+    return Helpers.randomizeArray<ItemValue>(array, this.randomSeed);
   }
   private get hasChoicesUrl(): boolean {
     return !!this.choicesByUrlValue?.url;

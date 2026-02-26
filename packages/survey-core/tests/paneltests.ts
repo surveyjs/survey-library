@@ -1,7 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { Question, ValidationContext } from "../src/question";
-import { PanelModel, QuestionRowModel } from "../src/panel";
+import { PanelModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, Serializer } from "../src/jsonobject";
 import { FlowPanelModel } from "../src/flowpanel";
@@ -15,7 +15,7 @@ import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Helpers } from "../src/helpers";
-import { FunctionFactory } from "../src/functionsfactory";
+import { FunctionFactory, registerFunction } from "../src/functionsfactory";
 export default QUnit.module("Panel");
 
 QUnit.test("questions-elements synhronization", function (assert) {
@@ -3681,7 +3681,7 @@ QUnit.test("Panel.validate vs callback function as a parameter #10307", function
     returnResults.push(this.returnResult);
     return false;
   }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  registerFunction({ name: "asyncFunc", func: asyncFunc, isAsync: true, useCache: false });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", validators: [{ type: "expression", expression: "asyncFunc({q2})" }] },

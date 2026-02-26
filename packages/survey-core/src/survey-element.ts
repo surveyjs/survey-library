@@ -1304,6 +1304,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.titleToolbarValue.dispose();
     }
   }
+  public get randomSeed(): number {
+    let seed = this.getOwner()?.randomSeed || 0;
+    const key = this.getType() + this.name;
+    for (let i = 0; i < key.length; i++) {
+      seed = (seed << 5) - seed + key.charCodeAt(i);
+      seed |= 0;
+    }
+    return seed;
+  }
+  public randomSeedChanged(): void {}
 }
 
 export class RenderingCompletedAwaiter {

@@ -8083,6 +8083,11 @@ QUnit.test("Randomize questions in page and panels & single question per page", 
 
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("Random seed generator", (assert) => {
+  const survey = new SurveyModel();
+  const seed = survey.randomSeed;
+  assert.equal(seed, survey.randomSeed, "Seed generated on demand and is the same on next call");
+});
 QUnit.test("questionPerPage vs nextPage&prevPage & Bug#9617 (isLastPage/isFirstPage)", function (assert) {
   const survey = new SurveyModel({
     questionsOnPageMode: "questionPerPage",
@@ -20204,10 +20209,10 @@ QUnit.test("Test displayValue() function in survey.runExpression, Bug#8858", fun
     ]
   });
   survey.setValue("q1", 2);
-  assert.equal(survey.runExpression("displayValue('q1'"), "Item 2", "#1");
+  assert.equal(survey.runExpression("displayValue('q1')"), "Item 2", "#1");
   let funcRes = undefined;
   survey.setValue("q1", 1);
-  survey.runExpression("displayValue('q1'", (res: any): void => funcRes = res);
+  survey.runExpression("displayValue('q1')", (res: any): void => funcRes = res);
   assert.equal(funcRes, "Item 1", "#2");
 });
 QUnit.test("Test propertyValue() function", function (assert) {

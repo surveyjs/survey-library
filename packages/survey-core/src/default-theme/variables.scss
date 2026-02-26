@@ -67,36 +67,36 @@ $font-size: var(--sjs-font-size, 16px);
 
 $font-surveytitle-family: var(--sjs2-typography-font-family-component-header-title, #{$font-family});
 $font-surveytitle-weight: var(--sjs2-typography-font-weight-component-header-title, 700);
-$font-surveytitle-color: var(--sjs-font-surveytitle-color, #{$primary});
+$font-surveytitle-color: var(--sjs2-color-component-header-default-title, #{$primary});
 
 $font-surveydescription-family: var(--sjs2-typography-font-family-component-header-description, #{$font-family});
 $font-surveydescription-weight: var(--sjs2-typography-font-weight-component-header-description, 400);
-$font-surveydescription-color: var(--sjs-font-surveydescription-color, #{$foreground-light});
+$font-surveydescription-color: var(--sjs2-color-component-header-default-description, #{$foreground-light});
 
 $font-headertitle-family: var(--sjs2-typography-font-family-component-header-title, #{$font-family});
 $font-headertitle-weight: var(--sjs2-typography-font-weight-component-header-title, 700);
-$font-headertitle-color: var(--sjs-font-headertitle-color, #{$primary-foreground});
+$font-headertitle-color: var(--sjs2-color-component-header-default-title, #{$primary-foreground});
 
 $font-headerdescription-family: var(--sjs2-typography-font-family-component-header-description, #{$font-family});
 $font-headerdescription-weight: var(--sjs2-typography-font-weight-component-header-description, 400);
-$font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$primary-foreground});
+$font-headerdescription-color: var(--sjs2-color-component-header-default-description, #{$primary-foreground});
 
-$font-pagetitle-family: var(--sjs-font-pagetitle-family, #{$font-family});
-$font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);
-$font-pagetitle-color: var(--sjs-font-pagetitle-color, var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91)));
+$font-pagetitle-family: var(--sjs2-typography-font-family-component-page-title, #{$font-family});
+$font-pagetitle-weight: var(--sjs2-typography-font-weight-component-page-title, 700);
+$font-pagetitle-color: var(--sjs2-color-component-page-default-title, var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91)));
 
-$font-pagedescription-family: var(--sjs-font-pagedescription-family, #{$font-family});
-$font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
+$font-pagedescription-family: var(--sjs2-typography-font-family-component-page-description, #{$font-family});
+$font-pagedescription-weight: var(--sjs2-typography-font-weight-component-page-description, 400);
 $font-pagedescription-color: var(
-  --sjs-font-pagedescription-color,
+  --sjs2-color-component-page-default-description,
   var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
-$font-pagedescription-size: var(--sjs-font-pagedescription-size, $font-size);
+$font-pagedescription-size: var(--sjs2-typography-font-size-component-page-description, $font-size);
 
 $font-questiontitle-family: var(--sjs2-typography-font-family-component-question-title, #{$font-family});
 $font-questiontitle-weight: var(--sjs2-typography-font-weight-component-question-title, 600);
 $font-questiontitle-color: var(
-  --sjs-font-questiontitle-color,
+  --sjs2-color-component-question-default-title,
   var(--sjs2-color-fg-basic-primary, var(--foreground, #161616))
 );
 $font-questiontitle-size: var(--sjs2-typography-font-size-component-question-title, $font-size);
@@ -104,12 +104,12 @@ $font-questiontitle-size: var(--sjs2-typography-font-size-component-question-tit
 $font-questiondescription-family: var(--sjs2-typography-font-family-component-question-description, #{$font-family});
 $font-questiondescription-weight: var(--sjs2-typography-font-weight-component-question-description, 400);
 $font-questiondescription-color: var(
-  --sjs-font-questiondescription-color,
+  --sjs2-color-component-question-default-description,
   var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
 $font-questiondescription-size: var(--sjs2-typography-font-size-component-question-description, $font-size);
 $font-questionplaceholder-color: var(
-  --sjs-font-questiondescription-color,
+  --sjs2-color-component-question-default-title-placeholder,
   var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
 

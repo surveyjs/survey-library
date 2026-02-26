@@ -19,7 +19,7 @@ import { Base } from "./base";
 
 function getRGBColor(themeVariables: any, colorName: string, varName: string) {
   let str: string = !!themeVariables && themeVariables[colorName] as any;
-  if (!str) str = getColorFromProperty(varName);
+  if (!str) str = getColorFromProperty(this.survey.rootElement, varName);
   if (!str) return null;
   const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
   if (!canvasElement) return null;
@@ -27,7 +27,7 @@ function getRGBColor(themeVariables: any, colorName: string, varName: string) {
   ctx.fillStyle = str;
 
   if (ctx.fillStyle == "#000000") {
-    ctx.fillStyle = getColorFromProperty(varName);
+    ctx.fillStyle = getColorFromProperty(this.survey.rootElement, varName);
   }
   const newStr = ctx.fillStyle;
 

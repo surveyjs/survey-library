@@ -234,50 +234,6 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public static getItemValuesDefaultValue: (val: any, type: string) => any;
   [key: string]: any;
   private static Index = 1;
-  private static mergableValues = [
-    "typeValue",
-    "choicesValue",
-    "baseValue",
-    "readOnlyValue",
-    "visibleValue",
-    "isSerializable",
-    "isLightSerializable",
-    "isCustom",
-    "isBindable",
-    "isUnique",
-    "uniquePropertyName",
-    "isDynamicChoices",
-    "isLocalizableValue",
-    "className",
-    "alternativeName",
-    "oldName",
-    "layout",
-    "version",
-    "classNamePart",
-    "baseClassName",
-    "defaultValue",
-    "defaultValueFunc",
-    "serializationProperty",
-    "onGetValue",
-    "onSetValue",
-    "onSettingValue",
-    "displayName",
-    "category",
-    "categoryIndex",
-    "visibleIndex",
-    "nextToProperty",
-    "overridingProperty",
-    "locationInTable",
-    "dependedProperties",
-    "visibleIf",
-    "enableIf",
-    "onExecuteExpression",
-    "onPropertyEditorUpdate",
-    "maxLength",
-    "maxValue",
-    "minValue",
-    "dataListValue",
-  ];
   private idValue: number;
   private classInfoValue: JsonMetadataClass;
   private typeValue: string;
@@ -607,10 +563,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     this.dataListValue = val;
   }
   public mergeWith(prop: JsonObjectProperty) {
-    var valuesNames = JsonObjectProperty.mergableValues;
-    for (var i = 0; i < valuesNames.length; i++) {
-      this.mergeValue(prop, valuesNames[i]);
-    }
+    Object.keys(prop).forEach(name => {
+      this.mergeValue(prop, name);
+    });
     this.isArray = prop.isArray;
   }
   public addDependedProperty(name: string) {

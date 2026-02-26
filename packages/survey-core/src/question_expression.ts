@@ -412,7 +412,7 @@ Serializer.addClass(
       default: -1
     },
     { name: "useGrouping:boolean", default: true },
-    { name: "precision:number", default: -1, category: "data" },
+    { name: "precision:number", default: -1 },
     { name: "enableIf", visible: false, isSerializable: false },
     { name: "isRequired", visible: false, isSerializable: false },
     { name: "readOnly", visible: false, isSerializable: false },

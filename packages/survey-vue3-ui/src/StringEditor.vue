@@ -2,8 +2,8 @@
   <span
     class="sv-string-editor"
     contenteditable="true"
-    v-if="locString.hasHtml"
-    v-html="locString.renderedHtml"
+    v-if="model.hasHtml"
+    v-html="model.renderedHtml"
     @blur="onInput"
     @click="onClick"
   ></span>
@@ -13,7 +13,7 @@
     v-else
     @blur="onInput"
     @click="onClick"
-    >{{ locString.renderedHtml }}</span
+    >{{ model.renderedHtml }}</span
   >
 </template>
 
@@ -21,11 +21,11 @@
 import type { LocalizableString } from "survey-core";
 
 const props = defineProps<{
-  locString: LocalizableString;
+  model: LocalizableString;
 }>();
 
 const onInput = (event: any) => {
-  const locString = props.locString;
+  const locString = props.model;
   locString.text = event.target.innerText;
 };
 const onClick = (event: any) => {

@@ -2418,8 +2418,7 @@ export class Question extends SurveyElement<Question>
         value: this.value,
         displayValue: this.displayValue,
         isNode: false,
-        getString: (val: any) =>
-          typeof val === "object" ? JSON.stringify(val) : val,
+        getString: (val: any) => this.getValueAsString(val),
       };
       if (options.includeQuestionTypes === true) {
         questionPlainData.questionType = this.getType();
@@ -2436,8 +2435,7 @@ export class Question extends SurveyElement<Question>
             title: "Comment",
             value: settings.commentSuffix,
             displayValue: this.comment,
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: false,
           },
         ];
@@ -3518,10 +3516,7 @@ Serializer.addClass("question", [
   "setValueIf:condition",
   "setValueExpression:expression",
   "defaultValue:value",
-  {
-    name: "defaultValueExpression:expression",
-    category: "logic",
-  },
+  "defaultValueExpression:expression",
   "correctAnswer:value",
   {
     name: "clearIfInvisible",
@@ -3550,7 +3545,7 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea:switch", visible: false, default: false, alternativeName: "hasComment", category: "general" },
+  { name: "showCommentArea:switch", visible: false, layout: "row", alternativeName: "hasComment" },
   {
     name: "commentText",
     dependsOn: "showCommentArea",

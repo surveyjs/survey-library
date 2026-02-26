@@ -1,5 +1,5 @@
 <template>
-  <SvComponent :is="locString.renderAs" :locString="locString.renderAsData" />
+  <SvComponent :is="locString.renderAs" :model="locString.renderAsData" />
 </template>
 
 <script lang="ts" setup>

@@ -516,8 +516,8 @@ export class QuestionTextModel extends QuestionTextBase {
     while(Math.round(step * pw) / pw !== step && pw < 1000000) {
       pw *= 10;
     }
-    val = val * pw;
-    step = step * pw;
+    val = Math.round(val * pw);
+    step = Math.round(step * pw);
     return step > 0 && (val % step) !== 0;
   }
   private get isDateInputType(): boolean {
@@ -862,7 +862,6 @@ Serializer.addClass(
     },
     {
       name: "minValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
@@ -870,7 +869,6 @@ Serializer.addClass(
     },
     {
       name: "maxValueExpression:expression",
-      category: "logic",
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);

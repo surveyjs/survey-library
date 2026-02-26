@@ -170,6 +170,72 @@ frameworks.forEach((framework) => {
       expect(Math.abs(popupClientRect.x + popupClientRect.width - popupPointerClientRect.x)).toBeLessThanOrEqual(1.0);
     });
 
+    test("check closeButton in showDialog", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
+      await page.evaluate(() => {
+        const locStr = new window["Survey"].LocalizableString(undefined, false);
+        locStr.defaultValue = "Message";
+        window["Survey"].settings.showDialog({
+          componentName: "sv-string-viewer",
+          data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+          showCloseButton: true,
+        }, window["survey"].rootElement);
+      });
+
+      const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup").first();
+      const closeButton = page.locator(".sv-popup__close-button").first();
+      await expect(popupModalSelector).toBeVisible();
+      await closeButton.click();
+      await expect(popupModalSelector).not.toBeVisible();
+    });
+
+    test("check string viewer component in showDialog", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
+      await page.evaluate(() => {
+        const locStr = new window["Survey"].LocalizableString(undefined, false);
+        locStr.defaultValue = "Message";
+        window["Survey"].settings.showDialog({
+          componentName: "sv-string-viewer",
+          data: { model: locStr, textClass: "text-class" },
+        }, window["survey"].rootElement);
+      });
+
+      const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup").first();
+      await expect(popupModalSelector).toBeVisible();
+      await expect(page.locator(".sv-popup__content span")).toContainText("Message");
+      await expect(page.locator(".sv-popup__content span")).toHaveClass("text-class");
+    });
+
+    test("check icon component in showDialog", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await expect(page.locator(".sd-body--empty")).toBeVisible();
+      await page.evaluate(() => {
+        window["Survey"].settings.showDialog({
+          componentName: "sv-svg-icon",
+          data: { iconName: "icon-test", className: "test-class" },
+        }, window["survey"].rootElement);
+      });
+
+      const popupModalSelector = page.locator(".sv-popup.sv-popup--modal-popup").first();
+      await expect(popupModalSelector).toBeVisible();
+      await expect(page.locator(".sv-popup__content svg use")).toHaveAttribute("xlink:href", "#icon-test");
+      await expect(page.locator(".sv-popup__content svg")).toHaveClass("sv-svg-icon test-class");
+
+      await page.getByText("Cancel").click();
+      await page.evaluate(() => {
+        window["Survey"].settings.showDialog({
+          componentName: "sv-svg-icon",
+          data: { iconName: "icon-test", css: "test-class" },
+        }, window["survey"].rootElement);
+      });
+
+      await expect(popupModalSelector).toBeVisible();
+      await expect(page.locator(".sv-popup__content svg use")).toHaveAttribute("xlink:href", "#icon-test");
+      await expect(page.locator(".sv-popup__content svg")).toHaveClass("test-class");
+    });
+
     test("check survey in showModal", async ({ page }) => {
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {

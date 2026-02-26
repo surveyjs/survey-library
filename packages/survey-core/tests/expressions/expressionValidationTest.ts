@@ -747,3 +747,84 @@ QUnit.test("fromJSON & design mode - reports unknown variable inside paneldynami
   let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
   assert.equal(result.length, 0, "There are 0 invalid expressions");
 });
+QUnit.test("validate expressions in empty paneldynamic by arrays, but with set panelCount property, Bug#10841", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q2",
+            inputType: "number",
+          },
+        ],
+      },
+      {
+        type: "expression",
+        name: "q3",
+        expression: "{q1[0].q2} notempty",
+      }
+    ],
+  });
+  const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
+  assert.equal(result, undefined, "There is no error in expression with paneldynamic array item");
+  let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  assert.equal(results.length, 0, "There are 0 invalid expressions");
+});
+QUnit.test("validate expressions in empty matrixdynamic by arrays, but with set rowCount property, Bug#10841", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 1,
+        columns: [
+          {
+            cellType: "text",
+            name: "q2",
+            inputType: "number",
+          },
+        ],
+      },
+      {
+        type: "expression",
+        name: "q3",
+        expression: "{q1[0].q2} notempty",
+      }
+    ],
+  });
+  const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
+  assert.equal(result, undefined, "There is no error in expression with paneldynamic array item");
+  let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  assert.equal(results.length, 0, "There are 0 invalid expressions");
+});
+QUnit.test("validateExpressions() creates extra panel instances when defaultValue set on question inside templateElements[], Bug#10881", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q2",
+            inputType: "number",
+            defaultValue: 1
+          },
+        ],
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.panelCount, 1, "panelCount is 1 before validateExpressions");
+  const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  assert.equal(results.length, 0, "There are 0 invalid expressions");
+  assert.equal(q1.panelCount, 1, "panelCount is 1 after validateExpressions");
+});

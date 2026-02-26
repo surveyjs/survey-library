@@ -47,7 +47,7 @@ import {
   UrlConditionItem,
   ExpressionItem,
 } from "./expressionItems";
-import { ExpressionRunner, ConditionRunner } from "./conditions";
+import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
 import { settings } from "./settings";
 import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
 import { SurveyError } from "./survey-error";
@@ -1208,6 +1208,7 @@ export class SurveyModel extends SurveyElementCore
     return this.tocModelValue;
   }
   @property() sjsVersion: string;
+  @property() $schema: string;
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
   }
@@ -3241,8 +3242,7 @@ export class SurveyModel extends SurveyElementCore
               value: dataValue,
               displayValue: dataValue,
               isNode: false,
-              getString: (val: any) =>
-                typeof val === "object" ? JSON.stringify(val) : val,
+              getString: (val: any) => this.getValueAsString(val),
             });
           }
         }
@@ -4447,7 +4447,7 @@ export class SurveyModel extends SurveyElementCore
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
-      this.currentPage.passed = true;
+      if (this.currentPage)this.currentPage.passed = true;
       return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
     }
     this.doNextPage();
@@ -4586,6 +4586,7 @@ export class SurveyModel extends SurveyElementCore
         this.visiblePages.forEach(page => page.updateRows());
       }
     }
+    let isCurrentPageSet = false;
     if (!this.isSinglePage && !this.isShowingPreview) {
       this.disposeContainerPage();
       let curPage = this.gotoPageFromPreview;
@@ -4594,12 +4595,13 @@ export class SurveyModel extends SurveyElementCore
         curPage = this.visiblePages[this.visiblePageCount - 1];
       }
       if (!!curPage) {
+        isCurrentPageSet = true;
         this.changeCurrentPageFromPreview = true;
         this.currentPage = curPage;
         this.changeCurrentPageFromPreview = false;
       }
     }
-    if (!this.currentPage && this.visiblePageCount > 0) {
+    if (!this.currentPage && this.visiblePageCount > 0 && !isCurrentPageSet) {
       this.currentPage = this.visiblePages[0];
     }
     if (this.isShowingPreview) {
@@ -6695,7 +6697,12 @@ export class SurveyModel extends SurveyElementCore
   public getVariable(name: string): any {
     if (!name) return null;
     name = name.toLowerCase();
-    var res = this.variablesHash[name];
+    const res = this.getVariableCore(name);
+    expressionSurveyCachedValue(name, res, true);
+    return res;
+  }
+  private getVariableCore(name: string): any {
+    const res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
       return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
@@ -6755,7 +6762,9 @@ export class SurveyModel extends SurveyElementCore
   public getValue(name: string): any {
     if (!name || name.length == 0) return null;
     var value = this.getDataValueCore(this.valuesHash, name);
-    return this.getUnbindValue(value);
+    const res = this.getUnbindValue(value);
+    expressionSurveyCachedValue(name, res);
+    return res;
   }
   /**
    * Sets a question value (answer).
@@ -6903,6 +6912,9 @@ export class SurveyModel extends SurveyElementCore
     var index = 1;
     while(keys[baseName + index]) index++;
     return baseName + index;
+  }
+  public getNewGeneratedName(elements: Array<any>, baseName: string): string {
+    return this.generateNewName(elements, baseName);
   }
   protected tryGoNextPageAutomatic(name: string): void {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
@@ -8388,6 +8400,7 @@ Serializer.addClass("survey", [
     className: "calculatedvalue", isArray: true
   },
   { name: "sjsVersion", visible: false },
+  { name: "$schema", visible: false },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
   { name: "surveyShowDataSaving:boolean", visible: false },
@@ -8471,20 +8484,16 @@ Serializer.addClass("survey", [
   },
   {
     name: "progressBarShowPageTitles:switch",
-    category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "progressBarShowPageNumbers:switch",
-    default: false,
-    category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
     name: "progressBarInheritWidthFrom",
     default: "container",
     choices: ["container", "survey"],
-    category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {

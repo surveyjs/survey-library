@@ -624,11 +624,7 @@ export class ChoicesRestful extends Base {
     var title = this.titleName ? this.titleName : "title";
     var val = this.getValueCore(itemValue, title);
     if (!val) return;
-    if (typeof val === "string") {
-      item.text = val;
-    } else {
-      item.locText.setJson(val);
-    }
+    item.locText.setJson(val);
   }
   private getImageLink(item: any): any {
     var imageLink = this.imageLinkName ? this.imageLinkName : "imageLink";

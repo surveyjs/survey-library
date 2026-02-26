@@ -146,7 +146,6 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
       }
       return { isFound: false };
     }
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
       if (index >= 0 && index < pd.panels.length) {
         const item = <QuestionPanelDynamicItem>pd.panels[index].data;
@@ -155,6 +154,7 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
       }
       return { isFound: false, value: undefined, context: this };
     }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     return super.getValue(params);
   }
 }
@@ -2482,6 +2482,7 @@ export class QuestionPanelDynamicModel extends Question
   private isSetPanelItemData: HashTable<number> = {};
   private static maxCheckCount = 3;
   setPanelItemData(item: ISurveyData, name: string, val: any): void {
+    if (item === this.template.data) return;
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;
     if (!this.isSetPanelItemData[name]) {
@@ -2536,8 +2537,7 @@ export class QuestionPanelDynamicModel extends Question
             title: panel.title || "Panel",
             value: panel.getValue(),
             displayValue: panel.getValue(),
-            getString: (val: any) =>
-              typeof val === "object" ? JSON.stringify(val) : val,
+            getString: (val: any) => this.getValueAsString(val),
             isNode: true,
             data: panel.questions
               .map((question: Question) => question.getPlainData(options))
@@ -2840,7 +2840,7 @@ export class QuestionPanelDynamicModel extends Question
 Serializer.addClass(
   "paneldynamic",
   [
-    { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
+    { name: "showCommentArea:switch", visible: true },
     {
       name: "templateElements",
       alternativeName: "questions",
@@ -2865,7 +2865,7 @@ Serializer.addClass(
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
-    { name: "newPanelPosition", choices: ["next", "last"], default: "last", category: "layout" },
+    { name: "newPanelPosition", choices: ["next", "last"], default: "last" },
     {
       name: "panelCount:number",
       isBindable: true,
@@ -2954,10 +2954,7 @@ Serializer.addClass(
       }
     },
     { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
-    {
-      name: "templateVisibleIf:expression",
-      category: "logic"
-    },
+    { name: "templateVisibleIf:expression" },
     {
       name: "removePanelButtonLocation", alternativeName: "panelRemoveButtonLocation",
       default: "bottom",

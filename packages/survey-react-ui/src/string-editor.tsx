@@ -8,7 +8,7 @@ export class SurveyLocStringEditor extends React.Component<any, any> {
     this.state = { changed: 0 };
   }
   private get locStr(): LocalizableString {
-    return this.props.locStr;
+    return this.props.model;
   }
   private get style(): any {
     return this.props.style;

@@ -853,8 +853,7 @@ export class QuestionMatrixModel
             this.visibleColumns,
             values[rowName]
           ),
-          getString: (val: any) =>
-            typeof val === "object" ? JSON.stringify(val) : val,
+          getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };
         var item = ItemValue.getItemByValue(
@@ -1118,7 +1117,7 @@ Serializer.addClass(
       choices: ["initial", "random"],
     },
     { name: "eachRowRequired:boolean", alternativeName: "isAllRowRequired" },
-    { name: "eachRowUnique:boolean", category: "validation" },
+    { name: "eachRowUnique:boolean" },
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" },
     { name: "cellType", default: "radio", choices: ["radio", "checkbox"] },

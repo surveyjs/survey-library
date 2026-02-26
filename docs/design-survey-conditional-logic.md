@@ -915,18 +915,21 @@ function myFunc(params) {
 }
 ```
 
-After you implement a custom function, register it in `FunctionFactory`:
+After you implement a custom function, you need to register it:
 
 ```js
-import { FunctionFactory } from "survey-core";
+import { registerFunction } from "survey-core";
 
-FunctionFactory.Instance.register("myFunc", myFunc);
+registerFunction({
+  name: "myFunc",
+  func: myFunc
+});
 ```
 
 For illustrative purposes, the code below shows the built-in `age` function implementation:
 
 ```js
-import { FunctionFactory } from "survey-core";
+import { registerFunction } from "survey-core";
 
 // Accepts a birthdate and returns the current age in full years
 function age(params: any[]): any {
@@ -942,7 +945,7 @@ function age(params: any[]): any {
   return age;
 }
 // Register the `age` function under the `age` alias
-FunctionFactory.Instance.register("age", age);
+registerFunction({ name: "age", func: age });
 ```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230 (linkStyle))
@@ -967,26 +970,111 @@ function myFunc(params) {
 
 #### Asynchronous Functions
 
-If an expression requires time-consuming calculations or a request to a server, implement an asynchronous custom function. The following code shows an example of an asynchronous function:
+If an expression requires time-consuming calculations or needs to retrieve data from a server, implement an asynchronous custom function. Two types of asynchronous functions are supported:
+
+- Functions that return the result via a callback\
+Use `this.returnResult()` to pass the computed value when it becomes available:
+
+    ```js
+    function asyncFunc(params: any[]): any {
+      setTimeout(() => {
+        this.returnResult(yourValue);
+      }, 100);
+    }
+    ```
+
+- Functions that return a `Promise`\
+Resolve the promise with the computed value:
+
+    ```js
+    async function asyncFunc(params: any[]): any {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(yourValue);
+        }, 100);
+      });
+    }
+    ```
+
+After implementing an asynchronous function, register it and set the `isAsync` option to `true` to indicate that the function is asynchronous. If the function loads external data, you can also enable caching to reduce the number of server requests.
 
 ```js
-function asyncFunc(params: any[]): any {
-  setTimeout(() => {
-    // Return the function result via the callback
-    this.returnResult(yourValue);
-  }, 100);
-}
-```
+import { registerFunction } from "survey-core";
 
-After you implement an asynchronous function, register it in `FunctionFactory`. The third parameter specifies if this function is asynchronous:
-
-```js
-import { FunctionFactory } from "survey-core";
-
-FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+registerFunction({
+  name: "asyncFunc",
+  func: asyncFunc,
+  isAsync: true,
+  useCache: true // Optional
+});
 ```
 
 [View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression-async (linkStyle))
+
+### Expression Validation
+
+Starting with SurveyJS v2.5.7, expressions can be validated using the [`validateExpressions(options)`](/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
+
+This method detects the following types of errors:
+
+- Unknown variable\
+The expression references an undefined variable or an unknown question, panel, or page name.
+
+- Unknown function\
+The expression references an unregistered function.
+
+- Semantic error\
+The expression is syntactically valid but has no meaningful effect because it always evaluates to the same value.
+
+- Syntax error\
+The expression contains invalid syntax, such as unmatched parentheses, missing operands, or invalid operators.
+
+When called without arguments, the method validates all four error types. It returns an array of [`IExpressionValidationResult`](/form-library/documentation/iexpressionvalidationresult) objects. Each object contains the survey element and property name that hold the invalid expression, along with detailed error information.
+
+The following example validates survey expressions and determines whether an invalid expression belongs to a question, panel, page, or the survey itself:
+
+```js
+// ...
+// Omitted: `SurveyModel` creation
+// ...
+const results = survey.validateExpressions();
+results.forEach(result => {
+  let element = result.obj;
+  const propertyName = result.propertyName;
+  const errors = result.errors;
+
+  while (
+    !element.isQuestion &&
+    !element.isPanel &&
+    !element.isPage &&
+    !element.isSurvey
+  ) {
+    element = element.getOwner();
+  }
+  const elementName = element.name || "survey";
+
+  // Example: log validation errors
+  console.warn(
+    `Expression error in "${elementName}", property "${propertyName}":`,
+    errors
+  );
+});
+```
+
+You can disable checks for unknown variables, unknown functions, and semantic errors by passing an `options` object with the `variables`, `functions`, or `semantics` property set to `false`. Syntax errors are always validated.
+
+```js
+// ...
+// Omitted: `SurveyModel` creation
+// ...
+
+// Validate syntax errors only
+const results = survey.validateExpressions({
+  variables: false,
+  functions: false,
+  semantics: false
+});
+```
 
 ## Conditional Visibility
 

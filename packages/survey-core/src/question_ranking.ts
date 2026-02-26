@@ -668,6 +668,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public get isNewA11yStructure(): boolean {
     return false;
   }
+  public get ariaRole(): string {
+    return "group";
+  }
   // EO a11y
 }
 
@@ -719,7 +722,6 @@ Serializer.addClass(
     {
       name: "selectToRankEmptyRankedAreaText:text",
       serializationProperty: "locSelectToRankEmptyRankedAreaText",
-      category: "general",
       dependsOn: "selectToRankEnabled",
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
@@ -728,7 +730,6 @@ Serializer.addClass(
     {
       name: "selectToRankEmptyUnrankedAreaText:text",
       serializationProperty: "locSelectToRankEmptyUnrankedAreaText",
-      category: "general",
       dependsOn: "selectToRankEnabled",
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;

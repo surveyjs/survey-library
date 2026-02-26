@@ -216,7 +216,7 @@ export default {
     "--sjs2-typography-font-size-component-page-title": "var(--sjs2-font-size-x300)",
     "--sjs2-typography-font-size-component-page-description": "var(--sjs2-font-size-x200)",
     "--sjs2-typography-font-size-component-header-title": "var(--sjs2-font-size-x400)",
-    "--sjs2-typography-font-size-component-header-description": "var(--sjs2-font-size-x300)",
+    "--sjs2-typography-font-size-component-header-description": "20px",
     "--sjs2-typography-line-height-small": "var(--sjs2-line-height-x200)",
     "--sjs2-typography-line-height-default": "var(--sjs2-line-height-x300)",
     "--sjs2-typography-line-height-medium": "var(--sjs2-line-height-x400)",

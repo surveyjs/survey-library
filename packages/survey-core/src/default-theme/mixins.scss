@@ -174,7 +174,7 @@
 }
 
 @mixin page_title {
-  --page-title-font-size: var(--sjs-font-pagetitle-size, calc(1.5 * (var(--sjs-font-size, 16px))));
+  --page-title-font-size: var(--sjs2-typography-font-size-component-page-title, calc(1.5 * (#{$font-size})));
   font-family: $font-pagetitle-family;
   font-weight: $font-pagetitle-weight;
   font-size: var(--page-title-font-size);

@@ -47,6 +47,7 @@ export const legacyCssVariables = {
   "--sjs-questionpanel-backcolor": "--sjs2-color-bg-basic-primary",
   "--sjs-questionpanel-hovercolor": "--sjs2-color-bg-basic-primary-dim",
 
+  "--sjs-font-family": "--sjs2-typography-font-family-text",
   "--sjs-font-pagetitle-family": "--sjs2-typography-font-family-component-page-title",
   "--sjs-font-pagetitle-weight": "--sjs2-typography-font-weight-component-page-title",
   "--sjs-font-pagetitle-size": "--sjs2-typography-font-size-component-page-title",

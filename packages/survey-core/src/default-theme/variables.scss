@@ -62,8 +62,8 @@ $blue: var(--sjs2-color-bg-note-primary, #437fd9);
 $blue-light: var(--sjs2-color-bg-note-secondary, var(--blue-light, rgba(67, 127, 217, 0.1)));
 $blue-forecolor: var(--sjs2-color-fg-note-on-primary, #ffffff);
 
-$font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
-$font-size: var(--sjs-font-size, 16px);
+$font-family: var(--sjs2-typography-font-family-text, var(--font-family, var(--sjs-default-font-family)));
+$font-size: calc(var(--sjs2-base-unit-font-size, 8px) * 2);
 
 $font-surveytitle-family: var(--sjs2-typography-font-family-component-header-title, #{$font-family});
 $font-surveytitle-weight: var(--sjs2-typography-font-weight-component-header-title, 700);

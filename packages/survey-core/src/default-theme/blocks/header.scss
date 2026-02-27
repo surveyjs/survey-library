@@ -3,11 +3,11 @@
 
 .sv-header {
   position: relative;
-  background-color: var(--sjs-header-backcolor, transparent);
+  background-color: var(--sjs2-color-component-header-default-bg, transparent);
 }
 
 .sv-header__background-color--accent {
-  background-color: var(--sjs-header-backcolor, #{$primary});
+  background-color: var(--sjs2-color-component-header-default-bg, #{$primary});
 }
 
 .sv-header__overlap {

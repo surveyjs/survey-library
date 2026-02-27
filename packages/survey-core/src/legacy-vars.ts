@@ -80,6 +80,7 @@ export const legacyCssVariables = {
   "--sjs-font-headerdescription-weight": "--sjs2-typography-font-weight-component-header-description",
   "--sjs-font-headerdescription-size": "--sjs2-typography-font-size-component-header-description",
   "--sjs-font-headerdescription-color": "--sjs2-color-component-header-default-description",
+  "--sjs-header-backcolor": "--sjs2-color-component-header-default-bg",
 
   "--sjs-font-editorfont-family": "--sjs2-typography-font-family-component-input-content",
   "--sjs-font-editorfont-weight": "--sjs2-typography-font-weight-component-input-content",

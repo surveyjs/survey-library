@@ -19910,6 +19910,26 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey["isCompact"], true);
   assert.equal(survey.headerView, "basic", "after applyTheme");
 });
+QUnit.test("survey.applyTheme patches legacy CSS variables", function (assert) {
+  const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const theme = {
+    cssVariables: {
+      "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+      "--sjs-font-size": "18px",
+      "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
+      "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
+    }
+  };
+  survey.applyTheme(theme);
+  const vars = survey.themeVariables;
+  assert.equal(vars["--sjs2-color-bg-basic-primary"], "rgba(255, 0, 0, 1)", "legacy --sjs-general-backcolor mapped to new var");
+  assert.equal(typeof vars["--sjs-general-backcolor"], "undefined", "legacy variable removed");
+  assert.equal(vars["--sjs2-base-unit-font-size"], "9px", "--sjs-font-size mapped to --sjs2-base-unit-font-size");
+  assert.equal(typeof vars["--sjs-font-size"], "undefined", "--sjs-font-size removed");
+  assert.equal(vars["--sjs2-border-effect-floating-default"], "0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)", "join mapping: shadow vars concatenated with comma");
+  assert.equal(typeof vars["--sjs-shadow-medium"], "undefined", "legacy shadow-medium removed");
+  assert.equal(typeof vars["--sjs-shadow-large"], "undefined", "legacy shadow-large removed");
+});
 QUnit.test("survey.applyTheme respects headerView", function (assert) {
   const survey = new SurveyModel({
     elements: [

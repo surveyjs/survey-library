@@ -8305,6 +8305,15 @@ export class SurveyModel extends SurveyElementCore
         delete newCssVariable[variable];
       }
     });
+
+    const fontSize = newCssVariable["--sjs-font-size"];
+    if (!!fontSize) {
+      const fontSizeValueNumber = parseFloat(fontSize);
+      const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
+      const fontSizeBaseUnit = fontSizeValueNumber / 2;
+      newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit.toString() + fontSizeDimension;
+      delete newCssVariable["--sjs-font-size"];
+    }
   }
 
   private addAnimationResetCSSVariables(newCssVariable: any) {

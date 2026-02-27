@@ -848,9 +848,9 @@ export function getActiveElement(): Element | null {
   return activeElement;
 }
 
-export function getColorFromProperty(varName: string) {
+export function getColorFromProperty(varName: string, element?: HTMLElement) {
   if ("function" === typeof getComputedStyle) {
-    const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
+    const style = getComputedStyle(element || DomDocumentHelper.getDocumentElement());
     return style.getPropertyValue && style.getPropertyValue(varName);
   }
   return "";

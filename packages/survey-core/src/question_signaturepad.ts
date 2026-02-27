@@ -30,7 +30,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     }
   }
   private getPenColorFromTheme(): string {
-    return getColorFromProperty("--sjs2-color-bg-brand-primary");
+    const cssVariable = "--sjs2-color-bg-brand-primary";
+    const _survey = this.survey as SurveyModel;
+    const value = !!_survey && !!_survey.themeVariables && _survey.themeVariables[cssVariable];
+    if (!!value) {
+      return value;
+    }
+    return getColorFromProperty(cssVariable, this.element);
   }
   private updateColors(signaturePad: SignaturePad) {
     const penColorFromTheme = this.getPenColorFromTheme();

@@ -150,8 +150,8 @@ export class Cover extends Base {
     super.fromJSON(theme.header || {});
     if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
-      this.titleColor = theme.cssVariables["--sjs-font-headertitle-color"];
-      this.descriptionColor = theme.cssVariables["--sjs-font-headerdescription-color"];
+      this.titleColor = theme.cssVariables["--sjs2-color-component-header-default-title"];
+      this.descriptionColor = theme.cssVariables["--sjs2-color-component-header-default-description"];
     }
     this.init();
   }

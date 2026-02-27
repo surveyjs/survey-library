@@ -974,7 +974,7 @@ frameworks.forEach(framework => {
         "width": "800"
       });
       await page.evaluate(() => {
-        (window as any).survey.rootElement.getRootNode().querySelector("div")!.style.setProperty("--sjs-font-size", "8px");
+        (window as any).survey.rootElement.style.setProperty("--sjs2-base-unit-font-size", "4px");
       });
       const questionRows = page.locator(".sd-row");
       await compareScreenshot(page, questionRows.nth(0), "question-empty-title-height.png");

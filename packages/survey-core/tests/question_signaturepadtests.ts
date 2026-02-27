@@ -280,6 +280,7 @@ QUnit.test("check penColor & background color if background image", (assert) => 
   document.body.appendChild(containerEl);
   let survey = new SurveyModel(json);
   let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepadQuestion["element"] = containerEl;
   signaturepadQuestion.initSignaturePad(containerEl);
 
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");

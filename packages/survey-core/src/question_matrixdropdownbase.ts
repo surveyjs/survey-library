@@ -782,6 +782,14 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.locStrsChanged();
     }
   }
+  public randomSeedChanged(): void {
+    for (var i = 0; i < this.cells.length; i++) {
+      this.cells[i].question.randomSeedChanged();
+    }
+    if (!!this.detailPanel) {
+      this.detailPanel.randomSeedChanged();
+    }
+  }
   public updateCellQuestionOnColumnChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     var cell = this.getCellByColumn(column);
     if (!cell) return;
@@ -1744,6 +1752,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     if (!!this.generatedTotalRow) {
       this.generatedTotalRow.locStrsChanged();
+    }
+  }
+  public randomSeedChanged(): void {
+    const columns = this.columns;
+    for (var i = 0; i < columns.length; i++) {
+      columns[i].templateQuestion.randomSeedChanged();
+    }
+    const rows = this.generatedVisibleRows;
+    if (!rows) return;
+    for (var i = 0; i < rows.length; i++) {
+      rows[i].randomSeedChanged();
     }
   }
   /**

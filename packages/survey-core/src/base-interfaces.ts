@@ -272,6 +272,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
   createCustomChoiceItem(options: CreateCustomChoiceItemEvent);
+  randomSeed: number;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;
@@ -318,6 +319,7 @@ export interface ISurveyUIState {
   panels?: { [key:string]: IElementUIState };
   questions?: { [key:string]: IElementUIState };
   activeElementName?: string;
+  randomSeed?: number;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;

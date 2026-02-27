@@ -1,6 +1,6 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL, getRootNode, getActiveElement } from "../src/utils/utils";
+import { doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL, getRootNode, getActiveElement, mulberry32 } from "../src/utils/utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod, calculateIsTablet } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
@@ -1145,4 +1145,31 @@ QUnit.test("test getActiveElement function", (assert) => {
   assert.equal(res, shadowInput, "shadowDiv is active element");
   document.body.removeChild(div);
   document.body.removeChild(shadowDiv);
+});
+
+QUnit.test("PRN generator: mulberry32", (assert) => {
+
+  let random = mulberry32(12345);
+  assert.equal(random(), 0.9797282677609473);
+  assert.equal(random(), 0.3067522644996643);
+  assert.equal(random(), 0.484205421525985);
+  assert.equal(random(), 0.817934412509203);
+
+  random = mulberry32(123456);
+  assert.equal(random(), 0.38233304349705577);
+  assert.equal(random(), 0.7972629074938595);
+  assert.equal(random(), 0.9965302373748273);
+  assert.equal(random(), 0.16001168475486338);
+
+  random = mulberry32(Number.MAX_SAFE_INTEGER);
+  assert.equal(random(), 0.8964226141106337);
+  assert.equal(random(), 0.04910933715291321);
+  assert.equal(random(), 0.09994429117068648);
+  assert.equal(random(), 0.7937536616809666);
+
+  random = mulberry32(Number.MIN_SAFE_INTEGER);
+  assert.equal(random(), 0.6270739405881613);
+  assert.equal(random(), 0.002735721180215478);
+  assert.equal(random(), 0.5274470399599522);
+  assert.equal(random(), 0.9810509674716741);
 });

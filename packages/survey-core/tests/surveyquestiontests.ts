@@ -550,9 +550,7 @@ QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("Matrix Question supportAutoAdvance property", function (
-  assert
-) {
+QUnit.test("Matrix Question supportAutoAdvance property", (assert) => {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -569,8 +567,7 @@ QUnit.test("Matrix Question supportAutoAdvance property", function (
   matrix.onMouseDown();
   assert.equal(matrix.supportAutoAdvance(), true, "Both rows are set");
 });
-
-QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
+QUnit.test("Matrix Question clearIncorrectValues", (assert) => {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -583,7 +580,6 @@ QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
     "Remove values with incorrect row and incorrect column"
   );
 });
-
 QUnit.test("Multiple Text Item: text property", function (assert) {
   var mItem = new MultipleTextItemModel("text1");
   assert.equal(mItem.title, "text1", "get value from name");

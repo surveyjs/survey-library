@@ -97,6 +97,9 @@ frameworks.forEach((framework) => {
       for (let i = 0; i < 15; i++) {
         await setOptions(page, "car", { choicesOrder: "asc" });
         await setOptions(page, "car", { choicesOrder: "random" });
+        await page.evaluate(() => {
+          return (window as any).survey.randomSeed = Date.now() + Math.random();
+        });
         const first2Text = await chocies.nth(0).locator("label").textContent();
 
         if (firstText !== first2Text) {

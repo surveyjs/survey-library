@@ -534,6 +534,11 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().locStrsChanged();
     }
   }
+  public randomSeedChanged(): void {
+    if (!!this.getElement()) {
+      this.getElement().randomSeedChanged();
+    }
+  }
   public localeChanged(): void {
     super.locStrsChanged();
     if (!!this.getElement()) {

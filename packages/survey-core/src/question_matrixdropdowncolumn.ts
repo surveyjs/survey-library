@@ -798,14 +798,6 @@ export class MatrixDropdownColumn extends Base
           json[prop] = this.jsonObj[prop];
         });
       }
-      if (json["choicesOrder"] === "random") {
-        json["choicesOrder"] = "none";
-        const visChoices = this.templateQuestion["visibleChoices"];
-        if (Array.isArray(visChoices)) {
-          json["choices"] = visChoices;
-        }
-      }
-
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
       this.previousChoicesId = undefined;

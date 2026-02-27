@@ -614,3 +614,22 @@ QUnit.test("createDate & T00:00:00 & settings.storeUtcDates", function(assert) {
     return date;
   };
 });
+
+QUnit.test("randomizeArray with seed", (assert) => {
+  const data = [
+    { uniqueId: 1 },
+    { uniqueId: 2 },
+    { uniqueId: 3 },
+    { uniqueId: 4 },
+    { uniqueId: 5 },
+  ];
+
+  let result = Helpers.randomizeArray(data, 12345);
+  assert.deepEqual(result.map(item => item.uniqueId), [1, 3, 4, 2, 5], "The array is randomized in the expected way");
+
+  result = Helpers.randomizeArray(result, 12345);
+  assert.deepEqual(result.map(item => item.uniqueId), [1, 3, 4, 2, 5], "Randomize already randomized array with the same seed gives the same result");
+
+  result = Helpers.randomizeArray(result, 123456);
+  assert.notDeepEqual(result.map(item => item.uniqueId), [1, 3, 4, 2, 5], "Randomize already randomized array with a different seed gives a different result");
+});

@@ -658,8 +658,12 @@ export class QuestionMatrixModel
       return array;
     var order = this.rowOrder.toLowerCase();
     if (order === "random")
-      return Helpers.randomizeArray<MatrixRowModel>(array);
+      return Helpers.randomizeArray<MatrixRowModel>(array, this.randomSeed);
     return array;
+  }
+  public randomSeedChanged(): void {
+    this.rows = this.sortVisibleRows(this.rows);
+    this.onRowsChanged();
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();

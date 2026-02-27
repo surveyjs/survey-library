@@ -260,6 +260,7 @@ QUnit.test("check row randomization in design mode", (assert) => {
   const rows = q1.getRows();
 
   var randomizedCount: number = 0;
+  const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = (array: Array<any>): Array<any> => {
     randomizedCount++;
     return array;
@@ -287,6 +288,7 @@ QUnit.test("check row randomization in design mode", (assert) => {
   q1["sortVisibleRows"](rows);
   assert.equal(randomizedCount, 0);
 
+  Helpers.randomizeArray = oldFunc;
 });
 QUnit.test("rows, ItemValue.enableIf", (assert) => {
   const survey = new SurveyModel({

@@ -151,6 +151,9 @@ frameworks.forEach((framework) => {
         await page.evaluate(() => {
           window["survey"].getAllQuestions()[0].choicesOrder = "random";
         });
+        await page.evaluate(() => {
+          return (window as any).survey.randomSeed = Date.now() + Math.random();
+        });
         first_2 = await getFirst();
 
         if (first.trim() !== first_2.trim()) {

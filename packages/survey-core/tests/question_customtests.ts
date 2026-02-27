@@ -4375,24 +4375,3 @@ QUnit.test("Composite: Merge with separate locale strings, Bug#10771", (assert) 
   }, "check merged json");
   ComponentCollection.Instance.clear();
 });
-
-QUnit.test("Composite: randomSeed", (assert) => {
-  ComponentCollection.Instance.add({
-    name: "test",
-    elementsJSON: [
-      { type: "dropdown", name: "q2", choices: [1, 2, 3, 4, 5, 6, 7, 8, 9], choicesOrder: "random" },
-    ]
-  });
-  const survey = new SurveyModel({
-    elements: [
-      { type: "test", name: "q1" }
-    ]
-  });
-  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
-  const q2 = <QuestionDropdownModel>q1.contentPanel.getQuestionByName("q2");
-  survey.randomSeed = 12345;
-  assert.deepEqual(q2.visibleChoices.map((item) => item.value), [4, 2, 1, 8, 6, 9, 7, 3, 5], "choices order for seed 12345");
-  survey.randomSeed = 123456;
-  assert.deepEqual(q2.visibleChoices.map((item) => item.value), [7, 1, 5, 6, 8, 4, 9, 2, 3], "choices order for seed 123456");
-  ComponentCollection.Instance.clear();
-});

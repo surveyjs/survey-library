@@ -662,7 +662,8 @@ export class QuestionMatrixModel
     return array;
   }
   public randomSeedChanged(): void {
-    this.sortVisibleRows(this.rows);
+    this.rows = this.sortVisibleRows(this.rows);
+    this.onRowsChanged();
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();

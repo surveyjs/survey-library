@@ -1691,6 +1691,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
     }
+    this.randomSeedChanged();
   }
   protected setSurveyCore(value: ISurvey): void {
     super.setSurveyCore(value);
@@ -1997,6 +1998,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     });
   }
   public randomSeedChanged(): void {
+    if (this.choicesOrder.toLowerCase() !== "random") return;
     this.updateVisibleChoices();
   }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {

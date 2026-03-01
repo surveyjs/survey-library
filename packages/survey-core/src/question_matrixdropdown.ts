@@ -12,6 +12,8 @@ import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
+import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
@@ -132,6 +134,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   @property() hideIfRowsEmpty: boolean;
 
   protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
+  protected createSingleInputBehavior(): QuestionSingleInputBehavior {
+    return new MatrixDropdownSingleInputBehavior(this);
+  }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixDropdownValueGetterContext(this);
   }
@@ -284,3 +289,6 @@ QuestionFactory.Instance.registerQuestion("matrixdropdown", (name) => {
   QuestionMatrixDropdownModelBase.addDefaultColumns(q);
   return q;
 });
+
+export class MatrixDropdownSingleInputBehavior extends MatrixDropdownBaseSingleInputBehavior {
+}

@@ -23,6 +23,8 @@ import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./qu
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
 import { Base } from "./base";
+import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -721,12 +723,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.survey.matrixRowRemoved(this, index, row);
     }
   }
-  protected onSingleInputQuestionAdded(question: Question): void {
+  public onSingleInputQuestionAdded(question: Question): void {
     if (!this.showHeader) {
       question.titleLocation = "hidden";
     }
   }
-  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+  public getMatrixDynamicSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     const res = new Array<Question>();
     const rows = this.visibleRows;
     if (checkDynamic) {
@@ -737,9 +739,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         }
       }
     }
-    return this.getSingleInputQuestionsForDynamic(question, res);
+    return this.singleInputBehavior.getSingleInputQuestionsForDynamic(question, res);
   }
-  protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
+  public matrixDynamicFillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
     const row = this.getRowByQuestion(innerQuestion);
     this.fillSingleInputQuestionsByRow(res, row);
   }
@@ -749,14 +751,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
   }
 
-  protected getSingleInputAddTextCore(): string {
+  public getMatrixDynamicSingleInputAddTextCore(): string {
     if (!this.canAddRow) return undefined;
     return this.addRowText;
   }
-  protected singleInputAddItemCore(): void {
+  public matrixDynamicSingleInputAddItemCore(): void {
     this.addRowUI();
   }
-  protected getSingleQuestionOnChange(index: number): Question {
+  public getMatrixDynamicSingleQuestionOnChange(index: number): Question {
     const rows = this.visibleRows;
     if (rows.length > 0) {
       if (index < 0 || index >= rows.length) index = rows.length - 1;
@@ -768,7 +770,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return null;
   }
-  protected createSingleInputSummary(): QuestionSingleInputSummary {
+  public createMatrixDynamicSingleInputSummary(): QuestionSingleInputSummary {
     const res = new QuestionSingleInputSummary(this, this.locNoRowsText);
     const items = new Array<QuestionSingleInputSummaryItem>();
     const canRemoveRows = this.canRemoveRows;
@@ -782,6 +784,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
     res.items = items;
     return res;
+  }
+  protected createSingleInputBehavior(): QuestionSingleInputBehavior {
+    return new MatrixDynamicSingleInputBehavior(this);
   }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
@@ -1172,3 +1177,30 @@ QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
   QuestionMatrixDropdownModelBase.addDefaultColumns(q);
   return q;
 });
+
+export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleInputBehavior {
+  protected get matrixDynamic(): QuestionMatrixDynamicModel {
+    return this.question as QuestionMatrixDynamicModel;
+  }
+  protected onSingleInputQuestionAdded(question: Question): void {
+    this.matrixDynamic.onSingleInputQuestionAdded(question);
+  }
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+    return this.matrixDynamic.getMatrixDynamicSingleInputQuestionsCore(question, checkDynamic);
+  }
+  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
+    this.matrixDynamic.matrixDynamicFillSingleInputQuestionsInContainer(res, innerQuestion);
+  }
+  public getSingleInputAddTextCore(): string {
+    return this.matrixDynamic.getMatrixDynamicSingleInputAddTextCore();
+  }
+  public singleInputAddItemCore(): void {
+    this.matrixDynamic.matrixDynamicSingleInputAddItemCore();
+  }
+  protected getSingleQuestionOnChange(index: number): Question {
+    return this.matrixDynamic.getMatrixDynamicSingleQuestionOnChange(index);
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    return this.matrixDynamic.createMatrixDynamicSingleInputSummary();
+  }
+}

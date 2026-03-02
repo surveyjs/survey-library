@@ -796,7 +796,7 @@ export default {
     "--sjs2-color-component-header-default-title-placeholder": "var(--sjs2-color-fg-basic-secondary)",
     "--sjs2-color-component-header-default-description": "var(--sjs2-color-fg-basic-secondary)",
     "--sjs2-color-component-header-default-description-placeholder": "var(--sjs2-color-fg-basic-tertiary)",
-    "--sjs2-color-component-header-default-bg": "rgba(from var(--sjs2-color-utility-surface-survey) r g b / var(--sjs2-opacity-hidden))",
+    "--sjs2-color-component-header-default-bg": "transparent",
     "--sjs2-opacity-visible": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",

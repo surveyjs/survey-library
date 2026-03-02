@@ -111,7 +111,7 @@ export class Cover extends Base {
   }
   private updateHeaderClasses(): void {
     const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
-    const backgroundColorAccent = this.backgroundColor === "var(--sjs-primary-backcolor)";
+    const backgroundColorAccent = this.backgroundColor === "var(--sjs2-color-bg-brand-primary)";
     const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")

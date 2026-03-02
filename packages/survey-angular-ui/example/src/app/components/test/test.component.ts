@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from "@angular/core";
 import { SurveyModel } from "survey-core";
 import * as Survey from "survey-core";
 import "survey-core/survey.i18n";
-import "survey-core/themes/test";
+import TestTheme from "survey-core/themes/test";
 @Component({
   selector: "test",
   template: "",
@@ -13,6 +13,7 @@ export class TestComponent {
   public isExpanded: boolean = true;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     (window as any).Survey = Survey;
+    (window as any).SurveyTheme = {SurveyTheme: TestTheme};
     (<any>window).setSurvey = (survey: SurveyModel | Survey.PopupSurveyModel, isPopup: boolean, isExpanded: boolean = true) => {
       this.model = survey;
       this.isPopup = isPopup;

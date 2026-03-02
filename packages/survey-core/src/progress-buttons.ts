@@ -59,7 +59,7 @@ export class ProgressButtons extends Base {
     }
     return false;
   }
-  private minListWidth: number;
+  public minListWidth: number;
   public isCanShowItemTitles(element: HTMLElement): boolean {
     const listContainerElement = element.querySelector("ul");
     if (!listContainerElement || listContainerElement.children.length < 2) return true;
@@ -68,12 +68,6 @@ export class ProgressButtons extends Base {
       return false;
     }
     if (listContainerElement.parentElement.clientWidth < this.minListWidth) { return false; }
-    const expectedElementWidth = listContainerElement.children[0].clientWidth;
-    for (let i = 0; i < listContainerElement.children.length; i++) {
-      if (Math.abs(listContainerElement.children[i].clientWidth - expectedElementWidth) > 5) {
-        return false;
-      }
-    }
     return true;
   }
   public get isFitToSurveyWidth(): boolean {
@@ -138,11 +132,22 @@ export interface IProgressButtonsViewModel {
 export class ProgressButtonsResponsivityManager {
   private criticalProperties = ["progressBarType", "progressBarShowPageTitles"];
   private canShowItemTitles = true;
+  private pages: number;
+  private observer: MutationObserver;
 
   constructor(private model: ProgressButtons, private element: HTMLElement, private viewModel: IProgressButtonsViewModel) {
     this.model.survey.registerFunctionOnPropertiesValueChanged(this.criticalProperties, () => this.forceUpdate(), "ProgressButtonsResponsivityManager" + this.viewModel.container);
     this.model.onResize.add(this.processResponsiveness);
     this.forceUpdate();
+    this.observer = new MutationObserver(() => {
+      const els = element.querySelectorAll("ul > li");
+      if (this.pages !== els.length) {
+        this.pages = els.length;
+        this.model.minListWidth = undefined;
+      }
+      this.forceUpdate();
+    });
+    this.observer.observe(element, { childList: true, subtree: true });
   }
 
   private forceUpdate() {
@@ -167,6 +172,8 @@ export class ProgressButtonsResponsivityManager {
   dispose(): void {
     this.model.onResize.remove(this.processResponsiveness);
     this.model.survey.unRegisterFunctionOnPropertiesValueChanged(this.criticalProperties, "ProgressButtonsResponsivityManager" + this.viewModel.container);
+    this.observer.disconnect();
+    this.observer = undefined;
     this.element = undefined;
     this.model = undefined;
   }

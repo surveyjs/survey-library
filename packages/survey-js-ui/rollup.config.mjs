@@ -4,7 +4,7 @@ import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
 import alias from "@rollup/plugin-alias";
 import fs from "fs-extra";
 import process from "process";
-import pkg from "./package.json" with { type: "json" };
+import pkg from "./package.json" assert { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");

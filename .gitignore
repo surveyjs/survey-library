@@ -50,3 +50,4 @@ junit.xml
 /playwright/.cache/
 playwright-report/*
 test-results/*
+tests/bundle/*

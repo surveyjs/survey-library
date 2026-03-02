@@ -1,12 +1,13 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from "@angular/core";
-import { SurveyModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild, ViewContainerRef } from "@angular/core";
+import { SurveyModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel, Base } from "survey-core";
 import { AngularComponentFactory } from "../../../component-factory";
+import { BaseAngular } from "../../../base-angular";
 
 @Component({
   selector: "sv-ng-progress-buttons",
   templateUrl: "./progress.component.html"
 })
-export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnChanges, OnInit, IProgressButtonsViewModel {
+export class ProgressButtonsComponent extends BaseAngular implements OnDestroy, AfterViewInit, OnChanges, OnInit, IProgressButtonsViewModel {
   @Input() model!: ProgressButtons;
   @Input() survey!: SurveyModel;
   @Input() container!: string;
@@ -16,23 +17,28 @@ export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnCha
   public canShowFooter: boolean = false;
   public canShowItemTitles: boolean = true;
   private respManager?: ProgressButtonsResponsivityManager;
-  constructor(private changeDetectorRef: ChangeDetectorRef) {
+  constructor(changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
+    super(changeDetectorRef, viewContainerRef);
+  }
+  protected getModel(): Base {
+    return this.model;
   }
   onResize(canShowItemTitles: boolean): void {
     this.canShowItemTitles = canShowItemTitles;
     this.canShowHeader = !this.canShowItemTitles;
-    this.changeDetectorRef.detectChanges();
+    this.detectChanges();
   }
   onUpdateScroller(hasScroller: boolean): void {
     this.hasScroller = hasScroller;
-    this.changeDetectorRef.detectChanges();
+    this.detectChanges();
   }
   onUpdateSettings(): void {
     this.canShowItemTitles = this.model.showItemTitles;
     this.canShowFooter = !this.model.showItemTitles;
-    this.changeDetectorRef.detectChanges();
+    this.detectChanges();
   }
-  ngOnInit(): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
   }
   ngOnChanges(changes: SimpleChanges): void {
   }
@@ -49,7 +55,8 @@ export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnCha
       this.respManager = new ProgressButtonsResponsivityManager(this.model, element, this);
     }
   }
-  public ngOnDestroy(): void {
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
     this.respManager?.dispose();
   }
 }

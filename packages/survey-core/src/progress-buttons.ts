@@ -1,5 +1,7 @@
+
 import { Base, EventBase } from "./base";
 import { surveyCss } from "./defaultCss/defaultCss";
+import { propertyArray } from "./jsonobject";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
@@ -8,7 +10,14 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 export class ProgressButtons extends Base {
   constructor(public survey: SurveyModel) {
     super();
+    survey.onPagesVisibleChangedCallback = () => {
+      this.visiblePages = survey.visiblePages;
+    };
+    this.visiblePages = survey.visiblePages;
   }
+
+  @propertyArray() visiblePages: PageModel[];
+
   public isListElementClickable(index: number | any): boolean {
     if (!this.survey.onServerValidateQuestions ||
       (<EventBase<SurveyModel>>this.survey.onServerValidateQuestions).isEmpty ||

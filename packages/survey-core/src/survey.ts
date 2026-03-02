@@ -4040,6 +4040,7 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllElementsVisibility(visPages);
   }
+  public onPagesVisibleChangedCallback: () => void;
   private updateAllElementsVisibility(visPages: Array<PageModel>) {
     for (var i = 0; i < this.pages.length; i++) {
       var page = this.pages[i];
@@ -4049,6 +4050,7 @@ export class SurveyModel extends SurveyElementCore
           page: page,
           visible: page.isVisible,
         });
+        this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
       }
     }
   }
@@ -7157,6 +7159,7 @@ export class SurveyModel extends SurveyElementCore
       page: page,
       visible: newValue,
     });
+    this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
     if (!!panel.page) {

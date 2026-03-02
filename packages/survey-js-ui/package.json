@@ -7,11 +7,11 @@
   },
   "typings": "survey-js-ui.d.ts",
   "scripts": {
-    "build": "webpack --env buildType=dev && webpack --env buildType=prod && npx rollup -c",
-    "watch:dev": "webpack --env buildType=dev --watch && npx rollup -c -w",
+    "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
+    "watch:dev": "rollup -c -w",
     "test": "rollup -c rollup.tests.config.mjs && karma start ./karma.conf.js --single-run",
     "test:watch": "node ./test-watch.mjs",
-    "start": "webpack-dev-server --env buildType=dev --open",
+    "start": "http-server . -o -c-1",
     "accessibility-tests": "cross-env env=survey-js-ui playwright test --project a11y --ui",
     "accessibility-tests:ci": "cross-env env=survey-js-ui playwright test --project a11y --reporter dot --quiet",
     "e2e": "cross-env env=survey-js-ui playwright test --project e2e --ui",
@@ -32,32 +32,19 @@
     "@types/react-dom": "^17.0.0",
     "commit-and-tag-version": "^11.0.0",
     "cross-env": "^7.0.3",
-    "css-loader": "^7.1.2",
     "eslint": "^7.32.0",
-
-    "html-webpack-plugin": "^5.6.0",
     "http-server": "^14.1.1",
     "jquery": "^3.5.1",
     "karma": "^6.1.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-junit-reporter": "2.0.1",
     "karma-qunit": "4.1.2",
-
-    "mini-css-extract-plugin": "^2.9.0",
     "preact": "10.27.2",
     "replace-in-file": "^6.1.0",
     "rimraf": "2.5.4",
     "rollup": "^4.34.8",
     "rollup-plugin-license": "^3.6.0",
-    "sass": "^1.62.1",
-    "sass-loader": "^8.0.2",
-    "style-loader": "^1.2.1",
-
-    "typescript": "^5.7.0",
-    "url-loader": "^4.1.1",
-    "webpack": "5.98.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.4"
+    "typescript": "^5.7.0"
   },
   "dependencies": {
     "survey-core": "../survey-core/build"

@@ -46,7 +46,7 @@ function pluginAddBanner(fn, text) {
 
 export function createUmdConfig(options) {
 
-  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild, version } = options;
+  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild, version, filterRoot } = options;
 
   const commonOutput = {
     dir: dir,
@@ -75,6 +75,7 @@ export function createUmdConfig(options) {
         ? rollupEsbuild({ tsconfig: tsconfig })
         : typescript({
           tsconfig: tsconfig,
+          ...(filterRoot !== undefined ? { filterRoot } : {}),
           compilerOptions: declarationDir ? {
             inlineSources: true,
             sourceMap: true,
@@ -103,25 +104,28 @@ export function createUmdConfig(options) {
         sourcemap: false,
         plugins: [
           rollupEsbuildMinify(),
-          bannerPlugin({
-            banner: {
-              content: `For license information please see ${Object.keys(input)[0]}.min.js.LICENSE.txt`,
-              commentStyle: "ignored",
-            },
-            thirdParty: {
-              output: {
-                file: resolve(dir, `${Object.keys(input)[0]}.min.js.LICENSE.txt`),
-                template: (dependencies) => {
-                  return wrapBanner(getOwnBanner(version)) + "\n\n" + dependencies.map(e => {
-                    return wrapBanner([
-                      `${ e.name } v${e.version } | ${ e.homepage }`,
-                      `(c) ${ e.author.name } | Released under the ${ e.license } license`
-                    ].join("\n"));
-                  }).join("\n\n");
+          {
+            name: "inline-license-banner",
+            generateBundle(_, bundle) {
+              for (const file of Object.keys(bundle)) {
+                if (!file.endsWith(".min.js")) continue;
+                const chunk = bundle[file];
+                const thirdPartyNames = Object.keys(chunk.modules || {})
+                  .filter(id => id.includes("node_modules"))
+                  .map(id => {
+                    const match = id.match(/node_modules[/\\]([^/\\]+)/);
+                    return match ? match[1] : null;
+                  })
+                  .filter((v, i, a) => v && a.indexOf(v) === i);
+
+                let banner = wrapBanner(getOwnBanner(version));
+                if (thirdPartyNames.length) {
+                  banner += "\n" + wrapBanner("Bundled third-party packages: " + thirdPartyNames.join(", "));
                 }
+                chunk.code = banner + "\n" + chunk.code;
               }
             }
-          }),
+          },
         ],
       }
     ],
@@ -130,7 +134,7 @@ export function createUmdConfig(options) {
 
 export function createEsmConfig(options) {
 
-  const { input, external, dir, tsconfig, sharedFileName, version } = options;
+  const { input, external, dir, tsconfig, sharedFileName, version, filterRoot } = options;
 
   return {
     context: "this",
@@ -146,6 +150,7 @@ export function createEsmConfig(options) {
       }),
       typescript({
         tsconfig: tsconfig,
+        ...(filterRoot !== undefined ? { filterRoot } : {}),
         compilerOptions: {
           declaration: false,
           declarationDir: null,

@@ -3,6 +3,7 @@ import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { LocalizableString } from "./localizablestring";
 import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
+import { ISurvey } from "./base-interfaces";
 
 export class QuestionSingleInputBehavior {
   private isSingleInputSummaryShown: boolean;
@@ -19,6 +20,15 @@ export class QuestionSingleInputBehavior {
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
 
+  protected getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
+    return this.question.getPropertyValue(name, defaultValue, calcFunc);
+  }
+  protected resetPropertyValue(name: string): void {
+    this.question.resetPropertyValue(name);
+  }
+  protected get survey(): ISurvey {
+    return this.question.survey;
+  }
   private calculateSingleInputQuestion(): Question {
     if (!this.isSingleInputActive) {
       return undefined;
@@ -35,7 +45,7 @@ export class QuestionSingleInputBehavior {
   //#region singleInput
   public get singleInputQuestion(): Question {
     if (!this.isSingleInputMode) return undefined;
-    return this.question.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
+    return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
 
   public get currentSingleInputQuestion(): Question {
@@ -54,14 +64,14 @@ export class QuestionSingleInputBehavior {
   }
 
   public get singleInputSummary(): QuestionSingleInputSummary {
-    return this.question.getPropertyValue("singleInputSummary", undefined, () => {
+    return this.getPropertyValue("singleInputSummary", undefined, () => {
       if (!this.supportNestedSingleInput()) return undefined;
       const q = this.singleInputQuestion;
       if (!q || q !== this.question) return undefined;
       const res = this.createSingleInputSummary();
       if (!!res) {
         this.calcSingleInputActions();
-        this.question.resetPropertyValue("singleInputLocTitle");
+        this.resetPropertyValue("singleInputLocTitle");
       }
       return res;
     });
@@ -71,15 +81,11 @@ export class QuestionSingleInputBehavior {
     return undefined;
   }
 
-  public get rootParentQuestion(): Question {
-    let res: Question = this.question;
-    while(!!res.parentQuestion) {
-      res = res.parentQuestion;
-    }
-    return res;
+  private get rootParentQuestion(): Question {
+    return this.question.rootParentQuestion;
   }
 
-  public getParentQuestions(): Array<Question> {
+  private getParentQuestions(): Array<Question> {
     const res = new Array<Question>();
     let q: Question = this.question;
     while(!!q.parentQuestion) {
@@ -89,13 +95,27 @@ export class QuestionSingleInputBehavior {
     return res;
   }
 
+  public focusSingleInput(onError: boolean): void {
+    this.survey.currentSingleQuestion = this.rootParentQuestion;
+    const parents = this.getParentQuestions();
+    for (let i = parents.length - 1; i >= 1; i--) {
+      if (i === parents.length - 1) {
+        parents[i].singleInputBehavior.setSingleInputQuestion(parents[i - 1]);
+      }
+    }
+    if (parents.length > 0) {
+      parents[0].singleInputBehavior.setSingleInputQuestion(this.question);
+    }
+    this.question.focusInputElement(onError);
+  }
+
   public resetSingleInput(): void {
     this.resetSingleInputCore();
   }
 
   private resetSingleInputCore(): void {
-    const prev = this.question.getPropertyValue("singleInputQuestion");
-    this.question.resetPropertyValue("singleInputQuestion");
+    const prev = this.getPropertyValue("singleInputQuestion");
+    this.resetPropertyValue("singleInputQuestion");
     if (!!prev) {
       this.onSingleInputChanged();
     }
@@ -106,14 +126,14 @@ export class QuestionSingleInputBehavior {
       this.resetSingleInputSummary();
     }
     this.singleInputLocTitle?.strChanged();
-    this.question.resetPropertyValue("singleInputLocTitle");
+    this.resetPropertyValue("singleInputLocTitle");
     this.calcSingleInputActions();
-    this.question.survey?.updateNavigationElements();
+    this.survey?.updateNavigationElements();
   }
 
   public resetSingleInputSummary(): void {
     this.singleInputSummary?.dispose();
-    this.question.resetPropertyValue("singleInputSummary");
+    this.resetPropertyValue("singleInputSummary");
   }
 
   public validateSingleInput(): boolean {
@@ -173,8 +193,8 @@ export class QuestionSingleInputBehavior {
     this.question.onFirstRendering();
     if (needReset) {
       this.resetSingleInputSummary();
-      this.question.resetPropertyValue("singleInputQuestion");
-      this.question.resetPropertyValue("singleInputLocTitle");
+      this.resetPropertyValue("singleInputQuestion");
+      this.resetPropertyValue("singleInputLocTitle");
     }
   }
 
@@ -203,19 +223,21 @@ export class QuestionSingleInputBehavior {
   }
 
   public get singleInputLocTitle(): LocalizableString {
-    return this.question.getPropertyValue("singleInputLocTitle", undefined, () => {
+    return this.getPropertyValue("singleInputLocTitle", undefined, () => {
       return this.getSingleQuestionLocTitle();
     });
   }
-
+  public getLocTitle(): LocalizableString {
+    return this.isSingleInputActive ? this.singleInputLocTitle : null;
+  }
   public get singleInputActions(): ActionContainer {
-    return this.question.getPropertyValue("singleInputActions", undefined, () => {
+    return this.getPropertyValue("singleInputActions", undefined, () => {
       return this.createSingleInputActions();
     });
   }
 
   public get singleInputHasActions(): boolean {
-    return this.question.getPropertyValue("singleInputHasActions", undefined, () => {
+    return this.getPropertyValue("singleInputHasActions", undefined, () => {
       return this.createSingleInputActions();
     });
   }
@@ -234,7 +256,7 @@ export class QuestionSingleInputBehavior {
   }
 
   private createSingleInputActions() {
-    if ((<any>this.question.survey)?.currentSingleQuestion !== this.question) return undefined;
+    if ((<any>this.survey)?.currentSingleQuestion !== this.question) return undefined;
     const singleInputActions = new ActionContainer();
     singleInputActions.actions = this.getSingleQuestionActions();
     return singleInputActions;
@@ -307,16 +329,16 @@ export class QuestionSingleInputBehavior {
   }
 
   private supportNestedSingleInput(): boolean {
-    return this.question.survey?.supportsNestedSingleInput(this.question);
+    return this.survey?.supportsNestedSingleInput(this.question);
   }
 
   public getSingleInputQuestions(): Array<Question> {
     if (!this.supportNestedSingleInput()) return [];
-    const question = this.question.getPropertyValue("singleInputQuestion");
+    const question = this.getPropertyValue("singleInputQuestion");
     if (question === this.question) return [this.question];
     const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
-    if (this.question.survey) {
-      this.question.survey.updateNestedSingleQuestions(this.question, res);
+    if (this.survey) {
+      this.survey.updateNestedSingleQuestions(this.question, res);
     }
     res.forEach(q => { if (q !== this.question)this.onSingleInputQuestionAdded(q); });
     return res;

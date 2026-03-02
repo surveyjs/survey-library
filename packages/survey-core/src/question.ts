@@ -415,8 +415,7 @@ export class Question extends SurveyElement<Question>
     return locTitleValue;
   }
   get locRenderedTitle(): LocalizableString {
-    if (this.singleInputBehavior.isSingleInputActive && !!this.singleInputBehavior.singleInputLocTitle) return this.singleInputBehavior.singleInputLocTitle;
-    return this.locTitle;
+    return this.singleInputBehavior.getLocTitle() || this.locTitle;
   }
   public get commentTextAreaModel(): TextAreaModel {
     if (!this.commentTextAreaModelValue) {
@@ -953,7 +952,11 @@ export class Question extends SurveyElement<Question>
     return this.singleInputBehavior.singleInputSummary;
   }
   public get rootParentQuestion(): Question {
-    return this.singleInputBehavior.rootParentQuestion;
+    let res: Question = this;
+    while(!!res.parentQuestion) {
+      res = res.parentQuestion;
+    }
+    return res;
   }
   public resetSingleInput(): void {
     this.singleInputBehavior.resetSingleInput();
@@ -999,9 +1002,6 @@ export class Question extends SurveyElement<Question>
   }
   protected singleInputMoveToFirst(): void {
     this.singleInputBehavior.singleInputMoveToFirst();
-  }
-  protected setSingleInputQuestion(question: Question, onPrev?: boolean): void {
-    this.singleInputBehavior.setSingleInputQuestion(question, onPrev);
   }
   //#endregion
   /**
@@ -1595,17 +1595,7 @@ export class Question extends SurveyElement<Question>
       this.survey.focusQuestionByInstance(this, onError);
     } else {
       if (isSingleInput) {
-        this.survey.currentSingleQuestion = this.rootParentQuestion;
-        const parents = this.singleInputBehavior.getParentQuestions();
-        for (let i = parents.length - 1; i >= 1; i--) {
-          if (i === parents.length - 1) {
-            parents[i].setSingleInputQuestion(parents[i - 1]);
-          }
-        }
-        if (parents.length > 0) {
-          parents[0].setSingleInputQuestion(this);
-        }
-        this.focusInputElement(onError);
+        this.singleInputBehavior.focusSingleInput(onError);
       } else {
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;

@@ -5,7 +5,7 @@ import alias from "@rollup/plugin-alias";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
 import replace from "@rollup/plugin-replace";
-import pkg from "./package.json" with { type: "json" };
+import pkg from "./package.json" assert { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const snapshotsDir = resolve(__dirname, "../../tests/markup/snapshots");

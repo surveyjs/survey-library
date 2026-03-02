@@ -277,8 +277,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
      this.rows = this.sortVisibleRows(this.rows);
      this.clearGeneratedRows();
      this.resetRenderedTable();
-     this.getVisibleRows();
-     this.clearIncorrectValues();
      super.randomSeedChanged();
    }
 }

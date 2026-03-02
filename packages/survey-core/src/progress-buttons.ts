@@ -144,8 +144,8 @@ export class ProgressButtonsResponsivityManager {
       if (this.pages !== els.length) {
         this.pages = els.length;
         this.model.minListWidth = undefined;
+        this.forceUpdate();
       }
-      this.forceUpdate();
     });
     this.observer.observe(element, { childList: true, subtree: true });
   }

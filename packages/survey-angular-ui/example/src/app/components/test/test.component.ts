@@ -13,7 +13,7 @@ export class TestComponent {
   public isExpanded: boolean = true;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
     (window as any).Survey = Survey;
-    (window as any).SurveyTheme = {SurveyTheme: TestTheme};
+    (window as any).SurveyTheme = {Test: TestTheme};
     (<any>window).setSurvey = (survey: SurveyModel | Survey.PopupSurveyModel, isPopup: boolean, isExpanded: boolean = true) => {
       this.model = survey;
       this.isPopup = isPopup;

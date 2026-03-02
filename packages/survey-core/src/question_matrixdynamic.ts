@@ -1055,6 +1055,74 @@ class QuestionMatrixDynamicRenderedTable extends QuestionMatrixDropdownRenderedT
   }
 }
 
+export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleInputBehavior {
+  protected get matrixDynamic(): QuestionMatrixDynamicModel {
+    return this.question as QuestionMatrixDynamicModel;
+  }
+  protected onSingleInputQuestionAdded(question: Question): void {
+    if (!this.matrixDynamic.showHeader) {
+      question.titleLocation = "hidden";
+    }
+  }
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+    const res = new Array<Question>();
+    const rows = this.matrixDynamic.visibleRows;
+    if (checkDynamic) {
+      for (let i = 0; i < rows.length; i ++) {
+        const row = rows[i];
+        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
+          this.fillSingleInputQuestionsByRow(res, row);
+        }
+      }
+    }
+    return this.getSingleInputQuestionsForDynamic(question, res);
+  }
+  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
+    const row = <MatrixDropdownRowModelBase>innerQuestion.data;
+    this.fillSingleInputQuestionsByRow(res, row);
+  }
+  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
+    if (row) {
+      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
+    }
+  }
+  public getSingleInputAddTextCore(): string {
+    if (!this.matrixDynamic.canAddRow) return undefined;
+    return this.matrixDynamic.addRowText;
+  }
+  public singleInputAddItemCore(): void {
+    this.matrixDynamic.addRowUI();
+  }
+  protected getSingleQuestionOnChange(index: number): Question {
+    const rows = this.matrixDynamic.visibleRows;
+    if (rows.length > 0) {
+      if (index < 0 || index >= rows.length) index = rows.length - 1;
+      const row = rows[index];
+      const vQs = row.visibleQuestions;
+      if (vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    const md = this.matrixDynamic;
+    const res = new QuestionSingleInputSummary(md, md.locNoRowsText);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    const canRemoveRows = md.canRemoveRows;
+    md.visibleRows.forEach((row) => {
+      const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
+      locText.setJson(md.locSingleInputTitleTemplate.getJson());
+      const bntEdit = new Action({ locTitle: md.locEditRowText, action: () => { this.singleInputEditRow(row); } });
+      const btnRemove = canRemoveRows && md.canRemoveRow(row) ?
+        new Action({ locTitle: md.locRemoveRowText, action: () => { md.removeRowUI(row); } }) : undefined;
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
+  }
+}
+
 Serializer.addClass(
   "matrixdynamic",
   [
@@ -1115,71 +1183,3 @@ QuestionFactory.Instance.registerQuestion("matrixdynamic", (name) => {
   QuestionMatrixDropdownModelBase.addDefaultColumns(q);
   return q;
 });
-
-export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleInputBehavior {
-  protected get matrixDynamic(): QuestionMatrixDynamicModel {
-    return this.question as QuestionMatrixDynamicModel;
-  }
-  protected onSingleInputQuestionAdded(question: Question): void {
-    if (!this.matrixDynamic.showHeader) {
-      question.titleLocation = "hidden";
-    }
-  }
-  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    const res = new Array<Question>();
-    const rows = this.matrixDynamic.visibleRows;
-    if (checkDynamic) {
-      for (let i = 0; i < rows.length; i ++) {
-        const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
-          this.fillSingleInputQuestionsByRow(res, row);
-        }
-      }
-    }
-    return this.getSingleInputQuestionsForDynamic(question, res);
-  }
-  public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    const row = <MatrixDropdownRowModelBase>innerQuestion.data;
-    this.fillSingleInputQuestionsByRow(res, row);
-  }
-  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
-    if (row) {
-      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
-    }
-  }
-  public getSingleInputAddTextCore(): string {
-    if (!this.matrixDynamic.canAddRow) return undefined;
-    return this.matrixDynamic.addRowText;
-  }
-  public singleInputAddItemCore(): void {
-    this.matrixDynamic.addRowUI();
-  }
-  protected getSingleQuestionOnChange(index: number): Question {
-    const rows = this.matrixDynamic.visibleRows;
-    if (rows.length > 0) {
-      if (index < 0 || index >= rows.length) index = rows.length - 1;
-      const row = rows[index];
-      const vQs = row.visibleQuestions;
-      if (vQs.length > 0) {
-        return vQs[0];
-      }
-    }
-    return null;
-  }
-  protected createSingleInputSummary(): QuestionSingleInputSummary {
-    const md = this.matrixDynamic;
-    const res = new QuestionSingleInputSummary(md, md.locNoRowsText);
-    const items = new Array<QuestionSingleInputSummaryItem>();
-    const canRemoveRows = md.canRemoveRows;
-    md.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
-      locText.setJson(md.locSingleInputTitleTemplate.getJson());
-      const bntEdit = new Action({ locTitle: md.locEditRowText, action: () => { this.matrixBase.singleInputEditRow(row); } });
-      const btnRemove = canRemoveRows && md.canRemoveRow(row) ?
-        new Action({ locTitle: md.locRemoveRowText, action: () => { md.removeRowUI(row); } }) : undefined;
-      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
-    });
-    res.items = items;
-    return res;
-  }
-}

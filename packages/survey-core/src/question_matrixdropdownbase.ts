@@ -1862,17 +1862,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return text;
   }
-  public matrixDropdownBaseSingleInputMoveToFirstCore(): void {
-    const data: any = this.singleInputQuestion?.data;
-    this.singleInputEditRow(data);
-  }
-  public singleInputEditRow(row: MatrixDropdownRowModelBase): void {
-    if (!row) return;
-    const qs = row.visibleQuestions;
-    if (Array.isArray(qs) && qs.length > 0) {
-      this.setSingleInputQuestion(qs[0]);
-    }
-  }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new MatrixDropdownBaseSingleInputBehavior(this);
   }
@@ -2912,6 +2901,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
 }
 
+export class MatrixDropdownBaseSingleInputBehavior extends QuestionSingleInputBehavior {
+  protected get matrixBase(): QuestionMatrixDropdownModelBase {
+    return this.question as QuestionMatrixDropdownModelBase;
+  }
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
+    return this.matrixBase.locSingleInputTitleTemplate;
+  }
+  protected singleInputMoveToFirstCore(): void {
+    const data: any = this.matrixBase.singleInputQuestion?.data;
+    this.singleInputEditRow(data);
+  }
+  public singleInputEditRow(row: MatrixDropdownRowModelBase): void {
+    if (!row) return;
+    const qs = row.visibleQuestions;
+    if (Array.isArray(qs) && qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
+  }
+}
+
 Serializer.addClass(
   "matrixdropdownbase",
   [
@@ -2972,15 +2981,3 @@ Serializer.addClass(
   },
   "matrixbase"
 );
-
-export class MatrixDropdownBaseSingleInputBehavior extends QuestionSingleInputBehavior {
-  protected get matrixBase(): QuestionMatrixDropdownModelBase {
-    return this.question as QuestionMatrixDropdownModelBase;
-  }
-  protected getSingleQuestionLocTitleCore(): LocalizableString {
-    return this.matrixBase.getMatrixDropdownBaseSingleQuestionLocTitleCore();
-  }
-  protected singleInputMoveToFirstCore(): void {
-    this.matrixBase.matrixDropdownBaseSingleInputMoveToFirstCore();
-  }
-}

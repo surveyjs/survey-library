@@ -258,6 +258,27 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       this.updateProgressInfoByRow(res, !!rowName ? rowName : {});
     }
   }
+
+   @property({ isLowerCase: true }) rowOrder: string;
+
+   protected sortVisibleRows(array: Array<MatrixDropdownRowModel>): Array<MatrixDropdownRowModel> {
+     if (!!this.survey && this.survey.isDesignMode) return array;
+     if (this.rowOrder.toLowerCase() === "random") return Helpers.randomizeArray<MatrixDropdownRowModel>(array, this.randomSeed);
+     return array;
+   }
+
+   endLoadingFromJson(): void {
+     super.endLoadingFromJson();
+     this.rows = this.sortVisibleRows(this.rows);
+   }
+
+   public randomSeedChanged(): void {
+     if (this.rowOrder.toLowerCase() !== "random") return;
+     this.rows = this.sortVisibleRows(this.rows);
+     this.clearGeneratedRows();
+     this.resetRenderedTable();
+     super.randomSeedChanged();
+   }
 }
 
 Serializer.addClass(
@@ -269,7 +290,12 @@ Serializer.addClass(
     "rowsVisibleIf:condition",
     "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
-    "hideIfRowsEmpty:boolean"
+    "hideIfRowsEmpty:boolean",
+    {
+      name: "rowOrder",
+      default: "initial",
+      choices: ["initial", "random"],
+    }
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

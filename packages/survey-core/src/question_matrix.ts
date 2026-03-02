@@ -662,6 +662,7 @@ export class QuestionMatrixModel
     return array;
   }
   public randomSeedChanged(): void {
+    if (this.rowOrder.toLowerCase() !== "random") return;
     this.rows = this.sortVisibleRows(this.rows);
     this.onRowsChanged();
   }

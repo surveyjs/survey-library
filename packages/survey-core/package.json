@@ -48,7 +48,7 @@
     "postcss-cli": "10.1.0",
     "postcss-fail-on-warn": "0.2.1",
     "postcss-import": "16.1.0",
-    "qunitjs": "2.2.0",
+    "qunit": "2.25.0",
     "rimraf": "2.5.4",
     "rollup": "^4.34.8",
     "rollup-plugin-svgo": "^2.0.0",

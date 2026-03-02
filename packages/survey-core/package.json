@@ -11,7 +11,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "test": "rollup -c rollup.tests.config.mjs && karma start ./karma.conf.js --single-run",
-    "test:watch": "concurrently \"rollup -c rollup.tests.config.mjs -w\" \"karma start ./karma.conf.js\"",
+    "test:watch": "node ./test-watch.mjs",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",

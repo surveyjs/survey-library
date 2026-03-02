@@ -51,3 +51,4 @@ junit.xml
 playwright-report/*
 test-results/*
 tests/bundle/*
+packages/survey-core/tests/bundle/*

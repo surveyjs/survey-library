@@ -1219,104 +1219,8 @@ export class QuestionPanelDynamicModel extends Question
     super.resetSingleInput();
     this.locTemplateTitle.onGetTextCallback = null;
   }
-  public getPanelDynamicSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    this.onFirstRendering();
-    const res = new Array<Question>();
-    const panels = this.visiblePanels;
-    if (checkDynamic) {
-      for (let i = 0; i < panels.length; i ++) {
-        const panel = panels[i];
-        if (!panel.hasValueAnyQuestion(true) || !panel.validate(false, false)) {
-          this.fillSingleInputQuestionsByPanel(res, panel);
-        }
-      }
-    }
-    return this.singleInputBehavior.getSingleInputQuestionsForDynamic(question, res);
-  }
-  public panelDynamicFillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    const panel = this.getPanelByQuestion(innerQuestion);
-    this.fillSingleInputQuestionsByPanel(res, panel);
-  }
-  private fillSingleInputQuestionsByPanel(res: Array<Question>, panel: PanelModel): void {
-    if (panel) {
-      panel.visibleQuestions.forEach(q => q.addNestedQuestion(res, true, false, false));
-    }
-  }
-  public getPanelDynamicSingleQuestionLocTitleCore(): LocalizableString {
-    const res = this.locTemplateTitle;
-    res.onGetTextCallback = (text: string): string => {
-      const q = this.singleInputQuestion;
-      if (!q) return text;
-      return this.processSingleInputTitle(text, this.getPanelByQuestion(q));
-    };
-    return res;
-  }
-  private processSingleInputTitle(text: string, panel: PanelModel): string {
-    if (!text) text = this.getSingleInputTitleTemplate();
-    if (!panel) return text;
-    return panel.getProcessedText(text);
-  }
-  private getSingleInputTitleTemplate(): string {
-    return this.getLocalizationString("panelDynamicTabTextFormat");
-  }
-  private getPanelByQuestion(question: Question): PanelModel {
-    let parent = question.parent;
-    while(!!parent && !!parent.parent) {
-      parent = parent.parent;
-    }
-    return <PanelModel>parent;
-  }
-  public getPanelDynamicSingleInputAddTextCore(): string {
-    if (!this.canAddPanel) return undefined;
-    return this.addPanelText;
-  }
-  public panelDynamicSingleInputAddItemCore(): void {
-    this.addPanelUI();
-  }
-  public getPanelDynamicSingleQuestionOnChange(index: number): Question {
-    const panels = this.visiblePanelsCore;
-    if (panels.length > 0) {
-      if (index < 0 || index >= panels.length) index = panels.length - 1;
-      const row = panels[index];
-      const vQs = row.visibleQuestions;
-      if (vQs.length > 0) {
-        return vQs[0];
-      }
-    }
-    return null;
-  }
-  public createPanelDynamicSingleInputSummary(): QuestionSingleInputSummary {
-    const res = new QuestionSingleInputSummary(this, this.locNoEntriesText);
-    const items = new Array<QuestionSingleInputSummaryItem>();
-    this.visiblePanels.forEach((panel) => {
-      const locText = new LocalizableString(this, true, undefined, this.locTemplateTitle.localizationName);
-      locText.setJson(this.locTemplateTitle.getJson());
-      locText.onGetTextCallback = (text: string): string => {
-        return this.processSingleInputTitle(this.templateTitle, panel);
-      };
-      const bntEdit = new Action({ locTitle: this.locEditPanelText, action: () => { this.singInputEditPanel(panel); } });
-      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locRemovePanelText, action: () => { this.removePanelUI(panel); } }) : undefined;
-      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
-    });
-    res.items = items;
-    return res;
-  }
   public get locEditPanelText(): LocalizableString {
     return this.getOrCreateLocStr("editPanelText", false, "editText");
-  }
-  public panelDynamicSingleInputMoveToFirstCore(): void {
-    let panel = this.singleInputQuestion?.parent;
-    while(!!panel && !!panel.parent) {
-      panel = panel.parent;
-    }
-    this.singInputEditPanel(<PanelModel>panel);
-  }
-  private singInputEditPanel(panel: PanelModel): void {
-    if (!panel) return;
-    const qs = panel.visibleQuestions;
-    if (qs.length > 0) {
-      this.setSingleInputQuestion(qs[0]);
-    }
   }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new PanelDynamicSingleInputBehavior(this);
@@ -2983,27 +2887,100 @@ export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior
     return this.question as QuestionPanelDynamicModel;
   }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    return this.panelDynamic.getPanelDynamicSingleInputQuestionsCore(question, checkDynamic);
+    this.panelDynamic.onFirstRendering();
+    const res = new Array<Question>();
+    const panels = this.panelDynamic.visiblePanels;
+    if (checkDynamic) {
+      for (let i = 0; i < panels.length; i ++) {
+        const panel = panels[i];
+        if (!panel.hasValueAnyQuestion(true) || !panel.validate(false, false)) {
+          this.fillSingleInputQuestionsByPanel(res, panel);
+        }
+      }
+    }
+    return this.getSingleInputQuestionsForDynamic(question, res);
   }
   public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    this.panelDynamic.panelDynamicFillSingleInputQuestionsInContainer(res, innerQuestion);
+    const panel = this.getPanelByQuestion(innerQuestion);
+    this.fillSingleInputQuestionsByPanel(res, panel);
+  }
+  private fillSingleInputQuestionsByPanel(res: Array<Question>, panel: PanelModel): void {
+    if (panel) {
+      panel.visibleQuestions.forEach(q => q.addNestedQuestion(res, true, false, false));
+    }
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
-    return this.panelDynamic.getPanelDynamicSingleQuestionLocTitleCore();
+    const res = this.panelDynamic.locTemplateTitle;
+    res.onGetTextCallback = (text: string): string => {
+      const q = this.panelDynamic.singleInputQuestion;
+      if (!q) return text;
+      return this.processSingleInputTitle(text, this.getPanelByQuestion(q));
+    };
+    return res;
+  }
+  private processSingleInputTitle(text: string, panel: PanelModel): string {
+    if (!text) text = this.getSingleInputTitleTemplate();
+    if (!panel) return text;
+    return panel.getProcessedText(text);
+  }
+  private getSingleInputTitleTemplate(): string {
+    return this.panelDynamic.getLocalizationString("panelDynamicTabTextFormat");
+  }
+  private getPanelByQuestion(question: Question): PanelModel {
+    let parent = question.parent;
+    while(!!parent && !!parent.parent) {
+      parent = parent.parent;
+    }
+    return <PanelModel>parent;
   }
   public getSingleInputAddTextCore(): string {
-    return this.panelDynamic.getPanelDynamicSingleInputAddTextCore();
+    if (!this.panelDynamic.canAddPanel) return undefined;
+    return this.panelDynamic.addPanelText;
   }
   public singleInputAddItemCore(): void {
-    this.panelDynamic.panelDynamicSingleInputAddItemCore();
+    this.panelDynamic.addPanelUI();
   }
   protected getSingleQuestionOnChange(index: number): Question {
-    return this.panelDynamic.getPanelDynamicSingleQuestionOnChange(index);
+    const panels = this.panelDynamic.visiblePanels;
+    if (panels.length > 0) {
+      if (index < 0 || index >= panels.length) index = panels.length - 1;
+      const row = panels[index];
+      const vQs = row.visibleQuestions;
+      if (vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
-    return this.panelDynamic.createPanelDynamicSingleInputSummary();
+    const pd = this.panelDynamic;
+    const res = new QuestionSingleInputSummary(pd, pd.locNoEntriesText);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    pd.visiblePanels.forEach((panel) => {
+      const locText = new LocalizableString(pd, true, undefined, pd.locTemplateTitle.localizationName);
+      locText.setJson(pd.locTemplateTitle.getJson());
+      locText.onGetTextCallback = (text: string): string => {
+        return this.processSingleInputTitle(pd.templateTitle, panel);
+      };
+      const bntEdit = new Action({ locTitle: pd.locEditPanelText, action: () => { this.singInputEditPanel(panel); } });
+      const btnRemove = pd.canRemovePanel ? new Action({ locTitle: pd.locRemovePanelText, action: () => { pd.removePanelUI(panel); } }) : undefined;
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
   }
   protected singleInputMoveToFirstCore(): void {
-    this.panelDynamic.panelDynamicSingleInputMoveToFirstCore();
+    let panel = this.panelDynamic.singleInputQuestion?.parent;
+    while(!!panel && !!panel.parent) {
+      panel = panel.parent;
+    }
+    this.singInputEditPanel(<PanelModel>panel);
+  }
+  private singInputEditPanel(panel: PanelModel): void {
+    if (!panel) return;
+    const qs = panel.visibleQuestions;
+    if (qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
   }
 }

@@ -78,6 +78,7 @@ const buildPlatformJson = {
     },
     "./themes/*": {
       "types": "./themes/*.d.ts",
+      "import": "./themes/*.js",
       "require": "./themes/*.js"
     },
     "./icons/*": {

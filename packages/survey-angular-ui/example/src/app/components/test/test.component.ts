@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component } from "@angular/core";
 import { SurveyModel } from "survey-core";
 import * as Survey from "survey-core";
 import "survey-core/survey.i18n";
-
+import "survey-core/themes/test";
 @Component({
   selector: "test",
   template: "",

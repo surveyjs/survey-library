@@ -77,7 +77,7 @@ const applyHeaderAccentBackgroundColor = async (page) => {
   await page.evaluate(() => {
     window["survey"].applyTheme({
       "header": { "inheritWidthFrom": "container" },
-      "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }
+      "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)" }
     });
   });
 };

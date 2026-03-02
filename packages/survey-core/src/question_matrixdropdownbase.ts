@@ -1851,7 +1851,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getMatrixDropdownBaseSingleQuestionLocTitleCore(): LocalizableString {
     return this.locSingleInputTitleTemplate;
   }
-  protected getSingleInputTitleTemplate(): string { return ""; }
+  public getSingleInputTitleTemplate(): string { return ""; }
   public processSingleInputTitle(text: string, row: MatrixDropdownRowModelBase): string {
     if (!row) {
       row = this.getRowByQuestion(this.singleInputQuestion);

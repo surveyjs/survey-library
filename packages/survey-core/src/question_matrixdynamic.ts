@@ -723,68 +723,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.survey.matrixRowRemoved(this, index, row);
     }
   }
-  public onSingleInputQuestionAdded(question: Question): void {
-    if (!this.showHeader) {
-      question.titleLocation = "hidden";
-    }
-  }
-  public getMatrixDynamicSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    const res = new Array<Question>();
-    const rows = this.visibleRows;
-    if (checkDynamic) {
-      for (let i = 0; i < rows.length; i ++) {
-        const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
-          this.fillSingleInputQuestionsByRow(res, row);
-        }
-      }
-    }
-    return this.singleInputBehavior.getSingleInputQuestionsForDynamic(question, res);
-  }
-  public matrixDynamicFillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    const row = this.getRowByQuestion(innerQuestion);
-    this.fillSingleInputQuestionsByRow(res, row);
-  }
-  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
-    if (row) {
-      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
-    }
-  }
-
-  public getMatrixDynamicSingleInputAddTextCore(): string {
-    if (!this.canAddRow) return undefined;
-    return this.addRowText;
-  }
-  public matrixDynamicSingleInputAddItemCore(): void {
-    this.addRowUI();
-  }
-  public getMatrixDynamicSingleQuestionOnChange(index: number): Question {
-    const rows = this.visibleRows;
-    if (rows.length > 0) {
-      if (index < 0 || index >= rows.length) index = rows.length - 1;
-      const row = rows[index];
-      const vQs = row.visibleQuestions;
-      if (vQs.length > 0) {
-        return vQs[0];
-      }
-    }
-    return null;
-  }
-  public createMatrixDynamicSingleInputSummary(): QuestionSingleInputSummary {
-    const res = new QuestionSingleInputSummary(this, this.locNoRowsText);
-    const items = new Array<QuestionSingleInputSummaryItem>();
-    const canRemoveRows = this.canRemoveRows;
-    this.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(new MatrixSingleInputLocOwner(this, row), true, undefined, this.getSingleInputTitleTemplate());
-      locText.setJson(this.locSingleInputTitleTemplate.getJson());
-      const bntEdit = new Action({ locTitle: this.locEditRowText, action: () => { this.singleInputEditRow(row); } });
-      const btnRemove = canRemoveRows && this.canRemoveRow(row) ?
-        new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
-      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
-    });
-    res.items = items;
-    return res;
-  }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new MatrixDynamicSingleInputBehavior(this);
   }
@@ -810,7 +748,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
     );
   }
-  protected getSingleInputTitleTemplate(): string { return "rowIndexTemplateTitle"; }
+  public getSingleInputTitleTemplate(): string { return "rowIndexTemplateTitle"; }
   /**
    * Specifies the location of the Add Row button.
    *
@@ -1183,24 +1121,65 @@ export class MatrixDynamicSingleInputBehavior extends MatrixDropdownBaseSingleIn
     return this.question as QuestionMatrixDynamicModel;
   }
   protected onSingleInputQuestionAdded(question: Question): void {
-    this.matrixDynamic.onSingleInputQuestionAdded(question);
+    if (!this.matrixDynamic.showHeader) {
+      question.titleLocation = "hidden";
+    }
   }
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    return this.matrixDynamic.getMatrixDynamicSingleInputQuestionsCore(question, checkDynamic);
+    const res = new Array<Question>();
+    const rows = this.matrixDynamic.visibleRows;
+    if (checkDynamic) {
+      for (let i = 0; i < rows.length; i ++) {
+        const row = rows[i];
+        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
+          this.fillSingleInputQuestionsByRow(res, row);
+        }
+      }
+    }
+    return this.getSingleInputQuestionsForDynamic(question, res);
   }
   public fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
-    this.matrixDynamic.matrixDynamicFillSingleInputQuestionsInContainer(res, innerQuestion);
+    const row = <MatrixDropdownRowModelBase>innerQuestion.data;
+    this.fillSingleInputQuestionsByRow(res, row);
+  }
+  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
+    if (row) {
+      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
+    }
   }
   public getSingleInputAddTextCore(): string {
-    return this.matrixDynamic.getMatrixDynamicSingleInputAddTextCore();
+    if (!this.matrixDynamic.canAddRow) return undefined;
+    return this.matrixDynamic.addRowText;
   }
   public singleInputAddItemCore(): void {
-    this.matrixDynamic.matrixDynamicSingleInputAddItemCore();
+    this.matrixDynamic.addRowUI();
   }
   protected getSingleQuestionOnChange(index: number): Question {
-    return this.matrixDynamic.getMatrixDynamicSingleQuestionOnChange(index);
+    const rows = this.matrixDynamic.visibleRows;
+    if (rows.length > 0) {
+      if (index < 0 || index >= rows.length) index = rows.length - 1;
+      const row = rows[index];
+      const vQs = row.visibleQuestions;
+      if (vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
   }
   protected createSingleInputSummary(): QuestionSingleInputSummary {
-    return this.matrixDynamic.createMatrixDynamicSingleInputSummary();
+    const md = this.matrixDynamic;
+    const res = new QuestionSingleInputSummary(md, md.locNoRowsText);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    const canRemoveRows = md.canRemoveRows;
+    md.visibleRows.forEach((row) => {
+      const locText = new LocalizableString(new MatrixSingleInputLocOwner(md, row), true, undefined, md.getSingleInputTitleTemplate());
+      locText.setJson(md.locSingleInputTitleTemplate.getJson());
+      const bntEdit = new Action({ locTitle: md.locEditRowText, action: () => { this.matrixBase.singleInputEditRow(row); } });
+      const btnRemove = canRemoveRows && md.canRemoveRow(row) ?
+        new Action({ locTitle: md.locRemoveRowText, action: () => { md.removeRowUI(row); } }) : undefined;
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
   }
 }

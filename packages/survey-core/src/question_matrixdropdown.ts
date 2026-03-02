@@ -133,7 +133,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    */
   @property() hideIfRowsEmpty: boolean;
 
-  protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
+  public getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {
     return new MatrixDropdownSingleInputBehavior(this);
   }

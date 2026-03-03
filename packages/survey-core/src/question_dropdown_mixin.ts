@@ -14,7 +14,6 @@ export interface IQuestionDropdownMixin {
   readonly showClearButton: boolean;
   onOpenedCallBack(): void;
   setIsChoicesLoading(value: boolean): void;
-  clearValue(keepComment?: boolean, fromUI?: boolean): void;
   dispose(): void;
 }
 
@@ -156,8 +155,8 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
       return classes;
     }
 
-    public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-      super.clearValue(keepComment, fromUI);
+    protected onClearValue(): void {
+      super.onClearValue();
       this.dropdownListModelValue?.clear();
     }
 

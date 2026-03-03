@@ -823,8 +823,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return val;
   }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    super.clearValue(keepComment, fromUI);
+  protected onClearValue(): void {
+    super.onClearValue();
     this.selectedItemValues = undefined;
   }
   public get renderedValue(): any {

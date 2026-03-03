@@ -1943,7 +1943,9 @@ export class Question extends SurveyElement<Question>
       this.comment = undefined;
     }
     this.setValueChangedDirectly(fromUI === true);
+    this.onClearValue();
   }
+  protected onClearValue(): void {}
   clearValueFromUI(): void {
     this.clearValue(true, true);
   }

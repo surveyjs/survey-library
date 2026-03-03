@@ -115,9 +115,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   componentDidMount() {
     super.componentDidMount();
-    setTimeout(() => {
-      this.respManager = new ProgressButtonsResponsivityManager(this.model, this.listContainerRef.current as any, this);
-    }, 10);
+    this.respManager = new ProgressButtonsResponsivityManager(this.model, this.listContainerRef.current as any, this);
   }
   componentWillUnmount() {
     if (!!this.respManager) {

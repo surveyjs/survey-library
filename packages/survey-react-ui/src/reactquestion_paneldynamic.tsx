@@ -6,6 +6,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
+import { SurveyAction } from "./components/action-bar/action-bar-item";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -56,7 +57,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     const rangeTop: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressTopShowing
       ? this.renderRange()
       : null;
-    const navV2 = this.renderNavigatorV2();
+    const navigation = this.renderNavigator();
     const noEntriesPlaceholder = this.renderPlaceholder(cssClasses);
     return (
       <div className={cssClasses.root}>
@@ -66,7 +67,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
-        {navV2}
+        {navigation}
       </div>
     );
   }
@@ -83,12 +84,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderAddRowButton(): React.JSX.Element | null {
-    return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
-      data: { question: this.question }
-    });
-  }
-  protected renderNavigatorV2(): React.JSX.Element | null {
+  protected renderNavigator(): React.JSX.Element | null {
     if (!this.question.showNavigation) return null;
     const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
     return (<div className={this.question.cssClasses.footer}>
@@ -137,9 +133,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   }
   protected renderButton(): React.JSX.Element | null {
     if (!this.question.canRenderRemovePanelOnRight(this.panel)) return null;
-    return ReactElementFactory.Instance.createElement("sv-paneldynamic-remove-btn", {
-      data: { question: this.question, panel: this.panel }
-    });
+    return <SurveyAction item={this.question.getRemovePanelAction(this.panel)}></SurveyAction>;
   }
 }
 
@@ -157,14 +151,9 @@ export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
     return (
       <div className={cssClasses.noEntriesPlaceholder}>
         <span>{this.renderLocString(question.locNoEntriesText)}</span>
-        {this.renderAddRowButton(question)}
+        {<SurveyActionBar model={this.props.question.footerToolbar}></SurveyActionBar>}
       </div>
     );
-  }
-  protected renderAddRowButton(question: Question): React.JSX.Element {
-    return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
-      data: { question: question }
-    });
   }
 }
 

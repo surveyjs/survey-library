@@ -59,12 +59,15 @@ export class ProgressButtons extends Base {
     }
     return false;
   }
+  private minListWidth: number;
   public isCanShowItemTitles(element: HTMLElement): boolean {
     const listContainerElement = element.querySelector("ul");
     if (!listContainerElement || listContainerElement.children.length < 2) return true;
     if (listContainerElement.clientWidth > listContainerElement.parentElement.clientWidth) {
+      this.minListWidth = Math.min(this.minListWidth || Infinity, listContainerElement.clientWidth);
       return false;
     }
+    if (listContainerElement.parentElement.clientWidth < this.minListWidth) { return false; }
     const expectedElementWidth = listContainerElement.children[0].clientWidth;
     for (let i = 0; i < listContainerElement.children.length; i++) {
       if (Math.abs(listContainerElement.children[i].clientWidth - expectedElementWidth) > 5) {
@@ -135,15 +138,18 @@ export interface IProgressButtonsViewModel {
 export class ProgressButtonsResponsivityManager {
   private criticalProperties = ["progressBarType", "progressBarShowPageTitles"];
   private canShowItemTitles = true;
+
   constructor(private model: ProgressButtons, private element: HTMLElement, private viewModel: IProgressButtonsViewModel) {
     this.model.survey.registerFunctionOnPropertiesValueChanged(this.criticalProperties, () => this.forceUpdate(), "ProgressButtonsResponsivityManager" + this.viewModel.container);
     this.model.onResize.add(this.processResponsiveness);
     this.forceUpdate();
   }
+
   private forceUpdate() {
     this.viewModel.onUpdateSettings();
     this.processResponsiveness(this.model, {} as any);
   }
+
   private processResponsiveness = (model: ProgressButtons, options: { width: number }) => {
     this.viewModel.onUpdateScroller(model.isListContainerHasScroller(this.element));
     if (!model.showItemTitles) {
@@ -157,6 +163,7 @@ export class ProgressButtonsResponsivityManager {
     this.canShowItemTitles = model.isCanShowItemTitles(this.element);
     this.viewModel.onResize(this.canShowItemTitles);
   };
+
   dispose(): void {
     this.model.onResize.remove(this.processResponsiveness);
     this.model.survey.unRegisterFunctionOnPropertiesValueChanged(this.criticalProperties, "ProgressButtonsResponsivityManager" + this.viewModel.container);

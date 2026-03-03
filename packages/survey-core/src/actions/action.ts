@@ -64,6 +64,7 @@ export interface IAction {
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   action?: (context?: any) => void;
+  onMouseDown?:(event: any) => void;
   onFocus?: (isMouse: boolean, event: any) => void;
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
@@ -153,6 +154,7 @@ export interface IAction {
   needSpace?: boolean;
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
+  ariaControls?: string;
   ariaLabelledBy?: string;
   ariaRole?: string;
   elementId?: string;
@@ -256,6 +258,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
+  @property() ariaControls: string;
   @property({ defaultValue: "button" }) ariaRole: string;
   private idValue: string;
   public get id(): string { return this.getId(); }
@@ -492,6 +495,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() private _enabled: boolean;
   @property() action: (context?: any, isUserAction?: boolean) => void;
   @property() onFocus: (isMouse: boolean, event: any) => void;
+  @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
   @property() items: any;
   @property({
@@ -539,8 +543,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return true;
   }
   private isMouseDown: boolean;
-  public doMouseDown(args: any): void {
+  public doMouseDown(event: any): void {
     this.isMouseDown = true;
+    this.onMouseDown && this.onMouseDown(event);
   }
   public doFocus(args: any): void {
     if (!!this.onFocus) {
@@ -674,6 +679,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
         callback();
       }
     });
+  }
+  private inputElementValue: HTMLElement;
+  public setInputElement(val: HTMLElement) {
+    this.inputElementValue = val;
+  }
+  public getInputElement() {
+    return this.inputElementValue;
   }
 }
 

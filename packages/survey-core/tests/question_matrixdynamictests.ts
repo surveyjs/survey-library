@@ -2200,90 +2200,90 @@ QUnit.test("Matrixdynamic allowRemoveRows property", function (assert) {
 QUnit.test("Matrixdynamic addRowButtonLocation", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     false,
     "transposeData=false, addRowButtonLocation='default', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     true,
     "transposeData=false, addRowButtonLocation='default', #2"
   );
   question.addRowButtonLocation = "top";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     true,
     "transposeData=false, addRowButtonLocation='top', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     false,
     "transposeData=false, addRowButtonLocation='top', #2"
   );
   question.addRowButtonLocation = "bottom";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     false,
     "transposeData=false, addRowButtonLocation='bottom', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     true,
     "transposeData=false, addRowButtonLocation='bottom', #2"
   );
   question.addRowButtonLocation = "topBottom";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     true,
     "transposeData=false, addRowButtonLocation='topBottom', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     true,
     "transposeData=false, addRowButtonLocation='topBottom', #2"
   );
   question.transposeData = true;
   question.addRowButtonLocation = "default";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     true,
     "transposeData=true, addRowButtonLocation='default', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     false,
     "transposeData=true, addRowButtonLocation='default', #2"
   );
   question.addRowButtonLocation = "top";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     true,
     "transposeData=true, addRowButtonLocation='top', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     false,
     "transposeData=true, addRowButtonLocation='top', #2"
   );
   question.addRowButtonLocation = "bottom";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     false,
     "transposeData=true, addRowButtonLocation='bottom', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     true,
     "transposeData=true, addRowButtonLocation='bottom', #2"
   );
   question.addRowButtonLocation = "topBottom";
   assert.equal(
-    question.renderedTable.showAddRowOnTop,
+    question.getShowToolbar("top"),
     true,
     "transposeData=true, addRowButtonLocation='topBottom', #1"
   );
   assert.equal(
-    question.renderedTable.showAddRowOnBottom,
+    question.getShowToolbar("bottom"),
     true,
     "transposeData=true, addRowButtonLocation='topBottom', #2"
   );
@@ -2291,26 +2291,26 @@ QUnit.test("Matrixdynamic addRowButtonLocation", function (assert) {
 
 QUnit.test("Matrixdynamic showAddRow", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrix");
-  assert.equal(question.renderedTable.showAddRow, true, "#1");
+  assert.equal(question.getShowToolbar(), true, "#1");
   question.readOnly = true;
-  assert.equal(question.renderedTable.showAddRow, false, "#2");
+  assert.equal(question.getShowToolbar(), false, "#2");
   question.readOnly = false;
-  assert.equal(question.renderedTable.showAddRow, true, "#3");
+  assert.equal(question.getShowToolbar(), true, "#3");
   question.rowCount = 0;
   question.allowAddRows = false;
   assert.equal(question.canAddRow, false, "question.canAddRow");
-  assert.equal(question.renderedTable.showAddRowOnTop, false, "showAddRowOnTop");
-  assert.equal(question.renderedTable.showAddRowOnBottom, false, "showAddRowOnBottom");
-  assert.equal(question.renderedTable.showAddRow, false, "#4");
+  assert.equal(question.getShowToolbar("top"), false, "showAddRowOnTop");
+  assert.equal(question.getShowToolbar("bottom"), false, "showAddRowOnBottom");
+  assert.equal(question.getShowToolbar(), false, "#4");
   question.hideColumnsIfEmpty = true;
   assert.equal(question.canAddRow, false, "question.canAddRow, #5");
-  assert.equal(question.renderedTable.showAddRowOnTop, false, "showAddRowOnTop, #5");
-  assert.equal(question.renderedTable.showAddRowOnBottom, false, "showAddRowOnBottom, #5");
-  assert.equal(question.renderedTable.showAddRow, false, "#5");
+  assert.equal(question.getShowToolbar("top"), false, "showAddRowOnTop, #5");
+  assert.equal(question.getShowToolbar("bottom"), false, "showAddRowOnBottom, #5");
+  assert.equal(question.getShowToolbar(), false, "#5");
   assert.equal(question.renderedTable.showTable, false, "#5");
   question.allowAddRows = true;
   assert.equal(question.canAddRow, true, "question.canAddRow, #6");
-  assert.equal(question.renderedTable.showAddRow, true, "showAddRow #6");
+  assert.equal(question.getShowToolbar(), true, "showAddRow #6");
   assert.equal(question.renderedTable.showTable, false, "showTable #6");
 });
 
@@ -4594,12 +4594,14 @@ QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon",
     "The first row can be removed (in actions cell)"
   );
   assert.equal(survey.css.root, "sd-root-modern", "Survey css root set correctly");
-  assert.equal(table.rows[1].cells[2].item.value.actions[0].component, "sv-action-bar-item", "Render as icon");
+  assert.equal(table.rows[1].cells[2].item.value.actions[0].iconName, "icon-delete-24x24");
+  assert.equal(table.rows[1].cells[2].item.value.actions[0].showTitle, false, "Render as icon");
   settings.matrixRenderRemoveAsIcon = false;
   //Reset table
   matrix.showHeader = false;
   table = matrix.renderedTable;
-  assert.equal(table.rows[1].cells[2].item.value.actions[0].component, "sv-matrix-remove-button", "Render as button");
+  assert.equal(table.rows[1].cells[2].item.value.actions[0].showTitle, true);
+  assert.equal(!!table.rows[1].cells[2].item.value.actions[0].iconName, false, "Render as button");
   settings.matrixRenderRemoveAsIcon = true;
   survey.css.root = undefined;
 });
@@ -6629,8 +6631,11 @@ QUnit.test(
 QUnit.test("Detail panel, get/set values", function (assert) {
   var survey = new SurveyModel({});
   survey.css = {
-    matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2", detailIconId: "#icon1", detailIconExpandedId: "#icon2" },
+    matrixdynamic: { detailIconId: "#icon1", detailIconExpandedId: "#icon2" },
   };
+  function getShowDetailActionIconNameByRow(row: MatrixDropdownRowModelBase): Action {
+    return matrix.renderedTable.rows.filter(renderedRow => renderedRow.id == row.id)[0].cells[0].item.value.getActionById("show-detail").iconName;
+  }
   survey.addNewPage("p1");
   var matrix = new QuestionMatrixDynamicModel("q1");
   survey.pages[0].addQuestion(matrix);
@@ -6661,12 +6666,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "Panel is not created, it is hidden"
   );
   assert.equal(
-    matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
-    "icon1",
-    "detail button is closed"
-  );
-  assert.equal(
-    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    getShowDetailActionIconNameByRow(matrix.visibleRows[0]),
     "#icon1",
     "detail button has collapsed icon"
   );
@@ -6678,12 +6678,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
   );
   assert.ok(matrix.visibleRows[0].detailPanel, "Detail Panel is created");
   assert.equal(
-    matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
-    "icon1 icon2",
-    "detail button is opened"
-  );
-  assert.equal(
-    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    getShowDetailActionIconNameByRow(matrix.visibleRows[0]),
     "#icon2",
     "detail button has expanded icon"
   );
@@ -6722,12 +6717,7 @@ QUnit.test("Detail panel, get/set values", function (assert) {
     "detail panel is closed"
   );
   assert.equal(
-    matrix.getDetailPanelIconCss(matrix.visibleRows[0]),
-    "icon1",
-    "detail button is closed again"
-  );
-  assert.equal(
-    matrix.getDetailPanelIconId(matrix.visibleRows[0]),
+    getShowDetailActionIconNameByRow(matrix.visibleRows[0]),
     "#icon1",
     "detail button has collapsed icon again"
   );
@@ -7085,7 +7075,7 @@ QUnit.test("Detail panel, rendered table mobile", function (assert) {
 
   assert.deepEqual(
     rows[2].cells[6].item.value.actions.map(a => a.id),
-    ["show-detail-mobile", "remove-row"]
+    ["show-detail", "remove-row"]
   );
 });
 
@@ -7663,14 +7653,14 @@ QUnit.test(
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     assert.equal(matrix.renderedTable.showTable, false, "There is no rows");
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       false,
       "Do not show add button"
     );
     matrix.addRow();
     assert.equal(matrix.renderedTable.showTable, true, "There is a row");
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       true,
       "Show add button"
     );
@@ -7681,7 +7671,7 @@ QUnit.test(
       "Matrix is empty again"
     );
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       false,
       "Do not show add button again"
     );
@@ -7713,31 +7703,31 @@ QUnit.test(
     });
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       true,
       "We have a row here"
     );
     matrix.allowAddRows = false;
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       false,
       "We do not allow add rows"
     );
     matrix.allowAddRows = true;
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       true,
       "We have a row here again"
     );
     matrix.addRow();
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       false,
       "max row count is 3"
     );
     matrix.rowCount = 1;
     assert.equal(
-      matrix.renderedTable.showAddRowOnBottom,
+      matrix.getShowToolbar("bottom"),
       true,
       "row count is 1"
     );
@@ -10982,12 +10972,12 @@ QUnit.test("The Set Value trigger doesn't work on subsequent runs, Bug#10017", f
     ],
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.ok(matrix.renderedTable.showAddRow);
-  assert.ok(matrix.renderedTable.showAddRowOnBottom);
+  assert.ok(matrix.getShowToolbar());
+  assert.ok(matrix.getShowToolbar("bottom"));
   survey.setDesignMode(true);
   matrix.resetRenderedTable();
-  assert.notOk(matrix.renderedTable.showAddRow);
-  assert.notOk(matrix.renderedTable.showAddRowOnBottom);
+  assert.notOk(matrix.getShowToolbar());
+  assert.notOk(matrix.getShowToolbar("bottom"));
 });
 QUnit.test("matrixdynamic.getValueGetterContext()", function (assert) {
   const survey = new SurveyModel({

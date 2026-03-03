@@ -1,5 +1,5 @@
 import { Page } from "playwright";
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "validateOnServer";
 
@@ -52,11 +52,11 @@ frameworks.forEach((framework) => {
       let surveyResult;
 
       await page.locator("input[type=\"text\"]").pressSequentially("wombatland");
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Complete").click();
       await getErrorSpan.waitFor({ state: "visible", timeout: 1000 });
       await getErrorSpan.hover();
       await page.locator("input[type=\"text\"]").fill("Romania");
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Complete").click();
 
       surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({

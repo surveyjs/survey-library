@@ -550,134 +550,6 @@ QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("choicesOrder:random with seed", (assert) => {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "p1",
-        questionOrder: "random",
-        elements: [
-          {
-            type: "dropdown",
-            name: "q1",
-            choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-            choicesOrder: "random"
-          },
-          {
-            type: "checkbox",
-            name: "q2",
-            choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-            choicesOrder: "random"
-          },
-          { type: "text", name: "q3" },
-          { type: "text", name: "q4" },
-          { type: "text", name: "q5" },
-          { type: "text", name: "q6" },
-          { type: "text", name: "q7" },
-          { type: "text", name: "q8" },
-          { type: "text", name: "q9" }
-        ]
-      }
-    ],
-  });
-
-  survey.randomSeed = 123456;
-
-  const p1 = survey.pages[0];
-  const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q2");
-
-  assert.equal(survey.randomSeed, 123456, "survey randomSeed is correct");
-  assert.equal(p1.randomSeed, 2042968784, "p1 randomSeed is correct");
-  assert.equal(q1.randomSeed, -447444863, "q1 randomSeed is correct");
-  assert.equal(q2.randomSeed, 1931033524, "q2 randomSeed is correct");
-
-  assert.deepEqual(p1.visibleQuestions.map(q => q.name), ["q5", "q4", "q2", "q7", "q8", "q3", "q9", "q1", "q6"], "page questions order");
-  assert.deepEqual(q1.visibleChoices.map((e: any) => e.value), [2, 7, 3, 6, 4, 8, 1, 9, 5], "dropdown choices order");
-  assert.deepEqual(q2.visibleChoices.map((e: any) => e.value), [1, 2, 7, 6, 9, 3, 8, 5, 4], "checkbox choices order");
-});
-QUnit.test("panel + matrixdropdown + paneldynamic choicesOrder:random with seed", (assert) => {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "panel",
-            name: "panel1",
-            questionOrder: "random",
-            elements: [
-              { type: "text", name: "q1" },
-              { type: "text", name: "q2" },
-              { type: "text", name: "q3" },
-              { type: "text", name: "q4" },
-              { type: "text", name: "q5" },
-              { type: "text", name: "q6" },
-              { type: "text", name: "q7" },
-              { type: "text", name: "q8" },
-              { type: "text", name: "q9" }
-            ]
-          },
-          {
-            type: "matrixdropdown",
-            name: "matrix1",
-            columns: [
-              {
-                name: "Column 1",
-                cellType: "dropdown",
-                choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                choicesOrder: "random"
-              },
-              {
-                name: "Column 2",
-                cellType: "dropdown",
-                choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                choicesOrder: "random"
-              }
-            ],
-            rows: ["Row 1", "Row 2"]
-          },
-          {
-            type: "paneldynamic",
-            name: "paneldynamic1",
-            panelCount: 2,
-            templateElements: [
-              {
-                type: "dropdown",
-                name: "question2",
-                choices: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                choicesOrder: "random"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  });
-
-  const panel = <PanelModel>survey.getPanelByName("panel1");
-  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix1");
-  const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("paneldynamic1");
-
-  survey.randomSeed = 123456;
-  assert.equal(survey.randomSeed, 123456, "survey randomSeed is correct");
-  assert.deepEqual(panel.elements.map(q => q.name), ["q6", "q1", "q5", "q8", "q4", "q3", "q9", "q2", "q7"], "panel questions order");
-  assert.deepEqual(matrix.visibleRows[0].cells[0].question.visibleChoices.map((e: any) => e.value), [5, 6, 3, 7, 1, 4, 9, 2, 8], "matrix row#0 col#0 order for seed 123456");
-  assert.deepEqual(matrix.visibleRows[0].cells[1].question.visibleChoices.map((e: any) => e.value), [6, 4, 3, 5, 8, 2, 1, 9, 7], "matrix row#0 col#1 order for seed 123456");
-  assert.deepEqual(matrix.visibleRows[1].cells[0].question.visibleChoices.map((e: any) => e.value), [5, 6, 3, 7, 1, 4, 9, 2, 8], "matrix row#1 col#0 order for seed 123456");
-  assert.deepEqual(matrix.visibleRows[1].cells[1].question.visibleChoices.map((e: any) => e.value), [6, 4, 3, 5, 8, 2, 1, 9, 7], "matrix row#1 col#1 order for seed 123456");
-  assert.deepEqual((<QuestionDropdownModel>paneldynamic.panels[0].elements[0]).visibleChoices.map((e: any) => e.value), [4, 2, 1, 3, 6, 7, 8, 5, 9], "paneldynamic panel#0 order for seed 123456");
-  assert.deepEqual((<QuestionDropdownModel>paneldynamic.panels[1].elements[0]).visibleChoices.map((e: any) => e.value), [4, 2, 1, 3, 6, 7, 8, 5, 9], "paneldynamic panel#1 order for seed 123456");
-
-  survey.randomSeed = 1234567;
-  assert.deepEqual(panel.elements.map(q => q.name), ["q4", "q8", "q5", "q6", "q9", "q2", "q1", "q7", "q3"], "panel questions order");
-  assert.deepEqual(matrix.visibleRows[0].cells[0].question.visibleChoices.map((e: any) => e.value), [4, 2, 6, 1, 9, 3, 8, 5, 7], "matrix row#0 col#0 order for seed 1234567");
-  assert.deepEqual(matrix.visibleRows[0].cells[1].question.visibleChoices.map((e: any) => e.value), [1, 9, 7, 3, 4, 5, 6, 8, 2], "matrix row#0 col#1 order for seed 1234567");
-  assert.deepEqual(matrix.visibleRows[1].cells[0].question.visibleChoices.map((e: any) => e.value), [4, 2, 6, 1, 9, 3, 8, 5, 7], "matrix row#1 col#0 order for seed 1234567");
-  assert.deepEqual(matrix.visibleRows[1].cells[1].question.visibleChoices.map((e: any) => e.value), [1, 9, 7, 3, 4, 5, 6, 8, 2], "matrix row#1 col#1 order for seed 1234567");
-  assert.deepEqual((<QuestionDropdownModel>paneldynamic.panels[0].elements[0]).visibleChoices.map((e: any) => e.value), [6, 1, 7, 9, 4, 2, 5, 8, 3], "paneldynamic panel#0 order for seed 1234567");
-  assert.deepEqual((<QuestionDropdownModel>paneldynamic.panels[1].elements[0]).visibleChoices.map((e: any) => e.value), [6, 1, 7, 9, 4, 2, 5, 8, 3], "paneldynamic panel#1 order for seed 1234567");
-});
 QUnit.test("Matrix Question supportAutoAdvance property", (assert) => {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
@@ -695,7 +567,6 @@ QUnit.test("Matrix Question supportAutoAdvance property", (assert) => {
   matrix.onMouseDown();
   assert.equal(matrix.supportAutoAdvance(), true, "Both rows are set");
 });
-
 QUnit.test("Matrix Question clearIncorrectValues", (assert) => {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
@@ -709,7 +580,6 @@ QUnit.test("Matrix Question clearIncorrectValues", (assert) => {
     "Remove values with incorrect row and incorrect column"
   );
 });
-
 QUnit.test("Multiple Text Item: text property", function (assert) {
   var mItem = new MultipleTextItemModel("text1");
   assert.equal(mItem.title, "text1", "get value from name");

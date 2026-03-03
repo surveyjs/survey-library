@@ -1,23 +1,12 @@
 <ng-template #template>
   <div #contentElement>
-    <div *ngIf="model.renderedTable.showAddRowOnTop" [class]="model.cssClasses.footer">
-      <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+    <div *ngIf="model.getShowToolbar('top')" [class]="model.cssClasses.footer">
+      <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
     </div>
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
     <sv-ng-placeholder-matrixdynamic *ngIf="!model.renderedTable.showTable" [question]="model"></sv-ng-placeholder-matrixdynamic>
-  
-    <div *ngIf="model.renderedTable.showAddRowOnBottom" [class]="model.cssClasses.footer">
-      <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+    <div *ngIf="model.getShowToolbar('bottom')" [class]="model.cssClasses.footer">
+      <sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
     </div>
   </div>
-  <ng-template #addRowButton>
-    <button type="button" [class]="model.getAddRowButtonCss(true)" (click)="model.addRowUI()">
-        <sv-ng-string [model]="model.locAddRowText" ></sv-ng-string>
-        <span [class]="model.cssClasses.iconAdd">
-          <svg *ngIf="model.cssClasses.iconAddId">
-            <use [attr.xlink:href]="model.cssClasses.iconAddId"></use>
-          </svg>
-        </span>
-    </button>
-  </ng-template>
 </ng-template>

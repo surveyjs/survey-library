@@ -6,17 +6,14 @@
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
   CurrentBranch: $(Build.SourceBranchName)
-  ProjectId: "d79f2855-7b94-4261-9daf-4cace0a06c03"
+  ProjectId: "2cf848f9-83d5-4ec4-b2e3-ef3321ccc99f"
 
-trigger:
-  batch: true
+trigger: none
+
+pr:
   branches:
     include:
-      - master
-  tags:
-    exclude:
-      - v*.*.*
-pr: none
+      - V3
 
 pool:
   vmImage: "windows-latest"

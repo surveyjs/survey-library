@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "workWithData";
 
@@ -45,7 +45,7 @@ frameworks.forEach(framework => {
         };
       });
 
-      await page.click('input[value="Complete"]');
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         name: "John Doe",
@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
         window["survey"].setValue("car", ["BMW", "Ford"]);
       });
 
-      await page.click('input[value="Complete"]');
+      await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         name: "Wombat",

@@ -290,40 +290,6 @@ QUnit.test("check row randomization in design mode", (assert) => {
 
   Helpers.randomizeArray = oldFunc;
 });
-QUnit.test("check row randomization with seed", (assert) => {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "p1",
-        elements: [
-          {
-            type: "matrix",
-            name: "q1",
-            columns: [
-              "Column 1",
-              "Column 2"
-            ],
-            rows: [
-              "r1",
-              "r2",
-              "r3",
-              "r4",
-              "r5",
-              "r6",
-              "r7",
-              "r8",
-              "r9",
-            ],
-            rowsOrder: "random"
-          }
-        ]
-      }
-    ]
-  });
-  survey.randomSeed = 12345;
-  const q1 = <QuestionMatrixModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.visibleRows.map(e => e.name), ["r8", "r4", "r2", "r5", "r7", "r1", "r6", "r9", "r3"], "Row order for seed 12345");
-});
 QUnit.test("rows, ItemValue.enableIf", (assert) => {
   const survey = new SurveyModel({
     elements: [

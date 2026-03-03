@@ -1,5 +1,5 @@
 import { Page } from "playwright";
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect, getButtonByText } from "../helper";
 
 const title = "validateOnEvent";
 
@@ -84,17 +84,17 @@ frameworks.forEach((framework) => {
       await getTextInputByIndex(0).fill("wombat");
       await getTextInputByIndex(1).fill("wombat");
       await getTextarea().fill("01234567890123456789");
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Complete").click();
       await getError("The 'least amount' should be a numeric.", 0).hover();
       await getError("Please type the word 'computer'.", 0).hover();
 
       await getTextInputByIndex(0).fill("10");
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Complete").click();
       await getError("The 'most amount' should be a numeric.", 0).hover();
 
       await getTextInputByIndex(1).fill("10000");
       await getTextarea().pressSequentially("0123456789computer0123456789");
-      await page.locator("input[value=\"Complete\"]").click();
+      await getButtonByText(page, "Complete").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({

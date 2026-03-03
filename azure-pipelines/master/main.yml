@@ -228,7 +228,7 @@ jobs:
         displayName: "Copy generated docs to the local surveyjs-site-data repo"
 
       - powershell: |
-          $branch = "main"
+          $branch = "V2"
           cd $(Build.SourcesDirectory)/surveyjs-site-data
           $env:GIT_REDIRECT_STDERR = '2>&1'
           git config --global user.email "surveyjs.org@gmail.com"
@@ -243,7 +243,7 @@ jobs:
               git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
               git push origin $branch
           }
-        displayName: "Git surveyjs-site-data push updated docs for main"
+        displayName: "Git surveyjs-site-data push updated docs for V2"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-utils

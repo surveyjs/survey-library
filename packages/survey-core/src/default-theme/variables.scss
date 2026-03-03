@@ -27,8 +27,8 @@ $background-dark: var(--sjs2-color-bg-basic-primary-dim, var(--sjs2-color-bg-bas
 $background-dim-dark: var(--sjs2-color-bg-basic-secondary-dim, var(--sjs2-color-bg-basic-secondary-dim, rgb(243, 243, 243)));
 
 $corner-radius: var(--sjs2-base-unit-radius, 4px);
-$editor-corner-radius: var(--sjs2-radius-semantic-form, var(--sjs2-base-unit-radius, 4px));
-$panel-corner-radius: var(--sjs2-radius-container-panel, var(--sjs2-base-unit-radius, 4px));
+$editor-corner-radius: var(--sjs2-radius-component-formbox, var(--sjs2-base-unit-radius, 4px));
+$panel-corner-radius: var(--sjs2-radius-component-panel, var(--sjs2-base-unit-radius, 4px));
 
 $foreground: var(--sjs2-color-fg-basic-primary, var(--foreground, #161616));
 $foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090));

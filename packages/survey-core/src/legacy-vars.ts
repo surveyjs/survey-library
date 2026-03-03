@@ -40,7 +40,7 @@ export const legacyCssVariables = {
   "--sjs-special-yellow-light": "--sjs2-color-bg-warning-secondary", //rgba(255, 152, 20, 0.1)",
   "--sjs-special-yellow-forecolor": "--sjs2-color-fg-warning-on-primary", //rgba(255, 255, 255, 1)",
 
-  "--sjs-editorpanel-cornerRadius": "--sjs2-radius-semantic-form",
+  "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
   "--sjs-editorpanel-hovercolor": "--sjs2-color-bg-basic-secondary-dim",
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-container-panel",

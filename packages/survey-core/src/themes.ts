@@ -1,4 +1,5 @@
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+import { legacyCssVariables } from "./legacy-vars";
 
 export type ImageFit = "auto" | "contain" | "cover";
 export type ImageAttachment = "fixed" | "scroll";
@@ -223,4 +224,37 @@ export interface IHeader {
    * To specify a survey description, set `SurveyModel`'s [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description) property.
    */
   descriptionPositionY?: VerticalAlignment;
+}
+
+export function patchLegacyCSSVariables(newCssVariable: any) {
+  if (!newCssVariable) return;
+  Object.keys(legacyCssVariables).forEach((variable) => {
+    const varValue = newCssVariable[variable];
+    const mapping = legacyCssVariables[variable];
+    if (!!varValue) {
+      const isJoinMapping = typeof mapping === "object" && mapping !== null && "var" in mapping && "join" in mapping;
+      if (isJoinMapping) {
+        const targetVar = (mapping as { var: string, join: string }).var;
+        const joinStr = (mapping as { var: string, join: string }).join;
+        if (newCssVariable[targetVar]) {
+          newCssVariable[targetVar] += joinStr;
+        } else {
+          newCssVariable[targetVar] = "";
+        }
+        newCssVariable[targetVar] += varValue;
+      } else {
+        newCssVariable[mapping as string] = varValue;
+      }
+      delete newCssVariable[variable];
+    }
+  });
+
+  const fontSize = newCssVariable["--sjs-font-size"];
+  if (!!fontSize) {
+    const fontSizeValueNumber = parseFloat(fontSize);
+    const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
+    const fontSizeBaseUnit = fontSizeValueNumber / 2;
+    newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit.toString() + fontSizeDimension;
+    delete newCssVariable["--sjs-font-size"];
+  }
 }

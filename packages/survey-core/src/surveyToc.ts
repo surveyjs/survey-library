@@ -103,6 +103,7 @@ export class TOCModel {
     this.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
     this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
     if (TOCModel.StickyPosition) {
+      survey.registerFunctionOnPropertyValueChanged("_isMobile", () => this.updateStickyTOCSize(survey.rootElement), "toc");
       survey.onAfterRenderSurvey.add((s, o) => this.initStickyTOCSubscriptions(o.htmlElement));
       this.initStickyTOCSubscriptions(survey.rootElement);
     }
@@ -152,6 +153,7 @@ export class TOCModel {
     this.popupModel.toggleVisibility();
   };
   public dispose(): void {
+    this.survey.unRegisterFunctionOnPropertyValueChanged("_isMobile", "toc");
     const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
     this.survey.onEndLoadingFromJson.remove(handler);
     this.survey.onPageAdded.remove(handler);

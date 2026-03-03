@@ -15,7 +15,6 @@ module.exports = function (config) {
       require("karma-chrome-launcher"),
       require("karma-jasmine-html-reporter"),
       require("karma-coverage"),
-      // require("karma-webpack"),
       require("@angular-devkit/build-angular/plugins/karma"),
       require("karma-html2js-preprocessor")
     ],

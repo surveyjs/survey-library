@@ -3,15 +3,11 @@ import { watch } from "rollup";
 import { loadConfigFile } from "rollup/loadConfigFile";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { createRequire } from "node:module";
 import { appendFileSync, writeFileSync } from "node:fs";
-
-const require = createRequire(import.meta.url);
-const karma = require("karma");
+import karma from "karma";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const configPath = resolve(__dirname, "rollup.tests.config.mjs");
-const karmaConfigPath = resolve(__dirname, "karma.conf.js");
 const logFile = resolve(__dirname, "tests/bundle/watch.log");
 
 function log(msg) {
@@ -27,73 +23,40 @@ log("Starting rollup watcher...");
 const { options } = await loadConfigFile(configPath);
 const rollupConfig = options[0];
 
-let karmaServerReady = false;
-let buildReady = false;
-let initialRunDone = false;
-let runTimer = null;
+const karmaConfig = await karma.config.parseConfig(
+  resolve(__dirname, "karma.conf.js"),
+  { singleRun: false, autoWatch: true },
+  { promiseConfig: true, throwErrors: true }
+);
 
-function scheduleRun(reason) {
-  if (runTimer) clearTimeout(runTimer);
-  runTimer = setTimeout(() => {
-    runTimer = null;
-    log(`Running tests (${reason})...`);
-    karma.runner.run({ port: 9876 }, (exitCode) => {
-      log(`Tests finished (exit code ${exitCode})`);
-    });
-  }, 500);
-}
-
-function tryInitialRun() {
-  if (!initialRunDone && karmaServerReady && buildReady) {
-    initialRunDone = true;
-    scheduleRun("initial");
-  }
-}
-
-// Start karma server
-const karmaConfig = await karma.config.parseConfig(karmaConfigPath, {
-  singleRun: false,
-  autoWatch: false,
-}, { promiseConfig: true, throwErrors: true });
-
-const karmaServer = new karma.Server(karmaConfig);
-
-karmaServer.on("listening", () => {
-  log("Karma server is listening");
-});
-karmaServer.on("browser_register", () => {
-  log("Browser connected");
-  karmaServerReady = true;
-  tryInitialRun();
-});
-
-karmaServer.start();
+let karmaServer = null;
 
 // Start rollup watcher
-const watcher = watch(rollupConfig);
+const rollupWatcher = watch(rollupConfig);
 
-watcher.on("event", (event) => {
-  if (event.code === "BUNDLE_START") {
-    log("Rollup rebuilding...");
-  }
-  if (event.code === "BUNDLE_END") {
-    event.result.close();
-    log(`Bundle ready in ${event.duration}ms`);
-    buildReady = true;
-
-    if (!initialRunDone) {
-      tryInitialRun();
-    } else {
-      scheduleRun("rebuild");
-    }
-  }
-  if (event.code === "ERROR") {
-    log(`Build error: ${event.error.message}`);
+rollupWatcher.on("event", async (event) => {
+  switch(event.code) {
+    case "BUNDLE_START":
+      log("Rollup rebuilding...");
+      break;
+    case "BUNDLE_END":
+      log(`Bundle ready in ${event.duration}ms`);
+      if (!karmaServer) {
+        // First build completed, start Karma server
+        karmaServer = new karma.Server(karmaConfig);
+        karmaServer.start();
+      }
+      break;
+    case "ERROR":
+      log(`Build error: ${event.error.message}`);
+      break;
   }
 });
 
 process.on("SIGINT", () => {
-  watcher.close();
-  karma.stopper.stop({ port: 9876 });
+  rollupWatcher.close();
+  if (karmaServer) {
+    karmaServer.stop();
+  }
   process.exit(0);
 });

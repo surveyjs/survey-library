@@ -260,26 +260,35 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
   }
 
-   @property({ isLowerCase: true }) rowOrder: string;
+  /**
+   * Specifies a sort order for matrix rows.
+   *
+   * Possible values:
+   *
+   * - `"initial"` (default) - Preserves the original order of the `rows` array.
+   * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
+   * @see rows
+   */
+  @property({ isLowerCase: true }) rowOrder: string;
 
-   protected sortVisibleRows(array: Array<MatrixDropdownRowModel>): Array<MatrixDropdownRowModel> {
-     if (!!this.survey && this.survey.isDesignMode) return array;
-     if (this.rowOrder.toLowerCase() === "random") return Helpers.randomizeArray<MatrixDropdownRowModel>(array, this.randomSeed);
-     return array;
-   }
+  protected sortVisibleRows(array: Array<MatrixDropdownRowModel>): Array<MatrixDropdownRowModel> {
+    if (!!this.survey && this.survey.isDesignMode) return array;
+    if (this.rowOrder.toLowerCase() === "random") return Helpers.randomizeArray<MatrixDropdownRowModel>(array, this.randomSeed);
+    return array;
+  }
 
-   endLoadingFromJson(): void {
-     super.endLoadingFromJson();
-     this.rows = this.sortVisibleRows(this.rows);
-   }
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.rows = this.sortVisibleRows(this.rows);
+  }
 
-   public randomSeedChanged(): void {
-     if (this.rowOrder.toLowerCase() !== "random") return;
-     this.rows = this.sortVisibleRows(this.rows);
-     this.clearGeneratedRows();
-     this.resetRenderedTable();
-     super.randomSeedChanged();
-   }
+  public randomSeedChanged(): void {
+    if (this.rowOrder.toLowerCase() !== "random") return;
+    this.rows = this.sortVisibleRows(this.rows);
+    this.clearGeneratedRows();
+    this.resetRenderedTable();
+    super.randomSeedChanged();
+  }
 }
 
 Serializer.addClass(

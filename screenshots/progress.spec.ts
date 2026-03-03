@@ -740,5 +740,63 @@ frameworks.forEach(framework => {
       // Mobile screenshot
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile-background.png");
     });
+
+    test("Resize progress buttons when number of pages changes", async ({ page }) => {
+
+      await page.setViewportSize({ width: 720, height: 600 });
+      await initSurvey(page, framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [{ "type": "boolean", "name": "q1" }]
+          },
+          {
+            "name": "page2",
+            "visibleIf": "{q1} = true",
+            "elements": [{ "type": "text", "name": "q2" }]
+          },
+          {
+            "name": "page3",
+            "elements": [{ "type": "text", "name": "q3" }]
+          },
+          {
+            "name": "page4",
+            "elements": [{ "type": "text", "name": "q4" }]
+          },
+          {
+            "name": "page5",
+            "elements": [{ "type": "text", "name": "q5" }]
+          },
+          {
+            "name": "page6",
+            "elements": [{ "type": "text", "name": "q6" }]
+          },
+          {
+            "name": "page7",
+            "elements": [{ "type": "text", "name": "q7" }]
+          },
+          {
+            "name": "page8",
+            "elements": [{ "type": "text", "name": "q8" }]
+          },
+          {
+            "name": "page9",
+            "elements": [{ "type": "text", "name": "q9" }]
+          },
+          {
+            "name": "page10",
+            "elements": [{ "type": "text", "name": "q10" }]
+          }
+        ],
+        "showProgressBar": true,
+        "progressBarLocation": "top",
+        "progressBarShowPageTitles": true,
+      });
+      await page.waitForTimeout(100);
+      await page.locator(".sv-string-viewer").filter({ hasText: "Yes" }).click();
+      await page.waitForTimeout(100);
+
+      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-top-page-count-change.png");
+    });
   });
 });

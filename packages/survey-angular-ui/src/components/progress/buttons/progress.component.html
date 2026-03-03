@@ -1,4 +1,4 @@
-<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" [style.--sd-progress-buttons-pages-count]="survey.visiblePages.length"
+<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" [style.--sd-progress-buttons-pages-count]="model.visiblePages.length"
 role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="model.progressBarAriaLabel"
 >
   <div *ngIf="canShowHeader" [class]="survey.css.progressButtonsHeader">
@@ -14,7 +14,7 @@ role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="mode
       [class]="survey.css.progressButtonsListContainer" #progressButtonsListContainer>
       <ul [class]="survey.css.progressButtonsList">
         <li
-          *ngFor="let page of survey.visiblePages; index as index"
+          *ngFor="let page of model.visiblePages; index as index"
           [class]="model.getListElementCss(index)"
           (click)="model.isListElementClickable(index) ? model.clickListElement(page) : null"
           [attr.data-page-number]="model.getItemNumber(page)">

@@ -316,6 +316,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see maxValueExpression
    */
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
+  @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
 
   /**
    * Returns `true` if the specified `inputType` supports the `min` and `max` properties.
@@ -490,7 +491,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return errorText.replace("{0}", errorValue);
   }
   private getStepErrorText(): string {
-    const text = this.getLocalizationString("stepError");
+    const text = this.stepErrorText;
     return text.replace("{0}", this.renderedStep);
   }
   private get isValueLessMin(): boolean {
@@ -802,6 +803,9 @@ function propertyEditorMinMaxUpdate(obj: QuestionTextBase, propertyEditor: any):
     propertyEditor.textUpdateMode = "onBlur";
   }
 }
+function isStepVisible(obj: QuestionTextModel) : boolean {
+  return obj.inputType === "number" || obj.inputType === "range";
+}
 
 Serializer.addClass(
   "text",
@@ -890,6 +894,12 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
     },
+    {
+      name: "stepErrorText",
+      serializationProperty: "locStepErrorText",
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => isStepVisible(obj)
+    },
     { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     {
       name: "maskType",
@@ -922,10 +932,7 @@ Serializer.addClass(
     {
       name: "step:number",
       dependsOn: "inputType",
-      visibleIf: function(obj: any) {
-        if (!obj) return false;
-        return obj.inputType === "number" || obj.inputType === "range";
-      },
+      visibleIf: (obj: any) => isStepVisible(obj)
     },
     {
       name: "maxLength:number",

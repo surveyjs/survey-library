@@ -404,6 +404,11 @@ export var settings = {
     normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",
+  /**
+   * A prefix used to [access element property values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#element-properties) in expressions and dynamic texts.
+   *
+   * Default value: `"$"`
+   */
   expressionElementPropertyPrefix: "$",
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },

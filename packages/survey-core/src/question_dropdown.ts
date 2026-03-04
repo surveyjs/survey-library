@@ -311,8 +311,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     const postFix = addPostFix && this.useDropdownList ? "_0" : "";
     return this.inputId + postFix;
   }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    super.clearValue(keepComment, fromUI);
+  protected onClearValue(): void {
+    super.onClearValue();
     this.lastSelectedItemValue = null;
   }
 

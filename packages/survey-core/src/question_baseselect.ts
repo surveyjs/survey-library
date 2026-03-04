@@ -370,7 +370,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private updatePrevOtherErrorValue(val: string): void {
     const oldVal = this.otherValue;
     if (val !== oldVal) {
-      this.prevOtherErrorValue = oldVal;
+      this.prevOtherErrorValue = oldVal || " ";
     }
   }
   private isSettingComment: boolean;

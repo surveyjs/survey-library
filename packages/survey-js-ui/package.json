@@ -21,10 +21,6 @@
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "devDependencies": {
-    "@rollup/plugin-alias": "^5.1.1",
-    "@rollup/plugin-node-resolve": "^16.0.0",
-    "@rollup/plugin-replace": "^6.0.2",
-    "@rollup/plugin-typescript": "^12.1.2",
     "@types/jquery": "3.3.29",
     "@types/node": "7.0.4",
     "@types/qunit": "2.0.31",
@@ -42,8 +38,6 @@
     "preact": "10.27.2",
     "replace-in-file": "^6.1.0",
     "rimraf": "2.5.4",
-    "rollup": "^4.34.8",
-    "rollup-plugin-license": "^3.6.0",
     "typescript": "^5.7.0"
   },
   "dependencies": {

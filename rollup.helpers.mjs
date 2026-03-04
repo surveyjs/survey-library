@@ -4,6 +4,7 @@ import replace from "@rollup/plugin-replace";
 import bannerPlugin from "rollup-plugin-license";
 import commonjs from "@rollup/plugin-commonjs";
 import pluginVirtual from "@rollup/plugin-virtual";
+import pluginAlias from "@rollup/plugin-alias";
 
 import rollupPostcss from "rollup-plugin-postcss";
 import postcssUrl from "postcss-url";
@@ -93,7 +94,7 @@ function pluginIgnoreStyles() {
 
 export function createUmdConfig(options) {
 
-  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild, version, emitCss, virtualModules } = options;
+  const { input, globalName, external, globals, dir, tsconfig, declarationDir, emitMinified, exports, useEsbuild, version, emitCss, virtualModules, aliases, resolve } = options;
 
   if (Object.keys(input).length > 1) throw Error("umd config accepts only one input");
 
@@ -103,7 +104,8 @@ export function createUmdConfig(options) {
     external,
     plugins: [
       pluginVirtual(virtualModules || {}),
-      nodeResolve({ browser: true }),
+      pluginAlias({ entries: aliases || {} }),
+      nodeResolve(resolve ? resolve : { browser: true }),
       commonjs(),
       replace({
         preventAssignment: false,
@@ -116,6 +118,7 @@ export function createUmdConfig(options) {
         ? rollupEsbuild({ tsconfig: tsconfig, charset: "utf8" })
         : typescript({
           tsconfig: tsconfig,
+          filterRoot: false,
           compilerOptions: declarationDir ? {
             inlineSources: true,
             sourceMap: true,
@@ -162,14 +165,15 @@ export function createUmdConfig(options) {
 
 export function createEsmConfig(options) {
 
-  const { input, external, dir, tsconfig, sharedFileName, useEsbuild, version, emitCss, virtualModules } = options;
+  const { input, external, dir, tsconfig, sharedFileName, useEsbuild, version, emitCss, virtualModules, aliases, resolve } = options;
 
   return {
     context: "this",
     input,
     plugins: [
       pluginVirtual(virtualModules || {}),
-      nodeResolve({ browser: true }),
+      pluginAlias({ entries: aliases || {} }),
+      nodeResolve(resolve ? resolve : { browser: true }),
       commonjs(),
       replace({
         preventAssignment: false,
@@ -182,6 +186,7 @@ export function createEsmConfig(options) {
         ? rollupEsbuild({ tsconfig: tsconfig, charset: "utf8" })
         : typescript({
           tsconfig: tsconfig,
+          filterRoot: false,
           compilerOptions: {
             declaration: false,
             declarationDir: null,

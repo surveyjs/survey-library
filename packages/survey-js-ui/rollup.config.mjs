@@ -1,7 +1,6 @@
 import { resolve, dirname } from "node:path";
-import { fileURLToPath, URL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
-import alias from "@rollup/plugin-alias";
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" assert { type: "json" };
@@ -9,14 +8,14 @@ import pkg from "./package.json" assert { type: "json" };
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
 
-const preactAlias = alias({
-  entries: {
-    "react": resolve(__dirname, "node_modules/preact/compat"),
-    "react-dom/test-utils": resolve(__dirname, "node_modules/preact/test-utils"),
-    "react-dom": resolve(__dirname, "node_modules/preact/compat"),
-    "react/jsx-runtime": resolve(__dirname, "node_modules/preact/jsx-runtime"),
-  },
-});
+const aliases = {
+  "react": resolve(__dirname, "./node_modules/preact/compat"),
+  "react-dom/test-utils": resolve(__dirname, "./node_modules/preact/test-utils"),
+  "react-dom": resolve(__dirname, "./node_modules/preact/compat"),
+  "react/jsx-runtime": resolve(__dirname, "./node_modules/preact/jsx-runtime"),
+  "survey-core/icons/iconsV1": resolve(__dirname, "./node_modules/survey-core/icons/iconsV1"),
+  "survey-core/icons/iconsV2": resolve(__dirname, "./node_modules/survey-core/icons/iconsV2"),
+};
 
 const buildPlatformJson = {
   name: pkg.name,
@@ -90,41 +89,48 @@ if (process.env.emitNonSourceFiles === "true") {
 }
 
 export default (options = {}) => {
-  const esmConfig = createEsmConfig({
-    input: {
-      "survey-js-ui": resolve("./entries/index.ts"),
-    },
-    tsconfig: resolve("./tsconfig.json"),
-    filterRoot: false,
-    external: [
-      "survey-core",
-    ],
-    dir: resolve(buildPath, "./fesm"),
-    version: pkg.version,
-  });
-  esmConfig.plugins.unshift(preactAlias);
-
-  const umdConfig = createUmdConfig({
-    input: {
-      "survey-js-ui": resolve("./entries/index.ts"),
-    },
-    tsconfig: fileURLToPath(new URL("./tsconfig.json", import.meta.url)),
-    filterRoot: false,
-    external: [
-      "survey-core",
-      "jquery",
-    ],
-    declarationDir: resolve(buildPath, "./typings"),
-    dir: resolve(buildPath),
-    emitMinified: process.env.emitMinified === "true",
-    globalName: "SurveyUI",
-    globals: {
-      "survey-core": "Survey",
-      "jquery": "jQuery",
-    },
-    version: pkg.version,
-  });
-  umdConfig.plugins.unshift(preactAlias);
-
-  return [esmConfig, umdConfig];
+  return [
+    createEsmConfig({
+      input: {
+        "survey-js-ui": resolve("./entries/index.ts"),
+      },
+      aliases,
+      tsconfig: resolve("./tsconfig.json"),
+      external: [
+        "survey-core",
+      ],
+      resolve: {
+        dedupe: [
+          "survey-core/icons/iconsV1",
+          "survey-core/icons/iconsV2",
+          "preact/compat",
+          "preact/jsx-runtime",
+          "preact/test-utils"
+        ]
+      },
+      dir: resolve(buildPath, "./fesm"),
+      version: pkg.version,
+    }),
+    createUmdConfig({
+      input: {
+        "survey-js-ui": resolve("./entries/index.ts"),
+      },
+      aliases,
+      tsconfig: resolve("./tsconfig.json"),
+      filterRoot: false,
+      external: [
+        "survey-core",
+        "jquery",
+      ],
+      declarationDir: resolve(buildPath, "./typings"),
+      dir: resolve(buildPath),
+      emitMinified: process.env.emitMinified === "true",
+      globalName: "SurveyUI",
+      globals: {
+        "survey-core": "Survey",
+        "jquery": "jQuery",
+      },
+      version: pkg.version,
+    })
+  ];
 };

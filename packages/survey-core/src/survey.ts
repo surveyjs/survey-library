@@ -3977,6 +3977,7 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllElementsVisibility(visPages);
   }
+  public onPagesVisibleChangedCallback: () => void;
   private updateAllElementsVisibility(visPages: Array<PageModel>) {
     for (var i = 0; i < this.pages.length; i++) {
       var page = this.pages[i];
@@ -3986,6 +3987,7 @@ export class SurveyModel extends SurveyElementCore
           page: page,
           visible: page.isVisible,
         });
+        this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
       }
     }
   }
@@ -5309,6 +5311,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
+  private _processingResponsivenessFunc: () => boolean;
   afterRenderSurvey(htmlElement: any) {
     if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
@@ -5316,17 +5319,21 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
+    this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        this._processingResponsivenessFunc = () => {
+          return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
+        };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {
-              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
+              isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
             }
           });
         });
@@ -5341,7 +5348,13 @@ export class SurveyModel extends SurveyElementCore
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
   }
+  forceProcessResponsiveness(): void {
+    if (!!this._processingResponsivenessFunc) {
+      this._processingResponsivenessFunc();
+    }
+  }
   beforeDestroySurveyElement() {
+    this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
     this.removeScrollEventListener();
     this.rootElement = undefined;
@@ -7094,6 +7107,7 @@ export class SurveyModel extends SurveyElementCore
       page: page,
       visible: newValue,
     });
+    this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
     if (!!panel.page) {

@@ -1,7 +1,7 @@
 <template>
   <div
     :class="model.getRootCss(container)"
-    :style="{ maxWidth: model.progressWidth, '--sd-progress-buttons-pages-count': survey.visiblePages.length }"
+    :style="{ maxWidth: model.progressWidth, '--sd-progress-buttons-pages-count': model.visiblePages.length }"
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"
@@ -27,7 +27,7 @@
       >
         <ul :class="css.progressButtonsList">
           <li
-            v-for="(page, index) in survey.visiblePages"
+            v-for="(page, index) in model.visiblePages"
             :key="'listelement' + index"
             :class="model.getListElementCss(index)"
             v-on:click="
@@ -81,6 +81,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useBase } from "@/base";
 import SvComponent from "@/SvComponent.vue";
 import {
   type SurveyModel,
@@ -89,11 +90,13 @@ import {
 } from "survey-core";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
+
 const props = defineProps<{
   survey: SurveyModel;
   model: ProgressButtons;
   container: string;
 }>();
+useBase(() => props.model);
 const hasScroller = ref(false);
 const canShowHeader = ref(false);
 const canShowFooter = ref(false);

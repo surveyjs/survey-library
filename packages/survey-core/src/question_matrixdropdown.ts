@@ -12,6 +12,7 @@ import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ConditionRunner } from "./conditions";
 import { Base } from "./base";
+import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
@@ -131,7 +132,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    */
   @property() hideIfRowsEmpty: boolean;
 
-  protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
+  public getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixDropdownValueGetterContext(this);
   }
@@ -258,6 +259,36 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
       this.updateProgressInfoByRow(res, !!rowName ? rowName : {});
     }
   }
+
+  /**
+   * Specifies a sort order for matrix rows.
+   *
+   * Possible values:
+   *
+   * - `"initial"` (default) - Preserves the original order of the `rows` array.
+   * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
+   * @see rows
+   */
+  @property({ isLowerCase: true }) rowOrder: string;
+
+  protected sortVisibleRows(array: Array<MatrixDropdownRowModel>): Array<MatrixDropdownRowModel> {
+    if (!!this.survey && this.survey.isDesignMode) return array;
+    if (this.rowOrder.toLowerCase() === "random") return Helpers.randomizeArray<MatrixDropdownRowModel>(array, this.randomSeed);
+    return array;
+  }
+
+  endLoadingFromJson(): void {
+    super.endLoadingFromJson();
+    this.rows = this.sortVisibleRows(this.rows);
+  }
+
+  public randomSeedChanged(): void {
+    if (this.rowOrder.toLowerCase() !== "random") return;
+    this.rows = this.sortVisibleRows(this.rows);
+    this.clearGeneratedRows();
+    this.resetRenderedTable();
+    super.randomSeedChanged();
+  }
 }
 
 Serializer.addClass(
@@ -269,7 +300,12 @@ Serializer.addClass(
     "rowsVisibleIf:condition",
     "rowTitleWidth",
     { name: "totalText", serializationProperty: "locTotalText" },
-    "hideIfRowsEmpty:boolean"
+    "hideIfRowsEmpty:boolean",
+    {
+      name: "rowOrder",
+      default: "initial",
+      choices: ["initial", "random"],
+    }
   ],
   function() {
     return new QuestionMatrixDropdownModel("");

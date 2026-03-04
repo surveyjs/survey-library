@@ -21,6 +21,7 @@ import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, 
 import { ConditionRunner } from "./conditions";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IMatrixDropdownData extends IObjectValueContext {
   value: any;
@@ -1847,10 +1848,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       locStr.owner = new MatrixSingleInputLocOwner(this);
     });
   }
-  protected getSingleQuestionLocTitleCore(): LocalizableString {
+  public getMatrixDropdownBaseSingleQuestionLocTitleCore(): LocalizableString {
     return this.locSingleInputTitleTemplate;
   }
-  protected getSingleInputTitleTemplate(): string { return ""; }
+  public getSingleInputTitleTemplate(): string { return ""; }
   public processSingleInputTitle(text: string, row: MatrixDropdownRowModelBase): string {
     if (!row) {
       row = this.getRowByQuestion(this.singleInputQuestion);
@@ -1861,16 +1862,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return text;
   }
-  protected singleInputMoveToFirstCore(): void {
-    const data: any = this.singleInputQuestion?.data;
-    this.singleInputEditRow(data);
-  }
-  protected singleInputEditRow(row: MatrixDropdownRowModelBase): void {
-    if (!row) return;
-    const qs = row.visibleQuestions;
-    if (Array.isArray(qs) && qs.length > 0) {
-      this.setSingleInputQuestion(qs[0]);
-    }
+  protected createSingleInputBehavior(): QuestionSingleInputBehavior {
+    return new MatrixDropdownBaseSingleInputBehavior(this);
   }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
@@ -2881,6 +2874,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public get dragDropMatrixAttribute(): string {
     return this.renderedTable.wrapperDropTargetId;
+  }
+}
+
+export class MatrixDropdownBaseSingleInputBehavior extends QuestionSingleInputBehavior {
+  protected get matrixBase(): QuestionMatrixDropdownModelBase {
+    return this.question as QuestionMatrixDropdownModelBase;
+  }
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
+    return this.matrixBase.locSingleInputTitleTemplate;
+  }
+  protected singleInputMoveToFirstCore(): void {
+    const data: any = this.matrixBase.singleInputQuestion?.data;
+    this.singleInputEditRow(data);
+  }
+  public singleInputEditRow(row: MatrixDropdownRowModelBase): void {
+    if (!row) return;
+    const qs = row.visibleQuestions;
+    if (Array.isArray(qs) && qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
   }
 }
 

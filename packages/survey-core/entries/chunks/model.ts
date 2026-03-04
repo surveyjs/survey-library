@@ -110,6 +110,15 @@ export {
 } from "../../src/base";
 export {
   ISurvey,
+  ISurveyElementLifecycle,
+  ISurveyFileCallbacks,
+  ISurveyMatrixCallbacks,
+  ISurveyDynamicPanelCallbacks,
+  ISurveyChoiceCallbacks,
+  ISurveyCssCallbacks,
+  ISurveyAfterRenderCallbacks,
+  ISurveyTitleSettings,
+  ISurveyValidation,
   ISurveyElement,
   IElement,
   IQuestion,

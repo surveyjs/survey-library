@@ -404,6 +404,7 @@ export var settings = {
     normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",
+  expressionElementPropertyPrefix: "$",
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**

@@ -68,6 +68,7 @@ const buildPlatformJson = {
 };
 
 if (process.env.emitNonSourceFiles === "true") {
+  fs.mkdirSync(buildPath, { recursive: true });
   fs.copySync("./README.md", resolve(buildPath, "README.md"));
   fs.copySync("./index.html", resolve(buildPath, "index.html"));
   fs.writeJsonSync(

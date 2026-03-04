@@ -263,6 +263,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
    * @see minValueExpression
+   * @see minErrorText
    */
   public get min(): string {
     return this.getPropertyValue("min");
@@ -277,6 +278,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`max`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/max) attribute of the underlying `<input>` element.
    * @see maxValueExpression
+   * @see maxErrorText
    */
   public get max(): string {
     return this.getPropertyValue("max");
@@ -289,13 +291,15 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("max", val);
   }
   /**
-   * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
+   * The minimum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
    * @see min
+   * @see minErrorText
    */
   @property() minValueExpression: string;
   /**
-   * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
+   * The maximum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
    * @see max
+   * @see maxErrorText
    */
   @property() maxValueExpression: string;
   public get renderedMin(): any {
@@ -305,17 +309,20 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.getPropertyValue("renderedMax");
   }
   /**
-   * An error message to display when the question value is less than the minimum accepted value.
+   * An error message to display when the entered value is less than the minimum accepted value.
    * @see min
    * @see minValueExpression
    */
   @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
   /**
-   * An error message to display when the question value exceeds the maximum accepted value.
+   * An error message to display when the entered value exceeds the maximum accepted value.
    * @see max
    * @see maxValueExpression
    */
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
+  /**
+   * An error message to display when the entered value does not match the [step size](#step).
+   */
   @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
 
   /**
@@ -561,6 +568,7 @@ export class QuestionTextModel extends QuestionTextBase {
 
   /**
    * A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
+   * @see stepErrorText
    */
   @property() step: string;
   public get renderedStep(): string {

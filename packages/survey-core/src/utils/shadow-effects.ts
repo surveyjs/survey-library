@@ -20,22 +20,49 @@ export function createBoxShadowReset(value: string): string {
   return createBoxShadow(resetValue);
 }
 
+function extractColorWithBalancedParens(value: string): { color: string, rest: string } | null {
+  const funcMatch = value.match(/(rgba?|var)\(/);
+  if (!funcMatch) return null;
+  const start = value.indexOf(funcMatch[0]);
+  const parenStart = start + funcMatch[1].length + 1;
+  let depth = 1;
+  let i = parenStart;
+  while(i < value.length && depth > 0) {
+    if (value[i] === "(") depth++;
+    else if (value[i] === ")") depth--;
+    i++;
+  }
+  const color = value.substring(start, i).trim();
+  const rest = (value.substring(0, start) + value.substring(i)).trim();
+  return { color, rest };
+}
+
 export function parseBoxShadow(value: string = ""): Array<Object> {
   return value.split(/,(?![^(]*\))/).map(value => {
-    const color = value.match(/#[a-zA-Z0-9]+|rgba?\(.*?\)|var\(--sjs2-color-.*?\)/);
     const isInset = value.indexOf("inset") > -1;
     const res: Object = {};
     if (isInset) {
       value = value.replace("inset", "");
     }
-    if (!!color) {
-      res["color"] = color[0];
+    let restStr = value.replace(/\s+/g, " ").replace(/^\s|\s$/g, "");
+    const funcColor = extractColorWithBalancedParens(restStr);
+    const hexColor = restStr.match(/#[a-zA-Z0-9]+/);
+    const varColor = restStr.match(/var\(--sjs2-color-[^)]*\)/);
+    if (funcColor) {
+      res["color"] = funcColor.color;
+      restStr = funcColor.rest.replace(/\s+/g, " ").replace(/^\s|\s$/g, "");
+    } else if (hexColor) {
+      res["color"] = hexColor[0];
+      restStr = restStr.replace(hexColor[0], "").replace(/\s+/g, " ").replace(/^\s|\s$/g, "");
+    } else if (varColor) {
+      res["color"] = varColor[0];
+      restStr = restStr.replace(varColor[0], "").replace(/\s+/g, " ").replace(/^\s|\s$/g, "");
     }
-    const values = value.replace(/\s+/g, " ").replace(/^\s|\s$/g, "").split(" ");
-    res["x"] = parseInt(values[0]) || 0;
-    res["y"] = parseInt(values[1]) || 0;
-    res["blur"] = parseInt(values[2]) || 0;
-    res["spread"] = parseInt(values[3]) || 0;
+    const values = restStr.split(/\s+/);
+    res["x"] = parseInt(values[0], 10) || 0;
+    res["y"] = parseInt(values[1], 10) || 0;
+    res["blur"] = parseInt(values[2], 10) || 0;
+    res["spread"] = parseInt(values[3], 10) || 0;
     res["isInset"] = isInset;
     return res;
   });

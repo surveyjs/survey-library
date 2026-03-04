@@ -1,0 +1,542 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+  CurrentBranch: $(Build.SourceBranchName)
+  ProjectId: "2cf848f9-83d5-4ec4-b2e3-ef3321ccc99f"
+
+trigger: none
+
+pr:
+  branches:
+    include:
+      - V3
+
+pool:
+  vmImage: "windows-latest"
+
+jobs:
+  - job: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run lint
+        displayName: "run lint command"
+
+      - script: |
+          cd packages/survey-core
+          npm install
+        displayName: "NPM install packages/survey-core"
+
+      - script: |
+          cd packages/survey-core
+          npm run build:all
+        displayName: "Build core"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
+          ArtifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
+          publishLocation: "Container"
+
+  - job: React
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-react-ui
+          npm install
+        displayName: "NPM install packages/survey-react-ui"
+
+      - script: |
+          cd packages/survey-react-ui
+          npm run build
+        displayName: "Build React"
+
+      - script: |
+          cd packages/survey-react-ui
+          npm run scr:ci
+        displayName: "run scr tests"
+
+      # - script: |
+      #     cd packages/survey-react-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
+
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
+
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_VRT/"
+      #     ArtifactName: "Library_React_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_SCR/"
+          ArtifactName: "Library_React_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React SCR Tests"
+        condition: succeededOrFailed()
+
+  - job: Angular
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm install
+        displayName: "NPM install packages/survey-angular-ui"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm run build
+        displayName: "Build Angular"
+
+      - script: |
+          cd packages/survey-angular-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm run build:example:prod
+        displayName: "Build Angular Example"
+
+      - script: |
+          cd packages/survey-angular-ui
+          npm run scr:ci
+        displayName: "run scr tests"
+
+      # - script: |
+      #     cd packages/survey-angular-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
+
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
+
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/"
+      #     ArtifactName: "Library_Angular_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR/"
+          ArtifactName: "Library_Angular_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Angular SCR Tests"
+        condition: succeededOrFailed()
+
+  - job: Vue3
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm install
+        displayName: "NPM install packages/survey-vue3-ui"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run build
+        displayName: "Build Vue3"
+
+      - script: |
+          cd packages/survey-vue3-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
+
+      - script: |
+          cd packages/survey-vue3-ui/example
+          npm run build
+        displayName: "Build Vue3 Example"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run scr:ci
+        displayName: "run scr tests"
+
+      # - script: |
+      #     cd packages/survey-vue3-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
+
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
+
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/"
+      #     ArtifactName: "Library_Vue_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
+          ArtifactName: "Library_Vue3_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 SCR Tests"
+        condition: succeededOrFailed()
+
+  - job: Preact_ShadowDOM_BoxSizing
+    dependsOn: Core
+    steps:
+      - checkout: self
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/packages/survey-core/build"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm install
+        displayName: "NPM install packages/survey-js-ui"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm run build
+        displayName: "Build UI"
+
+      - script: |
+          cd packages/survey-js-ui
+          npm run scr:ci
+        displayName: "run scr tests"
+      
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
+          ArtifactName: "Library_Survey-UI_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 SCR Tests"
+        condition: succeededOrFailed()

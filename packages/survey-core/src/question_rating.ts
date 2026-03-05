@@ -11,18 +11,11 @@ import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
+import { getColorFromProperty } from "./utils/utils";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
 import { Base } from "./base";
-
-function getColorFromProperty(varName: string) {
-  if ("function" === typeof getComputedStyle) {
-    const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
-    return style.getPropertyValue && style.getPropertyValue(varName);
-  }
-  return "";
-}
 
 function getRGBColor(themeVariables: any, colorName: string, varName: string) {
   let str: string = !!themeVariables && themeVariables[colorName] as any;
@@ -324,12 +317,12 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
 
-    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs-special-red", "--sd-rating-bad-color");
-    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs-special-yellow", "--sd-rating-normal-color");
-    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs-special-green", "--sd-rating-good-color");
-    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs-special-red-light", "--sd-rating-bad-color-light");
-    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs-special-yellow-light", "--sd-rating-normal-color-light");
-    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs-special-green-light", "--sd-rating-good-color-light");
+    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs2-color-bg-alert-primary", "--sd-rating-bad-color");
+    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs2-color-bg-warning-primary", "--sd-rating-normal-color");
+    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs2-color-bg-positive-primary", "--sd-rating-good-color");
+    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-alert-secondary", "--sd-rating-bad-color-light");
+    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-warning-secondary", "--sd-rating-normal-color-light");
+    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs2-color-bg-positive-secondary", "--sd-rating-good-color-light");
 
     this.colorsCalculated = true;
     this.resetRenderedItems();

@@ -111,7 +111,7 @@ export class Cover extends Base {
   }
   private updateHeaderClasses(): void {
     const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
-    const backgroundColorAccent = this.backgroundColor === "var(--sjs-primary-backcolor)";
+    const backgroundColorAccent = this.backgroundColor === "var(--sjs2-color-bg-brand-primary)";
     const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
@@ -149,9 +149,9 @@ export class Cover extends Base {
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header || {});
     if (!!theme.cssVariables) {
-      this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
-      this.titleColor = theme.cssVariables["--sjs-font-headertitle-color"];
-      this.descriptionColor = theme.cssVariables["--sjs-font-headerdescription-color"];
+      this.backgroundColor = theme.cssVariables["--sjs2-color-component-header-default-bg"];
+      this.titleColor = theme.cssVariables["--sjs2-color-component-header-default-title"];
+      this.descriptionColor = theme.cssVariables["--sjs2-color-component-header-default-description"];
     }
     this.init();
   }

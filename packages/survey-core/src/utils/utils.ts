@@ -848,6 +848,14 @@ export function getActiveElement(): Element | null {
   return activeElement;
 }
 
+export function getColorFromProperty(varName: string, element?: HTMLElement) {
+  if ("function" === typeof getComputedStyle) {
+    const style = getComputedStyle(element || DomDocumentHelper.getDocumentElement());
+    return style.getPropertyValue && style.getPropertyValue(varName);
+  }
+  return "";
+}
+
 export function mulberry32(seed: number): () => number {
   return function() {
     var t = seed += 0x6D2B79F5;

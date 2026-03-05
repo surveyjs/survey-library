@@ -3,9 +3,11 @@ import { RouterView } from 'vue-router'
 import $ from 'jquery'
 import * as showdown from "showdown"
 import * as Survey from "survey-core";
+import TestTheme from "survey-core/themes/test";
 (window as any).jQuery = (window as any).$ = $;
 (window as any).showdown = showdown;
 (window as any).Survey = Object.assign({}, Survey);
+(window as any).SurveyTheme = {Test: TestTheme};
 </script>
 <script setup lang="ts">
 import { SurveyModel } from "survey-core";

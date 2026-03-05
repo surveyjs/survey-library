@@ -1030,19 +1030,20 @@ var json = {
   ]
 };
 
+/*
 json = {
         showQuestionNumbers: true,
-        "elements": [
-          {
+  "elements": [
+    {
             "type": "boolean",
-            "name": "q1",
+      "name": "q1",
             "useTitleAsLabel": true,
-            "isRequired": true,
+      "isRequired": true,
             "renderAs": "checkbox"
-          }
-        ]
+    }
+  ]
 };
-
+*/
 // json = {
 //       elements: [
 //         {
@@ -1060,6 +1061,7 @@ json = {
 
 var model = new Survey.Model(json);
 //model.setDesignMode(true);
+model.applyTheme(SurveyTheme.Test);
 window.survey = model;
 
 // class CustomTOCItem extends React.Component {

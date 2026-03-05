@@ -2,6 +2,8 @@
 @use "../mixins.scss" as mixins;
 
 .sd-body {
+  --sjs-default-font-size: calc(var(--sjs2-base-unit-font-size, 8px) * 2);
+
   width: 100%;
   box-sizing: border-box;
 

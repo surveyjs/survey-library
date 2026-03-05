@@ -148,7 +148,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
 
       await page.evaluate(() => {
-        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }, "header": {}, "headerView": "advanced" });
+        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)" }, "header": {}, "headerView": "advanced" });
       });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);

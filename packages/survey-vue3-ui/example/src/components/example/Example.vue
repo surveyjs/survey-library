@@ -2,10 +2,11 @@
   import { Model } from "survey-core";
   import("survey-core/survey-core.css");
   import { SurveyComponent } from "survey-vue3-ui";
+  import TestTheme from "survey-core/themes/test";
   let survey = new Model({
         elements: [
           {
-            type: "boolean",
+            type: "signaturepad",
             name: "slider1",
            // swapOrder: true,
           },
@@ -19,6 +20,7 @@
           }
         ]
       })
+  survey.applyTheme(TestTheme);
 </script>
 
 <template>

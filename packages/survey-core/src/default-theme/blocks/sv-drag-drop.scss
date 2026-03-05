@@ -39,7 +39,7 @@
   font-family: $font-family;
 
   .sd-table__row {
-    box-shadow: $shadow-large, $shadow-medium;
+    box-shadow: $shadow-medium-large;
     background-color: $background;
     display: flex;
     flex-grow: 0;
@@ -86,7 +86,7 @@
   cursor: grabbing;
   position: absolute;
   z-index: 10000;
-  font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
+  font-family: $font-family;
   min-width: 100px;
   max-width: 400px;
 

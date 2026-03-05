@@ -325,7 +325,7 @@ export {
   classesToSelector,
   IAttachKey2clickOptions,
   renamedIcons,
-  getIconNameFromProxy
+  getIconNameFromProxy,
 } from "../../src/utils/utils";
 export { InputMaskBase } from "../../src/mask/mask_base";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
@@ -334,6 +334,7 @@ export { InputMaskDateTime } from "../../src/mask/mask_datetime";
 export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
+export * from "../../src/utils/shadow-effects";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

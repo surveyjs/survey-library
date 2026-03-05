@@ -3,11 +3,11 @@
 
 .sv-header {
   position: relative;
-  background-color: var(--sjs-header-backcolor, transparent);
+  background-color: var(--sjs2-color-component-header-default-bg, transparent);
 }
 
 .sv-header__background-color--accent {
-  background-color: var(--sjs-header-backcolor, #{$primary});
+  background-color: var(--sjs2-color-component-header-default-bg, #{$primary});
 }
 
 .sv-header__overlap {
@@ -163,7 +163,7 @@
 
 .sv-header__title .sd-title {
   @include mixins.header_title;
-  color: var(--sjs-font-headertitle-color, #{$font-pagetitle-color});
+  color: var(--sjs2-color-component-header-default-title, #{$font-pagetitle-color});
   font-family: $font-headertitle-family;
   font-weight: $font-headertitle-weight;
   margin: 0;
@@ -187,7 +187,7 @@
 
 .sv-header__description .sd-description {
   @include mixins.header_description;
-  color: var(--sjs-font-headerdescription-color, #{$font-pagedescription-color});
+  color: var(--sjs2-color-component-header-default-description, #{$font-pagedescription-color});
   font-family: $font-headerdescription-family;
   font-weight: $font-headerdescription-weight;
   margin: 0;
@@ -195,7 +195,7 @@
 
 .sv-header__background-color--accent {
   .sv-header__title .sd-title {
-    color: var(--sjs-font-headertitle-color, #{$primary-foreground});
+    color: var(--sjs2-color-component-header-default-title, #{$primary-foreground});
   }
 
   .sv-header__description .sd-description {

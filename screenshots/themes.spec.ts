@@ -486,7 +486,8 @@ frameworks.forEach(framework => {
         (window as any).survey.applyTheme({
           "cssVariables": {
             "--sjs-general-forecolor": "red",
-            "--sjs-general-dim-forecolor": "blue"
+            "--sjs2-color-component-page-default-title": "blue",
+            "--sjs2-color-component-page-default-description": "blue"
           }
         });
       });

@@ -7,7 +7,7 @@
     right: calcSize(2);
     border-radius: calcSize(1);
     border: 1px solid $border-inside;
-    box-shadow: $shadow-large, $shadow-medium;
+    box-shadow: $shadow-medium-large;
     background-clip: padding-box;
     z-index: 100;
     max-height: 50vh;

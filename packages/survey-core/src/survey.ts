@@ -79,7 +79,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { ITheme, ImageFit, ImageAttachment } from "./themes";
+import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -89,7 +89,8 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
-
+import { legacyCssVariables } from "./legacy-vars";
+import { createBoxShadowReset } from "./utils/shadow-effects";
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
@@ -8233,6 +8234,23 @@ export class SurveyModel extends SurveyElementCore
     this.onCreateCustomChoiceItem.fire(this, options);
   }
 
+  private addAnimationResetCSSVariables(newCssVariable: any) {
+    if (!newCssVariable) return;
+    const targetVars = [
+      "--sjs2-border-effect-surface-default",
+      "--sjs2-border-effect-surface-focused",
+      "--sjs2-border-effect-component-formbox-default",
+      "--sjs2-border-effect-component-formbox-focused"
+    ];
+
+    targetVars.forEach((varName) => {
+      const boxShadow = newCssVariable[varName];
+      if (typeof boxShadow === "string") {
+        newCssVariable[`${varName}-reset`] = createBoxShadowReset(boxShadow);
+      }
+    });
+  }
+
   /**
    * Applies a specified theme to the survey.
    *
@@ -8242,6 +8260,8 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
+    patchLegacyCSSVariables(theme.cssVariables);
+    this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;

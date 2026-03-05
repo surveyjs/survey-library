@@ -11,7 +11,8 @@
         "declarationDir": "./build/themes/",
     },
     "include": [
-        "./src/themes/index.ts"
+        "./src/themes/index.ts",
+        "./src/themes/test.ts"
     ],
     "exclude": [],
 }

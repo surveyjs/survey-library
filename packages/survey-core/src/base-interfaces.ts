@@ -318,10 +318,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   allowResizeComment: boolean;
   commentAreaRows: number;
   maxTextLength: number;
-  /**
-   * @deprecated Use `maxCommentLength` instead.
-   */
-  maxOthersLength: number;
   maxCommentLength: number;
   //#endregion
 

@@ -6,6 +6,7 @@ import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
 import { Base, EventBase } from "../src/base";
+import { createBoxShadow, parseBoxShadow } from "../src/utils/shadow-effects";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -1172,4 +1173,94 @@ QUnit.test("PRN generator: mulberry32", (assert) => {
   assert.equal(random(), 0.002735721180215478);
   assert.equal(random(), 0.5274470399599522);
   assert.equal(random(), 0.9810509674716741);
+});
+
+QUnit.test("Check createBoxShadow and parseBoxShadow functions", (assert) => {
+  let boxShadow = "1px 2px 3px 24px #673241";
+  let parsedBoxShadow = parseBoxShadow(boxShadow);
+  assert.deepEqual(parsedBoxShadow, [{
+    blur: 3,
+    x: 1,
+    y: 2,
+    spread: 24,
+    isInset: false,
+    color: "#673241"
+  }]);
+  let createdBoxShadow = createBoxShadow(parsedBoxShadow);
+  assert.equal(createdBoxShadow, "1px 2px 3px 24px #673241");
+  boxShadow = "2px 3px 4px 6px rgba(103, 50, 65, 0.75)";
+  parsedBoxShadow = parseBoxShadow(boxShadow);
+  assert.deepEqual(parsedBoxShadow, [{
+    blur: 4,
+    x: 2,
+    y: 3,
+    spread: 6,
+    isInset: false,
+    color: "rgba(103, 50, 65, 0.75)"
+  }]);
+  createdBoxShadow = createBoxShadow(parsedBoxShadow);
+  assert.equal(createdBoxShadow, "2px 3px 4px 6px rgba(103, 50, 65, 0.75)");
+
+  boxShadow = "2px 3px 4px 6px rgba(from #673241 calc(75 * 1%))";
+  parsedBoxShadow = parseBoxShadow(boxShadow);
+  assert.deepEqual(parsedBoxShadow, [{
+    blur: 4,
+    x: 2,
+    y: 3,
+    spread: 6,
+    isInset: false,
+    color: "rgba(from #673241 calc(75 * 1%))"
+  }]);
+
+  createdBoxShadow = createBoxShadow(parsedBoxShadow);
+  assert.equal(createdBoxShadow, "2px 3px 4px 6px rgba(from #673241 calc(75 * 1%))");
+
+  boxShadow = "inset 2px 3px 4px 6px rgb(103, 50, 65)";
+  parsedBoxShadow = parseBoxShadow(boxShadow);
+  assert.deepEqual(parsedBoxShadow, [{
+    blur: 4,
+    x: 2,
+    y: 3,
+    spread: 6,
+    isInset: true,
+    color: "rgb(103, 50, 65)"
+  }]);
+  createdBoxShadow = createBoxShadow(parsedBoxShadow);
+  assert.equal(createdBoxShadow, "inset 2px 3px 4px 6px rgb(103, 50, 65)");
+
+  boxShadow = "var(--sjs2-border-offset-x-surface-default) var(--sjs2-border-offset-y-surface-default) var(--sjs2-border-blur-surface-default) var(--sjs2-border-spread-surface-default) var(--sjs2-color-utility-shadow-surface-default)";
+  parsedBoxShadow = parseBoxShadow(boxShadow);
+  assert.equal(parsedBoxShadow[0]["color"], "var(--sjs2-color-utility-shadow-surface-default)");
+
+  boxShadow = "inset 2px 3px 4px 6px rgb(103, 50, 65),1px 1px 1px 1px rgb(22, 21, 23),3px 3px 3px 3px rgb(32, 31, 33)";
+  parsedBoxShadow = parseBoxShadow(boxShadow);
+  assert.deepEqual(parsedBoxShadow, [{
+    blur: 4,
+    x: 2,
+    y: 3,
+    spread: 6,
+    isInset: true,
+    color: "rgb(103, 50, 65)"
+  },
+  {
+    blur: 1,
+    x: 1,
+    y: 1,
+    spread: 1,
+    isInset: false,
+    color: "rgb(22, 21, 23)"
+  },
+  {
+    blur: 3,
+    x: 3,
+    y: 3,
+    spread: 3,
+    isInset: false,
+    color: "rgb(32, 31, 33)"
+  }]);
+  createdBoxShadow = createBoxShadow(parsedBoxShadow);
+  assert.equal(createdBoxShadow, "inset 2px 3px 4px 6px rgb(103, 50, 65),1px 1px 1px 1px rgb(22, 21, 23),3px 3px 3px 3px rgb(32, 31, 33)");
+
+  createdBoxShadow = createBoxShadow([{}]);
+  assert.notOk(createdBoxShadow);
 });

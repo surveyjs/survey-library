@@ -3,7 +3,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions, ISurveyMatrixCallbacks, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ItemValue } from "./itemvalue";
@@ -997,6 +997,12 @@ export class MatrixSingleInputLocOwner implements ILocalizableOwner {
  * A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData, IMatrixColumnOwner {
+  public get matrixCallbacks(): ISurveyMatrixCallbacks {
+    return this.survey as ISurveyMatrixCallbacks;
+  }
+  public get choiceCallbacks(): ISurveyChoiceCallbacks {
+    return this.survey as ISurveyChoiceCallbacks;
+  }
   public static get defaultCellType() {
     return settings.matrix.defaultCellType;
   }
@@ -1033,7 +1039,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         item.colOwner = this;
         if (this.onAddColumn)this.onAddColumn(item);
         if (this.survey) {
-          this.survey.matrixColumnAdded(this, item);
+          this.matrixCallbacks.matrixColumnAdded(this, item);
         }
       },
       (item: any) => {
@@ -1376,7 +1382,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       if (!!this.onCellCreatedCallback) {
         this.onCellCreatedCallback(options);
       }
-      this.survey.matrixCellCreated(this, options);
+      this.matrixCallbacks.matrixCellCreated(this, options);
     }
   }
   /**
@@ -1551,7 +1557,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       columnName: column.name,
       cellType: cellType
     };
-    this.survey.matrixCellCreating(this, options);
+    this.matrixCallbacks.matrixCellCreating(this, options);
     return options.cellType;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
@@ -1866,7 +1872,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return new MatrixDropdownBaseSingleInputBehavior(this);
   }
   public get storeOthersAsComment(): boolean {
-    return !!this.survey ? this.survey.storeOthersAsComment : false;
+    return !!this.survey ? this.choiceCallbacks.storeOthersAsComment : false;
   }
   public addColumn(name: string, title?: string): MatrixDropdownColumn {
     var column = new MatrixDropdownColumn(name, title, this);
@@ -2569,15 +2575,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!this.onCellValueChangedCallback) {
       this.onCellValueChangedCallback(options);
     }
-    this.survey.matrixCellValueChanged(this, options);
+    this.matrixCallbacks.matrixCellValueChanged(this, options);
   }
   validateCell(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): SurveyError {
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
-    return this.survey.matrixCellValidate(this, options);
+    return this.matrixCallbacks.matrixCellValidate(this, options);
   }
   get isValidateOnValueChanging(): boolean {
-    return !!this.survey ? this.survey.isValidateOnValueChanging : false;
+    return !!this.survey ? this.validationCallbacks.isValidateOnValueChanging : false;
   }
   protected get hasInvisibleRows(): boolean {
     const rows = this.generatedVisibleRows;
@@ -2605,7 +2611,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       options.value = this.cellValueChangingCallback(row, columnName, options.value, options.oldValue);
     }
     if (!!this.survey) {
-      this.survey.matrixCellValueChanging(this, options);
+      this.matrixCallbacks.matrixCellValueChanging(this, options);
     }
     return options.value;
   }
@@ -2717,7 +2723,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
     if (this.survey) {
-      this.survey.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
+      this.matrixCallbacks.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
     }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {

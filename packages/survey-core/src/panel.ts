@@ -13,7 +13,8 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
-  IFindElement
+  IFindElement,
+  ISurveyValidation
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
@@ -287,6 +288,9 @@ export class PanelModelBase extends SurveyElement<Question>
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
+  public get validationCallbacks(): ISurveyValidation {
+    return this.survey as ISurveyValidation;
+  }
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
 
@@ -514,7 +518,7 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public get requiredMark(): string {
     return !!this.survey && this.isRequired
-      ? this.survey.requiredMark
+      ? this.titleSettings.requiredMark
       : "";
   }
   /**
@@ -524,7 +528,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.requiredMark;
   }
   protected get titlePattern(): string {
-    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
+    return !!this.survey ? this.titleSettings.questionTitlePattern : "numTitleRequire";
   }
   public get isRequireTextOnStart() {
     return this.isRequired && this.titlePattern == "requireNumTitle";
@@ -662,7 +666,7 @@ export class PanelModelBase extends SurveyElement<Question>
       classes.rowMultiple = css.rowMultiple;
     }
     if (this.survey) {
-      this.survey.updatePanelCssClasses(this, classes);
+      this.cssCallbacks.updatePanelCssClasses(this, classes);
     }
     return classes;
   }
@@ -974,7 +978,7 @@ export class PanelModelBase extends SurveyElement<Question>
     var errors = <Array<any>>[];
     this.validateRequired(context, errors);
     if (this.survey) {
-      this.survey.validatePanel(this, errors, context.fireCallback);
+      this.validationCallbacks.validatePanel(this, errors, context.fireCallback);
       context.setErrorElement(this, errors);
     }
     if (!!context.fireCallback) {
@@ -1243,7 +1247,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.questionTitleLocation != "default")
       return this.questionTitleLocation;
     if (this.parent) return this.parent.getQuestionTitleLocation();
-    return this.survey ? this.survey.questionTitleLocation : "top";
+    return this.survey ? this.titleSettings.questionTitleLocation : "top";
   }
   availableQuestionTitleWidth(): boolean {
     return this.getQuestionTitleLocation() === "left" || this.hasElementWithTitleLocationLeft();
@@ -1342,7 +1346,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return result;
   }
   protected isQuestionIndexRecursive(): boolean {
-    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
+    return !!this.survey && this.titleSettings.showQuestionNumbers === "recursive";
   }
   getQuestionStartIndex(): string {
     const res = this.getStartIndex();
@@ -1567,9 +1571,9 @@ export class PanelModelBase extends SurveyElement<Question>
   private onRemoveElementNotifySurvey(element: IElement): void {
     if (!this.canFireAddRemoveNotifications(element)) return;
     if (!element.isPanel) {
-      this.survey.questionRemoved(<Question>element);
+      this.lifecycleCallbacks.questionRemoved(<Question>element);
     } else {
-      this.survey.panelRemoved(element);
+      this.lifecycleCallbacks.panelRemoved(element);
     }
   }
   private onElementVisibilityChanged(element: any) {
@@ -2058,7 +2062,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public getQuestionErrorLocation(): string {
     if (this.questionErrorLocation !== "default") return this.questionErrorLocation;
     if (this.parent) return this.parent.getQuestionErrorLocation();
-    return this.survey ? this.survey.questionErrorLocation : "top";
+    return this.survey ? this.titleSettings.questionErrorLocation : "top";
   }
   //ITitleOwner
   public getTitleOwner(): ITitleOwner { return this; }
@@ -2245,7 +2249,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       no = (<any>this.parent).addNoFromChild(no);
     }
     if (this.survey) {
-      no = this.survey.getUpdatedPanelNo(this, no);
+      no = this.titleSettings.getUpdatedPanelNo(this, no);
     }
     return no || "";
   }
@@ -2299,7 +2303,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private notifySurveyOnVisibilityChanged() {
     if (this.survey != null && !this.isLoadingFromJson) {
-      this.survey.panelVisibilityChanged(this, this.isVisible);
+      this.lifecycleCallbacks.panelVisibilityChanged(this, this.isVisible);
     }
   }
   protected getRenderedTitle(str: string): string {

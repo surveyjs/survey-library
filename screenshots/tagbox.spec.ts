@@ -232,6 +232,8 @@ frameworks.forEach(framework => {
       });
       await page.waitForTimeout(500);
       await page.locator(".sd-editor-chevron-button").click();
+      await page.locator(".sv-popup.sv-multi-select-list").waitFor({ state: "visible" });
+      await page.evaluate(() => document.fonts.ready);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-long-items-overlay-tablet-popup.png");
     });
 

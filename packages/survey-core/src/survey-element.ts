@@ -39,6 +39,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
+  public getAllowLineBreaks(name: string): boolean {
+    return Serializer.findProperty(this.getType(), name)?.type === "text";
+  }
   /**
    * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
    *

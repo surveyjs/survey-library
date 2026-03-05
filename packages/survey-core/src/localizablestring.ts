@@ -1,9 +1,7 @@
 import { Helpers } from "./helpers";
 import { surveyLocalization, getLocaleString } from "./surveyStrings";
 import { settings } from "./settings";
-import { Base, EventBase } from "./base";
-import { Serializer } from "./jsonobject";
-import { SurveyElementCore } from "./survey-element";
+import { EventBase } from "./base";
 import { ItemValue } from "./itemvalue";
 import { ISaveToJSONOptions } from "./base-interfaces";
 
@@ -13,6 +11,7 @@ export interface ILocalizableOwner {
   getProcessedText(text: string, context?: any): string;
   getRenderer(name: string, item?: ItemValue): string;
   getRendererContext(locStr: LocalizableString, item?: ItemValue): any;
+  getAllowLineBreaks?(name: string): boolean;
 }
 export interface ILocalizableString {
   getLocaleText(loc: string): string;
@@ -53,10 +52,7 @@ export class LocalizableString implements ILocalizableString {
   private _allowLineBreaks: boolean;
   public get allowLineBreaks(): boolean {
     if (this._allowLineBreaks === undefined) {
-      this._allowLineBreaks = false;
-      if (!!this.name && this.owner instanceof SurveyElementCore) {
-        this._allowLineBreaks = Serializer.findProperty((this.owner as SurveyElementCore).getType(), this.name)?.type == "text";
-      }
+      this._allowLineBreaks = this.owner?.getAllowLineBreaks?.(this.name) ?? false;
     }
     return this._allowLineBreaks;
   }

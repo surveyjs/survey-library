@@ -94,6 +94,7 @@ const buildPlatformJson = {
 };
 
 if (process.env.emitNonSourceFiles === "true") {
+  fs.mkdirSync(buildPath, { recursive: true });
   fs.copySync("./README.md", resolve(buildPath, "README.md"));
   fs.writeJsonSync(
     resolve(buildPath, "package.json"),

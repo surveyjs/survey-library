@@ -1,6 +1,7 @@
 import { Base } from "./base";
 import { IQuestion } from "./base-interfaces";
 import { Helpers, HashTable } from "./helpers";
+import { settings } from "./settings";
 
 export interface IValueGetterItem {
   name: string;
@@ -135,7 +136,8 @@ export class ValueGetter {
   private run(name: string, context: IValueGetterContext, createObjects: boolean): any {
     if (!context) return undefined;
     let path = this.getPath(name);
-    const isProperty = path.length > 0 && path[0].name[0] === "$";
+    const propPrefix = settings.expressionElementPropertyPrefix;
+    const isProperty = !!propPrefix && path.length > 0 && path[0].name[0] === propPrefix;
     if (isProperty) {
       path[0].name = path[0].name.substring(1);
     }

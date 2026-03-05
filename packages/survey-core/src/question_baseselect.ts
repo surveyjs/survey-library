@@ -373,6 +373,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.prevOtherErrorValue = oldVal;
     }
   }
+  protected setNewComment(newValue: string): void {
+    if (this.isOtherSelected && this.getStoreOthersAsComment()) {
+      this.updatePrevOtherErrorValue(newValue);
+    }
+    super.setNewComment(newValue);
+  }
   private isSettingComment: boolean;
   public get otherValue(): string {
     if (this.getStoreOthersAsComment()) return this.getQuestionComment();

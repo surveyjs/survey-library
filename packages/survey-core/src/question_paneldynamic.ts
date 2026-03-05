@@ -2411,7 +2411,12 @@ export class QuestionPanelDynamicModel extends Question
       if (!Array.isArray(this.changingValueQuestions)) {
         this.changingValueQuestions = [];
       }
-      const q = this.panelsCore[index].getQuestionByValueName(name);
+      let qName = name;
+      const suffix = settings.commentSuffix;
+      if (qName.endsWith(suffix)) {
+        qName = qName.substring(0, qName.length - suffix.length);
+      }
+      const q = this.panelsCore[index].getQuestionByValueName(qName);
       if (!!q) {
         this.changingValueQuestions.push(q);
       }

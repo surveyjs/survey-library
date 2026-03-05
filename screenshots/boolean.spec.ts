@@ -20,13 +20,13 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await compareScreenshot(page, questionRoot, "boolean-question-indeterminate.png");
 
-      await page.locator(".sd-boolean__thumb-ghost").first().hover();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").first().hover();
       await compareScreenshot(page, questionRoot, "boolean-question-indeterminate-hovered.png");
 
-      await page.locator(".sv-string-viewer").filter({ hasText: "No" }).click();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "No" }).click();
       await compareScreenshot(page, questionRoot, "boolean-question-clicked.png");
 
-      await page.locator("span").filter({ hasText: "Yes" }).first().hover();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "Yes" }).hover();
       await compareScreenshot(page, questionRoot, "boolean-question-clicked-hovered.png");
 
       await page.evaluate(() => {
@@ -50,13 +50,13 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await compareScreenshot(page, questionRoot, "boolean-question-exch-indeterminate.png");
 
-      await page.locator(".sd-boolean__thumb-ghost").first().hover();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").first().hover();
       await compareScreenshot(page, questionRoot, "boolean-question-exch-indeterminate-hovered.png");
 
-      await page.locator(".sv-string-viewer").filter({ hasText: "No" }).click();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "No" }).click();
       await compareScreenshot(page, questionRoot, "boolean-question-exch-clicked.png");
 
-      await page.locator("span").filter({ hasText: "Yes" }).first().hover();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "Yes" }).hover();
       await compareScreenshot(page, questionRoot, "boolean-question-exch-clicked-hovered.png");
 
       await page.evaluate(() => {
@@ -167,9 +167,9 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question--boolean");
       await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "boolean-switch-thumb-swapped-indeterminate.png");
-      await page.locator(".sv-string-viewer").filter({ hasText: "No" }).click();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "No" }).click();
       await compareScreenshot(page, questionRoot, "boolean-switch-thumb-swapped-no.png");
-      await page.locator(".sv-string-viewer").filter({ hasText: "Yes" }).click();
+      await questionRoot.locator(".sd-boolean__thumb-ghost").filter({ hasText: "Yes" }).click();
       await compareScreenshot(page, questionRoot, "boolean-switch-thumb-swapped-yes.png");
     });
 

@@ -10,7 +10,7 @@ Follow the steps below to add a new localization dictionary:
 2. Create a new file in the [`packages/survey-core/src/localization`](../localization/) directory and name it `[language name].ts`, for example, `french.ts`.
 3. Copy the content from the [`english.ts`](../localization/english.ts) file and uncomment the first and last lines.
 4. Translate required strings.
-5. Open the [`entries/chunks/localization.ts`](../../entries/chunks/localization.ts) file and import your file in it for Webpack. For example, the following code imports the `french.ts` file:
+5. Open the [`entries/chunks/localization.ts`](../../entries/chunks/localization.ts) file and import your file in it for Rollup. For example, the following code imports the `french.ts` file:
   
     ```js
     import "../../src/localization/french";

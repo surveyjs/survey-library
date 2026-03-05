@@ -106,9 +106,10 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(500);
+      await page.locator(".sv-popup__container").filter({ visible: true }).first().waitFor({ state: "visible" });
       await compareScreenshot(page, ".sv-popup__container", "dropdown-item-focused-state.png");
     });
 

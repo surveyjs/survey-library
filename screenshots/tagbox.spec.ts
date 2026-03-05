@@ -198,19 +198,26 @@ frameworks.forEach(framework => {
       });
       await page.waitForTimeout(500);
 
+      const popupSelector = page.locator(".sv-popup.sv-multi-select-list");
+
       await page.locator(".sd-editor-chevron-button").click();
+      await popupSelector.waitFor({ state: "visible" });
       await page.locator(".sv-list__input").fill("item1");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
+      await popupSelector.waitFor({ state: "hidden" });
       await page.locator(".sd-editor-chevron-button").click();
+      await popupSelector.waitFor({ state: "visible" });
       await page.locator(".sv-list__input").fill("item");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-big.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
+      await popupSelector.waitFor({ state: "hidden" });
       await page.locator(".sd-editor-chevron-button").click();
+      await popupSelector.waitFor({ state: "visible" });
       await page.locator(".sv-list__input").fill("item3");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-small.png");
@@ -232,6 +239,8 @@ frameworks.forEach(framework => {
       });
       await page.waitForTimeout(500);
       await page.locator(".sd-editor-chevron-button").click();
+      await page.locator(".sv-popup.sv-multi-select-list").waitFor({ state: "visible" });
+      await page.evaluate(() => document.fonts.ready);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-long-items-overlay-tablet-popup.png");
     });
 

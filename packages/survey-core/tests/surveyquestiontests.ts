@@ -8921,6 +8921,65 @@ QUnit.test("Access question properties in expression, #10532", function (assert)
   assert.equal(q2.isVisible, false, "q2 is not visible #2");
   assert.equal(q3.isVisible, false, "q3 is not visible #2");
 });
+QUnit.test("Access question properties in expression with modified prefix, #10958", function (assert) {
+  settings.expressionElementPropertyPrefix = "@";
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{@q2.isVisible}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
+  settings.expressionElementPropertyPrefix = "$";
+});
+QUnit.test("Disable access question properties in expression, #10958", function (assert) {
+  settings.expressionElementPropertyPrefix = "";
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "$q1",
+      },
+      {
+        type: "text",
+        name: "$q2",
+        visibleIf: "{$q1} = 2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("$q1");
+  const q2 = survey.getQuestionByName("$q2");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  settings.expressionElementPropertyPrefix = "$";
+});
 QUnit.test("Access question properties in expression - update on property changed, #10532", function (assert) {
   const survey = new SurveyModel({
     title: "Survey Title",

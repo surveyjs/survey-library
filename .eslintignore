@@ -9,5 +9,4 @@ example/
 examples/
 examples_test/
 .gitignore
-webpack.config.js
 index.js

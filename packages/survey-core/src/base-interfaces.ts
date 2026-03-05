@@ -234,6 +234,17 @@ export interface ISurveyValidation {
   getValidateVisitedEmptyFields(): boolean;
 }
 /**
+ * Settings and callbacks for single-input (single-question-per-page) mode.
+ */
+export interface ISurveySingleInput {
+  currentSingleQuestion: IQuestion;
+  isSingleVisibleInput: boolean;
+  updateNavigationElements(): void;
+  currentSingleElement: IElement;
+  supportsNestedSingleInput(question: IQuestion): boolean;
+  updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
+}
+/**
  * The main survey interface, composed from focused sub-interfaces.
  *
  * Consumers that only need a subset of survey functionality can depend on the
@@ -243,7 +254,8 @@ export interface ISurveyValidation {
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
-  ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation {
+  ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
+  ISurveySingleInput {
   getSkeletonComponentName(element: ISurveyElement): string;
   currentPage: IPage;
   activePage: IPage;
@@ -268,12 +280,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
-  currentSingleQuestion: IQuestion;
-  isSingleVisibleInput: boolean;
-  updateNavigationElements(): void;
-  currentSingleElement: IElement;
-  supportsNestedSingleInput(question: IQuestion): boolean;
-  updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;

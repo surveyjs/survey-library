@@ -15,7 +15,8 @@ import {
   ITitleOwner, IElementUIState,
   ISurveyTitleSettings,
   ISurveyElementLifecycle,
-  ISurveyCssCallbacks
+  ISurveyCssCallbacks,
+  ISurveySingleInput
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
@@ -381,7 +382,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isCollapsed(): boolean {
     return this.state === "collapsed" && !this.isDesignMode && !this.isSingleInputMode;
   }
-  protected get isSingleInputMode(): boolean { return this.survey?.isSingleVisibleInput; }
+  protected get isSingleInputMode(): boolean { return this.singleInput?.isSingleVisibleInput; }
   /**
    * Returns `true` if the survey element is expanded.
    * @hidefor PageModel
@@ -589,6 +590,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get cssCallbacks(): ISurveyCssCallbacks {
     return this.survey as ISurveyCssCallbacks;
+  }
+  public get singleInput(): ISurveySingleInput {
+    return this.survey as ISurveySingleInput;
   }
   public getSurvey(live: boolean = false): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
@@ -985,7 +989,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public isInternalNested: boolean;
   private canHaveFrameStyles() {
-    if (<any>this.survey?.currentSingleElement === this) return true;
+    if (<any>this.singleInput?.currentSingleElement === this) return true;
     if (this.isInternalNested === true) return false;
     return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }

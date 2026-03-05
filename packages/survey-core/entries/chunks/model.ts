@@ -119,6 +119,7 @@ export {
   ISurveyAfterRenderCallbacks,
   ISurveyTitleSettings,
   ISurveyValidation,
+  ISurveySingleInput,
   ISurveyElement,
   IElement,
   IQuestion,

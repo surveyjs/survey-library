@@ -1009,7 +1009,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return context.errorCount <= errorCount;
   }
   protected validateCore(context: ValidationContext): void {
-    let singleQ = <Question>this.survey?.currentSingleQuestion;
+    let singleQ = <Question>this.singleInput?.currentSingleQuestion;
     if (singleQ && this.questions.indexOf(singleQ) < 0) {
       singleQ = undefined;
     }

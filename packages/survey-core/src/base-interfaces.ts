@@ -256,67 +256,92 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
   ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
   ISurveySingleInput {
-  getSkeletonComponentName(element: ISurveyElement): string;
+
+  //#region Page & navigation
   currentPage: IPage;
   activePage: IPage;
   pages: Array<IPage>;
-  isSettingData(): boolean;
-  getCss(): any;
   isPageStarted(page: IPage): boolean;
+  state: string;
+  cancelPreviewByPage(panel: IPanel): any;
+  locEditText: LocalizableString;
+  cssNavigationEdit: string;
+  //#endregion
+
+  //#region Question lookup
   getQuestionByName(name: string): IQuestion;
   getQuestionsByValueName(valueName: string): IQuestion[];
-  isEditingSurveyElement: boolean;
-  getQuestionClearIfInvisible(questionClearIf: string): string;
-  questionOrder: string;
-  keepIncorrectValues: boolean;
-  focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
-  hasVisibleQuestionByValueName(question: IQuestion): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
+  hasVisibleQuestionByValueName(question: IQuestion): boolean;
+  getQuestionByValueNameFromArray(
+    valueName: string,
+    name: string,
+    index: number
+  ): IQuestion;
+  focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
+  //#endregion
+
+  //#region Question value changes
+  questionValueChanging(question: IQuestion, newValue: any): any;
+  questionValueChanged(question: IQuestion, oldValue: any): void;
+  getQuestionClearIfInvisible(questionClearIf: string): string;
+  keepIncorrectValues: boolean;
+  questionOrder: string;
+  //#endregion
+
+  //#region Rendering & appearance
+  getSkeletonComponentName(element: ISurveyElement): string;
+  getCss(): any;
   processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string, item?: any): string;
   getRendererForString(element: Base, name: string, item?: ItemValue): string;
   getRendererContextForString(element: Base, locStr: LocalizableString, item?: ItemValue): any;
   gridLayoutEnabled: boolean;
+  isLazyRendering: boolean;
+  lazyRenderFirstBatchSize: number;
+  rootElement?: HTMLElement;
+  //#endregion
+
+  //#region Display modes & flags
   isDisplayMode: boolean;
   isDesignMode: boolean;
+  isLoadingFromJson: boolean;
+  isEditingSurveyElement: boolean;
+  isSettingData(): boolean;
   areInvisibleElementsShowing: boolean;
   areEmptyElementsHidden: boolean;
-  isLoadingFromJson: boolean;
+  //#endregion
+
+  //#region Text input settings
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
   allowResizeComment: boolean;
   commentAreaRows: number;
-
-  state: string;
-  isLazyRendering: boolean;
-  lazyRenderFirstBatchSize: number;
-  cancelPreviewByPage(panel: IPanel): any;
-  locEditText: LocalizableString;
-  cssNavigationEdit: string;
-  rootElement?: HTMLElement;
-
-  getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
-
   maxTextLength: number;
   /**
    * @deprecated Use `maxCommentLength` instead.
    */
   maxOthersLength: number;
   maxCommentLength: number;
+  //#endregion
 
-  timeLimitPerPage: number;
+  //#region Error handling
+  getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
+  //#endregion
 
-  getQuestionByValueNameFromArray(
-    valueName: string,
-    name: string,
-    index: number
-  ): IQuestion;
-  questionValueChanging(question: IQuestion, newValue: any): any;
-  questionValueChanged(question: IQuestion, oldValue: any): void;
+  //#region Expressions
+  runExpression(expression: string, callback?: (res: any) => void): any;
+  beforeExpressionRunning(obj: Base, propertyName: string, expression: string): string;
+  startSetValueOnExpression(): void;
+  finishSetValueOnExpression(): void;
+  //#endregion
+
+  //#region Misc callbacks
   multipleTextItemAdded(question: IQuestion, item: any): void;
-
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void;
+  processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
+  processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
-
   scrollElementToTop(
     element: ISurveyElement,
     question: IQuestion,
@@ -326,15 +351,12 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
     passedRootElement?: HTMLElement,
     onScolledCallback?: () => void
   ): any;
-  runExpression(expression: string, callback?: (res: any) => void): any;
-  beforeExpressionRunning(obj: Base, propertyName: string, expression: string): string;
-  startSetValueOnExpression(): void;
-  finishSetValueOnExpression(): void;
+  //#endregion
 
-  onCorrectQuestionAnswer(question: IQuestion, options: any): void;
-  processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
-  processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
+  //#region Timer & randomization
+  timeLimitPerPage: number;
   randomSeed: number;
+  //#endregion
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;

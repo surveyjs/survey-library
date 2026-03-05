@@ -13,7 +13,7 @@ import { ActionContainer } from "./actions/container";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { settings } from "./settings";
 import { AnimationGroup, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
-import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 
 function getId(id: string, isError: boolean, isDetail: boolean) {
   return id + (isError ? "-error" : "") + (isDetail ? "-detail" : "");

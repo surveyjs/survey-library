@@ -6,7 +6,9 @@ export * from "../../src/svgbundle";
 // utils
 export * from "../../src/rendererFactory";
 export * from "../../src/utils/responsivity-manager";
-export { unwrap, getOriginalEvent, getElement, activateLazyRenderingChecks } from "../../src/utils/utils";
+export { unwrap } from "../../src/utils/utils";
+export { getOriginalEvent } from "../../src/utils/dom-utils";
+export { getElement, activateLazyRenderingChecks } from "../../src/utils/dom-utils";
 export * from "../../src/actions/action";
 export * from "../../src/utils/animation";
 export * from "../../src/actions/adaptive-container";

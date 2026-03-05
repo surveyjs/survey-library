@@ -10,7 +10,7 @@ import { Question } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
-import { getRootNode } from "./utils/utils";
+import { getRootNode } from "./utils/dom-utils";
 
 interface ISliderLabelItemOwner extends ILocalizableOwner{
   getTextByItem(item: ItemValue):string;

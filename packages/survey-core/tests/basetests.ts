@@ -4,7 +4,7 @@ import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
-import { findParentByClassNames } from "../src/utils/utils";
+import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
 import { set } from "lodash";

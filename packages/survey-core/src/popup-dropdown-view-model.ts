@@ -9,7 +9,7 @@ import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
 import { defaultActionBarCss } from "./actions/container";
-import { getRootNode } from "./utils/utils";
+import { getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;

@@ -49,7 +49,10 @@ import {
 } from "./expressionItems";
 import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
+import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";

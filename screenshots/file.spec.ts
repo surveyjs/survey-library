@@ -74,6 +74,7 @@ frameworks.forEach(framework => {
 
       await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
+      await page.waitForTimeout(1000);
 
       const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").filter({ visible: true }).first();
       await prevButton.click({ force: true });

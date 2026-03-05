@@ -4335,6 +4335,19 @@ QUnit.test("QuestionText min/max properties for date-time and browser errors, bu
   assert.equal(q1.errors.length, 1, "There is one error");
   assert.equal(q1.errors[0].text, "min error", "use minErrorText instead of browser message");
 });
+QUnit.test("QuestionText step property, modify the step error in a survey JSON, bug#10959", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "number", name: "q1", step: 2, stepErrorText: "step error {0}#" },
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = 3;
+  q1.onKeyUp({ target: { validationMessage: "test error message" } });
+  q1.validate();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].text, "step error 2#", "use stepErrorText instead of browser message");
+});
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "text", name: "q", defaultValue: "=1+2" }],

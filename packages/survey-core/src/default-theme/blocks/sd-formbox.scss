@@ -4,79 +4,39 @@
     position: static;
     width: 100%;
     box-sizing: border-box;
-    padding: calcSize(0.5);
+    padding: var(--sjs2-spacing-x050, 4px);
     display: flex;
-    gap: calcSize(0.5);
+    gap: var(--sjs2-spacing-x050, 4px);
     align-items: center;
-    color: $font-editorfont-color;
-    background-color: $editor-background;
+    background: var(--sjs2-color-component-formbox-default-bg, #f5f5f5);
     border: none;
-    border-radius: $editor-corner-radius;
+    border-radius: var(--sjs2-radius-component-formbox, 8px);
     text-align: start;
     box-shadow:
-        $shadow-inner,
-        0 0 0 0px $primary;
+        var(--sjs2-border-effect-component-formbox-default, 0 1px 2px 0 #d4d4d4 inset),
+        var(--sjs2-border-effect-component-formbox-focused-reset, 0 0 0 0 #19b394 inset);
     transition: box-shadow $transition-duration;
 }
-.sd-formbox {
-    .sd-formbox {
-        display: contents;
-    }
-}
-.sd-formbox__group {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: calcSize(0.5);
-}
-.sd-formbox__input {
-    box-sizing: border-box;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background: none;
-    border: none;
-    width: 100%;
-    line-height: multiply(1.5, $font-editorfont-size);
-    min-height: calc(#{multiply(1.5, $font-editorfont-size)} + #{calcSize(2)});
-    padding: calcSize(1) calcSize(1.5);
-    margin: 0;
-    font-weight: $font-editorfont-weight;
-    font-size: $font-editorfont-size;
-    font-family: $font-editorfont-family;
-    color: inherit;
-}
-.sd-formbox__input::-webkit-datetime-edit-fields-wrapper {
-    padding: 0;
-}
-.sd-formbox:focus-within {
+.sd-formbox:where(:focus-within) {
+    background: var(--sjs2-color-component-formbox-focused-bg, #f5f5f5);
     box-shadow:
-        $shadow-inner-reset,
-        0 0 0 2px $primary;
-}
-.sd-formbox__input:focus {
-    outline: none;
-}
+        var(--sjs2-border-effect-component-formbox-default-reset, 0 0 0 0 #d4d4d4 inset),
+        var(--sjs2-border-effect-component-formbox-focused, 0 0 0 2px #19b394 inset);
 
-//for IPHONE
-.sd-formbox:not(.sd-formbox--disabled) {
-    input,
-    textarea {
-        &.sd-formbox__input:disabled {
-            opacity: 1;
-        }
+    .sd-formbox__character-counter {
+        display: block;
     }
 }
-
-.sd-formbox--disabled {
-    background-color: $editor-background;
-}
-
 .sd-formbox--readonly {
-    background-color: $background-dark;
-}
+    border-radius: var(--sjs2-radius-component-formbox, 8px);
+    background: var(--sjs2-color-component-formbox-readonly-bg, #fff);
+    box-shadow: var(--sjs2-border-effect-component-formbox-readonly, 0 0 0 1px #d4d4d4 inset);
 
-.sd-formbox.sd-formbox--preview {
+    .sd-formbox__input {
+        cursor: default;
+    }
+}
+.sd-formbox--preview {
     background: none;
     box-shadow: none;
     transition: none;
@@ -88,52 +48,76 @@
         padding-right: 0;
     }
 }
-
-.sd-formbox__input::placeholder {
-    color: $font-editorfont-placeholdercolor;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.sd-formbox.sd-formbox--disabled,
-.sd-formbox.sd-formbox--disabled .sd-formbox__input::placeholder {
-    color: $foreground;
-    opacity: 0.25;
-}
-
-.sd-formbox.sd-formbox--readonly {
-    color: $foreground;
-    box-shadow: none;
-    transition: none;
-}
-
-.sd-formbox.sd-formbox--readonly::placeholder {
-    color: $foreground-light;
-}
-
-.sd-root--readonly .sd-formbox--disabled,
-.sd-root--readonly .sd-formbox--disabled::placeholder {
-    color: $foreground;
-}
-
 .sd-formbox--error {
-    background-color: $red-light;
+    background: var(--sjs2-color-component-formbox-invalid-bg, #f5f5f5);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid, 0 0 0 2px #e50a3e inset);
 }
+
+.sd-formbox {
+    .sd-formbox {
+        display: contents;
+    }
+}
+.sd-formbox__group {
+    display: flex;
+    align-items: stretch;
+    align-self: stretch;
+    justify-content: flex-end;
+    gap: calcSize(0.5);
+    .sv-action {
+        height: 100%;
+    }
+    .sv-action__content {
+        height: 100%;
+    }
+}
+.sd-formbox__input {
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: none;
+    border: none;
+    width: 100%;
+    color: var(--sjs2-color-component-input-default-value, #1c1b20);
+    text-overflow: ellipsis;
+    font-family: var(--sjs2-typography-font-family-component-input-content, "Open Sans");
+    font-size: var(--sjs2-typography-font-size-component-input-content, 16px);
+    font-style: normal;
+    font-weight: var(--sjs2-typography-font-weight-component-input-content, 400);
+    line-height: var(--sjs2-typography-line-height-component-input-content, 24px);
+    min-height: calc(
+        var(--sjs2-typography-line-height-component-input-content, 24px) + var(--sjs2-spacing-x100, 8px) * 2
+    );
+    padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x150, 12px);
+    margin: 0;
+    &::placeholder {
+        color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    &:disabled {
+        opacity: 1;
+    }
+    &:focus {
+        outline: none;
+    }
+    &::-webkit-datetime-edit-fields-wrapper {
+        padding: 0;
+    }
+}
+
 .sd-formbox__character-counter {
     display: none;
-    padding: calcSize(0.75) calcSize(1);
-    font-family: $font-family;
-    line-height: calcLineHeight(1);
-    font-size: calcFontSize(0.75);
-    color: $font-editorfont-placeholdercolor;
-}
-
-.sd-formbox:focus-within {
-    .sd-formbox__character-counter {
-        display: block;
-    }
+    padding: var(--sjs2-spacing-x075, 6px) var(--sjs2-spacing-x100, 8px);
+    color: var(--sjs2-color-component-input-default-limit, rgba(28, 27, 32, 0.6));
+    font-family: var(--sjs2-typography-font-family-text, "Open Sans");
+    font-size: var(--sjs2-typography-font-size-small, 12px);
+    font-style: normal;
+    font-weight: 400;
+    line-height: var(--sjs2-typography-line-height-small, 16px);
 }
 
 @mixin runnable-track {
@@ -169,12 +153,4 @@
 
 .sd-formbox__input[type="range"]::-moz-range-thumb {
     @include slider-thumb;
-}
-.sd-formbox--readonly .sd-formbox__button:hover,
-.sd-formbox--readonly .sd-formbox__button:focus {
-    background: transparent;
-}
-.sd-question--readonly .sd-formbox__button {
-    opacity: var(--lbr-editor-button-icon-opacity-disabled, 0.25);
-    cursor: default;
 }

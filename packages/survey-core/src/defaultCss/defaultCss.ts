@@ -941,7 +941,7 @@ export var defaultCss = {
     cleanItemButtonIconId: "icon-clear_16x16",
     chevronButtonIconId: "icon-chevron",
     control: "sd-formbox sd-tagbox sd-dropdown",
-    controlValue: "sd-tagbox__value sd-dropdown__value",
+    controlValue: "sd-formbox__input sd-tagbox__input sd-dropdown__input",
     controlValueItems: "sd-tagbox__value-items",
     placeholderInput: "sd-tagbox__placeholder",
     controlEditable: "sd-formbox--editable",

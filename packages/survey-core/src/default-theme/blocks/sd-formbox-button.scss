@@ -4,29 +4,43 @@
 .sd-formbox-button {
     @include mixins.hideButtonStyles;
     display: flex;
-    padding: calcSize(1);
+    padding: var(--sjs2-spacing-x100, 8px);
     justify-content: center;
     align-items: center;
     align-self: stretch;
-    border-radius: multiply(0.125, $font-editorfont-size);
+    border-radius: var(--sjs2-radius-component-formbox-item, 4px);
+    background: var(--sjs2-color-component-action-specific-editor-default-bg, rgba(95, 94, 97, 0));
     cursor: pointer;
-    &:hover {
-        background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
-        transition: background $transition-duration;
+}
+.sd-formbox-button:hover {
+    background: var(--sjs2-color-component-action-specific-editor-hovered-bg, rgba(95, 94, 97, 0.1));
+    transition: background $transition-duration;
+    .sd-formbox-button__icon {
+        fill: var(--sjs2-color-component-action-specific-editor-hovered-icon, #424146);
     }
 }
 
 .sd-formbox-button--pressed {
-    opacity: var(--lbr-editor-button-icon-opacity-pressed, 0.5);
-    background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
+    background: var(--sjs2-color-component-action-specific-editor-pressed-bg, rgba(95, 94, 97, 0.1));
     transition-property: opacity, background-color;
     transition-duration: $transition-duration;
+    .sd-formbox-button__icon {
+        fill: var(--sjs2-color-component-action-specific-editor-pressed-icon, #424146);
+    }
+}
+.sd-formbox-button:where(:disabled) {
+    cursor: default;
+    opacity: var(--sjs2-opacity-disabled, 0.25);
+    background: var(--sjs2-color-component-action-specific-editor-disabled-bg, rgba(95, 94, 97, 0));
+    .sd-formbox-button__icon {
+        fill: var(--sjs2-color-component-action-specific-editor-disabled-icon, rgba(28, 27, 32, 0.4));
+    }
 }
 
 .sd-formbox-button__icon {
-    width: multiply(1.5, $font-editorfont-size);
-    height: multiply(1.5, $font-editorfont-size);
-
+    width: multiply(1.5, var(--sjs2-typography-font-size-component-input-content, 16px));
+    height: multiply(1.5, var(--sjs2-typography-font-size-component-input-content, 16px));
+    fill: var(--sjs2-color-component-action-specific-editor-default-icon, #424146);
     use {
         pointer-events: none;
     }

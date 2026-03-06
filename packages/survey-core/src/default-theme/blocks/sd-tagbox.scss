@@ -12,7 +12,6 @@
 }
 
 .sd-tagbox {
-  &.sd-formbox--disabled,
   &.sd-formbox--readonly,
   &.sd-formbox--preview {
     .sd-tagbox__value {
@@ -35,9 +34,7 @@
 }
 
 .sd-formbox.sd-tagbox:focus-within {
-  box-shadow:
-    $shadow-inner-reset,
-    $shadow-focused;
+  box-shadow: $shadow-inner-reset, $shadow-focused;
 }
 
 .sv-tagbox__item {
@@ -104,14 +101,19 @@
   fill: $primary-foreground;
 }
 
-.sd-tagbox__value.sd-dropdown__value {
+.sd-tagbox:where(:not(.sd-tagbox--empty)) {
+  .sd-tagbox__input {
+    padding: 0;
+  }
+}
+
+.sd-tagbox__input.sd-dropdown__input {
   position: relative;
   gap: calcSize(0.5);
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
   align-content: center;
-  padding-inline: unset;
   margin-inline: unset;
   margin-block: unset;
 }
@@ -144,13 +146,14 @@
     background: linear-gradient(90deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
   }
 }
-
 .sd-tagbox.sd-tagbox--empty {
+  .sd-tagbox__input {
+    align-content: normal;
+  }
   .sd-tagbox__hint,
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
     width: 100%;
-    height: 100%;
   }
 }
 

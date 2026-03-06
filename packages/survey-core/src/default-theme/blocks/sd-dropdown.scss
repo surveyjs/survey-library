@@ -5,10 +5,6 @@
   position: relative;
 }
 
-.sv-dropdown_select-wrapper use {
-  fill: $font-editorfont-placeholdercolor;
-}
-
 select.sd-dropdown {
   padding-inline-start: calcSize(2); //padding-left
   padding-inline-end: calcSize(0.5); //padding-right
@@ -28,11 +24,6 @@ select.sd-dropdown {
     font-family: $font-family;
     font-size: calcFontSize(1);
   }
-}
-
-.sd-dropdown--empty:not(.sd-formbox--disabled),
-.sd-dropdown--empty:not(.sd-formbox--disabled) .sd-dropdown__value {
-  color: $foreground-light;
 }
 
 .sd-dropdown__input-field-component {
@@ -61,11 +52,11 @@ select.sd-dropdown {
   border: none;
   outline: none;
   padding: 0;
-  font-family: $font-editorfont-family;
-  font-weight: $font-editorfont-weight;
-  color: $font-editorfont-color;
-  font-size: $font-editorfont-size;
-  line-height: multiply(1.5, $font-editorfont-size);
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
   background-color: transparent;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -74,12 +65,12 @@ select.sd-dropdown {
   appearance: none;
 }
 
-.sd-dropdown--empty:not(.sd-formbox--disabled) .sd-dropdown__filter-string-input::placeholder {
-  color: $font-editorfont-placeholdercolor;
+.sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {
+  color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
 }
 
 .sd-dropdown__filter-string-input::placeholder {
-  color: $foreground;
+  color: inherit;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
@@ -91,26 +82,19 @@ select.sd-dropdown {
 .sd-dropdown__input {
   display: flex;
 }
-.sd-dropdown__hint-prefix {
-  color: $font-editorfont-placeholdercolor;
-  display: flex;
-  align-items: center;
-
-  span {
-    white-space: pre;
-  }
-}
-
+.sd-dropdown__hint-prefix,
 .sd-dropdown__hint-suffix {
+  color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
   display: flex;
-  color: $font-editorfont-placeholdercolor;
 
   span {
     white-space: pre;
   }
 }
+.sd-dropdown__hint-prefix {
+  align-items: center;
+}
 
-.sd-dropdown.sd-formbox--disabled,
 .sd-dropdown.sd-formbox--readonly,
 .sd-dropdown.sd-formbox--preview {
   .sv-string-viewer {

@@ -405,6 +405,17 @@ export var settings = {
   },
   expressionDisableConversionChar: "#",
   /**
+   * An object with `start` and `end` string properties that specify the delimiters for variable references in expressions and dynamic texts.
+   *
+   * Default value: `{ start: "{", end: "}" }`
+   *
+   * Set to `{ start: "{{", end: "}}" }` to use double braces.
+   */
+  expressionVariableDelimiters: {
+    start: "{",
+    end: "}"
+  },
+  /**
    * A prefix used to [access element property values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#element-properties) in expressions and dynamic texts.
    *
    * Default value: `"$"`

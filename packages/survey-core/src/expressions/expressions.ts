@@ -347,7 +347,7 @@ export class Variable extends Const {
       if (!!res) return res;
     }
     var prefix = this.useValueAsItIs ? Variable.DisableConversionChar : "";
-    return "{" + prefix + this.variableName + "}";
+    return settings.expressionVariableDelimiters.start + prefix + this.variableName + settings.expressionVariableDelimiters.end;
   }
   public get variable(): string {
     return this.variableName;

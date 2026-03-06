@@ -1,6 +1,6 @@
-import { IQuestion } from "./base-interfaces";
-import { Helpers, HashTable } from "./helpers";
-import { settings } from "./settings";
+import { IQuestion } from "../base-interfaces";
+import { Helpers, HashTable } from "../helpers";
+import { settings } from "../settings";
 
 export interface IValueGetterItem {
   name: string;

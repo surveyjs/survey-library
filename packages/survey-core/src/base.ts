@@ -10,10 +10,12 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { expressionObjectCachedValue, ExpressionRunner, IExpressionError } from "./conditions";
+import { ExpressionRunner } from "./expressions/expressionRunner";
+import { IExpressionError } from "./expressions/expressionError";
+import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditions/conditionProcessValue";
 
 export interface IPropertyValueChangedEvent {
   name: string;

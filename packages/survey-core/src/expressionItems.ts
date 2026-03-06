@@ -2,7 +2,6 @@ import { property, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./conditions";
 
 /**
  * Base class for HtmlConditionItem and UrlConditionItem classes.

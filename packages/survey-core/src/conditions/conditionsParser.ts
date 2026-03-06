@@ -1,5 +1,5 @@
-import { Operand, Const } from "./expressions/expressions";
-import { PeggySyntaxError, parse } from "./expressions/expressionParser";
+import { Operand, Const } from "../expressions/expressions";
+import { PeggySyntaxError, parse } from "../expressions/expressionParser";
 
 export class ConditionsParserError {
   constructor(public at: number, public code: string) {}

@@ -22,7 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
-import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { template } from "lodash";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");

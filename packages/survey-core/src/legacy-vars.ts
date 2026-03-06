@@ -42,10 +42,10 @@ export const legacyCssVariables = {
 
   "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
-  "--sjs-editorpanel-hovercolor": "--sjs2-color-bg-basic-secondary-dim",
+  "--sjs-editorpanel-hovercolor": "--sjs2-color-component-check-false-hovered-bg",
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-container-panel",
-  "--sjs-questionpanel-backcolor": "--sjs2-color-bg-basic-primary",
-  "--sjs-questionpanel-hovercolor": "--sjs2-color-bg-basic-primary-dim",
+  "--sjs-questionpanel-backcolor": "--sjs2-color-component-panel-default-bg",
+  "--sjs-questionpanel-hovercolor": "--sjs2-color-unknown-variable-001",
 
   "--sjs-font-family": "--sjs2-typography-font-family-text",
   "--sjs-font-pagetitle-family": "--sjs2-typography-font-family-component-page-title",

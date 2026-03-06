@@ -1,4 +1,4 @@
-import { IPlainDataOptions, ISurveyImpl } from "./base-interfaces";
+import { IPlainDataOptions, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
 import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -89,14 +89,17 @@ export class QuestionFileModelBase extends Question {
    * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    */
   @property() waitForUpload: boolean;
+  public get fileCallbacks(): ISurveyFileCallbacks {
+    return this.survey as ISurveyFileCallbacks;
+  }
 
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     this.clearOnDeletingContainer();
     super.clearValue(keepComment, fromUI);
   }
   public clearOnDeletingContainer() {
-    if (!this.survey) return;
-    this.survey.clearFiles(this, this.name, this.value, null, () => { });
+    if (!this.fileCallbacks) return;
+    this.fileCallbacks.clearFiles(this, this.name, this.value, null, () => { });
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
@@ -110,10 +113,10 @@ export class QuestionFileModelBase extends Question {
     }
   }
   protected uploadFiles(files: File[], sourceType?: string) {
-    if (this.survey) {
+    if (this.fileCallbacks) {
       this.errors = [];
       this.stateChanged("loading");
-      this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
+      this.fileCallbacks.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
         if (Array.isArray(arg1)) {
           this.setValueFromResult(arg1);
           if (Array.isArray(arg2)) {
@@ -675,8 +678,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (inputElement) {
-      if (this.survey) {
-        this.survey.chooseFiles(inputElement, files => this.loadFiles(files, "file"), { element: this, elementType: this.getType(), propertyName: this.name });
+      if (this.fileCallbacks) {
+        this.fileCallbacks.chooseFiles(inputElement, files => this.loadFiles(files, "file"), { element: this, elementType: this.getType(), propertyName: this.name });
       } else {
         inputElement.click();
       }
@@ -776,10 +779,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property() isClearingFiles: boolean = false;
 
   public clear(doneCallback?: () => void) {
-    if (!this.survey) return;
+    if (!this.fileCallbacks) return;
     this.containsMultiplyFiles = false;
     this.isClearingFiles = true;
-    this.survey.clearFiles(
+    this.fileCallbacks.clearFiles(
       this,
       this.name,
       this.value,
@@ -833,9 +836,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
   }
   protected removeFileByContent(content: any) {
-    if (!this.survey) return;
+    if (!this.fileCallbacks) return;
     this.isClearingFiles = true;
-    this.survey.clearFiles(
+    this.fileCallbacks.clearFiles(
       this,
       this.name,
       this.value,
@@ -1362,8 +1365,8 @@ export class FileLoader {
     let downloadedCount = 0;
     this.loaded = new Array(files.length);
     files.forEach((value, index) => {
-      if (this.fileQuestion.survey) {
-        this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
+      if (this.fileQuestion.fileCallbacks) {
+        this.fileQuestion.fileCallbacks.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
           if (!this.fileQuestion || !this.callback) {
             return;
           }

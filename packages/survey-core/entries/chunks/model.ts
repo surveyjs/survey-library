@@ -109,6 +109,16 @@ export {
 export * from "../../src/event";
 export {
   ISurvey,
+  ISurveyElementLifecycle,
+  ISurveyFileCallbacks,
+  ISurveyMatrixCallbacks,
+  ISurveyDynamicPanelCallbacks,
+  ISurveyChoiceCallbacks,
+  ISurveyCssCallbacks,
+  ISurveyAfterRenderCallbacks,
+  ISurveyTitleSettings,
+  ISurveyValidation,
+  ISurveySingleInput,
   ISurveyElement,
   IElement,
   IQuestion,

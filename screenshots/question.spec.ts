@@ -831,7 +831,7 @@ frameworks.forEach(framework => {
           }]
       });
 
-      await page.locator(".sd-table__cell input[maxlength='25']").first().focus();
+      await page.locator(".sd-table__cell input[maxlength='25']").first().click();
       await compareScreenshot(page, page.locator(".sd-question"), "question-matrixdynamic-remaining-character-counter.png");
     });
 

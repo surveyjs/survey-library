@@ -99,8 +99,6 @@ export {
 export { ItemValue } from "../../src/itemvalue";
 export {
   Base,
-  Event,
-  EventBase,
   ArrayChanges,
   ComputedUpdater,
   IPropertyValueChangedEvent,
@@ -108,6 +106,7 @@ export {
   IExpressionValidationOptions,
   IExpressionValidationResult,
 } from "../../src/base";
+export * from "../../src/event";
 export {
   ISurvey,
   ISurveyElement,

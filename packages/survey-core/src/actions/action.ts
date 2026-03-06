@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
-import { Base, ComputedUpdater, EventBase } from "../base";
+import { Base, ComputedUpdater } from "../base";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";

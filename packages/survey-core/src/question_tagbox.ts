@@ -5,7 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { updateListCssValues } from "./utils/dom-utils";

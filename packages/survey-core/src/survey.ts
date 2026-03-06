@@ -8268,6 +8268,8 @@ export class SurveyModel extends SurveyElementCore
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];
+      } else if (key === "isLight") {
+        this.colorPalette = theme[key] ? "light" : "dark";
       } else {
         (this as any)[key] = theme[key];
       }

@@ -5,7 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
-import { getActiveElement, getElement } from "./utils/utils";
+import { getActiveElement, getElement } from "./utils/dom-utils";
 
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper } from "./global_variables_utils";

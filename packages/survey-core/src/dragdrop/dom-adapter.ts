@@ -1,4 +1,4 @@
-import { findScrollableParent, isShadowDOM } from "../utils/utils";
+import { findScrollableParent, isShadowDOM } from "../utils/dom-utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { settings, ISurveyEnvironment } from "../settings";
 import { IDragDropEngine } from "./engine";

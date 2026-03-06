@@ -1,5 +1,5 @@
 import { IsTouch } from "./devices";
-import { getRootNode } from "./utils";
+import { getRootNode } from "./dom-utils";
 
 export interface ITargets {
   target: HTMLElement; currentTarget: HTMLElement;

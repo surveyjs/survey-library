@@ -5,7 +5,7 @@ import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { wrapUrlForBackgroundImage } from "./utils/utils";
+import { wrapUrlForBackgroundImage } from "./utils/dom-utils";
 
 export class CoverCell {
   static CLASSNAME = "sv-header__cell";

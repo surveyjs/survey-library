@@ -308,25 +308,14 @@ export {
   ButtonGroupItemValue
 } from "../../src/question_buttongroup";
 export { IsMobile, IsTouch, _setIsTouch, _setIsTablet } from "../../src/utils/devices";
-export {
-  confirmAction,
-  confirmActionAsync,
-  detectIEOrEdge,
-  doKey2ClickUp,
-  doKey2ClickDown,
-  doKey2ClickBlur,
-  loadFileFromBase64,
-  increaseHeightByContent,
-  createSvg,
-  chooseFiles,
-  sanitizeEditableContent,
-  prepareElementForVerticalAnimation,
-  cleanHtmlElementAfterAnimation,
-  classesToSelector,
-  IAttachKey2clickOptions,
-  renamedIcons,
-  getIconNameFromProxy
-} from "../../src/utils/utils";
+export * from "../../src/utils/browser";
+export * from "../../src/utils/confirm-dialog";
+export * from "../../src/utils/dom-utils";
+export * from "../../src/utils/file-utils";
+export * from "../../src/utils/icons";
+export * from "../../src/utils/key2click";
+export * from "../../src/utils/animation-dom";
+export * from "../../src/utils/utils";
 export { InputMaskBase } from "../../src/mask/mask_base";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
 export { InputMaskNumeric } from "../../src/mask/mask_numeric";

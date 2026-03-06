@@ -1,6 +1,6 @@
 import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions } from "./popup";
-import { IConfirmDialogOptions, showConfirmDialog } from "./utils/utils";
+import { IConfirmDialogOptions, showConfirmDialog } from "./utils/confirm-dialog";
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,

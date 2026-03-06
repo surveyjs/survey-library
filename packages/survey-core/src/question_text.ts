@@ -11,7 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
-import { getRootNode } from "./utils/utils";
+import { getRootNode } from "./utils/dom-utils";
 
 /**
  * A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.

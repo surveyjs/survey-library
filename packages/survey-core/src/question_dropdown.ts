@@ -8,7 +8,7 @@ import { PopupModel } from "./popup";
 import { EventBase } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
-import { updateListCssValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/dom-utils";
 import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
 

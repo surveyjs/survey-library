@@ -14,7 +14,7 @@ import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
-import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";

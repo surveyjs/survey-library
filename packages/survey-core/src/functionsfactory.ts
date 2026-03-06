@@ -129,6 +129,7 @@ export class FunctionFactory {
     if (!funcInfo.useCache) return;
     const surveyValues = properties.surveyCachedValues;
     const objectValues = properties.objsCachedValues;
+    if (!Array.isArray(surveyValues) || !Array.isArray(objectValues)) return;
     if (params.length === 0 && surveyValues.length === 0 && objectValues.length === 0) return;
     let cachedList = this.functionCache[funcInfo.name];
     if (!Array.isArray(cachedList)) {

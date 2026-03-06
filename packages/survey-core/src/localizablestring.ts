@@ -1,7 +1,7 @@
 import { Helpers } from "./helpers";
 import { surveyLocalization, getLocaleString } from "./surveyStrings";
 import { settings } from "./settings";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 import { ItemValue } from "./itemvalue";
 import { ISaveToJSONOptions } from "./base-interfaces";
 

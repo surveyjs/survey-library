@@ -23,7 +23,6 @@ import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from ".
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
 import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
-import { template } from "lodash";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 

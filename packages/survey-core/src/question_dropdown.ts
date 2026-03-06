@@ -5,7 +5,7 @@ import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
 import { updateListCssValues } from "./utils/dom-utils";

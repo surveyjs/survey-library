@@ -87,11 +87,8 @@
 
     .sd-multipletext__item-title {
       padding: 0;
-
-      span {
-        font-size: calcFontSize(0.75);
-        line-height: calcLineHeight(1);
-      }
+      font-size: calcFontSize(0.75);
+      line-height: calcLineHeight(1);
     }
 
     .sd-multipletext__item {

@@ -421,7 +421,7 @@ export var defaultCss = {
     itemLabelAllowFocus: "sd-multipletext__item-container--allow-focus",
     itemLabelAnswered: "sd-multipletext__item-container--answered",
     item: "sd-multipletext__item",
-    itemTitle: "sd-multipletext__item-title",
+    itemTitle: "sd-multipletext__item-title sd-formbox__label",
     content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
     cell: "sd-multipletext__cell",

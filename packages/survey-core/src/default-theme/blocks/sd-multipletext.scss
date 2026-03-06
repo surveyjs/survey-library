@@ -20,26 +20,6 @@
   align-items: flex-start;
   height: 100%;
 }
-
-.sd-multipletext__item-title {
-  height: calc(100% - #{$base-unit} * 3);
-  padding: calcSize(1) calcSize(2) calcSize(1) calcSize(1.5);
-  font-size: 0;
-  line-height: 0;
-  max-width: 30%;
-  border-right: 1px solid $border;
-  box-sizing: content-box;
-  white-space: normal;
-  color: $font-editorfont-placeholdercolor;
-  span {
-    font-size: $font-editorfont-size;
-    line-height: multiply(1.5, $font-editorfont-size);
-  }
-}
-
-.sd-question--preview .sd-multipletext__item-title {
-  border: none;
-}
 .sd-multipletext__item {
   flex-grow: 1;
   display: flex;

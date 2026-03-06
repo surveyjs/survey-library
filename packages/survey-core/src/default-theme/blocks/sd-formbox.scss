@@ -47,6 +47,9 @@
         padding-left: 0;
         padding-right: 0;
     }
+    .sd-formbox__label {
+        border: none;
+    }
 }
 .sd-formbox--error {
     background: var(--sjs2-color-component-formbox-invalid-bg, #f5f5f5);
@@ -107,6 +110,21 @@
     &::-webkit-datetime-edit-fields-wrapper {
         padding: 0;
     }
+}
+.sd-formbox__label {
+    height: calc(100% - #{$base-unit} * 3);
+    padding: var(--sjs2-spacing-x100, 8px) calc(var(--sjs2-spacing-x150, 12px) + var(--sjs2-spacing-x050, 4px))
+        var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x150, 12px);
+    max-width: 30%;
+    border-right: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-input-default-line, #d4d4d4);
+    box-sizing: content-box;
+    white-space: normal;
+    color: var(--sjs2-color-component-input-default-label, rgba(28, 27, 32, 0.6));
+    font-family: var(--sjs2-typography-font-family-component-input-content, "Open Sans");
+    font-size: var(--sjs2-typography-font-size-component-input-content, 16px);
+    font-style: normal;
+    font-weight: var(--sjs2-typography-font-weight-component-input-content, 400);
+    line-height: var(--sjs2-typography-line-height-component-input-content, 24px);
 }
 
 .sd-formbox__character-counter {

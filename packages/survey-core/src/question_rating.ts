@@ -834,7 +834,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
       .toString();
 
     if (!!this.survey) {
-      this.survey.updateChoiceItemCss(this, options);
+      this.cssCallbacks.updateChoiceItemCss(this, options);
     }
 
     return options.css;

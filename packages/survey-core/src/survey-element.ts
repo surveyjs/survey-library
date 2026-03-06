@@ -1,5 +1,6 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
@@ -12,7 +13,11 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
-  ITitleOwner, IElementUIState
+  ITitleOwner, IElementUIState,
+  ISurveyTitleSettings,
+  ISurveyElementLifecycle,
+  ISurveyCssCallbacks,
+  ISurveySingleInput
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
@@ -367,7 +372,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
-      this.survey.elementContentVisibilityChanged(this);
+      this.lifecycleCallbacks.elementContentVisibilityChanged(this);
     }
   }
   /**
@@ -382,7 +387,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isCollapsed(): boolean {
     return this.state === "collapsed" && !this.isDesignMode && !this.isSingleInputMode;
   }
-  protected get isSingleInputMode(): boolean { return this.survey?.isSingleVisibleInput; }
+  protected get isSingleInputMode(): boolean { return this.singleInput?.isSingleVisibleInput; }
   /**
    * Returns `true` if the survey element is expanded.
    * @hidefor PageModel
@@ -502,7 +507,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private updateTitleActions() {
     let actions: Array<IAction> = this.getDefaultTitleActions();
     if (!!this.survey) {
-      actions = this.survey.getUpdatedElementTitleActions(this, actions);
+      actions = this.titleSettings.getUpdatedElementTitleActions(this, actions);
     }
     this.setArrayPropertyValue("titleActions", actions);
   }
@@ -581,6 +586,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    */
   public get survey(): ISurvey {
     return this.getSurvey();
+  }
+  public get titleSettings(): ISurveyTitleSettings {
+    return this.survey as ISurveyTitleSettings;
+  }
+  public get lifecycleCallbacks(): ISurveyElementLifecycle {
+    return this.survey as ISurveyElementLifecycle;
+  }
+  public get cssCallbacks(): ISurveyCssCallbacks {
+    return this.survey as ISurveyCssCallbacks;
+  }
+  public get singleInput(): ISurveySingleInput {
+    return this.survey as ISurveySingleInput;
   }
   public getSurvey(live: boolean = false): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
@@ -839,7 +856,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected getPageVisibleIndex(): number { return -1; }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.getQuestionStartIndex(this.getPageVisibleIndex());
+    if (!!this.survey) return this.titleSettings.getQuestionStartIndex(this.getPageVisibleIndex());
     return "";
   }
   public delete(doDispose: boolean): void { }
@@ -977,7 +994,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public isInternalNested: boolean;
   private canHaveFrameStyles() {
-    if (<any>this.survey?.currentSingleElement === this) return true;
+    if (<any>this.singleInput?.currentSingleElement === this) return true;
     if (this.isInternalNested === true) return false;
     return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }

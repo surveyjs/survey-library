@@ -1,6 +1,6 @@
 import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -19,7 +19,8 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 
 const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
@@ -138,6 +139,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
+  public get choiceCallbacks(): ISurveyChoiceCallbacks {
+    return this.survey as ISurveyChoiceCallbacks;
+  }
   private commentAreaModelValues: HashTable<TextAreaModel>;
   private filteredChoicesValue: Array<ItemValue>;
   private otherItemValue: ItemValue;
@@ -745,11 +749,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return null;
   }
   private canSurveyChangeItemVisibility(): boolean {
-    return !!this.survey && this.survey.canChangeChoiceItemsVisibility();
+    return !!this.survey && this.choiceCallbacks.canChangeChoiceItemsVisibility();
   }
   private changeItemVisibility() {
     return this.canSurveyChangeItemVisibility() ?
-      (item: ItemValue, val: boolean): boolean => this.survey.getChoiceItemVisibility(this, item, val)
+      (item: ItemValue, val: boolean): boolean => this.choiceCallbacks.getChoiceItemVisibility(this, item, val)
       : null;
   }
   private runConditionsForItems(properties: HashTable<any>): boolean {
@@ -999,7 +1003,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (hasItemWithoutValues && (this.choicesLazyLoadEnabled || this.hasChoicesUrl)) {
       this.waitingGetChoiceDisplayValueResponse = true;
       this.updateIsReady();
-      this.survey.getChoiceDisplayValue({
+      this.choiceCallbacks.getChoiceDisplayValue({
         question: this,
         values: valueArray,
         setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => {
@@ -1114,7 +1118,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     };
     res.updateResultCallback = (items: Array<ItemValue>, serverResult: any): Array<ItemValue> => {
       if (this.survey) {
-        return this.survey.updateChoicesFromServer(this, items, serverResult);
+        return this.choiceCallbacks.updateChoicesFromServer(this, items, serverResult);
       }
       return items;
     };
@@ -1711,7 +1715,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return (
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&
-        (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
+        (this.survey != null ? this.choiceCallbacks.storeOthersAsComment : true)) ||
       (this.hasChoicesUrl && !this.choicesFromUrl)
     );
   }
@@ -2063,7 +2067,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return item.value === this.renderedValue;
   }
   private clearDisabledValues() {
-    if (!this.survey || !this.survey.clearDisabledChoices) return;
+    if (!this.survey || !this.choiceCallbacks.clearDisabledChoices) return;
     this.clearDisabledValuesCore();
   }
   protected clearIncorrectValuesCore(): void {
@@ -2104,7 +2108,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     var res = this.getItemClassCore(item, options);
     options.css = res;
     if (!!this.survey) {
-      this.survey.updateChoiceItemCss(this, options);
+      this.cssCallbacks.updateChoiceItemCss(this, options);
     }
     return options.css;
   }
@@ -2337,7 +2341,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.isChoicesLoaded = true;
     this.updateIsReady();
     if (this.survey) {
-      this.survey.loadedChoicesFromServer(this);
+      this.choiceCallbacks.loadedChoicesFromServer(this);
     }
     if (this.loadedChoicesFromServerCallback) {
       this.loadedChoicesFromServerCallback();

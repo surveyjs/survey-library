@@ -1,5 +1,6 @@
 
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { propertyArray } from "./jsonobject";
 import { PageModel } from "./page";

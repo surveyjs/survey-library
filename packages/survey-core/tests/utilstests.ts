@@ -10,7 +10,8 @@ import { mouseInfo, detectMouseSupport, MatchMediaMethod, calculateIsTablet } fr
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
-import { Base, EventBase } from "../src/base";
+import { Base } from "../src/base";
+import { EventBase } from "../src/event";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {

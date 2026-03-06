@@ -99,8 +99,6 @@ export {
 export { ItemValue } from "../../src/itemvalue";
 export {
   Base,
-  Event,
-  EventBase,
   ArrayChanges,
   ComputedUpdater,
   IPropertyValueChangedEvent,
@@ -108,8 +106,19 @@ export {
   IExpressionValidationOptions,
   IExpressionValidationResult,
 } from "../../src/base";
+export * from "../../src/event";
 export {
   ISurvey,
+  ISurveyElementLifecycle,
+  ISurveyFileCallbacks,
+  ISurveyMatrixCallbacks,
+  ISurveyDynamicPanelCallbacks,
+  ISurveyChoiceCallbacks,
+  ISurveyCssCallbacks,
+  ISurveyAfterRenderCallbacks,
+  ISurveyTitleSettings,
+  ISurveyValidation,
+  ISurveySingleInput,
   ISurveyElement,
   IElement,
   IQuestion,

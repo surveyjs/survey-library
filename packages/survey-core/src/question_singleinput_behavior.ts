@@ -3,7 +3,7 @@ import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { LocalizableString } from "./localizablestring";
 import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
-import { ISurvey } from "./base-interfaces";
+import { ISurveySingleInput } from "./base-interfaces";
 
 export class QuestionSingleInputBehavior {
   private isSingleInputSummaryShown: boolean;
@@ -11,12 +11,12 @@ export class QuestionSingleInputBehavior {
   constructor(protected question: Question) {}
 
   protected get isSingleInputMode(): boolean {
-    return this.question.survey?.isSingleVisibleInput;
+    return this.question.singleInput?.isSingleVisibleInput;
   }
 
   public get isSingleInputActive(): boolean {
     if (!this.isSingleInputMode) return false;
-    const ssQ = this.question.survey.currentSingleQuestion;
+    const ssQ = this.question.singleInput.currentSingleQuestion;
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
 
@@ -26,8 +26,8 @@ export class QuestionSingleInputBehavior {
   protected resetPropertyValue(name: string): void {
     this.question.resetPropertyValue(name);
   }
-  protected get survey(): ISurvey {
-    return this.question.survey;
+  protected get survey(): ISurveySingleInput {
+    return this.question.singleInput;
   }
   private calculateSingleInputQuestion(): Question {
     if (!this.isSingleInputActive) {

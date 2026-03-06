@@ -1,6 +1,7 @@
 import { debounce } from "./taskmanager";
 import { compareArrays } from "./utils";
-import { EventBase, Base } from "../base";
+import { Base } from "../base";
+import { EventBase } from "../event";
 import { DomWindowHelper } from "../global_variables_utils";
 
 export interface AnimationOptions{

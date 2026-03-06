@@ -204,6 +204,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.syncFilterStringPlaceholder();
   }
 
+  protected handleEnterWhenPopupVisible(event: any): void {
+    this.listModel.selectFocusedItem();
+    this.onFocus(event);
+  }
+
   protected onPropertyChangedHandler(sender: any, options: any) {
     super.onPropertyChangedHandler(sender, options);
     if (options.name === "value" || options.name === "renderedValue" || options.name === "placeholder") {

@@ -63,6 +63,16 @@ export interface IDialogOptions extends IPopupOptionsBase {
   showCloseButton?: boolean;
 }
 
+export interface IConfirmDialogOptions {
+  message?: string;
+  funcOnYes?: () => void;
+  funcOnNo?: () => void;
+  applyTitle?: string;
+  locale?: string;
+  rootElement?: HTMLElement;
+  cssClass?: string;
+}
+
 export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public setWidthByTarget: boolean;
   public focusFirstInputSelector = "";

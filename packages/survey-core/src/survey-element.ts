@@ -1,5 +1,6 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {

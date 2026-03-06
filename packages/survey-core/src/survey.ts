@@ -1,6 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
-import { Base, EventBase, ComputedUpdater, EventAsync } from "./base";
+import { Base, ComputedUpdater, EventAsync } from "./base";
+import { EventBase } from "./event";
 import {
   ISurvey,
   ISurveyData,

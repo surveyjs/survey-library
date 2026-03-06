@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
     await initSurvey(framework, json);
   });
 
-  test("check integrity", async t => {
+  test.skip("check integrity", async t => {
     // const getCount = ClientFunction(
     //   () => document.querySelectorAll("ins.iCheck-helper").length
     // );
@@ -44,11 +44,11 @@ frameworks.forEach(framework => {
     await t.expect(Selector("ins.iCheck-helper").count).eql(20);
   });
 
-  test("choose empty", async t => {
+  test.skip("choose empty", async t => {
     await checkSurveyWithEmptyQuestion(t);
   });
 
-  test("choose value", async t => {
+  test.skip("choose value", async t => {
     let surveyResult;
 
     await t

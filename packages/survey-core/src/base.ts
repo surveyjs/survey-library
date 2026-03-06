@@ -1191,7 +1191,7 @@ export class Base implements IObjectValueContext {
     this.unregisterPropertyChangedHandlers(names, key);
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
-    if (!obj || !propertyName) return;
+    if (!obj || !propertyName || !(obj instanceof Base)) return;
     const id = this.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {

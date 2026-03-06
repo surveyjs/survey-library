@@ -1,4 +1,3 @@
-import { Base } from "./base";
 import { IQuestion } from "./base-interfaces";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
@@ -29,7 +28,7 @@ export interface IValueGetterContextGetValueParams {
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
   getTextValue?(name: string, value: any, isDisplayValue: boolean): string;
-  getObj?(): Base;
+  getObj?(): any;
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
 }
@@ -346,8 +345,8 @@ export class ProcessValue {
     if (!!this.context) {
       const cRes = this.getValueInfoByContext(valueInfo.name);
       if (cRes.isFound) {
-        const obj: Base = this.context.getObj ? this.context.getObj() : null;
-        if (!!obj && !!cRes.propObj && (cRes.propObj instanceof Base)) {
+        const obj = this.context.getObj ? this.context.getObj() : null;
+        if (!!obj && !!cRes.propObj) {
           obj.addPropertyDependency(cRes.propObj, cRes.propName);
         }
       }

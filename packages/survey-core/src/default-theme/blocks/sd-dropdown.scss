@@ -4,25 +4,24 @@
 .sv-dropdown_select-wrapper {
   position: relative;
 }
-
-select.sd-dropdown {
-  padding-inline-start: calcSize(2); //padding-left
-  padding-inline-end: calcSize(0.5); //padding-right
-  padding-block: calcSize(1.5);
-  line-height: multiply(1.5, $font-editorfont-size);
-  font-family: $font-editorfont-family;
-  font-weight: $font-editorfont-weight;
-  font-size: $font-editorfont-size;
-  &:focus {
-    outline: none;
-    box-shadow:
-      $shadow-inner-reset,
-      0 0 0 2px $primary;
+.sd-dropdown--select {
+  justify-content: end;
+  select.sd-dropdown__input {
+    position: absolute;
+    padding: calc(var(--sjs2-spacing-x100, 8px) + var(--sjs2-spacing-x050, 4px))
+      calc(var(--sjs2-spacing-x150, 12px) + var(--sjs2-spacing-x050, 4px));
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    option {
+      color: $foreground;
+      font-family: $font-family;
+      font-size: calcFontSize(1);
+    }
   }
-  option {
-    color: $foreground;
-    font-family: $font-family;
-    font-size: calcFontSize(1);
+  .sd-dropdown__group {
+    pointer-events: none;
   }
 }
 

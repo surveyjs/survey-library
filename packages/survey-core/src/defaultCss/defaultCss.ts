@@ -460,7 +460,8 @@ export var defaultCss = {
     filterStringInput: "sd-dropdown__filter-string-input",
     materialDecorator: "sd-item__decorator sd-radio__decorator",
     hintPrefix: "sd-dropdown__hint-prefix",
-    hintSuffix: "sd-dropdown__hint-suffix"
+    hintSuffix: "sd-dropdown__hint-suffix",
+    controlSelect: "sd-dropdown--select"
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",

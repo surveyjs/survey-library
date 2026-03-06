@@ -1032,14 +1032,16 @@ var json = {
 
 /*
 json = {
-        showQuestionNumbers: true,
   "elements": [
     {
-            "type": "boolean",
-      "name": "q1",
-            "useTitleAsLabel": true,
+      "type": "dropdown",
+      "name": "car",
+      renderAs: "select",
+      "title": "Which is the brand of your car?",
       "isRequired": true,
-            "renderAs": "checkbox"
+      "showNoneItem": true,
+      "showOtherItem": true,
+      "choices": [ "Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen" ]
     }
   ]
 };

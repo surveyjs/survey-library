@@ -5,7 +5,7 @@ import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { classesToSelector } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
 import { DomDocumentHelper } from "./global_variables_utils";
 
 export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {

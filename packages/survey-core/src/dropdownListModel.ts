@@ -17,7 +17,8 @@ import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
-import { classesToSelector, doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/key2click";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;

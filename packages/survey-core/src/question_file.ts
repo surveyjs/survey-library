@@ -2,11 +2,15 @@ import { IPlainDataOptions, ISurveyImpl, ISurveyFileCallbacks } from "./base-int
 import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { EventBase, ComputedUpdater, Base } from "./base";
+import { ComputedUpdater, Base } from "./base";
+import { EventBase } from "./event";
 import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { classesToSelector, confirmActionAsync, detectIEOrEdge, isElementVisible, loadFileFromBase64 } from "./utils/utils";
+import { classesToSelector, isElementVisible } from "./utils/dom-utils";
+import { confirmActionAsync } from "./utils/confirm-dialog";
+import { detectIEOrEdge } from "./utils/browser";
+import { loadFileFromBase64 } from "./utils/file-utils";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";

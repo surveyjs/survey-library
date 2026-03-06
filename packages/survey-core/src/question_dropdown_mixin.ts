@@ -1,6 +1,6 @@
 import type { DropdownListModel } from "./dropdownListModel";
 import type { PopupModel } from "./popup";
-import type { EventBase } from "./base";
+import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";

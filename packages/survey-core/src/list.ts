@@ -3,7 +3,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
-import { classesToSelector, getFirstVisibleChild } from "./utils/utils";
+import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
 import { settings } from "./settings";
 import { ILocalizableOwner } from "./localizablestring";
 import { IsTouch } from "./utils/devices";

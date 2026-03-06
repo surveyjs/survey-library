@@ -3,7 +3,7 @@ import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { preventDefaults } from "./utils/utils";
+import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
 

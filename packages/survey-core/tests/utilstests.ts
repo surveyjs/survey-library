@@ -1,11 +1,17 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL, getRootNode, getActiveElement, mulberry32 } from "../src/utils/utils";
+import { doKey2ClickDown, doKey2ClickUp } from "../src/utils/key2click";
+import { sanitizeEditableContent, getSafeUrl, isBase64URL } from "../src/utils/dom-utils";
+import { configConfirmDialog } from "../src/utils/confirm-dialog";
+import { compareArrays, mulberry32 } from "../src/utils/utils";
+import { setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation } from "../src/utils/animation-dom";
+import { getRootNode, getActiveElement } from "../src/utils/dom-utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod, calculateIsTablet } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationTab, AnimationUtils, IAnimationConsumer, IAnimationGroupConsumer } from "../src/utils/animation";
-import { Base, EventBase } from "../src/base";
+import { Base } from "../src/base";
+import { EventBase } from "../src/event";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {

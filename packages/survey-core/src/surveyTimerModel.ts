@@ -1,5 +1,6 @@
 import { ISurvey } from "./base-interfaces";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { SurveyTimer, SurveyTimerEvent } from "./surveytimer";
 import { property } from "./jsonobject";
 import { PageModel } from "./page";

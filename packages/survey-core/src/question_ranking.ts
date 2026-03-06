@@ -11,7 +11,7 @@ import { Helpers } from "./helpers";
 import { settings } from "../src/settings";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
-import { classesToSelector } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
 
 /**
  * A class that describes the Ranking question type.

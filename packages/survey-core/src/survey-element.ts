@@ -1,5 +1,6 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
@@ -26,7 +27,8 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean, AnimationProperty } from "./utils/animation";
-import { classesToSelector, cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
 import { IObjectValueContext, IValueGetterContext } from "./conditionProcessValue";
@@ -42,6 +44,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
+  }
+  public getAllowLineBreaks(name: string): boolean {
+    return Serializer.findProperty(this.getType(), name)?.type === "text";
   }
   /**
    * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.

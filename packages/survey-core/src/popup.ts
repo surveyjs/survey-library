@@ -1,4 +1,5 @@
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { property } from "./jsonobject";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";

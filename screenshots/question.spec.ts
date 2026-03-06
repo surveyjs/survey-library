@@ -831,9 +831,7 @@ frameworks.forEach(framework => {
           }]
       });
 
-      await page.waitForTimeout(500);
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
+      await page.locator(".sd-table__cell input[maxlength='25']").first().focus();
       await compareScreenshot(page, page.locator(".sd-question"), "question-matrixdynamic-remaining-character-counter.png");
     });
 

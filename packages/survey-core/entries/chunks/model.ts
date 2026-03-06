@@ -154,14 +154,11 @@ export {
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
 export { FunctionFactory, registerFunction, IFunctionRegistration } from "../../src/functionsfactory";
-export {
-  ConditionRunner,
-  ExpressionRunner,
-  IExpressionExecutor,
-  IExpressionExecutor as IExpresionExecutor,
-  ExpressionExecutor,
-  IExpressionError,
-  ExpressionErrorType } from "../../src/conditions";
+export { IExpressionError, ExpressionErrorType } from "../../src/expressions/expressionError";
+export { ExpressionRunner } from "../../src/expressions/expressionRunner";
+export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
+export { IExpressionExecutor, IExpressionExecutor as IExpresionExecutor } from "../../src/expressions/expressionExecutor";
+export { ConditionRunner } from "../../src/conditions/conditions";
 export {
   Operand,
   Const,
@@ -171,8 +168,8 @@ export {
   ArrayOperand,
   UnaryOperand
 } from "../../src/expressions/expressions";
-export { ConditionsParser } from "../../src/conditionsParser";
-export { ProcessValue } from "../../src/conditionProcessValue";
+export { ConditionsParser } from "../../src/conditions/conditionsParser";
+export { ProcessValue } from "../../src/conditions/conditionProcessValue";
 export {
   JsonError,
   JsonIncorrectTypeError,

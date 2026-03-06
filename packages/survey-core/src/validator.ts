@@ -4,9 +4,9 @@ import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
 import { LocalizableString } from "./localizablestring";
 import { property, Serializer } from "./jsonobject";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditions";
 import { HashTable, Helpers } from "./helpers";
-import { IValueGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 
 export class AsyncElementsRunner {
   private asyncElements: HashTable<boolean> = {};

@@ -1,6 +1,6 @@
 import { Helpers } from "./helpers";
 import { ISurvey, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
-import { IObjectValueContext, ValueGetter } from "./conditionProcessValue";
+import { IObjectValueContext, ValueGetter } from "./conditions/conditionProcessValue";
 import { settings } from "./settings";
 
 export class TextPreProcessorItem {

@@ -1,6 +1,7 @@
 import { parse } from "../../src/expressions/expressionParser";
-import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
-import { ConditionsParser } from "../../src/conditionsParser";
+import { ConditionRunner } from "../../src/conditions/conditions";
+import { ExpressionRunner } from "../../src/expressions/expressionRunner";
+import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   Const,
@@ -8,7 +9,7 @@ import {
   Operand,
 } from "../../src/expressions/expressions";
 
-import { ProcessValue, VariableGetterContext } from "../../src/conditionProcessValue";
+import { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
 import { Helpers } from "../../src/helpers";

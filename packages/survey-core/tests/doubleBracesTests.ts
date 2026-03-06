@@ -1,12 +1,7 @@
-import { parse } from "../src/expressions/expressionParser";
-import { ConditionRunner, ExpressionRunner } from "../src/conditions";
-import { ConditionsParser } from "../src/conditionsParser";
-import {
-  Const,
-  Variable,
-  Operand,
-} from "../src/expressions/expressions";
-import { ProcessValue, VariableGetterContext } from "../src/conditionProcessValue";
+import { ConditionRunner } from "../src/conditions/conditions";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
+import { ConditionsParser } from "../src/conditions/conditionsParser";
+import { ProcessValue, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import {
   TextPreProcessor,
   TextPreProcessorValue,

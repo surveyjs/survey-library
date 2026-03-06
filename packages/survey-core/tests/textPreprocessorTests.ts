@@ -2,7 +2,7 @@ import {
   TextPreProcessor,
   TextPreProcessorValue,
 } from "../src/textPreProcessor";
-import { ValueGetter, VariableGetterContext } from "../src/conditionProcessValue";
+import { ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("TextPreprocessorTests");

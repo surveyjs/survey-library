@@ -1,6 +1,7 @@
 import { Helpers } from "./helpers";
 import { ISurvey, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
 import { IObjectValueContext, ValueGetter } from "./conditionProcessValue";
+import { settings } from "./settings";
 
 export class TextPreProcessorItem {
   public start: number;
@@ -31,9 +32,11 @@ export class TextPreProcessor implements ITextProcessor {
     if (!text) return text;
     if (!this.canProcess()) return text;
     const items = this.getItems(text);
+    const startLen = settings.expressionVariableStartBrace.length;
+    const endLen = settings.expressionVariableEndBrace.length;
     for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
-      const name = this.getName(text.substring(item.start + 1, item.end));
+      const name = this.getName(text.substring(item.start + startLen, item.end + 1 - endLen));
       if (!!name) {
         const textValue = new TextPreProcessorValue(name, returnDisplayValue === true);
         this.onProcessValue(textValue);
@@ -81,20 +84,28 @@ export class TextPreProcessor implements ITextProcessor {
     var items = [];
     var length = text.length;
     var start = -1;
-    var ch = "";
+    const startBrace = settings.expressionVariableStartBrace;
+    const endBrace = settings.expressionVariableEndBrace;
+    const startLen = startBrace.length;
+    const endLen = endBrace.length;
     for (var i = 0; i < length; i++) {
-      ch = text[i];
-      if (ch == "{") start = i;
-      if (ch == "}") {
+      if (text.substring(i, i + startLen) === startBrace) {
+        start = i;
+        i += startLen - 1;
+        continue;
+      }
+      if (text.substring(i, i + endLen) === endBrace) {
         if (start > -1) {
           var item = new TextPreProcessorItem();
           item.start = start;
-          item.end = i;
-          if (this.isValidItemName(text.substring(start + 1, i))) {
+          item.end = i + endLen - 1;
+          if (this.isValidItemName(text.substring(start + startLen, i))) {
             items.push(item);
           }
         }
         start = -1;
+        i += endLen - 1;
+        continue;
       }
     }
     return items;

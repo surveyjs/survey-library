@@ -17,12 +17,10 @@ import { settings } from "../src/settings";
 export default QUnit.module("DoubleBracesTests");
 
 function setDoubleBraces() {
-  settings.expressionVariableStartBrace = "{{";
-  settings.expressionVariableEndBrace = "}}";
+  settings.expressionVariableDelimiters = { start: "{{", end: "}}" };
 }
 function resetBraces() {
-  settings.expressionVariableStartBrace = "{";
-  settings.expressionVariableEndBrace = "}";
+  settings.expressionVariableDelimiters = { start: "{", end: "}" };
 }
 
 // =====================================================

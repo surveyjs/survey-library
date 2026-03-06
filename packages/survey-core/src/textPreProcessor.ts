@@ -32,8 +32,8 @@ export class TextPreProcessor implements ITextProcessor {
     if (!text) return text;
     if (!this.canProcess()) return text;
     const items = this.getItems(text);
-    const startLen = settings.expressionVariableStartBrace.length;
-    const endLen = settings.expressionVariableEndBrace.length;
+    const startLen = settings.expressionVariableDelimiters.start.length;
+    const endLen = settings.expressionVariableDelimiters.end.length;
     for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
       const name = this.getName(text.substring(item.start + startLen, item.end + 1 - endLen));
@@ -84,8 +84,8 @@ export class TextPreProcessor implements ITextProcessor {
     var items = [];
     var length = text.length;
     var start = -1;
-    const startBrace = settings.expressionVariableStartBrace;
-    const endBrace = settings.expressionVariableEndBrace;
+    const startBrace = settings.expressionVariableDelimiters.start;
+    const endBrace = settings.expressionVariableDelimiters.end;
     const startLen = startBrace.length;
     const endLen = endBrace.length;
     for (var i = 0; i < length; i++) {

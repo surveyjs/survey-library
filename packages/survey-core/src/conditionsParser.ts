@@ -19,8 +19,8 @@ export class ConditionsParser {
       .replace(/notequals/g, "notequal ");
   }
   private patchBraces(text: string): string {
-    const start = settings.expressionVariableStartBrace;
-    const end = settings.expressionVariableEndBrace;
+    const start = settings.expressionVariableDelimiters.start;
+    const end = settings.expressionVariableDelimiters.end;
     if (start === "{" && end === "}") return text;
     return text.split(start).join("{").split(end).join("}");
   }

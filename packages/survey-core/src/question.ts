@@ -1,7 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, property, Serializer } from "./jsonobject";
-import { Base, EventBase } from "./base";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation } from "./base-interfaces";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";

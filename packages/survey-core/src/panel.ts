@@ -2460,7 +2460,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop(q, q, null, q.inputId, false, { behavior: "smooth" });
+            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: "smooth" } });
           }
         }, elementIsRendered ? 0 : 15);
       }

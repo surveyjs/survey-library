@@ -25,7 +25,8 @@ import {
   IDropdownMenuOptions,
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
-  ISaveToJSONOptions
+  ISaveToJSONOptions,
+  IScrollElementToTopOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -5800,16 +5801,12 @@ export class SurveyModel extends SurveyElementCore
 
   public skeletonHeight: number = undefined;
 
-  scrollElementToTop(
-    element: ISurveyElement, question: Question, page: PageModel,
-    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement,
-    onScolledCallback?: () => void
-  ): any {
+  scrollElementToTop(scrollOptions: IScrollElementToTopOptions): any {
+    const { element, question, page, id, scrollIfVisible, scrollIntoViewOptions, passedRootElement, onScolledCallback } = scrollOptions;
     const options: ScrollToTopEvent = {
       element: element,
-      question: question,
-      page: page,
+      question: question as any,
+      page: page as any,
       elementId: id,
       cancel: false,
       allow: true,

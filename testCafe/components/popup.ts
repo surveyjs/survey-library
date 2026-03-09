@@ -441,7 +441,7 @@ frameworks.forEach(async framework => {
       .click(Selector(".sv-action-bar-item"))
       .expect(listItems.count).eql(40)
 
-      .pressKey("1")
+      .typeText(Selector(".sv-list__input"), "1")
       .expect(listItems.count).eql(13)
       .expect(getListItemByText("item1").focused).notOk()
 

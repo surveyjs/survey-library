@@ -527,6 +527,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   protected setLocTitle(val: LocalizableString): void {}
   protected setTitle(val: string): void {}
   @property({ defaultValue: "" }) icon: string;
+
+  @property() randomize: boolean;
+  @property() randomizeCategory: string;
 }
 
 Base.createItemValue = function (source: any, type?: string): any {
@@ -567,7 +570,7 @@ Serializer.addClass(
       },
     },
     { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
-    { name: "randomizeCategory:string", default: "", visible: false, locationInTable: "detail" },
+    { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
   ],
   (value: any) => new ItemValue(value)
 );

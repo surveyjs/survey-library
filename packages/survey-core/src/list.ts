@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";

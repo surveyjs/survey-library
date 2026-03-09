@@ -1,4 +1,5 @@
-import { JsonObject, JsonObjectProperty, property, Serializer } from "./jsonobject";
+import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Question } from "./question";
 import { Base, ArrayChanges } from "./base";
 import { ISurvey, IWrapperObject } from "./base-interfaces";

@@ -186,9 +186,8 @@ export {
   JsonRequiredPropertyError,
   JsonUnknownPropertyError,
   Serializer,
-  property,
-  propertyArray
 } from "../../src/jsonobject";
+export { property, propertyArray } from "../../src/decorators";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,

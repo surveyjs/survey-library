@@ -1,7 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { JsonObject, property, Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
 import { getLocaleString } from "./surveyStrings";

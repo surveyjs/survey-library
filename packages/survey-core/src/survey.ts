@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
+import { JsonObject, JsonError, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { Base, ComputedUpdater, EventAsync } from "./base";
 import { EventBase } from "./event";
 import {

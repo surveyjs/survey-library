@@ -1,4 +1,5 @@
-import { JsonObjectProperty, Serializer, property } from "./jsonobject";
+import { JsonObjectProperty, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { IAction } from "./actions/action";

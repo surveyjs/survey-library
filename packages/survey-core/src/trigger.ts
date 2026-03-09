@@ -1,7 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
 import { ValueGetter } from "./conditionProcessValue";

@@ -1,6 +1,7 @@
 import { IPlainDataOptions, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
 import { IQuestionPlainData, Question } from "./question";
-import { property, propertyArray, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ComputedUpdater, Base } from "./base";
 import { EventBase } from "./event";

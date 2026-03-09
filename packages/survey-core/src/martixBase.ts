@@ -1,7 +1,8 @@
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { ConditionRunner } from "./conditions";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 

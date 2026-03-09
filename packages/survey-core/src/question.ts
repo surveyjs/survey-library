@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, property, Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";

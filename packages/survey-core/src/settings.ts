@@ -409,7 +409,18 @@ export var settings = {
    *
    * Default value: `{ start: "{", end: "}" }`
    *
-   * Set this property to `{ start: "{{", end: "}}" }` to use double braces.
+   * Examples:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * // {{variableName}}
+   * settings.expressionVariableDelimiters = { start: "{{", end: "}}" };
+   * // {% variableName %}
+   * settings.expressionVariableDelimiters = { start: "{% ", end: " %}" };
+   * // %variableName%
+   * settings.expressionVariableDelimiters = { start: "%", end: "%" };
+   * ```
    */
   expressionVariableDelimiters: {
     start: "{",

@@ -2,18 +2,9 @@ import { HashTable } from "../helpers";
 import { IValueGetterContext, VariableGetterContextEx } from "../conditions/conditionProcessValue";
 import { IExpressionValidationOptions } from "../base";
 import { IExpressionError } from "./expressionError";
+import type { IExpressionExecutorBase } from "./expressionExecutor";
 
-export interface IExpressionExecutorBase {
-  onComplete: (res: any, id: number) => void;
-  expression: string;
-  canRun(): boolean;
-  run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
-  runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
-  getVariables(): Array<string>;
-  hasFunction(): boolean;
-  isAsync: boolean;
-  validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
-}
+export { IExpressionExecutorBase };
 
 export var createExpressionExecutor: (expression: string) => IExpressionExecutorBase;
 export function setCreateExpressionExecutor(func: (expression: string) => IExpressionExecutorBase): void {

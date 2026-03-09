@@ -7,7 +7,7 @@ import {
   property,
 } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { ConditionRunner } from "./conditions/conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Base, ComputedUpdater } from "./base";
 import { ISaveToJSONOptions, IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";

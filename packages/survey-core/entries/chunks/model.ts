@@ -158,7 +158,7 @@ export { IExpressionError, ExpressionErrorType } from "../../src/expressions/exp
 export { ExpressionRunner } from "../../src/expressions/expressionRunner";
 export { ExpressionExecutorRunner } from "../../src/expressions/expressionExecutor";
 export { IExpressionExecutor, IExpressionExecutor as IExpresionExecutor } from "../../src/expressions/expressionExecutor";
-export { ConditionRunner } from "../../src/conditions/conditions";
+export { ConditionRunner } from "../../src/conditions/conditionRunner";
 export {
   Operand,
   Const,

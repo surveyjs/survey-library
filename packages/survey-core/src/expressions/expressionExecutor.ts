@@ -8,6 +8,18 @@ import { IExpressionValidationOptions } from "../base";
 import { ExpressionErrorType, IExpressionError, getQuestionErrorText } from "./expressionError";
 import { setCreateExpressionExecutor } from "./expressionRunner";
 
+export interface IExpressionExecutorBase {
+  onComplete: (res: any, id: number) => void;
+  expression: string;
+  canRun(): boolean;
+  run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
+  runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
+  getVariables(): Array<string>;
+  hasFunction(): boolean;
+  isAsync: boolean;
+  validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
+}
+
 /**
  * Base interface for expression execution
  */

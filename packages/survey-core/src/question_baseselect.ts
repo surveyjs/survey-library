@@ -8,7 +8,7 @@ import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./conditions/conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";

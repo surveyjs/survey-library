@@ -48,7 +48,7 @@ import {
   UrlConditionItem,
   ExpressionItem,
 } from "./expressionItems";
-import { ConditionRunner } from "./conditions/conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";

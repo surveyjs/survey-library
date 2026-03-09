@@ -1,4 +1,4 @@
-import { ConditionRunner } from "../src/conditions/conditions";
+import { ConditionRunner } from "../src/conditions/conditionRunner";
 import { ExpressionRunner } from "../src/expressions/expressionRunner";
 import { ConditionsParser } from "../src/conditions/conditionsParser";
 import { ProcessValue, VariableGetterContext } from "../src/conditions/conditionProcessValue";

@@ -64,7 +64,7 @@ frameworks.forEach((framework) => {
       }, json);
       await page.waitForTimeout(500);
 
-      const questionValueText = page.locator(".sd-dropdown__value .sv-string-viewer");
+      const questionValueText = page.locator(".sd-dropdown__input .sv-string-viewer");
       const questionDropdownSelect = page.locator(".sd-dropdown");
 
       await questionDropdownSelect.click();

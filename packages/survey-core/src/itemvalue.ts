@@ -565,7 +565,9 @@ Serializer.addClass(
       visibleIf: (obj: ItemValue): boolean => {
         return !obj || obj.ownerPropertyName !== "rateValues";
       },
-    }
+    },
+    { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
+    { name: "randomizeCategory:string", default: "", visible: false, locationInTable: "detail" },
   ],
   (value: any) => new ItemValue(value)
 );

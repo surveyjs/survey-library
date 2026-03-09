@@ -363,3 +363,24 @@ QUnit.test("Survey: calculatedValues with double braces", function (assert) {
     resetBraces();
   }
 });
+
+QUnit.test("Survey: calculatedValues with same braces", function (assert) {
+  settings.expressionVariableDelimiters = { start: "%", end: "%" };
+  try {
+    var survey = new SurveyModel({
+      calculatedValues: [
+        { name: "sum", expression: "%q1% + %q2%" }
+      ],
+      elements: [
+        { type: "text", name: "q1", inputType: "number" },
+        { type: "text", name: "q2", inputType: "number" },
+        { type: "expression", name: "q3", expression: "%sum%" }
+      ]
+    });
+    survey.setValue("q1", 3);
+    survey.setValue("q2", 4);
+    assert.equal(survey.getQuestionByName("q3").value, 7, "calculated value with same braces");
+  } finally {
+    settings.expressionVariableDelimiters = { start: "{", end: "}" };
+  }
+});

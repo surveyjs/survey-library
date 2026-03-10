@@ -4,8 +4,8 @@ import {
   JsonObjectProperty,
   Serializer,
   CustomPropertiesCollection,
-  property,
 } from "./jsonobject";
+import { property } from "./decorators";
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { Base, ComputedUpdater } from "./base";

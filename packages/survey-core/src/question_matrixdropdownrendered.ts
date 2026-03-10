@@ -1,4 +1,4 @@
-import { property, propertyArray } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { Question } from "./question";
 import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";

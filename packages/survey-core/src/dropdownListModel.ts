@@ -5,7 +5,7 @@ import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { IListModel, ListModel } from "./list";
 import { LocalizableString } from "./localizablestring";
 import { IPopupOptionsBase, PopupModel } from "./popup";

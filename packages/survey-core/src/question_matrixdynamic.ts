@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
 import { Question, QuestionValueGetterContext } from "./question";

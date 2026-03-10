@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { IElement, IQuestion } from "./base-interfaces";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";

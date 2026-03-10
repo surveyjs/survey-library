@@ -2,7 +2,8 @@ import { ComputedUpdater, Base, ArrayChanges, IPropertyArrayValueChangedEvent, I
 import { Event } from "../src/event";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
-import { property, Serializer } from "../src/jsonobject";
+import { Serializer } from "../src/jsonobject";
+import { property } from "../src/decorators";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/dom-utils";

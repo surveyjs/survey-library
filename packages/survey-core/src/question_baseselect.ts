@@ -1,4 +1,5 @@
-import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
+import { JsonObjectProperty, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";

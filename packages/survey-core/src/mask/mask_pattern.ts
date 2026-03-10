@@ -1,5 +1,6 @@
 import { settings } from "../settings";
-import { Serializer, property } from "../jsonobject";
+import { Serializer } from "../jsonobject";
+import { property } from "../decorators";
 import { InputMaskBase } from "./mask_base";
 import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
 import { ILoadFromJSONOptions } from "../base-interfaces";

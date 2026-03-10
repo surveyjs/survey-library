@@ -1,4 +1,5 @@
-import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
+import { JsonObject, CustomPropertiesCollection, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext } from "./question";
 import { HashTable, Helpers } from "./helpers";

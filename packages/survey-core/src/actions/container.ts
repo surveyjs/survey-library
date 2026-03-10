@@ -1,4 +1,4 @@
-import { property, propertyArray } from "../jsonobject";
+import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
 import { IAction, Action, BaseAction } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";

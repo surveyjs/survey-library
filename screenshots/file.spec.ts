@@ -79,6 +79,7 @@ frameworks.forEach(framework => {
       const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").filter({ visible: true }).first();
       await prevButton.click({ force: true });
       //await page.click(".sd-file #prevPage");
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-multiple-navigator.png");
     });
 

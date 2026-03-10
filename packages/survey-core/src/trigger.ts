@@ -3,9 +3,9 @@ import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { ConditionRunner, ExpressionRunner } from "./conditions";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 import { OperandMaker } from "./expressions/expressions";
-import { ValueGetter } from "./conditionProcessValue";
+import { ValueGetter } from "./conditions/conditionProcessValue";
 import { settings } from "./settings";
 
 /**

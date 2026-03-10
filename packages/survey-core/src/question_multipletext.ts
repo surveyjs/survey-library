@@ -24,7 +24,7 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditions/conditionProcessValue";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {

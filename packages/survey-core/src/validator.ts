@@ -5,9 +5,9 @@ import { CustomError, RequreNumericError } from "./error";
 import { LocalizableString } from "./localizablestring";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { HashTable, Helpers } from "./helpers";
-import { IValueGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 
 export class AsyncElementsRunner {
   private asyncElements: HashTable<boolean> = {};

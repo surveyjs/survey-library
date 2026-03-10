@@ -11,7 +11,7 @@ import { settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { FunctionFactory } from "../src/functionsfactory";
-import { ExpressionRunner } from "../src/conditions";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
 
 export default QUnit.module("Triggers");
 

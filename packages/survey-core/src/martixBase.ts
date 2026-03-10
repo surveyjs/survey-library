@@ -3,7 +3,7 @@ import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**

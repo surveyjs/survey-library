@@ -1,18 +1,8 @@
 import { LocalizableString } from "../localizablestring";
 import { settings } from "../settings";
-import { IDialogOptions } from "../popup";
+import { IDialogOptions, IConfirmDialogOptions } from "../popup";
 import { getLocaleString } from "../surveyStrings";
 import { PopupBaseViewModel } from "../popup-view-model";
-
-export interface IConfirmDialogOptions {
-  message?: string;
-  funcOnYes?: () => void;
-  funcOnNo?: () => void;
-  applyTitle?: string;
-  locale?: string;
-  rootElement?: HTMLElement;
-  cssClass?: string;
-}
 
 export function confirmAction(message: string): boolean {
   if (!!settings && !!settings.confirmActionFunc)
@@ -66,4 +56,10 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
 
 export function configConfirmDialog(popupViewModel: PopupBaseViewModel): void {
   popupViewModel.width = "min-content";
+}
+
+if (!settings.confirmActionAsync) {
+  settings.confirmActionAsync = (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void => {
+    showConfirmDialog(message, callback, options);
+  };
 }

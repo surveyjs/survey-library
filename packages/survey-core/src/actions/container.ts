@@ -1,30 +1,18 @@
 import { property, propertyArray } from "../jsonobject";
 import { Base } from "../base";
-import { IAction, Action, BaseAction } from "./action";
+import { IAction } from "./action-interfaces";
+import { BaseAction } from "./base-action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
 import { debounce } from "../utils/taskmanager";
-
-export type ActionBarCssClasses = { [index: string]: string };
-
-export let defaultActionBarCss: ActionBarCssClasses = {
-  root: "sv-action-bar",
-  defaultSizeMode: "sv-action-bar--default-size-mode",
-  smallSizeMode: "sv-action-bar--small-size-mode",
-  item: "sv-action-bar-item",
-  itemWithTitle: "",
-  itemAsIcon: "sv-action-bar-item--icon",
-  itemActive: "sv-action-bar-item--active",
-  itemPressed: "sv-action-bar-item--pressed",
-  itemIcon: "sv-action-bar-item__icon",
-  itemTitle: "sv-action-bar-item__title",
-  itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
-};
+import { ActionBarCssClasses, defaultActionBarCss } from "./default-action-bar-css";
 
 export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
 
-export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
+export class ActionContainer<T extends BaseAction = BaseAction> extends Base implements ILocalizableOwner {
+  static defaultAction: any = undefined;
+
   private static ContainerID = 1;
   protected id = ActionContainer.ContainerID++;
 
@@ -45,13 +33,13 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({
-    onSet: (_: any, target: ActionContainer<Action>) => {
+    onSet: (_: any, target: ActionContainer<T>) => {
       target.onSet();
     },
-    onPush: (item: any, i: number, target: ActionContainer<Action>) => {
+    onPush: (item: any, i: number, target: ActionContainer<T>) => {
       target.onPush(item);
     },
-    onRemove: (item: any, i: number, target: ActionContainer<Action>) => {
+    onRemove: (item: any, i: number, target: ActionContainer<T>) => {
       target.onRemove(item);
     }
   })
@@ -195,10 +183,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   private createAction(item: IAction): T {
     return <T>(item instanceof BaseAction ? item : this.createActionCore(this, item));
   }
-  public createActionCallback: ((item: IAction) => Action) | null = null;
-  protected createActionCore(owner: Base, item: IAction): Action {
+  public createActionCallback: ((item: IAction) => T) | null = null;
+  protected createActionCore(owner: Base, item: IAction): T {
     if (this.createActionCallback) return this.createActionCallback(item);
-    return new Action(item);
+    return new ActionContainer.defaultAction(item);
   }
   public addAction(val: IAction, sortByVisibleIndex = true): T {
     const res: T = this.createAction(val);

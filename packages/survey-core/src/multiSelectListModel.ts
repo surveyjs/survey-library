@@ -1,6 +1,9 @@
 import { property } from "./jsonobject";
-import { Action, BaseAction, IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
+import { Action } from "./actions/action";
+
 import { IListModel, ListModel } from "./list";
+import { BaseAction } from "./actions/base-action";
 
 export interface IMultiSelectListModel extends IListModel {
   selectedItems?: Array<IAction>;

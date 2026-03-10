@@ -1,6 +1,6 @@
 import { Base } from "./base";
 import { EventBase } from "./event";
-import { IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
 import { property } from "./jsonobject";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
 import { calculateIsTablet, IsTouch } from "./utils/devices";

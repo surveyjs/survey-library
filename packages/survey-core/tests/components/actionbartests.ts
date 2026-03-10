@@ -1,6 +1,10 @@
-import { Action, ActionDropdownViewModel, IAction, createDropdownActionModel } from "../../src/actions/action";
+import { IAction } from "../../src/actions/action-interfaces";
+import { Action } from "../../src/actions/action";
+import { ActionDropdownViewModel } from "../../src/actions/action-dropdown-view-model";
+import { createDropdownActionModel } from "../../src/actions/utils";
 import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsivenessMode } from "../../src/actions/adaptive-container";
-import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
+import { ActionContainer } from "../../src/actions/container";
+import { defaultActionBarCss } from "../../src/actions/default-action-bar-css";
 import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { ListModel } from "../../src/list";

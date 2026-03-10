@@ -2,8 +2,9 @@ import { Base } from "./base";
 import { settings } from "./settings";
 import { property } from "./jsonobject";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { ActionContainer, defaultActionBarCss } from "./actions/container";
-import { IAction } from "./actions/action";
+import { ActionContainer } from "./actions/container";
+import { defaultActionBarCss } from "./actions/default-action-bar-css";
+import { IAction } from "./actions/action-interfaces";
 
 interface INotifierCssClasses {
   root: string;

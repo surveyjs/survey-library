@@ -1,6 +1,7 @@
 import { property } from "./jsonobject";
 import { ActionContainer } from "./actions/container";
-import { Action, BaseAction, IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
+import { BaseAction } from "./actions/base-action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
@@ -49,7 +50,7 @@ export interface IListModel {
   onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
   disableSearch?: boolean;
 }
-export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
+export class ListModel<T extends BaseAction> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
   private loadingIndicatorValue: T;
   private onFilterStringChangedCallback: (text: string) => void;
@@ -111,7 +112,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
         newActions.push(action);
         if (action.items) {
           action.items.forEach(item => {
-            const a = new Action(item);
+            const a = new ActionContainer.defaultAction(item);
             if (!a.iconName) { a.iconName = action.iconName; }
             newActions.push(a as IAction as T);
           });
@@ -314,7 +315,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public get loadingIndicator(): T {
     if (!this.loadingIndicatorValue) {
 
-      const _loadingIndicator = new Action({
+      const _loadingIndicator = new ActionContainer.defaultAction({
         id: "loadingIndicator",
         title: this.getLocalizationString("loadingPage"),
         action: () => { },

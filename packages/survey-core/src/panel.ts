@@ -27,7 +27,7 @@ import { findScrollableParent, getElementWidth, isElementVisible } from "./utils
 import { floorTo2Decimals } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";

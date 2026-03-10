@@ -1,0 +1,69 @@
+import { IAction } from "./action-interfaces";
+import { Action } from "./action";
+import { ILocalizableOwner } from "../localizablestring";
+import { IListModel, ListModel } from "../list";
+import { IPopupOptionsBase, PopupModel } from "../popup";
+
+export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
+}
+
+export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions, locOwner?: ILocalizableOwner): Action {
+  dropdownOptions.locOwner = locOwner;
+  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
+}
+export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
+  const originalSelectionChanged = listOptions.onSelectionChanged;
+  listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
+    if (newAction.hasTitle) { newAction.title = item.title; }
+    if (originalSelectionChanged) {
+      originalSelectionChanged(item, params);
+    }
+  };
+  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
+  popupModel.getTargetCallback = getActionDropdownButtonTarget;
+  const newActionOptions = Object.assign({}, actionOptions, {
+    component: "sv-action-bar-item-dropdown",
+    popupModel: popupModel,
+    action: (action: IAction, isUserAction: boolean) => {
+      !!(actionOptions.action) && actionOptions.action();
+      popupModel.isFocusedContent = popupModel.isFocusedContent || !isUserAction;
+      popupModel.show();
+    },
+  });
+  const newAction: Action = new Action(newActionOptions);
+  newAction.data = popupModel.contentComponentData?.model;
+
+  return newAction;
+}
+
+export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
+  if (!listOptions.listRole) listOptions.listRole = "menu";
+  if (!listOptions.listItemRole) listOptions.listItemRole = !!listOptions.allowSelection ? "menuitemradio" : "menuitem";
+
+  const listModel = new ListModel(listOptions as any);
+  listModel.onSelectionChanged = (item: Action) => {
+    if (listOptions.onSelectionChanged) {
+      listOptions.onSelectionChanged(item);
+    }
+    popupModel.hide();
+  };
+
+  const _popupOptions = popupOptions || {};
+  _popupOptions.onDispose = () => { listModel.dispose(); };
+  const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
+  popupModel.isFocusedContent = listModel.showFilter;
+  popupModel.onShow = () => {
+    if (!!_popupOptions.onShow) _popupOptions.onShow();
+    listModel.scrollToSelectedItem();
+  };
+  popupModel.onHide = () => {
+    if (!!_popupOptions.onHide) _popupOptions.onHide();
+    listModel.filterString = "";
+  };
+
+  return popupModel;
+}
+
+export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
+  return container?.previousElementSibling as HTMLElement;
+}

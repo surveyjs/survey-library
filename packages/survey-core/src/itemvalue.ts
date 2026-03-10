@@ -11,7 +11,7 @@ import { ConditionRunner } from "./conditions/conditionRunner";
 import { Base, ComputedUpdater } from "./base";
 import { ISaveToJSONOptions, IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
-import { BaseAction } from "./actions/action";
+import { BaseAction } from "./actions/base-action";
 import { Question } from "./question";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 

@@ -1,8 +1,8 @@
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
-import { IAction } from "./actions/action";
-import { defaultActionBarCss } from "./actions/container";
+import { IAction } from "./actions/action-interfaces";
+import { defaultActionBarCss } from "./actions/default-action-bar-css";
 
 export class PopupModalViewModel extends PopupBaseViewModel {
   protected getStyleClass(): CssClassBuilder {

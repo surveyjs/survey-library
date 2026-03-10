@@ -56,7 +56,8 @@ import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
-import { IAction, Action } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
+import { Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
@@ -2526,7 +2527,7 @@ export class SurveyModel extends SurveyElementCore
     val.action = () => {
       this.waitAndExecute(() => originalActionFunc());
     };
-    return this.navigationBar.addAction(val);
+    return this.navigationBar.addAction(val) as Action;
   }
   private removeNavigationItem(id: string): void {
     this.navigationBarValue?.removeActionById(id);

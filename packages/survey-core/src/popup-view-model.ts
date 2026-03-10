@@ -4,7 +4,6 @@ import { property } from "./jsonobject";
 import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
-import { IAction } from "./actions/action";
 import { settings } from "./settings";
 import { getActiveElement, getElement } from "./utils/dom-utils";
 

@@ -1,4 +1,5 @@
-import { Action, IAction } from "./actions/action";
+import { Action } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
 import { ActionContainer } from "./actions/container";
 import { Base, ComputedUpdater } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";

@@ -10,7 +10,8 @@ import {
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
-import { Action, IAction } from "./actions/action";
+import { Action } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
 import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";

@@ -1,4 +1,5 @@
-import { Action, IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
+import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { IListModel, ListModel } from "./list";
@@ -39,7 +40,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
     listItemRole: "menuitemradio",
     listAriaLabel: getLocaleString("toc", survey.getLocale())
   };
-  var listModel = new ListModel(listOptions as any);
+  var listModel = new ListModel<Action>(listOptions as any);
   listModel.allowSelection = false;
   const updateSelectedItem = (currentPage: PageModel, defaultSelection?: IAction) => {
     listModel.selectedItem = !!currentPage && listModel.actions.filter(i => i.id === currentPage.name)[0] || defaultSelection;

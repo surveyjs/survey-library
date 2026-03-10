@@ -1,7 +1,7 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
 import { Base } from "./base";
 import { EventBase } from "./event";
-import { IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
   ISurveyElement,
@@ -23,7 +23,7 @@ import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean, AnimationProperty } from "./utils/animation";

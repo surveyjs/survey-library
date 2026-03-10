@@ -1,4 +1,4 @@
-import { IAction } from "./actions/action";
+import { IAction } from "./actions/action-interfaces";
 import { Base } from "./base";
 import {
   IElement,

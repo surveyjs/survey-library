@@ -1,9 +1,11 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
-import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
+import { Action } from "./action";
 import { ActionContainer, ContainerUpdateOptions } from "./container";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
+import { actionModeType, IAction } from "./action-interfaces";
+import { createDropdownActionModelAdvanced } from "./utils";
 
 export enum UpdateResponsivenessMode {
   None = 0,
@@ -63,8 +65,8 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     });
     this.hiddenItemsListModel.createActionCallback = (item: IAction) => this.createActionCore(this.hiddenItemsListModel, item);
   }
-  public get hiddenItemsListModel(): ListModel {
-    return this.dotsItem.data as ListModel;
+  public get hiddenItemsListModel(): ListModel<T> {
+    return this.dotsItem.data as ListModel<T>;
   }
   protected onSet(): void {
     super.onSet();

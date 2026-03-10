@@ -31,7 +31,7 @@ import { classesToSelector } from "./utils/dom-utils";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
-import { IObjectValueContext, IValueGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 
 /**

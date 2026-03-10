@@ -7,13 +7,13 @@ import {
   property,
 } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Base, ComputedUpdater } from "./base";
 import { ISaveToJSONOptions, IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}

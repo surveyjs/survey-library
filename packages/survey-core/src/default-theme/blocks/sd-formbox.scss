@@ -34,7 +34,6 @@
 
     .sd-formbox__input {
         cursor: default;
-        min-width: 0;
     }
 }
 .sd-formbox--preview {
@@ -83,6 +82,7 @@
     background: none;
     border: none;
     width: 100%;
+    min-width: 0;
     color: var(--sjs2-color-component-input-default-value, #1c1b20);
     text-overflow: ellipsis;
     font-family: var(--sjs2-typography-font-family-component-input-content, "Open Sans");

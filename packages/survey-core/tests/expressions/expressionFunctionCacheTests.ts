@@ -1,4 +1,4 @@
-import { ExpressionRunner } from "../../src/conditions";
+import { ExpressionRunner } from "../../src/expressions/expressionRunner";
 import { FunctionFactory, registerFunction, unregisterFunction } from "../../src/functionsfactory";
 import { SurveyModel } from "../../src/survey";
 

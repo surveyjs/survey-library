@@ -404,6 +404,28 @@ export var settings = {
   },
   expressionDisableConversionChar: "#",
   /**
+   * An object with `start` and `end` string properties that specify the delimiters for referencing variables in [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and [dynamic texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts).
+   *
+   * Default value: `{ start: "{", end: "}" }`
+   *
+   * Examples:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * // {{variableName}}
+   * settings.expressionVariableDelimiters = { start: "{{", end: "}}" };
+   * // {% variableName %}
+   * settings.expressionVariableDelimiters = { start: "{% ", end: " %}" };
+   * // %variableName%
+   * settings.expressionVariableDelimiters = { start: "%", end: "%" };
+   * ```
+   */
+  expressionVariableDelimiters: {
+    start: "{",
+    end: "}"
+  },
+  /**
    * A prefix used to [access element property values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#element-properties) in expressions and dynamic texts.
    *
    * Default value: `"$"`

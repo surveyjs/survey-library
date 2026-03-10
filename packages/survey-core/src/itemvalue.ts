@@ -7,13 +7,13 @@ import {
   property,
 } from "./jsonobject";
 import { Helpers } from "./helpers";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Base, ComputedUpdater } from "./base";
 import { ISaveToJSONOptions, IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
@@ -527,6 +527,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   protected setLocTitle(val: LocalizableString): void {}
   protected setTitle(val: string): void {}
   @property({ defaultValue: "" }) icon: string;
+
+  @property() randomize: boolean;
+  @property() randomizeCategory: string;
 }
 
 Base.createItemValue = function (source: any, type?: string): any {
@@ -565,7 +568,9 @@ Serializer.addClass(
       visibleIf: (obj: ItemValue): boolean => {
         return !obj || obj.ownerPropertyName !== "rateValues";
       },
-    }
+    },
+    { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
+    { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
   ],
   (value: any) => new ItemValue(value)
 );

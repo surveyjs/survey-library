@@ -102,7 +102,7 @@ export class QuestionExpressionModel extends Question {
       res = !this.format ? str : (<any>this.format)["format"](str);
     }
     if (!!this.survey) {
-      res = this.survey.getExpressionDisplayValue(this, val, res);
+      res = this.titleSettings.getExpressionDisplayValue(this, val, res);
     }
     return res;
   }

@@ -1,7 +1,8 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
-import { ConditionRunner, ExpressionExecutor } from "./conditions";
+import { getQuestionErrorText } from "./expressions/expressionError";
+import { ConditionRunner } from "./conditions/conditionRunner";
 
 export interface IFunctionCachedResult {
   result: any;
@@ -189,7 +190,7 @@ export class FunctionFactory {
     return false;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
-    return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);
+    return "Unknown function name: '" + name + "'." + getQuestionErrorText(properties);
   }
 }
 export interface IFunctionRegistration {
@@ -676,3 +677,10 @@ function getComment(params: any[]): any {
   return question.getCommentValue(question.otherItem) || question.comment;
 }
 FunctionFactory.Instance.register("getComment", getComment);
+
+export function expressionSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
+  FunctionFactory.Instance.addSurveyCachedValue(name, value, isVariable);
+}
+export function expressionObjectCachedValue(obj: any, name: string, value: any): void {
+  FunctionFactory.Instance.addObjectCachedValue(obj, name, value);
+}

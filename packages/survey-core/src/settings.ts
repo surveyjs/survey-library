@@ -532,7 +532,7 @@ export var settings = {
    * @param message A message to display in the confirmation dialog.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void => undefined,
+  confirmActionAsync: <(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => void>undefined,
   /**
    * A minimum width value for all survey elements.
    *

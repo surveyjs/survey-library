@@ -2715,8 +2715,16 @@ export class Question extends SurveyElement<Question>
   }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
+    if (!this.isUpdateingValueFromSurvey && this.survey) {
+      newValue = this.survey.questionValueChanging(this, newValue);
+    }
+    if (this.questionComment === newValue) return;
+    const oldValue = this.questionComment;
     this.questionComment = newValue;
     this.setCommentIntoData(newValue);
+    if (!this.isUpdateingValueFromSurvey && this.survey) {
+      this.survey.questionValueChanged(this, oldValue);
+    }
   }
   protected setCommentIntoData(newValue: string): void {
     if (this.data != null) {
@@ -2731,7 +2739,7 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(super.getValidName(name));
   }
   //IQuestion
-  private isUpdateingValueFromSurvey: boolean;
+  protected isUpdateingValueFromSurvey: boolean;
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     newValue = this.valueFromDataCore(newValue);

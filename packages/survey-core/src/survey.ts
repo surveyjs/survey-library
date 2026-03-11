@@ -2244,13 +2244,8 @@ export class SurveyModel extends SurveyElementCore
    */
   @property() logoFit: string;
   //#endregion
-  @property({ defaultValue: {} }) private _cssVariables;
-  private set cssVariables(val: { [index: string]: string }) {
-    this._cssVariables = Object.assign({}, this._cssVariables, val);
-  }
-  private get cssVariables(): { [index: string]: string } {
-    return this._cssVariables;
-  }
+
+  @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
   public get themeVariables() {
     return Object.assign({}, this.cssVariables);
   }

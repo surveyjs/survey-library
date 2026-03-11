@@ -122,7 +122,7 @@ You can localize questions, choices, columns, rows, and other survey texts right
 const surveyJson = {
   "elements": [{
     "type": "text",
-    "name": "firstname"
+    "name": "firstname",
     "title": "Enter your first name"
   }]
 };
@@ -135,7 +135,7 @@ const surveyJson = {
   "locale": "fr",
   "elements": [{
     "type": "text",
-    "name": "firstname"
+    "name": "firstname",
     "title": "Entrez votre prénom"
   }]
 };
@@ -147,7 +147,7 @@ If you want to create a survey that supports multiple languages, specify the pro
 const surveyJson = {
   "elements": [{
     "type": "text",
-    "name": "firstname"
+    "name": "firstname",
     "title": {
       "default": "Enter your first name",
       "de": "Geben Sie Ihren Vornamen ein",

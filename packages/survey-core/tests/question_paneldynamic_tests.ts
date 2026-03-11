@@ -9412,29 +9412,29 @@ QUnit.test("Fire onValueChanged, onDynamicPanelValueChanging, onDynamicPanelValu
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
   const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("question2");
 
-  const firedEvents: string[] = [];
+  const firedEvents: Array<{ event: string, name: string }> = [];
   survey.onValueChanged.add((sender, options) => {
-    firedEvents.push("onValueChanged");
+    firedEvents.push({ event: "onValueChanged", name: options.name });
   });
   survey.onDynamicPanelValueChanging.add((sender, options) => {
-    firedEvents.push("onDynamicPanelValueChanging");
+    firedEvents.push({ event: "onDynamicPanelValueChanging", name: options.name });
   });
   survey.onDynamicPanelValueChanged.add((sender, options) => {
-    firedEvents.push("onDynamicPanelValueChanged");
+    firedEvents.push({ event: "onDynamicPanelValueChanged", name: options.name });
   });
 
   radioQ.value = "Item 1";
   assert.deepEqual(firedEvents, [
-    "onDynamicPanelValueChanging",
-    "onValueChanged",
-    "onDynamicPanelValueChanged"
-  ], "All three events fire on value change");
+    { event: "onDynamicPanelValueChanging", name: "question2" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2" }
+  ], "All three events fire on value change with correct name");
 
   firedEvents.length = 0;
   radioQ.comment = "some comment";
   assert.deepEqual(firedEvents, [
-    "onDynamicPanelValueChanging",
-    "onValueChanged",
-    "onDynamicPanelValueChanged"
-  ], "All three events fire on comment change");
+    { event: "onDynamicPanelValueChanging", name: "question2-Comment" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2-Comment" }
+  ], "All three events fire on comment change with comment suffix in name");
 });

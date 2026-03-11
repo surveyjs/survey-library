@@ -2716,14 +2716,14 @@ export class Question extends SurveyElement<Question>
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     if (!this.isUpdatingValueFromSurvey && this.survey) {
-      newValue = this.survey.questionValueChanging(this, newValue);
+      newValue = this.survey.questionValueChanging(this, newValue, true);
     }
     if (this.questionComment === newValue) return;
     const oldValue = this.questionComment;
     this.questionComment = newValue;
     this.setCommentIntoData(newValue);
     if (!this.isUpdatingValueFromSurvey && this.survey) {
-      this.survey.questionValueChanged(this, oldValue);
+      this.survey.questionValueChanged(this, oldValue, true);
     }
   }
   protected setCommentIntoData(newValue: string): void {

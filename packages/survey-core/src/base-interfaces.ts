@@ -282,8 +282,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#endregion
 
   //#region Question value changes
-  questionValueChanging(question: IQuestion, newValue: any): any;
-  questionValueChanged(question: IQuestion, oldValue: any): void;
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any;
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void;
   getQuestionClearIfInvisible(questionClearIf: string): string;
   keepIncorrectValues: boolean;
   questionOrder: string;

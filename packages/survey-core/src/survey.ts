@@ -6919,14 +6919,18 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
-  private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>): any {
+  private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
     const parentQ = q.parentQuestion;
     if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
-    return parentQ.getValueChangingOptions(q);
+    const options = parentQ.getValueChangingOptions(q);
+    if (options && isComment) {
+      options.name = q.name + this.commentSuffix;
+    }
+    return options;
   }
-  questionValueChanging(question: IQuestion, newValue: any): any {
-    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanging);
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanging, isComment);
     if (options) {
       options.value = newValue;
       this.onDynamicPanelValueChanging.fire(this, options);
@@ -6934,10 +6938,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return newValue;
   }
-  questionValueChanged(question: IQuestion, oldValue: any): void {
-    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanged);
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanged, isComment);
     if (options) {
-      options.value = (<Question>question).value;
+      options.value = isComment ? (<Question>question).comment : (<Question>question).value;
       options.oldValue = oldValue;
       this.onDynamicPanelValueChanged.fire(this, options);
     }

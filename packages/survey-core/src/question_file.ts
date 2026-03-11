@@ -681,9 +681,19 @@ export class QuestionFileModel extends QuestionFileModelBase {
   /**
    * Specifies whether users should confirm file deletion.
    *
-   * Default value: `false`
+   * Default value: `true`
    */
-  @property() needConfirmRemoveFile: boolean;
+  @property() confirmDelete: boolean = true;
+
+  /**
+   * @deprecated Use the [`confirmDelete`](#confirmDelete) property instead.
+   */
+  public get needConfirmRemoveFile(): boolean {
+    return this.confirmDelete;
+  }
+  public set needConfirmRemoveFile(val) {
+    this.confirmDelete = val;
+  }
 
   public getConfirmRemoveMessage(fileName: string): string {
     return (<any>this.confirmRemoveMessage).format(fileName);
@@ -1232,7 +1242,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.onChange(src);
   };
   doClean = () => {
-    if (this.needConfirmRemoveFile) {
+    if (this.confirmDelete) {
       confirmActionAsync({
         message: this.confirmRemoveAllMessage,
         funcOnYes: () => { this.clearFilesCore(); },
@@ -1255,7 +1265,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doRemoveFile(data: any, event: any) {
     event.stopPropagation();
-    if (this.needConfirmRemoveFile) {
+    if (this.confirmDelete) {
       confirmActionAsync({
         message: this.getConfirmRemoveMessage(data.name),
         funcOnYes: () => { this.removeFileCore(data); },
@@ -1334,7 +1344,7 @@ Serializer.addClass(
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
-    { name: "needConfirmRemoveFile:boolean" },
+    { name: "confirmDelete:boolean", default: true },
     { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file" },
     { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder" },
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder" },

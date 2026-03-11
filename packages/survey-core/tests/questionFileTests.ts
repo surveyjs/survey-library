@@ -359,6 +359,7 @@ QUnit.test("QuestionFile remove files with the same name", function (assert) {
         allowMultiple: true,
         name: "image1",
         showPreview: true,
+        confirmDelete: false
       },
     ],
   };
@@ -997,6 +998,7 @@ QUnit.test("preview item index on last file removed", (assert) => {
         type: "file",
         name: "file1",
         allowMultiple: true,
+        confirmDelete: false
       }
     ],
   });
@@ -1205,6 +1207,7 @@ QUnit.test("QuestionFile remove file by preview value", function (assert) {
         allowMultiple: true,
         name: "image1",
         showPreview: true,
+        confirmDelete: false
       },
     ],
   };
@@ -2375,8 +2378,7 @@ QUnit.test("QuestionFile remove file by preview value with confirmation", functi
         type: "file",
         allowMultiple: true,
         name: "image1",
-        showPreview: true,
-        needConfirmRemoveFile: true
+        showPreview: true
       },
     ],
   };
@@ -2413,6 +2415,7 @@ QUnit.test("QuestionFile show loading indicator remove file", function (assert) 
         allowMultiple: true,
         name: "image1",
         showPreview: true,
+        confirmDelete: false
       },
     ],
   };

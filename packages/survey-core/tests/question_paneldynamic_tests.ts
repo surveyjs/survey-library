@@ -9141,6 +9141,31 @@ QUnit.test("paneldynamic getPanelInDesignMode", function (assert) {
   const q1 = new QuestionPanelDynamicModel("q1");
   assert.strictEqual(q1.getPanelInDesignMode(), q1.template, "returns tempalte");
 });
+QUnit.test("paneldynamic firstExpanded should not call scrollElementToTop on initial build, Bug#10998", function (assert) {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "relatives",
+        "templateElements": [{ "type": "text", "name": "q1" }],
+        "templateTitle": "Panel #{panelIndex}",
+        "panelCount": 3,
+        "panelsState": "firstExpanded"
+      }
+    ]
+  });
+  let scrollCalled = false;
+  survey.scrollElementToTop = (() => { scrollCalled = true; }) as any;
+  const q = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  q.onFirstRendering();
+  assert.equal(q.panels[0].state, "expanded", "first panel is expanded");
+  assert.equal(q.panels[1].state, "collapsed", "second panel is collapsed");
+  setTimeout(() => {
+    assert.equal(scrollCalled, false, "scrollElementToTop should not be called on initial panel build");
+    done();
+  }, 50);
+});
 QUnit.test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", function (assert) {
   const survey = new SurveyModel({
     "elements": [

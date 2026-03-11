@@ -76,7 +76,7 @@ const json = {
 const applyHeaderAccentBackgroundColor = async (page: Page) => {
   await applyTheme(page, {
     "header": { "inheritWidthFrom": "container" },
-    "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)" }
+    "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "", "--sjs2-color-component-header-default-description": "" }
   });
 };
 

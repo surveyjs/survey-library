@@ -18,6 +18,7 @@ pr:
 pool:
   name: main-selfhosted
 
+
 jobs:
   - job: Core
     steps:

@@ -256,7 +256,6 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
     const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
     const fontSizeBaseUnit = fontSizeValueNumber / 2;
     newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit.toString() + fontSizeDimension;
-    newCssVariable["--sjs2-font-size-x200"] = "calc(var(--sjs2-base-unit-font-size) * 2)";
     delete newCssVariable["--sjs-font-size"];
   }
 }

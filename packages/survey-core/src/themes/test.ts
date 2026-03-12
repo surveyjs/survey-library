@@ -980,6 +980,8 @@ export default {
     "--sjs2-border-effect-surface-focused": "var(--sjs2-border-offset-x-surface-focused) var(--sjs2-border-offset-y-surface-focused) var(--sjs2-border-blur-surface-focused) var(--sjs2-border-spread-surface-focused) var(--sjs2-color-utility-shadow-surface-focused), 0px 0px 0px 0px rgba(0,0,0,0)",
     "--sjs2-border-effect-surface-disabled": "var(--sjs2-border-offset-x-surface-disabled) var(--sjs2-border-offset-y-surface-disabled) var(--sjs2-border-blur-surface-disabled) var(--sjs2-border-spread-surface-disabled) var(--sjs2-color-utility-shadow-surface-disabled), 0px 0px 0px 0px rgba(0,0,0,0)",
     "--sjs2-border-effect-surface-dragging": "var(--sjs2-border-offset-x-surface-dragging) var(--sjs2-border-offset-y-surface-dragging) var(--sjs2-border-blur-surface-dragging) var(--sjs2-border-spread-surface-dragging) var(--sjs2-color-utility-shadow-surface-dragging), 0px 0px 0px 0px rgba(0,0,0,0)",
-    "--sjs2-border-effect-floating-default": "var(--sjs2-border-offset-x-floating-default) var(--sjs2-border-offset-y-floating-default) var(--sjs2-border-blur-floating-default) var(--sjs2-border-spread-floating-default) var(--sjs2-color-utility-shadow-floating-default), 0px 0px 0px 0px rgba(0,0,0,0)"
+    "--sjs2-border-effect-floating-default": "var(--sjs2-border-offset-x-floating-default) var(--sjs2-border-offset-y-floating-default) var(--sjs2-border-blur-floating-default) var(--sjs2-border-spread-floating-default) var(--sjs2-color-utility-shadow-floating-default), 0px 0px 0px 0px rgba(0,0,0,0)",
+    "--sjs2-color-component-formbox-invalid-focused-bg": "rgba(230, 10, 62, .1)",
+    "--sjs2-border-effect-component-formbox-invalid-focused": "0px 0px 0px 2px var(--sjs2-color-bg-brand-primary)"
   }
 };

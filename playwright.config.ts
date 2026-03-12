@@ -1,14 +1,14 @@
 import { defineConfig } from "@playwright/test";
 import { resolve } from "path";
 export default defineConfig({
-  retries: 4,
+  retries: 2,
   fullyParallel: true,
   webServer: {
     command: "",
     url: "http://localhost:8080"
   },
   snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
-  reporter: [["junit", { outputFile: "test-results/e2e-junit-results.xml" }], ["html", { open: "never" }]],
+  reporter: [["line"], ["junit", { outputFile: "test-results/e2e-junit-results.xml" }], ["html", { open: "never", printSteps: false }]],
   projects: [
     {
       name: "a11y",

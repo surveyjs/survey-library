@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 import { resolve } from "path";
 export default defineConfig({
   retries: 2,
+  maxFailures: 5,
   fullyParallel: true,
   webServer: {
     command: "",

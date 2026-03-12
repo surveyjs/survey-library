@@ -49,9 +49,12 @@ export async function resetFocusToBody(page: Page): Promise<void> {
   });
 }
 
-export const applyTheme = async (page: Page, theme: string) => {
+export const applyTheme = async (page: Page, theme: any) => {
   await page.evaluate((theme) => {
-    // (window as any).Survey.StylesManager.applyTheme(theme);
+    const testTheme = (window as any).SurveyTheme.Test;
+    const newTheme = { ...testTheme, ...theme };
+    newTheme.cssVariables = { ...testTheme.cssVariables, ...theme.cssVariables };
+    (window as any).survey.applyTheme(newTheme);
   }, theme);
 };
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {

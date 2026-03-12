@@ -1100,7 +1100,11 @@ export class QuestionPanelDynamicModel extends Question
       if (state === "firstExpanded") {
         state = i === 0 ? "expanded" : "collapsed";
       }
-      this.panelsCore[i].state = state;
+      if (state === "expanded") {
+        this.panelsCore[i].expand(false);
+      } else {
+        this.panelsCore[i].state = state;
+      }
     }
   }
   private setValueBasedOnPanelCount() {

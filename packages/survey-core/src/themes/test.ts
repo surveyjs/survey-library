@@ -483,7 +483,7 @@ export default {
     "--sjs2-color-component-buttongroup-item-true-focused-value": "var(--sjs2-color-fg-brand-primary)",
     "--sjs2-color-component-formbox-action-default-bg": "var(--sjs2-color-bg-neutral-tertiary)",
     "--sjs2-color-component-formbox-action-default-border": "rgba(from var(--sjs2-color-border-neutral-primary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-formbox-action-default-icon": "var(--sjs2-color-fg-neutral-primary-muted)",
+    "--sjs2-color-component-formbox-action-default-icon": "#909090",
     "--sjs2-color-component-formbox-action-default-label": "var(--sjs2-color-fg-neutral-primary)",
     "--sjs2-color-component-formbox-action-hovered-bg": "var(--sjs2-color-bg-neutral-tertiary-dim)",
     "--sjs2-color-component-formbox-action-hovered-border": "rgba(from var(--sjs2-color-border-neutral-primary) r g b / var(--sjs2-opacity-hidden))",

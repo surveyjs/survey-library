@@ -53,7 +53,11 @@
 }
 .sd-formbox--error {
     background: var(--sjs2-color-component-formbox-invalid-bg, #f5f5f5);
-    box-shadow: var(--sjs2-border-effect-component-formbox-invalid, 0 0 0 2px #e50a3e inset);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid, 0 0 0 1px #e50a3e inset);
+}
+.sd-formbox--error:where(:focus-within) {
+    background: var(--sjs2-color-component-formbox-invalid-focused-bg, #f5f5f5);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid-focused, 0 0 0 2px #e50a3e inset);
 }
 
 .sd-formbox {

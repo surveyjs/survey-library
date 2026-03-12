@@ -2,10 +2,10 @@ import {
   JsonObject,
   Serializer,
   JsonUnknownPropertyError,
-  property,
   JsonObjectProperty,
   JsonRequiredPropertyError,
 } from "../src/jsonobject";
+import { property } from "../src/decorators";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
 import { Helpers } from "../src/helpers";

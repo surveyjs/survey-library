@@ -17,7 +17,8 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
-import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
@@ -34,7 +35,7 @@ import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IQuestionPanelDynamicData {
@@ -1099,7 +1100,11 @@ export class QuestionPanelDynamicModel extends Question
       if (state === "firstExpanded") {
         state = i === 0 ? "expanded" : "collapsed";
       }
-      this.panelsCore[i].state = state;
+      if (state === "expanded") {
+        this.panelsCore[i].expand(false);
+      } else {
+        this.panelsCore[i].state = state;
+      }
     }
   }
   private setValueBasedOnPanelCount() {
@@ -1994,6 +1999,7 @@ export class QuestionPanelDynamicModel extends Question
     this.runCondition(this.getDataFilteredProperties());
   }
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
+    const prevIsValueChangingInternally = this.isValueChangingInternally;
     this.isValueChangingInternally = true;
     let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
@@ -2006,7 +2012,7 @@ export class QuestionPanelDynamicModel extends Question
         visibleIndex++;
       }
     }
-    this.isValueChangingInternally = false;
+    this.isValueChangingInternally = prevIsValueChangingInternally;
   }
   private isValueChangedWithoutPanels: boolean;
   onAnyValueChanged(name: string, questionName: string): void {

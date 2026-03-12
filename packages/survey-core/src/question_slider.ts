@@ -1,10 +1,10 @@
 import { Action } from "./actions/action";
 import { Base, ComputedUpdater } from "./base";
-import { ExpressionRunner } from "./conditions";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { property, propertyArray, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 import { QuestionFactory } from "./questionfactory";

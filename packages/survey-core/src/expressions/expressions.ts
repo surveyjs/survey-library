@@ -1,6 +1,6 @@
 import { HashTable, Helpers, createDate } from "../helpers";
 import { FunctionFactory } from "../functionsfactory";
-import { ProcessValue } from "../conditionProcessValue";
+import { ProcessValue } from "../conditions/conditionProcessValue";
 import { settings } from "../settings";
 
 export interface AsyncFunctionItem {

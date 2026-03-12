@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { PopupUtils, IPosition, Rect } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";

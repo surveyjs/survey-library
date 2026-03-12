@@ -1,12 +1,7 @@
-import { parse } from "../src/expressions/expressionParser";
-import { ConditionRunner, ExpressionRunner } from "../src/conditions";
-import { ConditionsParser } from "../src/conditionsParser";
-import {
-  Const,
-  Variable,
-  Operand,
-} from "../src/expressions/expressions";
-import { ProcessValue, VariableGetterContext } from "../src/conditionProcessValue";
+import { ConditionRunner } from "../src/conditions/conditionRunner";
+import { ExpressionRunner } from "../src/expressions/expressionRunner";
+import { ConditionsParser } from "../src/conditions/conditionsParser";
+import { ProcessValue, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import {
   TextPreProcessor,
   TextPreProcessorValue,
@@ -361,5 +356,26 @@ QUnit.test("Survey: calculatedValues with double braces", function (assert) {
     assert.equal(survey.getQuestionByName("q3").value, 7, "calculated value with double braces");
   } finally {
     resetBraces();
+  }
+});
+
+QUnit.test("Survey: calculatedValues with same braces", function (assert) {
+  settings.expressionVariableDelimiters = { start: "%", end: "%" };
+  try {
+    var survey = new SurveyModel({
+      calculatedValues: [
+        { name: "sum", expression: "%q1% + %q2%" }
+      ],
+      elements: [
+        { type: "text", name: "q1", inputType: "number" },
+        { type: "text", name: "q2", inputType: "number" },
+        { type: "expression", name: "q3", expression: "%sum%" }
+      ]
+    });
+    survey.setValue("q1", 3);
+    survey.setValue("q2", 4);
+    assert.equal(survey.getQuestionByName("q3").value, 7, "calculated value with same braces");
+  } finally {
+    settings.expressionVariableDelimiters = { start: "{", end: "}" };
   }
 });

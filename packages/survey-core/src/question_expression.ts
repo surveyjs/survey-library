@@ -1,6 +1,7 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 

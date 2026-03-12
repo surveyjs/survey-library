@@ -47,7 +47,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem, UrlConditionItem } from "../src/expressionItems";
 import { AnswerRequiredError } from "../src/error";
-import { ConditionsParser } from "../src/conditionsParser";
+import { ConditionsParser } from "../src/conditions/conditionsParser";
 import {
   Operand,
   Variable,

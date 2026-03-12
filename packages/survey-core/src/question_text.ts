@@ -1,5 +1,6 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";

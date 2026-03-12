@@ -1,7 +1,7 @@
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { IAction } from "./actions/action";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
 import { calculateIsTablet, IsTouch } from "./utils/devices";
 
@@ -61,6 +61,16 @@ export interface IDialogOptions extends IPopupOptionsBase {
   onApply: () => boolean;
   isFocusedContent?: boolean;
   showCloseButton?: boolean;
+}
+
+export interface IConfirmDialogOptions {
+  message?: string;
+  funcOnYes?: () => void;
+  funcOnNo?: () => void;
+  applyTitle?: string;
+  locale?: string;
+  rootElement?: HTMLElement;
+  cssClass?: string;
 }
 
 export class PopupModel<T = any> extends Base implements IPopupOptionsBase {

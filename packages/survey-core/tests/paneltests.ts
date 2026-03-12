@@ -3828,3 +3828,16 @@ QUnit.test("Do not create gridLayoutColumns array on creating&loading/serializin
   assert.equal(panel.toJSON().name, "panel1");
   assert.equal(panel.getPropertyValue("gridLayoutColumns"), undefined, "gridLayoutColumns array is not created on serializing");
 });
+QUnit.test("Panel maxWidth should return to default when set to empty string", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  assert.equal(panel.maxWidth, settings.maxWidth, "panel maxWidth default value");
+  panel.maxWidth = "50%";
+  assert.equal(panel.maxWidth, "50%", "panel maxWidth is set to 50%");
+  panel.maxWidth = "";
+  assert.equal(panel.maxWidth, settings.maxWidth, "panel maxWidth returns to default on empty string");
+});

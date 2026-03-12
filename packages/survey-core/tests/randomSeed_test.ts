@@ -296,3 +296,102 @@ QUnit.test("matrixdropdown", (assert) => {
   assert.deepEqual(matrix.visibleRows[1].cells[0].question.visibleChoices.map((e: any) => e.value).join(), "5,1,6,2,4,7,8,3,9", "matrix row#1 col#0 order for seed 1234567");
   assert.deepEqual(matrix.visibleRows[1].cells[1].question.visibleChoices.map((e: any) => e.value).join(), "9,4,7,2,8,1,5,3,6", "matrix row#1 col#1 order for seed 1234567");
 });
+
+QUnit.test("randomize with category", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [
+          { value: 1, randomizeCategory: "A" },
+          { value: 2, randomize: false },
+          { value: 3, randomizeCategory: "A" },
+          { value: 4, randomizeCategory: "A" },
+          { value: 5, randomizeCategory: "A" },
+          { value: 6, randomizeCategory: "B" },
+          { value: 7, randomizeCategory: "B" },
+          { value: 8, randomizeCategory: "B" },
+          { value: 9, randomizeCategory: "C" }
+        ],
+        choicesOrder: "random"
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [
+          { value: 1, randomizeCategory: "A" },
+          { value: 2, randomizeCategory: "A" },
+          { value: 3, randomizeCategory: "A" },
+          { value: 4, randomizeCategory: "A" },
+          { value: 5, randomize: false },
+          { value: 6, randomizeCategory: "B" },
+          { value: 7, randomizeCategory: "B" },
+          { value: 8, randomizeCategory: "B" },
+          { value: 9, randomizeCategory: "C" }
+        ],
+        choicesOrder: "random"
+      },
+      {
+        type: "matrixdropdown",
+        name: "m1",
+        columns: [
+          {
+            name: "m1c1",
+            cellType: "dropdown",
+            choices: [
+              { value: 1, randomizeCategory: "A" },
+              { value: 2, randomize: false },
+              { value: 3, randomizeCategory: "A" },
+              { value: 4, randomizeCategory: "A" },
+              { value: 5, randomizeCategory: "A" },
+              { value: 6, randomizeCategory: "B" },
+              { value: 7, randomizeCategory: "B" },
+              { value: 8, randomizeCategory: "B" },
+              { value: 9, randomizeCategory: "C" }
+            ],
+            choicesOrder: "random"
+          },
+          {
+            name: "m1c2",
+            cellType: "dropdown",
+            choices: [
+              { value: 1, randomizeCategory: "A" },
+              { value: 2, randomizeCategory: "A" },
+              { value: 3, randomizeCategory: "A" },
+              { value: 4, randomizeCategory: "A" },
+              { value: 5, randomize: false },
+              { value: 6, randomizeCategory: "B" },
+              { value: 7, randomizeCategory: "B" },
+              { value: 8, randomizeCategory: "B" },
+              { value: 9, randomizeCategory: "C" }
+            ],
+            choicesOrder: "random"
+          }
+        ],
+        rows: [
+          { value: 1, randomizeCategory: "A" },
+          { value: 2, randomizeCategory: "A" },
+          { value: 3, randomizeCategory: "A" },
+          { value: 4, randomizeCategory: "A" },
+          { value: 5, randomize: false },
+          { value: 6, randomizeCategory: "B" },
+          { value: 7, randomizeCategory: "B" },
+          { value: 8, randomizeCategory: "B" },
+          { value: 9, randomizeCategory: "C" }
+        ],
+        rowOrder: "random"
+      },
+    ]
+  });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("m1");
+  survey.randomSeed = 987654;
+  assert.deepEqual(q1.visibleChoices.map((e: any) => e.value).join(), "3,2,5,1,4,8,6,7,9", "dropdown choices order");
+  assert.deepEqual(q2.visibleChoices.map((e: any) => e.value).join(), "3,2,1,4,5,7,6,8,9", "checkbox choices order");
+  assert.deepEqual(matrix.visibleRows.map(e => e.rowName).join(), "3,2,1,4,5,7,6,8,9", "Matrix Row order randomized");
+  assert.deepEqual(matrix.visibleRows[0].cells[0].question.visibleChoices.map((e: any) => e.value).join(), "5,2,1,3,4,6,8,7,9", "matrix row#0 col#0 order");
+  assert.deepEqual(matrix.visibleRows[0].cells[1].question.visibleChoices.map((e: any) => e.value).join(), "1,3,2,4,5,6,7,8,9", "matrix row#0 col#1 order");
+});

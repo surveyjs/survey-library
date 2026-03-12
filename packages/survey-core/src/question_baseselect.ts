@@ -1,4 +1,5 @@
-import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
+import { JsonObjectProperty, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel, ISurveyChoiceCallbacks } from "./base-interfaces";
 import { SurveyModel } from "./survey";
@@ -8,7 +9,7 @@ import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { SurveyElement } from "./survey-element";

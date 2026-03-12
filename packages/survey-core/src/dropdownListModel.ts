@@ -5,13 +5,12 @@ import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { IListModel, ListModel } from "./list";
 import { LocalizableString } from "./localizablestring";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
-import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
@@ -860,12 +859,20 @@ export class DropdownListModel extends Base {
   }
 
   private handleEnter(event: any): { stopPropagation: boolean } {
-    if (!this.popupModel.isVisible) {
-      (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
-      return { stopPropagation: true };
+    if (this.popupModel.isVisible) {
+      this.handleEnterWhenPopupVisible(event);
+    } else {
+      this.handleEnterWhenPopupHidden(event);
     }
-    const shouldClearOnEnter = this.searchEnabled && !this.inputString &&
-      this.question instanceof QuestionDropdownModel && !this._markdownMode && !!this.question.value;
+    return { stopPropagation: true };
+  }
+
+  protected handleEnterWhenPopupHidden(event: any): void {
+    (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+  }
+
+  protected handleEnterWhenPopupVisible(event: any): void {
+    const shouldClearOnEnter = this.searchEnabled && !this.inputString && !this._markdownMode && !!this.question.value;
 
     if (shouldClearOnEnter) {
       this._popupModel.hide();
@@ -874,7 +881,6 @@ export class DropdownListModel extends Base {
       this.listModel.selectFocusedItem();
       this.onFocus(event);
     }
-    return { stopPropagation: true };
   }
 
   private handleDelete(event: any): { stopPropagation: boolean } {

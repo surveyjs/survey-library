@@ -8,6 +8,7 @@ Data validation ensures that respondents fill out all required form fields and t
 
 - [Enable Immediate Data Validation](#enable-immediate-data-validation)
 - [Built-In Client-Side Validators](#built-in-client-side-validators)
+- [Validator Notification Types](#validator-notification-types)
 - [Implement Custom Client-Side Validation](#implement-custom-client-side-validation)
 - [Server-Side Validation](#server-side-validation)
 - [Postpone Validation Until Survey Ends](#postpone-validation-until-survey-ends)
@@ -83,6 +84,47 @@ The following class-based validators are available:
 | `"regex"`  | [`RegexValidator`](https://surveyjs.io/Documentation/Library?id=RegexValidator) | Throws an error if an entered value does not match a regular expression defined in the [`regex`](https://surveyjs.io/Documentation/Library?id=RegexValidator#regex) property. |
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
+
+## Validator Notification Types
+
+Starting with SurveyJS v2.3.8, validators can display three types of notifications when validation fails:
+
+- **Error** &ndash; Prevents form submission until the issue is resolved (red).
+- **Warning** &ndash; Highlights a potential issue but allows users to continue (orange).
+- **Informational** &ndash; Provides additional guidance without blocking submission (blue).
+
+<img src="images/validator-notification-types.png" width="772" height="772" alt="SurveyJS Form Library: Validator notification types">
+
+By default, validators display errors. To show a warning or informational note instead, set the validator's [`notificationType`](/form-library/documentation/api-reference/textvalidator#notificationType) property to `"warning"` or `"info"`. For the best user experience, enable immediate validation by setting [`checkErrorsMode`](/form-library/documentation/api-reference/survey-data-model#checkErrorsMode) to `"onValueChanged"`:
+
+```js
+const surveyJson = {
+  "checkErrorsMode": "onValueChanged",
+  "elements": [{
+    "type": "comment",
+    "name": "feedback",
+    "title": "Please leave your feedback",
+    "validators": [{
+      "type": "text",
+      "minLength": 10,
+      "text": "Your feedback is very short. Consider adding more details.",
+      "notificationType": "warning"
+    }]
+  }, {
+    "type": "text",
+    "name": "email",
+    "title": "Email address",
+    "validators": [{
+      "type": "expression",
+      "expression": "false", // Always fails
+      "text": "We'll get in touch with you using this email.",
+      "notificationType": "info"
+    }]
+  }]
+};
+```
+
+> If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
 
 ## Implement Custom Client-Side Validation
 
@@ -215,8 +257,7 @@ function doesCountryExist([ countryName ]) {
 registerFunction({
   name: "doesCountryExist",
   func: doesCountryExist,
-  isAsync: true,
-  useCache: true
+  isAsync: true
 });
 
 const surveyJson = {

@@ -1,8 +1,9 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { ISurvey, ISurveyVariables } from "./base-interfaces";
-import { ExpressionRunner } from "./conditions";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 
 /**
  * The calculated value is a way to define the variable in Survey Creator.

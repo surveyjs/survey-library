@@ -350,6 +350,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
   scrollElementToTop(options: IScrollElementToTopOptions): any;
+  scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   //#endregion
 
   //#region Timer & randomization

@@ -58,6 +58,11 @@ export class DomWindowHelper {
     if (!DomWindowHelper.isAvailable() || typeof window.matchMedia === "undefined") return null;
     return window.matchMedia(mediaQueryString);
   }
+
+  public static getScreenOrientationType(): string | undefined {
+    if (!DomWindowHelper.isAvailable()) return;
+    return window.screen?.orientation?.type;
+  }
 }
 
 export class DomDocumentHelper {

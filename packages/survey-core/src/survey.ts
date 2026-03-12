@@ -5394,15 +5394,18 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
-            if (isProcessed || !isContainerVisible(observedElement)) {
+            let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
+            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
             } else {
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              screenOrientationType = currScreenOrientationType;
             }
           });
         });

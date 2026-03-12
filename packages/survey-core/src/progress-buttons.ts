@@ -1,5 +1,8 @@
-import { Base, EventBase } from "./base";
+
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { surveyCss } from "./defaultCss/defaultCss";
+import { propertyArray } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
@@ -8,7 +11,14 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 export class ProgressButtons extends Base {
   constructor(public survey: SurveyModel) {
     super();
+    survey.onPagesVisibleChangedCallback = () => {
+      this.visiblePages = survey.visiblePages;
+    };
+    this.visiblePages = survey.visiblePages;
   }
+
+  @propertyArray() visiblePages: PageModel[];
+
   public isListElementClickable(index: number | any): boolean {
     if (!this.survey.onServerValidateQuestions ||
       (<EventBase<SurveyModel>>this.survey.onServerValidateQuestions).isEmpty ||
@@ -59,18 +69,15 @@ export class ProgressButtons extends Base {
     }
     return false;
   }
+  public minListWidth: number;
   public isCanShowItemTitles(element: HTMLElement): boolean {
     const listContainerElement = element.querySelector("ul");
     if (!listContainerElement || listContainerElement.children.length < 2) return true;
     if (listContainerElement.clientWidth > listContainerElement.parentElement.clientWidth) {
+      this.minListWidth = Math.min(this.minListWidth || Infinity, listContainerElement.clientWidth);
       return false;
     }
-    const expectedElementWidth = listContainerElement.children[0].clientWidth;
-    for (let i = 0; i < listContainerElement.children.length; i++) {
-      if (Math.abs(listContainerElement.children[i].clientWidth - expectedElementWidth) > 5) {
-        return false;
-      }
-    }
+    if (listContainerElement.parentElement.clientWidth < this.minListWidth) { return false; }
     return true;
   }
   public get isFitToSurveyWidth(): boolean {
@@ -135,15 +142,29 @@ export interface IProgressButtonsViewModel {
 export class ProgressButtonsResponsivityManager {
   private criticalProperties = ["progressBarType", "progressBarShowPageTitles"];
   private canShowItemTitles = true;
+  private pages: number;
+  private observer: MutationObserver;
+
   constructor(private model: ProgressButtons, private element: HTMLElement, private viewModel: IProgressButtonsViewModel) {
     this.model.survey.registerFunctionOnPropertiesValueChanged(this.criticalProperties, () => this.forceUpdate(), "ProgressButtonsResponsivityManager" + this.viewModel.container);
     this.model.onResize.add(this.processResponsiveness);
     this.forceUpdate();
+    this.observer = new MutationObserver(() => {
+      const els = element.querySelectorAll("ul > li");
+      if (this.pages !== els.length) {
+        this.pages = els.length;
+        this.model.minListWidth = undefined;
+        this.forceUpdate();
+      }
+    });
+    this.observer.observe(element, { childList: true, subtree: true });
   }
+
   private forceUpdate() {
     this.viewModel.onUpdateSettings();
     this.processResponsiveness(this.model, {} as any);
   }
+
   private processResponsiveness = (model: ProgressButtons, options: { width: number }) => {
     this.viewModel.onUpdateScroller(model.isListContainerHasScroller(this.element));
     if (!model.showItemTitles) {
@@ -157,9 +178,12 @@ export class ProgressButtonsResponsivityManager {
     this.canShowItemTitles = model.isCanShowItemTitles(this.element);
     this.viewModel.onResize(this.canShowItemTitles);
   };
+
   dispose(): void {
     this.model.onResize.remove(this.processResponsiveness);
     this.model.survey.unRegisterFunctionOnPropertiesValueChanged(this.criticalProperties, "ProgressButtonsResponsivityManager" + this.viewModel.container);
+    this.observer.disconnect();
+    this.observer = undefined;
     this.element = undefined;
     this.model = undefined;
   }

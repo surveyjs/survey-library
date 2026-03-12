@@ -1,12 +1,14 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, property, Serializer } from "./jsonobject";
-import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement } from "./base-interfaces";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation } from "./base-interfaces";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./conditions";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -15,16 +17,16 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { getElementWidth, isContainerVisible } from "./utils/utils";
+import { getElementWidth, isContainerVisible } from "./utils/dom-utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, ProcessValue, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
-import { Action } from "./actions/action";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IConditionObject {
   name: string;
@@ -270,6 +272,12 @@ export class Question extends SurveyElement<Question>
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
+  public get afterRenderCallbacks(): ISurveyAfterRenderCallbacks {
+    return this.survey as ISurveyAfterRenderCallbacks;
+  }
+  public get validationCallbacks(): ISurveyValidation {
+    return this.survey as ISurveyValidation;
+  }
   focusCallback: () => void;
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
@@ -407,15 +415,14 @@ export class Question extends SurveyElement<Question>
         text = this.getDefaultTitle();
       }
       if (!this.survey) return text;
-      return this.survey.getUpdatedQuestionTitle(this, text);
+      return this.titleSettings.getUpdatedQuestionTitle(this, text);
     };
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
     return locTitleValue;
   }
   get locRenderedTitle(): LocalizableString {
-    if (this.isSingleInputActive && !!this.singleInputLocTitle) return this.singleInputLocTitle;
-    return this.locTitle;
+    return this.singleInputBehavior.getLocTitle() || this.locTitle;
   }
   public get commentTextAreaModel(): TextAreaModel {
     if (!this.commentTextAreaModelValue) {
@@ -468,7 +475,7 @@ export class Question extends SurveyElement<Question>
   }
   protected onValueNameChanged(oldValue: string): void {
     if (!this.survey) return;
-    this.survey.questionRenamed(
+    this.lifecycleCallbacks.questionRenamed(
       this,
       this.name,
       !!oldValue ? oldValue : this.name
@@ -478,7 +485,7 @@ export class Question extends SurveyElement<Question>
   protected onNameChanged(oldValue: string): void {
     this.locTitle.strChanged();
     if (!this.survey) return;
-    this.survey.questionRenamed(
+    this.lifecycleCallbacks.questionRenamed(
       this,
       oldValue,
       this.valueName ? this.valueName : oldValue
@@ -909,7 +916,7 @@ export class Question extends SurveyElement<Question>
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
     if (!this.survey) return;
-    this.survey.questionCreated(this);
+    this.lifecycleCallbacks.questionCreated(this);
     if (isLight !== true) {
       this.runConditions();
     }
@@ -934,51 +941,22 @@ export class Question extends SurveyElement<Question>
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
-  private calculateSingleInputQuestion(): Question {
-    if (!this.isSingleInputActive) {
-      return undefined;
+  //#region singleInput - delegated to singleInputBehavior
+  private _singleInputBehavior: QuestionSingleInputBehavior;
+  public get singleInputBehavior(): QuestionSingleInputBehavior {
+    if (!this._singleInputBehavior) {
+      this._singleInputBehavior = this.createSingleInputBehavior();
     }
-    const questions = this.getSingleInputQuestions();
-    if (Array.isArray(questions) && questions.length > 0) {
-      const q = questions[0];
-      this.onBeforeSetSingleInputQuestion(q);
-      return q;
-    }
-    return undefined;
+    return this._singleInputBehavior;
   }
-  //#region singleInput
+  protected createSingleInputBehavior(): QuestionSingleInputBehavior {
+    return new QuestionSingleInputBehavior(this);
+  }
   public get singleInputQuestion(): Question {
-    if (!this.isSingleInputMode) return undefined;
-    return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
-  }
-  private get currentSingleInputQuestion(): Question {
-    let res = this.singleInputQuestion;
-    while(!!res && !!res.singleInputQuestion && res.singleInputQuestion !== res) {
-      res = res.singleInputQuestion;
-    }
-    return res;
-  }
-  private get currentSingleInputParentQuestion(): Question {
-    const q = this.currentSingleInputQuestion;
-    if (!q) return this;
-    if (q.singleInputQuestion === q) return q;
-    return q.parentQuestion || this;
+    return this.singleInputBehavior.singleInputQuestion;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
-    return this.getPropertyValue("singleInputSummary", undefined, () => {
-      if (!this.supportNestedSingleInput()) return undefined;
-      const q = this.singleInputQuestion;
-      if (!q || q !== this) return undefined;
-      const res = this.createSingleInputSummary();
-      if (!!res) {
-        this.calcSingleInputActions();
-        this.resetPropertyValue("singleInputLocTitle");
-      }
-      return res;
-    });
-  }
-  protected createSingleInputSummary(): QuestionSingleInputSummary {
-    return undefined;
+    return this.singleInputBehavior.singleInputSummary;
   }
   public get rootParentQuestion(): Question {
     let res: Question = this;
@@ -987,280 +965,50 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
-  private getParentQuestions(): Array<Question> {
-    const res = new Array<Question>();
-    let q: Question = this;
-    while(!!q.parentQuestion) {
-      res.push(q.parentQuestion);
-      q = q.parentQuestion;
-    }
-    return res;
-  }
   public resetSingleInput(): void {
-    this.resetSingleInputCore();
-  }
-  private resetSingleInputCore(): void {
-    const prev = this.getPropertyValue("singleInputQuestion");
-    this.resetPropertyValue("singleInputQuestion");
-    if (!!prev) {
-      this.onSingleInputChanged();
-    }
-  }
-  private onSingleInputChanged(resetSummary: boolean = true): void {
-    if (resetSummary) {
-      this.resetSingleInputSummary();
-    }
-    this.singleInputLocTitle?.strChanged();
-    this.resetPropertyValue("singleInputLocTitle");
-    this.calcSingleInputActions();
-    this.survey?.updateNavigationElements();
-  }
-  private resetSingleInputSummary(): void {
-    this.singleInputSummary?.dispose();
-    this.resetPropertyValue("singleInputSummary");
+    this.singleInputBehavior.resetSingleInput();
   }
   public validateSingleInput(): boolean {
-    const q = this.currentSingleInputQuestion;
-    if (!q) return true;
-    return q.validate(true, true);
+    return this.singleInputBehavior.validateSingleInput();
   }
   public getSingleInputElementPos(): number {
-    if (this.singleInputQuestion === this) return 0;
-    const pQ = this.currentSingleInputParentQuestion;
-    if (pQ !== this) {
-      let res = pQ.getSingleInputElementPos();
-      if (res === 2) return 2;
-    }
-    const q = this.singleInputQuestion;
-    const questions = this.getSingleInputQuestions();
-    if (questions.length < 2) return 0;
-    let index = questions.indexOf(q);
-    return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
+    return this.singleInputBehavior.getSingleInputElementPos();
   }
   protected get isSingleInputActive(): boolean {
-    if (!this.isSingleInputMode) return false;
-    const ssQ = this.survey.currentSingleQuestion;
-    return !!ssQ && ssQ === this.rootParentQuestion;
+    return this.singleInputBehavior.isSingleInputActive;
   }
   protected singleInputOnAddItem(isOnDataChanging: boolean): void {
-    if (this.isSingleInputActive) {
-      if (isOnDataChanging && this.singleInputSummary) {
-        this.resetSingleInputSummary();
-      } else {
-        this.setSingleQuestionOnChange(Number.MAX_VALUE);
-      }
-    }
+    this.singleInputBehavior.singleInputOnAddItem(isOnDataChanging);
   }
   protected singleInputOnRemoveItem(index: number): void {
-    if (this.isSingleInputActive) {
-      if (!this.singleInputSummary) {
-        this.setSingleQuestionOnChange(index);
-      } else {
-        this.onSingleInputChanged();
-      }
-    }
+    this.singleInputBehavior.singleInputOnRemoveItem(index);
   }
-  protected getSingleQuestionOnChange(index: number): Question { return null; }
-  private setSingleQuestionOnChange(index: number): void {
-    const q = this.getSingleQuestionOnChange(index);
-    if (!!q) {
-      this.setSingleInputQuestion(q);
-    } else {
-      this.resetSingleInput();
-    }
-  }
-  private isSingleInputSummaryShown: boolean;
   public onSetAsSingleInput(): void {
-    this.isSingleInputSummaryShown = false;
-    const needReset = !this.wasRendered || this.singleInputSummary;
-    this.onFirstRendering();
-    if (needReset) {
-      this.resetSingleInputSummary();
-      this.resetPropertyValue("singleInputQuestion");
-      this.resetPropertyValue("singleInputLocTitle");
-    }
+    this.singleInputBehavior.onSetAsSingleInput();
   }
   public nextSingleInput(): boolean {
-    return this.nextPrevSingleInput(1);
+    return this.singleInputBehavior.nextSingleInput();
   }
   public prevSingleInput(): boolean {
-    return this.nextPrevSingleInput(-1);
+    return this.singleInputBehavior.prevSingleInput();
   }
   public getSingleInputAddText(): string {
-    const q = this.currentSingleInputQuestion;
-    if (!q) return undefined;
-    if (!!q.singleInputSummary) return q.getSingleInputAddTextCore();
-    const qs = this.getSingleInputQuestions();
-    const len = Array.isArray(qs) ? qs.length : 0;
-    if (len > 0 && qs[len - 1] === q) return this.getSingleInputAddTextCore();
-    return undefined;
+    return this.singleInputBehavior.getSingleInputAddText();
   }
   public singleInputAddItem(checkErrors?: boolean): void {
-    if (!checkErrors || this.validateSingleInput()) {
-      this.currentSingleInputQuestion.singleInputAddItemCore();
-    }
+    this.singleInputBehavior.singleInputAddItem(checkErrors);
   }
   public get singleInputLocTitle(): LocalizableString {
-    return this.getPropertyValue("singleInputLocTitle", undefined, () => {
-      return this.getSingleQuestionLocTitle();
-    });
+    return this.singleInputBehavior.singleInputLocTitle;
   }
-
   public get singleInputActions(): ActionContainer {
-    return this.getPropertyValue("singleInputActions", undefined, () => {
-      return this.createSingleInputActions();
-    });
+    return this.singleInputBehavior.singleInputActions;
   }
-
   public get singleInputHasActions(): boolean {
-    return this.getPropertyValue("singleInputHasActions", undefined, () => {
-      return this.createSingleInputActions();
-    });
-  }
-  private get singleInputHideHeader(): boolean {
-    const childQ = this.singleInputQuestion?.singleInputQuestion;
-    return !!childQ && this.singleInputQuestion !== this;
-  }
-  private set singleInputHasActions(val: boolean) {
-    this.setPropertyValue("singleInputHasActions", val);
-  }
-  private get singleInputParentQuestion(): Question {
-    return this.singleInputQuestion?.parentQuestion || this;
-  }
-  private createSingleInputActions() {
-    if (this.survey?.currentSingleQuestion !== this) return undefined;
-    const singleInputActions = new ActionContainer();
-    singleInputActions.actions = this.getSingleQuestionActions();
-    return singleInputActions;
-  }
-  private calcSingleInputActions(): void {
-    if (!!this.parentQuestion) {
-      this.parentQuestion.calcSingleInputActions();
-    } else {
-      const actions = this.getSingleQuestionActions();
-      if (this.singleInputActions) {
-        this.singleInputActions.actions = actions;
-      }
-      this.singleInputHasActions = actions.length > 0 ? true : undefined;
-    }
-  }
-  private getSingleQuestionActions(): Array<Action> {
-    const res = new Array<Action>();
-    const p = this.currentSingleInputParentQuestion;
-    if (!p || p === this) return res;
-    const pSQs = p.getSingleInputQuestions();
-    const qs = new Array<Question>();
-    let summaryQ = undefined;
-    if (pSQs.length > 1 && pSQs[0] === p) {
-      summaryQ = p;
-      qs.push(p);
-    }
-    let pQ = p.parentQuestion;
-    while(!!pQ) {
-      qs.push(pQ);
-      pQ = pQ.parentQuestion;
-    }
-    for (let i = qs.length - 1; i >= 0; i--) {
-      const q = qs[i];
-      if (q !== summaryQ) {
-        const title = q.singleInputLocTitle;
-        const action = new Action({ id: "single-action" + q.id, locTitle: title,
-          css: this.cssClasses.breadcrumbsItem,
-          innerCss: this.cssClasses.breadcrumbsItemButton,
-          action: () => {
-            q.singleInputMoveToFirst();
-          }
-        });
-
-        action.cssClasses = {};
-        res.push(action);
-      }
-    }
-    return res;
+    return this.singleInputBehavior.singleInputHasActions;
   }
   protected singleInputMoveToFirst(): void {
-    const q = this.singleInputQuestion;
-    if (!!q && q !== this) {
-      q.singleInputMoveToFirst();
-    }
-    this.singleInputMoveToFirstCore();
-  }
-  protected singleInputMoveToFirstCore(): void {}
-  private getSingleQuestionLocTitle(): LocalizableString {
-    return !this.singleInputSummary ? this.getSingleQuestionLocTitleCore() : undefined;
-  }
-  protected getSingleQuestionLocTitleCore(): LocalizableString {
-    return undefined;
-  }
-  private supportNestedSingleInput(): boolean {
-    return this.survey?.supportsNestedSingleInput(this);
-  }
-  private getSingleInputQuestions(): Array<Question> {
-    if (!this.supportNestedSingleInput()) return [];
-    const question = this.getPropertyValue("singleInputQuestion");
-    if (question === this) return [this];
-    const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
-    if (this.survey) {
-      this.survey.updateNestedSingleQuestions(this, res);
-    }
-    res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
-    return res;
-  }
-  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
-    return this.getNestedQuestions(true, false);
-  }
-  protected onSingleInputQuestionAdded(question: Question): void {}
-  protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
-  protected getSingleInputQuestionsForDynamic(question: Question, arr: Array<Question>): Array<Question> {
-    const res = new Array<Question>();
-    if (!!question && question !== this && arr.indexOf(question) < 0) {
-      this.fillSingleInputQuestionsInContainer(res, question);
-    }
-    arr.forEach(q => res.push(q));
-    if (this.isSingleInputSummaryShown && res.length > 0) {
-      res.unshift(this);
-    }
-    res.push(this);
-    return res;
-  }
-  protected getSingleInputAddTextCore(): string { return undefined; }
-  protected singleInputAddItemCore(): void {}
-  private setSingleInputQuestionCore(question: Question): void {
-    this.onBeforeSetSingleInputQuestion(question);
-    this.setPropertyValue("singleInputQuestion", question);
-  }
-  private onBeforeSetSingleInputQuestion(question: Question): void {
-    question.onFirstRendering();
-    if (question === this) {
-      this.isSingleInputSummaryShown = true;
-    }
-  }
-  protected setSingleInputQuestion(question: Question, onPrev?: boolean): void {
-    if (this.singleInputQuestion !== question) {
-      this.setSingleInputQuestionCore(question);
-      this.onSingleInputChanged(!onPrev || question !== this);
-    }
-  }
-  private nextPrevSingleInput(skip: number): boolean {
-    let pQ = this.currentSingleInputParentQuestion;
-    while(!!pQ && pQ !== this) {
-      const res = pQ.nextPrevSingleInput(skip);
-      if (res) return true;
-      pQ = pQ.parentQuestion;
-    }
-    const q = this.singleInputQuestion;
-    if (!q) return false;
-    const questions = this.getSingleInputQuestions();
-    let index = questions.indexOf(q);
-    if (index < 0) {
-      if (questions.length === 0) return false;
-      index = 0;
-      skip = 0;
-    }
-    index += skip;
-    if (index < 0 || index >= questions.length) return false;
-    this.setSingleInputQuestion(questions[index], skip < 0);
-    return true;
+    this.singleInputBehavior.singleInputMoveToFirst();
   }
   //#endregion
   /**
@@ -1271,7 +1019,7 @@ export class Question extends SurveyElement<Question>
    * @see titleLocation
    */
   public get hasTitle(): boolean {
-    return this.getTitleLocation() !== "hidden" && !this.singleInputHideHeader;
+    return this.getTitleLocation() !== "hidden" && !this.singleInputBehavior.singleInputHideHeader;
   }
   /**
    * Sets question title location relative to the input field. Overrides the `questionTitleLocation` property specified for the question's container (survey, page, or panel).
@@ -1312,7 +1060,7 @@ export class Question extends SurveyElement<Question>
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
   private notifySurveyVisibilityChanged(): void {
     if (!this.canUpdateValueOnVisibleChanged()) return;
-    this.survey.questionVisibilityChanged(this, this.isVisible,
+    this.lifecycleCallbacks.questionVisibilityChanged(this, this.isVisible,
       !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
     if (!this.visible) {
@@ -1373,7 +1121,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getParentTitleLocation(): string {
     if (!!this.parent) return this.parent.getQuestionTitleLocation();
-    if (!!this.survey) return this.survey.questionTitleLocation;
+    if (!!this.survey) return this.titleSettings.questionTitleLocation;
     return "top";
   }
   get hasTitleOnLeft(): boolean {
@@ -1404,7 +1152,7 @@ export class Question extends SurveyElement<Question>
     if (this.errorLocation !== "default") return this.errorLocation;
     if (this.parentQuestion) return this.parentQuestion.getChildErrorLocation(this);
     if (this.parent) return this.parent.getQuestionErrorLocation();
-    return this.survey ? this.survey.questionErrorLocation : "top";
+    return this.survey ? this.titleSettings.questionErrorLocation : "top";
   }
   public getChildErrorLocation(child: Question): string {
     return this.getErrorLocation();
@@ -1452,7 +1200,7 @@ export class Question extends SurveyElement<Question>
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
     return !!this.survey
-      ? this.survey.questionDescriptionLocation
+      ? this.titleSettings.questionDescriptionLocation
       : "underTitle";
   }
   protected needClickTitleFunction(): boolean {
@@ -1550,12 +1298,12 @@ export class Question extends SurveyElement<Question>
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
     if (!this.survey || !this.hasSingleInput) return;
-    this.survey.afterRenderQuestionInput(this, el);
+    this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }
   public afterRender(el: HTMLElement): void {
     this.afterRenderCore(el);
     if (!this.survey) return;
-    this.survey.afterRenderQuestion(this, el);
+    this.afterRenderCallbacks.afterRenderQuestion(this, el);
     if (!!this.afterRenderQuestionCallback) {
       this.afterRenderQuestionCallback(this, el);
     }
@@ -1586,7 +1334,7 @@ export class Question extends SurveyElement<Question>
     return this.locTitle.renderedHtml;
   }
   protected get titlePattern(): string {
-    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
+    return !!this.survey ? this.titleSettings.questionTitlePattern : "numTitleRequire";
   }
   public get isRequireTextOnStart(): boolean {
     return this.isRequired && this.titlePattern == "requireNumTitle";
@@ -1613,7 +1361,7 @@ export class Question extends SurveyElement<Question>
   protected onCalcCssClasses(classes: any): void {
     super.onCalcCssClasses(classes);
     if (this.survey) {
-      this.survey.updateQuestionCssClasses(this, classes);
+      this.cssCallbacks.updateQuestionCssClasses(this, classes);
     }
     if (this.onUpdateCssClassesCallback) {
       this.onUpdateCssClassesCallback(classes);
@@ -1854,17 +1602,7 @@ export class Question extends SurveyElement<Question>
       this.survey.focusQuestionByInstance(this, onError);
     } else {
       if (isSingleInput) {
-        this.survey.currentSingleQuestion = this.rootParentQuestion;
-        const parents = this.getParentQuestions();
-        for (let i = parents.length - 1; i >= 1; i--) {
-          if (i === parents.length - 1) {
-            parents[i].setSingleInputQuestion(parents[i - 1]);
-          }
-        }
-        if (parents.length > 0) {
-          parents[0].setSingleInputQuestion(this);
-        }
-        this.focusInputElement(onError);
+        this.singleInputBehavior.focusSingleInput(onError);
       } else {
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
@@ -1883,7 +1621,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   private get isValidateVisitedEmptyFields(): boolean {
-    return this.supportEmptyValidation() && !!this.survey && this.survey.getValidateVisitedEmptyFields() && this.isEmpty();
+    return this.supportEmptyValidation() && !!this.survey && this.validationCallbacks.getValidateVisitedEmptyFields() && this.isEmpty();
   }
   private isFocusEmpty: boolean;
   protected supportEmptyValidation(): boolean { return false; }
@@ -2077,7 +1815,7 @@ export class Question extends SurveyElement<Question>
       no = (<any>this.parent).addNoFromChild(no);
     }
     if (!!this.survey) {
-      no = this.survey.getUpdatedQuestionNo(this, no);
+      no = this.titleSettings.getUpdatedQuestionNo(this, no);
     }
     return no;
   }
@@ -2212,7 +1950,9 @@ export class Question extends SurveyElement<Question>
       this.comment = undefined;
     }
     this.setValueChangedDirectly(fromUI === true);
+    this.onClearValue();
   }
+  protected onClearValue(): void {}
   clearValueFromUI(): void {
     this.clearValue(true, true);
   }
@@ -2299,7 +2039,7 @@ export class Question extends SurveyElement<Question>
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
     if (this.survey) {
-      res = this.survey.getQuestionDisplayValue(this, res);
+      res = this.titleSettings.getQuestionDisplayValue(this, res);
     }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
@@ -2771,7 +2511,7 @@ export class Question extends SurveyElement<Question>
    */
   public get requiredMark(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredMark
+      ? this.titleSettings.requiredMark
       : "";
   }
   /**
@@ -2812,7 +2552,7 @@ export class Question extends SurveyElement<Question>
           qErrors.push(error);
         }
       }
-      this.survey.validateQuestion(this, qErrors, context.fireCallback);
+      this.validationCallbacks.validateQuestion(this, qErrors, context.fireCallback);
     }
     return qErrors;
   }

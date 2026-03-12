@@ -1,6 +1,5 @@
 import { DomDocumentHelper } from "./global_variables_utils";
-import { IDialogOptions } from "./popup";
-import { IConfirmDialogOptions, showConfirmDialog } from "./utils/utils";
+import { IDialogOptions, IConfirmDialogOptions } from "./popup";
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
@@ -404,6 +403,34 @@ export var settings = {
     normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",
+  /**
+   * An object with `start` and `end` string properties that specify the delimiters for referencing variables in [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and [dynamic texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts).
+   *
+   * Default value: `{ start: "{", end: "}" }`
+   *
+   * Examples:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * // {{variableName}}
+   * settings.expressionVariableDelimiters = { start: "{{", end: "}}" };
+   * // {% variableName %}
+   * settings.expressionVariableDelimiters = { start: "{% ", end: " %}" };
+   * // %variableName%
+   * settings.expressionVariableDelimiters = { start: "%", end: "%" };
+   * ```
+   */
+  expressionVariableDelimiters: {
+    start: "{",
+    end: "}"
+  },
+  /**
+   * A prefix used to [access element property values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#element-properties) in expressions and dynamic texts.
+   *
+   * Default value: `"$"`
+   */
+  expressionElementPropertyPrefix: "$",
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**
@@ -505,9 +532,7 @@ export var settings = {
    * @param message A message to display in the confirmation dialog.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void => {
-    showConfirmDialog(message, callback, options);
-  },
+  confirmActionAsync: <(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => void>undefined,
   /**
    * A minimum width value for all survey elements.
    *

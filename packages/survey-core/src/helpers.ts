@@ -1,4 +1,5 @@
 import { settings } from "./settings";
+import { mulberry32 } from "./utils/utils";
 
 export interface HashTable<T = any> {
   [key: string]: T;
@@ -184,13 +185,35 @@ export class Helpers {
   ): boolean {
     return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
   }
-  public static randomizeArray<T>(array: Array<T>): Array<T> {
-    for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+  public static randomizeArray<T>(array: Array<T>, seed?: number): Array<T> {
+
+    const shuffle = (array: Array<T>) => {
+      array.sort((a: any, b: any) => a.uniqueId - b.uniqueId);
+      const random = mulberry32(seed || Date.now());
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    };
+
+    const categories = {};
+    for (let i = 0; i < array.length; i++) {
+      const item:any = array[i];
+      if (item.randomize === false) continue;
+      const key = item.randomizeCategory || "";
+      if (!categories[key]) categories[key] = { indices: [], items: [] };
+      categories[key].indices.push(i);
+      categories[key].items.push(item);
     }
+
+    for (const key in categories) {
+      const { indices, items } = categories[key];
+      shuffle(items);
+      for (let i = 0; i < indices.length; i++) {
+        array[indices[i]] = items[i];
+      }
+    }
+
     return array;
   }
   public static getUnbindValue(value: any): any {

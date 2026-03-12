@@ -21,7 +21,7 @@ import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 import { AnimationGroup } from "../src/utils/animation";
 import { setOldTheme } from "./oldTheme";
-import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 

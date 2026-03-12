@@ -22,8 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
-import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
-import { template, templateSettings } from "lodash";
+import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -9453,4 +9452,62 @@ QUnit.test("paneldynamic shared question value", (assert) => {
 
   q1.value = "value1";
   assert.equal(q2.value, "value1", "q2.value equals to q1.value");
+});
+
+QUnit.test("paneldynamic + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q2",
+            choices: ["Item 1", "Item 2", "Item 3"],
+            showOtherItem: true,
+            isRequired: true
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+  radioQ.value = "other";
+  survey.tryComplete();
+  assert.equal(radioQ.errors.length, 1, "Required error is shown for the radiogroup");
+  radioQ.otherValue = "my other value";
+  assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
+});
+QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q2",
+            choices: ["Item 1", "Item 2", "Item 3"],
+            showOtherItem: true,
+            isRequired: true
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+  radioQ.value = "other";
+  radioQ.otherValue = "my other value 1";
+  assert.equal(radioQ.errors.length, 0, "There is no errors");
+  radioQ.otherValue = "";
+  assert.equal(radioQ.errors.length, 1, "Required error is shown for the radiogroup");
+  radioQ.otherValue = "my other value 2";
+  assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
 });

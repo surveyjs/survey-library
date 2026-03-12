@@ -1,7 +1,8 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
-import { ConditionRunner, ExpressionExecutor } from "./conditions";
+import { getQuestionErrorText } from "./expressions/expressionError";
+import { ConditionRunner } from "./conditions/conditionRunner";
 
 export interface IFunctionCachedResult {
   result: any;
@@ -34,6 +35,9 @@ export class FunctionFactory {
   private functionCache: HashTable<Array<IFunctionCachedInfo>> = {};
 
   public register(name: string, func: (params: any[], originalParams?: any[]) => any, isAsync?: boolean, useCache?: boolean): void {
+    if (isAsync && useCache === undefined) {
+      useCache = true;
+    }
     this.clearCache(name);
     this.functionHash[name] = { name, func, isAsync: !!isAsync, useCache: !!useCache };
   }
@@ -126,6 +130,7 @@ export class FunctionFactory {
     if (!funcInfo.useCache) return;
     const surveyValues = properties.surveyCachedValues;
     const objectValues = properties.objsCachedValues;
+    if (!Array.isArray(surveyValues) || !Array.isArray(objectValues)) return;
     if (params.length === 0 && surveyValues.length === 0 && objectValues.length === 0) return;
     let cachedList = this.functionCache[funcInfo.name];
     if (!Array.isArray(cachedList)) {
@@ -185,7 +190,7 @@ export class FunctionFactory {
     return false;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
-    return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);
+    return "Unknown function name: '" + name + "'." + getQuestionErrorText(properties);
   }
 }
 export interface IFunctionRegistration {
@@ -640,7 +645,7 @@ function displayValue(params: any[]): any {
   }
   return undefined;
 }
-FunctionFactory.Instance.register("displayValue", displayValue, true);
+FunctionFactory.Instance.register("displayValue", displayValue, true, false);
 
 function propertyValue(params: any[]): any {
   if (params.length !== 2 || !params[0] || !params[1]) return undefined;
@@ -672,3 +677,10 @@ function getComment(params: any[]): any {
   return question.getCommentValue(question.otherItem) || question.comment;
 }
 FunctionFactory.Instance.register("getComment", getComment);
+
+export function expressionSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
+  FunctionFactory.Instance.addSurveyCachedValue(name, value, isVariable);
+}
+export function expressionObjectCachedValue(obj: any, name: string, value: any): void {
+  FunctionFactory.Instance.addObjectCachedValue(obj, name, value);
+}

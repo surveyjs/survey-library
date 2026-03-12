@@ -36,6 +36,7 @@ export * from "../expressions/expressionsTest";
 export * from "../expressions/expressionParserTest";
 export * from "../expressions/expressionValidationTest";
 export * from "../expressions/expressionFunctionCacheTests";
+export * from "../doubleBracesTests";
 export * from "../questionDropdownTests";
 export * from "../questionImagepicker";
 export * from "../questionBooleanTests";
@@ -88,6 +89,7 @@ export * from "../surveyStateTests";
 export * from "../propertyNameArray_tests";
 export * from "../surveySeparateLocalesTests";
 export * from "../getOwner_test";
+export * from "../randomSeed_test";
 
 // localization
 import "../../src/localization/russian";

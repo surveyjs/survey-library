@@ -1,9 +1,9 @@
 import { Helpers, createDate } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
-import { ValueGetter, VariableGetterContext } from "../src/conditionProcessValue";
+import { ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import { Base } from "../src/base";
-import { property } from "../src/jsonobject";
+import { property } from "../src/decorators";
 import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
 import { QuestionTextModel } from "../src/question_text";
@@ -613,4 +613,23 @@ QUnit.test("createDate & T00:00:00 & settings.storeUtcDates", function(assert) {
   settings.onDateCreated = (date, reason, val) => {
     return date;
   };
+});
+
+QUnit.test("randomizeArray with seed", (assert) => {
+  const data = [
+    { uniqueId: 1 },
+    { uniqueId: 2 },
+    { uniqueId: 3 },
+    { uniqueId: 4 },
+    { uniqueId: 5 },
+  ];
+
+  let result = Helpers.randomizeArray(data, 12345);
+  assert.deepEqual(result.map(item => item.uniqueId), [1, 3, 4, 2, 5], "The array is randomized in the expected way");
+
+  result = Helpers.randomizeArray(result, 12345);
+  assert.deepEqual(result.map(item => item.uniqueId), [1, 3, 4, 2, 5], "Randomize already randomized array with the same seed gives the same result");
+
+  result = Helpers.randomizeArray(result, 123456);
+  assert.notDeepEqual(result.map(item => item.uniqueId), [1, 3, 4, 2, 5], "Randomize already randomized array with a different seed gives a different result");
 });

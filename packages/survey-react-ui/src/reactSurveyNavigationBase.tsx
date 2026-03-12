@@ -1,7 +1,7 @@
-import * as React from "react";
 import { SurveyModel } from "survey-core";
+import { SurveyElementBase } from "./reactquestion_element";
 
-export class SurveyNavigationBase extends React.Component<any, any> {
+export class SurveyNavigationBase extends SurveyElementBase<any, any> {
   constructor(props: any) {
     super(props);
     this.state = { update: 0 };

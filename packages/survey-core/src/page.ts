@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import {
   IPage,
   IPanel,
@@ -41,7 +42,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   protected getElementsForRows(): Array<IElement> {
     if (!this.isStartPage) {
-      const q = this.survey?.currentSingleElement;
+      const q = this.singleInput?.currentSingleElement;
       if (!!q) {
         if ((<any>q).page === this) return [q];
         return [];
@@ -69,7 +70,7 @@ export class PageModel extends PanelModel implements IPage {
   public get no(): string {
     if (!this.canShowPageNumber() || !this.survey) return "";
     let no = this.isStartPage ? "" : this.num + ". ";
-    return this.survey.getUpdatedPageNo(this, no);
+    return this.titleSettings.getUpdatedPageNo(this, no);
   }
   public addNoFromChild(no: string): string { return no; }
   public get cssTitleNumber(): string {
@@ -205,7 +206,7 @@ export class PageModel extends PanelModel implements IPage {
       classes.rowReplace = css.rowReplace;
     }
     if (this.survey) {
-      this.survey.updatePageCssClasses(this, classes);
+      this.cssCallbacks.updatePageCssClasses(this, classes);
     }
     return classes;
   }
@@ -300,9 +301,9 @@ export class PageModel extends PanelModel implements IPage {
       }
     }
     if (this.randomizeElements(this.areQuestionsRandomized)) {
-      const singleQuestion: any = this.survey?.currentSingleElement;
+      const singleQuestion: any = this.singleInput?.currentSingleElement;
       if (singleQuestion?.page === this) {
-        this.survey.currentSingleElement = this.getFirstVisibleElement();
+        this.singleInput.currentSingleElement = this.getFirstVisibleElement();
       }
     }
   }
@@ -363,7 +364,7 @@ export class PageModel extends PanelModel implements IPage {
     if (this.isRandomizing) return;
     super.onVisibleChanged();
     if (this.survey != null) {
-      this.survey.pageVisibilityChanged(this, this.isVisible);
+      this.lifecycleCallbacks.pageVisibilityChanged(this, this.isVisible);
     }
   }
 

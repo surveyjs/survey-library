@@ -1,5 +1,5 @@
 import { SurveyModel } from "../survey";
-import { EventBase } from "../base";
+import { EventBase } from "../event";
 import { IShortcutText, ISurvey } from "../base-interfaces";
 import { IDragDropEngine } from "./engine";
 import { DragDropDOMAdapter, IDragDropDOMAdapter } from "./dom-adapter";

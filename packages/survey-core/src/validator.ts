@@ -3,10 +3,11 @@ import { ISurveyValidatorOwner, ISurvey } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
 import { LocalizableString } from "./localizablestring";
-import { property, Serializer } from "./jsonobject";
-import { ConditionRunner } from "./conditions";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { HashTable, Helpers } from "./helpers";
-import { IValueGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 
 export class AsyncElementsRunner {
   private asyncElements: HashTable<boolean> = {};

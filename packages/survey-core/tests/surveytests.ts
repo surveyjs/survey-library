@@ -47,7 +47,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem, UrlConditionItem } from "../src/expressionItems";
 import { AnswerRequiredError } from "../src/error";
-import { ConditionsParser } from "../src/conditionsParser";
+import { ConditionsParser } from "../src/conditions/conditionsParser";
 import {
   Operand,
   Variable,
@@ -58,7 +58,9 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
-import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrlForBackgroundImage } from "../src/utils/utils";
+import { getRenderedSize, getRenderedStyleSize } from "../src/utils/utils";
+import { wrapUrlForBackgroundImage } from "../src/utils/dom-utils";
+import { increaseHeightByContent } from "../src/utils/text-area";
 import { Helpers } from "../src/helpers";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { ITheme } from "../src/themes";
@@ -20204,10 +20206,10 @@ QUnit.test("Test displayValue() function in survey.runExpression, Bug#8858", fun
     ]
   });
   survey.setValue("q1", 2);
-  assert.equal(survey.runExpression("displayValue('q1'"), "Item 2", "#1");
+  assert.equal(survey.runExpression("displayValue('q1')"), "Item 2", "#1");
   let funcRes = undefined;
   survey.setValue("q1", 1);
-  survey.runExpression("displayValue('q1'", (res: any): void => funcRes = res);
+  survey.runExpression("displayValue('q1')", (res: any): void => funcRes = res);
   assert.equal(funcRes, "Item 1", "#2");
 });
 QUnit.test("Test propertyValue() function", function (assert) {

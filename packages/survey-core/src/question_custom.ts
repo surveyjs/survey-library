@@ -23,7 +23,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 
 /**
@@ -532,6 +532,11 @@ export abstract class QuestionCustomModelBase extends Question
     super.locStrsChanged();
     if (!!this.getElement()) {
       this.getElement().locStrsChanged();
+    }
+  }
+  public randomSeedChanged(): void {
+    if (!!this.getElement()) {
+      this.getElement().randomSeedChanged();
     }
   }
   public localeChanged(): void {

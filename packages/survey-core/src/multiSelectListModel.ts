@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { IListModel, ListModel } from "./list";
 

@@ -10,10 +10,13 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { expressionObjectCachedValue, ExpressionRunner, IExpressionError } from "./conditions";
+import { ExpressionRunner } from "./expressions/expressionRunner";
+import { IExpressionError } from "./expressions/expressionError";
+import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { EventBase, Event } from "./event";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -1191,7 +1194,7 @@ export class Base implements IObjectValueContext {
     this.unregisterPropertyChangedHandlers(names, key);
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
-    if (!obj || !propertyName) return;
+    if (!obj || !propertyName || !(obj instanceof Base)) return;
     const id = this.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
@@ -1651,65 +1654,6 @@ export class ArrayChanges<T = any> {
     public deletedItems: T[]
   ) { }
 }
-
-export class Event<CallbackFunction extends Function, Sender, Options> {
-  public onCallbacksChanged: () => void;
-  protected callbacks: Array<CallbackFunction>;
-  public get isEmpty(): boolean {
-    return this.length === 0;
-  }
-  public get length(): number {
-    return !!this.callbacks ? this.callbacks.length : 0;
-  }
-  public fireByCreatingOptions(sender: any, createOptions: () => Options): void {
-    if (!this.callbacks) return;
-    for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](sender, createOptions());
-      if (!this.callbacks) return;
-    }
-  }
-  public fire(sender: Sender, options: Options): void {
-    if (!this.callbacks) return;
-    const callbacks = [].concat(this.callbacks);
-    for (var i = 0; i < callbacks.length; i++) {
-      callbacks[i](sender, options);
-      if (!this.callbacks) return;
-    }
-  }
-  public clear(): void {
-    this.callbacks = undefined;
-  }
-  public add(func: CallbackFunction): void {
-    if (this.hasFunc(func)) return;
-    if (!this.callbacks) {
-      this.callbacks = new Array<CallbackFunction>();
-    }
-    this.callbacks.push(func);
-    this.fireCallbackChanged();
-  }
-  public remove(func: CallbackFunction): void {
-    if (this.hasFunc(func)) {
-      var index = this.callbacks.indexOf(func, 0);
-      this.callbacks.splice(index, 1);
-      this.fireCallbackChanged();
-    }
-  }
-  public hasFunc(func: CallbackFunction): boolean {
-    if (this.callbacks == null) return false;
-    return this.callbacks.indexOf(func, 0) > -1;
-  }
-  private fireCallbackChanged(): void {
-    if (!!this.onCallbacksChanged) {
-      this.onCallbacksChanged();
-    }
-  }
-}
-
-export class EventBase<Sender, Options = any> extends Event<
-  (sender: Sender, options: Options) => any,
-  Sender,
-  Options
-> { }
 
 export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
   public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {

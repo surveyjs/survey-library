@@ -1,7 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { JsonObject, property, Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
 import { getLocaleString } from "./surveyStrings";
@@ -14,10 +15,11 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -599,14 +601,7 @@ export class QuestionMatrixModel
     return rows;
   }
   private nestedQuestionsValue: Array<Question>;
-  private getRowByName(name: string): MatrixRowModel {
-    const rows = this.visibleRows;
-    for (let i = 0; i < rows.length; i++) {
-      if (rows[i].name === name) return rows[i];
-    }
-    return null;
-  }
-  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+  public getMatrixSingleInputQuestions(question: Question, checkDynamic: boolean): Array<Question> {
     if (!!this.nestedQuestionsValue) return this.nestedQuestionsValue;
     const res: Array<Question> = [];
     const qType = this.isMultiSelect ? "checkbox" : "radiogroup";
@@ -629,6 +624,16 @@ export class QuestionMatrixModel
       this.nestedQuestionsValue.forEach(q => q.dispose());
       this.nestedQuestionsValue = null;
     }
+  }
+  private getRowByName(name: string): MatrixRowModel {
+    const rows = this.visibleRows;
+    for (let i = 0; i < rows.length; i++) {
+      if (rows[i].name === name) return rows[i];
+    }
+    return null;
+  }
+  protected createSingleInputBehavior(): QuestionSingleInputBehavior {
+    return new MatrixSingleInputBehavior(this);
   }
   public resetSingleInput(): void {
     this.disposeNestedQuestions();
@@ -658,8 +663,13 @@ export class QuestionMatrixModel
       return array;
     var order = this.rowOrder.toLowerCase();
     if (order === "random")
-      return Helpers.randomizeArray<MatrixRowModel>(array);
+      return Helpers.randomizeArray<MatrixRowModel>(array, this.randomSeed);
     return array;
+  }
+  public randomSeedChanged(): void {
+    if (this.rowOrder.toLowerCase() !== "random") return;
+    this.rows = this.sortVisibleRows(this.rows);
+    this.onRowsChanged();
   }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
@@ -1134,3 +1144,12 @@ QuestionFactory.Instance.registerQuestion("matrix", (name) => {
   q.columns = QuestionFactory.DefaultColums;
   return q;
 });
+
+export class MatrixSingleInputBehavior extends QuestionSingleInputBehavior {
+  protected get matrix(): QuestionMatrixModel {
+    return this.question as QuestionMatrixModel;
+  }
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
+    return this.matrix.getMatrixSingleInputQuestions(question, checkDynamic);
+  }
+}

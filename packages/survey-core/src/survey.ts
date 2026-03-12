@@ -1,6 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
-import { Base, EventBase, ComputedUpdater, EventAsync } from "./base";
+import { JsonObject, JsonError, Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { Base, ComputedUpdater, EventAsync } from "./base";
+import { EventBase } from "./event";
 import {
   ISurvey,
   ISurveyData,
@@ -32,7 +34,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -47,9 +49,13 @@ import {
   UrlConditionItem,
   ExpressionItem,
 } from "./expressionItems";
-import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
+import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
+import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -1161,6 +1167,9 @@ export class SurveyModel extends SurveyElementCore
     }
     if (name === "locale") {
       this.onSurveyLocaleChanged();
+    }
+    if (name === "randomSeed") {
+      this.randomSeedChanged();
     }
     if (name === "firstPageIsStartPage") {
       this.onFirstPageIsStartedChanged();
@@ -3102,6 +3111,10 @@ export class SurveyModel extends SurveyElementCore
     if (this.lastActiveQuestion) {
       res.activeElementName = this.lastActiveQuestion.rootParentQuestion.name;
     }
+    const randomSeed = this.getPropertyValueWithoutDefault("randomSeed");
+    if (randomSeed) {
+      res.randomSeed = randomSeed;
+    }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
         const s = e.uiState;
@@ -3132,6 +3145,22 @@ export class SurveyModel extends SurveyElementCore
     if (state.activeElementName) {
       // If we focused dynamic pannel?
       this.getQuestionByName(state.activeElementName)?.focus();
+    }
+    if (state.randomSeed) {
+      this.randomSeed = state.randomSeed;
+    }
+  }
+  public get randomSeed (): number {
+    return this.getPropertyValue("randomSeed", undefined, () => {
+      return Math.floor((Date.now() / 4) + (Math.random() * 1000));
+    });
+  }
+  public set randomSeed (val: number) {
+    this.setPropertyValue("randomSeed", val);
+  }
+  private randomSeedChanged(): void {
+    for (var i = 0; i < this.pages.length; i++) {
+      this.pages[i].randomSeedChanged();
     }
   }
   private isSettingDataValue: boolean;
@@ -4017,6 +4046,7 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllElementsVisibility(visPages);
   }
+  public onPagesVisibleChangedCallback: () => void;
   private updateAllElementsVisibility(visPages: Array<PageModel>) {
     for (var i = 0; i < this.pages.length; i++) {
       var page = this.pages[i];
@@ -4026,6 +4056,7 @@ export class SurveyModel extends SurveyElementCore
           page: page,
           visible: page.isVisible,
         });
+        this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
       }
     }
   }
@@ -5349,6 +5380,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
+  private _processingResponsivenessFunc: () => boolean;
   afterRenderSurvey(htmlElement: any) {
     if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
@@ -5356,17 +5388,21 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
+    this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        this._processingResponsivenessFunc = () => {
+          return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
+        };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {
-              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
+              isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
             }
           });
         });
@@ -5381,7 +5417,13 @@ export class SurveyModel extends SurveyElementCore
     this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
   }
+  forceProcessResponsiveness(): void {
+    if (!!this._processingResponsivenessFunc) {
+      this._processingResponsivenessFunc();
+    }
+  }
   beforeDestroySurveyElement() {
+    this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
     this.removeScrollEventListener();
     this.rootElement = undefined;
@@ -7134,6 +7176,7 @@ export class SurveyModel extends SurveyElementCore
       page: page,
       visible: newValue,
     });
+    this.onPagesVisibleChangedCallback && this.onPagesVisibleChangedCallback();
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
     if (!!panel.page) {

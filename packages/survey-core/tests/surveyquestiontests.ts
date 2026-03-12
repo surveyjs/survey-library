@@ -29,7 +29,7 @@ import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
-import { FunctionFactory } from "../src/functionsfactory";
+import { FunctionFactory, registerFunction } from "../src/functionsfactory";
 import { Base, ArrayChanges, IPropertyArrayValueChangedEvent } from "../src/base";
 import { RequreNumericError } from "../src/error";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
@@ -550,9 +550,7 @@ QUnit.test("Matrix Question sortVisibleRows", function (assert) {
   var rows = matrix.visibleRows;
   assert.equal(rows[0].name, "row2", "rows has been reordered");
 });
-QUnit.test("Matrix Question supportAutoAdvance property", function (
-  assert
-) {
+QUnit.test("Matrix Question supportAutoAdvance property", (assert) => {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -569,8 +567,7 @@ QUnit.test("Matrix Question supportAutoAdvance property", function (
   matrix.onMouseDown();
   assert.equal(matrix.supportAutoAdvance(), true, "Both rows are set");
 });
-
-QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
+QUnit.test("Matrix Question clearIncorrectValues", (assert) => {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
@@ -583,7 +580,6 @@ QUnit.test("Matrix Question clearIncorrectValues", function (assert) {
     "Remove values with incorrect row and incorrect column"
   );
 });
-
 QUnit.test("Multiple Text Item: text property", function (assert) {
   var mItem = new MultipleTextItemModel("text1");
   assert.equal(mItem.title, "text1", "get value from name");
@@ -4338,6 +4334,19 @@ QUnit.test("QuestionText min/max properties for date-time and browser errors, bu
   q1.validate();
   assert.equal(q1.errors.length, 1, "There is one error");
   assert.equal(q1.errors[0].text, "min error", "use minErrorText instead of browser message");
+});
+QUnit.test("QuestionText step property, modify the step error in a survey JSON, bug#10959", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "number", name: "q1", step: 2, stepErrorText: "step error {0}#" },
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = 3;
+  q1.onKeyUp({ target: { validationMessage: "test error message" } });
+  q1.validate();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].text, "step error 2#", "use stepErrorText instead of browser message");
 });
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
@@ -8695,7 +8704,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
     returnResults.push(this.returnResult);
     return false;
   }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  registerFunction({ name: "asyncFunc", func: asyncFunc, isAsync: true, useCache: false });
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -8924,6 +8933,65 @@ QUnit.test("Access question properties in expression, #10532", function (assert)
   q1.value = 3;
   assert.equal(q2.isVisible, false, "q2 is not visible #2");
   assert.equal(q3.isVisible, false, "q3 is not visible #2");
+});
+QUnit.test("Access question properties in expression with modified prefix, #10958", function (assert) {
+  settings.expressionElementPropertyPrefix = "@";
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{@q2.isVisible}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
+  settings.expressionElementPropertyPrefix = "$";
+});
+QUnit.test("Disable access question properties in expression, #10958", function (assert) {
+  settings.expressionElementPropertyPrefix = "";
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "$q1",
+      },
+      {
+        type: "text",
+        name: "$q2",
+        visibleIf: "{$q1} = 2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("$q1");
+  const q2 = survey.getQuestionByName("$q2");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  settings.expressionElementPropertyPrefix = "$";
 });
 QUnit.test("Access question properties in expression - update on property changed, #10532", function (assert) {
   const survey = new SurveyModel({

@@ -1,6 +1,6 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
-import { isContainerVisible } from "./utils";
+import { isContainerVisible } from "./dom-utils";
 interface IDimensions {
   scroll: number;
   offset: number;

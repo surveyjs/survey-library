@@ -1,4 +1,5 @@
-import { JsonObject, JsonObjectProperty, property, Serializer } from "./jsonobject";
+import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Question } from "./question";
 import { Base, ArrayChanges } from "./base";
 import { ISurvey, IWrapperObject } from "./base-interfaces";
@@ -9,7 +10,7 @@ import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -798,14 +799,6 @@ export class MatrixDropdownColumn extends Base
           json[prop] = this.jsonObj[prop];
         });
       }
-      if (json["choicesOrder"] === "random") {
-        json["choicesOrder"] = "none";
-        const visChoices = this.templateQuestion["visibleChoices"];
-        if (Array.isArray(visChoices)) {
-          json["choices"] = visChoices;
-        }
-      }
-
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
       this.previousChoicesId = undefined;

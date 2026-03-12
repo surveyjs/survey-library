@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import { resolve } from "path";
 export default defineConfig({
-  retries: process.env.CI ? 3 : 0,
+  retries: 4,
   fullyParallel: true,
   webServer: {
     command: "",

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ProgressButtons, PageModel, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
+import { ProgressButtons, PageModel, ProgressButtonsResponsivityManager, IProgressButtonsViewModel, Base } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase } from "./reactquestion_element";
@@ -17,6 +17,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   get container(): string {
     return this.props.container;
   }
+  protected getStateElement(): Base | null {
+    return this.model;
+  }
   onResize(canShowItemTitles: boolean): void {
     this.setState({ canShowItemTitles });
     this.setState({ canShowHeader: !canShowItemTitles });
@@ -30,7 +33,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   render(): React.JSX.Element {
     return (
-      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth, ["--sd-progress-buttons-pages-count" as any]: this.survey.visiblePages.length }}
+      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth, ["--sd-progress-buttons-pages-count" as any]: this.model.visiblePages.length }}
         role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label={this.model.progressBarAriaLabel}
       >
         {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
@@ -68,7 +71,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   protected getListElements(): React.JSX.Element[] {
     let buttons: React.JSX.Element[] = [];
-    this.survey.visiblePages.forEach((page: PageModel, index: number) => {
+    this.model.visiblePages.forEach((page: PageModel, index: number) => {
       buttons.push(this.renderListElement(page, index));
     });
     return buttons;
@@ -115,9 +118,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   componentDidMount() {
     super.componentDidMount();
-    setTimeout(() => {
-      this.respManager = new ProgressButtonsResponsivityManager(this.model, this.listContainerRef.current as any, this);
-    }, 10);
+    this.respManager = new ProgressButtonsResponsivityManager(this.model, this.listContainerRef.current as any, this);
   }
   componentWillUnmount() {
     if (!!this.respManager) {

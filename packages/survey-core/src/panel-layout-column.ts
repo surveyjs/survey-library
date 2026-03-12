@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Base } from "./base";
 
 export class PanelLayoutColumnModel extends Base {

@@ -968,6 +968,14 @@ QUnit.test("check afterRerender function", (assert) => {
   survey.afterRerender();
   assert.equal(log, "");
 });
+QUnit.test("maxWidth should return to default when set to empty string", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  assert.equal(question.maxWidth, "100%", "maxWidth default value is 100%");
+  question.maxWidth = "50%";
+  assert.equal(question.maxWidth, "50%", "maxWidth is set to 50%");
+  question.maxWidth = "";
+  assert.equal(question.maxWidth, "100%", "maxWidth returns to default on empty string");
+});
 
 QUnit.test("check default value doesn't exist on getPropertyValueDirectly", (assert) => {
   Serializer.addProperty("itemvalue", {

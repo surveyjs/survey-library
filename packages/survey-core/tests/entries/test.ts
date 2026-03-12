@@ -71,6 +71,7 @@ export * from "../components/liststests";
 export * from "../responsivityTests";
 export * from "../icons/svgRegistryTests";
 export * from "../utilstests";
+export * from "../utils_color_tests";
 export * from "../mask/input_mask_tests";
 export * from "../mask/mask_pattern_tests";
 export * from "../mask/mask_number_tests";

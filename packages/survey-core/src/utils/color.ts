@@ -28,10 +28,6 @@ export function getRGBaColor(colorValue: string): string | null {
     return null;
   }
 
-  if (RGBA_PREFIX_REGEX.test(trimmedColor)) {
-    return trimmedColor;
-  }
-
   if (!canvasElement) {
     canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
     if (!canvasElement) {

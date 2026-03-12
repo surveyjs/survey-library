@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, applyTheme } from "../e2e/helper";
 
 const title = "Survey themes Screenshot";
 
@@ -71,13 +71,10 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-questiontitle-size": "24px"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-questiontitle-size": "24px"
+        } });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-size.png");
     });
 
@@ -133,14 +130,11 @@ frameworks.forEach(framework => {
           ]
         }]
       });
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-editorfont-size": "24px",
-            "--sjs-font-questiontitle-weight": "400"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-editorfont-size": "24px",
+          "--sjs-font-questiontitle-weight": "400"
+        } });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-weight.png");
     });
 
@@ -215,14 +209,11 @@ frameworks.forEach(framework => {
         ]
       });
       await page.waitForLoadState("networkidle");
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
-            "--sjs-font-editorfont-size": "24px"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
+          "--sjs-font-editorfont-size": "24px"
+        } });
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-color-for-items.png");
 
@@ -270,13 +261,10 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-editorfont-placeholdercolor": "rgba(66, 123, 215, 1)"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-editorfont-placeholdercolor": "rgba(66, 123, 215, 1)"
+        } });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-editorfont-placeholdercolor.png");
     });
 
@@ -297,13 +285,10 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-general-backcolor": "rgba(255, 255, 255, 0.25)", "--sjs-general-backcolor-dark": "rgba(248, 248, 248, 1)", "--sjs-general-backcolor-dim": "#1846A5", "--sjs-general-backcolor-dim-light": "rgba(255, 255, 255, 0.99)", "--sjs-general-backcolor-dim-dark": "rgba(243, 243, 243, 1)", "--sjs-general-forecolor": "rgba(0, 0, 0, 0.91)", "--sjs-general-forecolor-light": "rgba(0, 0, 0, 0.45)", "--sjs-general-dim-forecolor": "rgba(0, 0, 0, 0.91)", "--sjs-general-dim-forecolor-light": "rgba(0, 0, 0, 0.45)", "--sjs-primary-backcolor": "rgba(24, 70, 165, 1)", "--sjs-primary-backcolor-light": "rgba(24, 70, 165, 0.1)", "--sjs-primary-backcolor-dark": "rgba(22, 64, 150, 1)", "--sjs-primary-forecolor": "rgba(255, 255, 255, 1)", "--sjs-primary-forecolor-light": "rgba(255, 255, 255, 0.25)", "--sjs-base-unit": "8px", "--sjs-corner-radius": "4px", "--sjs-secondary-backcolor": "rgba(255, 152, 20, 1)", "--sjs-secondary-backcolor-light": "rgba(255, 152, 20, 0.1)", "--sjs-secondary-backcolor-semi-light": "rgba(255, 152, 20, 0.25)", "--sjs-secondary-forecolor": "rgba(255, 255, 255, 1)", "--sjs-secondary-forecolor-light": "rgba(255, 255, 255, 0.25)", "--sjs-shadow-small": "0px 0px 0px 0px rgba(0, 0, 0, 0)", "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.1)", "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.1)", "--sjs-shadow-inner": "0px 0px 0px 0px rgba(0, 0, 0, 0)", "--sjs-border-light": "rgba(24, 70, 165, 0.15)", "--sjs-border-default": "rgba(0, 0, 0, 0.25)", "--sjs-border-inside": "rgba(0, 0, 0, 0.16)", "--sjs-special-red": "rgba(229, 10, 62, 1)", "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)", "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)", "--sjs-special-green": "rgba(25, 179, 148, 1)", "--sjs-special-green-light": "rgba(25, 179, 148, 0.1)", "--sjs-special-green-forecolor": "rgba(255, 255, 255, 1)", "--sjs-special-blue": "rgba(67, 127, 217, 1)", "--sjs-special-blue-light": "rgba(67, 127, 217, 0.1)", "--sjs-special-blue-forecolor": "rgba(255, 255, 255, 1)", "--sjs-special-yellow": "rgba(255, 152, 20, 1)", "--sjs-special-yellow-light": "rgba(255, 152, 20, 0.1)", "--sjs-special-yellow-forecolor": "rgba(255, 255, 255, 1)", "--sjs-article-font-xx-large-textDecoration": "none", "--sjs-article-font-xx-large-fontWeight": "700", "--sjs-article-font-xx-large-fontStyle": "normal", "--sjs-article-font-xx-large-fontStretch": "normal", "--sjs-article-font-xx-large-letterSpacing": "0", "--sjs-article-font-xx-large-lineHeight": "64px", "--sjs-article-font-xx-large-paragraphIndent": "0px", "--sjs-article-font-xx-large-textCase": "none", "--sjs-article-font-x-large-textDecoration": "none", "--sjs-article-font-x-large-fontWeight": "700", "--sjs-article-font-x-large-fontStyle": "normal", "--sjs-article-font-x-large-fontStretch": "normal", "--sjs-article-font-x-large-letterSpacing": "0", "--sjs-article-font-x-large-lineHeight": "56px", "--sjs-article-font-x-large-paragraphIndent": "0px", "--sjs-article-font-x-large-textCase": "none", "--sjs-article-font-large-textDecoration": "none", "--sjs-article-font-large-fontWeight": "700", "--sjs-article-font-large-fontStyle": "normal", "--sjs-article-font-large-fontStretch": "normal", "--sjs-article-font-large-letterSpacing": "0", "--sjs-article-font-large-lineHeight": "40px", "--sjs-article-font-large-paragraphIndent": "0px", "--sjs-article-font-large-textCase": "none", "--sjs-article-font-medium-textDecoration": "none", "--sjs-article-font-medium-fontWeight": "700", "--sjs-article-font-medium-fontStyle": "normal", "--sjs-article-font-medium-fontStretch": "normal", "--sjs-article-font-medium-letterSpacing": "0", "--sjs-article-font-medium-lineHeight": "32px", "--sjs-article-font-medium-paragraphIndent": "0px", "--sjs-article-font-medium-textCase": "none", "--sjs-article-font-default-textDecoration": "none", "--sjs-article-font-default-fontWeight": "400", "--sjs-article-font-default-fontStyle": "normal", "--sjs-article-font-default-fontStretch": "normal", "--sjs-article-font-default-letterSpacing": "0", "--sjs-article-font-default-lineHeight": "28px", "--sjs-article-font-default-paragraphIndent": "0px", "--sjs-article-font-default-textCase": "none", "--sjs-article-font-xx-large-fontSize": "64px", "--sjs-article-font-x-large-fontSize": "48px", "--sjs-article-font-large-fontSize": "32px", "--sjs-article-font-medium-fontSize": "24px", "--sjs-article-font-default-fontSize": "16px", "--sjs-cover-backcolor": "transparent", "--sjs-question-background": "rgba(255, 255, 255, 1)", "--font-family": "Open Sans", "--sjs-questionpanel-backcolor": "rgba(255, 255, 255, 0.25)", "--sjs-questionpanel-cornerRadius": "8px", "--sjs-editor-background": "rgba(255, 255, 255, 1)", "--sjs-editorpanel-hovercolor": "rgba(24, 70, 165, 0.1)", "--sjs-editorpanel-backcolor": "rgba(255, 255, 255, 0.99)", "--sjs-editorpanel-cornerRadius": "3px", "--sjs-font-pagetitle-color": "rgba(255, 255, 255, 1)", "--sjs-font-editorfont-color": "rgba(0, 0, 0, 0.9)", "--sjs-font-editorfont-placeholdercolor": "rgba(0, 0, 0, 0.5)", "--sjs-font-questiontitle-color": "rgba(255, 255, 255, 1)", "--sjs-font-questiondescription-color": "rgba(255, 255, 255, 0.75)", "--sjs-questionpanel-hovercolor": "rgba(24, 70, 165, 0.1)", "--sjs-cover-title-forecolor": "#FFFFFF", "--sjs-cover-description-forecolor": "rgba(255, 255, 255, 1)", "--sjs-font-questiontitle-weight": "700", "--sjs-font-questiontitle-size": "14px", "--sjs-font-questiondescription-size": "14px", "--sjs-font-editorfont-size": "14px"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-general-backcolor": "rgba(255, 255, 255, 0.25)", "--sjs-general-backcolor-dark": "rgba(248, 248, 248, 1)", "--sjs-general-backcolor-dim": "#1846A5", "--sjs-general-backcolor-dim-light": "rgba(255, 255, 255, 0.99)", "--sjs-general-backcolor-dim-dark": "rgba(243, 243, 243, 1)", "--sjs-general-forecolor": "rgba(0, 0, 0, 0.91)", "--sjs-general-forecolor-light": "rgba(0, 0, 0, 0.45)", "--sjs-general-dim-forecolor": "rgba(0, 0, 0, 0.91)", "--sjs-general-dim-forecolor-light": "rgba(0, 0, 0, 0.45)", "--sjs-primary-backcolor": "rgba(24, 70, 165, 1)", "--sjs-primary-backcolor-light": "rgba(24, 70, 165, 0.1)", "--sjs-primary-backcolor-dark": "rgba(22, 64, 150, 1)", "--sjs-primary-forecolor": "rgba(255, 255, 255, 1)", "--sjs-primary-forecolor-light": "rgba(255, 255, 255, 0.25)", "--sjs-base-unit": "8px", "--sjs-corner-radius": "4px", "--sjs-secondary-backcolor": "rgba(255, 152, 20, 1)", "--sjs-secondary-backcolor-light": "rgba(255, 152, 20, 0.1)", "--sjs-secondary-backcolor-semi-light": "rgba(255, 152, 20, 0.25)", "--sjs-secondary-forecolor": "rgba(255, 255, 255, 1)", "--sjs-secondary-forecolor-light": "rgba(255, 255, 255, 0.25)", "--sjs-shadow-small": "0px 0px 0px 0px rgba(0, 0, 0, 0)", "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.1)", "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.1)", "--sjs-shadow-inner": "0px 0px 0px 0px rgba(0, 0, 0, 0)", "--sjs-border-light": "rgba(24, 70, 165, 0.15)", "--sjs-border-default": "rgba(0, 0, 0, 0.25)", "--sjs-border-inside": "rgba(0, 0, 0, 0.16)", "--sjs-special-red": "rgba(229, 10, 62, 1)", "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)", "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)", "--sjs-special-green": "rgba(25, 179, 148, 1)", "--sjs-special-green-light": "rgba(25, 179, 148, 0.1)", "--sjs-special-green-forecolor": "rgba(255, 255, 255, 1)", "--sjs-special-blue": "rgba(67, 127, 217, 1)", "--sjs-special-blue-light": "rgba(67, 127, 217, 0.1)", "--sjs-special-blue-forecolor": "rgba(255, 255, 255, 1)", "--sjs-special-yellow": "rgba(255, 152, 20, 1)", "--sjs-special-yellow-light": "rgba(255, 152, 20, 0.1)", "--sjs-special-yellow-forecolor": "rgba(255, 255, 255, 1)", "--sjs-article-font-xx-large-textDecoration": "none", "--sjs-article-font-xx-large-fontWeight": "700", "--sjs-article-font-xx-large-fontStyle": "normal", "--sjs-article-font-xx-large-fontStretch": "normal", "--sjs-article-font-xx-large-letterSpacing": "0", "--sjs-article-font-xx-large-lineHeight": "64px", "--sjs-article-font-xx-large-paragraphIndent": "0px", "--sjs-article-font-xx-large-textCase": "none", "--sjs-article-font-x-large-textDecoration": "none", "--sjs-article-font-x-large-fontWeight": "700", "--sjs-article-font-x-large-fontStyle": "normal", "--sjs-article-font-x-large-fontStretch": "normal", "--sjs-article-font-x-large-letterSpacing": "0", "--sjs-article-font-x-large-lineHeight": "56px", "--sjs-article-font-x-large-paragraphIndent": "0px", "--sjs-article-font-x-large-textCase": "none", "--sjs-article-font-large-textDecoration": "none", "--sjs-article-font-large-fontWeight": "700", "--sjs-article-font-large-fontStyle": "normal", "--sjs-article-font-large-fontStretch": "normal", "--sjs-article-font-large-letterSpacing": "0", "--sjs-article-font-large-lineHeight": "40px", "--sjs-article-font-large-paragraphIndent": "0px", "--sjs-article-font-large-textCase": "none", "--sjs-article-font-medium-textDecoration": "none", "--sjs-article-font-medium-fontWeight": "700", "--sjs-article-font-medium-fontStyle": "normal", "--sjs-article-font-medium-fontStretch": "normal", "--sjs-article-font-medium-letterSpacing": "0", "--sjs-article-font-medium-lineHeight": "32px", "--sjs-article-font-medium-paragraphIndent": "0px", "--sjs-article-font-medium-textCase": "none", "--sjs-article-font-default-textDecoration": "none", "--sjs-article-font-default-fontWeight": "400", "--sjs-article-font-default-fontStyle": "normal", "--sjs-article-font-default-fontStretch": "normal", "--sjs-article-font-default-letterSpacing": "0", "--sjs-article-font-default-lineHeight": "28px", "--sjs-article-font-default-paragraphIndent": "0px", "--sjs-article-font-default-textCase": "none", "--sjs-article-font-xx-large-fontSize": "64px", "--sjs-article-font-x-large-fontSize": "48px", "--sjs-article-font-large-fontSize": "32px", "--sjs-article-font-medium-fontSize": "24px", "--sjs-article-font-default-fontSize": "16px", "--sjs-cover-backcolor": "transparent", "--sjs-question-background": "rgba(255, 255, 255, 1)", "--font-family": "Open Sans", "--sjs-questionpanel-backcolor": "rgba(255, 255, 255, 0.25)", "--sjs-questionpanel-cornerRadius": "8px", "--sjs-editor-background": "rgba(255, 255, 255, 1)", "--sjs-editorpanel-hovercolor": "rgba(24, 70, 165, 0.1)", "--sjs-editorpanel-backcolor": "rgba(255, 255, 255, 0.99)", "--sjs-editorpanel-cornerRadius": "3px", "--sjs-font-pagetitle-color": "rgba(255, 255, 255, 1)", "--sjs-font-editorfont-color": "rgba(0, 0, 0, 0.9)", "--sjs-font-editorfont-placeholdercolor": "rgba(0, 0, 0, 0.5)", "--sjs-font-questiontitle-color": "rgba(255, 255, 255, 1)", "--sjs-font-questiondescription-color": "rgba(255, 255, 255, 0.75)", "--sjs-questionpanel-hovercolor": "rgba(24, 70, 165, 0.1)", "--sjs-cover-title-forecolor": "#FFFFFF", "--sjs-cover-description-forecolor": "rgba(255, 255, 255, 1)", "--sjs-font-questiontitle-weight": "700", "--sjs-font-questiontitle-size": "14px", "--sjs-font-questiondescription-size": "14px", "--sjs-font-editorfont-size": "14px"
+        } });
       await page.waitForTimeout(500);
       await page.click(".sd-input.sd-dropdown");
       await page.hover("text=Item 2");
@@ -408,14 +393,11 @@ frameworks.forEach(framework => {
     test("Desktop: Input font-size less 16px", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 3000 });
       await initSurvey(page, framework, jsonWithInputs);
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-editorfont-size": "12px",
-            "--sjs-font-size": "20px"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-editorfont-size": "12px",
+          "--sjs-font-size": "20px"
+        } });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-desktop-input-size.png");
 
       await page.locator(".sd-input.sd-dropdown").first().click();
@@ -434,13 +416,13 @@ frameworks.forEach(framework => {
           if (options.menuType === "popup") options.menuType = "overlay";
         });
         window["survey"].fromJSON(json);
-        window["survey"].applyTheme({
-          "cssVariables": {
-            "--sjs-font-editorfont-size": "12px",
-            "--sjs-font-size": "20px"
-          }
-        });
       }, jsonWithInputs);
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-editorfont-size": "12px",
+          "--sjs-font-size": "20px"
+        }
+      });
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
@@ -482,15 +464,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.evaluate(() => {
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-general-forecolor": "red",
-            "--sjs2-color-component-page-default-title": "blue",
-            "--sjs2-color-component-page-default-description": "blue"
-          }
-        });
-      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-general-forecolor": "red",
+          "--sjs2-color-component-page-default-title": "blue",
+          "--sjs2-color-component-page-default-description": "blue"
+        } });
       await compareScreenshot(page, ".sd-page", "survey-html-theme.png");
     });
 
@@ -529,11 +508,11 @@ frameworks.forEach(framework => {
       });
       await page.evaluate(() => {
         (window as any).survey.isCompact = true;
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-general-backcolor-dim": "blue"
-          }
-        });
+      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-general-backcolor-dim": "blue"
+        }
       });
       await compareScreenshot(page, ".sd-body", "question-matrix-dropdown-columns-theme.png");
     });
@@ -551,12 +530,12 @@ frameworks.forEach(framework => {
       });
       await page.evaluate(() => {
         (window as any).survey.isCompact = true;
-        (window as any).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-font-size": "3.2px",
-            "--sjs-base-unit": "1.6px",
-          }
-        });
+      });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-font-size": "3.2px",
+          "--sjs-base-unit": "1.6px",
+        }
       });
       await compareScreenshot(page, ".sd-question", "question-scaling.png");
     });

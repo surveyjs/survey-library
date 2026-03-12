@@ -1995,6 +1995,7 @@ export class QuestionPanelDynamicModel extends Question
     this.runCondition(this.getDataFilteredProperties());
   }
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
+    const prevIsValueChangingInternally = this.isValueChangingInternally;
     this.isValueChangingInternally = true;
     let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
@@ -2007,7 +2008,7 @@ export class QuestionPanelDynamicModel extends Question
         visibleIndex++;
       }
     }
-    this.isValueChangingInternally = false;
+    this.isValueChangingInternally = prevIsValueChangingInternally;
   }
   private isValueChangedWithoutPanels: boolean;
   onAnyValueChanged(name: string, questionName: string): void {

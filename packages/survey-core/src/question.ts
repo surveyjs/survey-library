@@ -3176,7 +3176,7 @@ Serializer.addClass("question", [
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

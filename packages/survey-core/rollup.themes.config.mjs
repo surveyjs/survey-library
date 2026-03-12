@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { readdirSync } from "fs";
 import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
 import process from "process";
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");

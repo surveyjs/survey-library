@@ -1100,7 +1100,11 @@ export class QuestionPanelDynamicModel extends Question
       if (state === "firstExpanded") {
         state = i === 0 ? "expanded" : "collapsed";
       }
-      this.panelsCore[i].state = state;
+      if (state === "expanded") {
+        this.panelsCore[i].expand(false);
+      } else {
+        this.panelsCore[i].state = state;
+      }
     }
   }
   private setValueBasedOnPanelCount() {
@@ -1995,6 +1999,7 @@ export class QuestionPanelDynamicModel extends Question
     this.runCondition(this.getDataFilteredProperties());
   }
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
+    const prevIsValueChangingInternally = this.isValueChangingInternally;
     this.isValueChangingInternally = true;
     let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
@@ -2007,7 +2012,7 @@ export class QuestionPanelDynamicModel extends Question
         visibleIndex++;
       }
     }
-    this.isValueChangingInternally = false;
+    this.isValueChangingInternally = prevIsValueChangingInternally;
   }
   private isValueChangedWithoutPanels: boolean;
   onAnyValueChanged(name: string, questionName: string): void {

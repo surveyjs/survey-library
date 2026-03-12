@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot } from "../e2e/helper";
+import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot, applyTheme } from "../e2e/helper";
 
 const title = "File Screenshot";
 
@@ -89,13 +89,13 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
-        (window as any).survey.applyTheme({
-          cssVariables: {
-            "--sjs-base-unit": "16px"
-          },
-          header: {
-          }
-        });
+      });
+      await applyTheme(page, {
+        cssVariables: {
+          "--sjs-base-unit": "16px"
+        },
+        header: {
+        }
       });
 
       await compareScreenshot(page, questionRoot, "file-question-single-file-scaled.png");
@@ -167,15 +167,14 @@ frameworks.forEach(framework => {
 
     test("Check file question - long names large font", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
+      await applyTheme(page, {
+        cssVariables: {
+          "--sjs-font-size": "20px"
+        }
+      });
       await page.evaluate(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.allowMultiple = true;
-
-        (window as any).survey.applyTheme({
-          cssVariables: {
-            "--sjs-font-size": "20px"
-          }
-        });
 
         question.value = [
           {

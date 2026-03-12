@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme } from "../e2e/helper";
 
 const title = "Panel Screenshot";
 
@@ -407,11 +407,8 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "800"
       });
-      await page.evaluate(() => {
-        const themeJson = {
-          "isPanelless": true
-        };
-        (window as any).survey.applyTheme(themeJson);
+      await applyTheme(page, {
+        "isPanelless": true
       });
       const panelRoot = page.locator(".sd-panel--as-page");
       await compareScreenshot(page, panelRoot, "panel-multi-panelless.png");

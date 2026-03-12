@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, getButtonByText, applyTheme } from "../e2e/helper";
 
 frameworks.forEach(framework => {
   test.beforeEach(async ({ page }) => {
@@ -454,16 +454,13 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await page.evaluate(() => {
-        const themeJson = {
-          "cssVariables": {
-            "--sjs-special-red": "orange",
-            "--sjs-special-yellow": "magenta",
-            "--sjs-special-green": "blue"
-          },
-          "isPanelless": false
-        };
-        window["survey"].applyTheme(themeJson);
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-special-red": "orange",
+          "--sjs-special-yellow": "magenta",
+          "--sjs-special-green": "blue"
+        },
+        "isPanelless": false
       });
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-theme.png");
     });
@@ -475,16 +472,12 @@ frameworks.forEach(framework => {
         width: "900px",
         elements: [{ type: "rating", name: "q1" }]
       });
-
-      await page.evaluate(() => {
-        const themeJson = {
-          "cssVariables": {
-            "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
-            "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
-          },
-          "isPanelless": false
-        };
-        window["survey"].applyTheme(themeJson);
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
+          "--sjs-shadow-small-reset": "inset 0px 0px 0px 0px rgba(0, 0, 0, 1)"
+        },
+        "isPanelless": false
       });
       await compareScreenshot(page, ".sd-rating", "rating-inner-shadow.png");
     });

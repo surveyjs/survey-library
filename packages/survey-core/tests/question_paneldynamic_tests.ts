@@ -9410,6 +9410,59 @@ QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + radiogroup with sho
   radioQ.otherValue = "my other value 2";
   assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
 });
+QUnit.test("Fire onValueChanged, onDynamicPanelValueChanging, onDynamicPanelValueChanged on comment change, bug#11001", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "question1",
+            panelCount: 1,
+            templateElements: [
+              {
+                type: "radiogroup",
+                name: "question2",
+                showCommentArea: true,
+                choices: ["Item 1", "Item 2", "Item 3"],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("question2");
+
+  const firedEvents: Array<{ event: string, name: string }> = [];
+  survey.onValueChanged.add((sender, options) => {
+    firedEvents.push({ event: "onValueChanged", name: options.name });
+  });
+  survey.onDynamicPanelValueChanging.add((sender, options) => {
+    firedEvents.push({ event: "onDynamicPanelValueChanging", name: options.name });
+  });
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
+    firedEvents.push({ event: "onDynamicPanelValueChanged", name: options.name });
+  });
+
+  radioQ.value = "Item 1";
+  assert.deepEqual(firedEvents, [
+    { event: "onDynamicPanelValueChanging", name: "question2" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2" }
+  ], "All three events fire on value change with correct name");
+
+  firedEvents.length = 0;
+  radioQ.comment = "some comment";
+  assert.deepEqual(firedEvents, [
+    { event: "onDynamicPanelValueChanging", name: "question2-Comment" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2-Comment" }
+  ], "All three events fire on comment change with comment suffix in name");
+});
+
 QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + expression validator should not show error on new panel, bug##11002", function(assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",

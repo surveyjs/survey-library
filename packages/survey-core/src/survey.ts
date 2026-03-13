@@ -6933,32 +6933,31 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
-  questionValueChanging(question: IQuestion, newValue: any): any {
+  private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
     const parentQ = q.parentQuestion;
-    if (!parentQ) return newValue;
-    if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanging.isEmpty) {
-      const options: any = parentQ.getValueChangingOptions(q);
-      if (options) {
-        options.value = newValue;
-        this.onDynamicPanelValueChanging.fire(this, options);
-        return options.value;
-      }
+    if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
+    const options = parentQ.getValueChangingOptions(q);
+    if (options && isComment) {
+      options.name = q.name + this.commentSuffix;
+    }
+    return options;
+  }
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanging, isComment);
+    if (options) {
+      options.value = newValue;
+      this.onDynamicPanelValueChanging.fire(this, options);
+      return options.value;
     }
     return newValue;
   }
-  questionValueChanged(question: IQuestion, oldValue: any): void {
-    const q = <Question>question;
-    const parentQ = q.parentQuestion;
-    if (!!parentQ) {
-      if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanged.isEmpty) {
-        const options: any = parentQ.getValueChangingOptions(q);
-        if (options) {
-          options.value = q.value;
-          options.oldValue = oldValue;
-          this.onDynamicPanelValueChanged.fire(this, options);
-        }
-      }
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanged, isComment);
+    if (options) {
+      options.value = isComment ? (<Question>question).comment : (<Question>question).value;
+      options.oldValue = oldValue;
+      this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {

@@ -22543,9 +22543,9 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
   rootWrapper.appendChild(textElement);
   survey.rootElement = rootElement;
   const quesiton = panelDynamic.panels[0].questions[0];
-  survey.scrollElementToTop(quesiton, quesiton, null as any, "text_question_id", false, null, null, () => {
+  survey.scrollElementToTop({ element: quesiton, question: quesiton, id: "text_question_id", scrollIfVisible: false, onScolledCallback: () => {
     log += "->focused text question";
-  });
+  } });
   assert.equal(log, "->text_question_id->focused text question");
   SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
   SurveyElement.ScrollElementToTop = oldScrollElementToTop;

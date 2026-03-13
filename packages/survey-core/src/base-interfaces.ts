@@ -15,6 +15,17 @@ import { CreateCustomChoiceItemEvent, DragDropAllowEvent } from "./survey-events
 import { PopupModel } from "./popup";
 import { ItemValue } from "./itemvalue";
 
+export interface IScrollElementToTopOptions {
+  element: ISurveyElement;
+  question: IQuestion;
+  page?: IPage;
+  id: string;
+  scrollIfVisible?: boolean;
+  scrollIntoViewOptions?: ScrollIntoViewOptions;
+  passedRootElement?: HTMLElement;
+  onScolledCallback?: () => void;
+}
+
 export interface ISurveyVariables {
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
@@ -338,15 +349,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
-  scrollElementToTop(
-    element: ISurveyElement,
-    question: IQuestion,
-    page: IPage,
-    id: string, scrollIfVisible?: boolean,
-    scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement,
-    onScolledCallback?: () => void
-  ): any;
+  scrollElementToTop(options: IScrollElementToTopOptions): any;
+  scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   //#endregion
 
   //#region Timer & randomization

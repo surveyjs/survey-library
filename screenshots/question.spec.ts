@@ -669,6 +669,7 @@ frameworks.forEach(framework => {
         (window as any).survey.allowResizeComment = false;
         (window as any).survey.autoGrowComment = true;
       });
+      await page.waitForTimeout(500);
       const questionRoot = page.locator(".sd-question");
       await questionRoot.click();
       await page.waitForTimeout(500);

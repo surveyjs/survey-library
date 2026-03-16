@@ -1,5 +1,7 @@
-import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { Base, EventBase } from "./base";
+import { JsonObjectProperty, Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
@@ -12,7 +14,11 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
-  ITitleOwner, IElementUIState
+  ITitleOwner, IElementUIState,
+  ISurveyTitleSettings,
+  ISurveyElementLifecycle,
+  ISurveyCssCallbacks,
+  ISurveySingleInput
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
@@ -22,10 +28,11 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { IAnimationConsumer, AnimationBoolean, AnimationProperty } from "./utils/animation";
-import { classesToSelector, cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/animation-dom";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
-import { IObjectValueContext, IValueGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext } from "./conditions/conditionProcessValue";
 import { ItemValue } from "./itemvalue";
 
 /**
@@ -38,6 +45,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }
   protected createLocTitleProperty(): LocalizableString {
     return this.createLocalizableString("title", this, true);
+  }
+  public getAllowLineBreaks(name: string): boolean {
+    return Serializer.findProperty(this.getType(), name)?.type === "text";
   }
   /**
    * A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
@@ -369,7 +379,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
-      this.survey.elementContentVisibilityChanged(this);
+      this.lifecycleCallbacks.elementContentVisibilityChanged(this);
     }
   }
   /**
@@ -384,7 +394,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isCollapsed(): boolean {
     return this.state === "collapsed" && !this.isDesignMode && !this.isSingleInputMode;
   }
-  protected get isSingleInputMode(): boolean { return this.survey?.isSingleVisibleInput; }
+  protected get isSingleInputMode(): boolean { return this.singleInput?.isSingleVisibleInput; }
   /**
    * Returns `true` if the survey element is expanded.
    * @hidefor PageModel
@@ -504,7 +514,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private updateTitleActions() {
     let actions: Array<IAction> = this.getDefaultTitleActions();
     if (!!this.survey) {
-      actions = this.survey.getUpdatedElementTitleActions(this, actions);
+      actions = this.titleSettings.getUpdatedElementTitleActions(this, actions);
     }
     this.setArrayPropertyValue("titleActions", actions);
   }
@@ -583,6 +593,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    */
   public get survey(): ISurvey {
     return this.getSurvey();
+  }
+  public get titleSettings(): ISurveyTitleSettings {
+    return this.survey as ISurveyTitleSettings;
+  }
+  public get lifecycleCallbacks(): ISurveyElementLifecycle {
+    return this.survey as ISurveyElementLifecycle;
+  }
+  public get cssCallbacks(): ISurveyCssCallbacks {
+    return this.survey as ISurveyCssCallbacks;
+  }
+  public get singleInput(): ISurveySingleInput {
+    return this.survey as ISurveySingleInput;
   }
   public getSurvey(live: boolean = false): ISurvey {
     if (!!this.surveyValue) return this.surveyValue;
@@ -841,7 +863,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected getPageVisibleIndex(): number { return -1; }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.getQuestionStartIndex(this.getPageVisibleIndex());
+    if (!!this.survey) return this.titleSettings.getQuestionStartIndex(this.getPageVisibleIndex());
     return "";
   }
   public delete(doDispose: boolean): void { }
@@ -979,7 +1001,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public isInternalNested: boolean;
   private canHaveFrameStyles() {
-    if (<any>this.survey?.currentSingleElement === this) return true;
+    if (<any>this.singleInput?.currentSingleElement === this) return true;
     if (this.isInternalNested === true) return false;
     return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }

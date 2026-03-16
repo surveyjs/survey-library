@@ -13,7 +13,8 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject, ValidationContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
-import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -23,7 +24,7 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditions/conditionProcessValue";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {

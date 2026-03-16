@@ -12,7 +12,7 @@ import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 import { Question } from "../src/question";
-import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");

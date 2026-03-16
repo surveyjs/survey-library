@@ -1,7 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { JsonObject, property, Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
 import { getLocaleString } from "./surveyStrings";
@@ -14,10 +15,10 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
 import { Question } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IMatrixData {

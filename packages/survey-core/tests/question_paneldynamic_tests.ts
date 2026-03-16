@@ -22,8 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
-import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
-import { template } from "lodash";
+import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -9133,6 +9132,31 @@ QUnit.test("paneldynamic getPanelInDesignMode", function (assert) {
   const q1 = new QuestionPanelDynamicModel("q1");
   assert.strictEqual(q1.getPanelInDesignMode(), q1.template, "returns tempalte");
 });
+QUnit.test("paneldynamic firstExpanded should not call scrollElementToTop on initial build, Bug#10998", function (assert) {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "relatives",
+        "templateElements": [{ "type": "text", "name": "q1" }],
+        "templateTitle": "Panel #{panelIndex}",
+        "panelCount": 3,
+        "panelsState": "firstExpanded"
+      }
+    ]
+  });
+  let scrollCalled = false;
+  survey.scrollElementToTop = (() => { scrollCalled = true; }) as any;
+  const q = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  q.onFirstRendering();
+  assert.equal(q.panels[0].state, "expanded", "first panel is expanded");
+  assert.equal(q.panels[1].state, "collapsed", "second panel is collapsed");
+  setTimeout(() => {
+    assert.equal(scrollCalled, false, "scrollElementToTop should not be called on initial panel build");
+    done();
+  }, 50);
+});
 QUnit.test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -9319,4 +9343,155 @@ QUnit.test("Exception on validation panel dynamic if questions in validation are
   const cellQuestion = row.cells[0].question;
   cellQuestion.value = 10;
   assert.equal(cellQuestion.errors.length, 0, "There is no errors on");
+});
+QUnit.test("paneldynamic + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q2",
+            choices: ["Item 1", "Item 2", "Item 3"],
+            showOtherItem: true,
+            isRequired: true
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+  radioQ.value = "other";
+  survey.tryComplete();
+  assert.equal(radioQ.errors.length, 1, "Required error is shown for the radiogroup");
+  radioQ.otherValue = "my other value";
+  assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
+});
+QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "radiogroup",
+            name: "q2",
+            choices: ["Item 1", "Item 2", "Item 3"],
+            showOtherItem: true,
+            isRequired: true
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+  radioQ.value = "other";
+  radioQ.otherValue = "my other value 1";
+  assert.equal(radioQ.errors.length, 0, "There is no errors");
+  radioQ.otherValue = "";
+  assert.equal(radioQ.errors.length, 1, "Required error is shown for the radiogroup");
+  radioQ.otherValue = "my other value 2";
+  assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
+});
+QUnit.test("Fire onValueChanged, onDynamicPanelValueChanging, onDynamicPanelValueChanged on comment change, bug#11001", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "question1",
+            panelCount: 1,
+            templateElements: [
+              {
+                type: "radiogroup",
+                name: "question2",
+                showCommentArea: true,
+                choices: ["Item 1", "Item 2", "Item 3"],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("question2");
+
+  const firedEvents: Array<{ event: string, name: string }> = [];
+  survey.onValueChanged.add((sender, options) => {
+    firedEvents.push({ event: "onValueChanged", name: options.name });
+  });
+  survey.onDynamicPanelValueChanging.add((sender, options) => {
+    firedEvents.push({ event: "onDynamicPanelValueChanging", name: options.name });
+  });
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
+    firedEvents.push({ event: "onDynamicPanelValueChanged", name: options.name });
+  });
+
+  radioQ.value = "Item 1";
+  assert.deepEqual(firedEvents, [
+    { event: "onDynamicPanelValueChanging", name: "question2" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2" }
+  ], "All three events fire on value change with correct name");
+
+  firedEvents.length = 0;
+  radioQ.comment = "some comment";
+  assert.deepEqual(firedEvents, [
+    { event: "onDynamicPanelValueChanging", name: "question2-Comment" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2-Comment" }
+  ], "All three events fire on comment change with comment suffix in name");
+});
+
+QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + expression validator should not show error on new panel, bug##11002", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+            isRequired: true
+          },
+          {
+            type: "slider",
+            name: "q2",
+            isRequired: true,
+            validators: [
+              {
+                type: "expression",
+                text: "Value must be >= 75",
+                expression: "{panel.q2} >= 75"
+              }
+            ],
+            min: 70,
+            max: 99,
+            step: 0.1
+          }
+        ]
+      }
+    ]
+  });
+  const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const slider0 = panelDynamic.panels[0].getQuestionByName("q2");
+  assert.equal(slider0.errors.length, 0, "No errors initially in the first panel's slider");
+  panelDynamic.addPanelUI();
+  assert.equal(panelDynamic.panels.length, 2, "Two panels now");
+  const slider1 = panelDynamic.panels[1].getQuestionByName("q2");
+  assert.equal(slider1.errors.length, 0, "No errors in the new panel's slider after adding a panel");
 });

@@ -1,4 +1,4 @@
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 
 export var surveyTimerFunctions = {
   setTimeout: (func: () => any): number => {

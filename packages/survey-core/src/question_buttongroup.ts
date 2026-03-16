@@ -1,10 +1,11 @@
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
-import { updateListCssValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/dom-utils";
 
 export class ButtonGroupItemValue extends ChoiceItem {
   protected getBaseType(): string {

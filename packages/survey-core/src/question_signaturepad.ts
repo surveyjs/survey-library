@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -429,9 +430,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
     this.valueIsUpdatingInternally = false;
   }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
+  protected onClearValue(): void {
+    super.onClearValue();
     this.valueWasChangedFromLastUpload = false;
-    super.clearValue(keepComment, fromUI);
     this._loadedData = undefined;
     this.loadPreview(this.value);
   }

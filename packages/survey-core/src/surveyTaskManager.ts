@@ -1,5 +1,6 @@
-import { Base, EventBase } from "./base";
-import { property } from "./jsonobject";
+import { Base } from "./base";
+import { EventBase } from "./event";
+import { property } from "./decorators";
 
 class SurveyTaskModel {
   private timestamp: Date;

@@ -1,12 +1,14 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, property, Serializer } from "./jsonobject";
-import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement } from "./base-interfaces";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement, ISurveyAfterRenderCallbacks, ISurveyValidation } from "./base-interfaces";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner, AsyncElementsRunner } from "./validator";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./conditions";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
@@ -15,14 +17,13 @@ import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { getElementWidth, isContainerVisible } from "./utils/utils";
+import { getElementWidth, isContainerVisible } from "./utils/dom-utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, ProcessValue, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
-import { Action } from "./actions/action";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
 import { ActionContainer } from "./actions/container";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
@@ -271,6 +272,12 @@ export class Question extends SurveyElement<Question>
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
+  public get afterRenderCallbacks(): ISurveyAfterRenderCallbacks {
+    return this.survey as ISurveyAfterRenderCallbacks;
+  }
+  public get validationCallbacks(): ISurveyValidation {
+    return this.survey as ISurveyValidation;
+  }
   focusCallback: () => void;
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
@@ -408,7 +415,7 @@ export class Question extends SurveyElement<Question>
         text = this.getDefaultTitle();
       }
       if (!this.survey) return text;
-      return this.survey.getUpdatedQuestionTitle(this, text);
+      return this.titleSettings.getUpdatedQuestionTitle(this, text);
     };
     this.locProcessedTitle = new LocalizableString(this, true);
     this.locProcessedTitle.sharedData = locTitleValue;
@@ -468,7 +475,7 @@ export class Question extends SurveyElement<Question>
   }
   protected onValueNameChanged(oldValue: string): void {
     if (!this.survey) return;
-    this.survey.questionRenamed(
+    this.lifecycleCallbacks.questionRenamed(
       this,
       this.name,
       !!oldValue ? oldValue : this.name
@@ -478,7 +485,7 @@ export class Question extends SurveyElement<Question>
   protected onNameChanged(oldValue: string): void {
     this.locTitle.strChanged();
     if (!this.survey) return;
-    this.survey.questionRenamed(
+    this.lifecycleCallbacks.questionRenamed(
       this,
       oldValue,
       this.valueName ? this.valueName : oldValue
@@ -909,7 +916,7 @@ export class Question extends SurveyElement<Question>
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value);
     if (!this.survey) return;
-    this.survey.questionCreated(this);
+    this.lifecycleCallbacks.questionCreated(this);
     if (isLight !== true) {
       this.runConditions();
     }
@@ -1053,7 +1060,7 @@ export class Question extends SurveyElement<Question>
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
   private notifySurveyVisibilityChanged(): void {
     if (!this.canUpdateValueOnVisibleChanged()) return;
-    this.survey.questionVisibilityChanged(this, this.isVisible,
+    this.lifecycleCallbacks.questionVisibilityChanged(this, this.isVisible,
       !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
     if (!this.visible) {
@@ -1114,7 +1121,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getParentTitleLocation(): string {
     if (!!this.parent) return this.parent.getQuestionTitleLocation();
-    if (!!this.survey) return this.survey.questionTitleLocation;
+    if (!!this.survey) return this.titleSettings.questionTitleLocation;
     return "top";
   }
   get hasTitleOnLeft(): boolean {
@@ -1145,7 +1152,7 @@ export class Question extends SurveyElement<Question>
     if (this.errorLocation !== "default") return this.errorLocation;
     if (this.parentQuestion) return this.parentQuestion.getChildErrorLocation(this);
     if (this.parent) return this.parent.getQuestionErrorLocation();
-    return this.survey ? this.survey.questionErrorLocation : "top";
+    return this.survey ? this.titleSettings.questionErrorLocation : "top";
   }
   public getChildErrorLocation(child: Question): string {
     return this.getErrorLocation();
@@ -1193,7 +1200,7 @@ export class Question extends SurveyElement<Question>
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
     return !!this.survey
-      ? this.survey.questionDescriptionLocation
+      ? this.titleSettings.questionDescriptionLocation
       : "underTitle";
   }
   protected needClickTitleFunction(): boolean {
@@ -1291,12 +1298,12 @@ export class Question extends SurveyElement<Question>
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
     if (!this.survey || !this.hasSingleInput) return;
-    this.survey.afterRenderQuestionInput(this, el);
+    this.afterRenderCallbacks.afterRenderQuestionInput(this, el);
   }
   public afterRender(el: HTMLElement): void {
     this.afterRenderCore(el);
     if (!this.survey) return;
-    this.survey.afterRenderQuestion(this, el);
+    this.afterRenderCallbacks.afterRenderQuestion(this, el);
     if (!!this.afterRenderQuestionCallback) {
       this.afterRenderQuestionCallback(this, el);
     }
@@ -1327,7 +1334,7 @@ export class Question extends SurveyElement<Question>
     return this.locTitle.renderedHtml;
   }
   protected get titlePattern(): string {
-    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
+    return !!this.survey ? this.titleSettings.questionTitlePattern : "numTitleRequire";
   }
   public get isRequireTextOnStart(): boolean {
     return this.isRequired && this.titlePattern == "requireNumTitle";
@@ -1354,7 +1361,7 @@ export class Question extends SurveyElement<Question>
   protected onCalcCssClasses(classes: any): void {
     super.onCalcCssClasses(classes);
     if (this.survey) {
-      this.survey.updateQuestionCssClasses(this, classes);
+      this.cssCallbacks.updateQuestionCssClasses(this, classes);
     }
     if (this.onUpdateCssClassesCallback) {
       this.onUpdateCssClassesCallback(classes);
@@ -1599,8 +1606,10 @@ export class Question extends SurveyElement<Question>
       } else {
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
-        this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible, scrollOptions, undefined, () => {
-          this.focusInputElement(onError);
+        this.survey.scrollElementToTop({
+          element: this, question: this, id: this.id,
+          scrollIfVisible, scrollIntoViewOptions: scrollOptions,
+          onScolledCallback: () => { this.focusInputElement(onError); }
         });
       }
     }
@@ -1614,7 +1623,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   private get isValidateVisitedEmptyFields(): boolean {
-    return this.supportEmptyValidation() && !!this.survey && this.survey.getValidateVisitedEmptyFields() && this.isEmpty();
+    return this.supportEmptyValidation() && !!this.survey && this.validationCallbacks.getValidateVisitedEmptyFields() && this.isEmpty();
   }
   private isFocusEmpty: boolean;
   protected supportEmptyValidation(): boolean { return false; }
@@ -1808,7 +1817,7 @@ export class Question extends SurveyElement<Question>
       no = (<any>this.parent).addNoFromChild(no);
     }
     if (!!this.survey) {
-      no = this.survey.getUpdatedQuestionNo(this, no);
+      no = this.titleSettings.getUpdatedQuestionNo(this, no);
     }
     return no;
   }
@@ -1943,7 +1952,9 @@ export class Question extends SurveyElement<Question>
       this.comment = undefined;
     }
     this.setValueChangedDirectly(fromUI === true);
+    this.onClearValue();
   }
+  protected onClearValue(): void {}
   clearValueFromUI(): void {
     this.clearValue(true, true);
   }
@@ -2030,7 +2041,7 @@ export class Question extends SurveyElement<Question>
   public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
     var res = this.calcDisplayValue(keysAsText, value);
     if (this.survey) {
-      res = this.survey.getQuestionDisplayValue(this, res);
+      res = this.titleSettings.getQuestionDisplayValue(this, res);
     }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
@@ -2502,7 +2513,7 @@ export class Question extends SurveyElement<Question>
    */
   public get requiredMark(): string {
     return this.survey != null && this.isRequired
-      ? this.survey.requiredMark
+      ? this.titleSettings.requiredMark
       : "";
   }
   /**
@@ -2543,7 +2554,7 @@ export class Question extends SurveyElement<Question>
           qErrors.push(error);
         }
       }
-      this.survey.validateQuestion(this, qErrors, context.fireCallback);
+      this.validationCallbacks.validateQuestion(this, qErrors, context.fireCallback);
     }
     return qErrors;
   }
@@ -2706,8 +2717,16 @@ export class Question extends SurveyElement<Question>
   }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
+    if (!this.isUpdatingValueFromSurvey && this.survey) {
+      newValue = this.survey.questionValueChanging(this, newValue, true);
+    }
+    if (this.questionComment === newValue) return;
+    const oldValue = this.questionComment;
     this.questionComment = newValue;
     this.setCommentIntoData(newValue);
+    if (!this.isUpdatingValueFromSurvey && this.survey) {
+      this.survey.questionValueChanged(this, oldValue, true);
+    }
   }
   protected setCommentIntoData(newValue: string): void {
     if (this.data != null) {
@@ -2722,13 +2741,13 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(super.getValidName(name));
   }
   //IQuestion
-  private isUpdateingValueFromSurvey: boolean;
+  protected isUpdatingValueFromSurvey: boolean;
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     newValue = this.valueFromDataCore(newValue);
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
-    this.isUpdateingValueFromSurvey = true;
+    this.isUpdatingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
         this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
@@ -2742,11 +2761,11 @@ export class Question extends SurveyElement<Question>
         this.updateBindingsOnClearFromSurveyCore();
       }
     }
-    this.isUpdateingValueFromSurvey = false;
+    this.isUpdatingValueFromSurvey = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }
-  protected canUpdateBindings(): boolean { return !this.isUpdateingValueFromSurvey; }
+  protected canUpdateBindings(): boolean { return !this.isUpdatingValueFromSurvey; }
   private updateBindingsOnClearFromSurveyCore(): void {
     const surveyData = this.data;
     if (surveyData && !this.isBindingEmpty()) {
@@ -3159,7 +3178,7 @@ Serializer.addClass("question", [
   "visibleIf:condition",
   { name: "width" },
   { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

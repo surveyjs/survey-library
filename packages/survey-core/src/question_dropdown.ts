@@ -1,14 +1,15 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
-import { updateListCssValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/dom-utils";
 import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
 
@@ -311,8 +312,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     const postFix = addPostFix && this.useDropdownList ? "_0" : "";
     return this.inputId + postFix;
   }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    super.clearValue(keepComment, fromUI);
+  protected onClearValue(): void {
+    super.onClearValue();
     this.lastSelectedItemValue = null;
   }
 

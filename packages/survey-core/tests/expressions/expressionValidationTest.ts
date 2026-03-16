@@ -1,5 +1,5 @@
 import { IExpressionValidationResult } from "../../src/base";
-import { ExpressionErrorType } from "../../src/conditions";
+import { ExpressionErrorType } from "../../src/expressions/expressionError";
 import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Expression Validation");

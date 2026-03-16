@@ -1,4 +1,4 @@
-import { Base, Event } from "./base";
+import { Event } from "./event";
 import { IQuestion } from "./base-interfaces";
 
 export class QuestionCustomWidget {

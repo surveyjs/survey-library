@@ -8,7 +8,8 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  IPlainDataOptions, IElementUIState
+  IPlainDataOptions, IElementUIState,
+  ISurveyDynamicPanelCallbacks
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -16,11 +17,14 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
-import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { classesToSelector, cleanHtmlElementAfterAnimation, confirmActionAsync, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
+import { confirmActionAsync } from "./utils/confirm-dialog";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -31,7 +35,7 @@ import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
 
 export interface IQuestionPanelDynamicData {
@@ -275,6 +279,9 @@ export class QuestionPanelDynamicModel extends Question
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;
+  public get dynamicPanelCallbacks(): ISurveyDynamicPanelCallbacks {
+    return this.survey as ISurveyDynamicPanelCallbacks;
+  }
 
   renderModeChangedCallback: () => void;
   panelCountChangedCallback: () => void;
@@ -322,7 +329,7 @@ export class QuestionPanelDynamicModel extends Question
       if (panels) panels.forEach((panel) => { panel.updateElementCss(true); });
     }
     if (name === "showQuestionNumbers" && this.survey) {
-      this.survey.questionVisibilityChanged(this, this.visible, true);
+      this.lifecycleCallbacks.questionVisibilityChanged(this, this.visible, true);
     }
     if (name === "tabAlign" && this.isRenderModeTab) {
       this.tabbedMenu.containerCss = this.getTabbedMenuCss();
@@ -677,7 +684,7 @@ export class QuestionPanelDynamicModel extends Question
         panel: val,
         visiblePanelIndex: index
       };
-      this.survey.dynamicPanelCurrentIndexChanged(this, options);
+      this.dynamicPanelCallbacks.dynamicPanelCurrentIndexChanged(this, options);
     }
   }
   protected getUIState(): any {
@@ -1093,7 +1100,11 @@ export class QuestionPanelDynamicModel extends Question
       if (state === "firstExpanded") {
         state = i === 0 ? "expanded" : "collapsed";
       }
-      this.panelsCore[i].state = state;
+      if (state === "expanded") {
+        this.panelsCore[i].expand(false);
+      } else {
+        this.panelsCore[i].state = state;
+      }
     }
   }
   private setValueBasedOnPanelCount() {
@@ -1686,7 +1697,7 @@ export class QuestionPanelDynamicModel extends Question
     const panel = this.visiblePanelsCore[visIndex];
     const index = this.panelsCore.indexOf(panel);
     if (index < 0) return;
-    if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
+    if (this.survey && !this.dynamicPanelCallbacks.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
     this.setPropertyValue("panelCount", this.panelCount);
     this.singleInputOnRemoveItem(visIndex);
@@ -1711,9 +1722,9 @@ export class QuestionPanelDynamicModel extends Question
     if (this.survey) {
       const updateIndeces = sQN === "default";
       if (isAdded) {
-        this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
+        this.dynamicPanelCallbacks.dynamicPanelAdded(this, index, panel, updateIndeces);
       } else {
-        this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
+        this.dynamicPanelCallbacks.dynamicPanelRemoved(this, index, panel, updateIndeces);
       }
     }
     if (isAdded && !!panel && (sQN === "onpanel" || sQN === "recursive")) {
@@ -1984,6 +1995,7 @@ export class QuestionPanelDynamicModel extends Question
     this.runCondition(this.getDataFilteredProperties());
   }
   protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
+    const prevIsValueChangingInternally = this.isValueChangingInternally;
     this.isValueChangingInternally = true;
     let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
@@ -1996,7 +2008,7 @@ export class QuestionPanelDynamicModel extends Question
         visibleIndex++;
       }
     }
-    this.isValueChangingInternally = false;
+    this.isValueChangingInternally = prevIsValueChangingInternally;
   }
   private isValueChangedWithoutPanels: boolean;
   onAnyValueChanged(name: string, questionName: string): void {
@@ -2231,7 +2243,7 @@ export class QuestionPanelDynamicModel extends Question
       actions.push(this.getRemovePanelAction(panel));
     }
     if (!!this.survey) {
-      actions = this.survey.getUpdatedPanelFooterActions(panel, actions, this);
+      actions = this.titleSettings.getUpdatedPanelFooterActions(panel, actions, this);
     }
     return actions;
   }
@@ -2424,7 +2436,12 @@ export class QuestionPanelDynamicModel extends Question
       if (!Array.isArray(this.changingValueQuestions)) {
         this.changingValueQuestions = [];
       }
-      const q = this.panelsCore[index].getQuestionByValueName(name);
+      let qName = name;
+      const suffix = settings.commentSuffix;
+      if (qName.endsWith(suffix)) {
+        qName = qName.substring(0, qName.length - suffix.length);
+      }
+      const q = this.panelsCore[index].getQuestionByValueName(qName);
       if (!!q) {
         this.changingValueQuestions.push(q);
       }
@@ -2664,7 +2681,7 @@ export class QuestionPanelDynamicModel extends Question
         panel: panel,
         visiblePanelIndex: visPanelIndex
       };
-      this.survey.dynamicPanelGetTabTitle(this, options);
+      this.dynamicPanelCallbacks.dynamicPanelGetTabTitle(this, options);
       return options.title;
     };
     locTitle.sharedData = this.locTemplateTabTitle;

@@ -1,6 +1,6 @@
 import type { DropdownListModel } from "./dropdownListModel";
 import type { PopupModel } from "./popup";
-import type { EventBase } from "./base";
+import type { EventBase } from "./event";
 import type { ItemValue } from "./itemvalue";
 import { QuestionSelectBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
@@ -14,7 +14,6 @@ export interface IQuestionDropdownMixin {
   readonly showClearButton: boolean;
   onOpenedCallBack(): void;
   setIsChoicesLoading(value: boolean): void;
-  clearValue(keepComment?: boolean, fromUI?: boolean): void;
   dispose(): void;
 }
 
@@ -156,8 +155,8 @@ export function questionDropdownMixin<TBase extends Constructor<QuestionSelectBa
       return classes;
     }
 
-    public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-      super.clearValue(keepComment, fromUI);
+    protected onClearValue(): void {
+      super.onClearValue();
       this.dropdownListModelValue?.clear();
     }
 

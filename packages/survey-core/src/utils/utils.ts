@@ -1,3 +1,6 @@
+import { DomDocumentHelper } from "../global_variables_utils";
+import { settings } from "../settings";
+
 export function compareVersions(a: any, b: any): number {
   const regExStrip0: RegExp = /(\.0+)+$/;
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");

@@ -7,7 +7,8 @@ import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
-import { isBase64URL, getColorFromProperty } from "./utils/utils";
+import { getColorFromProperty } from "./utils/utils";
+import { isBase64URL } from "./utils/dom-utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 var defaultWidth = 300;

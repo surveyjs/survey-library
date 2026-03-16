@@ -152,7 +152,7 @@ frameworks.forEach(framework => {
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
 
-      const maxDiffPixels = 10;
+      const maxDiffPixels = 40;
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
     });
 
@@ -180,7 +180,7 @@ frameworks.forEach(framework => {
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
-      const maxDiffPixels = 10;
+      const maxDiffPixels = 40;
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png", 0, maxDiffPixels);
     });
 

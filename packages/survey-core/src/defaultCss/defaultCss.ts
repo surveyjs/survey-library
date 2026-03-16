@@ -877,7 +877,7 @@ export var defaultCss = {
     selectWrapper: "sv-dropdown_select-wrapper",
     control: "sd-formbox sd-dropdown",
     controlEmpty: "sd-dropdown--empty",
-    controlValue: "sd-dropdown__value",
+    controlValue: "sd-formbox__input sd-dropdown__input",
     controlDisabled: "sd-formbox--disabled",
     controlReadOnly: "sd-formbox--readonly",
     controlPreview: "sd-formbox--preview",

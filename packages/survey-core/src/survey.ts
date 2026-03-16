@@ -26,7 +26,8 @@ import {
   IDropdownMenuOptions,
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
-  ISaveToJSONOptions
+  ISaveToJSONOptions,
+  IScrollElementToTopOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -5802,17 +5803,30 @@ export class SurveyModel extends SurveyElementCore
 
   public skeletonHeight: number = undefined;
 
-  scrollElementToTop(
-    element: ISurveyElement, question: Question, page: PageModel,
-    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement,
-    onScolledCallback?: () => void
-  ): any {
+  scrollElementToTop(scrollOptions: IScrollElementToTopOptions): any;
+  scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
+  scrollElementToTop(elementOrOptions: ISurveyElement | IScrollElementToTopOptions, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any {
+    let scrollOptions: IScrollElementToTopOptions;
+    if (elementOrOptions && typeof (elementOrOptions as ISurveyElement).getType === "function") {
+      scrollOptions = {
+        element: elementOrOptions as ISurveyElement,
+        question: question,
+        page: page,
+        id: id,
+        scrollIfVisible: scrollIfVisible,
+        scrollIntoViewOptions: scrollIntoViewOptions,
+        passedRootElement: passedRootElement,
+        onScolledCallback: onScolledCallback
+      };
+    } else {
+      scrollOptions = elementOrOptions as IScrollElementToTopOptions;
+    }
+    const { element, question: optQuestion, page: optPage, id: optId, scrollIfVisible: optScrollIfVisible, scrollIntoViewOptions: optScrollIntoViewOptions, passedRootElement: optPassedRootElement, onScolledCallback: optOnScolledCallback } = scrollOptions;
     const options: ScrollToTopEvent = {
       element: element,
-      question: question,
-      page: page,
-      elementId: id,
+      question: optQuestion as any,
+      page: optPage as any,
+      elementId: optId,
       cancel: false,
       allow: true,
     };
@@ -5820,7 +5834,7 @@ export class SurveyModel extends SurveyElementCore
     if (!options.cancel && options.allow) {
       const elementPage = this.getPageByElement(element as IElement);
       const { rootElement } = settings.environment;
-      const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
+      const surveyRootElement = this.rootElement || optPassedRootElement || rootElement as any;
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
         if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
@@ -5829,24 +5843,24 @@ export class SurveyModel extends SurveyElementCore
         elementPage.forceRenderElement(element as IElement, () => {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
             const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
             activateLazyRenderingChecks(pageRootElement);
-            onScolledCallback && onScolledCallback();
+            optOnScolledCallback && optOnScolledCallback();
           });
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
-          SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
             activateLazyRenderingChecks(htmlElement);
-            onScolledCallback && onScolledCallback();
+            optOnScolledCallback && optOnScolledCallback();
           });
         }
       }
@@ -6919,32 +6933,31 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
-  questionValueChanging(question: IQuestion, newValue: any): any {
+  private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
     const parentQ = q.parentQuestion;
-    if (!parentQ) return newValue;
-    if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanging.isEmpty) {
-      const options: any = parentQ.getValueChangingOptions(q);
-      if (options) {
-        options.value = newValue;
-        this.onDynamicPanelValueChanging.fire(this, options);
-        return options.value;
-      }
+    if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
+    const options = parentQ.getValueChangingOptions(q);
+    if (options && isComment) {
+      options.name = q.name + this.commentSuffix;
+    }
+    return options;
+  }
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanging, isComment);
+    if (options) {
+      options.value = newValue;
+      this.onDynamicPanelValueChanging.fire(this, options);
+      return options.value;
     }
     return newValue;
   }
-  questionValueChanged(question: IQuestion, oldValue: any): void {
-    const q = <Question>question;
-    const parentQ = q.parentQuestion;
-    if (!!parentQ) {
-      if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanged.isEmpty) {
-        const options: any = parentQ.getValueChangingOptions(q);
-        if (options) {
-          options.value = q.value;
-          options.oldValue = oldValue;
-          this.onDynamicPanelValueChanged.fire(this, options);
-        }
-      }
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanged, isComment);
+    if (options) {
+      options.value = isComment ? (<Question>question).comment : (<Question>question).value;
+      options.oldValue = oldValue;
+      this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {

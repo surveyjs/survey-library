@@ -1,16 +1,24 @@
 <div class="sd-selectbase">
 	<div class="sv-dropdown_select-wrapper">
-		<select aria-invalid="false" aria-label="Question title" aria-required="false" class="sd-dropdown sd-dropdown--empty sd-formbox" id="testid0i">
-			<option value="">Select...</option>
-			<option value="item1">item1</option>
-			<option value="item2">item2</option>
-			<option value="item3">item3</option>
-		</select>
-		<div aria-hidden="true" class="sd-dropdown_chevron-button">
-			<svg class="sd-dropdown_chevron-button-svg sv-svg-icon" role="presentation">
-				<use xlink:href="#icon-chevrondown-24x24" class="">
-				</use>
-			</svg>
+		<div class="sd-dropdown sd-dropdown--empty sd-dropdown--select sd-formbox">
+			<select aria-invalid="false" aria-label="Question title" aria-required="false" class="sd-dropdown__input sd-formbox__input" id="testid0i">
+				<option value="">Select...</option>
+				<option value="item1">item1</option>
+				<option value="item2">item2</option>
+				<option value="item3">item3</option>
+			</select>
+			<div class="sd-formbox__group">
+				<div class="sd-editor-chevron-button sv-action">
+					<div class="sv-action__content">
+						<button class="sd-formbox__button sd-formbox-button sd-formbox-button--icon" role="button" tabindex="-1" type="button">
+							<svg class="sd-formbox-button__icon sv-svg-icon" role="presentation">
+								<use xlink:href="#icon-chevrondown-24x24" class="">
+								</use>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

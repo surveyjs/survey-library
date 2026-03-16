@@ -320,7 +320,6 @@ export * from "../../src/utils/file-utils";
 export * from "../../src/utils/icons";
 export * from "../../src/utils/key2click";
 export * from "../../src/utils/animation-dom";
-export * from "../../src/utils/utils";
 export { InputMaskBase } from "../../src/mask/mask_base";
 export { InputMaskPattern } from "../../src/mask/mask_pattern";
 export { InputMaskNumeric } from "../../src/mask/mask_numeric";

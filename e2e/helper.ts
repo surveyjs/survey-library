@@ -95,7 +95,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     (window as any).survey = model;
   }, [json, isDesignMode, props]);
   afterInitializeModelCallback && await afterInitializeModelCallback();
-  await page.evaluate(([framework]) => {
+  await page.evaluate(async ([framework]) => {
     const self: any = window;
     const model = self.survey;
     // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
@@ -118,7 +118,11 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const surveyLink = document.createElement("link");
       surveyLink.setAttribute("rel", "stylesheet");
       surveyLink.setAttribute("href", "../../node_modules/survey-core/survey-core.min.css");
-      shadowRoot.appendChild(surveyLink);
+      await new Promise<void>((resolve) => {
+        surveyLink.onload = () => resolve();
+        surveyLink.onerror = () => resolve();
+        shadowRoot.appendChild(surveyLink);
+      });
       shadowRoot.appendChild(rootElement);
 
       self.SurveyUI.renderSurvey(model, rootElement);

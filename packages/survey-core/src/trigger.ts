@@ -1,10 +1,11 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { ISurvey } from "./base-interfaces";
-import { property, Serializer } from "./jsonobject";
-import { ConditionRunner, ExpressionRunner } from "./conditions";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { ExpressionRunner } from "./expressions/expressionRunner";
 import { OperandMaker } from "./expressions/expressions";
-import { ValueGetter } from "./conditionProcessValue";
+import { ValueGetter } from "./conditions/conditionProcessValue";
 import { settings } from "./settings";
 
 /**

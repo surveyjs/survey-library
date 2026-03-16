@@ -1,9 +1,9 @@
 import { Helpers, createDate } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
-import { ValueGetter, VariableGetterContext } from "../src/conditionProcessValue";
+import { ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
 import { Base } from "../src/base";
-import { property } from "../src/jsonobject";
+import { property } from "../src/decorators";
 import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
 import { QuestionTextModel } from "../src/question_text";

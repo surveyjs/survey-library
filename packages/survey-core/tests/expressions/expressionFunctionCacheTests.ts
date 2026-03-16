@@ -1,4 +1,4 @@
-import { ExpressionRunner } from "../../src/conditions";
+import { ExpressionRunner } from "../../src/expressions/expressionRunner";
 import { FunctionFactory, registerFunction, unregisterFunction } from "../../src/functionsfactory";
 import { SurveyModel } from "../../src/survey";
 
@@ -283,6 +283,31 @@ QUnit.test("Do not cache surveyjs objects", (assert) => {
   assert.equal(objItem.value, 5, "The cached value is 5");
 
   unregisterFunction("func1");
+});
+QUnit.test("addToCache does not crash when properties.surveyCachedValues is undefined (nested cached functions)", (assert) => {
+  function innerFunc(params: any[]): any {
+    return params[0] + 1;
+  }
+  function outerFunc(params: any[]): any {
+    return FunctionFactory.Instance.run("innerFunc_nested", params, { survey: this.survey }, params);
+  }
+  registerFunction({ name: "innerFunc_nested", func: innerFunc, useCache: true });
+  registerFunction({ name: "outerFunc_nested", func: outerFunc, useCache: true });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "expression", name: "exp1", expression: "outerFunc_nested({q1})" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const exp = survey.getQuestionByName("exp1");
+  q1.value = 5;
+  assert.equal(exp.value, 6, "Nested cached function call should not crash, 5 + 1 = 6");
+  q1.value = 10;
+  assert.equal(exp.value, 11, "Second call works correctly, 10 + 1 = 11");
+
+  unregisterFunction("innerFunc_nested");
+  unregisterFunction("outerFunc_nested");
 });
 QUnit.test("useCache by default with async function", (assert) => {
   let resolveFuncs = new Array<(value: any) => void>();

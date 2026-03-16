@@ -3,7 +3,7 @@ import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer, ContainerUpdateOptions } from "./container";
 import { getLocaleString } from "../surveyStrings";
-import { property } from "../jsonobject";
+import { property } from "../decorators";
 
 export enum UpdateResponsivenessMode {
   None = 0,

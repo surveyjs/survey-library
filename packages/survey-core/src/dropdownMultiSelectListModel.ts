@@ -2,7 +2,7 @@ import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { ItemValue } from "./itemvalue";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { IMultiSelectListModel, MultiSelectListModel } from "./multiSelectListModel";
 import { Question } from "./question";
 import { settings } from "./settings";
@@ -202,6 +202,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       this.hintString = "";
     }
     this.syncFilterStringPlaceholder();
+  }
+
+  protected handleEnterWhenPopupVisible(event: any): void {
+    this.listModel.selectFocusedItem();
+    this.onFocus(event);
   }
 
   protected onPropertyChangedHandler(sender: any, options: any) {

@@ -1,6 +1,7 @@
 import { Base } from "../base";
 import { ISurvey, ISurveyImpl } from "../base-interfaces";
-import { JsonObject, Serializer, property } from "../jsonobject";
+import { Serializer } from "../jsonobject";
+import { property } from "../decorators";
 import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
 /**

@@ -1,13 +1,14 @@
-import { ComputedUpdater, Base, Event, ArrayChanges, IPropertyArrayValueChangedEvent, EventBase, IPropertyValueChangedEvent, EventAsync } from "../src/base";
+import { ComputedUpdater, Base, ArrayChanges, IPropertyArrayValueChangedEvent, IPropertyValueChangedEvent, EventAsync } from "../src/base";
+import { Event } from "../src/event";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
-import { property, Serializer } from "../src/jsonobject";
+import { Serializer } from "../src/jsonobject";
+import { property } from "../src/decorators";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
-import { findParentByClassNames } from "../src/utils/utils";
+import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
-import { set } from "lodash";
 export * from "../src/localization/german";
 
 export default QUnit.module("Base");
@@ -966,6 +967,14 @@ QUnit.test("check afterRerender function", (assert) => {
   log = "";
   survey.afterRerender();
   assert.equal(log, "");
+});
+QUnit.test("maxWidth should return to default when set to empty string", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  assert.equal(question.maxWidth, "100%", "maxWidth default value is 100%");
+  question.maxWidth = "50%";
+  assert.equal(question.maxWidth, "50%", "maxWidth is set to 50%");
+  question.maxWidth = "";
+  assert.equal(question.maxWidth, "100%", "maxWidth returns to default on empty string");
 });
 
 QUnit.test("check default value doesn't exist on getPropertyValueDirectly", (assert) => {

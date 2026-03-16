@@ -47,7 +47,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { HtmlConditionItem, UrlConditionItem } from "../src/expressionItems";
 import { AnswerRequiredError } from "../src/error";
-import { ConditionsParser } from "../src/conditionsParser";
+import { ConditionsParser } from "../src/conditions/conditionsParser";
 import {
   Operand,
   Variable,
@@ -58,7 +58,9 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
-import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrlForBackgroundImage } from "../src/utils/utils";
+import { getRenderedSize, getRenderedStyleSize } from "../src/utils/utils";
+import { wrapUrlForBackgroundImage } from "../src/utils/dom-utils";
+import { increaseHeightByContent } from "../src/utils/text-area";
 import { Helpers } from "../src/helpers";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { ITheme } from "../src/themes";
@@ -22553,9 +22555,9 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
   rootWrapper.appendChild(textElement);
   survey.rootElement = rootElement;
   const quesiton = panelDynamic.panels[0].questions[0];
-  survey.scrollElementToTop(quesiton, quesiton, null as any, "text_question_id", false, null, null, () => {
+  survey.scrollElementToTop({ element: quesiton, question: quesiton, id: "text_question_id", scrollIfVisible: false, onScolledCallback: () => {
     log += "->focused text question";
-  });
+  } });
   assert.equal(log, "->text_question_id->focused text question");
   SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
   SurveyElement.ScrollElementToTop = oldScrollElementToTop;

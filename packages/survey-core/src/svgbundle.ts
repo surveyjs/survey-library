@@ -1,6 +1,6 @@
-import { renamedIcons } from "./utils/utils";
+import { renamedIcons } from "./utils/icons";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 
 interface SvgIconData {
   [key: string]: string;

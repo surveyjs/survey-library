@@ -50,3 +50,7 @@ junit.xml
 /playwright/.cache/
 playwright-report/*
 test-results/*
+tests/bundle/*
+packages/survey-core/tests/bundle/*
+packages/survey-react-ui/tests/bundle/*
+packages/survey-js-ui/tests/bundle/*

@@ -15,6 +15,17 @@ import { CreateCustomChoiceItemEvent, DragDropAllowEvent } from "./survey-events
 import { PopupModel } from "./popup";
 import { ItemValue } from "./itemvalue";
 
+export interface IScrollElementToTopOptions {
+  element: ISurveyElement;
+  question: IQuestion;
+  page?: IPage;
+  id: string;
+  scrollIfVisible?: boolean;
+  scrollIntoViewOptions?: ScrollIntoViewOptions;
+  passedRootElement?: HTMLElement;
+  onScolledCallback?: () => void;
+}
+
 export interface ISurveyVariables {
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
@@ -56,24 +67,10 @@ export interface IValueItemCustomPropValues {
   propertyName: string;
   values: Array<any>;
 }
-export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
-  getSkeletonComponentName(element: ISurveyElement): string;
-  currentPage: IPage;
-  activePage: IPage;
-  pages: Array<IPage>;
-  isSettingData(): boolean;
-  getCss(): any;
-  isPageStarted(page: IPage): boolean;
-  getQuestionByName(name: string): IQuestion;
-  getQuestionsByValueName(valueName: string): IQuestion[];
-  pageVisibilityChanged(page: IPage, newValue: boolean): any;
-  panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
-  questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
-  isEditingSurveyElement: boolean;
-  getQuestionClearIfInvisible(questionClearIf: string): string;
-  questionOrder: string;
-  matrixDragHandleArea: string;
-  keepIncorrectValues: boolean;
+/**
+ * Callbacks for element lifecycle events (question/panel/page add, remove, rename, visibility).
+ */
+export interface ISurveyElementLifecycle {
   questionCreated(question: IQuestion): any;
   questionAdded(
     question: IQuestion,
@@ -94,50 +91,129 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     oldName: string,
     oldValueName: string
   ): any;
-  focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
-  validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
-  validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
-  createRegexValidator(question: IQuestion, validator: Base, pattern: string, flags: string): RegExp;
-  hasVisibleQuestionByValueName(question: IQuestion): boolean;
-  questionsByValueName(valueName: string): Array<IQuestion>;
-  processHtml(html: string, reason: string): string;
-  getSurveyMarkdownHtml(element: Base, text: string, name: string, item?: any): string;
-  getRendererForString(element: Base, name: string, item?: ItemValue): string;
-  getRendererContextForString(element: Base, locStr: LocalizableString, item?: ItemValue): any;
+  pageVisibilityChanged(page: IPage, newValue: boolean): any;
+  panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
+  questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
+  elementContentVisibilityChanged(element: ISurveyElement): void;
+}
+/**
+ * Callbacks for file upload, download, removal, and file chooser operations.
+ */
+export interface ISurveyFileCallbacks {
+  uploadFiles(
+    question: IQuestion,
+    name: string,
+    files: File[],
+    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>) => any,
+    sourceType?: string
+  ): any;
+  downloadFile(
+    question: IQuestion,
+    name: string,
+    content: string,
+    callback: (status: string, data: any) => any
+  ): any;
+  clearFiles(
+    question: IQuestion,
+    name: string,
+    value: any,
+    fileName: string,
+    clearCallback: (status: string, data: any) => any
+  ): any;
+  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
+}
+/**
+ * Callbacks for matrix question events (row/cell add, remove, validate, render).
+ */
+export interface ISurveyMatrixCallbacks {
+  matrixRowAdded(question: IQuestion, row: any): any;
+  matrixColumnAdded(question: IQuestion, column: any): void;
+  matrixBeforeRowAdded(options: {
+    question: IQuestion,
+    canAddRow: boolean,
+  }): any;
+  matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
+  matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
+  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
+  matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
+  matrixCellCreating(question: IQuestion, options: any): any;
+  matrixCellCreated(question: IQuestion, options: any): any;
+  matrixAfterCellRender(options: any): any;
+  matrixCellValueChanged(question: IQuestion, options: any): any;
+  matrixCellValueChanging(question: IQuestion, options: any): any;
+  matrixCellValidate(question: IQuestion, options: any): SurveyError;
+  matrixDragHandleArea: string;
+}
+/**
+ * Callbacks for dynamic panel events (add, remove, tab title, index change).
+ */
+export interface ISurveyDynamicPanelCallbacks {
+  dynamicPanelAdded(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
+  dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
+  dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
+  dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
+}
+/**
+ * Callbacks and settings for choice/select-based questions (choice visibility, display values,
+ * server-populated choices, custom items).
+ */
+export interface ISurveyChoiceCallbacks {
+  storeOthersAsComment: boolean;
+  /**
+   * @deprecated Use `clearDisabledChoices` instead.
+   */
+  clearValueOnDisableItems: boolean;
+  clearDisabledChoices: boolean;
+  canChangeChoiceItemsVisibility(): boolean;
+  getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
+  loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void;
+  updateChoicesFromServer(
+    question: IQuestion,
+    choices: Array<any>,
+    serverResult: any
+  ): Array<any>;
+  loadedChoicesFromServer(question: IQuestion): void;
+  createCustomChoiceItem(options: CreateCustomChoiceItemEvent);
+}
+/**
+ * Callbacks for CSS class updates on questions, panels, pages, and choice items.
+ */
+export interface ISurveyCssCallbacks {
+  updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
+  updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
+  updatePageCssClasses(panel: IPanel, cssClasses: any): any;
+  updateChoiceItemCss(question: IQuestion, options: any): any;
+}
+/**
+ * Callbacks fired after rendering questions, panels, and pages.
+ */
+export interface ISurveyAfterRenderCallbacks {
+  afterRenderQuestion(question: IQuestion, htmlElement: HTMLElement): any;
+  afterRenderQuestionInput(question: IQuestion, htmlElement: HTMLElement): any;
+  afterRenderPanel(panel: IElement, htmlElement: HTMLElement): any;
+  afterRenderPage(htmlElement: HTMLElement): any;
+}
+/**
+ * Settings and callbacks for title/numbering display (question titles, numbering, required mark,
+ * title tag, element actions).
+ */
+export interface ISurveyTitleSettings {
+  requiredMark: string;
+  questionTitlePattern: string;
+  questionTitleLocation: string;
+  questionDescriptionLocation: string;
+  questionErrorLocation: string;
+  showQuestionNumbers: string | boolean;
+  getQuestionStartIndex(pageVisibleIndex: number): string;
+  getElementTitleTagName(element: Base, tagName: string): string;
+  getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getExpressionDisplayValue(
     question: IQuestion,
     value: any,
     displayValue: string
   ): string;
-  gridLayoutEnabled: boolean;
-  isDisplayMode: boolean;
-  isDesignMode: boolean;
-  areInvisibleElementsShowing: boolean;
-  currentSingleQuestion: IQuestion;
-  isSingleVisibleInput: boolean;
-  updateNavigationElements(): void;
-  currentSingleElement: IElement;
-  supportsNestedSingleInput(question: IQuestion): boolean;
-  updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
-  areEmptyElementsHidden: boolean;
-  isLoadingFromJson: boolean;
-  isUpdateValueTextOnTyping: boolean;
-  autoGrowComment: boolean;
-  allowResizeComment: boolean;
-  commentAreaRows: number;
-
-  state: string;
-  isLazyRendering: boolean;
-  lazyRenderFirstBatchSize: number;
-  cancelPreviewByPage(panel: IPanel): any;
-  locEditText: LocalizableString;
-  rootElement?: HTMLElement;
-
-  requiredMark: string;
-  getQuestionDisplayValue(question: IElement, displayValue: any): any;
-  getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
-  getElementTitleTagName(element: Base, tagName: string): string;
-  questionTitlePattern: string;
   getUpdatedQuestionTitle(question: IQuestion, title: string): string;
   getUpdatedQuestionNo(question: IQuestion, no: string): string;
   getUpdatedPanelNo(question: IPanel, no: string): string;
@@ -156,123 +232,130 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     actions: Array<IAction>,
     question?: QuestionPanelDynamicModel
   ): Array<IAction>;
-  getQuestionStartIndex(pageVisibleIndex: number): string;
-  showQuestionNumbers: string | boolean;
-  questionTitleLocation: string;
-  questionDescriptionLocation: string;
-  questionErrorLocation: string;
-  storeOthersAsComment: boolean;
+}
+/**
+ * Validation-related members for questions and panels.
+ */
+export interface ISurveyValidation {
+  validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
+  validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
+  createRegexValidator(question: IQuestion, validator: Base, pattern: string, flags: string): RegExp;
+  isValidateOnValueChanging: boolean;
+  isValidateOnValueChanged: boolean;
+  getValidateVisitedEmptyFields(): boolean;
+}
+/**
+ * Settings and callbacks for single-input (single-question-per-page) mode.
+ */
+export interface ISurveySingleInput {
+  currentSingleQuestion: IQuestion;
+  isSingleVisibleInput: boolean;
+  updateNavigationElements(): void;
+  currentSingleElement: IElement;
+  supportsNestedSingleInput(question: IQuestion): boolean;
+  updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
+}
+/**
+ * The main survey interface, composed from focused sub-interfaces.
+ *
+ * Consumers that only need a subset of survey functionality can depend on the
+ * narrower sub-interfaces (e.g. `ISurveyFileCallbacks`, `ISurveyMatrixCallbacks`)
+ * instead of the full `ISurvey`.
+ */
+export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
+  ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
+  ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
+  ISurveyAfterRenderCallbacks, ISurveyTitleSettings, ISurveyValidation,
+  ISurveySingleInput {
 
-  maxTextLength: number;
-  /**
-   * @deprecated Use `maxCommentLength` instead.
-   */
-  maxOthersLength: number;
-  maxCommentLength: number;
-  /**
-   * @deprecated Use `clearDisabledChoices` instead.
-   */
-  clearValueOnDisableItems: boolean;
-  clearDisabledChoices: boolean;
+  //#region Page & navigation
+  currentPage: IPage;
+  activePage: IPage;
+  pages: Array<IPage>;
+  isPageStarted(page: IPage): boolean;
+  state: string;
+  cancelPreviewByPage(panel: IPanel): any;
+  locEditText: LocalizableString;
+  //#endregion
 
-  timeLimitPerPage: number;
-
-  uploadFiles(
-    question: IQuestion,
-    name: string,
-    files: File[],
-    // uploadingCallback: (status: string | Array<any>, data: any) => any
-    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>) => any,
-    sourceType?: string
-  ): any;
-  downloadFile(
-    question: IQuestion,
-    name: string,
-    content: string,
-    callback: (status: string, data: any) => any
-  ): any;
-  clearFiles(
-    question: IQuestion,
-    name: string,
-    value: any,
-    fileName: string,
-    clearCallback: (status: string, data: any) => any
-  ): any;
-  updateChoicesFromServer(
-    question: IQuestion,
-    choices: Array<any>,
-    serverResult: any
-  ): Array<any>;
-  loadedChoicesFromServer(question: IQuestion): void;
-  updateQuestionCssClasses(question: IQuestion, cssClasses: any): any;
-  updatePanelCssClasses(panel: IPanel, cssClasses: any): any;
-  updatePageCssClasses(panel: IPanel, cssClasses: any): any;
-  updateChoiceItemCss(question: IQuestion, options: any): any;
-  afterRenderQuestion(question: IQuestion, htmlElement: HTMLElement): any;
-  afterRenderQuestionInput(question: IQuestion, htmlElement: HTMLElement): any;
-  afterRenderPanel(panel: IElement, htmlElement: HTMLElement): any;
-  afterRenderPage(htmlElement: HTMLElement): any;
-
+  //#region Question lookup
+  getQuestionByName(name: string): IQuestion;
+  getQuestionsByValueName(valueName: string): IQuestion[];
+  questionsByValueName(valueName: string): Array<IQuestion>;
+  hasVisibleQuestionByValueName(question: IQuestion): boolean;
   getQuestionByValueNameFromArray(
     valueName: string,
     name: string,
     index: number
   ): IQuestion;
-  canChangeChoiceItemsVisibility(): boolean;
-  getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
-  loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void;
-  questionValueChanging(question: IQuestion, newValue: any): any;
-  questionValueChanged(question: IQuestion, oldValue: any): void;
-  matrixRowAdded(question: IQuestion, row: any): any;
-  matrixColumnAdded(question: IQuestion, column: any): void;
-  matrixBeforeRowAdded(options: {
-    question: IQuestion,
-    canAddRow: boolean,
-  }): any;
-  matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
-  matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
-  matrixCellCreating(question: IQuestion, options: any): any;
-  matrixCellCreated(question: IQuestion, options: any): any;
-  matrixAfterCellRender(options: any): any;
-  matrixCellValueChanged(question: IQuestion, options: any): any;
-  matrixCellValueChanging(question: IQuestion, options: any): any;
-  isValidateOnValueChanging: boolean;
-  isValidateOnValueChanged: boolean;
-  getValidateVisitedEmptyFields(): boolean;
-  multipleTextItemAdded(question: IQuestion, item: any): void;
-  matrixCellValidate(question: IQuestion, options: any): SurveyError;
-  dynamicPanelAdded(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
-  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
-  dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
-  dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
-  dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
+  focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
+  //#endregion
 
-  dragAndDropAllow(options: DragDropAllowEvent): boolean;
+  //#region Question value changes
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any;
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void;
+  getQuestionClearIfInvisible(questionClearIf: string): string;
+  keepIncorrectValues: boolean;
+  questionOrder: string;
+  //#endregion
 
-  scrollElementToTop(
-    element: ISurveyElement,
-    question: IQuestion,
-    page: IPage,
-    id: string, scrollIfVisible?: boolean,
-    scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement,
-    onScolledCallback?: () => void
-  ): any;
+  //#region Rendering & appearance
+  getSkeletonComponentName(element: ISurveyElement): string;
+  getCss(): any;
+  processHtml(html: string, reason: string): string;
+  getSurveyMarkdownHtml(element: Base, text: string, name: string, item?: any): string;
+  getRendererForString(element: Base, name: string, item?: ItemValue): string;
+  getRendererContextForString(element: Base, locStr: LocalizableString, item?: ItemValue): any;
+  gridLayoutEnabled: boolean;
+  isLazyRendering: boolean;
+  lazyRenderFirstBatchSize: number;
+  rootElement?: HTMLElement;
+  //#endregion
+
+  //#region Display modes & flags
+  isDisplayMode: boolean;
+  isDesignMode: boolean;
+  isLoadingFromJson: boolean;
+  isEditingSurveyElement: boolean;
+  isSettingData(): boolean;
+  areInvisibleElementsShowing: boolean;
+  areEmptyElementsHidden: boolean;
+  //#endregion
+
+  //#region Text input settings
+  isUpdateValueTextOnTyping: boolean;
+  autoGrowComment: boolean;
+  allowResizeComment: boolean;
+  commentAreaRows: number;
+  maxTextLength: number;
+  maxCommentLength: number;
+  //#endregion
+
+  //#region Error handling
+  getSurveyErrorCustomText(obj: Base, text: string, error: SurveyError): string;
+  //#endregion
+
+  //#region Expressions
   runExpression(expression: string, callback?: (res: any) => void): any;
   beforeExpressionRunning(obj: Base, propertyName: string, expression: string): string;
   startSetValueOnExpression(): void;
   finishSetValueOnExpression(): void;
+  //#endregion
 
-  elementContentVisibilityChanged(element: ISurveyElement): void;
+  //#region Misc callbacks
+  multipleTextItemAdded(question: IQuestion, item: any): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
-  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
-  createCustomChoiceItem(options: CreateCustomChoiceItemEvent);
+  dragAndDropAllow(options: DragDropAllowEvent): boolean;
+  scrollElementToTop(options: IScrollElementToTopOptions): any;
+  scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
+  //#endregion
+
+  //#region Timer & randomization
+  timeLimitPerPage: number;
   randomSeed: number;
+  //#endregion
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;

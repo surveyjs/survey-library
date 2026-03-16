@@ -1,4 +1,4 @@
-import { ProcessValue } from "../src/conditionProcessValue";
+import { ProcessValue } from "../src/conditions/conditionProcessValue";
 import { Serializer } from "../src/jsonobject";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { SurveyModel } from "../src/survey";

@@ -13,5 +13,6 @@
     },
     "include": [
         "./tests/markup.ts",
+        "../../tests/markup/*.ts"
     ]
 }

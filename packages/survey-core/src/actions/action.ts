@@ -1,7 +1,7 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
-import { Base, ComputedUpdater, EventBase } from "../base";
+import { Base, ComputedUpdater } from "../base";
 import { getLocaleString } from "../surveyStrings";
-import { property } from "../jsonobject";
+import { property } from "../decorators";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";

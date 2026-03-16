@@ -1,7 +1,7 @@
 import { Base, ComputedUpdater } from "./base";
 import { SurveyModel } from "./survey";
 import { LocalizableString } from "./localizablestring";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { DomDocumentHelper } from "./global_variables_utils";
 
 /**

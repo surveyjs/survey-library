@@ -863,7 +863,8 @@ frameworks.forEach(framework => {
       });
       await page.waitForTimeout(500);
       await page.evaluate(() => window.scrollBy(0, 400));
-      await page.locator(".sd-panel__title").click();
+      await page.waitForTimeout(500);
+      await page.locator(".sd-panel__title").click({ force: true });
       await compareScreenshot(page, undefined, "panel-scroll-on-expand.png");
     });
   });

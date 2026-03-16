@@ -1,7 +1,8 @@
 
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
+import { EventBase } from "./event";
 import { surveyCss } from "./defaultCss/defaultCss";
-import { propertyArray } from "./jsonobject";
+import { propertyArray } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";

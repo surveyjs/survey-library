@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from "node:url";
 import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
 import fs from "fs-extra";
 import process from "process";
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -68,6 +68,7 @@ const buildPlatformJson = {
 };
 
 if (process.env.emitNonSourceFiles === "true") {
+  fs.mkdirSync(buildPath, { recursive: true });
   fs.copySync("./README.md", resolve(buildPath, "README.md"));
   fs.copySync("./index.html", resolve(buildPath, "index.html"));
   fs.writeJsonSync(

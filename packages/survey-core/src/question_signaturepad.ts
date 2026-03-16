@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -6,7 +7,8 @@ import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
-import { isBase64URL, getColorFromProperty } from "./utils/utils";
+import { getColorFromProperty } from "./utils/utils";
+import { isBase64URL } from "./utils/dom-utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 var defaultWidth = 300;
@@ -429,9 +431,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
     this.valueIsUpdatingInternally = false;
   }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
+  protected onClearValue(): void {
+    super.onClearValue();
     this.valueWasChangedFromLastUpload = false;
-    super.clearValue(keepComment, fromUI);
     this._loadedData = undefined;
     this.loadPreview(this.value);
   }

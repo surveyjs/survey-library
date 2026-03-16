@@ -1,6 +1,7 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { Question } from "./question";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
@@ -102,7 +103,7 @@ export class QuestionExpressionModel extends Question {
       res = !this.format ? str : (<any>this.format)["format"](str);
     }
     if (!!this.survey) {
-      res = this.survey.getExpressionDisplayValue(this, val, res);
+      res = this.titleSettings.getExpressionDisplayValue(this, val, res);
     }
     return res;
   }

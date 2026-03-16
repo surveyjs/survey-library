@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
 import { Question, QuestionValueGetterContext } from "./question";
@@ -12,7 +13,7 @@ import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
 import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
-import { confirmActionAsync } from "./utils/utils";
+import { confirmActionAsync } from "./utils/confirm-dialog";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -20,7 +21,7 @@ import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownre
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 import { ActionContainer } from "./actions/container";
 import { ComputedUpdater } from "./base";
@@ -135,7 +136,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT" || !this.isDragHandleAreaValid(target);
   }
   public isDragHandleAreaValid(node:HTMLElement): boolean {
-    if (this.survey.matrixDragHandleArea === "icon") {
+    if (this.matrixCallbacks.matrixDragHandleArea === "icon") {
       return node.classList.contains(this.cssClasses.dragElementDecorator);
     }
     return true;
@@ -483,7 +484,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!this.survey) return true;
     const index = (<MatrixDynamicRowModel>row).rowIndex - 1;
     if (this.lockedRowCount > 0 && index < this.lockedRowCount) return false;
-    return this.survey.matrixAllowRemoveRow(this, index, row);
+    return this.matrixCallbacks.matrixAllowRemoveRow(this, index, row);
   }
   public addRowUI(): void {
     this.addRow(true);
@@ -508,7 +509,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const allow = this.canAddRow;
     var options = { question: this, canAddRow: allow, allow: allow };
     if (!!this.survey) {
-      this.survey.matrixBeforeRowAdded(options);
+      this.matrixCallbacks.matrixBeforeRowAdded(options);
     }
     const newAllow = allow !== options.allow ? options.allow :
       (allow !== options.canAddRow ? options.canAddRow : allow);
@@ -580,7 +581,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const rows = this.visibleRows;
       if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
         const row = rows[rows.length - 1];
-        this.survey.matrixRowAdded(this, row);
+        this.matrixCallbacks.matrixRowAdded(this, row);
         this.onRowsChanged();
       }
     }
@@ -681,7 +682,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     onRowRemoved && onRowRemoved();
   }
   private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
-    if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
+    if (!!row && !!this.survey && !this.matrixCallbacks.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.singleInputOnRemoveItem(index);
@@ -715,7 +716,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.onRowsChanged();
     if (this.survey) {
-      this.survey.matrixRowRemoved(this, index, row);
+      this.matrixCallbacks.matrixRowRemoved(this, index, row);
     }
   }
   protected createSingleInputBehavior(): QuestionSingleInputBehavior {

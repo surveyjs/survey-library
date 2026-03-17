@@ -40,6 +40,12 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     model.onComplete.add(surveyComplete);
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
+      if (!document.querySelector("link[href*='survey-core.min.css']")) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "../../node_modules/survey-core/survey-core.min.css";
+        document.head.appendChild(link);
+      }
       surveyElement.innerHTML = "";
       self.SurveyUI.renderSurvey(model, surveyElement);
     } else if (framework === "react") {

@@ -4267,7 +4267,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!page) return true;
     let res: boolean = false;
-    if(this.currentSingleElement) {
+    if(this.currentSingleElement && (<any>this.currentSingleElement).page === page) {
       res = !(<any>this.currentSingleElement).validate(true);
     } else {
       res = !page.validate(true, isFocuseOnFirstError);

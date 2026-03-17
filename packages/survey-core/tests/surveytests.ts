@@ -1,4 +1,4 @@
-import { Base } from "../src/base";
+﻿import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
@@ -22169,4 +22169,28 @@ QUnit.test("Skip trigger test and navigate back & questionPerPage, Bug#9886", fu
   assert.equal(survey.currentSingleQuestion.name, "q3", "We moved to third page");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q2", "We returned to second page");
+});
+QUnit.test("firstPageIsStarted & questionPerPage, Bug#11032", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "startPage",
+        "elements": [
+          { "name": "q1", "type": "text" }
+        ]
+      },
+      {
+        "name": "page1",
+        "elements": [
+          { "name": "q2", "type": "rating", "isRequired": true }
+        ]
+      }
+    ],
+    "firstPageIsStarted": true,
+    "questionsOnPageMode": "questionPerPage"
+  });
+  assert.equal(survey.activePage.name, "startPage", "The start page is active");
+  survey.start();
+  assert.equal(survey.activePage.name, "page1", "The first page is active");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "The first question is active");
 });

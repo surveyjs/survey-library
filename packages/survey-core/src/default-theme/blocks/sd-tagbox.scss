@@ -101,12 +101,6 @@
   fill: $primary-foreground;
 }
 
-.sd-tagbox:where(:not(.sd-tagbox--empty)) {
-  .sd-tagbox__input {
-    padding: 0;
-  }
-}
-
 .sd-tagbox__input.sd-dropdown__input {
   position: relative;
   gap: calcSize(0.5);

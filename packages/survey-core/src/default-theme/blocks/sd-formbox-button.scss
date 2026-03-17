@@ -12,7 +12,7 @@
     background: var(--sjs2-color-component-formbox-action-default-bg, rgba(95, 94, 97, 0));
     cursor: pointer;
 }
-.sd-formbox-button:hover {
+.sd-formbox-button:where(:hover) {
     background: var(--sjs2-color-component-formbox-action-hovered-bg, rgba(95, 94, 97, 0.1));
     transition: background $transition-duration;
     .sd-formbox-button__icon {

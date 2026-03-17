@@ -948,7 +948,7 @@ export var defaultCss = {
     placeholderInput: "sd-tagbox__placeholder",
     controlEditable: "sd-formbox--editable",
     controlDisabled: "sd-formbox--disabled",
-    controlReadOnly: "sd-formbox--readonly",
+    controlReadOnly: "sd-tagbox--readonly sd-formbox--readonly",
     controlPreview: "sd-formbox--preview",
     controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
     controlLabel: "sd-item__control-label",

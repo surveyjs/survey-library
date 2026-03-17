@@ -1,16 +1,5 @@
 @use "../variables.scss" as *;
 
-.sd-formbox.sd-tagbox:not(.sd-tagbox--empty).sd-formbox--editable {
-  height: auto;
-  // padding: calcSize(0.5);
-  // padding-inline-end: calcSize(6); //padding-right
-  padding-inline-start: calcSize(0.5); //padding-left
-
-  .sd-tagbox__value {
-    padding: 0;
-  }
-}
-
 .sd-tagbox {
   &.sd-formbox--readonly,
   &.sd-formbox--preview {
@@ -99,6 +88,12 @@
 
 .sd-tagbox-item_clean-button-svg use {
   fill: $primary-foreground;
+}
+
+.sd-tagbox:where(:not(.sd-tagbox--empty, .sd-tagbox--readonly)) {
+  .sd-tagbox__input {
+    padding: 0;
+  }
 }
 
 .sd-tagbox__input.sd-dropdown__input {

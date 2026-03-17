@@ -2,6 +2,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("Separate locales");
 
@@ -334,4 +335,36 @@ QUnit.test("Merge with separate locale strings for matrix.cells, Bug#10767", (as
     rows: ["row1"],
     cells: { row1: { col1: { default: "text", de: "text-de" } } }
   }, "merged JSON");
+});
+QUnit.test("getLocalizationJSON with default locale key ('en') should produce same result as 'default', Bug#11037", function (assert) {
+  const survey = new SurveyModel({
+    title: { default: "Survey Title", de: "Umfrage Titel", fr: "Titre de l." },
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: { default: "Title", de: "Titel", fr: "Titre" },
+        description: { default: "Description", de: "Beschreibung", fr: "La description" },
+      },
+    ],
+  });
+  const defaultLocale = surveyLocalization.defaultLocale;
+  assert.equal(defaultLocale, "en", "default locale is 'en'");
+  const jsonDefault = survey.getLocalizationJSON(["default"]);
+  const jsonEn = survey.getLocalizationJSON(["en"]);
+  assert.deepEqual(jsonEn, {
+    locale: "en",
+    title: "Survey Title",
+    pages: [{ name: "page1", elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: "Title",
+        description: "Description",
+      },
+    ] }]
+  }, "getLocalizationJSON(['en']) returns default English strings");
+  assert.equal(jsonDefault.title, jsonEn.title, "titles match");
+  assert.equal(jsonDefault.pages[0].elements[0].title, jsonEn.pages[0].elements[0].title, "question titles match");
+  assert.equal(jsonDefault.pages[0].elements[0].description, jsonEn.pages[0].elements[0].description, "descriptions match");
 });

@@ -74,6 +74,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
           ArtifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
           publishLocation: "Container"
+          Parallel: true
 
   - job: React
     dependsOn: Core

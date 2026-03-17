@@ -39,6 +39,10 @@
   white-space: nowrap;
   display: flex;
   width: 100%;
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .sd-dropdown__filter-string-input {

@@ -368,3 +368,33 @@ QUnit.test("getLocalizationJSON with default locale key ('en') should produce sa
   assert.equal(jsonDefault.pages[0].elements[0].title, jsonEn.pages[0].elements[0].title, "question titles match");
   assert.equal(jsonDefault.pages[0].elements[0].description, jsonEn.pages[0].elements[0].description, "descriptions match");
 });
+QUnit.test("mergeLocalizationJSON with 'en' locale should merge into default locale, Bug#11037", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }]
+  });
+  const allLocales = {
+    title: { default: "Survey Title", de: "Umfrage Titel", fr: "Titre de l." },
+    elements: [
+      { name: "q1", type: "text", title: { default: "Title", de: "Titel", fr: "Titre" },
+        description: { default: "Description", de: "Beschreibung", fr: "La description" } }
+    ]
+  };
+  assert.equal(surveyLocalization.defaultLocale, "en", "default locale is 'en'");
+  survey.mergeLocalizationJSON(allLocales, ["en"]);
+  assert.equal(survey.locale, "", "keep locale the same");
+  assert.deepEqual(survey.toJSON(), {
+    title: "Survey Title",
+    pages: [{
+      "name": "page1",
+      elements: [{ type: "text", name: "q1", title: "Title", description: "Description" }]
+    }]
+  }, "merge en locale correctly into default");
+  survey.mergeLocalizationJSON(allLocales, ["de"]);
+  assert.deepEqual(survey.toJSON(), {
+    title: { default: "Survey Title", de: "Umfrage Titel" },
+    pages: [{
+      "name": "page1",
+      elements: [{ type: "text", name: "q1", title: { default: "Title", de: "Titel" }, description: { default: "Description", de: "Beschreibung" } }]
+    }]
+  }, "merge de locale after en merge");
+});

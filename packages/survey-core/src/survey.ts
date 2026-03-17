@@ -6720,6 +6720,17 @@ export class SurveyModel extends SurveyElementCore
     if (!!survey.locale) {
       locales = [survey.locale];
     }
+    if (Array.isArray(locales)) {
+      const actualDefLocale = surveyLocalization.defaultLocale;
+      const internalDefLocale = settings.localization.defaultLocaleName;
+      if (actualDefLocale !== internalDefLocale) {
+        for (let i = 0; i < locales.length; i++) {
+          if (locales[i] === actualDefLocale) {
+            locales[i] = internalDefLocale;
+          }
+        }
+      }
+    }
     this.mergeLocalizationObj(survey, locales);
   }
   protected isPropertyStoredInHash(name: string): boolean {

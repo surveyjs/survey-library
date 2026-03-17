@@ -64,16 +64,10 @@
       :aria-invalid="question.a11y_input_ariaInvalid"
       :aria-errormessage="question.a11y_input_ariaErrormessage"
     />
-    <SvComponent
-      :is="'sv-character-counter'"
-      :counter="question.characterCounter"
-      :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
-    ></SvComponent>
   </div>
 </template>
 
 <script lang="ts" setup>
-import SvComponent from "@/SvComponent.vue";
 import type { QuestionTextModel } from "survey-core";
 import { useBase } from "./base";
 import { computed, ref } from "vue";

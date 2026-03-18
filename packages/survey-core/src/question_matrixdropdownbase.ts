@@ -312,19 +312,37 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   }
   private getValueCore(isFiltered: boolean): any {
     var result: any = {};
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
+    var cellValueNames: any = {};
+    for (var i = 0; i < this.cells.length; i++) {
+      var question = this.cells[i].question;
+      if (!question) continue;
+      var valueName = question.getValueName();
+      cellValueNames[valueName] = true;
       if (!question.isEmpty()) {
-        result[question.getValueName()] = isFiltered ? question.getFilteredValue() : question.value;
+        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
       }
       if (
         !!question.comment &&
         !!this.getSurvey() &&
         this.getSurvey().storeOthersAsComment
       ) {
-        result[question.getValueName() + Base.commentSuffix] =
-          question.comment;
+        result[valueName + Base.commentSuffix] = question.comment;
+      }
+    }
+    var detailQuestions = !!this.detailPanel ? this.detailPanel.questions : [];
+    for (var i = 0; i < detailQuestions.length; i++) {
+      var question = detailQuestions[i];
+      var valueName = question.getValueName();
+      if (cellValueNames[valueName]) continue;
+      if (!question.isEmpty()) {
+        result[valueName] = isFiltered ? question.getFilteredValue() : question.value;
+      }
+      if (
+        !!question.comment &&
+        !!this.getSurvey() &&
+        this.getSurvey().storeOthersAsComment
+      ) {
+        result[valueName + Base.commentSuffix] = question.comment;
       }
     }
     return result;
@@ -497,14 +515,14 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue || this.isCreatingDetailPanel) return;
+    if (!isComment) {
+      this.updateSharedQuestionsValue(name, newColumnValue);
+    }
     const changedQuestion = this.getQuestionByName(name);
     const newValue = this.onCellValueChanging(changedQuestion, this.value, isComment);
     const changedName = isComment ? name + Base.commentSuffix : name;
     if (!this.isValueChanged(changedName, newValue)) return;
     if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
-    if (!isComment) {
-      this.updateSharedQuestionsValue(name, newColumnValue);
-    }
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
     this.data.updateItemValue(this, changedName, newValue, isDeleting);

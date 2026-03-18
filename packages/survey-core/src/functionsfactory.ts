@@ -449,9 +449,9 @@ function dateDiff(params: any[]): any {
     const date1: any = createDate("function-dateDiffMonths", params[0]);
     const date2: any = createDate("function-dateDiffMonths", params[1]);
     const diffMs = Math.abs(date2 - date1);
-    if (type === "hours") return Math.floor(diffMs / (1000 * 60 * 60));
-    if (type === "minutes") return Math.floor(diffMs / (1000 * 60));
-    return Math.floor(diffMs / 1000);
+    if (type === "hours") return Math.ceil(diffMs / (1000 * 60 * 60));
+    if (type === "minutes") return Math.ceil(diffMs / (1000 * 60));
+    return Math.ceil(diffMs / 1000);
   }
   return dateDiffMonths(params[0], params[1], type);
 }

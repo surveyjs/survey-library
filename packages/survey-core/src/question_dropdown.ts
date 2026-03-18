@@ -2,10 +2,8 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
-import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { PopupModel } from "./popup";
 import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
@@ -14,6 +12,7 @@ import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 
 /**
  * A class that describes the Dropdown question type.

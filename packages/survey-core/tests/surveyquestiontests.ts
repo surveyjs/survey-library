@@ -8262,7 +8262,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   const q1Id = q1.id;
   const q2Id = q2.id;
   assert.equal(otherOptions.id, q1Id + "_" + q1.otherItem.uniqueId, "otherOptions id");
-  assert.equal(otherOptions.className, "sd-input sd-comment", "otherOptions className");
+  assert.equal(otherOptions.getCssClasses().root, "sd-formbox sd-comment", "otherOptions className");
   assert.equal(otherOptions.isDisabledAttr, "", "otherOptions isDisabledAttr");
   assert.equal(otherOptions.isReadOnlyAttr, undefined, "otherOptions isReadOnlyAttr");
   assert.equal(otherOptions.placeholder, "Other placeholder", "otherOptions placeholder");
@@ -8271,7 +8271,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(otherOptions.rows, undefined, "otherOptions rows");
 
   assert.equal(commentOptions.id, q1Id + "_comment", "commentOptions id");
-  assert.equal(commentOptions.className, "sd-input sd-comment", "commentOptions className");
+  assert.equal(commentOptions.getCssClasses().root, "sd-formbox sd-comment", "commentOptions className");
   assert.equal(commentOptions.isDisabledAttr, "", "commentOptions isDisabledAttr");
   assert.equal(commentOptions.isReadOnlyAttr, undefined, "commentOptions isReadOnlyAttr");
   assert.equal(commentOptions.placeholder, "Comment placeholder", "commentOptions placeholder");
@@ -8280,7 +8280,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(commentOptions.rows, undefined, "commentOptions rows");
 
   assert.equal(textAreaOptions.id, q2Id + "i", "textAreaOptions id");
-  assert.equal(textAreaOptions.className, "sd-input sd-comment", "textAreaOptions className");
+  assert.equal(textAreaOptions.getCssClasses().root, "sd-formbox sd-comment", "textAreaOptions className");
   assert.equal(textAreaOptions.isDisabledAttr, "", "textAreaOptions isDisabledAttr");
   assert.equal(textAreaOptions.isReadOnlyAttr, false, "textAreaOptions isReadOnlyAttr");
   assert.equal(textAreaOptions.placeholder, "", "textAreaOptions placeholder");

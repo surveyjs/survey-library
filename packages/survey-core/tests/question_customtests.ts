@@ -2860,9 +2860,9 @@ QUnit.test("Single: Apply error css", function (assert) {
   const q = <QuestionCustomModel>survey.getAllQuestions()[0];
   const qText = <QuestionTextModel>q.contentQuestion;
   assert.equal(qText.cssClasses.onError, errorCss, "error css is correct");
-  assert.equal(qText.getControlClass().indexOf(errorCss) < 0, true, "errors is not here");
+  assert.equal(qText.getRootClass().indexOf(errorCss) < 0, true, "errors is not here");
   q.validate(true);
-  assert.equal(qText.getControlClass().indexOf(errorCss) > -1, true, "errors is here");
+  assert.equal(qText.getRootClass().indexOf(errorCss) > -1, true, "errors is here");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("ComponentCollection.Instance.remove", function (assert) {

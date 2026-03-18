@@ -1690,6 +1690,15 @@ QUnit.test("ExpressionRunner: diffsDays", function(assert) {
   values.d1 = undefined;
   assert.equal(runner.runValues(values), 0, "a value is undefined");
 });
+QUnit.test("ExpressionRunner: diffsDays with times", function(assert) {
+  var runner = new ExpressionRunner("diffDays({d1}, {d2})");
+  var d1 = new Date("2021-03-10T05:00:00");
+  var d2 = new Date("2021-03-11T04:00:00");
+  var values = { d1: d1, d2: d2 };
+  assert.equal(runner.runValues(values), 1, "1 day");
+  values.d2 = new Date("2021-03-10T23:00:00");
+  assert.equal(runner.runValues(values), 0, "0 days");
+});
 
 QUnit.test("parse({val} == '000')", function(assert) {
   var op = <BinaryOperand>(

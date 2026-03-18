@@ -1,10 +1,10 @@
 <template>
-  <div :class="question.getRootClass()" @click="onContainerClick" ref="root">
+  <div :class="question.getRootClass()" @click="question.onContainerClick($event)" ref="root">
     <div v-if="question.isReadOnlyRenderDiv()">
       {{ question.value }}
     </div>
     <template v-else>
-      <SvComponent :is="'survey-text-input'" :question="question" :get-ref="(ref: any) => { inputRef = ref; }" />
+      <SvComponent :is="'survey-text-input'" :question="question" />
       <datalist v-if="question.dataListId" :id="question.dataListId">
         <option v-for="(item, index) in question.dataList" :key="index" :value="item"></option>
       </datalist>
@@ -25,12 +25,8 @@ import { useQuestion } from "./base";
 import { ref } from "vue";
 const props = defineProps<{ question: QuestionTextModel }>();
 const root = ref<HTMLElement>(null as any);
-const inputRef = ref<HTMLInputElement>();
 defineOptions({
   inheritAttrs: false,
 });
 useQuestion<QuestionTextModel>(props, root);
-const onContainerClick = () => {
-  inputRef.value?.focus();
-} 
 </script>

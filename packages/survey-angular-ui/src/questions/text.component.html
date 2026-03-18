@@ -1,4 +1,4 @@
-<div [class]="model.getRootClass()" (click)="onContainerClick()" #contentElement>
+<div [class]="model.getRootClass()" (click)="model.onContainerClick($event);" #contentElement>
   <ng-container *ngIf="!model.isReadOnlyRenderDiv()">
     <input #inputElement [style]="model.inputStyle" [class]="model.getControlClass()" [attr.list]="model.dataListId" (click)="model.readOnlyBlocker($event)" (pointerdown)="model.readOnlyBlocker($event)" 
     (change)="model.onChange($event)" [value]="value" [disabled]="model.isDisabledAttr" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder"

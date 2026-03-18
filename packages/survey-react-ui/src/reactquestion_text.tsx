@@ -12,11 +12,6 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     super(props);
     //this.controlRef = React.createRef();
   }
-  private onContainerClick(event: any) {
-    if (event.target == event.currentTarget) {
-      this.control?.focus();
-    }
-  }
   protected renderInput() {
     const inputClass = (this.question as QuestionTextModel).getControlClass();
 
@@ -67,7 +62,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   }
   protected renderElement(): React.JSX.Element {
     return (
-      <div className={this.question.getRootClass()} onClick={(event) => this.onContainerClick(event)}>
+      <div className={this.question.getRootClass()} onClick={(event) => this.question.onContainerClick(event as any as Event)}>
         {this.renderInput()}
         {this.renderDataList()}
         {this.renderGroup()}

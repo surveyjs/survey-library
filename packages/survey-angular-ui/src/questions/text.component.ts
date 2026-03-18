@@ -19,9 +19,6 @@ export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
     this.model.onBlur(event);
     this.updateInputDomElement();
   }
-  onContainerClick() {
-    this.inputElementRef?.nativeElement?.focus();
-  }
 
   updateInputDomElement(): void {
     if (!!this.inputElementRef?.nativeElement) {

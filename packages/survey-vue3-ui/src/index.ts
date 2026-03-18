@@ -10,7 +10,6 @@ import StringEditor from "./StringEditor.vue";
 import Skeleton from "./components/Skeleton.vue";
 import Scroll from "./components/Scroll.vue";
 import QuestionText from "./Text.vue";
-import QuestionTextInput from "./TextInput.vue";
 import Checkbox from "./Checkbox.vue";
 import CheckboxItem from "./CheckboxItem.vue";
 import Radiogroup from "./Radiogroup.vue";
@@ -176,7 +175,6 @@ function registerComponents(
   registerComponent("sv-skeleton", Skeleton);
   registerComponent("sv-scroll", Scroll);
   registerComponent("survey-text", QuestionText);
-  registerComponent("survey-text-input", QuestionTextInput);
   registerComponent("survey-checkbox", Checkbox);
   registerComponent("survey-checkbox-item", CheckboxItem);
   registerComponent("survey-radiogroup", Radiogroup);

@@ -75,6 +75,8 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
     }
   }) allowCustomChoices: boolean;
 
+  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomItemText: string;
+
   /**
    * Specifies whether to display a button that clears the selected value.
    */
@@ -236,6 +238,7 @@ Serializer.addClass(
       name: "allowCustomChoices:boolean", default: false,
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
+    { name: "createCustomItemText", visible: false, serializationProperty: "locCreateCustomItemText" },
     { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

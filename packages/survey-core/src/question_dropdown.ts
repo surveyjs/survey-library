@@ -2,10 +2,8 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
-import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { PopupModel } from "./popup";
 import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
@@ -206,6 +204,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     }
   }) allowCustomChoices: boolean;
 
+  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomItemText: string;
+
   /**
    * Specifies whether to wrap long texts in choice options onto a new line.
    *
@@ -350,11 +350,12 @@ Serializer.addClass(
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     {
-      name: "allowCustomChoices:boolean", default: false,
+      name: "allowCustomChoices:boolean",
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
+    { name: "createCustomItemText", visible: false, serializationProperty: "locCreateCustomItemText" },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
-    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false, default: "" }

@@ -457,7 +457,7 @@ export class DropdownListModel extends Base {
 
   public updateCustomItemValue(): void {
     if (this.customValue) {
-      this.customItemValue.text = this.getLocalizationFormatString("createCustomItem", this.customValue);
+      this.customItemValue.text = this.getCustomItemText(this.customValue);
       this.customItemValue.visible = true;
     } else {
       this.resetCustomItemValue();
@@ -472,12 +472,18 @@ export class DropdownListModel extends Base {
   private _customItemValue: ItemValue;
   public get customItemValue(): ItemValue {
     if (!this._customItemValue) {
-      this._customItemValue = new ItemValue("newCustomItem", this.getLocalizationFormatString("createCustomItem", this.customValue));
+      this._customItemValue = new ItemValue("newCustomItem", this.getCustomItemText(this.customValue));
       this._customItemValue.css = "sv-list-item--custom-value";
     }
     return this._customItemValue;
   }
-
+  private getCustomItemText(value: string): string {
+    const questionText = (this.question as any).createCustomItemText;
+    if (questionText) {
+      return questionText.replace("{0}", value);
+    }
+    return this.getLocalizationFormatString("createCustomItem", value);
+  }
   @property({ defaultValue: false }) allowCustomChoices: boolean;
   @property({
     onSet: (newValue: string, target: DropdownListModel) => {

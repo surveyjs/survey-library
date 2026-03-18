@@ -715,3 +715,228 @@ QUnit.test("Expression validator with empty survey, Bug#10416", function(assert)
   survey.tryComplete();
   assert.equal(survey.state, "completed", "The survey is completed");
 });
+
+QUnit.test("Validation dependencies: simple case, endDate depends on startDate", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      { type: "text", name: "startDate", inputType: "date" },
+      { type: "text", name: "startDate2", inputType: "date" },
+      {
+        type: "text", name: "endDate", inputType: "date",
+        validators: [{
+          type: "expression",
+          text: "Must be less than 1 year.",
+          expression: "dateDiff(min({startDate}, {startDate2}), {endDate}, 'years') < 1"
+        }]
+      }
+    ]
+  });
+  const endDate = survey.getQuestionByName("endDate");
+  assert.deepEqual(endDate["getValidatorVariableNames"](), ["startDate", "startDate2"], "endDate depends on startDate and startDate2");
+  survey.setValue("startDate", "2024-01-01");
+  survey.setValue("endDate", "2025-06-01");
+  assert.equal(endDate.errors.length, 1, "Error: more than 1 year");
+  survey.setValue("startDate", "2025-03-01");
+  assert.equal(endDate.errors.length, 0, "Error cleared: within 1 year again");
+});
+QUnit.test("Validation dependencies: add and clear errors", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 7;
+  q2.value = 5;
+  assert.equal(q2.errors.length, 1, "Error: 7+5>10");
+  q1.value = 4;
+  assert.equal(q2.errors.length, 0, "Error cleared: 4+5<=10");
+});
+QUnit.test("Validation dependencies: both questions have expression validators", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text", name: "q1",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      },
+      { type: "text", name: "q3" },
+      {
+        type: "text", name: "q2",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 5;
+  q2.value = 6;
+  assert.equal(q1.errors.length, 0, "q1.errors #1");
+  assert.equal(q2.errors.length, 1, "q2.errors #1");
+  q1.value = 3;
+  assert.equal(q1.errors.length, 0, "q1.errors #2");
+  assert.equal(q2.errors.length, 0, "q2.errors #2");
+  q1.value = 7;
+  assert.equal(q1.errors.length, 1, "q1.errors #3");
+  assert.equal(q2.errors.length, 0, "q2.errors #3");
+  q2.value = 2;
+  assert.equal(q1.errors.length, 0, "q1.errors #4");
+  assert.equal(q2.errors.length, 0, "q2.errors #4");
+});
+QUnit.test("Validation dependencies: clear errors after tryComplete, no checkErrorsMode", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text", name: "q1",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      },
+      { type: "text", name: "q3" },
+      {
+        type: "text", name: "q2",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 5;
+  q2.value = 6;
+  assert.equal(q1.errors.length, 0, "q1.errors #1");
+  assert.equal(q2.errors.length, 0, "q2.errors #1");
+  assert.equal(survey.tryComplete(), false, "Could not complete");
+  assert.equal(q1.errors.length, 1, "q1.errors #2");
+  assert.equal(q2.errors.length, 1, "q2.errors #2");
+  q1.value = 1;
+  assert.equal(q1.errors.length, 0, "q1.errors #3");
+  assert.equal(q2.errors.length, 0, "q2.errors #3");
+});
+QUnit.test("Validation dependencies: questions in dynamic panel", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [{
+      type: "paneldynamic", name: "panel1",
+      panelCount: 1,
+      templateElements: [
+        { type: "text", name: "q1" },
+        {
+          type: "text", name: "q2",
+          validators: [{ type: "expression", expression: "{panel.q1} + {panel.q2} <= 10" }]
+        }
+      ]
+    }]
+  });
+  const panel = survey.getQuestionByName("panel1");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  q2.value = 5;
+  assert.equal(q2.errors.length, 0, "No error initially");
+  q1.value = 7;
+  assert.equal(q2.errors.length, 1, "Error: 5+7>10");
+  q1.value = 3;
+  assert.equal(q2.errors.length, 0, "Error cleared: 3+7<=10");
+});
+QUnit.test("Validation dependencies: questions in matrix dynamic", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [{
+      type: "matrixdynamic", name: "matrix1",
+      rowCount: 1,
+      columns: [
+        { name: "col1", cellType: "text" },
+        {
+          name: "col2", cellType: "text",
+          validators: [{ type: "expression", expression: "{row.col1} + {row.col2} <= 10" }]
+        }
+      ]
+    }]
+  });
+  const matrix = survey.getQuestionByName("matrix1");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByColumn(matrix.columns[0]);
+  const q2 = row.getQuestionByColumn(matrix.columns[1]);
+  q2.value = 5;
+  assert.equal(q2.errors.length, 0, "No error initially");
+  q1.value = 10;
+  assert.equal(q2.errors.length, 1, "Error: 10+5>10");
+  q1.value = 3;
+  assert.equal(q2.errors.length, 0, "Error cleared: 3+5<=10");
+});
+QUnit.test("Validation dependencies: reset on adding/removing validators", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.deepEqual(q2["getValidatorVariableNames"](), [], "No dependencies initially");
+  q2.validators.push(new ExpressionValidator("{q1} + {q2} <= 10"));
+  assert.deepEqual(q2["getValidatorVariableNames"](), ["q1"], "Depends on q1 after adding validator");
+  q2.value = 6;
+  q1.value = 7;
+  assert.equal(q2.errors.length, 1, "Error: 7+6>10");
+  q1.value = 3;
+  assert.equal(q2.errors.length, 0, "Error cleared: 3+6<=10");
+  q2.validators.splice(0, 1);
+  assert.deepEqual(q2["getValidatorVariableNames"](), [], "No dependencies after removing validator");
+  q1.value = 7;
+  assert.equal(q2.errors.length, 0, "No error after removing validator");
+});
+QUnit.test("Validation dependencies: no validation on value change without onValueChanged mode", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "text", name: "q2",
+        validators: [{ type: "expression", expression: "{q1} + {q2} <= 10" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.deepEqual(q2["getValidatorVariableNames"](), ["q1"], "q2 depends on q1");
+  q1.value = 7;
+  q2.value = 6;
+  assert.equal(q2.errors.length, 0, "No error on q2: default mode does not validate on value change");
+  q1.value = 3;
+  assert.equal(q2.errors.length, 0, "Still no error on q2: no validation triggered");
+  q1.value = 7;
+  assert.equal(q2.errors.length, 0, "Still no error on q2: default mode ignores dependency changes");
+  assert.equal(survey.tryComplete(), false, "Could not complete: 7+6>10");
+  assert.equal(q2.errors.length, 1, "q2 has error after tryComplete");
+  q1.value = 3;
+  assert.equal(q2.errors.length, 0, "Error cleared: dependency change clears existing error since 3+6<=10");
+});
+QUnit.test("Validation dependencies: reset on changing validator expression", function(assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const validator = new ExpressionValidator("{q1} + {q3} <= 10");
+  q3.validators.push(validator);
+  assert.deepEqual(q3["getValidatorVariableNames"](), ["q1"], "Depends on q1");
+  q1.value = 7;
+  q3.value = 6;
+  assert.equal(q3.errors.length, 1, "Error: 7+6>10");
+  validator.expression = "{q2} + {q3} <= 10";
+  assert.deepEqual(q3["getValidatorVariableNames"](), ["q2"], "Now depends on q2 after expression change");
+  q2.value = 3;
+  assert.equal(q3.errors.length, 0, "Error cleared with new expression: 3+6<=10");
+  q1.value = 100;
+  assert.equal(q3.errors.length, 0, "No error: q1 no longer a dependency");
+});

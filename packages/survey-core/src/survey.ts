@@ -3103,9 +3103,16 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Represents the current state of the survey UI.
    *
-   * The state includes information about expanded/collapsed question boxes, the last visited question, and the last active panel in [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model). Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   * This state captures transient UI details required to restore the respondent's progress and interaction context, including:
    *
-   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   * - Expanded and collapsed question boxes
+   * - Order of randomized choice options
+   * - Last visited question
+   * - Last active panel within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model)
+   *
+   * Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
@@ -5395,15 +5402,18 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
-            if (isProcessed || !isContainerVisible(observedElement)) {
+            let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
+            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
             } else {
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              screenOrientationType = currScreenOrientationType;
             }
           });
         });
@@ -6719,6 +6729,17 @@ export class SurveyModel extends SurveyElementCore
     const survey = new SurveyModel(json);
     if (!!survey.locale) {
       locales = [survey.locale];
+    }
+    if (Array.isArray(locales)) {
+      const actualDefLocale = surveyLocalization.defaultLocale;
+      const internalDefLocale = settings.localization.defaultLocaleName;
+      if (actualDefLocale !== internalDefLocale) {
+        for (let i = 0; i < locales.length; i++) {
+          if (locales[i] === actualDefLocale) {
+            locales[i] = internalDefLocale;
+          }
+        }
+      }
     }
     this.mergeLocalizationObj(survey, locales);
   }

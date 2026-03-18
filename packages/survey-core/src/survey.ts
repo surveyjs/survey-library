@@ -3103,9 +3103,16 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Represents the current state of the survey UI.
    *
-   * The state includes information about expanded/collapsed question boxes, the last visited question, and the last active panel in [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model). Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   * This state captures transient UI details required to restore the respondent's progress and interaction context, including:
    *
-   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   * - Expanded and collapsed question boxes
+   * - Order of randomized choice options
+   * - Last visited question
+   * - Last active panel within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model)
+   *
+   * Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};

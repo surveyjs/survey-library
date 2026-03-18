@@ -38,6 +38,14 @@
 .sd-dropdown input[readonly] {
   pointer-events: none;
 }
+
+.sd-dropdown__input {
+  sv-ng-string,
+  sv-ng-string-viewer {
+    display: contents;
+  }
+}
+
 .sd-dropdown__input-prefix-wrapper {
   position: relative;
   overflow: hidden;

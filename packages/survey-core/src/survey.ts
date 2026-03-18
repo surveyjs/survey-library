@@ -5832,7 +5832,13 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollToTop.fire(this, options);
     if (!options.cancel && options.allow) {
-      const elementPage = this.getPageByElement(element as IElement);
+      let elementPage = this.getPageByElement(element as IElement);
+      let elementToForceRender = element;
+      const parentQuestion = (element as SurveyElement).parentQuestion || null;
+      if (!elementPage && !!parentQuestion) {
+        elementPage = this.getPageByElement(parentQuestion);
+        elementToForceRender = parentQuestion;
+      }
       const { rootElement } = settings.environment;
       const surveyRootElement = this.rootElement || optPassedRootElement || rootElement as any;
       if (this.isLazyRendering && !!elementPage) {
@@ -5840,7 +5846,7 @@ export class SurveyModel extends SurveyElementCore
         if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
-        elementPage.forceRenderElement(element as IElement, () => {
+        elementPage.forceRenderElement(elementToForceRender as IElement, () => {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {

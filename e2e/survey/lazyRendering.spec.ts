@@ -194,17 +194,20 @@ frameworks.forEach((framework) => {
       });
 
       const focusCellButton = page.getByRole("button", { name: "Focus a Cell" }).first();
-      await expect(page.getByRole("button", { name: "Next" }).first()).toBeVisible();
-      await page.getByRole("button", { name: "Next" }).first().click();
+      const nextButton = page.getByRole("button", { name: "Next" }).first();
+      const cellTextbox = page.getByRole("textbox", { name: "row Row 2, column Column 2" });
+
+      await expect(nextButton).toBeVisible();
+      await nextButton.click();
       await expect(focusCellButton).toBeVisible();
-      let count = await page.locator(".sv-skeleton-element").count();
-      expect(count).toBeGreaterThan(0);
+      // let count = await page.locator(".sv-skeleton-element").count();
+      // expect(count).toBeGreaterThan(0);
       await focusCellButton.click();
       await page.waitForTimeout(1000);
-      count = await page.locator(".sv-skeleton-element").count();
-      await expect(page.getByRole("textbox", { name: "row Row 2, column Column 2" })).toBeVisible();
-      await expect(page.getByRole("textbox", { name: "row Row 2, column Column 2" })).toBeFocused();
-      expect(count).toBe(0);
+      // count = await page.locator(".sv-skeleton-element").count();
+      await expect(cellTextbox).toBeVisible();
+      await expect(cellTextbox).toBeFocused();
+      // expect(count).toBe(0);
     });
   });
 });

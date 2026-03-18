@@ -1,7 +1,5 @@
 on:
   push:
-    branches:
-      - master
     # Sequence of patterns matched against refs/tags
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
@@ -14,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [20.x]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           
@@ -30,10 +28,10 @@ jobs:
           npm install
           npm run build:all
 
-      - name: Zip Build
+      - name: Zip Core Build
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip ./packages/survey-core/build
+          args: zip -qq -r survey-core-build.zip ./packages/survey-core/build
         
       - name: Build React UI
         run: |
@@ -41,10 +39,10 @@ jobs:
           npm install
           npm run build
           
-      - name: Zip Build
+      - name: Zip React Build
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip ./packages/survey-react-ui/build
+          args: zip -qq -r survey-react-ui-build.zip ./packages/survey-react-ui/build
         
       - name: Build Angular UI
         run: |
@@ -52,10 +50,10 @@ jobs:
           npm install
           npm run build
           
-      - name: Zip Build
+      - name: Zip Angular Build
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip ./packages/survey-angular-ui/build
+          args: zip -qq -r survey-angular-ui-build.zip ./packages/survey-angular-ui/build
         
       - name: Build Vue3 UI
         run: |
@@ -63,36 +61,20 @@ jobs:
           npm install
           npm run build
           
-      - name: Zip Build
+      - name: Zip Vue3 Build
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r build.zip ./packages/survey-vue3-ui/build
+          args: zip -qq -r survey-vue3-ui-build.zip ./packages/survey-vue3-ui/build
         
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@v1.2.0"
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
+          generate_release_notes: true
           files: |
-            LICENSE.txt
-            *.jar
-
-#       - name: Create Release
-#         uses: taiki-e/create-gh-release-action@v1
-#         with:
-#           # (Optional)
-# #           changelog: CHANGELOG.md
-#           # (Optional) Format of title.
-#           # [default value: $tag]
-#           # [possible values: variables $tag, $version, and any string]
-#           title: $version
-#           # (Required) GitHub token for creating GitHub Releases.
-#           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Add Zip Build Artifact
-        uses: AButler/upload-release-assets@v2.0
-        with:
-          files: 'build.zip'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: ${{ github.ref_name }}
+            survey-core-build.zip
+            survey-react-ui-build.zip
+            survey-angular-ui-build.zip
+            survey-vue3-ui-build.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

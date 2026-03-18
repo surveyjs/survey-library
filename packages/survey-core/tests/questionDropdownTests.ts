@@ -827,11 +827,11 @@ QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert =
 
           settings.dropdownSearchDelay = 0;
           done4();
-        }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue);
+        }, 2 * (onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue));
         done3();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+      }, callbackTimeOutDelta);
       done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    }, callbackTimeOutDelta);
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });

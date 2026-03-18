@@ -478,7 +478,7 @@ export class DropdownListModel extends Base {
     return this._customItemValue;
   }
   private getCustomItemText(value: string): string {
-    const questionText = (this.question as any).createCustomItemText;
+    const questionText = (this.question as any).createCustomChoiceText;
     if (questionText) {
       return questionText.replace("{0}", value);
     }

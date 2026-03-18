@@ -204,7 +204,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     }
   }) allowCustomChoices: boolean;
 
-  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomItemText: string;
+  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomChoiceText: string;
 
   /**
    * Specifies whether to wrap long texts in choice options onto a new line.
@@ -353,7 +353,7 @@ Serializer.addClass(
       name: "allowCustomChoices:boolean",
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
-    { name: "createCustomItemText", visible: false, serializationProperty: "locCreateCustomItemText" },
+    { name: "createCustomChoiceText", visible: false, serializationProperty: "locCreateCustomChoiceText" },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

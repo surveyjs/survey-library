@@ -2762,7 +2762,7 @@ QUnit.test("auto-select focused item on blur, settings.dropdownSaveOnOutsideClic
 
   settings.dropdownSaveOnOutsideClick = false;
 });
-QUnit.test("Test createCustomItemText property, Issue#11041", (assert) => {
+QUnit.test("Test createCustomChoiceText property, Issue#11041", (assert) => {
 
   const survey = new SurveyModel({
     elements: [{
@@ -2771,7 +2771,7 @@ QUnit.test("Test createCustomItemText property, Issue#11041", (assert) => {
       searchEnabled: true,
       allowCustomChoices: true,
       choices: ["item1", "item2", "item3"],
-      createCustomItemText: "Add \"{0}\" as a new"
+      createCustomChoiceText: "Add \"{0}\" as a new"
     }]
   });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];

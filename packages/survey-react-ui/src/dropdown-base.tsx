@@ -31,8 +31,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected get dropdownListModel(): DropdownListModel {
     return this.question["dropdownListModel"];
   }
-  protected getStateElement() {
-    return this.question["dropdownListModel"];
+  protected getStateElements() {
+    return [this.question, this.question["dropdownListModel"]];
   }
   protected setValueCore(newValue: any) {
     this.questionBase.renderedValue = newValue;

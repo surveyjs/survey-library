@@ -16,6 +16,9 @@ export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<Ques
     }
     return res;
   }
+  protected getRenderedElements() {
+    return this.getStateElements();
+  }
   protected renderElement(): React.JSX.Element {
     return SurveyQuestion.renderQuestionBody(
       this.creator,

@@ -559,7 +559,7 @@ function diffDays(params: any[]) {
   const date2: any = createDate("function-diffDays", params[1]);
   const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
   const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
-  return Math.round(Math.abs(utc2 - utc1) / (1000 * 60 * 60 * 24));
+  return Math.ceil(Math.abs(utc2 - utc1) / (1000 * 60 * 60 * 24));
 }
 FunctionFactory.Instance.register("diffDays", diffDays);
 

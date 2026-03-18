@@ -725,7 +725,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public afterRenderQuestionElement(el: HTMLElement): void {
     super.afterRenderQuestionElement(el);
     this.rootElement = el;
-    this.updateColors((this.survey as SurveyModel).themeVariables);
+    if (this.renderAs !== "dropdown") {
+      this.updateColors((this.survey as SurveyModel).themeVariables);
+    }
   }
 
   private rootElement: HTMLElement;

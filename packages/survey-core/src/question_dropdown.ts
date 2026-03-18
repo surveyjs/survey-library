@@ -204,6 +204,11 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     }
   }) allowCustomChoices: boolean;
 
+  /**
+   * Specifies the text displayed for the command that creates a custom choice. Applies only when [`allowCustomChoices`](#allowCustomChoices) is `true`.
+   *
+   * Default value: `"Create \"{0}\" item..."`
+   */
   @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomChoiceText: string;
 
   /**

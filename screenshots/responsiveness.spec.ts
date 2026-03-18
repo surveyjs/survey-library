@@ -388,8 +388,10 @@ frameworks.forEach(framework => {
       await page.locator(".sd-formbox").nth(0).click();
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-focus.png");
       await page.locator(".sd-formbox__input").nth(0).fill("Jon Snow");
-      await page.locator(".sd-formbox__input").nth(2).fill("jon@snow.com");
-      await page.locator(".sd-formbox__input").nth(4).fill("1234-56789");
+      await page.locator(".sd-formbox").nth(2).click();
+      await page.locator(".sd-formbox__input").nth(1).fill("jon@snow.com");
+      await page.locator(".sd-formbox").nth(4).click();
+      await page.locator(".sd-formbox__input").nth(2).fill("1234-56789");
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext.png");
     });
@@ -424,7 +426,7 @@ frameworks.forEach(framework => {
       await page.locator(".sd-formbox").nth(0).click();
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-date-focus.png");
       await page.locator(".sd-formbox__input").nth(0).fill("2004-01-12");
-      await page.locator(".sd-formbox").nth(1).click();
+      await page.locator(".sd-formbox").nth(2).click();
       await page.locator(".sd-formbox__input").nth(1).fill("2004-02-12");
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-question", "responsiveness-multipletext-date.png");

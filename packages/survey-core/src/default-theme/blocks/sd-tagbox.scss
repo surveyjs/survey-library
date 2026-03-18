@@ -1,11 +1,9 @@
 @use "../variables.scss" as *;
 
-.sd-tagbox {
-  &.sd-formbox--readonly,
-  &.sd-formbox--preview {
-    .sd-tagbox__value {
-      white-space: normal;
-    }
+.sd-tagbox--readonly,
+.sd-tagbox--preview {
+  .sd-tagbox__input {
+    white-space: normal;
   }
 }
 

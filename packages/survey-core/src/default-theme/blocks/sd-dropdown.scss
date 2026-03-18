@@ -25,6 +25,12 @@
   }
 }
 
+.sd-dropdown--select.sd-dropdown--empty {
+  .sd-dropdown__input {
+    color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+  }
+}
+
 .sd-dropdown__input-field-component {
   height: auto;
 }

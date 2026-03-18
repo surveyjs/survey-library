@@ -239,6 +239,7 @@ frameworks.forEach((framework) => {
     test("check survey in showModal", async ({ page }) => {
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
+        const rootElement = (window as any).survey.rootElement;
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const _json = { elements: [{ type: "text", name: "modal_question" }] };
           const item = new window["Survey"].Action({
@@ -254,7 +255,7 @@ frameworks.forEach((framework) => {
                   model: model,
                   survey: model
                 }
-              });
+              }, rootElement);
             }
           });
           opt.titleActions = [item];

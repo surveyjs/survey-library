@@ -40,7 +40,9 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     model.onComplete.add(surveyComplete);
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       if (!document.querySelector("link[href*='survey-core.min.css']")) {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const link = document.createElement("link");
         link.rel = "stylesheet";
         link.href = "../../node_modules/survey-core/survey-core.min.css";

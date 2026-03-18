@@ -120,6 +120,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       shadowRoot.appendChild(styles);
 
       self.__surveyStylesLoaded = false;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       const surveyLink = document.createElement("link");
       surveyLink.rel = "stylesheet";
       surveyLink.href = "../../node_modules/survey-core/survey-core.min.css";

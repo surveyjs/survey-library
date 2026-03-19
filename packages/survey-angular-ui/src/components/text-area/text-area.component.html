@@ -23,12 +23,7 @@
     [attr.aria-errormessage]="model.ariaErrormessage"
     [style.resize]="'none'"
     #contentElement></textarea>
-    <div *ngIf="model.characterCounter" :class="cssClasses.group">
-      <sv-ng-character-counter
-        [counter]="model.characterCounter"
-        [remainingCharacterCounter]="$any(model.getCssClasses().characterCounter)">
-      </sv-ng-character-counter>
-    </div>
+    <sv-ng-action-bar *ngIf="model.hasVisibleInputActions"  [model]="model.inputActionsContainer"></sv-ng-action-bar>
     <div *ngIf="model.question.resizeStyle !== 'none'" [class]="model.getCssClasses().grip" #anchorRef>
       <svg [iconName]="$any(model.getCssClasses().gripIconId)" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>

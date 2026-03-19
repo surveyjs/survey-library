@@ -39,8 +39,6 @@ export class QuestionCommentModel extends QuestionTextBase {
         return {
           root: this.getRootClass(),
           control: this.className,
-          characterCounter: this.cssClasses.characterCounter,
-          group: this.cssClasses.group,
           grip: this.cssClasses.grip,
           gripIconId: this.cssClasses.gripIconId
         };
@@ -64,7 +62,8 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
       onTextAreaFocus: (event) => { this.onFocus(event); },
       onTextAreaBlur: (event) => { this.onBlur(event); },
-      characterCounter: () => !!this.getMaxLength() && this.characterCounter,
+      hasVisibleInputActions: () => this.hasVisibleInputActions,
+      inputActionsContainer: () => this.inputActionsContainer
     };
     return options;
   }

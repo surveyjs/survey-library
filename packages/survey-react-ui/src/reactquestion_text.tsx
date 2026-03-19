@@ -2,7 +2,7 @@ import * as React from "react";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { CharacterCounterComponent } from "./components/character-counter";
+import { SurveyActionBar } from "entries";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel
@@ -56,9 +56,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     );
   }
   protected renderGroup(): React.JSX.Element {
-    const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.characterCounter}></CharacterCounterComponent>) : null;
-    const group = counter ? <div className={this.question.cssClasses.group}>{counter}</div> : null;
-    return group;
+    return this.question.hasVisibleInputActions ? <SurveyActionBar model={this.question.inputActionsContainer}></SurveyActionBar> : null;
   }
   protected renderElement(): React.JSX.Element {
     return (

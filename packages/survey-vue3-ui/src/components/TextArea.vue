@@ -44,12 +44,7 @@
       :aria-errormessage="model.ariaErrormessage"
       :style="{ resize: 'none' }"
     ></textarea>
-    <div v-if="model.characterCounter" :class="cssClasses.group">
-      <SvComponent :is="'sv-character-counter'"
-        :counter="model.characterCounter"
-        :remainingCharacterCounter="cssClasses.characterCounter">
-      </SvComponent>
-    </div>
+    <SvComponent v-if="model.hasVisibleInputActions" :is="'sv-action-bar'" :model="model.inputActionsContainer"></SvComponent>
     <div v-if="model.question.resizeStyle !== 'none'" :class="cssClasses.grip" ref="anchorRef">
       <SvComponent :is="'sv-svg-icon'" :iconName="cssClasses.gripIconId" :size="'auto'"></SvComponent>
     </div>

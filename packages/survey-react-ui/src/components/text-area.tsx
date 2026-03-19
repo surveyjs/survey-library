@@ -2,8 +2,8 @@ import * as React from "react";
 import { ResizeManager, TextAreaModel } from "survey-core";
 import { ReactElementFactory } from "../element-factory";
 import { SurveyElementBase } from "../reactquestion_element";
-import { CharacterCounterComponent } from "./character-counter";
 import { SvgIcon } from "./svg-icon/svg-icon";
+import { SurveyActionBar } from "entries";
 
 interface ITextAreaProps {
   viewModel: TextAreaModel;
@@ -46,14 +46,8 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
       this.textareaRef.current?.focus();
     }
   }
-  protected renderGroup(cssClasses: any) {
-    if (!this.viewModel.characterCounter) return null;
-    return <div className={cssClasses.group}>
-      <CharacterCounterComponent
-        counter={this.viewModel.characterCounter}
-        remainingCharacterCounter={cssClasses.characterCounter}>
-      </CharacterCounterComponent>
-    </div>;
+  protected renderGroup() {
+    return this.viewModel.hasVisibleInputActions ? <SurveyActionBar model={this.viewModel.inputActionsContainer}></SurveyActionBar> : null;
   }
 
   protected renderElement(): React.JSX.Element {
@@ -83,7 +77,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
           aria-errormessage={this.viewModel.ariaErrormessage}
           style={{ resize: "none" }}
         />
-        {this.renderGroup(cssClasses)}
+        {this.renderGroup()}
         {this.viewModel.question.resizeStyle !== "none" ?
           <div className={cssClasses.grip} ref={this.anchorRef}>
             <SvgIcon iconName={cssClasses.gripIconId} size={"auto"}></SvgIcon>

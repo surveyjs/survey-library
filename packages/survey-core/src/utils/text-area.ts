@@ -1,6 +1,6 @@
+import { ActionContainer } from "../actions/container";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { Question } from "../question";
-import { CharacterCounter } from "../question_textbase";
 
 export function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
@@ -34,7 +34,6 @@ interface ITextAreaCssClasses {
     grip?: string;
     control?: string;
     gripIconId?: string;
-    characterCounter?: string;
 }
 export interface ITextArea {
   question: any;
@@ -54,13 +53,14 @@ export interface ITextArea {
   onTextAreaKeyDown?: (event: any) => void;
   onTextAreaBlur?: (event: any) => void;
   onTextAreaFocus?: (event: any) => void;
-  characterCounter?: () => CharacterCounter;
   ariaRequired: () => "true" | "false";
   ariaLabel: () => string;
   ariaInvalid?: () => "true" | "false";
   ariaLabelledBy?: () => string;
   ariaDescribedBy?: () => string;
   ariaErrormessage?: () => string;
+  hasVisibleInputActions?: () => boolean;
+  inputActionsContainer?: () => ActionContainer;
 }
 
 export class TextAreaModel {
@@ -138,9 +138,6 @@ export class TextAreaModel {
   getCssClasses(): ITextAreaCssClasses {
     return this.options.cssClasses();
   }
-  get characterCounter(): CharacterCounter {
-    return this.options.characterCounter && this.options.characterCounter();
-  }
   get maxLength(): number {
     if (this.options.maxLength)
       return this.options.maxLength();
@@ -187,6 +184,18 @@ export class TextAreaModel {
   get ariaErrormessage(): string {
     if (this.options.ariaErrormessage)
       return this.options.ariaErrormessage();
+  }
+  get hasVisibleInputActions(): boolean {
+    if (this.options.hasVisibleInputActions) {
+      return this.options.hasVisibleInputActions();
+    }
+    return false;
+  }
+  get inputActionsContainer(): ActionContainer {
+    if (this.options.inputActionsContainer) {
+      return this.options.inputActionsContainer();
+    }
+    return null;
   }
   public dispose(): void {
     if (this.question) {

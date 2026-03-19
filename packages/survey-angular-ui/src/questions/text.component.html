@@ -9,12 +9,7 @@
     <datalist *ngIf="model.dataListId" [id]="model.dataListId">
       <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>
     </datalist>
-    <div *ngIf="!!model.getMaxLength()" [class]="model.cssClasses.group">
-      <sv-ng-character-counter *ngIf="model.getMaxLength()" 
-        [counter]="model.characterCounter"
-        [remainingCharacterCounter]="model.cssClasses.characterCounter">
-      </sv-ng-character-counter>
-    </div>
+    <sv-ng-action-bar *ngIf="model.hasVisibleInputActions"  [model]="model.inputActionsContainer"></sv-ng-action-bar>
   </ng-container> 
   <div *ngIf="model.isReadOnlyRenderDiv()">{{ value }}</div>
 </div>

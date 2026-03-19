@@ -38,10 +38,7 @@
       <datalist v-if="question.dataListId" :id="question.dataListId">
         <option v-for="(item, index) in question.dataList" :key="index" :value="item"></option>
       </datalist>
-      <div v-if="!!question.getMaxLength()" :class="question.cssClasses.group">
-        <SvComponent :is="'sv-character-counter'" :counter="question.characterCounter"
-          :remainingCharacterCounter="question.cssClasses.characterCounter"></SvComponent>
-      </div>
+      <SvComponent v-if="question.hasVisibleInputActions" :is="'sv-action-bar'" :model="question.inputActionsContainer"></SvComponent>
     </template>
   </div>
 </template>

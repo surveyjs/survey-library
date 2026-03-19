@@ -853,21 +853,21 @@ export class QuestionMatrixModel
       questionPlainData.isNode = true;
       const rows = options.includeEmpty ? this.visibleRows : this.visibleRows.filter((r: MatrixRowModel) => r.name in (values || {}));
       questionPlainData.data = rows.map((row: MatrixRowModel) => {
-        const rowName = row.name;
+        const rowValue = values ? values[row.name] : undefined;
         var rowDataItem = <any>{
-          name: rowName,
+          name: row.name,
           title: row.text,
-          value: values ? values[rowName] : undefined,
+          value: rowValue,
           displayValue: ItemValue.getTextOrHtmlByValue(
             this.visibleColumns,
-            values ? values[rowName] : undefined
+            rowValue
           ),
           getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };
         var item = ItemValue.getItemByValue(
           this.visibleColumns,
-          values ? values[rowName] : undefined
+          rowValue
         );
         if (!!item) {
           (options.calculations || []).forEach((calculation) => {

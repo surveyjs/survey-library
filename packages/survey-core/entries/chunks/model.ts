@@ -74,6 +74,7 @@ function checkPrefix(prefix: string): boolean {
   if (!!location && !!location.hostname) {
     const hn = location.hostname.toLowerCase();
     ds.push("localhost");
+    ds.push("127.0.0.1");
     for (let i = 0; i < ds.length; i++) {
       if (hn.indexOf(ds[i]) > -1) return true;
     }

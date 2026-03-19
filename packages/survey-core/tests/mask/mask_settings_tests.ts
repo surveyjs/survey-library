@@ -6,6 +6,7 @@ import { QuestionTextModel } from "../../src/question_text";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
 import { ArrayChanges, Base } from "../../src/base";
+import { PatternIncompleteError } from "../../src/error";
 
 export default QUnit.module("Question text: Input mask");
 
@@ -393,4 +394,179 @@ QUnit.test("Currency Input Mask: update the prefix at runtime", function (assert
   maskSettings.prefix = "$";
   assert.equal(q.value, "123", "q.value #2");
   assert.equal(q.inputValue, "$123", "q.inputValue #2");
+});
+
+QUnit.test("Pattern mask: validation error on incomplete pattern value", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "phone",
+        maskType: "pattern",
+        maskSettings: {
+          pattern: "+99-99"
+        }
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("phone") as QuestionTextModel;
+
+  // Complete value - no error
+  q.inputValue = "+12-34";
+  assert.equal(q.value, "1234", "complete value");
+  assert.equal(q.validate(), true, "no errors for complete value");
+  assert.equal(q.errors.length, 0, "no errors array for complete value");
+
+  // Incomplete value - should produce error
+  q.inputValue = "+12-__";
+  assert.equal(q.value, undefined, "incomplete value is undefined");
+  assert.equal(q.validate(), false, "has errors for incomplete value");
+  assert.equal(q.errors.length, 1, "one error for incomplete value");
+  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError");
+  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "error type");
+  assert.equal(q.errors[0].getText(), "Please complete the value to match the required format.", "error text from localization");
+
+  // Empty value (untouched) - no error (not required)
+  q.inputValue = "+__-__";
+  assert.equal(q.value, undefined, "empty value is undefined");
+  assert.equal(q.validate(), true, "no errors for empty value when not required");
+  assert.equal(q.errors.length, 0, "no errors for empty mask");
+});
+
+QUnit.test("Pattern mask: incomplete value replaces required error", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "phone",
+        isRequired: true,
+        maskType: "pattern",
+        maskSettings: {
+          pattern: "+99-99"
+        }
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("phone") as QuestionTextModel;
+
+  // Incomplete value on required field - should show incomplete error, not required error
+  q.inputValue = "+12-__";
+  assert.equal(q.validate(), false, "has errors for incomplete value");
+  assert.equal(q.errors.length, 1, "one error");
+  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError, not AnswerRequiredError");
+
+  // Empty value on required field - should show required error
+  q.inputValue = "+__-__";
+  assert.equal(q.validate(), false, "has errors for empty required field");
+  assert.equal(q.errors.length, 1, "one error for required");
+  assert.equal(q.errors[0].getErrorType(), "required", "required error for empty field");
+});
+
+QUnit.test("Pattern mask: tryComplete with incomplete value - show error, fix, complete", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "phone",
+        maskType: "pattern",
+        maskSettings: {
+          pattern: "+99-99"
+        }
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("phone") as QuestionTextModel;
+
+  // Set incomplete value and try to complete - should fail
+  q.inputValue = "+12-__";
+  assert.equal(q.value, undefined, "incomplete value is undefined");
+  const result1 = survey.tryComplete();
+  assert.equal(result1, false, "tryComplete fails with incomplete mask");
+  assert.equal(survey.state, "running", "survey is still running");
+  assert.equal(q.errors.length, 1, "one error shown");
+  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError");
+
+  // Fix the value - complete the mask
+  q.inputValue = "+12-34";
+  assert.equal(q.value, "1234", "value is now complete");
+  assert.equal(q.errors.length, 0, "errors are cleared after fixing");
+
+  // Try to complete again - should succeed
+  const result2 = survey.tryComplete();
+  assert.equal(result2, true, "tryComplete succeeds with complete value");
+  assert.equal(survey.state, "completed", "survey is completed");
+});
+
+QUnit.test("Pattern mask: checkErrorsMode onValueChanged - add/clear errors", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "phone",
+        maskType: "pattern",
+        maskSettings: {
+          pattern: "+99-99"
+        }
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("phone") as QuestionTextModel;
+
+  // Initially no errors
+  assert.equal(q.errors.length, 0, "no errors initially");
+
+  // Enter a complete value - no errors
+  q.inputValue = "+12-34";
+  assert.equal(q.value, "1234", "complete value");
+  assert.equal(q.errors.length, 0, "no errors for complete value");
+
+  // Change to incomplete value - error should appear
+  q.inputValue = "+56-__";
+  assert.equal(q.value, undefined, "incomplete value is undefined");
+  assert.equal(q.errors.length, 1, "error appears on value change to incomplete");
+  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError");
+
+  // Fix the value - error should clear
+  q.inputValue = "+56-78";
+  assert.equal(q.value, "5678", "value is complete again");
+  assert.equal(q.errors.length, 0, "error cleared after completing the mask");
+
+  // Clear the value entirely - no error (not required)
+  q.inputValue = "+__-__";
+  assert.equal(q.value, undefined, "empty value");
+  assert.equal(q.errors.length, 0, "no error for empty non-required field");
+});
+
+QUnit.test("Pattern mask: checkErrorsMode onValueChanged with isRequired", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "phone",
+        isRequired: true,
+        maskType: "pattern",
+        maskSettings: {
+          pattern: "+99-99"
+        }
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("phone") as QuestionTextModel;
+
+  // Enter a complete value first
+  q.inputValue = "+12-34";
+  assert.equal(q.value, "1234", "complete value");
+  assert.equal(q.errors.length, 0, "no errors for complete value");
+
+  // Change to incomplete - should show incomplete error, not required
+  q.inputValue = "+12-__";
+  assert.equal(q.errors.length, 1, "one error for incomplete");
+  assert.ok(q.errors[0] instanceof PatternIncompleteError, "incomplete error, not required error");
+
+  // Complete the value again - errors cleared
+  q.inputValue = "+12-56";
+  assert.equal(q.value, "1256", "complete value again");
+  assert.equal(q.errors.length, 0, "errors cleared");
 });

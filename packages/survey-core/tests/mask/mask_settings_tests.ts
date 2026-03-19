@@ -6,7 +6,6 @@ import { QuestionTextModel } from "../../src/question_text";
 import { Serializer } from "../../src/jsonobject";
 import { SurveyModel } from "../../src/survey";
 import { ArrayChanges, Base } from "../../src/base";
-import { PatternIncompleteError } from "../../src/error";
 
 export default QUnit.module("Question text: Input mask");
 
@@ -422,8 +421,7 @@ QUnit.test("Pattern mask: validation error on incomplete pattern value", functio
   assert.equal(q.value, undefined, "incomplete value is undefined");
   assert.equal(q.validate(), false, "has errors for incomplete value");
   assert.equal(q.errors.length, 1, "one error for incomplete value");
-  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError");
-  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "error type");
+  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "error is PatternIncompleteError");
   assert.equal(q.errors[0].getText(), "Please complete the value to match the required format.", "error text from localization");
 
   // Empty value (untouched) - no error (not required)
@@ -453,7 +451,7 @@ QUnit.test("Pattern mask: incomplete value replaces required error", function (a
   q.inputValue = "+12-__";
   assert.equal(q.validate(), false, "has errors for incomplete value");
   assert.equal(q.errors.length, 1, "one error");
-  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError, not AnswerRequiredError");
+  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "error is PatternIncompleteError, not AnswerRequiredError");
 
   // Empty value on required field - should show required error
   q.inputValue = "+__-__";
@@ -484,7 +482,7 @@ QUnit.test("Pattern mask: tryComplete with incomplete value - show error, fix, c
   assert.equal(result1, false, "tryComplete fails with incomplete mask");
   assert.equal(survey.state, "running", "survey is still running");
   assert.equal(q.errors.length, 1, "one error shown");
-  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError");
+  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "error is PatternIncompleteError");
 
   // Fix the value - complete the mask
   q.inputValue = "+12-34";
@@ -525,7 +523,7 @@ QUnit.test("Pattern mask: checkErrorsMode onValueChanged - add/clear errors", fu
   q.inputValue = "+56-__";
   assert.equal(q.value, undefined, "incomplete value is undefined");
   assert.equal(q.errors.length, 1, "error appears on value change to incomplete");
-  assert.ok(q.errors[0] instanceof PatternIncompleteError, "error is PatternIncompleteError");
+  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "error is PatternIncompleteError");
 
   // Fix the value - error should clear
   q.inputValue = "+56-78";
@@ -563,7 +561,7 @@ QUnit.test("Pattern mask: checkErrorsMode onValueChanged with isRequired", funct
   // Change to incomplete - should show incomplete error, not required
   q.inputValue = "+12-__";
   assert.equal(q.errors.length, 1, "one error for incomplete");
-  assert.ok(q.errors[0] instanceof PatternIncompleteError, "incomplete error, not required error");
+  assert.equal(q.errors[0].getErrorType(), "patternincompleteerror", "incomplete error, not required error");
 
   // Complete the value again - errors cleared
   q.inputValue = "+12-56";

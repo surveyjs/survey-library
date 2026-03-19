@@ -11332,3 +11332,41 @@ QUnit.test("Assign empty array to survey matrix", (assert) => {
   survey.setValue("choices", []);
   assert.equal(matrix.visibleRows.length, 0, "There are 0 rows");
 });
+
+QUnit.test("Matrix dynamic: cell value changes must update matrix.value when detail panel has same-named questions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 0,
+        columns: [
+          { name: "name", visible: false },
+          { name: "title" }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          { type: "text", name: "name", visible: false },
+          { type: "text", name: "title", visible: false },
+          { type: "text", name: "extra" }
+        ]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.addRow();
+
+  const row = matrix.visibleRows[0];
+  row.getQuestionByName("name").value = "name1";
+  row.getQuestionByName("title").value = "name1";
+  assert.deepEqual(matrix.value[0], { name: "name1", title: "name1" }, "Initial values are set correctly");
+
+  row.showDetailPanel();
+
+  // After opening detail panel, cell value change should still update matrix.value
+  row.getQuestionByName("title").value = "Name1";
+
+  // BUG: matrix.value[0].title is "name1" (stale detail panel value) instead of "Name1"
+  assert.equal(matrix.value[0].title, "Name1", "matrix.value is updated after cell value change with detail panel open");
+});

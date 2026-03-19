@@ -5834,7 +5834,7 @@ export class SurveyModel extends SurveyElementCore
     if (!options.cancel && options.allow) {
       let elementPage = this.getPageByElement(element as IElement);
       let elementToForceRender = element;
-      const parentQuestion = (element as SurveyElement).parentQuestion || null;
+      const parentQuestion = (element as SurveyElement).parentQuestion;
       if (!elementPage && !!parentQuestion) {
         elementPage = this.getPageByElement(parentQuestion);
         elementToForceRender = parentQuestion;

@@ -208,6 +208,13 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   }) allowCustomChoices: boolean;
 
   /**
+   * Specifies the text displayed for the command that creates a custom choice. Applies only when [`allowCustomChoices`](#allowCustomChoices) is `true`.
+   *
+   * Default value: `"Create \"{0}\" item..."`
+   */
+  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomChoiceText: string;
+
+  /**
    * Specifies whether to wrap long texts in choice options onto a new line.
    *
    * Default value: `true`
@@ -378,11 +385,12 @@ Serializer.addClass(
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     {
-      name: "allowCustomChoices:boolean", default: false,
+      name: "allowCustomChoices:boolean",
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
+    { name: "createCustomChoiceText", visible: false, serializationProperty: "locCreateCustomChoiceText" },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
-    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false, default: "" }

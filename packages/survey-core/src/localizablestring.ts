@@ -297,8 +297,15 @@ export class LocalizableString implements ILocalizableString {
     const selectedLocales = options?.locales || [];
     const hasSelected = selectedLocales.length > 0;
     if (hasSelected) {
+      const defLocaleName = settings.localization.defaultLocaleName;
+      const actualDefLocale = surveyLocalization.defaultLocale;
+      const matchDefaultToActual = actualDefLocale !== defLocaleName &&
+        selectedLocales.indexOf(actualDefLocale) >= 0 && keys.indexOf(actualDefLocale) < 0;
       for (let i = keys.length - 1; i >= 0; i--) {
         if (selectedLocales.indexOf(keys[i]) < 0) {
+          if (matchDefaultToActual && keys[i] === defLocaleName) {
+            continue;
+          }
           keys.splice(i, 1);
         }
       }

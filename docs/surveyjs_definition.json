@@ -632,6 +632,9 @@
                     "type": "array",
                     "items": [
                         {
+                            "$href": "#tagbox"
+                        },
+                        {
                             "$href": "#ranking"
                         },
                         {
@@ -642,6 +645,9 @@
                         },
                         {
                             "$href": "#buttongroup"
+                        },
+                        {
+                            "$href": "#dropdown"
                         },
                         {
                             "$href": "#paneldynamic"
@@ -703,6 +709,9 @@
                             "$href": "#flowpanel"
                         },
                         {
+                            "$href": "#tagbox"
+                        },
+                        {
                             "$href": "#ranking"
                         },
                         {
@@ -713,6 +722,9 @@
                         },
                         {
                             "$href": "#buttongroup"
+                        },
+                        {
+                            "$href": "#dropdown"
                         },
                         {
                             "$href": "#paneldynamic"
@@ -1840,6 +1852,56 @@
                 }
             }
         },
+        "tagbox": {
+            "$id": "#tagbox",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#checkbox"
+                },
+                {
+                    "properties": {
+                        "searchMode": {
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
+                            "enum": [
+                                "contains",
+                                "startsWith"
+                            ]
+                        },
+                        "allowCustomChoices": {
+                            "type": "boolean"
+                        },
+                        "allowClear": {
+                            "type": "boolean"
+                        },
+                        "searchEnabled": {
+                            "type": "boolean"
+                        },
+                        "hideSelectedItems": {
+                            "type": "boolean"
+                        },
+                        "choicesLazyLoadEnabled": {
+                            "type": "boolean"
+                        },
+                        "choicesLazyLoadPageSize": {
+                            "type": "number"
+                        },
+                        "closeOnSelect": {
+                            "type": "number"
+                        },
+                        "textWrapEnabled": {
+                            "type": "boolean"
+                        },
+                        "placeholder": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
         "ranking": {
             "$id": "#ranking",
             "type": "object",
@@ -1969,6 +2031,124 @@
                 }
             }
         },
+        "dropdown": {
+            "$id": "#dropdown",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#selectbase"
+                },
+                {
+                    "properties": {
+                        "showOptionsCaption": {
+                            "type": "boolean"
+                        },
+                        "optionsCaption": {
+                            "type": "string"
+                        },
+                        "placeholder": {
+                            "type": "string"
+                        },
+                        "choicesMin": {
+                            "type": "number"
+                        },
+                        "choicesMax": {
+                            "type": "number"
+                        },
+                        "choicesStep": {
+                            "type": "number"
+                        },
+                        "autocomplete": {
+                            "type": "string",
+                            "enum": [
+                                "",
+                                "name",
+                                "honorific-prefix",
+                                "given-name",
+                                "additional-name",
+                                "family-name",
+                                "honorific-suffix",
+                                "nickname",
+                                "organization-title",
+                                "username",
+                                "new-password",
+                                "current-password",
+                                "organization",
+                                "street-address",
+                                "address-line1",
+                                "address-line2",
+                                "address-line3",
+                                "address-level4",
+                                "address-level3",
+                                "address-level2",
+                                "address-level1",
+                                "country",
+                                "country-name",
+                                "postal-code",
+                                "cc-name",
+                                "cc-given-name",
+                                "cc-additional-name",
+                                "cc-family-name",
+                                "cc-number",
+                                "cc-exp",
+                                "cc-exp-month",
+                                "cc-exp-year",
+                                "cc-csc",
+                                "cc-type",
+                                "transaction-currency",
+                                "transaction-amount",
+                                "language",
+                                "bday",
+                                "bday-day",
+                                "bday-month",
+                                "bday-year",
+                                "sex",
+                                "url",
+                                "photo",
+                                "tel",
+                                "tel-country-code",
+                                "tel-national",
+                                "tel-area-code",
+                                "tel-local",
+                                "tel-local-prefix",
+                                "tel-local-suffix",
+                                "tel-extension",
+                                "email",
+                                "impp"
+                            ]
+                        },
+                        "allowClear": {
+                            "type": "boolean"
+                        },
+                        "searchEnabled": {
+                            "type": "boolean"
+                        },
+                        "searchMode": {
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
+                            "enum": [
+                                "contains",
+                                "startsWith"
+                            ]
+                        },
+                        "allowCustomChoices": {
+                            "type": "boolean"
+                        },
+                        "textWrapEnabled": {
+                            "type": "boolean"
+                        },
+                        "choicesLazyLoadEnabled": {
+                            "type": "boolean"
+                        },
+                        "choicesLazyLoadPageSize": {
+                            "type": "number"
+                        }
+                    }
+                }
+            ]
+        },
         "paneldynamic": {
             "$id": "#paneldynamic",
             "type": "object",
@@ -1988,6 +2168,9 @@
                                     "$href": "#flowpanel"
                                 },
                                 {
+                                    "$href": "#tagbox"
+                                },
+                                {
                                     "$href": "#ranking"
                                 },
                                 {
@@ -1998,6 +2181,9 @@
                                 },
                                 {
                                     "$href": "#buttongroup"
+                                },
+                                {
+                                    "$href": "#dropdown"
                                 },
                                 {
                                     "$href": "#paneldynamic"
@@ -2916,6 +3102,9 @@
                                     "$href": "#flowpanel"
                                 },
                                 {
+                                    "$href": "#tagbox"
+                                },
+                                {
                                     "$href": "#ranking"
                                 },
                                 {
@@ -2926,6 +3115,9 @@
                                 },
                                 {
                                     "$href": "#buttongroup"
+                                },
+                                {
+                                    "$href": "#dropdown"
                                 },
                                 {
                                     "$href": "#paneldynamic"

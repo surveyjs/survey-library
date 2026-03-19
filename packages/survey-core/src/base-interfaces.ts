@@ -470,7 +470,6 @@ export interface IPanel extends ISurveyElement, IParentElement {
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
   validateContainerOnly(): void;
-  onQuestionValueChanged(el: IElement): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;

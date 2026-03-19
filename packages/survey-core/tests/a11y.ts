@@ -168,42 +168,28 @@ QUnit.test(
   }
 );
 
-QUnit.skip("a11y: aria-labelledby", (assert) => {
+QUnit.test("a11y: aria-labelledby customquestion Bug#11049", (assert) => {
 
-  // ComponentCollection.Instance.add({
-  //   name: "currencyInput",
-  //   defaultQuestionTitle: "Currency",
-  //   questionJSON: {
-  //     "type": "text",
-  //     "inputType": "number"
-  //   }
-  // });
+  ComponentCollection.Instance.add({
+    name: "text2",
+    defaultQuestionTitle: "Currency",
+    questionJSON: {
+      "type": "text",
+    }
+  });
 
   const config = {
     elements: [
       {
-        type: "text",
+        type: "text2",
         name: "q1",
-        title: "Currency (Standalone)",
-        titleLocation: "hidden"
-      },
-      {
-        type: "text",
-        name: "q2",
         title: "Currency (specialized)",
-        titleLocation: "hidden"
       }
     ]
   };
 
   var survey = new SurveyModel(config);
   var q1 = survey.getQuestionByName("q1");
-  var q2 = survey.getQuestionByName("q2");
 
-  assert.equal(q1.a11y_input_ariaLabelledBy, "", "#1-1");
-  assert.equal(q1.a11y_input_ariaLabel, "Currency (Standalone)", "#1-2");
-
-  assert.equal(q2.a11y_input_ariaLabelledBy, "", "#2-1");
-  assert.equal(q2.a11y_input_ariaLabel, "Currency (specialized)", "#2-2");
-
+  assert.equal(q1.a11y_input_ariaLabelledBy, q1.contentQuestion.a11y_input_ariaLabelledBy);
 });

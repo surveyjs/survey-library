@@ -897,6 +897,15 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get contentQuestion(): Question {
     return this.questionWrapper;
   }
+  public get a11y_input_ariaLabelledBy(): string {
+    if (this.contentQuestion) {
+      return this.contentQuestion.a11y_input_ariaLabelledBy;
+    }
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaTitleId;
+    }
+    return null;
+  }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;
     var res: any = null;

@@ -153,7 +153,7 @@ export class QuestionTextBase extends Question {
   }
   protected createInputActionsContainer(): ActionContainer {
     const actionBar = new ActionContainer();
-    actionBar.setCssClasses(this.survey.getCss().inputActionBar);
+    actionBar.setCssClasses(this.survey?.getCss().inputActionBar);
     actionBar.actions = this.createInputActions();
     actionBar.registerFunctionOnPropertyValueChanged("isEmpty", () => {
       this._hasVisibleInputActions = actionBar.hasVisibleActions;

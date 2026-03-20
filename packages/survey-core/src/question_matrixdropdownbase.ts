@@ -2529,7 +2529,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
-      var oldCellValue = rowObj[columnName] !== undefined ? rowObj[columnName] : null;
+      var oldCellValue = rowObj[columnName] ?? null;
       var columnValue = null;
       if (!!newRowValue && !isDeletingValue) {
         columnValue = newRowValue[columnName];
@@ -2541,7 +2541,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     } else {
       var oldValue = this.createNewValue(true);
       var oldRowValue = this.getRowValueCore(row, oldValue, true);
-      var oldCellValue = !!oldRowValue ? oldRowValue[columnName] : null;
+      var oldCellValue = oldRowValue?.[columnName] ?? null;
       var combine = this.getNewValueOnRowChanged(
         row,
         columnName,

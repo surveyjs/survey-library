@@ -168,6 +168,12 @@ export class QuestionTextBase extends Question {
     }
     return this._inputActionsContainer;
   }
+  public updateElementCss(reNew?: boolean): void {
+    super.updateElementCss(reNew);
+    if (!!this._inputActionsContainer) {
+      this._inputActionsContainer.setCssClasses(this.survey?.getCss().inputActionBar);
+    }
+  }
 }
 Serializer.addClass(
   "textbase", [],

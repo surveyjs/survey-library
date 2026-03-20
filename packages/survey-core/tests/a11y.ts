@@ -191,5 +191,7 @@ QUnit.test("a11y: aria-labelledby customquestion Bug#11049", (assert) => {
   var survey = new SurveyModel(config);
   var q1 = survey.getQuestionByName("q1");
 
-  assert.equal(q1.a11y_input_ariaLabelledBy, q1.contentQuestion.a11y_input_ariaLabelledBy);
+  assert.equal(q1.ariaTitleId, q1.contentQuestion.ariaTitleId);
+  assert.equal(q1.ariaDescriptionId, q1.contentQuestion.ariaDescriptionId);
+  assert.equal(q1.commentId, q1.contentQuestion.commentId);
 });

@@ -897,14 +897,23 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public get contentQuestion(): Question {
     return this.questionWrapper;
   }
-  public get a11y_input_ariaLabelledBy(): string {
+  public get ariaTitleId(): string {
     if (this.contentQuestion) {
-      return this.contentQuestion.a11y_input_ariaLabelledBy;
+      return this.contentQuestion.ariaTitleId;
     }
-    if (this.hasTitle && !this.parentQuestion) {
-      return this.ariaTitleId;
+    return this.id + "_ariaTitle11";
+  }
+  public get ariaDescriptionId(): string {
+    if (this.contentQuestion) {
+      return this.contentQuestion.ariaDescriptionId;
     }
-    return null;
+    return this.id + "_ariaDescription";
+  }
+  public get commentId(): string {
+    if (this.contentQuestion) {
+      return this.contentQuestion.commentId;
+    }
+    return this.id + "_comment";
   }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;

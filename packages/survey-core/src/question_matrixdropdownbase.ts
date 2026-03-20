@@ -2479,7 +2479,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected onCellValueChanged(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any, oldCellValue?: any): void {
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
-    options.oldValue = oldCellValue !== undefined ? oldCellValue : null;
+    options.oldValue = oldCellValue;
     if (!!this.onCellValueChangedCallback) {
       this.onCellValueChangedCallback(options);
     }
@@ -2529,7 +2529,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
-      var oldCellValue = rowObj[columnName] ?? null;
+      var oldCellValue = rowObj[columnName];
       var columnValue = null;
       if (!!newRowValue && !isDeletingValue) {
         columnValue = newRowValue[columnName];
@@ -2541,7 +2541,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     } else {
       var oldValue = this.createNewValue(true);
       var oldRowValue = this.getRowValueCore(row, oldValue, true);
-      var oldCellValue = oldRowValue?.[columnName] ?? null;
+      var oldCellValue = oldRowValue?.[columnName];
       var combine = this.getNewValueOnRowChanged(
         row,
         columnName,

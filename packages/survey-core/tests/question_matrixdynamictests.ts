@@ -11410,7 +11410,7 @@ QUnit.test("onMatrixCellValueChanged event should have oldValue and value in opt
   assert.equal(changedLog.length, 1, "One change logged");
   assert.equal(changedLog[0].columnName, "col1", "Changed col1");
   assert.equal(changedLog[0].value, 1, "New value is 1");
-  assert.equal(changedLog[0].oldValue, null, "Old value is null for first change");
+  assert.equal(changedLog[0].oldValue, undefined, "Old value is undefined for first change");
 
   // Change col1 value from 1 to 2
   rows[0].cells[0].question.value = 2;
@@ -11435,7 +11435,7 @@ QUnit.test("onMatrixCellValueChanged event should have oldValue and value in opt
   assert.equal(changedLog.length, 5, "Five changes logged");
   assert.equal(changedLog[4].columnName, "col2", "Changed col2");
   assert.equal(changedLog[4].value, "text1", "New text value");
-  assert.equal(changedLog[4].oldValue, null, "Old text value is null");
+  assert.equal(changedLog[4].oldValue, undefined, "Old text value is undefined");
 
   // Change text column value
   rows[0].cells[1].question.value = "text2";

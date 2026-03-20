@@ -238,7 +238,7 @@ Serializer.addClass(
       name: "allowCustomChoices:boolean", default: false,
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
-    { name: "createCustomChoiceText", visible: false, serializationProperty: "locCreateCustomChoiceText" },
+    { name: "createCustomChoiceText", serializationProperty: "locCreateCustomChoiceText", visibleIf: (obj: any): boolean => obj.allowCustomChoices },
     { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

@@ -1,16 +1,27 @@
 <template>
-  <div :class="remainingCharacterCounter">
-    {{ counter.remainingCharacterCounter }}
+  <div :class="data.remainingCharacterCounter">
+    {{ data.counter?.remainingCharacterCounter }}
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useBase } from "@/base";
-import type { CharacterCounter } from "survey-core";
-
+import type { CharacterCounter, ICharacterCounterAction } from "survey-core";
+import { computed } from "vue";
 const props = defineProps<{
-  counter: CharacterCounter;
-  remainingCharacterCounter?: String;
+  item?: ICharacterCounterAction,
+  counter?: CharacterCounter;
+  remainingCharacterCounter?: string;
 }>();
-useBase(() => props.counter);
+const data = computed(() => {
+  if(props.item) {
+    return props.item.data;
+  } else {
+    return {
+      counter: props.counter,
+      remainingCharacterCounter: props.remainingCharacterCounter
+    }
+  }
+})
+useBase(() => data.value.counter as CharacterCounter);
 </script>

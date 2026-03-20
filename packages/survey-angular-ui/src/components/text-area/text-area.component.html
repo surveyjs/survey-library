@@ -1,25 +1,31 @@
 <ng-template #template>
-<textarea
-[readonly]="model.isReadOnlyAttr"
-[disabled]="model.isDisabledAttr"
-[id]="model.id"
-[attr.maxlength]="model.maxLength"
-[attr.cols]="model.cols"
-[attr.rows]="model.rows"
-[attr.placeholder]="model.placeholder"
-[class]="model.className"
-[value]="value"
-(input)="model.onTextAreaInput($event)"
-(keydown)="model.onTextAreaKeyDown($event)"
-(focus)="model.onTextAreaFocus($event)"
-(blur)="model.onTextAreaBlur($event)"
-(change)="model.onTextAreaChange($event)"
-[attr.aria-required]="model.ariaRequired"
-[attr.aria-label]="model.ariaLabel"
-[attr.aria-labelledby]="model.ariaLabelledBy"
-[attr.aria-describedby]="model.ariaDescribedBy"
-[attr.aria-invalid]="model.ariaInvalid"
-[attr.aria-errormessage]="model.ariaErrormessage"
-[style.resize]="model.question.resizeStyle"
-#contentElement></textarea>
+<div [class]="model.getCssClasses().root" (click)="onContainerClick($event)">
+    <textarea
+    [readonly]="model.isReadOnlyAttr"
+    [disabled]="model.isDisabledAttr"
+    [id]="model.id"
+    [attr.maxlength]="model.maxLength"
+    [attr.cols]="model.cols"
+    [attr.rows]="model.rows"
+    [attr.placeholder]="model.placeholder"
+    [class]="model.getCssClasses().control"
+    [value]="value"
+    (input)="model.onTextAreaInput($event)"
+    (keydown)="model.onTextAreaKeyDown($event)"
+    (focus)="model.onTextAreaFocus($event)"
+    (blur)="model.onTextAreaBlur($event)"
+    (change)="model.onTextAreaChange($event)"
+    [attr.aria-required]="model.ariaRequired"
+    [attr.aria-label]="model.ariaLabel"
+    [attr.aria-labelledby]="model.ariaLabelledBy"
+    [attr.aria-describedby]="model.ariaDescribedBy"
+    [attr.aria-invalid]="model.ariaInvalid"
+    [attr.aria-errormessage]="model.ariaErrormessage"
+    [style.resize]="'none'"
+    #contentElement></textarea>
+    <sv-ng-action-bar *ngIf="model.hasVisibleInputActions"  [model]="model.inputActionsContainer"></sv-ng-action-bar>
+    <div *ngIf="model.question.resizeStyle !== 'none'" [class]="model.getCssClasses().grip" #anchorRef>
+      <svg [iconName]="$any(model.getCssClasses().gripIconId)" [size]="'auto'" sv-ng-svg-icon></svg>
+    </div>
+</div>
 </ng-template>

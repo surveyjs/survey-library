@@ -3,7 +3,7 @@ import { RendererFactory, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdown } from "./reactquestion_dropdown";
 import { SurveyQuestionOptionItem } from "./dropdown-item";
-import { SvgIcon } from "./components/svg-icon/svg-icon";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   constructor(props: any) {
@@ -24,7 +24,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
       <div id={this.question.inputId} className={this.question.getControlClass()} disabled>{this.question.readOnlyText}</div>) :
       (<select
         id={this.question.inputId}
-        className={this.question.getControlClass()}
+        className={cssClasses.controlValue}
         ref={(select) => (this.setControl(select))}
         autoComplete={this.question.autocomplete}
         onChange={this.updateValueOnEvent}
@@ -41,26 +41,16 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
       </select>);
     return (
       <div className={cssClasses.selectWrapper}>
-        {selectElement}
-        {this.createChevronButton()}
+        <div className={this.question.getControlClass()}>
+          {selectElement}
+          {this.renderEditorButtons()}
+        </div>
       </div>
     );
   }
 
-  createChevronButton(): React.JSX.Element | null {
-    if (!this.question.cssClasses.chevronButtonIconId) return null;
-
-    return (
-      <div className={this.question.cssClasses.chevronButton}
-        aria-hidden="true"
-        onPointerDown={this.chevronPointerDown}>
-        <SvgIcon
-          className={this.question.cssClasses.chevronButtonSvg}
-          iconName={this.question.cssClasses.chevronButtonIconId}
-          size={"auto"}
-        ></SvgIcon>
-      </div>
-    );
+  protected renderEditorButtons(): React.JSX.Element | null {
+    return <SurveyActionBar model={this.question.inputActionBar}></SurveyActionBar>;
   }
 }
 

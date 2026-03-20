@@ -1,23 +1,9 @@
 @use "../variables.scss" as *;
 
-.sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
-  height: auto;
-  // padding: calcSize(0.5);
-  // padding-inline-end: calcSize(6); //padding-right
-  padding-inline-start: calcSize(0.5); //padding-left
-
-  .sd-tagbox__value {
-    padding: 0;
-  }
-}
-
-.sd-tagbox {
-  &.sd-input--disabled,
-  &.sd-input--readonly,
-  &.sd-input--preview {
-    .sd-tagbox__value {
-      white-space: normal;
-    }
+.sd-tagbox--readonly,
+.sd-tagbox--preview {
+  .sd-tagbox__input {
+    white-space: normal;
   }
 }
 
@@ -34,10 +20,8 @@
   margin: auto 0;
 }
 
-.sd-input.sd-tagbox:focus-within {
-  box-shadow:
-    $shadow-inner-reset,
-    $shadow-focused;
+.sd-formbox.sd-tagbox:focus-within {
+  box-shadow: $shadow-inner-reset, $shadow-focused;
 }
 
 .sv-tagbox__item {
@@ -104,14 +88,19 @@
   fill: $primary-foreground;
 }
 
-.sd-tagbox__value.sd-dropdown__value {
+.sd-tagbox:where(:not(.sd-tagbox--empty, .sd-tagbox--readonly)) {
+  .sd-tagbox__input {
+    padding: 0;
+  }
+}
+
+.sd-tagbox__input.sd-dropdown__input {
   position: relative;
   gap: calcSize(0.5);
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
   align-content: center;
-  padding-inline: unset;
   margin-inline: unset;
   margin-block: unset;
 }
@@ -144,13 +133,14 @@
     background: linear-gradient(90deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
   }
 }
-
 .sd-tagbox.sd-tagbox--empty {
+  .sd-tagbox__input {
+    align-content: normal;
+  }
   .sd-tagbox__hint,
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
     width: 100%;
-    height: 100%;
   }
 }
 
@@ -158,6 +148,7 @@
   display: flex;
   flex-grow: 1;
   max-width: 100%;
+  overflow: hidden;
 }
 
 .sd-tagbox__hint-suffix-wrapper {

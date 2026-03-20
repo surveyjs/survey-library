@@ -4,9 +4,16 @@ import { property } from "./decorators";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
-import { Base } from "./base";
-import { ISurveyImpl } from "./base-interfaces";
+import { Base, ComputedUpdater } from "./base";
+import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
 
+export interface ICharacterCounterAction extends Action {
+  data: {
+      counter: CharacterCounter,
+      remainingCharacterCounter: string,
+   };
+}
 export class CharacterCounter extends Base {
   @property() remainingCharacterCounter: string;
   public updateRemainingCharacterCounter(newValue: string, maxLength: number): void {
@@ -110,16 +117,16 @@ export class QuestionTextBase extends Question {
     return val;
   }
   protected getValueSeparator(): string { return ", "; }
-  protected getControlCssClassBuilder(): CssClassBuilder {
+  public getRootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
-      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
-      .append(this.cssClasses.controlPreview, this.isPreviewStyle);
+      .append(this.cssClasses.rootDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.rootReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.rootPreview, this.isPreviewStyle).toString();
   }
   public getControlClass(): string {
-    return this.getControlCssClassBuilder().toString();
+    return this.cssClasses.control;
   }
 
   //a11y
@@ -127,8 +134,46 @@ export class QuestionTextBase extends Question {
     return true;
   }
   // EO a11y
-
   public onKeyDownPreprocess: (event: any) => void;
+  private _inputActionsContainer: ActionContainer;
+  protected createInputActions(): Array<Action> {
+    const characterCounterAction: ICharacterCounterAction = new Action({
+      component: "sv-character-counter",
+      visible: new ComputedUpdater(() => !!this.getMaxLength()),
+      data: {
+        counter: this.characterCounter,
+        remainingCharacterCounter: this.cssClasses.characterCounter
+      }
+    });
+    return [characterCounterAction];
+  }
+  @property() _hasVisibleInputActions: boolean;
+  public get hasVisibleInputActions(): boolean {
+    return this.inputActionsContainer && this._hasVisibleInputActions;
+  }
+  protected createInputActionsContainer(): ActionContainer {
+    const actionBar = new ActionContainer();
+    actionBar.setCssClasses(this.survey?.getCss().inputActionBar);
+    actionBar.actions = this.createInputActions();
+    actionBar.registerFunctionOnPropertyValueChanged("isEmpty", () => {
+      this._hasVisibleInputActions = actionBar.hasVisibleActions;
+    });
+    actionBar.flushUpdates();
+    this._hasVisibleInputActions = actionBar.hasVisibleActions;
+    return actionBar;
+  }
+  public get inputActionsContainer(): ActionContainer {
+    if (!this._inputActionsContainer) {
+      this._inputActionsContainer = this.createInputActionsContainer();
+    }
+    return this._inputActionsContainer;
+  }
+  public updateElementCss(reNew?: boolean): void {
+    super.updateElementCss(reNew);
+    if (!!this._inputActionsContainer) {
+      this._inputActionsContainer.setCssClasses(this.survey?.getCss().inputActionBar);
+    }
+  }
 }
 Serializer.addClass(
   "textbase", [],

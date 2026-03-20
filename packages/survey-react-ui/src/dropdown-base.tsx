@@ -119,18 +119,20 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-activedescendant={dropdownListModel.ariaQuestionActivedescendant}
       ref={(div) => (this.setControl(div))}
     >
-      {dropdownListModel.showHintPrefix ?
-        (<div className={this.question.cssClasses.hintPrefix}>
-          <span>{dropdownListModel.hintStringPrefix}</span>
-        </div>) : null}
       <div className={this.question.cssClasses.controlValue}>
-        {dropdownListModel.showHintString ?
-          (<div className={this.question.cssClasses.hintSuffix}>
-            <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{dropdownListModel.inputStringRendered}</span>
-            <span>{dropdownListModel.hintStringSuffix}</span>
+        {dropdownListModel.showHintPrefix ?
+          (<div className={this.question.cssClasses.hintPrefix}>
+            <span>{dropdownListModel.hintStringPrefix}</span>
           </div>) : null}
-        {valueElement}
-        {dropdownListModel.needRenderInput ? this.renderFilterInput() : null}
+        <div className={this.question.cssClasses.inputPrefixWrapper}>
+          {dropdownListModel.showHintString ?
+            (<div className={this.question.cssClasses.hintSuffix}>
+              <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{dropdownListModel.inputStringRendered}</span>
+              <span>{dropdownListModel.hintStringSuffix}</span>
+            </div>) : null}
+          {valueElement}
+          {dropdownListModel.needRenderInput ? this.renderFilterInput() : null}
+        </div>
       </div>
       {this.renderEditorButtons()}
     </div>);

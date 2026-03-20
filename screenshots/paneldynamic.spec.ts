@@ -377,7 +377,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await initSurvey(page, framework, json);
 
-      await page.locator(".sd-input.sd-text").first().fill("abc");
+      await page.locator(".sd-formbox.sd-text .sd-formbox__input").first().fill("abc");
       await page.click(".sd-paneldynamic__remove-btn");
       await page.locator(".sv-popup--confirm .sv-popup__body-content").waitFor({ state: "visible" });
       await compareScreenshot(page, page.locator(".sv-popup--confirm .sv-popup__body-content"), "paneldynamic-confirm-dialog.png");

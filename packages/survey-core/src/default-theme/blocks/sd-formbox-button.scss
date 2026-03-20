@@ -1,0 +1,47 @@
+@use "../variables.scss" as *;
+@use "../mixins.scss" as mixins;
+
+.sd-formbox-button {
+    @include mixins.hideButtonStyles;
+    display: flex;
+    padding: var(--sjs2-spacing-x100, 8px);
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    border-radius: var(--sjs2-radius-component-formbox-item, 4px);
+    background: var(--sjs2-color-component-formbox-action-default-bg, rgba(95, 94, 97, 0));
+    cursor: pointer;
+}
+.sd-formbox-button:where(:hover) {
+    background: var(--sjs2-color-component-formbox-action-hovered-bg, rgba(95, 94, 97, 0.1));
+    transition: background $transition-duration;
+    .sd-formbox-button__icon {
+        fill: var(--sjs2-color-component-formbox-action-hovered-icon, #424146);
+    }
+}
+
+.sd-formbox-button--pressed {
+    background: var(--sjs2-color-component-formbox-action-pressed-bg, rgba(95, 94, 97, 0.1));
+    transition-property: opacity, background-color;
+    transition-duration: $transition-duration;
+    .sd-formbox-button__icon {
+        fill: var(--sjs2-color-component-formbox-action-pressed-icon, #424146);
+    }
+}
+.sd-formbox-button:where(:disabled) {
+    cursor: default;
+    opacity: var(--sjs2-opacity-disabled, 0.25);
+    background: var(--sjs2-color-component-formbox-action-disabled-bg, rgba(95, 94, 97, 0));
+    .sd-formbox-button__icon {
+        fill: var(--sjs2-color-component-formbox-action-disabled-icon, rgba(28, 27, 32, 0.4));
+    }
+}
+
+.sd-formbox-button__icon {
+    width: multiply(1.5, var(--sjs2-typography-font-size-component-input-content, 16px));
+    height: multiply(1.5, var(--sjs2-typography-font-size-component-input-content, 16px));
+    fill: var(--sjs2-color-component-formbox-action-default-icon, #424146);
+    use {
+        pointer-events: none;
+    }
+}

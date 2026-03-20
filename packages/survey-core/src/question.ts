@@ -438,7 +438,14 @@ export class Question extends SurveyElement<Question>
       question: this,
       id: () => this.commentId,
       propertyNames: ["comment"],
-      className: () => this.cssClasses.comment,
+      cssClasses: () => {
+        return {
+          root: this.cssClasses.comment,
+          control: this.cssClasses.commentControl,
+          grip: this.cssClasses.commentGrip,
+          gripIconId: this.cssClasses.commentGripIconId
+        };
+      },
       placeholder: () => this.renderedCommentPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,

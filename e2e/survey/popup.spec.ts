@@ -167,7 +167,7 @@ frameworks.forEach((framework) => {
       await expandCollapseButton.click();
       await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(0);
 
-      await page.locator(".sd-dropdown__value").first().click();
+      await page.locator(".sd-dropdown__input").first().click();
       await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(1);
 
       await page.evaluate(() => {

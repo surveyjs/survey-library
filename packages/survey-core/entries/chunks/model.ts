@@ -244,7 +244,7 @@ export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
 export { QuestionExpressionModel } from "../../src/question_expression";
-export { QuestionTextBase, CharacterCounter } from "../../src/question_textbase";
+export { QuestionTextBase, CharacterCounter, ICharacterCounterAction } from "../../src/question_textbase";
 export { QuestionTextModel } from "../../src/question_text";
 export { QuestionBooleanModel } from "../../src/question_boolean";
 export {
@@ -329,6 +329,7 @@ export { InputMaskCurrency } from "../../src/mask/mask_currency";
 export * from "../../src/utils/cssClassBuilder";
 export * from "../../src/utils/text-area";
 export * from "../../src/utils/shadow-effects";
+export * from "../../src/utils/resize-manager";
 
 export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/defaultCss";
 

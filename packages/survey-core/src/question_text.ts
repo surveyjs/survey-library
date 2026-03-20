@@ -641,12 +641,6 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    const maxLength = this.getMaxLength();
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99);
-  }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
   }
@@ -699,8 +693,11 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateDateValidationMessage(event: any): void {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
+  private isClickBlocked() {
+    return this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1;
+  }
   public readOnlyBlocker = (event: any) => {
-    if (this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1) {
+    if (this.isClickBlocked()) {
       event.preventDefault();
       return true;
     }
@@ -750,6 +747,11 @@ export class QuestionTextModel extends QuestionTextBase {
   public beforeDestroyQuestionElement(el: HTMLElement) {
     this.deleteMaskAdapter();
     this.input = undefined;
+  }
+  public onContainerClick(event: Event) {
+    if (event.target == event.currentTarget && !this.isClickBlocked()) {
+      this.input?.focus();
+    }
   }
 }
 

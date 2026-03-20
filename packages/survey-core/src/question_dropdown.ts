@@ -10,6 +10,9 @@ import { settings } from "./settings";
 import { updateListCssValues } from "./utils/dom-utils";
 import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
+import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 
 /**
  * A class that describes the Dropdown question type.
@@ -245,6 +248,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
+      .append(this.cssClasses.controlSelect, this.renderAs == "select")
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
@@ -340,6 +344,32 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+  private inputActionBarValue: ActionContainer;
+  public get inputActionBar() {
+    if (!this.inputActionBarValue) {
+      this.inputActionBarValue = new ActionContainer();
+      this.inputActionBarValue.setCssClasses(this.survey.getCss().inputActionBar, false);
+
+      const chevronButton = new Action({
+        id: "chevron",
+        css: "sd-editor-chevron-button",
+        iconName: this.cssClasses.chevronButtonIconId || "icon-chevron",
+        iconSize: "auto",
+        showTitle: false,
+        locTitle: this.locSelectCaption,
+        disableTabStop: true,
+        enabled: new ComputedUpdater(() => {
+          return !this.isInputReadOnly;
+        }),
+        visible: new ComputedUpdater(() => {
+          return !this.isPreviewStyle;
+        }),
+        action: () => {}
+      });
+      this.inputActionBarValue.addAction(chevronButton);
+    }
+    return this.inputActionBarValue;
   }
 }
 Serializer.addClass(

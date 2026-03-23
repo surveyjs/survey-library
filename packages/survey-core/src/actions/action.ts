@@ -4,7 +4,7 @@ import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { ActionBarCssClasses, defaultActionBarCss } from "./container";
+import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";

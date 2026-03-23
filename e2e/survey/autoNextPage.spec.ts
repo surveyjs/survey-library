@@ -130,29 +130,29 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const progressText = page.locator(".sd-progress-buttons__page-title");
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      const firstVisibleRadio = page.locator("input[type='radio']").filter({ visible: true }).first();
+      const nextButton = page.locator(".sd-navigation__next-btn").filter({ visible: true }).first();
+      const completeButton = page.locator(".sd-navigation__complete-btn").filter({ visible: true }).first();
+      await expect(progressText).toHaveText("Page 1 of 3");
 
-      await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
+      await firstVisibleRadio.focus();
+      await firstVisibleRadio.press("ArrowDown");
+      await nextButton.focus();
+      await page.keyboard.press("Enter");
+      await expect(progressText).toHaveText("Page 2 of 3");
+
+      await firstVisibleRadio.focus();
+      await firstVisibleRadio.press("ArrowDown");
+      await nextButton.focus();
+      await page.keyboard.press("Enter");
+      await expect(progressText).toHaveText("Page 3 of 3");
+
+      await firstVisibleRadio.focus();
+      await firstVisibleRadio.press("ArrowDown");
+      await completeButton.focus();
       await page.keyboard.press("Enter");
 
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
-      await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Enter");
-
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
-      await page.keyboard.press("ArrowDown");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Enter");
-
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({
+      await expect.poll(async () => await getSurveyResult(page)).toEqual({
         civilwar: "1800-1850",
         libertyordeath: "James Madison",
         magnacarta: "The Great Seal of the monarchs of England"

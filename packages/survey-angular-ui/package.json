@@ -94,8 +94,7 @@
     "webpack-dev-middleware": "5.3.4",
     "loader-utils": "2.0.4",
     "tar": "6.2.1",
-    "ip": "2.0.1",
-    "postcss": "8.4.49"
+    "ip": "2.0.1"
   },
   "scripts": {
     "build": "ng build && node ./update-version.js",

@@ -11380,3 +11380,66 @@ QUnit.test("Matrix dynamic: cell value changes must update matrix.value when det
   // BUG: matrix.value[0].title is "name1" (stale detail panel value) instead of "Name1"
   assert.equal(matrix.value[0].title, "Name1", "matrix.value is updated after cell value change with detail panel open");
 });
+QUnit.test("onMatrixCellValueChanged event should have oldValue and value in options", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "dropdown", choices: [1, 2, 3] },
+          { name: "col2", cellType: "text" }
+        ],
+        rows: ["Row1", "Row2"]
+      }
+    ]
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  var changedLog: Array<{ columnName: string, value: any, oldValue: any }> = [];
+  survey.onMatrixCellValueChanged.add(function (survey, options) {
+    changedLog.push({
+      columnName: options.columnName,
+      value: options.value,
+      oldValue: options.oldValue
+    });
+  });
+  var rows = matrix.visibleRows;
+
+  // Set initial value for col1 in Row1
+  rows[0].cells[0].question.value = 1;
+  assert.equal(changedLog.length, 1, "One change logged");
+  assert.equal(changedLog[0].columnName, "col1", "Changed col1");
+  assert.equal(changedLog[0].value, 1, "New value is 1");
+  assert.equal(changedLog[0].oldValue, undefined, "Old value is undefined for first change");
+
+  // Change col1 value from 1 to 2
+  rows[0].cells[0].question.value = 2;
+  assert.equal(changedLog.length, 2, "Two changes logged");
+  assert.equal(changedLog[1].value, 2, "New value is 2");
+  assert.equal(changedLog[1].oldValue, 1, "Old value is 1");
+
+  // Change col1 value from 2 to 3
+  rows[0].cells[0].question.value = 3;
+  assert.equal(changedLog.length, 3, "Three changes logged");
+  assert.equal(changedLog[2].value, 3, "New value is 3");
+  assert.equal(changedLog[2].oldValue, 2, "Old value is 2");
+
+  // Clear value (set to null)
+  rows[0].cells[0].question.clearValue();
+  assert.equal(changedLog.length, 4, "Four changes logged");
+  assert.equal(changedLog[3].value, null, "New value is null");
+  assert.equal(changedLog[3].oldValue, 3, "Old value is 3");
+
+  // Set value for a text column
+  rows[0].cells[1].question.value = "text1";
+  assert.equal(changedLog.length, 5, "Five changes logged");
+  assert.equal(changedLog[4].columnName, "col2", "Changed col2");
+  assert.equal(changedLog[4].value, "text1", "New text value");
+  assert.equal(changedLog[4].oldValue, undefined, "Old text value is undefined");
+
+  // Change text column value
+  rows[0].cells[1].question.value = "text2";
+  assert.equal(changedLog.length, 6, "Six changes logged");
+  assert.equal(changedLog[5].value, "text2", "New text value is text2");
+  assert.equal(changedLog[5].oldValue, "text1", "Old text value is text1");
+});

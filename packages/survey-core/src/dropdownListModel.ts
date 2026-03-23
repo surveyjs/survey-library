@@ -163,7 +163,7 @@ export class DropdownListModel extends Base {
 
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
-    this.editorButtons.setCssClasses(this.question.survey.getCss().inputActionBar, false);
+    this.editorButtons.setCssClasses(this.question.survey?.getCss().inputActionBar, false);
 
     this.chevronButton = new Action({
       id: "chevron",

@@ -11444,6 +11444,106 @@ QUnit.test("question.getPlainData - optional survey values", function (assert) {
   }, "Value");
 });
 
+QUnit.test("question.getPlainData - matrix includeEmpty, #11052", function (assert) {
+  var question = new QuestionMatrixModel("q1");
+  new JsonObject().toObject(
+    {
+      columns: [
+        { value: "Column 1" },
+        { value: "Column 2" },
+        { value: "Column 3" },
+      ],
+      rows: [{ value: "Row 1", text: "Row 1 title" }, "Row 2", "Row 3"],
+    },
+    question
+  );
+  question.value = { "Row 1": "Column 1" };
+
+  var plainData = question.getPlainData({ includeEmpty: true });
+  assert.equal(plainData.isNode, true);
+  assert.equal(plainData.data.length, 3, "All 3 rows are included with includeEmpty: true");
+  assert.equal(plainData.data[0].name, "Row 1");
+  assert.equal(plainData.data[0].title, "Row 1 title");
+  assert.equal(plainData.data[0].value, "Column 1");
+  assert.equal(plainData.data[0].displayValue, "Column 1");
+  assert.equal(plainData.data[1].name, "Row 2");
+  assert.equal(plainData.data[1].title, "Row 2");
+  assert.equal(plainData.data[1].value, undefined, "Empty row value is undefined");
+  assert.equal(plainData.data[2].name, "Row 3");
+  assert.equal(plainData.data[2].title, "Row 3");
+  assert.equal(plainData.data[2].value, undefined, "Empty row value is undefined");
+});
+
+QUnit.test("question.getPlainData - matrixdropdown includeEmpty, #11052", function (assert) {
+  var question = new QuestionMatrixDropdownModel("q1");
+  new JsonObject().toObject(
+    {
+      columns: [
+        { name: "Column 1" },
+        { name: "Column 2" },
+        { name: "Column 3" },
+      ],
+      choices: [1, 2, 3, 4, 5],
+      rows: [{ value: "Row 1", text: "Row 1 Title" }, "Row 2"],
+    },
+    question
+  );
+  question.value = {
+    "Row 1": { "Column 1": 1 },
+  };
+
+  var plainData = question.getPlainData({ includeEmpty: true });
+  assert.equal(plainData.isNode, true);
+  assert.equal(plainData.data.length, 2, "Both rows are included");
+  assert.equal(plainData.data[0].name, "Row 1");
+  assert.equal(plainData.data[0].title, "Row 1 Title");
+  assert.equal(plainData.data[0].data.length, 3, "All 3 columns in Row 1 with includeEmpty");
+  assert.equal(plainData.data[0].data[0].name, "Column 1");
+  assert.equal(plainData.data[0].data[0].value, 1, "Column 1 has value");
+  assert.equal(plainData.data[0].data[1].name, "Column 2");
+  assert.equal(plainData.data[0].data[1].value, undefined, "Column 2 is empty");
+  assert.equal(plainData.data[0].data[2].name, "Column 3");
+  assert.equal(plainData.data[0].data[2].value, undefined, "Column 3 is empty");
+  assert.equal(plainData.data[1].name, "Row 2");
+  assert.equal(plainData.data[1].data.length, 3, "All 3 columns in Row 2 with includeEmpty");
+  assert.equal(plainData.data[1].data[0].name, "Column 1");
+  assert.equal(plainData.data[1].data[0].value, undefined, "Row 2 Column 1 is empty");
+  assert.equal(plainData.data[1].data[1].name, "Column 2");
+  assert.equal(plainData.data[1].data[1].value, undefined, "Row 2 Column 2 is empty");
+  assert.equal(plainData.data[1].data[2].name, "Column 3");
+  assert.equal(plainData.data[1].data[2].value, undefined, "Row 2 Column 3 is empty");
+});
+
+QUnit.test("question.getPlainData - matrixdropdown includeEmpty false, #11052", function (assert) {
+  var question = new QuestionMatrixDropdownModel("q1");
+  new JsonObject().toObject(
+    {
+      columns: [
+        { name: "Column 1" },
+        { name: "Column 2" },
+        { name: "Column 3" },
+      ],
+      choices: [1, 2, 3, 4, 5],
+      rows: [{ value: "Row 1", text: "Row 1 Title" }, "Row 2"],
+    },
+    question
+  );
+  question.value = {
+    "Row 1": { "Column 1": 1 },
+  };
+
+  var plainData = question.getPlainData({ includeEmpty: false });
+  assert.equal(plainData.isNode, true);
+  assert.equal(plainData.data.length, 2, "Both rows are included");
+  assert.equal(plainData.data[0].name, "Row 1");
+  assert.equal(plainData.data[0].title, "Row 1 Title");
+  assert.equal(plainData.data[0].data.length, 1, "Only 1 column with value in Row 1");
+  assert.equal(plainData.data[0].data[0].name, "Column 1");
+  assert.equal(plainData.data[0].data[0].value, 1, "Column 1 has value");
+  assert.equal(plainData.data[1].name, "Row 2");
+  assert.equal(plainData.data[1].data.length, 0, "No columns with values in Row 2");
+});
+
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({
     elements: [

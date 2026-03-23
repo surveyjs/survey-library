@@ -909,7 +909,7 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
 
 }
 
-export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent { }
+export interface MatrixCellValueChangedEvent extends MatrixCellValueChangingEvent { }
 export interface MatrixCellValueChangingEvent extends MatrixCellValueBaseEvent {
   /**
    * A previous cell value.

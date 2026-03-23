@@ -33,6 +33,23 @@ QUnit.test("parsingMask with fixed character", function(assert) {
   assert.equal(result[3].value, "9");
 });
 
+QUnit.test("parsingMask non-definition characters do not require escape", function(assert) {
+  let result = getLiterals("+1(999)-999-99-99");
+  assert.equal(result.length, 17);
+  assert.equal(result[0].type, "const", "+ is const (does not match any definition)");
+  assert.equal(result[0].value, "+");
+  assert.equal(result[1].type, "fixed", "1 is auto-fixed (matches digit definition)");
+  assert.equal(result[1].value, "1");
+  assert.equal(result[2].type, "const", "( is const");
+  assert.equal(result[2].value, "(");
+  assert.equal(result[3].type, "regex");
+  assert.equal(result[3].value, "9");
+
+  result = getLiterals("+\\1(999)-999-99-99");
+  assert.equal(result[1].type, "fixed", "escaped 1 is also fixed");
+  assert.equal(result[1].value, "1");
+});
+
 QUnit.test("get masked valid text matchWholeMask = true", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   assert.equal(getMaskedValueByPattern("", pattern, true), "+*(***)-***-**-**");
@@ -71,7 +88,7 @@ QUnit.test("get masked valid text with fixed character", function(assert) {
 
 QUnit.test("get masked valid text with fixed character in the middle string", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
-  const customMask = "99+\\1(999)-999";
+  const customMask = "99+1(999)-999";
   assert.equal(getMaskedValueByPattern("", customMask, false), "");
   assert.equal(getMaskedValueByPattern("1", customMask, false), "1");
   assert.equal(getMaskedValueByPattern("12", customMask, false), "12+1(");
@@ -152,7 +169,7 @@ QUnit.test("get unmasked invalid value, matchWholeMask is false", function(asser
 QUnit.test("pattern processInput: insert characters", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "+\\1(999)-999-99-99";
+  maskInstance.pattern = "+1(999)-999-99-99";
   let result = maskInstance.processInput({ insertedChars: "3", selectionStart: 3, selectionEnd: 3, prevValue: "+1(***)-***-**-**", inputDirection: "forward" });
   assert.equal(result.value, "+1(3**)-***-**-**", "type #1");
   assert.equal(result.caretPosition, 4, "type #1");
@@ -190,7 +207,7 @@ QUnit.test("pattern processInput: insert characters", function(assert) {
 QUnit.test("pattern processInput: insert characters into beginning string", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "+\\1(999)-999-99-99";
+  maskInstance.pattern = "+1(999)-999-99-99";
   let result = maskInstance.processInput({ insertedChars: "1", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**", inputDirection: "forward" });
   assert.equal(result.value, "+1(***)-***-**-**", "type #1");
   assert.equal(result.caretPosition, 3, "type #1");
@@ -216,7 +233,7 @@ QUnit.test("pattern processInput: insert characters into beginning string", func
 QUnit.test("pattern processInput: insert characters into middle string", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "99+\\1(999)-999";
+  maskInstance.pattern = "99+1(999)-999";
   let result = maskInstance.processInput({ insertedChars: "1", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***", inputDirection: "forward" });
   assert.equal(result.value, "56+1(***)-***", "type #1");
   assert.equal(result.caretPosition, 5, "type #1");
@@ -251,7 +268,7 @@ QUnit.test("pattern processInput: insert characters into middle string", functio
 QUnit.test("pattern processInput: delete characters", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "+\\1(999)-999-99-99";
+  maskInstance.pattern = "+1(999)-999-99-99";
   let result = maskInstance.processInput({ prevValue: "+1(34*)-***-**-**", selectionStart: 4, selectionEnd: 5, insertedChars: null, inputDirection: "forward" });
   assert.equal(result.value, "+1(3**)-***-**-**", "delete 4");
   assert.equal(result.caretPosition, 4, "delete 4");
@@ -285,7 +302,7 @@ QUnit.test("pattern processInput: delete characters", function(assert) {
 QUnit.test("pattern processInput: delete characters by backspace", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "+\\1(999)-999-99-99";
+  maskInstance.pattern = "+1(999)-999-99-99";
   let result = maskInstance.processInput({ prevValue: "+1(34*)-***-**-**", selectionStart: 4, selectionEnd: 5, insertedChars: null, inputDirection: "backward" });
   assert.equal(result.value, "+1(3**)-***-**-**", "delete 4");
   assert.equal(result.caretPosition, 4, "delete 4");
@@ -328,7 +345,7 @@ QUnit.test("pattern processInput: delete characters by backspace", function(asse
 QUnit.test("pattern processInput: cut characters", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "+\\1(999)-999-99-99";
+  maskInstance.pattern = "+1(999)-999-99-99";
   let result = maskInstance.processInput({ prevValue: "+1(123)-456-78-97", selectionStart: 9, selectionEnd: 14, insertedChars: null, inputDirection: "forward" });
   assert.equal(result.value, "+1(123)-497-**-**", "cut #1");
   assert.equal(result.caretPosition, 9, "cut #1");
@@ -355,7 +372,7 @@ QUnit.test("pattern processInput: cut characters", function(assert) {
 QUnit.test("pattern processInput: cut characters into middle string", function(assert) {
   settings.maskSettings.patternPlaceholderChar = "*";
   const maskInstance = new InputMaskPattern();
-  maskInstance.pattern = "99+\\1(999)-999";
+  maskInstance.pattern = "99+1(999)-999";
   let result = maskInstance.processInput({ prevValue: "56+1(789)-123", selectionStart: 1, selectionEnd: 6, insertedChars: "2+14", inputDirection: "forward" });
   assert.equal(result.value, "52+1(489)-123", "cut #1");
   assert.equal(result.caretPosition, 6, "cut #1");

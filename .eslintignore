@@ -10,3 +10,4 @@ examples/
 examples_test/
 .gitignore
 index.js
+packages/survey-core/tests/bundle/*

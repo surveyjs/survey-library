@@ -364,6 +364,9 @@ export class Question extends SurveyElement<Question>
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "validators") {
+      this.resetValidationDependencies();
+    }
     const updateQuestionCssProps = ["readOnly", "hasVisibleErrors", "containsErrors"];
     if (updateQuestionCssProps.indexOf(name) > -1) {
       this.updateQuestionCss();
@@ -1606,8 +1609,10 @@ export class Question extends SurveyElement<Question>
       } else {
         this.expandAllParents();
         const scrollOptions: ScrollIntoViewOptions = (this.survey as SurveyModel)["isSmoothScrollEnabled"] ? { behavior: "smooth" } : undefined;
-        this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible, scrollOptions, undefined, () => {
-          this.focusInputElement(onError);
+        this.survey.scrollElementToTop({
+          element: this, question: this, id: this.id,
+          scrollIfVisible, scrollIntoViewOptions: scrollOptions,
+          onScolledCallback: () => { this.focusInputElement(onError); }
         });
       }
     }
@@ -2396,6 +2401,9 @@ export class Question extends SurveyElement<Question>
   public get validators(): Array<SurveyValidator> {
     return this.getArrayPropertyValue("validators", (validator: any) => {
       validator.owner = this;
+      this.resetValidationDependencies();
+    }, (validator: any) => {
+      this.resetValidationDependencies();
     });
   }
   public set validators(val: Array<SurveyValidator>) {
@@ -2641,9 +2649,6 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     }
     this.isOldAnswered = undefined;
-    if (this.parent) {
-      this.parent.onQuestionValueChanged(this);
-    }
     if (this.survey) {
       this.survey.questionValueChanged(this, oldValue);
     }
@@ -2715,8 +2720,16 @@ export class Question extends SurveyElement<Question>
   }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
+    if (!this.isUpdatingValueFromSurvey && this.survey) {
+      newValue = this.survey.questionValueChanging(this, newValue, true);
+    }
+    if (this.questionComment === newValue) return;
+    const oldValue = this.questionComment;
     this.questionComment = newValue;
     this.setCommentIntoData(newValue);
+    if (!this.isUpdatingValueFromSurvey && this.survey) {
+      this.survey.questionValueChanged(this, oldValue, true);
+    }
   }
   protected setCommentIntoData(newValue: string): void {
     if (this.data != null) {
@@ -2731,13 +2744,13 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(super.getValidName(name));
   }
   //IQuestion
-  private isUpdateingValueFromSurvey: boolean;
+  protected isUpdatingValueFromSurvey: boolean;
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     newValue = this.valueFromDataCore(newValue);
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
-    this.isUpdateingValueFromSurvey = true;
+    this.isUpdatingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
         this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
@@ -2751,11 +2764,11 @@ export class Question extends SurveyElement<Question>
         this.updateBindingsOnClearFromSurveyCore();
       }
     }
-    this.isUpdateingValueFromSurvey = false;
+    this.isUpdatingValueFromSurvey = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }
-  protected canUpdateBindings(): boolean { return !this.isUpdateingValueFromSurvey; }
+  protected canUpdateBindings(): boolean { return !this.isUpdatingValueFromSurvey; }
   private updateBindingsOnClearFromSurveyCore(): void {
     const surveyData = this.data;
     if (surveyData && !this.isBindingEmpty()) {
@@ -2849,7 +2862,9 @@ export class Question extends SurveyElement<Question>
     this.errors = [];
   }
   public clearUnusedValues(): void { }
-  onAnyValueChanged(name: string, questionName: string): void { }
+  onAnyValueChanged(name: string, questionName: string): void {
+    this.validateOnAnyQuestionValueChanged(name, questionName);
+  }
   checkBindings(valueName: string, value: any): void {
     if (this.bindings.isEmpty() || !this.data) return;
     var props = this.bindings.getPropertiesByValueName(valueName);
@@ -3046,6 +3061,53 @@ export class Question extends SurveyElement<Question>
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].resetDependedQuestion();
     }
+  }
+  private getValidatorVariableNames(): Array<string> {
+    const res: Array<string> = [];
+    const validators = this.getPropertyValue("validators");
+    if (!Array.isArray(validators) || validators.length === 0) return res;
+    const ownValueName = this.getValueName();
+    const panelSelf = settings.expressionVariables.panel + "." + ownValueName;
+    const rowSelf = settings.expressionVariables.row + "." + ownValueName;
+    for (let i = 0; i < validators.length; i++) {
+      const v = validators[i];
+      if (v.getType() === "expressionvalidator" && !!(v as any).expression) {
+        const runner = new ExpressionRunner((v as any).expression);
+        const vars = runner.getVariables();
+        for (let j = 0; j < vars.length; j++) {
+          const varName = vars[j];
+          if (varName !== ownValueName && varName !== panelSelf && varName !== rowSelf && res.indexOf(varName) < 0) {
+            res.push(varName);
+          }
+        }
+      }
+    }
+    return res;
+  }
+  private validationDependentNames: Array<string>;
+  private getValidationDependentNames(): Array<string> {
+    if (!this.validationDependentNames) {
+      this.validationDependentNames = this.getValidatorVariableNames();
+    }
+    return this.validationDependentNames;
+  }
+  private validateOnAnyQuestionValueChanged(name: string, questionName: string): void {
+    if (!this.survey) return;
+    const deps = this.getValidationDependentNames();
+    if (deps.length === 0) return;
+    const prefix = name + ".";
+    if (deps.indexOf(name) < 0 && !deps.some(d => d.indexOf(prefix) === 0)) return;
+    let hasToValidate = this.getAllErrors().length > 0;
+    if (!hasToValidate && this.validationCallbacks.isValidateOnValueChanged) {
+      const changedQuestion = <Question>this.data.findQuestionByName(questionName);
+      hasToValidate = !changedQuestion || changedQuestion.getAllErrors().length == 0;
+    }
+    if (hasToValidate) {
+      this.validate(true, false, true);
+    }
+  }
+  public resetValidationDependencies(): void {
+    this.validationDependentNames = undefined;
   }
 
   //a11y

@@ -1766,7 +1766,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.cachedValueForUrlRequests = this.value;
     }
     if (!!newComment) {
+      this.isUpdatingValueFromSurvey = true;
       this.setNewComment(newComment);
+      this.isUpdatingValueFromSurvey = false;
     }
     this.updateValueForPanels(clearData, false);
   }

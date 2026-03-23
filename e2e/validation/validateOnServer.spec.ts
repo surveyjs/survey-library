@@ -52,11 +52,22 @@ frameworks.forEach((framework) => {
       let surveyResult;
 
       await page.locator("input[type=\"text\"]").pressSequentially("wombatland");
+      const firstValidationResponse = page.waitForResponse((response) => {
+        return response.url().includes("/test-resources/countriesMock.json") && response.status() === 200;
+      });
       await page.locator("input[value=\"Complete\"]").click();
-      await getErrorSpan.waitFor({ state: "visible", timeout: 1000 });
+      await firstValidationResponse;
+      await expect(getErrorSpan).toBeVisible({ timeout: 5000 });
       await getErrorSpan.hover();
       await page.locator("input[type=\"text\"]").fill("Romania");
+      const secondValidationResponse = page.waitForResponse((response) => {
+        return response.url().includes("/test-resources/countriesMock.json") && response.status() === 200;
+      });
       await page.locator("input[value=\"Complete\"]").click();
+      await secondValidationResponse;
+      await expect.poll(async () => await getSurveyResult(page)).toEqual({
+        country: "Romania"
+      });
 
       surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({

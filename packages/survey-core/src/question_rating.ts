@@ -397,8 +397,12 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
 
   public getDescription(e: RatingItem): LocalizableString {
-    if (this.isLoadingFromJson) return undefined;
-    if (!this.isDropdown) return undefined;
+    if (this.isLoadingFromJson) {
+      return undefined;
+    }
+    if (!this.isDropdown) {
+      return undefined;
+    }
     return this.getExtremeDescription(e);
   }
 
@@ -411,9 +415,15 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
 
   public getLocTextForItem(e: RatingItem): LocalizableString {
-    if (this.isLoadingFromJson) return undefined;
-    if (this.isDropdown) return undefined;
-    if (!this.displayRateDescriptionsAsExtremeItems) return undefined;
+    if (this.isLoadingFromJson) {
+      return undefined;
+    }
+    if (this.isDropdown) {
+      return undefined;
+    }
+    if (!this.displayRateDescriptionsAsExtremeItems) {
+      return undefined;
+    }
     return this.getExtremeDescription(e);
   }
 

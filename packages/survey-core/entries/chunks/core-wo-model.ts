@@ -10,6 +10,8 @@ export { unwrap } from "../../src/utils/utils";
 export { getOriginalEvent } from "../../src/utils/dom-utils";
 export { getElement, activateLazyRenderingChecks } from "../../src/utils/dom-utils";
 export * from "../../src/actions/action";
+export * from "../../src/actions/actionBarCss";
+export * from "../../src/actions/dropdown-action";
 export * from "../../src/utils/animation";
 export * from "../../src/actions/adaptive-container";
 export * from "../../src/actions/container";

@@ -116,6 +116,9 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
     const survey = this.getSurvey();
     return !!survey ? survey.getCss() : {};
   }
+  protected renderFooterInContent(): boolean {
+    return false;
+  }
   public render() {
     const panel = super.render();
     const removeButton = this.renderButton();

@@ -107,7 +107,7 @@
 .sd-rating__item {
   position: relative;
   background: $question-background;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-rating, 9999px);
   white-space: nowrap;
   padding: calcSize(0.5) calcSize(2.5);
   height: calcSize(6);
@@ -223,7 +223,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item-smiley {
   position: relative;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-rating, 9999px);
   white-space: nowrap;
   padding: calcSize(1.25);
   box-sizing: border-box;

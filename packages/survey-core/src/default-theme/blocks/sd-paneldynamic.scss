@@ -261,7 +261,7 @@
 .sd-tab-item--icon {
     padding: calcSize(1);
     width: auto;
-    border-radius: calcSize(12.5);
+    border-radius: var(--sjs2-radius-component-action, 8px);
 
     use {
         fill: $foreground-light;

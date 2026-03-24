@@ -3,7 +3,7 @@
 .sd-context-btn {
   background-color: var(--sjs2-color-component-panel-default-bg, #fff);
   padding: calcSize(1.5);
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-action, 8px);
   border: none;
   outline: none;
   cursor: pointer;

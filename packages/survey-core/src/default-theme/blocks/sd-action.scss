@@ -9,7 +9,7 @@
   background: transparent;
   padding: calcSize(1) calcSize(3);
   color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19B394);
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-action, 8px);
   font-weight: 600;
   font-family: $font-family;
   font-style: normal;

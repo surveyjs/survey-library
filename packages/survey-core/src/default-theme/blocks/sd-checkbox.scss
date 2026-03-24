@@ -1,7 +1,7 @@
 @use "../variables.scss" as *;
 
 .sd-checkbox__decorator {
-  border-radius: calcCornerRadius(0.5);
+  border-radius: var(--sjs2-radius-component-checkbox, 4px);
 }
 
 .sd-checkbox__svg {

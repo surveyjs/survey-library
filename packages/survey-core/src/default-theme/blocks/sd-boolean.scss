@@ -7,7 +7,7 @@
   gap: calcSize(0.5);
   padding: calcSize(0.5);
   background-color: var(--sjs2-color-component-boolean-default-bg, #F5F5F5);
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-boolean, 9999px);
   box-shadow:
     var(--sjs2-border-effect-component-toggle-false-default, inset 0px 1px 2px 0px #D4D4D4),
     $shadow-focused-reset;
@@ -41,7 +41,7 @@
   width: calc(100%);
   height: calc(100%);
   box-sizing: border-box;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-toggle, 9999px);
   overflow: hidden;
 }
 
@@ -67,7 +67,7 @@
   transform: translateX(0);
   background-color: var(--sjs2-color-component-boolean-item-true-default-bg, #fff);
   box-shadow: $shadow-small;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-toggle-thumb, 9999px);
   transition-duration: 0.2s;
   transition-property: transform, left;
   transition-timing-function: linear;
@@ -166,7 +166,7 @@
 
 .sd-boolean__thumb-ghost {
   z-index: 1;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
   background-color: transparent;
   transition: background-color $transition-duration;
 }

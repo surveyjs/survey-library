@@ -11,7 +11,7 @@
 
 .sd-list__item-body {
   padding-block: calcSize(1.5);
-  border-radius: calcCornerRadius(1);
+  border-radius: var(--sjs2-radius-component-drop-item, 8px);
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
 }

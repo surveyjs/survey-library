@@ -45,7 +45,7 @@
   align-items: center;
   line-height: 1em;
   padding: calcSize(0.5) 0px;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-ranking, 9999px);
 }
 
 .sv-ranking-item__icon-container {
@@ -163,7 +163,7 @@
 .sv-ranking-item__ghost.sv-ranking-item__ghost {
   display: none;
   background-color: $background-dim;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-ranking, 9999px);
   width: calcSize(31);
   height: calcSize(5);
   z-index: 1;
@@ -206,7 +206,7 @@
 
 .sv-ranking-item--drag .sv-ranking-item__content {
   box-shadow: $shadow-medium-large;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-ranking, 9999px);
 }
 
 .sv-ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon {
@@ -284,7 +284,7 @@
   cursor: grabbing;
   position: absolute;
   z-index: 10000;
-  border-radius: calc(12.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
+  border-radius: var(--sjs2-radius-component-ranking, 9999px);
   min-width: 100px;
   max-width: 400px;
   box-shadow:

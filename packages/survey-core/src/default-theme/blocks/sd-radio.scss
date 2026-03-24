@@ -1,7 +1,7 @@
 @use "../variables.scss" as *;
 
 .sd-radio__decorator {
-  border-radius: 50%;
+  border-radius: var(--sjs2-radius-component-radio, 9999px);
 
   &:after {
     content: " ";

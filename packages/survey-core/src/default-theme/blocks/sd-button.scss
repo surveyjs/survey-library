@@ -6,7 +6,7 @@
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
   background: var(--sjs2-color-component-action-brand-secondary-default-bg, rgba(25, 179, 148, 0.1));
-  border-radius: calcCornerRadius(1);
+  border-radius: var(--sjs2-radius-component-action, 8px);
   cursor: pointer;
 
   font-family: $font-family;

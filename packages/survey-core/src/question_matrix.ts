@@ -851,24 +851,23 @@ export class QuestionMatrixModel
     if (!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
-      questionPlainData.data = Object.keys(values || {}).map((rowName) => {
-        var row = this.rows.filter(
-          (r: MatrixRowModel) => r.value === rowName
-        )[0];
+      const rows = options.includeEmpty ? this.visibleRows : this.visibleRows.filter((r: MatrixRowModel) => r.name in (values || {}));
+      questionPlainData.data = rows.map((row: MatrixRowModel) => {
+        const rowValue = values ? values[row.name] : undefined;
         var rowDataItem = <any>{
-          name: rowName,
-          title: !!row ? row.text : "row",
-          value: values[rowName],
+          name: row.name,
+          title: row.text,
+          value: rowValue,
           displayValue: ItemValue.getTextOrHtmlByValue(
             this.visibleColumns,
-            values[rowName]
+            rowValue
           ),
           getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };
         var item = ItemValue.getItemByValue(
           this.visibleColumns,
-          values[rowName]
+          rowValue
         );
         if (!!item) {
           (options.calculations || []).forEach((calculation) => {

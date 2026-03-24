@@ -2476,9 +2476,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       column: this.getColumnByName(columnName)
     };
   }
-  protected onCellValueChanged(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): void {
+  protected onCellValueChanged(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any, oldCellValue?: any): void {
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
+    options.oldValue = oldCellValue;
     if (!!this.onCellValueChangedCallback) {
       this.onCellValueChangedCallback(options);
     }
@@ -2528,6 +2529,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   updateItemValue(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;
     if (!!rowObj) {
+      var oldCellValue = rowObj[columnName];
       var columnValue = null;
       if (!!newRowValue && !isDeletingValue) {
         columnValue = newRowValue[columnName];
@@ -2535,9 +2537,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.isRowChanging = true;
       Serializer.setObjPropertyValue(rowObj, columnName, columnValue);
       this.isRowChanging = false;
-      this.onCellValueChanged(row, columnName, rowObj);
+      this.onCellValueChanged(row, columnName, rowObj, oldCellValue);
     } else {
       var oldValue = this.createNewValue(true);
+      var oldRowValue = this.getRowValueCore(row, oldValue, true);
+      var oldCellValue = oldRowValue?.[columnName];
       var combine = this.getNewValueOnRowChanged(
         row,
         columnName,
@@ -2550,7 +2554,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.setNewValue(combine.value);
       this.isRowChanging = false;
       if (columnName) {
-        this.onCellValueChanged(row, columnName, combine.rowValue);
+        this.onCellValueChanged(row, columnName, combine.rowValue, oldCellValue);
       }
     }
     if (this.getUniqueColumnsNames().indexOf(columnName) > -1) {

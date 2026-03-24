@@ -962,7 +962,7 @@ Serializer.addClass(
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
     },
-    { name: "defaultValueExpression:expression", visible: false },
+    { name: "defaultValueExpression:expression" },
     {
       name: "minValueExpression:expression",
       dependsOn: "inputType",

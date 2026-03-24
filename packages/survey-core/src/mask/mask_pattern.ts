@@ -10,6 +10,20 @@ export interface IMaskLiteral {
   value: any;
 }
 
+function matchesAnyDefinition(char: string): boolean {
+  const definitions = settings.maskSettings.patternDefinitions;
+  for (const key in definitions) {
+    if (char.match(definitions[key])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getNonDefinitionType(char: string): "const" | "fixed" {
+  return matchesAnyDefinition(char) ? "fixed" : "const";
+}
+
 export function getLiterals(pattern: string): Array<IMaskLiteral> {
   const result: Array<IMaskLiteral> = [];
   let prevCharIsEscaped = false;
@@ -23,7 +37,8 @@ export function getLiterals(pattern: string): Array<IMaskLiteral> {
       prevCharIsEscaped = false;
       result.push({ type: "fixed", value: currentChar });
     } else {
-      result.push({ type: definitionsKeys.indexOf(currentChar) !== -1 ? "regex" : "const", value: currentChar });
+      const type = definitionsKeys.indexOf(currentChar) !== -1 ? "regex" : getNonDefinitionType(currentChar);
+      result.push({ type, value: currentChar });
     }
   }
 
@@ -131,7 +146,7 @@ export class InputMaskPattern extends InputMaskBase {
    * - `a` - An upper- or lower-case letter.
    * - `#` - A digit or an upper- or lower-case letter.
    *
-   * Use backslash `\` to escape a character.
+   * Characters not listed above are treated as literals automatically. Use backslash `\` to escape a definition character and insert it as a literal (e.g., `\9` inserts a literal `9`).
    *
    * Example: `+1(999)-999-99-99`
    *

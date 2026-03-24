@@ -388,7 +388,7 @@ Serializer.addClass(
       name: "allowCustomChoices:boolean",
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
-    { name: "createCustomChoiceText", visible: false, serializationProperty: "locCreateCustomChoiceText" },
+    { name: "createCustomChoiceText", serializationProperty: "locCreateCustomChoiceText", visibleIf: (obj: any): boolean => obj.allowCustomChoices },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

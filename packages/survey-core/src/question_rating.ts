@@ -54,6 +54,7 @@ interface IRatingItemOwner extends ILocalizableOwner {
   getItemStyle(item: RatingItem): any;
   getItemClass(item: RatingItem): string;
   getDescription(item: RatingItem): LocalizableString;
+  getLocTextForItem(item: RatingItem): LocalizableString;
 }
 
 export class RatingItem extends ItemValue {
@@ -93,7 +94,7 @@ export class RatingItem extends ItemValue {
   }
 
   public getLocText(): LocalizableString {
-    return this.description || super.getLocText();
+    return this.ratingOwner?.getLocTextForItem(this) || super.getLocText();
   }
 }
 
@@ -405,6 +406,11 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     if (idx == rateValues.length - 1) return this.maxRateDescription && this.locMaxRateDescription;
 
     return undefined;
+  }
+
+  public getLocTextForItem(e: RatingItem): LocalizableString {
+    if (this.isDropdown) return undefined;
+    return this.getDescription(e);
   }
 
   private resetRenderedItems() {

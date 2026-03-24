@@ -1554,6 +1554,75 @@ QUnit.test("check rating display dropdown description", (assert) => {
   assert.deepEqual(q1.visibleRateValues[0].description.text, "aaa", "min description");
   assert.deepEqual(q1.visibleRateValues[q1.visibleRateValues.length - 1].description.text, "bbb", "max description");
 });
+QUnit.test("Rating dropdown should show numeric values, not descriptions, as item text", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "Not satisfied",
+      maxRateDescription: "Extremely satisfied"
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.renderAs = "dropdown";
+
+  assert.equal(q1.visibleRateValues[0].text, "1", "First item text should be numeric value");
+  assert.equal(q1.visibleRateValues[0].title, "1", "First item title should be numeric value");
+  assert.equal(q1.visibleRateValues[0].description.text, "Not satisfied", "First item description should be minRateDescription");
+  assert.equal(q1.visibleRateValues[4].text, "5", "Last item text should be numeric value");
+  assert.equal(q1.visibleRateValues[4].title, "5", "Last item title should be numeric value");
+  assert.equal(q1.visibleRateValues[4].description.text, "Extremely satisfied", "Last item description should be maxRateDescription");
+  assert.equal(q1.visibleRateValues[1].text, "2", "Middle item text should be numeric value");
+  assert.notOk(q1.visibleRateValues[1].description, "Middle item should have no description");
+});
+QUnit.test("Rating dropdown with explicit rateValues should show original text, not descriptions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "mimimi",
+      maxRateDescription: "mamama",
+      displayMode: "dropdown",
+      rateValues: [
+        { value: 1, text: "One" },
+        { value: 2, text: "Two" },
+        { value: 3, text: "Three" },
+        { value: 4, text: "Four" }
+      ]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].text, "One", "First item text should be the original text");
+  assert.equal(q1.visibleRateValues[0].title, "One", "First item title should be the original text");
+  assert.equal(q1.visibleRateValues[0].description.text, "mimimi", "First item description should be minRateDescription");
+  assert.equal(q1.visibleRateValues[3].text, "Four", "Last item text should be the original text");
+  assert.equal(q1.visibleRateValues[3].title, "Four", "Last item title should be the original text");
+  assert.equal(q1.visibleRateValues[3].description.text, "mamama", "Last item description should be maxRateDescription");
+});
+QUnit.test("Rating displayRateDescriptionsAsExtremeItems should replace text only in button mode, not dropdown", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "Strongly Disagree",
+      maxRateDescription: "Strongly Agree",
+      displayRateDescriptionsAsExtremeItems: true,
+      rateValues: [1, 2, 3, 4, 5]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "Strongly Disagree", "In button mode, locText shows description");
+  assert.equal(q1.visibleRateValues[4].locText.calculatedText, "Strongly Agree", "In button mode, locText shows description");
+
+  q1.displayMode = "dropdown";
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "1", "In dropdown mode, locText shows original value");
+  assert.equal(q1.visibleRateValues[4].locText.calculatedText, "5", "In dropdown mode, locText shows original value");
+  assert.equal(q1.visibleRateValues[0].description.text, "Strongly Disagree", "Description still available in dropdown mode");
+  assert.equal(q1.visibleRateValues[4].description.text, "Strongly Agree", "Description still available in dropdown mode");
+});
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
   RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
   const ResizeObserver = window.ResizeObserver;
@@ -1979,10 +2048,12 @@ QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appe
   assert.equal(q1.autoGenerate, false, "autoGenerate is false");
 
   assert.equal(q1.visibleChoices[0].value, "A", "Check first item value");
-  assert.equal(q1.visibleChoices[0].text, "Strongly Disagree");
+  assert.equal(q1.visibleChoices[0].text, "1", "In dropdown mode, text should be the original rateValue text");
+  assert.equal(q1.visibleChoices[0].description.text, "Strongly Disagree", "description should be minRateDescription");
 
   assert.equal(q1.visibleChoices[4].value, "E");
-  assert.equal(q1.visibleChoices[4].text, "Strongly Agree");
+  assert.equal(q1.visibleChoices[4].text, "5", "In dropdown mode, text should be the original rateValue text");
+  assert.equal(q1.visibleChoices[4].description.text, "Strongly Agree", "description should be maxRateDescription");
 });
 
 QUnit.test("check smileys styles after validate", (assert) => {

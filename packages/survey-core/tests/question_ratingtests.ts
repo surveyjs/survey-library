@@ -1277,6 +1277,7 @@ QUnit.test("rating colors without css vars", (assert) => {
 
   const survey = new SurveyModel(json);
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
@@ -1286,6 +1287,7 @@ QUnit.test("rating colors without css vars", (assert) => {
   assert.deepEqual(q1.visibleRateValues[2].style, { "--sd-rating-item-color": null });
   assert.deepEqual(q1.visibleRateValues[3].style, { "--sd-rating-item-color": null });
   assert.deepEqual(q1.visibleRateValues[4].style, { "--sd-rating-item-color": null });
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
 });
 
 QUnit.test("rating colors", (assert) => {
@@ -1307,6 +1309,10 @@ QUnit.test("rating colors", (assert) => {
 
   const survey = new SurveyModel(json);
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+  const rootElement = document.createElement("div");
+  document.body.appendChild(rootElement);
+  q1.afterRenderQuestionElement(rootElement);
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
@@ -1380,6 +1386,9 @@ QUnit.test("rating colors", (assert) => {
   document.documentElement.style.setProperty("--sd-rating-bad-color-light", null);
   document.documentElement.style.setProperty("--sd-rating-normal-color-light", null);
   document.documentElement.style.setProperty("--sd-rating-good-color-light", null);
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+
+  rootElement.remove();
 });
 
 QUnit.test("rating colors when vars used", (assert) => {
@@ -1411,6 +1420,10 @@ QUnit.test("rating colors when vars used", (assert) => {
     }
   });
   let q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+  const rootElement = document.createElement("div");
+  document.body.appendChild(rootElement);
+  q1.afterRenderQuestionElement(rootElement);
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
@@ -1447,6 +1460,9 @@ QUnit.test("rating colors when vars used", (assert) => {
   assert.deepEqual(q1.visibleRateValues[2].style, { "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
   assert.deepEqual(q1.visibleRateValues[3].style, { "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
   assert.deepEqual(q1.visibleRateValues[4].style, { "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+
+  rootElement.remove();
 });
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {

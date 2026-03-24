@@ -271,11 +271,11 @@
 
 .sd-tab-item--icon:hover,
 .sd-tab-item--icon.sd-tab-item--pressed {
-    background-color: $primary-light;
+    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
     box-shadow: none;
 
     use {
-        fill: $primary;
+        fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19B394);
     }
 }
 

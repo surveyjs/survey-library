@@ -10,10 +10,10 @@
   font-size: calcFontSize(0.75);
   font-weight: 600;
   text-align: left;
-  color: $red;
+  color: var(--sjs2-color-component-message-error-icon, #C30935);
   white-space: normal;
   width: 100%;
-  background-color: $red-light;
+  background-color: var(--sjs2-color-component-message-error-bg, rgba(229, 10, 62, 0.1));
   box-sizing: border-box;
 }
 

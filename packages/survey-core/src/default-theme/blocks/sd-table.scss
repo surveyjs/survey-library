@@ -2,7 +2,7 @@
 
 .sd-table {
   width: 100%;
-  background: $question-background;
+  background: var(--sjs2-color-component-panel-default-bg, #fff);
   border-collapse: separate;
   border-spacing: 0;
   white-space: normal;
@@ -166,13 +166,13 @@
           }
 
           &.sd-item--checked .sd-item__decorator {
-            background-color: $primary;
+            background-color: var(--sjs2-color-component-check-true-default-bg, #19B394);
           }
           &.sd-item--checked .sd-item__control:focus + .sd-item__decorator {
-            background-color: var(--sjs-general-backcolor, var(--background, #fff));
+            background-color: var(--sjs2-color-component-check-true-focused-bg, #fff);
           }
           &.sd-item--readonly.sd-item--checked .sd-item__decorator {
-            background-color: $background;
+            background-color: var(--sjs2-color-component-check-true-readonly-bg, #fff);
           }
 
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
@@ -334,11 +334,11 @@
 
   &:hover,
   &:focus {
-    background-color: $primary-light;
+    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
     outline: none;
 
     use {
-      fill: $primary;
+      fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19B394);
     }
   }
 }
@@ -374,7 +374,7 @@
 .sd-matrix__cell:first-of-type,
 .sd-matrix tr > td:first-of-type {
   position: sticky;
-  background-color: $question-background;
+  background-color: var(--sjs2-color-component-panel-default-bg, #fff);
   z-index: 12;
 
   &:first-of-type {
@@ -390,7 +390,7 @@
   .sd-action-bar {
     margin-right: calcSize(-3);
     justify-content: flex-end;
-    background: $question-background;
+    background: var(--sjs2-color-component-panel-default-bg, #fff);
   }
 }
 
@@ -418,7 +418,7 @@
     min-height: 100%;
     width: calc(var(--sd-base-padding) - #{$base-unit});
     flex-shrink: 0;
-    background: $question-background;
+    background: var(--sjs2-color-component-panel-default-bg, #fff);
     z-index: 11;
   }
 

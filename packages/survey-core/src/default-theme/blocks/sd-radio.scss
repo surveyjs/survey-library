@@ -19,14 +19,14 @@
   width: calcSize(1);
   height: calcSize(1);
   border-radius: 50%;
-  background-color: $primary-foreground;
+  background-color: var(--sjs2-color-component-check-true-default-icon, #fff);
 }
 .sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
-  background-color: $border;
+  background-color: var(--sjs2-color-component-check-true-disabled-icon, #B3B2B2);
 }
 
 .sd-radio--checked.sd-radio--readonly .sd-radio__decorator:after {
-  background-color: $foreground;
+  background-color: var(--sjs2-color-component-check-true-readonly-icon, #B3B2B2);
 }
 
 .sd-radio--checked.sd-radio--preview .sd-radio__decorator {
@@ -43,7 +43,7 @@
 }
 
 .sd-radio--checked .sd-radio__control:focus+.sd-radio__decorator:after {
-  background-color: $primary;
+  background-color: var(--sjs2-color-component-check-true-focused-icon, #19B394);
 }
 .sd-radio__svg {
   display: none;

@@ -50,7 +50,7 @@
 
   .sd-table__cell.sd-table__cell--drag {
     >div {
-      background-color: $question-background;
+      background-color: var(--sjs2-color-component-panel-default-bg, #fff);
       min-height: calcSize(6);
     }
   }

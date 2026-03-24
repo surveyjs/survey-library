@@ -1615,13 +1615,65 @@ QUnit.test("Rating displayRateDescriptionsAsExtremeItems should replace text onl
 
   assert.equal(q1.visibleRateValues[0].locText.calculatedText, "Strongly Disagree", "In button mode, locText shows description");
   assert.equal(q1.visibleRateValues[4].locText.calculatedText, "Strongly Agree", "In button mode, locText shows description");
+  assert.notOk(q1.visibleRateValues[0].description, "In button mode with displayRateDescriptionsAsExtremeItems, description should be undefined to avoid duplication");
+  assert.notOk(q1.visibleRateValues[4].description, "In button mode with displayRateDescriptionsAsExtremeItems, description should be undefined to avoid duplication");
+  assert.notOk(q1.visibleRateValues[2].description, "Middle item should have no description in button mode");
 
   q1.displayMode = "dropdown";
 
   assert.equal(q1.visibleRateValues[0].locText.calculatedText, "1", "In dropdown mode, locText shows original value");
   assert.equal(q1.visibleRateValues[4].locText.calculatedText, "5", "In dropdown mode, locText shows original value");
-  assert.equal(q1.visibleRateValues[0].description.text, "Strongly Disagree", "Description still available in dropdown mode");
-  assert.equal(q1.visibleRateValues[4].description.text, "Strongly Agree", "Description still available in dropdown mode");
+  assert.equal(q1.visibleRateValues[0].description.text, "Strongly Disagree", "Description available in dropdown mode");
+  assert.equal(q1.visibleRateValues[4].description.text, "Strongly Agree", "Description available in dropdown mode");
+  assert.notOk(q1.visibleRateValues[2].description, "Middle item should have no description in dropdown mode");
+});
+QUnit.test("Rating displayRateDescriptionsAsExtremeItems with empty descriptions falls back to item text", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      displayRateDescriptionsAsExtremeItems: true,
+      rateValues: [1, 2, 3, 4, 5]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "1", "With no descriptions set, text stays as value");
+  assert.equal(q1.visibleRateValues[4].locText.calculatedText, "5", "With no descriptions set, text stays as value");
+  assert.notOk(q1.visibleRateValues[0].description, "No description when minRateDescription is empty");
+  assert.notOk(q1.visibleRateValues[4].description, "No description when maxRateDescription is empty");
+});
+QUnit.test("Rating displayRateDescriptionsAsExtremeItems with rateValues having custom text", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "Min desc",
+      maxRateDescription: "Max desc",
+      displayRateDescriptionsAsExtremeItems: true,
+      autoGenerate: false,
+      rateValues: [
+        { value: "A", text: "First" },
+        { value: "B", text: "Second" },
+        { value: "C", text: "Third" }
+      ]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "Min desc", "In button mode, first item text replaced by minRateDescription");
+  assert.equal(q1.visibleRateValues[2].locText.calculatedText, "Max desc", "In button mode, last item text replaced by maxRateDescription");
+  assert.equal(q1.visibleRateValues[1].locText.calculatedText, "Second", "Middle item text unchanged");
+  assert.notOk(q1.visibleRateValues[0].description, "Description undefined in button mode for first item");
+  assert.notOk(q1.visibleRateValues[2].description, "Description undefined in button mode for last item");
+
+  q1.displayMode = "dropdown";
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "First", "In dropdown mode, first item shows original text");
+  assert.equal(q1.visibleRateValues[2].locText.calculatedText, "Third", "In dropdown mode, last item shows original text");
+  assert.equal(q1.visibleRateValues[0].description.text, "Min desc", "In dropdown mode, description shows minRateDescription");
+  assert.equal(q1.visibleRateValues[2].description.text, "Max desc", "In dropdown mode, description shows maxRateDescription");
+  assert.notOk(q1.visibleRateValues[1].description, "Middle item has no description in dropdown mode");
 });
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
   RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");

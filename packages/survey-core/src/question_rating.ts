@@ -397,20 +397,24 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
 
   public getDescription(e: RatingItem): LocalizableString {
-
     if (this.isLoadingFromJson) return undefined;
-    if (!this.displayRateDescriptionsAsExtremeItems && !this.isDropdown) return undefined;
+    if (!this.isDropdown) return undefined;
+    return this.getExtremeDescription(e);
+  }
+
+  private getExtremeDescription(e: RatingItem): LocalizableString {
     const rateValues = this.visibleChoices;
     const idx = rateValues.indexOf(e);
     if (idx == 0) return this.minRateDescription && this.locMinRateDescription;
     if (idx == rateValues.length - 1) return this.maxRateDescription && this.locMaxRateDescription;
-
     return undefined;
   }
 
   public getLocTextForItem(e: RatingItem): LocalizableString {
+    if (this.isLoadingFromJson) return undefined;
     if (this.isDropdown) return undefined;
-    return this.getDescription(e);
+    if (!this.displayRateDescriptionsAsExtremeItems) return undefined;
+    return this.getExtremeDescription(e);
   }
 
   private resetRenderedItems() {

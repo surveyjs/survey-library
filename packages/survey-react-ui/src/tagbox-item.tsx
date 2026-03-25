@@ -27,15 +27,18 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
     return (
       <div className="sv-tagbox__item">
         <div className="sv-tagbox__item-text">{text}</div>
-        <div
-          className={this.question.cssClasses.cleanItemButton}
-          onClick={removeItem}
-        >
-          <SvgIcon
-            className={this.question.cssClasses.cleanItemButtonSvg}
-            iconName={this.question.cssClasses.cleanItemButtonIconId}
-            size={"auto"}
-          ></SvgIcon>
+        <div className={this.question.cssClasses.cleanItem}>
+          <div
+            tabIndex={0}
+            className={this.question.cssClasses.cleanItemButton}
+            onClick={removeItem}
+          >
+            <SvgIcon
+              className={this.question.cssClasses.cleanItemButtonSvg}
+              iconName={this.question.cssClasses.cleanItemButtonIconId}
+              size={"auto"}
+            ></SvgIcon>
+          </div>
         </div>
       </div>
     );

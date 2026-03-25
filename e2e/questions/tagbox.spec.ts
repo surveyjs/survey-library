@@ -43,7 +43,7 @@ frameworks.forEach((framework) => {
 
       const selectedItems = page.locator(".sv-tagbox__item");
       const questionTagbox = page.locator(".sd-tagbox");
-      const deleteItemButton = page.locator(".sd-tagbox-item_clean-button");
+      const deleteItemButton = page.locator(".sd-tagbox-item__clean-button");
 
       await expect(selectedItems).toHaveCount(0);
 
@@ -108,7 +108,7 @@ frameworks.forEach((framework) => {
 
       const selectedItems = page.locator(".sv-tagbox__item");
       const questionTagbox = page.locator(".sd-tagbox");
-      const deleteItemButton = page.locator(".sd-tagbox-item_clean-button");
+      const deleteItemButton = page.locator(".sd-tagbox-item__clean-button");
 
       await expect(selectedItems).toHaveCount(0);
 

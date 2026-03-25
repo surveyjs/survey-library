@@ -73,7 +73,7 @@
 //         .hover(Selector(".sv-tagbox__item"));
 //       await takeElementScreenshot("tagbox-question-item-hover.png", Selector(".sv-tagbox__item"), t, comparer);
 
-//       await t.hover(Selector(".sd-tagbox-item_clean-button-svg"));
+//       await t.hover(Selector(".sd-tagbox-item__clean-button-svg"));
 //       await takeElementScreenshot("tagbox-question-item-icon-hover.png", Selector(".sv-tagbox__item"), t, comparer);
 //     });
 //   });

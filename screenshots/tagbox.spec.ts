@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
       await page.locator(".sv-tagbox__item").first().hover();
       await compareScreenshot(page, ".sv-tagbox__item", "tagbox-question-item-hover.png");
 
-      await page.locator(".sd-tagbox-item_clean-button-svg").first().hover();
+      await page.locator(".sd-tagbox-item__clean-button-svg").first().hover();
       await compareScreenshot(page, ".sv-tagbox__item", "tagbox-question-item-icon-hover.png");
     });
 

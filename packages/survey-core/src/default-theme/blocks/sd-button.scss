@@ -5,7 +5,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
-  background: var(--sjs2-color-component-action-brand-secondary-default-bg, rgba(25, 179, 148, 0.1));
+  background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0.00));
   border-radius: var(--sjs2-radius-component-action, 8px);
   cursor: pointer;
 
@@ -15,7 +15,7 @@
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
   text-align: center;
-  color: var(--sjs2-color-component-action-brand-secondary-default-label, #19B394);
+  color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19B394);
   border: none;
   outline: none;
 
@@ -29,7 +29,7 @@
 }
 
 .sd-btn:hover {
-  background-color: var(--sjs2-color-component-action-brand-secondary-hovered-bg, rgba(25, 179, 148, 0.15));
+  background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.15));
 }
 
 .sd-btn:focus-visible {
@@ -37,7 +37,7 @@
 }
 
 .sd-btn:disabled {
-  color: var(--sjs2-color-component-action-brand-secondary-disabled-label, rgba(28, 27, 32, 0.4));
+  color: var(--sjs2-color-component-action-brand-tertiary-disabled-label, rgba(28, 27, 32, 0.4));
   opacity: 0.25;
   pointer-events: none;
 }

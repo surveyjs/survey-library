@@ -1,16 +1,18 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
-import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { PopupModel } from "./popup";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
-import { updateListCssValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/dom-utils";
 import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
+import { ActionContainer } from "./actions/container";
+import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 
 /**
  * A class that describes the Dropdown question type.
@@ -206,6 +208,13 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   }) allowCustomChoices: boolean;
 
   /**
+   * Specifies the text displayed for the command that creates a custom choice. Applies only when [`allowCustomChoices`](#allowCustomChoices) is `true`.
+   *
+   * Default value: `"Create \"{0}\" item..."`
+   */
+  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomChoiceText: string;
+
+  /**
    * Specifies whether to wrap long texts in choice options onto a new line.
    *
    * Default value: `true`
@@ -239,6 +248,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
+      .append(this.cssClasses.controlSelect, this.renderAs == "select")
       .append(this.cssClasses.controlEmpty, this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
@@ -311,8 +321,8 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     const postFix = addPostFix && this.useDropdownList ? "_0" : "";
     return this.inputId + postFix;
   }
-  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
-    super.clearValue(keepComment, fromUI);
+  protected onClearValue(): void {
+    super.onClearValue();
     this.lastSelectedItemValue = null;
   }
 
@@ -335,6 +345,32 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
       event.stopPropagation();
     }
   }
+  private inputActionBarValue: ActionContainer;
+  public get inputActionBar() {
+    if (!this.inputActionBarValue) {
+      this.inputActionBarValue = new ActionContainer();
+      this.inputActionBarValue.setCssClasses(this.survey?.getCss().inputActionBar, false);
+
+      const chevronButton = new Action({
+        id: "chevron",
+        css: "sd-editor-chevron-button",
+        iconName: this.cssClasses.chevronButtonIconId || "icon-chevron",
+        iconSize: "auto",
+        showTitle: false,
+        locTitle: this.locSelectCaption,
+        disableTabStop: true,
+        enabled: new ComputedUpdater(() => {
+          return !this.isInputReadOnly;
+        }),
+        visible: new ComputedUpdater(() => {
+          return !this.isPreviewStyle;
+        }),
+        action: () => {}
+      });
+      this.inputActionBarValue.addAction(chevronButton);
+    }
+    return this.inputActionBarValue;
+  }
 }
 Serializer.addClass(
   "dropdown",
@@ -349,11 +385,12 @@ Serializer.addClass(
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     {
-      name: "allowCustomChoices:boolean", default: false,
+      name: "allowCustomChoices:boolean",
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
+    { name: "createCustomChoiceText", serializationProperty: "locCreateCustomChoiceText", visibleIf: (obj: any): boolean => obj.allowCustomChoices },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
-    { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
+    { name: "choicesLazyLoadEnabled:boolean", visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },
     { name: "itemComponent", visible: false, default: "" }

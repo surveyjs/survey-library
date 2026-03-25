@@ -1,6 +1,7 @@
 import { parse } from "../../src/expressions/expressionParser";
-import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
-import { ConditionsParser } from "../../src/conditionsParser";
+import { ConditionRunner } from "../../src/conditions/conditionRunner";
+import { ExpressionRunner } from "../../src/expressions/expressionRunner";
+import { ConditionsParser } from "../../src/conditions/conditionsParser";
 import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   Const,
@@ -8,7 +9,7 @@ import {
   Operand,
 } from "../../src/expressions/expressions";
 
-import { ProcessValue, VariableGetterContext } from "../../src/conditionProcessValue";
+import { ProcessValue, VariableGetterContext } from "../../src/conditions/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { settings } from "../../src/settings";
 import { Helpers } from "../../src/helpers";
@@ -476,6 +477,35 @@ QUnit.test("Run dateDiff by seconds #10176", function(assert) {
   const d2 = new Date("2025-07-25T02:15:05");
   const values = { d1: d1, d2: d2 };
   assert.equal(runner.runValues(values), 77, "seconds");
+});
+QUnit.test("Run dateDiff by days across DST boundary Bug#11029", (assert) => {
+  const savedOnDateCreated = settings.onDateCreated;
+  settings.onDateCreated = (newDate: Date, reason: string, val: any): Date => {
+    // Emulate US Central Time (CST=UTC-6, CDT=UTC-5)
+    const year = newDate.getFullYear();
+    const month = newDate.getMonth();
+    const day = newDate.getDate();
+    let isDST = false;
+    if (month > 2 && month < 10) {
+      isDST = true;
+    } else if (month === 2) {
+      const marchFirst = new Date(year, 2, 1).getDay();
+      const secondSunday = marchFirst === 0 ? 8 : (7 - marchFirst) + 8;
+      isDST = day > secondSunday;
+    } else if (month === 10) {
+      const novFirst = new Date(year, 10, 1).getDay();
+      const firstSunday = novFirst === 0 ? 1 : (7 - novFirst) + 1;
+      isDST = day <= firstSunday;
+    }
+    const offsetHours = isDST ? 5 : 6;
+    return new Date(Date.UTC(year, month, day, offsetHours, 0, 0, 0));
+  };
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'days')");
+  const values: any = { d1: "2026-03-15", d2: "2027-03-14" };
+  assert.equal(runner.runValues(values), 364, "days between 2026-03-15 and 2027-03-14");
+  values.d2 = "2027-03-15";
+  assert.equal(runner.runValues(values), 365, "days between 2026-03-15 and 2027-03-15");
+  settings.onDateCreated = savedOnDateCreated;
 });
 QUnit.test("Run dateAdd() for days", function(assert) {
   const d1 = new Date("2021-01-01");
@@ -1659,6 +1689,15 @@ QUnit.test("ExpressionRunner: diffsDays", function(assert) {
   assert.equal(runner.runValues(values), 32, "32 days");
   values.d1 = undefined;
   assert.equal(runner.runValues(values), 0, "a value is undefined");
+});
+QUnit.test("ExpressionRunner: diffsDays with times", function(assert) {
+  var runner = new ExpressionRunner("diffDays({d1}, {d2})");
+  var d1 = new Date("2021-03-10T05:00:00");
+  var d2 = new Date("2021-03-11T04:00:00");
+  var values = { d1: d1, d2: d2 };
+  assert.equal(runner.runValues(values), 1, "1 day");
+  values.d2 = new Date("2021-03-10T23:00:00");
+  assert.equal(runner.runValues(values), 0, "0 days");
 });
 
 QUnit.test("parse({val} == '000')", function(assert) {

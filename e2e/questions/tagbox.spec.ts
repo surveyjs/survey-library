@@ -173,7 +173,7 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const listItems = page.locator(".sv-list__item");
       const selectedItems = page.locator(".sv-tagbox__item");
-      const questionValueInput = page.locator(".sd-tagbox__value input");
+      const questionValueInput = page.locator(".sd-tagbox__input input");
       const questionHint = page.locator(".sd-tagbox__hint");
 
       await expect(popupContainer).not.toBeVisible();
@@ -264,7 +264,7 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const listItems = page.locator(".sv-list__item");
       const selectedItems = page.locator(".sv-tagbox__item");
-      const questionValueInput = page.locator(".sd-tagbox__value input");
+      const questionValueInput = page.locator(".sd-tagbox__input input");
       const questionHint = page.locator(".sd-tagbox__hint");
 
       await expect(popupContainer).not.toBeVisible();

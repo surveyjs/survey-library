@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { CharacterCounter } from "survey-core";
+import { CharacterCounter, ICharacterCounterAction } from "survey-core";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 import { AngularComponentFactory } from "../../component-factory";
 import { BaseAngular } from "../../base-angular";
@@ -10,13 +10,19 @@ import { BaseAngular } from "../../base-angular";
   styles: [":host { display: none; }"],
 })
 export class CharacterCounterComponent extends BaseAngular {
-  @Input() counter!: CharacterCounter;
-  @Input() remainingCharacterCounter!: string;
-
+  @Input() counter?: CharacterCounter;
+  @Input() remainingCharacterCounter?: string;
+  @Input() model?: ICharacterCounterAction;
+  get counterModel() {
+    return this.model ? this.model.data.counter : this.counter;
+  }
+  get remainingCharacterCounterClass() {
+    return this.model ? this.model.data.remainingCharacterCounter : this.remainingCharacterCounter;
+  }
   getModel() {
-    return this.counter;
+    return this.counterModel as CharacterCounter;
   }
 
 }
-
+AngularComponentFactory.Instance.registerComponent("sv-character-counter", CharacterCounterComponent);
 AngularComponentFactory.Instance.registerComponent("character-counter", CharacterCounterComponent);

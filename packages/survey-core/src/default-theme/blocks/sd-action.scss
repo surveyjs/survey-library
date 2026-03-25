@@ -8,8 +8,8 @@
   gap: calcSize(1);
   background: transparent;
   padding: calcSize(1) calcSize(3);
-  color: $primary;
-  border-radius: calcSize(12.5);
+  color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19B394);
+  border-radius: var(--sjs2-radius-component-action, 8px);
   font-weight: 600;
   font-family: $font-family;
   font-style: normal;
@@ -21,7 +21,7 @@
 }
 
 .sd-action--negative {
-  color: $red;
+  color: var(--sjs2-color-component-action-alert-tertiary-default-label, #C30935);
 }
 
 .sd-action--icon {
@@ -32,7 +32,7 @@
   margin-left: calcSize(-1);
 
   use {
-    fill: $primary;
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
   }
 }
 
@@ -42,44 +42,44 @@
   }
 
   use {
-    fill: $font-questiondescription-color;
+    fill: var(--sjs2-color-component-action-neutral-tertiary-default-icon, #424146);
     transition: fill $transition-duration;
   }
 }
 
 svg.sd-action--icon {
-  fill: $font-questiondescription-color;
+  fill: var(--sjs2-color-component-action-neutral-tertiary-default-icon, #424146);
 }
 
 .sd-action:disabled,
 .sd-action--disabled {
-  color: $foreground;
+  color: var(--sjs2-color-component-action-brand-tertiary-disabled-label, rgba(28, 27, 32, 0.4));
   cursor: default;
   opacity: 0.25;
   pointer-events: none;
 
   use {
-    fill: $font-questiondescription-color;
+    fill: var(--sjs2-color-component-action-brand-tertiary-disabled-icon, rgba(28, 27, 32, 0.4));
   }
 }
 
 .sd-action:where(:not(.sd-action--pressed)):hover,
 .sd-action:where(:not(.sd-action--pressed)):focus {
   outline: none;
-  background-color: $primary-light;
+  background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
   cursor: pointer;
   opacity: 1;
 
   &.sd-action--icon {
-    background-color: $background-dim;
+    background-color: var(--sjs2-color-component-action-neutral-tertiary-hovered-bg, rgba(95, 94, 97, 0.1));
   }
 
   &.sd-action--negative {
-    background-color: $red-light;
+    background-color: var(--sjs2-color-component-action-alert-tertiary-hovered-bg, rgba(229, 10, 62, 0.1));
 
     &.sd-action--icon {
       use {
-        fill: $red;
+        fill: var(--sjs2-color-component-action-alert-tertiary-hovered-icon, #C30935);
       }
     }
   }
@@ -96,7 +96,7 @@ svg.sd-action--icon {
 }
 
 .sd-action--pressed:not(.sd-action--active) {
-  background-color: $background-dim;
+  background-color: var(--sjs2-color-component-action-brand-tertiary-pressed-bg, rgba(25, 179, 148, 0.1));
   opacity: 0.5;
 }
 .sd-action-bar {

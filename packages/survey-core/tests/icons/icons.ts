@@ -1,5 +1,5 @@
 import { settings } from "../../src/settings";
-import { getNewIconName, getCustomNewIconNameIfExists, getIconNameFromProxy, createSvg } from "../../src/utils/utils";
+import { getNewIconName, getCustomNewIconNameIfExists, getIconNameFromProxy, createSvg } from "../../src/utils/icons";
 
 export default QUnit.module("UtilsSVGIconsTests");
 

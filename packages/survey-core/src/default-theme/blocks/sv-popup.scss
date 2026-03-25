@@ -39,13 +39,13 @@ sv-popup {
 .sv-popup--menu-popup {
   & > .sv-popup__container {
     background: var(--lbr-popup-menu-background-color-global, $background-dim);
-    border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
+    border-radius: var(--sjs2-radius-component-drop, 16px);
     box-shadow: $shadow-medium-large;
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
     background-color: var(--lbr-popup-menu-background-color, $background);
-    border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
+    border-radius: var(--sjs2-radius-component-drop, 16px);
     // padding: calcSize(1) 0;
     height: 100%;
   }
@@ -107,7 +107,7 @@ sv-popup {
     position: relative;
     display: flex;
     background-color: var(--lbr-dialog-background-color, $background-dim-light);
-    border-radius: var(--lbr-dialog-corner-radius, calcCornerRadius(2));
+    border-radius: var(--sjs2-radius-component-modal, 24px);
     box-shadow:
       var(--lbr-dialog-shadow-2-offset-x, 0px) var(--lbr-dialog-shadow-2-offset-y, 2px)
         var(--lbr-dialog-shadow-2-blur, 6px) var(--lbr-dialog-shadow-2-spread, 0px)
@@ -395,7 +395,7 @@ sv-popup {
     width: auto;
     min-width: min(calcSize(40), var(--sv-popup-overlay-max-width));
     max-width: var(--sv-popup-overlay-max-width);
-    border-radius: var(--lbr-popup-menu-corner-radius, calcCornerRadius(1));
+    border-radius: var(--sjs2-radius-component-drop, 16px);
     overflow: hidden;
     box-shadow: $shadow-medium-large;
   }

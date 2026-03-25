@@ -1,13 +1,42 @@
 @use "../variables.scss" as *;
 
-.sd-comment {
-  display: block;
-  height: auto;
-  min-width: calcSize(6);
-  min-height: calcSize(6);
+.sd-comment:has(.sd-comment__input[style*="width"]) {
+  width: fit-content;
+}
+.sd-comment__input {
   max-width: 100%;
+  min-width: calcSize(6);
+  min-height: calcSize(5);
 }
 
-.sd-comment__content {
+.sd-comment {
   position: relative;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  max-width: 100%;
+  gap: 0;
+  align-items: flex-end;
+}
+.sd-comment__grip {
+  cursor: se-resize;
+  position: absolute;
+  right: var(--sjs2-spacing-x050, 4px);
+  bottom: var(--sjs2-spacing-x050, 4px);
+  .sv-svg-icon {
+    display: block;
+    fill: var(--sjs2-color-component-input-default-icon, rgba(28, 27, 32, 0.4));
+    width: var(--sjs2-size-x200, 16px);
+    height: var(--sjs2-size-x200, 16px);
+  }
+}
+.sd-comment__character-counter {
+  display: block;
+  opacity: 0;
+}
+
+.sd-comment:focus-within {
+  .sd-comment__character-counter {
+    opacity: 1;
+  }
 }

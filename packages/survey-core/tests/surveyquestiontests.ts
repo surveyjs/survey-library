@@ -4335,6 +4335,19 @@ QUnit.test("QuestionText min/max properties for date-time and browser errors, bu
   assert.equal(q1.errors.length, 1, "There is one error");
   assert.equal(q1.errors[0].text, "min error", "use minErrorText instead of browser message");
 });
+QUnit.test("QuestionText step property, modify the step error in a survey JSON, bug#10959", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "number", name: "q1", step: 2, stepErrorText: "step error {0}#" },
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = 3;
+  q1.onKeyUp({ target: { validationMessage: "test error message" } });
+  q1.validate();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].text, "step error 2#", "use stepErrorText instead of browser message");
+});
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "text", name: "q", defaultValue: "=1+2" }],
@@ -8249,7 +8262,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   const q1Id = q1.id;
   const q2Id = q2.id;
   assert.equal(otherOptions.id, q1Id + "_" + q1.otherItem.uniqueId, "otherOptions id");
-  assert.equal(otherOptions.className, "sd-input sd-comment", "otherOptions className");
+  assert.equal(otherOptions.getCssClasses().root, "sd-formbox sd-comment", "otherOptions className");
   assert.equal(otherOptions.isDisabledAttr, "", "otherOptions isDisabledAttr");
   assert.equal(otherOptions.isReadOnlyAttr, undefined, "otherOptions isReadOnlyAttr");
   assert.equal(otherOptions.placeholder, "Other placeholder", "otherOptions placeholder");
@@ -8258,7 +8271,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(otherOptions.rows, undefined, "otherOptions rows");
 
   assert.equal(commentOptions.id, q1Id + "_comment", "commentOptions id");
-  assert.equal(commentOptions.className, "sd-input sd-comment", "commentOptions className");
+  assert.equal(commentOptions.getCssClasses().root, "sd-formbox sd-comment", "commentOptions className");
   assert.equal(commentOptions.isDisabledAttr, "", "commentOptions isDisabledAttr");
   assert.equal(commentOptions.isReadOnlyAttr, undefined, "commentOptions isReadOnlyAttr");
   assert.equal(commentOptions.placeholder, "Comment placeholder", "commentOptions placeholder");
@@ -8267,7 +8280,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(commentOptions.rows, undefined, "commentOptions rows");
 
   assert.equal(textAreaOptions.id, q2Id + "i", "textAreaOptions id");
-  assert.equal(textAreaOptions.className, "sd-input sd-comment", "textAreaOptions className");
+  assert.equal(textAreaOptions.getCssClasses().root, "sd-formbox sd-comment", "textAreaOptions className");
   assert.equal(textAreaOptions.isDisabledAttr, "", "textAreaOptions isDisabledAttr");
   assert.equal(textAreaOptions.isReadOnlyAttr, false, "textAreaOptions isReadOnlyAttr");
   assert.equal(textAreaOptions.placeholder, "", "textAreaOptions placeholder");
@@ -8920,6 +8933,65 @@ QUnit.test("Access question properties in expression, #10532", function (assert)
   q1.value = 3;
   assert.equal(q2.isVisible, false, "q2 is not visible #2");
   assert.equal(q3.isVisible, false, "q3 is not visible #2");
+});
+QUnit.test("Access question properties in expression with modified prefix, #10958", function (assert) {
+  settings.expressionElementPropertyPrefix = "@";
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{@q2.isVisible}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
+  settings.expressionElementPropertyPrefix = "$";
+});
+QUnit.test("Disable access question properties in expression, #10958", function (assert) {
+  settings.expressionElementPropertyPrefix = "";
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "$q1",
+      },
+      {
+        type: "text",
+        name: "$q2",
+        visibleIf: "{$q1} = 2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("$q1");
+  const q2 = survey.getQuestionByName("$q2");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  settings.expressionElementPropertyPrefix = "$";
 });
 QUnit.test("Access question properties in expression - update on property changed, #10532", function (assert) {
   const survey = new SurveyModel({

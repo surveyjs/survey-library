@@ -1,17 +1,18 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
-import { CustomError } from "./error";
+import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
-import { getRootNode } from "./utils/utils";
+import { getRootNode } from "./utils/dom-utils";
 
 /**
  * A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
@@ -263,6 +264,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
    * @see minValueExpression
+   * @see minErrorText
    */
   public get min(): string {
     return this.getPropertyValue("min");
@@ -277,6 +279,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`max`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/max) attribute of the underlying `<input>` element.
    * @see maxValueExpression
+   * @see maxErrorText
    */
   public get max(): string {
     return this.getPropertyValue("max");
@@ -289,13 +292,15 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("max", val);
   }
   /**
-   * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
+   * The minimum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
    * @see min
+   * @see minErrorText
    */
   @property() minValueExpression: string;
   /**
-   * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
+   * The maximum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
    * @see max
+   * @see maxErrorText
    */
   @property() maxValueExpression: string;
   public get renderedMin(): any {
@@ -305,17 +310,21 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.getPropertyValue("renderedMax");
   }
   /**
-   * An error message to display when the question value is less than the minimum accepted value.
+   * An error message to display when the entered value is less than the minimum accepted value.
    * @see min
    * @see minValueExpression
    */
   @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
   /**
-   * An error message to display when the question value exceeds the maximum accepted value.
+   * An error message to display when the entered value exceeds the maximum accepted value.
    * @see max
    * @see maxValueExpression
    */
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
+  /**
+   * An error message to display when the entered value does not match the [step size](#step).
+   */
+  @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
 
   /**
    * Returns `true` if the specified `inputType` supports the `min` and `max` properties.
@@ -412,8 +421,21 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.valueFromDataCore(val);
   }
   private dateValidationMessage: string;
+  private isMaskInputIncomplete(): boolean {
+    if (this.maskTypeIsEmpty) return false;
+    if (!this.isEmpty()) return false;
+    const inputVal = this._inputValue;
+    if (!inputVal) return false;
+    const emptyMaskedValue = this.maskInstance.getMaskedValue("");
+    return inputVal !== emptyMaskedValue;
+  }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
+    if (this.isMaskInputIncomplete()) {
+      const reqIdx = errors.findIndex(e => e.getErrorType() === "required");
+      if (reqIdx >= 0) errors.splice(reqIdx, 1);
+      errors.push(new PatternIncompleteError(null, this));
+    }
     const isInputUpdate = this.getIsInputTextUpdate();
     if (isOnValueChanged && isInputUpdate) return;
     if (!this.isOnValueChanged) {
@@ -472,7 +494,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this.isMinMaxType) return true;
     const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
     if ((!isValid || this.errors.length > 0) && !!this.survey &&
-      (this.survey.isValidateOnValueChanging || this.survey.isValidateOnValueChanged)) {
+      (this.validationCallbacks.isValidateOnValueChanging || this.validationCallbacks.isValidateOnValueChanged)) {
       this.validate();
     }
     return isValid;
@@ -490,7 +512,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return errorText.replace("{0}", errorValue);
   }
   private getStepErrorText(): string {
-    const text = this.getLocalizationString("stepError");
+    const text = this.stepErrorText;
     return text.replace("{0}", this.renderedStep);
   }
   private get isValueLessMin(): boolean {
@@ -560,6 +582,7 @@ export class QuestionTextModel extends QuestionTextBase {
 
   /**
    * A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
+   * @see stepErrorText
    */
   @property() step: string;
   public get renderedStep(): string {
@@ -631,12 +654,6 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    const maxLength = this.getMaxLength();
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99);
-  }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
   }
@@ -689,8 +706,11 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateDateValidationMessage(event: any): void {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
+  private isClickBlocked() {
+    return this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1;
+  }
   public readOnlyBlocker = (event: any) => {
-    if (this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1) {
+    if (this.isClickBlocked()) {
       event.preventDefault();
       return true;
     }
@@ -740,6 +760,11 @@ export class QuestionTextModel extends QuestionTextBase {
   public beforeDestroyQuestionElement(el: HTMLElement) {
     this.deleteMaskAdapter();
     this.input = undefined;
+  }
+  public onContainerClick(event: Event) {
+    if (event.target == event.currentTarget && !this.isClickBlocked()) {
+      this.input?.focus();
+    }
   }
 }
 
@@ -801,6 +826,9 @@ function propertyEditorMinMaxUpdate(obj: QuestionTextBase, propertyEditor: any):
     propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
     propertyEditor.textUpdateMode = "onBlur";
   }
+}
+function isStepVisible(obj: QuestionTextModel) : boolean {
+  return obj.inputType === "number" || obj.inputType === "range";
 }
 
 Serializer.addClass(
@@ -890,6 +918,12 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
     },
+    {
+      name: "stepErrorText",
+      serializationProperty: "locStepErrorText",
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => isStepVisible(obj)
+    },
     { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"] },
     {
       name: "maskType",
@@ -922,10 +956,7 @@ Serializer.addClass(
     {
       name: "step:number",
       dependsOn: "inputType",
-      visibleIf: function(obj: any) {
-        if (!obj) return false;
-        return obj.inputType === "number" || obj.inputType === "range";
-      },
+      visibleIf: (obj: any) => isStepVisible(obj)
     },
     {
       name: "maxLength:number",

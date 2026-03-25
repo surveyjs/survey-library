@@ -41,7 +41,7 @@
 
 .sd-element--nested-with-borders {
   border: 1px solid $border-light;
-  border-radius: calc(var(--sjs-corner-radius, 4px) - 4px);
+  border-radius: var(--sjs2-radius-component-panel-nested, 8px);
   box-sizing: border-box;
   padding-left: var(--sd-base-padding);
   padding-right: var(--sd-base-padding);

@@ -35,7 +35,7 @@ frameworks.forEach((framework) => {
       await registerNPSComponent(page);
       await initSurvey(page, framework, json);
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");

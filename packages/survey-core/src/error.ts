@@ -173,6 +173,20 @@ export class KeyDuplicationError extends SurveyError {
     return this.getLocalizationString("keyDuplicationError");
   }
 }
+export class PatternIncompleteError extends SurveyError {
+  constructor(
+    public text: string = null,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "patternincompleteerror";
+  }
+  protected getDefaultText(): string {
+    return this.getLocalizationString("incompletePatternError");
+  }
+}
 export class CustomError extends SurveyError {
   constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
     super(text, errorOwner);

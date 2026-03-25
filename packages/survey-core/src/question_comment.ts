@@ -1,7 +1,7 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
-import { settings } from "./settings";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Helpers } from "./helpers";
 
@@ -35,7 +35,14 @@ export class QuestionCommentModel extends QuestionTextBase {
       question: this,
       id: () => this.inputId,
       propertyNames: ["value"],
-      className: () => this.className,
+      cssClasses: () => {
+        return {
+          root: this.getRootClass(),
+          control: this.className,
+          grip: this.cssClasses.grip,
+          gripIconId: this.cssClasses.gripIconId
+        };
+      },
       placeholder: () => this.renderedPlaceholder,
       isDisabledAttr: () => this.isDisabledAttr,
       isReadOnlyAttr: () => this.isReadOnlyAttr || this.forceIsInputReadOnly || false,
@@ -54,7 +61,9 @@ export class QuestionCommentModel extends QuestionTextBase {
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
       onTextAreaFocus: (event) => { this.onFocus(event); },
-      onTextAreaBlur: (event) => { this.onBlur(event); }
+      onTextAreaBlur: (event) => { this.onBlur(event); },
+      hasVisibleInputActions: () => this.hasVisibleInputActions,
+      inputActionsContainer: () => this.inputActionsContainer
     };
     return options;
   }

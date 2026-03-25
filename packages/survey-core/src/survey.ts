@@ -1,6 +1,8 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
-import { Base, EventBase, ComputedUpdater, EventAsync } from "./base";
+import { JsonObject, JsonError, Serializer } from "./jsonobject";
+import { property } from "./decorators";
+import { Base, ComputedUpdater, EventAsync } from "./base";
+import { EventBase } from "./event";
 import {
   ISurvey,
   ISurveyData,
@@ -24,7 +26,8 @@ import {
   IDropdownMenuOptions,
   ITextProcessorProp,
   ITextProcessorResult, ISurveyUIState,
-  ISaveToJSONOptions
+  ISaveToJSONOptions,
+  IScrollElementToTopOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -32,7 +35,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -47,9 +50,13 @@ import {
   UrlConditionItem,
   ExpressionItem,
 } from "./expressionItems";
-import { ConditionRunner, expressionSurveyCachedValue } from "./conditions";
+import { ConditionRunner } from "./conditions/conditionRunner";
+import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
+import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
+import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
+import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -3034,9 +3041,16 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Represents the current state of the survey UI.
    *
-   * The state includes information about expanded/collapsed question boxes, the last visited question, and the last active panel in [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model). Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   * This state captures transient UI details required to restore the respondent's progress and interaction context, including:
    *
-   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   * - Expanded and collapsed question boxes
+   * - Order of randomized choice options
+   * - Last visited question
+   * - Last active panel within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model)
+   *
+   * Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
@@ -5326,15 +5340,18 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
+        let screenOrientationType = DomWindowHelper.getScreenOrientationType();
         this._processingResponsivenessFunc = () => {
           return this.processResponsiveness(observedElement.offsetWidth, mobileWidth, observedElement.offsetHeight);
         };
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           DomWindowHelper.requestAnimationFrame((): void | undefined => {
-            if (isProcessed || !isContainerVisible(observedElement)) {
+            let currScreenOrientationType = DomWindowHelper.getScreenOrientationType();
+            if ((isProcessed || !isContainerVisible(observedElement)) && screenOrientationType === currScreenOrientationType) {
               isProcessed = false;
             } else {
               isProcessed = !!this._processingResponsivenessFunc && this._processingResponsivenessFunc();
+              screenOrientationType = currScreenOrientationType;
             }
           });
         });
@@ -5734,51 +5751,70 @@ export class SurveyModel extends SurveyElementCore
 
   public skeletonHeight: number = undefined;
 
-  scrollElementToTop(
-    element: ISurveyElement, question: Question, page: PageModel,
-    id: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement,
-    onScolledCallback?: () => void
-  ): any {
+  scrollElementToTop(scrollOptions: IScrollElementToTopOptions): any;
+  scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
+  scrollElementToTop(elementOrOptions: ISurveyElement | IScrollElementToTopOptions, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any {
+    let scrollOptions: IScrollElementToTopOptions;
+    if (elementOrOptions && typeof (elementOrOptions as ISurveyElement).getType === "function") {
+      scrollOptions = {
+        element: elementOrOptions as ISurveyElement,
+        question: question,
+        page: page,
+        id: id,
+        scrollIfVisible: scrollIfVisible,
+        scrollIntoViewOptions: scrollIntoViewOptions,
+        passedRootElement: passedRootElement,
+        onScolledCallback: onScolledCallback
+      };
+    } else {
+      scrollOptions = elementOrOptions as IScrollElementToTopOptions;
+    }
+    const { element, question: optQuestion, page: optPage, id: optId, scrollIfVisible: optScrollIfVisible, scrollIntoViewOptions: optScrollIntoViewOptions, passedRootElement: optPassedRootElement, onScolledCallback: optOnScolledCallback } = scrollOptions;
     const options: ScrollToTopEvent = {
       element: element,
-      question: question,
-      page: page,
-      elementId: id,
+      question: optQuestion as any,
+      page: optPage as any,
+      elementId: optId,
       cancel: false,
       allow: true,
     };
     this.onScrollToTop.fire(this, options);
     if (!options.cancel && options.allow) {
-      const elementPage = this.getPageByElement(element as IElement);
+      let elementPage = this.getPageByElement(element as IElement);
+      let elementToForceRender = element;
+      const parentQuestion = (element as SurveyElement).parentQuestion;
+      if (!elementPage && !!parentQuestion) {
+        elementPage = this.getPageByElement(parentQuestion);
+        elementToForceRender = parentQuestion;
+      }
       const { rootElement } = settings.environment;
-      const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
+      const surveyRootElement = this.rootElement || optPassedRootElement || rootElement as any;
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
         if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
-        elementPage.forceRenderElement(element as IElement, () => {
+        elementPage.forceRenderElement(elementToForceRender as IElement, () => {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
             const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
             activateLazyRenderingChecks(pageRootElement);
-            onScolledCallback && onScolledCallback();
+            optOnScolledCallback && optOnScolledCallback();
           });
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
-          SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+          SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
             this.releaseLazyRendering();
             activateLazyRenderingChecks(htmlElement);
-            onScolledCallback && onScolledCallback();
+            optOnScolledCallback && optOnScolledCallback();
           });
         }
       }
@@ -6638,6 +6674,17 @@ export class SurveyModel extends SurveyElementCore
     if (!!survey.locale) {
       locales = [survey.locale];
     }
+    if (Array.isArray(locales)) {
+      const actualDefLocale = surveyLocalization.defaultLocale;
+      const internalDefLocale = settings.localization.defaultLocaleName;
+      if (actualDefLocale !== internalDefLocale) {
+        for (let i = 0; i < locales.length; i++) {
+          if (locales[i] === actualDefLocale) {
+            locales[i] = internalDefLocale;
+          }
+        }
+      }
+    }
     this.mergeLocalizationObj(survey, locales);
   }
   protected isPropertyStoredInHash(name: string): boolean {
@@ -6851,32 +6898,31 @@ export class SurveyModel extends SurveyElementCore
       questionName
     );
   }
-  questionValueChanging(question: IQuestion, newValue: any): any {
+  private getDynamicPanelOptions(question: IQuestion, event: EventBase<SurveyModel>, isComment?: boolean): any {
     const q = <Question>question;
     const parentQ = q.parentQuestion;
-    if (!parentQ) return newValue;
-    if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanging.isEmpty) {
-      const options: any = parentQ.getValueChangingOptions(q);
-      if (options) {
-        options.value = newValue;
-        this.onDynamicPanelValueChanging.fire(this, options);
-        return options.value;
-      }
+    if (!parentQ || !parentQ.isDescendantOf("paneldynamic") || event.isEmpty) return undefined;
+    const options = parentQ.getValueChangingOptions(q);
+    if (options && isComment) {
+      options.name = q.name + this.commentSuffix;
+    }
+    return options;
+  }
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanging, isComment);
+    if (options) {
+      options.value = newValue;
+      this.onDynamicPanelValueChanging.fire(this, options);
+      return options.value;
     }
     return newValue;
   }
-  questionValueChanged(question: IQuestion, oldValue: any): void {
-    const q = <Question>question;
-    const parentQ = q.parentQuestion;
-    if (!!parentQ) {
-      if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanged.isEmpty) {
-        const options: any = parentQ.getValueChangingOptions(q);
-        if (options) {
-          options.value = q.value;
-          options.oldValue = oldValue;
-          this.onDynamicPanelValueChanged.fire(this, options);
-        }
-      }
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void {
+    const options: any = this.getDynamicPanelOptions(question, this.onDynamicPanelValueChanged, isComment);
+    if (options) {
+      options.value = isComment ? (<Question>question).comment : (<Question>question).value;
+      options.oldValue = oldValue;
+      this.onDynamicPanelValueChanged.fire(this, options);
     }
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {

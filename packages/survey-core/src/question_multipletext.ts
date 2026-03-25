@@ -13,7 +13,8 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject, ValidationContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
-import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -23,7 +24,7 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditions/conditionProcessValue";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {
@@ -846,9 +847,6 @@ export class QuestionMultipleTextModel extends Question
   validateContainerOnly(): void {
     // do nothing
   }
-  onQuestionValueChanged(el: IElement): void {
-    // do nothing
-  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemLabel)
@@ -858,7 +856,6 @@ export class QuestionMultipleTextModel extends Question
       .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
       .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
       .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
-      .append(this.cssClasses.itemWithCharacterCounter, !!item.getMaxLength())
       .toString();
   }
   public getItemCss(): string {
@@ -965,7 +962,7 @@ Serializer.addClass(
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
     },
-    { name: "defaultValueExpression:expression", visible: false },
+    { name: "defaultValueExpression:expression" },
     {
       name: "minValueExpression:expression",
       dependsOn: "inputType",

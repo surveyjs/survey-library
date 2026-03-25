@@ -1,50 +1,40 @@
 <template>
   <div :class="question.renderCssRoot" ref="root">
     <div :class="question.cssClasses.selectWrapper">
-      <select
-        v-if="!question.isReadOnly"
-        :id="question.inputId"
-        v-model="renderedValue"
-        @click="click"
-        @keyup="keyUp"
-        :autocomplete="question.autocomplete"
-        :class="question.getControlClass()"
-        :aria-required="question.a11y_input_ariaRequired"
-        :aria-label="question.a11y_input_ariaLabel"
-        :aria-invalid="question.a11y_input_ariaInvalid"
-        :aria-errormessage="question.a11y_input_ariaErrormessage"
-        :required="question.isRequired"
-      >
-        <option v-if="question.allowClear" value="">
-          {{ question.placeholder }}
-        </option>
-        <SvComponent
-          :is="'sv-dropdown-option-item'"
-          v-for="item in question.visibleChoices"
-          :item="item"
-          :key="item.uniqueId"
-        ></SvComponent>
-      </select>
-      <div
-        disabled
-        v-else
-        :id="question.inputId"
-        :class="question.getControlClass()"
-      >
-        {{ question.readOnlyText }}
-      </div>
-      <div
-        :class="question.cssClasses.chevronButton"
-        aria-hidden="true"
-        v-if="question.cssClasses.chevronButtonIconId"
-      >
-        <SvComponent
-          :is="'sv-svg-icon'"
-          :class="question.cssClasses.chevronButtonSvg"
-          :iconName="question.cssClasses.chevronButtonIconId"
-          size="auto"
+      <div :class="question.getControlClass()">
+        <select
+          v-if="!question.isReadOnly"
+          :id="question.inputId"
+          v-model="renderedValue"
+          @click="click"
+          @keyup="keyUp"
+          :autocomplete="question.autocomplete"
+          :class="question.cssClasses.controlValue"
+          :aria-required="question.a11y_input_ariaRequired"
+          :aria-label="question.a11y_input_ariaLabel"
+          :aria-invalid="question.a11y_input_ariaInvalid"
+          :aria-errormessage="question.a11y_input_ariaErrormessage"
+          :required="question.isRequired"
         >
-        </SvComponent>
+          <option v-if="question.allowClear" value="">
+            {{ question.placeholder }}
+          </option>
+          <SvComponent
+            :is="'sv-dropdown-option-item'"
+            v-for="item in question.visibleChoices"
+            :item="item"
+            :key="item.uniqueId"
+          ></SvComponent>
+        </select>
+        <div
+          disabled
+          v-else
+          :id="question.inputId"
+          :class="question.getControlClass()"
+        >
+          {{ question.readOnlyText }}
+        </div>
+        <SvComponent :is="'sv-action-bar'" :model="question.inputActionBar"></SvComponent>
       </div>
     </div>
     <SvComponent

@@ -23,7 +23,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
-import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditions/conditionProcessValue";
 import { ValidationContext } from "./question";
 
 /**
@@ -779,9 +779,6 @@ export abstract class QuestionCustomModelBase extends Question
   validateContainerOnly(): void {
     // do nothing
   }
-  onQuestionValueChanged(el: IElement): void {
-    // do nothing
-  }
   getQuestionErrorLocation(): string {
     return this.getErrorLocation();
   }
@@ -899,6 +896,24 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   public get contentQuestion(): Question {
     return this.questionWrapper;
+  }
+  public get ariaTitleId(): string {
+    if (this.contentQuestion) {
+      return this.contentQuestion.ariaTitleId;
+    }
+    return this.id + "_ariaTitle11";
+  }
+  public get ariaDescriptionId(): string {
+    if (this.contentQuestion) {
+      return this.contentQuestion.ariaDescriptionId;
+    }
+    return this.id + "_ariaDescription";
+  }
+  public get commentId(): string {
+    if (this.contentQuestion) {
+      return this.contentQuestion.commentId;
+    }
+    return this.id + "_comment";
   }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;

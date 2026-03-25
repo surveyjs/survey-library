@@ -21,28 +21,12 @@
     margin-left: auto;
     margin-right: auto;
     padding-top: calcSize(6);
-    padding-bottom: calcSize(10);
-
-    .sd-body__timer,
-    .sd-body__navigation,
-    .sd-body__page {
-      margin-left: 0;
-      margin-right: 0;
-    }
-
-    .sd-body__navigation {
-      padding-top: calcSize(4);
-    }
-
-    .sd-body__navigation.sd-action-bar {
-      padding-left: calcSize(5);
-      padding-right: calcSize(5);
-    }
+    padding-bottom: calcSize(8);
   }
 
   &.sd-body--responsive {
     max-width: initial;
-    padding: calcSize(5) calcSize(5) calcSize(3);
+    padding: calcSize(5) calcSize(5) calcSize(1);
     box-sizing: border-box;
 
     .sd-page {
@@ -51,11 +35,8 @@
 
     .sd-body__timer,
     .sd-body__navigation {
-      padding: calcSize(2) 0;
-    }
-
-    .sd-body__navigation {
-      padding-top: calcSize(4);
+      padding-left: 0;
+      padding-right: 0;
     }
 
     &.sd-body--with-timer {
@@ -101,13 +82,6 @@
       }
     }
   }
-}
-
-.sd-body__navigation.sd-action-bar {
-  box-sizing: border-box;
-  padding: calcSize(2) calcSize(2);
-  flex-wrap: wrap;
-  gap: calcSize(2);
 }
 
 .sd-body--empty {

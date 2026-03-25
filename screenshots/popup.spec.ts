@@ -285,7 +285,7 @@ frameworks.forEach(framework => {
                   model: model,
                   survey: model
                 }
-              });
+              }, window["survey"].rootElement);
             }
           });
           opt.titleActions = [item];

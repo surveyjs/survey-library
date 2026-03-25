@@ -1,23 +1,9 @@
 @use "../variables.scss" as *;
 
-.sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
-  height: auto;
-  // padding: calcSize(0.5);
-  // padding-inline-end: calcSize(6); //padding-right
-  padding-inline-start: calcSize(0.5); //padding-left
-
-  .sd-tagbox__value {
-    padding: 0;
-  }
-}
-
-.sd-tagbox {
-  &.sd-input--disabled,
-  &.sd-input--readonly,
-  &.sd-input--preview {
-    .sd-tagbox__value {
-      white-space: normal;
-    }
+.sd-tagbox--readonly,
+.sd-tagbox--preview {
+  .sd-tagbox__input {
+    white-space: normal;
   }
 }
 
@@ -34,10 +20,8 @@
   margin: auto 0;
 }
 
-.sd-input.sd-tagbox:focus-within {
-  box-shadow:
-    $shadow-inner-reset,
-    $shadow-focused;
+.sd-formbox.sd-tagbox:focus-within {
+  box-shadow: $shadow-inner-reset, $shadow-focused;
 }
 
 .sv-tagbox__item {
@@ -45,8 +29,8 @@
   display: flex;
   align-items: center;
   padding: calcSize(1) calcSize(1.5);
-  background-color: $primary;
-  border-radius: calcCornerRadius(0.5);
+  background-color: var(--sjs2-color-component-tagbox-item-default-bg, #fff);
+  border-radius: var(--sjs2-radius-component-tagbox-item, 4px);
   box-shadow: inset 0 0 0 var(--lbr-tag-box-item-border-width, 0)
     var(--lbr-tag-box-item-border-color, rgba(255, 255, 255, 0));
 
@@ -55,7 +39,7 @@
 }
 
 .sv-tagbox__item-text {
-  color: $primary-foreground;
+  color: var(--sjs2-color-component-tagbox-item-default-label, #1C1B20);
   min-width: calcSize(5.5);
   text-align: center;
   font-weight: 600;
@@ -82,7 +66,7 @@
   inset-inline-end: calcSize(1.5);
   padding: 0;
   padding-inline-start: calcSize(4);
-  background: linear-gradient(270deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
+  background: linear-gradient(270deg, var(--sjs2-color-component-tagbox-item-default-bg, #fff) 53.12%, rgba(25, 179, 148, 0) 100%);
   opacity: 0;
   transition: opacity $transition-duration;
 }
@@ -96,22 +80,27 @@
 }
 
 .sd-tagbox-item_clean-button-svg:hover {
-  border-radius: 100px;
-  background: $primary-foreground-disabled;
+  border-radius: var(--sjs2-radius-component-tagbox-item-action, 9999px);
+  background: var(--sjs2-color-component-tagbox-item-action-hovered-bg, #EDEDED);
 }
 
 .sd-tagbox-item_clean-button-svg use {
-  fill: $primary-foreground;
+  fill: var(--sjs2-color-component-tagbox-item-action-default-icon, #424146);
 }
 
-.sd-tagbox__value.sd-dropdown__value {
+.sd-tagbox:where(:not(.sd-tagbox--empty, .sd-tagbox--readonly)) {
+  .sd-tagbox__input {
+    padding: 0;
+  }
+}
+
+.sd-tagbox__input.sd-dropdown__input {
   position: relative;
   gap: calcSize(0.5);
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
   align-content: center;
-  padding-inline: unset;
   margin-inline: unset;
   margin-block: unset;
 }
@@ -141,16 +130,17 @@
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sd-tagbox-item_clean-button {
-    background: linear-gradient(90deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
+    background: linear-gradient(90deg, var(--sjs2-color-component-tagbox-item-default-bg, #fff) 53.12%, rgba(25, 179, 148, 0) 100%);
   }
 }
-
 .sd-tagbox.sd-tagbox--empty {
+  .sd-tagbox__input {
+    align-content: normal;
+  }
   .sd-tagbox__hint,
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
     width: 100%;
-    height: 100%;
   }
 }
 
@@ -158,6 +148,7 @@
   display: flex;
   flex-grow: 1;
   max-width: 100%;
+  overflow: hidden;
 }
 
 .sd-tagbox__hint-suffix-wrapper {

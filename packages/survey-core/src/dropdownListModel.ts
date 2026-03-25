@@ -5,19 +5,19 @@ import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { IListModel, ListModel } from "./list";
 import { LocalizableString } from "./localizablestring";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
-import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
-import { classesToSelector, doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
+import { doKey2ClickBlur, doKey2ClickUp } from "./utils/key2click";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
@@ -163,7 +163,7 @@ export class DropdownListModel extends Base {
 
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
-    this.editorButtons.containerCss = "sd-dropdown-action-bar";
+    this.editorButtons.setCssClasses(this.question.survey?.getCss().inputActionBar, false);
 
     this.chevronButton = new Action({
       id: "chevron",
@@ -206,11 +206,6 @@ export class DropdownListModel extends Base {
     });
 
     this.editorButtons.setItems([this.clearButton, this.chevronButton]);
-    this.editorButtons.actions.forEach(action => action.cssClasses = {
-      item: "sd-editor-button-item",
-      itemIcon: "sv-editor-button-item__icon",
-      itemPressed: "sd-editor-button-item--pressed",
-    });
   }
 
   protected createPopup(): void {
@@ -457,7 +452,7 @@ export class DropdownListModel extends Base {
 
   public updateCustomItemValue(): void {
     if (this.customValue) {
-      this.customItemValue.text = this.getLocalizationFormatString("createCustomItem", this.customValue);
+      this.customItemValue.text = this.getCustomItemText(this.customValue);
       this.customItemValue.visible = true;
     } else {
       this.resetCustomItemValue();
@@ -472,12 +467,18 @@ export class DropdownListModel extends Base {
   private _customItemValue: ItemValue;
   public get customItemValue(): ItemValue {
     if (!this._customItemValue) {
-      this._customItemValue = new ItemValue("newCustomItem", this.getLocalizationFormatString("createCustomItem", this.customValue));
+      this._customItemValue = new ItemValue("newCustomItem", this.getCustomItemText(this.customValue));
       this._customItemValue.css = "sv-list-item--custom-value";
     }
     return this._customItemValue;
   }
-
+  private getCustomItemText(value: string): string {
+    const questionText = (this.question as any).createCustomChoiceText;
+    if (questionText) {
+      return questionText.replace("{0}", value);
+    }
+    return this.getLocalizationFormatString("createCustomItem", value);
+  }
   @property({ defaultValue: false }) allowCustomChoices: boolean;
   @property({
     onSet: (newValue: string, target: DropdownListModel) => {
@@ -859,12 +860,20 @@ export class DropdownListModel extends Base {
   }
 
   private handleEnter(event: any): { stopPropagation: boolean } {
-    if (!this.popupModel.isVisible) {
-      (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
-      return { stopPropagation: true };
+    if (this.popupModel.isVisible) {
+      this.handleEnterWhenPopupVisible(event);
+    } else {
+      this.handleEnterWhenPopupHidden(event);
     }
-    const shouldClearOnEnter = this.searchEnabled && !this.inputString &&
-      this.question instanceof QuestionDropdownModel && !this._markdownMode && !!this.question.value;
+    return { stopPropagation: true };
+  }
+
+  protected handleEnterWhenPopupHidden(event: any): void {
+    (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+  }
+
+  protected handleEnterWhenPopupVisible(event: any): void {
+    const shouldClearOnEnter = this.searchEnabled && !this.inputString && !this._markdownMode && !!this.question.value;
 
     if (shouldClearOnEnter) {
       this._popupModel.hide();
@@ -873,7 +882,6 @@ export class DropdownListModel extends Base {
       this.listModel.selectFocusedItem();
       this.onFocus(event);
     }
-    return { stopPropagation: true };
   }
 
   private handleDelete(event: any): { stopPropagation: boolean } {

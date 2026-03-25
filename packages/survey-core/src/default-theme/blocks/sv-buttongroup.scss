@@ -28,9 +28,9 @@
   outline: none;
   font-size: calcFontSize(1);
   font-weight: 400;
-  background: $background;
+  background: var(--sjs2-color-component-buttongroup-item-false-default-bg, transparent);
   cursor: pointer;
-  color: $foreground;
+  color: var(--sjs2-color-component-buttongroup-item-false-default-value, rgba(28, 27, 32, 0.6));
   position: relative;
 
   &:not(:last-of-type) {
@@ -39,7 +39,7 @@
 }
 
 .sv-button-group__item--hover:hover {
-  background-color: $background-dim;
+  background-color: var(--sjs2-color-component-buttongroup-item-false-hovered-bg, #EDEDED);
 }
 
 .sv-button-group__item-icon {
@@ -53,14 +53,14 @@
 
 .sv-button-group__item--selected {
   font-weight: 600;
-  color: $primary;
+  color: var(--sjs2-color-component-buttongroup-item-true-default-value, #19B394);
 
   .sv-button-group__item-icon use {
-    fill: $primary;
+    fill: var(--sjs2-color-component-buttongroup-item-true-default-value, #19B394);
   }
 
   &:hover {
-    background-color: $background;
+    background-color: var(--sjs2-color-component-buttongroup-item-true-default-bg, #fff);
   }
 }
 
@@ -79,7 +79,7 @@
 }
 
 .sv-button-group__item--disabled {
-  color: $foreground;
+  color: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #D4D4D4);
   cursor: default;
 
   .sv-button-group__item-decorator {
@@ -88,11 +88,11 @@
   }
 
   .sv-button-group__item-icon use {
-    fill: $foreground;
+    fill: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #D4D4D4);
   }
 
   &:hover {
-    background-color: $background;
+    background-color: var(--sjs2-color-component-buttongroup-item-false-disabled-bg, #fff);
   }
 }
 

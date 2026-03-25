@@ -1,11 +1,45 @@
-import { increaseHeightByContent } from "./utils";
+import { ActionContainer } from "../actions/container";
+import { DomDocumentHelper } from "../global_variables_utils";
 import { Question } from "../question";
 
+export function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
+  if (!element) return;
+  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
+  const rows = parseFloat(element.getAttribute("rows") || "2");
+  const style = getComputedStyle(element);
+  const oldOverlow = style.overflowY;
+  const lineHeight = parseFloat(style.lineHeight);
+  if (!!element.scrollHeight) {
+    const paddingBorderWidth = (parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) + parseFloat(style.paddingBottom) + parseFloat(style.paddingTop));
+    let currentLinesCount = (element.scrollHeight - paddingBorderWidth) / lineHeight;
+    const setHeight = (linesCount: number) => { element.style.height = linesCount * lineHeight + paddingBorderWidth + "px"; };
+    setHeight(currentLinesCount);
+    element.style.overflowY = "hidden";
+    while(element.scrollHeight <= element.offsetHeight && currentLinesCount > rows) {
+      currentLinesCount--;
+      setHeight(currentLinesCount);
+    }
+    element.style.overflowY = oldOverlow;
+    if (element.scrollHeight > element.offsetHeight) {
+      currentLinesCount++;
+      setHeight(currentLinesCount);
+    }
+  } else {
+    element.style.height = "auto";
+  }
+}
+interface ITextAreaCssClasses {
+    root?: string;
+    group?: string;
+    grip?: string;
+    control?: string;
+    gripIconId?: string;
+}
 export interface ITextArea {
   question: any;
   id: () => string;
   propertyNames: Array<string>;
-  className: () => string;
+  cssClasses: () => ITextAreaCssClasses;
   isDisabledAttr: () => boolean;
   isReadOnlyAttr?: () => boolean;
   placeholder: () => string;
@@ -19,13 +53,14 @@ export interface ITextArea {
   onTextAreaKeyDown?: (event: any) => void;
   onTextAreaBlur?: (event: any) => void;
   onTextAreaFocus?: (event: any) => void;
-
   ariaRequired: () => "true" | "false";
   ariaLabel: () => string;
   ariaInvalid?: () => "true" | "false";
   ariaLabelledBy?: () => string;
   ariaDescribedBy?: () => string;
   ariaErrormessage?: () => string;
+  hasVisibleInputActions?: () => boolean;
+  inputActionsContainer?: () => ActionContainer;
 }
 
 export class TextAreaModel {
@@ -100,8 +135,8 @@ export class TextAreaModel {
   get placeholder(): string {
     return this.options.placeholder();
   }
-  get className(): string {
-    return this.options.className();
+  getCssClasses(): ITextAreaCssClasses {
+    return this.options.cssClasses();
   }
   get maxLength(): number {
     if (this.options.maxLength)
@@ -149,6 +184,18 @@ export class TextAreaModel {
   get ariaErrormessage(): string {
     if (this.options.ariaErrormessage)
       return this.options.ariaErrormessage();
+  }
+  get hasVisibleInputActions(): boolean {
+    if (this.options.hasVisibleInputActions) {
+      return this.options.hasVisibleInputActions();
+    }
+    return false;
+  }
+  get inputActionsContainer(): ActionContainer {
+    if (this.options.inputActionsContainer) {
+      return this.options.inputActionsContainer();
+    }
+    return null;
   }
   public dispose(): void {
     if (this.question) {

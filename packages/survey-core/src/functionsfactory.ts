@@ -1,7 +1,8 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
-import { ConditionRunner, ExpressionExecutor } from "./conditions";
+import { getQuestionErrorText } from "./expressions/expressionError";
+import { ConditionRunner } from "./conditions/conditionRunner";
 
 export interface IFunctionCachedResult {
   result: any;
@@ -129,6 +130,7 @@ export class FunctionFactory {
     if (!funcInfo.useCache) return;
     const surveyValues = properties.surveyCachedValues;
     const objectValues = properties.objsCachedValues;
+    if (!Array.isArray(surveyValues) || !Array.isArray(objectValues)) return;
     if (params.length === 0 && surveyValues.length === 0 && objectValues.length === 0) return;
     let cachedList = this.functionCache[funcInfo.name];
     if (!Array.isArray(cachedList)) {
@@ -188,7 +190,7 @@ export class FunctionFactory {
     return false;
   }
   private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
-    return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);
+    return "Unknown function name: '" + name + "'." + getQuestionErrorText(properties);
   }
 }
 export interface IFunctionRegistration {
@@ -443,25 +445,15 @@ FunctionFactory.Instance.register("age", age);
 function dateDiff(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
-  const isHours = type === "hours" || type === "minutes" || type === "seconds";
-  const dType = isHours ? "days" : type;
-  let days = dateDiffMonths(params[0], params[1], dType);
-  if (isHours) {
-    const date1 = createDate("function-dateDiffMonths", params[0]);
-    const date2 = createDate("function-dateDiffMonths", params[1]);
-    if (date2.getHours() > date1.getHours() || (type !== "hours" && date2.getHours() === date1.getHours() && date2.getMinutes() > date1.getMinutes())) {
-      days -= 1;
-    }
-    let hours = days * 24 + date2.getHours() - date1.getHours();
-    if (type === "hours") return hours;
-    if (date2.getMinutes() < date1.getMinutes()) {
-      hours -= 1;
-    }
-    const minutes = hours * 60 + date2.getMinutes() - date1.getMinutes();
-    if (type === "minutes") return minutes;
-    return minutes * 60 + date2.getSeconds() - date1.getSeconds();
+  if (type === "hours" || type === "minutes" || type === "seconds") {
+    const date1: any = createDate("function-dateDiffMonths", params[0]);
+    const date2: any = createDate("function-dateDiffMonths", params[1]);
+    const diffMs = Math.abs(date2 - date1);
+    if (type === "hours") return Math.ceil(diffMs / (1000 * 60 * 60));
+    if (type === "minutes") return Math.ceil(diffMs / (1000 * 60));
+    return Math.ceil(diffMs / 1000);
   }
-  return days;
+  return dateDiffMonths(params[0], params[1], type);
 }
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 
@@ -565,8 +557,9 @@ function diffDays(params: any[]) {
   if (!params[0] || !params[1]) return 0;
   const date1: any = createDate("function-diffDays", params[0]);
   const date2: any = createDate("function-diffDays", params[1]);
-  const diffTime = Math.abs(date2 - date1);
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const utc1 = Date.UTC(date1.getFullYear(), date1.getMonth(), date1.getDate());
+  const utc2 = Date.UTC(date2.getFullYear(), date2.getMonth(), date2.getDate());
+  return Math.ceil(Math.abs(utc2 - utc1) / (1000 * 60 * 60 * 24));
 }
 FunctionFactory.Instance.register("diffDays", diffDays);
 
@@ -675,3 +668,10 @@ function getComment(params: any[]): any {
   return question.getCommentValue(question.otherItem) || question.comment;
 }
 FunctionFactory.Instance.register("getComment", getComment);
+
+export function expressionSurveyCachedValue(name: string, value: any, isVariable?: boolean): void {
+  FunctionFactory.Instance.addSurveyCachedValue(name, value, isVariable);
+}
+export function expressionObjectCachedValue(obj: any, name: string, value: any): void {
+  FunctionFactory.Instance.addObjectCachedValue(obj, name, value);
+}

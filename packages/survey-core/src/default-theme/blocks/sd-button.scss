@@ -5,8 +5,8 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
-  background: $question-background;
-  border-radius: calcCornerRadius(1);
+  background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0.00));
+  border-radius: var(--sjs2-radius-component-action, 8px);
   cursor: pointer;
 
   font-family: $font-family;
@@ -15,7 +15,7 @@
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
   text-align: center;
-  color: $primary;
+  color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19B394);
   border: none;
   outline: none;
 
@@ -29,7 +29,7 @@
 }
 
 .sd-btn:hover {
-  background-color: $background-dark;
+  background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.15));
 }
 
 .sd-btn:focus-visible {
@@ -37,37 +37,37 @@
 }
 
 .sd-btn:disabled {
-  color: $foreground;
+  color: var(--sjs2-color-component-action-brand-tertiary-disabled-label, rgba(28, 27, 32, 0.4));
   opacity: 0.25;
   pointer-events: none;
 }
 
 .sd-btn--action {
-  background-color: $primary;
-  color: $primary-foreground;
+  background-color: var(--sjs2-color-component-action-brand-primary-default-bg, #19B394);
+  color: var(--sjs2-color-component-action-brand-primary-default-label, #fff);
 }
 
 .sd-btn--action:hover {
-  color: $primary-foreground;
-  background-color: $primary-background-dark;
+  color: var(--sjs2-color-component-action-brand-primary-hovered-label, #fff);
+  background-color: var(--sjs2-color-component-action-brand-primary-hovered-bg, #15987E);
 }
 
 .sd-btn--action:disabled {
-  color: $primary-foreground-disabled;
+  color: var(--sjs2-color-component-action-brand-primary-disabled-label, rgba(28, 27, 32, 0.4));
   pointer-events: none;
 }
 
 .sd-btn--danger {
-  background-color: $red;
-  color: $primary-foreground;
+  background-color: var(--sjs2-color-component-action-alert-primary-default-bg, #E50A3E);
+  color: var(--sjs2-color-component-action-alert-primary-default-label, #fff);
 }
 
 .sd-btn--danger:hover {
-  background-color: $red;
-  color: $primary-foreground;
+  background-color: var(--sjs2-color-component-action-alert-primary-hovered-bg, #C30935);
+  color: var(--sjs2-color-component-action-alert-primary-hovered-label, #fff);
 }
 
 .sd-btn--danger:disabled {
-  color: $red-forecolor;
+  color: var(--sjs2-color-component-action-alert-primary-disabled-label, rgba(28, 27, 32, 0.4));
   pointer-events: none;
 }

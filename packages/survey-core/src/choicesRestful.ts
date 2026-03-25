@@ -1,7 +1,8 @@
 import { Base } from "./base";
 import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
-import { Serializer, JsonObjectProperty, property } from "./jsonobject";
+import { Serializer, JsonObjectProperty } from "./jsonobject";
+import { property } from "./decorators";
 import { WebRequestError, WebRequestEmptyError } from "./error";
 import { IBeforeRequestChoicesOptions, settings } from "./settings";
 import { SurveyError } from "./survey-error";

@@ -81,7 +81,7 @@
 
   .sv-list__item-body {
     @include mixins.borderLight;
-    border-radius: calcCornerRadius(1);
+    border-radius: var(--sjs2-radius-component-drop-item, 8px);
     padding-block: calcSize(0.75);
     padding-inline-end: calcSize(7.75);
     padding-inline-start: calcSize(1.75);

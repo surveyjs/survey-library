@@ -5,7 +5,6 @@
   padding: calcSize(1.5) 0;
 }
 
-.sd-item--disabled.sd-item--disabled .sd-item__decorator,
 .sd-item__decorator {
   display: flex;
   align-items: center;
@@ -13,18 +12,23 @@
   width: calcSize(3);
   height: calcSize(3);
   box-sizing: border-box;
-  background-color: $editor-background;
+  background-color: var(--sjs2-color-component-check-false-default-bg, #F5F5F5);
   border: none;
   flex-shrink: 0;
   margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
-  box-shadow: $shadow-inner, $shadow-focused-reset;
+  box-shadow: var(--sjs2-border-effect-component-check-false-default, inset 0px 1px 2px 0px #D4D4D4), $shadow-focused-reset;
   transition: box-shadow $transition-duration, background $transition-duration;
+}
+
+.sd-item--disabled.sd-item--disabled .sd-item__decorator {
+  background-color: var(--sjs2-color-component-check-false-disabled-bg, #fff);
+  box-shadow: var(--sjs2-border-effect-component-check-false-disabled, inset 0px 0px 0px 1px #F5F5F5), $shadow-focused-reset;
 }
 
 .sd-item--readonly.sd-item--readonly {
   &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
   .sd-item__decorator {
-    background-color: $background-dark;
+    background-color: var(--sjs2-color-component-check-false-readonly-bg, #fff);
     box-shadow: none;
     transition: none;
   }
@@ -37,22 +41,22 @@
 }
 
 .sd-item--checked .sd-item__decorator {
-  box-shadow: none;
+  box-shadow: var(--sjs2-border-effect-component-check-true-default, inset 0px 1px 2px 0px #19B394);
 }
 
 .sd-item__control:focus+.sd-item__decorator {
-  background: $question-background;
+  background: var(--sjs2-color-component-check-false-focused-bg, #F5F5F5);
   outline: none;
   box-shadow: $shadow-inner-reset, $shadow-focused;
 }
 
 .sd-item--allowhover:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
-  background: $background-dim-dark;
+  background: var(--sjs2-color-component-check-false-hovered-bg, #EDEDED);
   outline: none;
 }
 
 .sd-item--checked .sd-item__decorator {
-  background: $primary;
+  background: var(--sjs2-color-component-check-true-default-bg, #19B394);
 }
 
 .sd-item__control-label {

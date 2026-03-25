@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { ArrayChanges, Base } from "./base";
 import {
@@ -13,7 +14,8 @@ import {
   ITitleOwner,
   IProgressInfo,
   ISurvey,
-  IFindElement
+  IFindElement,
+  ISurveyValidation
 } from "./base-interfaces";
 import { SurveyElement, RenderingCompletedAwaiter } from "./survey-element";
 import { Question } from "./question";
@@ -21,7 +23,9 @@ import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
 import { settings } from "./settings";
-import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, floorTo2Decimals, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
+import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/animation-dom";
+import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/dom-utils";
+import { floorTo2Decimals } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Action, IAction } from "./actions/action";
@@ -287,6 +291,9 @@ export class PanelModelBase extends SurveyElement<Question>
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
   private questionsValue: Array<Question> = new Array<Question>();
+  public get validationCallbacks(): ISurveyValidation {
+    return this.survey as ISurveyValidation;
+  }
   private _columns: Array<PanelLayoutColumnModel> = undefined;
   private _columnsReady = false;
 
@@ -514,7 +521,7 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public get requiredMark(): string {
     return !!this.survey && this.isRequired
-      ? this.survey.requiredMark
+      ? this.titleSettings.requiredMark
       : "";
   }
   /**
@@ -524,7 +531,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.requiredMark;
   }
   protected get titlePattern(): string {
-    return !!this.survey ? this.survey.questionTitlePattern : "numTitleRequire";
+    return !!this.survey ? this.titleSettings.questionTitlePattern : "numTitleRequire";
   }
   public get isRequireTextOnStart() {
     return this.isRequired && this.titlePattern == "requireNumTitle";
@@ -662,7 +669,7 @@ export class PanelModelBase extends SurveyElement<Question>
       classes.rowMultiple = css.rowMultiple;
     }
     if (this.survey) {
-      this.survey.updatePanelCssClasses(this, classes);
+      this.cssCallbacks.updatePanelCssClasses(this, classes);
     }
     return classes;
   }
@@ -955,26 +962,11 @@ export class PanelModelBase extends SurveyElement<Question>
       this.parent.validateContainerOnly();
     }
   }
-  onQuestionValueChanged(el: IElement): void {
-    const index = this.questions.indexOf(<any>el);
-    if (index < 0) return;
-    const dif = 5;
-    const max = this.questions.length - 1;
-    const start = index - dif > 0 ? index - dif : 0;
-    const end = index + dif < max ? index + dif : max;
-    for (let i = start; i <= end; i ++) {
-      if (i === index) continue;
-      const q = this.questions[i];
-      if (q.errors.length > 0 && q.validate(false)) {
-        q.validate(true);
-      }
-    }
-  }
   private validateInPanels(context: ValidationContext): void {
     var errors = <Array<any>>[];
     this.validateRequired(context, errors);
     if (this.survey) {
-      this.survey.validatePanel(this, errors, context.fireCallback);
+      this.validationCallbacks.validatePanel(this, errors, context.fireCallback);
       context.setErrorElement(this, errors);
     }
     if (!!context.fireCallback) {
@@ -1005,7 +997,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return context.errorCount <= errorCount;
   }
   protected validateCore(context: ValidationContext): void {
-    let singleQ = <Question>this.survey?.currentSingleQuestion;
+    let singleQ = <Question>this.singleInput?.currentSingleQuestion;
     if (singleQ && this.questions.indexOf(singleQ) < 0) {
       singleQ = undefined;
     }
@@ -1243,7 +1235,7 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.questionTitleLocation != "default")
       return this.questionTitleLocation;
     if (this.parent) return this.parent.getQuestionTitleLocation();
-    return this.survey ? this.survey.questionTitleLocation : "top";
+    return this.survey ? this.titleSettings.questionTitleLocation : "top";
   }
   availableQuestionTitleWidth(): boolean {
     return this.getQuestionTitleLocation() === "left" || this.hasElementWithTitleLocationLeft();
@@ -1342,7 +1334,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return result;
   }
   protected isQuestionIndexRecursive(): boolean {
-    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
+    return !!this.survey && this.titleSettings.showQuestionNumbers === "recursive";
   }
   getQuestionStartIndex(): string {
     const res = this.getStartIndex();
@@ -1567,9 +1559,9 @@ export class PanelModelBase extends SurveyElement<Question>
   private onRemoveElementNotifySurvey(element: IElement): void {
     if (!this.canFireAddRemoveNotifications(element)) return;
     if (!element.isPanel) {
-      this.survey.questionRemoved(<Question>element);
+      this.lifecycleCallbacks.questionRemoved(<Question>element);
     } else {
-      this.survey.panelRemoved(element);
+      this.lifecycleCallbacks.panelRemoved(element);
     }
   }
   private onElementVisibilityChanged(element: any) {
@@ -2058,7 +2050,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public getQuestionErrorLocation(): string {
     if (this.questionErrorLocation !== "default") return this.questionErrorLocation;
     if (this.parent) return this.parent.getQuestionErrorLocation();
-    return this.survey ? this.survey.questionErrorLocation : "top";
+    return this.survey ? this.titleSettings.questionErrorLocation : "top";
   }
   //ITitleOwner
   public getTitleOwner(): ITitleOwner { return this; }
@@ -2245,7 +2237,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       no = (<any>this.parent).addNoFromChild(no);
     }
     if (this.survey) {
-      no = this.survey.getUpdatedPanelNo(this, no);
+      no = this.titleSettings.getUpdatedPanelNo(this, no);
     }
     return no || "";
   }
@@ -2299,7 +2291,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private notifySurveyOnVisibilityChanged() {
     if (this.survey != null && !this.isLoadingFromJson) {
-      this.survey.panelVisibilityChanged(this, this.isVisible);
+      this.lifecycleCallbacks.panelVisibilityChanged(this, this.isVisible);
     }
   }
   protected getRenderedTitle(str: string): string {
@@ -2457,7 +2449,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop(q, q, null, q.inputId, false, { behavior: "smooth" });
+            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: "smooth" } });
           }
         }, elementIsRendered ? 0 : 15);
       }
@@ -2538,7 +2530,7 @@ Serializer.addClass(
     { name: "startWithNewLine:boolean", default: true },
     { name: "width" },
     { name: "minWidth", defaultFunc: () => "auto" },
-    { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+    { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
     { name: "colSpan:number", visible: false, onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); } },
     {
       name: "effectiveColSpan:number", minValue: 1, isSerializable: false,

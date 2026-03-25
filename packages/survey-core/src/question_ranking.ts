@@ -2,7 +2,8 @@ import { ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
 import { DragDropRankingSelectToRank } from "./dragdrop/ranking-select-to-rank";
 import { ItemValue } from "./itemvalue";
-import { property, propertyArray, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -11,7 +12,7 @@ import { Helpers } from "./helpers";
 import { settings } from "../src/settings";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
-import { classesToSelector } from "./utils/utils";
+import { classesToSelector } from "./utils/dom-utils";
 
 /**
  * A class that describes the Ranking question type.

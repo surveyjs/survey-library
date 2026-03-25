@@ -606,7 +606,7 @@ Serializer.addProperty("itemvalue", {
 });
 ```
 
-<img src="images/locationInTable.png" width="1544" height="884" alt="SurveyJS Form Builder: locationInTable property">
+<img src="images/locationintable.png" width="1544" height="884" alt="SurveyJS Form Builder: locationInTable property">
 
 ### `maxLength`
 

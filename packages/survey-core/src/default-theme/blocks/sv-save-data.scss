@@ -8,7 +8,7 @@
   opacity: 0;
   padding: calcSize(3) calcSize(6);
   box-shadow: $shadow-medium;
-  border-radius: calcCornerRadius(2);
+  border-radius: var(--sjs2-radius-component-notifier, 16px);
   color: $foreground;
   min-width: calcSize(30);
   text-align: center;

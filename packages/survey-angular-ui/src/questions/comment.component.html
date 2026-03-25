@@ -1,8 +1,4 @@
 <ng-container *ngIf="!model.isReadOnlyRenderDiv()">
   <ng-template [component]="{ name: 'sv-text-area', data: { model: model.textAreaModel } }"></ng-template>
-  <sv-ng-character-counter *ngIf="model.getMaxLength()" 
-  [counter]="model.characterCounter"
-  [remainingCharacterCounter]="model.cssClasses.remainingCharacterCounter">
-  </sv-ng-character-counter>
 </ng-container>
 <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ model.value }}</div>

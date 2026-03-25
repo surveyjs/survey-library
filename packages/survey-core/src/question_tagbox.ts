@@ -1,14 +1,15 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionCheckboxModel } from "./question_checkbox";
 import { PopupModel } from "./popup";
 import { DropdownMultiSelectListModel } from "./dropdownMultiSelectListModel";
-import { EventBase } from "./base";
+import { EventBase } from "./event";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { updateListCssValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/dom-utils";
 import { Helpers } from "./helpers";
 import { questionDropdownMixin } from "./question_dropdown_mixin";
 
@@ -73,6 +74,8 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       }
     }
   }) allowCustomChoices: boolean;
+
+  @property({ localizable: { defaultStr: "createCustomItem" } }) createCustomChoiceText: string;
 
   /**
    * Specifies whether to display a button that clears the selected value.
@@ -235,6 +238,7 @@ Serializer.addClass(
       name: "allowCustomChoices:boolean", default: false,
       visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
     },
+    { name: "createCustomChoiceText", serializationProperty: "locCreateCustomChoiceText", visibleIf: (obj: any): boolean => obj.allowCustomChoices },
     { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

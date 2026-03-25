@@ -58,7 +58,7 @@ describe("event tests", () => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    survey.css = { text: { root: "sv_q_text_root" } };
+    survey.css = { text: { control: "sv_q_text_root" } };
     component.model = survey;
     component.model.onAfterRenderQuestionInput.add((sender: SurveyModel, opt: any) => {
       expect(opt.htmlElement.className.search(/sv_q_text_root/) > -1).toBe(true);

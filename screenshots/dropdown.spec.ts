@@ -106,9 +106,10 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(500);
+      await page.locator(".sv-popup__container").filter({ visible: true }).first().waitFor({ state: "visible" });
       await compareScreenshot(page, ".sv-popup__container", "dropdown-item-focused-state.png");
     });
 
@@ -126,7 +127,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-select-question-popup.png");
     });
@@ -147,7 +148,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await compareScreenshot(page, ".sd-input.sd-dropdown", "dropdown-select-question-with-clear-button.png");
+      await compareScreenshot(page, ".sd-formbox.sd-dropdown", "dropdown-select-question-with-clear-button.png");
     });
 
     test("Check dropdown select question with long text", async ({ page }) => {
@@ -187,7 +188,7 @@ frameworks.forEach(framework => {
       });
 
       await resetFocusToBody(page);
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-and-long-text.png", 1);
       await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-with-clear-button-and-long-text.png", 0);
 
@@ -216,7 +217,7 @@ frameworks.forEach(framework => {
         const selectQuestion = window["survey"].getQuestionByName("DropdownRenderAsSelect");
         selectQuestion.onOpened.add(updateChoiceEnabled);
       });
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
 
       await page.keyboard.press("Escape");
       await questionDropdownSelect.click();
@@ -236,7 +237,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-question-empty-value.png");
       await page.locator("text=item7").click();
@@ -307,7 +308,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
       await waitUntilAllImagesLoad(page);
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await compareScreenshot(page, questionDropdownSelect, "dropdown-with-markdown.png");
       await questionDropdownSelect.click();
       await waitUntilAllImagesLoad(page);
@@ -410,7 +411,7 @@ frameworks.forEach(framework => {
           if (options.menuType === "popup") options.menuType = "overlay";
         });
       });
-      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
       await questionDropdownSelect.click();
       await page.getByText("item1", { exact: true }).click();
       await questionDropdownSelect.click();
@@ -463,7 +464,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await compareScreenshot(page, ".sd-dropdown--empty.sd-input--readonly", "dropdown-readonly-empty-placeholder.png");
+      await compareScreenshot(page, ".sd-dropdown--empty.sd-formbox--readonly", "dropdown-readonly-empty-placeholder.png");
     });
 
     test("Check dropdown custom item styles", async ({ page }) => {

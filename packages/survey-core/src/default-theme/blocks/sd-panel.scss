@@ -87,7 +87,11 @@
   width: initial;
 }
 .sd-panel__content {
-  padding-top: var(--sd-base-padding);
+  display: flex;
+  padding: var(--sd-base-padding);
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;  
 }
 
 .sd-panel.sd-element--nested {

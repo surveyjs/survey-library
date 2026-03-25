@@ -70,18 +70,24 @@ export class SurveyPanel extends SurveyPanelBase {
     }
     return wrapper ?? element;
   }
+  protected renderFooterInContent(): boolean {
+    return true;
+  }
   protected renderContent(style: any, rows: React.JSX.Element[], className: string): React.JSX.Element {
     const bottom: React.JSX.Element | null = this.renderBottom();
     return (
-      <div
-        style={style} className={className}
-        id={this.panel.contentId}
-        role={this.panel.ariaRole}
-        aria-labelledby={this.panel.ariaLabelledBy}
-        aria-label={this.panel.ariaLabel}>
-        {rows}
-        {bottom}
-      </div>
+      <>
+        <div
+          style={style} className={className}
+          id={this.panel.contentId}
+          role={this.panel.ariaRole}
+          aria-labelledby={this.panel.ariaLabelledBy}
+          aria-label={this.panel.ariaLabel}>
+          {rows}
+          {this.renderFooterInContent() ? bottom : null}
+        </div>
+        {this.renderFooterInContent() ? null : bottom}
+      </>
     );
   }
   protected renderTitle(): React.JSX.Element | null {

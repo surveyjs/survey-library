@@ -16,8 +16,11 @@
     }
 
     & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
-        padding-top: var(--sd-base-vertical-padding);
-        padding-bottom: 0;
+        border-bottom: 1px solid var(--_lbr-panel-border-color-nested, #DCDCDC);
+        display: flex;
+        padding: calc(2 * #{$base-unit}) var(--sd-base-padding);
+        align-items: flex-start;
+        align-self: stretch;
 
         &:after {
             display: none;
@@ -26,6 +29,10 @@
         & > .sd-panel__title {
             color: $foreground-light;
         }
+    }
+    
+    & .sd-paneldynamic__panel-wrapper > .sd-element--collapsed > .sd-panel__header {
+        border-bottom: none;
     }
 }
 
@@ -40,7 +47,11 @@
 }
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
-    padding-bottom: calc(1 * var(--sd-base-padding));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+    border: 1px solid var(--_lbr-panel-border-color-nested, #DCDCDC);
 }
 
 .sd-paneldynamic__panel-wrapper:after {
@@ -50,18 +61,7 @@
 }
 
 .sd-paneldynamic__footer .sd-paneldynamic__separator,
-.sd-paneldynamic__panel-wrapper--list ~ .sd-paneldynamic__panel-wrapper--list:before {
-    content: " ";
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin: 0;
-    border-color: $border-light;
-    background: $border-light;
-    height: 1px;
-    border: none;
-}
+
 .sd-paneldynamic__separator:only-child {
     display: none;
 }
@@ -172,18 +172,15 @@
 }
 
 .sd-paneldynamic__panel-footer {
-    border-top: none;
     position: relative;
-    top: calc(0.5 * var(--sd-base-vertical-padding));
-    margin-right: calcSize(-3);
+    display: flex;
+    padding: calcSize(2);
     justify-content: flex-end;
+    align-items: flex-start;
+    align-self: stretch;
+    border-top: 1px solid #DCDCDC;    
 }
 
-.sd-paneldynamic__panel-footer {
-    .sv-action:not(.sv-action--hidden) {
-        margin-bottom: calcSize(-1);
-    }
-}
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
     .sd-tabs-toolbar {
@@ -320,12 +317,13 @@
 }
 
 .sd-paneldynamic__panels-container {
-    position: relative;
     overflow: hidden;
-    margin-left: calc(-1 * var(--sd-base-padding));
-    padding-left: var(--sd-base-padding);
-    margin-right: calc(-1 * var(--sd-base-padding));
-    padding-right: var(--sd-base-padding);
+    display: flex;
+    padding: calc(4 * #{$base-unit}) 0;
+    flex-direction: column;
+    align-items: flex-start;
+    align-self: stretch;
+    gap: calc(2 * #{$base-unit});
 }
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;

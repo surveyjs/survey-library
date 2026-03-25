@@ -7,7 +7,7 @@
   }
 }
 
-.sd-element--collapsed {
+.sd-element--collapsed:not(.sd-panel) {
   &>.sd-element__header {
     padding: calcSize(0) var(--sd-base-padding);
     box-sizing: border-box;

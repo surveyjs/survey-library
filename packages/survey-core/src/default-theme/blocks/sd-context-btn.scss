@@ -80,7 +80,7 @@
     --box-shadow-color: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19B394);
 
     &.sd-context-btn--negative {
-      --box-shadow-color: #{$red};
+      --box-shadow-color: var(--sjs2-color-component-action-alert-primary-default-bg, #E50A3E);
     }
   }
 }

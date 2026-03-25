@@ -117,7 +117,7 @@
     margin-left: calcSize(-1);
     width: calcSize(3);
     height: calcSize(3);
-    fill: $primary;
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
   }
 }
 
@@ -417,12 +417,12 @@
 .sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
   &.sd-file__choose-btn--icon {
     use {
-      fill: $primary;
+      fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
     }
   }
 
   &:not(.sd-file__choose-btn--icon) {
-    background-color: $primary-light;
+    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
   }
 }
 

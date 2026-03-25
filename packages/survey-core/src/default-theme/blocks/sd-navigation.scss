@@ -6,6 +6,9 @@
   flex-wrap: wrap;
   gap: calcSize(2);
 
+  .sv-action__content {
+    background: var(--sjs2-color-bg-basic-primary, #fff);
+  }
   .sd-btn {
     padding: calcSize(2) calcSize(8);
     font-size: $font-questiontitle-size;

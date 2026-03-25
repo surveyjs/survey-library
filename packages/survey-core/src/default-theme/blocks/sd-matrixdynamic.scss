@@ -74,7 +74,7 @@
     align-items: center;
     margin-left: calcSize(-4);
     width: calcSize(4);
-    background-color: $question-background;
+    background-color: var(--sjs2-color-component-panel-default-bg, #fff);
     min-height: calcSize(6);
   }
 }
@@ -87,7 +87,7 @@
   visibility: hidden;
 
   use {
-    fill: $primary;
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
   }
 }
 

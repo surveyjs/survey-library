@@ -9,6 +9,7 @@
   padding: 0 calcSize(5);
   width: 100%;
   box-sizing: border-box;
+  border-radius: var(--sjs2-radius-component-page, 12px);
 }
 
 .sd-root-modern--mobile .sd-page {

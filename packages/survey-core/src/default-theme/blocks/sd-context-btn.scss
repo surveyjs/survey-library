@@ -1,9 +1,9 @@
 @use "../variables.scss" as *;
 
 .sd-context-btn {
-  background-color: $question-background;
+  background-color: var(--sjs2-color-component-panel-default-bg, #fff);
   padding: calcSize(1.5);
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-round, 9999px);
   border: none;
   outline: none;
   cursor: pointer;
@@ -27,7 +27,7 @@
 .sd-context-btn:hover,
 .sd-context-btn:focus {
   use {
-    fill: $primary;
+    fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19B394);
   }
 
   &.sd-context-btn--negative {
@@ -57,7 +57,7 @@
 
 .sd-context-btn--colorful {
   use {
-    fill: $primary;
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
   }
 
   &.sd-context-btn--negative {
@@ -69,18 +69,18 @@
 
 .sd-context-btn--colorful:focus,
 .sd-context-btn--colorful:hover {
-  background: linear-gradient($primary-light, $primary-light),
-    linear-gradient($question-background, $question-background);
+  background: linear-gradient(var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1)), var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1))),
+    linear-gradient(var(--sjs2-color-component-panel-default-bg, #fff), var(--sjs2-color-component-panel-default-bg, #fff));
 
   &.sd-context-btn--negative {
-    background: linear-gradient($red-light, $red-light), linear-gradient($question-background, $question-background);
+    background: linear-gradient($red-light, $red-light), linear-gradient(var(--sjs2-color-component-panel-default-bg, #fff), var(--sjs2-color-component-panel-default-bg, #fff));
   }
 
   &.sd-context-btn--with-border {
-    --box-shadow-color: #{$primary};
+    --box-shadow-color: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19B394);
 
     &.sd-context-btn--negative {
-      --box-shadow-color: #{$red};
+      --box-shadow-color: var(--sjs2-color-component-action-alert-primary-default-bg, #E50A3E);
     }
   }
 }

@@ -64,6 +64,7 @@
   position: absolute;
   height: var(--sjs-postcss-fix-slider-path-height);
   top: calc(var(--sjs-postcss-fix-slider-thumb-height) / 2 - var(--sjs-postcss-fix-slider-path-height) / 2);
+  border-radius: var(--sjs2-radius-component-track, 9999px);
 }
 
 .sd-slider__inverse-track {
@@ -116,7 +117,7 @@
   flex-shrink: 0;
   width: var(--sjs-postcss-fix-slider-thumb-width);
   height: var(--sjs-postcss-fix-slider-thumb-height);
-  border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
+  border-radius: var(--sjs2-radius-component-track-thumb, 9999px);
 }
 
 .sd-slider__input {
@@ -158,7 +159,7 @@
   justify-content: center;
   align-items: center;
 
-  border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
+  border-radius: var(--sjs2-radius-component-track-thumb, 9999px);
   background: var(--sjs-postcss-fix-slider-thumb-color);
   box-shadow: var(--lbr-slider-thumb-shadow-offset-x, 0px) var(--lbr-slider-thumb-shadow-offset-y, 1px)
     var(--lbr-slider-thumb-shadow-blur, 2px) var(--lbr-slider-thumb-shadow-spread, 0px)
@@ -170,7 +171,7 @@
 
 .sd-slider__thumb-dot {
   display: flex;
-  border-radius: var(--lbr-slider-thumb-dot-corner-radius, 1024px);
+  border-radius: var(--sjs2-radius-component-track-item, 9999px);
   background: var(--lbr-slider-thumb-dot-color, $primary);
   width: var(--lbr-slider-thumb-dot-width, calcSize(1.5));
   height: var(--lbr-slider-thumb-dot-height, calcSize(1.5));
@@ -193,14 +194,14 @@
   display: flex;
   flex-direction: column;
   user-select: none;
-  border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
+  border-radius: var(--sjs2-radius-component-tooltip, 4px);
   transition: opacity $transition-duration;
 }
 
 .sd-slider__tooltip-panel {
   padding: var(--lbr-tooltip-padding-top, calcSize(1)) var(--lbr-tooltip-padding-right, calcSize(2))
     var(--lbr-tooltip-padding-bottom, calcSize(1)) var(--lbr-tooltip-padding-left, calcSize(2));
-  border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
+  border-radius: var(--sjs2-radius-component-tooltip, 4px);
   background: var(--lbr-tooltip-background-color, $question-background);
   display: flex;
   justify-content: center;

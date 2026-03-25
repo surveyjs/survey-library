@@ -6,10 +6,10 @@
   position: relative;
   gap: calcSize(0.5);
   padding: calcSize(0.5);
-  background-color: $editor-background;
-  border-radius: calcSize(12.5);
+  background-color: var(--sjs2-color-component-boolean-default-bg, #F5F5F5);
+  border-radius: var(--sjs2-radius-component-boolean, 9999px);
   box-shadow:
-    $shadow-inner,
+    var(--sjs2-border-effect-component-toggle-false-default, inset 0px 1px 2px 0px #D4D4D4),
     $shadow-focused-reset;
   transition: box-shadow $transition-duration;
 
@@ -26,7 +26,7 @@
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
   font-size: $font-editorfont-size;
-  color: $font-editorfont-placeholdercolor;
+  color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
   line-height: multiply(1.5, $font-editorfont-size);
   padding: calcSize(1) calcSize(3);
 }
@@ -41,7 +41,7 @@
   width: calc(100%);
   height: calc(100%);
   box-sizing: border-box;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-toggle, 9999px);
   overflow: hidden;
 }
 
@@ -65,13 +65,13 @@
   position: absolute;
   left: calcSize(0.5);
   transform: translateX(0);
-  background-color: $question-background;
+  background-color: var(--sjs2-color-component-boolean-item-true-default-bg, #fff);
   box-shadow: $shadow-small;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-toggle-thumb, 9999px);
   transition-duration: 0.2s;
   transition-property: transform, left;
   transition-timing-function: linear;
-  color: $primary;
+  color: var(--sjs2-color-component-boolean-item-true-default-value, #19B394);
   font-weight: 600;
   z-index: 2;
 
@@ -108,16 +108,19 @@
 .sd-boolean--exchanged {
   &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
-    color: $font-editorfont-placeholdercolor;
+    color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
   }
 }
 
 .sd-boolean--disabled {
   pointer-events: none;
 
-  .sd-boolean__thumb,
+  .sd-boolean__thumb {
+    color: var(--sjs2-color-component-boolean-item-true-disabled-value, #B3B2B2);
+    opacity: 0.25;
+  }
   .sd-boolean__label {
-    color: $foreground;
+    color: var(--sjs2-color-component-boolean-item-false-disabled-value, #D4D4D4);
     opacity: 0.25;
   }
 }
@@ -127,12 +130,12 @@
   box-shadow: none;
   transition: none;
 
-  background: $background-dark;
+  background: var(--sjs2-color-component-boolean-readonly-bg, #fff);
 
   .sd-boolean__thumb {
     box-shadow: inset 0px 0px 0px 2px $foreground;
     transition: none;
-    color: $foreground;
+    color: var(--sjs2-color-component-boolean-item-true-readonly-value, #1C1B20);
   }
 }
 
@@ -163,17 +166,17 @@
 
 .sd-boolean__thumb-ghost {
   z-index: 1;
-  border-radius: calcSize(12.5);
+  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
   background-color: transparent;
   transition: background-color $transition-duration;
 }
 
 .sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
-  background-color: $background-dim-dark;
+  background-color: var(--sjs2-color-component-boolean-item-false-hovered-bg, #EDEDED);
 }
 
 .sd-boolean--error {
-  background-color: $red-light;
+  background-color: var(--sjs2-color-component-boolean-invalid-bg, #F5F5F5);
 }
 
 .sd-question--boolean {

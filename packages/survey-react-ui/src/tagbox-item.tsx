@@ -25,8 +25,8 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
     };
 
     return (
-      <div className="sv-tagbox__item">
-        <div className="sv-tagbox__item-text">{text}</div>
+      <div className={this.question.cssClasses.tagItem}>
+        <div className={this.question.cssClasses.tagItemText}>{text}</div>
         <div className={this.question.cssClasses.cleanItem}>
           <div
             tabIndex={0}

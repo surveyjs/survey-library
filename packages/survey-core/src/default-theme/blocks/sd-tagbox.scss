@@ -12,12 +12,12 @@
   box-shadow: $shadow-inner-reset, $shadow-focused;
 }
 
-.sv-tagbox__item {
+.sd-tagbox-item {
   position: relative;
   display: flex;
   align-items: center;
 
-  max-width: calc(100% - var(--sjs2-size-x100, 8px));
+  // max-width: calc(100% - var(--sjs2-size-x100, 8px));
   box-sizing: border-box;
   height: var(--sjs2-size-x500, 40px);
   padding: 0 var(--sjs2-spacing-x100, 8px);
@@ -32,7 +32,7 @@
   }
 }
 
-.sv-tagbox__item-text {
+.sd-tagbox-item__text {
   @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-component-tagbox-item-default-label, #1c1b20);
   min-width: var(--sjs2-size-x500, 40px);
@@ -50,9 +50,9 @@
   }
 }
 
-.sv-tagbox__item:hover,
-.sv-tagbox__item:focus,
-.sv-tagbox__item:focus-within {
+.sd-tagbox-item:hover,
+.sd-tagbox-item:focus,
+.sd-tagbox-item:focus-within {
   .sd-tagbox-item__clean {
     align-self: center;
     opacity: 1;
@@ -150,7 +150,7 @@
 :dir(rtl),
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
-  .sd-tagbox-item__clean-button {
+  .sd-tagbox-item__clean {
     background: linear-gradient(
       90deg,
       var(--sjs2-color-component-tagbox-item-hovered-mask-stop-1, #fff) 50%,

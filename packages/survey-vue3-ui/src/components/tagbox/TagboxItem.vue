@@ -1,6 +1,6 @@
 <template>
-  <div class="sv-tagbox__item" :key="item.key">
-    <div class="sv-tagbox__item-text">
+  <div :class="question.cssClasses.tagItem" :key="item.key">
+    <div :class="question.cssClasses.tagItemText">
       <SvComponent :is="'survey-string'" :locString="item.locText" />
     </div>
     <div v-bind:class="question.cssClasses.cleanItem">

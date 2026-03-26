@@ -33,11 +33,11 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-formbox.sd-tagbox", "tagbox-input-selected-items.png");
 
       await page.keyboard.press("Escape");
-      await page.locator(".sv-tagbox__item").first().hover();
-      await compareScreenshot(page, ".sv-tagbox__item", "tagbox-question-item-hover.png");
+      await page.locator(".sd-tagbox-item").first().hover();
+      await compareScreenshot(page, ".sd-tagbox-item", "tagbox-question-item-hover.png");
 
       await page.locator(".sd-tagbox-item__clean-button-svg").first().hover();
-      await compareScreenshot(page, ".sv-tagbox__item", "tagbox-question-item-icon-hover.png");
+      await compareScreenshot(page, ".sd-tagbox-item", "tagbox-question-item-icon-hover.png");
     });
 
     test("Check tagbox select question without clear button", async ({ page }) => {
@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.locator(".sv-tagbox__item").first().hover();
+      await page.locator(".sd-tagbox-item").first().hover();
       await compareScreenshot(page, ".sd-question", "tagbox-rtl-question-answered.png");
 
       await page.locator(".sd-editor-clean-button").click();

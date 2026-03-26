@@ -95,7 +95,7 @@
 //   const questionValueInput = Selector(".sd-tagbox__value input");
 //   const questionHint = Selector(".sd-tagbox__hint");
 //   const deleteItemButton = Selector(".sd-tagbox-item__clean-button");
-//   const selectedItems = Selector(".sv-tagbox__item");
+//   const selectedItems = Selector(".sd-tagbox-item");
 //   const popupContainer = Selector(".sv-popup__container").filterVisible();
 
 //   const tagboxQuestion2 = Selector(".sd-tagbox").nth(1);

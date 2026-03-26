@@ -937,6 +937,8 @@ export var defaultCss = {
     itemDecorator: "sd-item__svg sd-checkbox__svg",
     itemEnter: "sd-item--enter",
     itemLeave: "sd-item--leave",
+    tagItem: "sd-tagbox-item",
+    tagItemText: "sd-tagbox-item__text",
     cleanButtonIconId: "icon-cancel-24x24",
     cleanItem: "sd-tagbox-item__clean",
     cleanItemButton: "sd-tagbox-item__clean-button",

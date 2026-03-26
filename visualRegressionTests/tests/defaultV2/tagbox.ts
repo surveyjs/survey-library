@@ -70,11 +70,11 @@
 
 //       await t
 //         .pressKey("esc")
-//         .hover(Selector(".sv-tagbox__item"));
-//       await takeElementScreenshot("tagbox-question-item-hover.png", Selector(".sv-tagbox__item"), t, comparer);
+//         .hover(Selector(".sd-tagbox-item"));
+//       await takeElementScreenshot("tagbox-question-item-hover.png", Selector(".sd-tagbox-item"), t, comparer);
 
 //       await t.hover(Selector(".sd-tagbox-item__clean-button-svg"));
-//       await takeElementScreenshot("tagbox-question-item-icon-hover.png", Selector(".sv-tagbox__item"), t, comparer);
+//       await takeElementScreenshot("tagbox-question-item-icon-hover.png", Selector(".sd-tagbox-item"), t, comparer);
 //     });
 //   });
 
@@ -262,7 +262,7 @@
 //       const questionTagbox = Selector(".sd-question");
 //       await resetFocusToBody();
 
-//       await t.hover(Selector(".sv-tagbox__item"));
+//       await t.hover(Selector(".sd-tagbox-item"));
 //       await takeElementScreenshot("tagbox-rtl-question-answered.png", questionTagbox, t, comparer);
 
 //       await t.click(".sd-tagbox_clean-button-svg");

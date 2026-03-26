@@ -41,7 +41,7 @@ frameworks.forEach((framework) => {
     test("tagbox editing", async ({ page }) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsTrue);
 
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
       const deleteItemButton = page.locator(".sd-tagbox-item__clean-button");
 
@@ -71,7 +71,7 @@ frameworks.forEach((framework) => {
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const selectedListItem = page.locator(".sv-list__item--selected");
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
 
       await expect(popupContainer).not.toBeVisible();
@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
     test("tagbox editing. CloseOnSelect is default", async ({ page }) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsDefault);
 
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
       const deleteItemButton = page.locator(".sd-tagbox-item__clean-button");
 
@@ -146,7 +146,7 @@ frameworks.forEach((framework) => {
         ]
       });
 
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       await expect(selectedItems).toHaveCount(0);
@@ -172,7 +172,7 @@ frameworks.forEach((framework) => {
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const listItems = page.locator(".sv-list__item");
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionValueInput = page.locator(".sd-tagbox__input input");
       const questionHint = page.locator(".sd-tagbox__hint");
 
@@ -236,7 +236,7 @@ frameworks.forEach((framework) => {
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const listItems = page.locator(".sv-list__item");
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
 
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(28);
@@ -263,7 +263,7 @@ frameworks.forEach((framework) => {
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const listItems = page.locator(".sv-list__item");
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionValueInput = page.locator(".sd-tagbox__input input");
       const questionHint = page.locator(".sd-tagbox__hint");
 
@@ -329,7 +329,7 @@ frameworks.forEach((framework) => {
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
       const listItems = page.locator(".sv-list__item");
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
 
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(28);
@@ -384,7 +384,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
 
       await expect(popupContainer).not.toBeAttached();
@@ -424,7 +424,7 @@ frameworks.forEach((framework) => {
         ],
       });
 
-      const selectedItems = page.locator(".sv-tagbox__item");
+      const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
 
       await expect(selectedItems).toHaveCount(2);

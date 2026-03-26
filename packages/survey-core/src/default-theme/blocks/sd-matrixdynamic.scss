@@ -2,8 +2,8 @@
 
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
   position: sticky;
-  left: calcSize(-3);
-  margin-left: calcSize(-3);
+  left: var(--sjs2-spacing-negative-x300);
+  margin-left: var(--sjs2-spacing-negative-x300);
   z-index: 12;
 }
 
@@ -14,21 +14,21 @@
   position: relative;
   height: 1px;
   background-color: $border-light;
-  left: calcSize(-3);
-  top: calcSize(-1);
+  left: var(--sjs2-spacing-negative-x300);
+  top: var(--sjs2-spacing-negative-x100);
   width: calc(100% + 6 * #{$base-unit});
   z-index: 12;
 }
 
 .sd-matrixdynamic__footer:first-child {
-  padding-bottom: calcSize(2);
+  padding-bottom: var(--sjs2-spacing-x200);
   &::before {
     display: none;
   }
 }
 
 .sd-matrixdynamic__footer {
-  padding-top: calcSize(2);
+  padding-top: var(--sjs2-spacing-x200);
 }
 .sd-matrixdynamic__remove-btn {
   opacity: 0.5;
@@ -38,7 +38,7 @@
   }
 }
 .sd-matrixdynamic__drag-element {
-  padding: calcSize(2);
+  padding: var(--sjs2-spacing-x200);
 
   &:hover {
     background-color: $background;
@@ -47,11 +47,11 @@
   &:after {
     content: " ";
     display: block;
-    height: calcSize(0.5);
-    width: calcSize(2);
+    height: var(--sjs2-size-x050);
+    width: var(--sjs2-size-x200);
     border: 1px solid $border;
     box-sizing: border-box;
-    border-radius: calcSize(1.25);
+    border-radius: calc(var(--sjs2-base-unit-radius) * 1.25);
   }
 }
 
@@ -72,16 +72,16 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-left: calcSize(-4);
-    width: calcSize(4);
+    margin-left: var(--sjs2-spacing-negative-x400);
+    width: var(--sjs2-size-x400);
     background-color: var(--sjs2-color-component-panel-default-bg, #fff);
-    min-height: calcSize(6);
+    min-height: var(--sjs2-size-x600);
   }
 }
 
 .sd-drag-element__svg {
-  width: calcSize(3);
-  height: calcSize(3);
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
   display: block;
   cursor: pointer;
   visibility: hidden;

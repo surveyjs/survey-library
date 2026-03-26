@@ -20,11 +20,11 @@
 }
 
 .sv-action-bar--default-size-mode .sv-action-bar-separator {
-  margin: 0 calcSize(1);
+  margin: 0 var(--sjs2-spacing-x100);
 }
 
 .sv-action-bar--small-size-mode .sv-action-bar-separator {
-  margin: 0 calcSize(0.5);
+  margin: 0 var(--sjs2-spacing-x050);
 }
 
 .sv-action-bar-item {
@@ -32,7 +32,7 @@
   -moz-appearance: none;
   appearance: none;
   display: flex;
-  padding: calcSize(1);
+  padding: var(--sjs2-spacing-x100);
   box-sizing: border-box;
   border: none;
   border-radius: calcCornerRadius(0.5);
@@ -50,17 +50,17 @@ button.sv-action-bar-item {
 }
 
 .sv-action-bar--default-size-mode .sv-action-bar-item {
-  height: calcSize(5);
+  height: var(--sjs2-size-x500);
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
-  margin: 0 calcSize(1);
+  margin: 0 var(--sjs2-spacing-x100);
 }
 
 .sv-action-bar--small-size-mode .sv-action-bar-item {
-  height: calcSize(4);
+  height: var(--sjs2-size-x400);
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
-  margin: 0 calcSize(0.5);
+  margin: 0 var(--sjs2-spacing-x050);
 }
 
 .sv-action:first-of-type .sv-action-bar-item {
@@ -72,11 +72,11 @@ button.sv-action-bar-item {
 }
 
 .sv-action-bar--default-size-mode .sv-action-bar-item__title--with-icon {
-  margin-inline-start: calcSize(1);
+  margin-inline-start: var(--sjs2-spacing-x100);
 }
 
 .sv-action-bar--small-size-mode .sv-action-bar-item__title--with-icon {
-  margin-inline-start: calcSize(0.5);
+  margin-inline-start: var(--sjs2-spacing-x050);
 }
 
 .sv-action-bar-item__icon {
@@ -138,8 +138,8 @@ button.sv-action-bar-item {
   -moz-appearance: none;
   appearance: none;
   display: flex;
-  height: calcSize(5);
-  padding: calcSize(1);
+  height: var(--sjs2-size-x500);
+  padding: var(--sjs2-spacing-x100);
   box-sizing: border-box;
   border: none;
   border-radius: calcCornerRadius(0.5);

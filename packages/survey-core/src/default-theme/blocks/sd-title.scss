@@ -15,7 +15,7 @@
   align-items: center;
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
   font-family: $font-family;
-  gap: calcSize(4);
+  gap: var(--sjs2-spacing-x400);
   box-shadow: 0px 2px 0px $primary;
 
   .sd-logo.sv-logo--right {
@@ -23,14 +23,14 @@
   }
 
   .sd-logo__image {
-    margin-top: calcSize(1);
+    margin-top: var(--sjs2-spacing-x100);
   }
 }
 
 .sd-header__text {
   display: flex;
   flex-direction: column;
-  gap: calcSize(1);
+  gap: var(--sjs2-spacing-x100);
   flex-grow: 1;
 
   .sd-title {
@@ -104,9 +104,9 @@
 
 .sd-action-title-bar {
   flex: 1 9 auto;
-  min-width: calcSize(6);
+  min-width: var(--sjs2-size-x600);
   justify-content: flex-end;
-  margin: calcSize(-1) 0;
+  margin: var(--sjs2-spacing-negative-x100) 0;
 
   .sv-action {
     flex: 0 0 auto;

@@ -44,8 +44,8 @@
         user-select: none;
     }
     &.sd-signaturepad__controls {
-        right: calcSize(1);
-        top: calcSize(1);
+        right: var(--sjs2-spacing-x100);
+        top: var(--sjs2-spacing-x100);
         left: auto;
         bottom: auto;
     }
@@ -73,8 +73,8 @@
 
     .sd-loading-indicator {
         position: absolute;
-        right: calcSize(1);
-        top: calcSize(1);
+        right: var(--sjs2-spacing-x100);
+        top: var(--sjs2-spacing-x100);
     }
 }
 .sjs_sp_canvas {

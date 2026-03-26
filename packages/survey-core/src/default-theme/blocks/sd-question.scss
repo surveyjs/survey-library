@@ -15,11 +15,11 @@
 }
 
 .sd-element__erbox--above-element {
-  margin-bottom: calcSize(1);
+  margin-bottom: var(--sjs2-spacing-x100);
 }
 
 .sd-question__erbox--below-question {
-  margin-top: calcSize(1);
+  margin-top: var(--sjs2-spacing-x100);
 }
 
 .sd-question__content--support-container-queries {
@@ -104,21 +104,21 @@
 
 .sd-scrollable .sd-question__content {
   overflow-x: auto;
-  padding: calcSize(2) 0;
+  padding: var(--sjs2-spacing-x200) 0;
 }
 
 .sd-question__header--location--left {
   display: inline-block;
   width: auto;
   vertical-align: top;
-  margin-top: calcSize(1.5);
+  margin-top: var(--sjs2-spacing-x150);
 }
 
 .sd-question--left {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  column-gap: calcSize(3);
+  column-gap: var(--sjs2-spacing-x300);
   row-gap: calc(0.25 * var(--sd-base-vertical-padding));
 }
 
@@ -140,10 +140,10 @@
 
 .sd-question__comment-area {
   font-size: calcFontSize(1);
-  margin-top: calcSize(2);
+  margin-top: var(--sjs2-spacing-x200);
   display: flex;
   flex-direction: column;
-  gap: calcSize(1);
+  gap: var(--sjs2-spacing-x100);
   color: $foreground;
   white-space: normal;
 }
@@ -153,9 +153,9 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: calcSize(0.5);
+  gap: var(--sjs2-spacing-x050);
   justify-content: center;
-  min-height: calcSize(24);
+  min-height: calc(var(--sjs2-base-unit-size) * 24);
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   color: $font-questionplaceholder-color;
@@ -192,5 +192,5 @@
   color: $font-pagetitle-color;
   position: static;
   line-height: multiply(1.33, var(--page-title-font-size));
-  margin: 0 0 calcSize(0.5) 0px;
+  margin: 0 0 var(--sjs2-spacing-x050) 0px;
 }

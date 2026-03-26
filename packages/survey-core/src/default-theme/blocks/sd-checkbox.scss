@@ -6,8 +6,8 @@
 
 .sd-checkbox__svg {
   display: block;
-  width: calcSize(2);
-  height: calcSize(2);
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
 
   use {
     fill: transparent;
@@ -39,9 +39,9 @@
 .sd-checkbox--label-rendered {
   display: flex;
   flex-direction: column;
-  gap: calcSize(1);
+  gap: var(--sjs2-spacing-x100);
 
   .sd-description {
-    padding-left: calcSize(4);
+    padding-left: var(--sjs2-spacing-x400);
   }
 }

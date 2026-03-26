@@ -2,7 +2,7 @@
 
 .sd-context-btn {
   background-color: var(--sjs2-color-component-panel-default-bg, #fff);
-  padding: calcSize(1.5);
+  padding: var(--sjs2-spacing-x150);
   border-radius: var(--sjs2-radius-round, 9999px);
   border: none;
   outline: none;
@@ -42,7 +42,7 @@
 }
 
 .sd-context-btn--small {
-  padding: calcSize(1);
+  padding: var(--sjs2-spacing-x100);
 
   svg {
     width: multiply(1, $font-editorfont-size);

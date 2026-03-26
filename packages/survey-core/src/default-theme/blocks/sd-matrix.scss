@@ -15,12 +15,12 @@
 }
 
 .sd-matrix__text {
-  padding: calcSize(2);
+  padding: var(--sjs2-spacing-x200);
 }
 
 .sd-matrix__text--checked {
   background-color: $primary-light;
-  padding: calcSize(2);
+  padding: var(--sjs2-spacing-x200);
 }
 
 .sd-matrix__cell:first-of-type {

@@ -12,21 +12,21 @@
   }
 
   .sd-body__timer {
-    padding: calcSize(2) calcSize(2) 0;
+    padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x200) 0;
     box-sizing: border-box;
   }
 
   &.sd-body--static {
-    max-width: calcSize(90);
+    max-width: calc(var(--sjs2-base-unit-size) * 90);
     margin-left: auto;
     margin-right: auto;
-    padding-top: calcSize(6);
-    padding-bottom: calcSize(8);
+    padding-top: var(--sjs2-spacing-x600);
+    padding-bottom: var(--sjs2-spacing-x800);
   }
 
   &.sd-body--responsive {
     max-width: initial;
-    padding: calcSize(5) calcSize(5) calcSize(1);
+    padding: var(--sjs2-spacing-x500) var(--sjs2-spacing-x500) var(--sjs2-spacing-x100);
     box-sizing: border-box;
 
     .sd-page {
@@ -57,7 +57,7 @@
 
     &.sd-body--responsive,
     &.sd-body--static {
-      padding: calcSize(3);
+      padding: var(--sjs2-spacing-x300);
 
       .sv-components-container-contentBottom .sd-body__navigation {
         padding-bottom: 0;
@@ -78,7 +78,7 @@
     &.sd-body--responsive,
     &.sd-body--static {
       .sd-body__navigation {
-        padding-top: calcSize(7);
+        padding-top: var(--sjs2-spacing-x700);
       }
     }
   }

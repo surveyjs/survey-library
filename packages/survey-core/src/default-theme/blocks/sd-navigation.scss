@@ -2,15 +2,15 @@
 
 .sd-body__navigation {
   box-sizing: border-box;
-  padding: calcSize(4) calcSize(5);
+  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500);
   flex-wrap: wrap;
-  gap: calcSize(2);
+  gap: var(--sjs2-spacing-x200);
 
   .sv-action__content {
     background: var(--sjs2-color-bg-basic-primary, #fff);
   }
   .sd-btn {
-    padding: calcSize(2) calcSize(8);
+    padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x800);
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
   }
@@ -36,7 +36,7 @@
   }
 
   .sd-btn {
-    padding: calcSize(2) calcSize(4);
+    padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x400);
   }
 }
 .sd-body__navigation .sv-action--hidden {

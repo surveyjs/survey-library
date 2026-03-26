@@ -1,8 +1,8 @@
 @use "../variables.scss" as *;
 
 .sd-list {
-  // padding-right: calcSize(0.5);
-  // padding-left: calcSize(0.5);
+  // padding-right: var(--sjs2-spacing-x050);
+  // padding-left: var(--sjs2-spacing-x050);
 }
 
 .sd-list__item {
@@ -10,7 +10,7 @@
 }
 
 .sd-list__item-body {
-  padding-block: calcSize(1.5);
+  padding-block: var(--sjs2-spacing-x150);
   border-radius: var(--sjs2-radius-component-drop-item, 8px);
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
@@ -20,6 +20,6 @@
   outline: none;
 
   .sd-list__item-body {
-    padding-block: calcSize(1.25);
+    padding-block: calc(var(--sjs2-base-unit-spacing) * 1.25);
   }
 }

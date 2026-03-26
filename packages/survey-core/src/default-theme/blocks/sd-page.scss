@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 calcSize(5);
+  padding: 0 var(--sjs2-spacing-x500);
   width: 100%;
   box-sizing: border-box;
   border-radius: var(--sjs2-radius-component-page, 12px);
@@ -33,7 +33,7 @@
 .sd-page__description {
   &~.sd-page__errbox {
     margin-top: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
-    margin-bottom: calcSize(-1);
+    margin-bottom: var(--sjs2-spacing-negative-x100);
   }
 }
 

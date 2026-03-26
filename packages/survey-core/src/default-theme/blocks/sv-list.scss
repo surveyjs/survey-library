@@ -16,7 +16,7 @@
   width: 100%;
   font-family: $font-family;
   box-sizing: border-box;
-  padding: calcSize(1.5);
+  padding: var(--sjs2-spacing-x150);
 
   display: flex;
   padding: var(--lbr-placeholder-padding-top, 16px) var(--lbr-placeholder-padding-right, 64px)
@@ -58,10 +58,10 @@
   width: 100%;
   align-items: center;
   box-sizing: border-box;
-  // padding: calcSize(1) calcSize(8) calcSize(1) calcSize(2);
-  padding-block: calcSize(1);
-  padding-inline-end: calcSize(8);
-  padding-inline-start: var(--sjs-list-item-padding-left, calcSize(2));
+  // padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x800) var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
+  padding-block: var(--sjs2-spacing-x100);
+  padding-inline-end: var(--sjs2-spacing-x800);
+  padding-inline-start: var(--sjs-list-item-padding-left, var(--sjs2-spacing-x200));
   color: $font-questiontitle-color;
   font-weight: normal;
   font-size: calcFontSize(1);
@@ -82,9 +82,9 @@
   .sv-list__item-body {
     @include mixins.borderLight;
     border-radius: var(--sjs2-radius-component-drop-item, 8px);
-    padding-block: calcSize(0.75);
-    padding-inline-end: calcSize(7.75);
-    padding-inline-start: calcSize(1.75);
+    padding-block: var(--sjs2-spacing-x075);
+    padding-inline-end: calc(var(--sjs2-base-unit-spacing) * 7.75);
+    padding-inline-start: calc(var(--sjs2-base-unit-spacing) * 1.75);
   }
 }
 
@@ -102,9 +102,9 @@
   padding: 0;
 
   & > .sv-list__item-body {
-    padding-top: calcSize(1.5);
-    padding-bottom: calcSize(1.5);
-    gap: calcSize(2);
+    padding-top: var(--sjs2-spacing-x150);
+    padding-bottom: var(--sjs2-spacing-x150);
+    gap: var(--sjs2-spacing-x200);
     display: flex;
   }
 }
@@ -112,8 +112,8 @@
 .sv-list__item-icon {
   float: left;
   flex-shrink: 0;
-  width: calcSize(3);
-  height: calcSize(3);
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
 
   svg {
     display: block;
@@ -126,11 +126,11 @@
 
 .sv-list-item__marker-icon {
   position: absolute;
-  right: calcSize(1);
-  width: calcSize(2);
-  height: calcSize(2);
+  right: var(--sjs2-spacing-x100);
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
   flex-shrink: 0;
-  padding: calcSize(0.5);
+  padding: var(--sjs2-spacing-x050);
   box-sizing: content-box;
 
   svg {
@@ -151,7 +151,7 @@
 }
 
 .sv-list__item-separator {
-  margin: calcSize(1) 0;
+  margin: var(--sjs2-spacing-x100) 0;
   height: 1px;
   background-color: $border;
 }
@@ -228,18 +228,18 @@ li:focus .sv-list__item.sv-list__item--selected {
 
 .sv-list__filter {
   border-bottom: 1px solid $border-inside;
-  // padding-bottom: calcSize(1);
+  // padding-bottom: var(--sjs2-spacing-x100);
 }
 
 .sv-list__filter-icon {
   display: block;
   position: absolute;
-  top: calcSize(1.5);
-  inset-inline-start: calcSize(2); //left: calcSize(2);
+  top: var(--sjs2-spacing-x150);
+  inset-inline-start: var(--sjs2-spacing-x200); //left: var(--sjs2-spacing-x200);
 
   .sv-svg-icon {
-    width: calcSize(3);
-    height: calcSize(3);
+    width: var(--sjs2-size-x300);
+    height: var(--sjs2-size-x300);
 
     use {
       fill: $foreground-light;
@@ -255,12 +255,12 @@ li:focus .sv-list__item.sv-list__item--selected {
   background: transparent;
   box-sizing: border-box;
   width: 100%;
-  min-width: calcSize(30);
+  min-width: calc(var(--sjs2-base-unit-size) * 30);
   outline: none;
   font-size: calcFontSize(1);
   color: $foreground;
-  padding: calcSize(1.5) calcSize(3);
-  padding-inline-start: calcSize(7);
+  padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x300);
+  padding-inline-start: var(--sjs2-spacing-x700);
   line-height: calcLineHeight(1.5);
   border: none;
 }

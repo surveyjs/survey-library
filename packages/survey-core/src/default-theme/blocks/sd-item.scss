@@ -2,20 +2,20 @@
 
 .sd-item {
   display: flex;
-  padding: calcSize(1.5) 0;
+  padding: var(--sjs2-spacing-x150) 0;
 }
 
 .sd-item__decorator {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calcSize(3);
-  height: calcSize(3);
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
   box-sizing: border-box;
   background-color: var(--sjs2-color-component-check-false-default-bg, #F5F5F5);
   border: none;
   flex-shrink: 0;
-  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
+  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - var(--sjs2-spacing-x300)) / 2);
   box-shadow: var(--sjs2-border-effect-component-check-false-default, inset 0px 1px 2px 0px #D4D4D4), $shadow-focused-reset;
   transition: box-shadow $transition-duration, background $transition-duration;
 }

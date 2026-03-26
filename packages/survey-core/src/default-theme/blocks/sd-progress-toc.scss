@@ -1,12 +1,12 @@
 @use "../variables.scss" as *;
 
 .sv_progress-toc {
-  padding: var(--lbr-toc-padding-top, calcSize(1)) var(--lbr-toc-padding-right, calcSize(1))
-    var(--lbr-toc-padding-bottom, calcSize(1)) var(--lbr-toc-padding-left, calcSize(1));
+  padding: var(--lbr-toc-padding-top, var(--sjs2-spacing-x100)) var(--lbr-toc-padding-right, var(--sjs2-spacing-x100))
+    var(--lbr-toc-padding-bottom, var(--sjs2-spacing-x100)) var(--lbr-toc-padding-left, var(--sjs2-spacing-x100));
   background: var(--lbr-toc-background-color, $background);
 
-  min-width: calcSize(32);
-  max-width: calcSize(42);
+  min-width: calc(var(--sjs2-base-unit-size) * 32);
+  max-width: calc(var(--sjs2-base-unit-size) * 42);
   height: 100%;
   box-sizing: border-box;
 
@@ -25,11 +25,11 @@
   }
 
   .sv-list__item-body {
-    padding-inline-start: calcSize(2);
-    padding-inline-end: calcSize(2);
+    padding-inline-start: var(--sjs2-spacing-x200);
+    padding-inline-end: var(--sjs2-spacing-x200);
     border-radius: calcCornerRadius(1);
-    padding-top: calcSize(1.5);
-    padding-bottom: calcSize(1.5);
+    padding-top: var(--sjs2-spacing-x150);
+    padding-bottom: var(--sjs2-spacing-x150);
   }
 
   use {
@@ -47,18 +47,18 @@
 
 .sv_progress-toc--mobile {
   position: fixed;
-  top: calcSize(3);
-  right: calcSize(4);
+  top: var(--sjs2-spacing-x300);
+  right: var(--sjs2-spacing-x400);
   width: auto;
   min-width: auto;
   height: auto;
   background-color: $background-dim;
   z-index: 15;
-  border-radius: calcSize(3);
+  border-radius: var(--sjs2-radius-x300);
 
   &>div {
-    width: calcSize(3);
-    height: calcSize(3);
+    width: var(--sjs2-size-x300);
+    height: var(--sjs2-size-x300);
   }
 
   &:hover {

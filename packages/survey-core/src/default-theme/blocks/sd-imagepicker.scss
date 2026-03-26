@@ -3,7 +3,7 @@
 .sd-imagepicker {
   padding: 0;
   border: none;
-  gap: calcSize(2);
+  gap: var(--sjs2-spacing-x200);
   width: 100%;
   margin: 0;
 }
@@ -22,7 +22,7 @@
 
 @supports not (aspect-ratio: 1 / 1) {
   .sd-imagepicker > div {
-    margin-right: calcSize(2);
+    margin-right: var(--sjs2-spacing-x200);
   }
 }
 
@@ -58,9 +58,9 @@
   display: block;
   opacity: 0;
   position: absolute;
-  top: calcSize(1);
-  right: calcSize(1);
-  padding: calcSize(1.5);
+  top: var(--sjs2-spacing-x100);
+  right: var(--sjs2-spacing-x100);
+  padding: var(--sjs2-spacing-x150);
   box-sizing: border-box;
   border-radius: 100%;
   background-color: $background;
@@ -112,7 +112,7 @@
 .sd-imagepicker__text {
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  margin-top: calcSize(1);
+  margin-top: var(--sjs2-spacing-x100);
   color: $font-questiontitle-color;
 }
 
@@ -123,8 +123,8 @@
 }
 
 .sd-imagepicker__no-image-svg {
-  height: calcSize(6);
-  width: calcSize(6);
+  height: var(--sjs2-size-x600);
+  width: var(--sjs2-size-x600);
   margin: auto;
 
   use {
@@ -140,7 +140,7 @@
 .sd-imagepicker__column {
   display: flex;
   flex-direction: column;
-  gap: calcSize(2);
+  gap: var(--sjs2-spacing-x200);
   align-items: flex-start;
   padding-right: 0;
 

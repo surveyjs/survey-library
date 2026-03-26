@@ -5,6 +5,7 @@
     </div>
     <div v-bind:class="question.cssClasses.cleanItem">
       <div
+        tabindex="0"
         v-bind:class="question.cssClasses.cleanItemButton"
         v-on:click="removeItem"
       >

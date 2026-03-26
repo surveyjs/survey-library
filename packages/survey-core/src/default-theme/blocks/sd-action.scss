@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-action {
   appearance: none;
@@ -10,10 +11,8 @@
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
   color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19B394);
   border-radius: var(--sjs2-radius-component-action, 8px);
-  font-weight: 600;
-  font-family: $font-family;
+  @include sjs2--typography--component--question--title;
   font-style: normal;
-  font-size: $font-questiontitle-size;
   line-height: multiply(1.5, $font-questiontitle-size);
   outline: none;
   transition: background-color $transition-duration;

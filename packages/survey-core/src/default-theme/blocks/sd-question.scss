@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-question {
   position: relative;
@@ -155,9 +156,9 @@
   text-align: center;
   gap: var(--sjs2-spacing-x050);
   justify-content: center;
+
   min-height: calc(var(--sjs2-base-unit-size) * 24);
-  font-size: $font-editorfont-size;
-  line-height: multiply(1.5, $font-editorfont-size);
+  @include sjs2--typography--component--input--content;
   color: $font-questionplaceholder-color;
 
   &>div,
@@ -186,9 +187,7 @@
 }
 
 .sd-singleinput__title {
-  font-family: $font-pagetitle-family;
-  font-weight: $font-pagetitle-weight;
-  font-size: var(--page-title-font-size);
+  @include sjs2--typography--component--page--title;
   color: $font-pagetitle-color;
   position: static;
   line-height: multiply(1.33, var(--page-title-font-size));

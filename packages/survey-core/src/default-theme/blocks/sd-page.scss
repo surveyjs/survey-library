@@ -1,5 +1,5 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-page {
   position: relative;
@@ -17,11 +17,17 @@
 }
 
 .sd-page .sd-page__title {
-  @include mixins.page_title();
+  @include sjs2--typography--component--page--title;
+  color: $font-pagetitle-color;
+  position: static;
+  margin: 0 0 calcSize(0.5) 0px;
 }
 
 .sd-page .sd-page__description {
-  @include mixins.page_description();
+  @include sjs2--typography--component--page--description;
+  color: $font-pagedescription-color;
+  position: static;
+  margin: 0 0 calcSize(0.5) 0;
 }
 
 

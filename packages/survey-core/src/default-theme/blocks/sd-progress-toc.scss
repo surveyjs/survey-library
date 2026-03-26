@@ -54,7 +54,7 @@
   height: auto;
   background-color: $background-dim;
   z-index: 15;
-  border-radius: var(--sjs2-radius-x300);
+  border-radius: var(--sjs2-radius-round);
 
   &>div {
     width: var(--sjs2-size-x300);

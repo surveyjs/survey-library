@@ -3,8 +3,8 @@
 
 .sv_window {
     position: fixed;
-    bottom: var(--sjs2-spacing-x200);
-    right: var(--sjs2-spacing-x200);
+    bottom: var(--sjs2-spacing-x200, 16px);
+    right: var(--sjs2-spacing-x200, 16px);
     border-radius: var(--sjs2-radius-x100);
     border: 1px solid $border-inside;
     box-shadow: $shadow-medium-large;
@@ -24,10 +24,10 @@
 }
 
 .sv_window--full-screen {
-    top: var(--sjs2-spacing-x200);
-    left: var(--sjs2-spacing-x200);
-    right: var(--sjs2-spacing-x200);
-    bottom: var(--sjs2-spacing-x200);
+    top: var(--sjs2-spacing-x200, 16px);
+    left: var(--sjs2-spacing-x200, 16px);
+    right: var(--sjs2-spacing-x200, 16px);
+    bottom: var(--sjs2-spacing-x200, 16px);
     max-height: 100%;
     width: initial !important;
     max-width: initial!important;

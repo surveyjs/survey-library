@@ -62,7 +62,7 @@
   padding-inline-end: calcSize(8);
   padding-inline-start: var(--sjs-list-item-padding-left, calcSize(2));
   color: $font-questiontitle-color;
-  @include sjs2--typography--component--input--content;
+  @include sjs2--typography--default;
   cursor: pointer;
   overflow: hidden;
   text-align: start;

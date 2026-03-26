@@ -215,6 +215,16 @@ $reverse-ease-out: cubic-bezier(0.42, 0, 1, 1);
   }
 }
 
+@function calcSize($multiplier) {
+  @if $multiplier ==1 {
+    $result: #{$base-unit};
+    @return $result;
+  } @else {
+    $result: calc(#{$multiplier} * (#{$base-unit}));
+    @return $result;
+  }
+}
+
 @function calcFontSize($multiplier) {
   @if $multiplier ==1 {
     $result: #{$font-size};

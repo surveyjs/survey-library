@@ -5,7 +5,7 @@
     position: fixed;
     bottom: var(--sjs2-spacing-x200, 16px);
     right: var(--sjs2-spacing-x200, 16px);
-    border-radius: var(--sjs2-radius-x100);
+    border-radius: var(--sjs2-radius-x100, 8px);
     border: 1px solid $border-inside;
     box-shadow: $shadow-medium-large;
     background-clip: padding-box;
@@ -14,7 +14,7 @@
     overflow: auto;
     box-sizing: border-box;
     background: $background-dim;
-    width: calc(100% - var(--sjs2-size-x400)) !important;
+    width: calc(100% - var(--sjs2-size-x400, 32px)) !important;
 
     @include mixins.scrollRules;
 }
@@ -46,9 +46,9 @@
     height: initial;
     
     .sv_window_header {
-        height: var(--sjs2-size-x400);
-        padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
-        border-radius: var(--sjs2-radius-x100);
+        height: var(--sjs2-size-x400, 32px);
+        padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x200, 16px);
+        border-radius: var(--sjs2-radius-x100, 8px);
         display: flex;
         background-color: $background-dim;
         box-sizing: content-box;
@@ -84,19 +84,19 @@
 
 .sv_window_buttons_container {
     position: fixed;
-    margin-top: var(--sjs2-spacing-x100);;
-    margin-right: var(--sjs2-spacing-x100);;
+    margin-top: var(--sjs2-spacing-x100, 8px);;
+    margin-right: var(--sjs2-spacing-x100, 8px);;
     display: flex;
-    gap: var(--sjs2-spacing-x100);
+    gap: var(--sjs2-spacing-x100, 8px);
     z-index: 10000;
 }
 
 .sv_window_button {
     display: flex;
-    padding: var(--sjs2-spacing-x100);
+    padding: var(--sjs2-spacing-x100, 8px);
     justify-content: center;
     align-items: center;
-    border-radius: var(--sjs2-radius-x050);
+    border-radius: var(--sjs2-radius-x050, 4px);
     cursor: pointer;
 
     &:hover,

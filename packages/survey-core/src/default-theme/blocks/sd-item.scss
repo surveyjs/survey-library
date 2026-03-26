@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-item {
   display: flex;
@@ -60,11 +61,8 @@
 }
 
 .sd-item__control-label {
-  font-family: $font-editorfont-family;
+  @include sjs2--typography--component--input--content;
   font-style: normal;
-  font-weight: $font-editorfont-weight;
-  line-height: multiply(1.5, $font-editorfont-size);
-  font-size: $font-editorfont-size;
   color: $font-questiontitle-color;
   white-space: normal;
   width: 100%;

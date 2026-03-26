@@ -110,9 +110,9 @@
 }
 
 @mixin sjs2--typography--component--header--description {
-  font-family: var(--sjs2-typography-font-family-text, "Open Sans");
-  font-size: var(--sjs2-typography-font-size-default, 16px);
+  font-family: var(--sjs2-typography-font-family-component-header-description, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-header-description, 24px);
   font-style: normal;
-  font-weight: var(--sjs2-typography-font-weight-basic, 400);
-  line-height: var(--sjs2-typography-line-height-default, 24px);
+  font-weight: var(--sjs2-typography-font-weight-component-header-description, 400);
+  line-height: var(--sjs2-typography-line-height-component-header-description, 32px);
 }

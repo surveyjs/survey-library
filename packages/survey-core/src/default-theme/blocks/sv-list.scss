@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sv-list {
   // padding: 0;
@@ -29,9 +30,7 @@
 }
 
 .sv-list__empty-text {
-  line-height: calcLineHeight(1.5);
-  font-size: calcFontSize(1);
-  font-weight: 400;
+  @include sjs2--typography--default;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -63,9 +62,7 @@
   padding-inline-end: calcSize(8);
   padding-inline-start: var(--sjs-list-item-padding-left, calcSize(2));
   color: $font-questiontitle-color;
-  font-weight: normal;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  @include sjs2--typography--default;
   cursor: pointer;
   overflow: hidden;
   text-align: start;

@@ -1,5 +1,5 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sv-header {
   position: relative;
@@ -162,10 +162,8 @@
 }
 
 .sv-header__title .sd-title {
-  @include mixins.header_title;
+  @include sjs2--typography--component--header--title;
   color: var(--sjs2-color-component-header-default-title, #{$font-pagetitle-color});
-  font-family: $font-headertitle-family;
-  font-weight: $font-headertitle-weight;
   margin: 0;
 }
 
@@ -186,10 +184,8 @@
 }
 
 .sv-header__description .sd-description {
-  @include mixins.header_description;
+  @include sjs2--typography--component--header--description;
   color: var(--sjs2-color-component-header-default-description, #{$font-pagedescription-color});
-  font-family: $font-headerdescription-family;
-  font-weight: $font-headerdescription-weight;
   margin: 0;
 }
 

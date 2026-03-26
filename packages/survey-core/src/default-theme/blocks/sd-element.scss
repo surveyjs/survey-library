@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-element {
   padding-left: var(--sv-element-add-padding-left, 0px);
@@ -23,8 +24,7 @@
 }
 
 .sd-title.sd-element__title {
-  font-family: $font-questiontitle-family;
-  font-weight: $font-questiontitle-weight;
+  @include sjs2--typography--component--question--title;
   color: $font-questiontitle-color;
 }
 
@@ -72,7 +72,10 @@
 
 .sd-element__title.sd-element__title--singleinput {
   span {
-    @include mixins.page_title();
+    @include sjs2--typography--component--page--title;
+    color: $font-pagetitle-color;
+    position: static;
+    margin: 0 0 calcSize(0.5) 0px;
   }
 }
 

@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sv-dropdown_select-wrapper {
   position: relative;
@@ -124,10 +125,7 @@
 
 .sv-dropdown-popup {
   .sd-list__item-body {
-    line-height: multiply(1.5, $font-editorfont-size);
-    font-size: $font-editorfont-size;
-    font-weight: $font-editorfont-weight;
-    font-family: $font-editorfont-family;
+    @include sjs2--typography--component--input--content;
     padding-inline-end: calcSize(1.75);
     padding-block: calcSize(1.25);
     padding-inline-start: calcSize(1.75);

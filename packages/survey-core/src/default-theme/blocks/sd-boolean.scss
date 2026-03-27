@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-boolean {
   display: flex;
@@ -23,11 +24,8 @@
 .sd-boolean__thumb,
 .sd-boolean__label {
   display: block;
-  font-family: $font-editorfont-family;
-  font-weight: $font-editorfont-weight;
-  font-size: $font-editorfont-size;
+  @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
-  line-height: multiply(1.5, $font-editorfont-size);
   padding: calcSize(1) calcSize(3);
 }
 

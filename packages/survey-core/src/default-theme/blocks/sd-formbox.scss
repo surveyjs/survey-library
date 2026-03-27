@@ -124,23 +124,15 @@
     box-sizing: content-box;
     white-space: normal;
     color: var(--sjs2-color-component-input-default-label, rgba(28, 27, 32, 0.6));
-    font-family: var(--sjs2-typography-font-family-component-input-content, "Open Sans");
-    font-size: var(--sjs2-typography-font-size-component-input-content, 16px);
-    font-style: normal;
-    font-weight: var(--sjs2-typography-font-weight-component-input-content, 400);
-    line-height: var(--sjs2-typography-line-height-component-input-content, 24px);
+    @include sjs2--typography--component--input--content;
 }
 
 .sd-formbox__character-counter {
     display: none;
     padding: var(--sjs2-spacing-x075, 6px) var(--sjs2-spacing-x100, 8px);
     color: var(--sjs2-color-component-input-default-limit, rgba(28, 27, 32, 0.6));
-    font-family: var(--sjs2-typography-font-family-text, "Open Sans");
-    font-size: var(--sjs2-typography-font-size-small, 12px);
-    font-style: normal;
-    font-weight: 400;
+    @include sjs2--typography--small;
     align-self: center;
-    line-height: var(--sjs2-typography-line-height-small, 16px);
 }
 
 @mixin runnable-track {

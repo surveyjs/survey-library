@@ -16,17 +16,28 @@
   position: relative;
   display: flex;
   align-items: center;
-
+  overflow: hidden;
   box-sizing: border-box;
   padding: var(--sjs2-spacing-x100, 8px);
   border-radius: var(--sjs2-radius-component-tagbox-item, 4px);
-  border: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-tagbox-item-default-border, #d4d4d4);
-  background-color: var(--sjs2-color-component-tagbox-item-default-bg, #fff);
-  overflow: hidden;
+  background: var(--sjs2-color-component-tagbox-item-default-bg, #fff);
+
+  /* sjs2/border-effect/component/tagbox-item/default */
+  box-shadow:
+    var(--sjs2-border-offset-x-trigger-default, 0) var(--sjs2-border-offset-y-trigger-default, 0)
+      var(--sjs2-border-blur-trigger-default, 0) var(--sjs2-border-spread-trigger-default, 1px)
+      var(--sjs2-color-component-tagbox-item-default-border, #d4d4d4) inset,
+    0 0 0 0 rgba(0, 0, 0, 0);
 
   &:hover {
-    border: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-tagbox-item-hovered-border, #d4d4d4);
     background: var(--sjs2-color-component-tagbox-item-hovered-bg, #fff);
+
+    /* sjs2/border-effect/component/tagbox-item/hovered */
+    box-shadow:
+      var(--sjs2-border-offset-x-trigger-hovered, 0) var(--sjs2-border-offset-y-trigger-hovered, 0)
+        var(--sjs2-border-blur-trigger-hovered, 0) var(--sjs2-border-spread-trigger-hovered, 1px)
+        var(--sjs2-color-component-tagbox-item-hovered-border, #d4d4d4) inset,
+      0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
@@ -75,6 +86,14 @@
     var(--sjs2-color-component-tagbox-item-hovered-mask-stop-1, #fff) 50%,
     var(--sjs2-color-component-tagbox-item-hovered-mask-stop-2, rgba(255, 255, 255, 0)) 100%
   );
+
+  border-radius: var(--sjs2-radius-component-tagbox-item, 4px);
+  /* sjs2/border-effect/component/tagbox-item/hovered */
+  box-shadow:
+    var(--sjs2-border-offset-x-trigger-hovered, 0) var(--sjs2-border-offset-y-trigger-hovered, 0)
+      var(--sjs2-border-blur-trigger-hovered, 0) var(--sjs2-border-spread-trigger-hovered, 1px)
+      var(--sjs2-color-component-tagbox-item-hovered-border, #d4d4d4) inset,
+    0 0 0 0 rgba(0, 0, 0, 0);
 }
 
 .sd-tagbox-item__clean-button {
@@ -93,8 +112,8 @@
 .sd-tagbox-item__clean-button-svg {
   display: block;
   padding: var(--sjs2-spacing-x050, 4px);
-  width: 16px;
-  height: 16px;
+  width: var(--sjs2-line-height-x200, 16px);
+  height: var(--sjs2-line-height-x200, 16px);
   box-sizing: content-box;
 }
 

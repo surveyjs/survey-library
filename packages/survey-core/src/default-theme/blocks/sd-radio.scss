@@ -6,8 +6,8 @@
   &:after {
     content: " ";
     display: block;
-    width: calcSize(1);
-    height: calcSize(1);
+    width: var(--sjs2-size-x100);
+    height: var(--sjs2-size-x100);
     border-radius: 50%;
     background-color: transparent;
     transition: background-color $transition-duration;
@@ -16,8 +16,8 @@
 .sd-radio--checked .sd-radio__decorator:after {
   content: " ";
   display: block;
-  width: calcSize(1);
-  height: calcSize(1);
+  width: var(--sjs2-size-x100);
+  height: var(--sjs2-size-x100);
   border-radius: 50%;
   background-color: var(--sjs2-color-component-check-true-default-icon, #fff);
 }
@@ -37,8 +37,8 @@
   .sd-radio__svg {
     fill: $foreground;
     display: block;
-    width: calcSize(2.5);
-    height: calcSize(2.5);
+    width: var(--sjs2-size-x250);
+    height: var(--sjs2-size-x250);
   }
 }
 

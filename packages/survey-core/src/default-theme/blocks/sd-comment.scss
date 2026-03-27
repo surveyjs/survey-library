@@ -5,8 +5,8 @@
 }
 .sd-comment__input {
   max-width: 100%;
-  min-width: calcSize(6);
-  min-height: calcSize(5);
+  min-width: var(--sjs2-size-x600);
+  min-height: var(--sjs2-size-x500);
 }
 
 .sd-comment {

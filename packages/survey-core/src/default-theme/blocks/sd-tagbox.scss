@@ -8,10 +8,10 @@
 }
 
 .sd-tagbox.sd-tagbox--empty {
-  // padding: calcSize(0.5) calcSize(6) calcSize(0.5) calcSize(2);
-  // padding-block: calcSize(0.5);
-  // padding-inline-end: calcSize(6);
-  // padding-inline-start: calcSize(2);
+  // padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x600) var(--sjs2-spacing-x050) var(--sjs2-spacing-x200);
+  // padding-block: var(--sjs2-spacing-x050);
+  // padding-inline-end: var(--sjs2-spacing-x600);
+  // padding-inline-start: var(--sjs2-spacing-x200);
 }
 
 .sd-tagbox_clean-button {
@@ -28,7 +28,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: calcSize(1) calcSize(1.5);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   background-color: var(--sjs2-color-component-tagbox-item-default-bg, #fff);
   border-radius: var(--sjs2-radius-component-tagbox-item, 4px);
   box-shadow: inset 0 0 0 var(--lbr-tag-box-item-border-width, 0)
@@ -40,7 +40,7 @@
 
 .sv-tagbox__item-text {
   color: var(--sjs2-color-component-tagbox-item-default-label, #1C1B20);
-  min-width: calcSize(5.5);
+  min-width: calc(var(--sjs2-base-unit-size) * 5.5);
   text-align: center;
   font-weight: 600;
 
@@ -63,9 +63,9 @@
 .sd-tagbox-item_clean-button {
   display: flex;
   position: absolute;
-  inset-inline-end: calcSize(1.5);
+  inset-inline-end: var(--sjs2-spacing-x150);
   padding: 0;
-  padding-inline-start: calcSize(4);
+  padding-inline-start: var(--sjs2-spacing-x400);
   background: linear-gradient(270deg, var(--sjs2-color-component-tagbox-item-default-bg, #fff) 53.12%, rgba(25, 179, 148, 0) 100%);
   opacity: 0;
   transition: opacity $transition-duration;
@@ -96,7 +96,7 @@
 
 .sd-tagbox__input.sd-dropdown__input {
   position: relative;
-  gap: calcSize(0.5);
+  gap: var(--sjs2-spacing-x050);
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;

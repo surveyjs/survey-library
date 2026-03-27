@@ -7,7 +7,7 @@
 }
 
 .sd-element--with-frame .sv-ranking-item {
-  left: calcSize(-3);
+  left: var(--sjs2-spacing-negative-x300);
 }
 
 .sv-ranking.sd-ranking--readonly {
@@ -45,14 +45,14 @@
     flex-direction: column-reverse;
 
     .sv-ranking__containers-divider {
-      margin: calcSize(3) 0;
+      margin: var(--sjs2-spacing-x300) 0;
       height: 1px;
       width: initial;
     }
 
     .sv-ranking__container--empty {
-      padding-top: calcSize(1);
-      padding-bottom: calcSize(1);
+      padding-top: var(--sjs2-spacing-x100);
+      padding-bottom: var(--sjs2-spacing-x100);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -75,8 +75,8 @@
         }
 
         .sv-ranking__container-placeholder {
-          padding-left: calcSize(3);
-          padding-right: calcSize(3);
+          padding-left: var(--sjs2-spacing-x300);
+          padding-right: var(--sjs2-spacing-x300);
         }
       }
 
@@ -94,8 +94,8 @@
   .sv-ranking__container--empty {
     &.sv-ranking__container--to {
       .sv-ranking__container-placeholder {
-        margin-left: calcSize(-5);
-        margin-right: calcSize(-5);
+        margin-left: var(--sjs2-spacing-negative-x500);
+        margin-right: var(--sjs2-spacing-negative-x500);
       }
     }
   }
@@ -104,7 +104,7 @@
 .sd-element--with-frame .sv-ranking--mobile {
   .sv-ranking-item__icon-container {
     margin-left: 0;
-    margin-right: calcSize(1);
+    margin-right: var(--sjs2-spacing-x100);
   }
 
   .sv-ranking-item {

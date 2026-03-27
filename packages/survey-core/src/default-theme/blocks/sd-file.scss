@@ -4,12 +4,12 @@
   position: relative;
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
-  min-height: calcSize(36);
+  min-height: calc(var(--sjs2-base-unit-size) * 36);
   box-sizing: border-box;
-  padding: 0 calcSize(6);
+  padding: 0 var(--sjs2-spacing-x600);
 
   .sv-action-bar {
-    padding: calcSize(1) 0;
+    padding: var(--sjs2-spacing-x100) 0;
     justify-content: center;
     position: absolute;
     width: 100%;
@@ -17,14 +17,14 @@
     bottom: 0;
 
     .sv-action-bar-item {
-      height: calcSize(4);
+      height: var(--sjs2-size-x400);
       color: $foreground-light;
-      border-radius: calcSize(2);
+      border-radius: var(--sjs2-radius-x200);
     }
 
     .sv-action--file-index {
       .sv-action-bar-item {
-        padding: calcSize(0.5) 0;
+        padding: var(--sjs2-spacing-x050) 0;
         font-weight: 600;
 
         &:hover {
@@ -44,7 +44,7 @@
   flex-direction: column;
   position: absolute;
   position: absolute;
-  left: calcSize(0);
+  left: var(--sjs2-spacing-x000);
   width: 100%;
   height: 100%;
   box-sizing: border-box;
@@ -73,12 +73,12 @@
   color: $font-questionplaceholder-color;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  padding: 0 calcSize(8);
+  padding: 0 var(--sjs2-spacing-x800);
 }
 
 @container (max-width: #{$sd-panel-normal-min-width}) {
   .sd-file__drag-area-placeholder {
-    padding: 0 calcSize(1);
+    padding: 0 var(--sjs2-spacing-x100);
   }
 }
 
@@ -88,7 +88,7 @@
   }
 
   .sd-file__decorator .sd-action {
-    padding: calcSize(1);
+    padding: var(--sjs2-spacing-x100);
 
     .sv-svg-icon {
       margin-left: 0;
@@ -106,7 +106,7 @@
 
 .sd-root-modern--mobile {
   .sd-file__decorator {
-    padding: 0 calcSize(4);
+    padding: 0 var(--sjs2-spacing-x400);
   }
 }
 
@@ -114,9 +114,9 @@
   cursor: pointer;
 
   .sv-svg-icon {
-    margin-left: calcSize(-1);
-    width: calcSize(3);
-    height: calcSize(3);
+    margin-left: var(--sjs2-spacing-negative-x100);
+    width: var(--sjs2-size-x300);
+    height: var(--sjs2-size-x300);
     fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
   }
 }
@@ -132,7 +132,7 @@
   max-width: 100%;
 }
 .sd-file__actions-container {
-  margin-top: calcSize(0.5);
+  margin-top: var(--sjs2-spacing-x050);
   flex-wrap: wrap;
   justify-content: center;
 
@@ -144,17 +144,17 @@
 .sd-file--answered .sd-file__actions-container {
   z-index: 2;
   margin-top: 0;
-  gap: calcSize(1);
+  gap: var(--sjs2-spacing-x100);
 }
 
 .sd-file--answered .sd-file__actions-container {
-  top: calcSize(1);
-  right: calcSize(1);
+  top: var(--sjs2-spacing-x100);
+  right: var(--sjs2-spacing-x100);
   position: absolute;
 }
 
 .sd-file--chose-btn--as .sd-file--answered .sd-file__actions-container {
-  inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
+  inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + var(--sjs2-spacing-x500));
 }
 
 .sd-file__list {
@@ -163,9 +163,9 @@
   overflow: hidden;
   box-sizing: content-box;
   flex-direction: row;
-  padding: calcSize(10.5) 0;
-  min-height: calcSize(15);
-  max-height: calcSize(15);
+  padding: calc(var(--sjs2-base-unit-spacing) * 10.5) 0;
+  min-height: var(--sjs2-size-x1500);
+  max-height: var(--sjs2-size-x1500);
   width: 100%;
 }
 
@@ -174,7 +174,7 @@
   left: 0;
   align-items: stretch;
   justify-content: center;
-  gap: calcSize(4);
+  gap: var(--sjs2-spacing-x400);
   height: calc(100% - 21 * #{$base-unit});
   width: 100%;
   position: absolute;
@@ -258,13 +258,13 @@
   align-items: stretch;
   flex-direction: column;
   min-height: 100%;
-  width: calcSize(12);
+  width: var(--sjs2-size-x1200);
   margin: 0;
   cursor: pointer;
 
   .sd-file__default-image {
-    width: calcSize(9);
-    height: calcSize(9);
+    width: var(--sjs2-size-x900);
+    height: var(--sjs2-size-x900);
 
     use {
       fill: $font-questionplaceholder-color;
@@ -283,7 +283,7 @@
 }
 
 .sd-file__sign {
-  margin-top: calcSize(1);
+  margin-top: var(--sjs2-spacing-x100);
   text-align: center;
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
@@ -294,7 +294,7 @@
     color: $font-questiontitle-color;
     white-space: normal;
     word-break: break-all;
-    width: calcSize(12);
+    width: var(--sjs2-size-x1200);
     min-width: 100%;
     max-width: 100%;
     overflow: hidden;
@@ -335,17 +335,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: calcSize(12);
-  min-height: calcSize(12);
-  height: calcSize(12);
+  width: var(--sjs2-size-x1200);
+  min-height: var(--sjs2-size-x1200);
+  height: var(--sjs2-size-x1200);
   background: $background-dim;
 
   img:not(.sd-file__default-image) {
     display: block;
     max-width: 100%;
     max-height: 100%;
-    width: calcSize(12);
-    height: calcSize(12);
+    width: var(--sjs2-size-x1200);
+    height: var(--sjs2-size-x1200);
     object-fit: contain;
   }
 }
@@ -434,15 +434,15 @@
 .sd-file__change-camera-button {
   position: absolute;
   z-index: 2;
-  left: calcSize(1);
-  top: calcSize(1);
+  left: var(--sjs2-spacing-x100);
+  top: var(--sjs2-spacing-x100);
 }
 
 .sd-file__close-camera-button {
   position: absolute;
   z-index: 2;
-  right: calcSize(1);
-  top: calcSize(1);
+  right: var(--sjs2-spacing-x100);
+  top: var(--sjs2-spacing-x100);
 }
 
 .sd-context-btn.sd-file__take-picture-button {
@@ -451,7 +451,7 @@
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  padding: calcSize(2);
+  padding: var(--sjs2-spacing-x200);
 
   &:hover,
   &:focus {
@@ -459,8 +459,8 @@
   }
 
   .sv-svg-icon {
-    height: calcSize(4);
-    width: calcSize(4);
+    height: var(--sjs2-size-x400);
+    width: var(--sjs2-size-x400);
 
     use {
       fill: $background;

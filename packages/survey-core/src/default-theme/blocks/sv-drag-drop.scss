@@ -1,35 +1,35 @@
 @use "../variables.scss" as *;
 
 .sv-dragged-element-shortcut {
-  height: calcSize(3);
-  min-width: calcSize(12.5);
-  border-radius: calcSize(4.5);
+  height: var(--sjs2-size-x300);
+  min-width: calc(var(--sjs2-base-unit-size) * 12.5);
+  border-radius: calc(var(--sjs2-base-unit-radius) * 4.5);
   background-color: $background;
-  padding: calcSize(2);
+  padding: var(--sjs2-spacing-x200);
   cursor: grabbing;
   position: absolute;
   z-index: 10000;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
   font-family: $font-family;
   font-size: calcFontSize(1);
-  padding-left: calcSize(2.5);
+  padding-left: var(--sjs2-spacing-x250);
   line-height: calcLineHeight(1.5);
 }
 
 .sv-matrixdynamic__drag-icon {
-  padding-top: calcSize(1.75);
+  padding-top: calc(var(--sjs2-base-unit-spacing) * 1.75);
 }
 
 .sv-matrixdynamic__drag-icon:after {
   content: " ";
   display: block;
-  height: calcSize(0.75);
-  width: calcSize(2.5);
+  height: var(--sjs2-size-x075);
+  width: var(--sjs2-size-x250);
   border: 1px solid #e7e7e7;
   box-sizing: border-box;
-  border-radius: calcSize(1.25);
+  border-radius: calc(var(--sjs2-base-unit-radius) * 1.25);
   cursor: move;
-  margin-top: calcSize(1.5);
+  margin-top: var(--sjs2-spacing-x150);
 }
 
 .sv-matrixdynamic-dragged-row {
@@ -51,7 +51,7 @@
   .sd-table__cell.sd-table__cell--drag {
     >div {
       background-color: var(--sjs2-color-component-panel-default-bg, #fff);
-      min-height: calcSize(6);
+      min-height: var(--sjs2-size-x600);
     }
   }
 }
@@ -91,7 +91,7 @@
   max-width: 400px;
 
   .sv-ranking-item {
-    height: calcSize(6);
+    height: var(--sjs2-size-x600);
 
     .sv-ranking-item__text {
 

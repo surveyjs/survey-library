@@ -15,9 +15,9 @@
 
 .sd-progress__text {
   position: absolute;
-  margin-top: calcSize(1);
-  padding: calcSize(1) calcSize(1.5);
-  right: calcSize(1.5);
+  margin-top: var(--sjs2-spacing-x100);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  right: var(--sjs2-spacing-x150);
   color: $foreground-dim-light;
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
@@ -33,19 +33,19 @@
 }
 
 .sd-body__progress--top {
-  margin-bottom: calcSize(4);
+  margin-bottom: var(--sjs2-spacing-x400);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
 .sd-body__progress--bottom .sd-progress__text {
-  margin-top: calcSize(-3.5);
+  margin-top: calc(var(--sjs2-base-unit-spacing) * -3.5);
 }
 
 .sv-root--sticky-top {
   .sd-progress__text {
-    border-radius: calcSize(0.5);
+    border-radius: var(--sjs2-radius-x050);
     color: $foreground-dim;
     opacity: 0.75;
     background: $background;

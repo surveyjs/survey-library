@@ -54,6 +54,7 @@ interface IRatingItemOwner extends ILocalizableOwner {
   getItemStyle(item: RatingItem): any;
   getItemClass(item: RatingItem): string;
   getDescription(item: RatingItem): LocalizableString;
+  getLocTextForItem(item: RatingItem): LocalizableString;
 }
 
 export class RatingItem extends ItemValue {
@@ -93,7 +94,7 @@ export class RatingItem extends ItemValue {
   }
 
   public getLocText(): LocalizableString {
-    return this.description || super.getLocText();
+    return this.ratingOwner?.getLocTextForItem(this) || super.getLocText();
   }
 }
 
@@ -396,15 +397,21 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
 
   public getDescription(e: RatingItem): LocalizableString {
+    if (this.isLoadingFromJson || !this.isDropdown) return undefined;
+    return this.getExtremeDescription(e);
+  }
 
-    if (this.isLoadingFromJson) return undefined;
-    if (!this.displayRateDescriptionsAsExtremeItems && !this.isDropdown) return undefined;
+  private getExtremeDescription(e: RatingItem): LocalizableString {
     const rateValues = this.visibleChoices;
     const idx = rateValues.indexOf(e);
     if (idx == 0) return this.minRateDescription && this.locMinRateDescription;
     if (idx == rateValues.length - 1) return this.maxRateDescription && this.locMaxRateDescription;
-
     return undefined;
+  }
+
+  public getLocTextForItem(e: RatingItem): LocalizableString {
+    if (this.isLoadingFromJson || this.isDropdown || !this.displayRateDescriptionsAsExtremeItems) return undefined;
+    return this.getExtremeDescription(e);
   }
 
   private resetRenderedItems() {

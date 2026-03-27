@@ -211,7 +211,6 @@ frameworks.forEach(framework => {
       await page.waitForLoadState("networkidle");
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "36px",
           "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
           "--sjs-font-editorfont-size": "24px"
         } });
@@ -396,7 +395,6 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, jsonWithInputs);
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "18px",
           "--sjs-font-editorfont-size": "12px",
           "--sjs-font-size": "20px"
         } });
@@ -421,7 +419,6 @@ frameworks.forEach(framework => {
       }, jsonWithInputs);
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "18px",
           "--sjs-font-editorfont-size": "12px",
           "--sjs-font-size": "20px"
         }

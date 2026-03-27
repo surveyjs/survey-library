@@ -17,10 +17,8 @@
   display: flex;
   align-items: center;
 
-  // max-width: calc(100% - var(--sjs2-size-x100, 8px));
   box-sizing: border-box;
-  height: var(--sjs2-size-x500, 40px);
-  padding: 0 var(--sjs2-spacing-x100, 8px);
+  padding: var(--sjs2-spacing-x100, 8px);
   border-radius: var(--sjs2-radius-component-tagbox-item, 4px);
   border: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-tagbox-item-default-border, #d4d4d4);
   background-color: var(--sjs2-color-component-tagbox-item-default-bg, #fff);

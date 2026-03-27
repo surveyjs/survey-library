@@ -1,7 +1,7 @@
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { IAction } from "./actions/action";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { VerticalPosition, HorizontalPosition, PositionMode } from "./utils/popup";
 import { calculateIsTablet, IsTouch } from "./utils/devices";
 

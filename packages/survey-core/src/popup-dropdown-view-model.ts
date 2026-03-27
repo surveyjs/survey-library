@@ -1,14 +1,13 @@
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { PopupUtils, IPosition, Rect } from "./utils/popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
-import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
-import { defaultActionBarCss } from "./actions/container";
+import { defaultActionBarCss } from "./actions/actionBarCss";
 import { getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {

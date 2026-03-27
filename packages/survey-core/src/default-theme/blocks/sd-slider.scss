@@ -1,6 +1,6 @@
 @use "../variables.scss" as *;
 
-:root {
+:root, :host {
   --sjs-postcss-fix-slider-path-height: var(--lbr-slider-path-height, #{calcSize(0.5)});
   --sjs-postcss-fix-slider-path-color: var(--lbr-slider-path-color);
   --sjs-postcss-fix-slider-path-color-filled: var(--lbr-slider-path-color-filled);
@@ -394,7 +394,7 @@ input[type="range"].sd-slider__input::-ms-tooltip {
   display: none;
 }
 
-:root {
+:root, :host {
   --sjs-range-slider-range-input-thumb-width: 0px;
   --sjs-range-slider-range-input-thumb-left: 0;
   --sjs-range-slider-range-input-thumb-position: absolute;

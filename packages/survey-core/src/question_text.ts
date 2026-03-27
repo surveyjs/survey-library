@@ -1,10 +1,11 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
-import { CustomError } from "./error";
+import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -420,8 +421,21 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.valueFromDataCore(val);
   }
   private dateValidationMessage: string;
+  private isMaskInputIncomplete(): boolean {
+    if (this.maskTypeIsEmpty) return false;
+    if (!this.isEmpty()) return false;
+    const inputVal = this._inputValue;
+    if (!inputVal) return false;
+    const emptyMaskedValue = this.maskInstance.getMaskedValue("");
+    return inputVal !== emptyMaskedValue;
+  }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
+    if (this.isMaskInputIncomplete()) {
+      const reqIdx = errors.findIndex(e => e.getErrorType() === "required");
+      if (reqIdx >= 0) errors.splice(reqIdx, 1);
+      errors.push(new PatternIncompleteError(null, this));
+    }
     const isInputUpdate = this.getIsInputTextUpdate();
     if (isOnValueChanged && isInputUpdate) return;
     if (!this.isOnValueChanged) {

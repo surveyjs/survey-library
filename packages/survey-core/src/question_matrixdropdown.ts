@@ -3,7 +3,8 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
 } from "./question_matrixdropdownbase";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";

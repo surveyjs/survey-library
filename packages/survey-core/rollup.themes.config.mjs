@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { readdirSync } from "fs";
 import { createEsmConfig, createUmdConfig } from "../../rollup.helpers.mjs";
 import process from "process";
-import pkg from "./package.json" assert { type: "json" };
+import pkg from "./package.json" with { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -32,6 +32,7 @@ export default () => {
       tsconfig: resolve(__dirname, "tsconfig.themes.json"),
       external: ["survey-core"],
       dir: resolve(buildPath),
+      declarationDir: resolve(buildPath, "themes"),
       emitMinified: process.env.emitMinified === "true",
       globalName: name == "themes/index" ? "SurveyTheme" : "SurveyTheme." + name.split("/").pop().split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(""),
       exports: name == "themes/index" ? "named" : "default",

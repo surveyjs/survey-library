@@ -1,6 +1,7 @@
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { Question } from "./question";
 import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";

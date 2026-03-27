@@ -1,7 +1,8 @@
 import { Base } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { Serializer, property } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { SurveyModel } from "./survey";
 import { ITheme } from "./themes";
 import { CssClassBuilder } from "./utils/cssClassBuilder";

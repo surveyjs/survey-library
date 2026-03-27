@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { ArrayChanges, Base } from "./base";
 import {
@@ -959,21 +960,6 @@ export class PanelModelBase extends SurveyElement<Question>
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));
     if (!!this.parent) {
       this.parent.validateContainerOnly();
-    }
-  }
-  onQuestionValueChanged(el: IElement): void {
-    const index = this.questions.indexOf(<any>el);
-    if (index < 0) return;
-    const dif = 5;
-    const max = this.questions.length - 1;
-    const start = index - dif > 0 ? index - dif : 0;
-    const end = index + dif < max ? index + dif : max;
-    for (let i = start; i <= end; i ++) {
-      if (i === index) continue;
-      const q = this.questions[i];
-      if (q.errors.length > 0 && q.validate(false)) {
-        q.validate(true);
-      }
     }
   }
   private validateInPanels(context: ValidationContext): void {
@@ -2460,7 +2446,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop(q, q, null, q.inputId, false, { behavior: "smooth" });
+            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: "smooth" } });
           }
         }, elementIsRendered ? 0 : 15);
       }
@@ -2541,7 +2527,7 @@ Serializer.addClass(
     { name: "startWithNewLine:boolean", default: true },
     { name: "width" },
     { name: "minWidth", defaultFunc: () => "auto" },
-    { name: "maxWidth", defaultFunc: () => settings.maxWidth },
+    { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
     { name: "colSpan:number", visible: false, onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); } },
     {
       name: "effectiveColSpan:number", minValue: 1, isSerializable: false,

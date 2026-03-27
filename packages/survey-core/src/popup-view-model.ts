@@ -1,6 +1,6 @@
 import { Base } from "./base";
 import { EventBase } from "./event";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";

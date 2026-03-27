@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionTextBase } from "./question_textbase";
 import { settings } from "./settings";

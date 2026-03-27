@@ -1,4 +1,5 @@
-import { Serializer, property } from "../jsonobject";
+import { Serializer } from "../jsonobject";
+import { property } from "../decorators";
 import { InputMaskNumeric } from "./mask_numeric";
 import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
 

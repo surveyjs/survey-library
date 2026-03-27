@@ -3,7 +3,8 @@ import { ISurveyValidatorOwner, ISurvey } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
 import { LocalizableString } from "./localizablestring";
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { HashTable, Helpers } from "./helpers";
 import { IValueGetterContext } from "./conditions/conditionProcessValue";
@@ -424,6 +425,15 @@ export class ExpressionValidator extends SurveyValidator {
   }
   public getType(): string {
     return "expressionvalidator";
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "expression") {
+      const owner = <any>this.owner;
+      if (!!owner && !!owner.resetValidationDependencies) {
+        owner.resetValidationDependencies();
+      }
+    }
   }
   public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
     if (!!this.conditionRunner) {

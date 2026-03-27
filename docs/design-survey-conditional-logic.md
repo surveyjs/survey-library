@@ -74,7 +74,7 @@ Certain question types can contain multiple values. Use a dot symbol to access a
 
 [View Demo](https://surveyjs.io/form-library/examples/use-and-represent-complex-questions-in-expressions/ (linkStyle))
 
-In question types whose value is an array, you can use zero-based indexes to access a specific item, question, or matrix cell:
+In question types whose value is an array, you can use zero-based indices to access a specific item, question, or matrix cell:
 
 <div class="v2-class---doc-table-container">
   <table class="v2-class---doc-table-container__table">
@@ -679,7 +679,7 @@ Returns a Date value converted from a given question's value.
 
 *Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): Date`
 
-Adds or subtracts a specified number of full days (default), hours, minutes, seconds, months, or years to or from a date value.
+Adds or subtracts a specified number of days (default), hours, minutes, seconds, months, or years to or from a date value.
 
 *Example*: `"expression": "dateAdd({startDate}, 14, "days")"`
 
@@ -691,7 +691,7 @@ Adds or subtracts a specified number of full days (default), hours, minutes, sec
 
 *Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): number`
 
-Returns a difference between two given dates in full days (default), hours, minutes, seconds, months, or years.
+Returns a difference between two given dates in days (default), hours, minutes, seconds, months, or years.
 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 
@@ -884,6 +884,8 @@ The second parameter allows you to get a display text associated with a specific
 
 #### `propertyValue`
 
+> This function is obsolete. Use the dollar sign (`$`) to access property values instead. For details, see the [Element Properties](#element-properties) section.
+
 *Definition*: `propertyValue(questionName: string, propertyName: string): any`
 
 Returns the value of a property specified for a given question. Supports questions nested within panels or matrices.
@@ -996,7 +998,7 @@ Resolve the promise with the computed value:
     }
     ```
 
-After implementing an asynchronous function, register it and set the `isAsync` option to `true` to indicate that the function is asynchronous. If the function loads external data, you can also enable caching to reduce the number of server requests.
+After implementing an asynchronous function, register it and set the `isAsync` option to `true` to indicate that the function is asynchronous.
 
 ```js
 import { registerFunction } from "survey-core";
@@ -1004,8 +1006,7 @@ import { registerFunction } from "survey-core";
 registerFunction({
   name: "asyncFunc",
   func: asyncFunc,
-  isAsync: true,
-  useCache: true // Optional
+  isAsync: true
 });
 ```
 

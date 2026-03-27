@@ -1874,6 +1874,9 @@
                         "allowCustomChoices": {
                             "type": "boolean"
                         },
+                        "createCustomChoiceText": {
+                            "type": "string"
+                        },
                         "allowClear": {
                             "type": "boolean"
                         },
@@ -2135,6 +2138,9 @@
                         },
                         "allowCustomChoices": {
                             "type": "boolean"
+                        },
+                        "createCustomChoiceText": {
+                            "type": "string"
                         },
                         "textWrapEnabled": {
                             "type": "boolean"
@@ -2931,6 +2937,9 @@
                 "maxErrorText": {
                     "type": "string"
                 },
+                "stepErrorText": {
+                    "type": "string"
+                },
                 "step": {
                     "type": "string"
                 },
@@ -3323,6 +3332,13 @@
                         },
                         "hideIfRowsEmpty": {
                             "type": "boolean"
+                        },
+                        "rowOrder": {
+                            "type": "string",
+                            "enum": [
+                                "initial",
+                                "random"
+                            ]
                         }
                     }
                 }

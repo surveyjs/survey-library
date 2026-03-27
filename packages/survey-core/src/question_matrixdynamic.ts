@@ -1,4 +1,5 @@
-import { property, Serializer } from "./jsonobject";
+import { Serializer } from "./jsonobject";
+import { property } from "./decorators";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
 import { Question, QuestionValueGetterContext } from "./question";
@@ -55,8 +56,8 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
     super(data, value);
     this.buildCells(value);
   }
-  protected getRowIndex(): number {
-    const res = super.getRowIndex();
+  protected getItemIndex(): number {
+    const res = super.getItemIndex();
     return res > 0 ? res : this.index + 1;
   }
   public get rowName() {

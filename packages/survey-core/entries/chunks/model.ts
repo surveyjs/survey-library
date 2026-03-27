@@ -73,7 +73,6 @@ function checkPrefix(prefix: string): boolean {
   const location = DomWindowHelper.getLocation();
   if (!!location && !!location.hostname) {
     const hn = location.hostname.toLowerCase();
-    ds.push("localhost");
     for (let i = 0; i < ds.length; i++) {
       if (hn.indexOf(ds[i]) > -1) return true;
     }
@@ -183,9 +182,8 @@ export {
   JsonRequiredPropertyError,
   JsonUnknownPropertyError,
   Serializer,
-  property,
-  propertyArray
 } from "../../src/jsonobject";
+export { property, propertyArray } from "../../src/decorators";
 export {
   IMatrixDropdownData,
   MatrixDropdownCell,

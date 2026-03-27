@@ -13,7 +13,8 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject, ValidationContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
-import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
+import { property, propertyArray } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -846,9 +847,6 @@ export class QuestionMultipleTextModel extends Question
   validateContainerOnly(): void {
     // do nothing
   }
-  onQuestionValueChanged(el: IElement): void {
-    // do nothing
-  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemLabel)
@@ -965,7 +963,7 @@ Serializer.addClass(
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
     },
-    { name: "defaultValueExpression:expression", visible: false },
+    { name: "defaultValueExpression:expression" },
     {
       name: "minValueExpression:expression",
       dependsOn: "inputType",

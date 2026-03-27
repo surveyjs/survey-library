@@ -1,8 +1,9 @@
 import { Base } from "./base";
 import { settings } from "./settings";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { ActionContainer } from "./actions/container";
+import { defaultActionBarCss } from "./actions/actionBarCss";
 import { IAction } from "./actions/action";
 
 interface INotifierCssClasses {

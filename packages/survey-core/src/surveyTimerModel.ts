@@ -2,7 +2,7 @@ import { ISurvey } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyTimer, SurveyTimerEvent } from "./surveytimer";
-import { property } from "./jsonobject";
+import { property } from "./decorators";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";

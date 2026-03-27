@@ -17,6 +17,7 @@
   display: flex;
   align-items: center;
   overflow: hidden;
+  max-width: calc(100% - var(--sjs2-spacing-x100));
   box-sizing: border-box;
   padding: var(--sjs2-spacing-x100, 8px);
   border-radius: var(--sjs2-radius-component-tagbox-item, 4px);

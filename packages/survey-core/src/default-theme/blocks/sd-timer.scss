@@ -4,7 +4,7 @@
   z-index: 2;
   position: fixed;
   bottom: calc(var(--sd-timer-size) / 144 * 32);
-  right: calcSize(1);
+  right: var(--sjs2-spacing-x100);
   background: white;
   width: var(--sd-timer-size);
   height: var(--sd-timer-size);
@@ -18,7 +18,7 @@
 
 .sd-timer--top {
   top: calc(var(--sd-timer-size) / 144 * 32);
-  margin-top: calcSize(4);
+  margin-top: var(--sjs2-spacing-x400);
   margin-bottom: calc(-1 * var(--sd-timer-size));
 }
 
@@ -53,7 +53,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  padding: calcSize(1);
+  padding: var(--sjs2-spacing-x100);
   color: $primary;
   font-weight: 700;
   font-size: calc(var(--sd-timer-size) / 144 * 32);
@@ -71,5 +71,5 @@
   font-style: normal;
   font-weight: 600;
   line-height: var(--lbr-font-default-line-height, calcLineHeight(1.5));
-  margin-top: calcSize(-0.5);
+  margin-top: var(--sjs2-spacing-negative-x050);
 }

@@ -24,7 +24,7 @@
 }
 
 @mixin borderLight {
-  border: calcSize(0.25) solid $border-light;
+  border: var(--sjs2-border-width-x200) solid $border-light;
 }
 
 @mixin articleXXLargeFont {
@@ -126,7 +126,7 @@
   button {
     display: flex;
     align-items: center;
-    padding: calcSize(1.5) calcSize(4);
+    padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x400);
     vertical-align: baseline;
     text-align: center;
     background-color: $background;
@@ -134,7 +134,7 @@
     border-radius: calcCornerRadius(1);
     cursor: pointer;
     user-select: none;
-    outline: solid calcSize(0.25) transparent;
+    outline: solid var(--sjs2-border-width-x200) transparent;
 
     color: $primary;
     font-weight: 600;

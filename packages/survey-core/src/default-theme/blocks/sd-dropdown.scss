@@ -126,10 +126,10 @@
 .sv-dropdown-popup {
   .sd-list__item-body {
     @include sjs2--typography--component--input--content;
-    padding-inline-end: calcSize(1.75);
-    padding-block: calcSize(1.25);
-    padding-inline-start: calcSize(1.75);
-    border: calcSize(0.25) solid transparent;
+    padding-inline-end: calc(var(--sjs2-base-unit-spacing) * 1.75);
+    padding-block: calc(var(--sjs2-base-unit-spacing) * 1.25);
+    padding-inline-start: calc(var(--sjs2-base-unit-spacing) * 1.75);
+    border: var(--sjs2-border-width-x200) solid transparent;
     border-radius: var(--sjs2-radius-component-drop-item, 8px);
     transition: border-color $transition-duration;
   }
@@ -137,9 +137,9 @@
   .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
     .sv-list__item-body {
       @include mixins.borderLight;
-      padding-inline-end: calcSize(1.75);
-      padding-block: calcSize(1.25);
-      padding-inline-start: calcSize(1.75);
+      padding-inline-end: calc(var(--sjs2-base-unit-spacing) * 1.75);
+      padding-block: calc(var(--sjs2-base-unit-spacing) * 1.25);
+      padding-inline-start: calc(var(--sjs2-base-unit-spacing) * 1.75);
     }
   }
 }
@@ -181,7 +181,7 @@
 [style*="direction: rtl"] {
   .sd-dropdown {
     background-position:
-      left calcSize(1.5) top 50%,
+      left var(--sjs2-spacing-x150) top 50%,
       0 0;
   }
 }

@@ -87,8 +87,8 @@
         display: block;
 
         svg {
-            width: calcSize(2);
-            height: calcSize(2);
+            width: var(--sjs2-size-x200);
+            height: var(--sjs2-size-x200);
         }
     }
 
@@ -109,7 +109,7 @@
     display: flex;
     align-items: center;
     margin-left: auto;
-    margin-right: calcSize(-1);
+    margin-right: var(--sjs2-spacing-negative-x100);
 }
 
 .sd-paneldynamic__progress-text {
@@ -117,13 +117,13 @@
     line-height: multiply(1.5, $font-questiontitle-size);
     color: $font-questiondescription-color;
     margin: 0;
-    margin-right: calcSize(3);
+    margin-right: var(--sjs2-spacing-x300);
 }
 
 .sd-paneldynamic__prev-btn,
 .sd-paneldynamic__next-btn {
-    width: calcSize(2);
-    height: calcSize(2);
+    width: var(--sjs2-size-x200);
+    height: var(--sjs2-size-x200);
 
     .sv-svg-icon {
         display: block;
@@ -131,18 +131,18 @@
 }
 
 .sd-paneldynamic__prev-btn {
-    margin-right: calcSize(2);
+    margin-right: var(--sjs2-spacing-x200);
 }
 
 .sd-paneldynamic__next-btn {
-    margin-left: calcSize(-1);
-    margin-right: calcSize(2);
+    margin-left: var(--sjs2-spacing-negative-x100);
+    margin-right: var(--sjs2-spacing-x200);
     transform: rotate(180deg);
 }
 
 .sd-paneldynamic__placeholder {
     .sd-action-bar--empty {
-        margin-top: calcSize(-0.5);
+        margin-top: var(--sjs2-spacing-negative-x050);
     }
     .sd-paneldynamic__add-btn {
         display: initial;
@@ -167,7 +167,7 @@
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
-    margin: 0 calcSize(-3);
+    margin: 0 var(--sjs2-spacing-negative-x300);
     width: calc(100% + 6 * #{$base-unit});
 }
 
@@ -175,19 +175,19 @@
     border-top: none;
     position: relative;
     top: calc(0.5 * var(--sd-base-vertical-padding));
-    margin-right: calcSize(-3);
+    margin-right: var(--sjs2-spacing-negative-x300);
     justify-content: flex-end;
 }
 
 .sd-paneldynamic__panel-footer {
     .sv-action:not(.sv-action--hidden) {
-        margin-bottom: calcSize(-1);
+        margin-bottom: var(--sjs2-spacing-negative-x100);
     }
 }
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
     .sd-tabs-toolbar {
-        margin: 0 0 -1px calcSize(-2);
+        margin: 0 0 -1px var(--sjs2-spacing-negative-x200);
         width: calc(100% + 4 * #{$base-unit});
     }
     &:after {
@@ -202,7 +202,7 @@
     }
 }
 .sd-paneldynamic__tabs-container--with-header {
-    padding-top: calcSize(3);
+    padding-top: var(--sjs2-spacing-x300);
 }
 .sd-tabs-toolbar.sv-action-bar {
     align-items: flex-start;
@@ -222,11 +222,11 @@
 }
 
 .sd-tab-item {
-    margin: 0 calcSize(2);
+    margin: 0 var(--sjs2-spacing-x200);
 }
 
 .sd-tab-item {
-    padding: calcSize(1) 0 calcSize(2);
+    padding: var(--sjs2-spacing-x100) 0 var(--sjs2-spacing-x200);
     display: flex;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -259,7 +259,7 @@
 }
 
 .sd-tab-item--icon {
-    padding: calcSize(1);
+    padding: var(--sjs2-spacing-x100);
     width: auto;
     border-radius: var(--sjs2-radius-component-action, 8px);
 
@@ -295,20 +295,20 @@
 
 .sd-tab-item__title {
     line-height: calcLineHeight(1.5);
-    height: calcSize(3);
+    height: var(--sjs2-size-x300);
     display: flex;
     align-items: center;
 }
 
 .sd-question__title ~ .sd-tabs-toolbar {
-    margin-top: calcSize(3);
+    margin-top: var(--sjs2-spacing-x300);
 }
 .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab {
     padding-bottom: 0;
 }
 
 .sd-element--collapsed .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab {
-    padding-bottom: calcSize(2);
+    padding-bottom: var(--sjs2-spacing-x200);
 }
 
 .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab::after {

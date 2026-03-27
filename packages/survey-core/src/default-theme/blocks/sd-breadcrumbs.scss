@@ -5,10 +5,10 @@
   display: flex;
   align-items: center;
   align-content: center;
-  gap: var(--lbr-breadcrumbs-gap, calcSize(1));
+  gap: var(--sjs2-spacing-x100);
   align-self: stretch;
   flex-wrap: wrap;
-  padding-bottom: var(--lbr-page-header-breadcrumbs-margin-bottom, 20px);
+  padding-bottom: var(--sjs2-spacing-x250);
 }
 
 .sd-breadcrumbs-item {
@@ -35,8 +35,8 @@
 
 .sd-breadcrumbs-separator {
   display: flex;
-  width: var(--lbr-breadcrumbs-item-separator-icon-width, calcSize(1.5));
-  height: var(--lbr-breadcrumbs-item-separator-icon-height, calcSize(1.5));
+  width: var(--sjs2-size-x150);
+  height: var(--sjs2-size-x150);
   justify-content: center;
   align-items: center;
   use {

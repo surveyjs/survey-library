@@ -71,8 +71,8 @@
   // grid-auto-rows: min-content;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
-  row-gap: var(--lbr-cover-row-gap, var(--lbr-spacing-x150, var(--sjs2-spacing-x150)));
-  column-gap: var(--lbr-cover-column-gap, var(--lbr-spacing-x6, var(--sjs2-spacing-x600)));
+  row-gap: var(--sjs2-spacing-x150);
+  column-gap: var(--sjs2-spacing-x600);
 }
 
 .sv-header--height-auto {

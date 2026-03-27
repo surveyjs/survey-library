@@ -1,8 +1,7 @@
 @use "../variables.scss" as *;
 
 .sv_progress-toc {
-  padding: var(--lbr-toc-padding-top, var(--sjs2-spacing-x100)) var(--lbr-toc-padding-right, var(--sjs2-spacing-x100))
-    var(--lbr-toc-padding-bottom, var(--sjs2-spacing-x100)) var(--lbr-toc-padding-left, var(--sjs2-spacing-x100));
+  padding: var(--sjs2-spacing-x100);
   background: var(--lbr-toc-background-color, $background);
 
   min-width: calc(var(--sjs2-base-unit-size) * 32);
@@ -38,11 +37,11 @@
 }
 
 .sv_progress-toc--left {
-  border-right: var(--lbr-toc-border-width-right, 1px) solid var(--lbr-toc-border-color, $border);
+  border-right: var(--sjs2-border-width-x100) solid $border;
 }
 
 .sv_progress-toc--right {
-  border-left: var(--lbr-toc-border-width-right, 1px) solid var(--lbr-toc-border-color, $border);
+  border-left: var(--sjs2-border-width-x100) solid $border;
 }
 
 .sv_progress-toc--mobile {

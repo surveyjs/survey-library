@@ -12,24 +12,22 @@
 
 .sd-summary-row {
   display: flex;
-  padding: var(--lbr-data-table-row-padding-top, var(--sjs2-spacing-x100)) var(--lbr-data-table-row-padding-right, var(--sjs2-spacing-x200))
-    var(--lbr-data-table-row-padding-bottom, var(--sjs2-spacing-x100)) var(--lbr-data-table-row-padding-left, var(--sjs2-spacing-x200));
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
   align-items: flex-start;
-  gap: var(--lbr-data-table-row-gap, var(--sjs2-spacing-x400));
+  gap: var(--sjs2-spacing-x400);
   flex: 1 0 0;
   align-self: stretch;
 
-  border-bottom: var(--lbr-data-table-row-border-width-bottom, 1px) solid
+  border-bottom: var(--sjs2-border-width-x100) solid
     var(--lbr-data-table-row-border-color, $border-light);
   background: var(--lbr-data-table-row-background-color, $background);
 }
 
 .sd-summary-row__content {
   display: flex;
-  padding: var(--lbr-data-table-row-text-margin-top, var(--sjs2-spacing-x050)) 0px
-    var(--lbr-data-table-row-text-margin-bottom, var(--sjs2-spacing-x050)) 0px;
+  padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x000);
   align-items: flex-start;
-  gap: var(--lbr-data-table-row-gap, var(--sjs2-spacing-x400));
+  gap: var(--sjs2-spacing-x400);
   flex: 1 0 0;
 
   color: var(--lbr-data-table-row-text-color-title, $foreground);
@@ -39,7 +37,7 @@
 .sd-summary-row__actions {
   display: flex;
   align-items: flex-start;
-  gap: var(--lbr-data-table-actions-gap, var(--sjs2-spacing-x100));
+  gap: var(--sjs2-spacing-x100);
   opacity: 0;
   transition: opacity $transition-duration;
 }
@@ -68,12 +66,10 @@
   white-space: nowrap;
 
   display: flex;
-  padding: var(--lbr-action-button-padding-top, var(--sjs2-spacing-x100))
-    var(--lbr-action-button-padding-right-icon-only, var(--sjs2-spacing-x100)) var(--lbr-action-button-padding-bottom, var(--sjs2-spacing-x100))
-    var(--lbr-action-button-padding-left-icon-only, var(--sjs2-spacing-x100));
+  padding: var(--sjs2-spacing-x100);
   justify-content: center;
   align-items: center;
-  gap: var(--lbr-action-button-gap, var(--sjs2-spacing-x100));
+  gap: var(--sjs2-spacing-x100);
 
   border-radius: var(--lbr-action-button-corner-radius, 1024px);
   transition: background-color $transition-duration;

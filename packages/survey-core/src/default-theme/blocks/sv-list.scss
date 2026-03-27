@@ -5,8 +5,7 @@
 .sv-list {
   // padding: 0;
   margin: 0;
-  padding: var(--lbr-popup-menu-padding-top, 4px) var(--lbr-popup-menu-padding-right, 4px)
-    var(--lbr-popup-menu-padding-bottom, 4px) var(--lbr-popup-menu-padding-left, 4px);
+  padding: var(--sjs2-spacing-x050);
   overflow-y: auto;
   // background: $background;
   font-family: $font-family;
@@ -20,12 +19,11 @@
   padding: var(--sjs2-spacing-x150);
 
   display: flex;
-  padding: var(--lbr-placeholder-padding-top, 16px) var(--lbr-placeholder-padding-right, 64px)
-    var(--lbr-placeholder-padding-bottom, 16px) var(--lbr-placeholder-padding-left, 64px);
+  padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x800);
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: var(--lbr-placeholder-gap, 4px);
+  gap: var(--sjs2-spacing-x050);
   align-self: stretch;
 }
 

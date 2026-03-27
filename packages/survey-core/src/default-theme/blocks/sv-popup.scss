@@ -256,9 +256,8 @@ sv-popup {
   }
 
   .sv-popup__body-footer {
-    padding: var(--lbr-popup-menu-footer-padding-top, var(--sjs2-spacing-x050)) var(--lbr-popup-menu-footer-padding-right, 0px)
-      var(--lbr-popup-menu-footer-padding-bottom, var(--sjs2-spacing-x050)) var(--lbr-popup-menu-footer-padding-left, 0px);
-    border-top: var(--lbr-popup-menu-footer-border-width-top, 1px) solid
+    padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x000);
+    border-top: var(--sjs2-border-width-x100) solid
       var(--lbr-popup-menu-footer-border-color, $border-light);
     background: var(--lbr-popup-menu-footer-background-color, $background-dim-light);
   }

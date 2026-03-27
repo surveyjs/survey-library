@@ -127,8 +127,8 @@
 
 .sd-element__title-expandable-svg {
   display: inline-block;
-  width: var(--lbr-question-panel-expand-button-icon-width, var(--sjs2-size-x200));
-  height: var(--lbr-question-panel-expand-button-icon-height, var(--sjs2-size-x200));
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
 
   position: absolute;
   inset-inline-start: var(--sjs2-spacing-negative-x300);

@@ -48,6 +48,7 @@
   min-width: var(--sjs2-size-x500, 40px);
   padding: 0 var(--sjs2-spacing-x075, 6px);
   text-align: center;
+  box-sizing: content-box;
 
   &:hover {
     color: var(--sjs2-color-component-tagbox-item-hovered-label, #1c1b20);

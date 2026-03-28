@@ -740,28 +740,20 @@ export class QuestionTextModel extends QuestionTextBase {
 
     // Allow control keys (Tab, Backspace, Delete, Arrow keys, etc.)
     const controlKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter", "Escape"];
-    if (event.ctrlKey || event.metaKey || event.altKey || controlKeys.indexOf(key) > -1) {
-      return false;
-    }
+    if (event.ctrlKey || event.metaKey || event.altKey || controlKeys.indexOf(key) > -1) return false;
 
     // Do not allow "e", "E", or "+" symbols
-    if (["e", "E", "+"].indexOf(key) > -1) {
-      return true;
-    }
+    if (["e", "E", "+"].indexOf(key) > -1) return true;
 
     // Handle "-" symbol
     if (key === "-") {
-      // 4. Do not allow "-" as first symbol if renderedMin >= 0
+      // Do not allow "-" as first symbol if renderedMin >= 0
       if (selectionStart === 0 && !Helpers.isValueEmpty(this.renderedMin)) {
         const minValue = Helpers.getNumber(this.renderedMin);
-        if (!isNaN(minValue) && minValue >= 0) {
-          return true;
-        }
+        if (!isNaN(minValue) && minValue >= 0) return true;
       }
-      // 2. Do not allow "-" as non-first symbol
-      if (selectionStart > 0) {
-        return true;
-      }
+      // Do not allow "-" as non-first symbol
+      if (selectionStart > 0) return true;
     }
 
     return false;

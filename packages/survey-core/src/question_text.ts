@@ -723,11 +723,54 @@ export class QuestionTextModel extends QuestionTextBase {
       return;
     }
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
+    if (this.inputType === "number" && this.shouldPreventNumberInput(event)) {
+      event.preventDefault();
+      return;
+    }
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
     this.onTextKeyDownHandler(event);
   };
+  private shouldPreventNumberInput(event: any): boolean {
+    const key = event.key;
+    const target = event.target;
+    const selectionStart = target?.selectionStart ?? 0;
+    const currentValue = target?.value ?? "";
+
+    // Allow control keys (Tab, Backspace, Delete, Arrow keys, etc.)
+    const controlKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter", "Escape"];
+    if (event.ctrlKey || event.metaKey || event.altKey || controlKeys.indexOf(key) > -1) {
+      return false;
+    }
+
+    // 1. Do not allow "e" or "E" symbol
+    if (key === "e" || key === "E") {
+      return true;
+    }
+
+    // 3. Do not allow "+" symbol at all
+    if (key === "+") {
+      return true;
+    }
+
+    // Handle "-" symbol
+    if (key === "-") {
+      // 4. Do not allow "-" as first symbol if renderedMin >= 0
+      if (selectionStart === 0 && !Helpers.isValueEmpty(this.renderedMin)) {
+        const minValue = Helpers.getNumber(this.renderedMin);
+        if (!isNaN(minValue) && minValue >= 0) {
+          return true;
+        }
+      }
+      // 2. Do not allow "-" as non-first symbol
+      if (selectionStart > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
   public onChange = (event: any): void => {
     this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);

@@ -744,13 +744,8 @@ export class QuestionTextModel extends QuestionTextBase {
       return false;
     }
 
-    // 1. Do not allow "e" or "E" symbol
-    if (key === "e" || key === "E") {
-      return true;
-    }
-
-    // 3. Do not allow "+" symbol at all
-    if (key === "+") {
+    // Do not allow "e", "E", or "+" symbols
+    if (["e", "E", "+"].indexOf(key) > -1) {
       return true;
     }
 

@@ -434,7 +434,9 @@ frameworks.forEach((framework) => {
       // Clear and try to add '-' in the middle
       await page.keyboard.press("Control+A");
       await page.keyboard.press("Backspace");
+      expect(await input.inputValue()).toBe("");
       await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
       await page.keyboard.press("Home");
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("-");

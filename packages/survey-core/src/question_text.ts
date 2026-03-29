@@ -686,16 +686,8 @@ export class QuestionTextModel extends QuestionTextBase {
 
     // For input type="number", clean up "-" symbols that are not at the first position
     // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
-    if (this.inputType === "number" && typeof newValue === "string" && newValue.length > 0) {
-      const firstChar = newValue.charAt(0);
-      const restOfString = newValue.substring(1);
-      // Keep the first "-" if present, but remove all other "-" symbols
-      if (firstChar === "-") {
-        newValue = "-" + restOfString.replace(/-/g, "");
-      } else {
-        // Remove all "-" symbols if the first character is not "-"
-        newValue = newValue.replace(/-/g, "");
-      }
+    if (this.inputType === "number" && typeof newValue === "string" && newValue.length > 1) {
+      newValue = newValue[0] + newValue.substring(1).replace(/-/g, "");
     }
 
     if (!this.isTwoValueEquals(this.value, newValue)) {

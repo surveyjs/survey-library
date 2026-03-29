@@ -915,6 +915,7 @@ QUnit.test("Numeric input validation - prevent '+' character", (assert) => {
 QUnit.test("Numeric input validation - prevent '-' at non-first position", (assert) => {
   const q = new QuestionTextModel("q1");
   q.inputType = "number";
+  // No min/max set, so renderedMin is undefined
 
   const createKeyEvent = (key: string, selectionStart: number = 0) => {
     return {
@@ -927,12 +928,16 @@ QUnit.test("Numeric input validation - prevent '-' at non-first position", (asse
     };
   };
 
-  // Test '-' character at non-first position
+  // Test '-' character at non-first position when renderedMin is undefined
   const eventMinusMiddle = createKeyEvent("-", 1);
-  assert.equal(q["shouldPreventNumberInput"](eventMinusMiddle), true, "Should prevent '-' at position 1");
+  assert.equal(q["shouldPreventNumberInput"](eventMinusMiddle), true, "Should prevent '-' at position 1 (no min set)");
 
   const eventMinusEnd = createKeyEvent("-", 3);
-  assert.equal(q["shouldPreventNumberInput"](eventMinusEnd), true, "Should prevent '-' at end");
+  assert.equal(q["shouldPreventNumberInput"](eventMinusEnd), true, "Should prevent '-' at end (no min set)");
+
+  // Test '-' at position 0 should be ALLOWED when renderedMin is undefined
+  const eventMinusStart = createKeyEvent("-", 0);
+  assert.equal(q["shouldPreventNumberInput"](eventMinusStart), false, "Should allow '-' at position 0 when no min set");
 });
 
 QUnit.test("Numeric input validation - prevent '-' when min >= 0", (assert) => {

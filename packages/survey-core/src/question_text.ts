@@ -682,7 +682,7 @@ export class QuestionTextModel extends QuestionTextBase {
 
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isColorValueChanged) return;
-    let newValue = event.target.value;
+    const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
     }
@@ -690,6 +690,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private prevNumberValue: string;
   private updateNumericValue(event: any): void {
     if (this.inputType !== "number") return;
+    // Browsers returns empty string for invalid values in type="number" input. We need to store the value before it becomes empty and restore it here.
     const value = event.target?.value || this.prevNumberValue;
     // For input type="number", clean up "-" symbols that are not at the first position
     // This handles the case when renderedMin is undefined (selectionStart is null for type="number")

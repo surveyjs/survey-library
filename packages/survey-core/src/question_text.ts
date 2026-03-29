@@ -748,9 +748,8 @@ export class QuestionTextModel extends QuestionTextBase {
   private shouldPreventNumberInput(event: any): boolean {
     const key = event.key;
 
-    // Allow control keys (Tab, Backspace, Delete, Arrow keys, etc.)
-    const controlKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter", "Escape"];
-    if (event.ctrlKey || event.metaKey || event.altKey || controlKeys.indexOf(key) > -1) return false;
+    // Allow keyboard shortcuts (Ctrl+C, Ctrl+V, etc.)
+    if (event.ctrlKey || event.metaKey || event.altKey) return false;
 
     // Do not allow "e", "E", or "+" symbols
     if (["e", "E", "+"].indexOf(key) > -1) return true;

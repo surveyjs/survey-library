@@ -916,34 +916,47 @@ QUnit.test("Numeric input validation - prevent '-' at non-first position", (asse
   const q = new QuestionTextModel("q1");
   q.inputType = "number";
   // No min/max set, so renderedMin is undefined
-  // For input type="number", selectionStart is null, so we clean up "-" in onChange event
+  // For input type="number", selectionStart is null, so we clean up "-" in onKeyUp event
 
-  const createChangeEvent = (value: string) => {
-    return {
-      target: { value: value }
+  // Simulates the keydown->keyup sequence for typing "-" into a number input.
+  // onKeyDown stores prevNumberValue (the value before the keystroke).
+  // The browser then processes the key, potentially making the value invalid (empty string for type="number").
+  // onKeyUp calls updateNumericValue which restores the value from prevNumberValue if needed.
+  const simulateMinusKey = (valueBefore: string, valueAfter: string) => {
+    const target = { value: valueBefore };
+    const keyDownEvent = {
+      key: "-",
+      target: target,
+      preventDefault: () => {},
+      ctrlKey: false,
+      metaKey: false,
+      altKey: false
     };
+    q.onKeyDown(keyDownEvent);
+    // Simulate browser processing the keystroke - value changes
+    target.value = valueAfter;
+    const keyUpEvent = {
+      key: "-",
+      target: target
+    };
+    q.onKeyUp(keyUpEvent);
+    return target.value;
   };
 
-  // Test onChange cleans up "-" at non-first positions
-  const event1 = createChangeEvent("1-23");
-  q.onChange(event1);
-  assert.equal(q.value, "123", "Should remove '-' from middle of value");
+  // Test onKeyUp cleans up "-" at non-first positions
+  // When "-" is typed in the middle, browser sees "1-23" which is invalid -> returns ""
+  // updateNumericValue restores from prevNumberValue "123" and cleans it
+  let result1 = simulateMinusKey("123", "1-23");
+  assert.equal(result1, "123", "Should remove '-' from middle of value");
 
-  const event2 = createChangeEvent("-12-3");
-  q.onChange(event2);
-  assert.equal(q.value, "-123", "Should keep first '-' but remove others");
+  let result2 = simulateMinusKey("-123", "-12-3");
+  assert.equal(result2, "-123", "Should keep first '-' but remove others");
 
-  const event3 = createChangeEvent("123-");
-  q.onChange(event3);
-  assert.equal(q.value, "123", "Should remove '-' from end of value");
+  let result3 = simulateMinusKey("123", "123-");
+  assert.equal(result3, "123", "Should remove '-' from end of value");
 
-  const event4 = createChangeEvent("-123");
-  q.onChange(event4);
-  assert.equal(q.value, "-123", "Should allow '-' at first position");
-
-  const event5 = createChangeEvent("123");
-  q.onChange(event5);
-  assert.equal(q.value, "123", "Should allow value without '-'");
+  let result4 = simulateMinusKey("", "-123");
+  assert.equal(result4, "-123", "Should allow '-' at first position");
 });
 
 QUnit.test("Numeric input validation - prevent '-' when min >= 0", (assert) => {

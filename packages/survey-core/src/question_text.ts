@@ -689,7 +689,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   private prevNumberValue: string;
   private updateNumericValue(event: any): void {
-    if (this.inputType !== "number") return;
+    if (this.inputType !== "number" || event.key !== "-") return;
     // Browsers returns empty string for invalid values in type="number" input. We need to store the value before it becomes empty and restore it here.
     const value = event.target?.value || this.prevNumberValue;
     // For input type="number", clean up "-" symbols that are not at the first position
@@ -709,6 +709,7 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onKeyUp = (event: any) => {
     this.updateDateValidationMessage(event);
+    this.updateNumericValue(event);
     if (this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
@@ -757,17 +758,18 @@ export class QuestionTextModel extends QuestionTextBase {
     // Handle "-" symbol
     // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
     // When renderedMin is undefined, we'll clean up "-" in onChange event
-    if (key === "-" && !Helpers.isValueEmpty(this.renderedMin)) {
-      const minValue = Helpers.getNumber(this.renderedMin);
-      if (!isNaN(minValue) && minValue >= 0) return true;
+    if (key === "-") {
+      if (!Helpers.isValueEmpty(this.renderedMin)) {
+        const minValue = Helpers.getNumber(this.renderedMin);
+        if (!isNaN(minValue) && minValue >= 0) return true;
+      }
+      this.prevNumberValue = event.target?.value || "";
     }
-    this.prevNumberValue = event.target?.value || "";
     return false;
   }
   public onChange = (event: any): void => {
     this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);
-    this.updateNumericValue(event);
     const root = getRootNode(this.input);
     if (!root) return;
     const elementIsFocused = event.target === root.activeElement;

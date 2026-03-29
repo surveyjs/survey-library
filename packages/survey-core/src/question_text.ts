@@ -682,7 +682,22 @@ export class QuestionTextModel extends QuestionTextBase {
 
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isColorValueChanged) return;
-    const newValue = event.target.value;
+    let newValue = event.target.value;
+
+    // For input type="number", clean up "-" symbols that are not at the first position
+    // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
+    if (this.inputType === "number" && typeof newValue === "string" && newValue.length > 0) {
+      const firstChar = newValue.charAt(0);
+      const restOfString = newValue.substring(1);
+      // Keep the first "-" if present, but remove all other "-" symbols
+      if (firstChar === "-") {
+        newValue = "-" + restOfString.replace(/-/g, "");
+      } else {
+        // Remove all "-" symbols if the first character is not "-"
+        newValue = newValue.replace(/-/g, "");
+      }
+    }
+
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
     }
@@ -734,9 +749,6 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   private shouldPreventNumberInput(event: any): boolean {
     const key = event.key;
-    const target = event.target;
-    const selectionStart = target?.selectionStart ?? 0;
-    const currentValue = target?.value ?? "";
 
     // Allow control keys (Tab, Backspace, Delete, Arrow keys, etc.)
     const controlKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter", "Escape"];
@@ -746,14 +758,13 @@ export class QuestionTextModel extends QuestionTextBase {
     if (["e", "E", "+"].indexOf(key) > -1) return true;
 
     // Handle "-" symbol
+    // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
+    // When renderedMin is undefined, we'll clean up "-" in onChange event
     if (key === "-") {
-      // Do not allow "-" as first symbol if renderedMin >= 0
-      if (selectionStart === 0 && !Helpers.isValueEmpty(this.renderedMin)) {
+      if (!Helpers.isValueEmpty(this.renderedMin)) {
         const minValue = Helpers.getNumber(this.renderedMin);
         if (!isNaN(minValue) && minValue >= 0) return true;
       }
-      // Do not allow "-" as non-first symbol
-      if (selectionStart > 0) return true;
     }
 
     return false;

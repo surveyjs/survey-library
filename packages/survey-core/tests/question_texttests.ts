@@ -916,28 +916,34 @@ QUnit.test("Numeric input validation - prevent '-' at non-first position", (asse
   const q = new QuestionTextModel("q1");
   q.inputType = "number";
   // No min/max set, so renderedMin is undefined
+  // For input type="number", selectionStart is null, so we clean up "-" in onChange event
 
-  const createKeyEvent = (key: string, selectionStart: number = 0) => {
+  const createChangeEvent = (value: string) => {
     return {
-      key: key,
-      target: { selectionStart: selectionStart, value: "123" },
-      preventDefault: () => {},
-      ctrlKey: false,
-      metaKey: false,
-      altKey: false
+      target: { value: value }
     };
   };
 
-  // Test '-' character at non-first position when renderedMin is undefined
-  const eventMinusMiddle = createKeyEvent("-", 1);
-  assert.equal(q["shouldPreventNumberInput"](eventMinusMiddle), true, "Should prevent '-' at position 1 (no min set)");
+  // Test onChange cleans up "-" at non-first positions
+  const event1 = createChangeEvent("1-23");
+  q["updateValueOnEvent"](event1);
+  assert.equal(q.value, "123", "Should remove '-' from middle of value");
 
-  const eventMinusEnd = createKeyEvent("-", 3);
-  assert.equal(q["shouldPreventNumberInput"](eventMinusEnd), true, "Should prevent '-' at end (no min set)");
+  const event2 = createChangeEvent("-12-3");
+  q["updateValueOnEvent"](event2);
+  assert.equal(q.value, "-123", "Should keep first '-' but remove others");
 
-  // Test '-' at position 0 should be ALLOWED when renderedMin is undefined
-  const eventMinusStart = createKeyEvent("-", 0);
-  assert.equal(q["shouldPreventNumberInput"](eventMinusStart), false, "Should allow '-' at position 0 when no min set");
+  const event3 = createChangeEvent("123-");
+  q["updateValueOnEvent"](event3);
+  assert.equal(q.value, "123", "Should remove '-' from end of value");
+
+  const event4 = createChangeEvent("-123");
+  q["updateValueOnEvent"](event4);
+  assert.equal(q.value, "-123", "Should allow '-' at first position");
+
+  const event5 = createChangeEvent("123");
+  q["updateValueOnEvent"](event5);
+  assert.equal(q.value, "123", "Should allow value without '-'");
 });
 
 QUnit.test("Numeric input validation - prevent '-' when min >= 0", (assert) => {

@@ -683,16 +683,20 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isColorValueChanged) return;
     let newValue = event.target.value;
-
-    // For input type="number", clean up "-" symbols that are not at the first position
-    // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
-    if (this.inputType === "number" && typeof newValue === "string" && newValue.length > 1) {
-      newValue = newValue[0] + newValue.substring(1).replace(/-/g, "");
-    }
-
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
     }
+  }
+  private prevNumberValue: string;
+  private updateNumericValue(event: any): void {
+    if (this.inputType !== "number") return;
+    const value = event.target?.value || this.prevNumberValue;
+    // For input type="number", clean up "-" symbols that are not at the first position
+    // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
+    if (typeof value === "string" && value.length > 0) {
+      event.target.value = value[0] + value.substring(1).replace(/-/g, "");
+    }
+    this.prevNumberValue = undefined;
   }
   onCompositionUpdate = (event: any) => {
     if (this.isInputTextUpdate) {
@@ -752,26 +756,21 @@ export class QuestionTextModel extends QuestionTextBase {
     // Handle "-" symbol
     // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
     // When renderedMin is undefined, we'll clean up "-" in onChange event
-    if (key === "-") {
-      if (!Helpers.isValueEmpty(this.renderedMin)) {
-        const minValue = Helpers.getNumber(this.renderedMin);
-        if (!isNaN(minValue) && minValue >= 0) return true;
-      }
+    if (key === "-" && !Helpers.isValueEmpty(this.renderedMin)) {
+      const minValue = Helpers.getNumber(this.renderedMin);
+      if (!isNaN(minValue) && minValue >= 0) return true;
     }
-
+    this.prevNumberValue = event.target?.value || "";
     return false;
   }
   public onChange = (event: any): void => {
     this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);
+    this.updateNumericValue(event);
     const root = getRootNode(this.input);
     if (!root) return;
     const elementIsFocused = event.target === root.activeElement;
-    if (elementIsFocused) {
-      if (this.isInputTextUpdate) {
-        this.updateValueOnEvent(event);
-      }
-    } else {
+    if (!elementIsFocused || this.isInputTextUpdate) {
       this.updateValueOnEvent(event);
     }
     this.updateRemainingCharacterCounter(event.target.value);

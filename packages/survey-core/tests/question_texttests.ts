@@ -926,23 +926,23 @@ QUnit.test("Numeric input validation - prevent '-' at non-first position", (asse
 
   // Test onChange cleans up "-" at non-first positions
   const event1 = createChangeEvent("1-23");
-  q["updateValueOnEvent"](event1);
+  q.onChange(event1);
   assert.equal(q.value, "123", "Should remove '-' from middle of value");
 
   const event2 = createChangeEvent("-12-3");
-  q["updateValueOnEvent"](event2);
+  q.onChange(event2);
   assert.equal(q.value, "-123", "Should keep first '-' but remove others");
 
   const event3 = createChangeEvent("123-");
-  q["updateValueOnEvent"](event3);
+  q.onChange(event3);
   assert.equal(q.value, "123", "Should remove '-' from end of value");
 
   const event4 = createChangeEvent("-123");
-  q["updateValueOnEvent"](event4);
+  q.onChange(event4);
   assert.equal(q.value, "-123", "Should allow '-' at first position");
 
   const event5 = createChangeEvent("123");
-  q["updateValueOnEvent"](event5);
+  q.onChange(event5);
   assert.equal(q.value, "123", "Should allow value without '-'");
 });
 

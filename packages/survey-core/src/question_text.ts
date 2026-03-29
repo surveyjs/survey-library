@@ -757,7 +757,7 @@ export class QuestionTextModel extends QuestionTextBase {
 
     // Handle "-" symbol
     // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
-    // When renderedMin is undefined, we'll clean up "-" in onChange event
+    // When renderedMin is undefined, we'll clean up "-" in onKeyUp event
     if (key === "-") {
       if (!Helpers.isValueEmpty(this.renderedMin)) {
         const minValue = Helpers.getNumber(this.renderedMin);

@@ -52,6 +52,7 @@ export var englishStrings = {
   urlRequestError: "The request returned error '{0}'. {1}",
   urlGetChoicesError: "The request returned empty data or the 'path' property is incorrect",
   exceedMaxSize: "The file size should not exceed {0}.",
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   exceedMaxFiles: "The maximum number of files you can upload is {0}.",
   noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event.",
   otherRequiredError: "Response required: enter another value.",

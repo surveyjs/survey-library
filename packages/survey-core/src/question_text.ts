@@ -687,6 +687,18 @@ export class QuestionTextModel extends QuestionTextBase {
       this.inputValue = newValue;
     }
   }
+  private prevNumberValue: string;
+  private updateNumericValue(event: any): void {
+    if (this.inputType !== "number" || event.key !== "-") return;
+    // Browsers returns empty string for invalid values in type="number" input. We need to store the value before it becomes empty and restore it here.
+    const value = event.target?.value || this.prevNumberValue;
+    // For input type="number", clean up "-" symbols that are not at the first position
+    // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
+    if (typeof value === "string" && value.length > 0) {
+      event.target.value = value[0] + value.substring(1).replace(/-/g, "");
+    }
+    this.prevNumberValue = undefined;
+  }
   onCompositionUpdate = (event: any) => {
     if (this.isInputTextUpdate) {
       setTimeout(() => {
@@ -697,6 +709,7 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onKeyUp = (event: any) => {
     this.updateDateValidationMessage(event);
+    this.updateNumericValue(event);
     if (this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
@@ -723,22 +736,43 @@ export class QuestionTextModel extends QuestionTextBase {
       return;
     }
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
+    if (this.inputType === "number" && this.shouldPreventNumberInput(event)) {
+      event.preventDefault();
+      return;
+    }
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
     this.onTextKeyDownHandler(event);
   };
+  private shouldPreventNumberInput(event: any): boolean {
+    const key = event.key;
+
+    // Allow keyboard shortcuts (Ctrl+C, Ctrl+V, etc.)
+    if (event.ctrlKey || event.metaKey || event.altKey) return false;
+
+    // Do not allow "e", "E", or "+" symbols
+    if (["e", "E", "+"].indexOf(key) > -1) return true;
+
+    // Handle "-" symbol
+    // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
+    // When renderedMin is undefined, we'll clean up "-" in onKeyUp event
+    if (key === "-") {
+      if (!Helpers.isValueEmpty(this.renderedMin)) {
+        const minValue = Helpers.getNumber(this.renderedMin);
+        if (!isNaN(minValue) && minValue >= 0) return true;
+      }
+      this.prevNumberValue = event.target?.value || "";
+    }
+    return false;
+  }
   public onChange = (event: any): void => {
     this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);
     const root = getRootNode(this.input);
     if (!root) return;
     const elementIsFocused = event.target === root.activeElement;
-    if (elementIsFocused) {
-      if (this.isInputTextUpdate) {
-        this.updateValueOnEvent(event);
-      }
-    } else {
+    if (!elementIsFocused || this.isInputTextUpdate) {
       this.updateValueOnEvent(event);
     }
     this.updateRemainingCharacterCounter(event.target.value);

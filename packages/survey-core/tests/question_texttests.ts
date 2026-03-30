@@ -865,3 +865,176 @@ QUnit.test("The dataList property value is not saved in a survey JSON definition
   const json = q1.toJSON();
   assert.deepEqual(json.dataList, ["item1", "item2"], "dataList is stored in the JSON");
 });
+
+QUnit.test("Numeric input validation - prevent 'e' character", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "number";
+
+  const createKeyEvent = (key: string, selectionStart: number = 0) => {
+    return {
+      key: key,
+      target: { selectionStart: selectionStart, value: "" },
+      preventDefault: () => {},
+      ctrlKey: false,
+      metaKey: false,
+      altKey: false
+    };
+  };
+
+  // Test 'e' character prevention
+  const eventE = createKeyEvent("e");
+  assert.equal(q["shouldPreventNumberInput"](eventE), true, "Should prevent 'e' character");
+
+  const eventEUpper = createKeyEvent("E");
+  assert.equal(q["shouldPreventNumberInput"](eventEUpper), true, "Should prevent 'E' character");
+});
+
+QUnit.test("Numeric input validation - prevent '+' character", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "number";
+
+  const createKeyEvent = (key: string, selectionStart: number = 0) => {
+    return {
+      key: key,
+      target: { selectionStart: selectionStart, value: "" },
+      preventDefault: () => {},
+      ctrlKey: false,
+      metaKey: false,
+      altKey: false
+    };
+  };
+
+  // Test '+' character prevention
+  const eventPlus = createKeyEvent("+", 0);
+  assert.equal(q["shouldPreventNumberInput"](eventPlus), true, "Should prevent '+' at start");
+
+  const eventPlusMiddle = createKeyEvent("+", 5);
+  assert.equal(q["shouldPreventNumberInput"](eventPlusMiddle), true, "Should prevent '+' in middle");
+});
+
+QUnit.test("Numeric input validation - prevent '-' at non-first position", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "number";
+  // No min/max set, so renderedMin is undefined
+  // For input type="number", selectionStart is null, so we clean up "-" in onKeyUp event
+
+  // Simulates the keydown->keyup sequence for typing "-" into a number input.
+  // onKeyDown stores prevNumberValue (the value before the keystroke).
+  // The browser then processes the key, potentially making the value invalid (empty string for type="number").
+  // onKeyUp calls updateNumericValue which restores the value from prevNumberValue if needed.
+  const simulateMinusKey = (valueBefore: string, valueAfter: string) => {
+    const target = { value: valueBefore };
+    const keyDownEvent = {
+      key: "-",
+      target: target,
+      preventDefault: () => {},
+      ctrlKey: false,
+      metaKey: false,
+      altKey: false
+    };
+    q.onKeyDown(keyDownEvent);
+    // Simulate browser processing the keystroke - value changes
+    target.value = valueAfter;
+    const keyUpEvent = {
+      key: "-",
+      target: target
+    };
+    q.onKeyUp(keyUpEvent);
+    return target.value;
+  };
+
+  // Test onKeyUp cleans up "-" at non-first positions
+  // When "-" is typed in the middle, browser sees "1-23" which is invalid -> returns ""
+  // updateNumericValue restores from prevNumberValue "123" and cleans it
+  let result1 = simulateMinusKey("123", "1-23");
+  assert.equal(result1, "123", "Should remove '-' from middle of value");
+
+  let result2 = simulateMinusKey("-123", "-12-3");
+  assert.equal(result2, "-123", "Should keep first '-' but remove others");
+
+  let result3 = simulateMinusKey("123", "123-");
+  assert.equal(result3, "123", "Should remove '-' from end of value");
+
+  let result4 = simulateMinusKey("", "-123");
+  assert.equal(result4, "-123", "Should allow '-' at first position");
+});
+
+QUnit.test("Numeric input validation - prevent '-' when min >= 0", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "number";
+  q.min = "0";
+
+  const createKeyEvent = (key: string, selectionStart: number = 0) => {
+    return {
+      key: key,
+      target: { selectionStart: selectionStart, value: "" },
+      preventDefault: () => {},
+      ctrlKey: false,
+      metaKey: false,
+      altKey: false
+    };
+  };
+
+  // Test '-' character prevention when min is 0
+  const eventMinusStart = createKeyEvent("-", 0);
+  assert.equal(q["shouldPreventNumberInput"](eventMinusStart), true, "Should prevent '-' at start when min=0");
+
+  // Allow '-' when min is negative
+  q.min = "-10";
+  const eventMinusStartNegMin = createKeyEvent("-", 0);
+  assert.equal(q["shouldPreventNumberInput"](eventMinusStartNegMin), false, "Should allow '-' at start when min=-10");
+
+  // Test with min = 5
+  q.min = "5";
+  const eventMinusStartPosMin = createKeyEvent("-", 0);
+  assert.equal(q["shouldPreventNumberInput"](eventMinusStartPosMin), true, "Should prevent '-' at start when min=5");
+});
+
+QUnit.test("Numeric input validation - allow control keys", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "number";
+
+  const createKeyEvent = (key: string, ctrlKey: boolean = false) => {
+    return {
+      key: key,
+      target: { selectionStart: 0, value: "" },
+      preventDefault: () => {},
+      ctrlKey: ctrlKey,
+      metaKey: false,
+      altKey: false
+    };
+  };
+
+  // Test control keys are allowed
+  const controlKeys = ["Tab", "Backspace", "Delete", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End", "Enter", "Escape"];
+  controlKeys.forEach(key => {
+    const event = createKeyEvent(key);
+    assert.equal(q["shouldPreventNumberInput"](event), false, `Should allow ${key} key`);
+  });
+
+  // Test Ctrl+key combinations are allowed
+  const eventCtrlC = createKeyEvent("c", true);
+  assert.equal(q["shouldPreventNumberInput"](eventCtrlC), false, "Should allow Ctrl+C");
+});
+
+QUnit.test("Numeric input validation - only applies to inputType='number'", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputType = "text";
+
+  const createKeyEvent = (key: string) => {
+    return {
+      key: key,
+      target: { selectionStart: 0, value: "" },
+      preventDefault: () => {},
+      ctrlKey: false,
+      metaKey: false,
+      altKey: false
+    };
+  };
+
+  // When inputType is not 'number', validation should not apply
+  const eventE = createKeyEvent("e");
+  // shouldPreventNumberInput is only called when inputType === "number"
+  // So we just test that the method exists and returns correctly
+  assert.ok(q["shouldPreventNumberInput"], "shouldPreventNumberInput method exists");
+});

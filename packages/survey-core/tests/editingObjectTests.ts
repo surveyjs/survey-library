@@ -667,6 +667,43 @@ QUnit.test("Edit choices in matrix and localization", function (assert) {
   itemValue.locText.setLocaleText("de", "Item 2_3-de");
   assert.equal(cell.value, "Item 2_3-de", "cell.value #4");
 });
+QUnit.test("Do not re-create cell questions on removing a row with editingObj", function (assert) {
+  var question = new QuestionMatrixDynamicModel("q1");
+  question.addColumn("col1");
+  question.addColumn("col2");
+  question.addColumn("col3");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "columns",
+        columns: [
+          { cellType: "text", name: "name" },
+          { cellType: "text", name: "title" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  survey.editingObj = question;
+  var rows = matrix.visibleRows;
+  assert.equal(rows.length, 3, "Three columns");
+  const row0CellQuestionId = rows[0].cells[0].question.id;
+  const row2CellQuestionId = rows[2].cells[0].question.id;
+  let cellCreatedCallbackCounter = 0;
+  matrix.onCellCreatedCallback = () => {
+    cellCreatedCallbackCounter++;
+  };
+  matrix.removeRow(1);
+  assert.equal(question.columns.length, 2, "We have 2 columns");
+  assert.equal(question.columns[0].name, "col1", "first column is col1");
+  assert.equal(question.columns[1].name, "col3", "second column is col3");
+  rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "Two rows remain");
+  assert.equal(rows[0].cells[0].question.id, row0CellQuestionId, "first row cell question is not re-created");
+  assert.equal(rows[1].cells[0].question.id, row2CellQuestionId, "last row cell question is not re-created");
+  assert.equal(cellCreatedCallbackCounter, 0, "no new cells are created on row removal");
+});
 QUnit.test("Do not re-create rows and rendered table on adding new choice item", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];

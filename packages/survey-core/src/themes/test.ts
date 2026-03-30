@@ -194,7 +194,7 @@ export default {
     "--sjs2-radius-component-track": "var(--sjs2-radius-round)",
     "--sjs2-radius-component-track-item": "var(--sjs2-radius-round)",
     "--sjs2-radius-component-track-thumb": "var(--sjs2-radius-round)",
-    "--sjs2-radius-component-page": "var(--sjs2-radius-x150)",
+    "--sjs2-radius-component-page": "8px",
     "--sjs2-radius-component-panel": "4px",
     "--sjs2-radius-component-panel-nested": "var(--sjs2-radius-x100)",
     "--sjs2-radius-component-modal": "8px",

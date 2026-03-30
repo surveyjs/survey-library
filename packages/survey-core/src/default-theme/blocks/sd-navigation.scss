@@ -7,6 +7,7 @@
   gap: var(--sjs2-spacing-x200);
 
   .sv-action__content {
+    border-radius: var(--sjs2-radius-component-action, 8px);
     background: var(--sjs2-color-bg-basic-primary, #fff);
   }
   .sd-btn {

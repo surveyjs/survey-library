@@ -19,7 +19,7 @@ trigger:
 pr: none
 
 pool:
-  vmImage: "Ubuntu-22.04"
+  vmImage: "Ubuntu-24.04"
 
 jobs:
   - job: Core

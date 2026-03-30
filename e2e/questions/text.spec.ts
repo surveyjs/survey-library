@@ -358,5 +358,166 @@ frameworks.forEach((framework) => {
       expect(surveyResult.question2).toEqual(undefined);
       expect(surveyResult.question3).toEqual(undefined);
     });
+
+    test("numeric input validation - prevent 'e' character", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Try to type 'e' character
+      await page.keyboard.press("e");
+      expect(await input.inputValue()).toBe("");
+
+      // Try to type 'E' character
+      await page.keyboard.press("E");
+      expect(await input.inputValue()).toBe("");
+
+      // Type valid number
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
+
+      // Try to add 'e' in the middle
+      await page.keyboard.press("e");
+      expect(await input.inputValue()).toBe("123");
+    });
+
+    test("numeric input validation - prevent '+' character", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Try to type '+' character
+      await page.keyboard.press("+");
+      expect(await input.inputValue()).toBe("");
+
+      // Type valid number
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
+    });
+
+    test("numeric input validation - prevent '-' at non-first position", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Type valid negative number
+      await page.keyboard.type("-123");
+      expect(await input.inputValue()).toBe("-123");
+
+      // Clear and try to add '-' in the middle
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Backspace");
+      expect(await input.inputValue()).toBe("");
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
+      await page.keyboard.press("Home");
+      await page.keyboard.press("ArrowRight");
+      await page.keyboard.press("-");
+      expect(await input.inputValue()).toBe("123");
+    });
+
+    test("numeric input validation - prevent '-' when min >= 0", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+            min: 0
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Try to type '-' character
+      await page.keyboard.press("-");
+      expect(await input.inputValue()).toBe("");
+
+      // Type valid positive number
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
+    });
+
+    test("numeric input validation - allow '-' when min < 0", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+            min: -10
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Type negative number
+      await page.keyboard.type("-5");
+      expect(await input.inputValue()).toBe("-5");
+    });
+
+    test("numeric input validation - allow control keys", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "numericQ",
+            type: "text",
+            inputType: "number",
+          }]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+
+      // Type a number
+      await page.keyboard.type("123");
+      expect(await input.inputValue()).toBe("123");
+
+      // Use backspace
+      await page.keyboard.press("Backspace");
+      expect(await input.inputValue()).toBe("12");
+
+      // Use arrow keys
+      await page.keyboard.press("Home");
+      await page.keyboard.press("Delete");
+      expect(await input.inputValue()).toBe("2");
+
+      // Use Ctrl+A and Delete
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Delete");
+      expect(await input.inputValue()).toBe("");
+    });
   });
 });

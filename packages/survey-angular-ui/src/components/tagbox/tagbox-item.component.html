@@ -1,8 +1,10 @@
 <ng-template #template>
-<div class="sv-tagbox__item">
-  <div class="sv-tagbox__item-text" [model]="item.locText" sv-ng-string></div>  
-  <div [class]="question.cssClasses.cleanItemButton" (click)="removeItem($event)">
-    <svg [iconName]="question.cssClasses.cleanItemButtonIconId" [partCss]="question.cssClasses.cleanItemButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
+<div [class]="question.cssClasses.tagItem">
+  <div [class]="question.cssClasses.tagItemText" [model]="item.locText" sv-ng-string></div>  
+  <div [class]="question.cssClasses.cleanItem">
+    <div tabindex="0" [class]="question.cssClasses.cleanItemButton" (click)="removeItem($event)">
+      <svg [iconName]="question.cssClasses.cleanItemButtonIconId" [partCss]="question.cssClasses.cleanItemButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
+    </div>
   </div>
 </div>
 </ng-template>

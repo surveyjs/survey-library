@@ -1,18 +1,21 @@
 <template>
-  <div class="sv-tagbox__item" :key="item.key">
-    <div class="sv-tagbox__item-text">
+  <div :class="question.cssClasses.tagItem" :key="item.key">
+    <div :class="question.cssClasses.tagItemText">
       <SvComponent :is="'survey-string'" :locString="item.locText" />
     </div>
-    <div
-      v-bind:class="question.cssClasses.cleanItemButton"
-      v-on:click="removeItem"
-    >
-      <SvComponent
-        :is="'sv-svg-icon'"
-        v-bind:class="question.cssClasses.cleanItemButtonSvg"
-        :iconName="question.cssClasses.cleanItemButtonIconId"
-        :size="'auto'"
-      ></SvComponent>
+    <div v-bind:class="question.cssClasses.cleanItem">
+      <div
+        tabindex="0"
+        v-bind:class="question.cssClasses.cleanItemButton"
+        v-on:click="removeItem"
+      >
+        <SvComponent
+          :is="'sv-svg-icon'"
+          v-bind:class="question.cssClasses.cleanItemButtonSvg"
+          :iconName="question.cssClasses.cleanItemButtonIconId"
+          :size="'auto'"
+        ></SvComponent>
+      </div>
     </div>
   </div>
 </template>

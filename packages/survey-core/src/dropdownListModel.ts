@@ -190,7 +190,7 @@ export class DropdownListModel extends Base {
       locTitle: this.locClearCaption,
       disableTabStop: true,
       enabled: !this.question.isInputReadOnly,
-      visible: this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly,
+      visible: this.isClearButtonVisible,
       action: (context: any) => {
         this.onClear();
       }
@@ -203,6 +203,9 @@ export class DropdownListModel extends Base {
       itemPressed: "sd-editor-button-item--pressed",
     });
   }
+  private get isClearButtonVisible(): boolean {
+    return this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
+  }
 
   protected updateButtonsState(): void {
     if (this.chevronButton) {
@@ -211,7 +214,7 @@ export class DropdownListModel extends Base {
     }
     if (this.clearButton) {
       this.clearButton.setEnabled(!this.question.isInputReadOnly);
-      this.clearButton.setVisible(this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly);
+      this.clearButton.setVisible(this.isClearButtonVisible);
     }
   }
 

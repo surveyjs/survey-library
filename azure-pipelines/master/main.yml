@@ -42,7 +42,7 @@ trigger:
 pr: none
 
 pool:
-  name: main-selfhosted
+  vmImage: "Ubuntu-22.04"
 
 jobs:
   - job: NPMCache

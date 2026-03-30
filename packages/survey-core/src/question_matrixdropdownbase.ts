@@ -748,7 +748,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
         continue;
       res = question.validateElement(context) && res;
     }
-    if (this.hasPanel) {
+    if (this.hasPanel && (!!this.detailPanelValue || !context || !context.isOnValueChanging)) {
       this.ensureDetailPanel();
       const isValid = this.detailPanel.validateElement(context);
       const rec = <any>context;

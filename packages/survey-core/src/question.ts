@@ -180,6 +180,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
 export interface IValidationContextParams {
   fireCallback: boolean;
   isOnValueChanged?: boolean;
+  isOnValueChanging?: boolean;
   focusOnFirstError?: boolean;
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
@@ -190,6 +191,7 @@ export class ValidationContext extends AsyncElementsRunner {
   private fireCallbackValue: boolean;
   private focusOnFirstErrorValue: boolean;
   private isOnValueChangedValue: boolean;
+  private isOnValueChangingValue: boolean;
   private changeCurrentPage: boolean;
   private firstErrorQuestionValue: Question;
   private res: boolean = true;
@@ -203,12 +205,14 @@ export class ValidationContext extends AsyncElementsRunner {
     }
     this.fireCallbackValue = context.fireCallback || false;
     this.isOnValueChangedValue = context.isOnValueChanged || false;
+    this.isOnValueChangingValue = context.isOnValueChanging || false;
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
   }
   public get fireCallback(): boolean { return this.fireCallbackValue; }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
+  public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
   public get result(): boolean { return this.res; }
   public get runningResult(): boolean {
@@ -2474,15 +2478,16 @@ export class Question extends SurveyElement<Question>
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult);
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void, isOnValueChanging?: boolean): boolean {
+    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult, isOnValueChanging);
   }
-  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void, isOnValueChanging?: boolean): boolean {
     if (isRoot && isOnValueChanged && !!this.parent) {
       this.parent.validateContainerOnly();
     }
     const context = new ValidationContext({
       isOnValueChanged: isOnValueChanged,
+      isOnValueChanging: isOnValueChanging,
       focusOnFirstError: focusOnFirstError,
       fireCallback: fireCallback,
       callbackResult: callbackResult

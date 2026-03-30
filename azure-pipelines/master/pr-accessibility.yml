@@ -16,7 +16,7 @@ pr:
       - master
 
 pool:
-  vmImage: "windows-latest"
+  vmImage: "Ubuntu-22.04"
 
 jobs:
   - job: Core
@@ -74,6 +74,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
           ArtifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
           publishLocation: "Container"
+          Parallel: true
 
   - job: React
     dependsOn: Core

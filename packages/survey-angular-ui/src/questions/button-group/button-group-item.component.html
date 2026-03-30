@@ -1,5 +1,5 @@
 <ng-template #template>
-  <label [class]="model.css.label" [attr.title]="model.caption.renderedHtml">
+  <label [class]="model.css.label" [attr.title]="model.caption.renderedHtml" [attr.tabindex]="model.tabIndex">
     <input type="radio"
       [attr.name]="model.name" [attr.id]="model.id" [attr.aria-required]="model.isRequired" [attr.aria-label]="model.caption.renderedHtml" [attr.aria-invalid]="model.hasErrors" [attr.aria-errormessage]="model.describedBy" [disabled]="model.readOnly" [class]="model.css.control" [(ngModel)]="question.renderedValue" [attr.value]="model.value" [value]="model.value"/>
     <div [class]="model.css.decorator">

@@ -868,10 +868,11 @@ export var defaultCss = {
     itemIcon: "sv-button-group__item-icon",
     itemDecorator: "sv-button-group__item-decorator",
     itemCaption: "sv-button-group__item-caption",
-    itemHover: "sv-button-group__item--hover",
+    itemHover: "sv-button-group__item--allowhover",
     itemSelected: "sv-button-group__item--selected",
     itemDisabled: "sv-button-group__item--disabled",
     itemControl: "sv-visuallyhidden",
+    onError: "sd-formbox--error",
 
     rootDropdown: "sd-button-group-scrollable-container sd-scrollable-container--compact sd-selectbase",
     selectWrapper: "sv-dropdown_select-wrapper",

@@ -951,6 +951,12 @@
                 },
                 "renderAs": {
                     "type": "string"
+                },
+                "randomize": {
+                    "type": "boolean"
+                },
+                "randomizeCategory": {
+                    "type": "string"
                 }
             }
         },

@@ -134,6 +134,7 @@ export class MatrixDropdownColumn extends Base
     return res;
   }
   private templateQuestionValue: Question;
+  private templateQuestionJsonValue: any;
   private colOwnerValue: IMatrixColumnOwner;
   private indexValue = -1;
   private _hasVisibleCell = true;
@@ -677,7 +678,7 @@ export class MatrixDropdownColumn extends Base
     data: any,
     onUpdateJson: (json: any) => any = null
   ) {
-    this.setQuestionProperties(cellQuestion, onUpdateJson);
+    this.setQuestionProperties(cellQuestion, onUpdateJson, !onUpdateJson);
   }
   private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {
     var qType = cellQuestion.getType();
@@ -716,6 +717,7 @@ export class MatrixDropdownColumn extends Base
     if (this.templateQuestion) {
       this.removeProperties(prevCellType);
     }
+    this.templateQuestionJsonValue = undefined;
     this.templateQuestionValue = this.createNewQuestion(curCellType);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
@@ -731,6 +733,7 @@ export class MatrixDropdownColumn extends Base
       this.templateQuestion.locTitle.serializeCallBackText = true;
     }
     this.templateQuestion.onPropertyChanged.add((sender, options) => {
+      this.templateQuestionJsonValue = undefined;
       this.propertyValueChanged(
         options.name,
         options.oldValue,
@@ -740,11 +743,13 @@ export class MatrixDropdownColumn extends Base
       );
     });
     this.templateQuestion.onNestedPropertyChanged.add((sender, options) => {
+      this.templateQuestionJsonValue = undefined;
       if (this.colOwner && !this.isLoadingFromJson) {
         this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
       }
     });
     this.templateQuestion.onItemValuePropertyChanged.add((sender, options) => {
+      this.templateQuestionJsonValue = undefined;
       this.doItemValuePropertyChanged(
         options.propertyName,
         options.obj,
@@ -781,12 +786,21 @@ export class MatrixDropdownColumn extends Base
   private previousChoicesId: string = undefined;
   protected setQuestionProperties(
     question: Question,
-    onUpdateJson: (json: any) => any = null
+    onUpdateJson: (json: any) => any = null,
+    useCache: boolean = false
   ): void {
     if (this.templateQuestion) {
-      var json = new JsonObject().toJsonObject(this.templateQuestion, true);
+      var json: any;
       if (onUpdateJson) {
+        json = new JsonObject().toJsonObject(this.templateQuestion, true);
         onUpdateJson(json);
+      } else if (useCache) {
+        if (!this.templateQuestionJsonValue) {
+          this.templateQuestionJsonValue = JSON.stringify(new JsonObject().toJsonObject(this.templateQuestion, true));
+        }
+        json = JSON.parse(this.templateQuestionJsonValue);
+      } else {
+        json = new JsonObject().toJsonObject(this.templateQuestion, true);
       }
       json.type = question.getType();
       if (this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {

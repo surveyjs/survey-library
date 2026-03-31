@@ -104,7 +104,7 @@ export var urduSurveyStrings = {
   // "The file size should not exceed {0}."
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
   // [Auto-translated] "Bytes, KB, MB, GB, TB"
-  fileSizeUnits: "بائٹس، KB، MB، GB، TB",
+  fileSizeUnits: "بائٹس, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "زیادہ سے زیادہ فائلیں جو آپ اپلوڈ کر سکتے ہیں وہ {0} ہے۔",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

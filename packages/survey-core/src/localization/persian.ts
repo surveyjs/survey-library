@@ -104,7 +104,7 @@ export var persianSurveyStrings = {
   // "The file size should not exceed {0}."
   exceedMaxSize: "بیشترین حجم مجاز فایل: {0}",
   // [Auto-translated] "Bytes, KB, MB, GB, TB"
-  fileSizeUnits: "بایت ها، KB، MB، GB، TB",
+  fileSizeUnits: "بایت ها, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "حداکثر تعداد فایل هایی که می توانید بارگذاری کنید {0} است.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

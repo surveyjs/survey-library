@@ -69,8 +69,12 @@ export var traditionalChineseSurveyStrings = {
   stepError: "請輸入與步長相符的值{0}。",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "該值不應大於 {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "無效輸入",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "不允許使用數位。",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "請填寫該數值以符合所需格式。",
   // "Please enter at least {0} character(s)."
   textMinLength: "答案長度至少 {0} 個字元",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var traditionalChineseSurveyStrings = {
   urlGetChoicesError: "未能載入有效的選項或請求參數路徑有誤",
   // "The file size should not exceed {0}."
   exceedMaxSize: "文件大小不能超過 {0}",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "位元組、KB、MB、GB、TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "你最多只能上傳檔案數量{0}。",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var traditionalChineseSurveyStrings = {
   noRowsText: "沒有行。",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "行 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // [Auto-translated] "Add new"
   addPanel: "新增",

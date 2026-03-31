@@ -24,9 +24,6 @@
 .sd-checkbox--checked.sd-checkbox--disabled .sd-checkbox__svg use {
   fill: var(--sjs2-color-component-check-true-disabled-icon, #B3B2B2);
 }
-.sd-checkbox--checked .sd-checkbox__control:focus + .sd-checkbox__decorator .sd-checkbox__svg use {
-  fill: var(--sjs2-color-component-check-true-focused-icon, #19B394);
-}
 
 .sd-checkbox--checked.sd-checkbox--readonly .sd-checkbox__svg use {
   fill: var(--sjs2-color-component-check-true-readonly-icon, #B3B2B2);

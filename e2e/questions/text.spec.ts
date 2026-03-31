@@ -390,6 +390,36 @@ frameworks.forEach((framework) => {
       expect(await input.inputValue()).toBe("123");
     });
 
+    test("numeric input validation after paste", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            name: "q1",
+            type: "text",
+            inputType: "number",
+          }
+        ]
+      });
+
+      const input = await page.locator('input[type="number"]');
+      await expect(input).toBeFocused();
+      await page.evaluate(() => navigator.clipboard.writeText("e123"));
+      await page.keyboard.press("Control+V");
+      expect(await input.inputValue()).toBe("");
+
+      let result = await page.evaluate(() => window["survey"].getQuestionByName("q1").validate());
+      expect(result).toBe(false);
+
+      await page.evaluate(() => navigator.clipboard.writeText("123"));
+      await page.keyboard.press("Control+A");
+      await page.keyboard.press("Delete");
+      await page.keyboard.press("Control+V");
+      expect(await input.inputValue()).toBe("123");
+      result = await page.evaluate(() => window["survey"].getQuestionByName("q1").validate());
+      expect(result).toBe(true);
+    });
+
     test("numeric input validation - prevent '+' character", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,

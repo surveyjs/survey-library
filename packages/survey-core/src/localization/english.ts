@@ -36,6 +36,7 @@ export var englishStrings = {
   minError: "The value should not be less than {0}",
   stepError: "Please enter a value that matches the step size of {0}.",
   maxError: "The value should not be greater than {0}",
+  invalidInputError: "Invalid input",
   textNoDigitsAllow: "Numbers are not allowed.",
   incompletePatternError: "Please complete the value to match the required format.",
   textMinLength: "Please enter at least {0} character(s).",

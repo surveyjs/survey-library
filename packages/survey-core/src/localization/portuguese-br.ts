@@ -71,8 +71,12 @@ export var portugueseBrSurveyStrings = {
   stepError: "Insira um valor que corresponda ao tamanho da etapa de {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "O valor não deve ser maior que {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Entrada inválida",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Números não são permitidos.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Por favor, complete o valor para corresponder ao formato exigido.",
   // [Auto-translated] "Please enter at least {0} character(s)."
   textMinLength: "Introduza pelo menos {0} caractere(s).",
   // [Auto-translated] "Please enter no more than {0} character(s)."
@@ -101,6 +105,10 @@ export var portugueseBrSurveyStrings = {
   urlGetChoicesError: "A requisição não retornou dados ou o 'caminho' da requisição não está correto",
   // [Auto-translated] "The file size should not exceed {0}."
   exceedMaxSize: "O tamanho do arquivo não deve exceder {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "O número máximo de arquivos que você pode enviar é {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -129,7 +137,7 @@ export var portugueseBrSurveyStrings = {
   noRowsText: "Não há filas.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Linha {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // [Auto-translated] "Add new"
   addPanel: "Adicionar novo",

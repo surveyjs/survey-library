@@ -69,8 +69,12 @@ export var finnishSurveyStrings = {
   stepError: "Syötä arvo, joka vastaa {0} askelkokoa.",
   // "The value should not be greater than {0}"
   maxError: "Arvo ei saa olla suurempi kuin {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Virheellinen syöte",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numerot eivät ole sallittuja.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Täytäthän arvon vastaamaan vaadittua muotoa.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Syötä vähintään {0} merkkiä.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var finnishSurveyStrings = {
   urlGetChoicesError: "Pyyntö palautti tyhjän tiedoston tai 'path'-asetus on väärä",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Tiedoston koko ei saa olla suurempi kuin {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Tavut, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Tiedostojen enimmäismäärä, jonka voit ladata, on {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var finnishSurveyStrings = {
   noRowsText: "Ei rivejä",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rivi {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Lisää uusi",
@@ -159,7 +165,7 @@ export var finnishSurveyStrings = {
   savingExceedSize: "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan.",
   // "Try again"
   saveAgainButton: "Yritä uudelleen",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

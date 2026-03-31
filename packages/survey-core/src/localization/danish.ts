@@ -11,7 +11,7 @@ export var danishSurveyStrings = {
   previewText: "Forpremiere",
   // "Edit"
   editText: "Redigér",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Efterlad venligst en kommentar",
@@ -69,8 +69,12 @@ export var danishSurveyStrings = {
   stepError: "Indtast en værdi, der matcher trinstørrelsen på {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Værdien bør ikke være større end {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ugyldig input",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numre er ikke tilladt.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Udfyld venligst værdien for at matche det krævede format.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Angiv mindst {0} tegn.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var danishSurveyStrings = {
   urlGetChoicesError: "Forespørgslen returnerede ingen data eller 'path' parameteren er forkert",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstørrelsen må ikke overstige {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Det maksimale antal filer, du kan uploade, er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var danishSurveyStrings = {
   noRowsText: "Der er ingen rækker.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Række {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Tilføj ny",
@@ -159,8 +165,8 @@ export var danishSurveyStrings = {
   savingExceedSize: "Dit svar overstiger 64 KB. Reducer størrelsen på dine filer, og prøv igen, eller kontakt ejeren af undersøgelsen.",
   // "Try again"
   saveAgainButton: "Prøv igen",
-  // "min"
-  timerMin: "min",
+  // [Auto-translated] "min"
+  timerMin: "Min",
   // "sec"
   timerSec: "sek",
   // "You have spent {0} on this page and {1} in total."

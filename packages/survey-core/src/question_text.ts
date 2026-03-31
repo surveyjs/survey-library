@@ -325,6 +325,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * An error message to display when the entered value does not match the [step size](#step).
    */
   @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
+  @property({ localizable: { defaultStr: "invalidInputError", markdown: true } }) invalidInputErrorText: string;
 
   /**
    * Returns `true` if the specified `inputType` supports the `min` and `max` properties.
@@ -438,6 +439,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     const isInputUpdate = this.getIsInputTextUpdate();
     if (isOnValueChanged && isInputUpdate) return;
+    if (this?.input?.validity?.badInput) {
+      errors.push(new CustomError(this.invalidInputErrorText, this));
+    }
     if (!this.isOnValueChanged) {
       if (this.isValueLessMin) {
         const minError = new CustomError(

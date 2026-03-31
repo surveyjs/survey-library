@@ -462,7 +462,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider--single {
     .sd-slider__inverse-track--left {
       &::before {
-        background: var(--sjs2-color-component-track-design-fg);
+        background: var(--sjs2-color-component-track-readonly-fg);
       }
     }
 
@@ -495,28 +495,28 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider__thumb {
     box-shadow: none;
     padding: 0;
-    background: var(--sjs2-color-component-track-design-thumb);
+    background: var(--sjs2-color-component-track-readonly-thumb);
 
     .sd-slider__thumb-dot {
       width: calc(var(--sjs2-base-unit-size) * 0.125);
       height: var(--sjs2-size-x200);
-      background: var(--sjs2-color-component-track-design-dot);
+      background: var(--sjs2-color-component-track-readonly-dot);
     }
   }
 
   .sd-slider__inverse-track {
     height: calc(var(--sjs2-base-unit-size) * 0.125);
-    background: var(--sjs2-color-component-track-design-bg);
+    background: var(--sjs2-color-component-track-readonly-bg);
     &::after,
     &::before {
       height: calc(var(--sjs2-base-unit-size) * 0.125);
-      background: var(--sjs2-color-component-track-design-bg);
+      background: var(--sjs2-color-component-track-readonly-bg);
     }
   }
 
   .sd-slider__range-track {
     height: calc(var(--sjs2-base-unit-size) * 0.125);
-    background: var(--sjs2-color-component-track-design-fg);
+    background: var(--sjs2-color-component-track-readonly-fg);
 
     &::before {
       height: calc(var(--sjs2-base-unit-size) * 0.125);
@@ -532,13 +532,13 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider--negative-scale-mode {
     .sd-slider__inverse-track--left {
       &::before {
-        background: var(--sjs2-color-component-track-design-bg);
+        background: var(--sjs2-color-component-track-readonly-bg);
       }
     }
   }
 
   .sd-slider__label-tick {
-    background: var(--sjs2-color-component-track-design-thumb-border);
+    background: var(--sjs2-color-component-track-readonly-thumb-border);
   }
 
   .sd-slider__label-text--secondary {

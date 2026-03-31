@@ -2555,6 +2555,7 @@ Serializer.addClass(
     { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "recursive", "off"] },
     { name: "questionStartIndex", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
     { name: "allowAdaptiveActions:boolean", default: true, visible: false },
+    { name: "fixedPosition:boolean", visible: false },
   ],
   function () {
     return new PanelModel();

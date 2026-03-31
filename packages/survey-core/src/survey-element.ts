@@ -1085,6 +1085,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.resetPropertyValue("paddingRight");
   }
 
+  /**
+   * Keeps the element in its original position when `questionOrder` is set to `"random"` for the parent page or panel.
+   * @see [PanelModelBase.questionOrder](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder)
+   */
+  @property() fixedPosition: boolean;
   @property({ defaultValue: true }) allowRootStyle: boolean;
   public get rootStyle(): any {
     return this.getPropertyValue("rootStyle", undefined, () => this.calcRootStyle());

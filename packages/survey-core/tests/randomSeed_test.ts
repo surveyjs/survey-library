@@ -395,3 +395,68 @@ QUnit.test("randomize with category", (assert) => {
   assert.deepEqual(matrix.visibleRows[0].cells[0].question.visibleChoices.map((e: any) => e.value).join(), "5,2,1,3,4,6,8,7,9", "matrix row#0 col#0 order");
   assert.deepEqual(matrix.visibleRows[0].cells[1].question.visibleChoices.map((e: any) => e.value).join(), "1,3,2,4,5,6,7,8,9", "matrix row#0 col#1 order");
 });
+
+QUnit.test("fixedPosition on page elements", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "p1",
+        questionOrder: "random",
+        elements: [
+          { type: "text", name: "q1", fixedPosition: true },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" },
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" },
+          { type: "text", name: "q7" },
+          { type: "text", name: "q8" },
+          { type: "text", name: "q9", fixedPosition: true }
+        ]
+      }
+    ],
+  });
+  survey.randomSeed = 123456;
+  const p1 = survey.pages[0];
+  const names = p1.visibleQuestions.map(q => q.name);
+  assert.equal(names[0], "q1", "q1 stays at position 0 (fixedPosition)");
+  assert.equal(names[8], "q9", "q9 stays at position 8 (fixedPosition)");
+  const nonFixedNames = names.filter((n: string) => n !== "q1" && n !== "q9");
+  assert.equal(nonFixedNames.length, 7, "7 non-fixed elements are present");
+  assert.notDeepEqual(nonFixedNames, ["q2", "q3", "q4", "q5", "q6", "q7", "q8"], "non-fixed elements are randomized");
+});
+
+QUnit.test("fixedPosition on panel elements", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            questionOrder: "random",
+            elements: [
+              { type: "text", name: "q1", fixedPosition: true },
+              { type: "text", name: "q2" },
+              { type: "text", name: "q3" },
+              { type: "text", name: "q4" },
+              { type: "text", name: "q5", fixedPosition: true },
+              { type: "text", name: "q6" }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  survey.randomSeed = 123456;
+  const panel = <PanelModel>survey.getPanelByName("panel1");
+  const names = panel.elements.map((e: any) => e.name);
+  assert.equal(names[0], "q1", "q1 stays at position 0 (fixedPosition)");
+  assert.equal(names[4], "q5", "q5 stays at position 4 (fixedPosition)");
+  assert.notDeepEqual(
+    names.filter((n: string) => n !== "q1" && n !== "q5"),
+    ["q2", "q3", "q4", "q6"],
+    "non-fixed elements are randomized"
+  );
+});

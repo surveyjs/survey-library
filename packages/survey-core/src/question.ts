@@ -3365,6 +3365,7 @@ Serializer.addClass("question", [
       return obj.showCommentArea;
     }
   },
-  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }
+  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
+  { name: "fixedPosition:boolean", visible: false }
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

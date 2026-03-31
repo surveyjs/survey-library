@@ -199,7 +199,7 @@ export class Helpers {
     const categories = {};
     for (let i = 0; i < array.length; i++) {
       const item:any = array[i];
-      if (item.randomize === false) continue;
+      if (item.randomize === false || item.fixedPosition === true) continue;
       const key = item.randomizeCategory || "";
       if (!categories[key]) categories[key] = { indices: [], items: [] };
       categories[key].indices.push(i);

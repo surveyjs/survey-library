@@ -535,7 +535,7 @@ export class QuestionTextModel extends QuestionTextBase {
     let val = Helpers.getNumber(this.value);
     let step = Helpers.getNumber(this.renderedStep);
     let pw = 1;
-    while(Math.round(step * pw) / pw !== step && pw < 1000000) {
+    while((Math.round(step * pw) / pw !== step || Math.round(val * pw) / pw !== val) && pw < 1000000) {
       pw *= 10;
     }
     val = Math.round(val * pw);

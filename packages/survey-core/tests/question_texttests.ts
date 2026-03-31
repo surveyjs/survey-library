@@ -771,6 +771,24 @@ QUnit.test("Numeric Single-Line Input: step validation floating point issues, #1
   q1.value = 4.2;
   assert.equal(q1.validate(), true, "4.2 is valid");
 });
+QUnit.test("Numeric Single-Line Input: float point value with integer step", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "inputType": "number",
+        "step": 1
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 4.3;
+  assert.equal(q1.validate(), false, "4.3 is not valid");
+  assert.equal(q1.errors[0].getText(), "Please enter a value that matches the step size of 1.", "error text #2");
+  q1.value = 4;
+  assert.equal(q1.validate(), true, "4 is valid");
+});
 QUnit.test("getSupportedValidators for text based on inputType, #10440", (assert) => {
   const q = new QuestionTextModel("q1");
   assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex"], "default inputType");

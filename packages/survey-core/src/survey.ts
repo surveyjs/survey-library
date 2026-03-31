@@ -2257,7 +2257,7 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
   public get themeVariables() {
-    return Object.assign({}, this.cssVariables);
+    return Object.assign({}, DefaultLightTheme.cssVariables, this.cssVariables);
   }
 
   @property() _isMobile = false;

@@ -450,11 +450,11 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   }
 
   .sd-slider__label-tick {
-    background: var(--sjs2-color-component-track-readonly-thumb-border);
+    background: var(--sjs2-color-border-basic-secondary);
   }
 
   .sd-slider__label-text--secondary {
-    color: var(--sjs2-color-fg-basic-secondary);
+    color: var(--sjs2-color-fg-basic-primary);
   }
 }
 
@@ -542,7 +542,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   }
 
   .sd-slider__label-text--secondary {
-    color: var(--sjs2-color-fg-basic-secondary);
+    color: var(--sjs2-color-fg-basic-primary);
   }
 }
 

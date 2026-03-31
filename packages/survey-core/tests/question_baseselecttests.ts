@@ -4568,7 +4568,7 @@ QUnit.test("Checkbox question with choice comment should not break visibleIf", (
           {
             "type": "radiogroup",
             "name": "q2",
-            "visibleIf": "{q1-unwrapped} contains 1",
+            "visibleIf": "{q1} contains 1",
             "choices": [1, 2, 3]
           }
         ]

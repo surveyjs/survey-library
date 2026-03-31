@@ -68,7 +68,6 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
     const caption = this.renderCaption();
     return (
       <label
-        tabIndex={this.model.tabIndex}
         className={this.model.css.label}
         title={this.model.caption.renderedHtml}
       >

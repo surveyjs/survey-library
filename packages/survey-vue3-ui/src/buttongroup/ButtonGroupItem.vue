@@ -1,5 +1,5 @@
 <template>
-  <label :class="model.css.label" :title="model.caption.renderedHtml" :tabindex="model.tabIndex">
+  <label :class="model.css.label" :title="model.caption.renderedHtml">
     <input
       type="radio"
       :name="model.name"

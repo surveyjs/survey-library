@@ -24,7 +24,8 @@
         "scr": "cross-env env=react playwright test --project vrt --ui",
         "scr:ci": "cross-env env=react playwright test --project vrt",
         "scr:update": "cross-env env=react playwright test --project vrt --update-snapshots",
-        "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
+        "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
+        "a": "refresh azure cache for eslint plugin"
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
     "devDependencies": {

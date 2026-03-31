@@ -15,7 +15,8 @@
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
     "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
-    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
+    "a": "refresh azure cache for eslint plugin"
   },
   "main": "survey.core.js",
   "repository": {

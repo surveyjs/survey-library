@@ -4,8 +4,7 @@
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --max-warnings=0 --fix",
     "pre-push-check": "npm run test --prefix packages/survey-core",
     "prepare": "husky install",
-    "postinstall": "playwright install chromium",
-    "a": "refresh azure cache for eslint plugin"
+    "postinstall": "playwright install chromium"
   },
   "version": "1.12.17",
   "name": "survey-library",

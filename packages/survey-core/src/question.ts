@@ -3208,6 +3208,9 @@ export class Question extends SurveyElement<Question>
   public get dragDropMatrixAttribute(): string {
     return null;
   }
+
+  @property() randomize: boolean;
+  @property() randomizeCategory: string;
 }
 function makeNameValid(str: string): string {
   if (!str) return str;
@@ -3365,6 +3368,8 @@ Serializer.addClass("question", [
       return obj.showCommentArea;
     }
   },
-  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }
+  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
+  { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
+  { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

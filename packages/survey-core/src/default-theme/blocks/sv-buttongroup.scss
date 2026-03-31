@@ -1,12 +1,11 @@
-@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sv-button-group {
   display: flex;
-  padding: var(--sjs2-layout-form-box-medium-vertical, 4px) var(--sjs2-layout-form-box-medium-horizontal, 4px);
+  padding: var(--sjs2-spacing-x050, 4px);
   box-sizing: border-box;
   align-items: center;
-  gap: var(--sjs2-layout-form-box-medium-gap, 4px);
+  gap: var(--sjs2-spacing-x050, 4px);
   flex-direction: row;
   overflow-x: auto;
   border-radius: var(--sjs2-radius-component-formbox, 8px);
@@ -90,6 +89,10 @@
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-false-hovered-value, #1c1b20);
   }
+
+  .sv-button-group__item-icon use {
+    fill: var(--sjs2-color-component-buttongroup-item-false-hovered-value, #1c1b20);
+  }
 }
 
 .sv-button-group__item:focus-visible {
@@ -98,10 +101,11 @@
 
 .sv-button-group__item-icon {
   display: block;
-  height: var(--sjs2-size-x300);
+  width: var(--sjs2-line-height-x300, 24px);
+  height: var(--sjs2-line-height-x300, 24px);
 
   use {
-    fill: $foreground-light;
+    fill: var(--sjs2-color-component-buttongroup-item-false-default-value, rgba(28, 27, 32, 0.6));
   }
 }
 
@@ -129,6 +133,10 @@
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #d4d4d4);
   }
+
+  .sv-button-group__item-icon use {
+    fill: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #d4d4d4);
+  }
 }
 
 .sv-button-group__item--selected.sv-button-group__item--disabled {
@@ -140,18 +148,8 @@
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-true-disabled-value, #b3b2b2);
   }
-}
-
-.sv-button-group__item--disabled {
-  color: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #d4d4d4);
-  cursor: default;
-
-  .sv-button-group__item-decorator {
-    opacity: 0.25;
-    font-weight: normal;
-  }
 
   .sv-button-group__item-icon use {
-    fill: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #d4d4d4);
+    fill: var(--sjs2-color-component-buttongroup-item-true-disabled-value, #b3b2b2);
   }
 }

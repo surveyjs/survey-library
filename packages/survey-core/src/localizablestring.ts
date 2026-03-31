@@ -229,7 +229,7 @@ export class LocalizableString implements ILocalizableString {
     }
     if (!settings.localization.storeDuplicatedTranslations &&
       !this.isValueEmpty(value) && loc && loc != this.defaultLoc &&
-      !this.getValue(loc) &&
+      this.getValue(loc) === undefined &&
       value == this.getLocaleText(this.defaultLoc)
     )
       return;
@@ -242,7 +242,7 @@ export class LocalizableString implements ILocalizableString {
     } else {
       if (typeof value === "string") {
         if (this.canRemoveLocValue(loc, value)) {
-          this.setLocaleText(loc, null);
+          this.deleteValue(loc);
         } else {
           this.setValue(loc, value);
           if (loc == this.defaultLoc) {

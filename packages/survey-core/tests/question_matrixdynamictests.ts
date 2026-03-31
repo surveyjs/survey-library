@@ -11118,6 +11118,32 @@ QUnit.test("SurveyError.notificationType & validate in matrices,Issue#9085", fun
   assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
   assert.deepEqual(survey.data, { matrix: [{ col1: 7 }, { col1: 8 }] }, "The data is correct");
 });
+QUnit.test("Detail panel, do not create detail panels on value-changing validation", function (assert) {
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanging",
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 3,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }],
+        detailElements: [{ type: "text", name: "q1", isRequired: true }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.visibleRows;
+  assert.equal(rows.length, 3, "There are 3 rows");
+  assert.equal(rows[0].detailPanel, null, "detail panel is not created for row 0");
+  assert.equal(rows[1].detailPanel, null, "detail panel is not created for row 1");
+  assert.equal(rows[2].detailPanel, null, "detail panel is not created for row 2");
+  matrix.removeRow(2);
+  rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "There are 2 rows after removal");
+  assert.equal(rows[0].detailPanel, null, "detail panel is still not created for row 0 after removal");
+  assert.equal(rows[1].detailPanel, null, "detail panel is still not created for row 1 after removal");
+});
 QUnit.test("SurveyError.notificationType & validate in matrices, Bug#10436", function(assert) {
   const survey = new SurveyModel({
     elements: [

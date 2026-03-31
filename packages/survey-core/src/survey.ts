@@ -6265,7 +6265,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    let res = question.validate(true, false, !this.isValidateOnValueChanging);
+    let res = question.validate(true, false, !this.isValidateOnValueChanging, undefined, this.isValidateOnValueChanging);
     if (
       !!question.page && this.isValidateOnValueChange &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)

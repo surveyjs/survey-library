@@ -19,7 +19,7 @@ trigger:
 pr: none
 
 pool:
-  vmImage: "windows-latest"
+  vmImage: "Ubuntu-24.04"
 
 jobs:
   - job: Core
@@ -77,6 +77,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
           ArtifactName: "SurveyJSLibraryBuildCore-VRT-$(Build.BuildId)"
           publishLocation: "Container"
+          Parallel: true
 
   - job: React
     dependsOn: Core
@@ -181,6 +182,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_SCR/"
           ArtifactName: "Library_React_SCR"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish scr artifacts"
 
@@ -308,6 +310,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR/"
           ArtifactName: "Library_Angular_SCR"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish scr artifacts"
 
@@ -435,6 +438,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
           ArtifactName: "Library_Vue3_SCR"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish scr artifacts"
 
@@ -530,6 +534,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
           ArtifactName: "Library_Survey-UI_SCR"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish scr artifacts"
 

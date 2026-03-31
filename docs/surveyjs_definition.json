@@ -1874,6 +1874,9 @@
                         "allowCustomChoices": {
                             "type": "boolean"
                         },
+                        "createCustomChoiceText": {
+                            "type": "string"
+                        },
                         "allowClear": {
                             "type": "boolean"
                         },
@@ -2135,6 +2138,9 @@
                         },
                         "allowCustomChoices": {
                             "type": "boolean"
+                        },
+                        "createCustomChoiceText": {
+                            "type": "string"
                         },
                         "textWrapEnabled": {
                             "type": "boolean"

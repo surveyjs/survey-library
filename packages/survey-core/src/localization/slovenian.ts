@@ -69,8 +69,12 @@ export var slovenianStrings = {
   stepError: "Vnesite vrednost, ki se ujema z velikostjo koraka {0}.",
   // "The value should not be greater than {0}"
   maxError: "Vrednost ne sme biti večja od {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Neveljaven vhod",
   // "Numbers are not allowed."
   textNoDigitsAllow: "Številke niso dovoljene.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Prosimo, izpolnite vrednost, da ustreza zahtevani obliki.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Vnesite vsaj {0} znakov.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var slovenianStrings = {
   urlGetChoicesError: "Zahteva je vrnila prazne podatke ali lastnost 'path' ni pravilna.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Velikost datoteke ne sme presegati {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajti, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Največje število datotek, ki jih lahko naložite, je {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Datotek ni mogoče naložiti. Dodajte obravnavo za dogodek 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +135,7 @@ export var slovenianStrings = {
   noRowsText: "Ni vrstic.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Vrstica {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Dodaj novo",
@@ -157,7 +165,7 @@ export var slovenianStrings = {
   savingExceedSize: "Vaš odgovor presega 64 KB. Zmanjšajte velikost datotek in poskusite znova ali se obrnite na lastnika ankete.",
   // "Try again"
   saveAgainButton: "Poskusite znova",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

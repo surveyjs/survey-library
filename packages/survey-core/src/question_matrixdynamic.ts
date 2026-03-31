@@ -708,9 +708,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       } else {
         val = this.createNewValue();
       }
+      this.isRowChanging = true;
       val.splice(index, 1);
       val = this.deleteRowValue(val, null);
-      this.isRowChanging = true;
       this.value = val;
       this.isRowChanging = false;
     }

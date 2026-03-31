@@ -69,8 +69,12 @@ export var koreanStrings = {
   stepError: "{0}의 스텝 크기와 일치하는 값을 입력하십시오.",
   // "The value should not be greater than {0}"
   maxError: "값은 {0}보다 클 수 없습니다.",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "잘못된 입력",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "숫자는 허용되지 않습니다.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "필요한 형식에 맞게 값을 작성해 주세요.",
   // "Please enter at least {0} character(s)."
   textMinLength: "답변의 길이는 최소 {0}자여야 입니다.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var koreanStrings = {
   urlGetChoicesError: "비어있는 데이터를 요청했거나 잘못된 속성의 경로입니다.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "파일 크기가 {0}을 초과 할 수 없습니다.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "바이트, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "업로드할 수 있는 최대 파일 수는 {0}입니다.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var koreanStrings = {
   noRowsText: "행이 없습니다.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "행 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "추가",

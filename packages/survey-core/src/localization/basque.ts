@@ -69,8 +69,12 @@ export var basqueSurveyStrings = {
   stepError: "Sartu {0} urratsaren tamainarekin bat datorren balioa.",
   // "The value should not be greater than {0}"
   maxError: "Balioa ez da {0} baino handiagoa izan behar",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Sarrera baliogabea",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Ezin da zenbakirik egin.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Bete balioa beharrezko formatuarekin bat etortzeko.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Mesedez, gutxienez {0} karaktere erabili behar dira.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var basqueSurveyStrings = {
   urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Fitxategiaren tamaina ez da {0} baino handiagoa izan behar.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Byteak, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Igo ditzakezun gehienezko fitxategi kopurua {0} da.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Artxiboak ezin dira kargatu. Gaineratu kontrolatzaile bat 'onUploadFiles' ekitaldirako.",
   // "Response required: enter another value."
@@ -127,7 +135,7 @@ export var basqueSurveyStrings = {
   noRowsText: "Ez dago errenkadarik.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Fila {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Berria gehitu",
@@ -157,7 +165,7 @@ export var basqueSurveyStrings = {
   savingExceedSize: "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkestaren jabearekin.",
   // "Try again"
   saveAgainButton: "Berriro saiatu.",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "seg",

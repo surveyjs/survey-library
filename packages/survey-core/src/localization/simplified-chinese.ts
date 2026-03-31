@@ -31,8 +31,8 @@ export var simplifiedChineseSurveyStrings = {
   progressText: "第 {0} 页, 共 {1} 页",
   // "{0} of {1}"
   indexText: "第 {0} 页，共 {1} 页",
-  // "{0} of {1}"
-  panelDynamicProgressText: "{0} of {1}",
+  // [Auto-translated] "{0} of {1}"
+  panelDynamicProgressText: "{0}{1}",
   // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "面板 {面板索引}",
   // "Answered {0}/{1} questions"
@@ -69,8 +69,12 @@ export var simplifiedChineseSurveyStrings = {
   stepError: "请输入与{0}步长相匹配的值。",
   // "The value should not be greater than {0}"
   maxError: "该值不能大于 {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "无效输入",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "不允许使用数字。",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "请填写该数值以符合所需格式。",
   // "Please enter at least {0} character(s)."
   textMinLength: "答案长度至少 {0} 个字符",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var simplifiedChineseSurveyStrings = {
   urlGetChoicesError: "未能载入有效的选项或请求参数路径有误",
   // "The file size should not exceed {0}."
   exceedMaxSize: "文件大小不能超过 {0}",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "字节、KB、MB、GB、TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "你最多能上传的文件数量是{0}。",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var simplifiedChineseSurveyStrings = {
   noRowsText: "无内容",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "行 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "新添",

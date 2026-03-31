@@ -2,10 +2,10 @@ import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
-import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { ActionBarCssClasses, defaultActionBarCss } from "./container";
+import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
+import { IListModel } from "./list-model";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -164,67 +164,9 @@ export interface IAction {
   hidePopup?: () => void;
 }
 
-export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
-}
-export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions, locOwner?: ILocalizableOwner): Action {
-  dropdownOptions.locOwner = locOwner;
-  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
-}
-export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
-  const originalSelectionChanged = listOptions.onSelectionChanged;
-  listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
-    if (newAction.hasTitle) { newAction.title = item.title; }
-    if (originalSelectionChanged) {
-      originalSelectionChanged(item, params);
-    }
-  };
-  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
-  popupModel.getTargetCallback = getActionDropdownButtonTarget;
-  const newActionOptions = Object.assign({}, actionOptions, {
-    component: "sv-action-bar-item-dropdown",
-    popupModel: popupModel,
-    action: (action: IAction, isUserAction: boolean) => {
-      !!(actionOptions.action) && actionOptions.action();
-      popupModel.isFocusedContent = popupModel.isFocusedContent || !isUserAction;
-      popupModel.show();
-    },
-  });
-  const newAction: Action = new Action(newActionOptions);
-  newAction.data = popupModel.contentComponentData?.model;
-
-  return newAction;
-}
-
-export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
-  if (!listOptions.listRole) listOptions.listRole = "menu";
-  if (!listOptions.listItemRole) listOptions.listItemRole = !!listOptions.allowSelection ? "menuitemradio" : "menuitem";
-
-  const listModel: ListModel = new ListModel(listOptions as any);
-  listModel.onSelectionChanged = (item: Action) => {
-    if (listOptions.onSelectionChanged) {
-      listOptions.onSelectionChanged(item);
-    }
-    popupModel.hide();
-  };
-
-  const _popupOptions = popupOptions || {};
-  _popupOptions.onDispose = () => { listModel.dispose(); };
-  const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
-  popupModel.isFocusedContent = listModel.showFilter;
-  popupModel.onShow = () => {
-    if (!!_popupOptions.onShow) _popupOptions.onShow();
-    listModel.scrollToSelectedItem();
-  };
-  popupModel.onHide = () => {
-    if (!!_popupOptions.onHide) _popupOptions.onHide();
-    listModel.filterString = "";
-  };
-
-  return popupModel;
-}
-
-export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
-  return container?.previousElementSibling as HTMLElement;
+let _createPopupModelWithListModel: (listOptions: IListModel, popupOptions?: IPopupOptionsBase) => PopupModel;
+export function setCreatePopupModelWithListModel(fn: (listOptions: IListModel, popupOptions?: IPopupOptionsBase) => PopupModel): void {
+  _createPopupModelWithListModel = fn;
 }
 
 export abstract class BaseAction extends Base implements IAction {
@@ -467,7 +409,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!this.popupModel) {
       this.createPopupForSubitems(options);
     } else {
-      const list: ListModel = this.popupModel.contentComponentData.model as ListModel;
+      const list: any = this.popupModel.contentComponentData.model;
       list.setItems(this.items);
     }
     this.component = this.getGroupComponentName();
@@ -475,7 +417,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createPopupForSubitems(options: IListModel): void {
     const listOptions = Object.assign({}, options);
     listOptions.searchEnabled = false;
-    const popupModel = createPopupModelWithListModel(
+    const popupModel = _createPopupModelWithListModel(
       listOptions,
       { horizontalPosition: "right", showPointer: false, canShrink: false }
     );

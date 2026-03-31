@@ -627,6 +627,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.isPropertyStoredInHash(name);
   }
   protected setNewValue(newValue: any): void {
+    this._isValueChanged = true;
     newValue = this.correctValueType(newValue);
     if (!!newValue) {
       this.dateValidationMessage = undefined;
@@ -658,7 +659,8 @@ export class QuestionTextModel extends QuestionTextBase {
     const maxLength = this.getMaxLength();
     return super.getControlCssClassBuilder()
       .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99);
+      .append(this.cssClasses.characterCounterBig, maxLength > 99)
+      .append(this.cssClasses.isValueChanged, this._isValueChanged);
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
@@ -678,10 +680,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   //web-based methods
   private _isWaitingForEnter = false;
-  private _isColorValueChanged = false;
+  @property() private _isValueChanged = false;
 
   private updateValueOnEvent(event: any) {
-    if (this.inputType === "color" && !this._isColorValueChanged) return;
+    if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
@@ -735,6 +737,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.readOnlyBlocker(event)) {
       return;
     }
+    this._isValueChanged = true;
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.inputType === "number" && this.shouldPreventNumberInput(event)) {
       event.preventDefault();
@@ -767,7 +770,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return false;
   }
   public onChange = (event: any): void => {
-    this._isColorValueChanged = true;
+    this._isValueChanged = true;
     this.updateDateValidationMessage(event);
     const root = getRootNode(this.input);
     if (!root) return;

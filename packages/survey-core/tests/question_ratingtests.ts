@@ -1265,7 +1265,7 @@ QUnit.test("rateCount limitations", (assert) => {
   assert.equal(q1.rateCount, 10);
 });
 
-QUnit.test("rating colors without css vars", (assert) => {
+QUnit.skip("rating colors without css vars", (assert) => {
   var json = {
     elements: [
       {

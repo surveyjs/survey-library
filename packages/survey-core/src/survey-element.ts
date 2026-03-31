@@ -1090,6 +1090,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see [PanelModelBase.questionOrder](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder)
    */
   @property() fixedPosition: boolean;
+  public get randomize(): boolean { return !this.fixedPosition; }
   @property({ defaultValue: true }) allowRootStyle: boolean;
   public get rootStyle(): any {
     return this.getPropertyValue("rootStyle", undefined, () => this.calcRootStyle());

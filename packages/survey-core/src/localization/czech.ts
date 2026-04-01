@@ -71,6 +71,8 @@ export var czechSurveyStrings = {
   maxError: "Hodnota by neměla být větší než {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Čísla nejsou povolena.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Prosím, vyplňte hodnotu tak, aby odpovídala požadovanému formátu.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Zadejte prosím alespoň {0} znaků.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var czechSurveyStrings = {
   noRowsText: "Neexistují žádné řádky.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Řádek {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Přidat nový",
@@ -159,7 +161,7 @@ export var czechSurveyStrings = {
   savingExceedSize: "Vaše odpověď přesahuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu.",
   // "Try again"
   saveAgainButton: "Zkuste to znovu",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

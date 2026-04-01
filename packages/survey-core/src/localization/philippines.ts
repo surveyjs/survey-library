@@ -33,7 +33,7 @@ export var philippinesStrings = {
   indexText: "{0} ng {1}",
   // "{0} of {1}"
   panelDynamicProgressText: "{0} ng {1}",
-  // "Panel {panelIndex}"
+  // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Sinagot ang {0}/{1} mga tanong",
@@ -71,6 +71,8 @@ export var philippinesStrings = {
   maxError: "Ang halaga ay hindi dapat mas malaki sa {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Bawal ang mga numero.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Mangyaring kumpletuhin ang halaga upang tumugma sa kinakailangang format.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Mangyaring magpasok ng hindi bababa sa {0} (mga) character.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var philippinesStrings = {
   noRowsText: "Walang mga hilera.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Hilera {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Magdagdag ng bago",
@@ -147,8 +149,8 @@ export var philippinesStrings = {
   matrix_column: "Kolum",
   // "Row"
   matrix_row: "hilera",
-  // "text"
-  multipletext_itemname: "text",
+  // [Auto-translated] "text"
+  multipletext_itemname: "Text",
   // "The results are being saved on the server..."
   savingData: "Ang mga resulta ay sini-save sa server...",
   // "An error occurred and we could not save the results."
@@ -159,10 +161,10 @@ export var philippinesStrings = {
   savingExceedSize: "Ang iyong tugon ay lumampas sa 64KB. Mangyaring bawasan ang laki ng iyong (mga) file at subukang muli o makipag-ugnayan sa may-ari ng survey.",
   // "Try again"
   saveAgainButton: "Subukan muli",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
-  timerSec: "sec",
+  // [Auto-translated] "sec"
+  timerSec: "Sec",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Gumastos ka ng {0} sa pahinang ito at {1} sa kabuuan.",
   // "You have spent {0} on this page."
@@ -225,13 +227,13 @@ export var philippinesStrings = {
   tabTitlePlaceholder: "Bagong Panel",
   // "More"
   more: "Higit pa",
-  // "OK"
+  // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
   // "All choices are selected for ranking"
   selectToRankEmptyRankedAreaText: "Ang lahat ng mga pagpipilian ay pinili para sa pagraranggo",
   // "Drag choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "I-drag ang mga pagpipilian dito upang i-rank ang mga ito",
-  // "OK"
+  // [Auto-translated] "OK"
   ok: "OK",
   // "Cancel"
   cancel: "Kanselahin",

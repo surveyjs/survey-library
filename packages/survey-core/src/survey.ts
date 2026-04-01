@@ -2461,6 +2461,7 @@ export class SurveyModel extends SurveyElementCore
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
       this.navigationBarValue = this.createNavigationBar();
+      this.navigationBarValue.setActionsStyle({ mode: "primary", size: "medium", style: "accent" });
       this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
       this.navigationBarValue.flushUpdates();

@@ -67,11 +67,11 @@
     }
 }
 .sd-formbox__group {
-    display: flex;
     align-items: stretch;
     align-self: stretch;
     justify-content: flex-end;
-    gap: var(--sjs2-spacing-x050);
+    --sd-action-border-radius: var(--sjs2-radius-component-formbox-action, 4px);
+    --sd-action-bar-gap: var(--sjs2-spacing-x050);
     .sd-action-bar__item {
         height: 100%;
     }

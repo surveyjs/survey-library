@@ -153,7 +153,8 @@ export class QuestionTextBase extends Question {
   }
   protected createInputActionsContainer(): ActionContainer {
     const actionBar = new ActionContainer();
-    actionBar.setCssClasses(this.survey?.getCss().inputActionBar);
+    actionBar.containerCss = this.cssClasses.group;
+    actionBar.setActionsStyle({ mode: "tertiary", style: "neutral", size: "small" });
     actionBar.actions = this.createInputActions();
     actionBar.registerFunctionOnPropertyValueChanged("isEmpty", () => {
       this._hasVisibleInputActions = actionBar.hasVisibleActions;
@@ -171,7 +172,7 @@ export class QuestionTextBase extends Question {
   public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     if (!!this._inputActionsContainer) {
-      this._inputActionsContainer.setCssClasses(this.survey?.getCss().inputActionBar);
+      this._inputActionsContainer.containerCss = this.cssClasses.group;
     }
   }
 }

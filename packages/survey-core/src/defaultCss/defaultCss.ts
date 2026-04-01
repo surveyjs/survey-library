@@ -461,7 +461,8 @@ export var defaultCss = {
     materialDecorator: "sd-item__decorator sd-radio__decorator",
     hintPrefix: "sd-dropdown__hint-prefix",
     hintSuffix: "sd-dropdown__hint-suffix",
-    controlSelect: "sd-dropdown--select"
+    controlSelect: "sd-dropdown--select",
+    group: "sd-formbox__group",
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -962,7 +963,8 @@ export var defaultCss = {
     hint: "sd-tagbox__hint",
     hintPrefix: "sd-dropdown__hint-prefix sd-tagbox__hint-prefix",
     hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix",
-    hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper"
+    hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper",
+    group: "sd-formbox__group",
   },
   imagemap: {
     root: "sd-imagemap",
@@ -973,14 +975,6 @@ export var defaultCss = {
     svgItemSelected: "sd-imagemap-svg-item sd-imagemap-svg-item--selected",
     svgItemDisabled: "sd-imagemap-svg-item sd-imagemap-svg-item--disabled",
     svgControlPoint: "sd-imagemap-control-point",
-  },
-  inputActionBar: {
-    root: "sd-formbox__group",
-    item: "sd-formbox-button sd-formbox__button",
-    itemPressed: "sd-formbox-button--pressed",
-    itemAsIcon: "sd-formbox-button--icon",
-    itemIcon: "sd-formbox-button__icon",
-    itemTitle: "sd-formbox-button__title",
   }
 };
 

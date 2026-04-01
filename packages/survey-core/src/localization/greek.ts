@@ -71,6 +71,8 @@ export var greekSurveyStrings = {
   maxError: "Η τιμή δεν πρέπει να είναι μεγαλύτερη από {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Οι αριθμοί δεν επιτρέπονται.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Συμπληρώστε την τιμή για να ταιριάζει με την απαιτούμενη μορφή.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Παρακαλώ συμπληρώστε τουλάχιστον {0} χαρακτήρες.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var greekSurveyStrings = {
   urlGetChoicesError: "Η αίτηση επέστρεψε κενά δεδομένα ή η ιδιότητα 'μονοπάτι/path' είναι εσφαλμένη",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Το μέγεθος του αρχείου δεν μπορεί να υπερβαίνει τα {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Ο μέγιστος αριθμός αρχείων που μπορείτε να ανεβάσετε είναι {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Δεν είναι δυνατή η αποστολή αρχείων. Προσθέστε ένα πρόγραμμα χειρισμού για το συμβάν 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,8 +131,8 @@ export var greekSurveyStrings = {
   noRowsText: "Δεν υπάρχουν εγγραφές.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Γραμμή {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{σειράΤίτλος}",
   // "Add new"
   addPanel: "Προσθέστε νέο",
   // "Remove"

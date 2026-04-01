@@ -71,6 +71,8 @@ export var japaneseSurveyStrings = {
   maxError: "値は {0} 以下である必要があります",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "数字は使用できません。",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "必要なフォーマットに合うように値を記入してください。",
   // "Please enter at least {0} character(s)."
   textMinLength: "少なくとも {0} 文字を入力してください。",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var japaneseSurveyStrings = {
   urlGetChoicesError: "リクエストが空のデータを返したか、'path' プロパティが正しくありません。",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ファイルのサイズは{0}を超えてはいけません",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "アップロードできるファイルの最大数は{0}です。",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "ファイルはアップロードできません。「onUploadFiles」イベントのハンドラーを追加してください。",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var japaneseSurveyStrings = {
   noRowsText: "行がありません。",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "行 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "新規追加",

@@ -11,7 +11,7 @@ export var dutchSurveyStrings = {
   previewText: "Voorbeeld",
   // "Edit"
   editText: "Bewerk",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Laat een reactie achter",
@@ -71,6 +71,8 @@ export var dutchSurveyStrings = {
   maxError: "De waarde mag niet groter zijn dan {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nummers zijn niet toegestaan.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vul de waarde in om aan het vereiste formaat te voldoen.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Vul minstens {0} karakters in",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var dutchSurveyStrings = {
   noRowsText: "Er zijn geen rijen.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rij {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Nieuwe toevoegen",
@@ -161,7 +163,7 @@ export var dutchSurveyStrings = {
   saveAgainButton: "Probeer opnieuw",
   // "min"
   timerMin: "minimum",
-  // "sec"
+  // [Auto-translated] "sec"
   timerSec: "sec",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "U heeft {0} gespendeerd op deze pagina en {1} in totaal.",

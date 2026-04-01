@@ -51,8 +51,8 @@ export var bulgarianStrings = {
   ratingOptionsCaption: "Отбран...",
   // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "Отбран...",
-  // "value"
-  value: "value",
+  // [Auto-translated] "value"
+  value: "Стойност",
   // "Response required."
   requiredError: "Моля, отговорете на следния въпрос.",
   // "Response required: answer at least one question."
@@ -71,6 +71,8 @@ export var bulgarianStrings = {
   maxError: "Стойността не трябва да бъде по-голяма от {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номерата не са позволени.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Моля, попълнете стойността, за да съответствате на необходимия формат.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Моля, използвайте поне {0} символа.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var bulgarianStrings = {
   noRowsText: "Няма редове.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Ред {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Добавяне на панел",

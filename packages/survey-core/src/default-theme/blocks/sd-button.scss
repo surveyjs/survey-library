@@ -5,7 +5,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x600);
-  background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0.00));
+  background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0));
   border-radius: var(--sjs2-radius-component-action, 8px);
   cursor: pointer;
 
@@ -15,12 +15,16 @@
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
   text-align: center;
-  color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19B394);
+  color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19b394);
   border: none;
   outline: none;
 
-  box-shadow: $shadow-small, 0 0 0 0px $primary;
-  transition: box-shadow $transition-duration, background $transition-duration;
+  box-shadow:
+    $shadow-small,
+    0 0 0 0px $primary;
+  transition:
+    box-shadow $transition-duration,
+    background $transition-duration;
 }
 
 .sd-btn--small {
@@ -33,7 +37,9 @@
 }
 
 .sd-btn:focus-visible {
-  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
+  box-shadow:
+    $shadow-small-reset,
+    0 0 0 2px $primary;
 }
 
 .sd-btn:disabled {
@@ -42,28 +48,28 @@
   pointer-events: none;
 }
 
-.sd-btn--action {
-  background-color: var(--sjs2-color-component-action-brand-primary-default-bg, #19B394);
-  color: var(--sjs2-color-component-action-brand-primary-default-label, #fff);
-}
+// .sd-btn--action {
+//   background-color: $primary;
+//   color: $primary-foreground;
+// }
 
-.sd-btn--action:hover {
-  color: var(--sjs2-color-component-action-brand-primary-hovered-label, #fff);
-  background-color: var(--sjs2-color-component-action-brand-primary-hovered-bg, #15987E);
-}
+// .sd-btn--action:hover {
+//   color: $primary-foreground;
+//   background-color: $primary-background-dark;
+// }
 
-.sd-btn--action:disabled {
-  color: var(--sjs2-color-component-action-brand-primary-disabled-label, rgba(28, 27, 32, 0.4));
-  pointer-events: none;
-}
+// .sd-btn--action:disabled {
+//   color: $primary-foreground-disabled;
+//   pointer-events: none;
+// }
 
 .sd-btn--danger {
-  background-color: var(--sjs2-color-component-action-alert-primary-default-bg, #E50A3E);
+  background-color: var(--sjs2-color-component-action-alert-primary-default-bg, #e50a3e);
   color: var(--sjs2-color-component-action-alert-primary-default-label, #fff);
 }
 
 .sd-btn--danger:hover {
-  background-color: var(--sjs2-color-component-action-alert-primary-hovered-bg, #C30935);
+  background-color: var(--sjs2-color-component-action-alert-primary-hovered-bg, #c30935);
   color: var(--sjs2-color-component-action-alert-primary-hovered-label, #fff);
 }
 

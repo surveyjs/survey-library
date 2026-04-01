@@ -72,10 +72,10 @@
     align-self: stretch;
     justify-content: flex-end;
     gap: var(--sjs2-spacing-x050);
-    .sv-action {
+    .sd-action-bar__item {
         height: 100%;
     }
-    .sv-action__content {
+    .sd-action-bar__item-content {
         height: 100%;
     }
 }

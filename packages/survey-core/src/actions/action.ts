@@ -162,6 +162,7 @@ export interface IAction {
   markerIconName?: string;
   showPopup?: () => void;
   hidePopup?: () => void;
+  style?: IActionStyle;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -353,8 +354,10 @@ export abstract class BaseAction extends Base implements IAction {
     const hasTitle = this.hasTitle;
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      //TODO: remove itemWithTitle and itemAsIcon, itemIcon classes and replace with modifiers to item class in css
       .append(this.cssClasses.itemWithTitle, hasTitle)
       .append(this.cssClasses.itemAsIcon, !hasTitle)
+      //end of TODO
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)
       .append(this.innerCss)
@@ -362,10 +365,10 @@ export abstract class BaseAction extends Base implements IAction {
   }
   public getActionRootCss(): string {
     return new CssClassBuilder()
-      .append("sv-action")
+      .append("sd-action-bar__item")
       .append(this.css)
-      .append("sv-action--space", this.needSpace)
-      .append("sv-action--hidden", !this.isVisible)
+      .append("sd-action-bar__item--space", this.needSpace)
+      .append("sd-action-bar__item--hidden", !this.isVisible)
       .toString();
   }
   public getTooltip(): string {
@@ -437,6 +440,12 @@ export abstract class BaseAction extends Base implements IAction {
   protected abstract setComponent(val: string): void;
 }
 
+export interface IActionStyle {
+  style?: "neutral" | "alert" | "accent" | "brand" | "accent-multi-colored" | "brand-multi-colored";
+  mode?: "primary" | "secondary" | "tertiary" | "quaternary";
+  size?: "large" | "medium" | "small" | "x-small" | "xx-small";
+ }
+
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
   public intersectionVisibilityObserver: IntersectionObserver;
@@ -497,6 +506,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onFocus: (isMouse: boolean, event: any) => void;
   @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
+  @property() style: IActionStyle;
+  @property({ defaultValue: { style: "neutral", mode: "secondary", size: "x-small" } }) predefinedStyle: IActionStyle;
   @property() items: any;
   @property({
     onSet: (val, target) => {
@@ -639,10 +650,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const property = mode == "small" ? "minDimension" : "maxDimension";
     if (htmlElement) {
       const actionContainer = htmlElement;
-      if (actionContainer.classList.contains("sv-action--hidden")) {
-        actionContainer.classList.remove("sv-action--hidden");
+      if (actionContainer.classList.contains("sd-action-bar__item--hidden")) {
+        actionContainer.classList.remove("sd-action-bar__item--hidden");
         this[property] = calcDimension(htmlElement);
-        actionContainer.classList.add("sv-action--hidden");
+        actionContainer.classList.add("sd-action-bar__item--hidden");
       } else {
         this[property] = calcDimension(htmlElement);
       }
@@ -686,6 +697,18 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getInputElement() {
     return this.inputElementValue;
+  }
+  public getActionBarItemCss(): string {
+    const style = Object.assign({}, this.predefinedStyle || {}, this.style || {});
+    const css = super.getActionBarItemCss();
+    if (!this.cssClasses.itemStylePrefix) {
+      return css;
+    }
+    return new CssClassBuilder().append(css)
+      .append(`${this.cssClasses.itemStylePrefix}--${style.style}`, !!style.style)
+      .append(`${this.cssClasses.itemStylePrefix}--${style.mode}`, !!style.mode)
+      .append(`${this.cssClasses.itemStylePrefix}--${style.size}`, !!style.size)
+      .toString();
   }
 }
 

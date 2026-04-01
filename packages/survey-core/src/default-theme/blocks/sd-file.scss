@@ -8,7 +8,7 @@
   box-sizing: border-box;
   padding: 0 var(--sjs2-spacing-x600);
 
-  .sv-action-bar {
+  .sd-action-bar:not(.sd-file__actions-container) {
     padding: var(--sjs2-spacing-x100) 0;
     justify-content: center;
     position: absolute;
@@ -16,14 +16,14 @@
     left: 0;
     bottom: 0;
 
-    .sv-action-bar-item {
+    .sd-action {
       height: var(--sjs2-size-x400);
       color: $foreground-light;
       border-radius: var(--sjs2-radius-x200);
     }
 
     .sv-action--file-index {
-      .sv-action-bar-item {
+      .sd-action {
         padding: var(--sjs2-spacing-x050) 0;
         font-weight: 600;
 
@@ -117,7 +117,7 @@
     margin-left: var(--sjs2-spacing-negative-x100);
     width: var(--sjs2-size-x300);
     height: var(--sjs2-size-x300);
-    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
   }
 }
 
@@ -417,7 +417,7 @@
 .sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
   &.sd-file__choose-btn--icon {
     use {
-      fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
+      fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
     }
   }
 

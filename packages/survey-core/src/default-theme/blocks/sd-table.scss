@@ -315,30 +315,6 @@
   }
 }
 
-.sd-table__cell--detail-button.sd-action--icon {
-  border: none;
-  background: transparent;
-  border-radius: var(--sjs2-radius-x200);
-  padding: var(--sjs2-spacing-x100);
-  transition: background-color $transition-duration;
-
-  .sd-action__icon {
-    display: block;
-    width: multiply(1, $font-editorfont-size);
-    height: multiply(1, $font-editorfont-size);
-  }
-
-  &:hover,
-  &:focus {
-    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
-    outline: none;
-
-    use {
-      fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19b394);
-    }
-  }
-}
-
 .sd-table__cell--actions {
   white-space: nowrap;
 

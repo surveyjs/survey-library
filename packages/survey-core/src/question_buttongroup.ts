@@ -248,6 +248,7 @@ export class ButtonGroupItemModel {
       .append(this.question.cssClasses.itemSelected, this.selected)
       .append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected)
       .append(this.question.cssClasses.itemDisabled, !this.item.isEnabled)
+      .append(this.question.cssClasses.itemReadOnly, this.question.isReadOnly)
       .toString();
   }
   public get css() {

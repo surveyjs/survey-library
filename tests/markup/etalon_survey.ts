@@ -43,7 +43,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       initSurvey: (survey) => {
-        DefaultTheme.cssVariables = {};
+        DefaultTheme.cssVariables = {} as any;
         survey.applyTheme({ cssVariables: { "--sjs-test": "val" } });
       },
       afterRender: (survey) => {

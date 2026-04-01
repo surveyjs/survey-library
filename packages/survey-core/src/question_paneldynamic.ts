@@ -2465,18 +2465,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       .append(this.cssClasses.buttonAdd + "--list-mode", this.displayMode === "list")
       .toString();
   }
-  public getPrevButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
-      .toString();
-  }
-  public getNextButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
-      .toString();
-  }
   /**
    * A text displayed when Dynamic Panel contains no entries.
    */

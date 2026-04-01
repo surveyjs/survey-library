@@ -82,17 +82,6 @@
 .sd-paneldynamic__footer {
     clear: both;
 
-    .sd-paneldynamic__prev-btn,
-    .sd-paneldynamic__next-btn {
-        display: block;
-
-        svg {
-            width: var(--sjs2-size-x200);
-            height: var(--sjs2-size-x200);
-        }
-    }
-
-    .sd-paneldynamic__add-btn,
     .sd-paneldynamic__progress-text,
     .sd-paneldynamic__progress--bottom {
         display: initial;
@@ -105,13 +94,6 @@
     padding: calc(var(--sd-base-vertical-padding) - #{$base-unit}) 0;
 }
 
-.sd-paneldynamic__progress-container {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-    margin-right: var(--sjs2-spacing-negative-x100);
-}
-
 .sd-paneldynamic__progress-text {
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
@@ -120,33 +102,9 @@
     margin-right: var(--sjs2-spacing-x300);
 }
 
-.sd-paneldynamic__prev-btn,
-.sd-paneldynamic__next-btn {
-    width: var(--sjs2-size-x200);
-    height: var(--sjs2-size-x200);
-
-    .sv-svg-icon {
-        display: block;
-    }
-}
-
-.sd-paneldynamic__prev-btn {
-    margin-right: var(--sjs2-spacing-x200);
-}
-
-.sd-paneldynamic__next-btn {
-    margin-left: var(--sjs2-spacing-negative-x100);
-    margin-right: var(--sjs2-spacing-x200);
-    transform: rotate(180deg);
-}
-
 .sd-paneldynamic__placeholder {
     .sd-action-bar--empty {
         margin-top: var(--sjs2-spacing-negative-x050);
-    }
-    .sd-paneldynamic__add-btn {
-        display: initial;
-        margin-left: 0;
     }
 }
 

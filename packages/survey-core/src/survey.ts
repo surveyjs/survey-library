@@ -99,6 +99,8 @@ import { ConsoleWarnings } from "./console-warnings";
 import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
 
+export var DefaultTheme = DefaultLightTheme;
+
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
@@ -1156,7 +1158,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
 
-    this.applyTheme(DefaultLightTheme);
+    this.applyTheme(DefaultTheme);
     if (!!renderedElement) {
       this.render(renderedElement);
     }

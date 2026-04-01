@@ -1,5 +1,7 @@
-import { setupLocale } from "survey-core";
+import { setupLocale, DefaultTheme } from "survey-core";
 import { registerMarkupTests } from "./helper";
+
+const cssVariables = DefaultTheme.cssVariables;
 
 registerMarkupTests(
   [
@@ -41,7 +43,11 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       initSurvey: (survey) => {
+        DefaultTheme.cssVariables = {};
         survey.applyTheme({ cssVariables: { "--sjs-test": "val" } });
+      },
+      afterRender: (survey) => {
+        DefaultTheme.cssVariables = cssVariables;
       },
       getSnapshot: el => {
         el.innerHTML = "";

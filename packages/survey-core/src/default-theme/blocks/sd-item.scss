@@ -34,8 +34,7 @@
   &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
   .sd-item__decorator {
     background-color: var(--sjs2-color-component-check-false-readonly-bg, #fff);
-    box-shadow: none;
-    transition: none;
+    box-shadow: var(--sjs2-border-effect-component-check-false-readonly, inset 0px 0px 0px 1px #F5F5F5), $shadow-focused-reset;
   }
 }
 

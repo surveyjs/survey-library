@@ -48,12 +48,12 @@ export var defaultCss = {
   completedBeforePage: "sd-completed-before-page",
   timerRoot: "sd-body__timer",
   navigation: {
-    complete: "sd-btn--action sd-navigation__complete-btn",
+    complete: "sd-navigation__complete-btn",
     prev: "sd-navigation__prev-btn",
     next: "sd-navigation__next-btn",
     start: "sd-navigation__start-btn",
     preview: "sd-navigation__preview-btn",
-    edit: "sd-btn--small",
+    edit: "sd-navigation__edit-btn",
   },
   panel: {
     contentEnter: "sd-element__content--enter",
@@ -894,16 +894,6 @@ export var defaultCss = {
     itemSelected: "sv-list__item--selected sd-list__item--selected",
     itemFocused: "sv-list__item--focused sd-list__item--focused",
     itemHovered: "sv-list__item--hovered sd-list__item--hovered",
-  },
-  navigationBar: {
-    root: "sd-action-bar",
-    defaultSizeMode: "",
-    smallSizeMode: "",
-    item: "sd-btn",
-    itemPressed: "",
-    itemAsIcon: "",
-    itemIcon: "",
-    itemTitle: "",
   },
   actionBar: {
     root: "sd-action-bar",

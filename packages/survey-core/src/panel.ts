@@ -2364,7 +2364,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
       if (this.hasEditButton) {
-        this.footerToolbarValue.setCssClasses(this.survey.getCss().navigationBar);
+        this.footerToolbarValue.setActionsStyle({ mode: "primary", size: "large", style: "accent" });
       }
       let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
       if (!footerCss) {

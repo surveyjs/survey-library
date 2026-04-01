@@ -16,12 +16,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   }
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
-    this.footerToolbar.setCssClasses({
-      root: defaultActionBarCss.root,
-      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
-      smallSizeMode: defaultActionBarCss.smallSizeMode,
-      item: "sv-popup__body-footer-item sv-popup__button sv-modal-popup__button sd-btn sd-btn--small"
-    }, false);
+    this.footerToolbar.setCssClasses({ item: new CssClassBuilder().append("sv-popup__body-footer-item").append(defaultActionBarCss.item).toString() });
 
     this.footerToolbar.containerCss = "sv-modal-footer-action-bar";
     let footerActions = [
@@ -36,7 +31,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
         id: "apply",
         visibleIndex: 20,
         title: this.applyButtonText,
-        innerCss: "sv-popup__button--apply sd-btn--action",
+        innerCss: "sv-popup__button--apply",
         action: () => { this.apply(); }
       }
     ];

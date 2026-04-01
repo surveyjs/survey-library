@@ -230,7 +230,7 @@ sv-popup {
 }
 
 .sv-popup__body-footer .sd-action-bar {
-  gap: var(--sjs2-spacing-x150);
+  --sd-action-bar-gap: var(--sjs2-spacing-x150);
   overflow: visible;
 }
 
@@ -249,7 +249,6 @@ sv-popup {
   .sv-popup__body-footer .sd-action-bar {
     width: 100%;
     justify-content: flex-start;
-
     .sd-action-bar__item {
       flex: 0 0 auto;
     }

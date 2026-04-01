@@ -49,7 +49,6 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const cancelBtn = toolbar.getActionById("cancel");
   cancelBtn.title = getLocaleString("cancel", options.locale);
   applyBtn.title = options.applyTitle || getLocaleString("ok", options.locale);
-  applyBtn.innerCss = "sd-btn--danger";
   configConfirmDialog(popupViewModel);
   return true;
 }

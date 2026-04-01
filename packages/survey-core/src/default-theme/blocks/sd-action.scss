@@ -12,7 +12,7 @@
   background: var(--sd-action-background);
   padding: var(--sd-action-padding);
   opacity: var(--sd-action-opacity);
-  border-radius: var(--sjs2-radius-component-action, 8px);
+  border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action, 8px));
   box-shadow: var(--sd-action-box-shadow);
   transition: background-color box-shadow $transition-duration;
 }
@@ -46,9 +46,7 @@
 }
 .sd-action--pressed {
   background: var(--sd-action-pressed-background);
-  padding: var(--sd-action-pressed-padding);
   opacity: var(--sd-action-pressed-opacity);
-  border-radius: var(--sd-action-pressed-border-radius);
   box-shadow: var(--sd-action-pressed-box-shadow);
   .sd-action__title {
     color: var(--sd-action-pressed-title-color);

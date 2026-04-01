@@ -60,8 +60,9 @@ frameworks.forEach(framework => {
       const question = page.locator(".sd-question");
       await question.waitFor();
 
-      await page.locator(".sd-item__control-label").filter({ hasText: "Moscow" }).click();
       await page.locator(".sd-item__control-label").filter({ hasText: "Paris" }).click();
+      await page.locator(".sd-item__control-label").filter({ hasText: "Moscow" }).click();
+      await page.keyboard.press("Tab");
       await page.locator(".sd-item__control-label").filter({ hasText: "Madrid" }).hover();
 
       await compareScreenshot(page, question, "checkbox-state.png");

@@ -168,7 +168,9 @@
           &.sd-item--checked .sd-item__decorator {
             background-color: var(--sjs2-color-component-check-true-default-bg, #19B394);
           }
-
+          &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
+            background-color: transparent;
+          }
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
             background-color: transparent;
           }

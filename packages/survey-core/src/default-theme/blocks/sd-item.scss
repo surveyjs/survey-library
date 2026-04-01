@@ -96,6 +96,6 @@
 }
 
 .sd-item--error .sd-item__decorator {
-  background: $red-light;
+  background-color: var(--sjs2-color-component-check-false-invalid-bg, #F5F5F5);
   box-shadow: var(--sjs2-border-effect-component-check-false-invalid, inset 0px 0px 0px 1px #E50A3E);
 }

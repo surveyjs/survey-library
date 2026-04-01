@@ -99,7 +99,6 @@ frameworks.forEach(framework => {
     test("Matrix single-select in panel", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework, {
-        autoFocusFirstQuestion: true,
         "pages": [
           {
             "name": "page1",
@@ -874,7 +873,6 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
-        autoFocusFirstQuestion: true,
         "elements": [
           {
             "type": "matrixdropdown",

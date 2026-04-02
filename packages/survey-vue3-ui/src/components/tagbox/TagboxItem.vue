@@ -7,6 +7,7 @@
       <div
         tabindex="0"
         v-bind:class="question.cssClasses.cleanItemButton"
+        v-key2click
         v-on:click="removeItem"
       >
         <SvComponent

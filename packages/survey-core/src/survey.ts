@@ -2259,7 +2259,7 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
   public get themeVariables() {
-    return Object.assign({}, DefaultLightTheme.cssVariables, this.cssVariables);
+    return Object.assign({}, this.cssVariables);
   }
 
   @property() _isMobile = false;
@@ -8311,6 +8311,7 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
+    theme.cssVariables = Object.assign({}, DefaultLightTheme.cssVariables, theme.cssVariables);
     patchLegacyCSSVariables(theme.cssVariables);
     this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {

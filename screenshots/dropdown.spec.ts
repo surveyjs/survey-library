@@ -189,8 +189,8 @@ frameworks.forEach(framework => {
 
       await resetFocusToBody(page);
       const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
-      await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-and-long-text.png", 1);
-      await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-with-clear-button-and-long-text.png", 0);
+      await compareScreenshot(page, questionDropdownSelect.nth(1), "dropdown-select-question-and-long-text.png");
+      await compareScreenshot(page, questionDropdownSelect.nth(0), "dropdown-select-question-with-clear-button-and-long-text.png");
 
       await questionDropdownSelect.first().click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-list-item-with-long-text.png");

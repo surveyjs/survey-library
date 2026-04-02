@@ -8311,7 +8311,7 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
-    theme.cssVariables = Object.assign({}, DefaultLightTheme.cssVariables, theme.cssVariables);
+    theme.cssVariables = Object.assign({}, DefaultTheme.cssVariables, theme.cssVariables);
     patchLegacyCSSVariables(theme.cssVariables);
     this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {

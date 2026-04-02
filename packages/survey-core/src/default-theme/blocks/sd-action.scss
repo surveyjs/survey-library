@@ -339,7 +339,8 @@
     );
   }
 }
-.sd-action--accent {
+.sd-action--accent,
+.sd-action--accent-multi-colored {
   //mode morifiers
   &.sd-action--primary {
     --sd-action-background: var(--sjs2-color-component-action-accent-primary-default-bg, #19b394);
@@ -450,118 +451,6 @@
     --sd-action-pressed-icon-color: var(--sjs2-color-component-action-accent-quaternary-pressed-icon, #19b394);
     --sd-action-disabled-icon-color: var(
       --sjs2-color-component-action-accent-quaternary-disabled-icon,
-      rgba(28, 27, 32, 0.4)
-    );
-  }
-}
-.sd-action--brand-multi-colored {
-  //mode morifiers
-  &.sd-action--primary {
-    --sd-action-background: var(--sjs2-color-component-action-brand-primary-default-bg, #19b394);
-    --sd-action-hover-background: var(--sjs2-color-component-action-brand-primary-hovered-bg, #15987e);
-    --sd-action-pressed-background: var(--sjs2-color-component-action-brand-primary-pressed-bg, #19b394);
-    --sd-action-disabled-background: var(--sjs2-color-component-action-brand-primary-disabled-bg, #d4d4d4);
-
-    --sd-action-title-color: var(--sjs2-color-component-action-brand-primary-default-label, #fff);
-    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-primary-hovered-label, #fff);
-    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-primary-pressed-label, #fff);
-    --sd-action-disabled-title-color: var(
-      --sjs2-color-component-action-brand-primary-disabled-label,
-      rgba(28, 27, 32, 0.4)
-    );
-
-    --sd-action-icon-color: var(--sjs2-color-component-action-brand-primary-default-icon, #fff);
-    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-primary-hovered-icon, #fff);
-    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-primary-pressed-icon, #fff);
-    --sd-action-disabled-icon-color: var(
-      --sjs2-color-component-action-brand-primary-disabled-icon,
-      rgba(28, 27, 32, 0.4)
-    );
-  }
-  &.sd-action--secondary {
-    --sd-action-background: var(--sjs2-color-component-action-brand-secondary-default-bg, rgba(25, 179, 148, 0.1));
-    --sd-action-hover-background: var(
-      --sjs2-color-component-action-brand-secondary-hovered-bg,
-      rgba(25, 179, 148, 0.15)
-    );
-    --sd-action-pressed-background: var(
-      --sjs2-color-component-action-brand-secondary-pressed-bg,
-      rgba(25, 179, 148, 0.1)
-    );
-    --sd-action-disabled-background: var(--sjs2-color-component-action-brand-secondary-disabled-bg, #d4d4d4);
-
-    --sd-action-title-color: var(--sjs2-color-component-action-brand-secondary-default-label, #19b394);
-    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-secondary-hovered-label, #19b394);
-    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-secondary-pressed-label, #19b394);
-    --sd-action-disabled-title-color: var(
-      --sjs2-color-component-action-brand-secondary-disabled-label,
-      rgba(28, 27, 32, 0.4)
-    );
-
-    --sd-action-icon-color: var(--sjs2-color-component-action-brand-secondary-default-icon, #19b394);
-    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-secondary-hovered-icon, #19b394);
-    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-secondary-pressed-icon, #19b394);
-    --sd-action-disabled-icon-color: var(
-      --sjs2-color-component-action-brand-secondary-disabled-icon,
-      rgba(28, 27, 32, 0.4)
-    );
-  }
-  &.sd-action--tertiary {
-    --sd-action-background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0));
-    --sd-action-hover-background: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
-    --sd-action-pressed-background: var(
-      --sjs2-color-component-action-brand-tertiary-pressed-bg,
-      rgba(25, 179, 148, 0.1)
-    );
-    --sd-action-disabled-background: var(
-      --sjs2-color-component-action-brand-tertiary-disabled-bg,
-      rgba(25, 179, 148, 0)
-    );
-
-    --sd-action-title-color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19b394);
-    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-tertiary-hovered-label, #19b394);
-    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-tertiary-pressed-label, #19b394);
-    --sd-action-disabled-title-color: var(
-      --sjs2-color-component-action-brand-tertiary-disabled-label,
-      rgba(28, 27, 32, 0.4)
-    );
-
-    --sd-action-icon-color: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
-    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19b394);
-    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-tertiary-pressed-icon, #19b394);
-    --sd-action-disabled-icon-color: var(
-      --sjs2-color-component-action-brand-tertiary-disabled-icon,
-      rgba(28, 27, 32, 0.4)
-    );
-  }
-  &.sd-action--quaternary {
-    --sd-action-background: var(--sjs2-color-component-action-brand-quaternary-default-bg, rgba(25, 179, 148, 0));
-    --sd-action-hover-background: var(
-      --sjs2-color-component-action-brand-quaternary-hovered-bg,
-      rgba(25, 179, 148, 0.1)
-    );
-    --sd-action-pressed-background: var(
-      --sjs2-color-component-action-brand-quaternary-pressed-bg,
-      rgba(25, 179, 148, 0.1)
-    );
-    --sd-action-disabled-background: var(
-      --sjs2-color-component-action-brand-quaternary-disabled-bg,
-      rgba(25, 179, 148, 0)
-    );
-
-    --sd-action-title-color: var(--sjs2-color-component-action-brand-quaternary-default-label, rgba(28, 27, 32, 0.4));
-    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-quaternary-hovered-label, #19b394);
-    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-quaternary-pressed-label, #19b394);
-    --sd-action-disabled-title-color: var(
-      --sjs2-color-component-action-brand-quaternary-disabled-label,
-      rgba(28, 27, 32, 0.4)
-    );
-
-    --sd-action-icon-color: var(--sjs2-color-component-action-brand-quaternary-default-icon, rgba(28, 27, 32, 0.4));
-    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-quaternary-hovered-icon, #19b394);
-    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-quaternary-pressed-icon, #19b394);
-    --sd-action-disabled-icon-color: var(
-      --sjs2-color-component-action-brand-quaternary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
   }
@@ -677,6 +566,150 @@
     --sd-action-pressed-icon-color: var(--sjs2-color-component-action-accent-quaternary-pressed-icon, #19b394);
     --sd-action-disabled-icon-color: var(
       --sjs2-color-component-action-accent-quaternary-disabled-icon,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+}
+.sd-action--brand,
+.sd-action--brand-multi-colored {
+  //mode morifiers
+  &.sd-action--primary {
+    --sd-action-background: var(--sjs2-color-component-action-brand-primary-default-bg, #19b394);
+    --sd-action-hover-background: var(--sjs2-color-component-action-brand-primary-hovered-bg, #15987e);
+    --sd-action-pressed-background: var(--sjs2-color-component-action-brand-primary-pressed-bg, #19b394);
+    --sd-action-disabled-background: var(--sjs2-color-component-action-brand-primary-disabled-bg, #d4d4d4);
+
+    --sd-action-title-color: var(--sjs2-color-component-action-brand-primary-default-label, #fff);
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-primary-hovered-label, #fff);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-primary-pressed-label, #fff);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-primary-disabled-label,
+      rgba(28, 27, 32, 0.4)
+    );
+
+    --sd-action-icon-color: var(--sjs2-color-component-action-brand-primary-default-icon, #fff);
+    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-primary-hovered-icon, #fff);
+    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-primary-pressed-icon, #fff);
+    --sd-action-disabled-icon-color: var(
+      --sjs2-color-component-action-brand-primary-disabled-icon,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+  &.sd-action--secondary {
+    --sd-action-background: var(--sjs2-color-component-action-brand-secondary-default-bg, rgba(25, 179, 148, 0.1));
+    --sd-action-hover-background: var(
+      --sjs2-color-component-action-brand-secondary-hovered-bg,
+      rgba(25, 179, 148, 0.15)
+    );
+    --sd-action-pressed-background: var(
+      --sjs2-color-component-action-brand-secondary-pressed-bg,
+      rgba(25, 179, 148, 0.1)
+    );
+    --sd-action-disabled-background: var(--sjs2-color-component-action-brand-secondary-disabled-bg, #d4d4d4);
+
+    --sd-action-title-color: var(--sjs2-color-component-action-brand-secondary-default-label, #19b394);
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-secondary-hovered-label, #19b394);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-secondary-pressed-label, #19b394);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-secondary-disabled-label,
+      rgba(28, 27, 32, 0.4)
+    );
+
+    --sd-action-icon-color: var(--sjs2-color-component-action-brand-secondary-default-icon, #19b394);
+    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-secondary-hovered-icon, #19b394);
+    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-secondary-pressed-icon, #19b394);
+    --sd-action-disabled-icon-color: var(
+      --sjs2-color-component-action-brand-secondary-disabled-icon,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+  &.sd-action--tertiary {
+    --sd-action-background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0));
+    --sd-action-hover-background: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
+    --sd-action-pressed-background: var(
+      --sjs2-color-component-action-brand-tertiary-pressed-bg,
+      rgba(25, 179, 148, 0.1)
+    );
+    --sd-action-disabled-background: var(
+      --sjs2-color-component-action-brand-tertiary-disabled-bg,
+      rgba(25, 179, 148, 0)
+    );
+
+    --sd-action-title-color: var(--sjs2-color-component-action-brand-tertiary-default-label, #19b394);
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-tertiary-hovered-label, #19b394);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-tertiary-pressed-label, #19b394);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-tertiary-disabled-label,
+      rgba(28, 27, 32, 0.4)
+    );
+
+    --sd-action-icon-color: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
+    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19b394);
+    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-tertiary-pressed-icon, #19b394);
+    --sd-action-disabled-icon-color: var(
+      --sjs2-color-component-action-brand-tertiary-disabled-icon,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+  &.sd-action--quaternary {
+    --sd-action-background: var(--sjs2-color-component-action-brand-quaternary-default-bg, rgba(25, 179, 148, 0));
+    --sd-action-hover-background: var(
+      --sjs2-color-component-action-brand-quaternary-hovered-bg,
+      rgba(25, 179, 148, 0.1)
+    );
+    --sd-action-pressed-background: var(
+      --sjs2-color-component-action-brand-quaternary-pressed-bg,
+      rgba(25, 179, 148, 0.1)
+    );
+    --sd-action-disabled-background: var(
+      --sjs2-color-component-action-brand-quaternary-disabled-bg,
+      rgba(25, 179, 148, 0)
+    );
+
+    --sd-action-title-color: var(--sjs2-color-component-action-brand-quaternary-default-label, rgba(28, 27, 32, 0.4));
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-brand-quaternary-hovered-label, #19b394);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-brand-quaternary-pressed-label, #19b394);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-quaternary-disabled-label,
+      rgba(28, 27, 32, 0.4)
+    );
+
+    --sd-action-icon-color: var(--sjs2-color-component-action-brand-quaternary-default-icon, rgba(28, 27, 32, 0.4));
+    --sd-action-hover-icon-color: var(--sjs2-color-component-action-brand-quaternary-hovered-icon, #19b394);
+    --sd-action-pressed-icon-color: var(--sjs2-color-component-action-brand-quaternary-pressed-icon, #19b394);
+    --sd-action-disabled-icon-color: var(
+      --sjs2-color-component-action-brand-quaternary-disabled-icon,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+}
+.sd-action--accent-multi-colored,
+.sd-action--brand-multi-colored {
+  //mode modifiers
+  &.sd-action--secondary {
+    --sd-action-title-color: var(--sjs2-color-component-action-neutral-secondary-default-label, #1c1b20);
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-neutral-secondary-hovered-label, #1c1b20);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-neutral-secondary-pressed-label, #1c1b20);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-secondary-disabled-label,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+  &.sd-action--tertiary {
+    --sd-action-title-color: var(--sjs2-color-component-action-neutral-tertiary-default-label, #1c1b20);
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-neutral-tertiary-hovered-label, #1c1b20);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-neutral-tertiary-pressed-label, #1c1b20);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-tertiary-disabled-label,
+      rgba(28, 27, 32, 0.4)
+    );
+  }
+  &.sd-action--quaternary {
+    --sd-action-title-color: var(--sjs2-color-component-action-neutral-quaternary-default-label, rgba(28, 27, 32, 0.4));
+    --sd-action-hover-title-color: var(--sjs2-color-component-action-neutral-quaternary-hovered-label, #1c1b20);
+    --sd-action-pressed-title-color: var(--sjs2-color-component-action-neutral-quaternary-pressed-label, #1c1b20);
+    --sd-action-disabled-title-color: var(
+      --sjs2-color-component-action-brand-quaternary-disabled-label,
       rgba(28, 27, 32, 0.4)
     );
   }

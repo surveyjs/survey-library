@@ -627,7 +627,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.isPropertyStoredInHash(name);
   }
   protected setNewValue(newValue: any): void {
-    this._isValueChanged = true;
+    this.setIsValueChanged();
     newValue = this.correctValueType(newValue);
     if (!!newValue) {
       this.dateValidationMessage = undefined;
@@ -680,7 +680,14 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   //web-based methods
   private _isWaitingForEnter = false;
-  @property() private _isValueChanged = false;
+  private _isValueChanged = false;
+  private setIsValueChanged(): void {
+    if (this._isValueChanged) return;
+    this._isValueChanged = true;
+    if (this.input && this.cssClasses.isValueChanged) {
+      this.input.classList.add(this.cssClasses.isValueChanged);
+    }
+  }
 
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isValueChanged) return;
@@ -737,7 +744,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.readOnlyBlocker(event)) {
       return;
     }
-    this._isValueChanged = true;
+    this.setIsValueChanged();
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.inputType === "number" && this.shouldPreventNumberInput(event)) {
       event.preventDefault();
@@ -770,7 +777,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return false;
   }
   public onChange = (event: any): void => {
-    this._isValueChanged = true;
+    this.setIsValueChanged();
     this.updateDateValidationMessage(event);
     const root = getRootNode(this.input);
     if (!root) return;

@@ -743,7 +743,7 @@ export default {
     "--sjs2-color-component-message-info-bg": "var(--sjs2-color-bg-note-secondary)",
     "--sjs2-color-component-message-info-icon": "var(--sjs2-color-fg-note-primary)",
     "--sjs2-color-component-message-info-text": "var(--sjs2-color-fg-basic-primary)",
-    "--sjs2-color-component-track-default-bg": "var(--sjs2-color-bg-basic-secondary)",
+    "--sjs2-color-component-track-default-bg": "#d4d4d4",
     "--sjs2-color-component-track-default-fg": "var(--sjs2-color-fg-brand-primary)",
     "--sjs2-color-component-track-default-thumb": "var(--sjs2-color-bg-basic-primary)",
     "--sjs2-color-component-track-default-dot": "var(--sjs2-color-fg-brand-primary)",

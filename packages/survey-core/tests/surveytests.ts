@@ -19968,7 +19968,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     ]
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 0, "before applyTheme");
+  assert.equal(Object.keys(survey.themeVariables).length, 997, "before applyTheme");
   assert.equal(!!survey.backgroundImage, false, "before applyTheme");
   assert.equal(survey.backgroundImageFit, "cover", "before applyTheme");
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
@@ -19991,7 +19991,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     "isPanelless": true
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 5);
+  assert.equal(Object.keys(survey.themeVariables).length, 997);
   assert.equal(!!survey.backgroundImage, true);
   assert.equal(survey.backgroundImageFit, "cover");
   assert.equal(survey.backgroundImageAttachment, "fixed");

@@ -1,5 +1,8 @@
-import { setupLocale } from "survey-core";
+import { setupLocale, DefaultTheme } from "survey-core";
 import { registerMarkupTests } from "./helper";
+
+const cssVariables = DefaultTheme.cssVariables;
+DefaultTheme.cssVariables = {} as any;
 
 registerMarkupTests(
   [

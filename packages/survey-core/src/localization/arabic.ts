@@ -71,6 +71,8 @@ export var arabicSurveyStrings = {
   maxError: "يجب ألا تزيد القيمة عن {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "الأرقام غير مسموح بها.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "يرجى إكمال القيمة لتتناسب مع التنسيق المطلوب.",
   // "Please enter at least {0} character(s)."
   textMinLength: "الرجاء إدخال ما لا يقل عن {0} حروف",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var arabicSurveyStrings = {
   urlGetChoicesError: "عاد طلب البيانات فارغ أو 'المسار' غير صحيح ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ينبغي ألا يتجاوز حجم الملف {0}ا",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "الحد الأقصى لعدد الملفات التي يمكنك رفعها هو {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "لا يمكن تحميل الملفات. يرجى إضافة معالج لحدث \"onUploadFiles\".",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var arabicSurveyStrings = {
   noRowsText: "لا توجد صفوف.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "الصف {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "اضف جديد",

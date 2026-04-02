@@ -71,6 +71,8 @@ export var traditionalChineseSurveyStrings = {
   maxError: "該值不應大於 {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "不允許使用數位。",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "請填寫該數值以符合所需格式。",
   // "Please enter at least {0} character(s)."
   textMinLength: "答案長度至少 {0} 個字元",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var traditionalChineseSurveyStrings = {
   noRowsText: "沒有行。",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "行 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // [Auto-translated] "Add new"
   addPanel: "新增",

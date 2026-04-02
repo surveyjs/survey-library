@@ -22,7 +22,7 @@ export class SurveyQuestionButtonGroup extends SurveyQuestionElementBase {
   }
   renderElement() {
     const items = this.renderItems();
-    return <div className={this.question.cssClasses.root}>{items}</div>;
+    return <div className={this.question.getControlClass()}>{items}</div>;
   }
   renderItems() {
     return this.question.visibleChoices.map(

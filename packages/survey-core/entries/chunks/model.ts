@@ -263,7 +263,7 @@ export * from "../../src/surveyToc";
 export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "../../src/progress-buttons";
 export * from "../../src/themes";
-export { SurveyModel } from "../../src/survey";
+export { SurveyModel, DefaultTheme } from "../../src/survey";
 export * from "../../src/survey-events-api";
 export {
   SurveyTrigger,

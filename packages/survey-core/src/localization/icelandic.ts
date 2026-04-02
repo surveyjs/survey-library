@@ -71,6 +71,8 @@ export var icelandicSurveyStrings = {
   maxError: "Gildið má ekki vera hærra en {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Tölur eru ekki leyfðar.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vinsamlegast fylltu út gildið til að passa við nauðsynlegt snið.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Það ætti að vera minnst {0} tákn.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var icelandicSurveyStrings = {
   noRowsText: "Það eru engar raðir.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Röð {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Bæta við nýju",

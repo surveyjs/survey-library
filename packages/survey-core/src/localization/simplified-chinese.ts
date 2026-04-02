@@ -31,8 +31,8 @@ export var simplifiedChineseSurveyStrings = {
   progressText: "第 {0} 页, 共 {1} 页",
   // "{0} of {1}"
   indexText: "第 {0} 页，共 {1} 页",
-  // "{0} of {1}"
-  panelDynamicProgressText: "{0} of {1}",
+  // [Auto-translated] "{0} of {1}"
+  panelDynamicProgressText: "{0}{1}",
   // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "面板 {面板索引}",
   // "Answered {0}/{1} questions"
@@ -71,6 +71,8 @@ export var simplifiedChineseSurveyStrings = {
   maxError: "该值不能大于 {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "不允许使用数字。",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "请填写该数值以符合所需格式。",
   // "Please enter at least {0} character(s)."
   textMinLength: "答案长度至少 {0} 个字符",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var simplifiedChineseSurveyStrings = {
   noRowsText: "无内容",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "行 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "新添",

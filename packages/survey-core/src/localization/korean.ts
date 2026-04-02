@@ -71,6 +71,8 @@ export var koreanStrings = {
   maxError: "값은 {0}보다 클 수 없습니다.",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "숫자는 허용되지 않습니다.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "필요한 형식에 맞게 값을 작성해 주세요.",
   // "Please enter at least {0} character(s)."
   textMinLength: "답변의 길이는 최소 {0}자여야 입니다.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var koreanStrings = {
   noRowsText: "행이 없습니다.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "행 {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "추가",

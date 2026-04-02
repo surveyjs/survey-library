@@ -9,10 +9,10 @@ export var haitianCreoleStrings = {
   pageNextText: "Pwochen",
   // "Complete"
   completeText: "Ranpli",
-  // "Preview"
+  // [Auto-translated] "Preview"
   previewText: "Preview",
-  // "Edit"
-  editText: "Edit",
+  // [Auto-translated] "Edit"
+  editText: "modifye",
   // "Start"
   startSurveyText: "Kòmanse",
   // [Auto-translated] "Please leave a comment"
@@ -35,7 +35,7 @@ export var haitianCreoleStrings = {
   indexText: "{0} nan {1}",
   // "{0} of {1}"
   panelDynamicProgressText: "{0} nan {1}",
-  // "Panel {panelIndex}"
+  // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Reponn {0}/{1} kesyon",
@@ -73,6 +73,8 @@ export var haitianCreoleStrings = {
   maxError: "Valè a pa ta dwe pi gran pase {0}",
   // "Numbers are not allowed."
   textNoDigitsAllow: "Nimewo yo pa pèmèt.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Tanpri ranpli valè a matche fòma obligatwa a.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Tanpri antre omwen {0} karaktè (yo).",
   // "Please enter no more than {0} character(s)."
@@ -101,6 +103,8 @@ export var haitianCreoleStrings = {
   urlGetChoicesError: "Rekèt la te retounen done vid oswa pwopriyete 'chemen' a pa kòrèk",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Gwosè dosye a pa ta dwe depase {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Nimewo a maksimòm nan dosye ou ka telechaje se {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Fichye yo pa ka telechaje. Tanpri ajoute yon moun kap okipe evènman 'onUploadFiles' la.",
   // "Response required: enter another value."
@@ -129,7 +133,7 @@ export var haitianCreoleStrings = {
   noRowsText: "Pa gen ranje.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Row {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Ajoute nouvo",
@@ -159,9 +163,9 @@ export var haitianCreoleStrings = {
   savingExceedSize: "Repons ou depase 64KB. Tanpri redwi gwosè fichye w la (yo) epi eseye ankò oswa kontakte pwopriyetè sondaj la.",
   // "Try again"
   saveAgainButton: "Eseye ankò",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
+  // [Auto-translated] "sec"
   timerSec: "sec",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Ou te depanse {0} sou paj sa a epi {1} an total.",

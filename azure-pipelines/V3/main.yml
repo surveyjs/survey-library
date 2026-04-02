@@ -41,6 +41,7 @@ trigger:
       - v*.*.*
 pr: none
 
+
 pool:
   name: main-selfhosted
 

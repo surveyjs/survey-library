@@ -71,6 +71,8 @@ export var teluguStrings = {
   maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "అంకెలు అనుమతించబడవు.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "అవసరమైన ఫార్మెట్ జత అయ్యేవిధంగా దయచేసి విలువను పూర్తి చేయండి.",
   // "Please enter at least {0} character(s)."
   textMinLength: "దయచేసి కనీసం {0} అక్షరాలను నమోదు చేయండి",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var teluguStrings = {
   noRowsText: "వరుసలు లేవు.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Row {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "కొత్త దాన్ని చేర్పించండి",

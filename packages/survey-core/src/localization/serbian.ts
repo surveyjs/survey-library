@@ -71,6 +71,8 @@ export var serbianStrings = {
   maxError: "Vrednost ne bi trebalo da bude veća od {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Brojevi nisu dozvoljeni.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Molimo Vas da popunite vrednost koja odgovara potrebnom formatu.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Molimo unesite bar {0} znak(ov)a.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var serbianStrings = {
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Red {rovIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Dodaj novo",
@@ -159,7 +161,7 @@ export var serbianStrings = {
   savingExceedSize: "Vaš odgovor prelazi 64KB. Smanjite veličinu datoteka/datoteka i pokušajte ponovo ili se obratite vlasniku ankete.",
   // "Try again"
   saveAgainButton: "Pokušajte ponovo",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

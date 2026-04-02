@@ -9,8 +9,8 @@ export var malaySurveyStrings = {
   completeText: "Selesai",
   // "Preview"
   previewText: "Pratonton",
-  // "Edit"
-  editText: "Edit",
+  // [Auto-translated] "Edit"
+  editText: "Suntingan",
   // "Start"
   startSurveyText: "Mula",
   // [Auto-translated] "Please leave a comment"
@@ -71,6 +71,8 @@ export var malaySurveyStrings = {
   maxError: "Nilai tidak boleh lebih besar daripada {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nombor tidak dibenarkan.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Sila lengkapkan nilai untuk dipadankan dengan format yang diperlukan.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Sila masukkan sekurang-kurangnya {0} aksara.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var malaySurveyStrings = {
   urlGetChoicesError: "Permintaan mengembalikan data kosong atau ciri 'laluan' salah",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Saiz fail hendaklah tidak melebihi {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Bilangan maksimum fail yang boleh anda muat naik ialah {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Fail tidak boleh dimuat naik. Sila tambah pengendali untuk acara 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var malaySurveyStrings = {
   noRowsText: "Tiada baris.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Baris {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Tambah baharu",
@@ -137,8 +141,8 @@ export var malaySurveyStrings = {
   showDetails: "Tunjukkan Butiran",
   // [Auto-translated] "Hide Details"
   hideDetails: "Sembunyikan Butiran",
-  // "item"
-  choices_Item: "item",
+  // [Auto-translated] "item"
+  choices_Item: "Item",
   // [Auto-translated] "Choice option"
   choices_Choice: "Pilihan pilihan",
   // "Column"
@@ -157,8 +161,8 @@ export var malaySurveyStrings = {
   savingExceedSize: "Respons anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan.",
   // "Try again"
   saveAgainButton: "Cuba lagi",
-  // "min"
-  timerMin: "min",
+  // [Auto-translated] "min"
+  timerMin: "minit",
   // "sec"
   timerSec: "saat",
   // "You have spent {0} on this page and {1} in total."

@@ -71,6 +71,8 @@ export var indonesianStrings = {
   maxError: "Nilai tidak boleh lebih besar dari {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nomor tidak diperbolehkan.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Lengkapi nilai agar sesuai dengan format yang diperlukan.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Silahkan masukkan setidaknya {0} karakter.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var indonesianStrings = {
   urlGetChoicesError: "Permintaan mengembalikan data kosong atau properti 'path' salah.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Ukuran berkas tidak boleh melebihi {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Jumlah maksimum file yang dapat Anda unggah adalah {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var indonesianStrings = {
   noRowsText: "Tidak ada baris.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Baris {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Tambah baru",
@@ -137,8 +141,8 @@ export var indonesianStrings = {
   showDetails: "Tampilkan Detail",
   // [Auto-translated] "Hide Details"
   hideDetails: "Sembunyikan Detail",
-  // "item"
-  choices_Item: "item",
+  // [Auto-translated] "item"
+  choices_Item: "barang",
   // [Auto-translated] "Choice option"
   choices_Choice: "Opsi pilihan",
   // "Column"

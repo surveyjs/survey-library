@@ -71,6 +71,8 @@ export var swedishSurveyStrings = {
   maxError: "Värdet får inte vara större än {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nummer är inte tillåtna.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vänligen fyll i värdet för att matcha det önskade formatet.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Ange minst {0} tecken.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var swedishSurveyStrings = {
   noRowsText: "Det finns inga rader.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rad {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Lägg till ny",
@@ -147,8 +149,8 @@ export var swedishSurveyStrings = {
   matrix_column: "Kolumn",
   // "Row"
   matrix_row: "Rad",
-  // "text"
-  multipletext_itemname: "text",
+  // [Auto-translated] "text"
+  multipletext_itemname: "Text",
   // "The results are being saved on the server..."
   savingData: "Resultaten sparas på servern ...",
   // "An error occurred and we could not save the results."
@@ -159,8 +161,8 @@ export var swedishSurveyStrings = {
   savingExceedSize: "Ditt svar överstiger 64 kB. Minska storleken på dina filer och försök igen eller kontakta undersökningens ägare.",
   // "Try again"
   saveAgainButton: "Försök igen",
-  // "min"
-  timerMin: "min",
+  // [Auto-translated] "min"
+  timerMin: "Min",
   // "sec"
   timerSec: "sek",
   // "You have spent {0} on this page and {1} in total."

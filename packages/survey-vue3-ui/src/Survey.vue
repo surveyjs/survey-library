@@ -136,9 +136,7 @@
 
 <script lang="ts">
 import { addIconsToThemeSet, SvgRegistry } from "survey-core";
-import { icons as iconsV1 } from "survey-core/icons/iconsV1";
 import { icons as iconsV2 } from "survey-core/icons/iconsV2";
-addIconsToThemeSet("v1", iconsV1);
 addIconsToThemeSet("v2", iconsV2);
 SvgRegistry.registerIcons(iconsV2);
 </script>

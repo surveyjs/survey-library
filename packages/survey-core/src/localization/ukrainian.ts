@@ -71,6 +71,8 @@ export var ukrainianSurveyStrings = {
   maxError: "Значення не повинно бути більше {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номери не допускаються.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Будь ласка, заповніть значення, щоб відповідати потрібному формату.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Будь ласка введіть більше {0} символів.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var ukrainianSurveyStrings = {
   urlGetChoicesError: "Відповідь на запит повернулась порожньою або властивіть 'path' вказано невірно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Розмір файлу не повинен перевищувати {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Максимальна кількість файлів, яку ви можете завантажити, становить {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var ukrainianSurveyStrings = {
   noRowsText: "Рядів немає.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Рядок {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Додати нову",

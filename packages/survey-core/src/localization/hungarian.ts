@@ -37,8 +37,8 @@ export var hungarianSurveyStrings = {
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Válaszolt kérdések: {0} / {1}",
-  // "The survey doesn't contain any visible elements."
-  emptySurvey: "The survey doesn't contain any visible elements.",
+  // [Auto-translated] "The survey doesn't contain any visible elements."
+  emptySurvey: "A felmérés nem tartalmaz látható elemeket.",
   // "Thank you for completing the survey"
   completingSurvey: "Köszönjük, hogy kitöltötte felmérésünket!",
   // "You have already completed this survey."
@@ -71,6 +71,8 @@ export var hungarianSurveyStrings = {
   maxError: "Az érték nem lehet nagyobb, mint {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Számok nem engedélyezettek.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Kérjük, töltse ki az értéket, hogy megfeleljen a szükséges formátumnak.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Adjon meg legalább {0} karaktert!",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var hungarianSurveyStrings = {
   noRowsText: "Nincsenek sorok.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "{rowIndex} sor",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Új hozzáadása",
@@ -159,10 +161,10 @@ export var hungarianSurveyStrings = {
   savingExceedSize: "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba a felmérés tulajdonosával.",
   // "Try again"
   saveAgainButton: "Próbálja újra",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
-  timerSec: "sec",
+  // [Auto-translated] "sec"
+  timerSec: "SEC",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Ön {0} összeget költött ezen az oldalon, és összesen {1}.",
   // "You have spent {0} on this page."

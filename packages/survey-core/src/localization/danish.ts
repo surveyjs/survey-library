@@ -11,7 +11,7 @@ export var danishSurveyStrings = {
   previewText: "Forpremiere",
   // "Edit"
   editText: "Redigér",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Efterlad venligst en kommentar",
@@ -71,6 +71,8 @@ export var danishSurveyStrings = {
   maxError: "Værdien bør ikke være større end {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numre er ikke tilladt.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Udfyld venligst værdien for at matche det krævede format.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Angiv mindst {0} tegn.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var danishSurveyStrings = {
   noRowsText: "Der er ingen rækker.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Række {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Tilføj ny",
@@ -159,8 +161,8 @@ export var danishSurveyStrings = {
   savingExceedSize: "Dit svar overstiger 64 KB. Reducer størrelsen på dine filer, og prøv igen, eller kontakt ejeren af undersøgelsen.",
   // "Try again"
   saveAgainButton: "Prøv igen",
-  // "min"
-  timerMin: "min",
+  // [Auto-translated] "min"
+  timerMin: "Min",
   // "sec"
   timerSec: "sek",
   // "You have spent {0} on this page and {1} in total."

@@ -15,7 +15,7 @@
 .sd-action-bar__item--hidden {
   width: 0px;
   height: 0px;
-  margin: 0 calc(var(--sd-action-bar-gap) / 2);
+  margin: 0 calc(-1 * var(--sd-action-bar-gap) / 2);
   overflow: hidden;
   visibility: hidden;
   .sd-action-bar__item-content {

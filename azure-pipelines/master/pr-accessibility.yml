@@ -16,7 +16,7 @@ pr:
       - master
 
 pool:
-  vmImage: "Ubuntu-22.04"
+  name: main-selfhosted
 
 jobs:
   - job: Core

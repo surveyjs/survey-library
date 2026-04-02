@@ -8311,7 +8311,6 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
-    theme.cssVariables = Object.assign({}, DefaultTheme.cssVariables, theme.cssVariables);
     patchLegacyCSSVariables(theme.cssVariables);
     this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
@@ -8322,6 +8321,8 @@ export class SurveyModel extends SurveyElementCore
         this.isCompact = theme[key];
       } else if (key === "isLight") {
         this.colorPalette = theme[key] ? "light" : "dark";
+      } else if (key === "cssVariables") {
+        this.cssVariables = Object.assign({}, DefaultTheme.cssVariables, theme.cssVariables);
       } else {
         (this as any)[key] = theme[key];
       }

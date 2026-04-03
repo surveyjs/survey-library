@@ -17,13 +17,17 @@
   border: none;
   border-radius: $editor-corner-radius;
   text-align: start;
-  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  box-shadow:
+    $shadow-inner,
+    0 0 0 0px $primary;
   transition: box-shadow $transition-duration;
   display: block;
 }
 
 .sd-input:focus {
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+  box-shadow:
+    $shadow-inner-reset,
+    0 0 0 2px $primary;
 }
 
 .sd-input.sd-input:focus {
@@ -167,6 +171,14 @@ textarea {
   &.sd-text__character-counter:focus-within {
     width: calc(100% - 10 * #{$base-unit});
   }
+}
+
+.sd-input[type="time"]:not(.sd-input--value-changed),
+.sd-input[type="date"]:not(.sd-input--value-changed),
+.sd-input[type="datetime-local"]:not(.sd-input--value-changed),
+.sd-input[type="week"]:not(.sd-input--value-changed),
+.sd-input[type="month"]:not(.sd-input--value-changed) {
+  color: $foreground-light;
 }
 
 .sd-input[type="range"]::-webkit-slider-runnable-track {

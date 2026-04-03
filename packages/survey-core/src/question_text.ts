@@ -631,6 +631,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.isPropertyStoredInHash(name);
   }
   protected setNewValue(newValue: any): void {
+    this.setIsValueChanged();
     newValue = this.correctValueType(newValue);
     if (!!newValue) {
       this.dateValidationMessage = undefined;
@@ -662,7 +663,8 @@ export class QuestionTextModel extends QuestionTextBase {
     const maxLength = this.getMaxLength();
     return super.getControlCssClassBuilder()
       .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99);
+      .append(this.cssClasses.characterCounterBig, maxLength > 99)
+      .append(this.cssClasses.isValueChanged, this._isValueChanged);
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
@@ -682,10 +684,17 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   //web-based methods
   private _isWaitingForEnter = false;
-  private _isColorValueChanged = false;
+  private _isValueChanged = false;
+  private setIsValueChanged(): void {
+    if (this._isValueChanged) return;
+    this._isValueChanged = true;
+    if (this.input && this.cssClasses.isValueChanged) {
+      this.input.classList.add(this.cssClasses.isValueChanged);
+    }
+  }
 
   private updateValueOnEvent(event: any) {
-    if (this.inputType === "color" && !this._isColorValueChanged) return;
+    if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
@@ -739,6 +748,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.readOnlyBlocker(event)) {
       return;
     }
+    this.setIsValueChanged();
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.inputType === "number" && this.shouldPreventNumberInput(event)) {
       event.preventDefault();
@@ -771,7 +781,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return false;
   }
   public onChange = (event: any): void => {
-    this._isColorValueChanged = true;
+    this.setIsValueChanged();
     this.updateDateValidationMessage(event);
     const root = getRootNode(this.input);
     if (!root) return;

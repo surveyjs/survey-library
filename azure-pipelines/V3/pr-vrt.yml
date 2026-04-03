@@ -16,7 +16,7 @@ pr:
       - V3
 
 pool:
-  vmImage: "Ubuntu-24.04"
+  name: main-selfhosted
 
 jobs:
   - job: Core

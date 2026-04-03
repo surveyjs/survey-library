@@ -2153,6 +2153,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         id: `remove-panel-${panel.id}`,
         locTitle: this.locRemovePanelText,
         innerCss: this.getPanelRemoveButtonCss(),
+        style: { style: "alert", mode: "tertiary", size: "small" },
         action: () => {
           if (!this.isInputReadOnly) {
             this.removePanelUI(panel);
@@ -2537,6 +2538,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private initFooterToolbar() {
     this.footerToolbarValue = this.createActionContainer();
+    this.footerToolbarValue.setActionsStyle({ style: "brand", mode: "tertiary", size: "small" });
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",

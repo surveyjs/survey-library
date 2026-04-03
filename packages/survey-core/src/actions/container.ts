@@ -292,11 +292,11 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions.length = 0;
   }
   private setActionStyle(action: T): void {
-    if (action instanceof Action) {
+    if (action instanceof Action && this.actionStyle) {
       action.predefinedStyle = this.actionStyle;
     }
   }
-  @property({}) actionStyle: IActionStyle;
+  private actionStyle: IActionStyle;
   public setActionsStyle(style: IActionStyle): void {
     this.actionStyle = style;
     this.actions.forEach(action => {

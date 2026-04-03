@@ -441,7 +441,7 @@ export abstract class BaseAction extends Base implements IAction {
 }
 
 export interface IActionStyle {
-  style?: "neutral" | "alert" | "accent" | "brand" | "accent-multi-colored" | "brand-multi-colored";
+  style?: "neutral" | "alert" | "brand" | "brand-multi-colored";
   mode?: "primary" | "secondary" | "tertiary" | "quaternary";
   size?: "large" | "medium" | "small" | "x-small" | "xx-small";
  }

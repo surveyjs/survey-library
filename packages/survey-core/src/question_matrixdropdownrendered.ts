@@ -688,6 +688,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = this.matrix.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      actionContainer.setActionsStyle({ mode: "quaternary", size: "small", style: "neutral" });
       if (!!this.matrix.survey && this.matrix.survey.getCss().actionBar) {
         actionContainer.cssClasses = this.matrix.survey.getCss().actionBar;
       }
@@ -748,6 +749,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           showTitle: !this.showRemoveButtonAsIcon as boolean,
           locTitle: matrix.locRemoveRowText,
           enabled: !matrix.isInputReadOnly,
+          style: { style: "alert" },
           visibleIndex: this.matrix.isMobile ? 20 : undefined,
           data: { row: row, question: matrix },
           action: () => {
@@ -768,6 +770,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           location: this.matrix.isMobile ? "end" : "start",
           iconName: this.matrix.isMobile ? "" : new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId) as any as string,
           visibleIndex: this.matrix.isMobile ? 10 : undefined,
+          style: { style: "brand" },
           ariaExpanded: new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row)) as any as boolean,
           ariaControls: new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row) ? row.detailPanelId : null) as any as string,
           iconSize: "auto",

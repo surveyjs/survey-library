@@ -29,7 +29,7 @@
   .sd-action__title {
     color: var(--sd-action-disabled-title-color);
   }
-  use {
+  .sd-action__icon use {
     fill: var(--sd-action-disabled-icon-color);
   }
 }
@@ -42,7 +42,7 @@
   .sd-action__title {
     color: var(--sd-action-hover-title-color);
   }
-  use {
+  .sd-action__icon use {
     fill: var(--sd-action-hover-icon-color);
   }
 }

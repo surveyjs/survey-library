@@ -23319,3 +23319,57 @@ QUnit.test("Re-run expressions on changing the related object properties, Bug#10
   assert.equal(q2.visible, true, "q2 is visible after locale change to ''");
   assert.equal(q3.visibleChoices.length, 2, "q3 has two visible choices after locale change to ''");
 });
+QUnit.test("visibleIf with $q.containsErrors and checkErrorsMode=onValueChanged", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        inputType: "number",
+        min: 10
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} notempty and {$q1.containsErrors} = false"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2 is invisible initially, q1 is empty");
+  q1.value = 20;
+  assert.equal(q1.errors.length, 0, "q1 has no errors, value=20 >= min=10");
+  assert.equal(q2.isVisible, true, "q2 is visible, q1=20 and no errors");
+  q1.value = 5;
+  assert.equal(q1.errors.length, 1, "q1 has error, value=5 < min=10");
+  assert.equal(q2.isVisible, false, "q2 is invisible, q1=5 contains errors");
+}); QUnit.test("Panel visibleIf with $q.containsErrors and checkErrorsMode=onValueChanged", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        inputType: "number",
+        min: 10
+      },
+      {
+        type: "panel",
+        name: "panel1",
+        visibleIf: "{q1} notempty and {$q1.containsErrors} = false",
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const panel1 = survey.getPanelByName("panel1");
+  assert.equal(panel1.isVisible, false, "panel1 is invisible initially, q1 is empty");
+  q1.value = 20;
+  assert.equal(q1.errors.length, 0, "q1 has no errors, value=20 >= min=10");
+  assert.equal(panel1.isVisible, true, "panel1 is visible, q1=20 and no errors");
+  q1.value = 5;
+  assert.equal(q1.errors.length, 1, "q1 has error, value=5 < min=10");
+  assert.equal(panel1.isVisible, false, "panel1 is invisible, q1=5 contains errors");
+});

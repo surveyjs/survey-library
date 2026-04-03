@@ -2259,7 +2259,7 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
   public get themeVariables() {
-    return Object.assign({}, DefaultLightTheme.cssVariables, this.cssVariables);
+    return Object.assign({}, this.cssVariables);
   }
 
   @property() _isMobile = false;
@@ -8321,6 +8321,8 @@ export class SurveyModel extends SurveyElementCore
         this.isCompact = theme[key];
       } else if (key === "isLight") {
         this.colorPalette = theme[key] ? "light" : "dark";
+      } else if (key === "cssVariables") {
+        this.cssVariables = Object.assign({}, DefaultTheme.cssVariables, theme.cssVariables);
       } else {
         (this as any)[key] = theme[key];
       }

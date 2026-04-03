@@ -19,7 +19,7 @@ trigger:
 pr: none
 
 pool:
-  vmImage: "windows-latest"
+  vmImage: "Ubuntu-24.04"
 
 jobs:
   - job: Core

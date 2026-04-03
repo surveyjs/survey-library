@@ -53,12 +53,11 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return false;
   }
 
-  //methods for mobile view
   public getControlClass(): string {
-    this.isEmpty();
     return new CssClassBuilder()
-      .append(this.cssClasses.control)
-      .append(this.cssClasses.controlEmpty, this.isEmpty())
+      .append(this.cssClasses.root, !this.isDropdown)
+      .append(this.cssClasses.control, this.isDropdown)
+      .append(this.cssClasses.controlEmpty, this.isDropdown && this.isEmpty())
       .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
       .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
@@ -81,6 +80,9 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   get searchEnabled(): boolean {
     return false;
+  }
+  get isDropdown(): boolean {
+    return this.renderAs === "dropdown";
   }
   public isItemSelected(item: ItemValue): boolean {
     return item.value == this.value;
@@ -113,7 +115,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
-    if (this.renderAs === "dropdown") {
+    if (this.isDropdown) {
       this.onBeforeSetCompactRenderer();
     }
     return this.dropdownListModelValue;
@@ -237,12 +239,16 @@ export class ButtonGroupItemModel {
       ? this.question.id + "_errors"
       : null;
   }
+  public get tabIndex(): number {
+    return this.selected ? -1 : 0;
+  }
   private get labelClass() {
     return new CssClassBuilder()
       .append(this.question.cssClasses.item)
       .append(this.question.cssClasses.itemSelected, this.selected)
       .append(this.question.cssClasses.itemHover, !this.readOnly && !this.selected)
-      .append(this.question.cssClasses.itemDisabled, this.question.isReadOnly || !this.item.isEnabled)
+      .append(this.question.cssClasses.itemDisabled, !this.item.isEnabled)
+      .append(this.question.cssClasses.itemReadOnly, this.question.isReadOnly)
       .toString();
   }
   public get css() {

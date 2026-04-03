@@ -71,6 +71,8 @@ export var russianSurveyStrings = {
   maxError: "Значение не должно превышать {0}.",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номера не допускаются.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Пожалуйста, заполните значение, чтобы соответствовать необходимому формату.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Пожалуйста введите больше {0} символов.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var russianSurveyStrings = {
   noRowsText: "Рядов нет.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Строка {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Добавить новую",

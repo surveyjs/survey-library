@@ -96,8 +96,11 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
-import { legacyCssVariables } from "./legacy-vars";
+import DefaultLightTheme from "./themes/default-light";
 import { createBoxShadowReset } from "./utils/shadow-effects";
+
+export var DefaultTheme = DefaultLightTheme;
+
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
@@ -1154,6 +1157,8 @@ export class SurveyModel extends SurveyElementCore
         this.loadSurveyFromService(this.surveyId, this.clientId);
       }
     }
+
+    this.applyTheme(DefaultTheme);
     if (!!renderedElement) {
       this.render(renderedElement);
     }
@@ -2254,7 +2259,7 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
   public get themeVariables() {
-    return Object.assign({}, this.cssVariables);
+    return Object.assign({}, DefaultLightTheme.cssVariables, this.cssVariables);
   }
 
   @property() _isMobile = false;

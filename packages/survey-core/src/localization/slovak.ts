@@ -71,6 +71,8 @@ export var slovakSurveyStrings = {
   maxError: "Hodnota nemá byť vyššia než {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Čísla nie sú povolené.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Prosím, vyplňte hodnotu tak, aby zodpovedala požadovanému formátu.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Zadajte aspoň {0} znak(-y/-ov).",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var slovakSurveyStrings = {
   urlGetChoicesError: "Požiadavka vrátila prázdne údaje alebo je vlastnosť „cesta“ nesprávna",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Veľkosť súboru nemá prekročiť {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maximálny počet súborov, ktoré môžete nahrať, je {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Súbory nie je možné nahrať. Pridajte obslužný program pre udalosť \"onUploadFiles\".",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var slovakSurveyStrings = {
   noRowsText: "K dispozícii nie sú žiadne riadky.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Riadok {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Pridať nové",
@@ -145,8 +149,8 @@ export var slovakSurveyStrings = {
   matrix_column: "Stĺpec",
   // "Row"
   matrix_row: "Riadok",
-  // "text"
-  multipletext_itemname: "text",
+  // [Auto-translated] "text"
+  multipletext_itemname: "Text",
   // "The results are being saved on the server..."
   savingData: "Výsledky sa ukladajú na server...",
   // "An error occurred and we could not save the results."
@@ -157,7 +161,7 @@ export var slovakSurveyStrings = {
   savingExceedSize: "Vaša odpoveď presahuje 64 kB. Znížte veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu.",
   // "Try again"
   saveAgainButton: "Skúste to znova",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "s",

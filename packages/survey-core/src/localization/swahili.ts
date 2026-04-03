@@ -71,6 +71,8 @@ export var swahiliStrings = {
   maxError: "Thamani haipaswi kuwa kubwa kuliko {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Hesabu haziruhusiwi.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Tafadhali kamilisha thamani ili kuendana na umbizo linalohitajika.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Tafadhali ingiza angalau{0} husika.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var swahiliStrings = {
   noRowsText: "Hakuna safu.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Safu {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Ongeza mpya",

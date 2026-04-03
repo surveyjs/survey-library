@@ -51,8 +51,8 @@ export var urduSurveyStrings = {
   ratingOptionsCaption: "منتخب...",
   // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "منتخب...",
-  // "value"
-  value: "value",
+  // [Auto-translated] "value"
+  value: "قدر",
   // "Response required."
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   // "Response required: answer at least one question."
@@ -71,6 +71,8 @@ export var urduSurveyStrings = {
   maxError: "عدد صفر سے زیادہ نہیں ہونی چاہیے",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "نمبروں کی اجازت نہیں ہے۔",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "براہ کرم مطلوبہ فارمیٹ کے مطابق ویلیو مکمل کریں۔",
   // "Please enter at least {0} character(s)."
   textMinLength: "براہ کرم کم از کم صفر حروف درج کریں۔",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var urduSurveyStrings = {
   urlGetChoicesError: "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
   // "The file size should not exceed {0}."
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "زیادہ سے زیادہ فائلیں جو آپ اپلوڈ کر سکتے ہیں وہ {0} ہے۔",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "فائلیں اپ لوڈ نہیں کی جا سکتیں۔ براہ کرم 'آن اپ لوڈ فائلز' ایونٹ کے لئے ایک ہینڈلر شامل کریں۔",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var urduSurveyStrings = {
   noRowsText: "کوئی قطار نہیں ہیں۔ ",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Row {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "نیا شامل کریں",

@@ -51,8 +51,8 @@ export var latvianSurveyStrings = {
   ratingOptionsCaption: "Nospiediet šeit, lai novērtētu...",
   // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "Atlasiet...",
-  // "value"
-  value: "value",
+  // [Auto-translated] "value"
+  value: "Vērtība",
   // "Response required."
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
   // "Response required: answer at least one question."
@@ -71,6 +71,8 @@ export var latvianSurveyStrings = {
   maxError: "Vērtība nedrīkst būt lielāka par {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numuri nav atļauti.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Lūdzu, aizpildiet vērtību, lai tā atbilstu vajadzīgajam formātam.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Lūdzu, ievadiet vismaz {0} simbolus.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var latvianSurveyStrings = {
   urlGetChoicesError: "Pieprasījums atgrieza tukšus datus vai rekvizīts “path” ir nepareizs",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Faila lielums nedrīkst pārsniegt {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksimālais augšupielādējamo failu skaits ir {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Failus nevar augšupielādēt. Lūdzu, pievienojiet apdarinātāju notikumam \"onUploadFiles\".",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var latvianSurveyStrings = {
   noRowsText: "Nav rindu.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rinda {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Pievieno jaunu",
@@ -157,7 +161,7 @@ export var latvianSurveyStrings = {
   savingExceedSize: "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku.",
   // "Try again"
   saveAgainButton: "Mēģiniet vēlreiz",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

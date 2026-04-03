@@ -2,8 +2,8 @@
 
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
   position: sticky;
-  left: var(--sjs2-spacing-negative-x300);
-  margin-left: var(--sjs2-spacing-negative-x300);
+  left: var(--sjs2-spacing-negative-x200);
+  margin-left: var(--sjs2-spacing-negative-x200);
   z-index: 12;
 }
 
@@ -87,7 +87,7 @@
   visibility: hidden;
 
   use {
-    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19B394);
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
   }
 }
 

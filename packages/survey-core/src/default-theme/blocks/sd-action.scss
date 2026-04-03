@@ -12,18 +12,19 @@
   box-sizing: content-box;
   background: var(--sd-action-background);
   padding: var(--sd-action-padding);
-  opacity: var(--sd-action-opacity);
   border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action, 8px));
-  box-shadow: var(--sd-action-box-shadow);
-  transition: background-color box-shadow $transition-duration;
+  box-shadow: var(--sd-action-boxshadow);
+  transition:
+    background-color,
+    box-shadow,
+    outline,
+    transform $transition-duration;
 }
-
 .sd-action:where(:disabled),
 .sd-action--disabled {
   cursor: default;
   pointer-events: none;
   background: var(--sd-action-disabled-background);
-  opacity: var(--sd-action-disabled-opacity);
   box-shadow: var(--sd-action-disabled-box-shadow);
   .sd-action__title {
     color: var(--sd-action-disabled-title-color);
@@ -37,7 +38,6 @@
 .sd-action:where(:focus),
 .sd-action:where(:hover) {
   background: var(--sd-action-hover-background);
-  opacity: var(--sd-action-hover-opacity);
   box-shadow: var(--sd-action-hover-box-shadow);
   .sd-action__title {
     color: var(--sd-action-hover-title-color);
@@ -51,7 +51,7 @@
 }
 //todo return focus visible styles after discussion with design team
 // .sd-action:where(:focus-visible) {
-//   box-shadow: 0 0 0 var(--sjs2-border-width-a11y, 4px) var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+//   outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
 // }
 
 .sd-action__title {
@@ -70,6 +70,12 @@
   use {
     fill: var(--sd-action-icon-color);
   }
+}
+
+.sd-action--border {
+  --sd-action-boxshadow: var(--sjs2-border-effect-trigger-default);
+  --sd-action-disabled-box-shadow: var(--sjs2-border-effect-trigger-disabled);
+  --sd-action-hover-box-shadow: var(--sjs2-border-effect-trigger-hovered, 0 0 0 1px #d4d4d4);
 }
 
 //size modifiers

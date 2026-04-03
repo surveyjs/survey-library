@@ -442,8 +442,9 @@ export abstract class BaseAction extends Base implements IAction {
 
 export interface IActionStyle {
   style?: "neutral" | "alert" | "brand" | "brand-multi-colored";
-  mode?: "primary" | "secondary" | "tertiary" | "quaternary";
+  mode?: "primary" | "secondary" | "secondary-alternative" | "tertiary" | "tertiary-alternative" | "quaternary" | "quaternary-alternative";
   size?: "large" | "medium" | "small" | "x-small" | "xx-small";
+  showBorder?: boolean;
  }
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
@@ -708,6 +709,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       .append(`${this.cssClasses.itemStylePrefix}--${style.style}`, !!style.style)
       .append(`${this.cssClasses.itemStylePrefix}--${style.mode}`, !!style.mode)
       .append(`${this.cssClasses.itemStylePrefix}--${style.size}`, !!style.size)
+      .append(`${this.cssClasses.itemStylePrefix}--border`, !!style.showBorder)
       .toString();
   }
 }

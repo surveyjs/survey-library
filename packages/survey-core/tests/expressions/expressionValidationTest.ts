@@ -898,7 +898,7 @@ QUnit.test("validateExpressions() incorrectly reports UnknownVariable in array f
 
   assert.equal(result.length, 5, "There are 5 invalid expressions");
   assert.equal(
-    result.map(e => [e.obj.name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(),
+    result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(),
     "q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo",
     "Errors are correct"
   );

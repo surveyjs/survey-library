@@ -13,7 +13,7 @@ import { confirmActionAsync } from "./utils/confirm-dialog";
 import { detectIEOrEdge } from "./utils/browser";
 import { loadFileFromBase64 } from "./utils/file-utils";
 import { ActionContainer } from "./actions/container";
-import { Action } from "./actions/action";
+import { Action, IActionStyle } from "./actions/action";
 import { Helpers } from "./helpers";
 import { Camera } from "./utils/camera";
 import { LocalizableString } from "./localizablestring";
@@ -277,6 +277,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   private createActionsContainer(): ActionContainer {
     const container = new ActionContainer();
+    container.setActionsStyle({ style: "neutral", mode: "quaternary-surface", size: "small" });
     container.locOwner = this;
     return container;
   }
@@ -286,7 +287,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
+      innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.chooseFile) as any),
       data: { question: this },
+      locTitle: this.locChooseButtonText,
+      style: new ComputedUpdater<IActionStyle>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
+      showTitle: <boolean>(new ComputedUpdater<boolean>(() => { return !this.isAnswered; }) as any),
       enabledIf: () => !this.isInputReadOnly,
       visible: <boolean>(new ComputedUpdater<boolean>(() => {
         const isDesignMode = this.isDesignMode;
@@ -300,6 +305,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "sv-file-start-camera",
       iconSize: "auto",
       locTitle: this.locTakePhotoCaption,
+      style: new ComputedUpdater<IActionStyle>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
       visible: <boolean>(new ComputedUpdater<boolean>(() => {
         const isDesignMode = this.isDesignMode;
         const isFile = this.sourceType === "file";
@@ -317,6 +323,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconSize: "auto",
       locTitle: this.locClearButtonCaption,
       showTitle: false,
+      style: { style: "alert" },
       enabledIf: () => !this.isInputReadOnly,
       visible: <boolean>(new ComputedUpdater<boolean>(() => this.isAnswered) as any),
       innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
@@ -367,11 +374,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
         id: "sv-file-close-camera",
         iconSize: "auto",
         innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.closeCameraButton).toString()) as any),
+        style: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
           this.stopVideo();
         }
       });
-      this.closeCameraActionValue.cssClasses = {};
     }
     return this.closeCameraActionValue;
   }
@@ -385,11 +392,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
         innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
         locTitle: this.locTakePhotoCaption,
         showTitle: false,
+        style: { style: "alert", size: "large", mode: "primary" },
         action: () => {
           this.snapPicture();
         }
       });
-      this.takePictureActionValue.cssClasses = {};
     }
     return this.takePictureActionValue;
 
@@ -403,11 +410,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconSize: "auto",
         innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.changeCameraButton).toString()) as any),
         visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
+        style: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
           this.flipCamera();
         }
       });
-      this.changeCameraActionValue.cssClasses = {};
     }
     return this.changeCameraActionValue;
   }
@@ -773,6 +780,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return " ";
   }
 
+  public get locChooseButtonText(): LocalizableString {
+    return this.isEmpty() || this.allowMultiple ? this.locChooseButtonCaption : this.locReplaceButtonCaption;
+  }
+
   public get chooseButtonText() {
     return this.isEmpty() || this.allowMultiple ? this.chooseButtonCaption : this.replaceButtonCaption;
   }
@@ -1027,17 +1038,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       .append(this.cssClasses.contextButton)
       .toString();
   }
-  public getChooseFileCss(): string {
-    const isAnswered = this.isAnswered;
-    return new CssClassBuilder()
-      .append(this.cssClasses.chooseFile)
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .append(this.cssClasses.chooseFileAsText, !isAnswered)
-      .append(this.cssClasses.chooseFileAsTextDisabled, !isAnswered && this.isInputReadOnly)
-      .append(this.cssClasses.contextButton, isAnswered)
-      .append(this.cssClasses.chooseFileAsIcon, isAnswered)
-      .toString();
-  }
   public getReadOnlyFileCss(): string {
     return new CssClassBuilder()
       .append("form-control")
@@ -1079,9 +1079,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private updateActionsContainerCss(css: any, classes: any): void {
     const container = this.actionsContainerValue;
     container.cssClasses = css.actionBar;
-    container.cssClasses.itemWithTitle = container.cssClasses.item;
-    container.cssClasses.item = "";
-    container.cssClasses.itemAsIcon = classes.contextButton;
     container.containerCss = classes.actionsContainer;
   }
   protected calcCssClasses(css: any): any {

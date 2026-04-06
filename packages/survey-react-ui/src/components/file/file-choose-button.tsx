@@ -4,6 +4,7 @@ import { ReactSurveyElement } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { ReactElementFactory } from "../../element-factory";
+import { SurveyLocStringViewer } from "src/string-viewer";
 
 export class SurveyFileChooseButton extends ReactSurveyElement {
   constructor(props: any) {
@@ -16,13 +17,13 @@ export class SurveyFileChooseButton extends ReactSurveyElement {
     return attachKey2click(
       <label
         tabIndex={0}
-        className={this.question.getChooseFileCss()}
+        className={this.props.item.getActionBarItemCss()}
         htmlFor={this.question.inputId}
         aria-label={this.question.chooseButtonText}
         onClick={(e) => this.question.chooseFile(e.nativeEvent)}
       >
-        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonText} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon> : null}
-        <span>{this.question.chooseButtonText}</span>
+        {!!this.props.item.iconName ? <SvgIcon title={this.question.chooseButtonText} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"} className={this.props.item.cssClasses.itemIcon}></SvgIcon> : null}
+        {this.props.item.hasTitle ? <SurveyLocStringViewer model={this.props.item.locTitle} textClass={this.props.item.getActionBarItemTitleCss()} /> : null}
       </label>
     );
   }

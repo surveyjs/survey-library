@@ -16,14 +16,9 @@
     left: 0;
     bottom: 0;
 
-    .sd-action {
-      height: var(--sjs2-size-x400);
-      color: $foreground-light;
-      border-radius: var(--sjs2-radius-x200);
-    }
-
     .sv-action--file-index {
       .sd-action {
+        color: $foreground-light;
         padding: var(--sjs2-spacing-x050) 0;
         font-weight: 600;
 
@@ -107,23 +102,6 @@
 .sd-root-modern--mobile {
   .sd-file__decorator {
     padding: 0 var(--sjs2-spacing-x400);
-  }
-}
-
-.sd-file__choose-btn--text {
-  cursor: pointer;
-
-  .sv-svg-icon {
-    margin-left: var(--sjs2-spacing-negative-x100);
-    width: var(--sjs2-size-x300);
-    height: var(--sjs2-size-x300);
-    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
-  }
-}
-
-.sd-file__choose-btn--icon {
-  & > span {
-    display: none;
   }
 }
 
@@ -415,15 +393,15 @@
 }
 
 .sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
-  &.sd-file__choose-btn--icon {
-    use {
-      fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
-    }
-  }
+  // &.sd-file__choose-btn--icon {
+  //   use {
+  //     fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
+  //   }
+  // }
 
-  &:not(.sd-file__choose-btn--icon) {
-    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
-  }
+  // &:not(.sd-file__choose-btn--icon) {
+  //   background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
+  // }
 }
 
 .sd-file__drag-area {
@@ -445,26 +423,15 @@
   top: var(--sjs2-spacing-x100);
 }
 
-.sd-context-btn.sd-file__take-picture-button {
-  background-color: $red;
+.sd-action.sd-file__take-picture-button {
   position: absolute;
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  padding: var(--sjs2-spacing-x200);
-
-  &:hover,
-  &:focus {
-    box-shadow: 0 0 0 2px $red;
-  }
 
   .sv-svg-icon {
     height: var(--sjs2-size-x400);
     width: var(--sjs2-size-x400);
-
-    use {
-      fill: $background;
-    }
   }
 }
 
@@ -499,10 +466,6 @@
 }
 
 .sd-file--readonly {
-  .sd-context-btn {
-    display: none;
-  }
-
   .sd-file__decorator {
     border-color: transparent;
   }
@@ -521,10 +484,6 @@
 }
 
 .sd-file--preview {
-  .sd-context-btn {
-    display: none;
-  }
-
   .sd-file__decorator {
     border-color: transparent;
   }

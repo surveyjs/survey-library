@@ -715,6 +715,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, rowElement, "question-matrix-alternate-rows-invalid-value.png");
 
       await page.locator("tr").filter({ hasText: "Row with many words that is" }).locator("span").nth(1).click();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Shift+Tab");
       await compareScreenshot(page, rowElement, "question-matrix-alternate-rows-selected-focused.png");
 
       await page.click("body", { position: { x: 0, y: 0 } });

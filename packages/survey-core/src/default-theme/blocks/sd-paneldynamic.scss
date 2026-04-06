@@ -99,7 +99,7 @@
     line-height: multiply(1.5, $font-questiontitle-size);
     color: $font-questiondescription-color;
     margin: 0;
-    margin-right: var(--sjs2-spacing-x300);
+    margin-right: var(--sjs2-spacing-x200);
 }
 
 .sd-paneldynamic__placeholder {
@@ -125,7 +125,7 @@
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
-    margin: 0 var(--sjs2-spacing-negative-x300);
+    margin: 0 var(--sjs2-spacing-negative-x200);
     width: calc(100% + 6 * #{$base-unit});
 }
 

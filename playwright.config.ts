@@ -3,6 +3,9 @@ import { resolve } from "path";
 export default defineConfig({
   retries: 4,
   fullyParallel: true,
+  expect: {
+    toHaveScreenshot: { threshold: 0.02 }
+  },
   webServer: {
     command: "",
     url: "http://localhost:8080"

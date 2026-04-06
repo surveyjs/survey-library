@@ -441,8 +441,8 @@ export abstract class BaseAction extends Base implements IAction {
 }
 
 export interface IActionStyle {
-  style?: "neutral" | "alert" | "brand" | "brand-multi-colored";
-  mode?: "primary" | "secondary" | "secondary-alternative" | "tertiary" | "tertiary-alternative" | "quaternary" | "quaternary-alternative";
+  style?: "neutral" | "alert" | "brand";
+  mode?: "primary" | "secondary" | "tertiary" | "tertiary-surface" | "tertiary-muted" | "tertiary-muted-surface" | "quaternary" | "quaternary-surface";
   size?: "large" | "medium" | "small" | "x-small" | "xx-small";
   showBorder?: boolean;
  }

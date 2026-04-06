@@ -427,7 +427,7 @@ export abstract class BaseAction extends Base implements IAction {
       this.isHovered = false;
     }
   }
-
+  public setPredefinedAppearance(_: IActionAppearance) { }
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;
@@ -698,6 +698,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getInputElement() {
     return this.inputElementValue;
+  }
+  public setPredefinedAppearance(val: IActionAppearance) {
+    this.predefinedAppearance = val;
   }
   public getActionBarItemCss(): string {
     const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {});

@@ -136,7 +136,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected onActionPropertyChangedCallback = this.onActionPropertyChanged.bind(this);
   protected patchAction(action: T) {
     this.setActionCssClasses(action);
-    this.setActionStyle(action);
+    this.setActionAppearance(action);
     action.owner = this;
     action.onPropertyChanged.add(this.onActionPropertyChangedCallback);
   }
@@ -291,16 +291,16 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions.forEach(action => action.dispose());
     this.actions.length = 0;
   }
-  private setActionStyle(action: T): void {
-    if (action instanceof Action && this.actionAppearance) {
-      action.predefinedAppearance = this.actionAppearance;
+  private setActionAppearance(action: T): void {
+    if (this.actionAppearance) {
+      action.setPredefinedAppearance(this.actionAppearance);
     }
   }
   private actionAppearance: IActionAppearance;
   public setActionsAppearance(appearance: IActionAppearance): void {
     this.actionAppearance = appearance;
     this.actions.forEach(action => {
-      this.setActionStyle(action);
+      this.setActionAppearance(action);
     });
   }
 }

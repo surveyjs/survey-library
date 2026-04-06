@@ -1041,7 +1041,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.removeFileButton).toString()) as any),
         showTitle: false,
         iconSize: "auto",
-        appearance: { style: "alert", mode: "quaternary-surface", size: "x-small" },
+        appearance: { style: "neutral", mode: "quaternary-surface", size: "x-small", showBorder: true },
       });
     }
     return this._removeFileButton;

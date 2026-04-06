@@ -17,7 +17,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
     this.footerToolbar.setCssClasses({ item: new CssClassBuilder().append("sv-popup__body-footer-item").append(defaultActionBarCss.item).toString() });
-
+    this.footerToolbar.setActionsAppearance({ style: "neutral", mode: "secondary", size: "large" });
     this.footerToolbar.containerCss = "sv-modal-footer-action-bar";
     let footerActions = [
       <IAction>{
@@ -32,6 +32,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
         visibleIndex: 20,
         title: this.applyButtonText,
         innerCss: "sv-popup__button--apply",
+        appearance: { style: "alert" },
         action: () => { this.apply(); }
       }
     ];

@@ -106,7 +106,7 @@ sv-popup {
   & > .sv-popup__container {
     position: relative;
     display: flex;
-    background-color: var(--lbr-dialog-background-color, $background-dim-light);
+    background-color: var(--sjs2-color-utility-sheet, #fff);
     border-radius: var(--sjs2-radius-component-modal, 24px);
     box-shadow:
       var(--lbr-dialog-shadow-2-offset-x, 0px) var(--lbr-dialog-shadow-2-offset-y, 2px)

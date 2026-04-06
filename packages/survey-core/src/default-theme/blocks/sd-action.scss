@@ -33,9 +33,7 @@
     fill: var(--sd-action-disabled-icon-color);
   }
 }
-//todo remove focus styles and use focus-visible only, need to check with design team
 .sd-action--pressed,
-.sd-action:where(:focus),
 .sd-action:where(:hover) {
   background: var(--sd-action-hover-background);
   box-shadow: var(--sd-action-hover-box-shadow);
@@ -49,10 +47,9 @@
 .sd-action:where(:active) {
   transform: scale(var(--sjs2-scale-x098, 98%));
 }
-//todo return focus visible styles after discussion with design team
-// .sd-action:where(:focus-visible) {
-//   outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
-// }
+.sd-action:where(:focus-visible) {
+  outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+}
 
 .sd-action__title {
   font-family: var(--sjs2-typography-font-family-text, "Open Sans");

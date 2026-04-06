@@ -87,6 +87,7 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
         persistCredentials: true
       - checkout: Service
         persistCredentials: true
@@ -329,6 +330,7 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
@@ -475,6 +477,7 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
@@ -632,6 +635,7 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
@@ -789,6 +793,7 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true

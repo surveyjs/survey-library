@@ -26,6 +26,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   ): void;
   onShowInMultipleColumnsChanged(column: MatrixDropdownColumn): void;
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void;
+  onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void;
   getCellType(): string;
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
@@ -297,6 +298,10 @@ export class MatrixDropdownColumn extends Base
   }
   public set hasVisibleCell(newVal: boolean) {
     this._hasVisibleCell = newVal;
+  }
+  public onCellVisibilityChanged(isVisible: boolean): void {
+    if (!this.colOwner || this.hasVisibleCell === isVisible) return;
+    this.colOwner.onColumnCellVisibilityChanged(this);
   }
   public isColumnsVisibleIf: boolean = true;
   public getVisibleMultipleChoices(): Array<ItemValue> {

@@ -66,6 +66,12 @@ export class MatrixDropdownCell {
     this.questionValue = this.createQuestion(column, row, data);
     this.questionValue.updateCustomWidget();
     this.updateCellQuestionTitleDueToAccessebility(row);
+    this.questionValue.registerPropertyChangedHandlers(
+      ["isVisible"], () => {
+        this.onQuestionVisibilityChanged();
+      },
+      "cell"
+    );
   }
   private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
     this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
@@ -114,6 +120,13 @@ export class MatrixDropdownCell {
   }
   public runCondition(properties: HashTable<any>): void {
     this.question.runCondition(properties);
+  }
+  private onQuestionVisibilityChanged(): void {
+    this.column.onCellVisibilityChanged(this.question.isVisible);
+  }
+  public dispose(): void {
+    this.questionValue.unregisterPropertyChangedHandlers(["isVisible"], "cell");
+    this.questionValue.dispose();
   }
 }
 
@@ -827,6 +840,9 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   private editingObjValue: Base;
   public dispose(): void {
+    for (let i = 0; i < this.cells.length; i++) {
+      this.cells[i].dispose();
+    }
     if (!!this.editingObj) {
       this.editingObj.onPropertyChanged.remove(
         this.onEditingObjPropertyChanged
@@ -1399,6 +1415,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
     this.resetTableAndRows();
   }
+  onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
+    if (this.isDesignMode || this.isRunningCellsCondition) return;
+    if (this.isColumnVisibilityChanged(column, true)) {
+      this.resetRenderedTable(true);
+    }
+  }
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.updateDefaultRowValue(column);
     this.resetTableAndRows();
@@ -1547,9 +1569,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
+  private isRunningCellsCondition: boolean;
   protected runCellsCondition(properties: HashTable<any>): boolean {
     if (this.isDesignMode) return false;
     let isRowVisiblilityChanged = false;
+    this.isRunningCellsCondition = true;
     const isAlwaysVisible = this.areInvisibleElementsShowing;
     const rowsVisibleIf = this.getExpressionFromSurvey("rowsVisibleIf");
     const rows = this.generatedVisibleRows;
@@ -1564,6 +1588,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     this.checkColumnsVisibility();
     this.checkColumnsRenderedRequired();
+    this.isRunningCellsCondition = false;
     return isRowVisiblilityChanged;
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {

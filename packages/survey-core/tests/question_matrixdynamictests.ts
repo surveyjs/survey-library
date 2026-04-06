@@ -4438,6 +4438,49 @@ QUnit.test(
     assert.equal(rows.length, 3, "Only one column is shown + remove button + errrors row");
   }
 );
+QUnit.test("Matrixdynamic column.visibleIf, toggle column visibility on and off via external value, Bug#11127", (assert) => {
+  const survey = new SurveyModel({
+    "checkErrorsMode": "onValueChanged",
+    "elements": [{
+      "name": "q1",
+      "type": "text",
+      "inputType": "number",
+      "min": 10
+    }, {
+      "type": "matrixdynamic",
+      "name": "matrix",
+      "columns": [
+        { "name": "col1", "cellType": "text", "visibleIf": "{q1} notempty && !{$q1.containsErrors}" },
+        { "name": "col2", "cellType": "text" }
+      ]
+    }]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  const column = matrix.columns[0];
+  let table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, false, "Initial: col1 is invisible");
+  assert.equal(column.isColumnVisible, false, "Initial: col1 is invisible");
+  assert.equal(table.headerRow.cells.length, 2, "Initial: header has col2 + remove button");
+
+  survey.setValue("q1", 20);
+  table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, true, "q1=20: col1 is visible");
+  assert.equal(column.isColumnVisible, true, "q1=20: col1 is visible");
+  assert.equal(table.headerRow.cells.length, 3, "q1=20: header has col1 + col2 + remove button");
+
+  survey.setValue("q1", 5);
+  table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, false, "q1=5: col1 is invisible");
+  assert.equal(column.isColumnVisible, false, "q1=5: col1 is invisible");
+  assert.equal(table.headerRow.cells.length, 2, "q1=5: header has col2 + remove button");
+
+  survey.setValue("q1", 20);
+  table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, true, "q1=20 again: col1 is visible");
+  assert.equal(column.isColumnVisible, true, "q1=20 again: col1 is visible");
+  assert.equal(table.headerRow.cells.length, 3, "q1=20 again: header has col1 + col2 + remove button");
+});
 
 QUnit.test("Matrix validation in cells and async functions in expression", (assert) => {
   var returnResults = new Array<any>();

@@ -162,7 +162,7 @@ export interface IAction {
   markerIconName?: string;
   showPopup?: () => void;
   hidePopup?: () => void;
-  style?: IActionStyle;
+  appearance?: IActionAppearance;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -440,7 +440,7 @@ export abstract class BaseAction extends Base implements IAction {
   protected abstract setComponent(val: string): void;
 }
 
-export interface IActionStyle {
+export interface IActionAppearance {
   style?: "neutral" | "alert" | "brand";
   mode?: "primary" | "secondary" | "tertiary" | "tertiary-surface" | "tertiary-muted" | "tertiary-muted-surface" | "quaternary" | "quaternary-surface";
   size?: "large" | "medium" | "small" | "x-small" | "xx-small";
@@ -507,8 +507,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onFocus: (isMouse: boolean, event: any) => void;
   @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
-  @property() style: IActionStyle;
-  @property({ defaultValue: { style: "neutral", mode: "secondary", size: "x-small" } }) predefinedStyle: IActionStyle;
+  @property() appearance: IActionAppearance;
+  @property({ defaultValue: { style: "neutral", mode: "secondary", size: "x-small" } }) predefinedAppearance: IActionAppearance;
   @property() items: any;
   @property({
     onSet: (val, target) => {
@@ -700,16 +700,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this.inputElementValue;
   }
   public getActionBarItemCss(): string {
-    const style = Object.assign({}, this.predefinedStyle || {}, this.style || {});
+    const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {});
     const css = super.getActionBarItemCss();
     if (!this.cssClasses.itemStylePrefix) {
       return css;
     }
     return new CssClassBuilder().append(css)
-      .append(`${this.cssClasses.itemStylePrefix}--${style.style}`, !!style.style)
-      .append(`${this.cssClasses.itemStylePrefix}--${style.mode}`, !!style.mode)
-      .append(`${this.cssClasses.itemStylePrefix}--${style.size}`, !!style.size)
-      .append(`${this.cssClasses.itemStylePrefix}--border`, !!style.showBorder)
+      .append(`${this.cssClasses.itemStylePrefix}--${appearance.style}`, !!appearance.style)
+      .append(`${this.cssClasses.itemStylePrefix}--${appearance.mode}`, !!appearance.mode)
+      .append(`${this.cssClasses.itemStylePrefix}--${appearance.size}`, !!appearance.size)
+      .append(`${this.cssClasses.itemStylePrefix}--border`, !!appearance.showBorder)
       .toString();
   }
 }

@@ -1,6 +1,6 @@
 import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
-import { IAction, Action, BaseAction, IActionStyle } from "./action";
+import { IAction, Action, BaseAction, IActionAppearance } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
@@ -292,13 +292,13 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions.length = 0;
   }
   private setActionStyle(action: T): void {
-    if (action instanceof Action && this.actionStyle) {
-      action.predefinedStyle = this.actionStyle;
+    if (action instanceof Action && this.actionAppearance) {
+      action.predefinedAppearance = this.actionAppearance;
     }
   }
-  private actionStyle: IActionStyle;
-  public setActionsStyle(style: IActionStyle): void {
-    this.actionStyle = style;
+  private actionAppearance: IActionAppearance;
+  public setActionsAppearance(appearance: IActionAppearance): void {
+    this.actionAppearance = appearance;
     this.actions.forEach(action => {
       this.setActionStyle(action);
     });

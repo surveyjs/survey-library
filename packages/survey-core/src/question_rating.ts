@@ -54,7 +54,7 @@ export class RatingItem extends ItemValue {
 
   @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
 
-  public get style(): any {
+  public get appearance(): any {
     return this.getPropertyValue("style", undefined, () => this.ratingOwner?.getItemStyle(this));
   }
 

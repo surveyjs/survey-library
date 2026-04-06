@@ -350,7 +350,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
     if (!this.inputActionBarValue) {
       this.inputActionBarValue = new ActionContainer();
       this.inputActionBarValue.containerCss = this.cssClasses.group;
-      this.inputActionBarValue.setActionsStyle({ mode: "tertiary", style: "neutral", size: "small" });
+      this.inputActionBarValue.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 
       const chevronButton = new Action({
         id: "chevron",

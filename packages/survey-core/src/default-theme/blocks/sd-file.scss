@@ -21,10 +21,7 @@
         color: $foreground-light;
         padding: var(--sjs2-spacing-x050) 0;
         font-weight: 600;
-
-        &:hover {
-          background-color: $background;
-        }
+        background-color: transparent;
 
         &:disabled {
           opacity: initial;

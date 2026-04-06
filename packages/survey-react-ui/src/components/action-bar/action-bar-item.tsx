@@ -10,12 +10,16 @@ import { SurveyLocStringViewer } from "../../string-viewer";
 
 interface IActionBarItemProps {
   item: Action;
+  action: (event: any) => void;
 }
 
 export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
   private ref: React.RefObject<any>;
   constructor(props: any) {
     super(props);
+    if (props.action) {
+      this.item.action = props.action;
+    }
     this.ref = React.createRef();
   }
   get item() {

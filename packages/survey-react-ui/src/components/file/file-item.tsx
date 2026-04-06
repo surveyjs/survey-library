@@ -3,6 +3,7 @@ import { SurveyElementBase } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { ReactElementFactory } from "../../element-factory";
+import { SurveyAction } from "../action-bar/action-bar-item";
 
 export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileModel, item: any }, {}> {
 
@@ -54,15 +55,7 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
             <SvgIcon iconName={this.question.cssClasses.defaultImageIconId} size={"auto"} className={this.question.cssClasses.defaultImage}></SvgIcon>
           ) : null)}
           {val.name && !this.question.isReadOnly ? (
-            <div className={this.question.getRemoveButtonCss()} onClick={(event) => this.question.doRemoveFile(val, event)}>
-              <span
-                className={this.question.cssClasses.removeFile}
-              >
-                {this.question.removeFileCaption}
-              </span>
-              {(this.question.cssClasses.removeFileSvgIconId) ?
-                (<SvgIcon title={this.question.removeFileCaption} iconName={this.question.cssClasses.removeFileSvgIconId} size={"auto"} className={this.question.cssClasses.removeFileSvg}></SvgIcon>) : null}
-            </div>
+            <SurveyAction item={this.question.getRemoveFileButton()} action={(event) => { this.question.doRemoveFile(val); }}></SurveyAction>
           ) : null}
         </div>
         {this.renderFileSign(this.question.cssClasses.fileSignBottom, val)}

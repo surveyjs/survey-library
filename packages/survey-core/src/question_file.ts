@@ -373,7 +373,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-closecamera",
         id: "sv-file-close-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.closeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.closeCameraButton).toString()) as any),
         appearance: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
           this.stopVideo();
@@ -389,7 +389,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-takepicture",
         id: "sv-file-take-picture",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.takePictureButton).toString()) as any),
         locTitle: this.locTakePhotoCaption,
         showTitle: false,
         appearance: { style: "alert", size: "large", mode: "primary" },
@@ -408,7 +408,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         iconName: "icon-changecamera",
         id: "sv-file-change-camera",
         iconSize: "auto",
-        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.changeCameraButton).toString()) as any),
+        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.changeCameraButton).toString()) as any),
         visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
         appearance: { style: "brand", mode: "quaternary-surface", size: "medium" },
         action: () => {
@@ -1032,11 +1032,19 @@ export class QuestionFileModel extends QuestionFileModelBase {
       .append(css.actionsContainerAnswered, this.isAnswered)
       .toString();
   }
-  public getRemoveButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.removeFileButton)
-      .append(this.cssClasses.contextButton)
-      .toString();
+  private _removeFileButton: Action;
+  public getRemoveFileButton(): Action {
+    if (!this._removeFileButton) {
+      this._removeFileButton = new Action({
+        iconName: new ComputedUpdater<string>(() => this.cssClasses.removeFileSvgIconId) as any,
+        locTitle: this.locRemoveFileCaption,
+        innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.removeFileButton).toString()) as any),
+        showTitle: false,
+        iconSize: "auto",
+        appearance: { style: "alert", mode: "quaternary-surface", size: "x-small" },
+      });
+    }
+    return this._removeFileButton;
   }
   public getReadOnlyFileCss(): string {
     return new CssClassBuilder()
@@ -1258,8 +1266,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     this.clear();
   }
-  doRemoveFile(data: any, event: any) {
-    event.stopPropagation();
+  doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
       confirmActionAsync({
         message: this.getConfirmRemoveMessage(data.name),

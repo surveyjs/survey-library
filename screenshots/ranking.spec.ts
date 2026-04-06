@@ -180,6 +180,7 @@ frameworks.forEach(framework => {
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
+      await page.waitForTimeout(500);
       const maxDiffPixels = 40;
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png", 0, maxDiffPixels);
     });

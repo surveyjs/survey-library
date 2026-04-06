@@ -5,7 +5,7 @@ export default defineConfig({
   maxFailures: 5,
   fullyParallel: true,
   expect: {
-    toHaveScreenshot: { threshold: 0.1 }
+    toHaveScreenshot: { threshold: 0.01 }
   },
   webServer: {
     command: "",

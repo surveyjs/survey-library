@@ -88,6 +88,7 @@ jobs:
     steps:
       - checkout: self
         clean: true
+        fetchTags: false
         persistCredentials: true
       - checkout: Service
         persistCredentials: true

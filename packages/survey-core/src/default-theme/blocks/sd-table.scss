@@ -168,13 +168,9 @@
           &.sd-item--checked .sd-item__decorator {
             background-color: var(--sjs2-color-component-check-true-default-bg, #19B394);
           }
-          &.sd-item--checked .sd-item__control:focus + .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-focused-bg, #fff);
+          &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
+            background-color: transparent;
           }
-          &.sd-item--readonly.sd-item--checked .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-readonly-bg, #fff);
-          }
-
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
             background-color: transparent;
           }

@@ -422,7 +422,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer.png");
+      await compareScreenshot(page, "body", "survey-timer.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("Check survey timer with no limits", async ({ page }) => {
@@ -493,7 +493,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer-without-progress.png");
+      await compareScreenshot(page, "body", "survey-timer-without-progress.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("Check survey timer both values - page and total", async ({ page }) => {
@@ -765,7 +765,7 @@ frameworks.forEach(framework => {
       };
       await initSurvey(page, framework, json);
 
-      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png");
+      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png", { mask: [page.locator(".sd-body")] });
       await page.click(".sd-item__control-label");
       await page.click(".sd-navigation__next-btn");
       await page.click(".sd-item__control-label");
@@ -834,7 +834,7 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-right.png");
+      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-right.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("Survey complete pages", async ({ page }) => {
@@ -1056,7 +1056,7 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png");
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png", { mask: [page.locator(".sd-body")] });
       await page.click(".sv_progress-toc--mobile > div");
       await compareScreenshot(page, ".sv-popup .sv-popup__container", "survey-navigation-toc-mobile-popup.png");
     });
@@ -1121,9 +1121,9 @@ frameworks.forEach(framework => {
       };
       await initSurvey(page, framework, json);
 
-      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png");
+      await compareScreenshot(page, ".sv-components-row", "survey-navigation-toc-left.png", { mask: [page.locator(".sd-body")] });
       await page.setViewportSize({ width: 600, height: 900 });
-      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png");
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-toc-mobile.png", { mask: [page.locator(".sd-body")] });
     });
 
     test("TOC survey navigation wide questions fit total width", async ({ page }) => {

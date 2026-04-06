@@ -99,7 +99,6 @@ frameworks.forEach(framework => {
     test("Matrix single-select in panel", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework, {
-        autoFocusFirstQuestion: true,
         "pages": [
           {
             "name": "page1",
@@ -716,6 +715,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, rowElement, "question-matrix-alternate-rows-invalid-value.png");
 
       await page.locator("tr").filter({ hasText: "Row with many words that is" }).locator("span").nth(1).click();
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Shift+Tab");
       await compareScreenshot(page, rowElement, "question-matrix-alternate-rows-selected-focused.png");
 
       await page.click("body", { position: { x: 0, y: 0 } });
@@ -874,7 +875,6 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
-        autoFocusFirstQuestion: true,
         "elements": [
           {
             "type": "matrixdropdown",

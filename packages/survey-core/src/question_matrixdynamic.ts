@@ -56,8 +56,8 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
     super(data, value);
     this.buildCells(value);
   }
-  protected getRowIndex(): number {
-    const res = super.getRowIndex();
+  protected getItemIndex(): number {
+    const res = super.getItemIndex();
     return res > 0 ? res : this.index + 1;
   }
   public get rowName() {
@@ -713,9 +713,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       } else {
         val = this.createNewValue();
       }
+      this.isRowChanging = true;
       val.splice(index, 1);
       val = this.deleteRowValue(val, null);
-      this.isRowChanging = true;
       this.value = val;
       this.isRowChanging = false;
     }

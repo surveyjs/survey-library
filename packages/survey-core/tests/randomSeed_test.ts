@@ -395,3 +395,60 @@ QUnit.test("randomize with category", (assert) => {
   assert.deepEqual(matrix.visibleRows[0].cells[0].question.visibleChoices.map((e: any) => e.value).join(), "5,2,1,3,4,6,8,7,9", "matrix row#0 col#0 order");
   assert.deepEqual(matrix.visibleRows[0].cells[1].question.visibleChoices.map((e: any) => e.value).join(), "1,3,2,4,5,6,7,8,9", "matrix row#0 col#1 order");
 });
+
+QUnit.test("page: randomize:false and category", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "p1",
+        questionOrder: "random",
+        elements: [
+          { type: "text", name: "q1", randomize: false },
+          { type: "text", name: "q2", randomizeCategory: "A" },
+          { type: "text", name: "q3", randomizeCategory: "A" },
+          { type: "text", name: "q4", randomizeCategory: "A" },
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" },
+          { type: "text", name: "q7" },
+          { type: "text", name: "q8" },
+          { type: "text", name: "q9", randomize: false }
+        ]
+      }
+    ],
+  });
+  const p1 = survey.pages[0];
+  survey.randomSeed = 987654;
+  assert.deepEqual(p1.visibleQuestions.map(q => q.name).join(), "q1,q2,q4,q3,q5,q6,q8,q7,q9", "randomize correct");
+});
+
+QUnit.test("panel: randomize:false and category", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            questionOrder: "random",
+            elements: [
+              { type: "text", name: "q1", randomize: false },
+              { type: "text", name: "q2", randomizeCategory: "A" },
+              { type: "text", name: "q3", randomizeCategory: "A" },
+              { type: "text", name: "q4", randomizeCategory: "A" },
+              { type: "text", name: "q5", randomize: false },
+              { type: "text", name: "q6" },
+              { type: "text", name: "q7" },
+              { type: "text", name: "q8" },
+              { type: "text", name: "q9" }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  survey.randomSeed = 123456;
+  const panel = <PanelModel>survey.getPanelByName("panel1");
+  const names = panel.elements.map((e: any) => e.name).join();
+  assert.deepEqual(names, "q1,q3,q2,q4,q5,q8,q7,q6,q9", "randomize correct");
+});

@@ -95,16 +95,19 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     (window as any).survey = model;
   }, [json, isDesignMode, props]);
   afterInitializeModelCallback && await afterInitializeModelCallback();
-  await page.evaluate(([framework]) => {
-    const self: any = window;
-    const model = self.survey;
-    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-    const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
-    if (framework === "survey-js-ui") {
+
+  // For survey-js-ui (Shadow DOM): set up the shadow root and load styles FIRST,
+  // then render the survey only after the stylesheet is fully loaded.
+  // This mirrors what a real user should do: ensure CSS is ready before rendering,
+  // so that CSS variables like --sd-mobile-width are available from the start.
+  if (framework === "survey-js-ui") {
+    await page.evaluate(() => {
+      const self: any = window;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
       surveyElement.innerHTML = "";
 
-      const container = surveyElement;
-      const shadowRoot = container.attachShadow({ mode: "open" });
+      const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
       const styles = document.createElement("style");
       styles.textContent = `
@@ -115,28 +118,48 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
         }
       `;
       shadowRoot.appendChild(styles);
+
+      self.__surveyStylesLoaded = false;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       const surveyLink = document.createElement("link");
-      surveyLink.setAttribute("rel", "stylesheet");
-      surveyLink.setAttribute("href", "../../node_modules/survey-core/survey-core.min.css");
+      surveyLink.rel = "stylesheet";
+      surveyLink.href = "../../node_modules/survey-core/survey-core.min.css";
+      surveyLink.onload = () => { self.__surveyStylesLoaded = true; };
+      surveyLink.onerror = () => { self.__surveyStylesLoaded = true; };
       shadowRoot.appendChild(surveyLink);
       shadowRoot.appendChild(rootElement);
+    });
 
-      self.SurveyUI.renderSurvey(model, rootElement);
+    await page.waitForFunction(() => (window as any).__surveyStylesLoaded === true, { timeout: 5000 });
 
-    } else if (framework === "react") {
-      if (!!self.root) {
-        self.root.unmount();
-      }
+    await page.evaluate(() => {
+      const self: any = window;
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
-      (window as any).root = root;
-      root.render(
-        self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
-      );
-    } else if (framework === "angular" || framework == "vue3") {
-      self.window.setSurvey(model);
-    }
-  }, [framework, json, isDesignMode, props]);
+      const rootElement = document.getElementById("surveyElement")!.shadowRoot!.querySelector("div");
+      self.SurveyUI.renderSurvey(self.survey, rootElement);
+      delete self.__surveyStylesLoaded;
+    });
+  } else {
+    await page.evaluate(([framework]) => {
+      const self: any = window;
+      const model = self.survey;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
+      if (framework === "react") {
+        if (!!self.root) {
+          self.root.unmount();
+        }
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
+        (window as any).root = root;
+        root.render(
+          self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
+        );
+      } else if (framework === "angular" || framework == "vue3") {
+        self.window.setSurvey(model);
+      }
+    }, [framework, json, isDesignMode, props]);
+  }
 };
 
 export async function checkSurveyData(page: Page, json: any): Promise<void> {

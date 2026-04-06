@@ -30,6 +30,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -412,6 +413,18 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public getType(): string {
     return "panelbase";
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    const ctx = super.getValueGetterContext();
+    if (!ctx) return ctx;
+    const self = this;
+    return {
+      getValue: (params) => ctx.getValue(params),
+      getTextValue: ctx.getTextValue ? (name, value, isDisplayValue) => ctx.getTextValue(name, value, isDisplayValue) : undefined,
+      getObj: () => self,
+      getRootObj: ctx.getRootObj ? () => ctx.getRootObj() : undefined,
+      getQuestion: ctx.getQuestion ? () => ctx.getQuestion() : undefined
+    };
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     //if(this.surveyImpl === value) return; TODO refactor
@@ -960,21 +973,6 @@ export class PanelModelBase extends SurveyElement<Question>
     this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));
     if (!!this.parent) {
       this.parent.validateContainerOnly();
-    }
-  }
-  onQuestionValueChanged(el: IElement): void {
-    const index = this.questions.indexOf(<any>el);
-    if (index < 0) return;
-    const dif = 5;
-    const max = this.questions.length - 1;
-    const start = index - dif > 0 ? index - dif : 0;
-    const end = index + dif < max ? index + dif : max;
-    for (let i = start; i <= end; i ++) {
-      if (i === index) continue;
-      const q = this.questions[i];
-      if (q.errors.length > 0 && q.validate(false)) {
-        q.validate(true);
-      }
     }
   }
   private validateInPanels(context: ValidationContext): void {
@@ -2461,7 +2459,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (!!q) {
         setTimeout(() => {
           if (!this.isDisposed && !!this.survey) {
-            this.survey.scrollElementToTop(q, q, null, q.inputId, false, { behavior: "smooth" });
+            this.survey.scrollElementToTop({ element: q, question: q, id: q.inputId, scrollIfVisible: false, scrollIntoViewOptions: { behavior: "smooth" } });
           }
         }, elementIsRendered ? 0 : 15);
       }

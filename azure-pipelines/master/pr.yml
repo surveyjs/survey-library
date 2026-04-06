@@ -16,7 +16,8 @@ pr:
       - master
 
 pool:
-  vmImage: "Ubuntu-22.04"
+  name: main-selfhosted
+
 
 jobs:
   - job: Core
@@ -90,6 +91,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
           ArtifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
           publishLocation: "Container"
+          Parallel: true
 
   - job: React
     dependsOn: Core
@@ -179,6 +181,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
           ArtifactName: "Library_React_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -298,6 +301,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E/"
           ArtifactName: "Library_Angular_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -417,6 +421,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
           ArtifactName: "Library_Vue3_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -526,6 +531,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
           ArtifactName: "Library_React_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -550,3 +556,4 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildSurveyUI"
           publishLocation: "Container"
+          Parallel: true

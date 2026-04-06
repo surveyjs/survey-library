@@ -4438,6 +4438,49 @@ QUnit.test(
     assert.equal(rows.length, 3, "Only one column is shown + remove button + errrors row");
   }
 );
+QUnit.test("Matrixdynamic column.visibleIf, toggle column visibility on and off via external value, Bug#11127", (assert) => {
+  const survey = new SurveyModel({
+    "checkErrorsMode": "onValueChanged",
+    "elements": [{
+      "name": "q1",
+      "type": "text",
+      "inputType": "number",
+      "min": 10
+    }, {
+      "type": "matrixdynamic",
+      "name": "matrix",
+      "columns": [
+        { "name": "col1", "cellType": "text", "visibleIf": "{q1} notempty && !{$q1.containsErrors}" },
+        { "name": "col2", "cellType": "text" }
+      ]
+    }]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  const column = matrix.columns[0];
+  let table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, false, "Initial: col1 is invisible");
+  assert.equal(column.isColumnVisible, false, "Initial: col1 is invisible");
+  assert.equal(table.headerRow.cells.length, 2, "Initial: header has col2 + remove button");
+
+  survey.setValue("q1", 20);
+  table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, true, "q1=20: col1 is visible");
+  assert.equal(column.isColumnVisible, true, "q1=20: col1 is visible");
+  assert.equal(table.headerRow.cells.length, 3, "q1=20: header has col1 + col2 + remove button");
+
+  survey.setValue("q1", 5);
+  table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, false, "q1=5: col1 is invisible");
+  assert.equal(column.isColumnVisible, false, "q1=5: col1 is invisible");
+  assert.equal(table.headerRow.cells.length, 2, "q1=5: header has col2 + remove button");
+
+  survey.setValue("q1", 20);
+  table = matrix.renderedTable;
+  assert.equal(column.hasVisibleCell, true, "q1=20 again: col1 is visible");
+  assert.equal(column.isColumnVisible, true, "q1=20 again: col1 is visible");
+  assert.equal(table.headerRow.cells.length, 3, "q1=20 again: header has col1 + col2 + remove button");
+});
 
 QUnit.test("Matrix validation in cells and async functions in expression", (assert) => {
   var returnResults = new Array<any>();
@@ -11128,6 +11171,32 @@ QUnit.test("SurveyError.notificationType & validate in matrices,Issue#9085", fun
   assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
   assert.deepEqual(survey.data, { matrix: [{ col1: 7 }, { col1: 8 }] }, "The data is correct");
 });
+QUnit.test("Detail panel, do not create detail panels on value-changing validation", function (assert) {
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanging",
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 3,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }],
+        detailElements: [{ type: "text", name: "q1", isRequired: true }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.visibleRows;
+  assert.equal(rows.length, 3, "There are 3 rows");
+  assert.equal(rows[0].detailPanel, null, "detail panel is not created for row 0");
+  assert.equal(rows[1].detailPanel, null, "detail panel is not created for row 1");
+  assert.equal(rows[2].detailPanel, null, "detail panel is not created for row 2");
+  matrix.removeRow(2);
+  rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "There are 2 rows after removal");
+  assert.equal(rows[0].detailPanel, null, "detail panel is still not created for row 0 after removal");
+  assert.equal(rows[1].detailPanel, null, "detail panel is still not created for row 1 after removal");
+});
 QUnit.test("SurveyError.notificationType & validate in matrices, Bug#10436", function(assert) {
   const survey = new SurveyModel({
     elements: [
@@ -11341,4 +11410,105 @@ QUnit.test("Assign empty array to survey matrix", (assert) => {
   assert.equal(matrix.visibleRows.length, 1, "There are 1 row");
   survey.setValue("choices", []);
   assert.equal(matrix.visibleRows.length, 0, "There are 0 rows");
+});
+
+QUnit.test("Matrix dynamic: cell value changes must update matrix.value when detail panel has same-named questions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 0,
+        columns: [
+          { name: "name", visible: false },
+          { name: "title" }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [
+          { type: "text", name: "name", visible: false },
+          { type: "text", name: "title", visible: false },
+          { type: "text", name: "extra" }
+        ]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.addRow();
+
+  const row = matrix.visibleRows[0];
+  row.getQuestionByName("name").value = "name1";
+  row.getQuestionByName("title").value = "name1";
+  assert.deepEqual(matrix.value[0], { name: "name1", title: "name1" }, "Initial values are set correctly");
+
+  row.showDetailPanel();
+
+  // After opening detail panel, cell value change should still update matrix.value
+  row.getQuestionByName("title").value = "Name1";
+
+  // BUG: matrix.value[0].title is "name1" (stale detail panel value) instead of "Name1"
+  assert.equal(matrix.value[0].title, "Name1", "matrix.value is updated after cell value change with detail panel open");
+});
+QUnit.test("onMatrixCellValueChanged event should have oldValue and value in options", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "dropdown", choices: [1, 2, 3] },
+          { name: "col2", cellType: "text" }
+        ],
+        rows: ["Row1", "Row2"]
+      }
+    ]
+  });
+  var matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  var changedLog: Array<{ columnName: string, value: any, oldValue: any }> = [];
+  survey.onMatrixCellValueChanged.add(function (survey, options) {
+    changedLog.push({
+      columnName: options.columnName,
+      value: options.value,
+      oldValue: options.oldValue
+    });
+  });
+  var rows = matrix.visibleRows;
+
+  // Set initial value for col1 in Row1
+  rows[0].cells[0].question.value = 1;
+  assert.equal(changedLog.length, 1, "One change logged");
+  assert.equal(changedLog[0].columnName, "col1", "Changed col1");
+  assert.equal(changedLog[0].value, 1, "New value is 1");
+  assert.equal(changedLog[0].oldValue, undefined, "Old value is undefined for first change");
+
+  // Change col1 value from 1 to 2
+  rows[0].cells[0].question.value = 2;
+  assert.equal(changedLog.length, 2, "Two changes logged");
+  assert.equal(changedLog[1].value, 2, "New value is 2");
+  assert.equal(changedLog[1].oldValue, 1, "Old value is 1");
+
+  // Change col1 value from 2 to 3
+  rows[0].cells[0].question.value = 3;
+  assert.equal(changedLog.length, 3, "Three changes logged");
+  assert.equal(changedLog[2].value, 3, "New value is 3");
+  assert.equal(changedLog[2].oldValue, 2, "Old value is 2");
+
+  // Clear value (set to null)
+  rows[0].cells[0].question.clearValue();
+  assert.equal(changedLog.length, 4, "Four changes logged");
+  assert.equal(changedLog[3].value, null, "New value is null");
+  assert.equal(changedLog[3].oldValue, 3, "Old value is 3");
+
+  // Set value for a text column
+  rows[0].cells[1].question.value = "text1";
+  assert.equal(changedLog.length, 5, "Five changes logged");
+  assert.equal(changedLog[4].columnName, "col2", "Changed col2");
+  assert.equal(changedLog[4].value, "text1", "New text value");
+  assert.equal(changedLog[4].oldValue, undefined, "Old text value is undefined");
+
+  // Change text column value
+  rows[0].cells[1].question.value = "text2";
+  assert.equal(changedLog.length, 6, "Six changes logged");
+  assert.equal(changedLog[5].value, "text2", "New text value is text2");
+  assert.equal(changedLog[5].oldValue, "text1", "Old text value is text1");
 });

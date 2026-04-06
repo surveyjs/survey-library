@@ -973,6 +973,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!!val && typeof val === "object" && !Helpers.isValueEmpty(val.value)) return val.value;
     return val;
   }
+  public getFilteredValue(isUnwrapped?: boolean): any {
+    return this.getValueFromValueWithComment(this.value);
+  }
   protected rendredValueToData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
     return this.renderedValueToDataCore(val);
@@ -1766,7 +1769,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.cachedValueForUrlRequests = this.value;
     }
     if (!!newComment) {
+      this.isUpdatingValueFromSurvey = true;
       this.setNewComment(newComment);
+      this.isUpdatingValueFromSurvey = false;
     }
     this.updateValueForPanels(clearData, false);
   }

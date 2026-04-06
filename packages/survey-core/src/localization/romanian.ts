@@ -69,8 +69,12 @@ export var romanianSurveyStrings = {
   stepError: "Introduceți o valoare care se potrivește cu dimensiunea pasului {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Valoarea nu trebuie să fie mai mare de {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Intrare invalidă",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numerele nu sunt permise.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vă rugăm să completați valoarea pentru a corespunde formatului cerut.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Trebuie să introduceți minim {0} caractere.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var romanianSurveyStrings = {
   urlGetChoicesError: "Request-ul nu a returnat date sau proprietatea 'path' este incorectă",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Dimensiunea fişierului nu trebuie să depăşească {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Octeți, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Numărul maxim de fișiere pe care le poți încărca este {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var romanianSurveyStrings = {
   noRowsText: "Nu există rânduri.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rând {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Adăugare",
@@ -159,10 +165,10 @@ export var romanianSurveyStrings = {
   savingExceedSize: "Răspunsul tău depășește 64KB. Vă rugăm să reduceți dimensiunea fișierelor și să încercați din nou sau să contactați proprietarul sondajului.",
   // "Try again"
   saveAgainButton: "Încercați din nou",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
-  timerSec: "sec",
+  // [Auto-translated] "sec"
+  timerSec: "SEC",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Ați petrecut {0} pe această pagină și {1} în total.",
   // "You have spent {0} on this page."

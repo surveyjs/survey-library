@@ -847,9 +847,6 @@ export class QuestionMultipleTextModel extends Question
   validateContainerOnly(): void {
     // do nothing
   }
-  onQuestionValueChanged(el: IElement): void {
-    // do nothing
-  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return new CssClassBuilder()
       .append(this.cssClasses.itemLabel)
@@ -966,7 +963,7 @@ Serializer.addClass(
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
     },
-    { name: "defaultValueExpression:expression", visible: false },
+    { name: "defaultValueExpression:expression" },
     {
       name: "minValueExpression:expression",
       dependsOn: "inputType",

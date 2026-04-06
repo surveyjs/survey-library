@@ -679,7 +679,7 @@ Returns a Date value converted from a given question's value.
 
 *Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): Date`
 
-Adds or subtracts a specified number of full days (default), hours, minutes, seconds, months, or years to or from a date value.
+Adds or subtracts a specified number of days (default), hours, minutes, seconds, months, or years to or from a date value.
 
 *Example*: `"expression": "dateAdd({startDate}, 14, "days")"`
 
@@ -691,7 +691,7 @@ Adds or subtracts a specified number of full days (default), hours, minutes, sec
 
 *Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): number`
 
-Returns a difference between two given dates in full days (default), hours, minutes, seconds, months, or years.
+Returns a difference between two given dates in days (default), hours, minutes, seconds, months, or years.
 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 

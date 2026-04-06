@@ -15,6 +15,17 @@ import { CreateCustomChoiceItemEvent, DragDropAllowEvent } from "./survey-events
 import { PopupModel } from "./popup";
 import { ItemValue } from "./itemvalue";
 
+export interface IScrollElementToTopOptions {
+  element: ISurveyElement;
+  question: IQuestion;
+  page?: IPage;
+  id: string;
+  scrollIfVisible?: boolean;
+  scrollIntoViewOptions?: ScrollIntoViewOptions;
+  passedRootElement?: HTMLElement;
+  onScolledCallback?: () => void;
+}
+
 export interface ISurveyVariables {
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
@@ -282,8 +293,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#endregion
 
   //#region Question value changes
-  questionValueChanging(question: IQuestion, newValue: any): any;
-  questionValueChanged(question: IQuestion, oldValue: any): void;
+  questionValueChanging(question: IQuestion, newValue: any, isComment?: boolean): any;
+  questionValueChanged(question: IQuestion, oldValue: any, isComment?: boolean): void;
   getQuestionClearIfInvisible(questionClearIf: string): string;
   keepIncorrectValues: boolean;
   questionOrder: string;
@@ -338,15 +349,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
-  scrollElementToTop(
-    element: ISurveyElement,
-    question: IQuestion,
-    page: IPage,
-    id: string, scrollIfVisible?: boolean,
-    scrollIntoViewOptions?: ScrollIntoViewOptions,
-    passedRootElement?: HTMLElement,
-    onScolledCallback?: () => void
-  ): any;
+  scrollElementToTop(options: IScrollElementToTopOptions): any;
+  scrollElementToTop(element: ISurveyElement, question?: IQuestion, page?: IPage, id?: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, passedRootElement?: HTMLElement, onScolledCallback?: () => void): any;
   //#endregion
 
   //#region Timer & randomization
@@ -467,7 +471,6 @@ export interface IPanel extends ISurveyElement, IParentElement {
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
   validateContainerOnly(): void;
-  onQuestionValueChanged(el: IElement): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;

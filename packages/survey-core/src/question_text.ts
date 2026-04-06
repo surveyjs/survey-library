@@ -5,7 +5,7 @@ import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable, createDate } from "./helpers";
 import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
-import { CustomError } from "./error";
+import { CustomError, PatternIncompleteError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -325,6 +325,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * An error message to display when the entered value does not match the [step size](#step).
    */
   @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
+  @property({ localizable: { defaultStr: "invalidInputError", markdown: true } }) invalidInputErrorText: string;
 
   /**
    * Returns `true` if the specified `inputType` supports the `min` and `max` properties.
@@ -421,10 +422,26 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.valueFromDataCore(val);
   }
   private dateValidationMessage: string;
+  private isMaskInputIncomplete(): boolean {
+    if (this.maskTypeIsEmpty) return false;
+    if (!this.isEmpty()) return false;
+    const inputVal = this._inputValue;
+    if (!inputVal) return false;
+    const emptyMaskedValue = this.maskInstance.getMaskedValue("");
+    return inputVal !== emptyMaskedValue;
+  }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
+    if (this.isMaskInputIncomplete()) {
+      const reqIdx = errors.findIndex(e => e.getErrorType() === "required");
+      if (reqIdx >= 0) errors.splice(reqIdx, 1);
+      errors.push(new PatternIncompleteError(null, this));
+    }
     const isInputUpdate = this.getIsInputTextUpdate();
     if (isOnValueChanged && isInputUpdate) return;
+    if (this?.input?.validity?.badInput) {
+      errors.push(new CustomError(this.invalidInputErrorText, this));
+    }
     if (!this.isOnValueChanged) {
       if (this.isValueLessMin) {
         const minError = new CustomError(
@@ -522,7 +539,7 @@ export class QuestionTextModel extends QuestionTextBase {
     let val = Helpers.getNumber(this.value);
     let step = Helpers.getNumber(this.renderedStep);
     let pw = 1;
-    while(Math.round(step * pw) / pw !== step && pw < 1000000) {
+    while((Math.round(step * pw) / pw !== step || Math.round(val * pw) / pw !== val) && pw < 1000000) {
       pw *= 10;
     }
     val = Math.round(val * pw);
@@ -614,6 +631,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return super.isPropertyStoredInHash(name);
   }
   protected setNewValue(newValue: any): void {
+    this.setIsValueChanged();
     newValue = this.correctValueType(newValue);
     if (!!newValue) {
       this.dateValidationMessage = undefined;
@@ -645,7 +663,8 @@ export class QuestionTextModel extends QuestionTextBase {
     const maxLength = this.getMaxLength();
     return super.getControlCssClassBuilder()
       .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
-      .append(this.cssClasses.characterCounterBig, maxLength > 99);
+      .append(this.cssClasses.characterCounterBig, maxLength > 99)
+      .append(this.cssClasses.isValueChanged, this._isValueChanged);
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
@@ -665,14 +684,33 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   //web-based methods
   private _isWaitingForEnter = false;
-  private _isColorValueChanged = false;
+  private _isValueChanged = false;
+  private setIsValueChanged(): void {
+    if (this._isValueChanged) return;
+    this._isValueChanged = true;
+    if (this.input && this.cssClasses.isValueChanged) {
+      this.input.classList.add(this.cssClasses.isValueChanged);
+    }
+  }
 
   private updateValueOnEvent(event: any) {
-    if (this.inputType === "color" && !this._isColorValueChanged) return;
+    if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
     }
+  }
+  private prevNumberValue: string;
+  private updateNumericValue(event: any): void {
+    if (this.inputType !== "number" || event.key !== "-") return;
+    // Browsers returns empty string for invalid values in type="number" input. We need to store the value before it becomes empty and restore it here.
+    const value = event.target?.value || this.prevNumberValue;
+    // For input type="number", clean up "-" symbols that are not at the first position
+    // This handles the case when renderedMin is undefined (selectionStart is null for type="number")
+    if (typeof value === "string" && value.length > 0) {
+      event.target.value = value[0] + value.substring(1).replace(/-/g, "");
+    }
+    this.prevNumberValue = undefined;
   }
   onCompositionUpdate = (event: any) => {
     if (this.isInputTextUpdate) {
@@ -684,6 +722,7 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onKeyUp = (event: any) => {
     this.updateDateValidationMessage(event);
+    this.updateNumericValue(event);
     if (this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
@@ -709,23 +748,45 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.readOnlyBlocker(event)) {
       return;
     }
+    this.setIsValueChanged();
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
+    if (this.inputType === "number" && this.shouldPreventNumberInput(event)) {
+      event.preventDefault();
+      return;
+    }
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
     this.onTextKeyDownHandler(event);
   };
+  private shouldPreventNumberInput(event: any): boolean {
+    const key = event.key;
+
+    // Allow keyboard shortcuts (Ctrl+C, Ctrl+V, etc.)
+    if (event.ctrlKey || event.metaKey || event.altKey) return false;
+
+    // Do not allow "e", "E", or "+" symbols
+    if (["e", "E", "+"].indexOf(key) > -1) return true;
+
+    // Handle "-" symbol
+    // For input type="number", selectionStart is null, so we can only prevent "-" when renderedMin >= 0
+    // When renderedMin is undefined, we'll clean up "-" in onKeyUp event
+    if (key === "-") {
+      if (!Helpers.isValueEmpty(this.renderedMin)) {
+        const minValue = Helpers.getNumber(this.renderedMin);
+        if (!isNaN(minValue) && minValue >= 0) return true;
+      }
+      this.prevNumberValue = event.target?.value || "";
+    }
+    return false;
+  }
   public onChange = (event: any): void => {
-    this._isColorValueChanged = true;
+    this.setIsValueChanged();
     this.updateDateValidationMessage(event);
     const root = getRootNode(this.input);
     if (!root) return;
     const elementIsFocused = event.target === root.activeElement;
-    if (elementIsFocused) {
-      if (this.isInputTextUpdate) {
-        this.updateValueOnEvent(event);
-      }
-    } else {
+    if (!elementIsFocused || this.isInputTextUpdate) {
       this.updateValueOnEvent(event);
     }
     this.updateRemainingCharacterCounter(event.target.value);

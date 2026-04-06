@@ -408,7 +408,8 @@ export var defaultCss = {
     characterCounterBig: "sd-text__character-counter--big",
     content: "sd-text__content sd-question__content",
     remainingCharacterCounter: "sd-remaining-character-counter",
-    onError: "sd-input--error"
+    onError: "sd-input--error",
+    isValueChanged: "sd-input--value-changed"
   },
   multipletext: {
     root: "sd-multipletext",

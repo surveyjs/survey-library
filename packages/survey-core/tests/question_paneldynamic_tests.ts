@@ -9353,6 +9353,132 @@ QUnit.test("Exception on validation panel dynamic if questions in validation are
   cellQuestion.value = 10;
   assert.equal(cellQuestion.errors.length, 0, "There is no errors on");
 });
+
+QUnit.test("question valueName vs two paneldynamic & question triggers", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel1",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col1", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel2",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] },
+          { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+          { name: "col4", type: "text" }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel3",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
+        ]
+      }
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+  panel1.panels[0].getQuestionByName("col1").value = "m1_r1_col1";
+  panel1.panels[1].getQuestionByName("col1").value = "m1_r2_col1";
+  panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
+  panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
+  panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
+  panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
+  panel1.panels[0].getQuestionByName("col2").value = "a";
+  panel2.panels[1].getQuestionByName("col2").value = "a";
+  assert.equal(panel1.panels[0].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row1, col1");
+  assert.equal(panel1.panels[1].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row2, col1");
+  assert.equal(panel2.panels[0].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row1, col3");
+  assert.equal(panel2.panels[1].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row2, col3");
+  assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
+  assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
+});
+
+QUnit.test("question valueName vs matrixdynamic and paneldynamic & question triggers", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic",
+        name: "matrix1",
+        valueName: "panelA",
+        rowCount: 2,
+        columns: [
+          { name: "col1", type: "text", resetValueIf: "{row.col2} = 'a'" },
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel2",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col2", type: "radiogroup", choices: ["a", "b"] },
+          { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+          { name: "col4", type: "text" }
+        ]
+      },
+      { type: "paneldynamic",
+        name: "panel3",
+        valueName: "panelA",
+        panelCount: 2,
+        templateElements: [
+          { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
+        ]
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+  matrix1.visibleRows[0].getQuestionByName("col1").value = "m1_r1_col1";
+  matrix1.visibleRows[1].getQuestionByName("col1").value = "m1_r2_col1";
+  panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
+  panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
+  panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
+  panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
+  matrix1.visibleRows[0].getQuestionByName("col2").value = "a";
+  panel2.panels[1].getQuestionByName("col2").value = "a";
+  assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row1, col1");
+  assert.equal(matrix1.visibleRows[1].getQuestionByName("col1").isEmpty(), true, "Check value for matrix, row2, col1");
+  assert.equal(panel2.panels[0].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row1, col3");
+  assert.equal(panel2.panels[1].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row2, col3");
+  assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
+  assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
+});
+
+QUnit.test("paneldynamic shared question value", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text", valueName: "qa" },
+          { name: "q2", type: "text", valueName: "qa" }
+        ]
+      }
+    ]
+  });
+
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+
+  const q1 = panel1.panels[0].getQuestionByName("q1");
+  const q2 = panel1.panels[0].getQuestionByName("q2");
+
+  q1.value = "value1";
+  assert.equal(q2.value, "value1", "q2.value equals to q1.value");
+});
+
 QUnit.test("paneldynamic + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
   const survey = new SurveyModel({
     elements: [
@@ -9410,6 +9536,59 @@ QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + radiogroup with sho
   radioQ.otherValue = "my other value 2";
   assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
 });
+QUnit.test("Fire onValueChanged, onDynamicPanelValueChanging, onDynamicPanelValueChanged on comment change, bug#11001", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "question1",
+            panelCount: 1,
+            templateElements: [
+              {
+                type: "radiogroup",
+                name: "question2",
+                showCommentArea: true,
+                choices: ["Item 1", "Item 2", "Item 3"],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("question2");
+
+  const firedEvents: Array<{ event: string, name: string }> = [];
+  survey.onValueChanged.add((sender, options) => {
+    firedEvents.push({ event: "onValueChanged", name: options.name });
+  });
+  survey.onDynamicPanelValueChanging.add((sender, options) => {
+    firedEvents.push({ event: "onDynamicPanelValueChanging", name: options.name });
+  });
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
+    firedEvents.push({ event: "onDynamicPanelValueChanged", name: options.name });
+  });
+
+  radioQ.value = "Item 1";
+  assert.deepEqual(firedEvents, [
+    { event: "onDynamicPanelValueChanging", name: "question2" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2" }
+  ], "All three events fire on value change with correct name");
+
+  firedEvents.length = 0;
+  radioQ.comment = "some comment";
+  assert.deepEqual(firedEvents, [
+    { event: "onDynamicPanelValueChanging", name: "question2-Comment" },
+    { event: "onValueChanged", name: "question1" },
+    { event: "onDynamicPanelValueChanged", name: "question2-Comment" }
+  ], "All three events fire on comment change with comment suffix in name");
+});
+
 QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + expression validator should not show error on new panel, bug##11002", function(assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",

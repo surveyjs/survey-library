@@ -55,7 +55,8 @@ export class ExceedSizeError extends SurveyError {
     return (<any>this.getLocalizationString("exceedMaxSize"))["format"](this.getTextSize());
   }
   private getTextSize() {
-    var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+    const locSizes = this.getLocalizationString("fileSizeUnits") || "Bytes, KB, MB, GB, TB";
+    var sizes = locSizes.split(", ");
     var fixed = [0, 0, 2, 3, 3];
     if (this.maxSize === 0) {
       return "0 Byte";
@@ -171,6 +172,20 @@ export class KeyDuplicationError extends SurveyError {
   }
   protected getDefaultText(): string {
     return this.getLocalizationString("keyDuplicationError");
+  }
+}
+export class PatternIncompleteError extends SurveyError {
+  constructor(
+    public text: string = null,
+    errorOwner: ISurveyErrorOwner = null
+  ) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "patternincompleteerror";
+  }
+  protected getDefaultText(): string {
+    return this.getLocalizationString("incompletePatternError");
   }
 }
 export class CustomError extends SurveyError {

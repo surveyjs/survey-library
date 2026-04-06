@@ -1,4 +1,5 @@
 import { Question } from "../src/question";
+import { ComponentCollection } from "../src/question_custom";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("a11y");
@@ -166,3 +167,31 @@ QUnit.test(
     assert.equal(question.a11y_input_ariaErrormessage, null, "aria-errormessage is null");
   }
 );
+
+QUnit.test("a11y: aria-labelledby customquestion Bug#11049", (assert) => {
+
+  ComponentCollection.Instance.add({
+    name: "text2",
+    defaultQuestionTitle: "Currency",
+    questionJSON: {
+      "type": "text",
+    }
+  });
+
+  const config = {
+    elements: [
+      {
+        type: "text2",
+        name: "q1",
+        title: "Currency (specialized)",
+      }
+    ]
+  };
+
+  var survey = new SurveyModel(config);
+  var q1 = survey.getQuestionByName("q1");
+
+  assert.equal(q1.ariaTitleId, q1.contentQuestion.ariaTitleId);
+  assert.equal(q1.ariaDescriptionId, q1.contentQuestion.ariaDescriptionId);
+  assert.equal(q1.commentId, q1.contentQuestion.commentId);
+});

@@ -11,7 +11,7 @@ export var norwegianSurveyStrings = {
   previewText: "Forhåndsvisning",
   // "Edit"
   editText: "Redigere",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Legg igjen en kommentar",
@@ -69,8 +69,12 @@ export var norwegianSurveyStrings = {
   stepError: "Angi en verdi som samsvarer med trinnstørrelsen på {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Verdien bør ikke være større enn {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ugyldig input",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Tall er ikke tillatt.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vennligst fyll ut verdien for å matche det nødvendige formatet.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Vennligst skriv inn minst {0} tegn.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var norwegianSurveyStrings = {
   urlGetChoicesError: "Forespørselen returnerte tomme data, eller 'sti' -egenskapen er feil",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstørrelsen bør ikke overstige {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksimalt antall filer du kan laste opp er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var norwegianSurveyStrings = {
   noRowsText: "Det er ingen rader.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rad {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Legg til ny",
@@ -159,8 +165,8 @@ export var norwegianSurveyStrings = {
   savingExceedSize: "Svaret ditt overstiger 64 kB. Reduser størrelsen på filen(e) og prøv på nytt eller kontakt eieren av undersøkelsen.",
   // "Try again"
   saveAgainButton: "Prøv igjen",
-  // "min"
-  timerMin: "min",
+  // [Auto-translated] "min"
+  timerMin: "Min",
   // "sec"
   timerSec: "sek",
   // "You have spent {0} on this page and {1} in total."

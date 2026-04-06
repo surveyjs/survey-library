@@ -1277,6 +1277,7 @@ QUnit.test("rating colors without css vars", (assert) => {
 
   const survey = new SurveyModel(json);
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
@@ -1286,6 +1287,7 @@ QUnit.test("rating colors without css vars", (assert) => {
   assert.deepEqual(q1.visibleRateValues[2].style, { "--sd-rating-item-color": null });
   assert.deepEqual(q1.visibleRateValues[3].style, { "--sd-rating-item-color": null });
   assert.deepEqual(q1.visibleRateValues[4].style, { "--sd-rating-item-color": null });
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
 });
 
 QUnit.test("rating colors", (assert) => {
@@ -1307,6 +1309,10 @@ QUnit.test("rating colors", (assert) => {
 
   const survey = new SurveyModel(json);
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+  const rootElement = document.createElement("div");
+  document.body.appendChild(rootElement);
+  q1.afterRenderQuestionElement(rootElement);
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
@@ -1380,6 +1386,9 @@ QUnit.test("rating colors", (assert) => {
   document.documentElement.style.setProperty("--sd-rating-bad-color-light", null);
   document.documentElement.style.setProperty("--sd-rating-normal-color-light", null);
   document.documentElement.style.setProperty("--sd-rating-good-color-light", null);
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+
+  rootElement.remove();
 });
 
 QUnit.test("rating colors when vars used", (assert) => {
@@ -1411,6 +1420,10 @@ QUnit.test("rating colors when vars used", (assert) => {
     }
   });
   let q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+  const rootElement = document.createElement("div");
+  document.body.appendChild(rootElement);
+  q1.afterRenderQuestionElement(rootElement);
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
@@ -1447,6 +1460,9 @@ QUnit.test("rating colors when vars used", (assert) => {
   assert.deepEqual(q1.visibleRateValues[2].style, { "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
   assert.deepEqual(q1.visibleRateValues[3].style, { "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
   assert.deepEqual(q1.visibleRateValues[4].style, { "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  (QuestionRatingModel as any)["colorsCalculated"] = false;
+
+  rootElement.remove();
 });
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {
@@ -1553,6 +1569,127 @@ QUnit.test("check rating display dropdown description", (assert) => {
 
   assert.deepEqual(q1.visibleRateValues[0].description.text, "aaa", "min description");
   assert.deepEqual(q1.visibleRateValues[q1.visibleRateValues.length - 1].description.text, "bbb", "max description");
+});
+QUnit.test("Rating dropdown should show numeric values, not descriptions, as item text", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "Not satisfied",
+      maxRateDescription: "Extremely satisfied"
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.renderAs = "dropdown";
+
+  assert.equal(q1.visibleRateValues[0].text, "1", "First item text should be numeric value");
+  assert.equal(q1.visibleRateValues[0].title, "1", "First item title should be numeric value");
+  assert.equal(q1.visibleRateValues[0].description.text, "Not satisfied", "First item description should be minRateDescription");
+  assert.equal(q1.visibleRateValues[4].text, "5", "Last item text should be numeric value");
+  assert.equal(q1.visibleRateValues[4].title, "5", "Last item title should be numeric value");
+  assert.equal(q1.visibleRateValues[4].description.text, "Extremely satisfied", "Last item description should be maxRateDescription");
+  assert.equal(q1.visibleRateValues[1].text, "2", "Middle item text should be numeric value");
+  assert.notOk(q1.visibleRateValues[1].description, "Middle item should have no description");
+});
+QUnit.test("Rating dropdown with explicit rateValues should show original text, not descriptions", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "mimimi",
+      maxRateDescription: "mamama",
+      displayMode: "dropdown",
+      rateValues: [
+        { value: 1, text: "One" },
+        { value: 2, text: "Two" },
+        { value: 3, text: "Three" },
+        { value: 4, text: "Four" }
+      ]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].text, "One", "First item text should be the original text");
+  assert.equal(q1.visibleRateValues[0].title, "One", "First item title should be the original text");
+  assert.equal(q1.visibleRateValues[0].description.text, "mimimi", "First item description should be minRateDescription");
+  assert.equal(q1.visibleRateValues[3].text, "Four", "Last item text should be the original text");
+  assert.equal(q1.visibleRateValues[3].title, "Four", "Last item title should be the original text");
+  assert.equal(q1.visibleRateValues[3].description.text, "mamama", "Last item description should be maxRateDescription");
+});
+QUnit.test("Rating displayRateDescriptionsAsExtremeItems should replace text only in button mode, not dropdown", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "Strongly Disagree",
+      maxRateDescription: "Strongly Agree",
+      displayRateDescriptionsAsExtremeItems: true,
+      rateValues: [1, 2, 3, 4, 5]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "Strongly Disagree", "In button mode, locText shows description");
+  assert.equal(q1.visibleRateValues[4].locText.calculatedText, "Strongly Agree", "In button mode, locText shows description");
+  assert.notOk(q1.visibleRateValues[0].description, "In button mode with displayRateDescriptionsAsExtremeItems, description should be undefined to avoid duplication");
+  assert.notOk(q1.visibleRateValues[4].description, "In button mode with displayRateDescriptionsAsExtremeItems, description should be undefined to avoid duplication");
+  assert.notOk(q1.visibleRateValues[2].description, "Middle item should have no description in button mode");
+
+  q1.displayMode = "dropdown";
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "1", "In dropdown mode, locText shows original value");
+  assert.equal(q1.visibleRateValues[4].locText.calculatedText, "5", "In dropdown mode, locText shows original value");
+  assert.equal(q1.visibleRateValues[0].description.text, "Strongly Disagree", "Description available in dropdown mode");
+  assert.equal(q1.visibleRateValues[4].description.text, "Strongly Agree", "Description available in dropdown mode");
+  assert.notOk(q1.visibleRateValues[2].description, "Middle item should have no description in dropdown mode");
+});
+QUnit.test("Rating displayRateDescriptionsAsExtremeItems with empty descriptions falls back to item text", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      displayRateDescriptionsAsExtremeItems: true,
+      rateValues: [1, 2, 3, 4, 5]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "1", "With no descriptions set, text stays as value");
+  assert.equal(q1.visibleRateValues[4].locText.calculatedText, "5", "With no descriptions set, text stays as value");
+  assert.notOk(q1.visibleRateValues[0].description, "No description when minRateDescription is empty");
+  assert.notOk(q1.visibleRateValues[4].description, "No description when maxRateDescription is empty");
+});
+QUnit.test("Rating displayRateDescriptionsAsExtremeItems with rateValues having custom text", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "rating",
+      name: "q1",
+      minRateDescription: "Min desc",
+      maxRateDescription: "Max desc",
+      displayRateDescriptionsAsExtremeItems: true,
+      autoGenerate: false,
+      rateValues: [
+        { value: "A", text: "First" },
+        { value: "B", text: "Second" },
+        { value: "C", text: "Third" }
+      ]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "Min desc", "In button mode, first item text replaced by minRateDescription");
+  assert.equal(q1.visibleRateValues[2].locText.calculatedText, "Max desc", "In button mode, last item text replaced by maxRateDescription");
+  assert.equal(q1.visibleRateValues[1].locText.calculatedText, "Second", "Middle item text unchanged");
+  assert.notOk(q1.visibleRateValues[0].description, "Description undefined in button mode for first item");
+  assert.notOk(q1.visibleRateValues[2].description, "Description undefined in button mode for last item");
+
+  q1.displayMode = "dropdown";
+
+  assert.equal(q1.visibleRateValues[0].locText.calculatedText, "First", "In dropdown mode, first item shows original text");
+  assert.equal(q1.visibleRateValues[2].locText.calculatedText, "Third", "In dropdown mode, last item shows original text");
+  assert.equal(q1.visibleRateValues[0].description.text, "Min desc", "In dropdown mode, description shows minRateDescription");
+  assert.equal(q1.visibleRateValues[2].description.text, "Max desc", "In dropdown mode, description shows maxRateDescription");
+  assert.notOk(q1.visibleRateValues[1].description, "Middle item has no description in dropdown mode");
 });
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
   RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
@@ -1979,10 +2116,12 @@ QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appe
   assert.equal(q1.autoGenerate, false, "autoGenerate is false");
 
   assert.equal(q1.visibleChoices[0].value, "A", "Check first item value");
-  assert.equal(q1.visibleChoices[0].text, "Strongly Disagree");
+  assert.equal(q1.visibleChoices[0].text, "1", "In dropdown mode, text should be the original rateValue text");
+  assert.equal(q1.visibleChoices[0].description.text, "Strongly Disagree", "description should be minRateDescription");
 
   assert.equal(q1.visibleChoices[4].value, "E");
-  assert.equal(q1.visibleChoices[4].text, "Strongly Agree");
+  assert.equal(q1.visibleChoices[4].text, "5", "In dropdown mode, text should be the original rateValue text");
+  assert.equal(q1.visibleChoices[4].description.text, "Strongly Agree", "description should be maxRateDescription");
 });
 
 QUnit.test("check smileys styles after validate", (assert) => {

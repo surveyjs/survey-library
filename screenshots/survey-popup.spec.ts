@@ -39,6 +39,13 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement")!.innerHTML = "";
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      if (!document.querySelector("link[href*='survey-core']")) {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "../../node_modules/survey-core/survey-core.min.css";
+        document.head.appendChild(link);
+      }
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
         isExpanded: true,
         allowClose: true,

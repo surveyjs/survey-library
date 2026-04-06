@@ -1,6 +1,6 @@
 {
     "name": "survey-react-ui",
-    "version": "2.5.15",
+    "version": "2.5.18",
     "files": [
         "**/*"
     ],
@@ -23,6 +23,7 @@
         "e2e:ci": "cross-env env=react playwright test --project e2e",
         "scr": "cross-env env=react playwright test --project vrt --ui",
         "scr:ci": "cross-env env=react playwright test --project vrt",
+        "scr:update": "cross-env env=react playwright test --project vrt --update-snapshots",
         "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
     },
     "typings": "./typings/src/entries/react-ui.d.ts",

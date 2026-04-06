@@ -229,7 +229,7 @@ export class LocalizableString implements ILocalizableString {
     }
     if (!settings.localization.storeDuplicatedTranslations &&
       !this.isValueEmpty(value) && loc && loc != this.defaultLoc &&
-      !this.getValue(loc) &&
+      this.getValue(loc) === undefined &&
       value == this.getLocaleText(this.defaultLoc)
     )
       return;
@@ -242,7 +242,7 @@ export class LocalizableString implements ILocalizableString {
     } else {
       if (typeof value === "string") {
         if (this.canRemoveLocValue(loc, value)) {
-          this.setLocaleText(loc, null);
+          this.deleteValue(loc);
         } else {
           this.setValue(loc, value);
           if (loc == this.defaultLoc) {
@@ -297,8 +297,15 @@ export class LocalizableString implements ILocalizableString {
     const selectedLocales = options?.locales || [];
     const hasSelected = selectedLocales.length > 0;
     if (hasSelected) {
+      const defLocaleName = settings.localization.defaultLocaleName;
+      const actualDefLocale = surveyLocalization.defaultLocale;
+      const matchDefaultToActual = actualDefLocale !== defLocaleName &&
+        selectedLocales.indexOf(actualDefLocale) >= 0 && keys.indexOf(actualDefLocale) < 0;
       for (let i = keys.length - 1; i >= 0; i--) {
         if (selectedLocales.indexOf(keys[i]) < 0) {
+          if (matchDefaultToActual && keys[i] === defLocaleName) {
+            continue;
+          }
           keys.splice(i, 1);
         }
       }

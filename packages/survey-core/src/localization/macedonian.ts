@@ -69,8 +69,12 @@ export var macedonianSurveyStrings = {
   stepError: "Молиме внесете вредност која одговара на големината на чекорот на {0}.",
   // "The value should not be greater than {0}"
   maxError: "Вредноста не треба да биде поголема од {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Невалиден внес",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Броевите не се дозволени.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Ве молиме пополнете ја вредноста за да одговара на потребниот формат.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Внесете најмалку {0} знак/ци.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var macedonianSurveyStrings = {
   urlGetChoicesError: "Барањето врати празни податоци или својството 'path' е неточно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Големината на датотеката не треба да надминува {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Бајтови, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Максималниот број на датотеки што можеш да ги прикачиш е {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var macedonianSurveyStrings = {
   noRowsText: "Нема редови.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Ред {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Додади ново",

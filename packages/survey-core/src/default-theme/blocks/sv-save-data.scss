@@ -3,14 +3,14 @@
 .sv-save-data_root {
   position: fixed;
   left: 50%;
-  bottom: calcSize(3);
+  bottom: var(--sjs2-spacing-x300);
   background: $background;
   opacity: 0;
-  padding: calcSize(3) calcSize(6);
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x600);
   box-shadow: $shadow-medium;
   border-radius: var(--sjs2-radius-component-notifier, 16px);
   color: $foreground;
-  min-width: calcSize(30);
+  min-width: calc(var(--sjs2-base-unit-size) * 30);
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
@@ -23,7 +23,7 @@
   justify-content: center;
   align-items: center;
 
-  transform: translateX(-50%) translateY(calcSize(3));
+  transform: translateX(-50%) translateY(var(--sjs2-spacing-x300));
   transition-timing-function: ease-in;
   transition-property: transform, opacity;
   transition-delay: 0.25s;
@@ -57,26 +57,26 @@
 }
 
 .sv-save-data_root.sv-save-data_root--with-buttons {
-  padding: calcSize(2) calcSize(2) calcSize(2) calcSize(6);
+  padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x200) var(--sjs2-spacing-x200) var(--sjs2-spacing-x600);
 }
 
 .sv-save-data_root.sv-save-data_error {
   background-color: $red;
   color: $background;
   font-weight: 600;
-  gap: calcSize(6);
+  gap: var(--sjs2-spacing-x600);
 }
 
 .sv-save-data_root.sv-save-data_error .sv-save-data_button {
   font-weight: 600;
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
-  height: calcSize(5);
+  height: var(--sjs2-size-x500);
   color: #ffffff;
   background-color: $red;
-  border: calcSize(0.25) solid #ffffff;
+  border: var(--sjs2-border-width-x200) solid #ffffff;
   border-radius: calcCornerRadius(1.5);
-  padding: calcSize(1) calcSize(3);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
   display: flex;
   align-items: center;
 }

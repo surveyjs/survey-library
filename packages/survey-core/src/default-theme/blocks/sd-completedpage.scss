@@ -17,14 +17,14 @@
 }
 .sd-completedpage {
   &:has(> *) {
-    padding: calcSize(13) 0 calcSize(2) 0;
+    padding: calc(var(--sjs2-base-unit-spacing) * 13) 0 var(--sjs2-spacing-x200) 0;
   }
-  padding: calcSize(17) 0 calcSize(6) 0;
+  padding: calc(var(--sjs2-base-unit-spacing) * 17) 0 var(--sjs2-spacing-x600) 0;
 }
 .sd-body--loading,
 .sd-completed-before-page {
   &:has(> *) {
     padding: 0;
   }
-  padding: calcSize(4) 0 calcSize(4) 0;
+  padding: var(--sjs2-spacing-x400) 0 var(--sjs2-spacing-x400) 0;
 }

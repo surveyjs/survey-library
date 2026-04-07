@@ -9,13 +9,13 @@
 
   & > thead > tr > th {
     border-top: 0;
-    border-bottom: calcSize(2) solid transparent;
+    border-bottom: var(--sjs2-spacing-x200) solid transparent;
   }
 }
 
 .sd-table__cell {
-  border-top: calcSize(1) solid transparent;
-  border-bottom: calcSize(1) solid transparent;
+  border-top: var(--sjs2-spacing-x100) solid transparent;
+  border-bottom: var(--sjs2-spacing-x100) solid transparent;
   border-left: none;
   border-right: none;
   background-clip: padding-box;
@@ -45,7 +45,7 @@
 }
 
 .sd-table--no-header {
-  padding-top: calcSize(3);
+  padding-top: var(--sjs2-spacing-x300);
 }
 
 .sd-panel:not(.sd-panel--as-page) {
@@ -56,26 +56,26 @@
 
     .sd-question--table {
       .sd-question__content {
-        padding-bottom: calcSize(0.25);
-        margin-bottom: calcSize(-0.25);
-        padding-top: calcSize(1);
-        margin-top: calcSize(-1);
+        padding-bottom: var(--sjs2-spacing-x025);
+        margin-bottom: var(--sjs2-spacing-negative-x025);
+        padding-top: var(--sjs2-spacing-x100);
+        margin-top: var(--sjs2-spacing-negative-x100);
       }
 
       & > .sd-question__header {
         & ~ .sd-question__content {
-          padding-top: calcSize(2);
-          --animation-padding-top: #{calcSize(2)};
+          padding-top: var(--sjs2-spacing-x200);
+          --animation-padding-top: #{var(--sjs2-spacing-x200)};
 
           .sd-table--no-header {
-            padding-top: calcSize(4);
+            padding-top: var(--sjs2-spacing-x400);
           }
         }
       }
     }
 
     .sd-question--table > .sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(-3);
+      margin-top: var(--sjs2-spacing-negative-x300);
     }
 
     .sd-question--table.sd-question--error-top
@@ -91,7 +91,7 @@
       > .sd-question__content
       .sd-table-wrapper
       .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(-2);
+      margin-top: var(--sjs2-spacing-negative-x200);
     }
 
     &
@@ -100,7 +100,7 @@
       > .sd-question__content
       .sd-table-wrapper
       .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(0);
+      margin-top: var(--sjs2-spacing-x000);
     }
 
     .sd-question--table
@@ -108,7 +108,7 @@
       ~ .sd-question__content
       .sd-table-wrapper
       .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(1);
+      margin-top: var(--sjs2-spacing-x100);
     }
 
     &
@@ -118,31 +118,31 @@
       ~ .sd-question__content
       .sd-table-wrapper
       .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(1);
+      margin-top: var(--sjs2-spacing-x100);
     }
   }
 }
 
 .sd-question:not(.sd-question--mobile) {
   .sd-table--alternate-rows {
-    margin-left: calcSize(1);
-    margin-right: calcSize(1);
+    margin-left: var(--sjs2-spacing-x100);
+    margin-right: var(--sjs2-spacing-x100);
     width: calc(100% - 2 * #{$base-unit});
 
     .sd-table__cell:not(.sd-table__cell--header):first-of-type {
-      padding-left: calcSize(2);
+      padding-left: var(--sjs2-spacing-x200);
     }
 
     .sd-table__cell:last-of-type {
-      padding-right: calcSize(2);
+      padding-right: var(--sjs2-spacing-x200);
     }
 
     .sd-table__row:first-of-type > .sd-table__cell {
-      border-top: calcSize(1) solid transparent;
+      border-top: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
     }
 
     .sd-table__row:last-of-type > .sd-table__cell {
-      border-bottom: calcSize(1) solid transparent;
+      border-bottom: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
     }
 
     .sd-table__row:nth-of-type(odd) {
@@ -168,13 +168,9 @@
           &.sd-item--checked .sd-item__decorator {
             background-color: var(--sjs2-color-component-check-true-default-bg, #19B394);
           }
-          &.sd-item--checked .sd-item__control:focus + .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-focused-bg, #fff);
+          &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
+            background-color: transparent;
           }
-          &.sd-item--readonly.sd-item--checked .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-readonly-bg, #fff);
-          }
-
           &.sd-item--preview.sd-item--preview .sd-item__decorator {
             background-color: transparent;
           }
@@ -188,12 +184,12 @@
   font-weight: normal;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  padding: 0 calcSize(1);
+  padding: 0 var(--sjs2-spacing-x100);
   color: $foreground;
   text-align: center;
 
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
-    min-width: calcSize(15);
+    min-width: var(--sjs2-size-x1500);
   }
 
   .sd-item {
@@ -203,7 +199,7 @@
 
 .sd-table__cell--error {
   border: none;
-  padding: 0 calcSize(1);
+  padding: 0 var(--sjs2-spacing-x100);
 
   .sd-question__erbox {
     margin: 0;
@@ -212,12 +208,12 @@
 
 .sd-table__cell--error-top {
   vertical-align: bottom;
-  padding-top: calcSize(1);
+  padding-top: var(--sjs2-spacing-x100);
 }
 
 .sd-table__cell--error-bottom {
   vertical-align: top;
-  padding-bottom: calcSize(1);
+  padding-bottom: var(--sjs2-spacing-x100);
 }
 
 .sd-table__cell--item {
@@ -257,38 +253,38 @@
   font-weight: 600;
   color: $font-questiontitle-color;
   vertical-align: top;
-  padding: calcSize(1.5) calcSize(1);
+  padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x100);
 
   &:not(.sd-table__cell--empty) {
-    min-width: calcSize(15);
+    min-width: var(--sjs2-size-x1500);
   }
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--empty {
-  min-width: calcSize(15);
+  min-width: var(--sjs2-size-x1500);
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--action {
-  min-width: calcSize(3);
-  width: calcSize(3);
+  min-width: var(--sjs2-size-x300);
+  width: var(--sjs2-size-x300);
 }
 
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
-  min-width: calcSize(15);
+  min-width: var(--sjs2-size-x1500);
 
   &.sd-table__cell--dropdown,
   &.sd-table__cell--rating {
-    min-width: calcSize(22);
+    min-width: calc(var(--sjs2-base-unit-size) * 22);
   }
 
   &.sd-table__cell--boolean {
-    min-width: calcSize(18);
+    min-width: calc(var(--sjs2-base-unit-size) * 18);
   }
 }
 
 .sd-table__cell--footer {
   text-align: end;
-  padding-top: calcSize(1);
+  padding-top: var(--sjs2-spacing-x100);
 }
 
 .sd-table__cell--footer-total {
@@ -297,9 +293,9 @@
 }
 
 .sd-table__cell--detail-panel {
-  border-top: calcSize(1) solid transparent;
-  padding: calcSize(3) calcSize(1) calcSize(4);
-  border-bottom: calcSize(1) solid transparent;
+  border-top: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x100) var(--sjs2-spacing-x400);
+  border-bottom: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
 }
 
 .sd-table__cell--actions,
@@ -310,20 +306,20 @@
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical) {
-  width: calcSize(1);
+  width: var(--sjs2-size-x100);
 
   &:not(.sd-table__cell--drag):first-of-type {
     padding-left: 0;
-    width: calcSize(4);
-    min-width: calcSize(4);
+    width: var(--sjs2-size-x400);
+    min-width: var(--sjs2-size-x400);
   }
 }
 
 .sd-table__cell--detail-button.sd-action--icon {
   border: none;
   background: transparent;
-  border-radius: calcSize(2);
-  padding: calcSize(1);
+  border-radius: var(--sjs2-radius-x200);
+  padding: var(--sjs2-spacing-x100);
   transition: background-color $transition-duration;
 
   .sd-action__icon {
@@ -355,8 +351,8 @@
   font-weight: $font-questiontitle-weight;
   color: $font-questiontitle-color;
   text-align: start;
-  min-width: calcSize(12);
-  padding: calcSize(1.5) calcSize(1);
+  min-width: var(--sjs2-size-x1200);
+  padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x100);
 }
 
 .sd-matrix__question-wrapper {
@@ -378,17 +374,17 @@
   z-index: 12;
 
   &:first-of-type {
-    left: calcSize(-1);
+    left: var(--sjs2-spacing-negative-x100);
   }
 
   &:last-of-type {
-    right: calcSize(-1);
+    right: var(--sjs2-spacing-negative-x100);
   }
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
   .sd-action-bar {
-    margin-right: calcSize(-3);
+    margin-right: var(--sjs2-spacing-negative-x300);
     justify-content: flex-end;
     background: var(--sjs2-color-component-panel-default-bg, #fff);
   }
@@ -436,11 +432,11 @@
 }
 
 .sd-table-wrapper--left {
-  margin-left: calcSize(-3);
+  margin-left: var(--sjs2-spacing-negative-x300);
   min-width: calc(100% + 1 * var(--sd-base-padding));
   &::before {
-    left: calcSize(-3);
-    width: calcSize(2);
+    left: var(--sjs2-spacing-negative-x300);
+    width: var(--sjs2-size-x200);
   }
 }
 //compact styles
@@ -480,8 +476,8 @@
   }
 
   & > .sd-question__content {
-    padding-top: calcSize(2);
-    --animation-padding-top: #{calcSize(2)};
+    padding-top: var(--sjs2-spacing-x200);
+    --animation-padding-top: #{var(--sjs2-spacing-x200)};
     min-width: min-content;
   }
 
@@ -557,13 +553,13 @@
     border-bottom: none;
 
     .sd-matrix__responsive-title {
-      margin-left: calcSize(1);
+      margin-left: var(--sjs2-spacing-x100);
       text-align: start;
     }
 
     &:first-of-type {
-      padding-top: calcSize(2);
-      padding-bottom: calcSize(1);
+      padding-top: var(--sjs2-spacing-x200);
+      padding-bottom: var(--sjs2-spacing-x100);
     }
   }
 
@@ -580,12 +576,12 @@
 
   .sd-matrix__table {
     .sd-table__row {
-      padding-top: calcSize(1);
+      padding-top: var(--sjs2-spacing-x100);
     }
   }
 
   .sd-table__row {
-    padding-top: calcSize(2);
+    padding-top: var(--sjs2-spacing-x200);
   }
 
   .sd-table__row--expanded {
@@ -596,21 +592,21 @@
 
   .sd-table:not(.sd-matrix__table) {
     .sd-table__row {
-      padding-bottom: calcSize(2);
+      padding-bottom: var(--sjs2-spacing-x200);
 
       &.sd-table__row--has-end-actions {
-        padding-bottom: calcSize(0);
+        padding-bottom: var(--sjs2-spacing-x000);
       }
     }
 
     tr:not(.sd-table__row--has-end-actions) {
-      padding-bottom: calcSize(0);
+      padding-bottom: var(--sjs2-spacing-x000);
 
       &:not(:last-of-type) {
-        padding-bottom: calcSize(3);
+        padding-bottom: var(--sjs2-spacing-x300);
 
         &::after {
-          bottom: calcSize(-3);
+          bottom: var(--sjs2-spacing-negative-x300);
         }
       }
     }
@@ -623,7 +619,7 @@
       position: relative;
       height: 1px;
       background-color: $border-light;
-      left: calcSize(-2);
+      left: var(--sjs2-spacing-negative-x200);
       width: calc(100% + 4 * #{$base-unit});
       z-index: 12;
     }
@@ -636,10 +632,10 @@
     }
 
     tfoot tr {
-      padding-top: calcSize(5);
+      padding-top: var(--sjs2-spacing-x500);
 
       &::before {
-        // top: calcSize(-2);
+        // top: var(--sjs2-spacing-negative-x200);
         background-color: transparent;
       }
     }
@@ -648,7 +644,7 @@
   .sd-table:not(.sd-table--has-footer) .sd-table__row:last-of-type {
     .sd-table__cell-action--show-detail,
     .sd-table__cell-action--remove-row {
-      margin-bottom: calcSize(-2);
+      margin-bottom: var(--sjs2-spacing-negative-x200);
     }
   }
 
@@ -666,15 +662,15 @@
   }
 
   .sd-table__cell {
-    margin-top: calcSize(2);
+    margin-top: var(--sjs2-spacing-x200);
   }
 
   .sd-table__cell--error {
-    margin-top: calcSize(0);
+    margin-top: var(--sjs2-spacing-x000);
 
     &.sd-table__cell--error-bottom {
       .sd-question__erbox {
-        margin-top: calcSize(1);
+        margin-top: var(--sjs2-spacing-x100);
       }
     }
   }
@@ -689,7 +685,7 @@
   }
 
   .sd-table__responsive-title {
-    padding-bottom: calcSize(1);
+    padding-bottom: var(--sjs2-spacing-x100);
     font-weight: 600;
     display: block;
     text-align: start;
@@ -718,12 +714,12 @@
 
   .sd-table__cell.sd-table__cell--actions {
     width: auto;
-    margin-top: calcSize(1);
-    margin-bottom: calcSize(1);
+    margin-top: var(--sjs2-spacing-x100);
+    margin-bottom: var(--sjs2-spacing-x100);
 
     .sd-action-bar {
-      margin-right: calcSize(-3);
-      margin-left: calcSize(-3);
+      margin-right: var(--sjs2-spacing-negative-x300);
+      margin-left: var(--sjs2-spacing-negative-x300);
       background: $background;
     }
 
@@ -734,7 +730,7 @@
 
   .sd-action.sd-action.sd-matrixdynamic__remove-btn {
     opacity: 1;
-    padding: calcSize(1) calcSize(3);
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
 
     .sd-action__icon {
       display: none;
@@ -746,8 +742,8 @@
   }
 
   .sd-matrixdynamic__footer {
-    padding-top: calcSize(1);
-    margin-bottom: calcSize(-2);
+    padding-top: var(--sjs2-spacing-x100);
+    margin-bottom: var(--sjs2-spacing-negative-x200);
   }
 
   .sd-table__cell--footer-total:not(.sd-matrix__cell),
@@ -757,7 +753,7 @@
 
   .sd-matrixdropdown.sd-table {
     tr::after {
-      bottom: calcSize(-2);
+      bottom: var(--sjs2-spacing-negative-x200);
     }
 
     tr:last-child:after {
@@ -775,15 +771,15 @@
 
   .sd-table__cell--error-top {
     .sd-question__erbox {
-      margin-top: calcSize(3);
-      margin-bottom: calcSize(-1);
+      margin-top: var(--sjs2-spacing-x300);
+      margin-bottom: var(--sjs2-spacing-negative-x100);
     }
   }
 
   .sd-table__cell--error-top:first-of-type {
     .sd-question__erbox {
-      margin-top: calcSize(0);
-      margin-bottom: calcSize(1);
+      margin-top: var(--sjs2-spacing-x000);
+      margin-bottom: var(--sjs2-spacing-x100);
     }
   }
   .sd-table__question-wrapper {
@@ -799,7 +795,7 @@
 
 .sd-table__cell--detail-panel {
   .sd-panel__content {
-    padding-top: calcSize(1);
+    padding-top: var(--sjs2-spacing-x100);
   }
 }
 
@@ -812,11 +808,11 @@
 .sd-table__cell--footer {
   .sd-table__question-wrapper--expression {
     .sd-expression {
-      padding: calcSize(1.5) calcSize(2);
+      padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
       border-bottom: 1px solid $border-light;
       font-size: calcFontSize(1);
       font-weight: 600;
-      line-height: calcSize(3);
+      line-height: var(--sjs2-line-height-x300);
     }
   }
 

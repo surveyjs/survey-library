@@ -15,7 +15,7 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  column-gap: calcSize(4);
+  column-gap: var(--sjs2-spacing-x400);
 }
 
 .sd-selectbase--multi-column {
@@ -23,14 +23,14 @@
   flex: 1 1 0px;
   flex-wrap: nowrap;
   overflow: auto;
-  padding: 2px;
-  margin: -2px;
+  padding: var(--sjs2-border-width-a11y, 4px);
+  margin: calc(var(--sjs2-border-width-a11y, 4px) * -1);
 }
 
 .sd-selectbase__label {
   display: inline-flex;
   position: relative;
-  gap: calcSize(1);
+  gap: var(--sjs2-spacing-x100);
   vertical-align: top;
   max-width: 100%;
 }
@@ -47,7 +47,7 @@
 }
 
 .sd-selectbase__column:not(:last-child) {
-  padding-right: calcSize(2);
+  padding-right: var(--sjs2-spacing-x200);
 }
 
 // Copied from stylesmanager
@@ -100,5 +100,5 @@ div[class*="sv-q-column-"] {
   margin-top: 0;
 }
 .sd-selectbase__other:not(:last-of-type) {
-  margin-bottom: calcSize(2);
+  margin-bottom: var(--sjs2-spacing-x200);
 }

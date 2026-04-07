@@ -1,14 +1,13 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-error {
   display: flex;
   flex-direction: column;
-  gap: calcSize(0.5);
-  padding: calcSize(1) calcSize(1.5);
+  gap: var(--sjs2-spacing-x050);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   border-radius: var(--sjs2-radius-component-message, 8px);
-  line-height: calcLineHeight(1);
-  font-size: calcFontSize(0.75);
-  font-weight: 600;
+  @include sjs2--typography--small-strong;
   text-align: left;
   color: var(--sjs2-color-component-message-error-icon, #C30935);
   white-space: normal;
@@ -40,8 +39,8 @@
 
 .sd-error__item {
   font-family: var(--lbr-font-family, $font-family);
-  font-size: var(--lbr-font-small-size, calcSize(1.5));
+  font-size: var(--lbr-font-small-size, var(--sjs2-font-size-x150));
   font-style: normal;
   font-weight: 600;
-  line-height: var(--lbr-font-small-line-height, calcSize(2));
+  line-height: var(--lbr-font-small-line-height, var(--sjs2-line-height-x200));
 }

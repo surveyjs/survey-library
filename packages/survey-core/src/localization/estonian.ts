@@ -71,6 +71,8 @@ export var estonianSurveyStrings = {
   maxError: "Väärtus ei tohiks olla suurem kui {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numbrid ei ole lubatud.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Palun täida väärtus, et see vastaks nõutud formaadile.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Palun sisesta vähemalt {0} tähemärki.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var estonianSurveyStrings = {
   noRowsText: "Ridu pole.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rida {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Lisa uus",
@@ -159,7 +161,7 @@ export var estonianSurveyStrings = {
   savingExceedSize: "Teie vastus ületab 64 KB. Vähendage oma faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga.",
   // "Try again"
   saveAgainButton: "Proovi uuesti",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

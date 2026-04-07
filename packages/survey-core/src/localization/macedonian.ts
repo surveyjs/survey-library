@@ -71,6 +71,8 @@ export var macedonianSurveyStrings = {
   maxError: "Вредноста не треба да биде поголема од {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Броевите не се дозволени.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Ве молиме пополнете ја вредноста за да одговара на потребниот формат.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Внесете најмалку {0} знак/ци.",
   // "Please enter no more than {0} character(s)."
@@ -129,7 +131,7 @@ export var macedonianSurveyStrings = {
   noRowsText: "Нема редови.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Ред {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Додади ново",

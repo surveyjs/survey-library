@@ -4,7 +4,7 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding: calcSize(2) calcSize(6);
+  padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x600);
   background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0.00));
   border-radius: var(--sjs2-radius-component-action, 8px);
   cursor: pointer;
@@ -25,7 +25,7 @@
 
 .sd-btn--small {
   flex-grow: 1;
-  padding: calcSize(1.5) calcSize(4);
+  padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x400);
 }
 
 .sd-btn:hover {

@@ -1,11 +1,12 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-boolean {
   display: flex;
   width: max-content;
   position: relative;
-  gap: calcSize(0.5);
-  padding: calcSize(0.5);
+  gap: var(--sjs2-spacing-x050);
+  padding: var(--sjs2-spacing-x050);
   background-color: var(--sjs2-color-component-boolean-default-bg, #F5F5F5);
   border-radius: var(--sjs2-radius-component-boolean, 9999px);
   box-shadow:
@@ -23,17 +24,14 @@
 .sd-boolean__thumb,
 .sd-boolean__label {
   display: block;
-  font-family: $font-editorfont-family;
-  font-weight: $font-editorfont-weight;
-  font-size: $font-editorfont-size;
+  @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
-  line-height: multiply(1.5, $font-editorfont-size);
-  padding: calcSize(1) calcSize(3);
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
 }
 
 .sd-boolean__switch {
   display: flex;
-  padding: calcSize(0.5);
+  padding: var(--sjs2-spacing-x050);
   align-items: center;
   position: absolute;
   left: 0;
@@ -63,7 +61,7 @@
 
 .sd-boolean__thumb {
   position: absolute;
-  left: calcSize(0.5);
+  left: var(--sjs2-spacing-x050);
   transform: translateX(0);
   background-color: var(--sjs2-color-component-boolean-item-true-default-bg, #fff);
   box-shadow: $shadow-small;
@@ -92,14 +90,14 @@
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sd-boolean__thumb {
-    left: calcSize(0.5);
+    left: var(--sjs2-spacing-x050);
     right: unset;
     transform: translateX(100%);
   }
 
   .sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb,
   .sd-boolean--exchanged:not(.sd-boolean--checked) .sd-boolean__thumb {
-    left: calcSize(0.5);
+    left: var(--sjs2-spacing-x050);
     right: unset;
     transform: translateX(0);
   }

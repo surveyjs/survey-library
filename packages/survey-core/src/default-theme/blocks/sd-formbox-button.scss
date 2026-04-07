@@ -38,8 +38,8 @@
 }
 
 .sd-formbox-button__icon {
-    width: multiply(1.5, var(--sjs2-typography-font-size-component-input-content, 16px));
-    height: multiply(1.5, var(--sjs2-typography-font-size-component-input-content, 16px));
+    width: var(--sjs2-typography-line-height-component-input-content, 24px);
+    height: var(--sjs2-typography-line-height-component-input-content, 24px);
     fill: var(--sjs2-color-component-formbox-action-default-icon, #424146);
     use {
         pointer-events: none;

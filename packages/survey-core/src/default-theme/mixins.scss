@@ -24,7 +24,7 @@
 }
 
 @mixin borderLight {
-  border: calcSize(0.25) solid $border-light;
+  border: var(--sjs2-border-width-x200) solid $border-light;
 }
 
 @mixin articleXXLargeFont {
@@ -126,7 +126,7 @@
   button {
     display: flex;
     align-items: center;
-    padding: calcSize(1.5) calcSize(4);
+    padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x400);
     vertical-align: baseline;
     text-align: center;
     background-color: $background;
@@ -134,7 +134,7 @@
     border-radius: calcCornerRadius(1);
     cursor: pointer;
     user-select: none;
-    outline: solid calcSize(0.25) transparent;
+    outline: solid var(--sjs2-border-width-x200) transparent;
 
     color: $primary;
     font-weight: 600;
@@ -171,51 +171,6 @@
       // line-height: multiply(1.5, $font-questiontitle-size);
     }
   }
-}
-
-@mixin page_title {
-  --page-title-font-size: var(--sjs2-typography-font-size-component-page-title, calc(1.5 * (#{$font-size})));
-  font-family: $font-pagetitle-family;
-  font-weight: $font-pagetitle-weight;
-  font-size: var(--page-title-font-size);
-  color: $font-pagetitle-color;
-  position: static;
-  line-height: multiply(1.33, var(--page-title-font-size));
-  margin: 0 0 calcSize(0.5) 0px;
-}
-
-@mixin survey_title {
-  --survey-title-font-size: var(--sjs2-typography-font-size-component-header-title, calc(2 * (var(--sjs-font-size, 16px))));
-  font-size: var(--survey-title-font-size);
-  line-height: multiply(1.25, var(--survey-title-font-size));
-}
-
-@mixin survey_description {
-  --survey-description-font-size: var(--sjs2-typography-font-size-component-header-description, var(--sjs-font-size, 16px));
-  font-size: var(--survey-description-font-size);
-  line-height: multiply(1.5, var(--survey-description-font-size));
-}
-
-@mixin header_title {
-  --header-title-font-size: var(--sjs2-typography-font-size-component-header-title, calc(2 * (var(--sjs-font-size, 16px))));
-  font-size: var(--header-title-font-size);
-  line-height: multiply(1.25, var(--header-title-font-size));
-}
-
-@mixin header_description {
-  --header-description-font-size: var(--sjs2-typography-font-size-component-header-description, 20px);
-  font-size: var(--header-description-font-size);
-  line-height: multiply(1.5, var(--header-description-font-size));
-}
-
-@mixin page_description {
-  font-family: $font-pagedescription-family;
-  font-weight: $font-pagedescription-weight;
-  font-size: $font-pagedescription-size;
-  color: $font-pagedescription-color;
-  position: static;
-  line-height: multiply(1.5, $font-pagedescription-size);
-  margin: 0 0 calcSize(0.5) 0;
 }
 
 @mixin num_inline {

@@ -153,7 +153,7 @@ frameworks.forEach(framework => {
       await doDrag({ page, element, target });
 
       const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, page.locator(".sd-question").nth(0), "question-ranking-shortcut-position-container-layout.png", { maxDiffPixels });
     });
 
     test("Shortcut position due container layout (relative)", async ({ page }) => {
@@ -181,7 +181,7 @@ frameworks.forEach(framework => {
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
       const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, page.locator(".sd-question").nth(0), "question-ranking-shortcut-position-container-relative-layout.png", { maxDiffPixels });
     });
 
     test("Shortcut position due container layout (scroll)", async ({ page }) => {
@@ -221,7 +221,7 @@ frameworks.forEach(framework => {
       // await page.waitForTimeout(500);
 
       const maxDiffPixels = 40;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, page.locator(".sd-question").nth(0), "question-ranking-shortcut-position-container-scroll-layout.png", { maxDiffPixels });
     });
 
     test("Ranking theming", async ({ page }) => {

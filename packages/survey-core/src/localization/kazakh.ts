@@ -71,6 +71,8 @@ export var kazakhStrings = {
   maxError: "Мән {0} артық болмауы тиіс",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Нөмірлерді беруге жол берілмейді.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Қажетті форматқа сәйкес мәнді толтырыңыз.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Өтінеміз, {0} ден көп таңба енгізіңіз.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var kazakhStrings = {
   urlGetChoicesError: "Сұратымға жауап бос келді немесе 'path' қасиеті қате көрсетілген ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Файлдың мөлшері {0} аспау керек.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Жүктей алатын файлдардың ең көп саны {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Файлдарды кері жүктеу мүмкін емес. 'OnUploadFiles' оқиғасына өңдеушіні қосуыңызды сұраймыз.",
   // "Response required: enter another value."

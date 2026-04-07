@@ -2,7 +2,7 @@
 @use "../mixins.scss" as mixins;
 
 .sd-summary {
-  border-radius: var(--lbr-data-table-corner-radius, calcSize(0.5));
+  border-radius: var(--lbr-data-table-corner-radius, var(--sjs2-radius-x050));
   background: var(--lbr-data-table-background-color, $background);
   box-shadow: var(--lbr-data-table-shadow-offset-x, 0px) var(--lbr-data-table-shadow-offset-y, 1px)
     var(--lbr-data-table-shadow-blur, 2px) var(--lbr-data-table-shadow-spread, 0px)
@@ -12,24 +12,22 @@
 
 .sd-summary-row {
   display: flex;
-  padding: var(--lbr-data-table-row-padding-top, calcSize(1)) var(--lbr-data-table-row-padding-right, calcSize(2))
-    var(--lbr-data-table-row-padding-bottom, calcSize(1)) var(--lbr-data-table-row-padding-left, calcSize(2));
+  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
   align-items: flex-start;
-  gap: var(--lbr-data-table-row-gap, calcSize(4));
+  gap: var(--sjs2-spacing-x400);
   flex: 1 0 0;
   align-self: stretch;
 
-  border-bottom: var(--lbr-data-table-row-border-width-bottom, 1px) solid
+  border-bottom: var(--sjs2-border-width-x100) solid
     var(--lbr-data-table-row-border-color, $border-light);
   background: var(--lbr-data-table-row-background-color, $background);
 }
 
 .sd-summary-row__content {
   display: flex;
-  padding: var(--lbr-data-table-row-text-margin-top, calcSize(0.5)) 0px
-    var(--lbr-data-table-row-text-margin-bottom, calcSize(0.5)) 0px;
+  padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x000);
   align-items: flex-start;
-  gap: var(--lbr-data-table-row-gap, calcSize(4));
+  gap: var(--sjs2-spacing-x400);
   flex: 1 0 0;
 
   color: var(--lbr-data-table-row-text-color-title, $foreground);
@@ -39,7 +37,7 @@
 .sd-summary-row__actions {
   display: flex;
   align-items: flex-start;
-  gap: var(--lbr-data-table-actions-gap, calcSize(1));
+  gap: var(--sjs2-spacing-x100);
   opacity: 0;
   transition: opacity $transition-duration;
 }
@@ -68,12 +66,10 @@
   white-space: nowrap;
 
   display: flex;
-  padding: var(--lbr-action-button-padding-top, calcSize(1))
-    var(--lbr-action-button-padding-right-icon-only, calcSize(1)) var(--lbr-action-button-padding-bottom, calcSize(1))
-    var(--lbr-action-button-padding-left-icon-only, calcSize(1));
+  padding: var(--sjs2-spacing-x100);
   justify-content: center;
   align-items: center;
-  gap: var(--lbr-action-button-gap, calcSize(1));
+  gap: var(--sjs2-spacing-x100);
 
   border-radius: var(--lbr-action-button-corner-radius, 1024px);
   transition: background-color $transition-duration;
@@ -101,8 +97,8 @@
   }
 
   .sv-svg-icon {
-    width: calcSize(2);
-    height: calcSize(2);
+    width: var(--sjs2-size-x200);
+    height: var(--sjs2-size-x200);
   }
 }
 

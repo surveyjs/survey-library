@@ -11,11 +11,11 @@
 }
 
 .sd-loading-indicator {
-  height: calcSize(6);
+  height: var(--sjs2-size-x600);
 
   .sv-svg-icon {
-    height: calcSize(6);
-    width: calcSize(6);
+    height: var(--sjs2-size-x600);
+    width: var(--sjs2-size-x600);
     animation-name: rotationAnimation;
     animation-timing-function: linear;
     animation-iteration-count: infinite;

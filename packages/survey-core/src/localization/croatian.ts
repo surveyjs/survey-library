@@ -23,8 +23,8 @@ export var croatianStrings = {
   refuseItemText: "Odbijte odgovoriti",
   // [Auto-translated] "Don't know"
   dontKnowItemText: "Ne znam",
-  // "Select All"
-  selectAllItemText: "Select All",
+  // [Auto-translated] "Select All"
+  selectAllItemText: "Odaberi sve",
   // [Auto-translated] "Deselect all"
   deselectAllItemText: "Poništite odabir svega",
   // "Page {0} of {1}"
@@ -71,6 +71,8 @@ export var croatianStrings = {
   maxError: "Vrijednost ne smije biti veća od {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Brojevi nisu dopušteni.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Molimo ispunite vrijednost kako bi odgovarala potrebnom formatu.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Unesite najmanje {0} znak(ova).",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var croatianStrings = {
   urlGetChoicesError: "Zahtjev je vratio prazne podatke ili je 'path' svojstvo netočna.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Veličina datoteke ne smije prelaziti {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksimalan broj datoteka koje možete učitati je {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Datoteke se ne mogu prenijeti. Dodajte rukovatelja za događaj 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +131,7 @@ export var croatianStrings = {
   noRowsText: "Nema redova.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Redak {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Dodavanje novih",
@@ -157,10 +161,10 @@ export var croatianStrings = {
   savingExceedSize: "Vaš odgovor premašuje 64 KB. Smanjite veličinu datoteka/datoteka i pokušajte ponovno ili se obratite vlasniku ankete.",
   // "Try again"
   saveAgainButton: "Pokušaj ponovo",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
-  timerSec: "sec",
+  // [Auto-translated] "sec"
+  timerSec: "SEC",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Vi ste proveli {0} na ovoj stranici i {1} ukupno.",
   // "You have spent {0} on this page."

@@ -10,7 +10,7 @@ export const legacyCssVariables = {
   //"--sjs-general-dim-forecolor-light": "--sjs2-color-fg-basic-primary",//??? //rgba(0, 0, 0, 0.45)",
   "--sjs-primary-backcolor": "--sjs2-color-project-brand-600", //"rgba(25, 179, 148, 1)",
   "--sjs-primary-backcolor-light": "--sjs2-color-bg-brand-secondary", //"rgba(25, 179, 148, 0.1)",
-  "--sjs-primary-backcolor-dark": "--sjs2-color-project-brand-700", //rgba(20, 164, 139, 1)",
+  "--sjs-primary-backcolor-dark": "--sjs2-color-bg-brand-primary-dim", //rgba(20, 164, 139, 1)",
   "--sjs-primary-forecolor": "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
   "--sjs-primary-forecolor-light": "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
   "--sjs-base-unit": "--sjs2-base-unit-size", //"8px"

@@ -71,6 +71,8 @@ export var hebrewSurveyStrings = {
   maxError: "הערך לא צריך להיות גדול מ- {0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "מספרים אינם מותרים.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "אנא מלא את הערך כדי להתאים לפורמט הנדרש.",
   // "Please enter at least {0} character(s)."
   textMinLength: "הזן לפחות {0} תווים.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var hebrewSurveyStrings = {
   urlGetChoicesError: "הבקשה החזירה נתונים ריקים או שהמאפיין 'נתיב' שגוי",
   // "The file size should not exceed {0}."
   exceedMaxSize: "גודל הקובץ לא יעלה על {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "המספר המקסימלי של קבצים שאתה יכול להעלות הוא {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "לא ניתן להעלות קבצים. אנא הוסף מטפל לאירוע 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,8 +131,8 @@ export var hebrewSurveyStrings = {
   noRowsText: "אין שורות.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "שורה {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{כותרת_שורה}",
   // "Add new"
   addPanel: "הוסף חדש",
   // "Remove"

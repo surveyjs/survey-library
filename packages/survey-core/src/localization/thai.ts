@@ -71,6 +71,8 @@ export var thaiStrings = {
   maxError: "ค่าไม่ควรเกิน{0}",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "ไม่อนุญาตให้ใช้หมายเลข",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "โปรดกรอกค่าให้ตรงกับรูปแบบที่ต้องการ",
   // "Please enter at least {0} character(s)."
   textMinLength: "กรุณาใส่ขั้นต่ำจำนวน {0} ตัวอักษร",
   // "Please enter no more than {0} character(s)."
@@ -129,8 +131,8 @@ export var thaiStrings = {
   noRowsText: "ไม่มีแถว",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "แถว {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{แถวชื่อ}",
   // "Add new"
   addPanel: "เพิ่ม",
   // "Remove"

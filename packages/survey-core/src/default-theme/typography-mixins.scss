@@ -60,3 +60,59 @@
   font-size: var(--sjs2-typography-font-size-small);
   line-height: var(--sjs2-typography-line-height-small);
 }
+
+@mixin sjs2--typography--component--input--content {
+  font-family: var(--sjs2-typography-font-family-component-input-content, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-input-content, 16px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-input-content, 400);
+  line-height: var(--sjs2-typography-line-height-component-input-content, 24px);
+}
+
+@mixin sjs2--typography--component--question--title {
+  font-family: var(--sjs2-typography-font-family-component-question-title, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-question-title, 16px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-question-title, 600);
+  line-height: var(--sjs2-typography-line-height-component-question-title, 24px);
+}
+
+@mixin sjs2--typography--component--question--description {
+  font-family: var(--sjs2-typography-font-family-component-question-description, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-question-description, 16px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-question-description, 400);
+  line-height: var(--sjs2-typography-line-height-component-question-description, 24px);
+}
+
+@mixin sjs2--typography--component--page--title {
+  font-family: var(--sjs2-typography-font-family-component-page-title, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-page-title, 24px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-page-title, 600);
+  line-height: var(--sjs2-typography-line-height-component-page-title, 32px);
+}
+
+@mixin sjs2--typography--component--page--description {
+  font-family: var(--sjs2-typography-font-family-component-page-description, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-page-description, 16px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-page-description, 400);
+  line-height: var(--sjs2-typography-line-height-component-page-description, 24px);
+}
+
+@mixin sjs2--typography--component--header--title {
+  font-family: var(--sjs2-typography-font-family-component-header-title, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-header-title, 32px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-header-title, 600);
+  line-height: var(--sjs2-typography-line-height-component-header-title, 40px);
+}
+
+@mixin sjs2--typography--component--header--description {
+  font-family: var(--sjs2-typography-font-family-component-header-description, "Open Sans");
+  font-size: var(--sjs2-typography-font-size-component-header-description, 24px);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-header-description, 400);
+  line-height: var(--sjs2-typography-line-height-component-header-description, 32px);
+}

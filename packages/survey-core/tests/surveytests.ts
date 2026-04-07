@@ -1,6 +1,6 @@
 import { Base } from "../src/base";
 import { SurveyElement } from "../src/survey-element";
-import { SurveyModel } from "../src/survey";
+import { SurveyModel, DefaultTheme } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel, QuestionRowModel } from "../src/panel";
 import { ElementFactory, QuestionFactory } from "../src/questionfactory";
@@ -19542,15 +19542,21 @@ QUnit.test("Do not set data in LayoutElement by default", function (assert) {
 });
 
 QUnit.test("restore header css variable if header is default", function (assert) {
-  const json = {
-    title: "Title",
-    elements: [{ "type": "rating", "name": "satisfaction" }]
-  };
-  let survey = new SurveyModel(json);
-  survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
+  try {
+    const cssVariables = DefaultTheme.cssVariables;
+    DefaultTheme.cssVariables = {} as any;
+    const json = {
+      title: "Title",
+      elements: [{ "type": "rating", "name": "satisfaction" }]
+    };
+    let survey = new SurveyModel(json);
+    survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
 
-  const cover = survey.findLayoutElement("advanced-header").data as Cover;
-  assert.equal(cover.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    const cover = survey.findLayoutElement("advanced-header").data as Cover;
+    assert.equal(cover.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+  } finally {
+    DefaultTheme.cssVariables = cssVariables;
+  }
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {
@@ -19968,7 +19974,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     ]
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 0, "before applyTheme");
+  assert.equal(Object.keys(survey.themeVariables).length, 901, "before applyTheme");
   assert.equal(!!survey.backgroundImage, false, "before applyTheme");
   assert.equal(survey.backgroundImageFit, "cover", "before applyTheme");
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
@@ -19991,7 +19997,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     "isPanelless": true
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 5);
+  assert.equal(Object.keys(survey.themeVariables).length, 901);
   assert.equal(!!survey.backgroundImage, true);
   assert.equal(survey.backgroundImageFit, "cover");
   assert.equal(survey.backgroundImageAttachment, "fixed");
@@ -20000,24 +20006,30 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.headerView, "basic", "after applyTheme");
 });
 QUnit.test("survey.applyTheme patches legacy CSS variables", function (assert) {
-  const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-  const theme = {
-    cssVariables: {
-      "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
-      "--sjs-font-size": "18px",
-      "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
-      "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
-    }
-  };
-  survey.applyTheme(theme);
-  const vars = survey.themeVariables;
-  assert.equal(vars["--sjs2-color-bg-basic-primary"], "rgba(255, 0, 0, 1)", "legacy --sjs-general-backcolor mapped to new var");
-  assert.equal(typeof vars["--sjs-general-backcolor"], "undefined", "legacy variable removed");
-  assert.equal(vars["--sjs2-base-unit-font-size"], "9px", "--sjs-font-size mapped to --sjs2-base-unit-font-size");
-  assert.equal(typeof vars["--sjs-font-size"], "undefined", "--sjs-font-size removed");
-  assert.equal(vars["--sjs2-border-effect-floating-default"], "0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)", "join mapping: shadow vars concatenated with comma");
-  assert.equal(typeof vars["--sjs-shadow-medium"], "undefined", "legacy shadow-medium removed");
-  assert.equal(typeof vars["--sjs-shadow-large"], "undefined", "legacy shadow-large removed");
+  try {
+    const cssVariables = DefaultTheme.cssVariables;
+    DefaultTheme.cssVariables = {} as any;
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const theme = {
+      cssVariables: {
+        "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+        "--sjs-font-size": "18px",
+        "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
+        "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
+      }
+    };
+    survey.applyTheme(theme);
+    const vars = survey.themeVariables;
+    assert.equal(vars["--sjs2-color-bg-basic-primary"], "rgba(255, 0, 0, 1)", "legacy --sjs-general-backcolor mapped to new var");
+    assert.equal(typeof vars["--sjs-general-backcolor"], "undefined", "legacy variable removed");
+    assert.equal(vars["--sjs2-base-unit-font-size"], "9px", "--sjs-font-size mapped to --sjs2-base-unit-font-size");
+    assert.equal(typeof vars["--sjs-font-size"], "undefined", "--sjs-font-size removed");
+    assert.equal(vars["--sjs2-border-effect-floating-default"], "0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)", "join mapping: shadow vars concatenated with comma");
+    assert.equal(typeof vars["--sjs-shadow-medium"], "undefined", "legacy shadow-medium removed");
+    assert.equal(typeof vars["--sjs-shadow-large"], "undefined", "legacy shadow-large removed");
+  } finally {
+    DefaultTheme.cssVariables = cssVariables;
+  }
 });
 QUnit.test("survey.applyTheme respects headerView", function (assert) {
   const survey = new SurveyModel({
@@ -21416,51 +21428,57 @@ QUnit.test("onOpenFileChooser fires", function (assert) {
   assert.equal(lastContextPropertyName, "a");
 });
 QUnit.test("Advanced header title/description color", function (assert) {
-  const survey = new SurveyModel();
+  try {
+    const cssVariables = DefaultTheme.cssVariables;
+    DefaultTheme.cssVariables = {} as any;
 
-  const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
-  survey.applyTheme(accHeaderBackTheme);
-  let headerLayoutElement = survey.findLayoutElement("advanced-header");
-  let headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    const survey = new SurveyModel();
+    const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+    survey.applyTheme(accHeaderBackTheme);
+    let headerLayoutElement = survey.findLayoutElement("advanced-header");
+    let headerModel = headerLayoutElement.data as Cover;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-  headerModel.height = 256;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
-  // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
-  // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
-  // assert.equal(survey.themeVariables["--sjs-font-headerdescription-color"], undefined);
-  // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"], undefined);
-  // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"], undefined);
+    headerModel.height = 256;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+    // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
+    // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
+    // assert.equal(survey.themeVariables["--sjs-font-headerdescription-color"], undefined);
+    // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"], undefined);
+    // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"], undefined);
 
-  const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-  survey.applyTheme(noneHeaderBackTheme);
-  headerLayoutElement = survey.findLayoutElement("advanced-header");
-  headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+    survey.applyTheme(noneHeaderBackTheme);
+    headerLayoutElement = survey.findLayoutElement("advanced-header");
+    headerModel = headerLayoutElement.data as Cover;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-  const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-  survey.applyTheme(customNotSetHeaderBackTheme);
-  headerLayoutElement = survey.findLayoutElement("advanced-header");
-  headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+    survey.applyTheme(customNotSetHeaderBackTheme);
+    headerLayoutElement = survey.findLayoutElement("advanced-header");
+    headerModel = headerLayoutElement.data as Cover;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-  const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
-  survey.applyTheme(customHeaderBackTheme);
-  headerLayoutElement = survey.findLayoutElement("advanced-header");
-  headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__background-color--custom");
+    const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+    survey.applyTheme(customHeaderBackTheme);
+    headerLayoutElement = survey.findLayoutElement("advanced-header");
+    headerModel = headerLayoutElement.data as Cover;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__background-color--custom");
 
-  const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-  survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
-  headerLayoutElement = survey.findLayoutElement("advanced-header");
-  headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background");
+    const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+    survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
+    headerLayoutElement = survey.findLayoutElement("advanced-header");
+    headerModel = headerLayoutElement.data as Cover;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto sv-header__without-background");
 
-  const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
-  survey.applyTheme(customHeaderBackAndTitleTheme);
-  headerLayoutElement = survey.findLayoutElement("advanced-header");
-  headerModel = headerLayoutElement.data as Cover;
-  assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto");
+    const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+    survey.applyTheme(customHeaderBackAndTitleTheme);
+    headerLayoutElement = survey.findLayoutElement("advanced-header");
+    headerModel = headerLayoutElement.data as Cover;
+    assert.equal(headerModel.headerClasses, "sv-header sv-header--height-auto");
+  } finally {
+    DefaultTheme.cssVariables = cssVariables;
+  }
 });
 QUnit.test("Display mode in design time", function (assert) {
   const survey = new SurveyModel();

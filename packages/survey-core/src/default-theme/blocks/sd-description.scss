@@ -1,12 +1,9 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-description {
-  font-style: normal;
-  font-family: $font-questiondescription-family;
-  font-weight: $font-questiondescription-weight;
+  @include sjs2--typography--component--question--description;
   color: $font-questiondescription-color;
-  font-size: $font-questiondescription-size;
-  line-height: multiply(1.5, $font-questiondescription-size);
   white-space: normal;
 }
 

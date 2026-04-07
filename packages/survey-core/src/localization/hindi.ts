@@ -71,6 +71,8 @@ export var hindiStrings = {
   maxError: "मान {0} से अधिक नहीं होना चाहिए",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "संख्या की अनुमति नहीं है।",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "कृपया आवश्यक प्रारूप से मेल खाने के लिए मान को पूरा करें।",
   // "Please enter at least {0} character(s)."
   textMinLength: "कृपया कम से कम {0} वर्ण दर्ज करें",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +101,8 @@ export var hindiStrings = {
   urlGetChoicesError: "अनुरोध ने खाली डेटा वापस कर दिया है ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "फ़ाइल का आकार {0} से अधिक नहीं होना चाहिए  या फिर 'पाथ' प्रॉपर्टी गलत है",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "आपके द्वारा अपलोड की जा सकने वाली फ़ाइलों की अधिकतम संख्या {0} है।",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "फ़ाइलें अपलोड नहीं की जा सकती. कृपया 'onloadFiles' ईवेंट के लिए एक हैंडलर जोड़ें.",
   // "Response required: enter another value."
@@ -127,8 +131,8 @@ export var hindiStrings = {
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "पंक्ति {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{पंक्तिशीर्षक}",
   // "Add new"
   addPanel: "नया जोड़ें",
   // "Remove"

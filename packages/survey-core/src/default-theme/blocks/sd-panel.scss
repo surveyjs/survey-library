@@ -1,5 +1,5 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-panel {
   position: relative;
@@ -15,7 +15,10 @@
     }
 
     .sd-panel__title {
-      @include mixins.page_title();
+      @include sjs2--typography--component--page--title;
+      color: $font-pagetitle-color;
+      position: static;
+      margin: 0 0 calcSize(0.5) 0px;
 
       span {
         font-family: inherit;
@@ -34,7 +37,10 @@
     }
 
     .sd-panel__description {
-      @include mixins.page_description();
+      @include sjs2--typography--component--page--description;
+      color: $font-pagedescription-color;
+      position: static;
+      margin: 0 0 calcSize(0.5) 0;
     }
 
     .sd-panel__required-text {
@@ -43,7 +49,7 @@
   }
 
   & > .sd-panel__errbox {
-    margin: 0 0 calcSize(2) 0;
+    margin: 0 0 var(--sjs2-spacing-x200) 0;
     padding: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit}) var(--sd-base-padding);
   }
 
@@ -62,7 +68,7 @@
 
 .sd-row ~ .sd-row {
   .sd-panel--as-page {
-    padding-top: calcSize(4);
+    padding-top: var(--sjs2-spacing-x400);
   }
 }
 
@@ -81,7 +87,7 @@
   padding-top: calc(0.5 * var(--sd-base-vertical-padding));
 }
 .sd-panel--as-page .sd-panel__footer {
-  padding: calcSize(4) 0 0;
+  padding: var(--sjs2-spacing-x400) 0 0;
   margin: 0;
   border: none;
   width: initial;

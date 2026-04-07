@@ -1,12 +1,12 @@
 @use "../variables.scss" as *;
-@use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-page {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 calcSize(5);
+  padding: 0 var(--sjs2-spacing-x500);
   width: 100%;
   box-sizing: border-box;
   border-radius: var(--sjs2-radius-component-page, 12px);
@@ -17,11 +17,17 @@
 }
 
 .sd-page .sd-page__title {
-  @include mixins.page_title();
+  @include sjs2--typography--component--page--title;
+  color: $font-pagetitle-color;
+  position: static;
+  margin: 0 0 calcSize(0.5) 0px;
 }
 
 .sd-page .sd-page__description {
-  @include mixins.page_description();
+  @include sjs2--typography--component--page--description;
+  color: $font-pagedescription-color;
+  position: static;
+  margin: 0 0 calcSize(0.5) 0;
 }
 
 
@@ -33,7 +39,7 @@
 .sd-page__description {
   &~.sd-page__errbox {
     margin-top: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
-    margin-bottom: calcSize(-1);
+    margin-bottom: var(--sjs2-spacing-negative-x100);
   }
 }
 

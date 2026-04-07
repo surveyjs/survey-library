@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-element {
   padding-left: var(--sv-element-add-padding-left, 0px);
@@ -23,8 +24,7 @@
 }
 
 .sd-title.sd-element__title {
-  font-family: $font-questiontitle-family;
-  font-weight: $font-questiontitle-weight;
+  @include sjs2--typography--component--question--title;
   color: $font-questiontitle-color;
 }
 
@@ -72,21 +72,24 @@
 
 .sd-element__title.sd-element__title--singleinput {
   span {
-    @include mixins.page_title();
+    @include sjs2--typography--component--page--title;
+    color: $font-pagetitle-color;
+    position: static;
+    margin: 0 0 calcSize(0.5) 0px;
   }
 }
 
 .sd-element__num {
   float: left;
-  padding-top: calcSize(0.625);
-  padding-bottom: calcSize(0.375);
+  padding-top: calc(var(--sjs2-base-unit-spacing) * 0.625);
+  padding-bottom: calc(var(--sjs2-base-unit-spacing) * 0.375);
   padding-inline-start: 0;
-  padding-inline-end: calcSize(1);
-  width: calcSize(5);
+  padding-inline-end: var(--sjs2-spacing-x100);
+  width: var(--sjs2-size-x500);
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
   color: $foreground-light;
-  margin-inline-start: calcSize(-5); // margin-left
+  margin-inline-start: var(--sjs2-spacing-negative-x500); // margin-left
   text-align: end;
   box-sizing: border-box;
   white-space: nowrap;
@@ -124,12 +127,12 @@
 
 .sd-element__title-expandable-svg {
   display: inline-block;
-  width: var(--lbr-question-panel-expand-button-icon-width, calcSize(2));
-  height: var(--lbr-question-panel-expand-button-icon-height, calcSize(2));
+  width: var(--sjs2-size-x200);
+  height: var(--sjs2-size-x200);
 
   position: absolute;
-  inset-inline-start: calcSize(-3);
-  top: calcSize(0.5);
+  inset-inline-start: var(--sjs2-spacing-negative-x300);
+  top: var(--sjs2-spacing-x050);
 
   use {
     fill: $foreground-light;

@@ -249,6 +249,7 @@ sv-popup {
   .sv-popup__body-footer .sd-action-bar {
     width: 100%;
     justify-content: flex-start;
+    padding: 0 var(--sjs2-spacing-x100);
     .sd-action-bar__item {
       flex: 0 0 auto;
     }

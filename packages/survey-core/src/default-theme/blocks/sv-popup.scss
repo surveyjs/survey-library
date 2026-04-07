@@ -126,6 +126,8 @@ sv-popup {
 
   .sv-popup__body-footer .sv-modal-footer-action-bar {
     overflow: visible;
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .sv-popup__scrolling-content {
@@ -139,6 +141,12 @@ sv-popup {
 }
 
 .sv-popup--confirm {
+  .sv-popup__body-footer .sv-modal-footer-action-bar > .sd-action-bar__item {
+    flex-grow: 1;
+    .sd-action {
+      flex-grow: 1;
+    }
+  }
   .sv-popup__body-content .sv-string-viewer {
     color: $font-editorfont-color;
     align-self: self-start;

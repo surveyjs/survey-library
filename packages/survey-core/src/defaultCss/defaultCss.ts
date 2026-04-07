@@ -880,7 +880,8 @@ export var defaultCss = {
     popup: "sv-dropdown-popup",
     cleanButtonIconId: "icon-cancel",
     hintPrefix: "sd-dropdown__hint-prefix",
-    hintSuffix: "sd-dropdown__hint-suffix"
+    hintSuffix: "sd-dropdown__hint-suffix",
+    group: "sd-formbox__group",
   },
   list: {
     root: "sv-list__container sd-list",

@@ -145,8 +145,7 @@
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
     .sd-tabs-toolbar {
-        margin: 0 0 -1px var(--sjs2-spacing-negative-x200);
-        width: calc(100% + 4 * #{$base-unit});
+        margin-bottom: -1px;
     }
     &:after {
         content: " ";
@@ -165,6 +164,7 @@
 .sd-tabs-toolbar.sd-action-bar {
     align-items: flex-start;
     z-index: 1;
+    --sd-action-bar-gap: var(--sjs2-spacing-x400);
 }
 
 .sd-tabs-toolbar.sd-tabs-toolbar--left {
@@ -177,10 +177,6 @@
 
 .sd-tabs-toolbar.sd-tabs-toolbar--center {
     justify-content: center;
-}
-
-.sd-tab-item {
-    margin: 0 var(--sjs2-spacing-x200);
 }
 
 .sd-tab-item {

@@ -601,8 +601,8 @@ export default {
     "--sjs2-color-component-action-neutral-tertiary-default-bg": "var(--sjs2-color-bg-neutral-tertiary)",
     "--sjs2-color-component-action-neutral-tertiary-default-icon": "rgba(from #1c1b20 r g b / calc(1% * 60))",
     "--sjs2-color-component-action-neutral-tertiary-default-label": "var(--sjs2-color-fg-neutral-primary)",
-    "--sjs2-color-component-action-neutral-tertiary-hovered-bg": "var(--sjs2-color-bg-neutral-tertiary-dim)",
-    "--sjs2-color-component-action-neutral-tertiary-hovered-icon": "var(--sjs2-color-fg-neutral-primary-muted)",
+    "--sjs2-color-component-action-neutral-tertiary-hovered-bg": "#f3f3f3",
+    "--sjs2-color-component-action-neutral-tertiary-hovered-icon": "#909090",
     "--sjs2-color-component-action-neutral-tertiary-hovered-label": "var(--sjs2-color-fg-neutral-primary)",
     "--sjs2-color-component-action-neutral-tertiary-disabled-bg": "rgba(from var(--sjs2-color-bg-neutral-tertiary) r g b / var(--sjs2-opacity-hidden))",
     "--sjs2-color-component-action-neutral-tertiary-disabled-icon": "var(--sjs2-color-fg-neutral-primary-disabled)",
@@ -901,11 +901,6 @@ export default {
     "--sjs2-border-effect-surface-disabled": "var(--sjs2-border-offset-x-surface-disabled) var(--sjs2-border-offset-y-surface-disabled) var(--sjs2-border-blur-surface-disabled) var(--sjs2-border-spread-surface-disabled) var(--sjs2-color-utility-shadow-surface-disabled)",
     "--sjs2-border-effect-surface-dragging": "var(--sjs2-border-offset-x-surface-dragging) var(--sjs2-border-offset-y-surface-dragging) var(--sjs2-border-blur-surface-dragging) var(--sjs2-border-spread-surface-dragging) var(--sjs2-color-utility-shadow-surface-dragging)",
     "--sjs2-border-effect-floating-default": "var(--sjs2-border-offset-x-floating-default) var(--sjs2-border-offset-y-floating-default) var(--sjs2-border-blur-floating-default) var(--sjs2-border-spread-floating-default) var(--sjs2-color-utility-shadow-floating-default)",
-    "--sjs2-color-component-formbox-action-default-icon": "rgba(from #1C1B20 r g b / calc(1% * 60))",
-    "--sjs2-color-component-formbox-action-pressed-bg": "rgb(from #f3f3f3 r g b / 0.5)",
-    "--sjs2-color-component-formbox-action-pressed-icon": "rgb(from #909090 r g b / 0.5)",
-    "--sjs2-color-component-formbox-action-hovered-icon": "#909090",
-    "--sjs2-color-component-formbox-action-hovered-bg": "#f3f3f3",
     "--sjs2-color-component-check-true-readonly-icon": "#161616"
   }
 };

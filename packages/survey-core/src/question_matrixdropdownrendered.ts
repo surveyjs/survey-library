@@ -688,7 +688,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = this.matrix.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
-      actionContainer.setActionsAppearance({ mode: "quaternary", size: "small", style: "neutral" });
+      actionContainer.setActionsAppearance({ mode: this.matrix.isMobile ? "tertiary" : "quaternary", size: "small", style: "neutral" });
       if (!!this.matrix.survey && this.matrix.survey.getCss().actionBar) {
         actionContainer.cssClasses = this.matrix.survey.getCss().actionBar;
       }
@@ -745,8 +745,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           iconSize: "auto",
           innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
           location: "end",
-          iconName: !this.showRemoveButtonAsIcon ? "" : "icon-delete-24x24",
-          showTitle: !this.showRemoveButtonAsIcon as boolean,
+          iconName: !this.showRemoveButtonAsIcon || matrix.isMobile ? "" : "icon-delete-24x24",
+          showTitle: !this.showRemoveButtonAsIcon || matrix.isMobile,
           locTitle: matrix.locRemoveRowText,
           enabled: !matrix.isInputReadOnly,
           appearance: { style: "alert" },

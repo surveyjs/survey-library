@@ -30,13 +30,7 @@
 .sd-matrixdynamic__footer {
   padding-top: var(--sjs2-spacing-x200);
 }
-.sd-matrixdynamic__remove-btn {
-  opacity: 0.5;
-  &:hover,
-  &:focus {
-    opacity: 1;
-  }
-}
+
 .sd-matrixdynamic__drag-element {
   padding: var(--sjs2-spacing-x200);
 

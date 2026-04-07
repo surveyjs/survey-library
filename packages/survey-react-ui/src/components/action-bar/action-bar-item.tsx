@@ -10,7 +10,7 @@ import { SurveyLocStringViewer } from "../../string-viewer";
 
 interface IActionBarItemProps {
   item: Action;
-  action: (event: any) => void;
+  action?: (event: any) => void;
 }
 
 export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {

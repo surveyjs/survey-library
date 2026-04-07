@@ -976,6 +976,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private validateInPanels(context: ValidationContext): void {
+    if (this.isReadOnly) return;
     var errors = <Array<any>>[];
     this.validateRequired(context, errors);
     if (this.survey) {

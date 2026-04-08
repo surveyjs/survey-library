@@ -261,7 +261,7 @@ frameworks.forEach(framework => {
         var panel = (window as any)["survey"].getAllPanels()[0];
         var locstr = new (window as any)["Survey"].LocalizableString(panel);
         locstr.text = "Edit";
-        panel.footerActions.push({ id: "test", locTitle: locstr });
+        panel.footerActions.push({ id: "test", locTitle: locstr, appearance: { style: "brand" } });
       });
 
       await getButtonByText(page, "Next").click();

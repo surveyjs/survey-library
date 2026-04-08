@@ -1501,6 +1501,24 @@ QUnit.test("MatrixDropdownColumn add/remove serialization properties", function 
   assert.notOk(column["placeholder"], "placeholder property has been removed");
   assert.notOk(column["locPlaceholder"], "Serialization property has been removed for placeholder");
 });
+QUnit.test("MatrixDropdownColumn changing cellType from dropdown to radiogroup should not serialize allowClear, Bug#11146", function (assert) {
+  var column = new MatrixDropdownColumn("col1");
+  assert.equal(column.cellType, "default", "default cellType");
+  assert.equal(column.templateQuestion.getType(), "dropdown", "template is dropdown by default");
+  column["choices"] = [1, 2, 3];
+  column["choicesOrder"] = "asc";
+  column["showOtherItem"] = true;
+  column["isRequired"] = true;
+  column.cellType = "radiogroup";
+  assert.equal(column.templateQuestion.getType(), "radiogroup", "template is radiogroup now");
+  const json = column.toJSON();
+  assert.notOk(json.allowClear, "allowClear should not be serialized for radiogroup column");
+  assert.equal(column.templateQuestion["allowClear"], false, "allowClear should be false on radiogroup template");
+  assert.deepEqual(json.choices, [1, 2, 3], "choices should be preserved after cellType change");
+  assert.equal(json.choicesOrder, "asc", "choicesOrder should be preserved after cellType change");
+  assert.equal(json.showOtherItem, true, "showOtherItem should be preserved after cellType change");
+  assert.equal(json.isRequired, true, "isRequired should be preserved after cellType change");
+});
 QUnit.test("MatrixDropdownColumn cellType property, choices", function (assert) {
   var prop = Serializer.findProperty("matrixdropdowncolumn", "cellType");
   assert.ok(prop, "Property is here");

@@ -805,7 +805,8 @@ export class MatrixDropdownColumn extends Base
         }
         json = JSON.parse(this.templateQuestionJsonValue);
       } else {
-        json = new JsonObject().toJsonObject(this.templateQuestion, true);
+        const storeDefaults = this.templateQuestion.getType() === question.getType();
+        json = new JsonObject().toJsonObject(this.templateQuestion, storeDefaults);
       }
       json.type = question.getType();
       if (this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {

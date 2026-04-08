@@ -2,6 +2,8 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-action {
+  -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
   border: none;
   display: flex;
@@ -61,6 +63,7 @@
 }
 
 .sd-action__icon {
+  pointer-events: none;
   width: var(--sd-action-icon-size);
   height: var(--sd-action-icon-size);
   padding: var(--sd-action-icon-padding);

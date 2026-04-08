@@ -36,7 +36,7 @@
         :class="question.cssClasses.defaultImage"
         :size="'auto'"
       ></SvComponent>
-      <SvComponent v-if="item.name && !question.isReadOnly" :is="'sv-action'" :item="question.getRemoveFileButton()" :action="() => { question.doRemoveFile(item); }"></SvComponent>
+      <SvComponent v-if="item.name && !question.isReadOnly" :is="'sv-action'" :item="question.getRemoveFileButton(item)"></SvComponent>
     </div>
     <div
       v-if="item.name && question.cssClasses.fileSignBottom"

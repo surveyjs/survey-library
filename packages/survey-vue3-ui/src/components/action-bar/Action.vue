@@ -15,15 +15,11 @@ import { useBase } from "@/base";
 import type { Action } from "survey-core";
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 const root = ref();
-const props = defineProps<{ item: Action, action?: () => void }>();
+const props = defineProps<{ item: Action }>();
 const componentName = computed(
   () => props.item.component || "sv-action-bar-item"
 );
-useBase(() => props.item, (newValue) => {
-    if (props.action) {
-      newValue.action = props.action;
-    }
-});
+useBase(() => props.item);
 onMounted(() => {
   const item = props.item;
   item.updateModeCallback = (mode, callback) => {

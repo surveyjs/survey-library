@@ -1032,19 +1032,21 @@ export class QuestionFileModel extends QuestionFileModelBase {
       .append(css.actionsContainerAnswered, this.isAnswered)
       .toString();
   }
-  private _removeFileButton: Action;
-  public getRemoveFileButton(): Action {
-    if (!this._removeFileButton) {
-      this._removeFileButton = new Action({
+  private removeFileButtonMap: Map<Object, Action> = new Map<Object, Action>();
+  public getRemoveFileButton(item: any): Action {
+    if (!item) return null;
+    if (!this.removeFileButtonMap.has(item)) {
+      this.removeFileButtonMap.set(item, new Action({
         iconName: new ComputedUpdater<string>(() => this.cssClasses.removeFileSvgIconId) as any,
         locTitle: this.locRemoveFileCaption,
         innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.removeFileButton).toString()) as any),
         showTitle: false,
+        action: () => { this.doRemoveFile(item); },
         iconSize: "auto",
         appearance: { style: "neutral", mode: "quaternary-surface", size: "x-small", showBorder: true },
-      });
+      }));
     }
-    return this._removeFileButton;
+    return this.removeFileButtonMap.get(item);
   }
   public getReadOnlyFileCss(): string {
     return new CssClassBuilder()
@@ -1282,6 +1284,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private removeFileCore(data: any): void {
     const previewIndex = this.previewValue.indexOf(data);
     this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
+    this.removeFileButtonMap.delete(data);
   }
   doDownloadFileFromContainer = (event: MouseEvent) => {
     event.stopPropagation();

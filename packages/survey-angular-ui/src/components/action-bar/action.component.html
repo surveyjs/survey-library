@@ -1,8 +1,8 @@
 <ng-template #template>
   <div [class]="model.getActionRootCss()" [id]="id" #container>
-    <div class="sv-action__content">
+    <div class="sd-action-bar__item-content">
       <ng-container *ngIf="model.needSeparator">
-        <div class="sv-action-bar-separator"></div>
+        <div class="sd-action-bar__separator"></div>
       </ng-container>
       <ng-template [component]="{ name: model.component, data: { model }, default: 'sv-action-bar-item'}"></ng-template>
     </div>

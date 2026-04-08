@@ -11,7 +11,8 @@ import { getColorFromProperty } from "./utils/utils";
 import { isBase64URL } from "./utils/dom-utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Action } from "./actions/action";
-import { ActionContainer, ComputedUpdater } from "entries";
+import { ComputedUpdater } from "./base";
+import { ActionContainer } from "./actions/container";
 
 var defaultWidth = 300;
 var defaultHeight = 200;

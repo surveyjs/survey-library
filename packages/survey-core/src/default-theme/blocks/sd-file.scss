@@ -109,6 +109,7 @@
 .sd-file__actions-container {
   margin-top: var(--sjs2-spacing-x050);
   flex-wrap: wrap;
+  --sd-action-bar-gap: 0;
   justify-content: center;
 
   .sv-action--hidden {
@@ -119,7 +120,7 @@
 .sd-file--answered .sd-file__actions-container {
   z-index: 2;
   margin-top: 0;
-  gap: var(--sjs2-spacing-x100);
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
 }
 
 .sd-file--answered .sd-file__actions-container {

@@ -457,6 +457,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return [new Action({
       id: "clear",
       title: this.clearButtonCaption,
+      visible: new ComputedUpdater(() => this.canShowClearButton) as unknown as boolean,
       iconName: new ComputedUpdater(() => this.cssClasses.clearButtonIconId) as unknown as string,
       locTitle: this.locClearButtonCaption,
       showTitle: false,

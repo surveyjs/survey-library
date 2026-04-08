@@ -80,7 +80,7 @@
 
 .sd-title .sv-title-actions {
   align-items: flex-start;
-  width: calc(100% + 3 * #{$base-unit});
+  width: calc(100% + 2 * #{$base-unit});
 
   .sv-title-actions__title {
     flex-wrap: wrap;
@@ -100,7 +100,7 @@
   min-width: var(--sjs2-size-x600);
   justify-content: flex-end;
   margin: var(--sjs2-spacing-negative-x100) 0;
-
+  --sd-action-bar-gap: 0;
   .sd-action-bar__item {
     flex: 0 0 auto;
   }

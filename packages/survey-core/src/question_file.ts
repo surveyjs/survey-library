@@ -287,7 +287,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
-      innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.chooseFile) as any),
+      innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.chooseFile).append(this.cssClasses.chooseFileDisabled, this.isInputReadOnly).toString()) as any),
       data: { question: this },
       locTitle: this.locChooseButtonText,
       appearance: new ComputedUpdater<IActionAppearance>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,

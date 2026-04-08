@@ -2550,6 +2550,7 @@ export class SurveyModel extends SurveyElementCore
     const val = this.navigationBarValue;
     if (!!val) {
       val.containerCss = this.css.footer;
+      val.cssClasses = this.css.navigationBar;
       !!this._updateNavigationItemCssCallback && this._updateNavigationItemCssCallback();
     }
   }

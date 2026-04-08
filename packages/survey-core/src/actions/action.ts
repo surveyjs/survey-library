@@ -705,14 +705,15 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public getActionBarItemCss(): string {
     const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {});
     const css = super.getActionBarItemCss();
-    if (!this.cssClasses.itemStylePrefix) {
+    const prefix = this.cssClasses.itemAppearancePrefix;
+    if (!prefix) {
       return css;
     }
     return new CssClassBuilder().append(css)
-      .append(`${this.cssClasses.itemStylePrefix}--${appearance.style}`, !!appearance.style)
-      .append(`${this.cssClasses.itemStylePrefix}--${appearance.mode}`, !!appearance.mode)
-      .append(`${this.cssClasses.itemStylePrefix}--${appearance.size}`, !!appearance.size)
-      .append(`${this.cssClasses.itemStylePrefix}--border`, !!appearance.showBorder)
+      .append(`${prefix}--${appearance.style}`, !!appearance.style)
+      .append(`${prefix}--${appearance.mode}`, !!appearance.mode)
+      .append(`${prefix}--${appearance.size}`, !!appearance.size)
+      .append(`${prefix}--border`, !!appearance.showBorder)
       .toString();
   }
 }

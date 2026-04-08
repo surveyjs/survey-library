@@ -26,7 +26,7 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -2165,7 +2165,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
         data: { question: this, panel: panel }
       });
-      action.cssClasses = this.survey.getCss().actionBar;
+      action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
       this.removePanelActions[panel.uniqueId] = action;
     }
     return this.removePanelActions[panel.uniqueId];

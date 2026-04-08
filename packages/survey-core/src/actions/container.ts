@@ -13,7 +13,7 @@ export let defaultActionBarCss: ActionBarCssClasses = {
   defaultSizeMode: "sd-action-bar--default-size",
   smallSizeMode: "sd-action-bar--small-size",
   item: "sd-action",
-  itemStylePrefix: "sd-action",
+  itemAppearancePrefix: "sd-action",
   itemWithTitle: "",
   itemAsIcon: "",
   itemActive: "sd-action--active",

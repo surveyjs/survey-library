@@ -2363,9 +2363,7 @@ export class PanelModel extends PanelModelBase implements IElement {
         actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
-      if (this.hasEditButton) {
-        this.footerToolbarValue.setActionsAppearance({ mode: "primary", size: "large", style: "brand" });
-      }
+      this.footerToolbarValue.setActionsAppearance(this.hasEditButton ? { mode: "tertiary-surface", size: "medium", style: "brand", showBorder: true } : { style: "neutral", mode: "tertiary", size: "small" });
       let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
       if (!footerCss) {
         footerCss = this.cssClasses.panel?.footer;

@@ -522,7 +522,14 @@ function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
   var questions = container.questions;
   for (var i = 0; i < questions.length; i++) {
-    if (!questions[i].validate(false)) return false;
+    const q = questions[i];
+    if (Array.isArray(q.panels)) {
+      for (let j = 0; j < q.panels.length; j++) {
+        if (!isContainerReadyCore(q.panels[j])) return false;
+      }
+    } else {
+      if (!q.validate(false)) return false;
+    }
   }
   return true;
 }

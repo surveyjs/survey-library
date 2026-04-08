@@ -36,23 +36,7 @@
         :class="question.cssClasses.defaultImage"
         :size="'auto'"
       ></SvComponent>
-      <div
-        v-if="item.name && !question.isReadOnly"
-        :class="question.getRemoveButtonCss()"
-        @click="question.doRemoveFile(item, $event)"
-      >
-        <span :class="question.cssClasses.removeFile">{{
-          question.removeFileCaption
-        }}</span>
-        <SvComponent
-          :is="'sv-svg-icon'"
-          v-if="question.cssClasses.removeFileSvgIconId"
-          :title="question.removeFileCaption"
-          :class="question.cssClasses.removeFileSvg"
-          :iconName="question.cssClasses.removeFileSvgIconId"
-          :size="'auto'"
-        />
-      </div>
+      <SvComponent v-if="item.name && !question.isReadOnly" :is="'sv-action'" :item="question.getRemoveFileButton()" :action="() => { question.doRemoveFile(item); }"></SvComponent>
     </div>
     <div
       v-if="item.name && question.cssClasses.fileSignBottom"

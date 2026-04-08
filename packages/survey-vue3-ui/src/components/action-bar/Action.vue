@@ -1,6 +1,6 @@
 <template>
   <div v-bind:class="item.getActionRootCss()" :id="''+item.uniqueId" ref="root">
-    <div class="sv-action__content">
+    <div class="sd-action-bar__item-content">
       <SvComponent
         :is="'sv-action-bar-separator'"
         v-if="item.needSeparator"
@@ -15,11 +15,15 @@ import { useBase } from "@/base";
 import type { Action } from "survey-core";
 import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
 const root = ref();
-const props = defineProps<{ item: Action }>();
+const props = defineProps<{ item: Action, action?: () => void }>();
 const componentName = computed(
   () => props.item.component || "sv-action-bar-item"
 );
-useBase(() => props.item);
+useBase(() => props.item, (newValue) => {
+    if (props.action) {
+      newValue.action = props.action;
+    }
+});
 onMounted(() => {
   const item = props.item;
   item.updateModeCallback = (mode, callback) => {

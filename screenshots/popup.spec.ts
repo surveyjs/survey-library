@@ -50,11 +50,11 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await page.waitForTimeout(1000);
 
-      await page.click('.sv-action:has-text("Long List")');
+      await page.click('.sd-action-bar__item:has-text("Long List")');
       await compareScreenshot(page, undefined, "popup-dropdown-long-list.png");
 
-      await page.click('.sv-action:has-text("Long List")');
-      await page.click('.sv-action:has-text("Short List")');
+      await page.click('.sd-action-bar__item:has-text("Long List")');
+      await page.click('.sd-action-bar__item:has-text("Short List")');
       await compareScreenshot(page, undefined, "popup-dropdown-short-list.png");
     });
 
@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await page.waitForTimeout(1000);
 
-      await page.click('.sv-action:has-text("Long List")');
+      await page.click('.sd-action-bar__item:has-text("Long List")');
       await compareScreenshot(page, undefined, "popup-dropdown-separators-long-list.png");
     });
 
@@ -118,7 +118,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await page.waitForTimeout(1000);
 
-      await page.click('.sv-action:has-text("List Icons")');
+      await page.click('.sd-action-bar__item:has-text("List Icons")');
       await compareScreenshot(page, undefined, "popup-dropdown-list-with-icons.png");
     });
 
@@ -146,7 +146,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await page.waitForTimeout(1000);
 
-      await page.click('.sv-action:has-text("Long List")');
+      await page.click('.sd-action-bar__item:has-text("Long List")');
       await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sv-popup .sv-popup__container", "popup-dropdown-list-with-scroll-to-selected-items.png");
     });
@@ -179,11 +179,11 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.click('.sv-action:has-text("Modal")');
+      await page.click('.sd-action-bar__item:has-text("Modal")');
       await compareScreenshot(page, undefined, "popup-modal-long-list.png");
 
       await page.click(".sv-popup__button.sv-popup__button--cancel");
-      await page.click('.sv-action:has-text("Modal with title")');
+      await page.click('.sd-action-bar__item:has-text("Modal with title")');
       await compareScreenshot(page, undefined, "popup-modal-long-list-with-title.png");
     });
 
@@ -217,7 +217,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.click('.sv-action:has-text("Modal with title")');
+      await page.click('.sd-action-bar__item:has-text("Modal with title")');
       await compareScreenshot(page, undefined, "popup-modal-wide-list-with-title.png");
     });
 
@@ -249,11 +249,11 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.click('.sv-action:has-text("Modal")');
+      await page.click('.sd-action-bar__item:has-text("Modal")');
       await compareScreenshot(page, undefined, "popup-modal-short-list.png");
 
       await page.click(".sv-popup__button.sv-popup__button--cancel");
-      await page.click('.sv-action:has-text("Modal with title")');
+      await page.click('.sd-action-bar__item:has-text("Modal with title")');
       await compareScreenshot(page, undefined, "popup-modal-short-list-with-title.png");
     });
 
@@ -293,7 +293,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.click('.sv-action:has-text("Click")');
+      await page.click('.sd-action-bar__item:has-text("Click")');
       await page.click(".sd-dropdown");
       await compareScreenshot(page, ".sv-popup.sv-single-select-list .sv-popup__container", "popup-into-modal-popup.png");
     });
@@ -359,7 +359,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.click(".sv-action");
+      await page.click(".sd-action-bar__item");
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
       await page.waitForTimeout(300);
       await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-right.png");
@@ -412,7 +412,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.click(".sv-action");
+      await page.click(".sd-action-bar__item");
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
       await page.waitForTimeout(300);
       await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-with-selected-elements.png");

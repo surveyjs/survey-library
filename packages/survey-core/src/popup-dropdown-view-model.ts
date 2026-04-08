@@ -53,7 +53,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         id: "cancel",
         visibleIndex: 10,
         title: this.cancelButtonText,
-        innerCss: "sv-popup__button--cancel",
+        innerCss: "sv-popup__button sv-popup__button--cancel",
         action: () => { this.cancel(); }
       }
     ];

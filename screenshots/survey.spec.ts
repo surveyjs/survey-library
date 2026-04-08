@@ -270,7 +270,7 @@ frameworks.forEach(framework => {
         });
       });
       await page.click("text=Windows");
-      await page.click(".sd-btn.sd-navigation__next-btn");
+      await page.click(".sd-navigation__next-btn");
       await page.click("text=Javascript");
       await compareScreenshot(page, ".sd-action-bar.sd-footer.sd-body__navigation", "survey-navigation-bar.png");
     });
@@ -1437,7 +1437,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-no-scrolling.png");
-      await page.click(".sd-btn.sd-navigation__next-btn");
+      await page.click(".sd-navigation__next-btn");
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling-second-page.png");
     });

@@ -69,7 +69,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
       await page.hover(".sd-file .sd-file__preview-item");
-      await page.hover(".sd-file .sd-file__preview-item .sd-context-btn");
+      await page.hover(".sd-file .sd-file__preview-item .sd-action");
       await compareScreenshot(page, questionRoot, "file-question-multiple-remove-hovered.png");
 
       await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");

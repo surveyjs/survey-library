@@ -24,14 +24,14 @@ export class PopupModalViewModel extends PopupBaseViewModel {
         id: "cancel",
         visibleIndex: 10,
         title: this.cancelButtonText,
-        innerCss: "sv-popup__button--cancel",
+        innerCss: "sv-popup__button sv-popup__button--cancel",
         action: () => { this.cancel(); }
       },
       <IAction>{
         id: "apply",
         visibleIndex: 20,
         title: this.applyButtonText,
-        innerCss: "sv-popup__button--apply",
+        innerCss: "sv-popup__button sv-popup__button--apply",
         appearance: { mode: "primary" },
         action: () => { this.apply(); }
       }

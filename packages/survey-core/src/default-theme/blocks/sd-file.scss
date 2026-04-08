@@ -18,11 +18,12 @@
 
     .sv-action--file-index {
       .sd-action {
-        color: $foreground-light;
         padding: var(--sjs2-spacing-x050) 0;
         font-weight: 600;
         background-color: transparent;
-
+        .sd-action__title {
+          color: var(--sd-action-title-color);
+        }
         &:disabled {
           opacity: initial;
         }

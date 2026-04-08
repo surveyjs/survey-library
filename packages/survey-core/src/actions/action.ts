@@ -508,7 +508,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
   @property() appearance: IActionAppearance;
-  @property({ defaultValue: { style: "neutral", mode: "secondary", size: "x-small" } }) predefinedAppearance: IActionAppearance;
+  @property({ defaultValue: { style: "neutral", mode: "quaternary", size: "small" } }) predefinedAppearance: IActionAppearance;
   @property() items: any;
   @property({
     onSet: (val, target) => {

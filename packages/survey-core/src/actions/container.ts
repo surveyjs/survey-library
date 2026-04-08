@@ -299,7 +299,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   private actionAppearance: IActionAppearance;
   public setActionsAppearance(appearance: IActionAppearance): void {
     this.actionAppearance = appearance;
-    this.actions.forEach(action => {
+    this.getAllActions().forEach(action => {
       this.setActionAppearance(action);
     });
   }

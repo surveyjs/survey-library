@@ -91,7 +91,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
     }
   }
-
   protected getRenderedActions(): Array<T> {
     const actions = super.getRenderedActions();
     if (actions.length == 0 || (actions.length === 1 && !!actions[0].iconName))

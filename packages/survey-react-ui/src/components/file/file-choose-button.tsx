@@ -4,7 +4,7 @@ import { ReactSurveyElement } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { ReactElementFactory } from "../../element-factory";
-import { SurveyLocStringViewer } from "src/string-viewer";
+import { SurveyLocStringViewer } from "../../string-viewer";
 
 export class SurveyFileChooseButton extends ReactSurveyElement {
   constructor(props: any) {

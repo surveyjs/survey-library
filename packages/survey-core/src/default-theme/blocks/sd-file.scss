@@ -390,18 +390,6 @@
   background: transparent;
 }
 
-.sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
-  // &.sd-file__choose-btn--icon {
-  //   use {
-  //     fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
-  //   }
-  // }
-
-  // &:not(.sd-file__choose-btn--icon) {
-  //   background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
-  // }
-}
-
 .sd-file__drag-area {
   position: static;
   width: 100%;

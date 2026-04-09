@@ -469,15 +469,10 @@ export class Base implements IObjectValueContext {
     const survey = <IObjectValueContext><any>this.getSurvey();
     if (!survey) return new VariableGetterContext({});
     const surveyContext = survey.getValueGetterContext();
-    if (!surveyContext || surveyContext.getObj === undefined) return surveyContext;
+    if (!surveyContext || !surveyContext.getObj) return surveyContext;
     const self = this;
-    return {
-      getValue: (params) => surveyContext.getValue(params),
-      getTextValue: surveyContext.getTextValue?.bind(surveyContext),
-      getObj: () => self,
-      getRootObj: surveyContext.getRootObj?.bind(surveyContext),
-      getQuestion: surveyContext.getQuestion?.bind(surveyContext)
-    };
+    surveyContext.getObj = () => self;
+    return surveyContext;
   }
   /**
    * Returns `true` if the survey is being designed in Survey Creator.

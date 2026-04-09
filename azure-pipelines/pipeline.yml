@@ -1,0 +1,9 @@
+jobs:
+  - job:
+    steps:
+      - script: |
+          echo "HELLO WORLD"
+          echo "Build.Reason: $(Build.Reason)"
+          echo "Build.SourceBranch: $(Build.SourceBranch)"
+          echo "Build.SourceBranchName: $(Build.SourceBranchName)"
+          echo "Build.SourceVersion: $(Build.SourceVersion)"

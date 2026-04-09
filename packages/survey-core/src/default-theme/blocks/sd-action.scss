@@ -64,6 +64,7 @@
 
 .sd-action__icon {
   pointer-events: none;
+  box-sizing: content-box;
   width: var(--sd-action-icon-size);
   height: var(--sd-action-icon-size);
   padding: var(--sd-action-icon-padding);

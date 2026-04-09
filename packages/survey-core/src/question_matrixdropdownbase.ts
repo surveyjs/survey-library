@@ -544,6 +544,12 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       this.runTriggersOnSetValue(changedName, newColumnValue);
     }
     this.onAnyValueChanged(rowName, "");
+    if (!isComment && changedQuestion) {
+      const col = this.data.columns.filter(c => c.name === name)[0];
+      if (col && col.isUnique) {
+        this.data.checkIfValueInRowDuplicated(this, changedQuestion);
+      }
+    }
   }
 
   private onCellValueChanging(question: Question, newValue: any, isComment: boolean): any {

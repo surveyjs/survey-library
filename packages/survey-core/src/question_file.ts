@@ -290,7 +290,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.chooseFile).append(this.cssClasses.chooseFileDisabled, this.isInputReadOnly).toString()) as any),
       data: { question: this },
       locTitle: this.locChooseButtonText,
-      appearance: new ComputedUpdater<IActionAppearance>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
+      appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => { return !this.isAnswered; }) as any),
       enabledIf: () => !this.isInputReadOnly,
       visible: <boolean>(new ComputedUpdater<boolean>(() => {
@@ -305,7 +305,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "sv-file-start-camera",
       iconSize: "auto",
       locTitle: this.locTakePhotoCaption,
-      appearance: new ComputedUpdater<IActionAppearance>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
+      appearance: new ComputedUpdater<Partial<IActionAppearance>>(() => { return this.isAnswered ? { style: "brand" } : { style: "brand", mode: "tertiary", size: "small" }; }) as any,
       visible: <boolean>(new ComputedUpdater<boolean>(() => {
         const isDesignMode = this.isDesignMode;
         const isFile = this.sourceType === "file";

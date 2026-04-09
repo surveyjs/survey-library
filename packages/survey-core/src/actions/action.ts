@@ -162,7 +162,7 @@ export interface IAction {
   markerIconName?: string;
   showPopup?: () => void;
   hidePopup?: () => void;
-  appearance?: IActionAppearance;
+  appearance?: Partial<IActionAppearance>;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -441,9 +441,9 @@ export abstract class BaseAction extends Base implements IAction {
 }
 
 export interface IActionAppearance {
-  style?: "neutral" | "alert" | "brand";
-  mode?: "primary" | "secondary" | "tertiary" | "tertiary-surface" | "tertiary-muted" | "tertiary-muted-surface" | "quaternary" | "quaternary-surface";
-  size?: "large" | "medium" | "small" | "x-small" | "xx-small";
+  style: "neutral" | "alert" | "brand";
+  mode: "primary" | "secondary" | "tertiary" | "tertiary-surface" | "tertiary-muted" | "tertiary-muted-surface" | "quaternary" | "quaternary-surface";
+  size: "large" | "medium" | "small" | "x-small" | "xx-small";
   showBorder?: boolean;
  }
 
@@ -507,7 +507,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onFocus: (isMouse: boolean, event: any) => void;
   @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
-  @property() appearance: IActionAppearance;
+  @property({ defaultValue: {} }) appearance: Partial<IActionAppearance>;
   @property({ defaultValue: { style: "neutral", mode: "quaternary", size: "small" } }) predefinedAppearance: IActionAppearance;
   @property() items: any;
   @property({

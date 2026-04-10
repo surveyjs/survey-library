@@ -3,6 +3,7 @@ import { JsonObject } from "../../src/jsonobject";
 import { InputMaskDateTime, getDateTimeLexems } from "../../src/mask/mask_datetime";
 import { QuestionTextModel } from "../../src/question_text";
 import { SurveyModel } from "../../src/survey";
+import { settings } from "../../src/settings";
 
 export default QUnit.module("Datetime mask");
 
@@ -1352,4 +1353,45 @@ QUnit.test("Mask datetime with defaultValue includes seconds, #10820", function 
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   assert.equal(q1.inputValue, "09/04/2024 12:34:56");
+});
+
+QUnit.test("Age function with datetime mask and saveMaskedValue, #11157", function (assert) {
+  const savedOnDateCreated = settings.onDateCreated;
+  settings.onDateCreated = (newDate: Date, reason: string, val: any): Date => {
+    if (!val) {
+      return new Date(2025, 3, 10); // April 10, 2025 as "today"
+    }
+    return newDate;
+  };
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "Date of Birth",
+        valueName: "patient_dob",
+        maskType: "datetime",
+        maskSettings: {
+          saveMaskedValue: true,
+          pattern: "mm-dd-yyyy"
+        }
+      },
+      {
+        type: "expression",
+        name: "Age",
+        expression: "age({patient_dob})"
+      }
+    ]
+  });
+  const dobQuestion = <QuestionTextModel>survey.getQuestionByName("Date of Birth");
+  const ageQuestion = survey.getQuestionByName("Age");
+  dobQuestion.inputValue = "01-15-1990";
+  assert.equal(dobQuestion.value, "01-15-1990", "DOB value is stored in masked format");
+  assert.equal(ageQuestion.value, 35, "Age should be calculated as 35 via inputValue");
+  survey.setValue("patient_dob", "01-15-2000");
+  assert.equal(ageQuestion.value, 25, "Age should be calculated as 25 via setValue masked");
+  survey.data = { patient_dob: "01-15-2005" };
+  assert.equal(ageQuestion.value, 20, "Age should be calculated as 20 via survey.data masked");
+  survey.data = { patient_dob: "1990-01-15" };
+  assert.equal(ageQuestion.value, 35, "Age should be calculated as 35 via survey.data ISO format");
+  settings.onDateCreated = savedOnDateCreated;
 });

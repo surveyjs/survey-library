@@ -1354,7 +1354,7 @@ QUnit.test("Mask datetime with defaultValue includes seconds, #10820", function 
   assert.equal(q1.inputValue, "09/04/2024 12:34:56");
 });
 
-QUnit.test("Mask datetime with defaultValueExpression today() and saveMaskedValue", function (assert) {
+QUnit.test("Mask datetime with defaultValueExpression today() and saveMaskedValue, Bug#11158", function (assert) {
   function todayMock() {
     return new Date(2025, 3, 10);
   }

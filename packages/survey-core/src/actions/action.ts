@@ -365,10 +365,15 @@ export abstract class BaseAction extends Base implements IAction {
   }
   public getActionRootCss(): string {
     return new CssClassBuilder()
-      .append("sd-action-bar__item")
+      .append(this.cssClasses.containerItem)
       .append(this.css)
-      .append("sd-action-bar__item--space", this.needSpace)
-      .append("sd-action-bar__item--hidden", !this.isVisible)
+      .append(this.cssClasses.containerItemSpace, this.needSpace)
+      .append(this.cssClasses.containerItemHidden, !this.isVisible)
+      .toString();
+  }
+  public getActionRootContentCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.containerItemContent)
       .toString();
   }
   public getTooltip(): string {
@@ -649,12 +654,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
+    const hiddenClass = this.cssClasses.containerItemHidden;
     if (htmlElement) {
       const actionContainer = htmlElement;
-      if (actionContainer.classList.contains("sd-action-bar__item--hidden")) {
-        actionContainer.classList.remove("sd-action-bar__item--hidden");
+      if (hiddenClass && actionContainer.classList.contains(hiddenClass)) {
+        actionContainer.classList.remove(hiddenClass);
         this[property] = calcDimension(htmlElement);
-        actionContainer.classList.add("sd-action-bar__item--hidden");
+        actionContainer.classList.add(hiddenClass);
       } else {
         this[property] = calcDimension(htmlElement);
       }

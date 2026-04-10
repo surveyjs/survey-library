@@ -1353,3 +1353,28 @@ QUnit.test("Mask datetime with defaultValue includes seconds, #10820", function 
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   assert.equal(q1.inputValue, "09/04/2024 12:34:56");
 });
+
+QUnit.test("Mask datetime with defaultValueExpression today() and saveMaskedValue", function (assert) {
+  function todayMock() {
+    return new Date(2025, 3, 10);
+  }
+  FunctionFactory.Instance.register("todayMock", todayMock);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "date1",
+        defaultValueExpression: "todayMock()",
+        maskType: "datetime",
+        maskSettings: {
+          saveMaskedValue: true,
+          pattern: "dd.mm.yyyy"
+        }
+      },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("date1");
+  assert.equal(q1.inputValue, "10.04.2025", "inputValue is masked");
+  assert.equal(q1.value, "10.04.2025", "value is saved as masked");
+  FunctionFactory.Instance.unregister("todayMock");
+});

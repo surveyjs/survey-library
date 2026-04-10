@@ -505,7 +505,11 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     let type = this.maskTypeIsEmpty ? this.inputType : this.maskSettings.getTypeForExpressions();
-    return Helpers.convertValToQuestionVal(val, type);
+    const res = Helpers.convertValToQuestionVal(val, type);
+    if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue && typeof res === "string") {
+      return this.maskInstance.getMaskedValue(res);
+    }
+    return res;
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;

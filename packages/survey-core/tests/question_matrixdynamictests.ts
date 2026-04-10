@@ -11531,7 +11531,7 @@ QUnit.test("onMatrixCellValueChanged event should have oldValue and value in opt
   assert.equal(changedLog[5].oldValue, "text1", "Old text value is text1");
 });
 
-QUnit.test("isUnique error should appear in second matrix with validators when duplicate values are set, bug#XXXX", function (assert) {
+QUnit.test("isUnique error should appear in second matrix with validators when duplicate values are set, bug#11155", function (assert) {
   const survey = new SurveyModel({
     pages: [
       {

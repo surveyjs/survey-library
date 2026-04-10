@@ -545,9 +545,12 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     this.onAnyValueChanged(rowName, "");
     if (!isComment && changedQuestion) {
-      const col = this.data.columns.filter(c => c.name === name)[0];
-      if (col && col.isUnique) {
-        this.data.checkIfValueInRowDuplicated(this, changedQuestion);
+      const survey = <any>this.getSurvey();
+      if (survey && survey.isValidateOnValueChanged) {
+        const col = this.data.columns.filter(c => c.name === name)[0];
+        if (col && col.isUnique) {
+          this.data.checkIfValueInRowDuplicated(this, changedQuestion);
+        }
       }
     }
   }

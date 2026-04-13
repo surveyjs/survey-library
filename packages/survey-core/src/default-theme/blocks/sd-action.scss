@@ -18,9 +18,9 @@
   box-shadow: var(--sd-action-boxshadow);
   cursor: pointer;
   transition:
-    background-color,
-    box-shadow,
-    outline,
+    background-color $transition-duration,
+    box-shadow $transition-duration,
+    outline-width $transition-duration,
     transform $transition-duration;
 }
 .sd-action:where(:disabled),
@@ -75,6 +75,7 @@
   height: var(--sd-action-icon-size);
   padding: var(--sd-action-icon-padding);
   use {
+    transition: fill $transition-duration;
     fill: var(--sd-action-icon-color);
   }
 }

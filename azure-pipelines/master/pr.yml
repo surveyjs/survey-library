@@ -57,6 +57,7 @@ stages:
       - template: templates/vue.yml
 
   - stage: Preact
+    displayName: "Preact (ShadowDOM BoxSizing)"
     dependsOn: []
     jobs:
       - template: templates/preact.yml

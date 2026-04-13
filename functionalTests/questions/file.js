@@ -11,7 +11,6 @@
 //       storeDataAsText: true,
 //       allowMultiple: true,
 //       showPreview: true,
-//       needConfirmRemoveFile: true,
 //       imageWidth: 150,
 //       maxSize: 102400
 //     }
@@ -85,7 +84,7 @@
 //   });
 //   test("check clean button", async t => {
 //     await ClientFunction(() => {
-//       window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
+//       window.survey.getAllQuestions()[0].confirmDelete = false;
 //     })();
 //     await t.setFilesToUpload("input[type=file]", ["../resources/stub.txt", "../resources/logo.jpg"]);
 //     await t.click("input[type=file] + div label");

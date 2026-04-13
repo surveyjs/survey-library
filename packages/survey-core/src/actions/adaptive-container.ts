@@ -195,7 +195,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public getRootStyle() {
     if (!this.isInitialized && !this.isResponsivenessDisabled) {
-      return { opacity: 0 };
+      return { opacity: 0, overflow: "hidden" };
     } else {
       return undefined;
     }

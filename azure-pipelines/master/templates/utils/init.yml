@@ -1,10 +1,25 @@
+parameters:
+  - name: extraRepos
+    type: object
+    default: []
+  - name: sourceDir
+    type: string
+    default: $(Build.SourcesDirectory)
+
 steps:
   - checkout: self
     persistCredentials: true
     clean: true
+    fetchTags: false
+
+  - ${{ each repo in parameters.extraRepos }}:
+    - checkout: ${{ repo }}
+      persistCredentials: true
+      clean: true
+      fetchDepth: 1
 
   - template: node.yml
 
   - template: npm.yml
     parameters:
-      directory: $(Build.SourcesDirectory)
+      directory: ${{ parameters.sourceDir }}

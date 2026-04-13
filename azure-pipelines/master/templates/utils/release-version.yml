@@ -1,0 +1,16 @@
+steps:
+  - download: ReleaseVersion
+    artifact: ReleaseVersionFile
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
+      Contents: "version.txt"
+      TargetFolder: "$(Build.SourcesDirectory)/"
+      OverWrite: true
+    displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+  - script: |
+      version=$(cat "$(Build.SourcesDirectory)/version.txt")
+      echo "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+    displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"

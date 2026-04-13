@@ -1,0 +1,6 @@
+steps:
+  - powershell: |
+      $env:GIT_REDIRECT_STDERR = '2>&1'
+      git config --global user.email "surveyjs.org@gmail.com"
+      git config --global user.name "surveyjsdeveloper"
+    displayName: "Set up git config"

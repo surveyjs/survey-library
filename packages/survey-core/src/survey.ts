@@ -2461,7 +2461,6 @@ export class SurveyModel extends SurveyElementCore
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
       this.navigationBarValue = this.createNavigationBar();
-      this.navigationBarValue.setActionsAppearance({ mode: "tertiary-surface", size: "large", style: "brand", showBorder: true });
       this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
       this.navigationBarValue.flushUpdates();
@@ -2472,6 +2471,7 @@ export class SurveyModel extends SurveyElementCore
   protected createNavigationBar(): ActionContainer {
     if (this.createNavigationBarCallback) return this.createNavigationBarCallback();
     const res = new ActionContainer();
+    res.setActionsAppearance({ mode: "tertiary-surface", size: "large", style: "brand", showBorder: true });
     res.setItems(this.createNavigationActions());
     return res;
   }

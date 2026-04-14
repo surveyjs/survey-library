@@ -4,6 +4,7 @@ import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
+import { isNotEmittedStatement } from "typescript";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
@@ -115,6 +116,7 @@ export default (options = {}) => {
       external: [],
       dir: resolve(buildPath, "./fesm"),
       version: pkg.version,
+      noEmitOnError: !options.watch,
     }),
     createUmdConfig({
       input: {
@@ -128,6 +130,7 @@ export default (options = {}) => {
       globalName: "Survey",
       globals: {},
       version: pkg.version,
+      noEmitOnError: !options.watch,
     }),
     createCssConfig({
       input: {

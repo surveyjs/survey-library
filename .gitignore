@@ -54,3 +54,6 @@ tests/bundle/*
 packages/survey-core/tests/bundle/*
 packages/survey-react-ui/tests/bundle/*
 packages/survey-js-ui/tests/bundle/*
+fobarbase
+fobarbase1
+fobarbase2

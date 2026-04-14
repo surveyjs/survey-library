@@ -6,12 +6,17 @@
 		<canvas class="sd-signaturepad__canvas sjs_sp_canvas" height="200" style="user-select:none; width:300px;" tabindex="-1" width="300">
 		</canvas>
 	</div>
-	<div class="sd-signaturepad__controls sjs_sp_controls">
-		<button class="sd-context-btn sd-context-btn--negative sd-signaturepad__clear sjs_sp_clear" title="Clear" type="button">
-			<svg class="sv-svg-icon" role="presentation">
-				<use xlink:href="#icon-clear-24x24" class="">
-				</use>
-			</svg>
-		</button>
+	<div class="sd-action-bar sd-action-bar--default-size sd-signaturepad__controls sjs_sp_controls">
+		<div class="sd-action-bar__item">
+			<div class="sd-action-bar__item-content">
+				<button class="sd-action sd-action--alert sd-action--quaternary-surface sd-action--small sd-signaturepad__clear sjs_sp_clear" role="button" tabindex="0" title="Clear" type="button">
+					<svg class="sd-action__icon sv-svg-icon" role="presentation" style="height:24px; width:24px;">
+						<use xlink:href="#icon-clear-24x24" class="">
+						</use>
+						<title class="">Clear</title>
+					</svg>
+				</button>
+			</div>
+		</div>
 	</div>
 </div>

@@ -46,20 +46,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
-    this.footerToolbar.setCssClasses({
-      root: defaultActionBarCss.root,
-      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
-      smallSizeMode: defaultActionBarCss.smallSizeMode,
-      item: "sd-action sv-menu-popup__button"
-    }, false);
-
+    this.footerToolbar.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
     this.footerToolbar.containerCss = "sv-menu-footer-action-bar";
     let footerActions = [
       <IAction>{
         id: "cancel",
         visibleIndex: 10,
         title: this.cancelButtonText,
-        innerCss: "sv-popup__button--cancel",
+        innerCss: "sv-popup__button sv-popup__button--cancel",
         action: () => { this.cancel(); }
       }
     ];

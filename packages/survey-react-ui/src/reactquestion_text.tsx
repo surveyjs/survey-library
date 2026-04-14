@@ -2,7 +2,7 @@ import * as React from "react";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { QuestionTextModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { SurveyActionBar } from "entries";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   QuestionTextModel

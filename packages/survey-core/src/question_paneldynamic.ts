@@ -26,7 +26,7 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { confirmActionAsync } from "./utils/confirm-dialog";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -2153,6 +2153,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         id: `remove-panel-${panel.id}`,
         locTitle: this.locRemovePanelText,
         innerCss: this.getPanelRemoveButtonCss(),
+        appearance: { style: "alert", mode: "tertiary", size: "small" },
         action: () => {
           if (!this.isInputReadOnly) {
             this.removePanelUI(panel);
@@ -2164,7 +2165,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
         data: { question: this, panel: panel }
       });
-      action.cssClasses = this.survey.getCss().actionBar;
+      action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
       this.removePanelActions[panel.uniqueId] = action;
     }
     return this.removePanelActions[panel.uniqueId];
@@ -2465,18 +2466,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       .append(this.cssClasses.buttonAdd + "--list-mode", this.displayMode === "list")
       .toString();
   }
-  public getPrevButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
-      .toString();
-  }
-  public getNextButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
-      .toString();
-  }
   /**
    * A text displayed when Dynamic Panel contains no entries.
    */
@@ -2549,6 +2538,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private initFooterToolbar() {
     this.footerToolbarValue = this.createActionContainer();
+    this.footerToolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
@@ -2685,7 +2675,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!!tabbedMenu) {
       tabbedMenu.containerCss = this.getTabbedMenuCss(classes);
       tabbedMenu.cssClasses = classes.tabs;
-      tabbedMenu.dotsItem.cssClasses = classes.tabs;
       tabbedMenu.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;

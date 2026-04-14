@@ -17298,7 +17298,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
     ]
   });
   setOldTheme(survey);
-  survey.css = { navigationBar: { item: "custom-action custom-css" }, navigation: { start: "custom-start" } };
+  survey.css = { navigationBar: { item: "custom-action custom-css", itemAppearancePrefix: "" }, navigation: { start: "custom-start" } };
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";

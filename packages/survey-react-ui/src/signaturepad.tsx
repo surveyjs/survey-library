@@ -2,8 +2,8 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionSignaturePadModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { LoadingIndicatorComponent } from "./components/loading-indicator";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -16,7 +16,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
     const loadingIndicator = this.question.showLoadingIndicator ? this.renderLoadingIndicator() : null;
-    var clearButton = this.renderCleanButton();
+    var toolbar = this.renderToolbar();
     return (
       <div className={cssClasses.root} ref={(root) => (this.setControl(root))} style={{ width: this.question.renderedCanvasWidth }}>
         <div
@@ -29,7 +29,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
           {this.renderBackgroundImage()}
           <canvas tabIndex={-1} className={this.question.cssClasses.canvas} onBlur={(event) => { this.question.onBlur(event); }}></canvas>
         </div>
-        {clearButton}
+        {toolbar}
         {loadingIndicator}
       </div>
     );
@@ -44,20 +44,8 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     return <div className={this.question.cssClasses.loadingIndicator}><LoadingIndicatorComponent></LoadingIndicatorComponent></div>;
   }
 
-  renderCleanButton(): React.JSX.Element | null {
-    if (!this.question.canShowClearButton) return null;
-
-    var cssClasses = this.question.cssClasses;
-    return <div className={cssClasses.controls}>
-      <button
-        type="button"
-        className={cssClasses.clearButton}
-        title={this.question.clearButtonCaption}
-        onClick={() => this.question.clearValueFromUI()}
-      >
-        {this.question.cssClasses.clearButtonIconId ? <SvgIcon iconName={this.question.cssClasses.clearButtonIconId} size={"auto"}></SvgIcon> : <span>✖</span>} {/* eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code */}
-      </button>
-    </div>;
+  renderToolbar(): React.JSX.Element | null {
+    return <SurveyActionBar model={this.question.toolbar}></SurveyActionBar>;
   }
 }
 

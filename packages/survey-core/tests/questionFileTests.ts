@@ -2034,11 +2034,12 @@ QUnit.test("Choose file action should have disabled class", function (assert) {
   });
   survey.css = defaultCss;
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
-  assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
+  const action = question.actionsContainer.getActionById("sv-file-choose-file");
+  assert.equal(action.getActionBarItemCss(), "sd-action sd-file__choose-btn sd-action--disabled sd-action--brand sd-action--tertiary sd-action--small", "Disabled");
   survey.readOnly = false;
-  assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-action sd-file__choose-btn--text", "Enabled");
+  assert.equal(action.getActionBarItemCss(), "sd-action sd-file__choose-btn sd-action--brand sd-action--tertiary sd-action--small", "Enabled");
   survey.readOnly = true;
-  assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
+  assert.equal(action.getActionBarItemCss(), "sd-action sd-file__choose-btn sd-action--disabled sd-action--brand sd-action--tertiary sd-action--small", "Disabled");
 });
 
 QUnit.test("Bug #8242: currentMode is set incorrectly when file question is located inside matrixdynamic", function (assert) {

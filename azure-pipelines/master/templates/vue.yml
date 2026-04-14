@@ -4,19 +4,9 @@ jobs:
     steps:
       - template: utils/init.yml
 
-      - template: utils/release-version.yml
-
       - template: utils/npm.yml
         parameters:
           directory: $(Build.SourcesDirectory)/packages/survey-core
-
-      - template: utils/git-config.yml
-
-      - script: |
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
-        displayName: "Core release"
 
       - script: npm run build:all
         workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
@@ -26,12 +16,6 @@ jobs:
         parameters:
           directory: $(Build.SourcesDirectory)/packages/survey-vue3-ui
 
-      - script: |
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        workingDirectory: $(Build.SourcesDirectory)/packages/survey-vue3-ui
-        displayName: "Vue3 release"
-
       - script: npm run build
         workingDirectory: $(Build.SourcesDirectory)/packages/survey-vue3-ui
         displayName: "Build"
@@ -40,15 +24,10 @@ jobs:
         workingDirectory: $(Build.SourcesDirectory)/packages/survey-vue3-ui
         displayName: "Test Markup"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/build"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-vue3-ui"
-
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-          ArtifactName: "SurveyJSLibraryBuildVue3"
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/build"
+          ArtifactName: "SurveyJSLibraryBuildVue3-$(Build.BuildId)"
           publishLocation: "Container"
 
   - job: VueTestA11YE2E

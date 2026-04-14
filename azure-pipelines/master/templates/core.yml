@@ -1,186 +1,27 @@
 jobs:
   - job: CoreBuild
-    displayName: "Build & Test & Docs & Publish"
+    displayName: "Build & Unit & CSS"
     steps:
       - template: utils/init.yml
-        parameters:
-          sourceDir: $(Build.SourcesDirectory)/survey-library
-          extraRepos:
-            - Service
-            - SiteData
-            - Utils
-
-      - template: utils/release-version.yml
 
       - template: utils/npm.yml
         parameters:
-          directory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
-
-      - template: utils/git-config.yml
-
-      - script: |
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
-        displayName: "npm run release"
+          directory: $(Build.SourcesDirectory)/packages/survey-core
 
       - script: npm run build:all
-        workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
         displayName: "Build"
 
-      - script: npm test
-        workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
         displayName: "Unit Tests"
 
       - script: npm run test:postcss
-        workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
         displayName: "CSS Tests"
-
-      - script: npm run doc_gen
-        workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
-        displayName: "generate docs"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      # Push docs to surveyjs/service
-      - powershell: |
-          $branch = "$(CurrentBranch)"
-          cd $(Build.SourcesDirectory)/service
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-          git fetch origin $branch
-          git checkout -B $branch origin/$branch
-          git reset --hard origin/$branch
-        displayName: "Git surveyjs/service push updated docs (prepare)"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
-          Contents: |
-            classes.json
-            pmes.json
-            surveyjs_definition.json
-          TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
-          OverWrite: true
-          CleanTargetFolder: false
-        displayName: "copy generated docs to the local surveyjs/service repo"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - powershell: |
-          $branch = "$(CurrentBranch)"
-          cd $(Build.SourcesDirectory)/service
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-          git add surveyjs.io/App_Data/DocsLibrary
-          if (git status --porcelain) {
-              git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
-              git push origin $branch
-          }
-        displayName: "Git surveyjs/service push updated docs for $(CurrentBranch)"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      # Push docs to surveyjs-site-data
-      - powershell: |
-          $branch = "V2"
-          cd $(Build.SourcesDirectory)/surveyjs-site-data
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-          git fetch origin $branch
-          git checkout -B $branch origin/$branch
-          git reset --hard origin/$branch
-        displayName: "Git surveyjs-site-data push updated docs (prepare)"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
-          Contents: |
-            classes.json
-            pmes.json
-            surveyjs_definition.json
-          TargetFolder: "$(Build.SourcesDirectory)/surveyjs-site-data/DocsLibrary"
-          OverWrite: true
-          CleanTargetFolder: false
-        displayName: "Copy generated docs to the local surveyjs-site-data repo"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - powershell: |
-          $branch = "V2"
-          cd $(Build.SourcesDirectory)/surveyjs-site-data
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-          git add DocsLibrary
-          if (git status --porcelain) {
-              git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
-              git push origin $branch
-          }
-        displayName: "Git surveyjs-site-data push updated docs for V2"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      # Translation
-      - script: npm install
-        workingDirectory: $(Build.SourcesDirectory)/survey-utils
-        displayName: "NPM install survey-utils"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - script: npm run build
-        workingDirectory: $(Build.SourcesDirectory)/survey-utils
-        displayName: "survey-utils build"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - script: node ./dist/translateLibrary.js
-        workingDirectory: $(Build.SourcesDirectory)/survey-utils
-        displayName: "survey-utils translate library"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      - powershell: |
-          $branch = "$(CurrentBranch)"
-          cd $(Build.SourcesDirectory)/survey-library
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-
-          git fetch origin $branch
-          git checkout -B $branch origin/$branch
-          
-          git add packages/survey-core/src/localization
-          if (git status --porcelain) {
-              git commit -m "updated survey-library translation for $branch [azurepipelines skip]"
-              git push origin $branch
-          }
-        displayName: "Library - push updated translation to github for $(CurrentBranch)"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      # Copy surveyjs_definition.json into build
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
-          Contents: |
-            surveyjs_definition.json
-          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
-          OverWrite: true
-          CleanTargetFolder: false
-        displayName: "put surveyjs_definition.json into build"
-        condition: ne(variables['Build.Reason'], 'PullRequest')
-
-      # Publish artifacts
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
-
-      - task: CopyFiles@2
-        inputs:
-          contents: "version.txt"
-          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
-        displayName: "copy version file to Build.ArtifactStagingDirectory"
 
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-core/build"
           ArtifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
           publishLocation: "Container"

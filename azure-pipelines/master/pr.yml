@@ -3,24 +3,6 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-resources:
-  repositories:
-    - repository: Service
-      type: github
-      endpoint: github.com_surveyjsdeveloper
-      name: surveyjs/service
-    - repository: SiteData
-      type: github
-      endpoint: github.com_surveyjsdeveloper
-      name: surveyjs/surveyjs-site-data
-    - repository: Utils
-      type: github
-      endpoint: github.com_surveyjsdeveloper
-      name: surveyjs/survey-utils
-  pipelines:
-    - pipeline: ReleaseVersion
-      source: Release Version
-
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
   CurrentBranch: $(Build.SourceBranchName)

@@ -4,19 +4,9 @@ jobs:
     steps:
       - template: utils/init.yml
 
-      - template: utils/release-version.yml
-
       - template: utils/npm.yml
         parameters:
           directory: $(Build.SourcesDirectory)/packages/survey-core
-
-      - template: utils/git-config.yml
-
-      - script: |
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
-        displayName: "Core release"
 
       - script: npm run build:all
         workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
@@ -26,25 +16,14 @@ jobs:
         parameters:
           directory: $(Build.SourcesDirectory)/packages/survey-js-ui
 
-      - script: |
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        workingDirectory: $(Build.SourcesDirectory)/packages/survey-js-ui
-        displayName: "Preact release"
-
       - script: npm run build
         workingDirectory: $(Build.SourcesDirectory)/packages/survey-js-ui
         displayName: "Build"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/build"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-js-ui"
-
       - task: PublishBuildArtifacts@1
         inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-          ArtifactName: "SurveyJSLibraryBuildSurveyUI"
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-js-ui/build"
+          ArtifactName: "SurveyJSLibraryBuildSurveyUI-$(Build.BuildId)"
           publishLocation: "Container"
 
   - job: PreactTestA11YE2E

@@ -5005,10 +5005,10 @@ export class SurveyModel extends SurveyElementCore
         this.stopTimer();
         this.notifyQuestionsOnHidingContent(this.currentPage);
         this.isCompleted = true;
+        this.cancelPreview();
         this.clearUnusedValues();
         this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
         this.setCookie();
-        this.cancelPreview();
       } else {
         this.isCompleted = false;
       }

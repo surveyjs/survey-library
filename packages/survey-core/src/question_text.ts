@@ -375,8 +375,11 @@ export class QuestionTextModel extends QuestionTextBase {
     return val;
   }
   protected convertToCorrectValue(val: any): any {
-    if (val !== undefined && val !== null && typeof val !== "string" && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
-      return this.maskInstance.getMaskedValue(val);
+    if (val !== undefined && val !== null && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
+      const maskedVal = this.maskInstance.getMaskedValue(val);
+      if (typeof val === "string" &&
+        (!!this.maskInstance.getUnmaskedValue(val) || !this.maskInstance.getUnmaskedValue(maskedVal))) return val;
+      return maskedVal;
     }
     return super.convertToCorrectValue(val);
   }
@@ -505,7 +508,11 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     let type = this.maskTypeIsEmpty ? this.inputType : this.maskSettings.getTypeForExpressions();
-    return Helpers.convertValToQuestionVal(val, type);
+    const res = Helpers.convertValToQuestionVal(val, type);
+    if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue && typeof res === "string") {
+      return this.maskInstance.getMaskedValue(res);
+    }
+    return res;
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;

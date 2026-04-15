@@ -3841,3 +3841,13 @@ QUnit.test("Panel maxWidth should return to default when set to empty string", (
   panel.maxWidth = "";
   assert.equal(panel.maxWidth, settings.maxWidth, "panel maxWidth returns to default on empty string");
 });
+QUnit.test("Required Validation Errors should not appear for Read-only Panels Bug#11136", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1", isRequired: true, readOnly: true, elements: [{ type: "text", name: "q1" }] }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  assert.equal(survey.validate(), true, "Survey is valid when panel is read-only and required");
+  assert.equal(panel.errors.length, 0, "There should be no errors on the panel");
+});

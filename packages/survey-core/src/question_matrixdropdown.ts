@@ -22,7 +22,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   public getObj(): Base { return this.question; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (!this.question.isDesignMode && !params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    if (!this.question.isDesignMode && !params.createObjects && this.question.isEmpty() && path.length === 0) return { isFound: true, value: undefined };
     if (path.length > 0) {
       const res = super.getValue(params);
       if (res && res.isFound) return res;

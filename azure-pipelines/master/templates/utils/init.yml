@@ -1,0 +1,10 @@
+steps:
+  - checkout: self
+    persistCredentials: true
+    clean: true
+
+  - template: node.yml
+
+  - template: npm.yml
+    parameters:
+      directory: $(Build.SourcesDirectory)

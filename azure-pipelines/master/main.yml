@@ -164,6 +164,7 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          git tag -l | xargs -r git tag -d
           npm run release -- --release-as $(SurveyJSVersion)
         displayName: "npm run release"
 
@@ -417,6 +418,7 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          git tag -l | xargs -r git tag -d
           npm run release -- --release-as $(SurveyJSVersion)
         displayName: "npm run release"
 
@@ -568,6 +570,7 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          git tag -l | xargs -r git tag -d
           npm run release -- --release-as $(SurveyJSVersion)
         displayName: "npm run release"
 
@@ -729,6 +732,7 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+          git tag -l | xargs -r git tag -d
           npm run release -- --release-as $(SurveyJSVersion)
         displayName: "npm run release"
 
@@ -889,6 +893,7 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+          git tag -l | xargs -r git tag -d
           npm run release -- --release-as $(SurveyJSVersion)
         displayName: "npm run release"
 

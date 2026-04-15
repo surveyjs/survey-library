@@ -1,0 +1,127 @@
+jobs:
+  - job: ReactBuild
+    displayName: "Build & Markup"
+    steps:
+      - template: utils/init.yml
+
+      - template: utils/npm.yml
+        parameters:
+          directory: $(Build.SourcesDirectory)/packages/survey-core
+
+      - script: npm run build:all
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+        displayName: "Build Core"
+
+      - template: utils/npm.yml
+        parameters:
+          directory: $(Build.SourcesDirectory)/packages/survey-react-ui
+
+      - script: npm run build
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Build"
+
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Test Markup"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-react-ui/build"
+          ArtifactName: "SurveyJSLibraryBuildReact-$(Build.BuildId)"
+          publishLocation: "Container"
+
+  - job: ReactTestA11YE2E
+    displayName: "Test A11Y & E2E"
+    steps:
+      - template: utils/init.yml
+
+      - template: utils/npm.yml
+        parameters:
+          directory: $(Build.SourcesDirectory)/packages/survey-core
+
+      - script: npm run build:all
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+        displayName: "Build Core"
+
+      - template: utils/npm.yml
+        parameters:
+          directory: $(Build.SourcesDirectory)/packages/survey-react-ui
+
+      - script: npm run build
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Build"
+
+      - template: utils/playwright.yml
+
+      - script: npm run accessibility-tests:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Test A11Y"
+
+      - script: npm run e2e:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Test E2E"
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish artifacts"
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+
+      - task: PublishTestResults@2
+        displayName: "Publish results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React E2E Tests"
+        condition: succeededOrFailed()
+
+  - job: ReactTestSCR
+    displayName: "Test SCR"
+    steps:
+      - template: utils/init.yml
+
+      - template: utils/npm.yml
+        parameters:
+          directory: $(Build.SourcesDirectory)/packages/survey-core
+
+      - script: npm run build:all
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+        displayName: "Build Core"
+
+      - template: utils/npm.yml
+        parameters:
+          directory: $(Build.SourcesDirectory)/packages/survey-react-ui
+
+      - script: npm run build
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Build"
+
+      - template: utils/playwright.yml
+
+      - script: npm run scr:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+        displayName: "Test"
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish artifacts"
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          ArtifactName: "Library_React_SCR"
+          publishLocation: "Container"
+        condition: always()
+
+      - task: PublishTestResults@2
+        displayName: "Publish results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React SCR Tests"
+        condition: succeededOrFailed()

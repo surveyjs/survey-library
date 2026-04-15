@@ -11918,6 +11918,41 @@ QUnit.test("onValidatePage doesn't include internal question errors, Bug#9565", 
   assert.equal(questions[1].name, "minvalue", "questions[1].name");
   assert.equal(questions[2].name, "maxvalue", "questions[2].name");
 });
+QUnit.test("Adding errors in onValidatePage handler should prevent navigation, Bug#11171", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+        ],
+      },
+      {
+        name: "page2",
+        elements: [
+          { type: "text", name: "q3" },
+        ],
+      },
+    ],
+  });
+  survey.onValidatePage.add(function (sender, options) {
+    const q1Val = Number(survey.getValue("q1")) || 0;
+    const q2Val = Number(survey.getValue("q2")) || 0;
+    if (q1Val + q2Val > 100) {
+      options.errors.push(new CustomError("The total must not exceed 100"));
+      options.questions = options.page.questions;
+    }
+  });
+  survey.setValue("q1", 60);
+  survey.setValue("q2", 50);
+  assert.equal(survey.currentPageNo, 0, "Start on page 0");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "Should stay on page 0 because onValidatePage added errors");
+  survey.setValue("q2", 30);
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "Should move to page 1 when total <= 100");
+});
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   var survey = new SurveyModel();

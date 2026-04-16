@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, doDrag } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
@@ -201,14 +201,26 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        document.querySelector("#surveyElement")!.style.height = "300px";
+        const container = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern");
+        container.parentElement.style.height = "300px";
+
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const surveyContainer = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
         if (surveyContainer) {
+          // eslint-disable-next-line no-console
+          console.log("surveyContainer found");
           surveyContainer.scrollTop = 50;
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("surveyContainer not found");
         }
         const question = window["survey"].getAllQuestions()[0];
         question.dragDropRankingChoices.domAdapter.doScroll = () => { };
       });
+
+      const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
+      const scrollTop = await scroller.evaluate((el) => el.scrollTop);
+      expect(scrollTop).toBe(50);
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       await page.waitForTimeout(500);

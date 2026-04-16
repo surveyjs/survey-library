@@ -125,12 +125,21 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 
       const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
+      rootElement.classList.add("root-fixed");
       const styles = document.createElement("style");
       styles.textContent = `
         *,
         ::after,
         ::before {
             box-sizing: border-box;
+        }
+
+        .root-fixed {
+          position: fixed;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0;
         }
       `;
       shadowRoot.appendChild(styles);

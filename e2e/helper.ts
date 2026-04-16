@@ -126,12 +126,17 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const container = surveyElement;
       const shadowRoot = container.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
+      rootElement.classList.add("root-element");
       const styles = document.createElement("style");
       styles.textContent = `
         *,
         ::after,
         ::before {
             box-sizing: border-box;
+        }
+
+        .root-element {
+          height: 100%;
         }
       `;
       shadowRoot.appendChild(styles);

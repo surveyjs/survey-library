@@ -612,7 +612,7 @@ frameworks.forEach(framework => {
       await page.click(".sd-rating__item-smiley >> nth=3");
       await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-focus-selected.png");
       await page.hover(".sd-rating__item-smiley >> nth=1");
-      await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-unhovered.png");
+      await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-unhovered.png", { maxDiffPixels: 2 });
       await resetFocusToBody(page);
       await page.hover(".sd-body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-selected.png");

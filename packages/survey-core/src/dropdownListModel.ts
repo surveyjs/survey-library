@@ -34,8 +34,12 @@ export class DropdownListModel extends Base {
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
-  protected readonly selectedItemSelector = ".sv-list__item--selected";
-  protected readonly itemSelector = ".sv-list__item";
+  protected get selectedItemSelector(): string {
+    return classesToSelector(this.listModel.cssClasses.itemSelected);
+  }
+  protected get itemSelector(): string {
+    return classesToSelector(this.listModel.cssClasses.item);
+  }
   protected getFocusFirstInputSelector(): string {
     if (IsTouch) {
       return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
@@ -469,7 +473,7 @@ export class DropdownListModel extends Base {
   public get customItemValue(): ItemValue {
     if (!this._customItemValue) {
       this._customItemValue = new ItemValue("newCustomItem", this.getCustomItemText(this.customValue));
-      this._customItemValue.css = "sv-list-item--custom-value";
+      this._customItemValue.css = this.listModel.cssClasses.itemCustomValue;
     }
     return this._customItemValue;
   }

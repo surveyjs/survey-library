@@ -185,9 +185,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
   }
 
-  protected focusItemOnClickAndPopup() {
-    return;
-  }
   protected onEscape() {
     return;
   }

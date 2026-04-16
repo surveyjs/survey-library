@@ -1,0 +1,19 @@
+parameters:
+  - name: directory
+    type: string
+
+steps:
+  - task: Cache@2
+    displayName: "npm cache"
+    inputs:
+      key: "npm-cache-library | ${{ parameters.directory }}/package.json"
+      path: ${{ parameters.directory }}/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+
+  - task: Npm@1
+    displayName: "npm install"
+    inputs:
+      command: install
+      verbose: false
+      workingDir: ${{ parameters.directory }}
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')

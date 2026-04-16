@@ -81,7 +81,6 @@ frameworks.forEach(framework => {
     test("Check question title font size, #2", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
-        autoFocusFirstQuestion: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "elements": [{

@@ -23,8 +23,8 @@
   flex: 1 1 0px;
   flex-wrap: nowrap;
   overflow: auto;
-  padding: 2px;
-  margin: -2px;
+  padding: var(--sjs2-border-width-a11y, 4px);
+  margin: calc(var(--sjs2-border-width-a11y, 4px) * -1);
 }
 
 .sd-selectbase__label {

@@ -2471,6 +2471,7 @@ export class SurveyModel extends SurveyElementCore
   protected createNavigationBar(): ActionContainer {
     if (this.createNavigationBarCallback) return this.createNavigationBarCallback();
     const res = new ActionContainer();
+    res.setActionsAppearance({ mode: "tertiary-surface", size: "large", style: "brand", showBorder: true });
     res.setItems(this.createNavigationActions());
     return res;
   }
@@ -2533,6 +2534,7 @@ export class SurveyModel extends SurveyElementCore
       visibleIndex: 50,
       onMouseDown: onMouseDownCallback,
       locTitle: this.locCompleteText,
+      appearance: { mode: "primary" },
       action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
     });
     this._updateNavigationItemCssCallback = () => {
@@ -2547,8 +2549,8 @@ export class SurveyModel extends SurveyElementCore
   private updateNavigationCss() {
     const val = this.navigationBarValue;
     if (!!val) {
-      val.cssClasses = this.css.navigationBar;
       val.containerCss = this.css.footer;
+      val.cssClasses = this.css.navigationBar;
       !!this._updateNavigationItemCssCallback && this._updateNavigationItemCssCallback();
     }
   }

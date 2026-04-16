@@ -273,7 +273,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
       SurveyElement.ScrollElementToViewCore(el, true, false);
-      el.focus();
+      el.focus({ focusVisible: false } as any);
       return true;
     }
     return false;
@@ -482,6 +482,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
+      this.titleToolbarValue.setActionsAppearance({ style: "neutral", size: "small", mode: "quaternary" });
       this.titleToolbarValue.locOwner = this;
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());

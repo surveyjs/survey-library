@@ -65,7 +65,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.locator(".sv-action").getByText("List").click();
+      await page.locator(".sd-action-bar__item").getByText("List").click();
 
       const popup__container = page.locator(".sv-popup .sv-popup__container").filter({ visible: true });
       await expect(popup__container).toBeVisible();

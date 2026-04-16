@@ -78,7 +78,7 @@
 
 .sd-panel__footer {
   box-sizing: border-box;
-  padding-left: calc(var(--sd-base-padding) - 3 * #{$base-unit});
+  padding-left: calc(var(--sd-base-padding) - 2 * #{$base-unit});
   margin-left: calc(-1 * var(--sd-base-padding));
   width: calc(100% + 2 * var(--sd-base-padding));
   margin-bottom: calc(-1 * var(--sd-base-padding) + 0.5 * var(--sd-base-vertical-padding));

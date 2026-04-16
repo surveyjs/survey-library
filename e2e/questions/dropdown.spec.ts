@@ -1694,8 +1694,9 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).toHaveText("3");
       await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "");
-
-      await page.locator(".sd-editor-clean-button").click();
+      await page.pause();
+      await page.locator(".sd-editor-clean-button button").click();
+      await page.pause();
       await expect(page.locator(".sd-dropdown__input .sv-string-viewer")).not.toBeVisible();
       await expect(page.locator(".sd-dropdown__input input")).toHaveAttribute("placeholder", "Select...");
     });

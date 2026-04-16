@@ -63,9 +63,9 @@ QUnit.test("AdaptiveActionContainer.css",
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     model.addAction({ id: "1" });
     model.flushUpdates();
-    assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode");
+    assert.equal(model.getRootCss(), "sd-action-bar sd-action-bar--default-size");
     model.containerCss = "footer";
-    assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode footer");
+    assert.equal(model.getRootCss(), "sd-action-bar sd-action-bar--default-size footer");
   }
 );
 
@@ -73,9 +73,9 @@ QUnit.test(
   "getActionRootCss",
   (assert) => {
     const action = new Action(<any>{ css: "custom" });
-    assert.equal(action.getActionRootCss(), "sv-action custom");
+    assert.equal(action.getActionRootCss(), "sd-action-bar__item custom");
     action.visible = false;
-    assert.equal(action.getActionRootCss(), "sv-action custom sv-action--hidden");
+    assert.equal(action.getActionRootCss(), "sd-action-bar__item custom sd-action-bar__item--hidden");
   }
 );
 
@@ -141,7 +141,7 @@ QUnit.test("Check action bar cssClasses", (assert) => {
   };
   assert.ok(actionBar.cssClasses !== defaultActionBarCss);
   assert.equal(actionBar.cssClasses.root, "custom-action-bar");
-  assert.equal(actionBar.cssClasses.item, "sv-action-bar-item");
+  assert.equal(actionBar.cssClasses.item, "sd-action");
 });
 QUnit.test("Action title", (assert) => {
   const page = new PageModel("page1");

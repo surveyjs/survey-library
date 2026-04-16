@@ -17298,7 +17298,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
     ]
   });
   setOldTheme(survey);
-  survey.css = { navigationBar: { item: "custom-action custom-css" }, navigation: { start: "custom-start" } };
+  survey.css = { navigationBar: { item: "custom-action custom-css", itemAppearancePrefix: "" }, navigation: { start: "custom-start" } };
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";
@@ -19974,7 +19974,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     ]
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 997, "before applyTheme");
+  assert.equal(Object.keys(survey.themeVariables).length, 901, "before applyTheme");
   assert.equal(!!survey.backgroundImage, false, "before applyTheme");
   assert.equal(survey.backgroundImageFit, "cover", "before applyTheme");
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
@@ -19997,7 +19997,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     "isPanelless": true
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 997);
+  assert.equal(Object.keys(survey.themeVariables).length, 901);
   assert.equal(!!survey.backgroundImage, true);
   assert.equal(survey.backgroundImageFit, "cover");
   assert.equal(survey.backgroundImageAttachment, "fixed");

@@ -138,14 +138,14 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "logo.jpg");
       await page.locator("input[type=file] + div label").click();
       await page.waitForTimeout(500);
-      await page.locator(".sd-context-btn--negative").first().click();
-      await page.locator(".sv-popup--confirm .sd-btn").first().click();
+      await page.locator(".sd-action--alert").first().click();
+      await page.locator(".sv-popup--confirm .sv-popup__button--cancel").first().click();
 
       let data = await getData(page);
       expect(data["image"][0].name).toBe("logo.jpg");
       await page.waitForTimeout(100);
-      await page.locator(".sd-context-btn--negative").first().click();
-      await page.locator(".sv-popup--confirm .sd-btn--danger").first().click();
+      await page.locator(".sd-action--alert").first().click();
+      await page.locator(".sv-popup--confirm .sv-popup__button--apply").first().click();
 
       data = await getData(page);
       expect(data["image"]).toBe(undefined);
@@ -231,13 +231,13 @@ frameworks.forEach((framework) => {
     });
 
     test("Check file navigator appear on smaller screen", async ({ page }) => {
-      const fileNavigatorSelector = page.locator(".sd-file .sv-action-bar");
+      const fileNavigatorSelector = page.locator(".sd-file .sd-action-bar:not(.sd-file__actions-container)");
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg", folderPath + "starry-sky.jpg"]);
       await page.locator("input[type=file] + div label").click();
       await expect(fileNavigatorSelector).not.toBeVisible();
       await page.setViewportSize({ width: 620, height: 1080 });
       await expect(fileNavigatorSelector).toBeVisible();
-      await expect(fileNavigatorSelector.locator(".sv-action-bar-item__title").filter({ hasText: "1 of 2" })).toBeVisible();
+      await expect(fileNavigatorSelector.locator(".sd-action__title").filter({ hasText: "1 of 2" })).toBeVisible();
       await page.setViewportSize({ width: 1920, height: 1080 });
       await expect(fileNavigatorSelector).not.toBeVisible();
     });

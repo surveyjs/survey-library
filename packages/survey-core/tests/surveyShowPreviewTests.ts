@@ -406,7 +406,7 @@ QUnit.test(
     );
     assert.equal(
       actionContainer.getRootCss(),
-      "sv-action-bar sv-action-bar--default-size-mode sv_p_footer",
+      "sd-action-bar sd-action-bar--default-size sv_p_footer",
       "The panel is editable, footerToolBar is not empty"
     );
     var action = actionContainer.actions[0];

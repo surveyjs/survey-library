@@ -200,14 +200,12 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        if (window["survey"].framework === "survey-js-ui") {
-          // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-          const container = (window as any).survey.rootElement.getRootNode().querySelector(".root-element");
-          container.style.height = "300px";
-        } else {
-          // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-          document.querySelector("#surveyElement")!.style.height = "300px";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
         }
+        container!.style.height = "300px";
 
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const surveyContainer = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");

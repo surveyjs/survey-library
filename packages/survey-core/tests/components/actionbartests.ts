@@ -110,11 +110,11 @@ QUnit.test("Check dropdown action pressed state", (assert) => {
     popupModel: p1
   },);
   const viewModel = new ActionDropdownViewModel(action);
-  assert.notOk(action.pressed);
+  assert.notOk(action.popupActive);
   p1.isVisible = true;
-  assert.ok(action.pressed);
+  assert.ok(action.popupActive);
   p1.isVisible = false;
-  assert.notOk(action.pressed);
+  assert.notOk(action.popupActive);
   action.popupModel = p2;
 });
 

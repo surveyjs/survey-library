@@ -31,8 +31,8 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-angular-ui/build"
-          ArtifactName: "SurveyJSLibraryBuildAngular-$(Build.BuildId)"
-          publishLocation: "Container"
+          ArtifactName: "LibraryBuildAngular"
+          StoreAsTar: true
 
   - job: AngularTestA11YE2E
     displayName: "Test A11Y & E2E"

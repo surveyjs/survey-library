@@ -23,8 +23,8 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-js-ui/build"
-          ArtifactName: "SurveyJSLibraryBuildSurveyUI-$(Build.BuildId)"
-          publishLocation: "Container"
+          ArtifactName: "LibraryBuildSurveyUI"
+          StoreAsTar: true
 
   - job: PreactTestA11YE2E
     displayName: "Test A11Y & E2E"

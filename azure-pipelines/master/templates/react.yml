@@ -27,8 +27,8 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-react-ui/build"
-          ArtifactName: "SurveyJSLibraryBuildReact-$(Build.BuildId)"
-          publishLocation: "Container"
+          ArtifactName: "LibraryBuildReact"
+          StoreAsTar: true
 
   - job: ReactTestA11YE2E
     displayName: "Test A11Y & E2E"

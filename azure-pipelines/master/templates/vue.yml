@@ -27,8 +27,8 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/build"
-          ArtifactName: "SurveyJSLibraryBuildVue3-$(Build.BuildId)"
-          publishLocation: "Container"
+          ArtifactName: "LibraryBuildVue"
+          StoreAsTar: true
 
   - job: VueTestA11YE2E
     displayName: "Test A11Y & E2E"
@@ -73,7 +73,7 @@ jobs:
         displayName: "Publish artifacts"
         inputs:
           PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results"
-          ArtifactName: "Library_Vue3_E2E"
+          ArtifactName: "Library_Vue_E2E"
           publishLocation: "Container"
         condition: always()
 

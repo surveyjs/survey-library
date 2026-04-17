@@ -23,5 +23,5 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-core/build"
-          ArtifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
-          publishLocation: "Container"
+          ArtifactName: "LibraryBuildCore"
+          StoreAsTar: true

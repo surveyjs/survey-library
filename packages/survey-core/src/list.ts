@@ -5,7 +5,7 @@ import { IListModel } from "./actions/list-model";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
-import { settings } from "./settings";
+import { normalizeTextForSearch } from "./helpers";
 import { IsTouch } from "./utils/devices";
 
 export let defaultListCss = {
@@ -76,9 +76,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (!filterStringInLow) return true;
     const text = item.title || "";
     if (this.onTextSearchCallback) return this.onTextSearchCallback(item, filterStringInLow);
-    let textInLow = text.toLocaleLowerCase();
-    textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-    return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
+    const textNormalized = normalizeTextForSearch(text, "filter");
+    const filterNormalized = normalizeTextForSearch(filterStringInLow, "filter");
+    return textNormalized.indexOf(filterNormalized) > -1;
   }
   public isItemVisible(item: T): boolean {
     if (item.id === this.loadingIndicator.id) return item.visible;

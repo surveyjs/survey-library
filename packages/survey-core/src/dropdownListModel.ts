@@ -3,7 +3,7 @@ import { ActionContainer } from "./actions/container";
 import { Base } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Helpers } from "./helpers";
+import { Helpers, normalizeTextForSearch } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property } from "./decorators";
 import { ListModel } from "./list";
@@ -313,9 +313,10 @@ export class DropdownListModel extends Base {
     listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
       if (item.id === this.customItemValue.id) return item.visible;
       if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
-      let textInLow = item.text.toLocaleLowerCase();
-      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+
+      const text = normalizeTextForSearch(item.text, "filter");
+      const search = normalizeTextForSearch(textToSearch, "filter");
+      const index = text.indexOf(search);
       return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
     });
   }

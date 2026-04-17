@@ -27,6 +27,15 @@ function isISODateOnly(str: string): boolean {
   return !isNaN(new Date(str).getTime());
 }
 
+export function normalizeTextForSearch(text: string, reason: string = "filter"): string {
+  text = settings.comparator.normalizeTextCallback(text, reason);
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\u0131/g, "i")
+    .toLowerCase();
+}
+
 export class Helpers {
   /**
    * A static methods that returns true if a value undefined, null, empty string or empty array.

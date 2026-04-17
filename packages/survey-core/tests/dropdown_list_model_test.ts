@@ -215,6 +215,28 @@ QUnit.test("filterString test", function (assert) {
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
 });
 
+QUnit.test("filterString supports ASCII and Turkish dotted i search", function(assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "dropdown",
+      name: "question1",
+      choices: ["ADIYAMAN", "ANKARA", "ISTANBUL"]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.flushUpdates();
+
+  dropdownListModel.filterString = "adi";
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1, "search by adi");
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item))[0].title, "ADIYAMAN", "adi matches ADIYAMAN");
+
+  dropdownListModel.filterString = "adı";// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1, "search by adı");// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item))[0].title, "ADIYAMAN", "adı matches ADIYAMAN");// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+});
+
 QUnit.test("open/hide dropdown popup after start/end filtration", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

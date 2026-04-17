@@ -427,15 +427,7 @@ QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", 
   list.flushUpdates();
   list.filterString = "le";
   let filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
-  assert.equal(filteredActions.length, 1, "one item by default");
-
-  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-    return reason === "filter" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
-  };
-  list.filterString = "lle";
-  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
-  assert.equal(filteredActions.length, 2, "include brouillé"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
+  assert.equal(filteredActions.length, 2, "both items are found by default");
 });
 QUnit.test("ListModel search in subitems", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;

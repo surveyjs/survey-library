@@ -1,4 +1,4 @@
-import { Helpers, createDate } from "../src/helpers";
+import { Helpers, createDate, normalizeTextForSearch } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
 import { ValueGetter, VariableGetterContext } from "../src/conditions/conditionProcessValue";
@@ -137,6 +137,11 @@ QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function
   };
   assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
+});
+QUnit.test("normalizeTextForSearch supports ASCII and Turkish dotted i search", function(assert) {
+  assert.equal(normalizeTextForSearch("ADIYAMAN"), "adiyaman", "#1");
+  assert.equal(normalizeTextForSearch("adi"), "adi", "#2");
+  assert.equal(normalizeTextForSearch("adı"), "adi", "#3"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 });
 
 QUnit.test("Return correct value for array.length", function(assert) {

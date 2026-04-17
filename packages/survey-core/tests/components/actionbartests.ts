@@ -603,3 +603,12 @@ QUnit.test("Make sure that createActionCore is called for bars & list", (assert)
   list.addAction({ id: "test3" });
   assert.equal(list.actions[0].template, "custom");
 });
+
+QUnit.test("Check active appearance", (assert) => {
+  const action = new Action({ id: "test", title: "test", appearance: { style: "brand", mode: "tertiary", size: "large" }, activeAppearance: { style: "alert", mode: "secondary", size: "small" } });
+  assert.notOk(action.active);
+  assert.deepEqual(action.getActionBarItemCss(), "sd-action sd-action--brand sd-action--tertiary sd-action--large");
+  action.active = true;
+  assert.ok(action.active);
+  assert.deepEqual(action.getActionBarItemCss(), "sd-action sd-action--active sd-action--alert sd-action--secondary sd-action--small");
+});

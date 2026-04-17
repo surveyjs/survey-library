@@ -207,7 +207,7 @@
     }
 }
 
-.sd-tab-item.sd-tab-item--pressed {
+.sd-tab-item.sd-tab-item--active {
     color: $font-questiontitle-color;
     box-shadow: inset 0px -2px 0px $primary;
 }
@@ -224,7 +224,7 @@
 }
 
 .sd-tab-item--icon:hover,
-.sd-tab-item--icon.sd-tab-item--pressed {
+.sd-tab-item--icon.sd-tab-item--active {
     background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
     box-shadow: none;
 

@@ -35,7 +35,7 @@
     fill: var(--sd-action-disabled-icon-color);
   }
 }
-.sd-action--pressed,
+.sd-action--popup-active,
 .sd-action:where(:hover) {
   &:where(:not(:disabled, .sd-action--disabled)) {
     background: var(--sd-action-hover-background);

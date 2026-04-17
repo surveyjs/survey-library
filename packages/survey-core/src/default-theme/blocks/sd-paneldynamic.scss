@@ -99,7 +99,7 @@
     line-height: multiply(1.5, $font-questiontitle-size);
     color: $font-questiondescription-color;
     margin: 0;
-    margin-right: var(--sjs2-spacing-x200);
+    margin-right: calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x025));
 }
 
 .sd-paneldynamic__placeholder {
@@ -125,7 +125,7 @@
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
-    margin: 0 var(--sjs2-spacing-negative-x200);
+    margin: 0 calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
     width: calc(100% + 6 * #{$base-unit});
 }
 
@@ -133,7 +133,7 @@
     border-top: none;
     position: relative;
     top: calc(0.5 * var(--sd-base-vertical-padding));
-    margin-right: var(--sjs2-spacing-negative-x200);
+    margin-right: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
     justify-content: flex-end;
 }
 
@@ -207,7 +207,7 @@
     }
 }
 
-.sd-tab-item.sd-tab-item--pressed {
+.sd-tab-item.sd-tab-item--active {
     color: $font-questiontitle-color;
     box-shadow: inset 0px -2px 0px $primary;
 }
@@ -224,7 +224,7 @@
 }
 
 .sd-tab-item--icon:hover,
-.sd-tab-item--icon.sd-tab-item--pressed {
+.sd-tab-item--icon.sd-tab-item--active {
     background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
     box-shadow: none;
 

@@ -67,11 +67,11 @@ frameworks.forEach((framework) => {
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      await expect(clickButton).toHaveClass(/sd-action--pressed/);
+      await expect(clickButton).toHaveClass(/sd-action--popup-active/);
 
       await page.keyboard.press("Escape");
       await expect(popupSelector).not.toBeVisible();
-      await expect(clickButton).not.toHaveClass(/sd-action--pressed/);
+      await expect(clickButton).not.toHaveClass(/sd-action--popup-active/);
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();

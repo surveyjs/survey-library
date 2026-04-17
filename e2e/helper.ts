@@ -134,10 +134,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
         ::before {
             box-sizing: border-box;
         }
-
-        .root-element {
-          height: 100%;
-        }
       `;
       shadowRoot.appendChild(styles);
       const surveyLink = document.createElement("link");

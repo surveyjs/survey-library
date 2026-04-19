@@ -7,7 +7,6 @@ import { AfterViewChecked, Component, DoCheck, EmbeddedViewRef, OnInit, Template
 export class EmbeddedViewContentComponent implements OnInit, AfterViewChecked, DoCheck {
   @ViewChild("template", { read: TemplateRef, static: true }) templateRef!: TemplateRef<HTMLElement>;
   protected embeddedView?: EmbeddedViewRef<HTMLElement>;
-  protected needsReattach: boolean = true;
   constructor(protected viewContainerRef?: ViewContainerRef) {}
 
   ngOnInit(): void {
@@ -16,12 +15,9 @@ export class EmbeddedViewContentComponent implements OnInit, AfterViewChecked, D
     }
   }
   ngDoCheck(): void {
-    if (this.needsReattach) {
-      this.embeddedView?.reattach();
-    }
+    this.embeddedView?.reattach();
   }
   ngAfterViewChecked(): void {
-    this.needsReattach = false;
     this.embeddedView?.detach();
   }
 }

@@ -19,10 +19,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
 
   public override ngDoCheck(): void {
     const modelChanged = this.previousModel !== this.getModel();
-    if (modelChanged || this.getShouldReattachChangeDetector()) {
-      this.needsReattach = true;
+    if (this.getShouldReattachChangeDetector() || modelChanged) {
+      super.ngDoCheck();
     }
-    super.ngDoCheck();
     if (modelChanged) {
       this.unMakeBaseElementAngular(this.previousModel);
       this.makeBaseElementAngular(this.getModel());

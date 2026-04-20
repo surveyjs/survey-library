@@ -258,4 +258,8 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
     newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit.toString() + fontSizeDimension;
     delete newCssVariable["--sjs-font-size"];
   }
+
+  if (!newCssVariable["--sjs2-color-fg-basic-tertiary"] && newCssVariable["--sjs2-color-fg-basic-primary"]) {
+    newCssVariable["--sjs2-color-fg-basic-tertiary"] = "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x040))";
+  }
 }

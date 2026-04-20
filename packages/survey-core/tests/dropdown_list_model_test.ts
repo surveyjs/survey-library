@@ -749,11 +749,13 @@ QUnit.test("change selection on keyboard", function (assert) {
   const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
+  const arrowDownEvent = { keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
   dropdownListModel.onClick(null);
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when no value");
   assert.notOk(question.selectedItemLocText, "no selected text when no value");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "still no selected items when no value");
   assert.notOk(question.selectedItemLocText, "still no selected text when no value");
   dropdownListModel.onClick(null);
@@ -764,12 +766,12 @@ QUnit.test("change selection on keyboard", function (assert) {
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
   assert.equal(question.selectedItemLocText.calculatedText, "item1");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(question.value, "item1");
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2");
   assert.equal(question.selectedItemLocText.calculatedText, "item2", "selected item is changed too on DOWN one more time");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(question.value, "item1");
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item3");
   assert.equal(question.selectedItemLocText.calculatedText, "item3", "selected item is changed too on DOWN one more time");
@@ -802,17 +804,19 @@ QUnit.test("filtering on question with value", function (assert) {
 
   question.value = "item1";
 
+  const arrowDownEvent = { keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
   dropdownListModel.onClick(null);
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
   assert.equal(dropdownListModel.inputStringRendered, "item1", "input string is set to value");
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2", "selected item changed");
   assert.equal(dropdownListModel.inputStringRendered, "item2", "input string rendered changed");
 
   dropdownListModel.inputStringRendered = "i";
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering and move key");
 
 });

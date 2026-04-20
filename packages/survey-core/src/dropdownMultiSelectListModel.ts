@@ -192,7 +192,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return;
   }
 
-  protected afterScrollToFocusedItem() {
+  protected afterScrollToItem() {
     if (!this.listModel.focusedItem?.selected) {
       this.applyHintString();
     } else {

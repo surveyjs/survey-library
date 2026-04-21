@@ -2228,10 +2228,22 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+    // Do not force-refresh nested panel questions while a child question updates panel data.
+    // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted
+    // value and drop transient UI-only state, such as an added trailing empty row.
+    if (!this.isSettingPanelItemData()) {
+      for (var i = 0; i < this.panelsCore.length; i++) {
+        this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+      }
     }
     this.updateIsAnswered();
+  }
+
+  private isSettingPanelItemData(): boolean {
+    for (const key in this.isSetPanelItemData) {
+      if (this.isSetPanelItemData[key] > 0) return true;
+    }
+    return false;
   }
   public onSurveyValueChanged(newValue: any): void {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;

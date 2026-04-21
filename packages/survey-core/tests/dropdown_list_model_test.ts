@@ -264,12 +264,10 @@ QUnit.test("hide component on input entering symbols", function (assert) {
 QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   survey.css = {
-    list: {
-      itemSelected: "original-class-selected"
-    },
     dropdown: {
       list: {
-        item: "original-class"
+        item: "original-class",
+        itemSelected: "original-class-selected",
       }
     }
   };

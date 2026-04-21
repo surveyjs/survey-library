@@ -924,5 +924,42 @@ QUnit.test("Add row button on showPreview",
     assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix has been rendered already)");
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
     assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview again");
-  }
-);
+  });
+
+QUnit.test("Questions within hidden pages persist in a survey response, Bug#11174", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "dropdown", name: "q1", choices: ["a", "b"] }
+        ]
+      },
+      {
+        name: "page2",
+        visibleIf: "{q1} = 'a'",
+        elements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      {
+        name: "page3",
+        elements: [
+          { type: "text", name: "q4" }
+        ]
+      }
+    ],
+    showPreviewBeforeComplete: "showAnsweredQuestions"
+  });
+  survey.data = { q1: "a", q2: "val2", q3: "val3", q4: "val4" };
+  assert.equal(survey.getPageByName("page2").isVisible, true, "page2 is visible initially");
+  survey.setValue("q1", "b");
+  assert.equal(survey.getPageByName("page2").isVisible, false, "page2 is hidden after changing q1");
+  survey.currentPageNo = survey.pages.indexOf(survey.getPageByName("page3"));
+  survey.showPreview();
+  assert.equal(survey.state, "preview", "Survey is in preview state");
+  survey.tryComplete();
+  assert.equal(survey.state, "completed", "Survey is completed");
+  assert.deepEqual(survey.data, { q1: "b", q4: "val4" }, "Data should not contain values from hidden page2 questions");
+});

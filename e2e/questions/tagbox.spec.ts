@@ -1,9 +1,10 @@
-import { frameworks, url, initSurvey, getVisibleListItemByText, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getVisibleSelectListItemByText, test, expect } from "../helper";
 
 const title = "tagbox";
 
 const questionOffsetTopConst = 176;
-const singleListItemHeight = 56;
+const singleListItemHeight = 64;
+const emptyContainerHeigth = 120;
 
 const jsonCloseOnSelectIsTrue = {
   autoFocusFirstQuestion: true,
@@ -48,9 +49,9 @@ frameworks.forEach((framework) => {
       await expect(selectedItems).toHaveCount(0);
 
       await questionTagbox.click();
-      await getVisibleListItemByText(page, "item20").click();
+      await getVisibleSelectListItemByText(page, "item20").click();
       await questionTagbox.click();
-      await getVisibleListItemByText(page, "item10").click();
+      await getVisibleSelectListItemByText(page, "item10").click();
       await page.keyboard.press("Escape");
       await expect(selectedItems).toHaveCount(2);
       await expect(selectedItems.nth(0)).toContainText("item20");
@@ -70,7 +71,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsDefault);
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const selectedListItem = page.locator(".sv-list__item--selected");
+      const selectedListItem = page.locator(".sd-selectlist__item--selected");
       const selectedItems = page.locator(".sd-tagbox-item");
       const questionTagbox = page.locator(".sd-tagbox");
 
@@ -78,24 +79,24 @@ frameworks.forEach((framework) => {
       await questionTagbox.click();
       await expect(popupContainer).toBeVisible();
 
-      await getVisibleListItemByText(page, "item1").click();
-      await getVisibleListItemByText(page, "item2").click();
-      await getVisibleListItemByText(page, "item3").click();
+      await getVisibleSelectListItemByText(page, "item1").click();
+      await getVisibleSelectListItemByText(page, "item2").click();
+      await getVisibleSelectListItemByText(page, "item3").click();
       await expect(selectedItems).toHaveCount(3);
       await expect(selectedListItem).toHaveCount(3);
       await expect(selectedListItem.nth(0)).toContainText("item1");
       await expect(selectedListItem.nth(1)).toContainText("item2");
       await expect(selectedListItem.nth(2)).toContainText("item3");
 
-      await getVisibleListItemByText(page, "item1").click();
-      await getVisibleListItemByText(page, "item2").click();
-      await getVisibleListItemByText(page, "item3").click();
+      await getVisibleSelectListItemByText(page, "item1").click();
+      await getVisibleSelectListItemByText(page, "item2").click();
+      await getVisibleSelectListItemByText(page, "item3").click();
       await expect(selectedItems).toHaveCount(0);
       await expect(selectedListItem).toHaveCount(0);
 
-      await getVisibleListItemByText(page, "item1").click();
-      await getVisibleListItemByText(page, "item2").click();
-      await getVisibleListItemByText(page, "item3").click();
+      await getVisibleSelectListItemByText(page, "item1").click();
+      await getVisibleSelectListItemByText(page, "item2").click();
+      await getVisibleSelectListItemByText(page, "item3").click();
       await expect(selectedItems).toHaveCount(3);
       await expect(selectedListItem).toHaveCount(3);
       await expect(selectedListItem.nth(0)).toContainText("item1");
@@ -113,8 +114,8 @@ frameworks.forEach((framework) => {
       await expect(selectedItems).toHaveCount(0);
 
       await questionTagbox.click();
-      await getVisibleListItemByText(page, "item20").click();
-      await getVisibleListItemByText(page, "item10").click();
+      await getVisibleSelectListItemByText(page, "item20").click();
+      await getVisibleSelectListItemByText(page, "item10").click();
       await page.keyboard.press("Escape");
       await expect(selectedItems).toHaveCount(2);
       await expect(selectedItems.nth(0)).toContainText("item20");
@@ -157,7 +158,7 @@ frameworks.forEach((framework) => {
       await expect(offsetTop1).toBeLessThanOrEqual(200);
 
       for (let i = 1; i < 27; i++) {
-        await getVisibleListItemByText(page, "item" + i.toString()).click();
+        await getVisibleSelectListItemByText(page, "item" + i.toString()).click();
       }
 
       await expect(selectedItems).toHaveCount(26);
@@ -171,7 +172,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsTrue);
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
+      const listItems = page.locator(".sd-selectlist__item");
       const selectedItems = page.locator(".sd-tagbox-item");
       const questionValueInput = page.locator(".sd-tagbox__input input");
       const questionHint = page.locator(".sd-tagbox__hint");
@@ -235,7 +236,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsTrue);
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
+      const listItems = page.locator(".sd-selectlist__item");
       const selectedItems = page.locator(".sd-tagbox-item");
 
       await expect(popupContainer).not.toBeVisible();
@@ -262,7 +263,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsDefault);
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
+      const listItems = page.locator(".sd-selectlist__item");
       const selectedItems = page.locator(".sd-tagbox-item");
       const questionValueInput = page.locator(".sd-tagbox__input input");
       const questionHint = page.locator(".sd-tagbox__hint");
@@ -328,7 +329,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, jsonCloseOnSelectIsDefault);
 
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-      const listItems = page.locator(".sv-list__item");
+      const listItems = page.locator(".sd-selectlist__item");
       const selectedItems = page.locator(".sd-tagbox-item");
 
       await expect(popupContainer).not.toBeVisible();
@@ -390,7 +391,7 @@ frameworks.forEach((framework) => {
       await expect(popupContainer).not.toBeAttached();
 
       await questionTagbox.click();
-      await getVisibleListItemByText(page, "3").click();
+      await getVisibleSelectListItemByText(page, "3").click();
       await page.keyboard.press("Escape");
       await expect(popupContainer).not.toBeAttached();
 
@@ -432,7 +433,7 @@ frameworks.forEach((framework) => {
       await expect(selectedItems.nth(1)).toContainText("Romania");
 
       await questionTagbox.click();
-      await getVisibleListItemByText(page, "United States").click();
+      await getVisibleSelectListItemByText(page, "United States").click();
       await page.keyboard.press("Escape");
       await expect(selectedItems).toHaveCount(3);
       await expect(selectedItems.nth(0)).toContainText("Cuba");
@@ -492,98 +493,98 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container");
       const tagbox1 = popupContainer.nth(0);
       const tagbox2 = popupContainer.nth(1);
-      const listItems = page.locator(".sv-list__item span");
+      const listItems = page.locator(".sd-selectlist__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
       await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await expect(tagbox1.locator(".sv-list__empty-container")).toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).toBeVisible();
       const offsetHeight1 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      await expect(offsetHeight1).toBe(singleListItemHeight);
+      await expect(offsetHeight1).toBe(emptyContainerHeigth);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
       await page.waitForTimeout(500);
-      await expect(tagbox1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop1 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop1).toBeLessThan(200);
       const offsetHeight2 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight2).toBeGreaterThanOrEqual(688);
       await expect(offsetHeight2).toBeLessThanOrEqual(708);
-      const scrollTop1 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop1 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop1).toBe(0);
-      const scrollHeight1 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight1 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight1).toBeGreaterThanOrEqual(1208);
       await expect(scrollHeight1).toBeLessThanOrEqual(1308);
       await expect(listItems.filter({ visible: true })).toHaveCount(26);
 
-      await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
+      await tagbox1.locator(".sd-selectlist").evaluate((el) => { el.scrollTop = 1000; });
       await page.waitForTimeout(1000);
       const offsetTop2 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop2).toBeLessThan(200);
       const offsetHeight3 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight3).toBeGreaterThanOrEqual(688);
       await expect(offsetHeight3).toBeLessThanOrEqual(708);
-      const scrollTop2 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop2 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop2).toBeGreaterThanOrEqual(546);
       await expect(scrollTop2).toBeLessThanOrEqual(556);
-      const scrollHeight2 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight2 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight2).toBeGreaterThanOrEqual(2408);
       await expect(scrollHeight2).toBeLessThanOrEqual(2508);
       await expect(listItems.filter({ visible: true })).toHaveCount(51);
 
-      await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 2300; });
+      await tagbox1.locator(".sd-selectlist").evaluate((el) => { el.scrollTop = 2300; });
       await page.waitForTimeout(1000);
       const offsetTop3 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop3).toBeLessThan(200);
       const offsetHeight4 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight4).toBeGreaterThanOrEqual(688);
       await expect(offsetHeight4).toBeLessThanOrEqual(708);
-      const scrollTop3 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop3 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop3).toBeGreaterThanOrEqual(1696);
       await expect(scrollTop3).toBeLessThanOrEqual(1796);
-      const scrollHeight3 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight3 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight3).toBeGreaterThanOrEqual(2608);
       await expect(scrollHeight3).toBeLessThanOrEqual(2708);
       await expect(listItems.filter({ visible: true })).toHaveCount(55);
 
-      await getVisibleListItemByText(page, "55").click();
+      await getVisibleSelectListItemByText(page, "55").click();
       await page.waitForTimeout(500);
       await tagboxQuestion2.click();
-      await expect(tagbox2.locator(".sv-list__empty-container")).toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).toBeVisible();
       const offsetHeight5 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      await expect(offsetHeight5).toBe(singleListItemHeight);
+      await expect(offsetHeight5).toBe(emptyContainerHeigth);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
       await page.waitForTimeout(500);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop4).toBe(0);
       const offsetHeight6 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight6).toBeGreaterThanOrEqual(716);
       await expect(offsetHeight6).toBeLessThanOrEqual(726);
-      const scrollTop4 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop4 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop4).toBe(0);
-      const scrollHeight4 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight4 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight4).toBeGreaterThanOrEqual(1358);
       await expect(scrollHeight4).toBeLessThanOrEqual(1508);
       await expect(listItems.filter({ visible: true })).toHaveCount(31);
 
-      await tagbox2.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
+      await tagbox2.locator(".sd-selectlist").evaluate((el) => { el.scrollTop = 1000; });
       await page.waitForTimeout(1000);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop5 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop5).toBe(0);
       const offsetHeight7 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight7).toBeGreaterThanOrEqual(716);
       await expect(offsetHeight7).toBeLessThanOrEqual(726);
-      const scrollTop5 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop5 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop5).toBeGreaterThanOrEqual(746);
       await expect(scrollTop5).toBeLessThanOrEqual(846);
-      const scrollHeight5 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight5 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight5).toBeGreaterThanOrEqual(2608);
       await expect(scrollHeight5).toBeLessThanOrEqual(2658);
       await expect(listItems.filter({ visible: true })).toHaveCount(55);
-      await getVisibleListItemByText(page, "55").click();
+      await getVisibleSelectListItemByText(page, "55").click();
 
       await page.setViewportSize({ width: 1280, height: 1100 });
     });
@@ -617,23 +618,23 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container");
       const tagbox1 = popupContainer.nth(0);
       const tagbox2 = popupContainer.nth(1);
-      const listItems = page.locator(".sv-list__item span");
+      const listItems = page.locator(".sd-selectlist__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
       await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(tagbox1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
-      await expect(tagbox1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop1 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop1).toBe(questionOffsetTopConst);
       const offsetHeight1 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight1).toBeGreaterThanOrEqual(485);
-      await expect(offsetHeight1).toBeLessThanOrEqual(495);
+      await expect(offsetHeight1).toBeLessThanOrEqual(496);
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
-      await expect(tagbox1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop2 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop2).toBe(questionOffsetTopConst);
       const offsetHeight2 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -646,17 +647,17 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("2");
       await expect(tagbox2).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop3 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
-      await expect(offsetTop3).toBeGreaterThanOrEqual(228);
+      await expect(offsetTop3).toBeGreaterThanOrEqual(224);
       await expect(offsetTop3).toBeLessThanOrEqual(238);
       const offsetHeight3 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight3).toBeGreaterThanOrEqual(480);
-      await expect(offsetHeight3).toBeLessThanOrEqual(490);
+      await expect(offsetHeight3).toBeLessThanOrEqual(500);
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop4).toBe(768);
       const offsetHeight4 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -727,98 +728,98 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container");
       const tagbox1 = popupContainer.nth(0);
       const tagbox2 = popupContainer.nth(1);
-      const listItems = page.locator(".sv-list__item span");
+      const listItems = page.locator(".sd-selectlist__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
       await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
-      await expect(tagbox1.locator(".sv-list__empty-container")).toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).toBeVisible();
       const offsetHeight1 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      await expect(offsetHeight1).toBe(singleListItemHeight);
+      await expect(offsetHeight1).toBe(emptyContainerHeigth);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
       await page.waitForTimeout(500);
-      await expect(tagbox1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop1 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop1).toBeLessThan(200);
       const offsetHeight2 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight2).toBeGreaterThanOrEqual(688);
       await expect(offsetHeight2).toBeLessThanOrEqual(708);
-      const scrollTop1 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop1 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop1).toBe(0);
-      const scrollHeight1 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight1 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight1).toBeGreaterThanOrEqual(1208);
       await expect(scrollHeight1).toBeLessThanOrEqual(1308);
       await expect(listItems.filter({ visible: true })).toHaveCount(26);
 
-      await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
+      await tagbox1.locator(".sd-selectlist").evaluate((el) => { el.scrollTop = 1000; });
       await page.waitForTimeout(1000);
       const offsetTop2 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop2).toBeLessThan(200);
       const offsetHeight3 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight3).toBeGreaterThanOrEqual(688);
       await expect(offsetHeight3).toBeLessThanOrEqual(708);
-      const scrollTop2 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop2 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop2).toBeGreaterThanOrEqual(546);
       await expect(scrollTop2).toBeLessThanOrEqual(556);
-      const scrollHeight2 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight2 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight2).toBeGreaterThanOrEqual(2408);
       await expect(scrollHeight2).toBeLessThanOrEqual(2508);
       await expect(listItems.filter({ visible: true })).toHaveCount(51);
 
-      await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 2300; });
+      await tagbox1.locator(".sd-selectlist").evaluate((el) => { el.scrollTop = 2300; });
       await page.waitForTimeout(1000);
       const offsetTop3 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop3).toBeLessThan(200);
       const offsetHeight4 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight4).toBeGreaterThanOrEqual(688);
       await expect(offsetHeight4).toBeLessThanOrEqual(708);
-      const scrollTop3 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop3 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop3).toBeGreaterThanOrEqual(1696);
       await expect(scrollTop3).toBeLessThanOrEqual(1796);
-      const scrollHeight3 = await tagbox1.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight3 = await tagbox1.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight3).toBeGreaterThanOrEqual(2608);
       await expect(scrollHeight3).toBeLessThanOrEqual(2708);
       await expect(listItems.filter({ visible: true })).toHaveCount(55);
 
-      await getVisibleListItemByText(page, "55").click();
+      await getVisibleSelectListItemByText(page, "55").click();
       await page.keyboard.press("Escape");
       await tagboxQuestion2.click();
-      await expect(tagbox2.locator(".sv-list__empty-container")).toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).toBeVisible();
       const offsetHeight5 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
-      await expect(offsetHeight5).toBe(singleListItemHeight);
+      await expect(offsetHeight5).toBe(emptyContainerHeigth);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
       await page.waitForTimeout(500);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop4).toBe(0);
       const offsetHeight6 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight6).toBeGreaterThanOrEqual(716);
       await expect(offsetHeight6).toBeLessThanOrEqual(726);
-      const scrollTop4 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop4 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop4).toBe(0);
-      const scrollHeight4 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight4 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight4).toBeGreaterThanOrEqual(1358);
       await expect(scrollHeight4).toBeLessThanOrEqual(1508);
       await expect(listItems.filter({ visible: true })).toHaveCount(31);
 
-      await tagbox2.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
+      await tagbox2.locator(".sd-selectlist").evaluate((el) => { el.scrollTop = 1000; });
       await page.waitForTimeout(1000);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop5 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop5).toBe(0);
       const offsetHeight7 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight7).toBeGreaterThanOrEqual(716);
       await expect(offsetHeight7).toBeLessThanOrEqual(726);
-      const scrollTop5 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollTop);
+      const scrollTop5 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollTop);
       await expect(scrollTop5).toBeGreaterThanOrEqual(746);
       await expect(scrollTop5).toBeLessThanOrEqual(846);
-      const scrollHeight5 = await tagbox2.locator(".sv-list").evaluate((el) => (el as HTMLElement).scrollHeight);
+      const scrollHeight5 = await tagbox2.locator(".sd-selectlist").evaluate((el) => (el as HTMLElement).scrollHeight);
       await expect(scrollHeight5).toBeGreaterThanOrEqual(2608);
       await expect(scrollHeight5).toBeLessThanOrEqual(2658);
       await expect(listItems.filter({ visible: true })).toHaveCount(55);
-      await getVisibleListItemByText(page, "55").click();
+      await getVisibleSelectListItemByText(page, "55").click();
 
       await page.setViewportSize({ width: 1280, height: 1100 });
     });
@@ -852,23 +853,23 @@ frameworks.forEach((framework) => {
       const popupContainer = page.locator(".sv-popup__container");
       const tagbox1 = popupContainer.nth(0);
       const tagbox2 = popupContainer.nth(1);
-      const listItems = page.locator(".sv-list__item span");
+      const listItems = page.locator(".sd-selectlist__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
       await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(tagbox1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
-      await expect(tagbox1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop1 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop1).toBe(questionOffsetTopConst);
       const offsetHeight1 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight1).toBeGreaterThanOrEqual(485);
-      await expect(offsetHeight1).toBeLessThanOrEqual(495);
+      await expect(offsetHeight1).toBeLessThanOrEqual(500);
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
-      await expect(tagbox1.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox1.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop2 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop2).toBe(questionOffsetTopConst);
       const offsetHeight2 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -882,17 +883,17 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("2");
       await expect(tagbox2).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop3 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop3).toBeGreaterThanOrEqual(222);
       await expect(offsetTop3).toBeLessThanOrEqual(232);
       const offsetHeight3 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       await expect(offsetHeight3).toBeGreaterThanOrEqual(480);
-      await expect(offsetHeight3).toBeLessThanOrEqual(490);
+      await expect(offsetHeight3).toBeLessThanOrEqual(500);
 
       await page.keyboard.press("3");
       await expect(listItems.filter({ visible: true })).toHaveCount(1);
-      await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
+      await expect(tagbox2.locator(".sd-selectlist__empty-container")).not.toBeVisible();
       const offsetTop4 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop4).toBe(768);
       const offsetHeight4 = await tagbox2.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);

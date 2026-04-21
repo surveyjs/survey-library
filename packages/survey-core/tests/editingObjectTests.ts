@@ -1921,3 +1921,44 @@ QUnit.test("Edit choices in matrix, update remove buttons visibility on changing
   assert.equal(isRowHasRemoveButton(2), true, "third row has remove button");
   assert.equal(isRowHasRemoveButton(3), true, "fourth row has remove button");
 });
+
+QUnit.test("Composite question with tagbox and editingObj fires propertyValueChanged on every change, bug11187", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "testcomposite",
+    elementsJSON: [
+      { type: "tagbox", name: "tags", choices: ["A", "B", "C"] }
+    ]
+  });
+  Serializer.addProperty("text", { name: "testProp", type: "testPropType" });
+
+  var question = new QuestionTextModel("q1");
+  var survey = new SurveyModel({
+    elements: [{ type: "testcomposite", name: "testProp" }]
+  });
+  survey.editingObj = question;
+
+  var compositeQuestion = <QuestionCompositeModel>survey.getQuestionByName("testProp");
+  var tagbox = compositeQuestion.contentPanel.getQuestionByName("tags");
+
+  var changeLog: Array<{ name: string, oldValue: any, newValue: any }> = [];
+  question.onPropertyChanged.add(function (sender: Base, options: any) {
+    if (options.name === "testProp") {
+      changeLog.push({ name: options.name, oldValue: JSON.parse(JSON.stringify(options.oldValue || null)), newValue: JSON.parse(JSON.stringify(options.newValue || null)) });
+    }
+  });
+
+  tagbox.value = ["A"];
+  assert.equal(changeLog.length, 1, "First change fires callback");
+  assert.deepEqual(changeLog[0].newValue, { tags: ["A"] }, "First change new value");
+
+  tagbox.value = ["A", "B"];
+  assert.equal(changeLog.length, 2, "Second change fires callback");
+  assert.deepEqual(changeLog[1].newValue, { tags: ["A", "B"] }, "Second change new value");
+
+  tagbox.value = ["A", "B", "C"];
+  assert.equal(changeLog.length, 3, "Third change fires callback");
+  assert.deepEqual(changeLog[2].newValue, { tags: ["A", "B", "C"] }, "Third change new value");
+
+  Serializer.removeProperty("text", "testProp");
+  ComponentCollection.Instance.clear();
+});

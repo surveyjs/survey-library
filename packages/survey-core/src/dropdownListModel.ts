@@ -228,7 +228,7 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       this.popupVisibilityChanged(option.isVisible);
-      this.chevronButton.pressed = option.isVisible;
+      this.chevronButton.popupActive = option.isVisible;
     });
   }
 

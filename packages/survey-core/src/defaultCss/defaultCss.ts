@@ -129,7 +129,7 @@ export var defaultCss = {
     tabsCenter: "sd-tabs-toolbar--center",
     tabs: {
       item: "sd-tab-item",
-      itemPressed: "sd-tab-item--pressed",
+      itemActive: "sd-tab-item--active",
       itemAsIcon: "sd-tab-item--icon",
       itemIcon: "sd-tab-item__icon",
       itemTitle: "sd-tab-item__title"

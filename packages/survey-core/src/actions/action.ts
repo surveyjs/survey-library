@@ -102,7 +102,7 @@ export interface IAction {
    * @see visible
    */
   active?: boolean;
-  pressed?: boolean;
+  popupActive?: boolean;
   /**
    * Specifies the name of a template used to render the action item.
    * @see component
@@ -163,6 +163,7 @@ export interface IAction {
   showPopup?: () => void;
   hidePopup?: () => void;
   appearance?: Partial<IActionAppearance>;
+  activeAppearance?: Partial<IActionAppearance>;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -239,7 +240,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() showTitle: boolean;
   @property() innerCss: string;
   @property() active: boolean;
-  @property() pressed: boolean;
+  @property() popupActive: boolean;
   private _data: any;
   public get data() {
     return this._data;
@@ -359,7 +360,7 @@ export abstract class BaseAction extends Base implements IAction {
       .append(this.cssClasses.itemAsIcon, !hasTitle)
       //end of TODO
       .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPressed, !!this.pressed)
+      .append(this.cssClasses.itemPopupActive, !!this.popupActive)
       .append(this.innerCss)
       .toString();
   }
@@ -473,6 +474,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
     this.locStrChangedInPopupModel();
   }
+  elementId?: string;
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
@@ -513,7 +515,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
   @property({ defaultValue: {} }) appearance: Partial<IActionAppearance>;
-  @property({ defaultValue: { style: "neutral", mode: "quaternary", size: "small" } }) predefinedAppearance: IActionAppearance;
+  @property({ defaultValue: { style: "brand", mode: "secondary" } }) activeAppearance: Partial<IActionAppearance>;
+  @property({ defaultValue: { style: "neutral", mode: "tertiary", size: "small" } }) predefinedAppearance: IActionAppearance;
   @property() items: any;
   @property({
     onSet: (val, target) => {
@@ -709,7 +712,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.predefinedAppearance = val;
   }
   public getActionBarItemCss(): string {
-    const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {});
+    const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {}, this.active ? this.activeAppearance || {} : {});
     const css = super.getActionBarItemCss();
     const prefix = this.cssClasses.itemAppearancePrefix;
     if (!prefix) {
@@ -735,9 +738,9 @@ export class ActionDropdownViewModel {
     if (!popupModel) return;
     popupModel.registerPropertyChangedHandlers(["isVisible"], () => {
       if (!popupModel.isVisible) {
-        this.item.pressed = false;
+        this.item.popupActive = false;
       } else {
-        this.item.pressed = true;
+        this.item.popupActive = true;
       }
     }, this.funcKey);
   }

@@ -2608,7 +2608,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const newItem = new PanelDynamicTabbedMenuItem({
       id: `${this.id}_tab_${panelId}`,
       panelId: panelId,
-      pressed: isActive,
+      active: isActive,
       locTitle: locTitle,
       disableHide: isActive,
       action: () => {
@@ -2632,7 +2632,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const panel = this.visiblePanelsCore[this.currentIndex];
     this.tabbedMenu.actions.forEach(action => {
       const isActive = action.panelId === panel.id;
-      action.pressed = isActive;
+      action.active = isActive;
       action.disableHide = isActive;
     });
   }

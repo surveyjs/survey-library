@@ -6284,20 +6284,20 @@ QUnit.test("displayMode: tab, issue#5829", function (assert) {
   assert.equal(panel.currentIndex, 0, "currentIndex is 0");
   assert.equal(panelTabToolbar.actions.length, 2, "2 panels");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
-  assert.equal(panelTabToolbar.actions[0].pressed, true, "Panel 1 pressed true");
+  assert.equal(panelTabToolbar.actions[0].active, true, "Panel 1 pressed true");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
-  assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
+  assert.equal(panelTabToolbar.actions[1].active, false, "Panel 2 pressed false");
 
   panel.currentIndex = 1;
   panel.addPanel();
   assert.equal(panel.currentIndex, 2, "currentIndex is 2");
   assert.equal(panelTabToolbar.actions.length, 3, "3 panels");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
-  assert.equal(panelTabToolbar.actions[0].pressed, false, "Panel 1 pressed false");
+  assert.equal(panelTabToolbar.actions[0].active, false, "Panel 1 pressed false");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
-  assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
+  assert.equal(panelTabToolbar.actions[1].active, false, "Panel 2 pressed false");
   assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "Panel 3", "Panel 3");
-  assert.equal(panelTabToolbar.actions[2].pressed, true, "Panel 3 pressed true");
+  assert.equal(panelTabToolbar.actions[2].active, true, "Panel 3 pressed true");
 
   panelTabToolbar.actions[1].action();
   assert.equal(panel.currentIndex, 1, "currentIndex is 1");

@@ -2,8 +2,8 @@
 
 .sd-matrixdynamic__btn.sd-matrixdynamic__add-btn {
   position: sticky;
-  left: var(--sjs2-spacing-negative-x200);
-  margin-left: var(--sjs2-spacing-negative-x200);
+  left: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
+  margin-left: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
   z-index: 12;
 }
 

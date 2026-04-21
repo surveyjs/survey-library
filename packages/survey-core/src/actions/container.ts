@@ -21,7 +21,7 @@ export let defaultActionBarCss: ActionBarCssClasses = {
   itemWithTitle: "",
   itemAsIcon: "",
   itemActive: "sd-action--active",
-  itemPressed: "sd-action--pressed",
+  itemPopupActive: "sd-action--popup-active",
   itemIcon: "sd-action__icon",
   itemTitle: "sd-action__title",
   itemTitleWithIcon: "",

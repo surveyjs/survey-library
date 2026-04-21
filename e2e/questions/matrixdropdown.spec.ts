@@ -62,7 +62,7 @@ frameworks.forEach((framework) => {
       await page.getByLabel("row angularjs v1.x, column Do").locator("label").filter({ hasText: "Yes" }).locator("span").first().click();
       await page.getByRole("combobox", { name: "row angularjs v1.x, column How long do you use it?" }).first().focus();
       await page.getByRole("combobox", { name: "row angularjs v1.x, column How long do you use it?" }).first().click();
-      await getVisibleSelectListItemByText(page, "2").click();
+      await getVisibleSelectListItemByText(page, "1-2 years").click();
       await page.mouse.click(1, 1);
       await page.getByLabel("row angularjs v1.x, column What is main strength?").getByText("Fast").click();
       await page.getByRole("textbox", { name: "row angularjs v1.x, column Please describe your experience" }).fill("why hello world so hard");
@@ -75,7 +75,7 @@ frameworks.forEach((framework) => {
       await page.getByLabel("row knockoutjs, column Do you").locator("label").filter({ hasText: "No" }).locator("span").first().click();
       await page.getByRole("combobox", { name: "row knockoutjs, column How long do you use it?" }).first().focus();
       await page.getByRole("combobox", { name: "row knockoutjs, column How long do you use it?" }).first().click();
-      await getVisibleSelectListItemByText(page, "5").click();
+      await getVisibleSelectListItemByText(page, "3-5 years").click();
       await page.mouse.click(1, 1);
       await page.getByLabel("row knockoutjs, column What").getByText("Easy").click();
       await page.getByLabel("row knockoutjs, column What").getByText("Powerfull").click();

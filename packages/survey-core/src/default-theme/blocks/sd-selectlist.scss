@@ -48,6 +48,11 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
+    sv-ng-string,
+    sv-ng-string-viewer {
+        display: contents;
+    }
 }
 
 .sd-selectlist__item--selected {

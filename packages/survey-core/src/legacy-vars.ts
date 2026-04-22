@@ -2,7 +2,7 @@ export const legacyCssVariables = {
   "--sjs-general-backcolor": "--sjs2-color-bg-basic-primary", //hsl(0, 0.00%, 100.00%)",
   "--sjs-general-backcolor-dark": "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
   "--sjs-general-backcolor-dim": "--sjs2-color-bg-neutral-tertiary-dim", //rgba(243, 243, 243, 1)",
-  "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-neutral-secondary", //??? //rgba(249, 249, 249, 1)",
+  "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
   "--sjs-general-backcolor-dim-dark": "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
   "--sjs-general-forecolor": "--sjs2-color-fg-basic-primary", //rgba(0, 0, 0, 0.91)",
   "--sjs-general-forecolor-light": "--sjs2-color-fg-basic-secondary", //rgba(0, 0, 0, 0.45)",

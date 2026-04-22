@@ -261,6 +261,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
+        const rootElement = (window as any).survey.rootElement;
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const json = {
             showQuestionNumbers: true,
@@ -285,7 +286,7 @@ frameworks.forEach(framework => {
                   model: model,
                   survey: model
                 }
-              }, window["survey"].rootElement);
+              }, rootElement);
             }
           });
           opt.titleActions = [item];

@@ -69,6 +69,8 @@ export var croatianStrings = {
   stepError: "Unesite vrijednost koja odgovara veličini koraka {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Vrijednost ne smije biti veća od {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Nevažeći ulaz",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Brojevi nisu dopušteni.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var croatianStrings = {
   urlGetChoicesError: "Zahtjev je vratio prazne podatke ili je 'path' svojstvo netočna.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Veličina datoteke ne smije prelaziti {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajtovi, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksimalan broj datoteka koje možete učitati je {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

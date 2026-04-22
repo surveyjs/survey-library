@@ -1,6 +1,7 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
-import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
+import { Action, actionModeType, IAction } from "./action";
+import { createDropdownActionModelAdvanced } from "./dropdown-action";
 import { ActionContainer, ContainerUpdateOptions } from "./container";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";

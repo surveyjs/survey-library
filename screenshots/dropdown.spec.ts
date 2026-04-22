@@ -390,6 +390,32 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question__content", "dropdown-custom-component.png");
     });
 
+    test("Check ReadOnly dropdown with custom component", async ({ page }) => {
+      await registerCustomItemComponent(page, framework);
+      const json = {
+        showQuestionNumbers: true,
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            type: "dropdown",
+            readOnly: true,
+            name: "cars",
+            title: "Dropdown",
+            defaultValue: "Ford",
+            itemComponent: "new-item",
+            choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      // await page.evaluate(() => {
+      //   (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content svg")).style.height = "48px";
+      //   (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
+      // });
+      await compareScreenshot(page, ".sd-question__content", "dropdown-readonly-custom-component.png");
+    });
+
     test("Check overlay popup in dropdown question", async ({ page }) => {
       await page.setViewportSize({ width: 500, height: 700 });
       await page.evaluate(() => {

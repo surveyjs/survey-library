@@ -30,6 +30,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -412,6 +413,18 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   public getType(): string {
     return "panelbase";
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    const ctx = super.getValueGetterContext();
+    if (!ctx) return ctx;
+    const self = this;
+    return {
+      getValue: (params) => ctx.getValue(params),
+      getTextValue: ctx.getTextValue ? (name, value, isDisplayValue) => ctx.getTextValue(name, value, isDisplayValue) : undefined,
+      getObj: () => self,
+      getRootObj: ctx.getRootObj ? () => ctx.getRootObj() : undefined,
+      getQuestion: ctx.getQuestion ? () => ctx.getQuestion() : undefined
+    };
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     //if(this.surveyImpl === value) return; TODO refactor
@@ -963,6 +976,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private validateInPanels(context: ValidationContext): void {
+    if (this.isReadOnly) return;
     var errors = <Array<any>>[];
     this.validateRequired(context, errors);
     if (this.survey) {

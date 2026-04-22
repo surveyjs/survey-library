@@ -69,6 +69,8 @@ export var catalanSurveyStrings = {
   stepError: "Introduïu un valor que coincideixi amb la mida del pas de {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "El valor no ha de ser superior a {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Entrada invàlida",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "No es permeten números.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var catalanSurveyStrings = {
   urlGetChoicesError: "La sol·licitud va tornar buida de dates o la propietat 'trajectòria' no és correcta",
   // "The file size should not exceed {0}."
   exceedMaxSize: "La mida de l'arxiu no pot excedir {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "El nombre màxim d'arxius que pots pujar és {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

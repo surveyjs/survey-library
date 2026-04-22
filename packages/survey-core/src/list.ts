@@ -1,11 +1,11 @@
 import { property } from "./decorators";
 import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
+import { IListModel } from "./actions/list-model";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
-import { settings } from "./settings";
-import { ILocalizableOwner } from "./localizablestring";
+import { normalizeTextForSearch } from "./helpers";
 import { IsTouch } from "./utils/devices";
 
 export let defaultListCss = {
@@ -33,22 +33,6 @@ export let defaultListCss = {
   emptyContainer: "sv-list__empty-container",
   emptyText: "sv-list__empty-text"
 };
-export interface IListModel {
-  items: Array<IAction>;
-  onSelectionChanged?: (item: IAction, ...params: any[]) => void;
-  allowSelection?: boolean;
-  searchEnabled?: boolean;
-  selectedItem?: IAction;
-  elementId?: string;
-  locOwner?: ILocalizableOwner;
-  cssClasses?: any;
-  listRole?: string;
-  listItemRole?: string;
-  listAriaLabel?: string;
-  onFilterStringChangedCallback?: (text: string) => void;
-  onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
-  disableSearch?: boolean;
-}
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
   private loadingIndicatorValue: T;
@@ -92,9 +76,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (!filterStringInLow) return true;
     const text = item.title || "";
     if (this.onTextSearchCallback) return this.onTextSearchCallback(item, filterStringInLow);
-    let textInLow = text.toLocaleLowerCase();
-    textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-    return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
+    const textNormalized = normalizeTextForSearch(text, "filter");
+    const filterNormalized = normalizeTextForSearch(filterStringInLow, "filter");
+    return textNormalized.indexOf(filterNormalized) > -1;
   }
   public isItemVisible(item: T): boolean {
     if (item.id === this.loadingIndicator.id) return item.visible;

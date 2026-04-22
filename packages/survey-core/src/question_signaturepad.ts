@@ -34,12 +34,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     }
   }
-  private getPenColorFromTheme(): string {
+  private getPenColorFromTheme(element: HTMLElement): string {
     const cssVariable = "--sjs2-color-bg-brand-primary";
-    return getColorFromProperty(cssVariable, this.element);
+    return getColorFromProperty(cssVariable, element);
   }
-  private updateColors(signaturePad: SignaturePad) {
-    const penColorFromTheme = this.getPenColorFromTheme();
+  private updateColors(signaturePad: SignaturePad, element?: HTMLElement) {
+    const penColorFromTheme = this.getPenColorFromTheme(element);
     const penColorProperty = this.getPropertyByName("penColor");
     signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
 
@@ -94,7 +94,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   public themeChanged(theme: ITheme): void {
     if (!!this.signaturePad) {
-      this.updateColors(this.signaturePad);
+      this.updateColors(this.signaturePad, this.element);
     }
   }
   private canvas: any;
@@ -246,7 +246,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     };
 
-    this.updateColors(signaturePad);
+    this.updateColors(signaturePad, el);
 
     (signaturePad as any).addEventListener("beginStroke", () => {
       this.scaleCanvas();

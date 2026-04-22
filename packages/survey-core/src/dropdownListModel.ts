@@ -1,12 +1,13 @@
 import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Helpers } from "./helpers";
+import { Helpers, normalizeTextForSearch } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property } from "./decorators";
-import { IListModel, ListModel } from "./list";
+import { ListModel } from "./list";
+import { IListModel } from "./actions/list-model";
 import { LocalizableString } from "./localizablestring";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
@@ -174,12 +175,8 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locSelectCaption,
       disableTabStop: true,
-      enabled: new ComputedUpdater(() => {
-        return !this.question.isInputReadOnly;
-      }),
-      visible: new ComputedUpdater(() => {
-        return !this.question.isPreviewStyle;
-      }),
+      enabled: !this.question.isInputReadOnly,
+      visible: !this.question.isPreviewStyle,
       action: (context: any) => {
         this.onClick();
       }
@@ -193,20 +190,28 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locClearCaption,
       disableTabStop: true,
-      enabled: new ComputedUpdater(() => {
-        return !this.question.isInputReadOnly;
-      }),
-      visible: new ComputedUpdater(() => {
-        const isEmpty = this.question.isEmpty();
-        const isReadOnly = this.question.isReadOnly;
-        return this.question.allowClear && !isEmpty && !isReadOnly;
-      }),
+      enabled: !this.question.isInputReadOnly,
+      visible: this.isClearButtonVisible,
       action: (context: any) => {
         this.onClear();
       }
     });
 
     this.editorButtons.setItems([this.clearButton, this.chevronButton]);
+  }
+  private get isClearButtonVisible(): boolean {
+    return this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
+  }
+
+  protected updateButtonsState(): void {
+    if (this.chevronButton) {
+      this.chevronButton.setEnabled(!this.question.isInputReadOnly);
+      this.chevronButton.setVisible(!this.question.isPreviewStyle);
+    }
+    if (this.clearButton) {
+      this.clearButton.setEnabled(!this.question.isInputReadOnly);
+      this.clearButton.setVisible(this.isClearButtonVisible);
+    }
   }
 
   protected createPopup(): void {
@@ -304,9 +309,10 @@ export class DropdownListModel extends Base {
     listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
       if (item.id === this.customItemValue.id) return item.visible;
       if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
-      let textInLow = item.text.toLocaleLowerCase();
-      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+
+      const text = normalizeTextForSearch(item.text, "filter");
+      const search = normalizeTextForSearch(textToSearch, "filter");
+      const index = text.indexOf(search);
       return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
     });
   }
@@ -599,6 +605,11 @@ export class DropdownListModel extends Base {
   private questionPropertyChangedHandler = (sender: any, options: any) => {
     this.onPropertyChangedHandler(sender, options);
   };
+  private surveyPropertyChangedHandler = (sender: any, options: any) => {
+    if (options.name === "state") {
+      this.updateButtonsState();
+    }
+  };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.ariaExpanded = "false";
@@ -606,6 +617,9 @@ export class DropdownListModel extends Base {
     this.createLocalizableString("selectCaption", this.question, false, true);
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
+    if (question.survey) {
+      (<any>question.survey).onPropertyChanged.add(this.surveyPropertyChangedHandler);
+    }
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
@@ -730,6 +744,10 @@ export class DropdownListModel extends Base {
   protected onPropertyChangedHandler(sender: any, options: any) {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
+      this.updateButtonsState();
+    }
+    if (options.name === "readOnly" || options.name === "isInputReadOnly" || options.name === "isDesignMode" || options.name === "forceIsInputReadOnly" || options.name === "allowClear") {
+      this.updateButtonsState();
     }
     if (options.name == "textWrapEnabled") {
       this.setTextWrapEnabled(options.newValue);
@@ -944,7 +962,11 @@ export class DropdownListModel extends Base {
   public dispose(): void {
     super.dispose();
     this.question && this.question.onPropertyChanged.remove(this.questionPropertyChangedHandler);
+    if (this.question && this.question.survey) {
+      (<any>this.question.survey).onPropertyChanged.remove(this.surveyPropertyChangedHandler);
+    }
     this.questionPropertyChangedHandler = undefined;
+    this.surveyPropertyChangedHandler = undefined;
     if (!!this.listModel) {
       this.listModel.dispose();
     }

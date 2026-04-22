@@ -467,7 +467,12 @@ export class Base implements IObjectValueContext {
   }
   public getValueGetterContext(): IValueGetterContext {
     const survey = <IObjectValueContext><any>this.getSurvey();
-    return !!survey ? survey.getValueGetterContext() : new VariableGetterContext({});
+    if (!survey) return new VariableGetterContext({});
+    const surveyContext = survey.getValueGetterContext();
+    if (!surveyContext || !surveyContext.getObj) return surveyContext;
+    const self = this;
+    surveyContext.getObj = () => self;
+    return surveyContext;
   }
   /**
    * Returns `true` if the survey is being designed in Survey Creator.
@@ -1195,7 +1200,7 @@ export class Base implements IObjectValueContext {
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
     if (!obj || !propertyName || !(obj instanceof Base)) return;
-    const id = this.uniqueId + "_" + propertyName;
+    const id = this.uniqueId + "_" + obj.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
         this.onDependencyValueChanged(obj, propertyName);

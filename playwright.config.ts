@@ -23,7 +23,12 @@ export default defineConfig({
     },
     {
       name: "e2e",
-      testDir: resolve(__dirname, "./e2e")
+      testDir: resolve(__dirname, "./e2e"),
+      use: {
+        contextOptions: {
+          permissions: ["clipboard-read", "clipboard-write"],
+        },
+      },
     }
   ]
 });

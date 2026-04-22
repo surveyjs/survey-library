@@ -69,6 +69,8 @@ export var frenchSurveyStrings = {
   stepError: "Entrez une valeur qui correspond à la taille du pas de {0}.",
   // "The value should not be greater than {0}"
   maxError: "La valeur ne doit pas être supérieure à {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Entrée invalide",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Les numéros ne sont pas autorisés.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var frenchSurveyStrings = {
   urlGetChoicesError: "La requête a renvoyé des données vides ou la propriété 'path' est incorrecte",
   // "The file size should not exceed {0}."
   exceedMaxSize: "La taille du fichier ne doit pas excéder {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Octets, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Le nombre maximal de fichiers que vous pouvez télécharger est {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

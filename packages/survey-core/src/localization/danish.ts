@@ -69,6 +69,8 @@ export var danishSurveyStrings = {
   stepError: "Indtast en værdi, der matcher trinstørrelsen på {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Værdien bør ikke være større end {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ugyldig input",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numre er ikke tilladt.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var danishSurveyStrings = {
   urlGetChoicesError: "Forespørgslen returnerede ingen data eller 'path' parameteren er forkert",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstørrelsen må ikke overstige {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Det maksimale antal filer, du kan uploade, er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -69,6 +69,8 @@ export var macedonianSurveyStrings = {
   stepError: "Молиме внесете вредност која одговара на големината на чекорот на {0}.",
   // "The value should not be greater than {0}"
   maxError: "Вредноста не треба да биде поголема од {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Невалиден внес",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Броевите не се дозволени.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var macedonianSurveyStrings = {
   urlGetChoicesError: "Барањето врати празни податоци или својството 'path' е неточно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Големината на датотеката не треба да надминува {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Бајтови, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Максималниот број на датотеки што можеш да ги прикачиш е {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

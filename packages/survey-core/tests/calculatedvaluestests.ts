@@ -425,3 +425,71 @@ QUnit.test("Fire onVariableChanged on changing calculated value", function(asser
   assert.equal(name, "var1", "options.name is correct");
   assert.equal(value, 3, "options.value is correct");
 });
+QUnit.test("Calculated value with containsErrors and regex validators, Bug#11152", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+            validators: [
+              {
+                type: "regex",
+                regex: "^https?:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+(com|net)(?:[\\/?#][-a-zA-Z0-9@:%_+.~#?&\\/=]*)?$",
+                caseInsensitive: true
+              }
+            ]
+          },
+          {
+            type: "text",
+            name: "q2",
+            validators: [
+              {
+                type: "regex",
+                regex: "^https?:\\/\\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+(com|net)(?:[\\/?#][-a-zA-Z0-9@:%_+.~#?&\\/=]*)?$",
+                caseInsensitive: true
+              }
+            ]
+          },
+          {
+            type: "boolean",
+            name: "q3",
+            visibleIf: "{q1} notempty and !{$q1.containsErrors} and {q2} notempty and !{$q2.containsErrors}"
+          }
+        ]
+      }
+    ],
+    calculatedValues: [
+      {
+        name: "allUrlsAreEntered",
+        expression: "{q1} notempty and !{$q1.containsErrors} and {q2} notempty and !{$q2.containsErrors}"
+      }
+    ],
+    checkErrorsMode: "onValueChanged",
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const calcValue = survey.calculatedValues[0];
+
+  assert.equal(calcValue.value, false, "Initially calculated value is false");
+  assert.equal(q3.isVisible, false, "q3 is invisible initially");
+
+  q1.value = "http://www.one.com";
+  assert.equal(calcValue.value, false, "Calculated value is false, q2 is still empty");
+  assert.equal(q3.isVisible, false, "q3 is invisible, q2 is still empty");
+
+  q2.value = "//www.second.com";
+  assert.equal(calcValue.value, false, "Calculated value is false, q2 has invalid URL");
+  assert.equal(q3.isVisible, false, "q3 is invisible, q2 contains errors");
+
+  q2.value = "http://www.second.com";
+  assert.equal(calcValue.value, true, "Calculated value is true, both URLs are valid");
+  assert.equal(q3.isVisible, true, "q3 is visible, both URLs are valid");
+
+  q1.value = "//www.one.com";
+  assert.equal(calcValue.value, false, "Calculated value is false, q1 has invalid URL");
+  assert.equal(q3.isVisible, false, "q3 is invisible, q1 contains errors");
+});

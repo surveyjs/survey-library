@@ -12,7 +12,7 @@
 }
 
 .sd-multipletext__cell:not(:first-of-type) {
-  padding-left: var(--sjs2-spacing-x200);
+  padding-inline-start: var(--sjs2-spacing-x200);
 }
 
 .sd-multipletext__item-container {
@@ -35,8 +35,8 @@
 }
 
 .sd-multipletext__cell {
-  padding-left: 0;
-  padding-right: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
   padding-bottom: var(--sjs2-spacing-x100);
   padding-top: var(--sjs2-spacing-x100);
 }

@@ -69,6 +69,8 @@ export var hebrewSurveyStrings = {
   stepError: "הזן ערך התואם לגודל הצעד של {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "הערך לא צריך להיות גדול מ- {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "קלט שגוי",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "מספרים אינם מותרים.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var hebrewSurveyStrings = {
   urlGetChoicesError: "הבקשה החזירה נתונים ריקים או שהמאפיין 'נתיב' שגוי",
   // "The file size should not exceed {0}."
   exceedMaxSize: "גודל הקובץ לא יעלה על {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "בתים, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "המספר המקסימלי של קבצים שאתה יכול להעלות הוא {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

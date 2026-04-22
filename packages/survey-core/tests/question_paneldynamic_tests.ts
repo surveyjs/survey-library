@@ -1994,6 +1994,58 @@ QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(as
   ], "check logs, #1");
 });
 
+QUnit.test("Dynamic Panel: preserve empty matrix row after changing another question, Issue #11192", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "question1",
+            templateElements: [
+              {
+                type: "text",
+                name: "question2",
+              },
+              {
+                type: "matrixdynamic",
+                name: "question3",
+                columns: [
+                  {
+                    name: "Column 1",
+                    cellType: "text",
+                  }
+                ],
+                rowCount: 0,
+              },
+            ],
+          },
+        ],
+      },
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+  panel.addPanel();
+
+  const secondPanelMatrix = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("question3");
+  secondPanelMatrix.addRow();
+  let rows = secondPanelMatrix.visibleRows;
+  rows[0].cells[0].question.value = "a";
+  secondPanelMatrix.addRow();
+
+  assert.equal(rows.length, 2, "The matrix has 2 rows before changing another panel value");
+  assert.equal(rows[0].cells[0].question.value, "a", "The first row has value in the first column");
+  assert.deepEqual(rows[1].value, {}, "The second row is empty before changing another panel value");
+
+  panel.panels[0].getQuestionByName("question2").value = "test";
+
+  rows = secondPanelMatrix.visibleRows;
+  assert.equal(rows.length, 2, "The matrix still has 2 rows after changing another panel value");
+  assert.equal(rows[0].cells[0].question.value, "a", "The first row value is preserved");
+  assert.deepEqual(rows[1].value, {}, "The trailing empty row is preserved");
+});
+
 function updateObjsQuestions(objs: Array<any>): void {
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
@@ -5226,6 +5278,56 @@ QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
   assert.equal(panel1Exp.value, true, "panel1Exp");
   assert.equal(panel2Exp.value, true, "panel2Exp");
   assert.equal(exp.value, true, "exp");
+});
+QUnit.test("isContainerReady with nested panel dynamic and defaultValueExpression, bug#11142", function (assert) {
+  var survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            "type": "text",
+            "name": "isContainerReady",
+            "defaultValueExpression": "isContainerReady('page1')"
+          },
+          {
+            "type": "paneldynamic",
+            "name": "question3",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question1",
+                "isRequired": true
+              },
+              {
+                "type": "paneldynamic",
+                "name": "question4",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question5",
+                    "isRequired": true
+                  }
+                ],
+                "panelCount": 1
+              }
+            ],
+            "panelCount": 1
+          }
+        ]
+      }
+    ]
+  });
+  const isReadyQuestion = survey.getQuestionByName("isContainerReady");
+  assert.equal(isReadyQuestion.value, false, "isContainerReady is false on init");
+
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question3");
+  rootPanel.panels[0].getQuestionByName("question1").value = "val1";
+  assert.equal(isReadyQuestion.value, false, "isContainerReady is still false after changing question1");
+
+  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("question4");
+  nestedPanel.panels[0].getQuestionByName("question5").value = "val1";
+  assert.equal(isReadyQuestion.value, true, "isContainerReady is true after changing question5");
 });
 
 QUnit.test("cssClasses for a question in nested panel dynamic, #1", function (assert) {

@@ -403,7 +403,8 @@ export var defaultCss = {
     control: "sd-formbox__input",
     content: "sd-text__content sd-question__content",
     characterCounter: "sd-formbox__character-counter",
-    onError: "sd-formbox--error"
+    onError: "sd-formbox--error",
+    isValueChanged: "sd-formbox__input--value-changed"
   },
   multipletext: {
     root: "sd-multipletext",

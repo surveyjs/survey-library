@@ -16,6 +16,7 @@ import { Serializer } from "../src/jsonobject";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("Validators");
 
@@ -422,6 +423,15 @@ QUnit.test("ExceedSizeError", function(assert) {
   var error = new ExceedSizeError(102400);
   assert.equal(error.getText(), "The file size should not exceed 100 KB.");
   assert.equal(error.locText.text, "The file size should not exceed 100 KB.");
+});
+
+QUnit.test("ExceedSizeError uses localized file size units", function(assert) {
+  const enStrings = surveyLocalization.getLocaleStrings("en");
+  const prevValue = enStrings.fileSizeUnits;
+  enStrings.fileSizeUnits = "tavua, kt, Mt, Gt, Tt";
+  var error = new ExceedSizeError(102400);
+  assert.equal(error.getText(), "The file size should not exceed 100 kt.");
+  enStrings.fileSizeUnits = prevValue;
 });
 
 QUnit.test("MinRowCountError", function(assert) {

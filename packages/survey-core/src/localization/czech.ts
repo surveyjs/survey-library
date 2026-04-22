@@ -69,6 +69,8 @@ export var czechSurveyStrings = {
   stepError: "Zadejte hodnotu, která odpovídá velikosti kroku {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Hodnota by neměla být větší než {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Neplatný vstup",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Čísla nejsou povolena.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var czechSurveyStrings = {
   urlGetChoicesError: "Požadavek nevrátil data nebo je neplatná vlastnost 'path'",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Velikost souboru by neměla být větší než {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajty, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maximální počet souborů, které můžete nahrát, je {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

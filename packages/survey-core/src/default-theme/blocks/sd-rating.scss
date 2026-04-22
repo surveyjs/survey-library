@@ -1,6 +1,6 @@
 @use "../variables.scss" as *;
 
-:root {
+:root, :host {
   --sd-rating-bad-color: #{$red};
   --sd-rating-normal-color: #{$yellow};
   --sd-rating-good-color: #{$green};

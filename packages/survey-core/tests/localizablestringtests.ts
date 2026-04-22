@@ -948,6 +948,18 @@ QUnit.test("Remove locale for en empty string", function (assert) {
   locStr.clearLocale("de");
   assert.deepEqual(locStr.getJson(), "str", "getJson #2");
 });
+QUnit.test("Setting value equal to default locale removes en locale and fires change notification, Bug#11091", (assert) => {
+  surveyLocalization.defaultLocale = "de";
+  const owner = new LocalizableOwnerTester("en");
+  const locStr = new LocalizableStringTester(owner, true);
+  locStr.setJson({ en: "", default: "my text" }, true);
+  var text = locStr.calculatedText; //cached text
+  locStr.onChangedCounter = 0;
+  locStr.text = "my text";
+  assert.deepEqual(locStr.getJson(), "my text", "Only default text remains after setting same value");
+  assert.equal(locStr.onChangedCounter, 1, "onChanged is called");
+  surveyLocalization.defaultLocale = "en";
+});
 QUnit.test("locString placeholder", function (assert) {
   const owner = new LocalizableOwnerTester("");
   const locStr = new LocalizableString(owner, true);

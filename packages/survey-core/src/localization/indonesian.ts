@@ -69,6 +69,8 @@ export var indonesianStrings = {
   stepError: "Masukkan nilai yang cocok dengan ukuran langkah {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Nilai tidak boleh lebih besar dari {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Masukan tidak valid",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nomor tidak diperbolehkan.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var indonesianStrings = {
   urlGetChoicesError: "Permintaan mengembalikan data kosong atau properti 'path' salah.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Ukuran berkas tidak boleh melebihi {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Byte, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Jumlah maksimum file yang dapat Anda unggah adalah {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

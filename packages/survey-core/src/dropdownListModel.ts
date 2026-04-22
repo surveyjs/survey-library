@@ -722,7 +722,7 @@ export class DropdownListModel extends Base {
   public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
-    if (this._popupModel.isVisible) {
+    if (this._popupModel.isVisible && !!this.question.selectedItem) {
       this.listModel.scrollToSelectedItem();
       this.afterScrollToItem();
     }

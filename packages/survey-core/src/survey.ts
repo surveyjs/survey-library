@@ -4328,16 +4328,31 @@ export class SurveyModel extends SurveyElementCore
       isFocusOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    let callback = undefined;
+    let callback: any = undefined;
+    let syncCallbackHasErrors: boolean | undefined;
     if (onAsyncValidation) {
-      callback = (res: boolean) => { onAsyncValidation(!res); };
+      callback = (res: boolean) => {
+        if (syncCallbackHasErrors === undefined) {
+          syncCallbackHasErrors = !res;
+        } else {
+          const handlerHasErrors = this.fireValidatedErrorsOnPage(page);
+          onAsyncValidation(!res || handlerHasErrors);
+        }
+      };
     }
     const res = page.validate(true, isFocusOnFirstError, callback);
-    this.fireValidatedErrorsOnPage(page);
-    return res;
+    if (syncCallbackHasErrors === undefined && onAsyncValidation) {
+      syncCallbackHasErrors = false;
+      return res;
+    }
+    const handlerHasErrors = this.fireValidatedErrorsOnPage(page);
+    if (onAsyncValidation && syncCallbackHasErrors !== undefined) {
+      onAsyncValidation(syncCallbackHasErrors || handlerHasErrors);
+    }
+    return res && !handlerHasErrors;
   }
-  private fireValidatedErrorsOnPage(page: PageModel) {
-    if (this.onValidatePage.isEmpty || !page) return;
+  private fireValidatedErrorsOnPage(page: PageModel): boolean {
+    if (this.onValidatePage.isEmpty || !page) return false;
     const questionsOnPage = this.getNestedQuestionsByQuestionArray(page.questions, true);
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();
@@ -4350,11 +4365,13 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
+    const errorsCountBeforeFire = errors.length;
     this.onValidatePage.fire(this, {
       questions: questions,
       errors: errors,
       page: page,
     });
+    return errors.length > errorsCountBeforeFire;
   }
   /**
    * Switches the survey to the previous page.
@@ -4950,10 +4967,10 @@ export class SurveyModel extends SurveyElementCore
         this.stopTimer();
         this.notifyQuestionsOnHidingContent(this.currentPage);
         this.isCompleted = true;
+        this.cancelPreview();
         this.clearUnusedValues();
         this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
         this.setCookie();
-        this.cancelPreview();
       } else {
         this.isCompleted = false;
       }
@@ -6272,7 +6289,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    let res = question.validate(true, false, !this.isValidateOnValueChanging);
+    let res = question.validate(true, false, !this.isValidateOnValueChanging, undefined, this.isValidateOnValueChanging);
     if (
       !!question.page && this.isValidateOnValueChange &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)

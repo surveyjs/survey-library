@@ -37,7 +37,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionRatingModel } from "survey-core";
 import { useQuestion } from "./base";
-import { ref } from "vue";
+import { ref, onMounted, getCurrentInstance } from "vue";
 defineOptions({
   inheritAttrs: false,
 });
@@ -47,4 +47,9 @@ useQuestion<QuestionRatingModel>(props, root);
 const getInputId = (index: any): string => {
   return props.question.getInputId(index);
 };
+
+const instance = getCurrentInstance();
+onMounted(() => {
+  instance.proxy.$forceUpdate();
+});
 </script>

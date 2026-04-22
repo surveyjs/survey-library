@@ -102,6 +102,9 @@ export class CalculatedValue extends Base {
     if (!this.canRunExpression) return;
     this.runExpression({ survey: this.getSurvey() });
   }
+  protected override onDependencyValueChanged(obj: Base, propertyName: string): void {
+    this.rerunExpression();
+  }
   private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     if (!this.canRunExpression || !this.ensureExpression()) return;
     this.locCalculation();

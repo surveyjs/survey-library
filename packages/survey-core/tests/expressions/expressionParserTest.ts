@@ -1790,6 +1790,46 @@ QUnit.test("ExpressionRunner: maxInArray function, float and string", function(a
   var values = { a: [{ val1: -3 }, { val1: "-1" }, { val1: "abc" }] };
   assert.equal(runner.runValues(values), -1, "It works correctly, maxInArray func");
 });
+QUnit.test("ExpressionRunner: minInArray with return column", function(assert) {
+  var runner = new ExpressionRunner("minInArray({a}, 'price', 'name')");
+  var values = { a: [{ price: 30, name: "C" }, { price: 10, name: "A" }, { price: 20, name: "B" }] };
+  assert.equal(runner.runValues(values), "A", "returns name from row with min price");
+});
+QUnit.test("ExpressionRunner: maxInArray with return column", function(assert) {
+  var runner = new ExpressionRunner("maxInArray({a}, 'price', 'name')");
+  var values = { a: [{ price: 30, name: "C" }, { price: 10, name: "A" }, { price: 20, name: "B" }] };
+  assert.equal(runner.runValues(values), "C", "returns name from row with max price");
+});
+QUnit.test("ExpressionRunner: minInArray with return column and condition", function(assert) {
+  var runner = new ExpressionRunner("minInArray({a}, 'price', 'name', {active} = true)");
+  var values = { a: [{ price: 5, name: "X", active: false }, { price: 30, name: "C", active: true }, { price: 10, name: "A", active: true }] };
+  assert.equal(runner.runValues(values), "A", "returns name from row with min price where active is true");
+});
+QUnit.test("ExpressionRunner: maxInArray with return column and condition", function(assert) {
+  var runner = new ExpressionRunner("maxInArray({a}, 'price', 'name', {active} = true)");
+  var values = { a: [{ price: 50, name: "X", active: false }, { price: 30, name: "C", active: true }, { price: 10, name: "A", active: true }] };
+  assert.equal(runner.runValues(values), "C", "returns name from row with max price where active is true");
+});
+QUnit.test("ExpressionRunner: minInArray with condition as quoted string", function(assert) {
+  var runner = new ExpressionRunner("minInArray({a}, 'val1', '{val2} > 3')");
+  var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
+  assert.equal(runner.runValues(values), 1, "min of val1 where val2 > 3");
+});
+QUnit.test("ExpressionRunner: maxInArray with condition as quoted string", function(assert) {
+  var runner = new ExpressionRunner("maxInArray({a}, 'val1', '{val2} > 3')");
+  var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
+  assert.equal(runner.runValues(values), 3, "max of val1 where val2 > 3");
+});
+QUnit.test("ExpressionRunner: minInArray with condition as operand", function(assert) {
+  var runner = new ExpressionRunner("minInArray({a}, 'val1', {val2} > 3)");
+  var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
+  assert.equal(runner.runValues(values), 1, "min of val1 where val2 > 3");
+});
+QUnit.test("ExpressionRunner: maxInArray with condition as operand", function(assert) {
+  var runner = new ExpressionRunner("maxInArray({a}, 'val1', {val2} > 3)");
+  var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
+  assert.equal(runner.runValues(values), 3, "max of val1 where val2 > 3");
+});
 
 QUnit.test("Operand.isEqual()", function(assert) {
   const getOperand = (expression: string): Operand => {

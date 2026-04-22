@@ -69,6 +69,8 @@ export var hindiStrings = {
   stepError: "कृपया कोई मान दर्ज करें जो {0} के चरण आकार से मेल खाता हो.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "मान {0} से अधिक नहीं होना चाहिए",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "अमान्य इनपुट",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "संख्या की अनुमति नहीं है।",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var hindiStrings = {
   urlGetChoicesError: "अनुरोध ने खाली डेटा वापस कर दिया है ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "फ़ाइल का आकार {0} से अधिक नहीं होना चाहिए  या फिर 'पाथ' प्रॉपर्टी गलत है",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "बाइट्स, केबी, एमबी, जीबी, टीबी",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "आपके द्वारा अपलोड की जा सकने वाली फ़ाइलों की अधिकतम संख्या {0} है।",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

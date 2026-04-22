@@ -172,3 +172,12 @@
 .sd-formbox__input[type="range"]::-moz-range-thumb {
     @include slider-thumb;
 }
+
+// TODO: refactor
+.sd-formbox__input[type="time"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="date"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="datetime-local"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="week"]:not(.sd-formbox__input--value-changed),
+.sd-formbox__input[type="month"]:not(.sd-formbox__input--value-changed) {
+    color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+}

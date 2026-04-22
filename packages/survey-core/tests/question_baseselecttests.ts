@@ -4512,3 +4512,79 @@ QUnit.test("Do not send notifications on changing built-in choices properties on
   survey.pages[0].addElement(question);
   assert.equal(modified.length, 0, "one property is modified");
 });
+QUnit.test("Radiogroup question with choice comment should not break visibleIf", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "q1",
+            "choices": [
+              {
+                "value": 1,
+                "showCommentArea": true,
+                "isCommentRequired": true,
+              },
+              2
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "q2",
+            "visibleIf": "{q1} = 1",
+            "choices": [1, 2, 3]
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2 is not visible initially");
+  q1.clickItemHandler(q1.choices[0]);
+  assert.equal(q2.isVisible, true, "q2 is visible after selecting 1");
+  q1.setCommentValue(q1.choices[0], "test comment");
+  assert.equal(q2.isVisible, true, "q2 should stay visible after setting comment on choice 1");
+  assert.deepEqual(q1.value, { value: 1, comment: "test comment" }, "q1 value has comment");
+});
+QUnit.test("Checkbox question with choice comment should not break visibleIf", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "q1",
+            "choices": [
+              {
+                "value": 1,
+                "showCommentArea": true,
+              },
+              { value: 2, showCommentArea: true },
+              3
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "q2",
+            "visibleIf": "{q1} contains 1",
+            "choices": [1, 2, 3]
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2 is not visible initially");
+  q1.value = [1];
+  assert.equal(q2.isVisible, true, "q2 is visible after selecting 1");
+  q1.setCommentValue(q1.choices[0], "test comment");
+  assert.equal(q2.isVisible, true, "q2 should stay visible after setting comment on choice 1");
+  assert.deepEqual(q1.value, [{ value: 1, comment: "test comment" }], "q1 value has comment");
+  q1.clickItemHandler(q1.choices[1], true);
+  q1.setCommentValue(q1.choices[1], "test comment 2");
+  assert.equal(q2.isVisible, true, "q2 should stay visible after setting comment on choice 2");
+  assert.deepEqual(q1.value, [{ value: 1, comment: "test comment" }, { value: 2, comment: "test comment 2" }], "q1 value has two comments");
+});

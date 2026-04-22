@@ -69,6 +69,8 @@ export var welshSurveyStrings = {
   stepError: "Rhowch werth sy'n cyfateb i faint cam {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Ni ddylai'r gwerth fod yn fwy na {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Mewnbwn annilys",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Ni chaniateir rhifau.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var welshSurveyStrings = {
   urlGetChoicesError: "Roedd y cais wedi arwain at ddata gwag neu mae priodwedd y ‘path’ yn anghywir ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Ddylai’r ffeil ddim bod yn fwy na {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Beitiau, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Uchafswm y ffeiliau y gallwch eu llwytho i fyny yw {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

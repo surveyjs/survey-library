@@ -69,6 +69,8 @@ export var norwegianSurveyStrings = {
   stepError: "Angi en verdi som samsvarer med trinnstørrelsen på {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Verdien bør ikke være større enn {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ugyldig input",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Tall er ikke tillatt.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var norwegianSurveyStrings = {
   urlGetChoicesError: "Forespørselen returnerte tomme data, eller 'sti' -egenskapen er feil",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstørrelsen bør ikke overstige {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksimalt antall filer du kan laste opp er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

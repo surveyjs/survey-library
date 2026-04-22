@@ -71,6 +71,8 @@ export var haitianCreoleStrings = {
   stepError: "Tanpri antre yon valè ki matche ak gwosè a etap nan {0}.",
   // "The value should not be greater than {0}"
   maxError: "Valè a pa ta dwe pi gran pase {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Opinyon envalid",
   // "Numbers are not allowed."
   textNoDigitsAllow: "Nimewo yo pa pèmèt.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -103,6 +105,8 @@ export var haitianCreoleStrings = {
   urlGetChoicesError: "Rekèt la te retounen done vid oswa pwopriyete 'chemen' a pa kòrèk",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Gwosè dosye a pa ta dwe depase {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Nimewo a maksimòm nan dosye ou ka telechaje se {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

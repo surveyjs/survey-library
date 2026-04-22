@@ -69,6 +69,8 @@ export var hungarianSurveyStrings = {
   stepError: "Kérjük, adjon meg egy értéket, amely megfelel a {0} lépésméretének.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Az érték nem lehet nagyobb, mint {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Érvénytelen bemenet",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Számok nem engedélyezettek.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var hungarianSurveyStrings = {
   urlGetChoicesError: "A lekérdezés üres adattal tért vissza, vagy a 'path' paraméter helytelen.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "A méret nem lehet nagyobb, mint {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bájtok, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "A maximális fájlszám, amit feltölthetsz, {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

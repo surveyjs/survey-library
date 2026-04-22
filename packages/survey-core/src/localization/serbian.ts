@@ -69,6 +69,8 @@ export var serbianStrings = {
   stepError: "Unesite vrednost koja odgovara veličini koraka {0}.",
   // "The value should not be greater than {0}"
   maxError: "Vrednost ne bi trebalo da bude veća od {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Neispravan unos",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Brojevi nisu dozvoljeni.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var serbianStrings = {
   urlGetChoicesError: "Zahtev nije pronašao podatke, ili je putanja netačna",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Veličina fajla ne bi trebalo da prelazi {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajtovi, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksimalan broj fajlova koje možete da otpremite je {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -69,6 +69,8 @@ export var swedishSurveyStrings = {
   stepError: "Ange ett värde som matchar stegstorleken för {0}.",
   // "The value should not be greater than {0}"
   maxError: "Värdet får inte vara större än {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ogiltig indata",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nummer är inte tillåtna.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var swedishSurveyStrings = {
   urlGetChoicesError: "Antingen returnerade förfrågan ingen data eller så är egenskapen 'path' inte korrekt",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstorleken får ej överstiga {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Det maximala antalet filer du kan ladda upp är {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -69,6 +69,8 @@ export var turkishSurveyStrings = {
   stepError: "Lütfen {0} adım boyutuyla eşleşen bir değer girin.",
   // "The value should not be greater than {0}"
   maxError: "Değer {0}'dan büyük olmamalıdır",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Geçersiz girdi",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numaralara izin verilmez.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var turkishSurveyStrings = {
   urlGetChoicesError: "İstek boş veri döndürdü veya 'path' özelliği yanlış",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Dosya boyutu {0} değerini geçemez.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Baytlar, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Yükleyebileceğiniz maksimum dosya sayısı {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

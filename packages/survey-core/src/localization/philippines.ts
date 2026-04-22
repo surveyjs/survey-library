@@ -69,6 +69,8 @@ export var philippinesStrings = {
   stepError: "Mangyaring magpasok ng isang halaga na tumutugma sa laki ng hakbang ng {0}.",
   // "The value should not be greater than {0}"
   maxError: "Ang halaga ay hindi dapat mas malaki sa {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Hindi wastong input",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Bawal ang mga numero.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var philippinesStrings = {
   urlGetChoicesError: "Ang kahilingan ay nagbalik ng walang laman na data o ang 'path' property ay hindi tama",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Ang laki ng file ay hindi dapat lumampas sa {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Mga byte, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Ang maximum na bilang ng mga file na maaari mong i-upload ay {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

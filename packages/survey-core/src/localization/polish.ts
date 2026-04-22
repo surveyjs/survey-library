@@ -69,6 +69,8 @@ export var polishSurveyStrings = {
   stepError: "Wprowadź wartość odpowiadającą rozmiarowi kroku {0}.",
   // "The value should not be greater than {0}"
   maxError: "Wartość nie powinna być większa niż {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Nieprawidłowe wejście",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Liczby są niedozwolone.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var polishSurveyStrings = {
   urlGetChoicesError: "Żądanie nie zwróciło danych albo ścieżka jest nieprawidłowa",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Rozmiar przesłanego pliku nie może przekraczać {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajty, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksymalna liczba plików, które możesz przesłać, to {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

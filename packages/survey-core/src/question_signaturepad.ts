@@ -218,7 +218,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private updateDataFormatByValue(newValue: any): void {
     const detectedFormat = detectDataFormatFromValue(newValue);
     if (!!detectedFormat && this.dataFormat !== detectedFormat) {
-      this.dataFormat = detectedFormat;
+      this.setPropertyValueDirectly("dataFormat", detectedFormat);
     }
   }
 

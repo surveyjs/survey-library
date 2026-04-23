@@ -207,8 +207,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   protected onChangeQuestionValue(newValue: any): void {
-    super.onChangeQuestionValue(newValue);
     this.updateDataFormatByValue(newValue);
+    super.onChangeQuestionValue(newValue);
     if (!this.isLoadingFromJson) {
       this._loadedData = undefined;
       this.loadPreview(newValue);

@@ -119,7 +119,7 @@ QUnit.test("DropdownListModel focusFirstInputSelector", (assert) => {
   assert.equal(question.value, "item1", "question.value");
   assert.equal(list.showFilter, false, "list.showFilter");
   assert.equal(popupModel.isVisible, true, "popupModel.isVisible");
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "showFilter=false && value = 'item1'");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item--selected", "showFilter=false && value = 'item1'");
 });
 QUnit.test("DropdownListModel focusFirstInputSelector mobile", (assert) => {
   _setIsTouch(true);
@@ -130,13 +130,13 @@ QUnit.test("DropdownListModel focusFirstInputSelector mobile", (assert) => {
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   popupModel.isVisible = true;
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item", "value = undefined && isTouch = true");
 
   list.onItemClick(list.actions[0]);
   popupModel.isVisible = false;
 
   popupModel.isVisible = true;
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "isTouch=true && value = 'item1'");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item--selected", "isTouch=true && value = 'item1'");
   _setIsTouch(false);
 });
 QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) => {
@@ -286,12 +286,10 @@ QUnit.test("hide component on input entering symbols", function (assert) {
 QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   survey.css = {
-    list: {
-      itemSelected: "original-class-selected"
-    },
     dropdown: {
       list: {
-        item: "original-class"
+        item: "original-class",
+        itemSelected: "original-class-selected",
       }
     }
   };
@@ -771,11 +769,13 @@ QUnit.test("change selection on keyboard", function (assert) {
   const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel); // need for popupModel.onHide
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
+  const arrowDownEvent = { keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
   dropdownListModel.onClick(null);
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when no value");
   assert.notOk(question.selectedItemLocText, "no selected text when no value");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "still no selected items when no value");
   assert.notOk(question.selectedItemLocText, "still no selected text when no value");
   dropdownListModel.onClick(null);
@@ -786,18 +786,34 @@ QUnit.test("change selection on keyboard", function (assert) {
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
   assert.equal(question.selectedItemLocText.calculatedText, "item1");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(question.value, "item1");
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2");
   assert.equal(question.selectedItemLocText.calculatedText, "item2", "selected item is changed too on DOWN one more time");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(question.value, "item1");
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item3");
   assert.equal(question.selectedItemLocText.calculatedText, "item3", "selected item is changed too on DOWN one more time");
 
   (dropdownListModel as any).onHidePopup();
   assert.equal(question.selectedItemLocText.calculatedText, "item1");
+});
+
+QUnit.test("ArrowDown opens popup and keeps selected item focused", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  question.value = "item2";
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is closed initially");
+
+  dropdownListModel.keyHandler({ keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } });
+
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is opened by ArrowDown");
+  assert.equal(list.focusedItem?.value, "item2", "focused item remains selected item on open");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any)?.value, "item2", "selected marker remains on selected item");
 });
 
 QUnit.test("filtering on question with value", function (assert) {
@@ -808,17 +824,19 @@ QUnit.test("filtering on question with value", function (assert) {
 
   question.value = "item1";
 
+  const arrowDownEvent = { keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
   dropdownListModel.onClick(null);
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
   assert.equal(dropdownListModel.inputStringRendered, "item1", "input string is set to value");
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2", "selected item changed");
   assert.equal(dropdownListModel.inputStringRendered, "item2", "input string rendered changed");
 
   dropdownListModel.inputStringRendered = "i";
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering");
 
-  dropdownListModel.changeSelectionWithKeyboard(false);
+  dropdownListModel.keyHandler(arrowDownEvent);
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering and move key");
 
 });

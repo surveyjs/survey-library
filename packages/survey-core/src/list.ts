@@ -22,6 +22,7 @@ export let defaultListCss = {
   itemHovered: "sv-list__item--hovered",
   itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
+  itemCustomValue: "sv-list-item--custom-value",
   itemMarkerIcon: "sv-list-item__marker-icon",
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",

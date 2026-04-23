@@ -1378,6 +1378,25 @@ QUnit.test("Mask datetime with defaultValueExpression today() and saveMaskedValu
   assert.equal(q1.value, "10.04.2025", "value is saved as masked");
   FunctionFactory.Instance.unregister("todayMock");
 });
+QUnit.test("Mask datetime with defaultValue and saveMaskedValue, Bug#11195", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "question1",
+        defaultValue: "20.04.2026",
+        maskType: "datetime",
+        maskSettings: {
+          saveMaskedValue: true,
+          pattern: "dd.mm.yyyy"
+        }
+      }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("question1");
+  assert.equal(q1.inputValue, "20.04.2026", "inputValue is initialized from defaultValue");
+  assert.equal(q1.value, "20.04.2026", "value is initialized from defaultValue");
+});
 QUnit.test("Age function with datetime mask and saveMaskedValue, #11157", function (assert) {
   const savedOnDateCreated = settings.onDateCreated;
   settings.onDateCreated = (newDate: Date, reason: string, val: any): Date => {

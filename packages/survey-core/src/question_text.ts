@@ -374,12 +374,24 @@ export class QuestionTextModel extends QuestionTextBase {
       return this.maskInstance.getUnmaskedValue(val);
     return val;
   }
+  private tryPreserveMaskedStringValue(val: any): any {
+    if (typeof val !== "string") return undefined;
+    const unmaskedVal = this.maskInstance.getUnmaskedValue(val);
+    if (!!unmaskedVal) return val;
+
+    const maskedVal = this.maskInstance.getMaskedValue(val);
+    const emptyMaskedVal = this.maskInstance.getMaskedValue("");
+    if (maskedVal === emptyMaskedVal && val !== emptyMaskedVal) return val;
+
+    if (!this.maskInstance.getUnmaskedValue(maskedVal)) return val;
+    return undefined;
+  }
+
   protected convertToCorrectValue(val: any): any {
     if (val !== undefined && val !== null && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
-      const maskedVal = this.maskInstance.getMaskedValue(val);
-      if (typeof val === "string" &&
-        (!!this.maskInstance.getUnmaskedValue(val) || !this.maskInstance.getUnmaskedValue(maskedVal))) return val;
-      return maskedVal;
+      const preserved = this.tryPreserveMaskedStringValue(val);
+      if (preserved !== undefined) return preserved;
+      return this.maskInstance.getMaskedValue(val);
     }
     return super.convertToCorrectValue(val);
   }
@@ -510,6 +522,8 @@ export class QuestionTextModel extends QuestionTextBase {
     let type = this.maskTypeIsEmpty ? this.inputType : this.maskSettings.getTypeForExpressions();
     const res = Helpers.convertValToQuestionVal(val, type);
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue && typeof res === "string") {
+      const preserved = this.tryPreserveMaskedStringValue(res);
+      if (preserved !== undefined) return preserved;
       return this.maskInstance.getMaskedValue(res);
     }
     return res;

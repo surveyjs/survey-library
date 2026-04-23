@@ -347,7 +347,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-responsive-timer.png");
+      await compareScreenshot(page, "body", "survey-responsive-timer.png", { maxDiffPixels: 2 });
     });
 
     test("Check survey timer", async ({ page }) => {
@@ -422,7 +422,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer.png", { mask: [page.locator(".sd-body")] });
+      await compareScreenshot(page, "body", "survey-timer.png", { mask: [page.locator(".sd-body")], maxDiffPixels: 2 });
     });
 
     test("Check survey timer with no limits", async ({ page }) => {

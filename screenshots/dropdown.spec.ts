@@ -262,12 +262,12 @@ frameworks.forEach(framework => {
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.locator(".sd-dropdown__filter-string-input").fill("test");
       await page.waitForTimeout(100);
-      await compareScreenshot(page, ".sv-list__empty-container", "dropdown-empty-list.png");
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-empty-list.png");
       await page.locator(".sd-dropdown__filter-string-input").click();
       await page.setViewportSize({ width: 300, height: 500 });
       await page.waitForTimeout(500);
       await page.locator(".sd-dropdown__filter-string-input").pressSequentially("1");
-      await compareScreenshot(page, ".sv-list__empty-container", "dropdown-small-window-empty-list.png");
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-small-window-empty-list.png");
     });
 
     test("Check dropdown with markdown", async ({ page }) => {

@@ -185,9 +185,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
   }
 
-  protected focusItemOnClickAndPopup() {
-    return;
-  }
   protected onEscape() {
     return;
   }
@@ -195,7 +192,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return;
   }
 
-  protected afterScrollToFocusedItem() {
+  protected afterScrollToItem() {
     if (!this.listModel.focusedItem?.selected) {
       this.applyHintString();
     } else {

@@ -55,6 +55,12 @@ export function getVisibleListItemByText(page: Page, text: string): Locator {
   return page.locator(".sv-popup__container").filter({ visible: true }).getByRole("option", { name: text, exact: true });
 }
 
+export function getVisibleSelectListItemByText(page: Page, text: string): Locator {
+  return page.locator(".sv-popup__container .sd-selectlist__item", {
+    has: page.getByText(text, { exact: true })
+  }).filter({ visible: true });
+}
+
 export async function resetFocusToBody(page: Page): Promise<void> {
   await page.evaluate(() => {
     const rootNode = (window as any).survey.rootElement.getRootNode();

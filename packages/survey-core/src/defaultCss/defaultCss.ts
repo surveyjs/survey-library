@@ -1,3 +1,5 @@
+import { defaultSelectListCss } from "src/selectlistCss";
+
 export var surveyCss: any = {
   currentType: "default",
   getCss: function () {
@@ -459,6 +461,9 @@ export var defaultCss = {
     hintSuffix: "sd-dropdown__hint-suffix",
     controlSelect: "sd-dropdown--select",
     group: "sd-formbox__group",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -679,6 +684,9 @@ export var defaultCss = {
     chevronButtonIconId: "icon-chevron",
     popup: "sv-dropdown-popup",
     onError: "sd-formbox--error",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   slider: {
     root: "sd-slider",
@@ -881,6 +889,9 @@ export var defaultCss = {
     hintPrefix: "sd-dropdown__hint-prefix",
     hintSuffix: "sd-dropdown__hint-suffix",
     group: "sd-formbox__group",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   list: {
     root: "sv-list__container sd-list",
@@ -935,6 +946,9 @@ export var defaultCss = {
     hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix",
     hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper",
     group: "sd-formbox__group",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   imagemap: {
     root: "sd-imagemap",

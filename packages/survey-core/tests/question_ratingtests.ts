@@ -328,12 +328,10 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   };
   const survey = new SurveyModel(json);
   survey.css = {
-    list: {
-      itemSelected: "original-class-selected"
-    },
     rating: {
       popup: "custom-popup-class",
       list: {
+        itemSelected: "original-class-selected",
         item: "original-class"
       }
     }

@@ -168,12 +168,12 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(500);
 
       await page.locator(".sd-editor-chevron-button").click();
-      await page.locator(".sd-list__item span").filter({ hasText: "item1", visible: true }).first().click();
+      await page.getByText("item1", { exact: true }).first().click();
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup-selected.png");
 
       await page.locator("span").filter({ hasText: "Cancel" }).click();
       await page.locator(".sd-editor-chevron-button").click();
-      await page.locator(".sv-list__input").fill("item1");
+      await page.locator(".sd-selectlist__filter input").fill("item1");
       await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup.png");
     });
@@ -202,7 +202,7 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
-      await page.locator(".sv-list__input").fill("item1");
+      await page.locator(".sd-selectlist__filter input").fill("item1");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
 
@@ -210,7 +210,7 @@ frameworks.forEach(framework => {
       await popupSelector.waitFor({ state: "hidden" });
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
-      await page.locator(".sv-list__input").fill("item");
+      await page.locator(".sd-selectlist__filter input").fill("item");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-big.png");
 
@@ -218,7 +218,7 @@ frameworks.forEach(framework => {
       await popupSelector.waitFor({ state: "hidden" });
       await page.locator(".sd-editor-chevron-button").click();
       await popupSelector.waitFor({ state: "visible" });
-      await page.locator(".sv-list__input").fill("item3");
+      await page.locator(".sd-selectlist__filter input").fill("item3");
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-small.png");
     });

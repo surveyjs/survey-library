@@ -4,6 +4,9 @@ export default defineConfig({
   retries: 2,
   maxFailures: 5,
   fullyParallel: true,
+  expect: {
+    toHaveScreenshot: { threshold: 0.02 }
+  },
   webServer: {
     command: "",
     url: "http://localhost:8080"

@@ -64,17 +64,21 @@ window.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("surveyElement");
   const shadowRoot = container.attachShadow({ mode: 'open' });
   const rootElement = document.createElement("div");
-  rootElement.style.position = "fixed";
-  rootElement.style.left = "0";
-  rootElement.style.top = "0";
-  rootElement.style.right = "0";
-  rootElement.style.bottom = "0"; 
-  const styles = document.createElement('style');
+  rootElement.classList.add("root-fixed")
+  const styles = document.createElement("style");
   styles.textContent = `
     *,
     ::after,
     ::before {
         box-sizing: border-box;
+    }
+
+    .root-fixed {
+      position: fixed;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
     }
   `;
   

@@ -23,7 +23,7 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "devDependencies": {
-    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-virtual": "^3.0.2",
     "@types/node": "18.11.12",
@@ -63,7 +63,8 @@
   "overrides": {
     "ts-pegjs": {
       "peggy": "^5.0.6"
-    }
+    },
+    "svgo": "4.0.1"
   },
   "commit-and-tag-version": {
     "bumpFiles": [

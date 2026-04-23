@@ -1,4 +1,4 @@
-import { frameworks, initSurvey, url, test, expect } from "../helper";
+import { frameworks, initSurvey, resetFocusToBody, url, test, expect } from "../helper";
 
 const title = "Popup";
 
@@ -101,9 +101,8 @@ frameworks.forEach((framework) => {
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      await page.locator("body").click();
-      const testVariable = await page.evaluate(() => window["testVariable"]);
-      expect(testVariable).toBe("ok");
+      await resetFocusToBody(page);
+      await expect.poll(async () => await page.evaluate(() => window["testVariable"])).toBe("ok");
     });
 
     test("check ordinary popup when isVisible is changed twice", async ({ page }) => {

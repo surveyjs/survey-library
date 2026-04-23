@@ -208,9 +208,17 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
+    this.updateDataFormatByValue(newValue);
     if (!this.isLoadingFromJson) {
       this._loadedData = undefined;
       this.loadPreview(newValue);
+    }
+  }
+
+  private updateDataFormatByValue(newValue: any): void {
+    const detectedFormat = detectDataFormatFromValue(newValue);
+    if (!!detectedFormat && this.dataFormat !== detectedFormat) {
+      this.dataFormat = detectedFormat;
     }
   }
 
@@ -457,6 +465,17 @@ function correctFormatData(val: string): string {
   val = val.replace("image/", "").replace("+xml", "");
   if (val !== "jpeg" && val !== "svg") val = "png";
   return val;
+}
+
+function detectDataFormatFromValue(value: any): string {
+  if (typeof value !== "string") return undefined;
+  const match = /^data:([^;,]+)[;,]/i.exec(value);
+  if (!match || !match[1]) return undefined;
+  const mimeType = match[1].toLowerCase();
+  if (mimeType === "image/jpeg" || mimeType === "image/jpg") return "jpeg";
+  if (mimeType === "image/svg+xml") return "svg";
+  if (mimeType === "image/png") return "png";
+  return undefined;
 }
 
 Serializer.addClass(

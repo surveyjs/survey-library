@@ -69,6 +69,26 @@ QUnit.test("QuestionSignaturePadModel dataFormat converters", function (assert) 
   question.fromJSON({ name: "q", dataFormat: "image/svg+xml" });
   assert.equal(question.dataFormat, "svg", "#6");
 });
+QUnit.test("QuestionSignaturePadModel updates dataFormat from value MIME type", function (assert) {
+  const question = new QuestionSignaturePadModel("q");
+
+  question.dataFormat = "png";
+  question.value = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQE";
+  assert.equal(question.dataFormat, "jpeg", "jpeg format from value");
+
+  question.value = "data:image/svg+xml;base64,PHN2Zy8+";
+  assert.equal(question.dataFormat, "svg", "svg format from value");
+
+  question.value = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUg";
+  assert.equal(question.dataFormat, "png", "png format from value");
+
+  question.dataFormat = "jpeg";
+  question.value = "iVBORw0KGgoAAAANSUhEUg";
+  assert.equal(question.dataFormat, "jpeg", "plain base64 keeps current format");
+
+  question.value = "data:text/plain;base64,SGVsbG8=";
+  assert.equal(question.dataFormat, "jpeg", "non-image MIME type keeps current format");
+});
 QUnit.test("check allowClear", (assert) => {
   var json = {
     elements: [

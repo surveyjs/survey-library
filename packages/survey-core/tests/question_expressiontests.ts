@@ -425,3 +425,74 @@ QUnit.test("Support Promises in Custom Functions", (assert) => {
   }, 10);
   FunctionFactory.Instance.unregister("MyFunc");
 });
+
+QUnit.test("Access page and panel properties in expression, #11198", function (assert) {
+  const survey = new SurveyModel({
+    "title": "Survey Title",
+    "description": "Survey Description",
+    "pages": [
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "expression",
+            "name": "question5",
+            "title": "Info about Survey",
+            "expression": "{$survey.title}"
+          }
+        ]
+      },
+      {
+        "name": "page1",
+        "title": "Page 1 Title",
+        "description": "Page 1 Description",
+        "elements": [
+          {
+            "type": "expression",
+            "name": "question4",
+            "title": "Info about Page",
+            "expression": "{$page1.title}"
+          },
+          {
+            "type": "panel",
+            "name": "panel1",
+            "title": "Panel Title",
+            "description": "Panel Description",
+            "elements": [
+              {
+                "type": "expression",
+                "name": "question2",
+                "title": "Info about Panel",
+                "expression": "{$panel1.title}"
+              },
+              {
+                "type": "boolean",
+                "name": "question1",
+                "title": "Yes/No Title",
+                "description": "Yes/No Description"
+              },
+              {
+                "type": "expression",
+                "name": "question3",
+                "startWithNewLine": false,
+                "title": "Info about Boolean question",
+                "expression": "{$question1.title}"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "singlePage"
+  });
+
+  const question2 = survey.getQuestionByName("question2");
+  const question3 = survey.getQuestionByName("question3");
+  const question4 = survey.getQuestionByName("question4");
+  const question5 = survey.getQuestionByName("question5");
+
+  assert.equal(question2.value, "Panel Title", "question2: access panel1.title");
+  assert.equal(question3.value, "Yes/No Title", "question3: access question1.title");
+  assert.equal(question4.value, "Page 1 Title", "question4: access page1.title");
+  assert.equal(question5.value, "Survey Title", "question5: access survey.title");
+});

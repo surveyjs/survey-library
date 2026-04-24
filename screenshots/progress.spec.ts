@@ -125,7 +125,11 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const container = document.querySelector("#surveyElement");
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
+        }
+
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -137,7 +141,7 @@ frameworks.forEach(framework => {
       });
       await page.waitForLoadState("networkidle");
 
-      await compareMaskedScreenshot(page, "#surveyElement", "survey-progress-bar-bottom-brand.png");
+      await compareMaskedScreenshot(page, page.locator(".sd-root-modern").locator(".."), "survey-progress-bar-bottom-brand.png");
     });
 
     test("Check survey with progress top buttons", async ({ page }) => {

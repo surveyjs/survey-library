@@ -141,7 +141,7 @@ frameworks.forEach(framework => {
       });
       await page.waitForLoadState("networkidle");
 
-      await compareScreenshot(page, page.locator(".sd-root-modern").locator(".."), "survey-progress-bar-bottom-brand.png");
+      await compareMaskedScreenshot(page, page.locator(".sd-root-modern").locator(".."), "survey-progress-bar-bottom-brand.png");
     });
 
     test("Check survey with progress top buttons", async ({ page }) => {

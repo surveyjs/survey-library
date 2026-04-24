@@ -43,7 +43,7 @@
     "merge-files": "^0.1.2",
     "nano-css": "^5.6.2",
     "peggy": "^5.0.6",
-    "postcss": "8.4.31",
+    "postcss": "8.5.10",
     "postcss-calc": "9.0.1",
     "postcss-cli": "10.1.0",
     "postcss-fail-on-warn": "0.2.1",

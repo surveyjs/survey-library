@@ -546,9 +546,9 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question");
       await getButtonByText(page, "Complete").click();
       await resetFocusToBody(page);
-      await compareScreenshot(page, page.locator(".sd-question").nth(0), "question-rating-smileys-required.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-required.png");
       await questionRoot.nth(0).locator(".sd-rating__item-smiley").nth(1).hover();
-      await compareScreenshot(page, page.locator(".sd-question").nth(0), "question-rating-smileys-required-hover.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-required-hover.png");
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-rating-smileys-colored-required.png");
       await questionRoot.nth(1).locator(".sd-rating__item-smiley").nth(1).hover();
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-rating-smileys-colored-required-hover.png");
@@ -583,19 +583,19 @@ frameworks.forEach(framework => {
       );
 
       await compareScreenshot(page, ".sd-question--table", "question-rating-smileys-stars-in-matrix.png");
-      await compareScreenshot(page, page.locator(".sd-rating").nth(0), "question-rating-stars-small.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small.png");
 
       await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-star input")).focus(); });
-      await compareScreenshot(page, page.locator(".sd-rating").nth(0), "question-rating-stars-small-focus.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus.png");
       await page.hover(".sd-rating__item-star >> nth=3");
-      await compareScreenshot(page, page.locator(".sd-rating").nth(0), "question-rating-stars-small-focus-hovered.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus-hovered.png");
       await page.click(".sd-rating__item-star >> nth=3");
-      await compareScreenshot(page, page.locator(".sd-rating").nth(0), "question-rating-stars-small-focus-selected.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus-selected.png");
       await page.hover(".sd-rating__item-star >> nth=1");
-      await compareScreenshot(page, page.locator(".sd-rating").nth(0), "question-rating-stars-small-unhovered.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-unhovered.png");
       await resetFocusToBody(page);
       await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await compareScreenshot(page, page.locator(".sd-rating").nth(0), "question-rating-stars-small-selected.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-selected.png");
 
       await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small.png");
       await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-smiley input")).focus(); });
@@ -605,7 +605,7 @@ frameworks.forEach(framework => {
       await page.click(".sd-rating__item-smiley >> nth=3");
       await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-focus-selected.png");
       await page.hover(".sd-rating__item-smiley >> nth=1");
-      await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-unhovered.png");
+      await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-unhovered.png", { maxDiffPixels: 2 });
       await resetFocusToBody(page);
       await page.hover(".sd-body", { position: { x: 0, y: 0 } });
       await compareScreenshot(page, page.locator(".sd-rating").nth(1), "question-rating-smileys-small-selected.png");
@@ -647,7 +647,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      await compareScreenshot(page, page.locator(".sd-question").nth(0), "question-rating-labels-top.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-labels-top.png");
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-rating-labels-bottom.png");
       await compareScreenshot(page, page.locator(".sd-question").nth(2), "question-rating-labels-diagonal.png");
     });

@@ -135,6 +135,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 
       const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
+      rootElement.classList.add("root-element");
       const styles = document.createElement("style");
       styles.textContent = `
         *,

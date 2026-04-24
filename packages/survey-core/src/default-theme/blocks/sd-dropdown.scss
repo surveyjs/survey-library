@@ -32,6 +32,10 @@
   }
 }
 
+.sd-dropdown--empty.sd-input--readonly {
+  justify-content: flex-end;
+}
+
 .sd-dropdown__input-field-component {
   height: auto;
 }

@@ -116,14 +116,46 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       }
       if (val !== undefined) return { value: val, isFound: true };
     }
-    if (params.isProperty && path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.survey) {
-      return new PropertyGetterContext(this.survey).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+    if (params.isProperty && path.length > 1) {
+      const firstName = path[0].name.toLocaleLowerCase();
+      if (firstName === settings.expressionVariables.survey) {
+        return new PropertyGetterContext(this.survey).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      }
+      const page = this.getPageByName(path[0].name);
+      if (!!page) {
+        return new PropertyGetterContext(page).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      }
+      const panel = this.getPanelByName(path[0].name);
+      if (!!panel) {
+        return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      }
     }
     let res = new VariableGetterContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
     return new VariableGetterContext(this.valuesHash).getValue(params);
+  }
+  private getPageByName(name: string): PageModel | undefined {
+    if (!name) return undefined;
+    const nameLower = name.toLowerCase();
+    for (let i = 0; i < this.survey.pages.length; i++) {
+      if (this.survey.pages[i].name.toLowerCase() === nameLower) {
+        return this.survey.pages[i];
+      }
+    }
+    return undefined;
+  }
+  private getPanelByName(name: string): IPanel | undefined {
+    if (!name) return undefined;
+    const nameLower = name.toLowerCase();
+    const panels = this.survey.getAllPanels();
+    for (let i = 0; i < panels.length; i++) {
+      if (panels[i].name && panels[i].name.toLowerCase() === nameLower) {
+        return panels[i];
+      }
+    }
+    return undefined;
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;

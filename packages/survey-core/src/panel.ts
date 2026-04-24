@@ -1597,11 +1597,7 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
-        row.updateVisible();
-        if (row.visible && !row.isNeedRender) {
-          row.setIsLazyRendering(false);
-          row.stopLazyRendering();
-        }
+        this.refreshRowVisibility(row);
         break;
       }
     }
@@ -1776,12 +1772,14 @@ export class PanelModelBase extends SurveyElement<Question>
   private updateRowsVisibleState(): void {
     const rows = this.rows;
     for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      row.updateVisible();
-      if (row.visible && !row.isNeedRender) {
-        row.setIsLazyRendering(false);
-        row.stopLazyRendering();
-      }
+      this.refreshRowVisibility(rows[i]);
+    }
+  }
+  private refreshRowVisibility(row: QuestionRowModel): void {
+    row.updateVisible();
+    if (row.visible && !row.isNeedRender) {
+      row.setIsLazyRendering(false);
+      row.stopLazyRendering();
     }
   }
   protected notifyStateChanged(prevState: string): void {

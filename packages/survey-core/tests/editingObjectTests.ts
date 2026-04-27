@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { Base } from "../src/base";
 import { QuestionTextModel } from "../src/question_text";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ExpressionValidator } from "../src/validator";
 import {
@@ -452,7 +453,75 @@ QUnit.test("allowRowReorder and editingObj", function (assert) {
   assert.equal(table.rows[5].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #2");
   assert.equal(cellCreatedCallbackCounter, 0, "new cell is not created");
 });
-QUnit.test(
+QUnit.test("Edit matrix dropdown rows in matrix dynamic - removeRow does not call createRenderedRow, Bug#11212", function (assert) {
+  const question = new QuestionMatrixDropdownModel("q1");
+  question.addColumn("col1");
+  question.rows = ["row1", "row2", "row3"];
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "rows",
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("rows");
+  survey.editingObj = question;
+
+  assert.equal(matrix.visibleRows.length, 3, "There are 3 rows initially");
+  assert.equal(question.rows.length, 3, "matrix dropdown has 3 rows initially");
+
+  const renderedTable: any = matrix.renderedTable;
+  const originalCreateRenderedRow = renderedTable.createRenderedRow;
+  let createRenderedRowCallCount = 0;
+  renderedTable.createRenderedRow = function (cssClasses: any, isDetailRow: boolean = false) {
+    createRenderedRowCallCount++;
+    return originalCreateRenderedRow.call(this, cssClasses, isDetailRow);
+  };
+
+  const questionRenderedTable: any = question.renderedTable;
+  const questionOriginalCreateRenderedRow = questionRenderedTable.createRenderedRow;
+  let questionCreateRenderedRowCallCount = 0;
+  questionRenderedTable.createRenderedRow = function (cssClasses: any, isDetailRow: boolean = false) {
+    questionCreateRenderedRowCallCount++;
+    return questionOriginalCreateRenderedRow.call(this, cssClasses, isDetailRow);
+  };
+
+  matrix.removeRow(1);
+
+  assert.equal(question.rows.length, 2, "matrix dropdown row is removed");
+  assert.equal(question.rows[0].value, "row1", "first row is row1");
+  assert.equal(question.rows[1].value, "row3", "second row is row3");
+  assert.equal(matrix.visibleRows.length, 2, "There are 2 visible rows after remove");
+  assert.strictEqual(matrix.renderedTable, renderedTable, "matrix rendered table is not recreated after removeRow");
+  assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "matrix renderedTable.uniqueId is the same after removeRow");
+  assert.equal(matrix.renderedTable.rows.length, 2 * 2, "There are 2 rendered rows (with errors) after remove");
+  assert.equal(createRenderedRowCallCount, 0, "createRenderedRow is not called on removeRow");
+
+  assert.equal(question.visibleRows.length, 2, "question has 2 visible rows after remove");
+  assert.strictEqual(question.renderedTable, questionRenderedTable, "question rendered table is not recreated after single row removal");
+  assert.equal(question.renderedTable.uniqueId, questionRenderedTable.uniqueId, "question renderedTable.uniqueId is the same after removeRow");
+  assert.equal(question.renderedTable.rows.length, 2 * 2, "question has 2 rendered rows (with errors) after remove");
+  assert.equal(questionCreateRenderedRowCallCount, 0, "question createRenderedRow is not called on single row removal");
+
+  question.rows.push(new ItemValue("row4"));
+
+  assert.equal(question.rows.length, 3, "matrix dropdown row is added");
+  assert.equal(question.rows[2].value, "row4", "third row is row4");
+  assert.equal(matrix.visibleRows.length, 3, "There are 3 visible rows after add");
+  assert.strictEqual(matrix.renderedTable, renderedTable, "matrix rendered table is not recreated after addRow");
+  assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "matrix renderedTable.uniqueId is the same after addRow");
+
+  assert.equal(question.visibleRows.length, 3, "question has 3 visible rows after add");
+  assert.strictEqual(question.renderedTable, questionRenderedTable, "question rendered table is not recreated after single row add");
+  assert.equal(question.renderedTable.uniqueId, questionRenderedTable.uniqueId, "question renderedTable.uniqueId is the same after addRow");
+  assert.equal(question.renderedTable.rows.length, 3 * 2, "question has 3 rendered rows (with errors) after add");
+  assert.equal(questionCreateRenderedRowCallCount, 1, "question createRenderedRow is called only once for the new data row");
+}); QUnit.test(
   "Edit columns in matrix, where there is no columns from the beginning",
   function (assert) {
     var question = new QuestionMatrixDynamicModel("q1");

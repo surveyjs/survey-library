@@ -2680,3 +2680,45 @@ QUnit.test("generate column names", (assert) => {
   assert.equal(result.pages[0].elements[0].columns[1].name, "question1", "name is generated for column 2");
   assert.equal(result.pages[0].elements[0].columns[2].name, "question3", "name is generated for column 3");
 });
+QUnit.test("matrixdropdown: removing or adding a single row updates renderedTable incrementally, Bug#11212", function (assert) {
+  const matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  matrix.rows = ["row1", "row2", "row3"];
+
+  assert.equal(matrix.visibleRows.length, 3, "There are 3 rows initially");
+
+  const renderedTable: any = matrix.renderedTable;
+  const originalCreateRenderedRow = renderedTable.createRenderedRow;
+  let createRenderedRowCallCount = 0;
+  renderedTable.createRenderedRow = function (cssClasses: any, isDetailRow: boolean = false) {
+    createRenderedRowCallCount++;
+    return originalCreateRenderedRow.call(this, cssClasses, isDetailRow);
+  };
+
+  matrix.rows.splice(1, 1);
+
+  assert.equal(matrix.rows.length, 2, "matrix dropdown row is removed");
+  assert.equal(matrix.visibleRows.length, 2, "There are 2 visible rows after remove");
+  assert.strictEqual(matrix.renderedTable, renderedTable, "rendered table is not recreated after removing a row");
+  assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "renderedTable.uniqueId is the same after removing a row");
+  assert.equal(matrix.renderedTable.rows.length, 2 * 2, "There are 2 rendered rows (with errors) after remove");
+  assert.equal(createRenderedRowCallCount, 0, "createRenderedRow is not called on removing a row");
+
+  matrix.rows.push(new ItemValue("row4"));
+  assert.equal(matrix.rows.length, 3, "matrix dropdown row is added");
+  assert.equal(matrix.visibleRows.length, 3, "There are 3 visible rows after add");
+  assert.strictEqual(matrix.renderedTable, renderedTable, "rendered table is not recreated after adding a row");
+  assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "renderedTable.uniqueId is the same after adding a row");
+  assert.equal(matrix.renderedTable.rows.length, 3 * 2, "There are 3 rendered rows (with errors) after add");
+  assert.equal(createRenderedRowCallCount, 1, "createRenderedRow is called only for the new data row");
+
+  matrix.rows.splice(1, 0, new ItemValue("row5"));
+  assert.equal(matrix.rows.length, 4, "matrix dropdown row is inserted after first row");
+  assert.equal(matrix.rows[1].value, "row5", "inserted row is at index 1");
+  assert.equal(matrix.visibleRows.length, 4, "There are 4 visible rows after insert");
+  assert.equal(matrix.visibleRows[1].rowName, "row5", "second visible row is row5");
+  assert.strictEqual(matrix.renderedTable, renderedTable, "rendered table is not recreated after inserting a row");
+  assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "renderedTable.uniqueId is the same after inserting a row");
+  assert.equal(matrix.renderedTable.rows.length, 4 * 2, "There are 4 rendered rows (with errors) after insert");
+  assert.equal(createRenderedRowCallCount, 2, "createRenderedRow is called only for the new data row on insert");
+});

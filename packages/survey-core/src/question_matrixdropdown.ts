@@ -140,7 +140,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     this.generatedVisibleRows.splice(removeIndex, 1);
     this.finishIncrementalRowChange((table) => table.onRemovedRow(removedRow));
-    removedRow.dispose();
     return true;
   }
   private getAddedRowIndex(item: ItemValue): number {

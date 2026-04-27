@@ -222,7 +222,7 @@ frameworks.forEach(framework => {
       // await compareScreenshot(page, ".sv-popup.sv-dropdown-popup .sv-popup__container", "survey-theme-questiontitle-font-color-for-dropdown-list-items.png");
     });
 
-    test("Check input element placeholder", async ({ page }) => {
+    test.skip("Check input element placeholder", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,

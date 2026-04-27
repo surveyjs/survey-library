@@ -180,5 +180,42 @@ frameworks.forEach((framework) => {
       let elementVisisbleInViewPort = await visibleInViewport(page, requiredSpan);
       await expect(elementVisisbleInViewPort).toBeTruthy();
     });
+
+    test("Remove a row and insert a row before the last row", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      const json = {
+        elements: [
+          {
+            type: "matrixdropdown",
+            name: "question1",
+            columns: [
+              { name: "col1", cellType: "text" }
+            ],
+            rows: ["Row 1", "Row 2", "Row 3", "Row 4"]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+
+      await expect(page.locator("tbody tr")).toHaveCount(4);
+      await expect(page.getByLabel("row Row 1, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 2, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 3, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 4, column col1")).toBeVisible();
+
+      await page.evaluate(() => {
+        const q = (window as any).survey.getQuestionByName("question1");
+        const rows = q.rows;
+        rows.splice(1, 1);
+        rows.splice(rows.length - 1, 0, { value: "Row 5", text: "Row 5" });
+      });
+      await page.waitForTimeout(200);
+
+      await expect(page.getByLabel("row Row 1, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 2, column col1")).toHaveCount(0);
+      await expect(page.getByLabel("row Row 3, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 5, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 4, column col1")).toBeVisible();
+    });
   });
 });

@@ -5372,6 +5372,7 @@ export class SurveyModel extends SurveyElementCore
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.css.root)
+      .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.progressBarType)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)

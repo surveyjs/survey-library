@@ -2695,6 +2695,17 @@ QUnit.test("matrixdropdown: removing or adding a single row updates renderedTabl
     return originalCreateRenderedRow.call(this, cssClasses, isDetailRow);
   };
 
+  // Data rows are at odd indices (each data row is preceded by an error row).
+  const getRowText = (dataIdx: number): string => {
+    const r = matrix.renderedTable.rows[dataIdx * 2 + 1];
+    return r && r.cells[0] && r.cells[0].locTitle ? r.cells[0].locTitle.renderedHtml : "";
+  };
+  const getRenderedRowName = (dataIdx: number): string => matrix.renderedTable.rows[dataIdx * 2 + 1].row?.rowName;
+
+  assert.equal(getRowText(0), "row1", "initial: rendered data row 0 text is row1");
+  assert.equal(getRowText(1), "row2", "initial: rendered data row 1 text is row2");
+  assert.equal(getRowText(2), "row3", "initial: rendered data row 2 text is row3");
+
   matrix.rows.splice(1, 1);
 
   assert.equal(matrix.rows.length, 2, "matrix dropdown row is removed");
@@ -2703,6 +2714,10 @@ QUnit.test("matrixdropdown: removing or adding a single row updates renderedTabl
   assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "renderedTable.uniqueId is the same after removing a row");
   assert.equal(matrix.renderedTable.rows.length, 2 * 2, "There are 2 rendered rows (with errors) after remove");
   assert.equal(createRenderedRowCallCount, 0, "createRenderedRow is not called on removing a row");
+  assert.equal(getRowText(0), "row1", "after remove: rendered data row 0 text is row1");
+  assert.equal(getRowText(1), "row3", "after remove: rendered data row 1 text is row3");
+  assert.equal(getRenderedRowName(0), "row1", "after remove: rendered data row 0 maps to row1");
+  assert.equal(getRenderedRowName(1), "row3", "after remove: rendered data row 1 maps to row3");
 
   matrix.rows.push(new ItemValue("row4"));
   assert.equal(matrix.rows.length, 3, "matrix dropdown row is added");
@@ -2711,6 +2726,10 @@ QUnit.test("matrixdropdown: removing or adding a single row updates renderedTabl
   assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "renderedTable.uniqueId is the same after adding a row");
   assert.equal(matrix.renderedTable.rows.length, 3 * 2, "There are 3 rendered rows (with errors) after add");
   assert.equal(createRenderedRowCallCount, 1, "createRenderedRow is called only for the new data row");
+  assert.equal(getRowText(0), "row1", "after add: rendered data row 0 text is row1");
+  assert.equal(getRowText(1), "row3", "after add: rendered data row 1 text is row3");
+  assert.equal(getRowText(2), "row4", "after add: rendered data row 2 text is row4");
+  assert.equal(getRenderedRowName(2), "row4", "after add: rendered data row 2 maps to row4");
 
   matrix.rows.splice(1, 0, new ItemValue("row5"));
   assert.equal(matrix.rows.length, 4, "matrix dropdown row is inserted after first row");
@@ -2721,4 +2740,12 @@ QUnit.test("matrixdropdown: removing or adding a single row updates renderedTabl
   assert.equal(matrix.renderedTable.uniqueId, renderedTable.uniqueId, "renderedTable.uniqueId is the same after inserting a row");
   assert.equal(matrix.renderedTable.rows.length, 4 * 2, "There are 4 rendered rows (with errors) after insert");
   assert.equal(createRenderedRowCallCount, 2, "createRenderedRow is called only for the new data row on insert");
+  assert.equal(getRowText(0), "row1", "after insert: rendered data row 0 text is row1");
+  assert.equal(getRowText(1), "row5", "after insert: rendered data row 1 text is row5");
+  assert.equal(getRowText(2), "row3", "after insert: rendered data row 2 text is row3");
+  assert.equal(getRowText(3), "row4", "after insert: rendered data row 3 text is row4");
+  assert.equal(getRenderedRowName(0), "row1", "after insert: data row 0 maps to row1");
+  assert.equal(getRenderedRowName(1), "row5", "after insert: data row 1 maps to row5");
+  assert.equal(getRenderedRowName(2), "row3", "after insert: data row 2 maps to row3");
+  assert.equal(getRenderedRowName(3), "row4", "after insert: data row 3 maps to row4");
 });

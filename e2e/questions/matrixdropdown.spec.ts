@@ -181,7 +181,7 @@ frameworks.forEach((framework) => {
       await expect(elementVisisbleInViewPort).toBeTruthy();
     });
 
-    test("Remove a row and insert a row before the last row", async ({ page }) => {
+    test("Remove a row and insert a row before the last row, Bug#11212", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       const json = {
         elements: [
@@ -207,7 +207,7 @@ frameworks.forEach((framework) => {
         const q = (window as any).survey.getQuestionByName("question1");
         const rows = q.rows;
         rows.splice(1, 1);
-        rows.splice(rows.length - 1, 0, { value: "Row 5", text: "Row 5" });
+        rows.splice(rows.length - 1, 0, new (window as any).Survey.ItemValue("Row 5"));
       });
       await page.waitForTimeout(200);
 

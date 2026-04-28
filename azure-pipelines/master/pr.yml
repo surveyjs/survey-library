@@ -102,7 +102,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: core/build.yml
+          - template: templates/library/core/build.yml
             parameters:
               store: true
 
@@ -112,7 +112,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: react/build.yml
+          - template: templates/library/react/build.yml
             parameters:
                 store: true
 
@@ -122,7 +122,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: angular/build.yml
+          - template: templates/library/angular/build.yml
             parameters:
                 store: true
 
@@ -132,7 +132,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: vue/build.yml
+          - template: templates/library/vue/build.yml
             parameters:
                 store: true
 
@@ -142,7 +142,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: js/build.yml
+          - template: templates/library/js/build.yml
             parameters:
                 store: true
 
@@ -157,7 +157,7 @@ stages:
     - job:
       displayName: "Build"
       steps:
-        - template: core/build.yml
+        - template: templates/creator/core/build.yml
           parameters:
             checkout: Creator
             store: true
@@ -173,7 +173,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: react/build.yml
+          - template: templates/creator/react/build.yml
             parameters:
               checkout: Creator
               store: true
@@ -189,7 +189,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: angular/build.yml
+          - template: templates/creator/angular/build.yml
             parameters:
               checkout: Creator
               store: true
@@ -205,7 +205,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: vue/build.yml
+          - template: templates/creator/vue/build.yml
             parameters:
               checkout: Creator
               store: true
@@ -221,7 +221,7 @@ stages:
     jobs:
       - job:
         steps:
-          - template: js/build.yml
+          - template: templates/creator/js/build.yml
             parameters:
               checkout: Creator
               store: true
@@ -265,31 +265,31 @@ stages:
     displayName: "Library Core Test"
     dependsOn: []
     jobs:
-      - template: core/test.yml
+      - template: templates/library/core/test.yml
 
   - stage: LibraryReactTest
     displayName: "Library React Test"
     dependsOn: []
     jobs:
-      - template: react/test.yml
+      - template: templates/library/react/test.yml
 
   - stage: LibraryAngularTest
     displayName: "Library Angular Test"
     dependsOn: []
     jobs:
-      - template: angular/test.yml
+      - template: templates/library/angular/test.yml
 
   - stage: LibraryVueTest
     displayName: "Library Vue Test"
     dependsOn: []
     jobs:
-      - template: vue/test.yml
+      - template: templates/library/vue/test.yml
 
   - stage: LibraryJSTest
     displayName: "Library JS (Preact ShadowDOM BoxSizing) Test"
     dependsOn: []
     jobs:
-      - template: js/test.yml
+      - template: templates/library/js/test.yml
 
   - stage: CreatorCoreTest
     displayName: "Creator Core Test"
@@ -299,7 +299,7 @@ stages:
     variables:
       PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
     jobs:
-      - template: core/test.yml
+      - template: templates/creator/core/test.yml
         parameters:
           checkout: Creator
 
@@ -312,7 +312,7 @@ stages:
     variables:
       PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
     jobs:
-      - template: react/test.yml
+      - template: templates/creator/react/test.yml
         parameters:
           checkout: Creator
 
@@ -325,7 +325,7 @@ stages:
       - LibraryCoreBuild
       - LibraryAngularBuild
     jobs:
-      - template: angular/test.yml
+      - template: templates/creator/angular/test.yml
         parameters:
           checkout: Creator
 
@@ -338,7 +338,7 @@ stages:
       - LibraryCoreBuild
       - LibraryVueBuild
     jobs:
-      - template: vue/test.yml
+      - template: templates/creator/vue/test.yml
         parameters:
           checkout: Creator
 
@@ -351,7 +351,7 @@ stages:
       - LibraryCoreBuild
       - LibraryJSBuild
     jobs:
-      - template: js/test.yml
+      - template: templates/creator/js/test.yml
         parameters:
           checkout: Creator
 

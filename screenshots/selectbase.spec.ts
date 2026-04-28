@@ -173,7 +173,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, question, "checkbox-with-long-comment-text.png");
     });
 
-    test.skip("Check rating smileys scale colored question themes", async ({ page }) => {
+    test("Check selectbase zero column panelless themes", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,

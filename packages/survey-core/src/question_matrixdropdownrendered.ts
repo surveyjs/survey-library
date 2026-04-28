@@ -407,11 +407,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     let dataRowIndex = 0;
     for (var i = 0; i < this.rows.length; i++) {
       if (dataRowIndex === index) {
-        if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) {
+        if (this.rows[i].isErrorsRow && !this.showCellErrorsTop) {
           res++;
           if (i + 1 < this.rows.length && this.rows[i + 1].isDetailRow) {
             res ++;
           }
+        } else if (this.rows[i].isDetailRow) {
+          res++;
         }
         break;
       }

@@ -5,7 +5,7 @@ parameters:
 
 jobs:
   - job:
-    displayName: "Unit && Presets && PostCSS"
+    displayName: "Unit & Presets & PostCSS"
     steps:
       - template: build.yml
         parameters:

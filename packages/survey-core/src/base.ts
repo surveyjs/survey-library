@@ -908,11 +908,11 @@ export class Base implements IObjectValueContext {
       this.isFuncExecuting = false;
     }
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void { }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     if (this.isLoadingFromJson) return;
     this.updateBindings(name, newValue);
-    this.onPropertyValueChanged(name, oldValue, newValue);
+    this.onPropertyValueChanged(name, oldValue, newValue, arrayChanges);
     this.onPropertyChanged.fire(this, {
       name: name,
       oldValue: oldValue,

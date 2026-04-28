@@ -427,6 +427,13 @@ QUnit.test("Question titleDescription", function (assert) {
     true,
     "survey.questionDescriptionLocation = 'underInput'"
   );
+  question2.descriptionLocation = "hidden";
+  assert.equal(question2.hasDescriptionUnderTitle, false, "question2 hidden - underTitle");
+  assert.equal(question2.hasDescriptionUnderInput, false, "question2 hidden - underInput");
+  survey.questionDescriptionLocation = "hidden";
+  question1.descriptionLocation = "default";
+  assert.equal(question1.hasDescriptionUnderTitle, false, "survey hidden - underTitle");
+  assert.equal(question1.hasDescriptionUnderInput, false, "survey hidden - underInput");
 });
 QUnit.test("Use value of checkbox question as an array", function (assert) {
   var survey = new SurveyModel();

@@ -400,7 +400,8 @@
             "type": "string",
             "enum": [
                 "underInput",
-                "underTitle"
+                "underTitle",
+                "hidden"
             ]
         },
         "readOnly": {
@@ -850,7 +851,8 @@
                     "enum": [
                         "default",
                         "underInput",
-                        "underTitle"
+                        "underTitle",
+                        "hidden"
                     ]
                 },
                 "requiredErrorText": {
@@ -3527,7 +3529,8 @@
                             "enum": [
                                 "default",
                                 "underInput",
-                                "underTitle"
+                                "underTitle",
+                                "hidden"
                             ]
                         },
                         "requiredErrorText": {

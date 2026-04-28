@@ -10,14 +10,13 @@
   background-color: var(--sjs2-color-component-boolean-default-bg, #F5F5F5);
   border-radius: var(--sjs2-radius-component-boolean, 9999px);
   box-shadow:
-    var(--sjs2-border-effect-component-toggle-false-default, inset 0px 1px 2px 0px #D4D4D4),
-    $shadow-focused-reset;
+    var(--sjs2-border-effect-component-boolean-default, inset 0px 1px 2px 0px #D4D4D4), $shadow-focused-reset;
   transition: box-shadow $transition-duration;
 
-  &.sd-boolean--allowhover:focus-within {
+  &.sd-boolean--allowhover:has(input:focus-visible) {
     box-shadow:
       $shadow-inner-reset,
-      $shadow-focused;
+      0px 0px 0px var(--sjs2-border-width-a11y, 4px) var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.60));
   }
 }
 
@@ -26,6 +25,9 @@
   display: block;
   @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
+  background-color: var(--sjs2-color-component-boolean-item-false-default-bg, #F5F5F5);
+  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
+  box-shadow: var(--sjs2-border-effect-component-boolean-item-false-default, $shadow-small);
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
 }
 
@@ -39,12 +41,12 @@
   width: calc(100%);
   height: calc(100%);
   box-sizing: border-box;
-  border-radius: var(--sjs2-radius-component-toggle, 9999px);
+  border-radius: var(--sjs2-radius-component-boolean, 9999px);
   overflow: hidden;
 }
 
 .sd-boolean.sd-boolean--checked .sd-boolean__label--true,
-.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false {
+.sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label--false {
   color: transparent;
   transition-duration: 0.15s;
   transition-property: color;
@@ -64,8 +66,8 @@
   left: var(--sjs2-spacing-x050);
   transform: translateX(0);
   background-color: var(--sjs2-color-component-boolean-item-true-default-bg, #fff);
-  box-shadow: $shadow-small;
-  border-radius: var(--sjs2-radius-component-toggle-thumb, 9999px);
+  box-shadow: var(--sjs2-border-effect-component-boolean-item-true-default, $shadow-small);
+  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
   transition-duration: 0.2s;
   transition-property: transform, left;
   transition-timing-function: linear;
@@ -104,7 +106,7 @@
 }
 
 .sd-boolean--exchanged {
-  &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
+  &.sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
     color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
   }
@@ -112,26 +114,26 @@
 
 .sd-boolean--disabled {
   pointer-events: none;
+  box-shadow: var(--sjs2-border-effect-component-boolean-disabled, inset 0px 0px 0px 1px #F5F5F5);
+  background-color: var(--sjs2-color-component-boolean-disabled-bg, #F5F5F5);
 
   .sd-boolean__thumb {
+    box-shadow: var(--sjs2-border-effect-component-boolean-item-true-disabled, inset 0px 0px 0px 2px $foreground);
     color: var(--sjs2-color-component-boolean-item-true-disabled-value, #B3B2B2);
-    opacity: 0.25;
   }
   .sd-boolean__label {
-    color: var(--sjs2-color-component-boolean-item-false-disabled-value, #D4D4D4);
-    opacity: 0.25;
+    color: var(--sjs2-color-component-boolean-item-false-disabled-value, rgba(28, 27, 32, 0.6));
   }
 }
 
 .sd-boolean--readonly {
   pointer-events: none;
-  box-shadow: none;
+  box-shadow: var(--sjs2-border-effect-component-boolean-readonly, none);
+  background-color: var(--sjs2-color-component-boolean-readonly-bg, #fff);
   transition: none;
 
-  background: var(--sjs2-color-component-boolean-readonly-bg, #fff);
-
   .sd-boolean__thumb {
-    box-shadow: inset 0px 0px 0px 2px $foreground;
+    box-shadow: var(--sjs2-border-effect-component-boolean-item-true-readonly, inset 0px 0px 0px 2px $foreground);
     transition: none;
     color: var(--sjs2-color-component-boolean-item-true-readonly-value, #1C1B20);
   }
@@ -169,12 +171,15 @@
   transition: background-color $transition-duration;
 }
 
-.sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
+.sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover .sd-boolean__label {
+  color: var(--sjs2-color-component-boolean-item-false-hovered-value, rgba(28, 27, 32, 1));
   background-color: var(--sjs2-color-component-boolean-item-false-hovered-bg, #EDEDED);
+  box-shadow: var(--sjs2-border-effect-component-boolean-item-false-hovered, $shadow-small);
 }
 
 .sd-boolean--error {
   background-color: var(--sjs2-color-component-boolean-invalid-bg, #F5F5F5);
+  box-shadow: var(--sjs2-border-effect-component-boolean-invalid, 0 0 0 1px #e50a3e inset);
 }
 
 .sd-question--boolean {

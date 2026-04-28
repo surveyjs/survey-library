@@ -888,7 +888,7 @@ export default {
     "--sjs2-border-effect-floating-default": "0px 6px 20px 0px var(--sjs2-color-utility-shadow-floating-default)",
     "--sjs2-border-effect-component-boolean-default": "inset 0px 1px 2px 0px var(--sjs2-color-component-boolean-default-border)",
     "--sjs2-border-effect-component-boolean-disabled": "inset 0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-disabled-border)",
-    "--sjs2-border-effect-component-boolean-invalid": "inset 0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-invalid-border)",
+    "--sjs2-border-effect-component-boolean-invalid": "inset 0 1px 2px 0 rgba(0, 0, 0, 0.15)",
     "--sjs2-border-effect-component-boolean-highlighted": "inset 0px 0px 0px var(--sjs2-border-width-x200) var(--sjs2-color-component-boolean-highlighted-border)",
     "--sjs2-border-effect-component-boolean-readonly": "inset 0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-readonly-border)",
     "--sjs2-border-effect-component-boolean-design": "inset 0px 1px 2px 0px var(--sjs2-color-component-boolean-design-border)",

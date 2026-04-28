@@ -1,6 +1,7 @@
 // Auto-generated theme: soft
 export default {
   "themeName": "soft",
+  "colorPalette": "light",
   "isPanelless": true,
   "cssVariables": {
     "--sjs2-color-utility-shadow-trigger-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",

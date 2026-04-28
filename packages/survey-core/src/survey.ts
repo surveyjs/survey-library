@@ -8375,7 +8375,7 @@ export class SurveyModel extends SurveyElementCore
       } else if (key === "isLight") {
         this.colorPalette = theme[key] ? "light" : "dark";
       } else if (key === "cssVariables") {
-        this.cssVariables = Object.assign({}, DefaultTheme.cssVariables, theme.cssVariables);
+        this.cssVariables = { ...theme.cssVariables };
       } else {
         (this as any)[key] = theme[key];
       }

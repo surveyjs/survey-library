@@ -1,6 +1,7 @@
 // Auto-generated theme: default
 export default {
   "themeName": "default",
+  "colorPalette": "dark",
   "isPanelless": true,
   "cssVariables": {
     "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",

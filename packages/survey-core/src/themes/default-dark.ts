@@ -1,6 +1,6 @@
 // Auto-generated theme: default
 export default {
-  "themeName": "default",
+  "themeName": "default-dark",
   "iconSet": "v2",
   "isLight": false,
   "cssVariables": {

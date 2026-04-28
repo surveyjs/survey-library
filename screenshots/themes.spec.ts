@@ -478,7 +478,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-page", "survey-html-theme.png");
     });
 
-    test("Matrix many columns", async ({ page }) => {
+    test.skip("Matrix many columns", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,

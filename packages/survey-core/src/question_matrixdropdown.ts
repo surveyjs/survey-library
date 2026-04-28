@@ -12,8 +12,9 @@ import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { ConditionRunner } from "./conditions/conditionRunner";
-import { Base } from "./base";
+import { ArrayChanges, Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
+import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
@@ -93,17 +94,81 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "rows" && !!this.generatedVisibleRows) {
-      this.clearGeneratedRows();
-      this.resetRenderedTable();
-      this.getVisibleRows();
-      this.clearIncorrectValues();
+      if (!this.tryUpdateRowsIncrementally(arrayChanges)) {
+        this.clearGeneratedRows();
+        this.resetRenderedTable();
+        this.getVisibleRows();
+        this.clearIncorrectValues();
+      }
     }
     if (name === "hideIfRowsEmpty") {
       this.updateVisibilityBasedOnRows();
     }
+  }
+  private tryUpdateRowsIncrementally(arrayChanges: ArrayChanges | undefined): boolean {
+    if (!arrayChanges) return false;
+    const itemsToAdd = arrayChanges.itemsToAdd || [];
+    const deleteCount = arrayChanges.deleteCount || 0;
+    if (itemsToAdd.length === 1 && deleteCount === 0) {
+      return this.tryAddSingleRow(<ItemValue>itemsToAdd[0]);
+    }
+    if (itemsToAdd.length === 0 && deleteCount === 1) {
+      return this.tryRemoveSingleRow();
+    }
+    return false;
+  }
+  private tryAddSingleRow(item: ItemValue): boolean {
+    const insertIndex = this.getAddedRowIndex(item);
+    if (insertIndex < 0) return false;
+    const val = this.value || {};
+    const newRow = this.createMatrixRow(item, this.getRowValueForCreation(val, item.value));
+    this.generatedVisibleRows.splice(insertIndex, 0, newRow);
+    newRow.visibleIndex = insertIndex;
+    this.onMatrixRowCreated(newRow);
+    this.finishIncrementalRowChange((table) => table.onAddedRow(newRow, insertIndex));
+    return true;
+  }
+  private tryRemoveSingleRow(): boolean {
+    const removeIndex = this.getRemovedRowIndex();
+    if (removeIndex < 0) return false;
+    const removedRow = this.generatedVisibleRows[removeIndex];
+    if (!this.isDisposed) {
+      this.defaultValuesInRows[removedRow.rowName] = removedRow.getNamesWithDefaultValues();
+    }
+    this.generatedVisibleRows.splice(removeIndex, 1);
+    this.finishIncrementalRowChange((table) => table.onRemovedRow(removedRow));
+    return true;
+  }
+  private getAddedRowIndex(item: ItemValue): number {
+    if (!item || this.isValueEmpty(item.value)) return -1;
+    if (!!this.getRowByKey(item.value)) return -1;
+    const indexInRows = this.rows.indexOf(item);
+    if (indexInRows < 0) return -1;
+    let insertIndex = 0;
+    for (let i = 0; i < indexInRows; i++) {
+      if (!this.isValueEmpty(this.rows[i].value)) insertIndex++;
+    }
+    return insertIndex;
+  }
+  private getRemovedRowIndex(): number {
+    const currentRowNames: { [key: string]: boolean } = {};
+    for (let i = 0; i < this.rows.length; i++) {
+      currentRowNames[this.rows[i].value] = true;
+    }
+    for (let i = 0; i < this.generatedVisibleRows.length; i++) {
+      if (!currentRowNames[this.generatedVisibleRows[i].rowName]) return i;
+    }
+    return -1;
+  }
+  private finishIncrementalRowChange(updateRendered: (table: QuestionMatrixDropdownRenderedTable) => void): void {
+    this.clearVisibleRows();
+    if (this.isRendredTableCreated) {
+      updateRendered(this.renderedTable);
+    }
+    this.clearIncorrectValues();
   }
   public getType(): string {
     return "matrixdropdown";

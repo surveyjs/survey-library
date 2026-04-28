@@ -407,7 +407,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this.resetHasTextInTitle();
     }
     if (name === "visible") {
-      this.setPropertyValue("isVisible", this.isVisible);
       this.onVisibleChanged();
     }
   }
@@ -1598,10 +1597,7 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
-        row.updateVisible();
-        if (row.visible && !row.isNeedRender) {
-          row.isNeedRender = true;
-        }
+        this.refreshRowVisibility(row);
         break;
       }
     }
@@ -1752,7 +1748,12 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
-    this.setPropertyValue("isVisible", this.isVisible);
+    const oldIsVisible = this.getPropertyValue("isVisible");
+    const currentIsVisible = this.isVisible;
+    this.setPropertyValue("isVisible", currentIsVisible);
+    if (oldIsVisible !== currentIsVisible) {
+      this.updateRowsVisibleState();
+    }
 
     if (this.canUpdateValueOnVisibleChanged()) {
       const questions = this.questions;
@@ -1766,6 +1767,19 @@ export class PanelModelBase extends SurveyElement<Question>
           q.updateValueWithDefaults();
         }
       }
+    }
+  }
+  private updateRowsVisibleState(): void {
+    const rows = this.rows;
+    for (let i = 0; i < rows.length; i++) {
+      this.refreshRowVisibility(rows[i]);
+    }
+  }
+  private refreshRowVisibility(row: QuestionRowModel): void {
+    row.updateVisible();
+    if (row.visible && !row.isNeedRender) {
+      row.setIsLazyRendering(false);
+      row.stopLazyRendering();
     }
   }
   protected notifyStateChanged(prevState: string): void {

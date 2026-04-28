@@ -1193,6 +1193,7 @@ export class Question extends SurveyElement<Question>
    * - `"default"` (default) - Inherits the setting from the Survey's [`questionDescriptionLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionDescriptionLocation) property.
    * - `"underTitle"` - Displays the description under the question title.
    * - `"underInput"` - Displays the description under the interactive area.
+   * - `"hidden"` - Hides the description.
    * @see description
    * @see hasDescription
    */
@@ -1204,7 +1205,7 @@ export class Question extends SurveyElement<Question>
   get hasDescriptionUnderInput(): boolean {
     return this.getDescriptionLocation() == "underInput" && this.hasDescription;
   }
-  private getDescriptionLocation() {
+  protected getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
     return !!this.survey
       ? this.titleSettings.questionDescriptionLocation
@@ -3145,7 +3146,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    if (this.hasTitle && this.hasDescription) {
+    if (this.hasTitle && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -3195,7 +3196,7 @@ export class Question extends SurveyElement<Question>
 
     if (this.hasCssError()) {
       result = this.id + "_errors";
-    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
+    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       result = this.ariaDescriptionId;
     }
 
@@ -3292,7 +3293,7 @@ Serializer.addClass("question", [
   {
     name: "descriptionLocation",
     default: "default",
-    choices: ["default", "underInput", "underTitle"],
+    choices: ["default", "underInput", "underTitle", "hidden"],
   },
   {
     name: "showNumber:boolean",

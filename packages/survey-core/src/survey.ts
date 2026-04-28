@@ -3048,6 +3048,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"underTitle"` (default) - Displays descriptions under question titles.
    * - `"underInput"` - Displays descriptions under the interactive area.
+   * - `"hidden"` - Hides question descriptions.
    *
    * You can override this setting for individual questions if you specify their [`descriptionLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#descriptionLocation) property.
    *
@@ -8649,7 +8650,7 @@ Serializer.addClass("survey", [
   {
     name: "questionDescriptionLocation",
     default: "underTitle",
-    choices: ["underInput", "underTitle"],
+    choices: ["underInput", "underTitle", "hidden"],
   },
   { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
   {

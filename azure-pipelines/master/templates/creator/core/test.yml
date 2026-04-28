@@ -1,0 +1,24 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "Unit && Presets && PostCSS"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-core
+        displayName: "Unit"
+
+      - script: npm run test:presets
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-core
+        displayName: "Presets"
+
+      - script: npm run test:postcss
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-core
+        displayName: "PostCSS"

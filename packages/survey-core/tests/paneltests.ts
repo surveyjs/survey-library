@@ -175,6 +175,42 @@ QUnit.test("panel rows generation - nested panel", function (assert) {
     "The panel row is invisible - it is empty"
   );
 });
+QUnit.test("panel row lazy rendering: nested panel becoming visible via visibleIf force-renders inner rows, Bug#11191", function (assert) {
+  const prevLazyRowsRendering = settings.lazyRowsRendering;
+  settings.lazyRowsRendering = true;
+  try {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "panel", name: "p1", visibleIf: "{q1} = 1",
+          elements: [
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ]
+        }
+      ]
+    });
+    const page = survey.pages[0];
+    page.onFirstRendering();
+    const p1 = <PanelModel>survey.getPanelByName("p1");
+    assert.equal(p1.isVisible, false, "Nested panel starts hidden");
+    assert.equal(p1.rows.length, 2, "Nested panel has two rows built");
+    assert.equal(p1.rows[0].isNeedRender, false, "Row 0 starts as a lazy skeleton");
+    assert.equal(p1.rows[0].isLazyRendering(), true, "Row 0 starts in lazy mode");
+
+    survey.setValue("q1", 1);
+
+    assert.equal(p1.isVisible, true, "Nested panel becomes visible after visibleIf flips");
+    assert.equal(p1.rows[0].isNeedRender, true, "Row 0 is force-rendered when parent panel becomes visible");
+    assert.equal(p1.rows[1].isNeedRender, true, "Row 1 is force-rendered when parent panel becomes visible");
+    // Lazy mode is cleared so a subsequent React StrictMode unmount cannot flip isNeedRender back to false
+    assert.equal(p1.rows[0].isLazyRendering(), false, "Row 0 is no longer lazy after force render");
+    assert.equal(p1.rows[1].isLazyRendering(), false, "Row 1 is no longer lazy after force render");
+  } finally {
+    settings.lazyRowsRendering = prevLazyRowsRendering;
+  }
+});
 QUnit.test("Expand panel on validation error", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");

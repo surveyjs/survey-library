@@ -146,85 +146,85 @@ stages:
             parameters:
                 store: true
 
-  - stage: CreatorCoreBuild
-    displayName: "Creator Core Build"
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    jobs:
-    - job:
-      displayName: "Build"
-      steps:
-        - template: templates/creator/core/build.yml
-          parameters:
-            checkout: Creator
-            store: true
+  # - stage: CreatorCoreBuild
+  #   displayName: "Creator Core Build"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   jobs:
+  #   - job:
+  #     displayName: "Build"
+  #     steps:
+  #       - template: templates/creator/core/build.yml
+  #         parameters:
+  #           checkout: Creator
+  #           store: true
 
-  - stage: CreatorReactBuild
-    displayName: "Creator React Build"
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryReactBuild
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    jobs:
-      - job:
-        steps:
-          - template: templates/creator/react/build.yml
-            parameters:
-              checkout: Creator
-              store: true
+  # - stage: CreatorReactBuild
+  #   displayName: "Creator React Build"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryReactBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/react/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
 
-  - stage: CreatorAngularBuild
-    displayName: "Creator Angular Build"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryAngularBuild
-    jobs:
-      - job:
-        steps:
-          - template: templates/creator/angular/build.yml
-            parameters:
-              checkout: Creator
-              store: true
+  # - stage: CreatorAngularBuild
+  #   displayName: "Creator Angular Build"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryAngularBuild
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/angular/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
 
-  - stage: CreatorVueBuild
-    displayName: "Creator Vue Build"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryVueBuild
-    jobs:
-      - job:
-        steps:
-          - template: templates/creator/vue/build.yml
-            parameters:
-              checkout: Creator
-              store: true
+  # - stage: CreatorVueBuild
+  #   displayName: "Creator Vue Build"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryVueBuild
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/vue/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
 
-  - stage: CreatorJSBuild
-    displayName: "Creator JS (Preact ShadowDOM BoxSizing) Build"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryJSBuild
-    jobs:
-      - job:
-        steps:
-          - template: templates/creator/js/build.yml
-            parameters:
-              checkout: Creator
-              store: true
+  # - stage: CreatorJSBuild
+  #   displayName: "Creator JS (Preact ShadowDOM BoxSizing) Build"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryJSBuild
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/js/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
 
   # - stage: AnalyticsBuild
   #   displayName: "Analytics Build"

@@ -1,8 +1,7 @@
-// Auto-generated theme: soft-light
+// Auto-generated theme: soft
 export default {
-  "themeName": "soft-light",
-  "iconSet": "v2",
-  "isLight": true,
+  "themeName": "soft",
+  "colorPalette": "light",
   "cssVariables": {
     "--sjs2-color-utility-shadow-trigger-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-trigger-hovered": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",

@@ -1,7 +1,7 @@
 // Auto-generated theme: monochrome
 export default {
   "themeName": "monochrome",
-  "colorPalette": "light",
+  "isPanelless": true,
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#1C1B20",
     "--sjs2-color-utility-surface-designer": "#1c1b200d",

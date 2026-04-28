@@ -1,8 +1,7 @@
-// Auto-generated theme: default
+// Auto-generated theme: contrast
 export default {
   "themeName": "contrast",
-  "iconSet": "v2",
-  "isLight": true,
+  "colorPalette": "light",
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#3A179E",
     "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",

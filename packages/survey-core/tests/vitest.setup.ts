@@ -12,6 +12,27 @@ import { surveyLocalization } from "../src/surveyStrings";
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
 
+// jsdom does not implement ResizeObserver, but survey-library's responsive
+// logic constructs `new ResizeObserver(...)` during `afterRender`. Provide a
+// no-op stub so tests that don't care about responsive behavior don't crash.
+// Tests that DO care can still override `window.ResizeObserver` per-test.
+if (typeof (globalThis as any).ResizeObserver === "undefined") {
+  (globalThis as any).ResizeObserver = class {
+    observe() { /* no-op */ }
+    unobserve() { /* no-op */ }
+    disconnect() { /* no-op */ }
+  };
+}
+
+// jsdom does not implement AnimationEvent. Tests that dispatch
+// `new AnimationEvent("animationend")` need a constructible event class.
+// Map it to the standard Event so handlers can still receive a plain Event.
+if (typeof (globalThis as any).AnimationEvent === "undefined") {
+  (globalThis as any).AnimationEvent = class extends Event {
+    constructor(type: string, init?: EventInit) { super(type, init); }
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Custom matchers that bridge QUnit semantics into Vitest.
 // ---------------------------------------------------------------------------

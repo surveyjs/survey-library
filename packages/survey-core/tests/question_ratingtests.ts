@@ -1,7 +1,7 @@
 import { QuestionRatingModel, RatingItem } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
 import { defaultCss } from "../src/defaultCss/defaultCss";
-import { CustomResizeObserver } from "./questionImagepicker";
+import { CustomResizeObserver } from "./test-helpers";
 import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";

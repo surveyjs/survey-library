@@ -2,7 +2,7 @@ import { Action, IAction } from "../src/actions/action";
 import { ElementHelper } from "../src/element-helper";
 import { ListModel } from "../src/list";
 import { settings } from "../src/settings";
-import { createIActionArray, createListContainerHtmlElement } from "./utilstests";
+import { createIActionArray, createListContainerHtmlElement } from "./test-helpers";
 
 export default QUnit.module("List Model");
 const oldValueMINELEMENTCOUNT = ListModel.MINELEMENTCOUNT;

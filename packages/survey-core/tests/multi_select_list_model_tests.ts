@@ -1,6 +1,6 @@
 import { Action, IAction } from "../src/actions/action";
 import { MultiSelectListModel } from "../src/multiSelectListModel";
-import { createIActionArray } from "./utilstests";
+import { createIActionArray } from "./test-helpers";
 
 export default QUnit.module("Multi select list model");
 

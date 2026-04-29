@@ -110,7 +110,7 @@ describe("a11y", () => {
     expect(question.ariaErrormessage, "aria-errormessage is NULL because we don't have any errors").toBe(null);
   });
 
-  // VITEST-MIGRATION: MANUAL -- OTHER: aria-labelledby second variant fails under jsdom (likely missing layout/relationship API).
+  // VITEST-MIGRATION: MANUAL -- OTHER: a11y_input_ariaExpanded returns undefined under jsdom instead of null (strict-equality test, original QUnit assert.strictEqual). Likely depends on real layout/expanded-state API.
   test.skip("a11y: aria-labelledby", () => {
     var json = {
       elements: [

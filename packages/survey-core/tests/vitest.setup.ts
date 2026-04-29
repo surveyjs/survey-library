@@ -1,6 +1,6 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterEach } from "vitest";
+import { afterEach, expect } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
@@ -12,13 +12,46 @@ import { surveyLocalization } from "../src/surveyStrings";
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
 
-// Generalizable singleton cleanup. QUnit tests historically called
-// `ComponentCollection.Instance.clear()` (and similar resets) on the trailing
-// line of every test that mutated a singleton. When an assertion failed
-// before that line, the cleanup was skipped and the next test inherited the
-// leaked state. QUnit hid this because it isolates per-module differently;
-// Vitest runs all tests in a file sequentially in the same V8 isolate, so
-// leaks propagate.
+// ---------------------------------------------------------------------------
+// Custom matchers that bridge QUnit semantics into Vitest.
+// ---------------------------------------------------------------------------
+// QUnit's `assert.equal(a, b)` uses `==` (loose equality), while Vitest's
+// `expect(a).toBe(b)` uses `Object.is` (strict). The migration codemod maps
+// `assert.equal` -> `expect().toLooseEqual()` so that legacy comparisons like
+// `assert.equal(undefined, null)` or `assert.equal("0", 0)` keep their
+// original semantics. New tests should prefer `toBe`/`toEqual` directly.
+expect.extend({
+  toLooseEqual(received: unknown, expected: unknown) {
+    // eslint-disable-next-line eqeqeq
+    const pass = received == expected;
+    return {
+      pass,
+      message: () =>
+        pass
+          ? `expected ${this.utils.printReceived(received)} not to loosely equal ${this.utils.printExpected(expected)}`
+          : `expected ${this.utils.printReceived(received)} to loosely equal ${this.utils.printExpected(expected)}`,
+    };
+  },
+});
+
+declare module "vitest" {
+  interface Assertion<T = any> {
+    toLooseEqual(expected: unknown): T;
+  }
+  interface AsymmetricMatchersContaining {
+    toLooseEqual(expected: unknown): unknown;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Generalizable singleton cleanup.
+// ---------------------------------------------------------------------------
+// QUnit tests historically called `ComponentCollection.Instance.clear()` (and
+// similar resets) on the trailing line of every test that mutated a singleton.
+// When an assertion failed before that line, the cleanup was skipped and the
+// next test inherited the leaked state. QUnit hid this because it isolates
+// per-module differently; Vitest runs all tests in a file sequentially in the
+// same V8 isolate, so leaks propagate.
 //
 // To make conversion safe AND deterministic, this `afterEach` resets every
 // known global singleton after every test, regardless of pass/fail. Tests no

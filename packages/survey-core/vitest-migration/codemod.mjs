@@ -6,11 +6,16 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 const ASSERTION_MAP = {
-  equal: "toBe",
+  // QUnit `assert.equal` uses `==` (loose). We map to a custom `toLooseEqual`
+  // matcher defined in tests/vitest.setup.ts that preserves `==` semantics.
+  // This avoids manual EQUAL_LOOSE follow-ups for legacy comparisons like
+  // `assert.equal(undefined, null)` or `assert.equal("0", 0)`.
+  equal: "toLooseEqual",
+  notEqual: { negate: true, matcher: "toLooseEqual" },
+  // `strictEqual` already uses `===` in QUnit, so map to strict `toBe`.
   strictEqual: "toBe",
-  deepEqual: "toEqual",
-  notEqual: { negate: true, matcher: "toBe" },
   notStrictEqual: { negate: true, matcher: "toBe" },
+  deepEqual: "toEqual",
   notDeepEqual: { negate: true, matcher: "toEqual" },
   ok: "toBeTruthy",
   notOk: "toBeFalsy",

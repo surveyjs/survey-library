@@ -58,6 +58,27 @@ Required actions:
      });
      ```
    - When the migration uncovers a new singleton that needs reset, add it to this hook (one source of truth for cleanup). Do NOT add per-test cleanup calls in converted test files — the codemod strips trailing ones and the global hook handles the rest.
+   - **Registers custom matchers via `expect.extend(...)`.** The codemod maps `assert.equal`/`assert.notEqual` to a `toLooseEqual` matcher (rather than strict `toBe`) so legacy QUnit comparisons like `assert.equal(undefined, null)` or `assert.equal("0", 0)` keep their original `==` semantics. The setup file MUST contain:
+     ```ts
+     import { expect } from "vitest";
+     expect.extend({
+       toLooseEqual(received: unknown, expected: unknown) {
+         // eslint-disable-next-line eqeqeq
+         const pass = received == expected;
+         return {
+           pass,
+           message: () =>
+             pass
+               ? `expected ${this.utils.printReceived(received)} not to loosely equal ${this.utils.printExpected(expected)}`
+               : `expected ${this.utils.printReceived(received)} to loosely equal ${this.utils.printExpected(expected)}`,
+         };
+       },
+     });
+     declare module "vitest" {
+       interface Assertion<T = any> { toLooseEqual(expected: unknown): T; }
+       interface AsymmetricMatchersContaining { toLooseEqual(expected: unknown): unknown; }
+     }
+     ```
 
 4. **Add scripts** to `packages/survey-core/package.json`:
    - `"test:vitest": "vitest run"`

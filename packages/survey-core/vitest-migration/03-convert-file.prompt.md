@@ -21,9 +21,10 @@ Use the mapping table from `vitest-migration/PLAN.md` §2. Summary:
 | `QUnit.test(name, function(assert){...})` | `test(name, () => {...})` |
 | `QUnit.test(name, async function(assert){...})` | `test(name, async () => {...})` |
 | `QUnit.skip(name, fn)` | `test.skip(name, fn)` |
-| `assert.equal(a, b, msg)` | `expect(a, msg).toBe(b)` (see EQUAL_LOOSE rule below) |
+| `assert.equal(a, b, msg)` | `expect(a, msg).toLooseEqual(b)` (custom matcher; preserves QUnit's `==` semantics — see "Custom matchers" below) |
 | `assert.strictEqual(a, b, msg)` | `expect(a, msg).toBe(b)` |
-| `assert.notEqual(a, b, msg)` | `expect(a, msg).not.toBe(b)` |
+| `assert.notEqual(a, b, msg)` | `expect(a, msg).not.toLooseEqual(b)` |
+| `assert.notStrictEqual(a, b, msg)` | `expect(a, msg).not.toBe(b)` |
 | `assert.deepEqual(a, b, msg)` | `expect(a, msg).toEqual(b)` |
 | `assert.notDeepEqual(a, b, msg)` | `expect(a, msg).not.toEqual(b)` |
 | `assert.ok(x, msg)` | `expect(x, msg).toBeTruthy()` |
@@ -39,6 +40,10 @@ import { describe, test, expect } from "vitest";
 
 Remove `import "qunit";` references and any unused imports.
 
+## Custom matchers (provided by `tests/vitest.setup.ts`)
+
+- **`toLooseEqual(expected)`** — mirrors QUnit's `assert.equal`/`assert.notEqual` (`==` / `!=`). Use this for any direct mapping of `assert.equal`. Examples that QUnit treats as equal but `toBe` rejects: `undefined == null`, `"0" == 0`, `0 == false`. The codemod emits `toLooseEqual` automatically; do not switch to `toBe` unless you have verified strict equality is the original intent (in which case the source already used `assert.strictEqual`).
+
 ## Partial-conversion fallback (mandatory)
 
 A test **must be left commented out** instead of converted when any of the following applies. For each such test, add a row to `packages/survey-core/vitest-migration/MANUAL-FOLLOWUP.md`.
@@ -47,7 +52,7 @@ A test **must be left commented out** instead of converted when any of the follo
 |---|---|
 | `ASYNC_DONE` | Test uses `assert.async()` or `assert.async(N)` and the rewrite to `await new Promise(...)` is non-obvious (more than one `done()` call site, conditional `done()` inside callbacks, or `done()` invoked from setTimeout chains). |
 | `THROWS_SHAPE` | `assert.throws` second argument is a non-trivial Error instance, function matcher, or regex over `.message` whose Vitest equivalent is ambiguous. |
-| `EQUAL_LOOSE` | `assert.equal` arguments have visibly different runtime types (e.g., `survey.getValue(...)` returns string but the expected literal is a number). Do not silently switch to `toBe`. |
+| `EQUAL_LOOSE` | **Automated** — `assert.equal`/`assert.notEqual` map to the custom `toLooseEqual` matcher (see "Custom matchers" above), preserving `==` semantics. No fallback needed. |
 | `DOM_API` | Test references `IntersectionObserver`, `ResizeObserver`, `HTMLCanvasElement.getContext`, real layout sizes (`offsetWidth`, `getBoundingClientRect` non-zero values), or other APIs not reliably implemented by jsdom. |
 | `TIMER` | Test depends on real `setTimeout`/`setInterval` timing where naive conversion would race. |
 | `CROSS_FILE_STATE` | Test depends on global state set up by another file via `Serializer.addClass` etc., where Vitest's per-file isolation would break it. |

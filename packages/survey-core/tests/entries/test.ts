@@ -1,7 +1,5 @@
 // common
-export * from "../helperstests";
 export * from "../choicesRestfultests"; //
-export * from "../jsonobjecttests"; //
 export * from "../surveyquestiontests"; //
 export * from "../question_matrixdynamictests";
 export * from "../question_matrixdropdownbasetests";
@@ -28,10 +26,8 @@ export * from "../questionImagepicker";
 export * from "../question_baseselecttests";
 export * from "../question_ratingtests";
 export * from "../question_slider_tests";
-export * from "../question_texttests";
 export * from "../question_ranking_tests";
 export * from "../question_signaturepadtests";
-export * from "../question_matrix_tests";
 export * from "../question_tagbox_tests";
 export * from "../question_imagemap_tests";
 export * from "../listModelTests";

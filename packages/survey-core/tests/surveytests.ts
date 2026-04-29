@@ -20059,6 +20059,7 @@ QUnit.test("survey.applyTheme patches legacy CSS variables", function (assert) {
     assert.equal(vars["--sjs2-color-bg-basic-primary"], "rgba(255, 0, 0, 1)", "legacy --sjs-general-backcolor mapped to new var");
     assert.equal(typeof vars["--sjs-general-backcolor"], "undefined", "legacy variable removed");
     assert.equal(vars["--sjs2-base-unit-font-size"], "9px", "--sjs-font-size mapped to --sjs2-base-unit-font-size");
+    assert.equal(vars["--sjs2-base-unit-line-height"], "9px", "--sjs-font-size mapped to --sjs2-base-unit-line-height");
     assert.equal(typeof vars["--sjs-font-size"], "undefined", "--sjs-font-size removed");
     assert.equal(vars["--sjs2-border-effect-floating-default"], "0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)", "join mapping: shadow vars concatenated with comma");
     assert.equal(typeof vars["--sjs-shadow-medium"], "undefined", "legacy shadow-medium removed");

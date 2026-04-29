@@ -149,6 +149,6 @@
 }
 
 .sv-list-item--custom-value .sv-list__item-body {
-  font-weight: bold;
+  @include sjs2--typography--default-strong;
   color: $primary;
 }

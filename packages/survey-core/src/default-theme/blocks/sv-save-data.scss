@@ -60,9 +60,9 @@
 }
 
 .sv-save-data_root.sv-save-data_error {
+  @include sjs2--typography--default-strong;
   background-color: $red;
   color: $background;
-  font-weight: 600;
   gap: var(--sjs2-spacing-x600);
 }
 
@@ -85,7 +85,7 @@
 }
 
 .sv-save-data_root.sv-save-data_success {
+  @include sjs2--typography--default-strong;
   background-color: $primary;
   color: #ffffff;
-  font-weight: 600;
 }

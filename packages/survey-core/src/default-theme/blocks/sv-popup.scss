@@ -220,7 +220,7 @@ sv-popup {
 }
 
 .sv-popup__body-header {
-  @include sjs2--typography--medium;
+  @include sjs2--typography--medium-strong;
   color: $foreground;
 }
 
@@ -331,7 +331,7 @@ sv-popup {
       .sv-list__item-body {
         background: $primary;
         color: $primary-foreground;
-        font-weight: 600;
+        @include sjs2--typography--default-strong;
       }
     }
   }
@@ -344,7 +344,7 @@ sv-popup {
         .sv-list__item-body {
           background: $primary-light;
           color: $foreground;
-          font-weight: 400;
+          @include sjs2--typography--default;
         }
       }
     }

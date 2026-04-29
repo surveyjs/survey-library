@@ -66,8 +66,8 @@
 }
 
 .sv_window_header_title_collapsed {
-    color: $foreground-dim;
     @include sjs2--typography--default-strong;
+    color: $foreground-dim;
     flex: 1;
     display: flex;
     justify-content: flex-start;
@@ -75,9 +75,9 @@
 }
 
 .sv_window_header_description {
+    @include sjs2--typography--default;
     color: $font-questiondescription-color;
     font-feature-settings: 'salt' on;
-    @include sjs2--typography--default;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

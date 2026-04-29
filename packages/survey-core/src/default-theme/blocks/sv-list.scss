@@ -165,7 +165,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   & > .sv-list__item-body {
     background-color: $primary;
     color: $primary-foreground;
-    font-weight: 600;
+    @include sjs2--typography--default-strong;
   }
 
   .sv-list__item-icon use {
@@ -182,14 +182,14 @@ li:focus .sv-list__item.sv-list__item--selected {
   .sv-list__item-body {
     background-color: $primary-light;
     color: $font-questiontitle-color;
-    font-weight: 400;
+    @include sjs2--typography--default;
   }
 }
 
 .sv-list__item--group-selected > .sv-list__item-body {
   background-color: $primary-light;
   color: $font-questiontitle-color;
-  font-weight: 400;
+  @include sjs2--typography--default;
 
   use {
     fill: $foreground-light;

@@ -844,7 +844,7 @@ describe("Dropdown question", () => {
   });
 
   // Skipped: lazy load callback path depends on popup/list rendering side-effects not fired under jsdom.
-  test.skip("The onGetChoiceDisplayValue callback fires multiple times, #6078", () => {
+  test("The onGetChoiceDisplayValue callback fires multiple times, #6078", () => {
     return new Promise(function(resolve) {
       let __remaining = 3;
       const __done = function() { if (--__remaining <= 0) resolve(); };
@@ -1954,7 +1954,7 @@ describe("Dropdown question", () => {
   });
 
   // Skipped: nested setTimeout-based filter race depends on real microtask/timer interleaving and lazy-load callbacks not fired under jsdom.
-  test.skip("Rapidly Changing Search Filter", () => {
+  test("Rapidly Changing Search Filter", () => {
     return new Promise(function(resolve) {
       let __remaining = 4;
       const __done = function() { if (--__remaining <= 0) resolve(); };

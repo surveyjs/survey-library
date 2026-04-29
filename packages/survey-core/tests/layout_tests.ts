@@ -739,7 +739,7 @@ describe("Layout:", () => {
     expect(q6.visible, "q6 visible").toLooseEqual(false);
   });
 
-  test.skip("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", () => {
+  test("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", () => {
     let counter = 0;
     let survey = new SurveyModel({ gridLayoutEnabled: true });
     survey.onPropertyValueChangedCallback = function (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) {

@@ -12,6 +12,68 @@ import { surveyLocalization } from "../src/surveyStrings";
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
 
+// jsdom does not implement matchMedia. SurveyJS responsive logic and popup
+// displayMode use it. Provide a controllable registry.
+if (typeof (globalThis as any).matchMedia === "undefined") {
+  const __mqRegistry: Map<string, { matches: boolean, listeners: Set<(e: any) => void> }> = new Map();
+  (globalThis as any).matchMedia = function (query: string) {
+    let entry = __mqRegistry.get(query);
+    if (!entry) {
+      entry = { matches: false, listeners: new Set() };
+      __mqRegistry.set(query, entry);
+    }
+    const captured = entry;
+    return {
+      get matches() { return captured.matches; },
+      media: query,
+      onchange: null,
+      addListener(cb: (e: any) => void) { captured.listeners.add(cb); },
+      removeListener(cb: (e: any) => void) { captured.listeners.delete(cb); },
+      addEventListener(_t: string, cb: (e: any) => void) { captured.listeners.add(cb); },
+      removeEventListener(_t: string, cb: (e: any) => void) { captured.listeners.delete(cb); },
+      dispatchEvent() { return false; },
+    };
+  };
+  (globalThis as any).__setMatchMedia = function (query: string, matches: boolean) {
+    let entry = __mqRegistry.get(query);
+    if (!entry) {
+      entry = { matches, listeners: new Set() };
+      __mqRegistry.set(query, entry);
+      return;
+    }
+    if (entry.matches === matches) return;
+    entry.matches = matches;
+    entry.listeners.forEach((cb) => cb({ matches, media: query }));
+  };
+  if (typeof (globalThis as any).window !== "undefined") {
+    (globalThis as any).window.matchMedia = (globalThis as any).matchMedia;
+  }
+}
+
+// jsdom 25 does provide CSS.escape, but be defensive.
+if (typeof (globalThis as any).CSS === "undefined") {
+  (globalThis as any).CSS = { escape: (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c) };
+} else if (typeof (globalThis as any).CSS.escape !== "function") {
+  (globalThis as any).CSS.escape = (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c);
+}
+
+// jsdom's requestAnimationFrame uses setTimeout(cb, 16). Some SurveyJS code
+// schedules rAF chains during synchronous test flow; Vitest tests that don't
+// await time will miss the callback. Replace with a microtask-fast variant
+// that still defers (so re-entrancy works) but resolves on next macrotask.
+if (typeof (globalThis as any).requestAnimationFrame === "function") {
+  const __origRAF = (globalThis as any).requestAnimationFrame;
+  const __origCAF = (globalThis as any).cancelAnimationFrame;
+  (globalThis as any).requestAnimationFrame = (cb: (t: number) => void) => {
+    return setTimeout(() => cb(performance.now()), 0) as any;
+  };
+  (globalThis as any).cancelAnimationFrame = (id: any) => clearTimeout(id);
+  (globalThis as any).__restoreRAF = () => {
+    (globalThis as any).requestAnimationFrame = __origRAF;
+    (globalThis as any).cancelAnimationFrame = __origCAF;
+  };
+}
+
 // jsdom does not implement ResizeObserver, but survey-library's responsive
 // logic constructs `new ResizeObserver(...)` during `afterRender`. Provide a
 // no-op stub so tests that don't care about responsive behavior don't crash.

@@ -213,6 +213,63 @@ function addImportAndDescribe(src, moduleName) {
   return src;
 }
 
+function convertAsyncDoneTests(src) {
+  // Convert QUnit `assert.async()` / `assert.async(N)` patterns to a returned
+  // Promise wrapping. Supports:
+  //   - single `const done = assert.async();` with `done()` call(s) to resolve
+  //   - multiple `done1 = assert.async();` ... `done6 = assert.async();`
+  //   - numeric counts: `assert.async(N)` requires N calls before resolving
+  // All variants are unified into a single resolve via a shared countdown:
+  //   const __done = () => { if (--__remaining <= 0) resolve(); };
+  // Each user-declared `done*` variable is rebound to `__done`.
+  // Tests that mix assert.async with bare `assert.async` references (no decl)
+  // are left for commentOutFallbacks to handle.
+  const findOne = (calleeName) => {
+    const out = [];
+    const re = new RegExp(`\\bQUnit\\.${calleeName}\\b`, "g");
+    let m;
+    while((m = re.exec(src)) !== null) {
+      const openIdx = src.indexOf("(", m.index + m[0].length);
+      if (openIdx === -1) continue;
+      const parsed = readArgs(src, openIdx);
+      if (!parsed) continue;
+      out.push({ start: m.index, end: parsed[1] + 1, args: parsed[0], calleeName });
+    }
+    return out;
+  };
+  const calls = [...findOne("test")];
+  calls.sort((a, b) => b.start - a.start);
+  for (const call of calls) {
+    const fnArg = call.args[1] || "";
+    const fnMatch = fnArg.match(/^(async\s+)?function\s*\(\s*assert\s*\)\s*\{([\s\S]*)\}\s*$/);
+    if (!fnMatch) continue;
+    const isAsync = !!fnMatch[1];
+    let body = fnMatch[2];
+
+    const declRe = /(?:const|let|var)\s+(\w+)\s*=\s*assert\.async\s*\(\s*(\d+)?\s*\)\s*;?/g;
+    const decls = [];
+    let m;
+    while((m = declRe.exec(body)) !== null) {
+      decls.push({ full: m[0], name: m[1], count: m[2] ? parseInt(m[2], 10) : 1 });
+    }
+    if (decls.length === 0) continue;
+    // Bail if any other assert.async appears (e.g. bare reference); commentOutFallbacks handles it.
+    const allAsync = body.match(/\bassert\.async\b/g) || [];
+    if (allAsync.length !== decls.length) continue;
+
+    const total = decls.reduce((s, d) => s + d.count, 0);
+    for (const d of decls) {
+      body = body.replace(d.full, `const ${d.name} = __done;`);
+    }
+    const prelude = `\n  let __remaining = ${total};\n  const __done = function() { if (--__remaining <= 0) resolve(); };\n`;
+    const newFn = `${isAsync ? "async " : ""}function(assert) { return new Promise(function(resolve) {${prelude}${body}}); }`;
+    const nameArg = call.args[0];
+    const replacement = `QUnit.test(${nameArg}, ${newFn})`;
+    src = src.slice(0, call.start) + replacement + src.slice(call.end);
+  }
+  return src;
+}
+
 function commentOutFallbacks(src) {
   // Find every QUnit.test( and QUnit.skip( call. If its argument body contains assert.async or assert.throws,
   // replace the entire call with a marker comment + the original call wrapped in /* */.
@@ -285,6 +342,7 @@ function convertFile(filePath) {
     return { skipped: true, reason: "uses QUnit.begin/done" };
   }
   let fallbacks = [];
+  src = convertAsyncDoneTests(src);
   if (/\bassert\.async\b|\bassert\.throws\b/.test(src)) {
     const r = commentOutFallbacks(src);
     src = r.src;

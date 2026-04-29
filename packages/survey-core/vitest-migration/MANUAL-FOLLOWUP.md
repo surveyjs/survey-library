@@ -13,8 +13,8 @@ This file tracks tests and files that the AI batch-conversion prompts could not 
 
 | # | File | Test name | Reason | Flagged by | Status |
 |---|---|---|---|---|---|
-| 1 | tests/basetests.ts | "Add async event" | ASYNC_DONE | 02-convert-batch.prompt.md (slice 3) | open |
-| 2 | tests/surveyElementTests.ts | "wait for elements to render RenderingCompletedAwaiter by timeout" | ASYNC_DONE | 02-convert-batch.prompt.md (slice 3) | open |
+| 1 | tests/basetests.ts | "Add async event" | ASYNC_DONE | 02-convert-batch.prompt.md (slice 3) | **resolved by ASYNC_DONE codemod transform** — codemod now rewrites `assert.async()` / `assert.async(N)` declarations into a returned `new Promise(resolve => { ... })` with a shared countdown `__done` helper. |
+| 2 | tests/surveyElementTests.ts | "wait for elements to render RenderingCompletedAwaiter by timeout" | ASYNC_DONE | 02-convert-batch.prompt.md (slice 3) | **resolved by ASYNC_DONE codemod transform**. |
 | 3 | tests/helperstests.ts | __entire_file__ | EQUAL_LOOSE | 02-convert-batch.prompt.md (slice 3) | **resolved by `toLooseEqual` matcher (EQUAL_LOOSE automation)** — codemod now maps `assert.equal`/`assert.notEqual` to a custom `toLooseEqual` matcher (defined in `tests/vitest.setup.ts`) that uses `==`. File is now converted. |
 | 4 | tests/utilstests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 3) | open — sanitizer tests rely on `document.createRange()` / browser sanitizer behavior that jsdom does not implement (DOM_API). Reverted; needs jsdom polyfill or test rewrite. |
 | 5 | tests/jsonobjecttests.ts | __entire_file__ | EQUAL_LOOSE | 02-convert-batch.prompt.md (slice 3) | **resolved by `toLooseEqual` matcher (EQUAL_LOOSE automation)**, with one `test.skip` for entry #20. File is now converted. |
@@ -38,7 +38,7 @@ This file tracks tests and files that the AI batch-conversion prompts could not 
 
 | Code | Meaning |
 |---|---|
-| `ASYNC_DONE` | Uses `assert.async()` / `assert.async(N)`; needs control-flow rewrite to native `async`/`await` or `Promise.all`. |
+| `ASYNC_DONE` | Uses `assert.async()` / `assert.async(N)`. **Automated**: codemod rewrites `(const|let|var) <name> = assert.async(<N>?);` declarations into a returned `new Promise(resolve => { ... })`. All `done*` variables are rebound to a shared `__done` countdown that resolves once the total expected count is reached. Tests with bare `assert.async` references (no declaration) still fall through to comment-out for manual review. |
 | `THROWS_SHAPE` | `assert.throws(fn, expected, msg)` where `expected` is non-trivial (regex, custom matcher, instance shape) and the equivalent `expect(fn).toThrow(...)` form is ambiguous. |
 | `EQUAL_LOOSE` | `assert.equal` compares cross-type values (e.g., number vs string). **Automated**: codemod maps `assert.equal`/`assert.notEqual` to the custom `toLooseEqual` matcher defined in `tests/vitest.setup.ts`, which uses `==` semantics matching QUnit. No manual follow-up needed for pure EQUAL_LOOSE failures. |
 | `DOM_API` | Test relies on a browser API not available or behaving differently under jsdom (e.g., `IntersectionObserver`, layout sizes, real Canvas). |

@@ -405,47 +405,45 @@ describe("SurveyElement", () => {
     expect(q2.onAfterRenderElement.isEmpty).toBeTruthy();
   });
 
-  // VITEST-MIGRATION: MANUAL -- ASYNC_DONE: contains assert.async(), manual rewrite required
-  /*
-test("wait for elements to render RenderingCompletedAwaiter by timeout", async () => {
-  const done = assert.async();
-  const json = {
-    "elements": [
-      { "type": "text", "name": "question1" },
-      { "type": "text", "name": "question2" }
-    ],
-  };
+  test("wait for elements to render RenderingCompletedAwaiter by timeout", () => new Promise<void>((resolve) => {
+    let __remaining = 1;
+    const __done = () => { if (--__remaining <= 0) resolve(); };
+    const json = {
+      "elements": [
+        { "type": "text", "name": "question1" },
+        { "type": "text", "name": "question2" }
+      ],
+    };
 
-  const survey = new SurveyModel(json);
-  const [q1, q2] = survey.getAllQuestions();
+    const survey = new SurveyModel(json);
+    const [q1, q2] = survey.getAllQuestions();
 
-  let qRenderLog = "";
-  survey.onAfterRenderQuestion.add((s, o) => {
-    qRenderLog += "->rendered(" + o.question.name + ")";
-  });
+    let qRenderLog = "";
+    survey.onAfterRenderQuestion.add((s, o) => {
+      qRenderLog += "->rendered(" + o.question.name + ")";
+    });
 
-  expect(q1.onAfterRenderElement.isEmpty).toBeTruthy();
-  expect(q2.onAfterRenderElement.isEmpty).toBeTruthy();
-
-  let log = "";
-  const awaiter = new RenderingCompletedAwaiter([q1, q2], () => {
-    log += "->elementsRendered";
-  });
-
-  expect(log).toBe("");
-  expect(qRenderLog).toBe("");
-  expect(q1.onAfterRenderElement.length).toBe(1);
-  expect(q2.onAfterRenderElement.length).toBe(1);
-
-  setTimeout(() => {
-    expect(log).toBe("->elementsRendered");
-    expect(qRenderLog).toBe("");
     expect(q1.onAfterRenderElement.isEmpty).toBeTruthy();
     expect(q2.onAfterRenderElement.isEmpty).toBeTruthy();
-    done();
-  }, 500);
-});
-*/
+
+    let log = "";
+    const awaiter = new RenderingCompletedAwaiter([q1, q2], () => {
+      log += "->elementsRendered";
+    });
+
+    expect(log).toBe("");
+    expect(qRenderLog).toBe("");
+    expect(q1.onAfterRenderElement.length).toBe(1);
+    expect(q2.onAfterRenderElement.length).toBe(1);
+
+    setTimeout(() => {
+      expect(log).toBe("->elementsRendered");
+      expect(qRenderLog).toBe("");
+      expect(q1.onAfterRenderElement.isEmpty).toBeTruthy();
+      expect(q2.onAfterRenderElement.isEmpty).toBeTruthy();
+      __done();
+    }, 500);
+  }));
   test("description css should be calculated even if description is empty", () => {
     const json = {
       "elements": [

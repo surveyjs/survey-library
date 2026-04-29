@@ -5,7 +5,6 @@ export * from "../helperstests";
 export * from "../basetests"; //
 export * from "../surveyElementTests";
 export * from "../editingObjectTests";
-export * from "../bindablePropertiesTests";
 export * from "../localizablestringtests";
 export * from "../choicesRestfultests"; //
 export * from "../jsonobjecttests"; //

@@ -14,7 +14,8 @@
       ]
     },
     "types": [
-      "qunit"
+      "qunit",
+      "vitest/globals"
     ]
   },
   "include": [

@@ -11,6 +11,8 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "test": "rollup -c rollup.tests.config.mjs && karma start ./karma.conf.js --single-run",
+    "test:vitest": "vitest run",
+    "test:vitest:watch": "vitest",
     "test:watch": "node ./test-watch.mjs",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
@@ -36,6 +38,7 @@
     "concurrently": "^5.2.0",
     "eslint": "^8.57.0",
     "fast-glob": "^3.3.3",
+    "jsdom": "^25.0.1",
     "karma": "^6.1.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-junit-reporter": "2.0.1",
@@ -58,7 +61,8 @@
     "ts-node": "3.3.0",
     "ts-pegjs": "^4.2.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.9"
   },
   "overrides": {
     "ts-pegjs": {

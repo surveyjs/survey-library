@@ -19,6 +19,15 @@ This file tracks tests and files that the AI batch-conversion prompts could not 
 | 4 | tests/utilstests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 3) | open — sanitizer tests rely on `document.createRange()` / browser sanitizer behavior that jsdom does not implement (DOM_API). Reverted; needs jsdom polyfill or test rewrite. |
 | 5 | tests/jsonobjecttests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 3) | open — multiple `assert.equal(undefined, false/null)` cross-type comparisons (EQUAL_LOOSE) and one circular-dependsOn test that depends on serializer state. Reverted; needs per-test audit. |
 | 6 | tests/a11y.ts | "a11y: aria-labelledby customquestion Bug#11049" | OTHER | 02-convert-batch.prompt.md (slice 3) | open — single test fails (likely cross-file `ComponentCollection` state from another file). Whole file reverted; needs CROSS_FILE_STATE investigation. |
+| 7 | tests/questionImagepicker.ts | __entire_file__ | DOM_API | 02-convert-batch.prompt.md (slice 4) | open — 3 tests rely on `ResizeObserver` + container visibility detection that jsdom does not implement. Reverted. |
+| 8 | tests/question_baseselecttests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — many failures around checkbox `valuePropertyName` / `selectAll` / `defaultValue` / `comment` flows. Reverted; suspected mix of EQUAL_LOOSE and CROSS_FILE_STATE (uses `Serializer.addProperty`). |
+| 9 | tests/question_customtests.ts | __entire_file__ | CROSS_FILE_STATE | 02-convert-batch.prompt.md (slice 4) | open — 10 failures with "There is already registered custom question with name 'test'". Tests rely on `ComponentCollection.Instance.clear()` running in the trailing line of every test; if any earlier `expect(...)` throws, `.clear()` is skipped and the next test fails with leaked component. Needs `try/finally` (or `afterEach`) cleanup. Reverted. |
+| 10 | tests/question_matrix_tests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — failures in matrix tests (likely EQUAL_LOOSE on cell display values). Reverted. |
+| 11 | tests/question_matrixdropdownbasetests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — failures in matrix dropdown tests. Reverted. |
+| 12 | tests/question_matrixdynamictests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — large file (316 tests), failures present. Reverted. |
+| 13 | tests/question_ranking_tests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — failures in ranking tests. Reverted. |
+| 14 | tests/question_slider_tests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — failures around `renderedValue` initial state (likely arrays — `toEqual([0,10])` mismatches actual array contents). Reverted. |
+| 15 | tests/question_texttests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 4) | open — failures in text question tests. Reverted. |
 
 ## Reason categories (use one of these in the table)
 

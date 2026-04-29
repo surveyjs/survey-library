@@ -189,13 +189,13 @@ function addImportAndDescribe(src, moduleName) {
     src = src.slice(0, mod.index) + src.slice(mod.index + mod[0].length);
     return src;
   }
-  let name = moduleName;
-  if (mod) {
-    name = mod[2] || mod[3];
-    src = src.slice(0, mod.index) + `describe(${JSON.stringify(name)}, () => {\n` + src.slice(mod.index + mod[0].length);
-  } else {
-    src += `\ndescribe(${JSON.stringify(name || "module")}, () => {\n`;
+  if (!mod) {
+    // No QUnit.module declaration -- leave top-level test() calls in place (Vitest accepts them).
+    return src;
   }
+  let name = moduleName;
+  name = mod[2] || mod[3];
+  src = src.slice(0, mod.index) + `describe(${JSON.stringify(name)}, () => {\n` + src.slice(mod.index + mod[0].length);
   // Append closing
   if (!src.endsWith("\n")) src += "\n";
   src += "});\n";
@@ -242,8 +242,8 @@ function commentOutFallbacks(src) {
 
 function convertFile(filePath) {
   let src = fs.readFileSync(filePath, "utf8");
-  if (!/QUnit\.module/.test(src)) {
-    return { skipped: true, reason: "no QUnit.module" };
+  if (!/QUnit\.module/.test(src) && !/QUnit\.test\b/.test(src)) {
+    return { skipped: true, reason: "no QUnit.module or QUnit.test" };
   }
   if (/QUnit\.begin\b|QUnit\.done\b/.test(src)) {
     return { skipped: true, reason: "uses QUnit.begin/done" };

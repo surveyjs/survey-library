@@ -87,9 +87,40 @@ If the file has no existing entries, append at the bottom of the table (replace 
 After converting the file:
 1. Open `packages/survey-core/tests/entries/test.ts`.
 2. Remove the `export * from "../<file>";` line for the converted file.
-3. This stops Karma from trying to load a file that imports from `vitest`.
+3. This stops Karma from trying to load a file that imports from `vitest` (which would cause `RollupError: "<vitest export>" is not exported by ...`).
 
 If the file still contains commented-out QUnit code only (i.e., zero tests were converted), do **not** remove the barrel line; instead, abort and report — this prompt requires partial conversion to make progress.
+
+### If the converted file is reverted (Vitest run fails)
+
+When the Vitest run of the converted file fails for reasons unrelated to commented-out tests and the conversion is rolled back:
+1. Restore the original QUnit source of the test file.
+2. **Re-add the `export * from "../<file>";` line** to `packages/survey-core/tests/entries/test.ts` so Karma keeps running it. A reverted file MUST be in the Karma barrel; otherwise the Karma TOTAL count silently decreases.
+3. After restoring, grep the barrel for the file's basename and confirm the line appears exactly once.
+
+## Lint (mandatory after every conversion)
+
+After the file is converted and Vitest passes for it, run ESLint with auto-fix scoped to the converted file:
+
+```
+cd packages/survey-core
+npx eslint tests/<file>.ts --fix
+```
+
+The codemod's output frequently violates the project's `indent` rule (4002 errors across the slice-3 batch reduced to 0 after `--fix`) and may also misplace existing `// eslint-disable-line` comments when reordering `assert.equal(a, b, msg)` into `expect(a, msg).toBe(b)`.
+
+Rules:
+- After `--fix`, re-run `npx eslint tests/<file>.ts` (no `--fix`) and require **0 errors, 0 warnings**.
+- If a residual error is a misplaced disable comment (e.g., `surveyjs/eslint-plugin-i18n/only-english-or-code`), move the comment to the line immediately preceding the offending `expect(...)` and use `eslint-disable-next-line` instead of `eslint-disable-line`.
+- Re-run `npx vitest run tests/<file>.ts` after the lint fixes to confirm `--fix` did not change semantics.
+- Do NOT run `npm run lint` package-wide — the survey-core baseline currently has ~83k pre-existing test-folder lint errors that are out of scope. Lint is scoped to converted files only.
+
+## Codemod notes (`vitest-migration/codemod.mjs`)
+
+If you use the codemod helper, be aware of these requirements (already implemented; do not regress):
+- `ASSERTION_MAP` must include `notStrictEqual` → `not.toBe` in addition to `notEqual`. Older codemod versions missed it and produced `assert.notStrictEqual(...)` calls in the output that fail at runtime.
+- The `describe("...", () => { ... })` wrapper must be skipped when the file contains top-level `export function`/`export const`/`export class` declarations interleaved with `QUnit.test` calls (e.g., `tests/utilstests.ts`). Wrapping breaks the exports because they end up nested inside the arrow function. Detect this by scanning for `^export (function|const|let|var|class|interface|type|enum)\s` after the `QUnit.module` line.
+- Always run the codemod with `node --check` or a quick `tsc --noEmit` on the output before running Vitest, so syntactic regressions surface before a 30-second test run.
 
 ## Required output
 

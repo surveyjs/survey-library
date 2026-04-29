@@ -22,10 +22,23 @@ Required actions:
 2. **Create `packages/survey-core/vitest.config.ts`** with:
    - `test.environment: "jsdom"`
    - `test.globals: false` (force explicit imports from `vitest`)
-   - `test.include: ["tests/**/*.ts"]`
-   - `test.exclude: ["tests/entries/**", "tests/bundle/**", "node_modules/**", "build/**"]`
    - `test.setupFiles: ["./tests/vitest.setup.ts"]`
-   - Path alias `survey-core` → `./src` mirroring `tsconfig.tests.json`.
+   - **Dynamic `test.include`** — do NOT use a static glob like `tests/**/*.ts`. The Karma barrel still loads un-converted QUnit files; if Vitest also globs them, every QUnit file fails with `ReferenceError: QUnit is not defined`. Instead, enumerate `tests/**/*.ts` with `fast-glob` at config-load time and filter to files whose source contains `from "vitest"`:
+     ```ts
+     import fg from "fast-glob";
+     import fs from "node:fs";
+     import path from "node:path";
+     const allTestFiles = fg.sync("tests/**/*.ts", {
+       cwd: __dirname,
+       ignore: ["tests/entries/**", "tests/bundle/**", "node_modules/**", "build/**"],
+     });
+     const vitestFiles = allTestFiles.filter((f) =>
+       /from\s+["']vitest["']/.test(fs.readFileSync(path.resolve(__dirname, f), "utf8"))
+     );
+     // use vitestFiles in test.include
+     ```
+     Add `fast-glob` as a devDependency.
+   - Path alias `survey-core` → `./entries/index.ts` (NOT `./src`). The locale files (`survey.i18n`, etc.) import `setupLocale` from the package name `survey-core`, and only the `entries/index.ts` barrel re-exports it. Pointing the alias at `./src` produces `Could not find a declaration file for module 'survey-core'` / runtime resolution failures.
 
 3. **Create `packages/survey-core/tests/vitest.setup.ts`** that:
    - Imports the four locales currently imported at the bottom of `tests/entries/test.ts` (russian, french, finnish, german).

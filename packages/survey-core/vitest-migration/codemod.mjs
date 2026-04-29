@@ -10,6 +10,7 @@ const ASSERTION_MAP = {
   strictEqual: "toBe",
   deepEqual: "toEqual",
   notEqual: { negate: true, matcher: "toBe" },
+  notStrictEqual: { negate: true, matcher: "toBe" },
   notDeepEqual: { negate: true, matcher: "toEqual" },
   ok: "toBeTruthy",
   notOk: "toBeFalsy",
@@ -177,10 +178,17 @@ function addImportAndDescribe(src, moduleName) {
   } else {
     src = importLine + src;
   }
-  // Wrap rest of body in describe(moduleName, () => { ... })
-  // Strategy: find the `export default QUnit.module(...)` line, replace with the wrapper open.
+  // If the file has top-level `export function/const/class/interface/type` declarations after the
+  // QUnit.module line, wrapping everything in `describe(name, () => { ... })` would put exports
+  // inside an arrow body, which is illegal. In that case just remove the QUnit.module default-export
+  // line and leave tests at top-level (Vitest accepts top-level test() calls).
   const modRe = /export\s+default\s+QUnit\.module\(\s*("([^"]+)"|'([^']+)')\s*\)\s*;?\s*\n/;
   const mod = src.match(modRe);
+  const hasInterleavedExports = mod && /\n\s*export\s+(function|const|let|var|class|interface|type|enum)\b/.test(src.slice(mod.index + mod[0].length));
+  if (hasInterleavedExports) {
+    src = src.slice(0, mod.index) + src.slice(mod.index + mod[0].length);
+    return src;
+  }
   let name = moduleName;
   if (mod) {
     name = mod[2] || mod[3];
@@ -194,20 +202,63 @@ function addImportAndDescribe(src, moduleName) {
   return src;
 }
 
+function commentOutFallbacks(src) {
+  // Find every QUnit.test( and QUnit.skip( call. If its argument body contains assert.async or assert.throws,
+  // replace the entire call with a marker comment + the original call wrapped in /* */.
+  const findOne = (calleeName) => {
+    const out = [];
+    const re = new RegExp(`\\bQUnit\\.${calleeName}\\b`, "g");
+    let m;
+    while((m = re.exec(src)) !== null) {
+      const openIdx = src.indexOf("(", m.index + m[0].length);
+      if (openIdx === -1) continue;
+      const parsed = readArgs(src, openIdx);
+      if (!parsed) continue;
+      out.push({ start: m.index, end: parsed[1] + 1, args: parsed[0], calleeName });
+    }
+    return out;
+  };
+  const calls = [...findOne("test"), ...findOne("skip")];
+  calls.sort((a, b) => b.start - a.start);
+  const fallbacks = [];
+  for (const call of calls) {
+    const body = call.args[1] || "";
+    let reason = null;
+    if (/\bassert\.async\b/.test(body)) reason = "ASYNC_DONE";
+    else if (/\bassert\.throws\b/.test(body)) reason = "THROWS_SHAPE";
+    if (!reason) continue;
+    const original = src.slice(call.start, call.end);
+    // strip optional trailing semicolon when it sits on the same line
+    let trailing = "";
+    if (src[call.end] === ";") trailing = ";";
+    const nameArg = call.args[0];
+    const nameClean = nameArg.replace(/^['"`]|['"`]$/g, "");
+    const marker = `// VITEST-MIGRATION: MANUAL -- ${reason}: contains ${reason === "ASYNC_DONE" ? "assert.async()" : "assert.throws(...)"}, manual rewrite required\n/*\n${original}${trailing}\n*/`;
+    src = src.slice(0, call.start) + marker + src.slice(call.end + trailing.length);
+    fallbacks.push({ name: nameClean, reason });
+  }
+  return { src, fallbacks };
+}
+
 function convertFile(filePath) {
   let src = fs.readFileSync(filePath, "utf8");
   if (!/QUnit\.module/.test(src)) {
     return { skipped: true, reason: "no QUnit.module" };
   }
-  // Disallow files with async/throws/skip/begin/done
-  if (/assert\.async\b|assert\.throws\b|QUnit\.begin\b|QUnit\.done\b/.test(src)) {
-    return { skipped: true, reason: "needs manual review (async/throws)" };
+  if (/QUnit\.begin\b|QUnit\.done\b/.test(src)) {
+    return { skipped: true, reason: "uses QUnit.begin/done" };
+  }
+  let fallbacks = [];
+  if (/\bassert\.async\b|\bassert\.throws\b/.test(src)) {
+    const r = commentOutFallbacks(src);
+    src = r.src;
+    fallbacks = r.fallbacks;
   }
   src = convertAssertions(src);
   src = convertTestDefs(src);
   src = addImportAndDescribe(src);
   fs.writeFileSync(filePath, src, "utf8");
-  return { ok: true };
+  return { ok: true, fallbacks };
 }
 
 const files = process.argv.slice(2);

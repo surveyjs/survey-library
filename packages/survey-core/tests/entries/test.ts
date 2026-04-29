@@ -1,14 +1,8 @@
 // common
 export * from "../a11y";
 export * from "../helperstests";
-export * from "../basetests"; //
-export * from "../surveyElementTests";
-export * from "../editingObjectTests";
-export * from "../localizablestringtests";
 export * from "../choicesRestfultests"; //
 export * from "../jsonobjecttests"; //
-export * from "../jsonSchemaTests";
-export * from "../surveyLocalizationTests"; //
 export * from "../surveyquestiontests"; //
 export * from "../question_matrixdynamictests";
 export * from "../question_matrixdropdownbasetests";

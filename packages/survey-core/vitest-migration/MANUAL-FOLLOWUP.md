@@ -13,7 +13,12 @@ This file tracks tests and files that the AI batch-conversion prompts could not 
 
 | # | File | Test name | Reason | Flagged by | Status |
 |---|---|---|---|---|---|
-| _none yet_ | | | | | |
+| 1 | tests/basetests.ts | "Add async event" | ASYNC_DONE | 02-convert-batch.prompt.md (slice 3) | open |
+| 2 | tests/surveyElementTests.ts | "wait for elements to render RenderingCompletedAwaiter by timeout" | ASYNC_DONE | 02-convert-batch.prompt.md (slice 3) | open |
+| 3 | tests/helperstests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 3) | open — `assert.equal(undefined, null)` (loose `==` true) becomes strict `toBe` (false); also uses `assert.notStrictEqual`. Reverted to QUnit; needs per-test EQUAL_LOOSE audit. |
+| 4 | tests/utilstests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 3) | open — sanitizer tests rely on `document.createRange()` / browser sanitizer behavior that jsdom does not implement (DOM_API). Reverted; needs jsdom polyfill or test rewrite. |
+| 5 | tests/jsonobjecttests.ts | __entire_file__ | OTHER | 02-convert-batch.prompt.md (slice 3) | open — multiple `assert.equal(undefined, false/null)` cross-type comparisons (EQUAL_LOOSE) and one circular-dependsOn test that depends on serializer state. Reverted; needs per-test audit. |
+| 6 | tests/a11y.ts | "a11y: aria-labelledby customquestion Bug#11049" | OTHER | 02-convert-batch.prompt.md (slice 3) | open — single test fails (likely cross-file `ComponentCollection` state from another file). Whole file reverted; needs CROSS_FILE_STATE investigation. |
 
 ## Reason categories (use one of these in the table)
 

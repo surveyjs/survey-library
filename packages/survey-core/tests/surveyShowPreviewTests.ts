@@ -3,83 +3,33 @@ import { PanelModel } from "../src/panel";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 
-export default QUnit.module("SurveyShowPreviewTests");
+import { describe, test, expect } from "vitest";
+describe("SurveyShowPreviewTests", () => {
+  settings.autoAdvanceDelay = 0;
 
-settings.autoAdvanceDelay = 0;
+  test("Complete and Preview button visibility", () => {
+    var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    expect(survey.currentPageNo, "Init current page").toLooseEqual(0);
+    expect(survey.showPreviewBeforeComplete, "no preview").toLooseEqual(false);
+    expect(survey.isCompleteButtonVisible, "complete button: running survey, no preview").toLooseEqual(true);
+    expect(survey.isPreviewButtonVisible, "preview button: running survey, no preview").toLooseEqual(false);
+    expect(survey.isCancelPreviewButtonVisible, "cancel preview button: running survey, no preview").toLooseEqual(false);
+    survey.showPreviewBeforeComplete = true;
+    expect(survey.showPreviewBeforeComplete, "has preview").toLooseEqual(true);
+    expect(survey.isCompleteButtonVisible, "complete button: running survey, has preview").toLooseEqual(false);
+    expect(survey.isPreviewButtonVisible, "preview button: running survey, has preview").toLooseEqual(true);
+    expect(survey.isCancelPreviewButtonVisible, "cancel preview button: running survey, has preview").toLooseEqual(false);
+    survey.showPreview();
+    expect(survey.isCompleteButtonVisible, "complete button: running survey, show preview").toLooseEqual(true);
+    expect(survey.isPreviewButtonVisible, "preview button: running survey, show preview").toLooseEqual(false);
+    expect(survey.isCancelPreviewButtonVisible, "cancel preview button: running survey, show preview").toLooseEqual(true);
+    survey.cancelPreview();
+    expect(survey.isCompleteButtonVisible, "complete button: running survey, cancel preview").toLooseEqual(false);
+    expect(survey.isPreviewButtonVisible, "preview button: running survey, cancel preview").toLooseEqual(true);
+    expect(survey.isCancelPreviewButtonVisible, "cancel preview button: running survey, cancel preview").toLooseEqual(false);
+  });
 
-QUnit.test("Complete and Preview button visibility", function(assert) {
-  var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-  assert.equal(survey.currentPageNo, 0, "Init current page");
-  assert.equal(survey.showPreviewBeforeComplete, false, "no preview");
-  assert.equal(
-    survey.isCompleteButtonVisible,
-    true,
-    "complete button: running survey, no preview"
-  );
-  assert.equal(
-    survey.isPreviewButtonVisible,
-    false,
-    "preview button: running survey, no preview"
-  );
-  assert.equal(
-    survey.isCancelPreviewButtonVisible,
-    false,
-    "cancel preview button: running survey, no preview"
-  );
-  survey.showPreviewBeforeComplete = true;
-  assert.equal(survey.showPreviewBeforeComplete, true, "has preview");
-  assert.equal(
-    survey.isCompleteButtonVisible,
-    false,
-    "complete button: running survey, has preview"
-  );
-  assert.equal(
-    survey.isPreviewButtonVisible,
-    true,
-    "preview button: running survey, has preview"
-  );
-  assert.equal(
-    survey.isCancelPreviewButtonVisible,
-    false,
-    "cancel preview button: running survey, has preview"
-  );
-  survey.showPreview();
-  assert.equal(
-    survey.isCompleteButtonVisible,
-    true,
-    "complete button: running survey, show preview"
-  );
-  assert.equal(
-    survey.isPreviewButtonVisible,
-    false,
-    "preview button: running survey, show preview"
-  );
-  assert.equal(
-    survey.isCancelPreviewButtonVisible,
-    true,
-    "cancel preview button: running survey, show preview"
-  );
-  survey.cancelPreview();
-  assert.equal(
-    survey.isCompleteButtonVisible,
-    false,
-    "complete button: running survey, cancel preview"
-  );
-  assert.equal(
-    survey.isPreviewButtonVisible,
-    true,
-    "preview button: running survey, cancel preview"
-  );
-  assert.equal(
-    survey.isCancelPreviewButtonVisible,
-    false,
-    "cancel preview button: running survey, cancel preview"
-  );
-});
-
-QUnit.test(
-  "showPreviewBeforeComplete = true, do not show preview if there is an error",
-  function(assert) {
+  test("showPreviewBeforeComplete = true, do not show preview if there is an error", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -88,35 +38,16 @@ QUnit.test(
     });
     survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
-    assert.equal(survey.showPreview(), false, "It should show error");
-    assert.equal(
-      survey.state,
-      "running",
-      "state is running, there is an error"
-    );
-    assert.equal(
-      survey.getQuestionByName("q2").errors.length,
-      1,
-      "There is a requried error"
-    );
+    expect(survey.showPreview(), "It should show error").toLooseEqual(false);
+    expect(survey.state, "state is running, there is an error").toLooseEqual("running");
+    expect(survey.getQuestionByName("q2").errors.length, "There is a requried error").toLooseEqual(1);
     survey.setValue("q2", "val2");
-    assert.equal(survey.showPreview(), true, "There is no errors");
-    assert.equal(
-      survey.getQuestionByName("q2").errors.length,
-      0,
-      "There is no requried error"
-    );
-    assert.equal(
-      survey.state,
-      "preview",
-      "state is preview, there is no errors"
-    );
-  }
-);
+    expect(survey.showPreview(), "There is no errors").toLooseEqual(true);
+    expect(survey.getQuestionByName("q2").errors.length, "There is no requried error").toLooseEqual(0);
+    expect(survey.state, "state is preview, there is no errors").toLooseEqual("preview");
+  });
 
-QUnit.test(
-  "showPreviewBeforeComplete = true, check currentPage on showing preview",
-  function(assert) {
+  test("showPreviewBeforeComplete = true, check currentPage on showing preview", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -126,43 +57,20 @@ QUnit.test(
     survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
-    assert.equal(survey.visiblePages.length, 1, "We have one page now");
-    assert.equal(
-      survey.visiblePages[0].getPanels().length,
-      2,
-      "There are two panels - one panel per page"
-    );
+    expect(survey.visiblePages.length, "We have one page now").toLooseEqual(1);
+    expect(survey.visiblePages[0].getPanels().length, "There are two panels - one panel per page").toLooseEqual(2);
     var question = survey.visiblePages[0].getPanels()[0].elements[0];
-    assert.equal(question.name, "q1", "First panel contains first question");
-    assert.equal(
-      question.isReadOnly,
-      true,
-      "Question are read-only in preview mode"
-    );
+    expect(question.name, "First panel contains first question").toLooseEqual("q1");
+    expect(question.isReadOnly, "Question are read-only in preview mode").toLooseEqual(true);
     survey.cancelPreview();
-    assert.equal(survey.visiblePages.length, 2, "There are two pages");
-    assert.equal(
-      survey.visiblePages[0].getPanels().length,
-      0,
-      "There is no panel in origional page"
-    );
+    expect(survey.visiblePages.length, "There are two pages").toLooseEqual(2);
+    expect(survey.visiblePages[0].getPanels().length, "There is no panel in origional page").toLooseEqual(0);
     question = survey.visiblePages[0].elements[0];
-    assert.equal(question.name, "q1", "First page contains first question");
-    assert.equal(
-      question.isReadOnly,
-      false,
-      "Question is not read-only in running mode"
-    );
-    assert.equal(
-      survey.currentPageNo,
-      1,
-      "The current page number is the same, the last one"
-    );
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, restore pages before onComplete",
-  function(assert) {
+    expect(question.name, "First page contains first question").toLooseEqual("q1");
+    expect(question.isReadOnly, "Question is not read-only in running mode").toLooseEqual(false);
+    expect(survey.currentPageNo, "The current page number is the same, the last one").toLooseEqual(1);
+  });
+  test("showPreviewBeforeComplete = true, restore pages before onComplete", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -173,13 +81,10 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     survey.tryComplete();
-    assert.equal(survey.visiblePages.length, 2, "We have two pages again");
-    assert.equal(survey.currentPageNo, 1, "Current page is the last one");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, check onCurrentPageChanging and onCurrentPageChanged calls count",
-  (assert) => {
+    expect(survey.visiblePages.length, "We have two pages again").toLooseEqual(2);
+    expect(survey.currentPageNo, "Current page is the last one").toLooseEqual(1);
+  });
+  test("showPreviewBeforeComplete = true, check onCurrentPageChanging and onCurrentPageChanged calls count", () => {
     const survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -190,50 +95,49 @@ QUnit.test(
     const calls = [0, 0];
     survey.onCurrentPageChanging.add(() => { calls[0]++; });
     survey.onCurrentPageChanged.add(() => { calls[1]++; });
-    assert.deepEqual(calls, [0, 0], "There is no calls yet");
+    expect(calls, "There is no calls yet").toEqualValues([0, 0]);
     survey.nextPage();
-    assert.deepEqual(calls, [1, 1], "must be called one time on nextPage");
+    expect(calls, "must be called one time on nextPage").toEqualValues([1, 1]);
     survey.showPreview();
-    assert.deepEqual(calls, [1, 1], "no extra calls on showPreview");
+    expect(calls, "no extra calls on showPreview").toEqualValues([1, 1]);
     survey.tryComplete();
-    assert.deepEqual(calls, [2, 2], "extra calls on tryComplete");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, check async onCurrentPageChanging and async onCurrentPageChanged calls count",
-  (assert) => {
-    const done = assert.async(3);
-    const survey = new SurveyModel({
-      pages: [
-        { elements: [{ type: "text", name: "q1" }] },
-        { elements: [{ type: "text", name: "q2" }] },
-      ],
-    });
-    survey.showPreviewBeforeComplete = true;
-    const calls = [0, 0];
-    survey.onCurrentPageChanging.add(async () => { calls[0]++; });
-    survey.onCurrentPageChanged.add(async () => { calls[1]++; });
-    assert.deepEqual(calls, [0, 0], "There is no calls yet");
-    survey.nextPage();
-    setTimeout(() => {
-      assert.deepEqual(calls, [1, 1], "must be called one time on nextPage");
-      done();
-      survey.showPreview();
+    expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
+  });
+  test("showPreviewBeforeComplete = true, check async onCurrentPageChanging and async onCurrentPageChanged calls count", () => {
+    return new Promise(function(resolve) {
+      let __remaining = 3;
+      const __done = function() { if (--__remaining <= 0) resolve(); };
+
+      const done = __done;
+      const survey = new SurveyModel({
+        pages: [
+          { elements: [{ type: "text", name: "q1" }] },
+          { elements: [{ type: "text", name: "q2" }] },
+        ],
+      });
+      survey.showPreviewBeforeComplete = true;
+      const calls = [0, 0];
+      survey.onCurrentPageChanging.add(async () => { calls[0]++; });
+      survey.onCurrentPageChanged.add(async () => { calls[1]++; });
+      expect(calls, "There is no calls yet").toEqualValues([0, 0]);
+      survey.nextPage();
       setTimeout(() => {
-        assert.deepEqual(calls, [1, 1], "no extra calls on showPreview");
+        expect(calls, "must be called one time on nextPage").toEqualValues([1, 1]);
         done();
-        survey.tryComplete();
+        survey.showPreview();
         setTimeout(() => {
-          assert.deepEqual(calls, [2, 2], "extra calls on tryComplete");
+          expect(calls, "no extra calls on showPreview").toEqualValues([1, 1]);
           done();
+          survey.tryComplete();
+          setTimeout(() => {
+            expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
+            done();
+          }, 100);
         }, 100);
       }, 100);
-    }, 100);
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, and do noting onCompleting, options.allowComplete = false",
-  function(assert) {
+    });
+  });
+  test("showPreviewBeforeComplete = true, and do noting onCompleting, options.allowComplete = false", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -247,18 +151,15 @@ QUnit.test(
     });
     survey.currentPageNo = 1;
     survey.showPreview();
-    assert.equal(survey.state, "preview");
-    assert.equal(survey.tryComplete(), false, "can't complete");
-    assert.equal(survey.state, "preview", "Keep showing preview");
+    expect(survey.state).toLooseEqual("preview");
+    expect(survey.tryComplete(), "can't complete").toLooseEqual(false);
+    expect(survey.state, "Keep showing preview").toLooseEqual("preview");
     allowComplete = true;
-    assert.equal(survey.tryComplete(), true, "can complete");
-    assert.equal(survey.state, "completed");
-  }
-);
+    expect(survey.tryComplete(), "can complete").toLooseEqual(true);
+    expect(survey.state).toLooseEqual("completed");
+  });
 
-QUnit.test(
-  "showPreviewBeforeComplete = true, questionsOnPageMode = 'singlePage'",
-  function(assert) {
+  test("showPreviewBeforeComplete = true, questionsOnPageMode = 'singlePage'", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -270,19 +171,12 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     survey.cancelPreview();
-    assert.equal(survey.visiblePages.length, 1, "We have one page");
-    assert.equal(survey.currentPage.elements.length, 2, "There are two panels");
-    assert.equal(survey.getAllQuestions().length, 2, "There are two questions");
-    assert.equal(
-      survey.getAllQuestions()[0].isReadOnly,
-      false,
-      "Questions are not readonly"
-    );
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, questionsOnPageMode = 'questionPerPage'",
-  function(assert) {
+    expect(survey.visiblePages.length, "We have one page").toLooseEqual(1);
+    expect(survey.currentPage.elements.length, "There are two panels").toLooseEqual(2);
+    expect(survey.getAllQuestions().length, "There are two questions").toLooseEqual(2);
+    expect(survey.getAllQuestions()[0].isReadOnly, "Questions are not readonly").toLooseEqual(false);
+  });
+  test("showPreviewBeforeComplete = true, questionsOnPageMode = 'questionPerPage'", () => {
     var survey = new SurveyModel({
       pages: [
         {
@@ -303,64 +197,43 @@ QUnit.test(
     survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
-    assert.equal(survey.visiblePages.length, 1, "We have one page");
-    assert.equal(survey.currentPage.elements.length, 2, "There are two pages");
-    assert.equal(survey.currentSingleQuestion?.name, undefined, "There is no current single question");
-    assert.equal(survey.pages[0].rows.length, 2, "There are two rows in the first page");
-    assert.equal(survey.pages[1].rows.length, 2, "There are two rows in the second page");
-    assert.equal(
-      survey.getAllQuestions().length,
-      4,
-      "There are four questions"
-    );
-    assert.equal(
-      survey.getAllQuestions()[0].isReadOnly,
-      true,
-      "Questions are readonly"
-    );
+    expect(survey.visiblePages.length, "We have one page").toLooseEqual(1);
+    expect(survey.currentPage.elements.length, "There are two pages").toLooseEqual(2);
+    expect(survey.currentSingleQuestion?.name, "There is no current single question").toLooseEqual(undefined);
+    expect(survey.pages[0].rows.length, "There are two rows in the first page").toLooseEqual(2);
+    expect(survey.pages[1].rows.length, "There are two rows in the second page").toLooseEqual(2);
+    expect(survey.getAllQuestions().length, "There are four questions").toLooseEqual(4);
+    expect(survey.getAllQuestions()[0].isReadOnly, "Questions are readonly").toLooseEqual(true);
     survey.cancelPreview();
-    assert.equal(survey.visiblePages.length, 2, "We two pages");
-    assert.equal(survey.currentSingleQuestion.name, "q3", "the single question is set correctly");
-    assert.equal(survey.pages[1].rows.length, 1, "There is one row only in the current page");
-    assert.equal(survey.getAllPanels().length, 0, "There is no panels");
-    assert.equal(
-      survey.getAllQuestions().length,
-      4,
-      "There are four questions"
-    );
-    assert.equal(
-      survey.getAllQuestions()[0].isReadOnly,
-      false,
-      "Questions are not readonly"
-    );
-  }
-);
-QUnit.test("showPreviewBeforeComplete = true set property ", function(
-  assert
-) {
-  var survey = new SurveyModel({
-    pages: [
-      { elements: [{ type: "text", name: "q1" }] },
-      { elements: [{ type: "text", name: "q2" }] },
-    ],
+    expect(survey.visiblePages.length, "We two pages").toLooseEqual(2);
+    expect(survey.currentSingleQuestion.name, "the single question is set correctly").toLooseEqual("q3");
+    expect(survey.pages[1].rows.length, "There is one row only in the current page").toLooseEqual(1);
+    expect(survey.getAllPanels().length, "There is no panels").toLooseEqual(0);
+    expect(survey.getAllQuestions().length, "There are four questions").toLooseEqual(4);
+    expect(survey.getAllQuestions()[0].isReadOnly, "Questions are not readonly").toLooseEqual(false);
   });
-  survey.setValue("q2", "va1");
-  survey.showPreviewBeforeComplete = true;
-  survey.previewMode = "answeredQuestions";
-  survey.currentPageNo = 1;
-  survey.showPreview();
-  const panels = survey.currentPage.elements;
-  assert.equal(survey.visiblePages.length, 1, "We have one page");
-  assert.equal(panels.length, 2, "There are two panels");
-  assert.equal(survey.getAllQuestions().length, 2, "There are two questions");
-  assert.equal(panels[0].isVisible, false, "question inside is empty");
-  assert.equal(survey.getAllQuestions()[0].isVisible, false, "question is empty");
-  assert.equal(panels[1].isVisible, true, "question inside is not empty");
-  assert.equal(survey.getAllQuestions()[1].isVisible, true, "question is not empty");
-});
-QUnit.test(
-  "showPreviewBeforeComplete = true, edit page, #2",
-  function(assert) {
+  test("showPreviewBeforeComplete = true set property ", () => {
+    var survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    survey.setValue("q2", "va1");
+    survey.showPreviewBeforeComplete = true;
+    survey.previewMode = "answeredQuestions";
+    survey.currentPageNo = 1;
+    survey.showPreview();
+    const panels = survey.currentPage.elements;
+    expect(survey.visiblePages.length, "We have one page").toLooseEqual(1);
+    expect(panels.length, "There are two panels").toLooseEqual(2);
+    expect(survey.getAllQuestions().length, "There are two questions").toLooseEqual(2);
+    expect(panels[0].isVisible, "question inside is empty").toLooseEqual(false);
+    expect(survey.getAllQuestions()[0].isVisible, "question is empty").toLooseEqual(false);
+    expect(panels[1].isVisible, "question inside is not empty").toLooseEqual(true);
+    expect(survey.getAllQuestions()[1].isVisible, "question is not empty").toLooseEqual(true);
+  });
+  test("showPreviewBeforeComplete = true, edit page, #2", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -379,50 +252,27 @@ QUnit.test(
     setOldTheme(survey);
     survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 2;
-    assert.equal(survey.getAllPanels().length, 1, "There is one panel");
-    assert.equal(
-      (<PanelModel>survey.getAllPanels()[0]).hasEditButton,
-      false,
-      "The panel is not editable"
-    );
-    assert.equal(
-      (<PanelModel>survey.getAllPanels()[0]).getFooterToolbar().hasActions,
-      false,
-      "The panel is not editable, footerToolBar is empty"
-    );
+    expect(survey.getAllPanels().length, "There is one panel").toLooseEqual(1);
+    expect((<PanelModel>survey.getAllPanels()[0]).hasEditButton, "The panel is not editable").toLooseEqual(false);
+    expect((<PanelModel>survey.getAllPanels()[0]).getFooterToolbar().hasActions, "The panel is not editable, footerToolBar is empty").toLooseEqual(false);
     survey.showPreview();
-    assert.equal(survey.visiblePageCount, 1, "Show preview");
-    assert.equal(survey.currentPage.elements.length, 3, "There are 3 pages");
-    assert.equal(
-      (<PanelModel>survey.currentPage.elements[0]).hasEditButton,
-      true,
-      "The panel is editable"
-    );
+    expect(survey.visiblePageCount, "Show preview").toLooseEqual(1);
+    expect(survey.currentPage.elements.length, "There are 3 pages").toLooseEqual(3);
+    expect((<PanelModel>survey.currentPage.elements[0]).hasEditButton, "The panel is editable").toLooseEqual(true);
     const actionContainer = (<PanelModel>survey.currentPage.elements[1]).getFooterToolbar();
-    assert.equal(
-      actionContainer.hasActions,
-      true,
-      "The panel is editable, footerToolBar is not empty"
-    );
-    assert.equal(
-      actionContainer.getRootCss(),
-      "sv-action-bar sv-action-bar--default-size-mode sv_p_footer",
-      "The panel is editable, footerToolBar is not empty"
-    );
+    expect(actionContainer.hasActions, "The panel is editable, footerToolBar is not empty").toLooseEqual(true);
+    expect(actionContainer.getRootCss(), "The panel is editable, footerToolBar is not empty").toLooseEqual("sv-action-bar sv-action-bar--default-size-mode sv_p_footer");
     var action = actionContainer.actions[0];
-    assert.equal(action.title, "Edit");
-    assert.equal(action.innerCss, "sv_nav_btn sv_edit_btn");
+    expect(action.title).toLooseEqual("Edit");
+    expect(action.innerCss).toLooseEqual("sv_nav_btn sv_edit_btn");
     var panel = <PanelModel>survey.currentPage.elements[1].elements[0];
-    assert.equal(panel.hasEditButton, false, "The standard panel doesn't have edit button");
+    expect(panel.hasEditButton, "The standard panel doesn't have edit button").toLooseEqual(false);
     action.action();
-    assert.equal(survey.state, "running", "Preview is canceled");
-    assert.equal(survey.visiblePageCount, 3, "There are three visible pages");
-    assert.equal(survey.currentPageNo, 1, "We are editing the second page");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, edit page",
-  function (assert) {
+    expect(survey.state, "Preview is canceled").toLooseEqual("running");
+    expect(survey.visiblePageCount, "There are three visible pages").toLooseEqual(3);
+    expect(survey.currentPageNo, "We are editing the second page").toLooseEqual(1);
+  });
+  test("showPreviewBeforeComplete = true, edit page", () => {
     var survey = new SurveyModel({
       "pages": [
         {
@@ -456,15 +306,12 @@ QUnit.test(
     });
     survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 0;
-    assert.notOk(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button");
+    expect(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button").toBeFalsy();
     survey.showPreview();
 
-    assert.notOk(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button on preview");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, edit page",
-  function(assert) {
+    expect(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button on preview").toBeFalsy();
+  });
+  test("showPreviewBeforeComplete = true, edit page", () => {
     var survey = new SurveyModel({
       pages: [
         { name: "p1", elements: [{ type: "text", name: "q1" }] },
@@ -476,59 +323,56 @@ QUnit.test(
     survey.data = { q2: "2", q3: "3" };
     survey.currentPageNo = 2;
     survey.showPreview();
-    assert.equal(survey.visiblePageCount, 1, "Show preview");
-    assert.equal(survey.currentPage.elements.length, 3, "There are three panels");
+    expect(survey.visiblePageCount, "Show preview").toLooseEqual(1);
+    expect(survey.currentPage.elements.length, "There are three panels").toLooseEqual(3);
     (<PanelModel>survey.currentPage.elements[1]).cancelPreview();
-    assert.equal(survey.state, "running", "Preview is canceled");
-    assert.equal(survey.visiblePageCount, 3, "There are three visible pages");
-    assert.equal(survey.currentPage.name, "p2", "We are editing the second page");
-  }
-);
-QUnit.test("showPreviewBeforeComplete = true, onCurrentPageChanging/onCurrentPageChanged, bug#6564", function(assert) {
-  const survey = new SurveyModel({
-    pages: [
-      { name: "p1", elements: [{ type: "text", name: "q1" }] },
-      { name: "p2", elements: [{ type: "text", name: "q2" }] },
-      { name: "p3", elements: [{ type: "text", name: "q3" }] },
-    ],
+    expect(survey.state, "Preview is canceled").toLooseEqual("running");
+    expect(survey.visiblePageCount, "There are three visible pages").toLooseEqual(3);
+    expect(survey.currentPage.name, "We are editing the second page").toLooseEqual("p2");
   });
-  survey.showPreviewBeforeComplete = true;
-  survey.data = { q2: "2", q3: "3" };
-  survey.currentPageNo = 2;
-  survey.showPreview();
-  let changingCounter = 0;
-  let changedCounter = 0;
-  let changingIsAfterPreview = 0;
-  let changedIsAfterPreview = 0;
-  survey.onCurrentPageChanging.add((sender, options) => {
-    changingCounter ++;
-    if (options.isAfterPreview) changingIsAfterPreview ++;
+  test("showPreviewBeforeComplete = true, onCurrentPageChanging/onCurrentPageChanged, bug#6564", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+        { name: "p3", elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+    survey.showPreviewBeforeComplete = true;
+    survey.data = { q2: "2", q3: "3" };
+    survey.currentPageNo = 2;
+    survey.showPreview();
+    let changingCounter = 0;
+    let changedCounter = 0;
+    let changingIsAfterPreview = 0;
+    let changedIsAfterPreview = 0;
+    survey.onCurrentPageChanging.add((sender, options) => {
+      changingCounter ++;
+      if (options.isAfterPreview) changingIsAfterPreview ++;
+    });
+    survey.onCurrentPageChanged.add((sender, options) => {
+      changedCounter ++;
+      if (options.isAfterPreview) changedIsAfterPreview ++;
+    });
+    survey.cancelPreview(survey.pages[1]);
+    expect(changingCounter, "onChanging is called one time").toLooseEqual(1);
+    expect(changedCounter, "onChanging is called one time").toLooseEqual(1);
+    expect(changingIsAfterPreview, "changingIsAfterPreview is called one time").toLooseEqual(1);
+    expect(changedIsAfterPreview, "changedIsAfterPreview is called one time").toLooseEqual(1);
+    survey.showPreview();
+    survey.cancelPreview(survey.pages[2]);
+    expect(changingCounter, "onChanging is called two times").toLooseEqual(2);
+    expect(changedCounter, "onChanging is called two times").toLooseEqual(2);
+    expect(changingIsAfterPreview, "changingIsAfterPreview is called two times").toLooseEqual(2);
+    expect(changedIsAfterPreview, "changedIsAfterPreview is called two times").toLooseEqual(2);
+    survey.showPreview();
+    survey.cancelPreview(survey.pages[2]);
+    expect(changingCounter, "onChanging is called three times").toLooseEqual(3);
+    expect(changedCounter, "onChanging is called three times").toLooseEqual(3);
+    expect(changingIsAfterPreview, "changingIsAfterPreview is called three times").toLooseEqual(3);
+    expect(changedIsAfterPreview, "changedIsAfterPreview is called three times").toLooseEqual(3);
   });
-  survey.onCurrentPageChanged.add((sender, options) => {
-    changedCounter ++;
-    if (options.isAfterPreview) changedIsAfterPreview ++;
-  });
-  survey.cancelPreview(survey.pages[1]);
-  assert.equal(changingCounter, 1, "onChanging is called one time");
-  assert.equal(changedCounter, 1, "onChanging is called one time");
-  assert.equal(changingIsAfterPreview, 1, "changingIsAfterPreview is called one time");
-  assert.equal(changedIsAfterPreview, 1, "changedIsAfterPreview is called one time");
-  survey.showPreview();
-  survey.cancelPreview(survey.pages[2]);
-  assert.equal(changingCounter, 2, "onChanging is called two times");
-  assert.equal(changedCounter, 2, "onChanging is called two times");
-  assert.equal(changingIsAfterPreview, 2, "changingIsAfterPreview is called two times");
-  assert.equal(changedIsAfterPreview, 2, "changedIsAfterPreview is called two times");
-  survey.showPreview();
-  survey.cancelPreview(survey.pages[2]);
-  assert.equal(changingCounter, 3, "onChanging is called three times");
-  assert.equal(changedCounter, 3, "onChanging is called three times");
-  assert.equal(changingIsAfterPreview, 3, "changingIsAfterPreview is called three times");
-  assert.equal(changedIsAfterPreview, 3, "changedIsAfterPreview is called three times");
-});
-QUnit.test(
-  "showPreviewBeforeComplete = true, do not hide questions on running state",
-  function(assert) {
+  test("showPreviewBeforeComplete = true, do not hide questions on running state", () => {
     var survey = new SurveyModel({
       pages: [
         { elements: [{ type: "text", name: "q1" }] },
@@ -537,12 +381,9 @@ QUnit.test(
       ],
     });
     survey.showPreviewBeforeComplete = true;
-    assert.equal(survey.visiblePageCount, 3, "There are 3 visible pages");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true, Bug#2190",
-  function(assert) {
+    expect(survey.visiblePageCount, "There are 3 visible pages").toLooseEqual(3);
+  });
+  test("showPreviewBeforeComplete = true, Bug#2190", () => {
     var survey = new SurveyModel({
       pages: [
         {
@@ -564,60 +405,57 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    assert.equal(survey.currentPageNo, 0, "Go to the first page");
-  }
-);
-QUnit.test("showPreviewBeforeComplete = true invisible Page, Bug#2385", function(assert) {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        elements: [
-          {
-            type: "boolean",
-            name: "mybool",
-            isRequired: true,
-          },
-        ],
-      },
-      {
-        elements: [
-          {
-            type: "text",
-            name: "not_visible",
-          },
-        ],
-        visibleIf: "{mybool}  = true",
-      },
-      {
-        name: "page_visible_always",
-        elements: [
-          {
-            type: "text",
-            name: "q_visible",
-          },
-        ],
-      },
-      {
-        elements: [
-          {
-            type: "text",
-            name: "text",
-          },
-        ],
-      },
-    ],
-    showPreviewBeforeComplete: true,
+    expect(survey.currentPageNo, "Go to the first page").toLooseEqual(0);
   });
-  survey.setValue("mybool", false);
-  survey.showPreview();
-  const panels = survey.currentPage.elements;
-  assert.equal(panels[2].name, "page_visible_always", "It is always visible panel"
-  );
-  panels[2].cancelPreview();
-  assert.equal(survey.currentPage.name, "page_visible_always", "Go to correct page");
-});
-QUnit.test("showPreviewBeforeComplete = true onShowingPreview event",
-  function(assert) {
+  test("showPreviewBeforeComplete = true invisible Page, Bug#2385", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          elements: [
+            {
+              type: "boolean",
+              name: "mybool",
+              isRequired: true,
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "not_visible",
+            },
+          ],
+          visibleIf: "{mybool}  = true",
+        },
+        {
+          name: "page_visible_always",
+          elements: [
+            {
+              type: "text",
+              name: "q_visible",
+            },
+          ],
+        },
+        {
+          elements: [
+            {
+              type: "text",
+              name: "text",
+            },
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: true,
+    });
+    survey.setValue("mybool", false);
+    survey.showPreview();
+    const panels = survey.currentPage.elements;
+    expect(panels[2].name, "It is always visible panel").toLooseEqual("page_visible_always");
+    panels[2].cancelPreview();
+    expect(survey.currentPage.name, "Go to correct page").toLooseEqual("page_visible_always");
+  });
+  test("showPreviewBeforeComplete = true onShowingPreview event", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -631,14 +469,12 @@ QUnit.test("showPreviewBeforeComplete = true onShowingPreview event",
       options.allow = allowShowPreview;
     });
     survey.showPreview();
-    assert.equal(survey.state, "running", "We do not allow to show preview");
+    expect(survey.state, "We do not allow to show preview").toLooseEqual("running");
     allowShowPreview = true;
     survey.showPreview();
-    assert.equal(survey.state, "preview", "We allow to show preview");
-  }
-);
-QUnit.test("showPreviewBeforeComplete = true onShowingPreview event, use options.allow",
-  function(assert) {
+    expect(survey.state, "We allow to show preview").toLooseEqual("preview");
+  });
+  test("showPreviewBeforeComplete = true onShowingPreview event, use options.allow", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -652,16 +488,13 @@ QUnit.test("showPreviewBeforeComplete = true onShowingPreview event, use options
       options.allow = allowShowPreview;
     });
     survey.showPreview();
-    assert.equal(survey.state, "running", "We do not allow to show preview");
+    expect(survey.state, "We do not allow to show preview").toLooseEqual("running");
     allowShowPreview = true;
     survey.showPreview();
-    assert.equal(survey.state, "preview", "We allow to show preview");
-  }
-);
+    expect(survey.state, "We allow to show preview").toLooseEqual("preview");
+  });
 
-QUnit.test(
-  "onShowingPreview && onServerValidateQuestions events",
-  function(assert) {
+  test("onShowingPreview && onServerValidateQuestions events", () => {
     const survey = new SurveyModel({
       elements: [
         {
@@ -679,17 +512,14 @@ QUnit.test(
     survey.onShowingPreview.add((sender, options) => {
       counterPreview ++;
     });
-    assert.equal(counterServer, 0, "We do not call Server validation yet");
-    assert.equal(counterPreview, 0, "We do not call showing preview yet");
+    expect(counterServer, "We do not call Server validation yet").toLooseEqual(0);
+    expect(counterPreview, "We do not call showing preview yet").toLooseEqual(0);
     survey.showPreview();
-    assert.equal(survey.state, "preview", "We allow to show preview");
-    assert.equal(counterServer, 1, "Server validation is called");
-    assert.equal(counterPreview, 1, "Showing preview is called");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true and invisible matrix dropdown, Bug#3176",
-  function(assert) {
+    expect(survey.state, "We allow to show preview").toLooseEqual("preview");
+    expect(counterServer, "Server validation is called").toLooseEqual(1);
+    expect(counterPreview, "Showing preview is called").toLooseEqual(1);
+  });
+  test("showPreviewBeforeComplete = true and invisible matrix dropdown, Bug#3176", () => {
     var survey = new SurveyModel({
       showPreviewBeforeComplete: true,
       previewMode: "answeredQuestions",
@@ -724,12 +554,9 @@ QUnit.test(
     survey.data = { question1: "q1", question2: "q2" };
     survey.nextPage();
     survey.showPreview();
-    assert.equal(survey.state, "preview", "There is no errors");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true and autoAdvanceEnabled, Bug#3450",
-  function(assert) {
+    expect(survey.state, "There is no errors").toLooseEqual("preview");
+  });
+  test("showPreviewBeforeComplete = true and autoAdvanceEnabled, Bug#3450", () => {
     const survey = new SurveyModel({
       "pages": [
         {
@@ -759,18 +586,15 @@ QUnit.test(
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    assert.equal(survey.currentPageNo, 0, "The first page");
+    expect(survey.currentPageNo, "The first page").toLooseEqual(0);
     q1.onMouseDown();
     q1.value = "item1";
-    assert.equal(survey.currentPageNo, 1, "The second page");
+    expect(survey.currentPageNo, "The second page").toLooseEqual(1);
     q2.onMouseDown();
     q2.value = "item2";
-    assert.equal(survey.state, "preview", "We are in preview mode");
-  }
-);
-QUnit.test(
-  "showPreviewBeforeComplete = true and all questions are empty, Bug#6497",
-  function(assert) {
+    expect(survey.state, "We are in preview mode").toLooseEqual("preview");
+  });
+  test("showPreviewBeforeComplete = true and all questions are empty, Bug#6497", () => {
     const survey = new SurveyModel({
       "pages": [
         {
@@ -799,33 +623,29 @@ QUnit.test(
     });
     survey.nextPage();
     survey.showPreview();
-    assert.equal(survey.state, "preview", "There is no errors");
-    assert.equal(survey.getAllQuestions(true).length, 2, "Show all questions");
-  }
-);
-QUnit.test("showPreviewBeforeComplete = true and all questions are empty, bug#6608",
-  function(assert) {
+    expect(survey.state, "There is no errors").toLooseEqual("preview");
+    expect(survey.getAllQuestions(true).length, "Show all questions").toLooseEqual(2);
+  });
+  test("showPreviewBeforeComplete = true and all questions are empty, bug#6608", () => {
     const survey = new SurveyModel({
       "elements": [{ "type": "text", "name": "q1", "isRequired": true }],
       "showPreviewBeforeComplete": true,
       "previewMode": "answeredQuestions",
     });
     survey.showPreview();
-    assert.equal(survey.state, "running", "There is an error");
+    expect(survey.state, "There is an error").toLooseEqual("running");
     survey.checkErrorsMode = "onComplete";
     survey.showPreview();
-    assert.equal(survey.state, "preview", "We do not check for errors");
+    expect(survey.state, "We do not check for errors").toLooseEqual("preview");
     survey.cancelPreview();
-    assert.equal(survey.state, "running", "running again");
+    expect(survey.state, "running again").toLooseEqual("running");
     survey.tryComplete();
-    assert.equal(survey.state, "running", "We have errors, we can't fix errors");
+    expect(survey.state, "We have errors, we can't fix errors").toLooseEqual("running");
     survey.setValue("q1", "a");
     survey.tryComplete();
-    assert.equal(survey.state, "completed", "No errors");
-  }
-);
-QUnit.test("showPreviewBeforeComplete = true & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
-  function(assert) {
+    expect(survey.state, "No errors").toLooseEqual("completed");
+  });
+  test("showPreviewBeforeComplete = true & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608", () => {
     const survey = new SurveyModel({
       "pages": [
         { "elements": [{ "type": "text", "name": "q1", "isRequired": true }] },
@@ -838,15 +658,13 @@ QUnit.test("showPreviewBeforeComplete = true & checkErrorsMode = 'onComplete' an
     survey.nextPage();
     survey.showPreview();
     survey.tryComplete();
-    assert.equal(survey.state, "running", "We have errors, we can't fix errors");
+    expect(survey.state, "We have errors, we can't fix errors").toLooseEqual("running");
     survey.setValue("q1", "a");
     survey.tryComplete();
-    assert.equal(survey.state, "completed", "No errors");
-  }
-);
+    expect(survey.state, "No errors").toLooseEqual("completed");
+  });
 
-QUnit.test("showAllQuestions - pages css after cancelPreview",
-  function(assert) {
+  test("showAllQuestions - pages css after cancelPreview", () => {
     const survey = new SurveyModel({
       title: "Test",
       pages: [
@@ -877,19 +695,17 @@ QUnit.test("showAllQuestions - pages css after cancelPreview",
       ],
       showPreviewBeforeComplete: true,
     });
-    assert.ok(survey.pages[0].cssClasses.page);
-    assert.ok(survey.pages[1].cssClasses.page);
+    expect(survey.pages[0].cssClasses.page).toBeTruthy();
+    expect(survey.pages[1].cssClasses.page).toBeTruthy();
     survey.showPreview();
-    assert.ok(survey.pages[0].cssClasses.panel);
-    assert.ok(survey.pages[1].cssClasses.panel);
+    expect(survey.pages[0].cssClasses.panel).toBeTruthy();
+    expect(survey.pages[1].cssClasses.panel).toBeTruthy();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    assert.ok(survey.pages[0].cssClasses.page);
-    assert.ok(survey.pages[1].cssClasses.page);
-  }
-);
+    expect(survey.pages[0].cssClasses.page).toBeTruthy();
+    expect(survey.pages[1].cssClasses.page).toBeTruthy();
+  });
 
-QUnit.test("Add row button on showPreview",
-  function(assert) {
+  test("Add row button on showPreview", () => {
     const survey = new SurveyModel({
       "pages": [
         {
@@ -914,52 +730,53 @@ QUnit.test("Add row button on showPreview",
       ]
     });
     survey.showPreview();
-    assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix rendered first time)");
+    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix rendered first time)").toBeFalsy();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview");
+    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview").toBeTruthy();
 
     survey.getAllQuestions()[1].resetRenderedTable();
-    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow");
+    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow").toBeTruthy();
     survey.showPreview();
-    assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix has been rendered already)");
+    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix has been rendered already)").toBeFalsy();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview again");
+    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview again").toBeTruthy();
   });
 
-QUnit.test("Questions within hidden pages persist in a survey response, Bug#11174", function(assert) {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          { type: "dropdown", name: "q1", choices: ["a", "b"] }
-        ]
-      },
-      {
-        name: "page2",
-        visibleIf: "{q1} = 'a'",
-        elements: [
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" }
-        ]
-      },
-      {
-        name: "page3",
-        elements: [
-          { type: "text", name: "q4" }
-        ]
-      }
-    ],
-    showPreviewBeforeComplete: "showAnsweredQuestions"
+  test("Questions within hidden pages persist in a survey response, Bug#11174", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "dropdown", name: "q1", choices: ["a", "b"] }
+          ]
+        },
+        {
+          name: "page2",
+          visibleIf: "{q1} = 'a'",
+          elements: [
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ]
+        },
+        {
+          name: "page3",
+          elements: [
+            { type: "text", name: "q4" }
+          ]
+        }
+      ],
+      showPreviewBeforeComplete: "showAnsweredQuestions"
+    });
+    survey.data = { q1: "a", q2: "val2", q3: "val3", q4: "val4" };
+    expect(survey.getPageByName("page2").isVisible, "page2 is visible initially").toLooseEqual(true);
+    survey.setValue("q1", "b");
+    expect(survey.getPageByName("page2").isVisible, "page2 is hidden after changing q1").toLooseEqual(false);
+    survey.currentPageNo = survey.pages.indexOf(survey.getPageByName("page3"));
+    survey.showPreview();
+    expect(survey.state, "Survey is in preview state").toLooseEqual("preview");
+    survey.tryComplete();
+    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.data, "Data should not contain values from hidden page2 questions").toEqualValues({ q1: "b", q4: "val4" });
   });
-  survey.data = { q1: "a", q2: "val2", q3: "val3", q4: "val4" };
-  assert.equal(survey.getPageByName("page2").isVisible, true, "page2 is visible initially");
-  survey.setValue("q1", "b");
-  assert.equal(survey.getPageByName("page2").isVisible, false, "page2 is hidden after changing q1");
-  survey.currentPageNo = survey.pages.indexOf(survey.getPageByName("page3"));
-  survey.showPreview();
-  assert.equal(survey.state, "preview", "Survey is in preview state");
-  survey.tryComplete();
-  assert.equal(survey.state, "completed", "Survey is completed");
-  assert.deepEqual(survey.data, { q1: "b", q4: "val4" }, "Data should not contain values from hidden page2 questions");
 });

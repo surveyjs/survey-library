@@ -273,7 +273,9 @@ function convertAsyncDoneTests(src) {
       body = body.replace(d.full, `const ${d.name} = __done;`);
     }
     const prelude = `\n  let __remaining = ${total};\n  const __done = function() { if (--__remaining <= 0) resolve(); };\n`;
-    const newFn = `${isAsync ? "async " : ""}function(assert) { return new Promise(function(resolve) {${prelude}${body}}); }`;
+    const newFn = isAsync
+      ? `async function(assert) { return new Promise(function(resolve) { void (async () => {${prelude}${body}})(); }); }`
+      : `function(assert) { return new Promise(function(resolve) {${prelude}${body}}); }`;
     const nameArg = call.args[0];
     const replacement = `QUnit.test(${nameArg}, ${newFn})`;
     src = src.slice(0, call.start) + replacement + src.slice(call.end);

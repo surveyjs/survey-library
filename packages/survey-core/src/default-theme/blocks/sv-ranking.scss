@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sv-ranking {
   outline: none;
@@ -86,6 +87,7 @@
 }
 
 .sv-ranking-item__index.sv-ranking-item__index {
+  @include sjs2--typography--default-strong;
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -97,9 +99,7 @@
   border: var(--sjs2-border-width-x200) solid transparent;
   width: var(--sjs2-size-x500);
   height: var(--sjs2-size-x500);
-  line-height: calcLineHeight(1.5);
   box-sizing: border-box;
-  font-weight: 600;
   margin-left: var(--sjs2-spacing-x000);
   transition:
     outline $transition-duration,
@@ -421,7 +421,7 @@
 
 .sv-ranking__container-placeholder {
   color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
-  @include mixins.defaultFont;
+  @include sjs2--typography--default;
   white-space: normal;
   display: flex;
   justify-content: center;

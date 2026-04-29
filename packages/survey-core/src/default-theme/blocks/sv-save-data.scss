@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sv-save-data_root {
   position: fixed;
@@ -14,9 +15,7 @@
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
-  font-family: $font-family;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  @include sjs2--typography--default;
 
   display: flex;
   flex-direction: row;
@@ -68,9 +67,7 @@
 }
 
 .sv-save-data_root.sv-save-data_error .sv-save-data_button {
-  font-weight: 600;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  @include sjs2--typography--default-strong;
   height: var(--sjs2-size-x500);
   color: #ffffff;
   background-color: $red;

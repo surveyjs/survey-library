@@ -252,11 +252,10 @@ li:focus .sv-list__item.sv-list__item--selected {
   width: 100%;
   min-width: calc(var(--sjs2-base-unit-size) * 30);
   outline: none;
-  font-size: calcFontSize(1);
+  @include sjs2--typography--default;
   color: $foreground;
   padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x300);
   padding-inline-start: var(--sjs2-spacing-x700);
-  line-height: calcLineHeight(1.5);
   border: none;
 }
 

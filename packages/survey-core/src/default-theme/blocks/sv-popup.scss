@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 $ease-out: cubic-bezier(0, 0, 0.58, 1);
@@ -150,13 +151,7 @@ sv-popup {
   .sv-popup__body-content .sv-string-viewer {
     color: $font-editorfont-color;
     align-self: self-start;
-    /* UI/Default */
-    font-family: $font-family;
-    font-size: calcFontSize(1);
-    font-style: normal;
-    font-weight: 400;
-    line-height: calcLineHeight(1.5);
-    /* 150% */
+    @include sjs2--typography--default;
   }
 }
 
@@ -225,11 +220,7 @@ sv-popup {
 }
 
 .sv-popup__body-header {
-  font-family: Open Sans;
-  font-size: calcFontSize(1.5);
-  line-height: calcLineHeight(2);
-  font-style: normal;
-  font-weight: 700;
+  @include sjs2--typography--medium;
   color: $foreground;
 }
 
@@ -325,9 +316,7 @@ sv-popup {
 
   .sv-list__input {
     color: $foreground-light;
-    font-size: calcFontSize(1);
-    line-height: calcLineHeight(1.5);
-    font-family: $font-family;
+    @include sjs2--typography--default;
     padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x050) var(--sjs2-spacing-x050) var(--sjs2-spacing-x100);
   }
 

@@ -241,7 +241,15 @@ function convertAsyncDoneTests(src) {
   calls.sort((a, b) => b.start - a.start);
   for (const call of calls) {
     const fnArg = call.args[1] || "";
-    const fnMatch = fnArg.match(/^(async\s+)?function\s*\(\s*assert\s*\)\s*\{([\s\S]*)\}\s*$/);
+    // Accept either `function(assert) { ... }` or arrow `(assert) => { ... }`
+    // (with optional `async` prefix). Bare `assert =>` is also accepted.
+    let fnMatch = fnArg.match(/^(async\s+)?function\s*\(\s*assert\s*\)\s*\{([\s\S]*)\}\s*$/);
+    if (!fnMatch) {
+      fnMatch = fnArg.match(/^(async\s+)?\(\s*assert\s*\)\s*=>\s*\{([\s\S]*)\}\s*$/);
+    }
+    if (!fnMatch) {
+      fnMatch = fnArg.match(/^(async\s+)?assert\s*=>\s*\{([\s\S]*)\}\s*$/);
+    }
     if (!fnMatch) continue;
     const isAsync = !!fnMatch[1];
     let body = fnMatch[2];

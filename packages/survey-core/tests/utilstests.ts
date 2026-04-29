@@ -269,10 +269,10 @@ test.skip("Test animation utils: getAnimationDuration", () => {
   element.remove();
 });
 
-// VITEST-MIGRATION: MANUAL -- ASYNC_DONE: contains assert.async(), manual rewrite required
-/*
-test("Test animation utils: onAnimationEnd", () => {
-  const done = assert.async();
+test("Test animation utils: onAnimationEnd", () => new Promise<void>(resolve => {
+  let __remaining = 1;
+  const __done = () => { if (--__remaining <= 0) resolve(); };
+  const done = __done;
   const animationUtils = new AnimationUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);
@@ -329,8 +329,7 @@ test("Test animation utils: onAnimationEnd", () => {
     element.remove();
     done();
   }, 11);
-});
-*/
+}));
 
 test("Test animation utils: check cancel animation works correctly when mutliple animations applied", () => {
   const animationUtils = new AnimationUtils();
@@ -401,10 +400,10 @@ test("Test animation utils: enter animation", () => {
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
-// VITEST-MIGRATION: MANUAL -- ASYNC_DONE: contains assert.async(), manual rewrite required
-/*
-test("Test animation utils: leave animation", () => {
-  const done = assert.async();
+test("Test animation utils: leave animation", () => new Promise<void>(resolve => {
+  let __remaining = 1;
+  const __done = () => { if (--__remaining <= 0) resolve(); };
+  const done = __done;
   const oldRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = (cb) => setTimeout(cb);
   const animationUtils = new AnimationPropertyUtils();
@@ -455,8 +454,7 @@ test("Test animation utils: leave animation", () => {
       done();
     });
   });
-});
-*/
+}));
 
 test("Test animation utils: group enter animation", () => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
@@ -516,10 +514,10 @@ test("Test animation utils: group enter animation", () => {
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
-// VITEST-MIGRATION: MANUAL -- ASYNC_DONE: contains assert.async(), manual rewrite required
-/*
-test("Test animation utils: group leave animation", () => {
-  const done = assert.async();
+test("Test animation utils: group leave animation", () => new Promise<void>(resolve => {
+  let __remaining = 1;
+  const __done = () => { if (--__remaining <= 0) resolve(); };
+  const done = __done;
   const oldRequestAnimationFrame = window.requestAnimationFrame;
   window.requestAnimationFrame = (cb) => setTimeout(cb);
   const animationUtils = new AnimationGroupUtils<number>();
@@ -585,8 +583,7 @@ test("Test animation utils: group leave animation", () => {
       });
     });
   });
-});
-*/
+}));
 
 test("Test animation property: boolean", () => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
@@ -821,10 +818,10 @@ test("Check onNextRender and cancel", () => {
   window.cancelAnimationFrame = oldCancelAnimationFrame;
 });
 
-// VITEST-MIGRATION: MANUAL -- ASYNC_DONE: contains assert.async(), manual rewrite required
-/*
-test("Test animation property: check latest update persists", () => {
-  const done = assert.async();
+test("Test animation property: check latest update persists", () => new Promise<void>(resolve => {
+  let __remaining = 1;
+  const __done = () => { if (--__remaining <= 0) resolve(); };
+  const done = __done;
   let value: boolean = false;
   let animationEnabled = false;
   const animation = new AnimationBoolean({
@@ -863,8 +860,7 @@ test("Test animation property: check latest update persists", () => {
       done();
     });
   });
-});
-*/
+}));
 
 // VITEST-MIGRATION: MANUAL -- THROWS_SHAPE: contains assert.throws(...), manual rewrite required
 /*

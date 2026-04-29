@@ -5,7 +5,7 @@ parameters:
 
 jobs:
   - job:
-    displayName: "Test & Example & A11Y"
+    displayName: "Example & A11Y"
     steps:
       - template: build.yml
         parameters:
@@ -24,7 +24,7 @@ jobs:
         displayName: "Test A11Y"
 
   - job:
-    displayName: "Test E2E"
+    displayName: "E2E"
     steps:
       - template: build.yml
         parameters:

@@ -1,0 +1,80 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "Example & A11Y"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run build
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-js/example
+        displayName: "Build Example"
+
+      - script: npm run test:a11y:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-js
+        displayName: "Test A11Y"
+
+  - job:
+    displayName: "E2E"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+        
+      - script: npm run e2e:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-js
+        displayName: "Test E2E"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-js/test-results"
+          ArtifactName: "Creator_JS_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-js/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator JS E2E Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"
+
+  - job:
+    displayName: "SCR"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+        
+      - script: npm run test:scr:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-js
+        displayName: "Test SCR"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-js/test-results"
+          ArtifactName: "Creator_JS_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-js/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator JS SCR Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"

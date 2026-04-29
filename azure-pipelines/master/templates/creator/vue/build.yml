@@ -1,0 +1,56 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+  - name: store
+    type: boolean
+    default: false
+
+steps:
+  - checkout: ${{ parameters.checkout }}
+    displayName: "Checkout '${{ parameters.checkout }}'"
+
+  - script: git fetch origin pull/$(PR)/head && git checkout FETCH_HEAD
+    workingDirectory: $(Build.SourcesDirectory)
+    condition: ne(variables['PR'], '')
+    displayName: "Switch to PR $(PR)"
+
+  - template: ../../utils/npm.yml
+    parameters:
+      directories:
+        - $(Build.SourcesDirectory)
+        - $(Build.SourcesDirectory)/packages/survey-creator-core
+        - $(Build.SourcesDirectory)/packages/survey-creator-vue
+        - $(Build.SourcesDirectory)/packages/survey-creator-vue/example
+
+  - template: ../../utils/artifact.yml
+    parameters:
+      artifacts: 
+        - $(ArtifactNameLibraryCore)
+        - $(ArtifactNameLibraryVue)
+
+  - template: ../../utils/copy.yml
+    parameters:
+      items:
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryCore)
+          destination: $(Build.SourcesDirectory)/packages/survey-creator-core/node_modules/survey-core
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryCore)
+          destination: $(Build.SourcesDirectory)/packages/survey-creator-vue/node_modules/survey-core
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryVue)
+          destination: $(Build.SourcesDirectory)/packages/survey-creator-vue/node_modules/survey-vue3-ui
+
+  - script: npm run build:all
+    workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-core
+    displayName: "Build Core"
+
+  - script: npm run build
+    workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+    displayName: "Build"
+
+  - ${{ if eq(parameters.store, true) }}:
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/packages/survey-creator-vue/build/'
+        ArtifactName: $(ArtifactNameCreatorV2Vue)
+        publishLocation: 'Container'
+        StoreAsTar: true

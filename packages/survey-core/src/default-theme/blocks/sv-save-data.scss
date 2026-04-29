@@ -66,24 +66,6 @@
   gap: var(--sjs2-spacing-x600);
 }
 
-.sv-save-data_root.sv-save-data_error .sv-save-data_button {
-  @include sjs2--typography--default-strong;
-  height: var(--sjs2-size-x500);
-  color: #ffffff;
-  background-color: $red;
-  border: var(--sjs2-border-width-x200) solid #ffffff;
-  border-radius: calcCornerRadius(1.5);
-  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
-  display: flex;
-  align-items: center;
-}
-
-.sv-save-data_root.sv-save-data_error .sv-save-data_button:hover,
-.sv-save-data_root.sv-save-data_error .sv-save-data_button:focus {
-  color: $red;
-  background-color: $background;
-}
-
 .sv-save-data_root.sv-save-data_success {
   @include sjs2--typography--default-strong;
   background-color: $primary;

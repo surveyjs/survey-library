@@ -171,8 +171,11 @@ function stripAssertParam(fnSrc) {
   // Actually let's just convert to arrow always.
   if (/^(async\s+)?function/.test(fnSrc)) {
     out = fnSrc.replace(/^(async\s+)?function\s*\(\s*assert\s*\)\s*/, (_, a) => `${a ? "async " : ""}() => `);
-  } else {
+  } else if (/^(async\s+)?\(\s*assert\s*\)\s*=>/.test(fnSrc)) {
     out = fnSrc.replace(/^(async\s+)?\(\s*assert\s*\)\s*=>/, (_, a) => `${a ? "async " : ""}() =>`);
+  } else {
+    // Bare-arrow form: `assert => { ... }` or `async assert => { ... }`
+    out = fnSrc.replace(/^(async\s+)?assert\s*=>/, (_, a) => `${a ? "async " : ""}() =>`);
   }
   return out;
 }

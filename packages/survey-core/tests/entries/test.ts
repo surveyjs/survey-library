@@ -1,7 +1,6 @@
 // common
 export * from "../choicesRestfultests"; //
 export * from "../surveyquestiontests"; //
-export * from "../question_paneldynamic_tests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
 export * from "../surveyWindowTests"; //
@@ -11,18 +10,13 @@ export * from "../surveyvalidatortests"; //
 export * from "../surveyShowPreviewTests";
 export * from "../surveyProgressButtonsTest";
 export * from "../surveytimertests";
-export * from "../questionFileTests";
 export * from "../dragdropcoretests";
 export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest";
 export * from "../expressions/expressionParserTest";
 export * from "../expressions/expressionValidationTest";
 export * from "../expressions/expressionFunctionCacheTests";
-export * from "../question_expressiontests";
 export * from "../questionDropdownTests";
-export * from "../question_ratingtests";
-export * from "../question_signaturepadtests";
-export * from "../question_tagbox_tests";
 export * from "../question_imagemap_tests";
 export * from "../listModelTests";
 export * from "../dropdown_list_model_test";

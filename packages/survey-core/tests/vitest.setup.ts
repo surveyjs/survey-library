@@ -33,6 +33,57 @@ if (typeof (globalThis as any).AnimationEvent === "undefined") {
   };
 }
 
+// jsdom does not implement HTMLCanvasElement.getContext (without the optional
+// `canvas` npm package). signature_pad and rating-color logic both require a
+// 2D context. Provide a minimal stub that returns no-op methods plus a
+// settable `fillStyle` (rating-color logic reads back the normalized color).
+// Tests that need real canvas rendering must run under Karma + real browser.
+if (typeof (globalThis as any).HTMLCanvasElement !== "undefined") {
+  const proto: any = (globalThis as any).HTMLCanvasElement.prototype;
+  if (!proto.__sv_getContext_stubbed) {
+    proto.getContext = function (type: string) {
+      if (type !== "2d") return null;
+      const ctx: any = {
+        fillStyle: "#000000",
+        strokeStyle: "#000000",
+        lineWidth: 1,
+        canvas: this,
+        save() { /* no-op */ },
+        restore() { /* no-op */ },
+        scale() { /* no-op */ },
+        translate() { /* no-op */ },
+        rotate() { /* no-op */ },
+        beginPath() { /* no-op */ },
+        closePath() { /* no-op */ },
+        moveTo() { /* no-op */ },
+        lineTo() { /* no-op */ },
+        bezierCurveTo() { /* no-op */ },
+        quadraticCurveTo() { /* no-op */ },
+        arc() { /* no-op */ },
+        rect() { /* no-op */ },
+        fill() { /* no-op */ },
+        stroke() { /* no-op */ },
+        fillRect() { /* no-op */ },
+        strokeRect() { /* no-op */ },
+        clearRect() { /* no-op */ },
+        drawImage() { /* no-op */ },
+        getImageData() { return { data: new Uint8ClampedArray(4) }; },
+        putImageData() { /* no-op */ },
+        createImageData() { return { data: new Uint8ClampedArray(4) }; },
+        setTransform() { /* no-op */ },
+        getTransform() { return { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }; },
+        measureText() { return { width: 0 }; },
+      };
+      return ctx;
+    };
+    proto.toDataURL = function (type?: string) {
+      const t = typeof type === "string" && type.length > 0 ? type : "image/png";
+      return `data:${t};base64,`;
+    };
+    proto.__sv_getContext_stubbed = true;
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Custom matchers that bridge QUnit semantics into Vitest.
 // ---------------------------------------------------------------------------

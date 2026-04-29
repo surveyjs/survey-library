@@ -25,8 +25,8 @@ Use the mapping table from `vitest-migration/PLAN.md` §2. Summary:
 | `assert.strictEqual(a, b, msg)` | `expect(a, msg).toBe(b)` |
 | `assert.notEqual(a, b, msg)` | `expect(a, msg).not.toLooseEqual(b)` |
 | `assert.notStrictEqual(a, b, msg)` | `expect(a, msg).not.toBe(b)` |
-| `assert.deepEqual(a, b, msg)` | `expect(a, msg).toEqual(b)` |
-| `assert.notDeepEqual(a, b, msg)` | `expect(a, msg).not.toEqual(b)` |
+| `assert.deepEqual(a, b, msg)` | `expect(a, msg).toEqualValues(b)` (custom matcher; ignores function-typed own properties on arrays — see "Custom matchers" below) |
+| `assert.notDeepEqual(a, b, msg)` | `expect(a, msg).not.toEqualValues(b)` |
 | `assert.ok(x, msg)` | `expect(x, msg).toBeTruthy()` |
 | `assert.notOk(x, msg)` | `expect(x, msg).toBeFalsy()` |
 | `assert.throws(fn, /regex|string|ErrorClass/, msg)` | `expect(fn, msg).toThrow(...)` (see THROWS_SHAPE rule) |
@@ -43,6 +43,7 @@ Remove `import "qunit";` references and any unused imports.
 ## Custom matchers (provided by `tests/vitest.setup.ts`)
 
 - **`toLooseEqual(expected)`** — mirrors QUnit's `assert.equal`/`assert.notEqual` (`==` / `!=`). Use this for any direct mapping of `assert.equal`. Examples that QUnit treats as equal but `toBe` rejects: `undefined == null`, `"0" == 0`, `0 == false`. The codemod emits `toLooseEqual` automatically; do not switch to `toBe` unless you have verified strict equality is the original intent (in which case the source already used `assert.strictEqual`).
+- **`toEqualValues(expected)`** — mirrors QUnit's `assert.deepEqual` for survey-library observable arrays. `Base.createNewArray` assigns `push`/`pop`/`shift`/`unshift`/`splice` as own enumerable function properties on its arrays, which makes Vitest's `toEqual` fail when comparing against a plain array literal. `toEqualValues` uses `this.equals(received, expected, [arrayValuesEqual])` so arrays compare by index-only and ignore own non-index function-typed properties. Cycles, custom classes, and non-array nested values are delegated back to Vitest's normal deep-equal.
 
 ## Partial-conversion fallback (mandatory)
 

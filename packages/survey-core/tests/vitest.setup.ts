@@ -32,14 +32,55 @@ expect.extend({
           : `expected ${this.utils.printReceived(received)} to loosely equal ${this.utils.printExpected(expected)}`,
     };
   },
+  // Mirrors QUnit's `assert.deepEqual` for survey-library observable arrays.
+  // `Base.createNewArray` overrides `push`/`pop`/`shift`/`unshift`/`splice` as
+  // own enumerable function properties on the array. Vitest's `toEqual` walks
+  // own enumerable string keys, so a plain `[1, 2]` literal never matches an
+  // observable `[1, 2, push, pop, shift, unshift, splice]`. QUnit's
+  // `deepEqual` happened to ignore them. `toEqualValues` strips function-typed
+  // own properties recursively before delegating to Vitest's deep-equal.
+  toEqualValues(received: unknown, expected: unknown) {
+    // Compare arrays ignoring own non-index function-typed properties
+    // (`push`/`pop`/`shift`/`unshift`/`splice` overrides on
+    // `Base.createNewArray`-produced observable arrays). Falls back to
+    // `this.equals` for everything else, which preserves Vitest's normal
+    // diff output and handles cycles correctly.
+    const arrayValuesEqual = (
+      a: unknown,
+      b: unknown,
+      customTesters: unknown[]
+    ): boolean | undefined => {
+      const aIsArr = Array.isArray(a);
+      const bIsArr = Array.isArray(b);
+      if (!aIsArr && !bIsArr) return undefined;
+      if (!aIsArr || !bIsArr) return false;
+      if ((a as unknown[]).length !== (b as unknown[]).length) return false;
+      for (let i = 0; i < (a as unknown[]).length; i++) {
+        if (!this.equals((a as unknown[])[i], (b as unknown[])[i], customTesters as never)) {
+          return false;
+        }
+      }
+      return true;
+    };
+    const pass = this.equals(received, expected, [arrayValuesEqual] as never);
+    return {
+      pass,
+      message: () =>
+        pass
+          ? `expected ${this.utils.printReceived(received)} not to deeply equal ${this.utils.printExpected(expected)} (ignoring array function properties)`
+          : `expected values to be deeply equal (ignoring array function properties):\n${this.utils.diff(expected, received) ?? ""}`,
+    };
+  },
 });
 
 declare module "vitest" {
   interface Assertion<T = any> {
     toLooseEqual(expected: unknown): T;
+    toEqualValues(expected: unknown): T;
   }
   interface AsymmetricMatchersContaining {
     toLooseEqual(expected: unknown): unknown;
+    toEqualValues(expected: unknown): unknown;
   }
 }
 

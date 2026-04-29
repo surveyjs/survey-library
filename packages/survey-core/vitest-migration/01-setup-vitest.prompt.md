@@ -79,6 +79,29 @@ Required actions:
        interface AsymmetricMatchersContaining { toLooseEqual(expected: unknown): unknown; }
      }
      ```
+   - The setup file MUST also register a `toEqualValues` matcher (mapped from `assert.deepEqual`) that ignores own non-index function-typed properties on arrays. survey-library's `Base.createNewArray` assigns `push`/`pop`/`shift`/`unshift`/`splice` as own enumerable function properties on observable arrays, which causes Vitest's `toEqual` to fail against plain array literals. Implementation:
+     ```ts
+     expect.extend({
+       toEqualValues(received: unknown, expected: unknown) {
+         const arrayValuesEqual = (a, b, customTesters) => {
+           const aIsArr = Array.isArray(a), bIsArr = Array.isArray(b);
+           if (!aIsArr && !bIsArr) return undefined;
+           if (!aIsArr || !bIsArr) return false;
+           if (a.length !== b.length) return false;
+           for (let i = 0; i < a.length; i++) {
+             if (!this.equals(a[i], b[i], customTesters)) return false;
+           }
+           return true;
+         };
+         const pass = this.equals(received, expected, [arrayValuesEqual]);
+         return { pass, message: () => /* ... */ "" };
+       },
+     });
+     declare module "vitest" {
+       interface Assertion<T = any> { toEqualValues(expected: unknown): T; }
+     }
+     ```
+     Implementation note: do NOT pre-normalize `received`/`expected` into deep-cloned plain objects — survey-library models contain hundreds of cyclic and observable references; cloning them OOMs jsdom. Plug into Vitest's deep-equal via the custom-tester argument instead.
 
 4. **Add scripts** to `packages/survey-core/package.json`:
    - `"test:vitest": "vitest run"`

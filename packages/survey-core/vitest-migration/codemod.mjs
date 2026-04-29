@@ -15,8 +15,14 @@ const ASSERTION_MAP = {
   // `strictEqual` already uses `===` in QUnit, so map to strict `toBe`.
   strictEqual: "toBe",
   notStrictEqual: { negate: true, matcher: "toBe" },
-  deepEqual: "toEqual",
-  notDeepEqual: { negate: true, matcher: "toEqual" },
+  // QUnit's `deepEqual` ignores survey-library's observable-array overrides
+  // (`push`/`pop`/`shift`/`unshift`/`splice` assigned as own enumerable
+  // function properties on arrays returned by `Base.createNewArray`). Vitest's
+  // `toEqual` walks own enumerable keys and would fail those comparisons. Map
+  // to a custom `toEqualValues` matcher (defined in tests/vitest.setup.ts)
+  // that strips function-typed own properties before deep-equal.
+  deepEqual: "toEqualValues",
+  notDeepEqual: { negate: true, matcher: "toEqualValues" },
   ok: "toBeTruthy",
   notOk: "toBeFalsy",
 };

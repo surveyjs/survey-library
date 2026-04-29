@@ -536,7 +536,7 @@ describe("JsonSerializationTests", () => {
     var sport = new SportCar();
     sport.maxSpeed = 0;
     var jsObj = new JsonObject().toJsonObject(sport);
-    expect(jsObj, "0 should be serialized as well").toEqual({ maxSpeed: 0 });
+    expect(jsObj, "0 should be serialized as well").toEqualValues({ maxSpeed: 0 });
   });
   test("Serialize object and get type by it's property", () => {
     var dealer = new Dealer();
@@ -564,7 +564,7 @@ describe("JsonSerializationTests", () => {
   test("String array deserialization", () => {
     var dealer = new Dealer();
     new JsonObject().toObject({ stringArray: ["one", "two"] }, dealer);
-    expect(dealer.stringArray, "deserialize array").toEqual(["one", "two"]);
+    expect(dealer.stringArray, "deserialize array").toEqualValues(["one", "two"]);
   });
   test("Deserialize object with it's type", () => {
     var dealer = new Dealer();
@@ -673,7 +673,7 @@ describe("JsonSerializationTests", () => {
     );
 
     var jsObj = new JsonObject().toJsonObject(list);
-    expect(jsObj, "serialize ItemValueListOwner").toEqual({ items: [{ value: { id: 1, city: "NY" }, text: "Item 1" }] });
+    expect(jsObj, "serialize ItemValueListOwner").toEqualValues({ items: [{ value: { id: 1, city: "NY" }, text: "Item 1" }] });
   });
   test("itemvalue.value is required and unique", () => {
     const prop = Serializer.findProperty("itemvalue", "value");
@@ -692,7 +692,7 @@ describe("JsonSerializationTests", () => {
     var matrix = new QuestionMatrixDynamicModel("q1");
     new JsonObject().toObject(json, matrix);
     var jsObj = new JsonObject().toJsonObject(matrix);
-    expect(jsObj, "serialize ItemValueListOwner").toEqual({
+    expect(jsObj, "serialize ItemValueListOwner").toEqualValues({
       name: "q1",
       defaultValue: [
         { column1: 1, column2: 2 },
@@ -761,7 +761,7 @@ describe("JsonSerializationTests", () => {
     list.items.push(new ItemValue("item"));
 
     const jsObj = new JsonObject().toJsonObject(list);
-    expect(jsObj, "serialize ItemValueListOwner").toEqual({ "items": [{ "value": 7, "text": "Item 1" }, { "value": 5 }, { "value": "item" }] });
+    expect(jsObj, "serialize ItemValueListOwner").toEqualValues({ "items": [{ "value": 7, "text": "Item 1" }, { "value": 5 }, { "value": "item" }] });
     settings.itemValueAlwaysSerializeAsObject = false;
   });
   test("ItemValue and settings.itemValueAlwaysSerializeAsObject = true", () => {
@@ -774,7 +774,7 @@ describe("JsonSerializationTests", () => {
     list.items.push(new ItemValue("a", "A"));
 
     let jsObj = new JsonObject().toJsonObject(list);
-    expect(jsObj, "serialize ItemValueListOwner with text").toEqual({
+    expect(jsObj, "serialize ItemValueListOwner with text").toEqualValues({
       "items": [{ "value": 7, "text": "Item 1" },
         { "value": 5, text: "5" },
         { "value": "item", text: "item" },
@@ -783,7 +783,7 @@ describe("JsonSerializationTests", () => {
     });
     settings.itemValueAlwaysSerializeText = false;
     jsObj = new JsonObject().toJsonObject(list);
-    expect(jsObj, "serialize ItemValueListOwner without text").toEqual({ "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A", { "value": "a", text: "A" }] });
+    expect(jsObj, "serialize ItemValueListOwner without text").toEqualValues({ "items": [{ "value": 7, "text": "Item 1" }, 5, "item", "A", { "value": "a", text: "A" }] });
   });
   test("ItemValue and settings.itemValueAlwaysSerializeAsObject = true, do not serialize", () => {
     settings.itemValueAlwaysSerializeText = true;
@@ -791,7 +791,7 @@ describe("JsonSerializationTests", () => {
     list.items.push(new ItemValue({ val: 1, text: "Item1" }, "Item 1"));
     list.items.push(new ItemValue({ val: 1, text: "Item1" }));
     let jsObj = new JsonObject().toJsonObject(list);
-    expect(jsObj, "Do not serialize objects").toEqual({
+    expect(jsObj, "Do not serialize objects").toEqualValues({
       "items": [{ value: { val: 1, text: "Item1" }, "text": "Item 1" },
         { val: 1, text: "Item1" }]
     });
@@ -992,24 +992,24 @@ describe("JsonSerializationTests", () => {
   test("Property Choices test", () => {
     var properties = Serializer.getProperties("sport");
     expect(properties[1].name, "It is a 'maxSpeed' property").toLooseEqual("maxSpeed");
-    expect(properties[1].choices, "'maxSpeed' property choices").toEqual([100, 150, 200, 250]);
+    expect(properties[1].choices, "'maxSpeed' property choices").toEqualValues([100, 150, 200, 250]);
   });
   test("Property Choices func test", () => {
     var properties = Serializer.getProperties("truck");
     expect(properties[1].name, "It is a 'maxWeight' property").toLooseEqual("maxWeight");
-    expect(properties[1].choices, "'maxWeight' property choices").toEqual([500, 1500]);
+    expect(properties[1].choices, "'maxWeight' property choices").toEqualValues([500, 1500]);
   });
   test("Property set choices test", () => {
     var property = Serializer.addProperty("sport", "choices2");
     property.setChoices([1, 2, 3]);
-    expect(property.choices, "set choices array works correctly").toEqual([1, 2, 3]);
+    expect(property.choices, "set choices array works correctly").toEqualValues([1, 2, 3]);
     property.setChoices(
       null,
       (obj: any): Array<any> => {
         return [4, 5, 6];
       }
     );
-    expect(property.choices, "set choices function works correctly").toEqual([4, 5, 6]);
+    expect(property.choices, "set choices function works correctly").toEqualValues([4, 5, 6]);
     Serializer.removeProperty("sport", "choices2");
   });
   test("Create inherited class instead of origional", () => {
@@ -1032,7 +1032,7 @@ describe("JsonSerializationTests", () => {
     var jsonObj = new JsonObject();
     jsonObj.lightSerializing = true;
     var json = jsonObj.toJsonObject(container, false);
-    expect(json, "Do not serialize items").toEqual({ obj: { A: 30 } });
+    expect(json, "Do not serialize items").toEqualValues({ obj: { A: 30 } });
   });
 
   test("toJsonObject should create new instance of objects", () => {
@@ -1080,7 +1080,7 @@ describe("JsonSerializationTests", () => {
     );
     expect(dealer.truck["isUsed"], "new property is here").toLooseEqual(true);
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(jsObj, "property is serialized").toEqual({ truck: { isUsed: true, maxWeight: 10000 } });
+    expect(jsObj, "property is serialized").toEqualValues({ truck: { isUsed: true, maxWeight: 10000 } });
     Serializer.removeProperty("trick", "isUsed");
     expect(propertiesCount, "the additional property is removed").toLooseEqual(Serializer.getProperties("truck").length);
   });
@@ -1127,7 +1127,7 @@ describe("JsonSerializationTests", () => {
     new JsonObject().toObject({ truck: { maxWeight: 10000 } }, dealer);
     dealer.definedNonSerializable = "some value";
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(jsObj, "definedNonSerializable property is not serialized").toEqual({ truck: { maxWeight: 10000 } });
+    expect(jsObj, "definedNonSerializable property is not serialized").toEqualValues({ truck: { maxWeight: 10000 } });
   });
 
   test("Get property and readonly", () => {
@@ -1182,7 +1182,7 @@ describe("JsonSerializationTests", () => {
     expect(property.getPropertyValue(obj), "getValueProp works correctly").toLooseEqual("getValue_yes");
 
     property = Serializer.findProperty(obj.getType(), "serProperty");
-    expect(property.getPropertyValue(obj), "getValueProp works correctly").toEqual({ text: "serProperty_yes" });
+    expect(property.getPropertyValue(obj), "getValueProp works correctly").toEqualValues({ text: "serProperty_yes" });
 
     property = Serializer.findProperty(obj.getType(), "locProperty");
     expect(property.getPropertyValue(obj), "getValueProp works correctly").toLooseEqual("loc_yes");
@@ -1273,7 +1273,7 @@ describe("JsonSerializationTests", () => {
     expect(truck["myLocalizableProp"], "The 'de' text is here").toLooseEqual("de_Text");
     truck.locale = "en";
     expect(truck["myLocalizableProp"], "Use default value again").toLooseEqual("default_Text");
-    expect(new JsonObject().toJsonObject(truck), "Serialized correctly").toEqual({ myLocalizableProp: { default: "default_Text", de: "de_Text" } });
+    expect(new JsonObject().toJsonObject(truck), "Serialized correctly").toEqualValues({ myLocalizableProp: { default: "default_Text", de: "de_Text" } });
 
     Serializer.removeProperty("car", "myLocalizableProp");
   });
@@ -1334,7 +1334,7 @@ describe("JsonSerializationTests", () => {
     dealer.name = "mydealer";
     var jsonObj = new JsonObject();
     var json = jsonObj.toJsonObject(dealer);
-    expect(json, "property with default value is not serialized").toEqual({ name: "mydealer" });
+    expect(json, "property with default value is not serialized").toEqualValues({ name: "mydealer" });
   });
 
   test("Create class with camel name", () => {
@@ -1363,9 +1363,9 @@ describe("JsonSerializationTests", () => {
     carOwner.carType = "truck";
     carOwner["maxWeight"] = 100;
     var json = new JsonObject().toJsonObject(carOwner);
-    expect(json, "The additional property has serialized").toEqual({ carType: "truck", maxWeight: 100 });
+    expect(json, "The additional property has serialized").toEqualValues({ carType: "truck", maxWeight: 100 });
     carOwner.carType = "fast";
-    expect(new JsonObject().toJsonObject(carOwner), "There is no additional properties").toEqual({});
+    expect(new JsonObject().toJsonObject(carOwner), "There is no additional properties").toEqualValues({});
     carOwner = new CarOwner();
     new JsonObject().toObject({ carType: "truck", maxWeight: 200 }, carOwner);
     expect(carOwner.carType, "the car type was created correctly").toLooseEqual("truck");
@@ -1412,7 +1412,7 @@ describe("JsonSerializationTests", () => {
     expect(question["customArray"][0].value, "customArray content deserialzied successful").toLooseEqual(1);
 
     var json = new JsonObject().toJsonObject(question);
-    expect(json.customArray, "customArray serialzied successful").toEqual([1, 2, 3, 4]);
+    expect(json.customArray, "customArray serialzied successful").toEqualValues([1, 2, 3, 4]);
 
     Serializer.removeProperty("questionbase", "customArray");
 
@@ -1453,7 +1453,7 @@ describe("JsonSerializationTests", () => {
     question["customArray"][0].text = "text 1";
 
     var json = new JsonObject().toJsonObject(question);
-    expect(json.customArray, "customArray serialzied successful 1").toEqual([
+    expect(json.customArray, "customArray serialzied successful 1").toEqualValues([
       {
         text: "text 1",
         value: 0,
@@ -1470,7 +1470,7 @@ describe("JsonSerializationTests", () => {
     expect(question["customArray"][0].text, "text deserialized ok").toLooseEqual("text 1");
 
     json = new JsonObject().toJsonObject(question);
-    expect(json.customArray, "customArray serialzied successful 2").toEqual([
+    expect(json.customArray, "customArray serialzied successful 2").toEqualValues([
       {
         text: "text 1",
         value: 0,
@@ -1484,7 +1484,7 @@ describe("JsonSerializationTests", () => {
     question["customArray"][0].text = "text 2";
     json = new JsonObject().toJsonObject(question);
 
-    expect(json.customArray, "customArray serialzied successful 2").toEqual([
+    expect(json.customArray, "customArray serialzied successful 2").toEqualValues([
       {
         text: "text 2",
         value: 0,
@@ -1516,7 +1516,7 @@ describe("JsonSerializationTests", () => {
     question["customArray"][0].text = "text de";
 
     var json = new JsonObject().toJsonObject(question);
-    expect(json.customArray, "customArray serialzied successful 1").toEqual([
+    expect(json.customArray, "customArray serialzied successful 1").toEqualValues([
       {
         text: {
           default: "text 1",
@@ -1665,16 +1665,16 @@ describe("JsonSerializationTests", () => {
   test("Get properties dependedOn", () => {
     var propCar = Serializer.findProperty("dealer", "car");
     var propTruck = Serializer.findProperty("dealer", "truck");
-    expect(propCar.getDependedProperties()).toEqual(["truck"]);
-    expect(propTruck.getDependedProperties()).toEqual([]);
+    expect(propCar.getDependedProperties()).toEqualValues(["truck"]);
+    expect(propTruck.getDependedProperties()).toEqualValues([]);
 
     Serializer.addProperty("dealer", { name: "dp1", dependsOn: "car" });
-    expect(propCar.getDependedProperties()).toEqual(["truck", "dp1"]);
+    expect(propCar.getDependedProperties()).toEqualValues(["truck", "dp1"]);
 
     //depends on property from a parent class
     Serializer.addProperty("sport", { name: "dp2", dependsOn: ["name"] });
     var propName = Serializer.findProperty("sport", "name");
-    expect(propName.getDependedProperties()).toEqual(["dp2"]);
+    expect(propName.getDependedProperties()).toEqualValues(["dp2"]);
 
     Serializer.removeProperty("dealer", "dp1");
     Serializer.removeProperty("sport", "dp2");
@@ -1874,14 +1874,13 @@ describe("JsonSerializationTests", () => {
   });
   test("check dataList attribute", () => {
     var prop = Serializer.findProperty("carowner", "name");
-    expect(prop.dataList, "dataList attribute created correctly").toEqual(["item1", "item2"]);
+    expect(prop.dataList, "dataList attribute created correctly").toEqualValues(["item1", "item2"]);
   });
   test("check isUnique attribute", () => {
     var prop = Serializer.findProperty("carowner", "name");
-    expect(prop.isUnique, "isUnique attribute created correctly").toEqual(true);
+    expect(prop.isUnique, "isUnique attribute created correctly").toEqualValues(true);
   });
-  // VITEST-MIGRATION: MANUAL -- OTHER: deepEqual on observable arrays surfaces extra enumerable properties (`push`, etc.) that QUnit's `deepEqual` ignored.
-  test.skip("multiplevalues/array property should call onPropertyChanged on modifying array", () => {
+  test("multiplevalues/array property should call onPropertyChanged on modifying array", () => {
     Serializer.addProperty("carowner", "ar:multiplevalues");
     var owner = new CarOwner();
     var propName = "";
@@ -1892,7 +1891,7 @@ describe("JsonSerializationTests", () => {
     });
     owner["ar"] = ["A"];
     owner["ar"].push("B");
-    expect(owner["ar"], "property set correctly").toEqual(["A", "B"]);
+    expect(owner["ar"], "property set correctly").toEqualValues(["A", "B"]);
     expect(counter, "onPropertyChanged called two times").toLooseEqual(2);
     expect(propName, "onPropertyChanged called on chaning 'ar' property").toLooseEqual("ar");
     Serializer.removeProperty("carowner", "ar");
@@ -1908,7 +1907,7 @@ describe("JsonSerializationTests", () => {
     question.title = " ";
     expect(question.title, "White space is set").toLooseEqual(" ");
     expect(question.locTitle.isEmpty, "Value is not empty").toLooseEqual(false);
-    expect(question.toJSON(), "Serialize white space").toEqual({ name: "q1", title: " " });
+    expect(question.toJSON(), "Serialize white space").toEqualValues({ name: "q1", title: " " });
   });
   test("itemvalue enableIf property visibility test", () => {
     var rating = new QuestionRatingModel("q1");
@@ -1985,14 +1984,14 @@ describe("JsonSerializationTests", () => {
   });
   test("TextValidator, serialize allowDigits property", () => {
     const validator = new TextValidator();
-    expect(validator.toJSON(), "validator is empty").toEqual({});
+    expect(validator.toJSON(), "validator is empty").toEqualValues({});
     validator.allowDigits = false;
-    expect(validator.toJSON(), "allowDigits is false").toEqual({ allowDigits: false });
+    expect(validator.toJSON(), "allowDigits is false").toEqualValues({ allowDigits: false });
     validator.allowDigits = true;
-    expect(validator.toJSON(), "validator is empty again").toEqual({});
+    expect(validator.toJSON(), "validator is empty again").toEqualValues({});
     validator.minLength = 1;
     validator.maxLength = 10;
-    expect(validator.toJSON(), "minLength and maxLenght are not null").toEqual({ minLength: 1, maxLength: 10 });
+    expect(validator.toJSON(), "minLength and maxLenght are not null").toEqualValues({ minLength: 1, maxLength: 10 });
   });
   test("Change question isRequired default value", () => {
     expect(new Question("q1").isRequired, "It is false by defult").toLooseEqual(false);
@@ -2005,10 +2004,10 @@ describe("JsonSerializationTests", () => {
     expect(new Question("q1").readOnly, "It is false by defult").toLooseEqual(false);
     Serializer.findProperty("question", "readOnly").defaultValue = true;
     expect(new Question("q1").readOnly, "It is true now").toLooseEqual(true);
-    expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #1").toEqual({ name: "q1" });
+    expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #1").toEqualValues({ name: "q1" });
     Serializer.findProperty("question", "readOnly").defaultValue = false;
     expect(new Question("q1").readOnly, "It is false again").toLooseEqual(false);
-    expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #2").toEqual({ name: "q1" });
+    expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #2").toEqualValues({ name: "q1" });
   });
   test("Load localizable @property", () => {
     Serializer.addClass("new_declared_props", [{
@@ -2110,12 +2109,12 @@ describe("JsonSerializationTests", () => {
     expect(car.colors.length, "There are two colors by default").toLooseEqual(2);
     expect(car.colors[0].value, "value set correctly #1").toLooseEqual("A1");
     expect(car.colors[1].color, "color set correctly #2").toLooseEqual("#00ff00");
-    expect(car.toJSON(), "toJSON. It should be empty #3").toEqual({});
+    expect(car.toJSON(), "toJSON. It should be empty #3").toEqualValues({});
     car.colors.splice(0, 1);
     const newItem = new ItemValue("A3", undefined, "coloritemvalue");
     newItem.color = "#ffffff";
     car.colors.push(newItem);
-    expect(car.toJSON(), "toJSON #4").toEqual({ colors: [{ value: "A2", color: "#00ff00" }, { value: "A3", color: "#ffffff" }] });
+    expect(car.toJSON(), "toJSON #4").toEqualValues({ colors: [{ value: "A2", color: "#00ff00" }, { value: "A3", color: "#ffffff" }] });
     car.fromJSON({
       colors: [
         { value: "B1", color: "-ff0000" },
@@ -2203,7 +2202,7 @@ describe("JsonSerializationTests", () => {
     expect(funcs.length, "It is false by default").toLooseEqual(1);
     const json = survey.toJSON();
     const expectedJson = { customFunctions: [{ name: "func1", expression: "testFunc" }] };
-    expect(json, "Serialized successful").toEqual(expectedJson);
+    expect(json, "Serialized successful").toEqualValues(expectedJson);
     const survey2 = new SurveyModel();
     survey2.fromJSON(json);
     funcs = <Array<CalculatedValue>>survey2.customFunctions;
@@ -2216,23 +2215,23 @@ describe("JsonSerializationTests", () => {
   test("Store column title in json if it equals to name, but it was set manually", () => {
     const matrix = new QuestionMatrixDynamicModel("q1");
     const column = matrix.addColumn("col1");
-    expect(matrix.toJSON(), "title is empty").toEqual({ name: "q1", columns: [{ name: "col1" }] });
+    expect(matrix.toJSON(), "title is empty").toEqualValues({ name: "q1", columns: [{ name: "col1" }] });
     column.title = "Col1";
-    expect(matrix.toJSON(), "title is not equal to name").toEqual({ name: "q1", columns: [{ name: "col1", title: "Col1" }] });
+    expect(matrix.toJSON(), "title is not equal to name").toEqualValues({ name: "q1", columns: [{ name: "col1", title: "Col1" }] });
     column.title = "";
-    expect(matrix.toJSON(), "title is empty, #2").toEqual({ name: "q1", columns: [{ name: "col1" }] });
+    expect(matrix.toJSON(), "title is empty, #2").toEqualValues({ name: "q1", columns: [{ name: "col1" }] });
     column.title = "col1";
-    expect(matrix.toJSON(), "title is equal to name").toEqual({ name: "q1", columns: [{ name: "col1", title: "col1" }] });
+    expect(matrix.toJSON(), "title is equal to name").toEqualValues({ name: "q1", columns: [{ name: "col1", title: "col1" }] });
   });
   test("Store question title in json if it equals to name, but it was set manually", () => {
     const question = new Question("q1");
-    expect(question.toJSON(), "title is empty").toEqual({ name: "q1" });
+    expect(question.toJSON(), "title is empty").toEqualValues({ name: "q1" });
     question.title = "Q1";
-    expect(question.toJSON(), "title is not equal to name").toEqual({ name: "q1", title: "Q1" });
+    expect(question.toJSON(), "title is not equal to name").toEqualValues({ name: "q1", title: "Q1" });
     question.title = "";
-    expect(question.toJSON(), "title is empty, #2").toEqual({ name: "q1" });
+    expect(question.toJSON(), "title is empty, #2").toEqualValues({ name: "q1" });
     question.title = "q1";
-    expect(question.toJSON(), "title is equal to name").toEqual({ name: "q1", title: "q1" });
+    expect(question.toJSON(), "title is equal to name").toEqualValues({ name: "q1", title: "q1" });
   });
   test("One property - array to not array", () => {
     var dealer = new Dealer();
@@ -2277,7 +2276,7 @@ describe("JsonSerializationTests", () => {
     };
     const checkJSON = function (origionalJSON: any, expectedJSON: any, attempt: string) {
       const survey = new SurveyModel(origionalJSON);
-      expect(survey.toJSON(), "Failed attempt: " + attempt).toEqual(expectedJSON);
+      expect(survey.toJSON(), "Failed attempt: " + attempt).toEqualValues(expectedJSON);
     };
     checkJSON({ title: "Your Questionnaire" }, { Name: "Your Questionnaire" }, "survey title => survey Name");
     checkJSON({ pages: [{ name: "page1" }] }, { sections: [{ name: "page1" }] }, "survey pages => survey sections");
@@ -2414,7 +2413,7 @@ describe("JsonSerializationTests", () => {
       if (!!qModel) {
         qModel.name = name;
         if (qModel.isQuestion && qModel.getType() === cls.name) {
-          expect(qModel.toJSON(), `JSON for ${cls.name} is clean`).toEqual(etalon);
+          expect(qModel.toJSON(), `JSON for ${cls.name} is clean`).toEqualValues(etalon);
         }
       }
     }
@@ -2583,13 +2582,13 @@ describe("JsonSerializationTests", () => {
   });
   test("getRequiredProperties", () => {
     let requiedValues = Serializer.getRequiredProperties("text");
-    expect(requiedValues, "required #1").toEqual(["name"]);
+    expect(requiedValues, "required #1").toEqualValues(["name"]);
     Serializer.findProperty("question", "title").isRequired = true;
     requiedValues = Serializer.getRequiredProperties("text");
-    expect(requiedValues, "required #2").toEqual(["name", "title"]);
+    expect(requiedValues, "required #2").toEqualValues(["name", "title"]);
     Serializer.findProperty("question", "title").isRequired = false;
     requiedValues = Serializer.getRequiredProperties("text");
-    expect(requiedValues, "required #3").toEqual(["name"]);
+    expect(requiedValues, "required #3").toEqualValues(["name"]);
   });
   test("Create localizable property with default value", () => {
     Serializer.addProperty("question", { name: "customProp:text", isLocalizable: true, default: "Question text" });
@@ -2623,7 +2622,7 @@ describe("JsonSerializationTests", () => {
     const question = new QuestionTextModel("q1");
     question.fromJSON({ pos: { start: 1, end: 5 }, type: "text", name: "question1", testProperty: { someProperty: "bbb", pos: { start: 10, end: 15 } } });
     const json = question.toJSON();
-    expect(json, "no pos in json").toEqual({ name: "question1", testProperty: { someProperty: "bbb" } });
+    expect(json, "no pos in json").toEqualValues({ name: "question1", testProperty: { someProperty: "bbb" } });
     Serializer.removeProperty("question", "testProperty");
   });
   test("Versions in property", () => {
@@ -2643,9 +2642,9 @@ describe("JsonSerializationTests", () => {
     Serializer.addProperty("question", { name: "testProperty", version: "1.9.127" });
     const question = new QuestionTextModel("q1");
     question.testProperty = "abc";
-    expect(question.toJSON(), "#1").toEqual({ name: "q1", testProperty: "abc" });
-    expect(question.toJSON({ version: "1.9.127" }), "#2").toEqual({ name: "q1", testProperty: "abc" });
-    expect(question.toJSON({ version: "1.9.126" }), "#3").toEqual({ name: "q1" });
+    expect(question.toJSON(), "#1").toEqualValues({ name: "q1", testProperty: "abc" });
+    expect(question.toJSON({ version: "1.9.127" }), "#2").toEqualValues({ name: "q1", testProperty: "abc" });
+    expect(question.toJSON({ version: "1.9.126" }), "#3").toEqualValues({ name: "q1" });
     Serializer.removeProperty("question", "testProperty");
   });
   test("Versions & alternative name", () => {
@@ -2660,11 +2659,11 @@ describe("JsonSerializationTests", () => {
 
     const question = new QuestionTextModel("q1");
     question.testProperty = "abc";
-    expect(question.toJSON(), "#1").toEqual({ name: "q1", testProperty: "abc" });
-    expect(question.toJSON({ version: "1.9.127" }), "#2").toEqual({ name: "q1", testProperty: "abc" });
-    expect(question.toJSON({ version: "1.9.128" }), "#3").toEqual({ name: "q1", testProperty: "abc" });
-    expect(question.toJSON({ version: "1.9.126" }), "#4").toEqual({ name: "q1", testProp: "abc" });
-    expect(question.toJSON({ version: "1" }), "#5").toEqual({ name: "q1", testProp: "abc" });
+    expect(question.toJSON(), "#1").toEqualValues({ name: "q1", testProperty: "abc" });
+    expect(question.toJSON({ version: "1.9.127" }), "#2").toEqualValues({ name: "q1", testProperty: "abc" });
+    expect(question.toJSON({ version: "1.9.128" }), "#3").toEqualValues({ name: "q1", testProperty: "abc" });
+    expect(question.toJSON({ version: "1.9.126" }), "#4").toEqualValues({ name: "q1", testProp: "abc" });
+    expect(question.toJSON({ version: "1" }), "#5").toEqualValues({ name: "q1", testProp: "abc" });
     Serializer.removeProperty("question", "testProperty");
   });
   test("Test showInMultipleColumns prop visibility", () => {
@@ -2858,15 +2857,15 @@ describe("JsonSerializationTests", () => {
     expect(obj.secondName, "secondName #1").toLooseEqual("q1_second");
     obj.name = "q2";
     expect(obj.secondName, "secondName #2").toLooseEqual("q2_second");
-    expect(obj.toJSON(), "toJSON #1").toEqual({ name: "q2" });
+    expect(obj.toJSON(), "toJSON #1").toEqualValues({ name: "q2" });
 
     obj.secondName = "q3_s";
     expect(obj.secondName, "secondName #3").toLooseEqual("q3_s");
-    expect(obj.toJSON(), "toJSON #2").toEqual({ name: "q2", secondName: "q3_s" });
+    expect(obj.toJSON(), "toJSON #2").toEqualValues({ name: "q2", secondName: "q3_s" });
 
     obj.resetPropertyValue("secondName");
     expect(obj.secondName, "secondName #4").toLooseEqual("q2_second");
-    expect(obj.toJSON(), "toJSON #3").toEqual({ name: "q2" });
+    expect(obj.toJSON(), "toJSON #3").toEqualValues({ name: "q2" });
 
     Serializer.removeProperty("question", "secondName");
   });
@@ -2937,9 +2936,9 @@ describe("JsonSerializationTests", () => {
     Serializer.addProperty("question", { name: "prop1", isSerializableFunc: (obj) => { return ser; } });
     const q = new Question("q1");
     q.prop1 = "abc";
-    expect(q.toJSON(), "#1").toEqual({ name: "q1", prop1: "abc" });
+    expect(q.toJSON(), "#1").toEqualValues({ name: "q1", prop1: "abc" });
     ser = false;
-    expect(q.toJSON(), "#2").toEqual({ name: "q1" });
+    expect(q.toJSON(), "#2").toEqualValues({ name: "q1" });
     Serializer.removeProperty("question", "prop1");
   });
   test("property.isSerializabeFunc", () => {
@@ -3030,9 +3029,9 @@ describe("JsonSerializationTests", () => {
     expect(q1.visible, "expression q1 is invisible by default").toLooseEqual(false);
     expect(q2.visible, "expression q2 is visible").toLooseEqual(true);
     expect(q3.visible, "text q3 is visible").toLooseEqual(true);
-    expect(q1.toJSON(), "expression q1 toJSON is empty").toEqual({ name: "q1" });
-    expect(q2.toJSON(), "expression q2 toJSON is not empty").toEqual({ name: "q2", visible: true });
-    expect(q3.toJSON(), "text q3 toJSON is empty").toEqual({ name: "q3" });
+    expect(q1.toJSON(), "expression q1 toJSON is empty").toEqualValues({ name: "q1" });
+    expect(q2.toJSON(), "expression q2 toJSON is not empty").toEqualValues({ name: "q2", visible: true });
+    expect(q3.toJSON(), "text q3 toJSON is empty").toEqualValues({ name: "q3" });
     Serializer.removeProperty("expression", "visible");
   });
   test("Do not create localization string on serializing", () => {

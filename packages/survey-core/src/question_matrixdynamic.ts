@@ -708,9 +708,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       } else {
         val = this.createNewValue();
       }
+      this.isRowChanging = true;
       val.splice(index, 1);
       val = this.deleteRowValue(val, null);
-      this.isRowChanging = true;
       this.value = val;
       this.isRowChanging = false;
     }
@@ -1041,6 +1041,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private initFooterToolbar() {
     this.toolbarValue = this.createActionContainer();
+    this.toolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small", });
     const addBtnAction = new Action({
       locTitle: this.locAddRowText,
       visible: new ComputedUpdater(() => this.canAddRow),

@@ -1,4 +1,4 @@
-import { Page, test } from "@playwright/test";
+import { Page, test, Locator } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, applyTheme } from "../e2e/helper";
 
 const title = "Survey Progress Screenshot";
@@ -72,12 +72,15 @@ const json = {
   }],
   "showProgressBar": true
 };
-
 const applyHeaderAccentBackgroundColor = async (page: Page) => {
   await applyTheme(page, {
     "header": { "inheritWidthFrom": "container" },
     "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "", "--sjs2-color-component-header-default-description": "" }
   });
+};
+
+const compareMaskedScreenshot = async (page: Page, elementSelector: string | Locator | undefined, screenshotName: string) => {
+  await compareScreenshot(page, elementSelector, screenshotName, { mask: [page.locator(".sd-body")] });
 };
 
 frameworks.forEach(framework => {
@@ -96,7 +99,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       });
 
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top.png");
     });
 
     test("Check survey with progress bottom", async ({ page }) => {
@@ -108,7 +111,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarLocation = "bottom";
       });
 
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom.png");
     });
 
     test("Check survey with progress bottom with brand info and fit to container", async ({ page }) => {
@@ -122,7 +125,11 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const container = document.querySelector("#surveyElement");
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
+        }
+
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -134,7 +141,7 @@ frameworks.forEach(framework => {
       });
       await page.waitForLoadState("networkidle");
 
-      await compareScreenshot(page, "#surveyElement", "survey-progress-bar-bottom-brand.png");
+      await compareMaskedScreenshot(page, page.locator(".sd-root-modern").locator(".."), "survey-progress-bar-bottom-brand.png");
     });
 
     test("Check survey with progress top buttons", async ({ page }) => {
@@ -146,13 +153,13 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
 
       await page.click("li:nth-child(2)");
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons.png");
 
       await page.setViewportSize({ width: 600, height: 1000 });
       await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.waitForTimeout(500);
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-mobile.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-mobile.png");
     });
 
     test("Check survey with progress top buttons with numbers", async ({ page }) => {
@@ -165,13 +172,13 @@ frameworks.forEach(framework => {
       });
 
       await page.click("li:nth-child(2)");
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons.png");
 
       await page.setViewportSize({ width: 600, height: 1000 });
       await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.waitForTimeout(500);
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile.png");
     });
 
     test("Check survey with progress top and bottom buttons", async ({ page }) => {
@@ -184,13 +191,13 @@ frameworks.forEach(framework => {
       });
 
       await page.click("li:nth-child(2)");
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons.png");
 
       await page.setViewportSize({ width: 600, height: 1000 });
       await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.waitForTimeout(500);
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons-mobile.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons-mobile.png");
     });
 
     test("Check survey with progress top and TOC", async ({ page }) => {
@@ -204,7 +211,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       });
 
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-and-toc.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-and-toc.png");
     });
 
     test("Check survey without title and with progress", async ({ page }) => {
@@ -329,7 +336,7 @@ frameworks.forEach(framework => {
         });
       });
 
-      await compareScreenshot(page, ".sd-container-modern", "survey-custom-navigation.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-custom-navigation.png");
     });
 
     test("Check survey with progress top pages - hover", async ({ page }) => {
@@ -343,13 +350,13 @@ frameworks.forEach(framework => {
       });
 
       await page.hover(".sd-progress-buttons__list li:nth-child(1)");
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-hover-visited.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-hover-visited.png");
 
       await page.hover(".sd-progress-buttons__list li:nth-child(2)");
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-hover-current.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-hover-current.png");
 
       await page.hover(".sd-progress-buttons__list li:nth-child(3)");
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-hover-next.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-hover-next.png");
     });
 
     test("Check survey with progress top buttons - hover", async ({ page }) => {
@@ -363,13 +370,13 @@ frameworks.forEach(framework => {
       });
 
       await page.hover(".sd-progress-buttons__list li:nth-child(1)");
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-buttons-hover-visited.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-buttons-hover-visited.png");
 
       await page.hover(".sd-progress-buttons__list li:nth-child(2)");
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-buttons-hover-current.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-buttons-hover-current.png");
 
       await page.hover(".sd-progress-buttons__list li:nth-child(3)");
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-buttons-hover-next.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-buttons-hover-next.png");
     });
 
     test("Check survey with progress top - progressBarInheritWidthFrom modes", async ({ page }) => {
@@ -385,7 +392,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       });
 
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-survey-width-static.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-survey-width-static.png");
 
       await page.evaluate(() => {
         window["survey"].width = "1400px";
@@ -393,7 +400,7 @@ frameworks.forEach(framework => {
 
       await page.setViewportSize({ width: 1900, height: 1000 });
       await page.waitForTimeout(500);
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-survey-width-static-1400.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-survey-width-static-1400.png");
     });
 
     test("Check survey with progress top - RTL", async ({ page }) => {
@@ -409,7 +416,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       });
 
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-rtl.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-rtl.png");
     });
 
     test("Check survey with progress and bootstrap/tailwind", async ({ page }) => {
@@ -425,12 +432,12 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       });
 
-      await compareScreenshot(page, ".sd-progress-buttons__list", "survey-progress-bar-bootstrap.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons__list", "survey-progress-bar-bootstrap.png");
 
       await page.evaluate(() => {
         window["survey"].progressBarShowPageNumbers = true;
       });
-      await compareScreenshot(page, ".sd-progress-buttons__list", "survey-progress-bar-bootstrap-numbers.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons__list", "survey-progress-bar-bootstrap-numbers.png");
     });
 
     test("Check survey with progress top pages - sticky", async ({ page }) => {
@@ -463,7 +470,7 @@ frameworks.forEach(framework => {
         const element = document.querySelector("#surveyElement") as HTMLElement;
 
         if (element.shadowRoot) {
-          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+            element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
         } else {
           element.style.height = "calc(100vh - 32px)";
         }
@@ -508,7 +515,7 @@ frameworks.forEach(framework => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
         if (element.shadowRoot) {
-          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+            element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
         } else {
           element.style.height = "calc(100vh - 32px)";
         }
@@ -600,7 +607,7 @@ frameworks.forEach(framework => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
         if (element.shadowRoot) {
-          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+            element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
         } else {
           element.style.height = "calc(100vh - 32px)";
         }
@@ -727,7 +734,7 @@ frameworks.forEach(framework => {
       await page.locator("li").nth(1).click();
 
       // Desktop screenshot
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-background.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-background.png");
 
       await page.setViewportSize({ width: 600, height: 1000 });
       await page.waitForTimeout(500);
@@ -735,7 +742,7 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(500);
 
       // Mobile screenshot
-      await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile-background.png");
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile-background.png");
     });
 
     test("Resize progress buttons when number of pages changes", async ({ page }) => {
@@ -793,7 +800,7 @@ frameworks.forEach(framework => {
       await page.locator(".sv-string-viewer").filter({ hasText: "Yes" }).click();
       await page.waitForTimeout(100);
 
-      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-top-page-count-change.png");
+      await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-top-page-count-change.png");
     });
   });
 });

@@ -1,3 +1,5 @@
+import { defaultSelectListCss } from "src/selectlistCss";
+
 export var surveyCss: any = {
   currentType: "default",
   getCss: function () {
@@ -48,12 +50,12 @@ export var defaultCss = {
   completedBeforePage: "sd-completed-before-page",
   timerRoot: "sd-body__timer",
   navigation: {
-    complete: "sd-btn--action sd-navigation__complete-btn",
+    complete: "sd-navigation__complete-btn",
     prev: "sd-navigation__prev-btn",
     next: "sd-navigation__next-btn",
     start: "sd-navigation__start-btn",
     preview: "sd-navigation__preview-btn",
-    edit: "sd-btn--small",
+    edit: "sd-navigation__edit-btn",
   },
   panel: {
     contentEnter: "sd-element__content--enter",
@@ -100,13 +102,8 @@ export var defaultCss = {
     header: "sd-paneldynamic__header sd-element__header",
     headerTab: "sd-paneldynamic__header-tab",
     button: "sd-paneldynamic__btn",
-    buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
+    buttonRemove: "sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
-    buttonPrev: "sd-paneldynamic__prev-btn sd-action--icon sd-action",
-    buttonPrevDisabled: "sd-action--disabled",
-    buttonNextDisabled: "sd-action--disabled",
-    buttonNext: "sd-paneldynamic__next-btn sd-action--icon sd-action",
-    progressContainer: "sd-paneldynamic__progress-container",
     progress: "sd-progress",
     progressBar: "sd-progress__bar",
     nested: "sd-element--nested sd-element--nested-with-borders",
@@ -132,7 +129,7 @@ export var defaultCss = {
     tabsCenter: "sd-tabs-toolbar--center",
     tabs: {
       item: "sd-tab-item",
-      itemPressed: "sd-tab-item--pressed",
+      itemActive: "sd-tab-item--active",
       itemAsIcon: "sd-tab-item--icon",
       itemIcon: "sd-tab-item__icon",
       itemTitle: "sd-tab-item__title"
@@ -408,7 +405,8 @@ export var defaultCss = {
     control: "sd-formbox__input",
     content: "sd-text__content sd-question__content",
     characterCounter: "sd-formbox__character-counter",
-    onError: "sd-formbox--error"
+    onError: "sd-formbox--error",
+    isValueChanged: "sd-formbox__input--value-changed"
   },
   multipletext: {
     root: "sd-multipletext",
@@ -461,7 +459,11 @@ export var defaultCss = {
     materialDecorator: "sd-item__decorator sd-radio__decorator",
     hintPrefix: "sd-dropdown__hint-prefix",
     hintSuffix: "sd-dropdown__hint-suffix",
-    controlSelect: "sd-dropdown--select"
+    controlSelect: "sd-dropdown--select",
+    group: "sd-formbox__group",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -682,6 +684,9 @@ export var defaultCss = {
     chevronButtonIconId: "icon-chevron",
     popup: "sv-dropdown-popup",
     onError: "sd-formbox--error",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   slider: {
     root: "sd-slider",
@@ -749,16 +754,10 @@ export var defaultCss = {
     fileDecoratorDrag: "sd-file__decorator--drag",
     fileInput: "sd-visuallyhidden",
     chooseFile: "sd-file__choose-btn",
-    chooseFileAsText: "sd-action sd-file__choose-btn--text",
-    chooseFileAsTextDisabled: "sd-action--disabled",
-    chooseFileAsIcon: "sd-file__choose-btn--icon",
+    chooseFileDisabled: "sd-action--disabled",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
     controlDisabled: "sd-file__choose-file-btn--disabled",
-    //todo: remove it in v2
-    removeButton: "sd-context-btn--negative",
-    removeButtonBottom: "",
-    //
     removeButtonIconId: "icon-clear",
     removeFile: "sd-hidden",
     removeFileSvg: "",
@@ -768,7 +767,7 @@ export var defaultCss = {
     defaultImageIconId: "icon-defaultfile",
     leftIconId: "icon-arrowleft",
     rightIconId: "icon-arrowright",
-    removeFileButton: "sd-context-btn--small sd-context-btn--with-border sd-context-btn--colorful sd-context-btn--negative sd-file__remove-file-button",
+    removeFileButton: "sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
     imageWrapper: "sd-file__image-wrapper",
     imageWrapperDefaultImage: "sd-file__image-wrapper--default-image",
@@ -776,7 +775,6 @@ export var defaultCss = {
     singleImage: "sd-file--single-image",
     mobile: "sd-file--mobile",
     videoContainer: "sd-file__video-container",
-    contextButton: "sd-context-btn",
     video: "sd-file__video",
     actionsContainer: "sd-file__actions-container",
     closeCameraButton: "sd-file__close-camera-button",
@@ -793,7 +791,7 @@ export var defaultCss = {
     placeholder: "sjs_sp_placeholder",
     canvas: "sjs_sp_canvas sd-signaturepad__canvas",
     backgroundImage: "sjs_sp__background-image sd-signaturepad__background-image",
-    clearButton: "sjs_sp_clear sd-context-btn sd-context-btn--negative sd-signaturepad__clear",
+    clearButton: "sjs_sp_clear sd-signaturepad__clear",
     clearButtonIconId: "icon-clear",
     loadingIndicator: "sd-signaturepad__loading-indicator"
   },
@@ -889,7 +887,11 @@ export var defaultCss = {
     popup: "sv-dropdown-popup",
     cleanButtonIconId: "icon-cancel",
     hintPrefix: "sd-dropdown__hint-prefix",
-    hintSuffix: "sd-dropdown__hint-suffix"
+    hintSuffix: "sd-dropdown__hint-suffix",
+    group: "sd-formbox__group",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   list: {
     root: "sv-list__container sd-list",
@@ -898,26 +900,6 @@ export var defaultCss = {
     itemSelected: "sv-list__item--selected sd-list__item--selected",
     itemFocused: "sv-list__item--focused sd-list__item--focused",
     itemHovered: "sv-list__item--hovered sd-list__item--hovered",
-  },
-  navigationBar: {
-    root: "sd-action-bar",
-    defaultSizeMode: "",
-    smallSizeMode: "",
-    item: "sd-btn",
-    itemPressed: "",
-    itemAsIcon: "",
-    itemIcon: "",
-    itemTitle: "",
-  },
-  actionBar: {
-    root: "sd-action-bar",
-    item: "sd-action",
-    defaultSizeMode: "",
-    smallSizeMode: "",
-    itemPressed: "sd-action--pressed",
-    itemAsIcon: "sd-action--icon",
-    itemIcon: "sd-action__icon",
-    itemTitle: "sd-action__title",
   },
   variables: {
     mobileWidth: "--sd-mobile-width",
@@ -962,7 +944,11 @@ export var defaultCss = {
     hint: "sd-tagbox__hint",
     hintPrefix: "sd-dropdown__hint-prefix sd-tagbox__hint-prefix",
     hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix",
-    hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper"
+    hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper",
+    group: "sd-formbox__group",
+    list: {
+      ...defaultSelectListCss
+    },
   },
   imagemap: {
     root: "sd-imagemap",
@@ -973,14 +959,6 @@ export var defaultCss = {
     svgItemSelected: "sd-imagemap-svg-item sd-imagemap-svg-item--selected",
     svgItemDisabled: "sd-imagemap-svg-item sd-imagemap-svg-item--disabled",
     svgControlPoint: "sd-imagemap-control-point",
-  },
-  inputActionBar: {
-    root: "sd-formbox__group",
-    item: "sd-formbox-button sd-formbox__button",
-    itemPressed: "sd-formbox-button--pressed",
-    itemAsIcon: "sd-formbox-button--icon",
-    itemIcon: "sd-formbox-button__icon",
-    itemTitle: "sd-formbox-button__title",
   }
 };
 

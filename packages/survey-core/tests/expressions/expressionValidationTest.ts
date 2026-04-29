@@ -828,3 +828,78 @@ QUnit.test("validateExpressions() creates extra panel instances when defaultValu
   assert.equal(results.length, 0, "There are 0 invalid expressions");
   assert.equal(q1.panelCount, 1, "panelCount is 1 after validateExpressions");
 });
+
+QUnit.test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", (assert) => {
+
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "paneldynamic",
+        templateElements: [{
+          type: "slider",
+          name: "quantity",
+        }],
+      },
+      {
+        type: "text",
+        name: "q1",
+        setValueExpression: "sumInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+      },
+      {
+        type: "text",
+        name: "q2",
+        setValueExpression: "minInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+      },
+      {
+        type: "text",
+        name: "q3",
+        setValueExpression: "maxInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+      },
+      {
+        type: "text",
+        name: "q4",
+        setValueExpression: "countInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+      },
+      {
+        type: "text",
+        name: "q5",
+        setValueExpression: "avgInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+      },
+      {
+        type: "text",
+        name: "q11",
+        setValueExpression: "sumInArray({paneldynamic}, 'quantity', {foo} > 0)",
+      },
+      {
+        type: "text",
+        name: "q12",
+        setValueExpression: "minInArray({paneldynamic}, 'quantity', {foo} > 0)",
+      },
+      {
+        type: "text",
+        name: "q13",
+        setValueExpression: "maxInArray({paneldynamic}, 'quantity', {foo} > 0)",
+      },
+      {
+        type: "text",
+        name: "q14",
+        setValueExpression: "countInArray({paneldynamic}, 'quantity', {foo} > 0)",
+      },
+      {
+        type: "text",
+        name: "q15",
+        setValueExpression: "avgInArray({paneldynamic}, 'quantity', {foo} > 0)",
+      }
+    ],
+  });
+
+  const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+  assert.equal(result.length, 5, "There are 5 invalid expressions");
+  assert.equal(
+    result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(),
+    "q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo",
+    "Errors are correct"
+  );
+});

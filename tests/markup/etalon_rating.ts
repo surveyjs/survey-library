@@ -133,6 +133,37 @@ registerMarkupTests(
     snapshot: "rating-as-dropdown-description",
   },
   {
+    name: "Test Rating question as dropdown with description and rateValues text",
+    json: {
+      elements: [
+        {
+          name: "name",
+          type: "rating",
+          title: "Question title",
+          titleLocation: "hidden",
+          minRateDescription: "mimimi",
+          maxRateDescription: "mamama",
+          displayMode: "dropdown",
+          rateValues: [
+            { value: 1, text: "One" },
+            { value: 2, text: "Two" },
+            { value: 3, text: "Three" },
+            { value: 4, text: "Four" }
+          ]
+        }
+      ]
+    },
+    initSurvey: (survey) => {
+      let q1 = survey.getQuestionByName("name");
+      const dropdownListModel = new DropdownListModel(q1);
+      q1["dropdownListModel"] = dropdownListModel;
+      dropdownListModel["popupModel"].isVisible = true;
+    },
+    removeIds: true,
+
+    snapshot: "rating-as-dropdown-description-with-text",
+  },
+  {
     name: "Test Rating question as dropdown readonly",
     json: {
       elements: [

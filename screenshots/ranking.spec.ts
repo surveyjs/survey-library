@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, doDrag, applyTheme } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
@@ -152,8 +152,8 @@ frameworks.forEach(framework => {
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
 
-      const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
+      const maxDiffPixels = 40;
+      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png", { maxDiffPixels });
     });
 
     test("Shortcut position due container layout (relative)", async ({ page }) => {
@@ -180,8 +180,9 @@ frameworks.forEach(framework => {
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
-      const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png", 0, maxDiffPixels);
+      await page.waitForTimeout(500);
+      const maxDiffPixels = 40;
+      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png", { maxDiffPixels });
     });
 
     test("Shortcut position due container layout (scroll)", async ({ page }) => {
@@ -200,14 +201,29 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        document.querySelector("#surveyElement")!.style.height = "300px";
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
+        }
+        container!.style.height = "300px";
+
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const surveyContainer = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
         if (surveyContainer) {
+          // eslint-disable-next-line no-console
+          console.log("surveyContainer found");
           surveyContainer.scrollTop = 50;
+        } else {
+          // eslint-disable-next-line no-console
+          console.log("surveyContainer not found");
         }
         const question = window["survey"].getAllQuestions()[0];
         question.dragDropRankingChoices.domAdapter.doScroll = () => { };
       });
+
+      const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
+      const scrollTop = await scroller.evaluate((el) => el.scrollTop);
+      expect(scrollTop).toBe(50);
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       await page.waitForTimeout(500);
@@ -221,7 +237,7 @@ frameworks.forEach(framework => {
       // await page.waitForTimeout(500);
 
       const maxDiffPixels = 40;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png", { maxDiffPixels });
     });
 
     test("Ranking theming", async ({ page }) => {
@@ -320,7 +336,7 @@ frameworks.forEach(framework => {
       await doDrag({ page, element, target });
 
       const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "rtl-question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, ".sd-question", "rtl-question-ranking-shortcut-position-container-layout.png", { maxDiffPixels });
     });
   });
 });

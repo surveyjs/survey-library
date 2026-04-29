@@ -116,14 +116,46 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       }
       if (val !== undefined) return { value: val, isFound: true };
     }
-    if (params.isProperty && path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.survey) {
-      return new PropertyGetterContext(this.survey).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+    if (params.isProperty && path.length > 1) {
+      const firstName = path[0].name.toLocaleLowerCase();
+      if (firstName === settings.expressionVariables.survey) {
+        return new PropertyGetterContext(this.survey).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      }
+      const page = this.getPageByName(path[0].name);
+      if (!!page) {
+        return new PropertyGetterContext(page).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      }
+      const panel = this.getPanelByName(path[0].name);
+      if (!!panel) {
+        return new PropertyGetterContext(panel).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+      }
     }
     let res = new VariableGetterContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
     res = super.getValue(params);
     if (!!res && res.isFound) return res;
     return new VariableGetterContext(this.valuesHash).getValue(params);
+  }
+  private getPageByName(name: string): PageModel | undefined {
+    if (!name) return undefined;
+    const nameLower = name.toLowerCase();
+    for (let i = 0; i < this.survey.pages.length; i++) {
+      if (this.survey.pages[i].name.toLowerCase() === nameLower) {
+        return this.survey.pages[i];
+      }
+    }
+    return undefined;
+  }
+  private getPanelByName(name: string): IPanel | undefined {
+    if (!name) return undefined;
+    const nameLower = name.toLowerCase();
+    const panels = this.survey.getAllPanels();
+    for (let i = 0; i < panels.length; i++) {
+      if (panels[i].name && panels[i].name.toLowerCase() === nameLower) {
+        return panels[i];
+      }
+    }
+    return undefined;
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
@@ -2471,6 +2503,7 @@ export class SurveyModel extends SurveyElementCore
   protected createNavigationBar(): ActionContainer {
     if (this.createNavigationBarCallback) return this.createNavigationBarCallback();
     const res = new ActionContainer();
+    res.setActionsAppearance({ mode: "tertiary-surface", size: "large", style: "brand", showBorder: true });
     res.setItems(this.createNavigationActions());
     return res;
   }
@@ -2533,6 +2566,7 @@ export class SurveyModel extends SurveyElementCore
       visibleIndex: 50,
       onMouseDown: onMouseDownCallback,
       locTitle: this.locCompleteText,
+      appearance: { mode: "primary" },
       action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
     });
     this._updateNavigationItemCssCallback = () => {
@@ -2547,8 +2581,8 @@ export class SurveyModel extends SurveyElementCore
   private updateNavigationCss() {
     const val = this.navigationBarValue;
     if (!!val) {
-      val.cssClasses = this.css.navigationBar;
       val.containerCss = this.css.footer;
+      val.cssClasses = this.css.navigationBar;
       !!this._updateNavigationItemCssCallback && this._updateNavigationItemCssCallback();
     }
   }
@@ -2959,6 +2993,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"underTitle"` (default) - Displays descriptions under question titles.
    * - `"underInput"` - Displays descriptions under the interactive area.
+   * - `"hidden"` - Hides question descriptions.
    *
    * You can override this setting for individual questions if you specify their [`descriptionLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#descriptionLocation) property.
    *
@@ -4326,16 +4361,31 @@ export class SurveyModel extends SurveyElementCore
       isFocusOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    let callback = undefined;
+    let callback: any = undefined;
+    let syncCallbackHasErrors: boolean | undefined;
     if (onAsyncValidation) {
-      callback = (res: boolean) => { onAsyncValidation(!res); };
+      callback = (res: boolean) => {
+        if (syncCallbackHasErrors === undefined) {
+          syncCallbackHasErrors = !res;
+        } else {
+          const handlerHasErrors = this.fireValidatedErrorsOnPage(page);
+          onAsyncValidation(!res || handlerHasErrors);
+        }
+      };
     }
     const res = page.validate(true, isFocusOnFirstError, callback);
-    this.fireValidatedErrorsOnPage(page);
-    return res;
+    if (syncCallbackHasErrors === undefined && onAsyncValidation) {
+      syncCallbackHasErrors = false;
+      return res;
+    }
+    const handlerHasErrors = this.fireValidatedErrorsOnPage(page);
+    if (onAsyncValidation && syncCallbackHasErrors !== undefined) {
+      onAsyncValidation(syncCallbackHasErrors || handlerHasErrors);
+    }
+    return res && !handlerHasErrors;
   }
-  private fireValidatedErrorsOnPage(page: PageModel) {
-    if (this.onValidatePage.isEmpty || !page) return;
+  private fireValidatedErrorsOnPage(page: PageModel): boolean {
+    if (this.onValidatePage.isEmpty || !page) return false;
     const questionsOnPage = this.getNestedQuestionsByQuestionArray(page.questions, true);
     var questions = new Array<Question>();
     var errors = new Array<SurveyError>();
@@ -4348,11 +4398,13 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
+    const errorsCountBeforeFire = errors.length;
     this.onValidatePage.fire(this, {
       questions: questions,
       errors: errors,
       page: page,
     });
+    return errors.length > errorsCountBeforeFire;
   }
   /**
    * Switches the survey to the previous page.
@@ -4948,10 +5000,10 @@ export class SurveyModel extends SurveyElementCore
         this.stopTimer();
         this.notifyQuestionsOnHidingContent(this.currentPage);
         this.isCompleted = true;
+        this.cancelPreview();
         this.clearUnusedValues();
         this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
         this.setCookie();
-        this.cancelPreview();
       } else {
         this.isCompleted = false;
       }
@@ -6270,7 +6322,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    let res = question.validate(true, false, !this.isValidateOnValueChanging);
+    let res = question.validate(true, false, !this.isValidateOnValueChanging, undefined, this.isValidateOnValueChanging);
     if (
       !!question.page && this.isValidateOnValueChange &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)
@@ -8566,7 +8618,7 @@ Serializer.addClass("survey", [
   {
     name: "questionDescriptionLocation",
     default: "underTitle",
-    choices: ["underInput", "underTitle"],
+    choices: ["underInput", "underTitle", "hidden"],
   },
   { name: "questionErrorLocation", default: "top", choices: ["top", "bottom"] },
   {

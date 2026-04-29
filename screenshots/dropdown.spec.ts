@@ -189,8 +189,8 @@ frameworks.forEach(framework => {
 
       await resetFocusToBody(page);
       const questionDropdownSelect = page.locator(".sd-formbox.sd-dropdown");
-      await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-and-long-text.png", 1);
-      await compareScreenshot(page, questionDropdownSelect, "dropdown-select-question-with-clear-button-and-long-text.png", 0);
+      await compareScreenshot(page, questionDropdownSelect.nth(1), "dropdown-select-question-and-long-text.png");
+      await compareScreenshot(page, questionDropdownSelect.nth(0), "dropdown-select-question-with-clear-button-and-long-text.png");
 
       await questionDropdownSelect.first().click();
       await compareScreenshot(page, ".sv-popup__container", "dropdown-list-item-with-long-text.png");
@@ -262,12 +262,12 @@ frameworks.forEach(framework => {
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.locator(".sd-dropdown__filter-string-input").fill("test");
       await page.waitForTimeout(100);
-      await compareScreenshot(page, ".sv-list__empty-container", "dropdown-empty-list.png");
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-empty-list.png");
       await page.locator(".sd-dropdown__filter-string-input").click();
       await page.setViewportSize({ width: 300, height: 500 });
       await page.waitForTimeout(500);
       await page.locator(".sd-dropdown__filter-string-input").pressSequentially("1");
-      await compareScreenshot(page, ".sv-list__empty-container", "dropdown-small-window-empty-list.png");
+      await compareScreenshot(page, ".sd-selectlist__empty-container", "dropdown-small-window-empty-list.png");
     });
 
     test("Check dropdown with markdown", async ({ page }) => {
@@ -388,6 +388,32 @@ frameworks.forEach(framework => {
         (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
       });
       await compareScreenshot(page, ".sd-question__content", "dropdown-custom-component.png");
+    });
+
+    test("Check ReadOnly dropdown with custom component", async ({ page }) => {
+      await registerCustomItemComponent(page, framework);
+      const json = {
+        showQuestionNumbers: true,
+        autoFocusFirstQuestion: true,
+        elements: [
+          {
+            type: "dropdown",
+            readOnly: true,
+            name: "cars",
+            title: "Dropdown",
+            defaultValue: "Ford",
+            itemComponent: "new-item",
+            choices: ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota", "Citroen"]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      // await page.evaluate(() => {
+      //   (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content svg")).style.height = "48px";
+      //   (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
+      // });
+      await compareScreenshot(page, ".sd-question__content", "dropdown-readonly-custom-component.png");
     });
 
     test("Check overlay popup in dropdown question", async ({ page }) => {

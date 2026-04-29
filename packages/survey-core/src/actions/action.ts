@@ -2,10 +2,10 @@ import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
-import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { ActionBarCssClasses, defaultActionBarCss } from "./container";
+import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
+import { IListModel } from "./list-model";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -102,7 +102,7 @@ export interface IAction {
    * @see visible
    */
   active?: boolean;
-  pressed?: boolean;
+  popupActive?: boolean;
   /**
    * Specifies the name of a template used to render the action item.
    * @see component
@@ -162,69 +162,13 @@ export interface IAction {
   markerIconName?: string;
   showPopup?: () => void;
   hidePopup?: () => void;
+  appearance?: Partial<IActionAppearance>;
+  activeAppearance?: Partial<IActionAppearance>;
 }
 
-export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
-}
-export function createDropdownActionModel(actionOptions: IAction, dropdownOptions: IActionDropdownPopupOptions, locOwner?: ILocalizableOwner): Action {
-  dropdownOptions.locOwner = locOwner;
-  return createDropdownActionModelAdvanced(actionOptions, dropdownOptions, dropdownOptions);
-}
-export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
-  const originalSelectionChanged = listOptions.onSelectionChanged;
-  listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
-    if (newAction.hasTitle) { newAction.title = item.title; }
-    if (originalSelectionChanged) {
-      originalSelectionChanged(item, params);
-    }
-  };
-  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
-  popupModel.getTargetCallback = getActionDropdownButtonTarget;
-  const newActionOptions = Object.assign({}, actionOptions, {
-    component: "sv-action-bar-item-dropdown",
-    popupModel: popupModel,
-    action: (action: IAction, isUserAction: boolean) => {
-      !!(actionOptions.action) && actionOptions.action();
-      popupModel.isFocusedContent = popupModel.isFocusedContent || !isUserAction;
-      popupModel.show();
-    },
-  });
-  const newAction: Action = new Action(newActionOptions);
-  newAction.data = popupModel.contentComponentData?.model;
-
-  return newAction;
-}
-
-export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
-  if (!listOptions.listRole) listOptions.listRole = "menu";
-  if (!listOptions.listItemRole) listOptions.listItemRole = !!listOptions.allowSelection ? "menuitemradio" : "menuitem";
-
-  const listModel: ListModel = new ListModel(listOptions as any);
-  listModel.onSelectionChanged = (item: Action) => {
-    if (listOptions.onSelectionChanged) {
-      listOptions.onSelectionChanged(item);
-    }
-    popupModel.hide();
-  };
-
-  const _popupOptions = popupOptions || {};
-  _popupOptions.onDispose = () => { listModel.dispose(); };
-  const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
-  popupModel.isFocusedContent = listModel.showFilter;
-  popupModel.onShow = () => {
-    if (!!_popupOptions.onShow) _popupOptions.onShow();
-    listModel.scrollToSelectedItem();
-  };
-  popupModel.onHide = () => {
-    if (!!_popupOptions.onHide) _popupOptions.onHide();
-    listModel.filterString = "";
-  };
-
-  return popupModel;
-}
-
-export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
-  return container?.previousElementSibling as HTMLElement;
+let _createPopupModelWithListModel: (listOptions: IListModel, popupOptions?: IPopupOptionsBase) => PopupModel;
+export function setCreatePopupModelWithListModel(fn: (listOptions: IListModel, popupOptions?: IPopupOptionsBase) => PopupModel): void {
+  _createPopupModelWithListModel = fn;
 }
 
 export abstract class BaseAction extends Base implements IAction {
@@ -238,7 +182,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() showTitle: boolean;
   @property() innerCss: string;
   @property() active: boolean;
-  @property() pressed: boolean;
+  @property() popupActive: boolean;
   private _data: any;
   public get data() {
     return this._data;
@@ -353,19 +297,26 @@ export abstract class BaseAction extends Base implements IAction {
     const hasTitle = this.hasTitle;
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      //TODO: remove itemWithTitle and itemAsIcon, itemIcon classes and replace with modifiers to item class in css
       .append(this.cssClasses.itemWithTitle, hasTitle)
       .append(this.cssClasses.itemAsIcon, !hasTitle)
+      //end of TODO
       .append(this.cssClasses.itemActive, !!this.active)
-      .append(this.cssClasses.itemPressed, !!this.pressed)
+      .append(this.cssClasses.itemPopupActive, !!this.popupActive)
       .append(this.innerCss)
       .toString();
   }
   public getActionRootCss(): string {
     return new CssClassBuilder()
-      .append("sv-action")
+      .append(this.cssClasses.containerItem)
       .append(this.css)
-      .append("sv-action--space", this.needSpace)
-      .append("sv-action--hidden", !this.isVisible)
+      .append(this.cssClasses.containerItemSpace, this.needSpace)
+      .append(this.cssClasses.containerItemHidden, !this.isVisible)
+      .toString();
+  }
+  public getActionRootContentCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.containerItemContent)
       .toString();
   }
   public getTooltip(): string {
@@ -424,7 +375,7 @@ export abstract class BaseAction extends Base implements IAction {
       this.isHovered = false;
     }
   }
-
+  public setPredefinedAppearance(_: IActionAppearance) { }
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;
@@ -436,6 +387,13 @@ export abstract class BaseAction extends Base implements IAction {
   protected abstract getComponent(): string;
   protected abstract setComponent(val: string): void;
 }
+
+export interface IActionAppearance {
+  style: "neutral" | "alert" | "brand";
+  mode: "primary" | "secondary" | "tertiary" | "tertiary-surface" | "tertiary-muted" | "tertiary-muted-surface" | "quaternary" | "quaternary-surface";
+  size: "large" | "medium" | "small" | "x-small" | "xx-small";
+  showBorder?: boolean;
+ }
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
@@ -458,6 +416,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
     this.locStrChangedInPopupModel();
   }
+  elementId?: string;
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
@@ -467,7 +426,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!this.popupModel) {
       this.createPopupForSubitems(options);
     } else {
-      const list: ListModel = this.popupModel.contentComponentData.model as ListModel;
+      const list: any = this.popupModel.contentComponentData.model;
       list.setItems(this.items);
     }
     this.component = this.getGroupComponentName();
@@ -475,7 +434,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createPopupForSubitems(options: IListModel): void {
     const listOptions = Object.assign({}, options);
     listOptions.searchEnabled = false;
-    const popupModel = createPopupModelWithListModel(
+    const popupModel = _createPopupModelWithListModel(
       listOptions,
       { horizontalPosition: "right", showPointer: false, canShrink: false }
     );
@@ -497,6 +456,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() onFocus: (isMouse: boolean, event: any) => void;
   @property() onMouseDown?: (event: any) => void;
   @property() _component: string;
+  @property({ defaultValue: {} }) appearance: Partial<IActionAppearance>;
+  @property({ defaultValue: { style: "brand", mode: "secondary" } }) activeAppearance: Partial<IActionAppearance>;
+  @property({ defaultValue: { style: "neutral", mode: "tertiary", size: "small" } }) predefinedAppearance: IActionAppearance;
   @property() items: any;
   @property({
     onSet: (val, target) => {
@@ -637,12 +599,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
+    const hiddenClass = this.cssClasses.containerItemHidden;
     if (htmlElement) {
       const actionContainer = htmlElement;
-      if (actionContainer.classList.contains("sv-action--hidden")) {
-        actionContainer.classList.remove("sv-action--hidden");
+      if (hiddenClass && actionContainer.classList.contains(hiddenClass)) {
+        actionContainer.classList.remove(hiddenClass);
         this[property] = calcDimension(htmlElement);
-        actionContainer.classList.add("sv-action--hidden");
+        actionContainer.classList.add(hiddenClass);
       } else {
         this[property] = calcDimension(htmlElement);
       }
@@ -687,6 +650,23 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public getInputElement() {
     return this.inputElementValue;
   }
+  public setPredefinedAppearance(val: IActionAppearance) {
+    this.predefinedAppearance = val;
+  }
+  public getActionBarItemCss(): string {
+    const appearance = Object.assign({}, this.predefinedAppearance || {}, this.appearance || {}, this.active ? this.activeAppearance || {} : {});
+    const css = super.getActionBarItemCss();
+    const prefix = this.cssClasses.itemAppearancePrefix;
+    if (!prefix) {
+      return css;
+    }
+    return new CssClassBuilder().append(css)
+      .append(`${prefix}--${appearance.style}`, !!appearance.style)
+      .append(`${prefix}--${appearance.mode}`, !!appearance.mode)
+      .append(`${prefix}--${appearance.size}`, !!appearance.size)
+      .append(`${prefix}--border`, !!appearance.showBorder)
+      .toString();
+  }
 }
 
 export class ActionDropdownViewModel {
@@ -700,9 +680,9 @@ export class ActionDropdownViewModel {
     if (!popupModel) return;
     popupModel.registerPropertyChangedHandlers(["isVisible"], () => {
       if (!popupModel.isVisible) {
-        this.item.pressed = false;
+        this.item.popupActive = false;
       } else {
-        this.item.pressed = true;
+        this.item.popupActive = true;
       }
     }, this.funcKey);
   }

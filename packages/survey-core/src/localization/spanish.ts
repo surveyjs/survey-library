@@ -69,6 +69,8 @@ export var spanishSurveyStrings = {
   stepError: "Introduzca un valor que coincida con el tamaño del paso de {0}.",
   // "The value should not be greater than {0}"
   maxError: "La estimación no debe ser mayor que {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Entrada inválida",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "No se permiten números.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var spanishSurveyStrings = {
   urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   // "The file size should not exceed {0}."
   exceedMaxSize: "El tamaño del archivo no debe de exceder {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "El número máximo de archivos que puedes subir es {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

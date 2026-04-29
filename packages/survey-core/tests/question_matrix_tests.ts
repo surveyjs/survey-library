@@ -1062,3 +1062,26 @@ QUnit.test("Add obj into options of onProcessDynamicText event, Issue#9604", fun
 
   Serializer.removeProperty("itemvalue", "score");
 });
+QUnit.test("getPlainData returns display texts for matrix with cellType checkbox, Bug#11175", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "q1",
+      columns: [
+        { value: "a", text: "Option A" },
+        { value: "b", text: "Option B" }
+      ],
+      rows: [
+        { value: "r1", text: "Row 1" }
+      ],
+      cellType: "checkbox"
+    }]
+  });
+  survey.data = { q1: { r1: ["a"] } };
+  const plainData = survey.getPlainData();
+  const qData = plainData[0];
+  assert.deepEqual(qData.displayValue, { "Row 1": ["Option A"] }, "displayValue should contain display texts, not values");
+  const rowData = qData.data[0];
+  assert.equal(rowData.title, "Row 1", "row title");
+  assert.deepEqual(rowData.displayValue, ["Option A"], "row displayValue should contain display texts");
+});

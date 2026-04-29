@@ -1,10 +1,11 @@
-import { Action, ActionDropdownViewModel, IAction, createDropdownActionModel } from "../../src/actions/action";
+import { Action, ActionDropdownViewModel, IAction } from "../../src/actions/action";
+import { createDropdownActionModel } from "../../src/actions/dropdown-action";
 import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsivenessMode } from "../../src/actions/adaptive-container";
-import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
+import { ActionContainer } from "../../src/actions/container";
+import { defaultActionBarCss } from "../../src/actions/actionBarCss";
 import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
 import { ListModel } from "../../src/list";
-import { settings } from "../../src/settings";
 import { PageModel } from "../../src/page";
 import { Base, ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
@@ -63,9 +64,9 @@ QUnit.test("AdaptiveActionContainer.css",
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     model.addAction({ id: "1" });
     model.flushUpdates();
-    assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode");
+    assert.equal(model.getRootCss(), "sd-action-bar sd-action-bar--default-size");
     model.containerCss = "footer";
-    assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode footer");
+    assert.equal(model.getRootCss(), "sd-action-bar sd-action-bar--default-size footer");
   }
 );
 
@@ -73,9 +74,9 @@ QUnit.test(
   "getActionRootCss",
   (assert) => {
     const action = new Action(<any>{ css: "custom" });
-    assert.equal(action.getActionRootCss(), "sv-action custom");
+    assert.equal(action.getActionRootCss(), "sd-action-bar__item custom");
     action.visible = false;
-    assert.equal(action.getActionRootCss(), "sv-action custom sv-action--hidden");
+    assert.equal(action.getActionRootCss(), "sd-action-bar__item custom sd-action-bar__item--hidden");
   }
 );
 
@@ -110,11 +111,11 @@ QUnit.test("Check dropdown action pressed state", (assert) => {
     popupModel: p1
   },);
   const viewModel = new ActionDropdownViewModel(action);
-  assert.notOk(action.pressed);
+  assert.notOk(action.popupActive);
   p1.isVisible = true;
-  assert.ok(action.pressed);
+  assert.ok(action.popupActive);
   p1.isVisible = false;
-  assert.notOk(action.pressed);
+  assert.notOk(action.popupActive);
   action.popupModel = p2;
 });
 
@@ -141,7 +142,7 @@ QUnit.test("Check action bar cssClasses", (assert) => {
   };
   assert.ok(actionBar.cssClasses !== defaultActionBarCss);
   assert.equal(actionBar.cssClasses.root, "custom-action-bar");
-  assert.equal(actionBar.cssClasses.item, "sv-action-bar-item");
+  assert.equal(actionBar.cssClasses.item, "sd-action");
 });
 QUnit.test("Action title", (assert) => {
   const page = new PageModel("page1");
@@ -602,4 +603,13 @@ QUnit.test("Make sure that createActionCore is called for bars & list", (assert)
   const list = container.hiddenItemsListModel;
   list.addAction({ id: "test3" });
   assert.equal(list.actions[0].template, "custom");
+});
+
+QUnit.test("Check active appearance", (assert) => {
+  const action = new Action({ id: "test", title: "test", appearance: { style: "brand", mode: "tertiary", size: "large" }, activeAppearance: { style: "alert", mode: "secondary", size: "small" } });
+  assert.notOk(action.active);
+  assert.deepEqual(action.getActionBarItemCss(), "sd-action sd-action--brand sd-action--tertiary sd-action--large");
+  action.active = true;
+  assert.ok(action.active);
+  assert.deepEqual(action.getActionBarItemCss(), "sd-action sd-action--active sd-action--alert sd-action--secondary sd-action--small");
 });

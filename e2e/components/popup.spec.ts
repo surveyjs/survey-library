@@ -67,11 +67,11 @@ frameworks.forEach((framework) => {
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
-      await expect(clickButton).toHaveClass(/sd-action--pressed/);
+      await expect(clickButton).toHaveClass(/sd-action--popup-active/);
 
       await page.keyboard.press("Escape");
       await expect(popupSelector).not.toBeVisible();
-      await expect(clickButton).not.toHaveClass(/sd-action--pressed/);
+      await expect(clickButton).not.toHaveClass(/sd-action--popup-active/);
 
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
@@ -239,6 +239,7 @@ frameworks.forEach((framework) => {
     test("check survey in showModal", async ({ page }) => {
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
+        const rootElement = (window as any).survey.rootElement;
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const _json = { elements: [{ type: "text", name: "modal_question" }] };
           const item = new window["Survey"].Action({
@@ -254,7 +255,7 @@ frameworks.forEach((framework) => {
                   model: model,
                   survey: model
                 }
-              }, window["survey"].rootElement);
+              }, rootElement);
             }
           });
           opt.titleActions = [item];

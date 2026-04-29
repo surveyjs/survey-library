@@ -106,7 +106,7 @@ sv-popup {
   & > .sv-popup__container {
     position: relative;
     display: flex;
-    background-color: var(--lbr-dialog-background-color, $background-dim-light);
+    background-color: var(--sjs2-color-utility-sheet, #fff);
     border-radius: var(--sjs2-radius-component-modal, 24px);
     box-shadow:
       var(--lbr-dialog-shadow-2-offset-x, 0px) var(--lbr-dialog-shadow-2-offset-y, 2px)
@@ -126,6 +126,8 @@ sv-popup {
 
   .sv-popup__body-footer .sv-modal-footer-action-bar {
     overflow: visible;
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .sv-popup__scrolling-content {
@@ -139,7 +141,13 @@ sv-popup {
 }
 
 .sv-popup--confirm {
-  .sv-popup__body-content .sv-string-viewer{
+  .sv-popup__body-footer .sv-modal-footer-action-bar > .sd-action-bar__item {
+    flex-grow: 1;
+    .sd-action {
+      flex-grow: 1;
+    }
+  }
+  .sv-popup__body-content .sv-string-viewer {
     color: $font-editorfont-color;
     align-self: self-start;
     /* UI/Default */
@@ -229,8 +237,8 @@ sv-popup {
   display: flex;
 }
 
-.sv-popup__body-footer .sv-action-bar {
-  gap: var(--sjs2-spacing-x150);
+.sv-popup__body-footer .sd-action-bar {
+  --sd-action-bar-gap: var(--sjs2-spacing-x150);
   overflow: visible;
 }
 
@@ -246,19 +254,18 @@ sv-popup {
     width: 100%;
   }
 
-  .sv-popup__body-footer .sv-action-bar {
+  .sv-popup__body-footer .sd-action-bar {
     width: 100%;
     justify-content: flex-start;
-
-    .sv-action {
+    padding: 0 calc(var(--sjs2-spacing-x100) + var(--sjs2-spacing-x025));
+    .sd-action-bar__item {
       flex: 0 0 auto;
     }
   }
 
   .sv-popup__body-footer {
     padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x000);
-    border-top: var(--sjs2-border-width-x100) solid
-      var(--lbr-popup-menu-footer-border-color, $border-light);
+    border-top: var(--sjs2-border-width-x100) solid var(--lbr-popup-menu-footer-border-color, $border-light);
     background: var(--lbr-popup-menu-footer-background-color, $background-dim-light);
   }
 
@@ -305,10 +312,13 @@ sv-popup {
 
     &:hover {
       border-radius: var(--lbr-popup-menu-search-clear-button-corner-radius, 1024px);
-      background: var(--lbr-popup-menu-search-clear-button-background-color-hovered, var(--sjs-special-red-light, rgba(229, 10, 62, 0.1)));
+      background: var(
+        --lbr-popup-menu-search-clear-button-background-color-hovered,
+        var(--sjs-special-red-light, rgba(229, 10, 62, 0.1))
+      );
 
       use {
-        fill: var(--lbr-popup-menu-search-clear-button-icon-color-hovered, var(--sjs-special-red, #E50A3E));
+        fill: var(--lbr-popup-menu-search-clear-button-icon-color-hovered, var(--sjs-special-red, #e50a3e));
       }
     }
   }

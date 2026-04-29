@@ -427,6 +427,13 @@ QUnit.test("Question titleDescription", function (assert) {
     true,
     "survey.questionDescriptionLocation = 'underInput'"
   );
+  question2.descriptionLocation = "hidden";
+  assert.equal(question2.hasDescriptionUnderTitle, false, "question2 hidden - underTitle");
+  assert.equal(question2.hasDescriptionUnderInput, false, "question2 hidden - underInput");
+  survey.questionDescriptionLocation = "hidden";
+  question1.descriptionLocation = "default";
+  assert.equal(question1.hasDescriptionUnderTitle, false, "survey hidden - underTitle");
+  assert.equal(question1.hasDescriptionUnderInput, false, "survey hidden - underInput");
 });
 QUnit.test("Use value of checkbox question as an array", function (assert) {
   var survey = new SurveyModel();
@@ -9056,4 +9063,31 @@ QUnit.test("Do not create titleActions on creating&loading", function (assert) {
   });
   const q1 = survey.getQuestionByName("q1");
   assert.equal(q1.getPropertyValue("titleActions"), undefined, "There is no titleActions array on creatong&loading");
+});
+QUnit.test("The expression of matrix cell value is shown in display value when there is no value, bug#11140", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "html",
+        name: "question1",
+        html: "Matrix cell value: {matrix.Row 1.Column 1}"
+      },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "Column 1" },
+          { name: "Column 2" },
+          { name: "Column 3" }
+        ],
+        choices: [1, 2, 3, 4, 5],
+        cellType: "text",
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  const htmlQuestion = survey.getQuestionByName("question1");
+  assert.equal(htmlQuestion.locHtml.textOrHtml, "Matrix cell value: ", "Initial html with empty matrix value");
+  survey.setValue("matrix", { "Row 1": { "Column 1": "abc" } });
+  assert.equal(htmlQuestion.locHtml.textOrHtml, "Matrix cell value: abc", "Html updated after setting matrix cell value");
 });

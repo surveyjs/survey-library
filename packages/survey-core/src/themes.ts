@@ -243,6 +243,10 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
           newCssVariable[targetVar] = "";
         }
         newCssVariable[targetVar] += varValue;
+      } else if (Array.isArray(mapping)) {
+        mapping.forEach(key => {
+          newCssVariable[key] = varValue;
+        });
       } else {
         newCssVariable[mapping as string] = varValue;
       }

@@ -934,6 +934,8 @@ export class JsonMetadata {
         const newVal = [];
         for (var i = 0; i < val.length; i++) newVal.push(val[i]);
         val = newVal;
+      } else if (!!val && typeof val === "object" && !val.getType) {
+        val = Helpers.getUnbindValue(val);
       }
       obj[name] = val;
     }

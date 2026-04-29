@@ -69,6 +69,8 @@ export var greekSurveyStrings = {
   stepError: "Εισαγάγετε μια τιμή που ταιριάζει με το μέγεθος του βήματος του {0}.",
   // "The value should not be greater than {0}"
   maxError: "Η τιμή δεν πρέπει να είναι μεγαλύτερη από {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Μη έγκυρη εισαγωγή",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Οι αριθμοί δεν επιτρέπονται.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var greekSurveyStrings = {
   urlGetChoicesError: "Η αίτηση επέστρεψε κενά δεδομένα ή η ιδιότητα 'μονοπάτι/path' είναι εσφαλμένη",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Το μέγεθος του αρχείου δεν μπορεί να υπερβαίνει τα {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Byte, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Ο μέγιστος αριθμός αρχείων που μπορείτε να ανεβάσετε είναι {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

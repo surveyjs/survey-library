@@ -27,6 +27,7 @@ import { confirmActionAsync } from "./utils/confirm-dialog";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
+import { defaultActionBarCss } from "./actions/actionBarCss";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -2153,6 +2154,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         id: `remove-panel-${panel.id}`,
         locTitle: this.locRemovePanelText,
         innerCss: this.getPanelRemoveButtonCss(),
+        appearance: { style: "alert", mode: "tertiary", size: "small" },
         action: () => {
           if (!this.isInputReadOnly) {
             this.removePanelUI(panel);
@@ -2164,7 +2166,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
         data: { question: this, panel: panel }
       });
-      action.cssClasses = this.survey.getCss().actionBar;
+      action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
       this.removePanelActions[panel.uniqueId] = action;
     }
     return this.removePanelActions[panel.uniqueId];
@@ -2243,10 +2245,22 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+    // Do not force-refresh nested panel questions while a child question updates panel data.
+    // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted
+    // value and drop transient UI-only state, such as an added trailing empty row.
+    if (!this.isSettingPanelItemData()) {
+      for (var i = 0; i < this.panelsCore.length; i++) {
+        this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+      }
     }
     this.updateIsAnswered();
+  }
+
+  private isSettingPanelItemData(): boolean {
+    for (const key in this.isSetPanelItemData) {
+      if (this.isSetPanelItemData[key] > 0) return true;
+    }
+    return false;
   }
   public onSurveyValueChanged(newValue: any): void {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;
@@ -2465,18 +2479,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       .append(this.cssClasses.buttonAdd + "--list-mode", this.displayMode === "list")
       .toString();
   }
-  public getPrevButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonPrev)
-      .append(this.cssClasses.buttonPrevDisabled, !this.isPrevButtonVisible)
-      .toString();
-  }
-  public getNextButtonCss(): string {
-    return new CssClassBuilder()
-      .append(this.cssClasses.buttonNext)
-      .append(this.cssClasses.buttonNextDisabled, !this.isNextButtonVisible)
-      .toString();
-  }
   /**
    * A text displayed when Dynamic Panel contains no entries.
    */
@@ -2549,6 +2551,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   private initFooterToolbar() {
     this.footerToolbarValue = this.createActionContainer();
+    this.footerToolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
     const items = [];
     const prevTextBtn = new Action({
       id: "sv-pd-prev-btn",
@@ -2618,7 +2621,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const newItem = new PanelDynamicTabbedMenuItem({
       id: `${this.id}_tab_${panelId}`,
       panelId: panelId,
-      pressed: isActive,
+      active: isActive,
       locTitle: locTitle,
       disableHide: isActive,
       action: () => {
@@ -2642,7 +2645,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const panel = this.visiblePanelsCore[this.currentIndex];
     this.tabbedMenu.actions.forEach(action => {
       const isActive = action.panelId === panel.id;
-      action.pressed = isActive;
+      action.active = isActive;
       action.disableHide = isActive;
     });
   }
@@ -2685,7 +2688,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!!tabbedMenu) {
       tabbedMenu.containerCss = this.getTabbedMenuCss(classes);
       tabbedMenu.cssClasses = classes.tabs;
-      tabbedMenu.dotsItem.cssClasses = classes.tabs;
       tabbedMenu.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;

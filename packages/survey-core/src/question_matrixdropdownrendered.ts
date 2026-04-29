@@ -407,11 +407,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     let dataRowIndex = 0;
     for (var i = 0; i < this.rows.length; i++) {
       if (dataRowIndex === index) {
-        if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) {
+        if (this.rows[i].isErrorsRow && !this.showCellErrorsTop) {
           res++;
           if (i + 1 < this.rows.length && this.rows[i + 1].isDetailRow) {
             res ++;
           }
+        } else if (this.rows[i].isDetailRow) {
+          res++;
         }
         break;
       }
@@ -688,6 +690,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
       const actionContainer = this.matrix.allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
+      actionContainer.setActionsAppearance({ mode: this.matrix.isMobile ? "tertiary" : "quaternary", size: "small", style: "neutral" });
       if (!!this.matrix.survey && this.matrix.survey.getCss().actionBar) {
         actionContainer.cssClasses = this.matrix.survey.getCss().actionBar;
       }
@@ -744,10 +747,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           iconSize: "auto",
           innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
           location: "end",
-          iconName: !this.showRemoveButtonAsIcon ? "" : "icon-delete-24x24",
-          showTitle: !this.showRemoveButtonAsIcon as boolean,
+          iconName: !this.showRemoveButtonAsIcon || matrix.isMobile ? "" : "icon-delete-24x24",
+          showTitle: !this.showRemoveButtonAsIcon || matrix.isMobile,
           locTitle: matrix.locRemoveRowText,
           enabled: !matrix.isInputReadOnly,
+          appearance: { style: "alert" },
           visibleIndex: this.matrix.isMobile ? 20 : undefined,
           data: { row: row, question: matrix },
           action: () => {
@@ -768,6 +772,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           location: this.matrix.isMobile ? "end" : "start",
           iconName: this.matrix.isMobile ? "" : new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row) ? this.cssClasses.detailIconExpandedId : this.cssClasses.detailIconId) as any as string,
           visibleIndex: this.matrix.isMobile ? 10 : undefined,
+          appearance: { style: "brand" },
           ariaExpanded: new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row)) as any as boolean,
           ariaControls: new ComputedUpdater(() => this.matrix.getIsDetailPanelShowing(row) ? row.detailPanelId : null) as any as string,
           iconSize: "auto",

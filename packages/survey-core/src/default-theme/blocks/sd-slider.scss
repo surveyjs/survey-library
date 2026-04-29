@@ -362,7 +362,7 @@ input[type="range"].sd-slider__input::-ms-tooltip {
   display: none;
 }
 
-:root {
+:root, :host {
   --sjs-range-slider-range-input-thumb-width: 0px;
   --sjs-range-slider-range-input-thumb-left: 0;
   --sjs-range-slider-range-input-thumb-position: absolute;

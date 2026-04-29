@@ -954,13 +954,13 @@ QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
 
   popupModel.isVisible = true;
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true && hideSelectedItems = false");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item", "value = undefined && isTouch = true && hideSelectedItems = false");
 
   list.onItemClick(list.actions[0]);
   popupModel.isVisible = false;
 
   popupModel.isVisible = true;
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item--selected", "isTouch=true && value = 'item1' && hideSelectedItems = false");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item--selected", "isTouch=true && value = 'item1' && hideSelectedItems = false");
 
   list.onItemClick(list.actions[0]);
   question.hideSelectedItems = true;
@@ -968,13 +968,13 @@ QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert
   popupModel.isVisible = false;
 
   popupModel.isVisible = true;
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "value = undefined && isTouch = true && hideSelectedItems = true");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item", "value = undefined && isTouch = true && hideSelectedItems = true");
 
   list.onItemClick(list.actions[0]);
   popupModel.isVisible = false;
 
   popupModel.isVisible = true;
-  assert.equal(popupModel.focusFirstInputSelector, ".sv-list__item", "isTouch=true && value = 'item1' && hideSelectedItems = true");
+  assert.equal(popupModel.focusFirstInputSelector, ".sd-selectlist__item", "isTouch=true && value = 'item1' && hideSelectedItems = true");
   _setIsTouch(false);
 });
 

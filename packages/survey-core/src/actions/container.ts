@@ -1,26 +1,11 @@
 import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
-import { IAction, Action, BaseAction } from "./action";
+import { IAction, Action, BaseAction, IActionAppearance } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
 import { debounce } from "../utils/taskmanager";
-
-export type ActionBarCssClasses = { [index: string]: string };
-
-export let defaultActionBarCss: ActionBarCssClasses = {
-  root: "sv-action-bar",
-  defaultSizeMode: "sv-action-bar--default-size-mode",
-  smallSizeMode: "sv-action-bar--small-size-mode",
-  item: "sv-action-bar-item",
-  itemWithTitle: "",
-  itemAsIcon: "sv-action-bar-item--icon",
-  itemActive: "sv-action-bar-item--active",
-  itemPressed: "sv-action-bar-item--pressed",
-  itemIcon: "sv-action-bar-item__icon",
-  itemTitle: "sv-action-bar-item__title",
-  itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
-};
+import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 
 export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
 
@@ -135,6 +120,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected onActionPropertyChangedCallback = this.onActionPropertyChanged.bind(this);
   protected patchAction(action: T) {
     this.setActionCssClasses(action);
+    this.setActionAppearance(action);
     action.owner = this;
     action.onPropertyChanged.add(this.onActionPropertyChangedCallback);
   }
@@ -288,5 +274,17 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.resetResponsivityManager();
     this.actions.forEach(action => action.dispose());
     this.actions.length = 0;
+  }
+  private setActionAppearance(action: T): void {
+    if (this.actionAppearance) {
+      action.setPredefinedAppearance(this.actionAppearance);
+    }
+  }
+  private actionAppearance: IActionAppearance;
+  public setActionsAppearance(appearance: IActionAppearance): void {
+    this.actionAppearance = appearance;
+    this.getAllActions().forEach(action => {
+      this.setActionAppearance(action);
+    });
   }
 }

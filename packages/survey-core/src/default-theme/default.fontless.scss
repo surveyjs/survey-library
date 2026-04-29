@@ -3,7 +3,6 @@
 
 @use "animations.scss";
 
-@use "blocks/sv-actionbar.scss";
 @use "blocks/sv-drag-drop.scss";
 @use "blocks/sv-popup.scss";
 @use "blocks/sv-buttongroup.scss";
@@ -19,6 +18,7 @@
 @use "blocks/sv-string-viewer.scss";
 @use "blocks/sd-action-bar.scss";
 @use "blocks/sd-action.scss";
+@use "blocks/sd-selectlist.scss";
 
 @use "blocks/sd-element.scss";
 @use "blocks/sd-question.scss";
@@ -26,7 +26,6 @@
 @use "blocks/sd-collapsed-element.scss";
 @use "blocks/sd-complex-element.scss";
 @use "blocks/sd-formbox.scss";
-@use "blocks/sd-formbox-button.scss";
 @use "blocks/sd-comment.scss";
 @use "blocks/sd-panel.scss";
 @use "blocks/sd-signaturepad.scss";
@@ -57,10 +56,8 @@
 @use "blocks/sd-file.scss";
 @use "blocks/sd-hidden.scss";
 @use "blocks/sd-navigation.scss";
-@use "blocks/sd-button.scss";
 @use "blocks/sd-body.scss";
 @use "blocks/sd-multipletext.scss";
-@use "blocks/sd-context-btn.scss";
 @use "blocks/sd-completedpage.scss";
 @use "blocks/sd-progress-buttons.scss";
 @use "blocks/sd-progress-toc.scss";
@@ -85,7 +82,7 @@ body {
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
   font-family: $font-family;
-  background-color: $background-dim;
+  background-color: var(--sjs2-color-utility-surface-survey);
   position: relative;
 
   @include mixins.scrollRules;
@@ -94,6 +91,10 @@ body {
     // z-index: 1;
     position: relative;
   }
+}
+
+.sd-root--compact {
+  background-color: var(--sjs2-color-utility-surface-survey-panelless);
 }
 
 .sd-root-modern--animation-disabled * {

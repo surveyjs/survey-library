@@ -180,6 +180,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
 export interface IValidationContextParams {
   fireCallback: boolean;
   isOnValueChanged?: boolean;
+  isOnValueChanging?: boolean;
   focusOnFirstError?: boolean;
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
@@ -190,6 +191,7 @@ export class ValidationContext extends AsyncElementsRunner {
   private fireCallbackValue: boolean;
   private focusOnFirstErrorValue: boolean;
   private isOnValueChangedValue: boolean;
+  private isOnValueChangingValue: boolean;
   private changeCurrentPage: boolean;
   private firstErrorQuestionValue: Question;
   private res: boolean = true;
@@ -203,12 +205,14 @@ export class ValidationContext extends AsyncElementsRunner {
     }
     this.fireCallbackValue = context.fireCallback || false;
     this.isOnValueChangedValue = context.isOnValueChanged || false;
+    this.isOnValueChangingValue = context.isOnValueChanging || false;
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
   }
   public get fireCallback(): boolean { return this.fireCallbackValue; }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
+  public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
   public get result(): boolean { return this.res; }
   public get runningResult(): boolean {
@@ -1196,6 +1200,7 @@ export class Question extends SurveyElement<Question>
    * - `"default"` (default) - Inherits the setting from the Survey's [`questionDescriptionLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionDescriptionLocation) property.
    * - `"underTitle"` - Displays the description under the question title.
    * - `"underInput"` - Displays the description under the interactive area.
+   * - `"hidden"` - Hides the description.
    * @see description
    * @see hasDescription
    */
@@ -1207,7 +1212,7 @@ export class Question extends SurveyElement<Question>
   get hasDescriptionUnderInput(): boolean {
     return this.getDescriptionLocation() == "underInput" && this.hasDescription;
   }
-  private getDescriptionLocation() {
+  protected getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
     return !!this.survey
       ? this.titleSettings.questionDescriptionLocation
@@ -2481,15 +2486,16 @@ export class Question extends SurveyElement<Question>
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult);
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void, isOnValueChanging?: boolean): boolean {
+    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult, isOnValueChanging);
   }
-  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void, isOnValueChanging?: boolean): boolean {
     if (isRoot && isOnValueChanged && !!this.parent) {
       this.parent.validateContainerOnly();
     }
     const context = new ValidationContext({
       isOnValueChanged: isOnValueChanged,
+      isOnValueChanging: isOnValueChanging,
       focusOnFirstError: focusOnFirstError,
       fireCallback: fireCallback,
       callbackResult: callbackResult
@@ -3147,7 +3153,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    if (this.hasTitle && this.hasDescription) {
+    if (this.hasTitle && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -3197,7 +3203,7 @@ export class Question extends SurveyElement<Question>
 
     if (this.hasCssError()) {
       result = this.id + "_errors";
-    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
+    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       result = this.ariaDescriptionId;
     }
 
@@ -3215,6 +3221,9 @@ export class Question extends SurveyElement<Question>
   public get dragDropMatrixAttribute(): string {
     return null;
   }
+
+  @property() randomize: boolean;
+  @property() randomizeCategory: string;
 }
 function makeNameValid(str: string): string {
   if (!str) return str;
@@ -3291,7 +3300,7 @@ Serializer.addClass("question", [
   {
     name: "descriptionLocation",
     default: "default",
-    choices: ["default", "underInput", "underTitle"],
+    choices: ["default", "underInput", "underTitle", "hidden"],
   },
   {
     name: "showNumber:boolean",
@@ -3372,6 +3381,8 @@ Serializer.addClass("question", [
       return obj.showCommentArea;
     }
   },
-  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }
+  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
+  { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
+  { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

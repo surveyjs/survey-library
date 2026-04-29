@@ -4,11 +4,10 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
-import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
-import { defaultActionBarCss } from "./actions/container";
+import { defaultActionBarCss } from "./actions/actionBarCss";
 import { getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
@@ -46,20 +45,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
-    this.footerToolbar.setCssClasses({
-      root: defaultActionBarCss.root,
-      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
-      smallSizeMode: defaultActionBarCss.smallSizeMode,
-      item: "sd-action sv-menu-popup__button"
-    }, false);
-
+    this.footerToolbar.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small" });
     this.footerToolbar.containerCss = "sv-menu-footer-action-bar";
     let footerActions = [
       <IAction>{
         id: "cancel",
         visibleIndex: 10,
         title: this.cancelButtonText,
-        innerCss: "sv-popup__button--cancel",
+        innerCss: "sv-popup__button sv-popup__button--cancel",
         action: () => { this.cancel(); }
       }
     ];

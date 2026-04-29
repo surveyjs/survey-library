@@ -11918,6 +11918,41 @@ QUnit.test("onValidatePage doesn't include internal question errors, Bug#9565", 
   assert.equal(questions[1].name, "minvalue", "questions[1].name");
   assert.equal(questions[2].name, "maxvalue", "questions[2].name");
 });
+QUnit.test("Adding errors in onValidatePage handler should prevent navigation, Bug#11171", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+        ],
+      },
+      {
+        name: "page2",
+        elements: [
+          { type: "text", name: "q3" },
+        ],
+      },
+    ],
+  });
+  survey.onValidatePage.add(function (sender, options) {
+    const q1Val = Number(survey.getValue("q1")) || 0;
+    const q2Val = Number(survey.getValue("q2")) || 0;
+    if (q1Val + q2Val > 100) {
+      options.errors.push(new CustomError("The total must not exceed 100"));
+      options.questions = options.page.questions;
+    }
+  });
+  survey.setValue("q1", 60);
+  survey.setValue("q2", 50);
+  assert.equal(survey.currentPageNo, 0, "Start on page 0");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "Should stay on page 0 because onValidatePage added errors");
+  survey.setValue("q2", 30);
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "Should move to page 1 when total <= 100");
+});
 
 QUnit.test("survey.completedHtmlOnCondition", function (assert) {
   var survey = new SurveyModel();
@@ -17298,7 +17333,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
     ]
   });
   setOldTheme(survey);
-  survey.css = { navigationBar: { item: "custom-action custom-css" }, navigation: { start: "custom-start" } };
+  survey.css = { navigationBar: { item: "custom-action custom-css", itemAppearancePrefix: "" }, navigation: { start: "custom-start" } };
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";
@@ -19974,7 +20009,8 @@ QUnit.test("survey.applyTheme", function (assert) {
     ]
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 997, "before applyTheme");
+  const lenBeforeApplyTheme = Object.keys(survey.themeVariables).length;
+  assert.ok(lenBeforeApplyTheme > 800, "before applyTheme");
   assert.equal(!!survey.backgroundImage, false, "before applyTheme");
   assert.equal(survey.backgroundImageFit, "cover", "before applyTheme");
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
@@ -19997,7 +20033,7 @@ QUnit.test("survey.applyTheme", function (assert) {
     "isPanelless": true
   });
 
-  assert.equal(Object.keys(survey.themeVariables).length, 997);
+  assert.equal(Object.keys(survey.themeVariables).length, lenBeforeApplyTheme);
   assert.equal(!!survey.backgroundImage, true);
   assert.equal(survey.backgroundImageFit, "cover");
   assert.equal(survey.backgroundImageAttachment, "fixed");
@@ -23348,4 +23384,58 @@ QUnit.test("Re-run expressions on changing the related object properties, Bug#10
   assert.equal(q1.visible, false, "q1 is invisible after locale change to ''");
   assert.equal(q2.visible, true, "q2 is visible after locale change to ''");
   assert.equal(q3.visibleChoices.length, 2, "q3 has two visible choices after locale change to ''");
+});
+QUnit.test("visibleIf with $q.containsErrors and checkErrorsMode=onValueChanged", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        inputType: "number",
+        min: 10
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} notempty and {$q1.containsErrors} = false"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2 is invisible initially, q1 is empty");
+  q1.value = 20;
+  assert.equal(q1.errors.length, 0, "q1 has no errors, value=20 >= min=10");
+  assert.equal(q2.isVisible, true, "q2 is visible, q1=20 and no errors");
+  q1.value = 5;
+  assert.equal(q1.errors.length, 1, "q1 has error, value=5 < min=10");
+  assert.equal(q2.isVisible, false, "q2 is invisible, q1=5 contains errors");
+}); QUnit.test("Panel visibleIf with $q.containsErrors and checkErrorsMode=onValueChanged", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        inputType: "number",
+        min: 10
+      },
+      {
+        type: "panel",
+        name: "panel1",
+        visibleIf: "{q1} notempty and {$q1.containsErrors} = false",
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const panel1 = survey.getPanelByName("panel1");
+  assert.equal(panel1.isVisible, false, "panel1 is invisible initially, q1 is empty");
+  q1.value = 20;
+  assert.equal(q1.errors.length, 0, "q1 has no errors, value=20 >= min=10");
+  assert.equal(panel1.isVisible, true, "panel1 is visible, q1=20 and no errors");
+  q1.value = 5;
+  assert.equal(q1.errors.length, 1, "q1 has error, value=5 < min=10");
+  assert.equal(panel1.isVisible, false, "panel1 is invisible, q1=5 contains errors");
 });

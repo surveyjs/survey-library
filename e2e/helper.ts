@@ -14,29 +14,51 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export async function compareScreenshot(page: Page, elementSelector: string | Locator | undefined, screenshotName: string, elementIndex = 0, maxDiffPixels?:number) {
+export async function compareScreenshot(
+  page: Page,
+  elementSelector: string | Locator | undefined,
+  screenshotName: string,
+  options: {
+      animations?: "disabled" | "allow",
+      caret?: "hide" | "initial",
+      mask?: Array<Locator>,
+      maskColor?: string,
+      maxDiffPixelRatio?: number,
+      maxDiffPixels?: number,
+      omitBackground?: boolean,
+      scale?: "css" | "device",
+      stylePath?: string | Array<string>,
+      threshold?: number,
+      timeout?: number,
+  } = {}) {
   let currentElement = elementSelector;
   if (!!currentElement && typeof currentElement == "string") {
     currentElement = page.locator(currentElement);
   }
 
-  const options: {timeout: number, maxDiffPixels?: number} = {
-    timeout: 10000
+  const pwOptions: {timeout: number, maxDiffPixels?: number} = {
+    timeout: 10000,
+    maskColor: "#000000",
+    ...options
   };
-
-  if (maxDiffPixels) options.maxDiffPixels = maxDiffPixels;
 
   if (!!currentElement) {
     const element = (<Locator>currentElement).filter({ visible: true });
-    await expect.soft(element.nth(elementIndex)).toBeVisible();
-    await expect.soft(element.nth(elementIndex)).toHaveScreenshot(screenshotName, options);
+    await expect.soft(element.nth(0)).toBeVisible();
+    await expect.soft(element.nth(0)).toHaveScreenshot(screenshotName, pwOptions);
   } else {
-    await expect.soft(page).toHaveScreenshot(screenshotName, options);
+    await expect.soft(page).toHaveScreenshot(screenshotName, pwOptions);
   }
 }
 
 export function getVisibleListItemByText(page: Page, text: string): Locator {
   return page.locator(".sv-popup__container").filter({ visible: true }).getByRole("option", { name: text, exact: true });
+}
+
+export function getVisibleSelectListItemByText(page: Page, text: string): Locator {
+  return page.locator(".sv-popup__container .sd-selectlist__item", {
+    has: page.getByText(text, { exact: true })
+  }).filter({ visible: true });
 }
 
 export async function resetFocusToBody(page: Page): Promise<void> {
@@ -99,17 +121,21 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     (window as any).survey = model;
   }, [json, isDesignMode, props]);
   afterInitializeModelCallback && await afterInitializeModelCallback();
-  await page.evaluate(([framework]) => {
-    const self: any = window;
-    const model = self.survey;
-    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-    const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
-    if (framework === "survey-js-ui") {
+
+  // For survey-js-ui (Shadow DOM): set up the shadow root and load styles FIRST,
+  // then render the survey only after the stylesheet is fully loaded.
+  // This mirrors what a real user should do: ensure CSS is ready before rendering,
+  // so that CSS variables like --sd-mobile-width are available from the start.
+  if (framework === "survey-js-ui") {
+    await page.evaluate(() => {
+      const self: any = window;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
       surveyElement.innerHTML = "";
 
-      const container = surveyElement;
-      const shadowRoot = container.attachShadow({ mode: "open" });
+      const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
+      rootElement.classList.add("root-element");
       const styles = document.createElement("style");
       styles.textContent = `
         *,
@@ -119,28 +145,48 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
         }
       `;
       shadowRoot.appendChild(styles);
+
+      self.__surveyStylesLoaded = false;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       const surveyLink = document.createElement("link");
-      surveyLink.setAttribute("rel", "stylesheet");
-      surveyLink.setAttribute("href", "../../node_modules/survey-core/survey-core.min.css");
+      surveyLink.rel = "stylesheet";
+      surveyLink.href = "../../node_modules/survey-core/survey-core.min.css";
+      surveyLink.onload = () => { self.__surveyStylesLoaded = true; };
+      surveyLink.onerror = () => { self.__surveyStylesLoaded = true; };
       shadowRoot.appendChild(surveyLink);
       shadowRoot.appendChild(rootElement);
+    });
 
-      self.SurveyUI.renderSurvey(model, rootElement);
+    await page.waitForFunction(() => (window as any).__surveyStylesLoaded === true, { timeout: 5000 });
 
-    } else if (framework === "react") {
-      if (!!self.root) {
-        self.root.unmount();
-      }
+    await page.evaluate(() => {
+      const self: any = window;
       // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
-      (window as any).root = root;
-      root.render(
-        self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
-      );
-    } else if (framework === "angular" || framework == "vue3") {
-      self.window.setSurvey(model);
-    }
-  }, [framework, json, isDesignMode, props]);
+      const rootElement = document.getElementById("surveyElement")!.shadowRoot!.querySelector("div");
+      self.SurveyUI.renderSurvey(self.survey, rootElement);
+      delete self.__surveyStylesLoaded;
+    });
+  } else {
+    await page.evaluate(([framework]) => {
+      const self: any = window;
+      const model = self.survey;
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
+      if (framework === "react") {
+        if (!!self.root) {
+          self.root.unmount();
+        }
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
+        (window as any).root = root;
+        root.render(
+          self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
+        );
+      } else if (framework === "angular" || framework == "vue3") {
+        self.window.setSurvey(model);
+      }
+    }, [framework, json, isDesignMode, props]);
+  }
 };
 
 export async function checkSurveyData(page: Page, json: any): Promise<void> {

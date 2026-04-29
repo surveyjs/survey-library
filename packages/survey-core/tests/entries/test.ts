@@ -1,6 +1,5 @@
 // common
 export * from "../a11y";
-export * from "../calculatedvaluestests";
 export * from "../helperstests";
 export * from "../basetests"; //
 export * from "../surveyElementTests";
@@ -22,9 +21,6 @@ export * from "../surveytriggertests"; //
 export * from "../surveyvalidatortests"; //
 export * from "../surveyShowPreviewTests";
 export * from "../surveyProgressButtonsTest";
-export * from "../textPreprocessorTests"; //
-export * from "../lowercasetests";
-export * from "../elementslayouttests";
 export * from "../surveytimertests";
 export * from "../question_multipletexttests";
 export * from "../question_expressiontests";
@@ -35,7 +31,6 @@ export * from "../expressions/expressionsTest";
 export * from "../expressions/expressionParserTest";
 export * from "../expressions/expressionValidationTest";
 export * from "../expressions/expressionFunctionCacheTests";
-export * from "../doubleBracesTests";
 export * from "../questionDropdownTests";
 export * from "../questionImagepicker";
 export * from "../questionBooleanTests";
@@ -53,7 +48,6 @@ export * from "../question_matrix_tests";
 export * from "../question_tagbox_tests";
 export * from "../question_comment_tests";
 export * from "../question_imagemap_tests";
-export * from "../cssClassBuilderTests";
 export * from "../listModelTests";
 export * from "../dropdown_list_model_test";
 export * from "../multi_select_list_model_tests";
@@ -63,7 +57,6 @@ export * from "../surveyTOCTests";
 export * from "../paneltests";
 export * from "../dragDropMatrixTests";
 
-export * from "../renderFactoryTests";
 export * from "../components/popuptests";
 export * from "../components/actionbartests";
 export * from "../icons/icons";
@@ -85,10 +78,7 @@ export * from "../layout_tests";
 export * from "../inputPerPageTests";
 export * from "../surveyServiceRemovingTests";
 export * from "../surveyStateTests";
-export * from "../propertyNameArray_tests";
 export * from "../surveySeparateLocalesTests";
-export * from "../getOwner_test";
-export * from "../randomSeed_test";
 
 // localization
 import "../../src/localization/russian";

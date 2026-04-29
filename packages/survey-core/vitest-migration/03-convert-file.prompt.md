@@ -120,7 +120,23 @@ Rules:
 If you use the codemod helper, be aware of these requirements (already implemented; do not regress):
 - `ASSERTION_MAP` must include `notStrictEqual` → `not.toBe` in addition to `notEqual`. Older codemod versions missed it and produced `assert.notStrictEqual(...)` calls in the output that fail at runtime.
 - The `describe("...", () => { ... })` wrapper must be skipped when the file contains top-level `export function`/`export const`/`export class` declarations interleaved with `QUnit.test` calls (e.g., `tests/utilstests.ts`). Wrapping breaks the exports because they end up nested inside the arrow function. Detect this by scanning for `^export (function|const|let|var|class|interface|type|enum)\s` after the `QUnit.module` line.
+- Files that contain `QUnit.test` but no `QUnit.module` are valid input — skip the `describe` wrap and leave top-level `test()` calls (Vitest accepts them).
 - Always run the codemod with `node --check` or a quick `tsc --noEmit` on the output before running Vitest, so syntactic regressions surface before a 30-second test run.
+
+## Singleton cleanup
+
+The project's QUnit tests rely on per-test trailing cleanup calls for global singletons — most commonly `ComponentCollection.Instance.clear()` (and `clear(true)` for internal components). Vitest runs all tests of a file sequentially in the same V8 isolate, so:
+- A leaked singleton from test N corrupts test N+1.
+- Trailing cleanup is **not run** when an earlier `expect()` in the same test throws.
+
+**Solution:** the global `afterEach` in `tests/vitest.setup.ts` resets all known singletons after every test (see `01-setup-vitest.prompt.md` step 3). The codemod automatically strips per-test **trailing** `Singleton.Instance.clear(...)` calls (i.e., calls that immediately precede the closing `});` of the test body) since they are now redundant.
+
+**Mid-test `clear()` calls are preserved** — some tests (e.g., `"internal boolean flag"` in `tests/question_customtests.ts`) call `clear()` between two assertion blocks to verify partial-cleanup behavior. The codemod's regex requires the closing `});` to immediately follow the `clear()` line; do not change this without verifying every preserved call.
+
+When a converted test file fails because a singleton not yet handled by the global hook is being mutated:
+1. Add a reset call to the `afterEach` in `tests/vitest.setup.ts` (single source of truth).
+2. Add the corresponding match pattern to the codemod's `stripSingletonCleanup` so trailing per-test cleanup gets stripped on future conversions.
+3. Re-run the file. If still failing, the issue is something other than singleton leakage.
 
 ## Required output
 

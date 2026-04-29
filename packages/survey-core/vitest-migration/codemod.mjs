@@ -240,6 +240,31 @@ function commentOutFallbacks(src) {
   return { src, fallbacks };
 }
 
+function stripSingletonCleanup(src) {
+  // Strip "<Singleton>.Instance.clear();" calls that appear ONLY immediately
+  // before the closing `});` of a test body. The global afterEach() in
+  // tests/vitest.setup.ts handles cleanup; per-test trailing cleanup is
+  // redundant and is unsafe to keep when an earlier expect() throws (the
+  // line is then skipped). Mid-test `.clear()` calls are real assertions
+  // about cleanup behavior and MUST be preserved -- e.g. tests that call
+  // `clear()` between two assertion blocks to verify partial cleanup. We
+  // therefore restrict stripping to the trailing position only.
+  //
+  // Patterns (must immediately precede the closing `});` of the test body):
+  //   ComponentCollection.Instance.clear();
+  //   ComponentCollection.Instance.clear(true);
+  //
+  // Add new singletons here when more are managed in vitest.setup.ts.
+  const patterns = [
+    /^([ \t]*ComponentCollection\.Instance\.clear\s*\([^)]*\)\s*;?\s*\n)(?=[ \t]*\}\s*\)\s*;?\s*\n)/gm,
+  ];
+  let count = 0;
+  for (const re of patterns) {
+    src = src.replace(re, () => { count++; return ""; });
+  }
+  return { src, stripped: count };
+}
+
 function convertFile(filePath) {
   let src = fs.readFileSync(filePath, "utf8");
   if (!/QUnit\.module/.test(src) && !/QUnit\.test\b/.test(src)) {
@@ -256,9 +281,11 @@ function convertFile(filePath) {
   }
   src = convertAssertions(src);
   src = convertTestDefs(src);
+  const cleanup = stripSingletonCleanup(src);
+  src = cleanup.src;
   src = addImportAndDescribe(src);
   fs.writeFileSync(filePath, src, "utf8");
-  return { ok: true, fallbacks };
+  return { ok: true, fallbacks, strippedCleanups: cleanup.stripped };
 }
 
 const files = process.argv.slice(2);

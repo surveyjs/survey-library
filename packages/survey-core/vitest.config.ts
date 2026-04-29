@@ -8,7 +8,7 @@ import fg from "fast-glob";
 // Un-converted files still rely on the global `QUnit` provided by Karma.
 const allTestFiles = fg.sync("tests/**/*.ts", {
   cwd: __dirname,
-  ignore: ["tests/entries/**", "tests/bundle/**", "node_modules/**", "build/**"],
+  ignore: ["tests/entries/**", "tests/bundle/**", "tests/vitest.setup.ts", "node_modules/**", "build/**"],
 });
 const vitestFiles = allTestFiles.filter((f) => {
   const content = fs.readFileSync(path.resolve(__dirname, f), "utf8");

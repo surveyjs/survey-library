@@ -38,11 +38,26 @@ Required actions:
      // use vitestFiles in test.include
      ```
      Add `fast-glob` as a devDependency.
+     **Also exclude `tests/vitest.setup.ts` from the include glob** — it imports from `vitest` (for `afterEach`) but it is the setup file, not a test file. If picked up by the include filter Vitest fails with "No test suite found in file vitest.setup.ts".
    - Path alias `survey-core` → `./entries/index.ts` (NOT `./src`). The locale files (`survey.i18n`, etc.) import `setupLocale` from the package name `survey-core`, and only the `entries/index.ts` barrel re-exports it. Pointing the alias at `./src` produces `Could not find a declaration file for module 'survey-core'` / runtime resolution failures.
 
 3. **Create `packages/survey-core/tests/vitest.setup.ts`** that:
    - Imports the four locales currently imported at the bottom of `tests/entries/test.ts` (russian, french, finnish, german).
    - Sets `settings.animationEnabled = false` and `settings.dropdownSearchDelay = 0` (mirroring `tests/entries/test.ts`).
+   - **Registers a global `afterEach` that resets every known global singleton.** Vitest runs all tests in a file sequentially in the same V8 isolate, so any singleton mutation by test N (e.g., `ComponentCollection.Instance.add(...)`, `surveyLocalization.defaultLocale = "de"`, `Serializer.addProperty(...)`) leaks into test N+1 unless explicitly cleared. The QUnit suite worked around this with trailing per-test cleanup calls, which Vitest cannot rely on (an earlier `expect()` failure skips the cleanup line). The setup file MUST contain something like:
+     ```ts
+     import { afterEach } from "vitest";
+     import { ComponentCollection } from "../src/question_custom";
+     import { surveyLocalization } from "../src/surveyStrings";
+     const __defaultLocale = surveyLocalization.defaultLocale;
+     afterEach(() => {
+       ComponentCollection.Instance.clear(true); // include internal:true components
+       surveyLocalization.defaultLocale = __defaultLocale;
+       settings.animationEnabled = false;
+       settings.dropdownSearchDelay = 0;
+     });
+     ```
+   - When the migration uncovers a new singleton that needs reset, add it to this hook (one source of truth for cleanup). Do NOT add per-test cleanup calls in converted test files — the codemod strips trailing ones and the global hook handles the rest.
 
 4. **Add scripts** to `packages/survey-core/package.json`:
    - `"test:vitest": "vitest run"`

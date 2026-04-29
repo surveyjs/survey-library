@@ -1,5 +1,4 @@
 // common
-export * from "../a11y";
 export * from "../helperstests";
 export * from "../choicesRestfultests"; //
 export * from "../jsonobjecttests"; //
@@ -34,7 +33,6 @@ export * from "../question_ranking_tests";
 export * from "../question_signaturepadtests";
 export * from "../question_matrix_tests";
 export * from "../question_tagbox_tests";
-export * from "../question_customtests";
 export * from "../question_imagemap_tests";
 export * from "../listModelTests";
 export * from "../dropdown_list_model_test";

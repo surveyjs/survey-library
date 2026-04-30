@@ -4,19 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 variables:
-  ArtifactNameLibraryCore: "SurveyJSLibraryBuildCore"
-  ArtifactNameLibraryReact: "SurveyJSLibraryBuildReact"
-  ArtifactNameLibraryAngular: "SurveyJSLibraryBuildAngular"
-  ArtifactNameLibraryVue: "SurveyJSLibraryBuildVue3"
-  ArtifactNameLibraryJS: "SurveyJSLibraryBuildSurveyUI"
-  ArtifactNameCreatorCore: "SurveyJSCreatorBuildCore"
-  ArtifactNameCreatorAngular: "SurveyJSCreatorBuildAngular"
-  ArtifactNameCreatorReact: "SurveyJSCreatorBuildReact"
-  ArtifactNameCreatorVue: "SurveyJSCreatorBuildVue"
-  ArtifactNameCreatorJS: "SurveyJSCreatorBuildJS"
-  ArtifactNameAnalytics: "SurveyJSAnalyticsBuild"
-  ArtifactNamePDF: "SurveyjsPDFbuild"
-
+  - template: templates/utils/variables.yml
 
 resources:
   repositories:

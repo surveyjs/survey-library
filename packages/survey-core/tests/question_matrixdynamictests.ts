@@ -8484,8 +8484,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(renderedTable.renderedRows.length).toLooseEqual(4);
   });
 
-  // VITEST-MIGRATION: MANUAL -- TIMER: animation `getEnterOptions().cssClass` reports `0px` instead of `20px` under jsdom; appears to depend on real layout/animation timing.
-  test.skip("table: check animation options", () => {
+  test("table: check animation options", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -8514,6 +8513,11 @@ describe("Survey_QuestionMatrixDynamic", () => {
     rowHtmlElement.appendChild(cellHtmlElement);
     tableHtmlElement.appendChild(rowHtmlElement);
     document.body.appendChild(tableHtmlElement);
+    // jsdom returns 0 for offsetHeight; stub it so vertical-animation hooks
+    // (prepareElementForVerticalAnimation -> el.offsetHeight) get the height
+    // we set via style.height.
+    let stubbedHeight = 20;
+    Object.defineProperty(questionHtmlElement, "offsetHeight", { configurable: true, get: () => stubbedHeight });
     questionHtmlElement.style.height = "20px";
 
     expect(renderedTable.rows[0].id).toLooseEqual(options.getKey(renderedTable.rows[0]));
@@ -8528,6 +8532,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(rowHtmlElement);
     expect(questionHtmlElement.style.getPropertyValue("--animation-height-to")).toBeFalsy();
 
+    stubbedHeight = 40;
     questionHtmlElement.style.height = "40px";
     const leaveOptions = options.getLeaveOptions(renderedTable.rows[1]);
     leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(rowHtmlElement);

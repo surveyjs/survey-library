@@ -1682,7 +1682,10 @@ test("Rating displayRateDescriptionsAsExtremeItems with rateValues having custom
   expect(q1.visibleRateValues[2].description.text, "In dropdown mode, description shows maxRateDescription").toLooseEqual("Max desc");
   expect(q1.visibleRateValues[1].description, "Middle item has no description in dropdown mode").toBeFalsy();
 });
-// Skipped: jsdom does not compute element layout (offsetWidth) needed for responsiveness measurement.
+// Skipped: jsdom does not compute element layout (offsetWidth/scrollWidth) needed
+// for responsiveness measurement. `vi.useFakeTimers()` alone does not fix this - the
+// test depends on real getComputedStyle/scrollWidth values that jsdom returns as 0.
+// Resolution deferred to vitest-migration/skipped-tests/01-jsdom-layout.prompt.md.
 test.skip("check rating triggerResponsiveness method", () => {
   return new Promise(function(resolve) {
     let __remaining = 1;

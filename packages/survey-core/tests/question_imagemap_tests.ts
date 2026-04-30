@@ -2,8 +2,40 @@ import { QuestionImageMapModel } from "../src/question_imagemap";
 import { SurveyModel } from "../src/survey";
 import { Serializer } from "../src/jsonobject";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, beforeEach, afterEach } from "vitest";
 describe("imagemap", () => {
+  // Recipe A: synchronous requestAnimationFrame queue. jsdom's RAF is wired to
+  // setTimeout(cb, 16) by default and to setTimeout(cb, 0) by tests/vitest.setup.ts;
+  // either variant defers execution past the synchronous test flow these tests rely on.
+  // Override per-suite so callbacks are queued and flushed deterministically with flushRAF().
+  let rafCallbacks: FrameRequestCallback[] = [];
+  let originalRAF: typeof window.requestAnimationFrame;
+  let originalCAF: typeof window.cancelAnimationFrame;
+  beforeEach(() => {
+    rafCallbacks = [];
+    originalRAF = window.requestAnimationFrame;
+    originalCAF = window.cancelAnimationFrame;
+    window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+      rafCallbacks.push(cb);
+      return rafCallbacks.length;
+    }) as any;
+    window.cancelAnimationFrame = ((id: number) => {
+      if (id > 0 && id <= rafCallbacks.length) rafCallbacks[id - 1] = () => { /* cancelled */ };
+    }) as any;
+  });
+  afterEach(() => {
+    window.requestAnimationFrame = originalRAF;
+    window.cancelAnimationFrame = originalCAF;
+  });
+  function flushRAF(times = 5) {
+    for (let i = 0; i < times; i++) {
+      if (rafCallbacks.length === 0) return;
+      const cbs = rafCallbacks;
+      rafCallbacks = [];
+      cbs.forEach((cb) => cb(performance.now()));
+    }
+  }
+
   const i400x400 = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"></svg>');
 
   function createRenderContainer(model: QuestionImageMapModel, image: string): HTMLElement {
@@ -153,89 +185,72 @@ describe("imagemap", () => {
     expect(q1.value, "value must be undefined #2").toLooseEqual(undefined);
   });
 
-  // Skipped: relies on requestAnimationFrame loop that does not advance reliably under jsdom.
-  test.skip("Check init", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
+  test("Check init", () => {
+    const model: QuestionImageMapModel = new QuestionImageMapModel("");
+    const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#DDDDDD"/></svg>');
 
-      const done = __done;
-
-      const model: QuestionImageMapModel = new QuestionImageMapModel("");
-      const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#DDDDDD"/></svg>');
-
-      let container = document.createElement("div");
-      container.innerHTML = `
+    const container = document.createElement("div");
+    container.innerHTML = `
     <img id="${ model.id }-bg" src="${ imageDataURL }" />
     <svg id="${ model.id }-svg"></svg>
   `;
 
-      let renderSVGCount = 0;
-      const renderSVG = model.renderSVG;
-      model.renderSVG = () => {
-        renderSVGCount++;
-        renderSVG.apply(model);
-      };
-      setTimeout(() => {
-        expect(renderSVGCount, "renderSVG must be called 1 time after init").toLooseEqual(1);
-        done();
-      }, 10);
+    let renderSVGCount = 0;
+    const renderSVG = model.renderSVG;
+    model.renderSVG = () => {
+      renderSVGCount++;
+      renderSVG.apply(model);
+    };
 
-      model.initImageMap(container);
-    });
+    model.initImageMap(container);
+    // jsdom does not load <img> resources, so the "load" event never fires.
+    // Dispatch it manually to invoke onBgImageLoaded -> renderSVG.
+    const bg = container.querySelector(`#${model.id}-bg`) as HTMLImageElement;
+    bg.dispatchEvent(new Event("load"));
+    flushRAF();
+    expect(renderSVGCount, "renderSVG must be called 1 time after init").toLooseEqual(1);
   });
 
-  // Skipped: relies on requestAnimationFrame loop that does not advance reliably under jsdom.
-  test.skip("Check svg render", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
-
-      const model = new SurveyModel({
-        elements: [
-          {
-            type: "imagemap",
-            name: "q1",
-            areas: [
-              {
-                "value": "val1",
-                "coords": "100,200,300,400"
-              },
-              {
-                "value": "val2",
-                "shape": "rect",
-                "coords": "100,200,300,400"
-              },
-              {
-                "value": "val3",
-                "shape": "circle",
-                "coords": "150,200,100"
-              },
-            ]
-          }
-        ]
-      });
-
-      const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
-
-      const container = createRenderContainer(q1, i400x400);
-      q1.initImageMap(container);
-
-      setTimeout(() =>{
-
-        expect(q1.areas[0].svg.outerHTML, "area[0] SVG incorrect").toLooseEqual(`<polygon data-uid="${ q1.areas[0].uniqueId }" points="${ q1.areas[0].coords }" class="${ q1.areas[0].getCSSClasses() }" title="${ q1.areas[0].title }"></polygon>`);
-
-        let a1coords = q1.areas[1].coords.split(",").map(Number);
-        expect(q1.areas[1].svg.outerHTML, "area[1] SVG incorrect").toLooseEqual(`<rect data-uid="${ q1.areas[1].uniqueId }" x="${ a1coords[0] }" y="${ a1coords[1] }" width="${ a1coords[2] - a1coords[0] }" height="${ a1coords[3] - a1coords[1] }" class="${ q1.areas[1].getCSSClasses() }" title="${ q1.areas[1].title }"></rect>`);
-
-        let a2coords = q1.areas[2].coords.split(",").map(Number);
-        expect(q1.areas[2].svg.outerHTML, "area[2] SVG incorrect").toLooseEqual(`<circle data-uid="${ q1.areas[2].uniqueId }" cx="${ a2coords[0] }" cy="${ a2coords[1] }" r="${ a2coords[2] }" class="${ q1.areas[2].getCSSClasses() }" title="${ q1.areas[2].title }"></circle>`);
-
-        done();
-      }, 10);
+  test("Check svg render", () => {
+    const model = new SurveyModel({
+      elements: [
+        {
+          type: "imagemap",
+          name: "q1",
+          areas: [
+            {
+              "value": "val1",
+              "coords": "100,200,300,400"
+            },
+            {
+              "value": "val2",
+              "shape": "rect",
+              "coords": "100,200,300,400"
+            },
+            {
+              "value": "val3",
+              "shape": "circle",
+              "coords": "150,200,100"
+            },
+          ]
+        }
+      ]
     });
+
+    const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+    const container = createRenderContainer(q1, i400x400);
+    q1.initImageMap(container);
+    (container.querySelector(`#${q1.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
+    flushRAF();
+
+    expect(q1.areas[0].svg.outerHTML, "area[0] SVG incorrect").toLooseEqual(`<polygon data-uid="${ q1.areas[0].uniqueId }" points="${ q1.areas[0].coords }" class="${ q1.areas[0].getCSSClasses() }" title="${ q1.areas[0].title }"></polygon>`);
+
+    let a1coords = q1.areas[1].coords.split(",").map(Number);
+    expect(q1.areas[1].svg.outerHTML, "area[1] SVG incorrect").toLooseEqual(`<rect data-uid="${ q1.areas[1].uniqueId }" x="${ a1coords[0] }" y="${ a1coords[1] }" width="${ a1coords[2] - a1coords[0] }" height="${ a1coords[3] - a1coords[1] }" class="${ q1.areas[1].getCSSClasses() }" title="${ q1.areas[1].title }"></rect>`);
+
+    let a2coords = q1.areas[2].coords.split(",").map(Number);
+    expect(q1.areas[2].svg.outerHTML, "area[2] SVG incorrect").toLooseEqual(`<circle data-uid="${ q1.areas[2].uniqueId }" cx="${ a2coords[0] }" cy="${ a2coords[1] }" r="${ a2coords[2] }" class="${ q1.areas[2].getCSSClasses() }" title="${ q1.areas[2].title }"></circle>`);
   });
 
   test("css variables", () => {
@@ -459,54 +474,46 @@ describe("imagemap", () => {
     expect(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "display value for multiple items with 2 wrong").toLooseEqual("val2_text");
   });
 
-  // Skipped: relies on requestAnimationFrame loop that does not advance reliably under jsdom.
-  test.skip("visibleIf render", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
-      const survey = new SurveyModel({
-        elements: [
-          { type: "checkbox", name: "q1", choices: [1, 2, 3, 4] },
-          {
-            type: "imagemap",
-            name: "q2",
-            areas: [
-              { value: "a", coords: "1" },
-              { value: "b", coords: "2", visibleIf: "{q1} contains 1" },
-              { value: "c", coords: "3", visibleIf: "{q1} contains 2" },
-              { value: "d", coords: "4", visibleIf: "{q1} contains 2" },
-              { value: "e", coords: "5", visibleIf: "{q1} contains 1" },
-            ]
-          }
-        ]
-      });
-
-      const q1 = survey.getQuestionByName("q1");
-      const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
-
-      let container = createRenderContainer(q2, i400x400);
-
-      q2.initImageMap(container);
-
-      setTimeout(() => {
-
-        expect(q2.svg.innerHTML, "check #1").toLooseEqual(q2.areas[0].svg.outerHTML);
-
-        q1.value = [1];
-        expect(q2.svg.innerHTML, "check #2").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML + q2.areas[4].svg.outerHTML);
-
-        q1.value = [2];
-        expect(q2.svg.innerHTML, "check #3").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[2].svg.outerHTML + q2.areas[3].svg.outerHTML);
-
-        q1.value = [3];
-        expect(q2.svg.innerHTML, "check #4").toLooseEqual(q2.areas[0].svg.outerHTML);
-
-        done();
-
-      }, 10);
+  test("visibleIf render", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "checkbox", name: "q1", choices: [1, 2, 3, 4] },
+        {
+          type: "imagemap",
+          name: "q2",
+          areas: [
+            { value: "a", coords: "1" },
+            { value: "b", coords: "2", visibleIf: "{q1} contains 1" },
+            { value: "c", coords: "3", visibleIf: "{q1} contains 2" },
+            { value: "d", coords: "4", visibleIf: "{q1} contains 2" },
+            { value: "e", coords: "5", visibleIf: "{q1} contains 1" },
+          ]
+        }
+      ]
     });
+
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
+
+    const container = createRenderContainer(q2, i400x400);
+
+    q2.initImageMap(container);
+    (container.querySelector(`#${q2.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
+    flushRAF();
+
+    expect(q2.svg.innerHTML, "check #1").toLooseEqual(q2.areas[0].svg.outerHTML);
+
+    q1.value = [1];
+    flushRAF();
+    expect(q2.svg.innerHTML, "check #2").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML + q2.areas[4].svg.outerHTML);
+
+    q1.value = [2];
+    flushRAF();
+    expect(q2.svg.innerHTML, "check #3").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[2].svg.outerHTML + q2.areas[3].svg.outerHTML);
+
+    q1.value = [3];
+    flushRAF();
+    expect(q2.svg.innerHTML, "check #4").toLooseEqual(q2.areas[0].svg.outerHTML);
   });
 
   test("visibleIf clear incorrect values", () => {
@@ -601,72 +608,60 @@ describe("imagemap", () => {
     expect(q3.isVisible, "q3 is not visible").toLooseEqual(false);
   });
 
-  // Skipped: relies on requestAnimationFrame loop that does not advance reliably under jsdom.
-  test.skip("Locale change test", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
-
-      const model = new SurveyModel({
-        elements: [
-          {
-            type: "imagemap",
-            name: "q2",
-            areas: [
-              {
-                value: "v1",
-                coords: "",
-                text: {
-                  default: "v1_text",
-                  de: "v1_text_de"
-                },
+  test("Locale change test", () => {
+    const model = new SurveyModel({
+      elements: [
+        {
+          type: "imagemap",
+          name: "q2",
+          areas: [
+            {
+              value: "v1",
+              coords: "",
+              text: {
+                default: "v1_text",
+                de: "v1_text_de"
               },
-              {
-                value: "v2",
-                coords: "",
-                text: "v2_text",
-              }
-            ]
-          }
-        ]
-      });
-
-      const q2 = <QuestionImageMapModel>model.getQuestionByName("q2");
-
-      let container = createRenderContainer(q2, i400x400);
-      q2.initImageMap(container);
-
-      setTimeout(() => {
-
-        expect(q2.areas[0].text, "v1 default locale text").toLooseEqual("v1_text");
-        expect(q2.areas[1].text, "v2 default locale text").toLooseEqual("v2_text");
-
-        let calls = 0;
-        const renderSVG = q2.renderSVG;
-        q2.renderSVG = () => {
-          calls++;
-          renderSVG.call(q2);
-        };
-
-        model.locale = "de";
-
-        expect(calls, "renderSVG called on locale change").toLooseEqual(1);
-
-        expect(q2.areas[0].text, "v1 'de' locale text").toLooseEqual("v1_text_de");
-        expect(q2.areas[0].svg.outerHTML, "area[0] 'de' locale svg render").toLooseEqual(`<polygon data-uid="${ q2.areas[0].uniqueId }" points="${ q2.areas[0].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[0].text }"></polygon>`);
-
-        expect(q2.areas[1].text, "v2 'de' locale text").toLooseEqual("v2_text");
-        expect(q2.areas[1].svg.outerHTML, "area[1] 'de' locale svg render").toLooseEqual(`<polygon data-uid="${ q2.areas[1].uniqueId }" points="${ q2.areas[1].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[1].text }"></polygon>`);
-
-        expect(q2.svg.innerHTML, "svg innerHTML on 'de' locale").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML);
-
-        done();
-
-      }, 10);
-
+            },
+            {
+              value: "v2",
+              coords: "",
+              text: "v2_text",
+            }
+          ]
+        }
+      ]
     });
+
+    const q2 = <QuestionImageMapModel>model.getQuestionByName("q2");
+
+    const container = createRenderContainer(q2, i400x400);
+    q2.initImageMap(container);
+    (container.querySelector(`#${q2.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
+    flushRAF();
+
+    expect(q2.areas[0].text, "v1 default locale text").toLooseEqual("v1_text");
+    expect(q2.areas[1].text, "v2 default locale text").toLooseEqual("v2_text");
+
+    let calls = 0;
+    const renderSVG = q2.renderSVG;
+    q2.renderSVG = () => {
+      calls++;
+      renderSVG.call(q2);
+    };
+
+    model.locale = "de";
+
+    expect(calls, "renderSVG called on locale change").toLooseEqual(1);
+    flushRAF();
+
+    expect(q2.areas[0].text, "v1 'de' locale text").toLooseEqual("v1_text_de");
+    expect(q2.areas[0].svg.outerHTML, "area[0] 'de' locale svg render").toLooseEqual(`<polygon data-uid="${ q2.areas[0].uniqueId }" points="${ q2.areas[0].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[0].text }"></polygon>`);
+
+    expect(q2.areas[1].text, "v2 'de' locale text").toLooseEqual("v2_text");
+    expect(q2.areas[1].svg.outerHTML, "area[1] 'de' locale svg render").toLooseEqual(`<polygon data-uid="${ q2.areas[1].uniqueId }" points="${ q2.areas[1].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[1].text }"></polygon>`);
+
+    expect(q2.svg.innerHTML, "svg innerHTML on 'de' locale").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML);
   });
 
   test("enableIf", () => {
@@ -704,114 +699,90 @@ describe("imagemap", () => {
     expect(Serializer.findProperty("imagemaparea", "value").isUnique, "imagemaparea.value is not unique").toLooseEqual(false);
   });
 
-  // Skipped: requires requestAnimationFrame loop that does not advance reliably under jsdom (waitRender hangs).
-  test.skip("control points in design mode", async () => {
-    return new Promise(function(resolve) {
-      void (async () => {
-        let __remaining = 1;
-        const __done = function() { if (--__remaining <= 0) resolve(); };
-
-        const done = __done;
-
-        const model = new SurveyModel({
-          elements: [
+  test("control points in design mode", () => {
+    const model = new SurveyModel({
+      elements: [
+        {
+          type: "imagemap",
+          name: "q2",
+          areas: [
             {
-              type: "imagemap",
-              name: "q2",
-              areas: [
-                {
-                  value: "v1",
-                  shape: "rect",
-                  coords: "1,2,3,4",
-                },
-                {
-                  value: "v2",
-                  shape: "poly",
-                  coords: "1,2,3,4,5,6,7,8,9,10",
-                },
-                {
-                  value: "v3",
-                  shape: "circle",
-                  coords: "1,2,3",
-                },
-              ]
-            }
+              value: "v1",
+              shape: "rect",
+              coords: "1,2,3,4",
+            },
+            {
+              value: "v2",
+              shape: "poly",
+              coords: "1,2,3,4,5,6,7,8,9,10",
+            },
+            {
+              value: "v3",
+              shape: "circle",
+              coords: "1,2,3",
+            },
           ]
-        });
-
-        model.setDesignMode(true);
-
-        const q2 = <QuestionImageMapModel>model.getQuestionByName("q2");
-        let container = createRenderContainer(q2, i400x400);
-
-        function waitRender(): Promise<void> {
-          return new Promise<void>(resolve => {
-            const wait = () => {
-              if (!q2.requestAnimationFrameId) {
-                resolve();
-              } else {
-                setTimeout(wait, 5);
-              }
-            };
-            setTimeout(wait, 5);
-          });
         }
-
-        q2.initImageMap(container);
-        await waitRender();
-
-        expect(q2.createControlPoint(1, 2, 3).outerHTML, "createControlPoint created correctly").toLooseEqual("<circle cx=\"1\" cy=\"2\" r=\"4\" class=\"sd-imagemap-control-point\" data-idx=\"3\"></circle>");
-
-        expect(q2.svg.childNodes.length, "No control points initially").toLooseEqual(q2.areas.length);
-
-        q2.selectedArea = q2.areas[0];
-        await waitRender();
-        expect(q2.svg.childNodes.length, "Control points created for rect #1").toLooseEqual(q2.areas.length + 2);
-        q2.selectedArea = undefined;
-        await waitRender();
-        expect(q2.svg.childNodes.length, "Control points removed").toLooseEqual(q2.areas.length);
-        q2.selectedArea = q2.areas[1];
-        await waitRender();
-        expect(q2.svg.childNodes.length, "Control points created for poly").toLooseEqual(q2.areas.length + 5);
-        q2.selectedArea = q2.areas[0];
-        await waitRender();
-        expect(q2.svg.childNodes.length, "Control points created for rect #2").toLooseEqual(q2.areas.length + 2);
-        q2.selectedArea = q2.areas[1];
-        q2.areas[1].addCoord(11, 12);
-        q2.renderSVG();
-        await waitRender();
-        expect(q2.svg.childNodes.length, "Control point added for poly").toLooseEqual(q2.areas.length + 6);
-        expect(q2.areas[1].coords, "New coord added correctly").toLooseEqual("1,2,3,4,5,6,7,8,9,10,11,12");
-        q2.areas[1].removeCoord(1);
-        q2.renderSVG();
-        await waitRender();
-        expect(q2.svg.childNodes.length, "Control removed").toLooseEqual(q2.areas.length + 5);
-        expect(q2.areas[1].coords, "Coord removed correctly").toLooseEqual("1,2,5,6,7,8,9,10,11,12");
-        q2.selectedArea = q2.areas[0];
-        q2.areas[0].addCoord(5, 6);
-        q2.renderSVG();
-        await waitRender();
-        expect(q2.svg.childNodes.length, "No new control point for rect").toLooseEqual(q2.areas.length + 2);
-        expect(q2.areas[0].coords, "No coords changed for rect #1").toLooseEqual("1,2,3,4");
-        q2.areas[0].removeCoord(1);
-        q2.renderSVG();
-        await waitRender();
-        expect(q2.svg.childNodes.length, "No new control point for rect").toLooseEqual(q2.areas.length + 2);
-        expect(q2.areas[0].coords, "No coords changed for rect #2").toLooseEqual("1,2,3,4");
-        q2.selectedArea = q2.areas[2];
-        q2.areas[2].addCoord(5, 6);
-        q2.renderSVG();
-        await waitRender();
-        expect(q2.svg.childNodes.length, "No new control point for circle").toLooseEqual(q2.areas.length + 2);
-        expect(q2.areas[2].coords, "No coords changed for circle #1").toLooseEqual("1,2,3");
-        q2.areas[2].removeCoord(1);
-        q2.renderSVG();
-        await waitRender();
-        expect(q2.svg.childNodes.length, "No new control point for circle").toLooseEqual(q2.areas.length + 2);
-        expect(q2.areas[2].coords, "No coords changed for circle #2").toLooseEqual("1,2,3");
-
-        done();
-      })();
+      ]
     });
+
+    model.setDesignMode(true);
+
+    const q2 = <QuestionImageMapModel>model.getQuestionByName("q2");
+    const container = createRenderContainer(q2, i400x400);
+
+    q2.initImageMap(container);
+    (container.querySelector(`#${q2.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
+    flushRAF();
+
+    expect(q2.createControlPoint(1, 2, 3).outerHTML, "createControlPoint created correctly").toLooseEqual("<circle cx=\"1\" cy=\"2\" r=\"4\" class=\"sd-imagemap-control-point\" data-idx=\"3\"></circle>");
+
+    expect(q2.svg.childNodes.length, "No control points initially").toLooseEqual(q2.areas.length);
+
+    q2.selectedArea = q2.areas[0];
+    flushRAF();
+    expect(q2.svg.childNodes.length, "Control points created for rect #1").toLooseEqual(q2.areas.length + 2);
+    q2.selectedArea = undefined;
+    flushRAF();
+    expect(q2.svg.childNodes.length, "Control points removed").toLooseEqual(q2.areas.length);
+    q2.selectedArea = q2.areas[1];
+    flushRAF();
+    expect(q2.svg.childNodes.length, "Control points created for poly").toLooseEqual(q2.areas.length + 5);
+    q2.selectedArea = q2.areas[0];
+    flushRAF();
+    expect(q2.svg.childNodes.length, "Control points created for rect #2").toLooseEqual(q2.areas.length + 2);
+    q2.selectedArea = q2.areas[1];
+    q2.areas[1].addCoord(11, 12);
+    q2.renderSVG();
+    flushRAF();
+    expect(q2.svg.childNodes.length, "Control point added for poly").toLooseEqual(q2.areas.length + 6);
+    expect(q2.areas[1].coords, "New coord added correctly").toLooseEqual("1,2,3,4,5,6,7,8,9,10,11,12");
+    q2.areas[1].removeCoord(1);
+    q2.renderSVG();
+    flushRAF();
+    expect(q2.svg.childNodes.length, "Control removed").toLooseEqual(q2.areas.length + 5);
+    expect(q2.areas[1].coords, "Coord removed correctly").toLooseEqual("1,2,5,6,7,8,9,10,11,12");
+    q2.selectedArea = q2.areas[0];
+    q2.areas[0].addCoord(5, 6);
+    q2.renderSVG();
+    flushRAF();
+    expect(q2.svg.childNodes.length, "No new control point for rect").toLooseEqual(q2.areas.length + 2);
+    expect(q2.areas[0].coords, "No coords changed for rect #1").toLooseEqual("1,2,3,4");
+    q2.areas[0].removeCoord(1);
+    q2.renderSVG();
+    flushRAF();
+    expect(q2.svg.childNodes.length, "No new control point for rect").toLooseEqual(q2.areas.length + 2);
+    expect(q2.areas[0].coords, "No coords changed for rect #2").toLooseEqual("1,2,3,4");
+    q2.selectedArea = q2.areas[2];
+    q2.areas[2].addCoord(5, 6);
+    q2.renderSVG();
+    flushRAF();
+    expect(q2.svg.childNodes.length, "No new control point for circle").toLooseEqual(q2.areas.length + 2);
+    expect(q2.areas[2].coords, "No coords changed for circle #1").toLooseEqual("1,2,3");
+    q2.areas[2].removeCoord(1);
+    q2.renderSVG();
+    flushRAF();
+    expect(q2.svg.childNodes.length, "No new control point for circle").toLooseEqual(q2.areas.length + 2);
+    expect(q2.areas[2].coords, "No coords changed for circle #2").toLooseEqual("1,2,3");
   });
 });

@@ -7251,8 +7251,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel1.visibleRows[0].elements.length, "panel1 first row has one element").toLooseEqual(1);
     expect(panel1.visibleRows[0].elements[0].name, "panel1 first row first element is q1").toLooseEqual("q1");
   });
-  test.skip("paneldynamic: check panelsAnimation options", () => {
-  // Skipped: jsdom does not support layout/height calculations needed for this animation test.
+  test("paneldynamic: check panelsAnimation options", () => {
     const survey = new SurveyModel({
       elements: [
         {
@@ -7280,6 +7279,11 @@ describe("Survey_QuestionPanelDynamic", () => {
     panelsContainer.appendChild(panelContainer2);
     panelsContainer.appendChild(panelContainer1);
     document.body.appendChild(panelsContainer);
+    // jsdom returns 0 for offsetHeight; stub it to mirror the heights set via style.height
+    // so the carousel-mode animation hooks can read element heights without real layout.
+    const stubOffsetHeight = (el: HTMLElement, value: number) => {
+      Object.defineProperty(el, "offsetHeight", { configurable: true, get: () => value });
+    };
     let enterOptions = options.getEnterOptions(question.panels[0]);
     let leaveOptions = options.getLeaveOptions(question.panels[1]);
     expect(enterOptions.cssClass).toLooseEqual("enter");
@@ -7298,62 +7302,10 @@ describe("Survey_QuestionPanelDynamic", () => {
     question.currentIndex = 0;
     question["_renderedPanels"] = [question.panels[0], question.panels[1]];
 
-    // jsdom does not compute layout, so stub getBoundingClientRect for each direction
-    // 1. Right animation
     panelContainer1.style.height = "20px";
     panelContainer2.style.height = "40px";
-    Object.defineProperty(panelContainer1, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 20 })
-    });
-    Object.defineProperty(panelContainer2, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 40 })
-    });
-    // 2. Left animation
-    panelContainer1.style.height = "20px";
-    panelContainer2.style.height = "40px";
-    Object.defineProperty(panelContainer1, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 20 })
-    });
-    Object.defineProperty(panelContainer2, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 40 })
-    });
-    // 3. Adding left animation
-    panelContainer1.style.height = "20px";
-    panelContainer2.style.height = "40px";
-    Object.defineProperty(panelContainer1, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 20 })
-    });
-    Object.defineProperty(panelContainer2, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 40 })
-    });
-    // 4. Removing left animation
-    panelContainer1.style.height = "20px";
-    panelContainer2.style.height = "40px";
-    Object.defineProperty(panelContainer1, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 20 })
-    });
-    Object.defineProperty(panelContainer2, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 40 })
-    });
-    // 5. Removing right animation
-    panelContainer1.style.height = "20px";
-    panelContainer2.style.height = "40px";
-    Object.defineProperty(panelContainer1, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 20 })
-    });
-    Object.defineProperty(panelContainer2, "getBoundingClientRect", {
-      configurable: true,
-      value: () => ({ height: 40 })
-    });
+    stubOffsetHeight(panelContainer1, 20);
+    stubOffsetHeight(panelContainer2, 40);
 
     enterOptions = options.getEnterOptions(question.panels[0]);
     leaveOptions = options.getLeaveOptions(question.panels[1]);

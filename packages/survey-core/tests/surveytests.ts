@@ -17381,32 +17381,32 @@ QUnit.test("Check survey getRootCss function - defaultCss", function (assert) {
     ]
   });
   survey.css = defaultCss;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages");
 
   survey.setIsMobile(true);
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile");
 
   survey.readOnly = true;
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
   survey.fitToContainer = false;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
   survey.readOnly = false;
   survey.setIsMobile(false);
   survey["isCompact"] = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root--compact");
 
   survey.fitToContainer = true;
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root--compact sd-root-modern--full-container");
   settings.animationEnabled = false;
 });
 
@@ -21522,7 +21522,7 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
 
   survey.readOnly = true;
   assert.equal(survey.mode, "display");
@@ -21532,7 +21532,7 @@ QUnit.test("Display mode in design time", function (assert) {
   survey.setDesignMode(true);
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
   settings.animationEnabled = false;
 });
 

@@ -24,106 +24,82 @@ import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/action
 import { Serializer } from "../src/jsonobject";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
-export default QUnit.module("Survey_QuestionPanelDynamic");
+import { describe, test, expect, vi } from "vitest";
+describe("Survey_QuestionPanelDynamic", () => {
+  test("Create panels based on template on setting value", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.value = [{}, {}];
 
-QUnit.test("Create panels based on template on setting value", function(
-  assert
-) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.value = [{}, {}];
-
-  assert.equal(question.panels.length, 2, "There are two panels now");
-  var p1 = question.panels[0];
-  assert.equal(
-    p1.elements.length,
-    2,
-    "There are two elements in the first panel"
-  );
-  assert.equal(p1.parentQuestion, question, "parentQuestion is set for inner panel");
-});
-
-QUnit.test("Synhronize panelCount and value array length", function(assert) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.panelCount = 3;
-  assert.equal(
-    question.value.length,
-    3,
-    "There should be 3 items in the array"
-  );
-  question.value = [{}, { q1: "val1" }, {}, {}];
-  assert.equal(question.panelCount, 4, "panelCount is 4 now");
-  question.panelCount = 2;
-  assert.equal(
-    question.value.length,
-    2,
-    "There should be 2 items in the array"
-  );
-  assert.equal(
-    question.value[1]["q1"],
-    "val1",
-    "Do not delete the value in non deleted panels"
-  );
-});
-
-QUnit.test("Test panel showNavigation readOnly", function (assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "question1",
-            "readOnly": true,
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "question2"
-              }
-            ]
-          }
-        ]
-      }
-    ]
+    expect(question.panels.length, "There are two panels now").toLooseEqual(2);
+    var p1 = question.panels[0];
+    expect(p1.elements.length, "There are two elements in the first panel").toLooseEqual(2);
+    expect(p1.parentQuestion, "parentQuestion is set for inner panel").toLooseEqual(question);
   });
-  var oldCss = survey.css.root;
-  survey.css.root = "sd-root-modern";
-  var question = survey.getQuestionByName("question1");
-  question.cssClasses.footer = "footer";
-  question.panelCount = 0;
-  assert.notOk(question.showNavigation, "ne records");
-  question.panelCount = 1;
-  assert.notOk(question.showNavigation, "one record");
-  question.panelCount = 2;
-  assert.ok(question.showNavigation, "two records");
-  survey.css.root = oldCss;
-});
 
-QUnit.test("Dynamic Panel, clearIncorrectValues", function(assert) {
-  var question = new QuestionPanelDynamicModel("q");
-  (<QuestionRadiogroupModel>(
+  test("Synhronize panelCount and value array length", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 3;
+    expect(question.value.length, "There should be 3 items in the array").toLooseEqual(3);
+    question.value = [{}, { q1: "val1" }, {}, {}];
+    expect(question.panelCount, "panelCount is 4 now").toLooseEqual(4);
+    question.panelCount = 2;
+    expect(question.value.length, "There should be 2 items in the array").toLooseEqual(2);
+    expect(question.value[1]["q1"], "Do not delete the value in non deleted panels").toLooseEqual("val1");
+  });
+
+  test("Test panel showNavigation readOnly", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "question1",
+              "readOnly": true,
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    var oldCss = survey.css.root;
+    survey.css.root = "sd-root-modern";
+    var question = survey.getQuestionByName("question1");
+    question.cssClasses.footer = "footer";
+    question.panelCount = 0;
+    expect(question.showNavigation, "ne records").toBeFalsy();
+    question.panelCount = 1;
+    expect(question.showNavigation, "one record").toBeFalsy();
+    question.panelCount = 2;
+    expect(question.showNavigation, "two records").toBeTruthy();
+    survey.css.root = oldCss;
+  });
+
+  test("Dynamic Panel, clearIncorrectValues", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    (<QuestionRadiogroupModel>(
     question.template.addNewQuestion("radiogroup", "q1")
   )).choices = [1, 2];
-  (<QuestionRadiogroupModel>(
+    (<QuestionRadiogroupModel>(
     question.template.addNewQuestion("radiogroup", "q2")
   )).choices = [1, 2, 3];
 
-  question.value = [{ q1: 1 }, { q1: "val1" }, { q4: 3, q2: 5 }];
-  question.clearIncorrectValues();
-  assert.deepEqual(
-    question.value,
-    [{ q1: 1 }, {}, {}],
-    "Remove incorrect values in all panels"
-  );
-});
+    question.value = [{ q1: 1 }, { q1: "val1" }, { q4: 3, q2: 5 }];
+    question.clearIncorrectValues();
+    expect(question.value, "Remove incorrect values in all panels").toEqualValues([{ q1: 1 }, {}, {}]);
+  });
 
-QUnit.test(
-  "Dynamic Panel, clearIncorrectValues, do not clear other value, Bug#2490",
-  function(assert) {
+  test("Dynamic Panel, clearIncorrectValues, do not clear other value, Bug#2490", () => {
     var question = new QuestionPanelDynamicModel("q");
     (<QuestionRadiogroupModel>(
       question.template.addNewQuestion("radiogroup", "q1")
@@ -138,20 +114,13 @@ QUnit.test(
       { q1: 1, q2: 2, "q3-Comment": "Some Value" },
     ];
     question.clearIncorrectValues();
-    assert.deepEqual(
-      question.value,
-      [
-        { q1: 1, q2: "other", "q2-Comment": "Some Value" },
-        { q1: 1, q2: 2 },
-      ],
-      "Remove incorrect values, but do not remove correct comment"
-    );
-  }
-);
+    expect(question.value, "Remove incorrect values, but do not remove correct comment").toEqualValues([
+      { q1: 1, q2: "other", "q2-Comment": "Some Value" },
+      { q1: 1, q2: 2 },
+    ]);
+  });
 
-QUnit.test(
-  "By pass values from question.value into panel values and vice versa",
-  function(assert) {
+  test("By pass values from question.value into panel values and vice versa", () => {
     var question = new QuestionPanelDynamicModel("q");
     question.template.addNewQuestion("text", "q1");
     question.template.addNewQuestion("text", "q2");
@@ -160,678 +129,473 @@ QUnit.test(
       { q1: "item2_1", q2: "item2_2" },
     ];
 
-    assert.equal(question.panels.length, 2, "There are two panels now");
+    expect(question.panels.length, "There are two panels now").toLooseEqual(2);
     var p1 = question.panels[0];
     var p2 = question.panels[1];
-    assert.equal(
-      (<Question>p1.questions[1]).value,
-      "item1_2",
-      "value set correct q2 panel1"
-    );
-    assert.equal(
-      (<Question>p2.questions[0]).value,
-      "item2_1",
-      "value set correct q1 panel2"
-    );
+    expect((<Question>p1.questions[1]).value, "value set correct q2 panel1").toLooseEqual("item1_2");
+    expect((<Question>p2.questions[0]).value, "value set correct q1 panel2").toLooseEqual("item2_1");
     (<Question>p1.questions[0]).value = "newValue";
-    assert.equal(
-      question.value[0].q1,
-      "newValue",
-      "The value from question has been assign successful"
-    );
-  }
-);
+    expect(question.value[0].q1, "The value from question has been assign successful").toLooseEqual("newValue");
+  });
 
-QUnit.test("Change values in panels on changing in question.value", function(
-  assert
-) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.panelCount = 2;
-  assert.equal(question.panels.length, 2, "There are two panels now");
-  var p1 = question.panels[0];
-  var p2 = question.panels[1];
-  question.value = [
-    { q1: "item1_1", q2: "item1_2" },
-    { q1: "item2_1", q2: "item2_2" },
-  ];
+  test("Change values in panels on changing in question.value", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    expect(question.panels.length, "There are two panels now").toLooseEqual(2);
+    var p1 = question.panels[0];
+    var p2 = question.panels[1];
+    question.value = [
+      { q1: "item1_1", q2: "item1_2" },
+      { q1: "item2_1", q2: "item2_2" },
+    ];
 
-  assert.equal(
-    (<Question>p1.questions[1]).value,
-    "item1_2",
-    "value set correct q2 panel1"
-  );
-  assert.equal(
-    (<Question>p2.questions[0]).value,
-    "item2_1",
-    "value set correct q1 panel2"
-  );
-});
+    expect((<Question>p1.questions[1]).value, "value set correct q2 panel1").toLooseEqual("item1_2");
+    expect((<Question>p2.questions[0]).value, "value set correct q1 panel2").toLooseEqual("item2_1");
+  });
 
-QUnit.test("Load from Json", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q",
-        panelCount: 3,
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  assert.equal(
-    survey.jsonErrors == null || survey.jsonErrors.length == 0,
-    true,
-    "There should not be any errors"
-  );
-  var question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.equal(
-    question.template.elements.length,
-    2,
-    "template elements are loaded correctly"
-  );
-  assert.equal(
-    question.template.elements[1].name,
-    "q2",
-    "the name of the second question is 'q2'"
-  );
-  assert.equal(question.panelCount, 3, "panelCount loaded correctly");
-  assert.equal(question.panels.length, 3, "There are 3 panels now");
-  var p1 = question.panels[0];
-  var p2 = question.panels[1];
-  assert.ok(p1, "the panel has been created");
-  assert.equal(
-    p1.elements.length,
-    2,
-    "There are two elements in the copied panel"
-  );
-  assert.equal(
-    p1.questions[1].name,
-    "q2",
-    "the name of the second question in the copied panel is 'q2'"
-  );
-  assert.equal(p1.isVisible, true, "the panel is visible");
-
-  question.value = [
-    { q1: "item1_1", q2: "item1_2" },
-    { q1: "item2_1", q2: "item2_2" },
-  ];
-
-  assert.equal(
-    (<Question>p1.questions[1]).value,
-    "item1_2",
-    "value set correct q2 panel1"
-  );
-  assert.equal(
-    (<Question>p2.questions[0]).value,
-    "item2_1",
-    "value set correct q1 panel2"
-  );
-  (<Question>p1.questions[0]).value = "newValue";
-  assert.equal(question.value[0].q1, "newValue", "The value changed correctly");
-});
-
-QUnit.test("Load from Json with nested panel", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q",
-        panelCount: 3,
-        templateElements: [
-          { type: "text", name: "q1" },
-          {
-            type: "panel",
-            name: "np1",
-            elements: [{ type: "text", name: "q2" }],
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.equal(
-    question.template.elements.length,
-    2,
-    "template elements are loaded correctly"
-  );
-  assert.equal(
-    question.template.elements[1].name,
-    "np1",
-    "the name of the second element is 'np1'"
-  );
-  assert.equal(
-    (<PanelModel>question.template.elements[1]).elements.length,
-    1,
-    "there is one element in nested panel 'np1'"
-  );
-  assert.equal(
-    (<PanelModel>question.template.elements[1]).elements[0].name,
-    "q2",
-    "q2 is an element in the 'np1'"
-  );
-  assert.equal(question.panelCount, 3, "panelCount loaded correctly");
-  assert.equal(question.panels.length, 3, "There are 3 panels now");
-  var p1 = question.panels[0];
-  var p2 = question.panels[1];
-  assert.ok(p1, "the panel has been created");
-
-  assert.equal(p1.elements.length, 2, "template elements are loaded correctly");
-  assert.equal(
-    p1.elements[1].name,
-    "np1",
-    "the name of the second element is 'np1'"
-  );
-  assert.equal(
-    (<PanelModel>p1.elements[1]).elements.length,
-    1,
-    "there is one element in nested panel 'np1'"
-  );
-  assert.equal(
-    (<PanelModel>p1.elements[1]).elements[0].name,
-    "q2",
-    "q2 is an element in the 'np1'"
-  );
-
-  question.value = [
-    { q1: "item1_1", q2: "item1_2" },
-    { q1: "item2_1", q2: "item2_2" },
-  ];
-
-  assert.equal(
-    (<Question>p1.questions[1]).value,
-    "item1_2",
-    "value set correct q2 panel1"
-  );
-  assert.equal(
-    (<Question>p2.questions[0]).value,
-    "item2_1",
-    "value set correct q1 panel2"
-  );
-  (<Question>p1.questions[1]).value = "newValue";
-  assert.equal(question.value[0].q2, "newValue", "The value changed correctly");
-});
-
-QUnit.test("Has errors", function(assert) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  (<Question>question.template.questions[0]).isRequired = true;
-  question.isRequired = true;
-  question.value = [];
-  assert.equal(question.validate(), false, "main question requires a value");
-  question.value = [{ q1: "item1_1" }, {}];
-  assert.equal(question.validate(), false, "q1 on the second row is not set");
-  question.value = [{ q1: "item1_1" }, { q1: "item2_1" }];
-  assert.equal(question.validate(), true, "There is no errors now");
-});
-QUnit.test("Update panels elements on changing template panel", function(
-  assert
-) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].elements.length,
-    0,
-    "Initially there is no elements in the copied panel"
-  );
-  question.template.addNewQuestion("text", "q1");
-  assert.equal(
-    question.panels[0].elements.length,
-    1,
-    "Add question into template - add question into copied panels"
-  );
-  question.template.removeQuestion(question.template.questions[0]);
-  assert.equal(
-    question.panels[0].elements.length,
-    0,
-    "Remove question from template - from question from copied panels"
-  );
-});
-
-QUnit.test("Support visibleIf and panel variable", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.template.questions[1].visibleIf = "{panel.q1} = 'val'";
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].questions[1].visible,
-    false,
-    "q1 is not 'val'"
-  );
-  question.value = [{ q1: "val" }];
-  assert.equal(question.panels[0].questions[1].visible, true, "q1 is 'val'");
-});
-QUnit.test("Support visibleIf and panel variable, question.valueName", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  (<Question>question.template.addNewQuestion("text", "q1")).valueName =
-    "panelQ1";
-  question.template.addNewQuestion("text", "q2");
-  question.template.questions[1].visibleIf = "{panel.panelQ1} = 'val'";
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].questions[1].visible,
-    false,
-    "panelQ1 is not 'val'"
-  );
-  question.value = [{ panelQ1: "val" }];
-  assert.equal(
-    question.panels[0].questions[1].visible,
-    true,
-    "panelQ1 is 'val'"
-  );
-});
-QUnit.test("cell.setValueExpression for panel on the second page, Bug#9942", function (assert) {
-  const survey = new SurveyModel({
-    pages: [{
+  test("Load from Json", () => {
+    var json = {
       elements: [
         {
           type: "paneldynamic",
-          name: "panel1",
-          valueName: "panel",
-          panelCount: 1,
-          templateElements: [{ name: "q1", type: "text" }],
-        }
-      ]
-    },
-    {
-      elements: [
-        {
-          type: "paneldynamic",
-          name: "panel2",
-          valueName: "panel",
+          name: "q",
+          panelCount: 3,
           templateElements: [
-            { name: "q2", type: "text", setValueExpression: "{panel.q1} + {panel.q3}" },
-            { name: "q3", type: "text" },
-          ]
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" },
+          ],
         },
-      ]
-    }
-    ]
-  });
-  const panel1 = survey.getQuestionByName("panel1");
-  const panel2 = survey.getQuestionByName("panel2");
-  panel1.panels[0].questions[0].value = 10;
-  panel1.addPanel();
-  panel1.panels[1].questions[0].value = 20;
-  survey.nextPage();
-  const panels = panel2.panels;
-  assert.equal(panels.length, 2, "panels count");
-  assert.equal(panels[0].getQuestionByName("q2").value, 10, "q2 value, panel 1");
-  assert.equal(panels[1].getQuestionByName("q2").value, 20, "q2 value, panel 2");
-  panels[0].getQuestionByName("q3").value = 5;
-  assert.equal(panels[0].getQuestionByName("q2").value, 15, "q2 value, panel 1");
-});
-QUnit.test("Support panelIndex in visibleIf expression", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.template.questions[1].visibleIf = "{panelIndex} = 0";
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].questions[1].isVisible,
-    true,
-    "panel index = 0"
-  );
-  assert.equal(
-    question.panels[1].questions[1].isVisible,
-    false,
-    "panel index != 0"
-  );
-});
+      ],
+    };
+    var survey = new SurveyModel(json);
+    expect(survey.jsonErrors == null || survey.jsonErrors.length == 0, "There should not be any errors").toLooseEqual(true);
+    var question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(question.template.elements.length, "template elements are loaded correctly").toLooseEqual(2);
+    expect(question.template.elements[1].name, "the name of the second question is 'q2'").toLooseEqual("q2");
+    expect(question.panelCount, "panelCount loaded correctly").toLooseEqual(3);
+    expect(question.panels.length, "There are 3 panels now").toLooseEqual(3);
+    var p1 = question.panels[0];
+    var p2 = question.panels[1];
+    expect(p1, "the panel has been created").toBeTruthy();
+    expect(p1.elements.length, "There are two elements in the copied panel").toLooseEqual(2);
+    expect(p1.questions[1].name, "the name of the second question in the copied panel is 'q2'").toLooseEqual("q2");
+    expect(p1.isVisible, "the panel is visible").toLooseEqual(true);
 
-QUnit.test("Text Processing and panel variable, question.valueName", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+    question.value = [
+      { q1: "item1_1", q2: "item1_2" },
+      { q1: "item2_1", q2: "item2_2" },
+    ];
+
+    expect((<Question>p1.questions[1]).value, "value set correct q2 panel1").toLooseEqual("item1_2");
+    expect((<Question>p2.questions[0]).value, "value set correct q1 panel2").toLooseEqual("item2_1");
+    (<Question>p1.questions[0]).value = "newValue";
+    expect(question.value[0].q1, "The value changed correctly").toLooseEqual("newValue");
+  });
+
+  test("Load from Json with nested panel", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q",
+          panelCount: 3,
+          templateElements: [
+            { type: "text", name: "q1" },
+            {
+              type: "panel",
+              name: "np1",
+              elements: [{ type: "text", name: "q2" }],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(question.template.elements.length, "template elements are loaded correctly").toLooseEqual(2);
+    expect(question.template.elements[1].name, "the name of the second element is 'np1'").toLooseEqual("np1");
+    expect((<PanelModel>question.template.elements[1]).elements.length, "there is one element in nested panel 'np1'").toLooseEqual(1);
+    expect((<PanelModel>question.template.elements[1]).elements[0].name, "q2 is an element in the 'np1'").toLooseEqual("q2");
+    expect(question.panelCount, "panelCount loaded correctly").toLooseEqual(3);
+    expect(question.panels.length, "There are 3 panels now").toLooseEqual(3);
+    var p1 = question.panels[0];
+    var p2 = question.panels[1];
+    expect(p1, "the panel has been created").toBeTruthy();
+
+    expect(p1.elements.length, "template elements are loaded correctly").toLooseEqual(2);
+    expect(p1.elements[1].name, "the name of the second element is 'np1'").toLooseEqual("np1");
+    expect((<PanelModel>p1.elements[1]).elements.length, "there is one element in nested panel 'np1'").toLooseEqual(1);
+    expect((<PanelModel>p1.elements[1]).elements[0].name, "q2 is an element in the 'np1'").toLooseEqual("q2");
+
+    question.value = [
+      { q1: "item1_1", q2: "item1_2" },
+      { q1: "item2_1", q2: "item2_2" },
+    ];
+
+    expect((<Question>p1.questions[1]).value, "value set correct q2 panel1").toLooseEqual("item1_2");
+    expect((<Question>p2.questions[0]).value, "value set correct q1 panel2").toLooseEqual("item2_1");
+    (<Question>p1.questions[1]).value = "newValue";
+    expect(question.value[0].q2, "The value changed correctly").toLooseEqual("newValue");
+  });
+
+  test("Has errors", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    (<Question>question.template.questions[0]).isRequired = true;
+    question.isRequired = true;
+    question.value = [];
+    expect(question.validate(), "main question requires a value").toLooseEqual(false);
+    question.value = [{ q1: "item1_1" }, {}];
+    expect(question.validate(), "q1 on the second row is not set").toLooseEqual(false);
+    question.value = [{ q1: "item1_1" }, { q1: "item2_1" }];
+    expect(question.validate(), "There is no errors now").toLooseEqual(true);
+  });
+  test("Update panels elements on changing template panel", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.panelCount = 2;
+    expect(question.panels[0].elements.length, "Initially there is no elements in the copied panel").toLooseEqual(0);
+    question.template.addNewQuestion("text", "q1");
+    expect(question.panels[0].elements.length, "Add question into template - add question into copied panels").toLooseEqual(1);
+    question.template.removeQuestion(question.template.questions[0]);
+    expect(question.panels[0].elements.length, "Remove question from template - from question from copied panels").toLooseEqual(0);
+  });
+
+  test("Support visibleIf and panel variable", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.template.questions[1].visibleIf = "{panel.q1} = 'val'";
+    question.panelCount = 2;
+    expect(question.panels[0].questions[1].visible, "q1 is not 'val'").toLooseEqual(false);
+    question.value = [{ q1: "val" }];
+    expect(question.panels[0].questions[1].visible, "q1 is 'val'").toLooseEqual(true);
+  });
+  test("Support visibleIf and panel variable, question.valueName", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    (<Question>question.template.addNewQuestion("text", "q1")).valueName =
     "panelQ1";
-  question.templateTitle = "Value: {panel.panelQ1}";
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].processedTitle,
-    "Value: ",
-    "panelQ1 is empty"
-  );
-  question.value = [{ panelQ1: "val" }];
-  assert.equal(
-    question.panels[0].processedTitle,
-    "Value: val",
-    "panelQ1 is 'val'"
-  );
-});
-
-QUnit.test("Text Processing from panel.data", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "panelQ1");
-  question.templateTitle = "Value: {panel.panelQ1}";
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].processedTitle,
-    "Value: ",
-    "panelQ1 is empty"
-  );
-  question.value = [{ panelQ1: "val" }];
-  assert.equal(
-    question.panels[0].processedTitle,
-    "Value: val",
-    "panelQ1 is 'val'"
-  );
-});
-
-QUnit.test("Text Processing and parent panel variable", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rootPanel",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-            title: "{panel.q2}",
-          },
-          {
-            type: "text",
-            name: "q2",
-          },
+    question.template.addNewQuestion("text", "q2");
+    question.template.questions[1].visibleIf = "{panel.panelQ1} = 'val'";
+    question.panelCount = 2;
+    expect(question.panels[0].questions[1].visible, "panelQ1 is not 'val'").toLooseEqual(false);
+    question.value = [{ panelQ1: "val" }];
+    expect(question.panels[0].questions[1].visible, "panelQ1 is 'val'").toLooseEqual(true);
+  });
+  test("cell.setValueExpression for panel on the second page, Bug#9942", () => {
+    const survey = new SurveyModel({
+      pages: [{
+        elements: [
           {
             type: "paneldynamic",
-            name: "childPanel",
+            name: "panel1",
+            valueName: "panel",
             panelCount: 1,
-            templateElements: [
-              {
-                type: "text",
-                name: "childPanel_q1",
-                title: "{parentPanel.q2}",
-              },
-              {
-                type: "text",
-                name: "childPanel_q2",
-                title: "{parentpanel.q2}",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  });
-  var rootPanel = <QuestionPanelDynamicModel>(
-    survey.getQuestionByName("rootPanel")
-  );
-  var q1 = rootPanel.panels[0].getQuestionByName("q1");
-  var q2 = rootPanel.panels[0].getQuestionByName("q2");
-  var childPanel = <QuestionPanelDynamicModel>(
-    rootPanel.panels[0].getQuestionByName("childPanel")
-  );
-  var childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
-  var childPanel_q2 = childPanel.panels[0].getQuestionByName("childPanel_q2");
-  q2.value = "q2-title";
-  assert.equal(
-    q1.locTitle.renderedHtml,
-    "q2-title",
-    "root processed text correctly"
-  );
-  assert.equal(
-    childPanel_q1.locTitle.renderedHtml,
-    "q2-title",
-    "child processed text correctly"
-  );
-  assert.equal(
-    childPanel_q2.locTitle.renderedHtml,
-    "q2-title",
-    "child processed text correctly, lowcase"
-  );
-});
-QUnit.test("parentPanel variable in the expression, Bug#10221", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rootPanel",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1"
-          },
-          {
-            type: "paneldynamic",
-            name: "childPanel",
-            panelCount: 1,
-            templateElements: [
-              {
-                type: "text",
-                name: "childPanel_q1",
-                defaultValueExpression: "{parentPanel.q1} + '-child'",
-              }
-            ],
-          },
-        ],
-      },
-    ],
-  });
-  const rootPanel = <QuestionPanelDynamicModel>(
-    survey.getQuestionByName("rootPanel")
-  );
-  const q1 = rootPanel.panels[0].getQuestionByName("q1");
-  const childPanel = <QuestionPanelDynamicModel>(
-    rootPanel.panels[0].getQuestionByName("childPanel")
-  );
-  const childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
-  q1.value = "q1-value";
-  assert.equal(childPanel_q1.value, "q1-value-child", "childPanel_q1 value is set correctly");
-});
-QUnit.test("Text Processing design mode - https://github.com/surveyjs/survey-creator/issues/2192", function(assert) {
-  var survey = new SurveyModel({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question4"
-          },
-          {
-            "type": "paneldynamic",
-            "name": "question1",
-            "panelCount": 1,
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "question3"
-              },
-              {
-                "type": "text",
-                "name": "question2",
-                "title": "How are you {panel.question3}? How are you {question4}?"
-              }
-            ]
+            templateElements: [{ name: "q1", type: "text" }],
           }
         ]
+      },
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel2",
+            valueName: "panel",
+            templateElements: [
+              { name: "q2", type: "text", setValueExpression: "{panel.q1} + {panel.q3}" },
+              { name: "q3", type: "text" },
+            ]
+          },
+        ]
       }
-    ]
+      ]
+    });
+    const panel1 = survey.getQuestionByName("panel1");
+    const panel2 = survey.getQuestionByName("panel2");
+    panel1.panels[0].questions[0].value = 10;
+    panel1.addPanel();
+    panel1.panels[1].questions[0].value = 20;
+    survey.nextPage();
+    const panels = panel2.panels;
+    expect(panels.length, "panels count").toLooseEqual(2);
+    expect(panels[0].getQuestionByName("q2").value, "q2 value, panel 1").toLooseEqual(10);
+    expect(panels[1].getQuestionByName("q2").value, "q2 value, panel 2").toLooseEqual(20);
+    panels[0].getQuestionByName("q3").value = 5;
+    expect(panels[0].getQuestionByName("q2").value, "q2 value, panel 1").toLooseEqual(15);
   });
-  survey.setDesignMode(true);
-  var panel = <QuestionPanelDynamicModel>(
+  test("Support panelIndex in visibleIf expression", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.template.questions[1].visibleIf = "{panelIndex} = 0";
+    question.panelCount = 2;
+    expect(question.panels[0].questions[1].isVisible, "panel index = 0").toLooseEqual(true);
+    expect(question.panels[1].questions[1].isVisible, "panel index != 0").toLooseEqual(false);
+  });
+
+  test("Text Processing and panel variable, question.valueName", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+    "panelQ1";
+    question.templateTitle = "Value: {panel.panelQ1}";
+    question.panelCount = 2;
+    expect(question.panels[0].processedTitle, "panelQ1 is empty").toLooseEqual("Value: ");
+    question.value = [{ panelQ1: "val" }];
+    expect(question.panels[0].processedTitle, "panelQ1 is 'val'").toLooseEqual("Value: val");
+  });
+
+  test("Text Processing from panel.data", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "panelQ1");
+    question.templateTitle = "Value: {panel.panelQ1}";
+    question.panelCount = 2;
+    expect(question.panels[0].processedTitle, "panelQ1 is empty").toLooseEqual("Value: ");
+    question.value = [{ panelQ1: "val" }];
+    expect(question.panels[0].processedTitle, "panelQ1 is 'val'").toLooseEqual("Value: val");
+  });
+
+  test("Text Processing and parent panel variable", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "rootPanel",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              title: "{panel.q2}",
+            },
+            {
+              type: "text",
+              name: "q2",
+            },
+            {
+              type: "paneldynamic",
+              name: "childPanel",
+              panelCount: 1,
+              templateElements: [
+                {
+                  type: "text",
+                  name: "childPanel_q1",
+                  title: "{parentPanel.q2}",
+                },
+                {
+                  type: "text",
+                  name: "childPanel_q2",
+                  title: "{parentpanel.q2}",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    var rootPanel = <QuestionPanelDynamicModel>(
+    survey.getQuestionByName("rootPanel")
+  );
+    var q1 = rootPanel.panels[0].getQuestionByName("q1");
+    var q2 = rootPanel.panels[0].getQuestionByName("q2");
+    var childPanel = <QuestionPanelDynamicModel>(
+    rootPanel.panels[0].getQuestionByName("childPanel")
+  );
+    var childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
+    var childPanel_q2 = childPanel.panels[0].getQuestionByName("childPanel_q2");
+    q2.value = "q2-title";
+    expect(q1.locTitle.renderedHtml, "root processed text correctly").toLooseEqual("q2-title");
+    expect(childPanel_q1.locTitle.renderedHtml, "child processed text correctly").toLooseEqual("q2-title");
+    expect(childPanel_q2.locTitle.renderedHtml, "child processed text correctly, lowcase").toLooseEqual("q2-title");
+  });
+  test("parentPanel variable in the expression, Bug#10221", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "rootPanel",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            },
+            {
+              type: "paneldynamic",
+              name: "childPanel",
+              panelCount: 1,
+              templateElements: [
+                {
+                  type: "text",
+                  name: "childPanel_q1",
+                  defaultValueExpression: "{parentPanel.q1} + '-child'",
+                }
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const rootPanel = <QuestionPanelDynamicModel>(
+    survey.getQuestionByName("rootPanel")
+  );
+    const q1 = rootPanel.panels[0].getQuestionByName("q1");
+    const childPanel = <QuestionPanelDynamicModel>(
+    rootPanel.panels[0].getQuestionByName("childPanel")
+  );
+    const childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
+    q1.value = "q1-value";
+    expect(childPanel_q1.value, "childPanel_q1 value is set correctly").toLooseEqual("q1-value-child");
+  });
+  test("Text Processing design mode - https://github.com/surveyjs/survey-creator/issues/2192", () => {
+    var survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question4"
+            },
+            {
+              "type": "paneldynamic",
+              "name": "question1",
+              "panelCount": 1,
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question3"
+                },
+                {
+                  "type": "text",
+                  "name": "question2",
+                  "title": "How are you {panel.question3}? How are you {question4}?"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    survey.setDesignMode(true);
+    var panel = <QuestionPanelDynamicModel>(
     survey.getQuestionByName("question1")
   );
-  var q2 = panel.panels[0].getQuestionByName("question2");
-  assert.equal(
-    q2.locTitle.renderedHtml,
-    "How are you {panel.question3}? How are you {question4}?",
-    "no text processing in design mode"
-  );
-});
-
-QUnit.test("Initial Text Processing in panel title", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateTitle: "title:{panel.q1}",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-            title: "{panel.q2}",
-          },
-        ],
-      },
-    ],
+    var q2 = panel.panels[0].getQuestionByName("question2");
+    expect(q2.locTitle.renderedHtml, "no text processing in design mode").toLooseEqual("How are you {panel.question3}? How are you {question4}?");
   });
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  var q1 = panel.panels[0].getQuestionByName("q1");
-  assert.equal(
-    panel.panels[0].locTitle.renderedHtml,
-    "title:",
-    "initial text processing"
-  );
-  q1.value = "q1-title";
-  assert.equal(
-    panel.panels[0].locTitle.renderedHtml,
-    "title:q1-title",
-    "Text processing on setting value"
-  );
-});
 
-QUnit.test("Set panel value, question.valueName", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  (<Question>question.template.addNewQuestion("text", "q1")).valueName =
+  test("Initial Text Processing in panel title", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateTitle: "title:{panel.q1}",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              title: "{panel.q2}",
+            },
+          ],
+        },
+      ],
+    });
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    var q1 = panel.panels[0].getQuestionByName("q1");
+    expect(panel.panels[0].locTitle.renderedHtml, "initial text processing").toLooseEqual("title:");
+    q1.value = "q1-title";
+    expect(panel.panels[0].locTitle.renderedHtml, "Text processing on setting value").toLooseEqual("title:q1-title");
+  });
+
+  test("Set panel value, question.valueName", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    (<Question>question.template.addNewQuestion("text", "q1")).valueName =
     "panelQ1";
-  question.panelCount = 2;
-  assert.equal(
-    question.template.questions[0].getValueName(),
-    "panelQ1",
-    "value name is set"
-  );
-  assert.equal(
-    question.panels[0].questions[0].getValueName(),
-    "panelQ1",
-    "value name is set for generated panel"
-  );
-  (<Question>question.panels[0].questions[0]).value = "val1";
-  (<Question>question.panels[1].questions[0]).value = "val2";
-  assert.deepEqual(
-    question.value,
-    [{ panelQ1: "val1" }, { panelQ1: "val2" }],
-    "set value correctly, use valueName property"
-  );
-});
+    question.panelCount = 2;
+    expect(question.template.questions[0].getValueName(), "value name is set").toLooseEqual("panelQ1");
+    expect(question.panels[0].questions[0].getValueName(), "value name is set for generated panel").toLooseEqual("panelQ1");
+    (<Question>question.panels[0].questions[0]).value = "val1";
+    (<Question>question.panels[1].questions[0]).value = "val2";
+    expect(question.value, "set value correctly, use valueName property").toEqualValues([{ panelQ1: "val1" }, { panelQ1: "val2" }]);
+  });
 
-QUnit.test("Support panelIndex variable", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  question.templateTitle = "{panelIndex}. test";
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.panelCount = 2;
-  assert.equal(
-    question.panels[0].processedTitle,
-    "1. test",
-    "panelIndex = 1 for the first panel"
-  );
-  assert.equal(
-    question.panels[1].processedTitle,
-    "2. test",
-    "panelIndex = 2 for the second panel"
-  );
-});
-QUnit.test("remove Panel", function(assert) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.panelCount = 3;
-  question.value = [{}, { q1: "val1" }, {}];
-  question.removePanel(2);
-  question.removePanel(0);
-  assert.equal(question.value.length, 1, "There should be 1 item in the array");
-  assert.equal(question.panelCount, 1, "panelCount is 1 now");
-  assert.equal(
-    question.value[0]["q1"],
-    "val1",
-    "Do not delete the value in non deleted panels"
-  );
-});
-QUnit.test("remove Panel Question from Page, Bug#184, in editor repo", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  page.addElement(question);
-  var q = question.template.addNewQuestion("text", "q1");
-  assert.equal(question.template.elements.length, 1, "There is one element");
-  page.removeElement(q);
-  assert.equal(question.template.elements.length, 0, "Template panel is empty");
-});
-QUnit.test("Process text in titles", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var survey_q1 = <Question>page.addNewQuestion("text", "q1");
-  var survey_q2 = <Question>page.addNewQuestion("text", "q2");
-  survey_q2.title = "q1:{q1}";
-  var question = new QuestionPanelDynamicModel("q");
-  page.addQuestion(question);
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.templateTitle = "q1:{q1}, panel.q1:{panel.q1}";
-  (<Question>question.template.questions[1]).title =
+  test("Support panelIndex variable", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.templateTitle = "{panelIndex}. test";
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    expect(question.panels[0].processedTitle, "panelIndex = 1 for the first panel").toLooseEqual("1. test");
+    expect(question.panels[1].processedTitle, "panelIndex = 2 for the second panel").toLooseEqual("2. test");
+  });
+  test("remove Panel", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 3;
+    question.value = [{}, { q1: "val1" }, {}];
+    question.removePanel(2);
+    question.removePanel(0);
+    expect(question.value.length, "There should be 1 item in the array").toLooseEqual(1);
+    expect(question.panelCount, "panelCount is 1 now").toLooseEqual(1);
+    expect(question.value[0]["q1"], "Do not delete the value in non deleted panels").toLooseEqual("val1");
+  });
+  test("remove Panel Question from Page, Bug#184, in editor repo", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    page.addElement(question);
+    var q = question.template.addNewQuestion("text", "q1");
+    expect(question.template.elements.length, "There is one element").toLooseEqual(1);
+    page.removeElement(q);
+    expect(question.template.elements.length, "Template panel is empty").toLooseEqual(0);
+  });
+  test("Process text in titles", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var survey_q1 = <Question>page.addNewQuestion("text", "q1");
+    var survey_q2 = <Question>page.addNewQuestion("text", "q2");
+    survey_q2.title = "q1:{q1}";
+    var question = new QuestionPanelDynamicModel("q");
+    page.addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.templateTitle = "q1:{q1}, panel.q1:{panel.q1}";
+    (<Question>question.template.questions[1]).title =
     "q1:{q1}, panel.q1:{panel.q1}";
-  question.panelCount = 3;
-  survey_q1.value = "val_q1";
-  question.value = [{}, { q1: "val1" }, {}];
-  var panel = question.panels[1];
-  var panel_q2 = <Question>panel.questions[1];
-  assert.equal(
-    survey_q2.locTitle.renderedHtml,
-    "q1:val_q1",
-    "process root question title correclty"
-  );
-  assert.equal(
-    panel.locTitle.renderedHtml,
-    "q1:val_q1, panel.q1:val1",
-    "process panel title correctly"
-  );
-  assert.equal(
-    panel_q2.locTitle.renderedHtml,
-    "q1:val_q1, panel.q1:val1",
-    "process question title correctly"
-  );
-});
-QUnit.test(
-  "Process text in titles, variable that has name different from questions, bug#802",
-  function(assert) {
+    question.panelCount = 3;
+    survey_q1.value = "val_q1";
+    question.value = [{}, { q1: "val1" }, {}];
+    var panel = question.panels[1];
+    var panel_q2 = <Question>panel.questions[1];
+    expect(survey_q2.locTitle.renderedHtml, "process root question title correclty").toLooseEqual("q1:val_q1");
+    expect(panel.locTitle.renderedHtml, "process panel title correctly").toLooseEqual("q1:val_q1, panel.q1:val1");
+    expect(panel_q2.locTitle.renderedHtml, "process question title correctly").toLooseEqual("q1:val_q1, panel.q1:val1");
+  });
+  test("Process text in titles, variable that has name different from questions, bug#802", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var question = new QuestionPanelDynamicModel("q");
@@ -840,16 +604,9 @@ QUnit.test(
     question.templateTitle = "panel.q1:{panel.q1}, panel.name:{panel.name}";
     question.value = [{ q1: "q1Value", name: "nameValue" }, {}];
     var panel = question.panels[0];
-    assert.equal(
-      panel.locTitle.renderedHtml,
-      "panel.q1:q1Value, panel.name:nameValue",
-      "process panel title correctly"
-    );
-  }
-);
-QUnit.test(
-  "Process text in titles, get correct value, question.valueName",
-  function(assert) {
+    expect(panel.locTitle.renderedHtml, "process panel title correctly").toLooseEqual("panel.q1:q1Value, panel.name:nameValue");
+  });
+  test("Process text in titles, get correct value, question.valueName", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var survey_qName = <Question>page.addNewQuestion("text", "name");
@@ -862,650 +619,508 @@ QUnit.test(
     survey_qName.value = "surveyName";
     question.value = [{}, { name: "panel1Name" }, {}];
     var panel = question.panels[1];
-    assert.equal(
-      panel.locTitle.renderedHtml,
-      "survey.name:surveyName, panel.name:panel1Name",
-      "process panel title correctly"
-    );
-  }
-);
-
-QUnit.test("PanelDynamic in design time", function(assert) {
-  var survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.addNewPage("p");
-  var question = new QuestionPanelDynamicModel("q");
-  survey.pages[0].addQuestion(question);
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.panelCount = 2;
-  assert.equal(question.panels.length, 1, "Only one panel at design time");
-  assert.equal(
-    question.panels[0].id,
-    question.template.id,
-    "The template panel should be shown"
-  );
-  question.panelCount = 0;
-  assert.equal(question.panels.length, 1, "There are still one panel");
-  assert.equal(question.currentIndex, -1, "It is -1 in list mode");
-  question.displayMode = "carousel";
-  assert.equal(
-    question.panels.length,
-    1,
-    "There are still one panel in non list mode"
-  );
-  assert.equal(
-    question.currentIndex,
-    0,
-    "It is always zero  in non list mode at design-time"
-  );
-});
-QUnit.test("PanelDynamic in design time + panelCount", function(assert) {
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    elements: [
-      { type: "paneldynamic", name: "q1", panelCount: 5 }
-    ]
+    expect(panel.locTitle.renderedHtml, "process panel title correctly").toLooseEqual("survey.name:surveyName, panel.name:panel1Name");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-  assert.equal(panel.panelCount, 5, "Loading correctly");
-  assert.equal(panel.getPropertyValue("panelCount"), 5, "property is set correcty on loading");
-  panel.setPropertyValue("panelCount", 7);
-  assert.equal(panel.panelCount, 7, "panelCount set correctly");
-  panel.panelCount = 3;
-  assert.equal(panel.getPropertyValue("panelCount"), 3, "property is set correcty");
-});
-QUnit.test("PanelDynamic, question no", function(assert) {
-  var survey = new SurveyModel();
-  survey.showQuestionNumbers = "on";
-  var page = survey.addNewPage("p");
-  var question1 = <Question>page.addNewQuestion("text", "q1");
-  var panel = <QuestionPanelDynamicModel>(
+
+  test("PanelDynamic in design time", () => {
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.addNewPage("p");
+    var question = new QuestionPanelDynamicModel("q");
+    survey.pages[0].addQuestion(question);
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    expect(question.panels.length, "Only one panel at design time").toLooseEqual(1);
+    expect(question.panels[0].id, "The template panel should be shown").toLooseEqual(question.template.id);
+    question.panelCount = 0;
+    expect(question.panels.length, "There are still one panel").toLooseEqual(1);
+    expect(question.currentIndex, "It is -1 in list mode").toLooseEqual(-1);
+    question.displayMode = "carousel";
+    expect(question.panels.length, "There are still one panel in non list mode").toLooseEqual(1);
+    expect(question.currentIndex, "It is always zero  in non list mode at design-time").toLooseEqual(0);
+  });
+  test("PanelDynamic in design time + panelCount", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        { type: "paneldynamic", name: "q1", panelCount: 5 }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    expect(panel.panelCount, "Loading correctly").toLooseEqual(5);
+    expect(panel.getPropertyValue("panelCount"), "property is set correcty on loading").toLooseEqual(5);
+    panel.setPropertyValue("panelCount", 7);
+    expect(panel.panelCount, "panelCount set correctly").toLooseEqual(7);
+    panel.panelCount = 3;
+    expect(panel.getPropertyValue("panelCount"), "property is set correcty").toLooseEqual(3);
+  });
+  test("PanelDynamic, question no", () => {
+    var survey = new SurveyModel();
+    survey.showQuestionNumbers = "on";
+    var page = survey.addNewPage("p");
+    var question1 = <Question>page.addNewQuestion("text", "q1");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  panel.template.addNewQuestion("text", "panelq1");
-  panel.template.addNewQuestion("text", "panelq2");
-  panel.panelCount = 2;
-  var panelQuestion1 = <Question>panel.panels[0].questions[0];
-  var panelQuestion2 = <Question>panel.panels[1].questions[1];
-  var question2 = <Question>page.addNewQuestion("text", "q2");
-  assert.equal(panel.showQuestionNumbers, "off", "off is the default value");
-  assert.equal(question1.visibleIndex, 0, "off - question1.visibleIndex");
-  assert.equal(panel.visibleIndex, 1, "off - panel.visibleIndex");
-  assert.equal(
-    panelQuestion1.visibleIndex,
-    -1,
-    "off - panelQuestion1.visibleIndex"
-  );
-  assert.equal(
-    panelQuestion2.visibleIndex,
-    -1,
-    "off - panelQuestion2.visibleIndex"
-  );
-  assert.equal(question2.visibleIndex, 2, "off - question2.visibleIndex");
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    var panelQuestion1 = <Question>panel.panels[0].questions[0];
+    var panelQuestion2 = <Question>panel.panels[1].questions[1];
+    var question2 = <Question>page.addNewQuestion("text", "q2");
+    expect(panel.showQuestionNumbers, "off is the default value").toLooseEqual("off");
+    expect(question1.visibleIndex, "off - question1.visibleIndex").toLooseEqual(0);
+    expect(panel.visibleIndex, "off - panel.visibleIndex").toLooseEqual(1);
+    expect(panelQuestion1.visibleIndex, "off - panelQuestion1.visibleIndex").toLooseEqual(-1);
+    expect(panelQuestion2.visibleIndex, "off - panelQuestion2.visibleIndex").toLooseEqual(-1);
+    expect(question2.visibleIndex, "off - question2.visibleIndex").toLooseEqual(2);
 
-  panel.showQuestionNumbers = "onpanel";
-  assert.equal(question1.visibleIndex, 0, "onPanel - question1.visibleIndex");
-  assert.equal(panel.visibleIndex, 1, "onPanel - panel.visibleIndex");
-  assert.equal(
-    panelQuestion1.visibleIndex,
-    0,
-    "onPanel - panelQuestion1.visibleIndex"
-  );
-  assert.equal(
-    panelQuestion2.visibleIndex,
-    1,
-    "onPanel - panelQuestion2.visibleIndex"
-  );
-  assert.equal(question2.visibleIndex, 2, "onPanel - question2.visibleIndex");
-  panel.addPanel();
-  var panelQuestion3 = <Question>panel.panels[2].questions[1];
-  assert.equal(panelQuestion3.visibleIndex, 1, "onPanel - panelQuestion3.visibleIndex");
-  panel.removePanel(2);
+    panel.showQuestionNumbers = "onpanel";
+    expect(question1.visibleIndex, "onPanel - question1.visibleIndex").toLooseEqual(0);
+    expect(panel.visibleIndex, "onPanel - panel.visibleIndex").toLooseEqual(1);
+    expect(panelQuestion1.visibleIndex, "onPanel - panelQuestion1.visibleIndex").toLooseEqual(0);
+    expect(panelQuestion2.visibleIndex, "onPanel - panelQuestion2.visibleIndex").toLooseEqual(1);
+    expect(question2.visibleIndex, "onPanel - question2.visibleIndex").toLooseEqual(2);
+    panel.addPanel();
+    var panelQuestion3 = <Question>panel.panels[2].questions[1];
+    expect(panelQuestion3.visibleIndex, "onPanel - panelQuestion3.visibleIndex").toLooseEqual(1);
+    panel.removePanel(2);
 
-  panel.showQuestionNumbers = "default";
-  assert.equal(question1.visibleIndex, 0, "onSurvey - question1.visibleIndex");
-  assert.equal(panel.visibleIndex, -1, "onSurvey - panel.visibleIndex");
-  assert.equal(
-    panelQuestion1.visibleIndex,
-    1,
-    "onSurvey - panelQuestion1.visibleIndex"
-  );
-  assert.equal(
-    panelQuestion2.visibleIndex,
-    4,
-    "onSurvey - panelQuestion2.visibleIndex"
-  );
-  assert.equal(question2.visibleIndex, 5, "onSurvey - question2.visibleIndex");
+    panel.showQuestionNumbers = "default";
+    expect(question1.visibleIndex, "onSurvey - question1.visibleIndex").toLooseEqual(0);
+    expect(panel.visibleIndex, "onSurvey - panel.visibleIndex").toLooseEqual(-1);
+    expect(panelQuestion1.visibleIndex, "onSurvey - panelQuestion1.visibleIndex").toLooseEqual(1);
+    expect(panelQuestion2.visibleIndex, "onSurvey - panelQuestion2.visibleIndex").toLooseEqual(4);
+    expect(question2.visibleIndex, "onSurvey - question2.visibleIndex").toLooseEqual(5);
 
-  panel.addPanel();
-  panelQuestion3 = <Question>panel.panels[2].questions[1];
-  assert.equal(panelQuestion3.visibleIndex, 4 + 2, "onSurvey - panelQuestion3.visibleIndex");
-  panel.removePanel(2);
+    panel.addPanel();
+    panelQuestion3 = <Question>panel.panels[2].questions[1];
+    expect(panelQuestion3.visibleIndex, "onSurvey - panelQuestion3.visibleIndex").toLooseEqual(4 + 2);
+    panel.removePanel(2);
 
-  panelQuestion1.visible = false;
-  assert.equal(
-    panelQuestion2.visibleIndex,
-    3,
-    "onSurvey, panelQuestion1 is invisible - panelQuestion2.visibleIndex"
-  );
-  assert.equal(
-    question2.visibleIndex,
-    4,
-    "onSurvey, panelQuestion1 is invisible - question2.visibleIndex"
-  );
-  panel.removePanel(1);
-  assert.equal(question2.visibleIndex, 2, "onSurvey, second panel is removed - question2.visibleIndex"
-  );
-});
-QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time", function(assert) {
-  const survey = new SurveyModel();
-  survey.showQuestionNumbers = "on";
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "q1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "panel",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "q2"
-              }
-            ],
-            "showQuestionNumbers": "default"
-          }
-        ]
-      }
-    ]
+    panelQuestion1.visible = false;
+    expect(panelQuestion2.visibleIndex, "onSurvey, panelQuestion1 is invisible - panelQuestion2.visibleIndex").toLooseEqual(3);
+    expect(question2.visibleIndex, "onSurvey, panelQuestion1 is invisible - question2.visibleIndex").toLooseEqual(4);
+    panel.removePanel(1);
+    expect(question2.visibleIndex, "onSurvey, second panel is removed - question2.visibleIndex").toLooseEqual(2);
   });
-  const q1 = survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const q2 = <Question>panel.templateElements[0];
-  assert.equal(q1.no, "1.", "The number should be 1.");
-  assert.equal(q2.no, "2.", "The number should be 2.");
-  //Fix bug#10539
-  survey.showQuestionNumbers = "recursive";
-  assert.equal(panel.no, "2.", "The panel number should be 2. #2");
-  assert.equal(q2.no, "2.1.", "The number should be 2.1.");
-  survey.showQuestionNumbers = "off";
-  assert.equal(q2.no, "", "The number should be empty for q2.");
-  survey.showQuestionNumbers = "on";
-  assert.equal(q2.no, "2.", "The number should be 2. #2");
+  test("PanelDynamic, showQuestionNumbers onSurvey & design time", () => {
+    const survey = new SurveyModel();
+    survey.showQuestionNumbers = "on";
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "q1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "panel",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q2"
+                }
+              ],
+              "showQuestionNumbers": "default"
+            }
+          ]
+        }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const q2 = <Question>panel.templateElements[0];
+    expect(q1.no, "The number should be 1.").toLooseEqual("1.");
+    expect(q2.no, "The number should be 2.").toLooseEqual("2.");
+    //Fix bug#10539
+    survey.showQuestionNumbers = "recursive";
+    expect(panel.no, "The panel number should be 2. #2").toLooseEqual("2.");
+    expect(q2.no, "The number should be 2.1.").toLooseEqual("2.1.");
+    survey.showQuestionNumbers = "off";
+    expect(q2.no, "The number should be empty for q2.").toLooseEqual("");
+    survey.showQuestionNumbers = "on";
+    expect(q2.no, "The number should be 2. #2").toLooseEqual("2.");
 
-});
-QUnit.test("PanelDynamic, convert showQuestionNumbers 'onSurvey' into 'default', Issue#10531", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic", name: "panel", showQuestionNumbers: "onSurvey" }
-    ]
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.showQuestionNumbers, "default", "'onSurvey' is converted into 'default'");
-  panel.showQuestionNumbers = "onSurvey";
-  assert.equal(panel.showQuestionNumbers, "default", "'onSurvey' is converted into 'default' again");
-});
-QUnit.test("PanelDynamic, convert showQuestionNumbers 'onPanel' into 'onpanel', Issue#10531", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic", name: "panel", showQuestionNumbers: "onPanel" }
-    ]
+  test("PanelDynamic, convert showQuestionNumbers 'onSurvey' into 'default', Issue#10531", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", showQuestionNumbers: "onSurvey" }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.showQuestionNumbers, "'onSurvey' is converted into 'default'").toLooseEqual("default");
+    panel.showQuestionNumbers = "onSurvey";
+    expect(panel.showQuestionNumbers, "'onSurvey' is converted into 'default' again").toLooseEqual("default");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.showQuestionNumbers, "onpanel", "'onPanel' is converted into 'onpanel'");
-  panel.showQuestionNumbers = "onPanel";
-  assert.equal(panel.showQuestionNumbers, "onpanel", "'onPanel' is converted into 'onpanel' again");
-});
-QUnit.test("PanelDynamic, showQuestionNumbers 'default' & survey.showQuestionNumber: 'recursive', Issue#10531", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        showQuestionNumbers: "default",
-        questionStartIndex: " a",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" }
-        ]
-      },
-      { type: "text", name: "q4" }
-    ],
-    showQuestionNumbers: "recursive",
-    questionStartIndex: "1.1"
+  test("PanelDynamic, convert showQuestionNumbers 'onPanel' into 'onpanel', Issue#10531", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", showQuestionNumbers: "onPanel" }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.showQuestionNumbers, "'onPanel' is converted into 'onpanel'").toLooseEqual("onpanel");
+    panel.showQuestionNumbers = "onPanel";
+    expect(panel.showQuestionNumbers, "'onPanel' is converted into 'onpanel' again").toLooseEqual("onpanel");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel1 = panel.panels[0];
-  const panel2 = panel.panels[1];
-  const q1 = survey.getQuestionByName("q1");
-  const q4 = survey.getQuestionByName("q4");
-  assert.equal(q1.no, "1.1", "q1 number");
-  assert.equal(panel.no, "1.2", "panel number");
-  assert.equal(panel1.getQuestionByName("q2").no, "1.2 a", "panel1.q2 number");
-  assert.equal(panel1.getQuestionByName("q3").no, "1.2 b", "panel1.q3 number");
-  assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
-  assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
-  assert.equal(q4.no, "1.3", "q4 number");
-});
-QUnit.test("PanelDynamic, showQuestionNumbers onSurvey in run-time, bug#9652", function(assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "q1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "panel",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "q2"
-              }
-            ],
-            "showQuestionNumbers": "onSurvey"
-          }
-        ]
-      }
-    ],
-    "showQuestionNumbers": "on"
+  test("PanelDynamic, showQuestionNumbers 'default' & survey.showQuestionNumber: 'recursive', Issue#10531", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          showQuestionNumbers: "default",
+          questionStartIndex: " a",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ]
+        },
+        { type: "text", name: "q4" }
+      ],
+      showQuestionNumbers: "recursive",
+      questionStartIndex: "1.1"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel1 = panel.panels[0];
+    const panel2 = panel.panels[1];
+    const q1 = survey.getQuestionByName("q1");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.no, "q1 number").toLooseEqual("1.1");
+    expect(panel.no, "panel number").toLooseEqual("1.2");
+    expect(panel1.getQuestionByName("q2").no, "panel1.q2 number").toLooseEqual("1.2 a");
+    expect(panel1.getQuestionByName("q3").no, "panel1.q3 number").toLooseEqual("1.2 b");
+    expect(panel2.getQuestionByName("q2").no, "panel2.q2 number").toLooseEqual("1.2 a");
+    expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toLooseEqual("1.2 b");
+    expect(q4.no, "q4 number").toLooseEqual("1.3");
   });
-  const q1 = survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.addPanel();
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  assert.equal(panel.no, "", "The number should be empty for dynamic panel.");
-  assert.equal(q1.no, "1.", "The number should be 1.");
-  assert.equal(q2.no, "2.", "The number should be 2.");
-});
-QUnit.test("PanelDynamic, showQuestionNumbers onPanel in run-time, bug#9652", function(assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "q1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "panel",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "q2"
-              }
-            ],
-            "showQuestionNumbers": "onpanel"
-          }
-        ]
-      }
-    ]
+  test("PanelDynamic, showQuestionNumbers onSurvey in run-time, bug#9652", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "q1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "panel",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q2"
+                }
+              ],
+              "showQuestionNumbers": "onSurvey"
+            }
+          ]
+        }
+      ],
+      "showQuestionNumbers": "on"
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.addPanel();
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    expect(panel.no, "The number should be empty for dynamic panel.").toLooseEqual("");
+    expect(q1.no, "The number should be 1.").toLooseEqual("1.");
+    expect(q2.no, "The number should be 2.").toLooseEqual("2.");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.addPanel();
-  assert.equal(panel.panels[0].getQuestionByName("q2").no, "1.", "The number should be 2., #1");
-  panel.addPanel();
-  assert.equal(panel.panels[1].getQuestionByName("q2").no, "1.", "The number should be 2., #2");
-});
-QUnit.test("PanelDynamic, showQuestionNumbers recursive, Issue#10288", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        showQuestionNumbers: "recursive",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" }
-        ]
-      },
-      { type: "text", name: "q4" }
-    ],
-    showQuestionNumbers: "recursive",
-    questionStartIndex: "1.1"
+  test("PanelDynamic, showQuestionNumbers onPanel in run-time, bug#9652", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "q1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "panel",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q2"
+                }
+              ],
+              "showQuestionNumbers": "onpanel"
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.addPanel();
+    expect(panel.panels[0].getQuestionByName("q2").no, "The number should be 2., #1").toLooseEqual("1.");
+    panel.addPanel();
+    expect(panel.panels[1].getQuestionByName("q2").no, "The number should be 2., #2").toLooseEqual("1.");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel1 = panel.panels[0];
-  const panel2 = panel.panels[1];
-  const q1 = survey.getQuestionByName("q1");
-  const q4 = survey.getQuestionByName("q4");
-  assert.equal(q1.no, "1.1", "q1 number");
-  assert.equal(panel.no, "1.2", "panel number");
-  assert.equal(panel1.getQuestionByName("q2").no, "1.2.1", "panel1.q2 number");
-  assert.equal(panel1.getQuestionByName("q3").no, "1.2.2", "panel1.q3 number");
-  assert.equal(panel2.getQuestionByName("q2").no, "1.2.1", "panel2.q2 number");
-  assert.equal(panel2.getQuestionByName("q3").no, "1.2.2", "panel2.q3 number");
-  assert.equal(q4.no, "1.3", "q4 number");
-});
-QUnit.test("PanelDynamic, showQuestionNumbers recursive & questionStartIndex, Issue#10288", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        showQuestionNumbers: "recursive",
-        questionStartIndex: " a",
-        templateTitle: "Panel Title #{panelIndex}",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" }
-        ]
-      },
-      { type: "text", name: "q4" }
-    ],
-    showQuestionNumbers: "recursive",
-    questionStartIndex: "1.1"
+  test("PanelDynamic, showQuestionNumbers recursive, Issue#10288", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          showQuestionNumbers: "recursive",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ]
+        },
+        { type: "text", name: "q4" }
+      ],
+      showQuestionNumbers: "recursive",
+      questionStartIndex: "1.1"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel1 = panel.panels[0];
+    const panel2 = panel.panels[1];
+    const q1 = survey.getQuestionByName("q1");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.no, "q1 number").toLooseEqual("1.1");
+    expect(panel.no, "panel number").toLooseEqual("1.2");
+    expect(panel1.getQuestionByName("q2").no, "panel1.q2 number").toLooseEqual("1.2.1");
+    expect(panel1.getQuestionByName("q3").no, "panel1.q3 number").toLooseEqual("1.2.2");
+    expect(panel2.getQuestionByName("q2").no, "panel2.q2 number").toLooseEqual("1.2.1");
+    expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toLooseEqual("1.2.2");
+    expect(q4.no, "q4 number").toLooseEqual("1.3");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel1 = panel.panels[0];
-  const panel2 = panel.panels[1];
-  const q1 = survey.getQuestionByName("q1");
-  const q4 = survey.getQuestionByName("q4");
-  assert.equal(q1.no, "1.1", "q1 number");
-  assert.equal(panel.no, "1.2", "panel number");
-  assert.equal(panel1.locTitle.textOrHtml, "Panel Title #1", "panel1 title");
-  assert.equal(panel2.locTitle.textOrHtml, "Panel Title #2", "panel2 title");
-  assert.equal(panel1.getQuestionByName("q2").no, "1.2 a", "panel1.q2 number");
-  assert.equal(panel1.getQuestionByName("q3").no, "1.2 b", "panel1.q3 number");
-  assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
-  assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
-  assert.equal(q4.no, "1.3", "q4 number");
-});
-QUnit.test("PanelDynamic, showQuestionNumbers onpanel & questionStartIndex, Issue#10288", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        showQuestionNumbers: "onpanel",
-        questionStartIndex: "a",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" }
-        ]
-      },
-      { type: "text", name: "q4" }
-    ],
-    showQuestionNumbers: "recursive",
-    questionStartIndex: "1.1"
+  test("PanelDynamic, showQuestionNumbers recursive & questionStartIndex, Issue#10288", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          showQuestionNumbers: "recursive",
+          questionStartIndex: " a",
+          templateTitle: "Panel Title #{panelIndex}",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ]
+        },
+        { type: "text", name: "q4" }
+      ],
+      showQuestionNumbers: "recursive",
+      questionStartIndex: "1.1"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel1 = panel.panels[0];
+    const panel2 = panel.panels[1];
+    const q1 = survey.getQuestionByName("q1");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.no, "q1 number").toLooseEqual("1.1");
+    expect(panel.no, "panel number").toLooseEqual("1.2");
+    expect(panel1.locTitle.textOrHtml, "panel1 title").toLooseEqual("Panel Title #1");
+    expect(panel2.locTitle.textOrHtml, "panel2 title").toLooseEqual("Panel Title #2");
+    expect(panel1.getQuestionByName("q2").no, "panel1.q2 number").toLooseEqual("1.2 a");
+    expect(panel1.getQuestionByName("q3").no, "panel1.q3 number").toLooseEqual("1.2 b");
+    expect(panel2.getQuestionByName("q2").no, "panel2.q2 number").toLooseEqual("1.2 a");
+    expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toLooseEqual("1.2 b");
+    expect(q4.no, "q4 number").toLooseEqual("1.3");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel1 = panel.panels[0];
-  const panel2 = panel.panels[1];
-  const q1 = survey.getQuestionByName("q1");
-  const q4 = survey.getQuestionByName("q4");
-  assert.equal(q1.no, "1.1", "q1 number");
-  assert.equal(panel.no, "1.2", "panel number");
-  assert.equal(panel1.getQuestionByName("q2").no, "a", "panel1.q2 number");
-  assert.equal(panel1.getQuestionByName("q3").no, "b", "panel1.q3 number");
-  assert.equal(panel2.getQuestionByName("q2").no, "a", "panel2.q2 number");
-  assert.equal(panel2.getQuestionByName("q3").no, "b", "panel2.q3 number");
-  assert.equal(q4.no, "1.3", "q4 number");
-});
+  test("PanelDynamic, showQuestionNumbers onpanel & questionStartIndex, Issue#10288", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          showQuestionNumbers: "onpanel",
+          questionStartIndex: "a",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" }
+          ]
+        },
+        { type: "text", name: "q4" }
+      ],
+      showQuestionNumbers: "recursive",
+      questionStartIndex: "1.1"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel1 = panel.panels[0];
+    const panel2 = panel.panels[1];
+    const q1 = survey.getQuestionByName("q1");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.no, "q1 number").toLooseEqual("1.1");
+    expect(panel.no, "panel number").toLooseEqual("1.2");
+    expect(panel1.getQuestionByName("q2").no, "panel1.q2 number").toLooseEqual("a");
+    expect(panel1.getQuestionByName("q3").no, "panel1.q3 number").toLooseEqual("b");
+    expect(panel2.getQuestionByName("q2").no, "panel2.q2 number").toLooseEqual("a");
+    expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toLooseEqual("b");
+    expect(q4.no, "q4 number").toLooseEqual("1.3");
+  });
 
-QUnit.test("PanelDynamic, renderMode", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+  test("PanelDynamic, renderMode", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  panel.template.addNewQuestion("text", "panelq1");
-  panel.template.addNewQuestion("text", "panelq2");
-  assert.equal(panel.renderMode, "list", "list is a default mode");
-  panel.panelCount = 2;
-  assert.equal(
-    panel.currentIndex,
-    -1,
-    "list mode doesn't support currentIndex"
-  );
-  assert.equal(
-    panel.currentPanel,
-    null,
-    "list mode doesn't support currentPanel"
-  );
-  panel.displayMode = "carousel";
-  assert.equal(panel.currentIndex, 0, "list mode doesn't support currentIndex");
-  assert.equal(
-    panel.currentPanel.id,
-    panel.panels[0].id,
-    "list mode doesn't support currentPanel"
-  );
-  assert.equal(
-    panel.isPrevButtonVisible,
-    false,
-    "currentIndex = 0, prevButton is hidden"
-  );
-  assert.equal(
-    panel.isNextButtonVisible,
-    true,
-    "currentIndex = 0, nextButton is visible"
-  );
-  panel.currentIndex++;
-  assert.equal(
-    panel.isPrevButtonVisible,
-    true,
-    "currentIndex = 1, prevButton is visible"
-  );
-  assert.equal(
-    panel.isNextButtonVisible,
-    false,
-    "currentIndex = 1, nextButton is hidden"
-  );
-  panel.addPanel();
-  assert.equal(panel.currentIndex, 2, "The last added panel is current");
-  panel.removePanel(2);
-  assert.equal(panel.currentIndex, 1, "The last  panel is removed");
-});
-QUnit.test("PanelDynamic, displayMode is not list + hasError", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    expect(panel.renderMode, "list is a default mode").toLooseEqual("list");
+    panel.panelCount = 2;
+    expect(panel.currentIndex, "list mode doesn't support currentIndex").toLooseEqual(-1);
+    expect(panel.currentPanel, "list mode doesn't support currentPanel").toLooseEqual(null);
+    panel.displayMode = "carousel";
+    expect(panel.currentIndex, "list mode doesn't support currentIndex").toLooseEqual(0);
+    expect(panel.currentPanel.id, "list mode doesn't support currentPanel").toLooseEqual(panel.panels[0].id);
+    expect(panel.isPrevButtonVisible, "currentIndex = 0, prevButton is hidden").toLooseEqual(false);
+    expect(panel.isNextButtonVisible, "currentIndex = 0, nextButton is visible").toLooseEqual(true);
+    panel.currentIndex++;
+    expect(panel.isPrevButtonVisible, "currentIndex = 1, prevButton is visible").toLooseEqual(true);
+    expect(panel.isNextButtonVisible, "currentIndex = 1, nextButton is hidden").toLooseEqual(false);
+    panel.addPanel();
+    expect(panel.currentIndex, "The last added panel is current").toLooseEqual(2);
+    panel.removePanel(2);
+    expect(panel.currentIndex, "The last  panel is removed").toLooseEqual(1);
+  });
+  test("PanelDynamic, displayMode is not list + hasError", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  (<Question>(
+    (<Question>(
     panel.template.addNewQuestion("text", "panelq1")
   )).isRequired = true;
-  panel.template.addNewQuestion("text", "panelq2");
-  panel.panelCount = 2;
-  panel.displayMode = "carousel";
-  panel.currentIndex = 1;
-  assert.equal(panel.currentIndex, 1, "go to the second panel");
-  panel.validate(true, true);
-  assert.equal(panel.currentIndex, 0, "it should show the first panel where the error happened");
-});
-QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    panel.displayMode = "carousel";
+    panel.currentIndex = 1;
+    expect(panel.currentIndex, "go to the second panel").toLooseEqual(1);
+    panel.validate(true, true);
+    expect(panel.currentIndex, "it should show the first panel where the error happened").toLooseEqual(0);
+  });
+  test("PanelDynamic, keyName + hasError + getAllErrors", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  panel.template.addNewQuestion("text", "panelq1");
-  panel.template.addNewQuestion("text", "panelq2");
-  panel.panelCount = 2;
-  panel.keyName = "panelq1";
-  assert.equal(panel.validate(true), true, "There is no errors");
-  (<Question>panel.panels[0].questions[0]).value = "val1";
-  assert.equal(
-    panel.validate(true),
-    true,
-    "There is no errors panel[0].q1 = val1"
-  );
-  (<Question>panel.panels[1].questions[0]).value = "val1";
-  assert.equal(
-    panel.validate(true),
-    false,
-    "There is the error panel[0].q1 = val1 and panel[1].q1 = val1"
-  );
-  assert.equal(
-    (<Question>panel.panels[1].questions[0]).hasVisibleErrors,
-    true,
-    "We have visible errors now"
-  );
-  assert.equal(
-    panel.errors.length,
-    0,
-    "There is no errors in the panel question itself"
-  );
-  assert.equal(
-    panel.getAllErrors().length,
-    1,
-    "There is errors in question inside the panel"
-  );
-  (<Question>panel.panels[1].questions[0]).value = "val2";
-  assert.equal(
-    panel.validate(true),
-    true,
-    "There is no error panel[0].q1 = val1 and panel[1].q1 = val2"
-  );
-  assert.equal(
-    (<Question>panel.panels[1].questions[0]).hasVisibleErrors,
-    false,
-    "We do not have visible errors"
-  );
-  assert.equal(
-    panel.getAllErrors().length,
-    0,
-    "There is no errors in question inside the panel"
-  );
-});
-QUnit.test("PanelDynamic, keyName + hasError, Bug #1820", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        templateTitle: "Information about: {panel.relativeType}",
-        keyName: "relativeType",
-        templateElements: [
-          {
-            name: "relativeType",
-            type: "dropdown",
-            choices: [
-              "father",
-              "mother",
-              "brother",
-              "sister",
-              "son",
-              "daughter",
-            ],
-          },
-        ],
-        panelCount: 2,
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    panel.keyName = "panelq1";
+    expect(panel.validate(true), "There is no errors").toLooseEqual(true);
+    (<Question>panel.panels[0].questions[0]).value = "val1";
+    expect(panel.validate(true), "There is no errors panel[0].q1 = val1").toLooseEqual(true);
+    (<Question>panel.panels[1].questions[0]).value = "val1";
+    expect(panel.validate(true), "There is the error panel[0].q1 = val1 and panel[1].q1 = val1").toLooseEqual(false);
+    expect((<Question>panel.panels[1].questions[0]).hasVisibleErrors, "We have visible errors now").toLooseEqual(true);
+    expect(panel.errors.length, "There is no errors in the panel question itself").toLooseEqual(0);
+    expect(panel.getAllErrors().length, "There is errors in question inside the panel").toLooseEqual(1);
+    (<Question>panel.panels[1].questions[0]).value = "val2";
+    expect(panel.validate(true), "There is no error panel[0].q1 = val1 and panel[1].q1 = val2").toLooseEqual(true);
+    expect((<Question>panel.panels[1].questions[0]).hasVisibleErrors, "We do not have visible errors").toLooseEqual(false);
+    expect(panel.getAllErrors().length, "There is no errors in question inside the panel").toLooseEqual(0);
+  });
+  test("PanelDynamic, keyName + hasError, Bug #1820", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          templateTitle: "Information about: {panel.relativeType}",
+          keyName: "relativeType",
+          templateElements: [
+            {
+              name: "relativeType",
+              type: "dropdown",
+              choices: [
+                "father",
+                "mother",
+                "brother",
+                "sister",
+                "son",
+                "daughter",
+              ],
+            },
+          ],
+          panelCount: 2,
+        },
+      ],
+    });
+    survey.setValue("relatives", [
+      { relativeType: "father" },
+      { relativeType: "father" },
+    ]);
+    expect(survey.currentPage.validate(true), "There are two 'father' in keyName property").toLooseEqual(false);
+  });
+
+  test("assign customWidgets to questions in dynamic panel", () => {
+    CustomWidgetCollection.Instance.clear();
+    CustomWidgetCollection.Instance.addCustomWidget({
+      name: "customWidget",
+      isFit: (question) => {
+        return question.name == "panelq2";
       },
-    ],
-  });
-  survey.setValue("relatives", [
-    { relativeType: "father" },
-    { relativeType: "father" },
-  ]);
-  assert.equal(
-    survey.currentPage.validate(true),
-    false,
-    "There are two 'father' in keyName property"
-  );
-});
-
-QUnit.test("assign customWidgets to questions in dynamic panel", function(
-  assert
-) {
-  CustomWidgetCollection.Instance.clear();
-  CustomWidgetCollection.Instance.addCustomWidget({
-    name: "customWidget",
-    isFit: (question) => {
-      return question.name == "panelq2";
-    },
-  });
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+    });
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  panel.template.addNewQuestion("text", "panelq1");
-  panel.template.addNewQuestion("text", "panelq2");
-  panel.panelCount = 2;
-  assert.equal(
-    panel.panels[0].questions[0].customWidget,
-    null,
-    "panel0, there is no custom widget for this question"
-  );
-  assert.equal(
-    panel.panels[0].questions[1].customWidget.name,
-    "customWidget",
-    "panel0, has the custom widget"
-  );
-  assert.equal(
-    panel.panels[1].questions[0].customWidget,
-    null,
-    "panel1, there is no custom widget for this question"
-  );
-  assert.equal(
-    panel.panels[1].questions[1].customWidget.name,
-    "customWidget",
-    "panel1, has the custom widget"
-  );
-  CustomWidgetCollection.Instance.clear();
-});
+    panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq2");
+    panel.panelCount = 2;
+    expect(panel.panels[0].questions[0].customWidget, "panel0, there is no custom widget for this question").toLooseEqual(null);
+    expect(panel.panels[0].questions[1].customWidget.name, "panel0, has the custom widget").toLooseEqual("customWidget");
+    expect(panel.panels[1].questions[0].customWidget, "panel1, there is no custom widget for this question").toLooseEqual(null);
+    expect(panel.panels[1].questions[1].customWidget.name, "panel1, has the custom widget").toLooseEqual("customWidget");
+    CustomWidgetCollection.Instance.clear();
+  });
 
-QUnit.test("Auto generate names", function(assert) {
-  var survey = new SurveyModel();
-  var page1 = survey.addNewPage();
-  var panel = <QuestionPanelDynamicModel>page1.addNewQuestion("paneldynamic");
-  var q2 = panel.template.addNewQuestion("text");
-  var p1 = panel.template.addNewPanel();
-  var q3 = page1.addNewQuestion("text");
+  test("Auto generate names", () => {
+    var survey = new SurveyModel();
+    var page1 = survey.addNewPage();
+    var panel = <QuestionPanelDynamicModel>page1.addNewQuestion("paneldynamic");
+    var q2 = panel.template.addNewQuestion("text");
+    var p1 = panel.template.addNewPanel();
+    var q3 = page1.addNewQuestion("text");
 
-  assert.equal(p1.name, "panel1", "the first name for panel is panel1");
-  assert.equal(
-    q2.name,
-    "question2",
-    "the second name for question is question2"
-  );
-  assert.equal(
-    q3.name,
-    "question3",
-    "the third name for question is question3"
-  );
-});
+    expect(p1.name, "the first name for panel is panel1").toLooseEqual("panel1");
+    expect(q2.name, "the second name for question is question2").toLooseEqual("question2");
+    expect(q3.name, "the third name for question is question3").toLooseEqual("question3");
+  });
 
-QUnit.test(
-  "Set data for loaded panel after clearing the survey data, bug#784",
-  function(assert) {
+  test("Set data for loaded panel after clearing the survey data, bug#784", () => {
     var json = {
       elements: [
         {
@@ -1525,100 +1140,79 @@ QUnit.test(
     var dymamicPanel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
     var q1 = <Question>dymamicPanel.panels[0].questions[0];
     q1.value = "test";
-    assert.equal(q1.value, "test", "question keep the value");
-    assert.deepEqual(
-      survey.data,
-      { q: [{ q1: "test" }] },
-      "value set into survey"
-    );
-  }
-);
+    expect(q1.value, "question keep the value").toLooseEqual("test");
+    expect(survey.data, "value set into survey").toEqualValues({ q: [{ q1: "test" }] });
+  });
 
-QUnit.test("Set panel count to 0, Editor bug#228", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  survey.setDesignMode(true);
-  var dymamicPanel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.equal(dymamicPanel.panelCount, 0, "The default panel count is 0");
-  dymamicPanel.panelCount = 1;
-  assert.equal(dymamicPanel.panelCount, 1, "There is one panel");
-  dymamicPanel.panelCount = 0;
-  assert.equal(dymamicPanel.panelCount, 0, "There is no panels");
-});
+  test("Set panel count to 0, Editor bug#228", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    survey.setDesignMode(true);
+    var dymamicPanel = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(dymamicPanel.panelCount, "The default panel count is 0").toLooseEqual(0);
+    dymamicPanel.panelCount = 1;
+    expect(dymamicPanel.panelCount, "There is one panel").toLooseEqual(1);
+    dymamicPanel.panelCount = 0;
+    expect(dymamicPanel.panelCount, "There is no panels").toLooseEqual(0);
+  });
 
-QUnit.test("PanelDynamic, question.getTitleLocation(), bug#800", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+  test("PanelDynamic, question.getTitleLocation(), bug#800", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  panel.template.addNewQuestion("text", "panelq1");
+    panel.template.addNewQuestion("text", "panelq1");
 
-  panel.panelCount = 2;
-  var p = panel.panels[0];
-  var q = <Question>p.questions[0];
+    panel.panelCount = 2;
+    var p = panel.panels[0];
+    var q = <Question>p.questions[0];
 
-  assert.equal(q.getTitleLocation(), "top", "it is top by default");
+    expect(q.getTitleLocation(), "it is top by default").toLooseEqual("top");
 
-  page.questionTitleLocation = "left";
+    page.questionTitleLocation = "left";
 
-  assert.equal(
-    p.getQuestionTitleLocation(),
-    "left",
-    "it is left based on survey.questionTitleLocation"
-  );
-  assert.equal(
-    q.getTitleLocation(),
-    "left",
-    "it is left based on survey.questionTitleLocation"
-  );
-  panel.templateTitleLocation = "bottom";
-  assert.equal(
-    q.getTitleLocation(),
-    "bottom",
-    "it is bottom, based on templateTitleLocation"
-  );
-});
+    expect(p.getQuestionTitleLocation(), "it is left based on survey.questionTitleLocation").toLooseEqual("left");
+    expect(q.getTitleLocation(), "it is left based on survey.questionTitleLocation").toLooseEqual("left");
+    panel.templateTitleLocation = "bottom";
+    expect(q.getTitleLocation(), "it is bottom, based on templateTitleLocation").toLooseEqual("bottom");
+  });
 
-QUnit.test("PanelDynamic, canAddPanel/canRemovePanel", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+  test("PanelDynamic, canAddPanel/canRemovePanel", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
 
-  assert.equal(panel.canAddPanel, true, "By default you can add panel");
-  assert.equal(panel.canRemovePanel, false, "There is no panels");
-  panel.panelCount = 2;
-  assert.equal(panel.canRemovePanel, true, "You can remove now");
-  survey.setDesignMode(true);
-  assert.equal(panel.canAddPanel, false, "You can't add in design mode");
-  assert.equal(panel.canRemovePanel, false, "You can't delete in design mode");
-  survey.setDesignMode(false);
-  assert.equal(panel.canAddPanel, true, "You can add in run-time mode");
-  assert.equal(panel.canRemovePanel, true, "You can delete in run-time mode");
-  panel.allowAddPanel = false;
-  panel.allowRemovePanel = false;
-  assert.equal(panel.canAddPanel, false, "allowAddPanel = false");
-  assert.equal(panel.canRemovePanel, false, "allowRemovePanel = false");
-});
+    expect(panel.canAddPanel, "By default you can add panel").toLooseEqual(true);
+    expect(panel.canRemovePanel, "There is no panels").toLooseEqual(false);
+    panel.panelCount = 2;
+    expect(panel.canRemovePanel, "You can remove now").toLooseEqual(true);
+    survey.setDesignMode(true);
+    expect(panel.canAddPanel, "You can't add in design mode").toLooseEqual(false);
+    expect(panel.canRemovePanel, "You can't delete in design mode").toLooseEqual(false);
+    survey.setDesignMode(false);
+    expect(panel.canAddPanel, "You can add in run-time mode").toLooseEqual(true);
+    expect(panel.canRemovePanel, "You can delete in run-time mode").toLooseEqual(true);
+    panel.allowAddPanel = false;
+    panel.allowRemovePanel = false;
+    expect(panel.canAddPanel, "allowAddPanel = false").toLooseEqual(false);
+    expect(panel.canRemovePanel, "allowRemovePanel = false").toLooseEqual(false);
+  });
 
-QUnit.test(
-  "PanelDynamic, survey.clearInvisibleValues='onHidden', bug#806",
-  function(assert) {
+  test("PanelDynamic, survey.clearInvisibleValues='onHidden', bug#806", () => {
     var survey = new SurveyModel();
     survey.clearInvisibleValues = "onHidden";
     var page = survey.addNewPage("p");
@@ -1634,20 +1228,17 @@ QUnit.test(
     var rq1 = <Question>p.questions[0];
     var rq2 = <Question>p.questions[1];
 
-    assert.equal(rq2.isVisible, false, "the question is invisible");
+    expect(rq2.isVisible, "the question is invisible").toLooseEqual(false);
     rq1.value = "a";
-    assert.equal(rq2.isVisible, true, "the question is visible");
+    expect(rq2.isVisible, "the question is visible").toLooseEqual(true);
     rq2.value = "b";
-    assert.equal(rq2.isEmpty(), false, "the value is set");
+    expect(rq2.isEmpty(), "the value is set").toLooseEqual(false);
     rq1.value = "c";
-    assert.equal(rq2.isVisible, false, "the question is invisible again");
-    assert.equal(rq2.isEmpty(), true, "the question is empty");
-  }
-);
+    expect(rq2.isVisible, "the question is invisible again").toLooseEqual(false);
+    expect(rq2.isEmpty(), "the question is empty").toLooseEqual(true);
+  });
 
-QUnit.test(
-  "PanelDynamic, survey.clearInvisibleValues='onComplete', bug#806",
-  function(assert) {
+  test("PanelDynamic, survey.clearInvisibleValues='onComplete', bug#806", () => {
     var survey = new SurveyModel();
     survey.clearInvisibleValues = "onComplete";
     var page = survey.addNewPage("p");
@@ -1662,156 +1253,132 @@ QUnit.test(
 
     rq1.value = "a";
     rq1.visible = false;
-    assert.deepEqual(
-      survey.data,
-      { panel: [{ panelq1: "a" }, {}] },
-      "The value is here"
-    );
+    expect(survey.data, "The value is here").toEqualValues({ panel: [{ panelq1: "a" }, {}] });
     survey.doComplete();
-    assert.deepEqual(survey.data, { panel: [{}, {}] }, "The value is gone");
-  }
-);
+    expect(survey.data, "The value is gone").toEqualValues({ panel: [{}, {}] });
+  });
 
-QUnit.test("PanelDynamic, survey.onDanamicPanelAdd/Remove", function(assert) {
-  var survey = new SurveyModel();
-  survey.clearInvisibleValues = "onComplete";
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+  test("PanelDynamic, survey.onDanamicPanelAdd/Remove", () => {
+    var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onComplete";
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  var q1 = <Question>panel.template.addNewQuestion("text", "panelq1");
-  var questionName = "";
-  var panelAddedCounter = 0;
-  var panelRemovedCounter = 0;
-  var panelIndex = -1;
-  survey.onDynamicPanelAdded.add(function(survey, options) {
-    questionName = options.question.name;
-    assert.ok(
-      options.panel.getQuestionByName("panelq1"),
-      "Panel added correctly"
-    );
-    panelAddedCounter++;
+    var q1 = <Question>panel.template.addNewQuestion("text", "panelq1");
+    var questionName = "";
+    var panelAddedCounter = 0;
+    var panelRemovedCounter = 0;
+    var panelIndex = -1;
+    survey.onDynamicPanelAdded.add(function(survey, options) {
+      questionName = options.question.name;
+      expect(options.panel.getQuestionByName("panelq1"), "Panel added correctly").toBeTruthy();
+      panelAddedCounter++;
+    });
+    survey.onDynamicPanelRemoved.add(function(survey, options) {
+      questionName = options.question.name;
+      panelRemovedCounter++;
+      panelIndex = options.panelIndex;
+    });
+    panel.panelCount = 2;
+    expect(panelAddedCounter, "Nothing was added").toLooseEqual(0);
+    expect(panelRemovedCounter, "Nothing was removed").toLooseEqual(0);
+    panel.addPanel();
+    expect(panelAddedCounter, "one panel was added").toLooseEqual(1);
+    expect(questionName, "the question was passed correctly on added").toLooseEqual("panel");
+    questionName = "";
+    panel.removePanel(1);
+    expect(panelAddedCounter, "one panel was removed").toLooseEqual(1);
+    expect(questionName, "the question was passed correctly on removed").toLooseEqual("panel");
+    expect(panelIndex, "the removed panel index is correct").toLooseEqual(1);
   });
-  survey.onDynamicPanelRemoved.add(function(survey, options) {
-    questionName = options.question.name;
-    panelRemovedCounter++;
-    panelIndex = options.panelIndex;
-  });
-  panel.panelCount = 2;
-  assert.equal(panelAddedCounter, 0, "Nothing was added");
-  assert.equal(panelRemovedCounter, 0, "Nothing was removed");
-  panel.addPanel();
-  assert.equal(panelAddedCounter, 1, "one panel was added");
-  assert.equal(
-    questionName,
-    "panel",
-    "the question was passed correctly on added"
-  );
-  questionName = "";
-  panel.removePanel(1);
-  assert.equal(panelAddedCounter, 1, "one panel was removed");
-  assert.equal(
-    questionName,
-    "panel",
-    "the question was passed correctly on removed"
-  );
-  assert.equal(panelIndex, 1, "the removed panel index is correct");
-});
-QUnit.test("PanelDynamic, survey.onDanamicPanelRemoving", function(assert) {
-  var survey = new SurveyModel();
-  survey.clearInvisibleValues = "onComplete";
-  var page = survey.addNewPage("p");
-  var panel = <QuestionPanelDynamicModel>(
+  test("PanelDynamic, survey.onDanamicPanelRemoving", () => {
+    var survey = new SurveyModel();
+    survey.clearInvisibleValues = "onComplete";
+    var page = survey.addNewPage("p");
+    var panel = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "panel")
   );
-  panel.template.addNewQuestion("text", "panelq1");
-  var questionName = "";
-  var panelRemovedCounter = 0;
-  var panelIndex = -1;
-  survey.onDynamicPanelRemoving.add(function(survey, options) {
-    questionName = options.question.name;
-    panelRemovedCounter++;
-    panelIndex = options.panelIndex;
-    options.allow = panelIndex != 1;
+    panel.template.addNewQuestion("text", "panelq1");
+    var questionName = "";
+    var panelRemovedCounter = 0;
+    var panelIndex = -1;
+    survey.onDynamicPanelRemoving.add(function(survey, options) {
+      questionName = options.question.name;
+      panelRemovedCounter++;
+      panelIndex = options.panelIndex;
+      options.allow = panelIndex != 1;
+    });
+    panel.panelCount = 3;
+    panel.removePanel(0);
+    expect(questionName, "the question was passed correctly on removed, #1").toLooseEqual("panel");
+    expect(panelRemovedCounter, "one panel was removed, #1").toLooseEqual(1);
+    expect(panel.panelCount, "panel count is 2, #1").toLooseEqual(2);
+    expect(panelIndex, "the removed panel index is correct, #1").toLooseEqual(0);
+    panel.removePanel(1);
+    expect(questionName, "the question was passed correctly on removed, #2").toLooseEqual("panel");
+    expect(panelRemovedCounter, "one panel was removed, #2").toLooseEqual(2);
+    expect(panel.panelCount, "panel count is still 2, #2").toLooseEqual(2);
+    expect(panelIndex, "the removed panel index is correct, #2").toLooseEqual(1);
   });
-  panel.panelCount = 3;
-  panel.removePanel(0);
-  assert.equal(questionName, "panel", "the question was passed correctly on removed, #1");
-  assert.equal(panelRemovedCounter, 1, "one panel was removed, #1");
-  assert.equal(panel.panelCount, 2, "panel count is 2, #1");
-  assert.equal(panelIndex, 0, "the removed panel index is correct, #1");
-  panel.removePanel(1);
-  assert.equal(questionName, "panel", "the question was passed correctly on removed, #2");
-  assert.equal(panelRemovedCounter, 2, "one panel was removed, #2");
-  assert.equal(panel.panelCount, 2, "panel count is still 2, #2");
-  assert.equal(panelIndex, 1, "the removed panel index is correct, #2");
-});
-QUnit.test("PanelDynamic defaultValue in questions", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "question1",
-        templateElements: [
-          {
-            type: "text",
-            name: "question2",
-            defaultValue: "100",
-          },
-          {
-            type: "dropdown",
-            name: "question3",
-            defaultValue: "item2",
-            choices: ["item1", "item2", "item3"],
-          },
-        ],
-      },
-    ],
-  });
-  var question = <QuestionPanelDynamicModel>(
+  test("PanelDynamic defaultValue in questions", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "text",
+              name: "question2",
+              defaultValue: "100",
+            },
+            {
+              type: "dropdown",
+              name: "question3",
+              defaultValue: "item2",
+              choices: ["item1", "item2", "item3"],
+            },
+          ],
+        },
+      ],
+    });
+    var question = <QuestionPanelDynamicModel>(
     survey.getQuestionByName("question1")
   );
-  question.panelCount = 2;
-  var textQuestion = <Question>(
+    question.panelCount = 2;
+    var textQuestion = <Question>(
     question.panels[1].getQuestionByName("question2")
   );
-  var dropDownQuestion = <Question>(
+    var dropDownQuestion = <Question>(
     question.panels[1].getQuestionByName("question3")
   );
-  assert.equal(textQuestion.value, "100", "The default value to text is set");
-  assert.equal(
-    dropDownQuestion.value,
-    "item2",
-    "The default value to dropdown is set"
-  );
-});
+    expect(textQuestion.value, "The default value to text is set").toLooseEqual("100");
+    expect(dropDownQuestion.value, "The default value to dropdown is set").toLooseEqual("item2");
+  });
 
-QUnit.test("Two PanelDynamic questions bound to the same value", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p");
-  var q1 = new QuestionPanelDynamicModel("q1");
-  q1.valueName = "panel";
-  q1.template.addNewQuestion("text", "t1");
-  var q2 = new QuestionPanelDynamicModel("q2");
-  q2.valueName = "panel";
-  q2.template.addNewQuestion("text", "t1");
-  q2.template.addNewQuestion("text", "t2");
-  page.addElement(q1);
-  page.addElement(q2);
+  test("Two PanelDynamic questions bound to the same value", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("p");
+    var q1 = new QuestionPanelDynamicModel("q1");
+    q1.valueName = "panel";
+    q1.template.addNewQuestion("text", "t1");
+    var q2 = new QuestionPanelDynamicModel("q2");
+    q2.valueName = "panel";
+    q2.template.addNewQuestion("text", "t1");
+    q2.template.addNewQuestion("text", "t2");
+    page.addElement(q1);
+    page.addElement(q2);
 
-  q1.panelCount = 1;
-  assert.equal(q2.panelCount, 1, "By default there are two panels in panel2");
-  q1.addPanel();
-  assert.equal(q2.panelCount, 2, "One panel was added");
-  q1.removePanel(1);
-  assert.equal(q1.panelCount, 1, "q1: One panel was removed");
-  assert.equal(q2.panelCount, 1, "q2: One panel was removed");
-});
-QUnit.test(
-  "PanelDynamic vs MatrixDynamic questions bound to the same value on different pages, bug#T464",
-  function(assert) {
+    q1.panelCount = 1;
+    expect(q2.panelCount, "By default there are two panels in panel2").toLooseEqual(1);
+    q1.addPanel();
+    expect(q2.panelCount, "One panel was added").toLooseEqual(2);
+    q1.removePanel(1);
+    expect(q1.panelCount, "q1: One panel was removed").toLooseEqual(1);
+    expect(q2.panelCount, "q2: One panel was removed").toLooseEqual(1);
+  });
+  test("PanelDynamic vs MatrixDynamic questions bound to the same value on different pages, bug#T464", () => {
     var survey = new SurveyModel();
     var page1 = survey.addNewPage("p1");
     var page2 = survey.addNewPage("p2");
@@ -1827,22 +1394,15 @@ QUnit.test(
     page2.addElement(panel);
 
     matrix.value = [{ t1: "test" }];
-    assert.equal(
-      panel.panelCount,
-      1,
-      "By default there are two panels in panel2"
-    );
+    expect(panel.panelCount, "By default there are two panels in panel2").toLooseEqual(1);
     matrix.value = [{ t1: "test" }, { t1: "test2" }];
-    assert.equal(panel.panelCount, 2, "One row and one panel were added");
+    expect(panel.panelCount, "One row and one panel were added").toLooseEqual(2);
     matrix.removeRow(1);
-    assert.equal(matrix.rowCount, 1, "matrix: One row was removed");
-    assert.equal(panel.panelCount, 1, "panel: One panel was removed");
-  }
-);
+    expect(matrix.rowCount, "matrix: One row was removed").toLooseEqual(1);
+    expect(panel.panelCount, "panel: One panel was removed").toLooseEqual(1);
+  });
 
-QUnit.test(
-  "PanelDynamic vs MatrixDynamic add/remove items, bug#T2130",
-  function(assert) {
+  test("PanelDynamic vs MatrixDynamic add/remove items, bug#T2130", () => {
     var json = {
       elements: [
         {
@@ -1896,191 +1456,160 @@ QUnit.test(
     matrix.visibleRows[1].cells[1].question.value = 2;
     matrix.addRow();
     matrix.visibleRows[2].cells[1].question.value = 3;
-    assert.equal(panel.panels.length, 3, "There are 3 panels");
-    assert.equal(
-      panel.panels[0].locTitle.renderedHtml,
-      "1",
-      "The first panel title is correct"
-    );
-    assert.equal(
-      panel.panels[1].locTitle.renderedHtml,
-      "2",
-      "The second panel title is correct"
-    );
-    assert.equal(
-      panel.panels[2].locTitle.renderedHtml,
-      "3",
-      "The third panel title is correct"
-    );
+    expect(panel.panels.length, "There are 3 panels").toLooseEqual(3);
+    expect(panel.panels[0].locTitle.renderedHtml, "The first panel title is correct").toLooseEqual("1");
+    expect(panel.panels[1].locTitle.renderedHtml, "The second panel title is correct").toLooseEqual("2");
+    expect(panel.panels[2].locTitle.renderedHtml, "The third panel title is correct").toLooseEqual("3");
     panel.panels[0].getQuestionByName("address").value = "address: row1";
     panel.panels[2].getQuestionByName("address").value = "address: row3";
     matrix.removeRow(1);
-    assert.equal(panel.panels.length, 2, "There are two panels now");
-    assert.equal(
-      panel.panels[0].locTitle.renderedHtml,
-      "1",
-      "The first panel title is still correct"
-    );
-    assert.equal(
-      panel.panels[1].locTitle.renderedHtml,
-      "3",
-      "The second panel title is 3 now"
-    );
-    assert.deepEqual(
-      survey.data,
-      {
-        employers: [
-          { RowId: 1, name: 1, address: "address: row1" },
-          { RowId: 2, name: 3, address: "address: row3" },
-        ],
-      },
-      "The value is correct"
-    );
-  }
-);
-QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(assert) {
-  const json = {
-    elements: [
-      {
-        type: "matrixdynamic",
-        rowCount: 1,
-        name: "employer_names",
-        valueName: "employers",
-        columns: [
-          {
-            name: "name",
-            isRequired: true,
-            cellType: "text",
-          },
-        ],
-      },
-      {
-        type: "paneldynamic",
-        displayMode: "list",
-        allowAddPanel: false,
-        allowRemovePanel: false,
-        name: "arrray_employer_info",
-        valueName: "employers",
-        templateTitle: "{panel.name}",
-        templateElements: [
-          {
-            type: "text",
-            name: "address",
-          },
-          {
-            type: "text",
-            name: "abn",
-          },
-          {
-            type: "text",
-            name: "name",
-          }
-        ],
-      },
-    ],
-  };
-  const survey = new SurveyModel(json);
-  const logs = new Array<any>();
-  survey.onValueChanged.add((sender, options) => {
-    logs.push({ name: options.name, questionName: options.question.name });
+    expect(panel.panels.length, "There are two panels now").toLooseEqual(2);
+    expect(panel.panels[0].locTitle.renderedHtml, "The first panel title is still correct").toLooseEqual("1");
+    expect(panel.panels[1].locTitle.renderedHtml, "The second panel title is 3 now").toLooseEqual("3");
+    expect(survey.data, "The value is correct").toEqualValues({
+      employers: [
+        { RowId: 1, name: 1, address: "address: row1" },
+        { RowId: 2, name: 3, address: "address: row3" },
+      ],
+    });
   });
-  const matrix = <QuestionMatrixDynamicModel>(survey.getQuestionByName("employer_names"));
-  const panel = <QuestionPanelDynamicModel>(survey.getQuestionByName("arrray_employer_info"));
-  matrix.visibleRows[0].getQuestionByName("name").value = "def";
-  panel.panels[0].getQuestionByName("name").value = "abc";
-  assert.deepEqual(logs, [
-    { name: "employers", questionName: "employer_names" },
-    { name: "employers", questionName: "arrray_employer_info" }
-  ], "check logs, #1");
-});
-
-QUnit.test("Dynamic Panel: preserve empty matrix row after changing another question, Issue #11192", function(assert) {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "question1",
-            templateElements: [
-              {
-                type: "text",
-                name: "question2",
-              },
-              {
-                type: "matrixdynamic",
-                name: "question3",
-                columns: [
-                  {
-                    name: "Column 1",
-                    cellType: "text",
-                  }
-                ],
-                rowCount: 0,
-              },
-            ],
-          },
-        ],
-      },
-    ]
+  test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", () => {
+    const json = {
+      elements: [
+        {
+          type: "matrixdynamic",
+          rowCount: 1,
+          name: "employer_names",
+          valueName: "employers",
+          columns: [
+            {
+              name: "name",
+              isRequired: true,
+              cellType: "text",
+            },
+          ],
+        },
+        {
+          type: "paneldynamic",
+          displayMode: "list",
+          allowAddPanel: false,
+          allowRemovePanel: false,
+          name: "arrray_employer_info",
+          valueName: "employers",
+          templateTitle: "{panel.name}",
+          templateElements: [
+            {
+              type: "text",
+              name: "address",
+            },
+            {
+              type: "text",
+              name: "abn",
+            },
+            {
+              type: "text",
+              name: "name",
+            }
+          ],
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    const logs = new Array<any>();
+    survey.onValueChanged.add((sender, options) => {
+      logs.push({ name: options.name, questionName: options.question.name });
+    });
+    const matrix = <QuestionMatrixDynamicModel>(survey.getQuestionByName("employer_names"));
+    const panel = <QuestionPanelDynamicModel>(survey.getQuestionByName("arrray_employer_info"));
+    matrix.visibleRows[0].getQuestionByName("name").value = "def";
+    panel.panels[0].getQuestionByName("name").value = "abc";
+    expect(logs, "check logs, #1").toEqualValues([
+      { name: "employers", questionName: "employer_names" },
+      { name: "employers", questionName: "arrray_employer_info" }
+    ]);
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
-  panel.addPanel();
 
-  const secondPanelMatrix = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("question3");
-  secondPanelMatrix.addRow();
-  let rows = secondPanelMatrix.visibleRows;
-  rows[0].cells[0].question.value = "a";
-  secondPanelMatrix.addRow();
+  test("Dynamic Panel: preserve empty matrix row after changing another question, Issue #11192", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "question2",
+                },
+                {
+                  type: "matrixdynamic",
+                  name: "question3",
+                  columns: [
+                    {
+                      name: "Column 1",
+                      cellType: "text",
+                    }
+                  ],
+                  rowCount: 0,
+                },
+              ],
+            },
+          ],
+        },
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    panel.addPanel();
 
-  assert.equal(rows.length, 2, "The matrix has 2 rows before changing another panel value");
-  assert.equal(rows[0].cells[0].question.value, "a", "The first row has value in the first column");
-  assert.deepEqual(rows[1].value, {}, "The second row is empty before changing another panel value");
+    const secondPanelMatrix = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("question3");
+    secondPanelMatrix.addRow();
+    let rows = secondPanelMatrix.visibleRows;
+    rows[0].cells[0].question.value = "a";
+    secondPanelMatrix.addRow();
 
-  panel.panels[0].getQuestionByName("question2").value = "test";
+    expect(rows.length, "The matrix has 2 rows before changing another panel value").toLooseEqual(2);
+    expect(rows[0].cells[0].question.value, "The first row has value in the first column").toLooseEqual("a");
+    expect(rows[1].value, "The second row is empty before changing another panel value").toEqualValues({});
 
-  rows = secondPanelMatrix.visibleRows;
-  assert.equal(rows.length, 2, "The matrix still has 2 rows after changing another panel value");
-  assert.equal(rows[0].cells[0].question.value, "a", "The first row value is preserved");
-  assert.deepEqual(rows[1].value, {}, "The trailing empty row is preserved");
-});
+    panel.panels[0].getQuestionByName("question2").value = "test";
 
-function updateObjsQuestions(objs: Array<any>): void {
-  for (var i = 0; i < objs.length; i++) {
-    objs[i].question = objs[i].question.name;
-    if (!!objs[i].context) {
-      objs[i].context = objs[i].context.name;
+    rows = secondPanelMatrix.visibleRows;
+    expect(rows.length, "The matrix still has 2 rows after changing another panel value").toLooseEqual(2);
+    expect(rows[0].cells[0].question.value, "The first row value is preserved").toLooseEqual("a");
+    expect(rows[1].value, "The trailing empty row is preserved").toEqualValues({});
+  });
+
+  function updateObjsQuestions(objs: Array<any>): void {
+    for (var i = 0; i < objs.length; i++) {
+      objs[i].question = objs[i].question.name;
+      if (!!objs[i].context) {
+        objs[i].context = objs[i].context.name;
+      }
     }
   }
-}
-QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
-  var objs = [];
-  var panel = new QuestionPanelDynamicModel("qPanel");
-  panel.title = "Question Panel";
-  var q1 = panel.template.addNewQuestion("text", "q1");
-  var question = new QuestionMultipleTextModel("q2");
-  question.title = "Question 2";
-  question.addItem("item1");
-  question.addItem("item2");
-  panel.template.addQuestion(question);
-  panel.addConditionObjectsByContext(objs, null);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+  test("panelDynamic.addConditionObjectsByContext", () => {
+    var objs = [];
+    var panel = new QuestionPanelDynamicModel("qPanel");
+    panel.title = "Question Panel";
+    var q1 = panel.template.addNewQuestion("text", "q1");
+    var question = new QuestionMultipleTextModel("q2");
+    question.title = "Question 2";
+    question.addItem("item1");
+    question.addItem("item2");
+    panel.template.addQuestion(question);
+    panel.addConditionObjectsByContext(objs, null);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic").toEqualValues([
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
       { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" }
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic"
-  );
-  objs = [];
-  panel.addConditionObjectsByContext(objs, q1);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+    ]);
+    objs = [];
+    panel.addConditionObjectsByContext(objs, q1);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic with context").toEqualValues([
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
       { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
@@ -2096,15 +1625,11 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
         question: "q2",
         context: "qPanel"
       },
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic with context"
-  );
-  objs = [];
-  panel.addConditionObjectsByContext(objs, true);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+    ]);
+    objs = [];
+    panel.addConditionObjectsByContext(objs, true);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic with context equals true").toEqualValues([
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
       { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
@@ -2119,105 +1644,97 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
         text: "Question Panel.panel.Question 2.item2",
         question: "q2", context: "qPanel"
       },
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
-  );
-});
-QUnit.test("panelDynamic.addConditionObjectsByContext && question validator, Bug#8914", function(assert) {
-  const objs = [];
-  const panel = new QuestionPanelDynamicModel("qPanel");
-  const q1 = panel.template.addNewQuestion("text", "q1");
-  q1.validators.push(new ExpressionValidator());
-  panel.template.addNewQuestion("text", "q2");
-  panel.addConditionObjectsByContext(objs, q1.validators[0]);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+    ]);
+  });
+  test("panelDynamic.addConditionObjectsByContext && question validator, Bug#8914", () => {
+    const objs = [];
+    const panel = new QuestionPanelDynamicModel("qPanel");
+    const q1 = panel.template.addNewQuestion("text", "q1");
+    q1.validators.push(new ExpressionValidator());
+    panel.template.addNewQuestion("text", "q2");
+    panel.addConditionObjectsByContext(objs, q1.validators[0]);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic").toEqualValues([
       { name: "qPanel[0].q1", text: "qPanel[0].q1", question: "q1" },
       { name: "qPanel[0].q2", text: "qPanel[0].q2", question: "q2" },
       { name: "panel.q1", text: "panel.q1", question: "q1", context: "qPanel" },
       { name: "panel.q2", text: "panel.q2", question: "q2", context: "qPanel" }
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic"
-  );
-});
-QUnit.test("panelDynamic.getNestedQuestions", function(assert) {
-  const panel = new QuestionPanelDynamicModel("qPanel");
-  panel.template.addNewQuestion("text", "q1");
-  const q2 = new QuestionMultipleTextModel("q2");
-  q2.title = "Question 2";
-  q2.addItem("item1");
-  q2.addItem("item2");
-  panel.template.addQuestion(q2);
-  panel.panelCount = 2;
-  const questions = panel.getNestedQuestions();
-  assert.equal(questions.length, 6, "two panels * 3");
-  assert.equal(questions[0].name, "q1", "panel[0].q1");
-  assert.equal(questions[1].name, "item1", "panel[0].q2.item1");
-  assert.equal(questions[2].name, "item2", "panel[0].q2.item2");
-  assert.equal(questions[3].name, "q1", "panel[1].q1");
-  assert.equal(questions[4].name, "item1", "panel[1].q2.item1");
-  assert.equal(questions[5].name, "item2", "panel[1].q2.item2");
-});
-QUnit.test("panelDynamic.getNestedQuestions for created from JSON elements", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic", name: "panel1",
-        panelCount: 4,
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ]
-      }
-    ],
-    questionsOnPageMode: "inputPerPage",
+    ]);
+  });
+  test("panelDynamic.getNestedQuestions", () => {
+    const panel = new QuestionPanelDynamicModel("qPanel");
+    panel.template.addNewQuestion("text", "q1");
+    const q2 = new QuestionMultipleTextModel("q2");
+    q2.title = "Question 2";
+    q2.addItem("item1");
+    q2.addItem("item2");
+    panel.template.addQuestion(q2);
+    panel.panelCount = 2;
+    const questions = panel.getNestedQuestions();
+    expect(questions.length, "two panels * 3").toLooseEqual(6);
+    expect(questions[0].name, "panel[0].q1").toLooseEqual("q1");
+    expect(questions[1].name, "panel[0].q2.item1").toLooseEqual("item1");
+    expect(questions[2].name, "panel[0].q2.item2").toLooseEqual("item2");
+    expect(questions[3].name, "panel[1].q1").toLooseEqual("q1");
+    expect(questions[4].name, "panel[1].q2.item1").toLooseEqual("item1");
+    expect(questions[5].name, "panel[1].q2.item2").toLooseEqual("item2");
+  });
+  test("panelDynamic.getNestedQuestions for created from JSON elements", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "panel1",
+          panelCount: 4,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
+        }
+      ],
+      questionsOnPageMode: "inputPerPage",
+    });
+
+    const panel = survey.getQuestionByName("panel1");
+    expect(panel.getNestedQuestions(true).length, "Calculate questions correctly").toLooseEqual(4 * 2);
+  });
+  test("panelDynamic.getNestedQuestions for created from JSON elements & nested", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic", name: "panel1",
+          panelCount: 4,
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "matrixdropdown", name: "q2", columns: [{ name: "col1" }, { name: "col2" }], rows: ["row1", "row2"] }
+          ]
+        }
+      ],
+      questionsOnPageMode: "inputPerPage",
+    });
+
+    const panel = survey.getQuestionByName("panel1");
+    expect(panel.getNestedQuestions(true).length, "Include nested questions").toLooseEqual(4 * (1 + 4));
+    expect(panel.getNestedQuestions(true, false).length, "exclude nested questions").toLooseEqual(4 * 2);
   });
 
-  const panel = survey.getQuestionByName("panel1");
-  assert.equal(panel.getNestedQuestions(true).length, 4 * 2, "Calculate questions correctly");
-});
-QUnit.test("panelDynamic.getNestedQuestions for created from JSON elements & nested", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic", name: "panel1",
-        panelCount: 4,
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "matrixdropdown", name: "q2", columns: [{ name: "col1" }, { name: "col2" }], rows: ["row1", "row2"] }
-        ]
-      }
-    ],
-    questionsOnPageMode: "inputPerPage",
-  });
-
-  const panel = survey.getQuestionByName("panel1");
-  assert.equal(panel.getNestedQuestions(true).length, 4 * (1 + 4), "Include nested questions");
-  assert.equal(panel.getNestedQuestions(true, false).length, 4 * 2, "exclude nested questions");
-});
-
-QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 0", function(assert) {
-  settings.panelDynamicMaxPanelCountInCondition = 0;
-  var objs = [];
-  var panel = new QuestionPanelDynamicModel("qPanel");
-  panel.title = "Question Panel";
-  var q1 = panel.template.addNewQuestion("text", "q1");
-  var question = new QuestionMultipleTextModel("q2");
-  question.title = "Question 2";
-  question.addItem("item1");
-  question.addItem("item2");
-  panel.template.addQuestion(question);
-  panel.addConditionObjectsByContext(objs, null);
-  updateObjsQuestions(objs);
-  assert.deepEqual(objs, [], "addConditionObjectsByContext work correctly for panel dynamic");
-  objs = [];
-  panel.addConditionObjectsByContext(objs, q1);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+  test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 0", () => {
+    settings.panelDynamicMaxPanelCountInCondition = 0;
+    var objs = [];
+    var panel = new QuestionPanelDynamicModel("qPanel");
+    panel.title = "Question Panel";
+    var q1 = panel.template.addNewQuestion("text", "q1");
+    var question = new QuestionMultipleTextModel("q2");
+    question.title = "Question 2";
+    question.addItem("item1");
+    question.addItem("item2");
+    panel.template.addQuestion(question);
+    panel.addConditionObjectsByContext(objs, null);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic").toEqualValues([]);
+    objs = [];
+    panel.addConditionObjectsByContext(objs, q1);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic with context").toEqualValues([
       {
         name: "panel.q2.item1",
         text: "panel.Question 2.item1",
@@ -2230,15 +1747,11 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
         question: "q2",
         context: "qPanel"
       },
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic with context"
-  );
-  objs = [];
-  panel.addConditionObjectsByContext(objs, true);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+    ]);
+    objs = [];
+    panel.addConditionObjectsByContext(objs, true);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic with context equals true").toEqualValues([
       { name: "qPanel.panel.q1", text: "Question Panel.panel.q1", question: "q1", context: "qPanel" },
       {
         name: "qPanel.panel.q2.item1",
@@ -2250,43 +1763,35 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
         text: "Question Panel.panel.Question 2.item2",
         question: "q2", context: "qPanel"
       },
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
-  );
-  settings.panelDynamicMaxPanelCountInCondition = 1;
-});
+    ]);
+    settings.panelDynamicMaxPanelCountInCondition = 1;
+  });
 
-QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 2;", function(assert) {
-  settings.panelDynamicMaxPanelCountInCondition = 2;
-  var objs = [];
-  var panel = new QuestionPanelDynamicModel("qPanel");
-  panel.title = "Question Panel";
-  var q1 = panel.template.addNewQuestion("text", "q1");
-  var question = new QuestionMultipleTextModel("q2");
-  question.title = "Question 2";
-  question.addItem("item1");
-  question.addItem("item2");
-  panel.template.addQuestion(question);
-  panel.addConditionObjectsByContext(objs, null);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+  test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 2;", () => {
+    settings.panelDynamicMaxPanelCountInCondition = 2;
+    var objs = [];
+    var panel = new QuestionPanelDynamicModel("qPanel");
+    panel.title = "Question Panel";
+    var q1 = panel.template.addNewQuestion("text", "q1");
+    var question = new QuestionMultipleTextModel("q2");
+    question.title = "Question 2";
+    question.addItem("item1");
+    question.addItem("item2");
+    panel.template.addQuestion(question);
+    panel.addConditionObjectsByContext(objs, null);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic").toEqualValues([
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
       { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
       { name: "qPanel[1].q1", text: "Question Panel[1].q1", question: "q1" },
       { name: "qPanel[1].q2.item1", text: "Question Panel[1].Question 2.item1", question: "q2" },
       { name: "qPanel[1].q2.item2", text: "Question Panel[1].Question 2.item2", question: "q2" }
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic"
-  );
-  objs = [];
-  panel.addConditionObjectsByContext(objs, q1);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+    ]);
+    objs = [];
+    panel.addConditionObjectsByContext(objs, q1);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic with context").toEqualValues([
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
       { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
@@ -2305,15 +1810,11 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
         question: "q2",
         context: "qPanel"
       },
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic with context"
-  );
-  objs = [];
-  panel.addConditionObjectsByContext(objs, true);
-  updateObjsQuestions(objs);
-  assert.deepEqual(
-    objs,
-    [
+    ]);
+    objs = [];
+    panel.addConditionObjectsByContext(objs, true);
+    updateObjsQuestions(objs);
+    expect(objs, "addConditionObjectsByContext work correctly for panel dynamic with context equals true").toEqualValues([
       { name: "qPanel[0].q1", text: "Question Panel[0].q1", question: "q1" },
       { name: "qPanel[0].q2.item1", text: "Question Panel[0].Question 2.item1", question: "q2" },
       { name: "qPanel[0].q2.item2", text: "Question Panel[0].Question 2.item2", question: "q2" },
@@ -2331,240 +1832,166 @@ QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMax
         text: "Question Panel.panel.Question 2.item2",
         question: "q2", context: "qPanel"
       },
-    ],
-    "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
-  );
-  settings.panelDynamicMaxPanelCountInCondition = 1;
-});
-QUnit.test("panelDynamic.addConditionObjectsByContext + nested dynamic panel + context", function(assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "question1",
-        "title": "parent dynamic panel",
-        "templateElements": [
-          {
-            "type": "paneldynamic",
-            "name": "question2",
-            "title": "nested dynamic panel",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "question3",
-                "title": "nq1"
-              },
-              {
-                "type": "text",
-                "name": "question4",
-                "title": "nq2"
-              }
-            ]
-          },
-          {
-            "type": "text",
-            "name": "question5",
-            "title": "pq1"
-          }
-        ]
-      }
-    ]
+    ]);
+    settings.panelDynamicMaxPanelCountInCondition = 1;
   });
-  const rootPanel = survey.getQuestionByName("question1");
-  const nestedPanel = rootPanel.template.getQuestionByName("question2");
-  const question3 = nestedPanel.template.getQuestionByName("question3");
-  const objs: IConditionObject[] = [];
-  rootPanel.addConditionObjectsByContext(objs, question3);
-  assert.equal(objs.length, 4, "There should be 4 elements");
-  assert.equal(objs[0].name, "question1[0].question2[0].question3", "value #0");
-  assert.equal(objs[1].name, "question1[0].question2[0].question4", "value #1");
-  assert.equal(objs[2].name, "panel.question4", "value #2");
-  assert.equal(objs[2].text, "panel.nq2", "text #2");
-  assert.equal(objs[3].name, "question1[0].question5", "value #3");
-});
-QUnit.test("matrixdropdown.addConditionObjectsByContext + in nested paneldynamic + context, Bug#8475", function(assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "matrixdropdown",
-            "name": "matrix1",
-            "columns": [
-              { "cellType": "text", "name": "col1" },
-              { "cellType": "text", "name": "col2" },
-              { "cellType": "text", "name": "col3" }
-            ]
-          }
-        ]
-      }
-    ]
+  test("panelDynamic.addConditionObjectsByContext + nested dynamic panel + context", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "question1",
+          "title": "parent dynamic panel",
+          "templateElements": [
+            {
+              "type": "paneldynamic",
+              "name": "question2",
+              "title": "nested dynamic panel",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question3",
+                  "title": "nq1"
+                },
+                {
+                  "type": "text",
+                  "name": "question4",
+                  "title": "nq2"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "question5",
+              "title": "pq1"
+            }
+          ]
+        }
+      ]
+    });
+    const rootPanel = survey.getQuestionByName("question1");
+    const nestedPanel = rootPanel.template.getQuestionByName("question2");
+    const question3 = nestedPanel.template.getQuestionByName("question3");
+    const objs: IConditionObject[] = [];
+    rootPanel.addConditionObjectsByContext(objs, question3);
+    expect(objs.length, "There should be 4 elements").toLooseEqual(4);
+    expect(objs[0].name, "value #0").toLooseEqual("question1[0].question2[0].question3");
+    expect(objs[1].name, "value #1").toLooseEqual("question1[0].question2[0].question4");
+    expect(objs[2].name, "value #2").toLooseEqual("panel.question4");
+    expect(objs[2].text, "text #2").toLooseEqual("panel.nq2");
+    expect(objs[3].name, "value #3").toLooseEqual("question1[0].question5");
   });
-  const rootPanel = survey.getQuestionByName("panel1");
-  const nestedMatrix = rootPanel.template.getQuestionByName("matrix1");
-  const column = nestedMatrix.columns[0];
-  const objs: IConditionObject[] = [];
-  rootPanel.addConditionObjectsByContext(objs, column);
-  assert.equal(objs.length, 2, "There should be 4 elements");
-  assert.equal(objs[0].name, "row.col2", "value #0");
-  assert.equal(objs[1].name, "row.col3", "value #1");
-});
-QUnit.test("matrixDynamic.getConditionJson", function(assert) {
-  var panel = new QuestionPanelDynamicModel("panel");
-  (<QuestionCheckboxModel>(
+  test("matrixdropdown.addConditionObjectsByContext + in nested paneldynamic + context, Bug#8475", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "matrixdropdown",
+              "name": "matrix1",
+              "columns": [
+                { "cellType": "text", "name": "col1" },
+                { "cellType": "text", "name": "col2" },
+                { "cellType": "text", "name": "col3" }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const rootPanel = survey.getQuestionByName("panel1");
+    const nestedMatrix = rootPanel.template.getQuestionByName("matrix1");
+    const column = nestedMatrix.columns[0];
+    const objs: IConditionObject[] = [];
+    rootPanel.addConditionObjectsByContext(objs, column);
+    expect(objs.length, "There should be 4 elements").toLooseEqual(2);
+    expect(objs[0].name, "value #0").toLooseEqual("row.col2");
+    expect(objs[1].name, "value #1").toLooseEqual("row.col3");
+  });
+  test("matrixDynamic.getConditionJson", () => {
+    var panel = new QuestionPanelDynamicModel("panel");
+    (<QuestionCheckboxModel>(
     panel.template.addNewQuestion("checkbox", "q1")
   )).choices = [1, 2];
-  var question = new QuestionMultipleTextModel("q2");
-  question.addItem("item1");
-  question.addItem("item2");
-  panel.template.addQuestion(question);
-  var json = panel.getConditionJson("equals", "q1");
-  assert.deepEqual(json.choices, [1, 2], "choices get correctly");
-  json = panel.getConditionJson("equals", "q2.item2");
-  assert.equal(json.type, "text", "mutliple item type get correctly");
-});
+    var question = new QuestionMultipleTextModel("q2");
+    question.addItem("item1");
+    question.addItem("item2");
+    panel.template.addQuestion(question);
+    var json = panel.getConditionJson("equals", "q1");
+    expect(json.choices, "choices get correctly").toEqualValues([1, 2]);
+    json = panel.getConditionJson("equals", "q2.item2");
+    expect(json.type, "mutliple item type get correctly").toLooseEqual("text");
+  });
 
-QUnit.test("matrixDynamic.panelsState, set value", function(assert) {
-  var panel = new QuestionPanelDynamicModel("panel");
-  panel.templateTitle = "Panel Title";
-  panel.template.addNewQuestion("text", "q1");
-  panel.panelCount = 2;
-  assert.equal(panel.panelsState, "default", "The default value is normal");
-  assert.equal(
-    panel.panels[0].state,
-    "default",
-    "The default value for all panels is normal"
-  );
-  panel.panelsState = "expanded";
-  assert.equal(
-    panel.panels[0].state,
-    "expanded",
-    "panelsState = 'expanded', the first panel is expanded"
-  );
-  assert.equal(
-    panel.panels[1].state,
-    "expanded",
-    "panelsState = 'expanded', the second panel is expanded"
-  );
-  panel.panelsState = "collapsed";
-  assert.equal(
-    panel.panels[0].state,
-    "collapsed",
-    "panelsState = 'collapsed', the first panel is collapsed"
-  );
-  assert.equal(
-    panel.panels[1].state,
-    "collapsed",
-    "panelsState = 'collapsed', the second panel is collapsed"
-  );
-  panel.panelsState = "firstExpanded";
-  assert.equal(
-    panel.panels[0].state,
-    "expanded",
-    "panelsState = 'firstExpanded', the first panel is expanded"
-  );
-  assert.equal(
-    panel.panels[1].state,
-    "collapsed",
-    "panelsState = 'firstExpanded', the second panel is collapsed"
-  );
-  panel.panelsState = "default";
-  assert.equal(
-    panel.panels[0].state,
-    "default",
-    "panelsState = 'default', the first panel has default state"
-  );
-  assert.equal(
-    panel.panels[1].state,
-    "default",
-    "panelsState = 'default', the second panel has default state"
-  );
-});
+  test("matrixDynamic.panelsState, set value", () => {
+    var panel = new QuestionPanelDynamicModel("panel");
+    panel.templateTitle = "Panel Title";
+    panel.template.addNewQuestion("text", "q1");
+    panel.panelCount = 2;
+    expect(panel.panelsState, "The default value is normal").toLooseEqual("default");
+    expect(panel.panels[0].state, "The default value for all panels is normal").toLooseEqual("default");
+    panel.panelsState = "expanded";
+    expect(panel.panels[0].state, "panelsState = 'expanded', the first panel is expanded").toLooseEqual("expanded");
+    expect(panel.panels[1].state, "panelsState = 'expanded', the second panel is expanded").toLooseEqual("expanded");
+    panel.panelsState = "collapsed";
+    expect(panel.panels[0].state, "panelsState = 'collapsed', the first panel is collapsed").toLooseEqual("collapsed");
+    expect(panel.panels[1].state, "panelsState = 'collapsed', the second panel is collapsed").toLooseEqual("collapsed");
+    panel.panelsState = "firstExpanded";
+    expect(panel.panels[0].state, "panelsState = 'firstExpanded', the first panel is expanded").toLooseEqual("expanded");
+    expect(panel.panels[1].state, "panelsState = 'firstExpanded', the second panel is collapsed").toLooseEqual("collapsed");
+    panel.panelsState = "default";
+    expect(panel.panels[0].state, "panelsState = 'default', the first panel has default state").toLooseEqual("default");
+    expect(panel.panels[1].state, "panelsState = 'default', the second panel has default state").toLooseEqual("default");
+  });
 
-QUnit.test("matrixDynamic.panelsState and not panel.title", function(assert) {
-  var panel = new QuestionPanelDynamicModel("panel");
-  panel.template.addNewQuestion("text", "q1");
-  panel.panelCount = 2;
-  assert.equal(panel.panelsState, "default", "The default value is normal");
-  assert.equal(
-    panel.panels[0].state,
-    "default",
-    "The default value for all panels is normal"
-  );
-  panel.panelsState = "collapsed";
-  assert.equal(
-    panel.panels[0].state,
-    "default",
-    "panelsState = 'expanded', by panel title is empty"
-  );
-  panel.panelsState = "firstExpanded";
-  assert.equal(
-    panel.panels[0].state,
-    "default",
-    "panelsState = 'firstExpanded', but panel.title is empty"
-  );
-});
+  test("matrixDynamic.panelsState and not panel.title", () => {
+    var panel = new QuestionPanelDynamicModel("panel");
+    panel.template.addNewQuestion("text", "q1");
+    panel.panelCount = 2;
+    expect(panel.panelsState, "The default value is normal").toLooseEqual("default");
+    expect(panel.panels[0].state, "The default value for all panels is normal").toLooseEqual("default");
+    panel.panelsState = "collapsed";
+    expect(panel.panels[0].state, "panelsState = 'expanded', by panel title is empty").toLooseEqual("default");
+    panel.panelsState = "firstExpanded";
+    expect(panel.panels[0].state, "panelsState = 'firstExpanded', but panel.title is empty").toLooseEqual("default");
+  });
 
-QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
-  assert
-) {
-  var panel = new QuestionPanelDynamicModel("panel");
-  panel.template.addNewQuestion("text", "q1");
-  panel.templateTitle = "Some text";
-  panel.panelCount = 2;
-  panel.addPanelUI();
-  assert.equal(
-    panel.panels[2].state,
-    "default",
-    "User can't collapse/expand the panel"
-  );
-  panel.panelsState = "expanded";
-  assert.equal(panel.panels[2].state, "expanded", "It is expanded now");
-  panel.addPanelUI();
-  assert.equal(
-    panel.panels[3].state,
-    "expanded",
-    "the panel is added with expanded state"
-  );
-  panel.panelsState = "collapsed";
-  panel.addPanelUI();
-  assert.equal(
-    panel.panels[4].state,
-    "expanded",
-    "Also the panelsState = 'collapsed' the panel is added with expanded state"
-  );
-});
-QUnit.test("matrixDynamic.panelsState, load from json", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q",
-        panelCount: 2,
-        panelsState: "firstExpanded",
-        templateElements: [{ type: "text", name: "q1" }],
-        templateTitle: "Some text",
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
-  assert.equal(
-    panel.panels[0].state,
-    "expanded",
-    "The first panel is expanded"
-  );
-  assert.equal(
-    panel.panels[1].state,
-    "collapsed",
-    "The second panel is collapsed"
-  );
-});
-QUnit.test(
-  "matrixDynamic.panelsState, not tempalteTitle load from json",
-  function(assert) {
+  test("matrixDynamic.panelsState, add panel always expanded", () => {
+    var panel = new QuestionPanelDynamicModel("panel");
+    panel.template.addNewQuestion("text", "q1");
+    panel.templateTitle = "Some text";
+    panel.panelCount = 2;
+    panel.addPanelUI();
+    expect(panel.panels[2].state, "User can't collapse/expand the panel").toLooseEqual("default");
+    panel.panelsState = "expanded";
+    expect(panel.panels[2].state, "It is expanded now").toLooseEqual("expanded");
+    panel.addPanelUI();
+    expect(panel.panels[3].state, "the panel is added with expanded state").toLooseEqual("expanded");
+    panel.panelsState = "collapsed";
+    panel.addPanelUI();
+    expect(panel.panels[4].state, "Also the panelsState = 'collapsed' the panel is added with expanded state").toLooseEqual("expanded");
+  });
+  test("matrixDynamic.panelsState, load from json", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q",
+          panelCount: 2,
+          panelsState: "firstExpanded",
+          templateElements: [{ type: "text", name: "q1" }],
+          templateTitle: "Some text",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    expect(panel.panels[0].state, "The first panel is expanded").toLooseEqual("expanded");
+    expect(panel.panels[1].state, "The second panel is collapsed").toLooseEqual("collapsed");
+  });
+  test("matrixDynamic.panelsState, not tempalteTitle load from json", () => {
     var json = {
       elements: [
         {
@@ -2578,21 +2005,10 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
-    assert.equal(
-      panel.panels[0].state,
-      "default",
-      "First panel, not templateTitle"
-    );
-    assert.equal(
-      panel.panels[1].state,
-      "default",
-      "Second panel, not templateTitle"
-    );
-  }
-);
-QUnit.test(
-  "Dynamic Panel, multiple text question and validation, Bug#1037",
-  function(assert) {
+    expect(panel.panels[0].state, "First panel, not templateTitle").toLooseEqual("default");
+    expect(panel.panels[1].state, "Second panel, not templateTitle").toLooseEqual("default");
+  });
+  test("Dynamic Panel, multiple text question and validation, Bug#1037", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page");
     var panel = new QuestionPanelDynamicModel("q");
@@ -2621,57 +2037,44 @@ QUnit.test(
     panel.panelCount = 1;
     panel.panels[0].questions[0].value = {};
 
-    assert.equal(page.validate(), false, "There are errors items are empty");
+    expect(page.validate(), "There are errors items are empty").toLooseEqual(false);
 
     panel.panels[0].questions[0].value = { item1: 5, item2: 5 };
-    assert.equal(page.validate(), false, "There is error item2 less than 10");
+    expect(page.validate(), "There is error item2 less than 10").toLooseEqual(false);
     panel.panels[0].questions[0].value = { item1: 5, item2: 11 };
-    assert.equal(page.validate(), true, "There is no errors");
-  }
-);
-QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
-  assert
-) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 2,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-          },
-        ],
-      },
-      {
-        type: "text",
-        name: "q2",
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  var question = <QuestionTextModel>survey.getQuestionByName("q2");
-  assert.ok(panel.panels[0].questions[0].survey, "The survey is set");
-  assert.equal(
-    panel.panels[0].questions[0].isReadOnly,
-    false,
-    "The question is not readonly"
-  );
-  survey.readOnly = true;
-  assert.equal(question.isReadOnly, true, "The standard question is readonly");
-  assert.equal(
-    panel.panels[0].questions[0].isReadOnly,
-    true,
-    "The question in dynamic panel should be readonly"
-  );
-});
+    expect(page.validate(), "There is no errors").toLooseEqual(true);
+  });
+  test("Dynamic Panel, survey in readonly mode, Bug#1051", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+        },
+        {
+          type: "text",
+          name: "q2",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    var question = <QuestionTextModel>survey.getQuestionByName("q2");
+    expect(panel.panels[0].questions[0].survey, "The survey is set").toBeTruthy();
+    expect(panel.panels[0].questions[0].isReadOnly, "The question is not readonly").toLooseEqual(false);
+    survey.readOnly = true;
+    expect(question.isReadOnly, "The standard question is readonly").toLooseEqual(true);
+    expect(panel.panels[0].questions[0].isReadOnly, "The question in dynamic panel should be readonly").toLooseEqual(true);
+  });
 
-QUnit.test(
-  "Dynamic Panel readOnly, Bug#https://surveyjs.answerdesk.io/ticket/details/T1663",
-  function(assert) {
+  test("Dynamic Panel readOnly, Bug#https://surveyjs.answerdesk.io/ticket/details/T1663", () => {
     var json = {
       elements: [
         {
@@ -2691,157 +2094,130 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     var question = panel.panels[0].questions[0];
-    assert.equal(
-      question.isReadOnly,
-      true,
-      "The question is readonly initially"
-    );
+    expect(question.isReadOnly, "The question is readonly initially").toLooseEqual(true);
     panel.readOnly = false;
-    assert.equal(
-      question.isReadOnly,
-      false,
-      "The question is not readonly, panel is not readOnly"
-    );
+    expect(question.isReadOnly, "The question is not readonly, panel is not readOnly").toLooseEqual(false);
     survey.pages[0].readOnly = true;
-    assert.equal(
-      question.isReadOnly,
-      true,
-      "The question is readonly, page is readOnly"
-    );
+    expect(question.isReadOnly, "The question is readonly, page is readOnly").toLooseEqual(true);
     survey.pages[0].readOnly = false;
-    assert.equal(
-      question.isReadOnly,
-      false,
-      "The question is not readonly again"
-    );
+    expect(question.isReadOnly, "The question is not readonly again").toLooseEqual(false);
     survey.readOnly = true;
-    assert.equal(
-      question.isReadOnly,
-      true,
-      "The question is readonly, survey mode is display"
-    );
-  }
-);
+    expect(question.isReadOnly, "The question is readonly, survey mode is display").toLooseEqual(true);
+  });
 
-QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", function(
-  assert
-) {
-  var json = {
-    isSinglePage: true,
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 2,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.ok(panel.template.survey, "The survey is set for template");
-  assert.ok(panel.panels[0].questions[0].survey, "The survey is set for panel");
-});
+  test("Dynamic Panel, doesn't work with isSinglePage, Bug#1082", () => {
+    var json = {
+      isSinglePage: true,
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.template.survey, "The survey is set for template").toBeTruthy();
+    expect(panel.panels[0].questions[0].survey, "The survey is set for panel").toBeTruthy();
+  });
 
-QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", function(
-  assert
-) {
-  var json = {
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "matrixdynamic",
-            rowCount: 1,
-            name: "employer_names",
-            valueName: "employers",
-            columns: [
-              {
-                name: "name",
-                cellType: "text",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        name: "page2",
-        elements: [
-          {
-            type: "paneldynamic",
-            displayMode: "list",
-            name: "arrray_employer_info",
-            valueName: "employers",
-            templateElements: [
-              {
-                type: "panel",
-                name: "panel_employer_role",
-                elements: [
-                  {
-                    type: "radiogroup",
-                    choices: ["Full time", "Part time", "Casual", "Seasonal"],
-                    name: "employer_role",
-                    valueName: "role",
-                  },
-                ],
-              },
-              {
-                type: "panel",
-                name: "panel_employer_hours_work",
-                title: "What hours do you work?",
-                elements: [
-                  {
-                    type: "text",
-                    inputType: "number",
-                    name: "member_hours_worked",
-                    valueName: "hours_worked",
-                    title: "Hours:",
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  survey.readOnly = true;
+  test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", () => {
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "matrixdynamic",
+              rowCount: 1,
+              name: "employer_names",
+              valueName: "employers",
+              columns: [
+                {
+                  name: "name",
+                  cellType: "text",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "page2",
+          elements: [
+            {
+              type: "paneldynamic",
+              displayMode: "list",
+              name: "arrray_employer_info",
+              valueName: "employers",
+              templateElements: [
+                {
+                  type: "panel",
+                  name: "panel_employer_role",
+                  elements: [
+                    {
+                      type: "radiogroup",
+                      choices: ["Full time", "Part time", "Casual", "Seasonal"],
+                      name: "employer_role",
+                      valueName: "role",
+                    },
+                  ],
+                },
+                {
+                  type: "panel",
+                  name: "panel_employer_hours_work",
+                  title: "What hours do you work?",
+                  elements: [
+                    {
+                      type: "text",
+                      inputType: "number",
+                      name: "member_hours_worked",
+                      valueName: "hours_worked",
+                      title: "Hours:",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    survey.readOnly = true;
 
-  survey.data = {
-    employers: [
-      {
-        name: "aaaa",
-        address: "sasa",
-        role: "Full time",
-        hours_worked: 4,
-      },
-      {
-        name: "bbbb",
-        address: "aaaaa",
-        role: "Part time",
-        hours_worked: 4,
-      },
-    ],
-  };
+    survey.data = {
+      employers: [
+        {
+          name: "aaaa",
+          address: "sasa",
+          role: "Full time",
+          hours_worked: 4,
+        },
+        {
+          name: "bbbb",
+          address: "aaaaa",
+          role: "Part time",
+          hours_worked: 4,
+        },
+      ],
+    };
 
-  survey.isSinglePage = true;
-  var dPanel = <QuestionPanelDynamicModel>(
+    survey.isSinglePage = true;
+    var dPanel = <QuestionPanelDynamicModel>(
     survey.getQuestionByName("arrray_employer_info")
   );
-  assert.ok(dPanel, "Get question correctly");
-  assert.equal(dPanel.panelCount, 2, "There should be two panels");
-});
+    expect(dPanel, "Get question correctly").toBeTruthy();
+    expect(dPanel.panelCount, "There should be two panels").toLooseEqual(2);
+  });
 
-QUnit.test(
-  "Nested dynamic panel doesn't set data correctly, Bug#1096",
-  function(assert) {
+  test("Nested dynamic panel doesn't set data correctly, Bug#1096", () => {
     var json = {
       isSinglePage: true,
       elements: [
@@ -2875,52 +2251,17 @@ QUnit.test(
     var panel2Nested1 = <QuestionPanelDynamicModel>(
       panel2.getQuestionByName("nested1")
     );
-    assert.equal(
-      panel1.getQuestionByName("q1").value,
-      1,
-      "q1 in first panel set correctly"
-    );
-    assert.equal(
-      panel2.getQuestionByName("q1").value,
-      2,
-      "q1 in second panel set correctly"
-    );
-    assert.equal(
-      panel1Nested1.panelCount,
-      1,
-      "There should be one panel in the first nested panel"
-    );
-    assert.equal(
-      panel1Nested1.panels[0].getQuestionByName("q2").value,
-      1,
-      "q2 set correctly in the first nested panel"
-    );
-    assert.equal(
-      panel2Nested1.panelCount,
-      3,
-      "There should be three panels in the second nested panel"
-    );
-    assert.equal(
-      panel2Nested1.panels[0].getQuestionByName("q2").value,
-      1,
-      "first q2 set correctly in the second nested panel"
-    );
-    assert.equal(
-      panel2Nested1.panels[1].getQuestionByName("q2").value,
-      2,
-      "second q2 set correctly in the second nested panel"
-    );
-    assert.equal(
-      panel2Nested1.panels[2].getQuestionByName("q2").value,
-      3,
-      "third q2 set correctly in the second nested panel"
-    );
-  }
-);
+    expect(panel1.getQuestionByName("q1").value, "q1 in first panel set correctly").toLooseEqual(1);
+    expect(panel2.getQuestionByName("q1").value, "q1 in second panel set correctly").toLooseEqual(2);
+    expect(panel1Nested1.panelCount, "There should be one panel in the first nested panel").toLooseEqual(1);
+    expect(panel1Nested1.panels[0].getQuestionByName("q2").value, "q2 set correctly in the first nested panel").toLooseEqual(1);
+    expect(panel2Nested1.panelCount, "There should be three panels in the second nested panel").toLooseEqual(3);
+    expect(panel2Nested1.panels[0].getQuestionByName("q2").value, "first q2 set correctly in the second nested panel").toLooseEqual(1);
+    expect(panel2Nested1.panels[1].getQuestionByName("q2").value, "second q2 set correctly in the second nested panel").toLooseEqual(2);
+    expect(panel2Nested1.panels[2].getQuestionByName("q2").value, "third q2 set correctly in the second nested panel").toLooseEqual(3);
+  });
 
-QUnit.test(
-  "visibleIf and add new panel in child paneldynamic bug #1139",
-  function(assert) {
+  test("visibleIf and add new panel in child paneldynamic bug #1139", () => {
     var json = {
       pages: [
         {
@@ -2966,17 +2307,14 @@ QUnit.test(
       rootPanelEl1.getQuestionByName("question3")
     );
 
-    assert.notOk(question3.isVisible, "Child panel is hidden");
+    expect(question3.isVisible, "Child panel is hidden").toBeFalsy();
     question2.value = "item1";
-    assert.ok(question3.isVisible, "Child panel become visible");
+    expect(question3.isVisible, "Child panel become visible").toBeTruthy();
     var childPanelEl1 = question3.addPanel();
-    assert.ok(question3.isVisible, "Child panel still visible");
-  }
-);
+    expect(question3.isVisible, "Child panel still visible").toBeTruthy();
+  });
 
-QUnit.test(
-  "visibleIf and parentpanel paneldynamic",
-  function(assert) {
+  test("visibleIf and parentpanel paneldynamic", () => {
     const json = {
       elements: [
         {
@@ -3016,15 +2354,12 @@ QUnit.test(
     const question2 = rootPanelEl1.getQuestionByName("question2");
     const childPanel = rootPanelEl1.getQuestionByName("question3");
     const question4 = childPanel.panels[0].getQuestionByName("question4");
-    assert.equal(question4.visibleChoices.length, 0, "There is not visible choices by default");
+    expect(question4.visibleChoices.length, "There is not visible choices by default").toLooseEqual(0);
     question2.value = ["item1", "item2"];
-    assert.equal(question4.visibleChoices.length, 2, "There are two visible choices by now");
-  }
-);
+    expect(question4.visibleChoices.length, "There are two visible choices by now").toLooseEqual(2);
+  });
 
-QUnit.test(
-  "panel.defaultPanelValue, apply from json and then from UI",
-  function(assert) {
+  test("panel.defaultPanelValue, apply from json and then from UI", () => {
     var json = {
       elements: [
         {
@@ -3044,30 +2379,19 @@ QUnit.test(
     var question = <QuestionPanelDynamicModel>(
       survey.getQuestionByName("dPanel")
     );
-    assert.deepEqual(
-      question.value,
-      [
-        { q1: "val1", q3: "val3" },
-        { q1: "val1", q3: "val3" },
-      ],
-      "defaultPanelValue set correctly on json loading"
-    );
+    expect(question.value, "defaultPanelValue set correctly on json loading").toEqualValues([
+      { q1: "val1", q3: "val3" },
+      { q1: "val1", q3: "val3" },
+    ]);
     question.addPanel();
-    assert.deepEqual(
-      question.value,
-      [
-        { q1: "val1", q3: "val3" },
-        { q1: "val1", q3: "val3" },
-        { q1: "val1", q3: "val3" },
-      ],
-      "defaultPanelValue set correclty on adding row"
-    );
-  }
-);
+    expect(question.value, "defaultPanelValue set correclty on adding row").toEqualValues([
+      { q1: "val1", q3: "val3" },
+      { q1: "val1", q3: "val3" },
+      { q1: "val1", q3: "val3" },
+    ]);
+  });
 
-QUnit.test(
-  "matrix.defaultRowValue, defaultValue has higher priority than defaultRowValue",
-  function(assert) {
+  test("matrix.defaultRowValue, defaultValue has higher priority than defaultRowValue", () => {
     var json = {
       elements: [
         {
@@ -3092,106 +2416,71 @@ QUnit.test(
     var question = <QuestionPanelDynamicModel>(
       survey.getQuestionByName("dPanel")
     );
-    assert.deepEqual(
-      question.value,
-      [
-        { q1: "v1", q2: "v2" },
-        { q1: "v11", q3: "v3" },
+    expect(question.value, "defaultValue is used").toEqualValues([
+      { q1: "v1", q2: "v2" },
+      { q1: "v11", q3: "v3" },
+    ]);
+  });
+
+  test("Synhronize elements on changing template", () => {
+    var question = new QuestionPanelDynamicModel("q");
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.panelCount = 2;
+    expect(question.panels[0].elements.length, "There are two elements").toLooseEqual(2);
+    question.template.addNewQuestion("text", "q3");
+    expect(question.panels[0].elements.length, "There are three elements").toLooseEqual(3);
+    question.template.removeQuestion(question.template.questions[0]);
+    expect(question.panels[0].elements.length, "There are two elements again").toLooseEqual(2);
+    expect(question.panels[0].questions[0].name, "The first element is 'q2").toLooseEqual("q2");
+  });
+
+  test("synhronize on template question property change", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "dPanel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "checkbox", name: "q2", choices: [1, 2] },
+            {
+              type: "panel",
+              name: "p1",
+              elements: [{ type: "text", name: "p1_q1" }],
+            },
+          ],
+          panelCount: 2,
+        },
       ],
-      "defaultValue is used"
-    );
-  }
-);
+    };
 
-QUnit.test("Synhronize elements on changing template", function(assert) {
-  var question = new QuestionPanelDynamicModel("q");
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.panelCount = 2;
-  assert.equal(question.panels[0].elements.length, 2, "There are two elements");
-  question.template.addNewQuestion("text", "q3");
-  assert.equal(
-    question.panels[0].elements.length,
-    3,
-    "There are three elements"
-  );
-  question.template.removeQuestion(question.template.questions[0]);
-  assert.equal(
-    question.panels[0].elements.length,
-    2,
-    "There are two elements again"
-  );
-  assert.equal(
-    question.panels[0].questions[0].name,
-    "q2",
-    "The first element is 'q2"
-  );
-});
-
-QUnit.test("synhronize on template question property change", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "dPanel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "checkbox", name: "q2", choices: [1, 2] },
-          {
-            type: "panel",
-            name: "p1",
-            elements: [{ type: "text", name: "p1_q1" }],
-          },
-        ],
-        panelCount: 2,
-      },
-    ],
-  };
-
-  var survey = new SurveyModel(json);
-  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("dPanel");
-  var q1_1 = question.panels[0].elements[0];
-  var q1_2 = question.panels[1].elements[0];
-  var q2_1 = question.panels[0].elements[1];
-  var q2_2 = question.panels[1].elements[1];
-  (<QuestionTextModel>question.templateElements[0]).title = "title1";
-  (<QuestionCheckboxModel>question.templateElements[1]).choices = [1, 2, 3];
-  assert.equal((<QuestionTextModel>q1_1).title, "title1", "q1_1 title changed");
-  assert.equal((<QuestionTextModel>q1_2).title, "title1", "q1_2 title changed");
-  assert.equal(
-    (<QuestionCheckboxModel>q2_1).choices.length,
-    3,
-    "q2_1 choices changed"
-  );
-  assert.deepEqual(
-    (<QuestionCheckboxModel>q2_2).choices.length,
-    3,
-    "q2_2 choices changed"
-  );
-  var q3 = <QuestionTextModel>question.template.addNewQuestion("text", "q3");
-  var q3_1 = <QuestionTextModel>question.panels[0].getQuestionByName("q3");
-  assert.equal(q3_1.title, "q3", "The title is empty");
-  q3.title = "title_3";
-  assert.equal(
-    q3_1.title,
-    "title_3",
-    "The title for added question has been changed"
-  );
-  var p1_q1 = <QuestionTextModel>question.template.getQuestionByName("p1_q1");
-  var q3_q1_1 = <QuestionTextModel>(
+    var survey = new SurveyModel(json);
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName("dPanel");
+    var q1_1 = question.panels[0].elements[0];
+    var q1_2 = question.panels[1].elements[0];
+    var q2_1 = question.panels[0].elements[1];
+    var q2_2 = question.panels[1].elements[1];
+    (<QuestionTextModel>question.templateElements[0]).title = "title1";
+    (<QuestionCheckboxModel>question.templateElements[1]).choices = [1, 2, 3];
+    expect((<QuestionTextModel>q1_1).title, "q1_1 title changed").toLooseEqual("title1");
+    expect((<QuestionTextModel>q1_2).title, "q1_2 title changed").toLooseEqual("title1");
+    expect((<QuestionCheckboxModel>q2_1).choices.length, "q2_1 choices changed").toLooseEqual(3);
+    expect((<QuestionCheckboxModel>q2_2).choices.length, "q2_2 choices changed").toEqualValues(3);
+    var q3 = <QuestionTextModel>question.template.addNewQuestion("text", "q3");
+    var q3_1 = <QuestionTextModel>question.panels[0].getQuestionByName("q3");
+    expect(q3_1.title, "The title is empty").toLooseEqual("q3");
+    q3.title = "title_3";
+    expect(q3_1.title, "The title for added question has been changed").toLooseEqual("title_3");
+    var p1_q1 = <QuestionTextModel>question.template.getQuestionByName("p1_q1");
+    var q3_q1_1 = <QuestionTextModel>(
     question.panels[0].getQuestionByName("p1_q1")
   );
-  p1_q1.title = "title_in_panel";
-  assert.equal(
-    q3_q1_1.title,
-    "title_in_panel",
-    "The title for a question in a panel has been changed"
-  );
-});
+    p1_q1.title = "title_in_panel";
+    expect(q3_q1_1.title, "The title for a question in a panel has been changed").toLooseEqual("title_in_panel");
+  });
 
-QUnit.test(
-  "synhronize on template question property change bug #1278",
-  function(assert) {
+  test("synhronize on template question property change bug #1278", () => {
     var json = {
       elements: [
         {
@@ -3215,165 +2504,142 @@ QUnit.test(
     var question = <QuestionPanelDynamicModel>(
       survey.getQuestionByName("dPanel")
     );
-    assert.equal(
-      question.panels[0].elements[0].isVisible,
-      true,
-      "The first question is visible"
-    );
+    expect(question.panels[0].elements[0].isVisible, "The first question is visible").toLooseEqual(true);
     question.templateElements[0].visible = false;
-    assert.equal(
-      question.panels[0].elements[0].isVisible,
-      false,
-      "The first question is not visible now"
-    );
-  }
-);
+    expect(question.panels[0].elements[0].isVisible, "The first question is not visible now").toLooseEqual(false);
+  });
 
-QUnit.test("Test copyDefaultValueFromLastEntry property", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page");
-  var question = <QuestionPanelDynamicModel>(
+  test("Test copyDefaultValueFromLastEntry property", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("page");
+    var question = <QuestionPanelDynamicModel>(
     page.addNewQuestion("paneldynamic", "question")
   );
-  question.panelCount = 0;
-  question.template.addNewQuestion("text", "q1");
-  question.template.addNewQuestion("text", "q2");
-  question.template.addNewQuestion("text", "q3");
-  question.copyDefaultValueFromLastEntry = true;
-  question.addPanel();
-  assert.equal(question.isEmpty(), true, "It is empty");
-  question.value = [{ q1: 1, q2: 2 }];
-  question.addPanel();
-  assert.deepEqual(
-    question.value,
-    [
+    question.panelCount = 0;
+    question.template.addNewQuestion("text", "q1");
+    question.template.addNewQuestion("text", "q2");
+    question.template.addNewQuestion("text", "q3");
+    question.copyDefaultValueFromLastEntry = true;
+    question.addPanel();
+    expect(question.isEmpty(), "It is empty").toLooseEqual(true);
+    question.value = [{ q1: 1, q2: 2 }];
+    question.addPanel();
+    expect(question.value, "copyDefaultValueFromLastEntry is working").toEqualValues([
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2 },
-    ],
-    "copyDefaultValueFromLastEntry is working"
-  );
-  question.defaultPanelValue = { q1: 11, q3: 3 };
-  question.addPanel();
-  assert.deepEqual(
-    question.value,
-    [
+    ]);
+    question.defaultPanelValue = { q1: 11, q3: 3 };
+    question.addPanel();
+    expect(question.value, "copyDefaultValueFromLastEntry is merging with defaultPanelValue").toEqualValues([
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2, q3: 3 },
-    ],
-    "copyDefaultValueFromLastEntry is merging with defaultPanelValue"
-  );
-});
-QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic", name: "root",
-        panelCount: 1,
-        templateElements: [
-          { type: "paneldynamic", name: "question",
-            copyDefaultValueFromLastEntry: true,
-            panelCount: 0,
-            templateElements: [
-              { type: "dropdown", name: "q1", choices: [1, 2, 3], showOtherItem: true },
-              { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
-            ]
-          }
-        ]
-      }
-    ]
+    ]);
   });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("root");
-  const question = <QuestionPanelDynamicModel>(rootPanel.panels[0].getQuestionByName("question"));
-  const panel1 = question.addPanel();
-  panel1.getQuestionByName("q1").value = "other";
-  panel1.getQuestionByName("q1").otherValue = "comment1";
-  panel1.getQuestionByName("q2").value = "other";
-  panel1.getQuestionByName("q2").otherValue = "comment2";
-  let counter = 0;
-  survey.onDynamicPanelValueChanged.add((sender, options) => {
-    counter ++;
+  test("copyDefaultValueFromLastEntry property && showOtherItem", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "root",
+          panelCount: 1,
+          templateElements: [
+            { type: "paneldynamic", name: "question",
+              copyDefaultValueFromLastEntry: true,
+              panelCount: 0,
+              templateElements: [
+                { type: "dropdown", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+                { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("root");
+    const question = <QuestionPanelDynamicModel>(rootPanel.panels[0].getQuestionByName("question"));
+    const panel1 = question.addPanel();
+    panel1.getQuestionByName("q1").value = "other";
+    panel1.getQuestionByName("q1").otherValue = "comment1";
+    panel1.getQuestionByName("q2").value = "other";
+    panel1.getQuestionByName("q2").otherValue = "comment2";
+    let counter = 0;
+    survey.onDynamicPanelValueChanged.add((sender, options) => {
+      counter ++;
+    });
+    question.addPanel();
+    question.addPanel();
+    question.addPanel();
+    question.addPanel();
+    const panel6 = question.addPanel();
+    expect(panel6.getQuestionByName("q1").value, "Value set").toLooseEqual("other");
+    expect(panel6.getQuestionByName("q1").comment, "Comment set").toLooseEqual("comment1");
+    expect(counter, "Call updates 10 times").toLooseEqual(5 * 2);
   });
-  question.addPanel();
-  question.addPanel();
-  question.addPanel();
-  question.addPanel();
-  const panel6 = question.addPanel();
-  assert.equal(panel6.getQuestionByName("q1").value, "other", "Value set");
-  assert.equal(panel6.getQuestionByName("q1").comment, "comment1", "Comment set");
-  assert.equal(counter, 5 * 2, "Call updates 10 times");
-});
 
-QUnit.test("Generates error on clearIncorrectValue()", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "qid68",
-        visible: false,
-        visibleIf: "{qid752} contains 'OUI'",
-        isRequired: true,
-        templateElements: [
-          {
-            type: "text",
-            name: "pnd1790",
-          },
-          {
-            type: "dropdown",
-            name: "pnd72",
-          },
-          {
-            type: "radiogroup",
-            name: "pnd1791",
-          },
-        ],
-        panelCount: 1,
-      },
-    ],
+  test("Generates error on clearIncorrectValue()", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "qid68",
+          visible: false,
+          visibleIf: "{qid752} contains 'OUI'",
+          isRequired: true,
+          templateElements: [
+            {
+              type: "text",
+              name: "pnd1790",
+            },
+            {
+              type: "dropdown",
+              name: "pnd72",
+            },
+            {
+              type: "radiogroup",
+              name: "pnd1791",
+            },
+          ],
+          panelCount: 1,
+        },
+      ],
+    });
+    const data = {
+      qid1760: "teste",
+      qid1761: "tygjhg",
+      qid1792: "OUI",
+      qid1787: [{ pnd1788: "teste" }],
+    };
+    survey.data = data;
+    survey.clearIncorrectValues();
+    expect(survey.data, "Do not touch anything").toEqualValues(data);
   });
-  const data = {
-    qid1760: "teste",
-    qid1761: "tygjhg",
-    qid1792: "OUI",
-    qid1787: [{ pnd1788: "teste" }],
-  };
-  survey.data = data;
-  survey.clearIncorrectValues();
-  assert.deepEqual(survey.data, data, "Do not touch anything");
-});
 
-QUnit.test("Panel dynamic and survey.data setup", function(assert) {
-  var json = {
-    isSinglePage: true,
-    elements: [
-      {
-        type: "paneldynamic",
-        displayMode: "carousel",
-        name: "p1",
-        panelCount: 2,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-          },
-        ],
-      },
-    ],
-  };
+  test("Panel dynamic and survey.data setup", () => {
+    var json = {
+      isSinglePage: true,
+      elements: [
+        {
+          type: "paneldynamic",
+          displayMode: "carousel",
+          name: "p1",
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+        },
+      ],
+    };
 
-  var survey = new SurveyModel(json);
+    var survey = new SurveyModel(json);
 
-  survey.data = {};
+    survey.data = {};
 
-  survey.clearIncorrectValues();
-  assert.deepEqual(
-    survey.data,
-    { },
-    "Remove panels if set empty data"
-  );
-});
-QUnit.test(
-  "Panel dynamic and clearIncorrectValue, do not remove matrix-total values, Bug#2553",
-  function(assert) {
+    survey.clearIncorrectValues();
+    expect(survey.data, "Remove panels if set empty data").toEqualValues({ });
+  });
+  test("Panel dynamic and clearIncorrectValue, do not remove matrix-total values, Bug#2553", () => {
     var json = {
       elements: [
         {
@@ -3424,13 +2690,10 @@ QUnit.test(
     survey.data = data;
 
     survey.clearIncorrectValues();
-    assert.deepEqual(survey.data, data, "values should be the same");
-  }
-);
+    expect(survey.data, "values should be the same").toEqualValues(data);
+  });
 
-QUnit.test(
-  "Panel dynamic nested dynamic panel and display mode, Bug#1488",
-  function(assert) {
+  test("Panel dynamic nested dynamic panel and display mode, Bug#1488", () => {
     var json = {
       elements: [
         {
@@ -3469,128 +2732,101 @@ QUnit.test(
     var question4 = <QuestionPanelDynamicModel>(
       panel1.panels[0].getQuestionByName("question4")
     );
-    assert.equal(question4.isReadOnly, true, "The question should be readonly");
+    expect(question4.isReadOnly, "The question should be readonly").toLooseEqual(true);
     var panel2 = <QuestionPanelDynamicModel>(
       panel1.panels[0].getQuestionByName("question2")
     );
-    assert.ok(
-      panel2.survey,
-      "survey is set correctly to the nest dynamic panel"
-    );
+    expect(panel2.survey, "survey is set correctly to the nest dynamic panel").toBeTruthy();
     var question3 = panel2.panels[0].getQuestionByName("question3");
-    assert.ok(
-      question3.survey,
-      "survey is set correctly to the nest dynamic panel question"
-    );
-    assert.equal(
-      question3.isReadOnly,
-      true,
-      "The question inside the nested dynamic panel should be readonly"
-    );
-  }
-);
+    expect(question3.survey, "survey is set correctly to the nest dynamic panel question").toBeTruthy();
+    expect(question3.isReadOnly, "The question inside the nested dynamic panel should be readonly").toLooseEqual(true);
+  });
 
-QUnit.test("Panel dynamic nested dynamic panel and result, Bug#1514", function(
-  assert
-) {
-  var ljson = {
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "dp1",
-            templateElements: [
-              {
-                type: "paneldynamic",
-                name: "dp2",
-                templateElements: [
-                  {
-                    type: "text",
-                    name: "q1",
-                  },
-                ],
-                panelCount: 1,
-              },
-            ],
-            panelCount: 1,
-          },
-        ],
-      },
-    ],
-  };
-  var lsurvey = new SurveyModel(ljson);
-  assert.deepEqual(
-    lsurvey.data,
-    { dp1: [{ dp2: [{ }] }] },
-    "Has only one element in the array"
-  );
+  test("Panel dynamic nested dynamic panel and result, Bug#1514", () => {
+    var ljson = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dp1",
+              templateElements: [
+                {
+                  type: "paneldynamic",
+                  name: "dp2",
+                  templateElements: [
+                    {
+                      type: "text",
+                      name: "q1",
+                    },
+                  ],
+                  panelCount: 1,
+                },
+              ],
+              panelCount: 1,
+            },
+          ],
+        },
+      ],
+    };
+    var lsurvey = new SurveyModel(ljson);
+    expect(lsurvey.data, "Has only one element in the array").toEqualValues({ dp1: [{ dp2: [{ }] }] });
 
-  var dp1 = <QuestionPanelDynamicModel>(
+    var dp1 = <QuestionPanelDynamicModel>(
     lsurvey.currentPage.getQuestionByName("dp1")
   );
-  var dp2 = <QuestionPanelDynamicModel>dp1.panels[0].getQuestionByName("dp2");
-  var q1 = dp2.panels[0].questions[0];
-  q1.value = "val1";
-  assert.deepEqual(
-    lsurvey.data,
-    { dp1: [{ dp2: [{ q1: "val1" }] }] },
-    "The result is correct"
-  );
-  var json = {
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "dp1",
-            templateElements: [
-              {
-                type: "paneldynamic",
-                name: "dp2",
-                templateElements: [
-                  {
-                    type: "paneldynamic",
-                    name: "dp3",
-                    templateElements: [
-                      {
-                        type: "paneldynamic",
-                        name: "dp4",
-                        templateElements: [
-                          {
-                            type: "text",
-                            name: "q1",
-                            defaultValue: "val1",
-                          },
-                        ],
-                        panelCount: 1,
-                      },
-                    ],
-                    panelCount: 1,
-                  },
-                ],
-                panelCount: 1,
-              },
-            ],
-            panelCount: 1,
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  assert.deepEqual(
-    survey.data,
-    { dp1: [{ dp2: [{ dp3: [{ dp4: [{ q1: "val1" }] }] }] }] },
-    "The result is correct"
-  );
-});
+    var dp2 = <QuestionPanelDynamicModel>dp1.panels[0].getQuestionByName("dp2");
+    var q1 = dp2.panels[0].questions[0];
+    q1.value = "val1";
+    expect(lsurvey.data, "The result is correct").toEqualValues({ dp1: [{ dp2: [{ q1: "val1" }] }] });
+    var json = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "dp1",
+              templateElements: [
+                {
+                  type: "paneldynamic",
+                  name: "dp2",
+                  templateElements: [
+                    {
+                      type: "paneldynamic",
+                      name: "dp3",
+                      templateElements: [
+                        {
+                          type: "paneldynamic",
+                          name: "dp4",
+                          templateElements: [
+                            {
+                              type: "text",
+                              name: "q1",
+                              defaultValue: "val1",
+                            },
+                          ],
+                          panelCount: 1,
+                        },
+                      ],
+                      panelCount: 1,
+                    },
+                  ],
+                  panelCount: 1,
+                },
+              ],
+              panelCount: 1,
+            },
+          ],
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    expect(survey.data, "The result is correct").toEqualValues({ dp1: [{ dp2: [{ dp3: [{ dp4: [{ q1: "val1" }] }] }] }] });
+  });
 
-QUnit.test(
-  "Bug on caching panel data during onValueChanged event, Bug#T1533",
-  function(assert) {
+  test("Bug on caching panel data during onValueChanged event, Bug#T1533", () => {
     var json = {
       elements: [
         {
@@ -3622,13 +2858,10 @@ QUnit.test(
     var dp1 = <QuestionPanelDynamicModel>survey.getQuestionByName("dp1");
     var q1 = dp1.panels[0].getQuestionByName("q1");
     q1.value = "val1";
-    assert.deepEqual(changedValue, [1, 2, 3], "value set correctly");
-  }
-);
+    expect(changedValue, "value set correctly").toEqualValues([1, 2, 3]);
+  });
 
-QUnit.test(
-  "Bug on visibleIf in dynamic panel + dynamic matrix, Bug#T1716",
-  function(assert) {
+  test("Bug on visibleIf in dynamic panel + dynamic matrix, Bug#T1716", () => {
     var json = {
       elements: [
         {
@@ -3667,211 +2900,196 @@ QUnit.test(
     var panel = <QuestionMatrixDynamicModel>(
       survey.getQuestionByName("entities_info")
     );
-    assert.equal(
-      panel.panels[0].getQuestionByName("q2").isVisible,
-      false,
-      "By default, q2 is invisible"
-    );
+    expect(panel.panels[0].getQuestionByName("q2").isVisible, "By default, q2 is invisible").toLooseEqual(false);
     panel.panels[0].getQuestionByName("q1").value = "b";
-    assert.equal(
-      panel.panels[0].getQuestionByName("q2").isVisible,
-      true,
-      "q2 is visible now"
-    );
-  }
-);
-QUnit.test("clear values in panel dynamic with valueName set, Bug#10345", (assert) => {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "text",
-        "name": "q1",
-        "valueName": "name"
-      },
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        "templateElements": [
-          {
-            "type": "radiogroup",
-            "name": "q2",
-            "choices": [
-              "a",
-              "b"
-            ]
-          },
-          {
-            "type": "text",
-            "name": "q3",
-            "visibleIf": "{panel.q2} = 'a'",
-            "valueName": "name",
-            "clearIfInvisible": "onHidden"
-          }
-        ]
-      }
-    ]
+    expect(panel.panels[0].getQuestionByName("q2").isVisible, "q2 is visible now").toLooseEqual(true);
   });
-  survey.data = {
-    q1: "name1",
-    panel: [
-      { q2: "a", name: "name2" },
-      { q2: "a", name: "name3" }
-    ]
-  };
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.panels[0].getQuestionByName("q2").value = "b";
-  assert.deepEqual(survey.data, { q1: "name1", panel: [{ q2: "b" }, { q2: "a", name: "name3" }] }, "values are cleared correctly, #1");
-  panel.panels[1].getQuestionByName("q2").value = "b";
-  assert.deepEqual(survey.data, { q1: "name1", panel: [{ q2: "b" }, { q2: "b" }] }, "values are cleared correctly, #2");
-});
-QUnit.test("goToNextPanel method", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "pd",
-        displayMode: "carousel",
-        panelCount: 2,
-        templateElements: [
-          {
-            type: "radiogroup",
-            name: "q1",
-            isRequired: true,
-            choices: ["a", "b"],
-          },
-        ],
-      },
-    ],
-  };
+  test("clear values in panel dynamic with valueName set, Bug#10345", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "text",
+          "name": "q1",
+          "valueName": "name"
+        },
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          "templateElements": [
+            {
+              "type": "radiogroup",
+              "name": "q2",
+              "choices": [
+                "a",
+                "b"
+              ]
+            },
+            {
+              "type": "text",
+              "name": "q3",
+              "visibleIf": "{panel.q2} = 'a'",
+              "valueName": "name",
+              "clearIfInvisible": "onHidden"
+            }
+          ]
+        }
+      ]
+    });
+    survey.data = {
+      q1: "name1",
+      panel: [
+        { q2: "a", name: "name2" },
+        { q2: "a", name: "name3" }
+      ]
+    };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[0].getQuestionByName("q2").value = "b";
+    expect(survey.data, "values are cleared correctly, #1").toEqualValues({ q1: "name1", panel: [{ q2: "b" }, { q2: "a", name: "name3" }] });
+    panel.panels[1].getQuestionByName("q2").value = "b";
+    expect(survey.data, "values are cleared correctly, #2").toEqualValues({ q1: "name1", panel: [{ q2: "b" }, { q2: "b" }] });
+  });
+  test("goToNextPanel method", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          displayMode: "carousel",
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              isRequired: true,
+              choices: ["a", "b"],
+            },
+          ],
+        },
+      ],
+    };
 
-  var survey = new SurveyModel(json);
-  var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
+    var survey = new SurveyModel(json);
+    var panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    expect(panelDynamic.currentIndex, "first panel is current").toLooseEqual(0);
 
-  panelDynamic.goToNextPanel();
-  assert.equal(
-    panelDynamic.currentIndex,
-    0,
-    "first panel is current because of validation errors"
-  );
-  assert.equal(panelDynamic.currentPanel.validate(), false);
+    panelDynamic.goToNextPanel();
+    expect(panelDynamic.currentIndex, "first panel is current because of validation errors").toLooseEqual(0);
+    expect(panelDynamic.currentPanel.validate()).toLooseEqual(false);
 
-  survey.data = { pd: [{ q1: "a" }, { q1: "b" }] };
-  assert.equal(panelDynamic.currentPanel.validate(), true);
+    survey.data = { pd: [{ q1: "a" }, { q1: "b" }] };
+    expect(panelDynamic.currentPanel.validate()).toLooseEqual(true);
 
-  panelDynamic.goToNextPanel();
-  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
-});
+    panelDynamic.goToNextPanel();
+    expect(panelDynamic.currentIndex, "second panel is current").toLooseEqual(1);
+  });
 
-QUnit.test("do not add new panel for list", function(assert) {
-  const json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "pd",
-        displayMode: "carousel",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "radiogroup",
-            name: "q1",
-            isRequired: true,
-            choices: ["a", "b"],
-          },
-        ],
-      },
-    ],
-  };
+  test("do not add new panel for list", () => {
+    const json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          displayMode: "carousel",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              isRequired: true,
+              choices: ["a", "b"],
+            },
+          ],
+        },
+      ],
+    };
 
-  let survey = new SurveyModel(json);
-  let panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
-  assert.equal(panelDynamic.panelCount, 1, "There is one panel");
-  panelDynamic.addPanelUI();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel is current because of validation errors");
-  assert.equal(panelDynamic.panelCount, 1, "There is still one panel");
-  assert.equal(panelDynamic.canAddPanel, true, "You still can show buttons");
-  assert.equal(panelDynamic.currentPanel.validate(), false);
+    let survey = new SurveyModel(json);
+    let panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    expect(panelDynamic.currentIndex, "first panel is current").toLooseEqual(0);
+    expect(panelDynamic.panelCount, "There is one panel").toLooseEqual(1);
+    panelDynamic.addPanelUI();
+    expect(panelDynamic.currentIndex, "first panel is current because of validation errors").toLooseEqual(0);
+    expect(panelDynamic.panelCount, "There is still one panel").toLooseEqual(1);
+    expect(panelDynamic.canAddPanel, "You still can show buttons").toLooseEqual(true);
+    expect(panelDynamic.currentPanel.validate()).toLooseEqual(false);
 
-  survey.data = { pd: [{ q1: "a" }] };
-  assert.equal(panelDynamic.currentPanel.validate(), true);
+    survey.data = { pd: [{ q1: "a" }] };
+    expect(panelDynamic.currentPanel.validate()).toLooseEqual(true);
 
-  panelDynamic.addPanelUI();
-  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
-  assert.equal(panelDynamic.panelCount, 2, "There are two panels");
+    panelDynamic.addPanelUI();
+    expect(panelDynamic.currentIndex, "second panel is current").toLooseEqual(1);
+    expect(panelDynamic.panelCount, "There are two panels").toLooseEqual(2);
 
-  survey = new SurveyModel(json);
-  panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-  panelDynamic.displayMode = "list";
-  panelDynamic.addPanelUI();
-  assert.equal(panelDynamic.panelCount, 2, "Do not check for list mode");
-});
+    survey = new SurveyModel(json);
+    panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    panelDynamic.displayMode = "list";
+    panelDynamic.addPanelUI();
+    expect(panelDynamic.panelCount, "Do not check for list mode").toLooseEqual(2);
+  });
 
-QUnit.test("addPanel(index, skipvalidation)", function(assert) {
-  const json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "pd",
-        displayMode: "carousel",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "q1", isRequired: true }
-        ],
-      },
-    ],
-  };
+  test("addPanel(index, skipvalidation)", () => {
+    const json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          displayMode: "carousel",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1", isRequired: true }
+          ],
+        },
+      ],
+    };
 
-  let survey = new SurveyModel(json);
-  let question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-  assert.equal(question.currentIndex, 0, "first panel is current");
-  assert.equal(question.panelCount, 1, "There is one panel");
+    let survey = new SurveyModel(json);
+    let question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+    expect(question.currentIndex, "first panel is current").toLooseEqual(0);
+    expect(question.panelCount, "There is one panel").toLooseEqual(1);
 
-  question.addPanel(undefined);
-  assert.equal(question.currentIndex, 1, "currentIndex #2");
-  assert.equal(question.panelCount, 2, "panelCount #2");
-  assert.equal(question.canAddPanel, true, "canAddPanel #2");
+    question.addPanel(undefined);
+    expect(question.currentIndex, "currentIndex #2").toLooseEqual(1);
+    expect(question.panelCount, "panelCount #2").toLooseEqual(2);
+    expect(question.canAddPanel, "canAddPanel #2").toLooseEqual(true);
 
-  question.copyDefaultValueFromLastEntry = true;
-  question.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
-  assert.equal(question.currentIndex, 1, "don't change currentIndex");
-  question.addPanel(2);
-  assert.equal(question.currentIndex, 2, "currentIndex #3");
-  assert.equal(question.panelCount, 4, "panelCount #3");
-});
+    question.copyDefaultValueFromLastEntry = true;
+    question.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+    expect(question.currentIndex, "don't change currentIndex").toLooseEqual(1);
+    question.addPanel(2);
+    expect(question.currentIndex, "currentIndex #3").toLooseEqual(2);
+    expect(question.panelCount, "panelCount #3").toLooseEqual(4);
+  });
 
-QUnit.test("goToPrevPanel method", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "pd",
-        displayMode: "carousel",
-        panelCount: 2,
-        templateElements: [
-          {
-            type: "radiogroup",
-            name: "q1",
-            isRequired: true,
-            choices: ["a", "b"],
-          },
-        ],
-      },
-    ],
-  };
+  test("goToPrevPanel method", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          displayMode: "carousel",
+          panelCount: 2,
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "q1",
+              isRequired: true,
+              choices: ["a", "b"],
+            },
+          ],
+        },
+      ],
+    };
 
-  var survey = new SurveyModel(json);
-  var panelDynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("pd");
+    var survey = new SurveyModel(json);
+    var panelDynamic = <QuestionMatrixDynamicModel>survey.getQuestionByName("pd");
 
-  panelDynamic.currentIndex = 1;
-  assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
+    panelDynamic.currentIndex = 1;
+    expect(panelDynamic.currentIndex, "second panel is current").toLooseEqual(1);
 
-  panelDynamic.goToPrevPanel();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
-});
-QUnit.test(
-  "paneldynamic + radiogroup + others, Bug# https://github.com/surveyjs/editor/issues/480",
-  function(assert) {
+    panelDynamic.goToPrevPanel();
+    expect(panelDynamic.currentIndex, "first panel is current").toLooseEqual(0);
+  });
+  test("paneldynamic + radiogroup + others, Bug# https://github.com/surveyjs/editor/issues/480", () => {
     var json = {
       elements: [
         {
@@ -3896,13 +3114,10 @@ QUnit.test(
     var question = <QuestionRadiogroupModel>(
       panel.panels[0].getQuestionByName("radio")
     );
-    assert.equal(question.isOtherSelected, true, "Other is selected");
-    assert.equal(question.comment, "Comment", "Comment is set correctly");
-  }
-);
-QUnit.test(
-  "paneldynamic + survey.checkErrorsMode='onValueChanged', Bug# https://surveyjs.answerdesk.io/ticket/details/T1758",
-  function(assert) {
+    expect(question.isOtherSelected, "Other is selected").toLooseEqual(true);
+    expect(question.comment, "Comment is set correctly").toLooseEqual("Comment");
+  });
+  test("paneldynamic + survey.checkErrorsMode='onValueChanged', Bug# https://surveyjs.answerdesk.io/ticket/details/T1758", () => {
     var json = {
       checkErrorsMode: "onValueChanged",
       elements: [
@@ -3930,52 +3145,49 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
     var q2 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
-    assert.equal(q2.errors.length, 0, "There are no errors in the second question");
+    expect(q2.errors.length, "There are no errors in the second question").toLooseEqual(0);
     q1.value = "test";
-    assert.equal(q2.errors.length, 0, "There are still no errors in the second question");
+    expect(q2.errors.length, "There are still no errors in the second question").toLooseEqual(0);
     panel.value = [{ }];
-    assert.equal(q1.errors.length, 0, "There is no errors on panel.value changed, q1");
-    assert.equal(q1.errors.length, 0, "There is no errors on panel.value changed, q2");
-    assert.equal(q1.isEmpty(), true, "q1 is empty now");
+    expect(q1.errors.length, "There is no errors on panel.value changed, q1").toLooseEqual(0);
+    expect(q1.errors.length, "There is no errors on panel.value changed, q2").toLooseEqual(0);
+    expect(q1.isEmpty(), "q1 is empty now").toLooseEqual(true);
     q1.value = "abc";
-    assert.equal(q1.errors.length, 0, "There is no errors on value changed, #2");
-    assert.equal(q2.errors.length, 0, "and there is no error in the second question");
+    expect(q1.errors.length, "There is no errors on value changed, #2").toLooseEqual(0);
+    expect(q2.errors.length, "and there is no error in the second question").toLooseEqual(0);
     q1.value = "";
-    assert.equal(q1.errors.length, 1, "We have the error in q1 now");
+    expect(q1.errors.length, "We have the error in q1 now").toLooseEqual(1);
     survey.tryComplete();
-    assert.equal(q1.errors.length, 1, "There is error in the first question");
-    assert.equal(q2.errors.length, 1, "There is error in the second question");
-  }
-);
-QUnit.test("paneldynamic isRequired + survey.checkErrorsMode='onValueChanged', Bug#6395", function(assert) {
-  var survey = new SurveyModel({
-    checkErrorsMode: "onValueChanged",
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 1,
-        isRequired: true,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1"
-          }
-        ],
-      },
-    ],
+    expect(q1.errors.length, "There is error in the first question").toLooseEqual(1);
+    expect(q2.errors.length, "There is error in the second question").toLooseEqual(1);
   });
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
-  survey.validate();
-  assert.equal(panel.errors.length, 1, "There is one error in panel dynamic, #1");
-  q1.value = "test";
-  assert.equal(panel.errors.length, 0, "There is no error in panel dynamic, #2");
-});
+  test("paneldynamic isRequired + survey.checkErrorsMode='onValueChanged', Bug#6395", () => {
+    var survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          isRequired: true,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ],
+        },
+      ],
+    });
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
+    survey.validate();
+    expect(panel.errors.length, "There is one error in panel dynamic, #1").toLooseEqual(1);
+    q1.value = "test";
+    expect(panel.errors.length, "There is no error in panel dynamic, #2").toLooseEqual(0);
+  });
 
-QUnit.test(
-  "paneldynamic + expression value + clear data on survey.isSinglePage = true', Bug# 1625",
-  function(assert) {
+  test("paneldynamic + expression value + clear data on survey.isSinglePage = true', Bug# 1625", () => {
     var json = {
       pages: [
         {
@@ -4011,18 +3223,11 @@ QUnit.test(
 
     var survey = new SurveyModel(json);
     survey.data = data;
-    assert.deepEqual(survey.data, data, "Data set correctly");
+    expect(survey.data, "Data set correctly").toEqualValues(data);
     survey.isSinglePage = true;
-    assert.deepEqual(
-      survey.data,
-      data,
-      "Data is not changed after setting single page"
-    );
-  }
-);
-QUnit.test(
-  "Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710",
-  function(assert) {
+    expect(survey.data, "Data is not changed after setting single page").toEqualValues(data);
+  });
+  test("Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710", () => {
     var json = {
       elements: [
         {
@@ -4049,15 +3254,12 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     panel.panels[0].getQuestionByName("pq1").value = "val1";
     survey.getQuestionByName("q1").value = "val";
-    assert.equal(panel.validate(), false, "There is an error");
+    expect(panel.validate(), "There is an error").toLooseEqual(false);
     panel.panels[0].getQuestionByName("pq1").value = "val";
-    assert.equal(panel.validate(), true, "There is no errors");
-  }
-);
+    expect(panel.validate(), "There is no errors").toLooseEqual(true);
+  });
 
-QUnit.test(
-  "Dropdown inside Dynamic Panel. ChoicesMax choicesMin properties",
-  function(assert) {
+  test("Dropdown inside Dynamic Panel. ChoicesMax choicesMin properties", () => {
     var json = {
       elements: [
         {
@@ -4084,42 +3286,35 @@ QUnit.test(
 
     var dropDownQuestion = survey.getAllQuestions()[0]["panels"][0].elements[0];
 
-    assert.equal(dropDownQuestion.choicesMin, 1, "choicesMin is ok");
-    assert.equal(dropDownQuestion.choicesMax, 115, "choicesMax is ok");
-    assert.equal(
-      dropDownQuestion.visibleChoices.length,
-      115,
-      "visibleChoices is ok"
-    );
-  }
-);
-QUnit.test("Matrix validation in cells and async functions in expression", (assert) => {
-  let returnResult: (res: any) => void = (res: any) => {};
-  function asyncFunc(params: any): any {
-    returnResult = this.returnResult;
-    return false;
-  }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+    expect(dropDownQuestion.choicesMin, "choicesMin is ok").toLooseEqual(1);
+    expect(dropDownQuestion.choicesMax, "choicesMax is ok").toLooseEqual(115);
+    expect(dropDownQuestion.visibleChoices.length, "visibleChoices is ok").toLooseEqual(115);
+  });
+  test("Matrix validation in cells and async functions in expression", () => {
+    let returnResult: (res: any) => void = (res: any) => {};
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 
-  const question = new QuestionPanelDynamicModel("q1");
-  question.panelCount = 1;
-  const textQuestion = question.template.addNewQuestion("text", "q1");
-  textQuestion.validators.push(new ExpressionValidator("asyncFunc() = 1"));
-  let callbackRes: any = undefined;
-  assert.equal(question.validate(false, false, false, (res: boolean) => {
-    callbackRes = res;
-  }), undefined, "The result is not ready");
-  assert.equal(question.isRunningValidators, true, "We have one running validator");
-  assert.equal(callbackRes, undefined, "We don't have the result yet");
-  returnResult(1);
-  assert.equal(question.isRunningValidators, false, "We are fine now");
-  assert.equal(callbackRes, true, "The result is here");
+    const question = new QuestionPanelDynamicModel("q1");
+    question.panelCount = 1;
+    const textQuestion = question.template.addNewQuestion("text", "q1");
+    textQuestion.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+    let callbackRes: any = undefined;
+    expect(question.validate(false, false, false, (res: boolean) => {
+      callbackRes = res;
+    }), "The result is not ready").toLooseEqual(undefined);
+    expect(question.isRunningValidators, "We have one running validator").toLooseEqual(true);
+    expect(callbackRes, "We don't have the result yet").toLooseEqual(undefined);
+    returnResult(1);
+    expect(question.isRunningValidators, "We are fine now").toLooseEqual(false);
+    expect(callbackRes, "The result is here").toLooseEqual(true);
 
-  FunctionFactory.Instance.unregister("asyncFunc");
-});
-QUnit.test(
-  "Nested panel, setting survey.data when survey.clearInvisibleValues='onHidden', Bug# 1866",
-  function(assert) {
+    FunctionFactory.Instance.unregister("asyncFunc");
+  });
+  test("Nested panel, setting survey.data when survey.clearInvisibleValues='onHidden', Bug# 1866", () => {
     var json = {
       clearInvisibleValues: "onHidden",
       elements: [
@@ -4164,37 +3359,34 @@ QUnit.test(
         .questions[0]
     );
     var histologicalCategory = nestedPanel.panels[0].questions[1];
-    assert.equal(histologicalCategory.value, "foo", "value set correctly");
-  }
-);
-QUnit.test("Panel dynamic, clearInvisibleValues='onHidden' & question valueName, Bug#", function(assert) {
-  const json = {
-    clearInvisibleValues: "onHidden",
-    elements: [
-      {
-        name: "panel",
-        type: "paneldynamic",
-        templateElements: [
-          { name: "q1", type: "text", valueName: "q1_val" },
-          { name: "q2", type: "text", valueName: "q2_val", visibleIf: "{panel.q1_val} = 'a'" }
-        ],
-        panelCount: 1
-      }
-    ]
-  };
-  const survey = new SurveyModel(json);
-  const pDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel = pDynamic.panels[0];
-  assert.equal(survey.hasVisibleQuestionByValueName(panel.getQuestionByName("q2")), false, "It is in templates");
-  panel.getQuestionByName("q1").value = "a";
-  panel.getQuestionByName("q2").value = "b";
-  assert.deepEqual(survey.data, { panel: [{ q1_val: "a", q2_val: "b" }] }, "#1");
-  panel.getQuestionByName("q1").value = "c";
-  assert.deepEqual(survey.data, { panel: [{ q1_val: "c" }] }, "#2");
-});
-QUnit.test(
-  "Paneldynamic duplicate key value error with checkErrorsMode: onValueChanged",
-  function(assert) {
+    expect(histologicalCategory.value, "value set correctly").toLooseEqual("foo");
+  });
+  test("Panel dynamic, clearInvisibleValues='onHidden' & question valueName, Bug#", () => {
+    const json = {
+      clearInvisibleValues: "onHidden",
+      elements: [
+        {
+          name: "panel",
+          type: "paneldynamic",
+          templateElements: [
+            { name: "q1", type: "text", valueName: "q1_val" },
+            { name: "q2", type: "text", valueName: "q2_val", visibleIf: "{panel.q1_val} = 'a'" }
+          ],
+          panelCount: 1
+        }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const pDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel = pDynamic.panels[0];
+    expect(survey.hasVisibleQuestionByValueName(panel.getQuestionByName("q2")), "It is in templates").toLooseEqual(false);
+    panel.getQuestionByName("q1").value = "a";
+    panel.getQuestionByName("q2").value = "b";
+    expect(survey.data, "#1").toEqualValues({ panel: [{ q1_val: "a", q2_val: "b" }] });
+    panel.getQuestionByName("q1").value = "c";
+    expect(survey.data, "#2").toEqualValues({ panel: [{ q1_val: "c" }] });
+  });
+  test("Paneldynamic duplicate key value error with checkErrorsMode: onValueChanged", () => {
     var survey = new SurveyModel({
       checkErrorsMode: "onValueChanged",
       elements: [
@@ -4221,101 +3413,74 @@ QUnit.test(
     var question3 = panelDynamic.panels[2].questions[0];
     question1.value = "1";
     question2.value = "0";
-    assert.equal(
-      question2.errors.length,
-      0,
-      "There is no unique errors by default"
-    );
+    expect(question2.errors.length, "There is no unique errors by default").toLooseEqual(0);
     question2.value = "1";
-    assert.equal(
-      question2.errors.length,
-      1,
-      "There is unique value error, when two key values are equal"
-    );
+    expect(question2.errors.length, "There is unique value error, when two key values are equal").toLooseEqual(1);
     question2.value = "0";
-    assert.equal(
-      question2.errors.length,
-      0,
-      "There is no unique errors after question with error is changed"
-    );
+    expect(question2.errors.length, "There is no unique errors after question with error is changed").toLooseEqual(0);
     question2.value = "1";
     question1.value = "0";
-    assert.equal(
-      question2.errors.length,
-      0,
-      "There is no unique errors after question with no error is changed"
-    );
+    expect(question2.errors.length, "There is no unique errors after question with no error is changed").toLooseEqual(0);
     question1.value = "1";
     question3.value = "1";
-    assert.equal(
-      question2.errors.length,
-      1,
-      "There is unique value error on second question, when three key values are equal"
-    );
-    assert.equal(
-      question3.errors.length,
-      1,
-      "There is unique value error on third question, when three key values are equal"
-    );
-  }
-);
-QUnit.test("Expression validator error message not displayed when condition fails on value changed #10586", (assert) => {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1",
-            "inputType": "number",
-            "validators": [
-              {
-                "type": "expression",
-                "expression": "{panel.q1} empty or {panel.q1} <> {panel.q2}"
-              }
-            ]
-          },
-          {
-            "type": "text",
-            "name": "q2",
-            "inputType": "number",
-            "validators": [
-              {
-                "type": "expression",
-                "expression": "{panel.q2} empty or {panel.q1} <> {panel.q2}"
-              }
-            ]
-          },
-          {
-            "type": "expression",
-            "name": "q3",
-            "expression": "{panel.q2} - {panel.q1}"
-          }
-        ]
-      }
-    ],
-    "checkErrorsMode": "onValueChanged"
+    expect(question2.errors.length, "There is unique value error on second question, when three key values are equal").toLooseEqual(1);
+    expect(question3.errors.length, "There is unique value error on third question, when three key values are equal").toLooseEqual(1);
   });
+  test("Expression validator error message not displayed when condition fails on value changed #10586", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1",
+              "inputType": "number",
+              "validators": [
+                {
+                  "type": "expression",
+                  "expression": "{panel.q1} empty or {panel.q1} <> {panel.q2}"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "name": "q2",
+              "inputType": "number",
+              "validators": [
+                {
+                  "type": "expression",
+                  "expression": "{panel.q2} empty or {panel.q1} <> {panel.q2}"
+                }
+              ]
+            },
+            {
+              "type": "expression",
+              "name": "q3",
+              "expression": "{panel.q2} - {panel.q1}"
+            }
+          ]
+        }
+      ],
+      "checkErrorsMode": "onValueChanged"
+    });
 
-  const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panelDynamic.addPanel();
-  const q1 = panelDynamic.panels[0].getQuestionByName("q1");
-  const q2 = panelDynamic.panels[0].getQuestionByName("q2");
-  q1.value = 1;
-  q2.value = 1;
-  assert.equal(q2.errors.length, 1, "There is error in q2");
-  q1.value = 2;
-  assert.equal(q2.errors.length, 0, "There is no error in q2");
-  q1.value = 1;
-  assert.equal(q1.errors.length, 1, "There is error in q1");
-  q2.value = 2;
-  assert.equal(q1.errors.length, 0, "There is no error in q1");
-});
-QUnit.test(
-  "Paneldynamic duplicate key value error with checkErrorsMode: onValueChanging",
-  function(assert) {
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panelDynamic.addPanel();
+    const q1 = panelDynamic.panels[0].getQuestionByName("q1");
+    const q2 = panelDynamic.panels[0].getQuestionByName("q2");
+    q1.value = 1;
+    q2.value = 1;
+    expect(q2.errors.length, "There is error in q2").toLooseEqual(1);
+    q1.value = 2;
+    expect(q2.errors.length, "There is no error in q2").toLooseEqual(0);
+    q1.value = 1;
+    expect(q1.errors.length, "There is error in q1").toLooseEqual(1);
+    q2.value = 2;
+    expect(q1.errors.length, "There is no error in q1").toLooseEqual(0);
+  });
+  test("Paneldynamic duplicate key value error with checkErrorsMode: onValueChanging", () => {
     var survey = new SurveyModel({
       checkErrorsMode: "onValueChanging",
       elements: [
@@ -4341,31 +3506,16 @@ QUnit.test(
     var question2 = panelDynamic.panels[1].questions[0];
     question1.value = 1;
     question2.value = 3;
-    assert.deepEqual(survey.data, { panel1: [{ id: 1 }, { id: 3 }] });
+    expect(survey.data).toEqualValues({ panel1: [{ id: 1 }, { id: 3 }] });
     question2.value = 1;
-    assert.equal(
-      question2.errors.length,
-      1,
-      "There is unique value error, when two key values are equal"
-    );
-    assert.equal(question2.value, 1, "Keep incorrect value in question");
-    assert.deepEqual(
-      survey.data,
-      { panel1: [{ id: 1 }, { id: 3 }] },
-      "Do not change the survey.data with incorrect values"
-    );
+    expect(question2.errors.length, "There is unique value error, when two key values are equal").toLooseEqual(1);
+    expect(question2.value, "Keep incorrect value in question").toLooseEqual(1);
+    expect(survey.data, "Do not change the survey.data with incorrect values").toEqualValues({ panel1: [{ id: 1 }, { id: 3 }] });
     question2.value = 2;
-    assert.equal(question2.errors.length, 0, "There is no errors");
-    assert.deepEqual(
-      survey.data,
-      { panel1: [{ id: 1 }, { id: 2 }] },
-      "set correct values into survey.data"
-    );
-  }
-);
-QUnit.test(
-  "Paneldynamic duplicate key value error adds several times into cell question.errors on calling validate(false), Bug #3869",
-  function(assert) {
+    expect(question2.errors.length, "There is no errors").toLooseEqual(0);
+    expect(survey.data, "set correct values into survey.data").toEqualValues({ panel1: [{ id: 1 }, { id: 2 }] });
+  });
+  test("Paneldynamic duplicate key value error adds several times into cell question.errors on calling validate(false), Bug #3869", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -4390,20 +3540,17 @@ QUnit.test(
     var question2 = panelDynamic.panels[1].questions[0];
     question1.value = "1";
     question2.value = "1";
-    assert.equal(survey.validate(false), false, "There is a duplication error, #1");
-    assert.equal(survey.validate(false), false, "There is a duplication error, #2");
-    assert.equal(survey.validate(false), false, "There is a duplication error, #2");
-    assert.equal(question2.errors.length, 0, "There is no errors, fireCallback parameter is false");
-    assert.equal(survey.validate(), false, "There is a duplication error, #3");
-    assert.equal(survey.validate(), false, "There is a duplication error, #4");
-    assert.equal(survey.validate(), false, "There is a duplication error, #5");
-    assert.equal(question2.errors.length, 1, "There is one error");
-  }
-);
+    expect(survey.validate(false), "There is a duplication error, #1").toLooseEqual(false);
+    expect(survey.validate(false), "There is a duplication error, #2").toLooseEqual(false);
+    expect(survey.validate(false), "There is a duplication error, #2").toLooseEqual(false);
+    expect(question2.errors.length, "There is no errors, fireCallback parameter is false").toLooseEqual(0);
+    expect(survey.validate(), "There is a duplication error, #3").toLooseEqual(false);
+    expect(survey.validate(), "There is a duplication error, #4").toLooseEqual(false);
+    expect(survey.validate(), "There is a duplication error, #5").toLooseEqual(false);
+    expect(question2.errors.length, "There is one error").toLooseEqual(1);
+  });
 
-QUnit.test(
-  "Do not reset panelCount after deleting the last panel, Bug #1972",
-  function(assert) {
+  test("Do not reset panelCount after deleting the last panel, Bug #1972", () => {
     var json = {
       elements: [
         {
@@ -4422,19 +3569,16 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-    assert.equal(panel.panelCount, 3, "There are 3 panels by default");
+    expect(panel.panelCount, "There are 3 panels by default").toLooseEqual(3);
     panel.removePanelUI(2);
-    assert.equal(panel.panelCount, 2, "Remove the third panel");
+    expect(panel.panelCount, "Remove the third panel").toLooseEqual(2);
     panel.removePanelUI(1);
-    assert.equal(panel.panelCount, 1, "Remove the second panel");
+    expect(panel.panelCount, "Remove the second panel").toLooseEqual(1);
     panel.removePanelUI(0);
-    assert.equal(panel.panelCount, 0, "Remove the first panel");
-  }
-);
+    expect(panel.panelCount, "Remove the first panel").toLooseEqual(0);
+  });
 
-QUnit.test(
-  "call clearFiles for QuestionFile on removing the panel, Bug #1970",
-  function(assert) {
+  test("call clearFiles for QuestionFile on removing the panel, Bug #1970", () => {
     var json = {
       elements: [
         {
@@ -4459,104 +3603,93 @@ QUnit.test(
     survey.onClearFiles.add(function(sender, options) {
       counter++;
       options.callback("success");
-      assert.equal(
-        options.question.name,
-        "q2",
-        "Question is passed in options"
-      );
+      expect(options.question.name, "Question is passed in options").toLooseEqual("q2");
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =
       "data:image/jpeg;base64,FILECONTENT";
     panel.removePanelUI(0);
-    assert.equal(counter, 1, "clear files was called");
-  }
-);
-QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(assert) {
-  const json = {
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-      },
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        visibleIf: "{q1} = 1",
-        templateElements: [
-          {
-            type: "text",
-            name: "q2",
-            clearIfInvisible: "onHiddenContainer",
-          },
-        ],
-        panelCount: 1
-      },
-    ],
-  };
-  const survey = new SurveyModel(json);
-  survey.setValue("q1", 1);
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const textQuestion = (<QuestionTextModel>panel.panels[0].getQuestionByName("q2"));
-  textQuestion.value = "val1";
-  assert.equal(textQuestion.isParentVisible, true, "file question parent is visible");
-  survey.setValue("q1", 2);
-  assert.equal(panel.isVisible, false, "panel is invisible");
-  assert.equal(textQuestion.isParentVisible, false, "file question parent is invisible");
-  assert.equal(textQuestion.isEmpty(), true, "question value is empty, #1");
-  survey.setValue("q1", 1);
-  assert.equal(textQuestion.isEmpty(), true, "question value is empty, #2");
-});
-
-QUnit.test("call clearFiles for QuestionFile on clearing panel value, Bug #6336", function(assert) {
-  const json = {
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-      },
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        visibleIf: "{q1} = 1",
-        templateElements: [
-          {
-            type: "file",
-            name: "q2",
-            clearIfInvisible: "onHiddenContainer",
-          },
-        ],
-        panelCount: 1
-      },
-    ],
-  };
-  const survey = new SurveyModel(json);
-  var counter = 0;
-  survey.onClearFiles.add(function(sender, options) {
-    counter++;
-    options.callback("success");
-    assert.equal(
-      options.question.name,
-      "q2",
-      "Question is passed in options"
-    );
+    expect(counter, "clear files was called").toLooseEqual(1);
   });
-  survey.setValue("q1", 1);
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const fileQuestion = (<QuestionFileModel>panel.panels[0].getQuestionByName("q2"));
-  fileQuestion.value = "data:image/jpeg;base64,FILECONTENT";
-  assert.equal(fileQuestion.isParentVisible, true, "file question parent is visible");
-  survey.setValue("q1", 2);
-  assert.equal(panel.isVisible, false, "panel is invisible");
-  assert.equal(fileQuestion.isParentVisible, false, "file question parent is invisible");
-  assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #1");
-  assert.equal(counter, 1, "clear files was called");
-  survey.setValue("q1", 1);
-  assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #2");
-});
-QUnit.test(
-  "Panel dynamic with matrix dynamic inside, where matrix has defaultValue - Bug #1984, initial T3351(private)",
-  function(assert) {
+  test("call clear value on hidden dynamic panel, Bug #6336", () => {
+    const json = {
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          visibleIf: "{q1} = 1",
+          templateElements: [
+            {
+              type: "text",
+              name: "q2",
+              clearIfInvisible: "onHiddenContainer",
+            },
+          ],
+          panelCount: 1
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    survey.setValue("q1", 1);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const textQuestion = (<QuestionTextModel>panel.panels[0].getQuestionByName("q2"));
+    textQuestion.value = "val1";
+    expect(textQuestion.isParentVisible, "file question parent is visible").toLooseEqual(true);
+    survey.setValue("q1", 2);
+    expect(panel.isVisible, "panel is invisible").toLooseEqual(false);
+    expect(textQuestion.isParentVisible, "file question parent is invisible").toLooseEqual(false);
+    expect(textQuestion.isEmpty(), "question value is empty, #1").toLooseEqual(true);
+    survey.setValue("q1", 1);
+    expect(textQuestion.isEmpty(), "question value is empty, #2").toLooseEqual(true);
+  });
+
+  test("call clearFiles for QuestionFile on clearing panel value, Bug #6336", () => {
+    const json = {
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          visibleIf: "{q1} = 1",
+          templateElements: [
+            {
+              type: "file",
+              name: "q2",
+              clearIfInvisible: "onHiddenContainer",
+            },
+          ],
+          panelCount: 1
+        },
+      ],
+    };
+    const survey = new SurveyModel(json);
+    var counter = 0;
+    survey.onClearFiles.add(function(sender, options) {
+      counter++;
+      options.callback("success");
+      expect(options.question.name, "Question is passed in options").toLooseEqual("q2");
+    });
+    survey.setValue("q1", 1);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const fileQuestion = (<QuestionFileModel>panel.panels[0].getQuestionByName("q2"));
+    fileQuestion.value = "data:image/jpeg;base64,FILECONTENT";
+    expect(fileQuestion.isParentVisible, "file question parent is visible").toLooseEqual(true);
+    survey.setValue("q1", 2);
+    expect(panel.isVisible, "panel is invisible").toLooseEqual(false);
+    expect(fileQuestion.isParentVisible, "file question parent is invisible").toLooseEqual(false);
+    expect(fileQuestion.isEmpty(), "question value is empty, #1").toLooseEqual(true);
+    expect(counter, "clear files was called").toLooseEqual(1);
+    survey.setValue("q1", 1);
+    expect(fileQuestion.isEmpty(), "question value is empty, #2").toLooseEqual(true);
+  });
+  test("Panel dynamic with matrix dynamic inside, where matrix has defaultValue - Bug #1984, initial T3351(private)", () => {
     var json = {
       elements: [
         {
@@ -4608,29 +3741,14 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>(
       survey.getQuestionByName("question1")
     );
-    assert.deepEqual(
-      panel.template.questions[0].defaultValue,
-      defaultValue,
-      "Default value in template is correct"
-    );
+    expect(panel.template.questions[0].defaultValue, "Default value in template is correct").toEqualValues(defaultValue);
     var matrix = <QuestionMatrixDynamicModel>(
       panel.panels[0].getQuestionByName("question2")
     );
-    assert.deepEqual(
-      matrix.defaultValue,
-      defaultValue,
-      "Default value is copied"
-    );
-    assert.deepEqual(
-      matrix.value,
-      defaultValue,
-      "value is copied from default value"
-    );
-  }
-);
-QUnit.test(
-  "Do not change panelCount on loading in design-time, Bug #2291",
-  function(assert) {
+    expect(matrix.defaultValue, "Default value is copied").toEqualValues(defaultValue);
+    expect(matrix.value, "value is copied from default value").toEqualValues(defaultValue);
+  });
+  test("Do not change panelCount on loading in design-time, Bug #2291", () => {
     var json = {
       elements: [
         {
@@ -4652,61 +3770,58 @@ QUnit.test(
     survey.setDesignMode(true);
     survey.fromJSON(json);
     var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
-    assert.equal(q.panelCount, 0, "The panel count is 0");
-  }
-);
-QUnit.test("currentPanel is templatePanel in design-mode", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "measurements",
-        displayMode: "tab",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-          },
-        ],
-        panelCount: 0,
-      },
-    ],
-  };
-  var survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON(json);
-  var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
-  assert.ok(q.currentPanel, "Current panel exists");
-  assert.equal(q.currentPanel.id, q.template.id, "Current panel equals to tempalte");
-});
-
-QUnit.test("getProgressInfo()", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1", isRequired: true },
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" },
-        ],
-      },
-    ],
+    expect(q.panelCount, "The panel count is 0").toLooseEqual(0);
   });
-  survey.data = { panel: [{ q1: "1" }, { q2: "2" }, []] };
-  var question = survey.getQuestionByName("panel");
-  assert.deepEqual(question.getProgressInfo(), {
-    questionCount: 9,
-    answeredQuestionCount: 2,
-    requiredQuestionCount: 3,
-    requiredAnsweredQuestionCount: 1,
+  test("currentPanel is templatePanel in design-mode", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "measurements",
+          displayMode: "tab",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ],
+          panelCount: 0,
+        },
+      ],
+    };
+    var survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON(json);
+    var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
+    expect(q.currentPanel, "Current panel exists").toBeTruthy();
+    expect(q.currentPanel.id, "Current panel equals to tempalte").toLooseEqual(q.template.id);
   });
-});
 
-QUnit.test(
-  "Matrix dynamic in nested dynamic panel and properties in condition functions",
-  function(assert) {
+  test("getProgressInfo()", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1", isRequired: true },
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" },
+          ],
+        },
+      ],
+    });
+    survey.data = { panel: [{ q1: "1" }, { q2: "2" }, []] };
+    var question = survey.getQuestionByName("panel");
+    expect(question.getProgressInfo()).toEqualValues({
+      questionCount: 9,
+      answeredQuestionCount: 2,
+      requiredQuestionCount: 3,
+      requiredAnsweredQuestionCount: 1,
+    });
+  });
+
+  test("Matrix dynamic in nested dynamic panel and properties in condition functions", () => {
     var parentQuestions = [];
     var testFunc = function(params: Array<any>) {
       parentQuestions = [];
@@ -4746,211 +3861,178 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var rootPanel = survey.getQuestionByName("panel1");
-    assert.ok(rootPanel, "root panel is here");
+    expect(rootPanel, "root panel is here").toBeTruthy();
     var nestedPanel = rootPanel.panels[0].getQuestionByName("nested1");
-    assert.ok(nestedPanel, "nested panel is here");
-    assert.equal(
-      nestedPanel.panels.length,
-      1,
-      "There is one panel in nested panel"
-    );
+    expect(nestedPanel, "nested panel is here").toBeTruthy();
+    expect(nestedPanel.panels.length, "There is one panel in nested panel").toLooseEqual(1);
     var matrix = nestedPanel.panels[0].getQuestionByName("matrix");
-    assert.ok(matrix, "matrix is here");
-    assert.equal(matrix.visibleRows.length, 1, "Row has been created");
-    assert.deepEqual(
-      parentQuestions,
-      ["col1", "matrix", "nested1", "panel1"],
-      "parent questions is correct"
-    );
+    expect(matrix, "matrix is here").toBeTruthy();
+    expect(matrix.visibleRows.length, "Row has been created").toLooseEqual(1);
+    expect(parentQuestions, "parent questions is correct").toEqualValues(["col1", "matrix", "nested1", "panel1"]);
     FunctionFactory.Instance.unregister("testFunc");
-  }
-);
-QUnit.test("Check paretQuestion", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rootPanel",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "q1" },
-        ],
-      },
-    ],
   });
-  const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.equal(panelDynamic.template.getQuestionByName("q1").parentQuestion.name, "rootPanel", "q1 - template");
-  assert.equal(panelDynamic.panels[0].getQuestionByName("q1").parentQuestion.name, "rootPanel", "q1 - panel");
-  panelDynamic.template.addNewQuestion("text", "q2");
-  assert.equal(panelDynamic.template.getQuestionByName("q2").parentQuestion.name, "rootPanel", "q2 - template");
-  assert.equal(panelDynamic.panels[0].getQuestionByName("q2").parentQuestion.name, "rootPanel", "q2 - panel");
-});
-QUnit.test("Avoid stack-overflow", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1", isRequired: true },
-          { type: "text", name: "q2" },
-          { type: "text", name: "q3" },
-        ],
-      },
-    ],
+  test("Check paretQuestion", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "rootPanel",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" },
+          ],
+        },
+      ],
+    });
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(panelDynamic.template.getQuestionByName("q1").parentQuestion.name, "q1 - template").toLooseEqual("rootPanel");
+    expect(panelDynamic.panels[0].getQuestionByName("q1").parentQuestion.name, "q1 - panel").toLooseEqual("rootPanel");
+    panelDynamic.template.addNewQuestion("text", "q2");
+    expect(panelDynamic.template.getQuestionByName("q2").parentQuestion.name, "q2 - template").toLooseEqual("rootPanel");
+    expect(panelDynamic.panels[0].getQuestionByName("q2").parentQuestion.name, "q2 - panel").toLooseEqual("rootPanel");
   });
-  survey.onDynamicPanelValueChanged.add((sender, options) => {
-    if (options.name == "q1") {
-      options.panel.getQuestionByName("q2").value = "2";
-    }
-    if (options.name == "q2") {
-      options.panel.getQuestionByName("q1").value = "1";
-    }
+  test("Avoid stack-overflow", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1", isRequired: true },
+            { type: "text", name: "q2" },
+            { type: "text", name: "q3" },
+          ],
+        },
+      ],
+    });
+    survey.onDynamicPanelValueChanged.add((sender, options) => {
+      if (options.name == "q1") {
+        options.panel.getQuestionByName("q2").value = "2";
+      }
+      if (options.name == "q2") {
+        options.panel.getQuestionByName("q1").value = "1";
+      }
+    });
+
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.panelCount = 1;
+    question.panels[0].getQuestionByName("q1").value = "1";
+    expect(question.value, "Value set and there is no stack-overflow").toEqualValues([{ q1: "1", q2: "2" }]);
   });
 
-  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  question.panelCount = 1;
-  question.panels[0].getQuestionByName("q1").value = "1";
-  assert.deepEqual(
-    question.value,
-    [{ q1: "1", q2: "2" }],
-    "Value set and there is no stack-overflow"
-  );
-});
+  test("survey.onDynamicPanelValueChanging event", () => {
+    const survey = new SurveyModel({ elements: [{
+      type: "paneldynamic",
+      name: "panel",
+      templateElements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+      ]
+    }] });
+    const opt = new Array<any>();
+    survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
+      opt.push({ name: options.name, value: options.value, oldValue: options.oldValue, panelIndex: options.panelIndex });
+    });
 
-QUnit.test("survey.onDynamicPanelValueChanging event", function(assert) {
-  const survey = new SurveyModel({ elements: [{
-    type: "paneldynamic",
-    name: "panel",
-    templateElements: [
-      { type: "text", name: "q1", isRequired: true },
-      { type: "text", name: "q2" },
-      { type: "text", name: "q3" },
-    ]
-  }] });
-  const opt = new Array<any>();
-  survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
-    opt.push({ name: options.name, value: options.value, oldValue: options.oldValue, panelIndex: options.panelIndex });
-  });
-
-  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  question.panelCount = 2;
-  question.panels[0].getQuestionByName("q1").value = "1";
-  question.panels[1].getQuestionByName("q2").value = "2";
-  question.panels[0].getQuestionByName("q1").value = "3";
-  question.panels[1].getQuestionByName("q2").value = "4";
-  assert.deepEqual(opt,
-    [{ name: "q1", panelIndex: 0, value: "1", oldValue: undefined },
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.panelCount = 2;
+    question.panels[0].getQuestionByName("q1").value = "1";
+    question.panels[1].getQuestionByName("q2").value = "2";
+    question.panels[0].getQuestionByName("q1").value = "3";
+    question.panels[1].getQuestionByName("q2").value = "4";
+    expect(opt, "Check event calls").toEqualValues([{ name: "q1", panelIndex: 0, value: "1", oldValue: undefined },
       { name: "q2", panelIndex: 1, value: "2", oldValue: undefined },
       { name: "q1", panelIndex: 0, value: "3", oldValue: "1" },
-      { name: "q2", panelIndex: 1, value: "4", oldValue: "2" }],
-    "Check event calls");
-});
-QUnit.test("survey.onDynamicPanelValueChanging event, correct value Bug#10216", function(assert) {
-  const survey = new SurveyModel({ elements: [{
-    type: "paneldynamic",
-    name: "panel",
-    templateElements: [
-      { type: "panel", name: "pnl", elements: [{ type: "text", name: "q1" }] },
-    ]
-  }] });
-  const opt = new Array<any>();
-  survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
-    options.value = options.value + "!";
+      { name: "q2", panelIndex: 1, value: "4", oldValue: "2" }]);
   });
-  survey.onDynamicPanelValueChanged.add((sender, options: DynamicPanelValueChangedEvent) => {
-    const pnlIndex = options.question.panels.indexOf(options.panel);
-    opt.push({ name: options.name, question: options.question.name, panelIndex: options.panelIndex, pnlIndex: pnlIndex, value: options.value, oldValue: (<any>options).oldValue });
+  test("survey.onDynamicPanelValueChanging event, correct value Bug#10216", () => {
+    const survey = new SurveyModel({ elements: [{
+      type: "paneldynamic",
+      name: "panel",
+      templateElements: [
+        { type: "panel", name: "pnl", elements: [{ type: "text", name: "q1" }] },
+      ]
+    }] });
+    const opt = new Array<any>();
+    survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
+      options.value = options.value + "!";
+    });
+    survey.onDynamicPanelValueChanged.add((sender, options: DynamicPanelValueChangedEvent) => {
+      const pnlIndex = options.question.panels.indexOf(options.panel);
+      opt.push({ name: options.name, question: options.question.name, panelIndex: options.panelIndex, pnlIndex: pnlIndex, value: options.value, oldValue: (<any>options).oldValue });
+    });
+
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    question.panelCount = 1;
+    const q1 = question.panels[0].getQuestionByName("q1");
+    q1.value = "1";
+    expect(q1.value, "check value after event, #1").toLooseEqual("1!");
+    expect(survey.data, "check survey.data, #2").toEqualValues({ panel: [{ q1: "1!" }] });
+    q1.value = "2";
+    expect(q1.value, "check value after event, #2").toLooseEqual("2!");
+    expect(survey.data, "check survey.data, #2").toEqualValues({ panel: [{ q1: "2!" }] });
+    expect(opt, "check event calls").toEqualValues([
+      { name: "q1", question: "panel", panelIndex: 0, pnlIndex: 0, value: "1!", oldValue: undefined },
+      { name: "q1", question: "panel", panelIndex: 0, pnlIndex: 0, value: "2!", oldValue: "1!" }
+    ]);
+  });
+  test("getPanelWrapperCss", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    setOldTheme(survey);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel = question.panels[0];
+    expect(question.getPanelWrapperCss(panel), "Default rendering: remove button in the bottom of the panel").toLooseEqual("sv_p_wrapper");
+    question.removePanelButtonLocation = "right";
+    expect(question.getPanelWrapperCss(panel), "Non-default rendering: remove button in the right of the panel").toLooseEqual("sv_p_wrapper sv_p_wrapper_in_row");
+  });
+  test("getPanelWrapperCss & templateVisibleIf", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 2,
+          templateVisibleIf: "{panelIndex} > 0",
+          templateElements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    setOldTheme(survey);
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.panels[0].isVisible, "The firt panel is not visible").toLooseEqual(false);
+    expect(question.getPanelWrapperCss(question.panels[0]), "panel invisible").toLooseEqual("");
+    expect(question.panels[1].isVisible, "The second panel is visible").toLooseEqual(true);
+    expect(question.getPanelWrapperCss(question.panels[1]), "panel visible").toLooseEqual("sv_p_wrapper");
+    expect(question.getPanelWrapperCss(undefined), "panel is empty").toLooseEqual("sv_p_wrapper");
   });
 
-  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  question.panelCount = 1;
-  const q1 = question.panels[0].getQuestionByName("q1");
-  q1.value = "1";
-  assert.equal(q1.value, "1!", "check value after event, #1");
-  assert.deepEqual(survey.data, { panel: [{ q1: "1!" }] }, "check survey.data, #2");
-  q1.value = "2";
-  assert.equal(q1.value, "2!", "check value after event, #2");
-  assert.deepEqual(survey.data, { panel: [{ q1: "2!" }] }, "check survey.data, #2");
-  assert.deepEqual(opt, [
-    { name: "q1", question: "panel", panelIndex: 0, pnlIndex: 0, value: "1!", oldValue: undefined },
-    { name: "q1", question: "panel", panelIndex: 0, pnlIndex: 0, value: "2!", oldValue: "1!" }
-  ], "check event calls");
-});
-QUnit.test("getPanelWrapperCss", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [{ type: "text", name: "q1" }],
-      },
-    ],
+  test("getPanelRemoveButtonCss", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [{ type: "text", name: "q1" }],
+        },
+      ],
+    });
+    setOldTheme(survey);
+    var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(question.getPanelRemoveButtonCss(), "Default rendering: remove button in the bottom of the panel").toLooseEqual("sv_p_remove_btn");
+    question.removePanelButtonLocation = "right";
+    expect(question.getPanelRemoveButtonCss(), "Non-default rendering: remove button in the right of the panel").toLooseEqual("sv_p_remove_btn sv_p_remove_btn_right");
   });
-  setOldTheme(survey);
-  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel = question.panels[0];
-  assert.equal(
-    question.getPanelWrapperCss(panel),
-    "sv_p_wrapper",
-    "Default rendering: remove button in the bottom of the panel"
-  );
-  question.removePanelButtonLocation = "right";
-  assert.equal(
-    question.getPanelWrapperCss(panel),
-    "sv_p_wrapper sv_p_wrapper_in_row",
-    "Non-default rendering: remove button in the right of the panel"
-  );
-});
-QUnit.test("getPanelWrapperCss & templateVisibleIf", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 2,
-        templateVisibleIf: "{panelIndex} > 0",
-        templateElements: [{ type: "text", name: "q1" }],
-      },
-    ],
-  });
-  setOldTheme(survey);
-  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(question.panels[0].isVisible, false, "The firt panel is not visible");
-  assert.equal(question.getPanelWrapperCss(question.panels[0]), "", "panel invisible");
-  assert.equal(question.panels[1].isVisible, true, "The second panel is visible");
-  assert.equal(question.getPanelWrapperCss(question.panels[1]), "sv_p_wrapper", "panel visible");
-  assert.equal(question.getPanelWrapperCss(undefined), "sv_p_wrapper", "panel is empty");
-});
-
-QUnit.test("getPanelRemoveButtonCss", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [{ type: "text", name: "q1" }],
-      },
-    ],
-  });
-  setOldTheme(survey);
-  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(
-    question.getPanelRemoveButtonCss(),
-    "sv_p_remove_btn",
-    "Default rendering: remove button in the bottom of the panel"
-  );
-  question.removePanelButtonLocation = "right";
-  assert.equal(
-    question.getPanelRemoveButtonCss(),
-    "sv_p_remove_btn sv_p_remove_btn_right",
-    "Non-default rendering: remove button in the right of the panel"
-  );
-});
-QUnit.test(
-  "PanelDynamic, support panelIndex in expressions, Issue#2760",
-  function(assert) {
+  test("PanelDynamic, support panelIndex in expressions, Issue#2760", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p");
     var panel = <QuestionPanelDynamicModel>(
@@ -4959,21 +4041,10 @@ QUnit.test(
     var q1 = panel.template.addNewQuestion("text", "q1");
     q1.defaultValueExpression = "{panelIndex} + 1";
     panel.panelCount = 2;
-    assert.equal(
-      panel.panels[0].questions[0].value,
-      1,
-      "Set 1 from defaultValueExpression"
-    );
-    assert.equal(
-      panel.panels[1].questions[0].value,
-      2,
-      "Set 2 from defaultValueExpression"
-    );
-  }
-);
-QUnit.test(
-  "Unable to Preview a Matrix Dynamic inside of a Panel Dynamic , Bug#2761",
-  function(assert) {
+    expect(panel.panels[0].questions[0].value, "Set 1 from defaultValueExpression").toLooseEqual(1);
+    expect(panel.panels[1].questions[0].value, "Set 2 from defaultValueExpression").toLooseEqual(2);
+  });
+  test("Unable to Preview a Matrix Dynamic inside of a Panel Dynamic , Bug#2761", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -5001,13 +4072,10 @@ QUnit.test(
     panel.addPanel();
     panel.panels[0].questions[0].visibleRows[0].cells[0].question.value = 1;
     survey.showPreview();
-    assert.equal(survey.state, "preview", "We show preview");
-    assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 1 }] }] });
-  }
-);
-QUnit.test(
-  "Preview and survey.onDynamicPanelAdded event, Bug#4523",
-  function(assert) {
+    expect(survey.state, "We show preview").toLooseEqual("preview");
+    expect(survey.data).toEqualValues({ panel: [{ matrix: [{ col1: 1 }] }] });
+  });
+  test("Preview and survey.onDynamicPanelAdded event, Bug#4523", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -5030,21 +4098,18 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     panel.addPanel();
     panel.panels[0].questions[0].value = 2;
-    assert.equal(panel.panels[0].questions[0].displayValue, "Item2");
+    expect(panel.panels[0].questions[0].displayValue).toLooseEqual("Item2");
     survey.showPreview();
     panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #1");
-    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
+    expect(panel.panels[0].questions[0].choices.length, "Choices is added, #1").toLooseEqual(2);
+    expect(panel.panels[0].questions[0].displayValue, "display value is correct, #1").toLooseEqual("Item2");
     survey.cancelPreview();
     panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #2");
-    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #2");
-  }
-);
+    expect(panel.panels[0].questions[0].choices.length, "Choices is added, #2").toLooseEqual(2);
+    expect(panel.panels[0].questions[0].displayValue, "display value is correct, #2").toLooseEqual("Item2");
+  });
 
-QUnit.test(
-  "question.indent property doesn't work inside Panel Dynamic , Bug#2764",
-  function(assert) {
+  test("question.indent property doesn't work inside Panel Dynamic , Bug#2764", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -5076,98 +4141,75 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>(
       survey.getQuestionByName("panel").panels[0]
     );
-    assert.equal(
-      panel.questions[0].paddingLeft,
-      "20px",
-      "set padding for the first question"
-    );
-    assert.equal(
-      panel.elements[1].paddingLeft,
-      "40px",
-      "set padding for the nested panel"
-    );
-    assert.equal(
-      panel.elements[1].questions[0].paddingLeft,
-      "60px",
-      "set padding for a question in the nested panel"
-    );
-  }
-);
-QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        name: "question1",
-        type: "paneldynamic",
-        allowAddPanel: false,
-        allowRemovePanel: false,
-        templateTitle: "{panel.sameVariable}",
-      },
-      {
-        type: "radiogroup",
-        name: "question2",
-        choices: ["sample title 1", "sample title 2"],
-      },
-    ],
+    expect(panel.questions[0].paddingLeft, "set padding for the first question").toLooseEqual("20px");
+    expect(panel.elements[1].paddingLeft, "set padding for the nested panel").toLooseEqual("40px");
+    expect(panel.elements[1].questions[0].paddingLeft, "set padding for a question in the nested panel").toLooseEqual("60px");
   });
-  survey.onValueChanged.add((sender, options) => {
-    if (options.name == "question2") {
-      sender.getQuestionByName("question1").value = [
-        { sameVariable: options.value },
-      ];
-    }
-  });
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
-  assert.equal(panel.panelCount, 0, "There is no any panel");
-  var question2 = survey.getQuestionByName("question2");
-  question2.value = question2.choices[0].value;
-  assert.equal(panel.panelCount, 1, "One panel is added");
-  assert.equal(
-    panel.panels[0].locTitle.textOrHtml,
-    "sample title 1",
-    "the first panel title set correctly"
-  );
-  question2.value = question2.choices[1].value;
-  assert.equal(panel.panelCount, 1, "We still have one panel");
-  assert.equal(
-    panel.panels[0].locTitle.textOrHtml,
-    "sample title 2",
-    "the first panel title set correctly again"
-  );
-});
-QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "val1" },
-      {
-        name: "panel",
-        type: "paneldynamic",
-        templateElements: [
-          { type: "expression", name: "q5", expression: "{panel.q4} + {panel.q3}" },
-          { type: "text", name: "q1", defaultValue: 1 },
-          { type: "text", name: "q2", defaultValue: 2 },
-          { type: "text", name: "q3", defaultValueExpression: "{panel.q1} + {panel.q2}" },
-          { type: "text", name: "q4", defaultValueExpression: "{val1}" }
-        ]
+  test("templateTitle test + survey.onValueChanged", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          name: "question1",
+          type: "paneldynamic",
+          allowAddPanel: false,
+          allowRemovePanel: false,
+          templateTitle: "{panel.sameVariable}",
+        },
+        {
+          type: "radiogroup",
+          name: "question2",
+          choices: ["sample title 1", "sample title 2"],
+        },
+      ],
+    });
+    survey.onValueChanged.add((sender, options) => {
+      if (options.name == "question2") {
+        sender.getQuestionByName("question1").value = [
+          { sameVariable: options.value },
+        ];
       }
-    ],
+    });
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    expect(panel.panelCount, "There is no any panel").toLooseEqual(0);
+    var question2 = survey.getQuestionByName("question2");
+    question2.value = question2.choices[0].value;
+    expect(panel.panelCount, "One panel is added").toLooseEqual(1);
+    expect(panel.panels[0].locTitle.textOrHtml, "the first panel title set correctly").toLooseEqual("sample title 1");
+    question2.value = question2.choices[1].value;
+    expect(panel.panelCount, "We still have one panel").toLooseEqual(1);
+    expect(panel.panels[0].locTitle.textOrHtml, "the first panel title set correctly again").toLooseEqual("sample title 2");
   });
-  survey.setValue("val1", 4);
-  let counter = 0;
-  survey.onValueChanged.add((sender, options) => {
-    counter ++;
+  test("defaultValue &  survey.onValueChanged on adding new panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "val1" },
+        {
+          name: "panel",
+          type: "paneldynamic",
+          templateElements: [
+            { type: "expression", name: "q5", expression: "{panel.q4} + {panel.q3}" },
+            { type: "text", name: "q1", defaultValue: 1 },
+            { type: "text", name: "q2", defaultValue: 2 },
+            { type: "text", name: "q3", defaultValueExpression: "{panel.q1} + {panel.q2}" },
+            { type: "text", name: "q4", defaultValueExpression: "{val1}" }
+          ]
+        }
+      ],
+    });
+    survey.setValue("val1", 4);
+    let counter = 0;
+    survey.onValueChanged.add((sender, options) => {
+      counter ++;
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.addPanel();
+    expect(panel.value, "panel.value #1").toEqualValues([{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }]);
+    expect(counter, "survey.onValueChanged call times #1").toLooseEqual(1);
+    panel.addPanel();
+    expect(panel.value, "panel.value #2").toEqualValues([{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }]);
+    expect(counter, "survey.onValueChanged call times #2").toLooseEqual(2);
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.addPanel();
-  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }], "panel.value #1");
-  assert.equal(counter, 1, "survey.onValueChanged call times #1");
-  panel.addPanel();
-  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }], "panel.value #2");
-  assert.equal(counter, 2, "survey.onValueChanged call times #2");
-});
-QUnit.test(
-  "Dependend choices not working properly in PanelDynamic Bug #2851",
-  function(assert) {
+  test("Dependend choices not working properly in PanelDynamic Bug #2851", () => {
     var survey = new SurveyModel({
       elements: [
         {
@@ -5193,4542 +4235,4542 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     panel.panelCount = 1;
     var q2 = <QuestionDropdownModel>panel.panels[0].getQuestionByName("q2");
-    assert.equal(q2.visibleChoices.length, 3, "has 3 items from q1");
-    assert.equal(q2.visibleChoices[1].value, "B", "the second value is B");
+    expect(q2.visibleChoices.length, "has 3 items from q1").toLooseEqual(3);
+    expect(q2.visibleChoices[1].value, "the second value is B").toLooseEqual("B");
     survey.getQuestionByName("q1").value = ["C"];
-    assert.equal(q2.visibleChoices.length, 1, "has one item from q1");
-    assert.equal(q2.visibleChoices[0].value, "C", "the only item is C");
-  }
-);
-QUnit.test("Dynamic Panel, getDisplayValue(), Bug#2855", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 3,
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-            title: "Question 1",
-          },
-          {
-            type: "dropdown",
-            name: "q2",
-            title: "Question 2",
-            choices: [
-              { value: 1, text: "A" },
-              { value: 2, text: "B" },
-            ],
-          },
-        ],
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.deepEqual(
-    panel.getDisplayValue(true, [{ q1: "a", q2: 1 }, { q2: 2 }]),
-    [{ "Question 1": "a", "Question 2": "A" }, { "Question 2": "B" }],
-    "Do not use value"
-  );
-});
-QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1",
-            "isRequired": true
-          },
-          {
-            "type": "expression",
-            "name": "exp1",
-            "expression": "isContainerReady('panel1', {panelIndex})",
-          }
-        ],
-        "panelCount": 2,
-      },
-      {
-        "type": "expression",
-        "name": "exp2",
-        "expression": "isContainerReady('panel1')",
-      }
-    ]
+    expect(q2.visibleChoices.length, "has one item from q1").toLooseEqual(1);
+    expect(q2.visibleChoices[0].value, "the only item is C").toLooseEqual("C");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel1Exp = panel.panels[0].getQuestionByName("exp1");
-  const panel2Exp = panel.panels[1].getQuestionByName("exp1");
-  const exp = survey.getQuestionByName("exp2");
-  assert.equal(panel1Exp.value, false, "panel1Exp");
-  assert.equal(panel2Exp.value, false, "panel2Exp");
-  assert.equal(exp.value, false, "exp");
-
-  panel.panels[0].getQuestionByName("q1").value = "val1";
-  assert.equal(panel1Exp.value, true, "panel1Exp");
-  assert.equal(panel2Exp.value, false, "panel2Exp");
-  assert.equal(exp.value, false, "exp");
-
-  panel.panels[1].getQuestionByName("q1").value = "val1";
-  assert.equal(panel1Exp.value, true, "panel1Exp");
-  assert.equal(panel2Exp.value, true, "panel2Exp");
-  assert.equal(exp.value, true, "exp");
-});
-QUnit.test("isContainerReady with nested panel dynamic and defaultValueExpression, bug#11142", function (assert) {
-  var survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            "type": "text",
-            "name": "isContainerReady",
-            "defaultValueExpression": "isContainerReady('page1')"
-          },
-          {
-            "type": "paneldynamic",
-            "name": "question3",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "question1",
-                "isRequired": true
-              },
-              {
-                "type": "paneldynamic",
-                "name": "question4",
-                "templateElements": [
-                  {
-                    "type": "text",
-                    "name": "question5",
-                    "isRequired": true
-                  }
-                ],
-                "panelCount": 1
-              }
-            ],
-            "panelCount": 1
-          }
-        ]
-      }
-    ]
-  });
-  const isReadyQuestion = survey.getQuestionByName("isContainerReady");
-  assert.equal(isReadyQuestion.value, false, "isContainerReady is false on init");
-
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question3");
-  rootPanel.panels[0].getQuestionByName("question1").value = "val1";
-  assert.equal(isReadyQuestion.value, false, "isContainerReady is still false after changing question1");
-
-  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("question4");
-  nestedPanel.panels[0].getQuestionByName("question5").value = "val1";
-  assert.equal(isReadyQuestion.value, true, "isContainerReady is true after changing question5");
-});
-
-QUnit.test("cssClasses for a question in nested panel dynamic, #1", function (assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "paneldynamic",
-            "name": "panel2",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "q1",
-                "isRequired": true
-              }
-            ],
-            "panelCount": 1,
-          }
-        ],
-        "panelCount": 1,
-      }
-    ]
-  });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
-  const question = nestedPanel.panels[0].getQuestionByName("q1");
-  assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
-});
-QUnit.test("cssClasses for a question in nested panel dynamic, #2", function (assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "paneldynamic",
-            "name": "panel2",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "q1",
-              },
-              {
-                "type": "text",
-                "name": "q2",
-                "startWithNewLine": false
-              }
-            ],
-            "panelCount": 1,
-          }
-        ],
-        "panelCount": 1,
-      }
-    ]
-  });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
-  const panel = nestedPanel.panels[0];
-  const question = panel.getQuestionByName("q1");
-  assert.equal(question.wasRendered, true, "question.onFirstRendering was called");
-  assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
-  assert.equal(panel.rows.length, 1, "There is one row");
-  const row = panel.rows[0];
-  assert.equal(row.visibleElements.length, 2, "There are two visible elements");
-  assert.ok(panel.cssClasses.row, "panel classes has value");
-  assert.ok(row.getRowCss(), "There are values");
-});
-
-QUnit.test("noEntriesText property for panel dynamic", function (assert) {
-  let survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "q1",
-        "noEntriesText": "text1"
-      }
-    ]
-  });
-  let question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-  assert.equal(question.noEntriesText, "text1", "noEntriesText set via JSON");
-  question.noEntriesText = "text2";
-  assert.equal(question.noEntriesText, "text2", "noEntriesText set via API");
-  survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "q1",
-      }
-    ]
-  });
-  question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-  assert.equal(question.noEntriesText, "No entries yet.\nClick the button below to add a new entry.", "noEntriesText default value");
-});
-
-QUnit.test("noEntriesReadonlyText property for panel dynamic", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { "type": "paneldynamic", "name": "panel1" },
-      { "type": "paneldynamic", "name": "panel2", allowAddPanel: false },
-    ]
-  });
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
-  assert.equal(panel1.noEntriesText.indexOf("No entries yet.\nClick the button below to add a new entry."), 0, "panel1 default");
-  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for allowAddPanel false");
-  panel1.allowAddPanel = false;
-  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for allowAddPanel false");
-  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for allowAddPanel false");
-});
-
-QUnit.test("Question defaultValueExpression in panel dynamic", function(
-  assert
-) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "q1", defaultValue: 1 },
-          { type: "text", name: "q2", defaultValueExpression: "{panel.q1} + 2" },
-        ],
-      }
-    ] });
-  const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel")).panels[0];
-  const q1 = panel.getQuestionByName("q1");
-  const q2 = panel.getQuestionByName("q2");
-  assert.equal(q2.value, 3, "initial value");
-  q1.value = 5;
-  assert.equal(q2.value, 7, "q1 is changed");
-  q2.value = 4;
-  assert.equal(q2.value, 4, "changed dirrectly");
-  q1.value = 10;
-  assert.equal(q2.value, 4, "stop react on defaultValueExpression");
-});
-QUnit.test("Check go prev/next", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rootPanel",
-        panelCount: 2,
-        displayMode: "carousel",
-        templateElements: [
-          { type: "text", name: "q1" },
-        ],
-      },
-    ],
-  });
-  const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.equal(panelDynamic.currentIndex, 0, "first panel");
-  assert.equal(panelDynamic.panelCount, 2, "2 panels");
-  panelDynamic.goToNextPanel();
-  assert.equal(panelDynamic.currentIndex, 1, "second panel 1");
-  panelDynamic.goToNextPanel();
-  assert.equal(panelDynamic.currentIndex, 1, "second panel 2");
-  panelDynamic.goToPrevPanel();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel 3");
-  panelDynamic.goToPrevPanel();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel 4");
-
-  panelDynamic.removePanel(0);
-  assert.equal(panelDynamic.panelCount, 1, "1 panel");
-  assert.equal(panelDynamic.currentIndex, 0, "first panel 5");
-  panelDynamic.goToPrevPanel();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel 6");
-  panelDynamic.goToNextPanel();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel 7");
-
-  panelDynamic.removePanel(0);
-  assert.equal(panelDynamic.panelCount, 0, "no panels");
-  assert.equal(panelDynamic.currentIndex, -1, "first panel? 8");
-  panelDynamic.goToNextPanel();
-  assert.equal(panelDynamic.currentIndex, -1, "first panel? 9");
-  panelDynamic.goToPrevPanel();
-  assert.equal(panelDynamic.currentIndex, -1, "first panel? 10");
-
-  panelDynamic.addPanel();
-  assert.equal(panelDynamic.currentIndex, 0, "first panel 11");
-  assert.equal(panelDynamic.panelCount, 1, "1 panels");
-});
-QUnit.test("Bindings to panelCount performance issue", function(assert) {
-  var counter = 1;
-  const calcCount = () => { return counter ++; };
-  FunctionFactory.Instance.register("calcCount", calcCount);
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        bindings: {
-          "panelCount": "q1"
-        },
-        templateElements: [
-          { type: "text", name: "panel1_q1", visibleIf: "calcCount() > 1" },
-        ],
-      },
-      {
-        type: "paneldynamic",
-        name: "panel2",
-        bindings: {
-          "panelCount": "q1"
-        },
-        templateElements: [
-          { type: "text", name: "panel2_q1", visibleIf: "calcCount() > 1" },
-        ],
-      },
-    ],
-  });
-  assert.equal(counter, 1, "There is no questions");
-  survey.setValue("q1", 2);
-  assert.equal(counter, 1 + 4 * 2, "4 questions has been created");
-  FunctionFactory.Instance.unregister("calcCount");
-});
-QUnit.test("Bindings to panelCount performance issue", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "q1" },
-          {
-            type: "matrixdynamic",
-            name: "q2",
-            bindings: {
-              "rowCount": "q1"
+  test("Dynamic Panel, getDisplayValue(), Bug#2855", () => {
+    var json = {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 3,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              title: "Question 1",
             },
-            columns: [
-              { name: "col1" }
-            ]
-          }
-        ],
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.panels[0].questions[0].value = 3;
-  panel.panels[1].questions[0].value = 5;
-  assert.equal(panel.panels[0].questions[1].rowCount, 3, "matrix in first panel binds correctly");
-  assert.equal(panel.panels[1].questions[1].rowCount, 5, "matrix in second panel binds correctly");
-});
-QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleIndex/no", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        bindings: {
-          "panelCount": "q1"
+            {
+              type: "dropdown",
+              name: "q2",
+              title: "Question 2",
+              choices: [
+                { value: 1, text: "A" },
+                { value: 2, text: "B" },
+              ],
+            },
+          ],
         },
-        templateElements: [
-          { type: "text", name: "panel1_q1" },
-          { type: "text", name: "panel1_q2", visibleIf: "{q1} > 7" }
-        ],
-      },
-      {
-        type: "paneldynamic",
-        name: "panel2",
-        bindings: {
-          "panelCount": "q1"
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.getDisplayValue(true, [{ q1: "a", q2: 1 }, { q2: 2 }]), "Do not use value").toEqualValues([{ "Question 1": "a", "Question 2": "A" }, { "Question 2": "B" }]);
+  });
+  test("Support panel dynamic for isContainerReady", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1",
+              "isRequired": true
+            },
+            {
+              "type": "expression",
+              "name": "exp1",
+              "expression": "isContainerReady('panel1', {panelIndex})",
+            }
+          ],
+          "panelCount": 2,
         },
-        templateElements: [
-          { type: "text", name: "panel2_q1" },
-          { type: "text", name: "panel2_q2", visibleIf: "{q1} > 7" }
-        ],
-      },
-      {
-        type: "paneldynamic",
-        name: "panel3",
-        bindings: {
-          "panelCount": "q1"
-        },
-        templateElements: [
-          { type: "text", name: "panel3_q1" },
-          { type: "text", name: "panel3_q2", visibleIf: "{q1} > 7" }
-        ],
-      },
-    ],
-  });
-  var counter = 0;
-  survey.onGetProgressText.add((sender, options) => {
-    counter ++;
-  });
-  counter = 0;
-  survey.setValue("q1", 5);
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.equal(panel1.panelCount, 5, "We have 5 panels");
-  assert.equal(survey.progressText, "Page 1 of 1", "progressText");
-  assert.equal(counter, 1, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed");
-});
-QUnit.test("Bindings to panelCount & setting survey.data, Bug#10406", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        bindings: {
-          "panelCount": "q1"
-        },
-        templateElements: [
-          { type: "text", name: "panel1_q1" }
-        ],
-      }
-    ]
-  });
-  const q1 = survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  survey.data = { q1: 5, panel1: [{ panel1_q1: 1 }, { panel1_q1: 2 }, { panel1_q1: 3 }, { panel1_q1: 4 }, { panel1_q1: 5 }] };
-  assert.equal(q1.value, 5, "q1.value #1");
-  assert.equal(panel.panelCount, 5, "panelCount #1");
-  survey.data = { q1: 3 };
-  assert.equal(q1.value, 3, "q1.value #2");
-  assert.equal(panel.panelCount, 3, "panelCount #2");
-});
-QUnit.test("Check needResponsiveWidth", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-          { type: "text", name: "panel_q2", }
-        ],
-      },
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.panelCount = 0;
-  assert.equal(panel.needResponsiveWidth(), false);
-  panel.panelCount = 2;
-  assert.equal(panel.needResponsiveWidth(), false);
-  panel.getPanels()[0].elements[1].startWithNewLine = false;
-  panel.panelCount = 0;
-  assert.equal(panel.needResponsiveWidth(), true);
-  panel.panelCount = 2;
-  assert.equal(panel.needResponsiveWidth(), true);
-});
+        {
+          "type": "expression",
+          "name": "exp2",
+          "expression": "isContainerReady('panel1')",
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel1Exp = panel.panels[0].getQuestionByName("exp1");
+    const panel2Exp = panel.panels[1].getQuestionByName("exp1");
+    const exp = survey.getQuestionByName("exp2");
+    expect(panel1Exp.value, "panel1Exp").toLooseEqual(false);
+    expect(panel2Exp.value, "panel2Exp").toLooseEqual(false);
+    expect(exp.value, "exp").toLooseEqual(false);
 
-QUnit.test("Check progress", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "progress_panel",
-        displayMode: "carousel",
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-          { type: "text", name: "panel_q2" }
-        ],
-        panelCount: 5
-      },
-    ],
+    panel.panels[0].getQuestionByName("q1").value = "val1";
+    expect(panel1Exp.value, "panel1Exp").toLooseEqual(true);
+    expect(panel2Exp.value, "panel2Exp").toLooseEqual(false);
+    expect(exp.value, "exp").toLooseEqual(false);
+
+    panel.panels[1].getQuestionByName("q1").value = "val1";
+    expect(panel1Exp.value, "panel1Exp").toLooseEqual(true);
+    expect(panel2Exp.value, "panel2Exp").toLooseEqual(true);
+    expect(exp.value, "exp").toLooseEqual(true);
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
-  panel.currentIndex = 0;
-  assert.equal(panel.progress, "20%", "check progress 1 of 5");
-  panel.currentIndex = 2;
-  assert.equal(panel.progress, "60%", "check progress 3 of 5");
-  panel.currentIndex = 4;
-  assert.equal(panel.progress, "100%", "check progress 5 of 5");
-});
-QUnit.test("Check paneldynamic navigation", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "progress_panel",
-        displayMode: "carousel",
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-        ],
-        panelCount: 5
-      },
-    ],
+  test("isContainerReady with nested panel dynamic and defaultValueExpression, bug#11142", () => {
+    var survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              "type": "text",
+              "name": "isContainerReady",
+              "defaultValueExpression": "isContainerReady('page1')"
+            },
+            {
+              "type": "paneldynamic",
+              "name": "question3",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question1",
+                  "isRequired": true
+                },
+                {
+                  "type": "paneldynamic",
+                  "name": "question4",
+                  "templateElements": [
+                    {
+                      "type": "text",
+                      "name": "question5",
+                      "isRequired": true
+                    }
+                  ],
+                  "panelCount": 1
+                }
+              ],
+              "panelCount": 1
+            }
+          ]
+        }
+      ]
+    });
+    const isReadyQuestion = survey.getQuestionByName("isContainerReady");
+    expect(isReadyQuestion.value, "isContainerReady is false on init").toLooseEqual(false);
+
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question3");
+    rootPanel.panels[0].getQuestionByName("question1").value = "val1";
+    expect(isReadyQuestion.value, "isContainerReady is still false after changing question1").toLooseEqual(false);
+
+    const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("question4");
+    nestedPanel.panels[0].getQuestionByName("question5").value = "val1";
+    expect(isReadyQuestion.value, "isContainerReady is true after changing question5").toLooseEqual(true);
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
-  survey.css = defaultCss;
-  panel.currentIndex = 0;
-  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible when currentIndex is 0/4");
-  assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 0/4");
-  assert.equal(panel.canAddPanel, false, "can't add panel when currentIndex less then panelCount");
-  panel.currentIndex = 2;
-  assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 2/4");
-  assert.equal(panel.footerToolbar.actions[1].visible, true, "next (text) btn is visible when currentIndex is 2/4");
-  assert.equal(panel.canAddPanel, false, "can't add panel when currentIndex less then panelCount");
-  panel.currentIndex = 4;
-  assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 4/4");
-  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is visible when currentIndex is 4/4");
-  assert.equal(panel.canAddPanel, true, "can add panel when currentIndex less then panelCount");
-  panel["legacyNavigation"] = true;
-  panel.currentIndex = 2;
-  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in legacy mode");
-  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in legacy mode");
-  assert.equal(panel.canAddPanel, true, "can always add panel in legacy mode");
-  assert.equal(panel.footerToolbar.actions[3].visible, true, "prev (icon) btn is visible in legacy mode");
-  assert.equal(panel.footerToolbar.actions[5].visible, true, "next (icon) btn is visible in legacy mode");
-  panel["legacyNavigation"] = false;
-  panel.displayMode = "list";
-  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in list mode");
-  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in list mode");
-  assert.equal(panel.canAddPanel, true, "can always add panel in list mode");
-  panel.displayMode = "carousel";
-  panel.isMobile = true;
-  assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
-});
-QUnit.test("paneldynamic add new button is not visible for progress render mode, bug#5600", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "progress_panel",
-        diplayMode: "carousel",
-        progressBarLocation: "topBottom",
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-        ],
-      },
-    ],
+
+  test("cssClasses for a question in nested panel dynamic, #1", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "paneldynamic",
+              "name": "panel2",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q1",
+                  "isRequired": true
+                }
+              ],
+              "panelCount": 1,
+            }
+          ],
+          "panelCount": 1,
+        }
+      ]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
+    const question = nestedPanel.panels[0].getQuestionByName("q1");
+    expect(question.cssClassesValue.mainRoot, "Main root style is set").toBeTruthy();
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
-  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
-  assert.equal(addBtn.isVisible, true, "It is visible by default");
-  panel.addPanel();
-  for (var i = 0; i < 4; i ++) {
+  test("cssClasses for a question in nested panel dynamic, #2", () => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "paneldynamic",
+              "name": "panel2",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q1",
+                },
+                {
+                  "type": "text",
+                  "name": "q2",
+                  "startWithNewLine": false
+                }
+              ],
+              "panelCount": 1,
+            }
+          ],
+          "panelCount": 1,
+        }
+      ]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const nestedPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("panel2");
+    const panel = nestedPanel.panels[0];
+    const question = panel.getQuestionByName("q1");
+    expect(question.wasRendered, "question.onFirstRendering was called").toLooseEqual(true);
+    expect(question.cssClassesValue.mainRoot, "Main root style is set").toBeTruthy();
+    expect(panel.rows.length, "There is one row").toLooseEqual(1);
+    const row = panel.rows[0];
+    expect(row.visibleElements.length, "There are two visible elements").toLooseEqual(2);
+    expect(panel.cssClasses.row, "panel classes has value").toBeTruthy();
+    expect(row.getRowCss(), "There are values").toBeTruthy();
+  });
+
+  test("noEntriesText property for panel dynamic", () => {
+    let survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "q1",
+          "noEntriesText": "text1"
+        }
+      ]
+    });
+    let question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    expect(question.noEntriesText, "noEntriesText set via JSON").toLooseEqual("text1");
+    question.noEntriesText = "text2";
+    expect(question.noEntriesText, "noEntriesText set via API").toLooseEqual("text2");
+    survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "q1",
+        }
+      ]
+    });
+    question = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    expect(question.noEntriesText, "noEntriesText default value").toLooseEqual("No entries yet.\nClick the button below to add a new entry.");
+  });
+
+  test("noEntriesReadonlyText property for panel dynamic", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { "type": "paneldynamic", "name": "panel1" },
+        { "type": "paneldynamic", "name": "panel2", allowAddPanel: false },
+      ]
+    });
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+    expect(panel1.noEntriesText.indexOf("No entries yet.\nClick the button below to add a new entry."), "panel1 default").toLooseEqual(0);
+    expect(panel2.noEntriesText.indexOf("No entries"), "panel2: text for allowAddPanel false").toLooseEqual(0);
+    panel1.allowAddPanel = false;
+    expect(panel1.noEntriesText.indexOf("No entries"), "panel1: text for allowAddPanel false").toLooseEqual(0);
+    expect(panel2.noEntriesText.indexOf("No entries"), "panel2: text for allowAddPanel false").toLooseEqual(0);
+  });
+
+  test("Question defaultValueExpression in panel dynamic", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1", defaultValue: 1 },
+            { type: "text", name: "q2", defaultValueExpression: "{panel.q1} + 2" },
+          ],
+        }
+      ] });
+    const panel = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel")).panels[0];
+    const q1 = panel.getQuestionByName("q1");
+    const q2 = panel.getQuestionByName("q2");
+    expect(q2.value, "initial value").toLooseEqual(3);
+    q1.value = 5;
+    expect(q2.value, "q1 is changed").toLooseEqual(7);
+    q2.value = 4;
+    expect(q2.value, "changed dirrectly").toLooseEqual(4);
+    q1.value = 10;
+    expect(q2.value, "stop react on defaultValueExpression").toLooseEqual(4);
+  });
+  test("Check go prev/next", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "rootPanel",
+          panelCount: 2,
+          displayMode: "carousel",
+          templateElements: [
+            { type: "text", name: "q1" },
+          ],
+        },
+      ],
+    });
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(panelDynamic.currentIndex, "first panel").toLooseEqual(0);
+    expect(panelDynamic.panelCount, "2 panels").toLooseEqual(2);
+    panelDynamic.goToNextPanel();
+    expect(panelDynamic.currentIndex, "second panel 1").toLooseEqual(1);
+    panelDynamic.goToNextPanel();
+    expect(panelDynamic.currentIndex, "second panel 2").toLooseEqual(1);
+    panelDynamic.goToPrevPanel();
+    expect(panelDynamic.currentIndex, "first panel 3").toLooseEqual(0);
+    panelDynamic.goToPrevPanel();
+    expect(panelDynamic.currentIndex, "first panel 4").toLooseEqual(0);
+
+    panelDynamic.removePanel(0);
+    expect(panelDynamic.panelCount, "1 panel").toLooseEqual(1);
+    expect(panelDynamic.currentIndex, "first panel 5").toLooseEqual(0);
+    panelDynamic.goToPrevPanel();
+    expect(panelDynamic.currentIndex, "first panel 6").toLooseEqual(0);
+    panelDynamic.goToNextPanel();
+    expect(panelDynamic.currentIndex, "first panel 7").toLooseEqual(0);
+
+    panelDynamic.removePanel(0);
+    expect(panelDynamic.panelCount, "no panels").toLooseEqual(0);
+    expect(panelDynamic.currentIndex, "first panel? 8").toLooseEqual(-1);
+    panelDynamic.goToNextPanel();
+    expect(panelDynamic.currentIndex, "first panel? 9").toLooseEqual(-1);
+    panelDynamic.goToPrevPanel();
+    expect(panelDynamic.currentIndex, "first panel? 10").toLooseEqual(-1);
+
+    panelDynamic.addPanel();
+    expect(panelDynamic.currentIndex, "first panel 11").toLooseEqual(0);
+    expect(panelDynamic.panelCount, "1 panels").toLooseEqual(1);
+  });
+  test("Bindings to panelCount performance issue", () => {
+    var counter = 1;
+    const calcCount = () => { return counter ++; };
+    FunctionFactory.Instance.register("calcCount", calcCount);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          bindings: {
+            "panelCount": "q1"
+          },
+          templateElements: [
+            { type: "text", name: "panel1_q1", visibleIf: "calcCount() > 1" },
+          ],
+        },
+        {
+          type: "paneldynamic",
+          name: "panel2",
+          bindings: {
+            "panelCount": "q1"
+          },
+          templateElements: [
+            { type: "text", name: "panel2_q1", visibleIf: "calcCount() > 1" },
+          ],
+        },
+      ],
+    });
+    expect(counter, "There is no questions").toLooseEqual(1);
+    survey.setValue("q1", 2);
+    expect(counter, "4 questions has been created").toLooseEqual(1 + 4 * 2);
+    FunctionFactory.Instance.unregister("calcCount");
+  });
+  test("Bindings to panelCount performance issue", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q1" },
+            {
+              type: "matrixdynamic",
+              name: "q2",
+              bindings: {
+                "rowCount": "q1"
+              },
+              columns: [
+                { name: "col1" }
+              ]
+            }
+          ],
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.panels[0].questions[0].value = 3;
+    panel.panels[1].questions[0].value = 5;
+    expect(panel.panels[0].questions[1].rowCount, "matrix in first panel binds correctly").toLooseEqual(3);
+    expect(panel.panels[1].questions[1].rowCount, "matrix in second panel binds correctly").toLooseEqual(5);
+  });
+  test("Bindings to panelCount performance issue #2 reduce recalc visibleIndex/no", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          bindings: {
+            "panelCount": "q1"
+          },
+          templateElements: [
+            { type: "text", name: "panel1_q1" },
+            { type: "text", name: "panel1_q2", visibleIf: "{q1} > 7" }
+          ],
+        },
+        {
+          type: "paneldynamic",
+          name: "panel2",
+          bindings: {
+            "panelCount": "q1"
+          },
+          templateElements: [
+            { type: "text", name: "panel2_q1" },
+            { type: "text", name: "panel2_q2", visibleIf: "{q1} > 7" }
+          ],
+        },
+        {
+          type: "paneldynamic",
+          name: "panel3",
+          bindings: {
+            "panelCount": "q1"
+          },
+          templateElements: [
+            { type: "text", name: "panel3_q1" },
+            { type: "text", name: "panel3_q2", visibleIf: "{q1} > 7" }
+          ],
+        },
+      ],
+    });
+    var counter = 0;
+    survey.onGetProgressText.add((sender, options) => {
+      counter ++;
+    });
+    counter = 0;
+    survey.setValue("q1", 5);
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel1.panelCount, "We have 5 panels").toLooseEqual(5);
+    expect(survey.progressText, "progressText").toLooseEqual("Page 1 of 1");
+    expect(counter, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed").toLooseEqual(1);
+  });
+  test("Bindings to panelCount & setting survey.data, Bug#10406", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          bindings: {
+            "panelCount": "q1"
+          },
+          templateElements: [
+            { type: "text", name: "panel1_q1" }
+          ],
+        }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    survey.data = { q1: 5, panel1: [{ panel1_q1: 1 }, { panel1_q1: 2 }, { panel1_q1: 3 }, { panel1_q1: 4 }, { panel1_q1: 5 }] };
+    expect(q1.value, "q1.value #1").toLooseEqual(5);
+    expect(panel.panelCount, "panelCount #1").toLooseEqual(5);
+    survey.data = { q1: 3 };
+    expect(q1.value, "q1.value #2").toLooseEqual(3);
+    expect(panel.panelCount, "panelCount #2").toLooseEqual(3);
+  });
+  test("Check needResponsiveWidth", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+            { type: "text", name: "panel_q2", }
+          ],
+        },
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panelCount = 0;
+    expect(panel.needResponsiveWidth()).toLooseEqual(false);
+    panel.panelCount = 2;
+    expect(panel.needResponsiveWidth()).toLooseEqual(false);
+    panel.getPanels()[0].elements[1].startWithNewLine = false;
+    panel.panelCount = 0;
+    expect(panel.needResponsiveWidth()).toLooseEqual(true);
+    panel.panelCount = 2;
+    expect(panel.needResponsiveWidth()).toLooseEqual(true);
+  });
+
+  test("Check progress", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "progress_panel",
+          displayMode: "carousel",
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+            { type: "text", name: "panel_q2" }
+          ],
+          panelCount: 5
+        },
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+    panel.currentIndex = 0;
+    expect(panel.progress, "check progress 1 of 5").toLooseEqual("20%");
+    panel.currentIndex = 2;
+    expect(panel.progress, "check progress 3 of 5").toLooseEqual("60%");
+    panel.currentIndex = 4;
+    expect(panel.progress, "check progress 5 of 5").toLooseEqual("100%");
+  });
+  test("Check paneldynamic navigation", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "progress_panel",
+          displayMode: "carousel",
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+          ],
+          panelCount: 5
+        },
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+    survey.css = defaultCss;
+    panel.currentIndex = 0;
+    expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is not visible when currentIndex is 0/4").toLooseEqual(false);
+    expect(panel.footerToolbar.actions[1].visible, "next (text) btn is visible when currentIndex is 0/4").toLooseEqual(true);
+    expect(panel.canAddPanel, "can't add panel when currentIndex less then panelCount").toLooseEqual(false);
+    panel.currentIndex = 2;
+    expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is visible when currentIndex is 2/4").toLooseEqual(true);
+    expect(panel.footerToolbar.actions[1].visible, "next (text) btn is visible when currentIndex is 2/4").toLooseEqual(true);
+    expect(panel.canAddPanel, "can't add panel when currentIndex less then panelCount").toLooseEqual(false);
+    panel.currentIndex = 4;
+    expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is visible when currentIndex is 4/4").toLooseEqual(true);
+    expect(panel.footerToolbar.actions[1].visible, "next (text) btn is visible when currentIndex is 4/4").toLooseEqual(false);
+    expect(panel.canAddPanel, "can add panel when currentIndex less then panelCount").toLooseEqual(true);
+    panel["legacyNavigation"] = true;
+    panel.currentIndex = 2;
+    expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is not visible in legacy mode").toLooseEqual(false);
+    expect(panel.footerToolbar.actions[1].visible, "next (text) btn is not visible in legacy mode").toLooseEqual(false);
+    expect(panel.canAddPanel, "can always add panel in legacy mode").toLooseEqual(true);
+    expect(panel.footerToolbar.actions[3].visible, "prev (icon) btn is visible in legacy mode").toLooseEqual(true);
+    expect(panel.footerToolbar.actions[5].visible, "next (icon) btn is visible in legacy mode").toLooseEqual(true);
+    panel["legacyNavigation"] = false;
+    panel.displayMode = "list";
+    expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is not visible in list mode").toLooseEqual(false);
+    expect(panel.footerToolbar.actions[1].visible, "next (text) btn is not visible in list mode").toLooseEqual(false);
+    expect(panel.canAddPanel, "can always add panel in list mode").toLooseEqual(true);
+    panel.displayMode = "carousel";
+    panel.isMobile = true;
+    expect(panel.footerToolbar.actions[4].visible, "progress text is not visible in mobile mode").toLooseEqual(false);
+  });
+  test("paneldynamic add new button is not visible for progress render mode, bug#5600", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "progress_panel",
+          diplayMode: "carousel",
+          progressBarLocation: "topBottom",
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+          ],
+        },
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("progress_panel");
+    const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+    expect(addBtn.isVisible, "It is visible by default").toLooseEqual(true);
     panel.addPanel();
-    assert.equal(addBtn.isVisible, true, "It is visible by default");
-  }
-  assert.equal(panel.panelCount, 5, "We have 5 panels");
-});
+    for (var i = 0; i < 4; i ++) {
+      panel.addPanel();
+      expect(addBtn.isVisible, "It is visible by default").toLooseEqual(true);
+    }
+    expect(panel.panelCount, "We have 5 panels").toLooseEqual(5);
+  });
 
-QUnit.test("call locationChangedCallback for cell question", function(
-  assert
-) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-        ],
-      }
-    ] });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  let counter = 0;
-  panel.panels[1].questions[0].localeChangedCallback = () => { counter ++; };
-  survey.locale = "de";
-  survey.locale = "";
-  assert.equal(counter, 2, "locationChangedCallback called");
-});
-QUnit.test("checkbox vs valuePropertyName and display text", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "checkbox",
-        name: "q1",
-        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
-        valueName: "data1",
-        valuePropertyName: "fruit",
-        showOtherItem: true
-      },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        valueName: "data1",
-        templateTitle: "{panel.fruit}",
-        templateElements: [
-          { type: "text", name: "panel_q1", title: "{panel.fruit}" },
-        ],
-      }
-    ]
+  test("call locationChangedCallback for cell question", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+          ],
+        }
+      ] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    let counter = 0;
+    panel.panels[1].questions[0].localeChangedCallback = () => { counter ++; };
+    survey.locale = "de";
+    survey.locale = "";
+    expect(counter, "locationChangedCallback called").toLooseEqual(2);
   });
-  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  q.renderedValue = [1, 3];
-  assert.equal(panel.panelCount, 2, "There are two panels");
-  assert.equal(panel.panels[0].locTitle.renderedHtml, "apple", "panel1 title");
-  assert.equal(panel.panels[1].locTitle.renderedHtml, "orange", "panel2 title");
-  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
-  const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
-  assert.equal(p1_q1.locTitle.renderedHtml, "apple", "title for question in panel1");
-  assert.equal(p2_q1.locTitle.renderedHtml, "orange", "title for question in panel2");
-});
-QUnit.test("checkbox vs valuePropertyName and display text and useDisplayValuesInDynamicTexts = false", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "checkbox",
-        name: "q1",
-        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
-        valueName: "data1",
-        valuePropertyName: "fruit",
-        useDisplayValuesInDynamicTexts: false
-      },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        valueName: "data1",
-        templateTitle: "{panel.fruit}",
-        templateElements: [
-          { type: "text", name: "panel_q1", title: "{panel.fruit}" },
-        ],
-      }
-    ]
+  test("checkbox vs valuePropertyName and display text", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+          valueName: "data1",
+          valuePropertyName: "fruit",
+          showOtherItem: true
+        },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          valueName: "data1",
+          templateTitle: "{panel.fruit}",
+          templateElements: [
+            { type: "text", name: "panel_q1", title: "{panel.fruit}" },
+          ],
+        }
+      ]
+    });
+    const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    q.renderedValue = [1, 3];
+    expect(panel.panelCount, "There are two panels").toLooseEqual(2);
+    expect(panel.panels[0].locTitle.renderedHtml, "panel1 title").toLooseEqual("apple");
+    expect(panel.panels[1].locTitle.renderedHtml, "panel2 title").toLooseEqual("orange");
+    const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+    const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
+    expect(p1_q1.locTitle.renderedHtml, "title for question in panel1").toLooseEqual("apple");
+    expect(p2_q1.locTitle.renderedHtml, "title for question in panel2").toLooseEqual("orange");
   });
-  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  q.renderedValue = [1, 3];
-  assert.equal(panel.panelCount, 2, "There are two panels");
-  assert.equal(panel.panels[0].locTitle.renderedHtml, 1, "panel1 title");
-  assert.equal(panel.panels[1].locTitle.renderedHtml, 3, "panel2 title");
-  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
-  const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
-  assert.equal(p1_q1.locTitle.renderedHtml, 1, "title for question in panel1");
-  assert.equal(p2_q1.locTitle.renderedHtml, 3, "title for question in panel2");
-});
-QUnit.test("checkbox vs valuePropertyName and display text and valuePropertyName is in uppercase, Bug#10707", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "checkbox",
-        name: "q1",
-        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
-        valueName: "data1",
-        valuePropertyName: "fruitID"
-      },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        valueName: "data1",
-        templateTitle: "{panel.fruitID}",
-        templateElements: [
-          { type: "text", name: "panel_q1", title: "{panel.fruitID}" },
-        ],
-      }
-    ]
+  test("checkbox vs valuePropertyName and display text and useDisplayValuesInDynamicTexts = false", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+          valueName: "data1",
+          valuePropertyName: "fruit",
+          useDisplayValuesInDynamicTexts: false
+        },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          valueName: "data1",
+          templateTitle: "{panel.fruit}",
+          templateElements: [
+            { type: "text", name: "panel_q1", title: "{panel.fruit}" },
+          ],
+        }
+      ]
+    });
+    const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    q.renderedValue = [1, 3];
+    expect(panel.panelCount, "There are two panels").toLooseEqual(2);
+    expect(panel.panels[0].locTitle.renderedHtml, "panel1 title").toLooseEqual(1);
+    expect(panel.panels[1].locTitle.renderedHtml, "panel2 title").toLooseEqual(3);
+    const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+    const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
+    expect(p1_q1.locTitle.renderedHtml, "title for question in panel1").toLooseEqual(1);
+    expect(p2_q1.locTitle.renderedHtml, "title for question in panel2").toLooseEqual(3);
   });
-  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  q.renderedValue = [1, 3];
-  assert.equal(panel.panelCount, 2, "There are two panels");
-  assert.equal(panel.panels[0].locTitle.renderedHtml, "apple", "panel1 title");
-  assert.equal(panel.panels[1].locTitle.renderedHtml, "orange", "panel2 title");
-  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
-  const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
-  assert.equal(p1_q1.locTitle.renderedHtml, "apple", "title for question in panel1");
-  assert.equal(p2_q1.locTitle.renderedHtml, "orange", "title for question in panel2");
-});
-QUnit.test("checkbox vs valuePropertyName and rendering panels, Bug#10633", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "checkbox",
-        name: "q1",
-        choices: ["apple", "banana", "orange"],
-        valueName: "data1",
-        valuePropertyName: "fruit"
-      },
-      {
-        type: "paneldynamic",
-        name: "panel",
-        valueName: "data1",
-        templateTitle: "{panel.fruit}",
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-        ],
-      }
-    ]
+  test("checkbox vs valuePropertyName and display text and valuePropertyName is in uppercase, Bug#10707", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+          valueName: "data1",
+          valuePropertyName: "fruitID"
+        },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          valueName: "data1",
+          templateTitle: "{panel.fruitID}",
+          templateElements: [
+            { type: "text", name: "panel_q1", title: "{panel.fruitID}" },
+          ],
+        }
+      ]
+    });
+    const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    q.renderedValue = [1, 3];
+    expect(panel.panelCount, "There are two panels").toLooseEqual(2);
+    expect(panel.panels[0].locTitle.renderedHtml, "panel1 title").toLooseEqual("apple");
+    expect(panel.panels[1].locTitle.renderedHtml, "panel2 title").toLooseEqual("orange");
+    const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+    const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
+    expect(p1_q1.locTitle.renderedHtml, "title for question in panel1").toLooseEqual("apple");
+    expect(p2_q1.locTitle.renderedHtml, "title for question in panel2").toLooseEqual("orange");
   });
-  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  q.clickItemHandler(q.choices[0], true);
-  assert.equal(panel.panelCount, 1, "There are two panels");
-  q.clickItemHandler(q.choices[1], true);
-  const panels = panel.getPropertyValue("panels");
-  assert.equal(panels.length, 2, "There are two panels");
-  assert.equal(panels[0].wasRendered, true, "panel1 is rendered");
-  assert.equal(panels[1].wasRendered, true, "panel2 is rendered");
-  const panel2 = panels[1];
-  const rows = panel2.visibleRows;
-  assert.equal(rows.length, 1, "panel2 rows count");
-  assert.equal(rows[0].visibleElements.length, 1, "panel2 first row elements count");
-  assert.equal(rows[0].visibleElements[0].name, "panel_q1", "panel2 first row first element name");
-  assert.equal((<any>rows[0].visibleElements[0]).wasRendered, true, "panel2 first row first element wasRendered");
-});
-QUnit.test("Incorrect default value in panel dynamic", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        defaultValueExpression: "no",
-        templateElements: [
-          { type: "text", name: "panel_q1" },
-        ],
-        panelCount: 2
-      }
-    ]
+  test("checkbox vs valuePropertyName and rendering panels, Bug#10633", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["apple", "banana", "orange"],
+          valueName: "data1",
+          valuePropertyName: "fruit"
+        },
+        {
+          type: "paneldynamic",
+          name: "panel",
+          valueName: "data1",
+          templateTitle: "{panel.fruit}",
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+          ],
+        }
+      ]
+    });
+    const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    q.clickItemHandler(q.choices[0], true);
+    expect(panel.panelCount, "There are two panels").toLooseEqual(1);
+    q.clickItemHandler(q.choices[1], true);
+    const panels = panel.getPropertyValue("panels");
+    expect(panels.length, "There are two panels").toLooseEqual(2);
+    expect(panels[0].wasRendered, "panel1 is rendered").toLooseEqual(true);
+    expect(panels[1].wasRendered, "panel2 is rendered").toLooseEqual(true);
+    const panel2 = panels[1];
+    const rows = panel2.visibleRows;
+    expect(rows.length, "panel2 rows count").toLooseEqual(1);
+    expect(rows[0].visibleElements.length, "panel2 first row elements count").toLooseEqual(1);
+    expect(rows[0].visibleElements[0].name, "panel2 first row first element name").toLooseEqual("panel_q1");
+    expect((<any>rows[0].visibleElements[0]).wasRendered, "panel2 first row first element wasRendered").toLooseEqual(true);
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.panelCount, 2, "There are two panels");
-  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
-  assert.equal(p1_q1.name, "panel_q1", "question name is correct");
-});
+  test("Incorrect default value in panel dynamic", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          defaultValueExpression: "no",
+          templateElements: [
+            { type: "text", name: "panel_q1" },
+          ],
+          panelCount: 2
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panelCount, "There are two panels").toLooseEqual(2);
+    const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+    expect(p1_q1.name, "question name is correct").toLooseEqual("panel_q1");
+  });
 
-QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          {
-            type: "file",
-            name: "file1",
-            storeDataAsText: false,
-          }
-        ],
-        panelCount: 1
-      }
-    ],
-  });
-  const panel = survey.getAllQuestions()[0];
-  const question = panel.panels[0].questions[0];
-  let log = "";
-  const callbacks = new Array<any>();
-  const contents = new Array<string>();
-  survey.onDownloadFile.add((survey, options) => {
-    assert.equal(options.question.isReady, false);
-    contents.push(options.content.replace("url", "content"));
-    callbacks.push(options.callback);
-    log += "->" + options.fileValue.name;
-  });
-  const readyLogs = new Array<boolean>();
-  panel.onReadyChanged.add(() => {
-    readyLogs.push(question.isReady);
-  });
-  survey.data = { panel: [{
-    "file1": [{
-      content: "url1",
+  test("Check paneldynamic isReady flag with onDownloadFile callback", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            {
+              type: "file",
+              name: "file1",
+              storeDataAsText: false,
+            }
+          ],
+          panelCount: 1
+        }
+      ],
+    });
+    const panel = survey.getAllQuestions()[0];
+    const question = panel.panels[0].questions[0];
+    let log = "";
+    const callbacks = new Array<any>();
+    const contents = new Array<string>();
+    survey.onDownloadFile.add((survey, options) => {
+      expect(options.question.isReady).toLooseEqual(false);
+      contents.push(options.content.replace("url", "content"));
+      callbacks.push(options.callback);
+      log += "->" + options.fileValue.name;
+    });
+    const readyLogs = new Array<boolean>();
+    panel.onReadyChanged.add(() => {
+      readyLogs.push(question.isReady);
+    });
+    survey.data = { panel: [{
+      "file1": [{
+        content: "url1",
+        name: "file1.png",
+        type: "image/png"
+      }, {
+        content: "url2",
+        name: "file2.png",
+        type: "image/png"
+      }]
+    }] };
+
+    expect(panel.isReady, "panel is not ready").toLooseEqual(false);
+    expect(log).toLooseEqual("->file1.png->file2.png");
+    expect(callbacks.length, "Two callbacks").toLooseEqual(2);
+    for (let i = 0; i < callbacks.length; i ++) {
+      callbacks[i]("success", contents[i]);
+    }
+    expect(panel.isReady, "panel is ready").toLooseEqual(true);
+    expect(panel.panels[0].questions[0].previewValue).toEqualValues([{
+      content: "content1",
       name: "file1.png",
       type: "image/png"
     }, {
-      content: "url2",
+      content: "content2",
       name: "file2.png",
       type: "image/png"
-    }]
-  }] };
+    }]);
+    expect(readyLogs.length, "readyLogs.length").toLooseEqual(2);
+    expect(readyLogs[0], "readyLogs[0]").toLooseEqual(false);
+    expect(readyLogs[1], "readyLogs[1]").toLooseEqual(true);
 
-  assert.equal(panel.isReady, false, "panel is not ready");
-  assert.equal(log, "->file1.png->file2.png");
-  assert.equal(callbacks.length, 2, "Two callbacks");
-  for (let i = 0; i < callbacks.length; i ++) {
-    callbacks[i]("success", contents[i]);
-  }
-  assert.equal(panel.isReady, true, "panel is ready");
-  assert.deepEqual(panel.panels[0].questions[0].previewValue, [{
-    content: "content1",
-    name: "file1.png",
-    type: "image/png"
-  }, {
-    content: "content2",
-    name: "file2.png",
-    type: "image/png"
-  }]);
-  assert.equal(readyLogs.length, 2, "readyLogs.length");
-  assert.equal(readyLogs[0], false, "readyLogs[0]");
-  assert.equal(readyLogs[1], true, "readyLogs[1]");
-
-});
-QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, Bug#5206", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rootPanel",
-        panelCount: 1,
-        templateElements: [
-          {
-            name: "q1",
-            type: "radiogroup",
-            choices: [1, 2, 3],
-          },
-          {
-            name: "panel1",
-            type: "paneldynamic",
-            visibleIf: "{panel.q1} = 1",
-            panelCount: 1,
-            allowAddPanel: false,
-            allowRemovePanel: false,
-            templateElements: [
-              {
-                type: "text",
-                name: "panel1_q1",
-              },
-            ],
-          },
-          {
-            name: "panel2",
-            type: "paneldynamic",
-            visibleIf: "{panel.q1} = 1",
-            panelCount: 1,
-            allowAddPanel: false,
-            allowRemovePanel: false,
-            templateElements: [
-              {
-                type: "text",
-                name: "panel2_q1",
-              },
-            ],
-          },
-        ],
-      },
-    ],
   });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
-  rootPanel.panels[0].getQuestionByName("q1").value = 2;
-  survey.tryComplete();
-  assert.deepEqual(survey.data, { "rootPanel": [{ "q1": 2 }] }, "There is no empty data for any nested panels");
-});
-
-QUnit.test("Check paneldynamic panel actions", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-        ],
-        minPanelCount: 1,
-        panelCount: 2,
-        removePanelText: "Remove Panel"
-      }
-    ]
-  });
-  const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  let updatedPanels: any[] = [];
-  survey.onGetPanelFooterActions.add((sender, opt) => {
-    assert.equal(sender, survey);
-    assert.equal(opt.question, paneldynamic);
-    assert.ok(paneldynamic.panels.indexOf(opt.panel) > -1);
-    updatedPanels.push(opt.panel);
-    opt.actions.push({
-      id: "test",
-      title: "test",
-      action: () => {}
-    });
-  });
-  assert.equal(paneldynamic.panels[0].footerActions.length, 0);
-  assert.equal(paneldynamic.panels[0]["footerToolbarValue"], undefined);
-
-  //panel actions should be created only after footerToolbar is requested
-
-  const actions = paneldynamic.panels[0].getFooterToolbar().actions;
-  paneldynamic.panels[1].getFooterToolbar();
-  assert.deepEqual(updatedPanels, paneldynamic.panels);
-
-  assert.equal(actions.length, 2);
-  assert.equal(actions[0].component, "sv-paneldynamic-remove-btn");
-  assert.equal(actions[1].title, "test");
-
-  paneldynamic.removePanel(paneldynamic.panels[1]);
-
-  assert.equal(actions.length, 2);
-  assert.equal(actions[0].visible, false);
-});
-QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "rootPanel",
-        "templateElements": [{
-          "type": "paneldynamic",
-          "name": "childPanel",
-          "title": "childPanel",
-          "state": "collapsed",
-          "templateElements": [{
-            "type": "multipletext",
-            "name": "question1",
-            "items": [{
-              "name": "mtom",
-              "isRequired": true,
-              "inputType": "number"
-            }]
-          }],
-          "panelCount": 1
-        }],
-        "panelCount": 1
-      }]
-  });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
-  const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
-  assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
-  survey.tryComplete();
-  assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
-});
-QUnit.test("Error in nested dynamic collapsed panel && displayMode - carousel", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "rootPanel",
-        "templateElements": [{
-          "type": "paneldynamic",
-          "name": "childPanel",
-          "title": "childPanel",
-          "state": "collapsed",
-          "templateElements": [{
-            "type": "multipletext",
-            "name": "question1",
-            "items": [{
-              "name": "mtom",
-              "isRequired": true,
-              "inputType": "number"
-            }]
-          }],
-          "panelCount": 1
-        }],
-        "panelCount": 1,
-        "displayMode": "carousel"
-      }]
-  });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
-  const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
-  assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
-  assert.equal(rootPanel.panelCount, 1, "There is one panel");
-  rootPanel.addPanelUI();
-  assert.equal(rootPanel.panelCount, 1, "There is still one panel");
-  assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
-});
-QUnit.test("Skip unknown questions", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        "templateElements": [
-          { "type": "textqqq", "name": "q1" },
-          { "type": "text", "name": "q2" },
-          { "name": "q3" }
-        ],
-        "panelCount": 1
-      }]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.panels[0].elements.length, 1, "There is one quesiton in panel");
-});
-QUnit.test("NoentriesText and readOnly", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      { "type": "paneldynamic", "name": "panel1" },
-      { "type": "paneldynamic", "name": "panel2", readOnly: true },
-    ]
-  });
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
-  assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
-  assert.equal(panel2.noEntriesText, "No entries", "panel2: text for readonly");
-  survey.readOnly = true;
-  assert.equal(panel1.noEntriesText, "No entries", "panel1: text for readonly");
-});
-QUnit.test("Carry forward in panel dynamic", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        templateElements: [
-          { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
-          { type: "dropdown", name: "q2", choicesFromQuestion: "panel.q1", choicesFromQuestionMode: "selected" }
-        ],
-        panelCount: 1
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel").panels[0];
-  const q1 = panel.getQuestionByName("q1");
-  const q2 = panel.getQuestionByName("q2");
-  assert.equal(q2.choicesFromQuestion, "panel.q1", "choicesFromQuestion is loaded");
-  assert.equal(q2.choicesFromQuestionMode, "selected", "choicesFromQuestionMode is loaded");
-  assert.equal(q2.visibleChoices.length, 0, "There is no visible choices");
-  q1.value = [1, 3, 5];
-  assert.equal(q2.visibleChoices.length, 3, "Choices are here");
-  assert.equal(q2.visibleChoices[1].value, 3, "A choice value is correct");
-});
-QUnit.test("Doesn't update value correctly for nested matrix with expressions, bug#5549", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "matrixdynamic",
-            name: "matrix",
-            columns: [
-              {
-                name: "col1",
-                cellType: "text",
-                isRequired: true,
-                inputType: "number",
-              },
-              {
-                name: "col2",
-                cellType: "expression",
-                expression: "{row.col1} + 10"
-              }
-            ],
-            rowCount: 1,
-          }
-        ],
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const matrix = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("matrix");
-  const cell = matrix.visibleRows[0].cells[0].question;
-  cell.value = 10;
-  assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix value");
-  assert.deepEqual(panel.value, [{ matrix: [{ col1: 10, col2: 20 }] }], "panel value");
-  assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 10, col2: 20 }] }] }, "survey.data");
-});
-
-QUnit.test("displayMode: tab, issue#5829", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        title: "Panel Dynamic",
-        displayMode: "tab",
-        templateTitle: "Information about: {panel.relativeType}",
-        templateElements: [
-          {
-            name: "relativeType",
-            type: "dropdown",
-            title: "Relative",
-            choices: [
-              "father",
-              "mother",
-              "brother",
-              "sister",
-              "son",
-              "daughter"
-            ],
-          },
-          {
-            name: "isalive",
-            type: "radiogroup",
-            title: "Alive?",
-            startWithNewLine: false,
-            colCount: 0,
-            choices: ["Yes", "No"]
-          },
-          {
-            name: "liveage",
-            type: "dropdown",
-            title: "Age",
-            startWithNewLine: false,
-            visibleIf: "{panel.isalive} = 'Yes'",
-            choicesMin: 1,
-            choicesMax: 115
-          },
-          {
-            name: "deceasedage",
-            type: "dropdown",
-            title: "Deceased Age",
-            startWithNewLine: false,
-            visibleIf: "{panel.isalive} = 'No'",
-            choices: [
-              {
-                value: -1,
-                text: "Unknown"
-              }
-            ],
-            choicesMin: 1,
-            choicesMax: 115
-          },
-          {
-            name: "causeofdeathknown",
-            type: "radiogroup",
-            title: "Cause of Death Known?",
-            colCount: 0,
-            startWithNewLine: false,
-            visibleIf: "{panel.isalive} = 'No'",
-            choices: ["Yes", "No"]
-          },
-          {
-            name: "causeofdeath",
-            type: "text",
-            title: "Cause of Death",
-            startWithNewLine: false,
-            visibleIf:
-              "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
-          },
-          {
-            type: "panel",
-            name: "moreInfo",
-            state: "expanded",
-            title: "Detail Information about: {panel.relativeType}",
-            elements: [
-              {
-                type: "matrixdynamic",
-                name: "relativeillness",
-                title: "Describe the illness or condition.",
-                rowCount: 0,
-                columns: [
-                  {
-                    name: "illness",
-                    cellType: "dropdown",
-                    title: "Illness/Condition",
-                    choices: [
-                      "Cancer",
-                      "Heart Disease",
-                      "Diabetes",
-                      "Stroke/TIA",
-                      "High Blood Pressure",
-                      "High Cholesterol or Triglycerides",
-                      "Liver Disease",
-                      "Alcohol or Drug Abuse",
-                      "Anxiety, Depression or Psychiatric Illness",
-                      "Tuberculosis",
-                      "Anesthesia Complications",
-                      "Genetic Disorder",
-                      "Other - describe"
-                    ],
-                    isRequired: true
-                  },
-                  {
-                    name: "description",
-                    cellType: "text",
-                    title: "Describe",
-                    isRequired: true
-                  }
-                ]
-              }
-            ]
-          }
-        ],
-        panelCount: 2,
-        addPanelText: "Add a blood relative",
-        removePanelText: "Remove the relative"
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.ok(!!panel["tabbedMenuValue"], "tabbedMenuValue exist");
-  assert.ok(panel.isRenderModeTab, "isRenderModeTab");
-  assert.equal(panel.currentIndex, 0, "currentIndex is 0");
-  assert.equal(panelTabToolbar.actions.length, 2, "2 panels");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
-  assert.equal(panelTabToolbar.actions[0].pressed, true, "Panel 1 pressed true");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
-  assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
-
-  panel.currentIndex = 1;
-  panel.addPanel();
-  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
-  assert.equal(panelTabToolbar.actions.length, 3, "3 panels");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
-  assert.equal(panelTabToolbar.actions[0].pressed, false, "Panel 1 pressed false");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
-  assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
-  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "Panel 3", "Panel 3");
-  assert.equal(panelTabToolbar.actions[2].pressed, true, "Panel 3 pressed true");
-
-  panelTabToolbar.actions[1].action();
-  assert.equal(panel.currentIndex, 1, "currentIndex is 1");
-
-  panelTabToolbar.actions[2].action();
-  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
-
-  panelTabToolbar.actions[0].action();
-  assert.equal(panel.currentIndex, 0, "currentIndex is 0");
-});
-
-QUnit.test("displayMode: tab, check panelTabToolbar containerCss issue#5829", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        title: "Panel Dynamic",
-        displayMode: "tab",
-        tabAlign: "left"
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  survey.css = defaultCss;
-  panel.cssClasses;
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");
-
-  panel.tabAlign = "right";
-  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--right", "tabAlign value is right");
-
-  panel.tabAlign = "center";
-  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--center", "tabAlign default value is center");
-});
-
-QUnit.test("displayMode: tab check disableHide property", function (assert) {
-  const oldUpdate = AdaptiveActionContainer.prototype["update"];
-  AdaptiveActionContainer.prototype["update"] = function (options) {
-    if (!!options.updateResponsivenessMode) {
-      this.updateCallback && this.updateCallback(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
-    }
-  };
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        title: "Panel Dynamic",
-        displayMode: "tab",
-        templateTitle: "Information about: {panel.relativeType}",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1"
-          }
-        ],
-        panelCount: 2,
-        addPanelText: "Add a blood relative",
-        removePanelText: "Remove the relative"
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.equal(panelTabToolbar.actions[0].disableHide, true);
-  assert.equal(panelTabToolbar.actions[1].disableHide, false);
-
-  panel.addPanel(2);
-  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
-  assert.equal(panelTabToolbar.actions[0].disableHide, false);
-  assert.equal(panelTabToolbar.actions[1].disableHide, false);
-  assert.equal(panelTabToolbar.actions[2].disableHide, true);
-
-  let log = "";
-  (panelTabToolbar as any).updateCallback = () => {
-    log += "->raised";
-  };
-  panelTabToolbar.actions[1].mode = "popup";
-  assert.equal(log, "");
-  panel.currentIndex = 1;
-  panelTabToolbar.flushUpdates();
-  assert.ok(panelTabToolbar.actions[1].disableHide);
-  assert.equal(log, "->raised");
-  panel.currentIndex = 0;
-  panelTabToolbar.flushUpdates();
-  assert.notOk(panelTabToolbar.actions[1].disableHide);
-  assert.ok(panelTabToolbar.actions[0].disableHide);
-  assert.equal(log, "->raised");
-  panelTabToolbar.actions[2].mode = "popup";
-  panel.currentIndex = 2;
-  panelTabToolbar.flushUpdates();
-  assert.notOk(panelTabToolbar.actions[0].disableHide);
-  assert.notOk(panelTabToolbar.actions[1].disableHide);
-  assert.ok(panelTabToolbar.actions[2].disableHide);
-  assert.equal(log, "->raised->raised");
-  AdaptiveActionContainer.prototype["update"] = oldUpdate;
-});
-
-QUnit.test("displayMode: tab check hasTabbedMenu property", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        displayMode: "tab",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1"
-          }
-        ],
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  assert.notOk(panel.hasTabbedMenu);
-  panel.addPanel(1);
-  assert.ok(panel.hasTabbedMenu);
-  panel.addPanel(2);
-  assert.ok(panel.hasTabbedMenu);
-});
-
-QUnit.test("question.cssHeader class", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        title: "Panel Dynamic",
-        displayMode: "tab",
-        tabAlign: "left"
-      }
-    ],
-  });
-  setOldTheme(survey);
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
-
-  panel.addPanel();
-  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
-
-  panel.renderMode = undefined;
-  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
-
-  panel.titleLocation = "hidden";
-  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
-
-  panel.displayMode = "tab";
-  panel.titleLocation = "top";
-  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
-
-  panel.removePanelUI(0);
-  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
-
-});
-QUnit.test("displayMode: tab & silent validation, Bug#8752", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        displayMode: "tab",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-            isRequired: true
-          }
-        ],
-        panelCount: 4,
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.currentIndex = 3;
-  survey.validate(false, false);
-  assert.equal(panel.currentIndex, 3, "current index is not changed, #1");
-  survey.validate(true, false);
-  assert.equal(panel.currentIndex, 3, "current index is not changed, #2");
-  survey.validate(false, true);
-  assert.equal(panel.currentIndex, 0, "current index is not changed, #3");
-});
-
-QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "relatives",
-        title: "Panel Dynamic",
-        titleLocation: "hidden",
-        tabAlign: "left"
-      }
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  assert.equal(panel.hasTitleOnLeftTop, false, "titleLocation hidden");
-
-  panel.displayMode = "tab";
-  assert.equal(panel.hasTitleOnLeftTop, false, "displayMode is tab");
-
-  panel.addPanel();
-  assert.equal(panel.panels.length, 1, "There is one panel");
-  assert.equal(panel.panels[0].visible, true, "There is one visiblePanel");
-  assert.equal(panel.visiblePanelCount, 1, "There is one visible panel count");
-  assert.equal(panel.hasTitleOnLeftTop, false, "title location should be independent on tabs visibility - tabs are visible and title location is hidden");
-
-  panel.titleLocation = "top";
-  assert.equal(panel.hasTitleOnLeftTop, true, "title location should be independent on tabs visibility - tabs are visible and title location is top");
-
-  panel.titleLocation = "hidden";
-  panel.renderMode = undefined;
-  assert.equal(panel.hasTitleOnLeftTop, false, "title location should be independent on tabs visibility - tabs are invisible and title location is hidden");
-
-  panel.titleLocation = "top";
-  assert.equal(panel.hasTitleOnLeftTop, true, "title location should be independent on tabs visibility - tabs are invisible and title location top");
-
-});
-QUnit.test("Pass isMobile to the nested questions", function (assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "matrix",
-            "name": "quality1",
-            "title": "Please indicate if you agree or disagree with the following statements",
-            "alternateRows": true,
-            "columns": [
-              {
-                "value": 5,
-                "text": "Strongly agree"
-              },
-              {
-                "value": 4,
-                "text": "Agree"
-              },
-              {
-                "value": 3,
-                "text": "Neutral"
-              },
-              {
-                "value": 2,
-                "text": "Disagree"
-              },
-              {
-                "value": 1,
-                "text": "Strongly disagree"
-              }
-            ],
-            "rows": [
-              {
-                "value": "affordable",
-                "text": "Product is affordable"
-              },
-              {
-                "value": "does what it claims",
-                "text": "Product does what it claims"
-              },
-              {
-                "value": "better than others",
-                "text": "Product is better than other products on the market"
-              },
-              {
-                "value": "easy to use",
-                "text": "Product is easy to use"
-              }
-            ],
-            "eachRowRequired": true
-          },
-          {
-            "type": "paneldynamic",
-            "name": "question1",
-            "panelCount": 1,
-            "templateElements": [
-              {
-                "type": "matrix",
-                "name": "quality",
-                "title": "Please indicate if you agree or disagree with the following statements",
-                "alternateRows": true,
-                "columns": [
-                  {
-                    "value": 5,
-                    "text": "Strongly agree"
-                  },
-                  {
-                    "value": 4,
-                    "text": "Agree"
-                  },
-                  {
-                    "value": 3,
-                    "text": "Neutral"
-                  },
-                  {
-                    "value": 2,
-                    "text": "Disagree"
-                  },
-                  {
-                    "value": 1,
-                    "text": "Strongly disagree"
-                  }
-                ],
-                "rows": [
-                  {
-                    "value": "affordable",
-                    "text": "Product is affordable"
-                  },
-                  {
-                    "value": "does what it claims",
-                    "text": "Product does what it claims"
-                  },
-                  {
-                    "value": "better than others",
-                    "text": "Product is better than other products on the market"
-                  },
-                  {
-                    "value": "easy to use",
-                    "text": "Product is easy to use"
-                  }
-                ],
-                "eachRowRequired": true
-              }
-            ]
-          }
-        ]
-      }
-    ],
-  });
-  const matrix = <QuestionMatrixModel>survey.getQuestionByName("quality1");
-  const dynPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
-
-  survey.setIsMobile();
-  assert.equal(matrix.isMobile, true, "Matrix is mobile");
-  assert.equal(dynPanel.isMobile, true, "dynPanel is mobile");
-
-  const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
-  assert.equal(innerMatrix.isMobile, true, "innerMatrix is mobile");
-});
-QUnit.test("displayMode: tab, tabbedMenu&titles", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 2,
-        displayMode: "tab"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
-  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-  panel.panels[0].getQuestionByName("q1").value = "q1-value";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-});
-QUnit.test("displayMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 2,
-        displayMode: "tab",
-        templateTabTitle: "#{panelIndex} {panel.q1}"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-  let counter = 0;
-  panelTabToolbar.actions[0].locTitle.onStringChanged.add((sender, options) => {
-    counter++;
-  });
-  panel.panels[0].getQuestionByName("q1").value = "q1-value";
-  assert.equal(counter, 1, "str has been changed");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-  panel.addPanel();
-  assert.strictEqual(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[2].locTitle.owner), 2, "Set correct panel as owner");
-  panel.panels[2].getQuestionByName("q1").value = "q3-value";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3 q3-value");
-  panel.removePanel(1);
-  assert.equal(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[1].locTitle.owner), 1, "Keep correct panel as owner");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value");
-  panel.panels[1].getQuestionByName("q1").value = "q3-value!";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
-});
-QUnit.test("displayMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 2,
-        displayMode: "tab"
-      }],
-  });
-  survey.onGetDynamicPanelTabTitle.add((sender, options) => {
-    if (options.visiblePanelIndex === 0) {
-      const val = options.panel.getQuestionByName("q1").value;
-      options.title = "First tab" + (!!val ? " " + val.toString() : "");
-    }
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
-  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-  panel.panels[0].getQuestionByName("q1").value = "q1-value";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab q1-value");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
-});
-QUnit.test("templateVisibleIf", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 3,
-        templateVisibleIf: "{panel.q1}='a'"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.panels.length, 3, "There are two panels");
-  assert.equal(panel.visiblePanels.length, 0, "There are 0 visible panels");
-  assert.equal(panel.panels[0].visibleIf, "{panel.q1}='a'", "visibleIf for panel0");
-  assert.equal(panel.panels[1].visibleIf, "{panel.q1}='a'", "visibleIf for panel1");
-  assert.equal(panel.panels[2].visibleIf, "{panel.q1}='a'", "visibleIf for panel2");
-  assert.equal(panel.panels[0].isVisible, false, "panel0 invisible #1");
-  assert.equal(panel.panels[1].isVisible, false, "panel1 invisible #1");
-  assert.equal(panel.panels[2].isVisible, false, "panel2 invisible #1");
-  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "c" }];
-  assert.equal(panel.panels[0].isVisible, false, "panel0 invisible #2");
-  assert.equal(panel.panels[1].isVisible, true, "panel1 invisible #2");
-  assert.equal(panel.panels[2].isVisible, false, "panel2 invisible #2");
-  assert.equal(panel.visiblePanels.length, 1, "There is 1 visible panels");
-});
-QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 3,
-        displayMode: "tab",
-        templateVisibleIf: "{panel.q1}='a'"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.panels.length, 3, "There are two panels");
-  assert.equal(panel.visiblePanelCount, 0, "There are 0 visible panels");
-  assert.equal(panel.currentIndex, -1, "currentIndex #1");
-  panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(panel.visiblePanelCount, 3, "There are three panels");
-  assert.equal(panel.currentIndex, 0, "currentIndex #2");
-  panel.currentIndex = -1;
-  assert.equal(panel.currentIndex, 0, "currentIndex #3");
-  panel.currentIndex = 100;
-  assert.equal(panel.currentIndex, 2, "currentIndex #4");
-  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(panel.currentIndex, 1, "currentIndex #5");
-  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "c" }];
-  assert.equal(panel.currentIndex, 0, "currentIndex #6");
-  panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "c" }];
-  assert.equal(panel.currentIndex, -1, "currentIndex #7");
-  panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "a" }];
-  assert.equal(panel.visiblePanelCount, 1, "There is one panel");
-  assert.equal(panel.currentIndex, 0, "currentIndex #8");
-});
-QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
-  const survey = new SurveyModel();
-  let questionName = "";
-  let panelIndex = -2;
-  let panelIndexOf = -2;
-  survey.onDynamicPanelCurrentIndexChanged.add((_, options) => {
-    questionName = options.question.name;
-    panelIndex = options.visiblePanelIndex;
-    panelIndexOf = !!options.panel ? options.question.visiblePanels.indexOf(options.panel) : -1;
-  });
-  survey.fromJSON({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 3,
-        displayMode: "tab"
-      }],
-  });
-  assert.equal(questionName, "panel", "question is correct");
-  assert.equal(panelIndex, 0, "panelIndex #1");
-  assert.equal(panelIndexOf, 0, "panelIndexOf #1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.currentIndex = 1;
-  assert.equal(panelIndex, 1, "panelIndex #2");
-  assert.equal(panelIndexOf, 1, "panelIndexOf #2");
-  panel.addPanel(-1);
-  assert.equal(panel.currentIndex, 3, "panel.panelIndex #3");
-  assert.equal(panelIndex, 3, "panelIndex #3");
-  assert.equal(panelIndexOf, 3, "panelIndexOf #3");
-  panel.removePanel(3);
-  assert.equal(panel.currentIndex, 2, "panel.panelIndex #4");
-  assert.equal(panelIndex, 2, "panelIndex #4");
-  assert.equal(panelIndexOf, 2, "panelIndexOf #4");
-});
-QUnit.test("templateVisibleIf & displayMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 3,
-        templateVisibleIf: "{panel.q1}='a'",
-        displayMode: "tab",
-        templateTabTitle: "#{visiblePanelIndex}-{panelIndex} {panel.q1}"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.equal(panelTabToolbar.actions.length, 0, "All tabs are invisible");
-  panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
-  assert.equal(panelTabToolbar.actions.length, 1, "One tab is visible");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-3 a");
-
-  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(panelTabToolbar.actions.length, 2, "Two tabs are visible");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-2 a");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-3 a");
-
-  panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(panelTabToolbar.actions.length, 3, "Three tabs are visible");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-1 a");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
-  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
-});
-QUnit.test("Using visiblePanelIndex in the expression in panel dynamic,Bug#9874", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "expression", name: "q1", expression: "{visiblePanelIndex}" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 3
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.panels[0].getQuestionByName("q1").value, 0, "visiblePanelIndex is 0");
-  assert.equal(panel.panels[1].getQuestionByName("q1").value, 1, "visiblePanelIndex is 1");
-  assert.equal(panel.panels[2].getQuestionByName("q1").value, 2, "visiblePanelIndex is 2");
-});
-QUnit.test("templateVisibleIf & displayMode: tab, templateTabTitle&tabTitlePlaceholder in JSON", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 2,
-        displayMode: "tab",
-        tabTitlePlaceholder: "Empty value",
-        templateTabTitle: "{panel.q1}"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
-  assert.equal(panelTabToolbar.actions.length, 2, "There are two panels");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Empty value", "#1");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Empty value", "#2");
-  panel.panels[1].getQuestionByName("q1").value = "item2";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Empty value", "#3");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "item2", "#4");
-  panel.panels[0].getQuestionByName("q1").value = "item1";
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#5");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "item2", "#6");
-  panel.panels[1].getQuestionByName("q1").clearValue();
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#7");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Empty value", "#8");
-  panel.locTabTitlePlaceholder.clear();
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "item1", "#9");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "New Panel", "#10");
-});
-QUnit.test("templateVisibleIf & tabbedMenu", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ],
-        panelCount: 3,
-        templateVisibleIf: "{panel.q1}='a'",
-        displayMode: "carousel"
-      }],
-  });
-  var oldCss = survey.css;
-  survey.css = { root: "sd-root-modern" };
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const getAddBtn = () => {
-    return panel.footerToolbar.getActionById("sv-pd-add-btn");
-  };
-  const getNextBtn = () => {
-    return panel.footerToolbar.getActionById("sv-pd-next-btn");
-  };
-  panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
-  assert.equal(getAddBtn().visible, true, "add button is visible #1");
-  assert.equal(panel.canAddPanel, true, "canAddPanel #1");
-  assert.equal(getNextBtn().visible, false, "nextButton #1");
-
-  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(getAddBtn().visible, true, "add button is visible #2");
-  assert.equal(panel.canAddPanel, true, "canAddPanel #2");
-  assert.equal(getNextBtn().visible, false, "nextButton #2");
-  panel.currentIndex = 0;
-  assert.equal(getAddBtn().visible, false, "add button is invisible #3");
-  assert.equal(panel.canAddPanel, false, "canAddPanel #3");
-  assert.equal(getNextBtn().visible, true, "nextButton #3");
-  panel.currentIndex = 1;
-  assert.equal(getAddBtn().visible, true, "add button is visible #4");
-  assert.equal(panel.canAddPanel, true, "canAddPanel #4");
-  assert.equal(getNextBtn().visible, false, "nextButton #4");
-
-  panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(getAddBtn().visible, true, "add button is visible #5");
-  assert.equal(panel.canAddPanel, true, "canAddPanel #5");
-  assert.equal(getNextBtn().visible, false, "nextButton #5");
-  panel.currentIndex = 1;
-  assert.equal(getAddBtn().visible, false, "add button is invisible #6");
-  assert.equal(panel.canAddPanel, false, "canAddPanel #6");
-  assert.equal(getNextBtn().visible, true, "nextButton #6");
-  survey.css = oldCss;
-});
-QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" }
-        ],
-        panelCount: 4,
-        templateVisibleIf: "{panel.q1}!='a'",
-        displayMode: "tab"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const tabbedMenu = panel.tabbedMenu as AdaptiveActionContainer;
-  tabbedMenu.flushUpdates();
-  assert.equal(tabbedMenu.visibleActions.length, 4, "There are 4 visible tabs");
-  panel.panels[1].getQuestionByName("q1").value = "a";
-  assert.equal(panel.currentIndex, 0, "Current Index 0");
-  const panelId = panel.panels[2].id;
-  tabbedMenu.flushUpdates();
-  assert.equal(tabbedMenu.visibleActions.length, 3, "There are 3 visible tabs");
-  tabbedMenu.visibleActions[1].action();
-  assert.equal(panel.currentIndex, 1, "Current Index 1");
-  assert.equal(panel.currentPanel.id, panelId, "Select the correct panel");
-});
-QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { type: "text", name: "q1" }
-        ],
-        enableIf: "{var1}='a'"
-      }],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.isReadOnly, true, "Panel is readonly, #1");
-  assert.equal(panel.canAddPanel, false, "Panel is readonly, #2");
-  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
-  assert.equal(addBtn.isVisible, false, "Add button is invisible, #3");
-  survey.setValue("var1", "a");
-  assert.equal(panel.isReadOnly, false, "Panel is editable, #4");
-  assert.equal(panel.canAddPanel, true, "Panel is not readonly, #5");
-  assert.equal(addBtn.isVisible, true, "Add button is visible, #6");
-});
-QUnit.test("newPanelPosition & add panel button visibility", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel",
-        displayMode: "tab",
-        newPanelPosition: "next",
-        templateElements: [
-          { type: "text", name: "q1" }
-        ]
-      }],
-  });
-  survey.css.root = "sd-root-modern";
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
-  panel.currentIndex = 0;
-  assert.equal(panel.newPanelPosition, "next", "newPanelPosition #1");
-  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
-  assert.equal(panel.canAddPanel, true, "canAddPanel, #1");
-  assert.equal(addBtn.isVisible, true, "addBtn, #1");
-  panel.newPanelPosition = "last";
-  assert.equal(panel.visiblePanelCount, 3, "3 panels are visible");
-  assert.equal(panel.currentIndex, 0, "the first panel is showing");
-  assert.equal(panel.newPanelPosition, "last", "newPanelPosition #2");
-  assert.equal(panel.canAddPanel, false, "canAddPanel, #2");
-  assert.equal(addBtn.isVisible, false, "addBtn, #2");
-  panel.currentIndex = 2;
-  assert.equal(panel.canAddPanel, true, "canAddPanel, #3");
-  assert.equal(addBtn.isVisible, true, "addBtn, #3");
-  panel.currentIndex = 1;
-  assert.equal(panel.canAddPanel, false, "canAddPanel, #4");
-  assert.equal(addBtn.isVisible, false, "addBtn, #4");
-  panel.newPanelPosition = "next";
-  assert.equal(panel.newPanelPosition, "next", "newPanelPosition #3");
-  assert.equal(panel.canAddPanel, true, "canAddPanel, #5");
-  assert.equal(addBtn.isVisible, true, "addBtn, #5");
-  panel.addPanelUI();
-  assert.equal(panel.currentIndex, 2, "currentIndex is next");
-  assert.equal(panel.panelCount, 4, "4 panels");
-  assert.equal(panel.canAddPanel, true, "canAddPanel, #6");
-  assert.equal(addBtn.isVisible, true, "addBtn, #5");
-  survey.css.root = undefined;
-});
-QUnit.test("defaultValue in questions and set data", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [{
-      "name": "panel",
-      "type": "paneldynamic",
-      "templateElements": [
+  test("Two nested invisible dynamic panels do not clear itself correctly, Bug#5206", () => {
+    const survey = new SurveyModel({
+      elements: [
         {
-          "name": "q1",
-          "type": "text",
+          type: "paneldynamic",
+          name: "rootPanel",
+          panelCount: 1,
+          templateElements: [
+            {
+              name: "q1",
+              type: "radiogroup",
+              choices: [1, 2, 3],
+            },
+            {
+              name: "panel1",
+              type: "paneldynamic",
+              visibleIf: "{panel.q1} = 1",
+              panelCount: 1,
+              allowAddPanel: false,
+              allowRemovePanel: false,
+              templateElements: [
+                {
+                  type: "text",
+                  name: "panel1_q1",
+                },
+              ],
+            },
+            {
+              name: "panel2",
+              type: "paneldynamic",
+              visibleIf: "{panel.q1} = 1",
+              panelCount: 1,
+              allowAddPanel: false,
+              allowRemovePanel: false,
+              templateElements: [
+                {
+                  type: "text",
+                  name: "panel2_q1",
+                },
+              ],
+            },
+          ],
         },
+      ],
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+    rootPanel.panels[0].getQuestionByName("q1").value = 2;
+    survey.tryComplete();
+    expect(survey.data, "There is no empty data for any nested panels").toEqualValues({ "rootPanel": [{ "q1": 2 }] });
+  });
+
+  test("Check paneldynamic panel actions", () => {
+    const survey = new SurveyModel({
+      elements: [
         {
-          "name": "q2",
-          "type": "text",
-          "defaultValue": 2
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+          ],
+          minPanelCount: 1,
+          panelCount: 2,
+          removePanelText: "Remove Panel"
         }
       ]
-    }
-    ] });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  survey.data = { panel: [{ q1: "foo" }] };
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  assert.equal(q1.value, "foo", "q1 is correct");
-  assert.notOk(q2.value, "q2 is empty");
-});
-QUnit.test("Make sure that panel is not collapsed on focusing the question", function (assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "elements": [
+    });
+    const paneldynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    let updatedPanels: any[] = [];
+    survey.onGetPanelFooterActions.add((sender, opt) => {
+      expect(sender).toLooseEqual(survey);
+      expect(opt.question).toLooseEqual(paneldynamic);
+      expect(paneldynamic.panels.indexOf(opt.panel) > -1).toBeTruthy();
+      updatedPanels.push(opt.panel);
+      opt.actions.push({
+        id: "test",
+        title: "test",
+        action: () => {}
+      });
+    });
+    expect(paneldynamic.panels[0].footerActions.length).toLooseEqual(0);
+    expect(paneldynamic.panels[0]["footerToolbarValue"]).toLooseEqual(undefined);
+
+    //panel actions should be created only after footerToolbar is requested
+
+    const actions = paneldynamic.panels[0].getFooterToolbar().actions;
+    paneldynamic.panels[1].getFooterToolbar();
+    expect(updatedPanels).toEqualValues(paneldynamic.panels);
+
+    expect(actions.length).toLooseEqual(2);
+    expect(actions[0].component).toLooseEqual("sv-paneldynamic-remove-btn");
+    expect(actions[1].title).toLooseEqual("test");
+
+    paneldynamic.removePanel(paneldynamic.panels[1]);
+
+    expect(actions.length).toLooseEqual(2);
+    expect(actions[0].visible).toLooseEqual(false);
+  });
+  test("Error in nested dynamic collapsed panel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "rootPanel",
+          "templateElements": [{
+            "type": "paneldynamic",
+            "name": "childPanel",
+            "title": "childPanel",
+            "state": "collapsed",
+            "templateElements": [{
+              "type": "multipletext",
+              "name": "question1",
+              "items": [{
+                "name": "mtom",
+                "isRequired": true,
+                "inputType": "number"
+              }]
+            }],
+            "panelCount": 1
+          }],
+          "panelCount": 1
+        }]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+    const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
+    expect(childPanel.state, "child panel State is collapsed by default").toLooseEqual("collapsed");
+    survey.tryComplete();
+    expect(childPanel.state, "child panel state is expanded now").toLooseEqual("expanded");
+  });
+  test("Error in nested dynamic collapsed panel && displayMode - carousel", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "rootPanel",
+          "templateElements": [{
+            "type": "paneldynamic",
+            "name": "childPanel",
+            "title": "childPanel",
+            "state": "collapsed",
+            "templateElements": [{
+              "type": "multipletext",
+              "name": "question1",
+              "items": [{
+                "name": "mtom",
+                "isRequired": true,
+                "inputType": "number"
+              }]
+            }],
+            "panelCount": 1
+          }],
+          "panelCount": 1,
+          "displayMode": "carousel"
+        }]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+    const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
+    expect(childPanel.state, "child panel State is collapsed by default").toLooseEqual("collapsed");
+    expect(rootPanel.panelCount, "There is one panel").toLooseEqual(1);
+    rootPanel.addPanelUI();
+    expect(rootPanel.panelCount, "There is still one panel").toLooseEqual(1);
+    expect(childPanel.state, "child panel state is expanded now").toLooseEqual("expanded");
+  });
+  test("Skip unknown questions", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          "templateElements": [
+            { "type": "textqqq", "name": "q1" },
+            { "type": "text", "name": "q2" },
+            { "name": "q3" }
+          ],
+          "panelCount": 1
+        }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].elements.length, "There is one quesiton in panel").toLooseEqual(1);
+  });
+  test("NoentriesText and readOnly", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { "type": "paneldynamic", "name": "panel1" },
+        { "type": "paneldynamic", "name": "panel2", readOnly: true },
+      ]
+    });
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+    expect(panel1.noEntriesText.indexOf("No entries yet."), "panel1: text for editing").toLooseEqual(0);
+    expect(panel2.noEntriesText, "panel2: text for readonly").toLooseEqual("No entries");
+    survey.readOnly = true;
+    expect(panel1.noEntriesText, "panel1: text for readonly").toLooseEqual("No entries");
+  });
+  test("Carry forward in panel dynamic", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          templateElements: [
+            { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+            { type: "dropdown", name: "q2", choicesFromQuestion: "panel.q1", choicesFromQuestionMode: "selected" }
+          ],
+          panelCount: 1
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel").panels[0];
+    const q1 = panel.getQuestionByName("q1");
+    const q2 = panel.getQuestionByName("q2");
+    expect(q2.choicesFromQuestion, "choicesFromQuestion is loaded").toLooseEqual("panel.q1");
+    expect(q2.choicesFromQuestionMode, "choicesFromQuestionMode is loaded").toLooseEqual("selected");
+    expect(q2.visibleChoices.length, "There is no visible choices").toLooseEqual(0);
+    q1.value = [1, 3, 5];
+    expect(q2.visibleChoices.length, "Choices are here").toLooseEqual(3);
+    expect(q2.visibleChoices[1].value, "A choice value is correct").toLooseEqual(3);
+  });
+  test("Doesn't update value correctly for nested matrix with expressions, bug#5549", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "matrixdynamic",
+              name: "matrix",
+              columns: [
+                {
+                  name: "col1",
+                  cellType: "text",
+                  isRequired: true,
+                  inputType: "number",
+                },
+                {
+                  name: "col2",
+                  cellType: "expression",
+                  expression: "{row.col1} + 10"
+                }
+              ],
+              rowCount: 1,
+            }
+          ],
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const matrix = <QuestionMatrixDynamicModel>panel.panels[0].getQuestionByName("matrix");
+    const cell = matrix.visibleRows[0].cells[0].question;
+    cell.value = 10;
+    expect(matrix.value, "matrix value").toEqualValues([{ col1: 10, col2: 20 }]);
+    expect(panel.value, "panel value").toEqualValues([{ matrix: [{ col1: 10, col2: 20 }] }]);
+    expect(survey.data, "survey.data").toEqualValues({ panel: [{ matrix: [{ col1: 10, col2: 20 }] }] });
+  });
+
+  test("displayMode: tab, issue#5829", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Panel Dynamic",
+          displayMode: "tab",
+          templateTitle: "Information about: {panel.relativeType}",
+          templateElements: [
+            {
+              name: "relativeType",
+              type: "dropdown",
+              title: "Relative",
+              choices: [
+                "father",
+                "mother",
+                "brother",
+                "sister",
+                "son",
+                "daughter"
+              ],
+            },
+            {
+              name: "isalive",
+              type: "radiogroup",
+              title: "Alive?",
+              startWithNewLine: false,
+              colCount: 0,
+              choices: ["Yes", "No"]
+            },
+            {
+              name: "liveage",
+              type: "dropdown",
+              title: "Age",
+              startWithNewLine: false,
+              visibleIf: "{panel.isalive} = 'Yes'",
+              choicesMin: 1,
+              choicesMax: 115
+            },
+            {
+              name: "deceasedage",
+              type: "dropdown",
+              title: "Deceased Age",
+              startWithNewLine: false,
+              visibleIf: "{panel.isalive} = 'No'",
+              choices: [
+                {
+                  value: -1,
+                  text: "Unknown"
+                }
+              ],
+              choicesMin: 1,
+              choicesMax: 115
+            },
+            {
+              name: "causeofdeathknown",
+              type: "radiogroup",
+              title: "Cause of Death Known?",
+              colCount: 0,
+              startWithNewLine: false,
+              visibleIf: "{panel.isalive} = 'No'",
+              choices: ["Yes", "No"]
+            },
+            {
+              name: "causeofdeath",
+              type: "text",
+              title: "Cause of Death",
+              startWithNewLine: false,
+              visibleIf:
+              "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+            },
+            {
+              type: "panel",
+              name: "moreInfo",
+              state: "expanded",
+              title: "Detail Information about: {panel.relativeType}",
+              elements: [
+                {
+                  type: "matrixdynamic",
+                  name: "relativeillness",
+                  title: "Describe the illness or condition.",
+                  rowCount: 0,
+                  columns: [
+                    {
+                      name: "illness",
+                      cellType: "dropdown",
+                      title: "Illness/Condition",
+                      choices: [
+                        "Cancer",
+                        "Heart Disease",
+                        "Diabetes",
+                        "Stroke/TIA",
+                        "High Blood Pressure",
+                        "High Cholesterol or Triglycerides",
+                        "Liver Disease",
+                        "Alcohol or Drug Abuse",
+                        "Anxiety, Depression or Psychiatric Illness",
+                        "Tuberculosis",
+                        "Anesthesia Complications",
+                        "Genetic Disorder",
+                        "Other - describe"
+                      ],
+                      isRequired: true
+                    },
+                    {
+                      name: "description",
+                      cellType: "text",
+                      title: "Describe",
+                      isRequired: true
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          panelCount: 2,
+          addPanelText: "Add a blood relative",
+          removePanelText: "Remove the relative"
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(!!panel["tabbedMenuValue"], "tabbedMenuValue exist").toBeTruthy();
+    expect(panel.isRenderModeTab, "isRenderModeTab").toBeTruthy();
+    expect(panel.currentIndex, "currentIndex is 0").toLooseEqual(0);
+    expect(panelTabToolbar.actions.length, "2 panels").toLooseEqual(2);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1").toLooseEqual("Panel 1");
+    expect(panelTabToolbar.actions[0].pressed, "Panel 1 pressed true").toLooseEqual(true);
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2").toLooseEqual("Panel 2");
+    expect(panelTabToolbar.actions[1].pressed, "Panel 2 pressed false").toLooseEqual(false);
+
+    panel.currentIndex = 1;
+    panel.addPanel();
+    expect(panel.currentIndex, "currentIndex is 2").toLooseEqual(2);
+    expect(panelTabToolbar.actions.length, "3 panels").toLooseEqual(3);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1").toLooseEqual("Panel 1");
+    expect(panelTabToolbar.actions[0].pressed, "Panel 1 pressed false").toLooseEqual(false);
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2").toLooseEqual("Panel 2");
+    expect(panelTabToolbar.actions[1].pressed, "Panel 2 pressed false").toLooseEqual(false);
+    expect(panelTabToolbar.actions[2].locTitle.textOrHtml, "Panel 3").toLooseEqual("Panel 3");
+    expect(panelTabToolbar.actions[2].pressed, "Panel 3 pressed true").toLooseEqual(true);
+
+    panelTabToolbar.actions[1].action();
+    expect(panel.currentIndex, "currentIndex is 1").toLooseEqual(1);
+
+    panelTabToolbar.actions[2].action();
+    expect(panel.currentIndex, "currentIndex is 2").toLooseEqual(2);
+
+    panelTabToolbar.actions[0].action();
+    expect(panel.currentIndex, "currentIndex is 0").toLooseEqual(0);
+  });
+
+  test("displayMode: tab, check panelTabToolbar containerCss issue#5829", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Panel Dynamic",
+          displayMode: "tab",
+          tabAlign: "left"
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+    survey.css = defaultCss;
+    panel.cssClasses;
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.containerCss, "tabAlign value is left").toLooseEqual("sd-tabs-toolbar sd-tabs-toolbar--left");
+
+    panel.tabAlign = "right";
+    expect(panelTabToolbar.containerCss, "tabAlign value is right").toLooseEqual("sd-tabs-toolbar sd-tabs-toolbar--right");
+
+    panel.tabAlign = "center";
+    expect(panelTabToolbar.containerCss, "tabAlign default value is center").toLooseEqual("sd-tabs-toolbar sd-tabs-toolbar--center");
+  });
+
+  test("displayMode: tab check disableHide property", () => {
+    const oldUpdate = AdaptiveActionContainer.prototype["update"];
+    AdaptiveActionContainer.prototype["update"] = function (options) {
+      if (!!options.updateResponsivenessMode) {
+        this.updateCallback && this.updateCallback(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
+      }
+    };
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Panel Dynamic",
+          displayMode: "tab",
+          templateTitle: "Information about: {panel.relativeType}",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ],
+          panelCount: 2,
+          addPanelText: "Add a blood relative",
+          removePanelText: "Remove the relative"
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.actions[0].disableHide).toLooseEqual(true);
+    expect(panelTabToolbar.actions[1].disableHide).toLooseEqual(false);
+
+    panel.addPanel(2);
+    expect(panel.currentIndex, "currentIndex is 2").toLooseEqual(2);
+    expect(panelTabToolbar.actions[0].disableHide).toLooseEqual(false);
+    expect(panelTabToolbar.actions[1].disableHide).toLooseEqual(false);
+    expect(panelTabToolbar.actions[2].disableHide).toLooseEqual(true);
+
+    let log = "";
+    (panelTabToolbar as any).updateCallback = () => {
+      log += "->raised";
+    };
+    panelTabToolbar.actions[1].mode = "popup";
+    expect(log).toLooseEqual("");
+    panel.currentIndex = 1;
+    panelTabToolbar.flushUpdates();
+    expect(panelTabToolbar.actions[1].disableHide).toBeTruthy();
+    expect(log).toLooseEqual("->raised");
+    panel.currentIndex = 0;
+    panelTabToolbar.flushUpdates();
+    expect(panelTabToolbar.actions[1].disableHide).toBeFalsy();
+    expect(panelTabToolbar.actions[0].disableHide).toBeTruthy();
+    expect(log).toLooseEqual("->raised");
+    panelTabToolbar.actions[2].mode = "popup";
+    panel.currentIndex = 2;
+    panelTabToolbar.flushUpdates();
+    expect(panelTabToolbar.actions[0].disableHide).toBeFalsy();
+    expect(panelTabToolbar.actions[1].disableHide).toBeFalsy();
+    expect(panelTabToolbar.actions[2].disableHide).toBeTruthy();
+    expect(log).toLooseEqual("->raised->raised");
+    AdaptiveActionContainer.prototype["update"] = oldUpdate;
+  });
+
+  test("displayMode: tab check hasTabbedMenu property", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          displayMode: "tab",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1"
+            }
+          ],
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+    expect(panel.hasTabbedMenu).toBeFalsy();
+    panel.addPanel(1);
+    expect(panel.hasTabbedMenu).toBeTruthy();
+    panel.addPanel(2);
+    expect(panel.hasTabbedMenu).toBeTruthy();
+  });
+
+  test("question.cssHeader class", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Panel Dynamic",
+          displayMode: "tab",
+          tabAlign: "left"
+        }
+      ],
+    });
+    setOldTheme(survey);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+    expect(panel.cssHeader).toLooseEqual("sv-paneldynamic__header sv_header");
+
+    panel.addPanel();
+    expect(panel.cssHeader).toLooseEqual("sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
+
+    panel.renderMode = undefined;
+    expect(panel.cssHeader).toLooseEqual("sv-paneldynamic__header sv_header");
+
+    panel.titleLocation = "hidden";
+    expect(panel.cssHeader).toLooseEqual("sv-paneldynamic__header sv_header");
+
+    panel.displayMode = "tab";
+    panel.titleLocation = "top";
+    expect(panel.cssHeader).toLooseEqual("sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
+
+    panel.removePanelUI(0);
+    expect(panel.cssHeader).toLooseEqual("sv-paneldynamic__header sv_header");
+
+  });
+  test("displayMode: tab & silent validation, Bug#8752", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          displayMode: "tab",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              isRequired: true
+            }
+          ],
+          panelCount: 4,
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.currentIndex = 3;
+    survey.validate(false, false);
+    expect(panel.currentIndex, "current index is not changed, #1").toLooseEqual(3);
+    survey.validate(true, false);
+    expect(panel.currentIndex, "current index is not changed, #2").toLooseEqual(3);
+    survey.validate(false, true);
+    expect(panel.currentIndex, "current index is not changed, #3").toLooseEqual(0);
+  });
+
+  test("question.hasTitleOnLeftTop class", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "relatives",
+          title: "Panel Dynamic",
+          titleLocation: "hidden",
+          tabAlign: "left"
+        }
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+    expect(panel.hasTitleOnLeftTop, "titleLocation hidden").toLooseEqual(false);
+
+    panel.displayMode = "tab";
+    expect(panel.hasTitleOnLeftTop, "displayMode is tab").toLooseEqual(false);
+
+    panel.addPanel();
+    expect(panel.panels.length, "There is one panel").toLooseEqual(1);
+    expect(panel.panels[0].visible, "There is one visiblePanel").toLooseEqual(true);
+    expect(panel.visiblePanelCount, "There is one visible panel count").toLooseEqual(1);
+    expect(panel.hasTitleOnLeftTop, "title location should be independent on tabs visibility - tabs are visible and title location is hidden").toLooseEqual(false);
+
+    panel.titleLocation = "top";
+    expect(panel.hasTitleOnLeftTop, "title location should be independent on tabs visibility - tabs are visible and title location is top").toLooseEqual(true);
+
+    panel.titleLocation = "hidden";
+    panel.renderMode = undefined;
+    expect(panel.hasTitleOnLeftTop, "title location should be independent on tabs visibility - tabs are invisible and title location is hidden").toLooseEqual(false);
+
+    panel.titleLocation = "top";
+    expect(panel.hasTitleOnLeftTop, "title location should be independent on tabs visibility - tabs are invisible and title location top").toLooseEqual(true);
+
+  });
+  test("Pass isMobile to the nested questions", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "matrix",
+              "name": "quality1",
+              "title": "Please indicate if you agree or disagree with the following statements",
+              "alternateRows": true,
+              "columns": [
+                {
+                  "value": 5,
+                  "text": "Strongly agree"
+                },
+                {
+                  "value": 4,
+                  "text": "Agree"
+                },
+                {
+                  "value": 3,
+                  "text": "Neutral"
+                },
+                {
+                  "value": 2,
+                  "text": "Disagree"
+                },
+                {
+                  "value": 1,
+                  "text": "Strongly disagree"
+                }
+              ],
+              "rows": [
+                {
+                  "value": "affordable",
+                  "text": "Product is affordable"
+                },
+                {
+                  "value": "does what it claims",
+                  "text": "Product does what it claims"
+                },
+                {
+                  "value": "better than others",
+                  "text": "Product is better than other products on the market"
+                },
+                {
+                  "value": "easy to use",
+                  "text": "Product is easy to use"
+                }
+              ],
+              "eachRowRequired": true
+            },
+            {
+              "type": "paneldynamic",
+              "name": "question1",
+              "panelCount": 1,
+              "templateElements": [
+                {
+                  "type": "matrix",
+                  "name": "quality",
+                  "title": "Please indicate if you agree or disagree with the following statements",
+                  "alternateRows": true,
+                  "columns": [
+                    {
+                      "value": 5,
+                      "text": "Strongly agree"
+                    },
+                    {
+                      "value": 4,
+                      "text": "Agree"
+                    },
+                    {
+                      "value": 3,
+                      "text": "Neutral"
+                    },
+                    {
+                      "value": 2,
+                      "text": "Disagree"
+                    },
+                    {
+                      "value": 1,
+                      "text": "Strongly disagree"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "value": "affordable",
+                      "text": "Product is affordable"
+                    },
+                    {
+                      "value": "does what it claims",
+                      "text": "Product does what it claims"
+                    },
+                    {
+                      "value": "better than others",
+                      "text": "Product is better than other products on the market"
+                    },
+                    {
+                      "value": "easy to use",
+                      "text": "Product is easy to use"
+                    }
+                  ],
+                  "eachRowRequired": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+    });
+    const matrix = <QuestionMatrixModel>survey.getQuestionByName("quality1");
+    const dynPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+
+    survey.setIsMobile();
+    expect(matrix.isMobile, "Matrix is mobile").toLooseEqual(true);
+    expect(dynPanel.isMobile, "dynPanel is mobile").toLooseEqual(true);
+
+    const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
+    expect(innerMatrix.isMobile, "innerMatrix is mobile").toLooseEqual(true);
+  });
+  test("displayMode: tab, tabbedMenu&titles", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 2,
+          displayMode: "tab"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.actions[0].locTitle.owner, "Owner is set").toBeTruthy();
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("Panel 1");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("Panel 2");
+    panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 ");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+    panel.panels[0].getQuestionByName("q1").value = "q1-value";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 q1-value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+  });
+  test("displayMode: tab, tabbedMenu&templateTabTitle in JSON", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 2,
+          displayMode: "tab",
+          templateTabTitle: "#{panelIndex} {panel.q1}"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 ");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+    let counter = 0;
+    panelTabToolbar.actions[0].locTitle.onStringChanged.add((sender, options) => {
+      counter++;
+    });
+    panel.panels[0].getQuestionByName("q1").value = "q1-value";
+    expect(counter, "str has been changed").toLooseEqual(1);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 q1-value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+    panel.addPanel();
+    expect(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[2].locTitle.owner), "Set correct panel as owner").toBe(2);
+    panel.panels[2].getQuestionByName("q1").value = "q3-value";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 q1-value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+    expect(panelTabToolbar.actions[2].locTitle.textOrHtml).toLooseEqual("#3 q3-value");
+    panel.removePanel(1);
+    expect(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[1].locTitle.owner), "Keep correct panel as owner").toLooseEqual(1);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 q1-value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 q3-value");
+    panel.panels[1].getQuestionByName("q1").value = "q3-value!";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1 q1-value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 q3-value!");
+  });
+  test("displayMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 2,
+          displayMode: "tab"
+        }],
+    });
+    survey.onGetDynamicPanelTabTitle.add((sender, options) => {
+      if (options.visiblePanelIndex === 0) {
+        const val = options.panel.getQuestionByName("q1").value;
+        options.title = "First tab" + (!!val ? " " + val.toString() : "");
+      }
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.actions[0].locTitle.owner, "Owner is set").toBeTruthy();
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("First tab");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("Panel 2");
+    panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("First tab");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+    panel.panels[0].getQuestionByName("q1").value = "q1-value";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("First tab q1-value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2 ");
+  });
+  test("templateVisibleIf", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 3,
+          templateVisibleIf: "{panel.q1}='a'"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels.length, "There are two panels").toLooseEqual(3);
+    expect(panel.visiblePanels.length, "There are 0 visible panels").toLooseEqual(0);
+    expect(panel.panels[0].visibleIf, "visibleIf for panel0").toLooseEqual("{panel.q1}='a'");
+    expect(panel.panels[1].visibleIf, "visibleIf for panel1").toLooseEqual("{panel.q1}='a'");
+    expect(panel.panels[2].visibleIf, "visibleIf for panel2").toLooseEqual("{panel.q1}='a'");
+    expect(panel.panels[0].isVisible, "panel0 invisible #1").toLooseEqual(false);
+    expect(panel.panels[1].isVisible, "panel1 invisible #1").toLooseEqual(false);
+    expect(panel.panels[2].isVisible, "panel2 invisible #1").toLooseEqual(false);
+    panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "c" }];
+    expect(panel.panels[0].isVisible, "panel0 invisible #2").toLooseEqual(false);
+    expect(panel.panels[1].isVisible, "panel1 invisible #2").toLooseEqual(true);
+    expect(panel.panels[2].isVisible, "panel2 invisible #2").toLooseEqual(false);
+    expect(panel.visiblePanels.length, "There is 1 visible panels").toLooseEqual(1);
+  });
+  test("templateVisibleIf && currentPanelIndex", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 3,
+          displayMode: "tab",
+          templateVisibleIf: "{panel.q1}='a'"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels.length, "There are two panels").toLooseEqual(3);
+    expect(panel.visiblePanelCount, "There are 0 visible panels").toLooseEqual(0);
+    expect(panel.currentIndex, "currentIndex #1").toLooseEqual(-1);
+    panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+    expect(panel.visiblePanelCount, "There are three panels").toLooseEqual(3);
+    expect(panel.currentIndex, "currentIndex #2").toLooseEqual(0);
+    panel.currentIndex = -1;
+    expect(panel.currentIndex, "currentIndex #3").toLooseEqual(0);
+    panel.currentIndex = 100;
+    expect(panel.currentIndex, "currentIndex #4").toLooseEqual(2);
+    panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
+    expect(panel.currentIndex, "currentIndex #5").toLooseEqual(1);
+    panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "c" }];
+    expect(panel.currentIndex, "currentIndex #6").toLooseEqual(0);
+    panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "c" }];
+    expect(panel.currentIndex, "currentIndex #7").toLooseEqual(-1);
+    panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "a" }];
+    expect(panel.visiblePanelCount, "There is one panel").toLooseEqual(1);
+    expect(panel.currentIndex, "currentIndex #8").toLooseEqual(0);
+  });
+  test("survey.onDynamicPanelCurrentIndexChanged", () => {
+    const survey = new SurveyModel();
+    let questionName = "";
+    let panelIndex = -2;
+    let panelIndexOf = -2;
+    survey.onDynamicPanelCurrentIndexChanged.add((_, options) => {
+      questionName = options.question.name;
+      panelIndex = options.visiblePanelIndex;
+      panelIndexOf = !!options.panel ? options.question.visiblePanels.indexOf(options.panel) : -1;
+    });
+    survey.fromJSON({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 3,
+          displayMode: "tab"
+        }],
+    });
+    expect(questionName, "question is correct").toLooseEqual("panel");
+    expect(panelIndex, "panelIndex #1").toLooseEqual(0);
+    expect(panelIndexOf, "panelIndexOf #1").toLooseEqual(0);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.currentIndex = 1;
+    expect(panelIndex, "panelIndex #2").toLooseEqual(1);
+    expect(panelIndexOf, "panelIndexOf #2").toLooseEqual(1);
+    panel.addPanel(-1);
+    expect(panel.currentIndex, "panel.panelIndex #3").toLooseEqual(3);
+    expect(panelIndex, "panelIndex #3").toLooseEqual(3);
+    expect(panelIndexOf, "panelIndexOf #3").toLooseEqual(3);
+    panel.removePanel(3);
+    expect(panel.currentIndex, "panel.panelIndex #4").toLooseEqual(2);
+    expect(panelIndex, "panelIndex #4").toLooseEqual(2);
+    expect(panelIndexOf, "panelIndexOf #4").toLooseEqual(2);
+  });
+  test("templateVisibleIf & displayMode: tab, tabbedMenu&templateTabTitle in JSON", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 3,
+          templateVisibleIf: "{panel.q1}='a'",
+          displayMode: "tab",
+          templateTabTitle: "#{visiblePanelIndex}-{panelIndex} {panel.q1}"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.actions.length, "All tabs are invisible").toLooseEqual(0);
+    panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
+    expect(panelTabToolbar.actions.length, "One tab is visible").toLooseEqual(1);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1-3 a");
+
+    panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
+    expect(panelTabToolbar.actions.length, "Two tabs are visible").toLooseEqual(2);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1-2 a");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2-3 a");
+
+    panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+    expect(panelTabToolbar.actions.length, "Three tabs are visible").toLooseEqual(3);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml).toLooseEqual("#1-1 a");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml).toLooseEqual("#2-2 a");
+    expect(panelTabToolbar.actions[2].locTitle.textOrHtml).toLooseEqual("#3-3 a");
+  });
+  test("Using visiblePanelIndex in the expression in panel dynamic,Bug#9874", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "expression", name: "q1", expression: "{visiblePanelIndex}" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 3
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].getQuestionByName("q1").value, "visiblePanelIndex is 0").toLooseEqual(0);
+    expect(panel.panels[1].getQuestionByName("q1").value, "visiblePanelIndex is 1").toLooseEqual(1);
+    expect(panel.panels[2].getQuestionByName("q1").value, "visiblePanelIndex is 2").toLooseEqual(2);
+  });
+  test("templateVisibleIf & displayMode: tab, templateTabTitle&tabTitlePlaceholder in JSON", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 2,
+          displayMode: "tab",
+          tabTitlePlaceholder: "Empty value",
+          templateTabTitle: "{panel.q1}"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panelTabToolbar = panel.tabbedMenu as AdaptiveActionContainer;
+    expect(panelTabToolbar.actions.length, "There are two panels").toLooseEqual(2);
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1").toLooseEqual("Empty value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2").toLooseEqual("Empty value");
+    panel.panels[1].getQuestionByName("q1").value = "item2";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "#3").toLooseEqual("Empty value");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "#4").toLooseEqual("item2");
+    panel.panels[0].getQuestionByName("q1").value = "item1";
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "#5").toLooseEqual("item1");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "#6").toLooseEqual("item2");
+    panel.panels[1].getQuestionByName("q1").clearValue();
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "#7").toLooseEqual("item1");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "#8").toLooseEqual("Empty value");
+    panel.locTabTitlePlaceholder.clear();
+    expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "#9").toLooseEqual("item1");
+    expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "#10").toLooseEqual("New Panel");
+  });
+  test("templateVisibleIf & tabbedMenu", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ],
+          panelCount: 3,
+          templateVisibleIf: "{panel.q1}='a'",
+          displayMode: "carousel"
+        }],
+    });
+    var oldCss = survey.css;
+    survey.css = { root: "sd-root-modern" };
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const getAddBtn = () => {
+      return panel.footerToolbar.getActionById("sv-pd-add-btn");
+    };
+    const getNextBtn = () => {
+      return panel.footerToolbar.getActionById("sv-pd-next-btn");
+    };
+    panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
+    expect(getAddBtn().visible, "add button is visible #1").toLooseEqual(true);
+    expect(panel.canAddPanel, "canAddPanel #1").toLooseEqual(true);
+    expect(getNextBtn().visible, "nextButton #1").toLooseEqual(false);
+
+    panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
+    expect(getAddBtn().visible, "add button is visible #2").toLooseEqual(true);
+    expect(panel.canAddPanel, "canAddPanel #2").toLooseEqual(true);
+    expect(getNextBtn().visible, "nextButton #2").toLooseEqual(false);
+    panel.currentIndex = 0;
+    expect(getAddBtn().visible, "add button is invisible #3").toLooseEqual(false);
+    expect(panel.canAddPanel, "canAddPanel #3").toLooseEqual(false);
+    expect(getNextBtn().visible, "nextButton #3").toLooseEqual(true);
+    panel.currentIndex = 1;
+    expect(getAddBtn().visible, "add button is visible #4").toLooseEqual(true);
+    expect(panel.canAddPanel, "canAddPanel #4").toLooseEqual(true);
+    expect(getNextBtn().visible, "nextButton #4").toLooseEqual(false);
+
+    panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+    expect(getAddBtn().visible, "add button is visible #5").toLooseEqual(true);
+    expect(panel.canAddPanel, "canAddPanel #5").toLooseEqual(true);
+    expect(getNextBtn().visible, "nextButton #5").toLooseEqual(false);
+    panel.currentIndex = 1;
+    expect(getAddBtn().visible, "add button is invisible #6").toLooseEqual(false);
+    expect(panel.canAddPanel, "canAddPanel #6").toLooseEqual(false);
+    expect(getNextBtn().visible, "nextButton #6").toLooseEqual(true);
+    survey.css = oldCss;
+  });
+  test("templateVisibleIf & tabs action click, bug#8430", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" }
+          ],
+          panelCount: 4,
+          templateVisibleIf: "{panel.q1}!='a'",
+          displayMode: "tab"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const tabbedMenu = panel.tabbedMenu as AdaptiveActionContainer;
+    tabbedMenu.flushUpdates();
+    expect(tabbedMenu.visibleActions.length, "There are 4 visible tabs").toLooseEqual(4);
+    panel.panels[1].getQuestionByName("q1").value = "a";
+    expect(panel.currentIndex, "Current Index 0").toLooseEqual(0);
+    const panelId = panel.panels[2].id;
+    tabbedMenu.flushUpdates();
+    expect(tabbedMenu.visibleActions.length, "There are 3 visible tabs").toLooseEqual(3);
+    tabbedMenu.visibleActions[1].action();
+    expect(panel.currentIndex, "Current Index 1").toLooseEqual(1);
+    expect(panel.currentPanel.id, "Select the correct panel").toLooseEqual(panelId);
+  });
+  test("question.enableIf & add panel button visibility, Bug#6292", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { type: "text", name: "q1" }
+          ],
+          enableIf: "{var1}='a'"
+        }],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.isReadOnly, "Panel is readonly, #1").toLooseEqual(true);
+    expect(panel.canAddPanel, "Panel is readonly, #2").toLooseEqual(false);
+    const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+    expect(addBtn.isVisible, "Add button is invisible, #3").toLooseEqual(false);
+    survey.setValue("var1", "a");
+    expect(panel.isReadOnly, "Panel is editable, #4").toLooseEqual(false);
+    expect(panel.canAddPanel, "Panel is not readonly, #5").toLooseEqual(true);
+    expect(addBtn.isVisible, "Add button is visible, #6").toLooseEqual(true);
+  });
+  test("newPanelPosition & add panel button visibility", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel",
+          displayMode: "tab",
+          newPanelPosition: "next",
+          templateElements: [
+            { type: "text", name: "q1" }
+          ]
+        }],
+    });
+    survey.css.root = "sd-root-modern";
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+    panel.currentIndex = 0;
+    expect(panel.newPanelPosition, "newPanelPosition #1").toLooseEqual("next");
+    const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+    expect(panel.canAddPanel, "canAddPanel, #1").toLooseEqual(true);
+    expect(addBtn.isVisible, "addBtn, #1").toLooseEqual(true);
+    panel.newPanelPosition = "last";
+    expect(panel.visiblePanelCount, "3 panels are visible").toLooseEqual(3);
+    expect(panel.currentIndex, "the first panel is showing").toLooseEqual(0);
+    expect(panel.newPanelPosition, "newPanelPosition #2").toLooseEqual("last");
+    expect(panel.canAddPanel, "canAddPanel, #2").toLooseEqual(false);
+    expect(addBtn.isVisible, "addBtn, #2").toLooseEqual(false);
+    panel.currentIndex = 2;
+    expect(panel.canAddPanel, "canAddPanel, #3").toLooseEqual(true);
+    expect(addBtn.isVisible, "addBtn, #3").toLooseEqual(true);
+    panel.currentIndex = 1;
+    expect(panel.canAddPanel, "canAddPanel, #4").toLooseEqual(false);
+    expect(addBtn.isVisible, "addBtn, #4").toLooseEqual(false);
+    panel.newPanelPosition = "next";
+    expect(panel.newPanelPosition, "newPanelPosition #3").toLooseEqual("next");
+    expect(panel.canAddPanel, "canAddPanel, #5").toLooseEqual(true);
+    expect(addBtn.isVisible, "addBtn, #5").toLooseEqual(true);
+    panel.addPanelUI();
+    expect(panel.currentIndex, "currentIndex is next").toLooseEqual(2);
+    expect(panel.panelCount, "4 panels").toLooseEqual(4);
+    expect(panel.canAddPanel, "canAddPanel, #6").toLooseEqual(true);
+    expect(addBtn.isVisible, "addBtn, #5").toLooseEqual(true);
+    survey.css.root = undefined;
+  });
+  test("defaultValue in questions and set data", () => {
+    const survey = new SurveyModel({
+      "elements": [{
+        "name": "panel",
+        "type": "paneldynamic",
+        "templateElements": [
           {
             "name": "q1",
             "type": "text",
+          },
+          {
+            "name": "q2",
+            "type": "text",
+            "defaultValue": 2
           }
         ]
-      },
-      {
-        "elements": [{
-          "name": "panel",
-          "type": "paneldynamic",
-          "panelCount": 2,
-          "templateElements": [
+      }
+      ] });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    survey.data = { panel: [{ q1: "foo" }] };
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    expect(q1.value, "q1 is correct").toLooseEqual("foo");
+    expect(q2.value, "q2 is empty").toBeFalsy();
+  });
+  test("Make sure that panel is not collapsed on focusing the question", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "elements": [
             {
-              "name": "q2",
+              "name": "q1",
               "type": "text",
             }
           ]
-        }] }] });
-  assert.equal(survey.currentPageNo, 0);
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  q2.focus();
-  assert.equal(survey.currentPageNo, 1);
-});
-QUnit.test("templateErrorLocation property", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [{
-      "name": "panel",
-      "type": "paneldynamic",
-      "panelCount": 2,
-      "templateElements": [
-        {
-          "name": "q1",
-          "type": "text",
-        }
-      ]
-    }]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  assert.equal(q1.getErrorLocation(), "top", "take from survey");
-  panel.errorLocation = "bottom";
-  assert.equal(q1.getErrorLocation(), "bottom", "take from question.errorLocation");
-  panel.templateErrorLocation = "top";
-  assert.equal(q1.getErrorLocation(), "top", "take from question.templateErrorLocation");
-});
-QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(assert) {
-  const prevAsync = settings.confirmActionAsync;
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        templateElements: [
-          {
-            type: "text",
-            name: "q1",
-          },
-        ]
-      },
-    ],
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.confirmDelete = true;
-  panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
-  assert.equal(panel.panelCount, 3, "There are 3 panels by default");
-  let f_resFunc = (res: boolean): void => {};
-  settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void): boolean => {
-    f_resFunc = resFunc;
-    return true;
-  };
-  panel.removePanelUI(1);
-  assert.equal(panel.panelCount, 3, "We are waiting for async function");
-  f_resFunc(false);
-  assert.equal(panel.panelCount, 3, "confirm action return false");
-  panel.removePanelUI(1);
-  assert.equal(panel.panelCount, 3, "We are waiting for async function, #2");
-  f_resFunc(true);
-  assert.equal(panel.panelCount, 2, "confirm action return true");
-  assert.deepEqual(panel.value, [{ q1: 1 }, { q1: 3 }], "Row is deleted correctly");
-
-  settings.confirmActionAsync = prevAsync;
-});
-QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOnDelete", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 2,
-        defaultPanelValue: { q1: 1, q2: 2 },
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.deepEqual(panel.value, [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }], "Initial value is correct");
-  assert.equal(panel.isRequireConfirmOnDelete(0), false, "#1");
-  panel.confirmDelete = true;
-  panel.panels[0].getQuestionByName("q1").value = 3;
-  assert.equal(panel.isRequireConfirmOnDelete(0), true, "#2");
-  assert.equal(panel.isRequireConfirmOnDelete(1), false, "#3");
-  assert.equal(panel.isRequireConfirmOnDelete(-1), false, "#4");
-  assert.equal(panel.isRequireConfirmOnDelete(2), false, "#5");
-
-  panel.panels[0].getQuestionByName("q1").clearValue();
-  panel.panels[0].getQuestionByName("q2").clearValue();
-  assert.equal(panel.isRequireConfirmOnDelete(0), false, "#6");
-});
-QUnit.test("panel property in custom function", function (assert) {
-  const panelCustomFunc = function (params: any) {
-    if (!this.panel) return "";
-    const q = this.panel.getQuestionByName(params[0]);
-    if (q && !q.isEmpty()) return q.value + q.value;
-    return "";
-  };
-  FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        templateElements: [
-          { name: "q1", type: "text" },
-          {
-            name: "q2",
-            type: "expression",
-            expression: "panelCustomFunc('q1')",
-          },
-        ],
-        panelCount: 2,
-      },
-    ],
-  });
-  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel = question.panels[0];
-  panel.getQuestionByName("q1").value = "abc";
-  assert.equal(panel.getQuestionByName("q2").value, "abcabc", "Custom function with row property works correctly");
-  FunctionFactory.Instance.unregister("panelCustomFunc");
-});
-QUnit.test("nested panel.panelCount&expression question", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1"
-          },
-          {
-            "type": "paneldynamic",
-            "name": "panel2",
-            "templateElements": [
-              {
-                "type": "expression",
-                "name": "q2",
-                "expression": "{panelIndex}"
-              }
-            ],
-            "panelCount": 3
-          }
-        ],
-        "panelCount": 1
-      }
-    ]
-  });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.equal(rootPanel.panels.length, 1);
-  const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
-  assert.equal(panel1.panels.length, 3, "It should be 3 panels");
-});
-QUnit.test("defaultExpression vs panelIndex & adding/removing rows, bug#10521", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          { "type": "text", "name": "q1" },
-          { "type": "text", "name": "q2", defaultValueExpression: "{panelIndex}" },
-          { "type": "expression", "name": "q3", expression: "{panelIndex}" },
-        ],
-        "panelCount": 2
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.panels[0].getQuestionByName("q1").value = "a";
-  panel.panels[1].getQuestionByName("q1").value = "b";
-  panel.addPanel();
-  panel.panels[2].getQuestionByName("q1").value = "c";
-  assert.equal(panel.panels.length, 3, "There are three panels");
-  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #1");
-  assert.equal(panel.panels[1].getQuestionByName("q2").value, "1", "q2.value #2");
-  assert.equal(panel.panels[2].getQuestionByName("q2").value, "2", "q2.value #3");
-  panel.panels[2].getQuestionByName("q2").inputValue = "2";
-  panel.removePanel(0);
-  assert.equal(panel.panels.length, 2, "There are two panels");
-  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #4");
-  assert.equal(panel.panels[1].getQuestionByName("q2").value, "1", "q2.value #5");
-  panel.removePanel(0);
-  assert.equal(panel.panels.length, 1, "There is one panel");
-  assert.equal(panel.panels[0].getQuestionByName("q1").value, "c", "q1.value #6");
-  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #6");
-});
-QUnit.test("templateElements question.onHidingContent", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [{
-      "name": "panel",
-      "type": "paneldynamic",
-      "panelCount": 2,
-      "templateElements": [
-        {
-          "name": "q1",
-          "type": "text",
-        }
-      ]
-    }]
-  });
-  let counter = 0;
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
-  panel.panels[1].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
-  survey.doComplete();
-  assert.equal(counter, 2, "on do complete");
-});
-QUnit.test("templateElements question.onHidingContent", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [{
-      "name": "panel",
-      "type": "paneldynamic",
-      "panelCount": 2,
-      "displayMode": "tab",
-      "templateElements": [
-        {
-          "name": "q1",
-          "type": "text",
-        }
-      ]
-    }]
-  });
-  let counter = 0;
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
-  panel.currentIndex = 1;
-  assert.equal(counter, 1, "Go to another tab");
-});
-QUnit.test("nested panel.panelCount&expression question", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "valueName": "shared",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "A"
-          }
-        ],
-        "panelCount": 1
-      },
-      {
-        "type": "paneldynamic",
-        "name": "panel2",
-        "valueName": "shared",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "B"
-          },
-          {
-            "type": "text",
-            "name": "C",
-            "defaultValueExpression": "{panel.A}",
-            "readOnly": true
-          },
-          {
-            "type": "text",
-            "name": "D",
-            "defaultValueExpression": "{panel.B}+{panel.C}",
-            "readOnly": true
-          },
-          {
-            "type": "expression",
-            "name": "E",
-            "expression": "{panel.B}+{panel.C}"
-          }
-        ]
-      }
-    ]
-  });
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel1.panels[0].getQuestionByName("A").value = 1;
-  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
-  const panel = panel2.panels[0];
-  panel.getQuestionByName("B").value = 2;
-  assert.equal(panel.getQuestionByName("C").value, 1, "C");
-  assert.equal(panel.getQuestionByName("D").value, 3, "D");
-  assert.equal(panel.getQuestionByName("E").value, 3, "E");
-});
-QUnit.test("Footer css for nested panels", function(assert) {
-  const footerCss = "abcd";
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "q1" },
-          {
-            type: "paneldynamic",
-            name: "qq",
-            panelCount: 1,
-            templateElements: [{ type: "text", name: "q2" }],
-          },
-        ],
-      },
-    ],
-  });
-  setOldTheme(survey);
-  survey.css = {
-    panel: {
-      footer: footerCss
-    }
-  };
-  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
-  assert.equal(question.panels[0].getFooterToolbar().containerCss, footerCss, "root footer container css");
-  const nested = <QuestionPanelDynamicModel>question.panels[0].getQuestionByName("qq");
-  assert.equal(nested.panels[0].getFooterToolbar().containerCss, footerCss, "nested footer container css on loading");
-  nested.addPanel();
-  assert.equal(nested.panels[1].getFooterToolbar().containerCss, footerCss, "nested footer container css on creating");
-});
-QUnit.test("question.resetValueIf, basic functionality", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { name: "q1", type: "text" },
-          { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1" },
-          { name: "q3", type: "text" }
-        ]
-      }
-    ]
-  });
-  const panel = survey.getQuestionByName("panel");
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  const q3 = panel.panels[0].getQuestionByName("q3");
-  assert.equal(q2.resetValueIf, "{panel.q1} = 1", "Load from JSON");
-  q2.value = "abc";
-  q1.value = 2;
-  assert.equal(q2.value, "abc", "value is set");
-  q1.value = 1;
-  assert.equal(q2.isEmpty(), true, "value is cleared");
-  q2.value = "edf";
-  assert.equal(q2.value, "edf", "value is set, #2");
-  q3.value = 3;
-  assert.equal(q2.value, "edf", "value is stay, #3");
-});
-QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [{
-          name: "q1",
-          type: "text"
         },
         {
-          name: "q2",
-          type: "text",
-          resetValueIf: "{panel.q1} = 1",
-          defaultValueExpression: "iif({panel.q3} > 2, {panel.q3}, '')"
-        },
-        {
-          name: "q3", type: "text"
-        }]
-      }
-    ]
-  });
-  const panel = survey.getQuestionByName("panel");
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  const q3 = panel.panels[0].getQuestionByName("q3");
-  q2.value = "abc";
-  q3.value = 3;
-  assert.equal(q2.value, "abc", "value is set directly");
-  q1.value = 1;
-  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
-  q2.value = "edf";
-  assert.equal(q2.value, "edf", "value is set directly, #2");
-  q3.value = 4;
-  assert.equal(q2.value, "edf", "value is stay, #3");
-});
-QUnit.test("question.resetValueIf based on root and row questions", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { name: "q1", type: "text" },
-          { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1 and {q4} = 4" },
-          { name: "q3", type: "text" }
-        ]
-      },
-      { type: "text", name: "q4" }
-    ]
-  });
-  const panel = survey.getQuestionByName("panel");
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  const q3 = panel.panels[0].getQuestionByName("q3");
-  const q4 = survey.getQuestionByName("q4");
-  q2.value = "abc";
-  q1.value = 2;
-  assert.equal(q2.value, "abc", "q2.value #1");
-  q1.value = 1;
-  assert.equal(q2.value, "abc", "q2.value #2");
-  q4.value = 4;
-  assert.equal(q2.isEmpty(), true, "q2.value #3");
-  q2.value = "edf";
-  q1.value = 2;
-  assert.equal(q2.value, "edf", "q2.value, #4");
-  q1.value = 1;
-  assert.equal(q2.isEmpty(), true, "q2.value #5");
-});
-QUnit.test("question.setValueIf, basic functionality", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { name: "q1", type: "text" },
-          { name: "q2", type: "text", setValueIf: "{panel.q1} = 1", setValueExpression: "{panel.q1} + {panel.q3}" },
-          { name: "q3", type: "text" }
-        ]
-      }
-    ]
-  });
-  const panel = survey.getQuestionByName("panel");
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  const q3 = panel.panels[0].getQuestionByName("q3");
-  assert.equal(q2.setValueIf, "{panel.q1} = 1", "Load from JSON setValueIf");
-  assert.equal(q2.setValueExpression, "{panel.q1} + {panel.q3}", "Load from JSON setValueExpression");
-  q2.value = "abc";
-  q1.value = 2;
-  q3.value = 3;
-  assert.equal(q2.value, "abc", "value is set");
-  q1.value = 1;
-  assert.equal(q2.value, 4, "value is set correctly");
-  q2.value = "edf";
-  assert.equal(q2.value, "edf", "value is set, #2");
-  q3.value = 5;
-  assert.equal(q2.value, 1 + 5, "value is set, #3");
-  q2.value = "klm";
-  assert.equal(q2.value, "klm", "value is set, #4");
-  q1.value = 2;
-  assert.equal(q2.value, "klm", "value is set, #5");
-  q3.value = 5;
-  assert.equal(q2.value, "klm", "value is set, #6");
-});
-QUnit.test("panel dynamic getPlainData & comment", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        templateElements: [
-          { name: "q1", type: "text" },
-          { name: "q2", type: "text" }
-        ],
-        showCommentArea: true
-      }
-    ]
-  });
-  const q = survey.getQuestionByName("panel");
-  q.value = [{ q1: 1, q2: 2 }, { q1: 3, q2: 4 }];
-  q.comment = "Some comments";
-  const data: any = survey.getPlainData();
-  const qData = data[0].data;
-  assert.equal(qData.length, 3, "There are 3 records");
-  assert.equal(qData[2].title, "Comment", "comment title");
-  assert.equal(qData[2].isComment, true, "comment isComment");
-});
-QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { name: "q1", type: "dropdown", choices: [1, 2, 3], showOtherItem: true }
-        ]
-      }
-    ]
-  });
-  const dynamicPanel = survey.getQuestionByName("panel");
-  const panel = dynamicPanel.panels[0];
-  const question = panel.getQuestionByName("q1");
-  question.value = "other";
-  question.otherValue = "comment1";
-  assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment1" }], "panel.value #1");
-  question.value = 1;
-  assert.equal(question.value, 1, "question value is changed");
-  assert.notOk(question.comment, "comment is empty");
-  assert.deepEqual(dynamicPanel.value, [{ q1: 1 }], "panel.value #2");
-  question.value = "other";
-  assert.deepEqual(dynamicPanel.value, [{ q1: "other" }], "panel.value #3");
-  question.otherValue = "comment2";
-  assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
-});
-QUnit.test("panel dynamic & getQuestionFromArray with non-build panels, #7693", function (assert) {
-  const survey = new SurveyModel({
-    pages: [
-      { elements: [{ type: "text", name: "q1" }] },
-      {
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "panel",
-            panelCount: 1,
-            templateElements: [
-              { name: "q2", type: "text" }
-            ]
-          }
-        ]
-      }
-    ] });
-  const dynamicPanel = survey.getQuestionByName("panel");
-  assert.notOk(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet");
-  survey.currentPageNo = 1;
-  assert.equal(dynamicPanel.getQuestionFromArray("q2", 0).name, "q2", "Panels are created");
-});
-QUnit.test("panel dynamic & addPanel/removePanel with non-build panels, #7693", function (assert) {
-  const survey = new SurveyModel({
-    pages: [
-      { elements: [{ type: "text", name: "q1" }] },
-      {
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "panel",
-            panelCount: 1,
-            templateElements: [
-              { name: "q2", type: "text" }
-            ]
-          }
-        ]
-      }
-    ] });
-  const dynamicPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(dynamicPanel.panelCount, 1, "panelCount #1");
-  assert.notOk(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet");
-  dynamicPanel.addPanel();
-  dynamicPanel.addPanel(1);
-  assert.equal(dynamicPanel.panelCount, 3, "panelCount #2");
-  dynamicPanel.removePanel(1);
-  assert.equal(dynamicPanel.panelCount, 2, "panelCount #3");
-  assert.equal(dynamicPanel.getQuestionFromArray("q2", 0).name, "q2", "Panels are created");
-});
-QUnit.test("panel dynamic & panel visibleIf & checkbox vs carry forward, #7693", function (assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "aboutMe",
-            "valueName": "household",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "firstName"
-              },
-              {
-                "type": "text",
-                "name": "lastName"
-              },
-              {
-                "type": "expression",
-                "name": "fullName",
-                "visible": false,
-                "expression": "{panel.firstName} + ' ' + {panel.lastName}"
-              }
-            ],
-            "panelCount": 2,
-            "minPanelCount": 1,
-            "templateVisibleIf": "{panelIndex} = 0"
-          }
-        ]
-      },
-      {
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "addChildren",
-            "valueName": "household",
-            "isRequired": true,
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "childFirstName",
-                "valueName": "firstName"
-              },
-              {
-                "type": "text",
-                "name": "childLastName",
-                "valueName": "lastName"
-              },
-              {
-                "type": "expression",
-                "name": "childFullName",
-                "visible": false,
-                "valueName": "fullName",
-                "expression": "{panel.firstName} + ' ' + {panel.lastName}"
-              }
-            ],
-            "panelCount": 1,
-            "minPanelCount": 1,
-            "templateVisibleIf": "{panelIndex} > 0"
-          }
-        ]
-      },
-      {
-        "elements": [
-          {
-            "type": "checkbox",
-            "name": "addIncomeFor",
-            "choicesFromQuestion": "addChildren",
-            "choiceValuesFromQuestion": "fullName"
-          }
-        ]
-      },
-      {
-        "elements": [
-          {
-            "type": "paneldynamic",
-            "name": "householdIncome",
-            "valueName": "household",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "question1"
-              }
-            ],
-            "templateTitle": "{panel.fullName}",
-            "panelsState": "collapsed",
-            "templateVisibleIf": "{addIncomeFor} contains {panel.fullName}"
-          }
-        ]
-      }
-    ]
-  });
-  survey.data = {
-    "household": [
-      {
-        "firstName": "first1",
-        "fullName": "first1 last1",
-        "lastName": "last1",
-        "question1": "text1"
-      },
-      {
-        "firstName": "first2",
-        "fullName": "first2 last2",
-        "lastName": "last2"
-      },
-      {
-        "firstName": "first3",
-        "fullName": "first3 last3",
-        "lastName": "last3",
-        "question1": "test3"
-      }
-    ],
-    "addIncomeFor": [
-      "first1 last1",
-      "first3 last3"
-    ]
-  };
-  survey.doComplete();
-  assert.deepEqual(survey.data, {
-    "household": [
-      {
-        "firstName": "first1",
-        "lastName": "last1",
-        "question1": "text1"
-      },
-      {
-        "firstName": "first2",
-        "lastName": "last2"
-      },
-      {
-        "firstName": "first3",
-        "lastName": "last3",
-        "question1": "test3"
-      }
-    ]
-  });
-});
-
-QUnit.test("paneldynamic: panelsState & valueName Bug#8653", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        "type": "checkbox",
-        "name": "state_names",
-        "title": "States",
-        "valuePropertyName": "state_name",
-        "choices": ["ACT", "NSW", "QLD"]
-      },
-      {
-        "type": "paneldynamic",
-        "name": "regions",
-        "valueName": "state_names",
-        "allowAddPanel": false,
-        "allowRemovePanel": false,
-        "visibleIf": "{state_names} notempty",
-        "panelsState": "expanded",
-        "templateTitle": "Regions for State {panel.state_name}",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1"
-          }
-        ]
-      }
-    ]
-  });
-  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("state_names");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("regions");
-  checkbox.selectAll();
-  assert.equal(panel.visiblePanels.length, 3, "3 panels have been created");
-  assert.equal(panel.visiblePanels[0].state, "expanded", "panels[0] state is expanded");
-  assert.equal(panel.visiblePanels[1].state, "expanded", "panels[1] state is expanded");
-  assert.equal(panel.visiblePanels[2].state, "expanded", "panels[2] state is expanded");
-});
-QUnit.test("paneldynamic: check renderedPanels", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { name: "q1", type: "text" },
-        ]
-      },
-      { type: "text", name: "q4" }
-    ]
-  });
-  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.addPanel(1);
-  assert.equal(question.renderedPanels.length, 2);
-  assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.addPanel(2);
-  assert.equal(question.renderedPanels.length, 3);
-  assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.removePanel(question.visiblePanels[1]);
-  assert.equal(question.renderedPanels.length, 2);
-  assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.removePanel(question.visiblePanels[0]);
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.addPanel(1);
-  assert.equal(question.renderedPanels.length, 2);
-  assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.displayMode = "tab";
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[0]);
-  question.currentIndex = 1;
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[1]);
-  question.currentIndex = 0;
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[0]);
-  question.addPanel(2);
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[2]);
-  question.removePanel(question.visiblePanels[2]);
-  assert.equal(question.renderedPanels.length, 1);
-  assert.deepEqual(question.renderedPanels[0], question.visiblePanels[1]);
-});
-
-QUnit.test("paneldynamic: check panelsAnimation", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        templateElements: [
-          { name: "q1", type: "text" },
-        ]
-      },
-      { type: "text", name: "q4" }
-    ]
-  });
-  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
-  assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
-
-  question.displayMode = "tab";
-  assert.notOk(question["panelsAnimation"] instanceof AnimationGroup);
-  assert.ok(question["panelsAnimation"] instanceof AnimationTab);
-
-  question.displayMode = "carousel";
-  assert.notOk(question["panelsAnimation"] instanceof AnimationGroup);
-  assert.ok(question["panelsAnimation"] instanceof AnimationTab);
-
-  question.displayMode = "list";
-  assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
-  assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
-});
-QUnit.test("paneldynamic: Do not call onFirstRendered for hidden panels, Issue#10501", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        displayMode: "tab",
-        panelCount: 2,
-        templateElements: [
-          { name: "q1", type: "text" },
-        ]
-      },
-      {
-        type: "paneldynamic",
-        name: "panel2",
-        panelCount: 2,
-        templateElements: [
-          { name: "q2", type: "text" },
-        ]
-      },
-      {
-        type: "paneldynamic",
-        name: "panel3",
-        displayMode: "carousel",
-        panelCount: 2,
-        templateElements: [
-          { name: "q2", type: "text" },
-        ]
-      }
-    ]
-  });
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
-  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
-  assert.equal(panel1.panels[0].wasRendered, true, "panel1, #1");
-  assert.equal(panel1.panels[1].wasRendered, false, "panel1, #1");
-  assert.equal(panel2.panels[0].wasRendered, true, "panel2, #1");
-  assert.equal(panel2.panels[1].wasRendered, true, "panel2, #2");
-  assert.equal(panel3.panels[0].wasRendered, true, "panel3, #1");
-  assert.equal(panel3.panels[1].wasRendered, false, "panel3, #2");
-  panel1.currentIndex = 1;
-  assert.equal(panel1.panels[0].wasRendered, true, "panel1, #3");
-  panel3.currentIndex = 1;
-  assert.equal(panel3.panels[1].wasRendered, true, "panel3, #3");
-  panel1.addPanel();
-  assert.equal(panel1.panels[2].wasRendered, true, "panel1, #4");
-  panel2.addPanel();
-  assert.equal(panel2.panels[2].wasRendered, true, "panel2, #4");
-  panel3.addPanel();
-  assert.equal(panel3.panels[2].wasRendered, true, "panel3, #4");
-});
-QUnit.test("paneldynamic vs nested panels: Do not call onFirstRendered for hidden panels, Issue#10501", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        displayMode: "tab",
-        panelCount: 2,
-        templateElements: [
-          { name: "panel2", type: "paneldynamic",
-            panelCount: 1,
-            minPanelCount: 1,
-            templateElements: [
-              { name: "q1", type: "text" },
-            ],
-          }
-        ]
-      }
-    ]
-  });
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.equal(panel1.tabbedMenu?.actions.length, 2, "There are two tabs");
-  const panel2 = <QuestionPanelDynamicModel>panel1.panels[0].getQuestionByName("panel2");
-  assert.equal(panel1.panels[0].wasRendered, true, "panel1, #1");
-  assert.equal(panel2.wasRendered, true, "panel2, #1");
-  assert.equal(panel2.panels[0].wasRendered, true, "panel2, internal panel, #1");
-  const q1 = panel2.panels[0].getQuestionByName("q1");
-  assert.equal(q1.wasRendered, true, "q1, #1");
-  assert.equal(panel2.panels[0].rows.length, 1, "panel2 internal panel.rows, #1");
-});
-QUnit.test("paneldynamic: Render panel correctly, Issue#10501", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        displayMode: "tab",
-        panelCount: 2,
-        templateElements: [
-          { name: "q1", type: "text" }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.tabbedMenu?.actions.length, 2, "There are two tabs");
-  const panel1 = panel.visiblePanels[0];
-  const panel2 = panel.visiblePanels[1];
-  assert.equal(panel1.wasRendered, true, "panel1 was rendered");
-  assert.equal(panel2.wasRendered, false, "panel2 was not rendered");
-  assert.equal(panel2.visibleRows.length, 0, "panel2 has no rows");
-  panel.currentIndex = 1;
-  assert.equal(panel2.wasRendered, true, "panel2 was rendered");
-  assert.equal(panel2.visibleRows.length, 1, "panel2 has one row");
-  assert.equal(panel2.visibleRows[0].elements.length, 1, "panel2 first row has one element");
-  assert.equal(panel2.visibleRows[0].elements[0].name, "q1", "panel2 first row first element is q1");
-});
-QUnit.test("paneldynamic: dynamic panel with tabs as a child, Issue#10501", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        minPanelCount: 1,
-        maxPanelCount: 1,
-        templateElements: [
-          { name: "panel1", type: "paneldynamic",
-            displayMode: "tab",
-            panelCount: 2,
-            minPanelCount: 1,
-            maxPanelCount: 3,
-            templateElements: [
-              { name: "q1", type: "text" }
-            ]
-          }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const innerPanel = <QuestionPanelDynamicModel>panel.visiblePanels[0].getQuestionByName("panel1");
-  assert.equal(innerPanel.displayMode, "tab", "inner panel displayMode is tab");
-  assert.equal(innerPanel.panelCount, 2, "inner panel has two panels");
-  assert.equal(innerPanel.wasRendered, true, "inner panel was rendered");
-  assert.equal(innerPanel.tabbedMenu?.actions.length, 2, "There are two tabs");
-  const panel1 = innerPanel.visiblePanels[0];
-  const panel2 = innerPanel.visiblePanels[1];
-  assert.equal(panel1.wasRendered, true, "panel1 was rendered");
-  assert.equal(panel2.wasRendered, false, "panel2 was not rendered");
-  assert.equal(panel2.visibleRows.length, 0, "panel2 has no rows");
-  innerPanel.currentIndex = 1;
-  assert.equal(panel2.wasRendered, true, "panel2 was rendered");
-  assert.equal(panel2.visibleRows.length, 1, "panel2 has one row");
-  assert.equal(panel2.visibleRows[0].elements.length, 1, "panel2 first row has one element");
-  assert.equal(panel2.visibleRows[0].elements[0].name, "q1", "panel2 first row first element is q1");
-});
-QUnit.test("paneldynamic: dynamic panel with tabs as a child at design time, Issue#10501", function (assert) {
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 1,
-        minPanelCount: 1,
-        maxPanelCount: 1,
-        templateElements: [
-          { name: "panel1", type: "paneldynamic",
-            displayMode: "tab",
-            panelCount: 2,
-            minPanelCount: 1,
-            maxPanelCount: 3,
-            templateElements: [
-              { name: "q1", type: "text" }
-            ]
-          }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const innerPanel = <QuestionPanelDynamicModel>panel.visiblePanels[0].getQuestionByName("panel1");
-  assert.equal(innerPanel.displayMode, "tab", "inner panel displayMode is tab");
-  assert.equal(innerPanel.panelCount, 2, "inner panel has two panels");
-  assert.equal(innerPanel.wasRendered, true, "inner panel was rendered");
-  assert.equal(innerPanel.tabbedMenu?.actions.length, 1, "There is one tab");
-  const panel1 = innerPanel.visiblePanels[0];
-  assert.strictEqual(panel1, innerPanel.template, "panel1 is template panel");
-  assert.equal(panel1.wasRendered, true, "panel1 was rendered");
-  assert.equal(panel1.visibleRows.length, 1, "panel1 has one row");
-  assert.equal(panel1.visibleRows[0].elements.length, 1, "panel1 first row has one element");
-  assert.equal(panel1.visibleRows[0].elements[0].name, "q1", "panel1 first row first element is q1");
-});
-QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 2,
-        templateElements: [
-          { name: "q1", type: "text" },
-        ]
-      },
-      { type: "text", name: "q4" }
-    ]
-  });
-  survey.css = {
-    paneldynamic: {
-      panelWrapperEnter: "enter",
-      panelWrapperLeave: "leave"
-    }
-  };
-  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
-  const options = question["getPanelsAnimationOptions"]();
-  const panelsContainer = document.createElement("div");
-  const panelContainer2 = document.createElement("div");
-  const panelContainer1 = document.createElement("div");
-  panelsContainer.appendChild(panelContainer2);
-  panelsContainer.appendChild(panelContainer1);
-  document.body.appendChild(panelsContainer);
-  let enterOptions = options.getEnterOptions(question.panels[0]);
-  let leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter");
-  assert.equal(leaveOptions.cssClass, "leave");
-  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
-  assert.equal(panelContainer1.style.getPropertyValue("--animation-height-to"), "0px");
-  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer1);
-  assert.notOk(panelContainer1.style.getPropertyValue("--animation-height-to"));
-
-  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
-  assert.equal(panelContainer2.style.getPropertyValue("--animation-height-to"), "0px");
-  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
-  assert.notOk(panelContainer2.style.getPropertyValue("--animation-height-to"));
-
-  question.displayMode = "carousel";
-  question.currentIndex = 0;
-  question["_renderedPanels"] = [question.panels[0], question.panels[1]];
-  panelContainer1.style.height = "20px";
-  panelContainer2.style.height = "40px";
-
-  enterOptions = options.getEnterOptions(question.panels[0]);
-  leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-right");
-  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-right");
-  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
-  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "40px");
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "20px");
-  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer1);
-  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
-
-  question.currentIndex = 1;
-  question["_renderedPanels"] = [question.panels[0], question.panels[1]];
-
-  enterOptions = options.getEnterOptions(question.panels[0]);
-  leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-left");
-  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-left");
-  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
-  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
-  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
-  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
-
-  question["focusNewPanelCallback"] = () => {};
-  enterOptions = options.getEnterOptions(question.panels[0]);
-  leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-adding sv-pd-animation-left");
-  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-adding sv-pd-animation-left");
-  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
-  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
-  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
-  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
-
-  const removedPanel = question.panels[1];
-  question.removePanel(removedPanel);
-  question["_renderedPanels"] = [question.panels[0], removedPanel];
-
-  question["removedPanelIndex"] = 0;
-  enterOptions = options.getEnterOptions(question.panels[0]);
-  leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-removing sv-pd-animation-left");
-  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-removing sv-pd-animation-left");
-  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
-  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
-  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
-  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
-
-  question["removedPanelIndex"] = 1;
-  enterOptions = options.getEnterOptions(question.panels[0]);
-  leaveOptions = options.getLeaveOptions(question.panels[1]);
-  assert.equal(enterOptions.cssClass, "enter sv-pd-animation-removing sv-pd-animation-right");
-  assert.equal(leaveOptions.cssClass, "leave sv-pd-animation-removing sv-pd-animation-right");
-  enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
-  leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-from"), "20px");
-  assert.equal(panelsContainer.style.getPropertyValue("--animation-height-to"), "40px");
-  enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
-  leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-from"));
-  assert.notOk(panelsContainer.style.getPropertyValue("--animation-height-to"));
-
-  panelsContainer.remove();
-});
-QUnit.test("onQuestionVisibleChanged should be fired", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "q1" },
-      { type: "paneldynamic", name: "q2", panelCount: 1,
-        templateElements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }, { type: "text", name: "q4" }]
-      }
-    ]
-  });
-  const questionNames = new Array<string>();
-  survey.onQuestionVisibleChanged.add((sender, options) => {
-    questionNames.push(options.question.name + ":" + options.question.isVisible);
-  });
-  survey.setValue("q1", 1);
-  survey.setValue("q1", 2);
-  assert.deepEqual(questionNames, ["q3:true", "q3:false"], "visiblity logs");
-});
-QUnit.test("Always focus on error in duplicated value, Bug8228", function (assert) {
-  let focusedQuestionId = "";
-  var oldFunc = SurveyElement.FocusElement;
-  SurveyElement.FocusElement = function (elId: string): boolean {
-    focusedQuestionId = elId;
-    return true;
-  };
-  const survey = new SurveyModel({
-    "elements": [{
-      "name": "q1",
-      "type": "paneldynamic",
-      "keyName": "q2",
-      "templateElements": [
-        {
-          "name": "q2",
-          "type": "text"
-        }
-      ]
-    },
-    ]
-  });
-  survey.data = { q1: [{ q2: 2 }, { q2: 2 }] };
-
-  const res = survey.validate(false, false);
-  assert.equal(res, false, "There is an error");
-  assert.notOk(focusedQuestionId, "Do not focus");
-  survey.validate(false, true);
-  assert.ok(focusedQuestionId, "Focus on the question");
-
-  SurveyElement.FocusElement = oldFunc;
-});
-QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic", name: "panel", panelCount: 1,
-        templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", isRequired: true }]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.validate(true);
-  assert.equal(panel.getFirstQuestionToFocus(false).name, "q1", "#1");
-  assert.equal(panel.getFirstQuestionToFocus(true).name, "q2", "#2");
-  panel.panelCount = 0;
-  assert.equal(panel.getFirstQuestionToFocus(false).name, "panel", "#3");
-  assert.notOk(panel.getFirstQuestionToFocus(true), "#4");
-  panel.isRequired = true;
-  panel.validate(true);
-  assert.equal(panel.getFirstQuestionToFocus(true).name, "panel", "#5");
-});
-QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel",
-        panelCount: 3,
-        displayMode: "tab",
-        templateElements: [
-          { type: "text", name: "q1" },
-          { type: "text", name: "q2" }
-        ]
-      }
-    ]
-  });
-
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  panel.currentIndex = 1;
-
-  const q1 = panel.panels[1].getQuestionByName("q1");
-  assert.equal(panel.getFirstQuestionToFocus(false).id, q1.id, "#1");
-  assert.equal((<any>panel).getFirstInputElementId(), q1.inputId, "#2");
-});
-QUnit.test("defaultRowValue in dynamic panel, Bug#8819", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "matrixdynamic",
-            "name": "matrix1",
-            "columns": [
-              {
-                "name": "col1",
-                "cellType": "text"
-              }
-            ],
-            "rowCount": 1,
-            "minRowCount": 1,
-            "defaultRowValue": {
-              "col1": "abc"
-            }
-          }
-        ],
-        "minPanelCount": 1
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }], "#1");
-  panel.addPanel();
-  assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }] }], "#2");
-  panel.panels[1].questions[0].addRow();
-  assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }, { "col1": "abc" }] }], "#3");
-});
-QUnit.test("Do not allow to make panelCount be less than minPanelCount prop & more than maxPanelCount at design, Bug#9906", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        templateElements: [{ type: "text", name: "q1" }],
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.panelCount = 1;
-  panel.minPanelCount = 3;
-  assert.equal(panel.panelCount, 3, "#1");
-  panel.panelCount = 2;
-  assert.equal(panel.panelCount, 2, "#2");
-  panel.panelCount = 10;
-  panel.maxPanelCount = 5;
-  assert.equal(panel.panelCount, 5, "#3");
-  panel.panelCount = 7;
-  assert.equal(panel.panelCount, 7, "#4");
-  panel.panelCount = 4;
-  assert.equal(panel.panelCount, 4, "#5");
-  survey.setDesignMode(true);
-  panel.panelCount = 2;
-  assert.equal(panel.panelCount, 3, "#6");
-  panel.panelCount = 10;
-  assert.equal(panel.panelCount, 5, "#7");
-});
-QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel1",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1"
-          }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const btnAdd = panel.footerToolbar.getActionById("sv-pd-add-btn");
-  assert.equal(btnAdd.isVisible, true, "#1");
-  panel.value = [{ q1: "abc" }];
-  assert.equal(btnAdd.isVisible, true, "#2");
-  panel.maxPanelCount = 1;
-  assert.equal(btnAdd.isVisible, false, "#3");
-  panel.maxPanelCount = 2;
-  assert.equal(btnAdd.isVisible, true, "#4");
-});
-QUnit.test("maxRowCount & footer buttons in detail matrix panel, Bug#9714", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "matrixdynamic",
-        "name": "matrix",
-        "columns": [
-          {
-            "name": "col1"
-          }
-        ],
-        "detailElements": [
-          {
-            "type": "paneldynamic",
+          "elements": [{
             "name": "panel",
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "question1"
-              }
-            ],
-            "maxPanelCount": 2
-          }
-        ],
-        "detailPanelMode": "underRowSingle",
-        "cellType": "text",
-        "rowCount": 2
-      }
-    ]
-  });
-  survey.pages[0].onFirstRendering();
-  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  let row = matrix.visibleRows[0];
-  row.showDetailPanel();
-  let panel = row.getQuestionByName("panel");
-  const getAddBtn = () => {
-    return panel.footerToolbar.getActionById("sv-pd-add-btn");
-  };
-  assert.equal(getAddBtn().isVisible, true, "addBtn #1");
-  panel.value = [{ q1: "abc" }];
-  assert.equal(getAddBtn().isVisible, true, "#addBtn 2");
-  assert.equal(panel.canAddPanel, true, "canAddPanel #2");
-  panel.value = [{ q1: "abc" }, { q1: "def" }];
-  assert.equal(panel.panelCount, 2, "panelCount #3");
-  assert.equal(panel.maxPanelCount, 2, "maxPanelCount #3");
-  assert.equal(panel.canAddPanel, false, "canAddPanel #3");
-  assert.equal(getAddBtn().isVisible, false, "addBtn #3");
-  panel.removePanel(0);
-  assert.equal(getAddBtn().isVisible, true, "addBtn #4");
-  assert.equal(panel.canAddPanel, true, "canAddPanel #4");
-  row = matrix.visibleRows[1];
-  row.showDetailPanel();
-  panel = row.getQuestionByName("panel");
-  panel.addPanel();
-  assert.equal(getAddBtn().isVisible, true, "addBtn #5");
-  panel.addPanel();
-  assert.equal(getAddBtn().isVisible, false, "addBtn #6");
-  panel.removePanel(0);
-  assert.equal(getAddBtn().isVisible, true, "addBtn #7");
-});
-QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic panel, Bug#8892", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        type: "paneldynamic",
-        name: "main",
-        templateElements: [
-          {
-            type: "paneldynamic",
-            name: "detail",
-            templateElements: [
-              {
-                type: "matrixdynamic",
-                name: "matrix",
-                columns: [{ "name": "col1", "cellType": "text" }],
-                rowCount: 1,
-                minRowCount: 1
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  });
-  const mainPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("main");
-  const panel1 = mainPanel.addPanel();
-  const detailPanel1 = <QuestionPanelDynamicModel>panel1.getQuestionByName("detail");
-  const matrix1 = detailPanel1.addPanel().getQuestionByName("matrix");
-  matrix1.visibleRows[0].getQuestionByName("col1").value = "main1_detail1";
-  const matrix2 = detailPanel1.addPanel().getQuestionByName("matrix");
-  matrix2.visibleRows[0].getQuestionByName("col1").value = "main1_detail2";
-  assert.deepEqual(mainPanel.value, [
-    { detail: [{ matrix: [{ col1: "main1_detail1" }] }, { matrix: [{ col1: "main1_detail2" }] }] }
-  ], "main panel value #1");
-  const panel2 = mainPanel.addPanel();
-  const detailPanel2 = <QuestionPanelDynamicModel>panel2.getQuestionByName("detail");
-  const matrix3 = detailPanel2.addPanel().getQuestionByName("matrix");
-  matrix3.visibleRows[0].getQuestionByName("col1").value = "main2_detail1";
-  assert.deepEqual(mainPanel.value, [
-    { detail: [{ matrix: [{ col1: "main1_detail1" }] }, { matrix: [{ col1: "main1_detail2" }] }] },
-    { detail: [{ matrix: [{ col1: "main2_detail1" }] }] }
-  ], "main panel value #2");
-  assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").value, "main1_detail1", "Last row value, matrix1");
-  assert.equal(matrix2.visibleRows[0].getQuestionByName("col1").value, "main1_detail2", "Last row value, matrix2");
-});
-QUnit.test("Validation doesn't work if a user doesn't visit the page, Bug#8937", function (assert) {
-  const survey = new SurveyModel({
-    logoPosition: "right",
-    pages: [
-      {
-        elements: [{ type: "text", name: "question1" }]
-      },
-      {
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "panel",
-            templateElements: [{ type: "text", name: "question2", isRequired: true }],
-            panelCount: 1
-          }
-        ]
-      },
-      {
-        elements: [{ type: "text", name: "question3" }]
-      }
-    ],
-    checkErrorsMode: "onComplete"
-  });
-  survey.currentPageNo = 2;
-  survey.tryComplete();
-  assert.equal(survey.state, "running", "Still running");
-  assert.equal(survey.currentPageNo, 1, "move to page with panel");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  assert.equal(panel.panels[0].getQuestionByName("question2").errors.length, 1, "has an error");
-});
-QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
-  assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value");
-  settings.panel.maxPanelCount = 300;
-  assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 300, "updated default value");
-  settings.panel.maxPanelCount = 100;
-  assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
-});
-QUnit.test("Do not serialize renderMode & showProgressBar", function (assert) {
-  const survey = new SurveyModel({
-    elements: [{ type: "paneldynamic", name: "panel1", displayMode: "carousel", showProgressBar: false }]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.equal(panel.renderMode, "progressTop", "renderMode is set");
-  assert.equal(panel.displayMode, "carousel", "displayMode is set");
-  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
-  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
-  const json = panel.toJSON();
-  assert.notOk(json.renderMode, "renderMode on json");
-  assert.equal(json.displayMode, "carousel", "displayMode is json");
-  assert.notOk(json.showProgressBar, "showProgressBar is json");
-  assert.equal(json.showProgressBar, false, "showProgressBar is json");
-});
-QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {
-  const survey = new SurveyModel({
-    showQuestionNumbers: true,
-    elements: [
-      { type: "text", name: "question1" },
-      { type: "paneldynamic", name: "panel1",
-        templateElements: [{ type: "text", name: "question3" }]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  assert.equal(panel.no, "2.", "no #1");
-  panel.addPanel();
-  assert.equal(panel.no, "2.", "no #2");
-});
-QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.1", function (assert) {
-  const survey = new SurveyModel({
-    showQuestionNumbers: true,
-    elements: [
-      { type: "text", name: "q1" },
-      { type: "paneldynamic", name: "panel1", showNumber: false,
-        templateElements: [{ type: "text", name: "q2" }]
-      },
-      { type: "text", name: "q3" },
-    ]
-  });
-  const q3 = survey.getQuestionByName("q3");
-  assert.equal(q3.no, "2.", "q3.no #1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.addPanel();
-  panel.addPanel();
-  assert.equal(q3.no, "2.", "q3.no #2");
-});
-QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.2", function (assert) {
-  const survey = new SurveyModel({
-    showQuestionNumbers: "recursive",
-    elements: [
-      { type: "panel", name: "panel",
-        elements: [
-          { type: "text", name: "q1" },
-          { type: "paneldynamic", name: "panel1", showNumber: false,
-            templateElements: [{ type: "text", name: "q2" }]
-          },
-          { type: "text", name: "q3" }
-        ] },
-    ]
-  });
-  const q3 = survey.getQuestionByName("q3");
-  assert.equal(q3.no, "2.", "q3.no #1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.addPanel();
-  panel.addPanel();
-  assert.equal(q3.no, "2.", "q3.no #2");
-});
-QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.3", function (assert) {
-  const survey = new SurveyModel({
-    showQuestionNumbers: "recursive",
-    questionStartIndex: "1.1.",
-    elements: [
-      { type: "panel", name: "panel",
-        elements: [
-          { type: "text", name: "q1" },
-          { type: "paneldynamic", name: "panel1", showNumber: false,
-            templateElements: [{ type: "text", name: "q2" }]
-          },
-          { type: "text", name: "q3" }
-        ] },
-    ]
-  });
-  const q3 = survey.getQuestionByName("q3");
-  assert.equal(q3.no, "2.", "q3.no #1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.addPanel();
-  panel.addPanel();
-  assert.equal(q3.no, "2.", "q3.no #2");
-});
-QUnit.test("Test displayValue() function in dynamic panel, Bug#9635", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        templateElements: [
-          {
-            type: "checkbox",
-            name: "q1",
-            choices: ["item1", "item2", "item3"],
-            showOtherItem: true
-          },
-          {
-            type: "text",
-            name: "q2",
-            setValueExpression: "displayValue('q1',{panel.q1})"
-          }
-        ]
-      }]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  panel.addPanel();
-  const q1 = panel.panels[0].getQuestionByName("q1");
-  const q2 = panel.panels[0].getQuestionByName("q2");
-  q1.value = ["item1", "other"];
-  assert.equal(q2.value, "item1, Other (describe)", "Other as other display value");
-  q1.otherValue = "other comment";
-  assert.equal(q2.value, "item1, other comment", "Other is comment value");
-  assert.deepEqual(panel.value, [{ q1: ["item1", "other"], "q1-Comment": "other comment", q2: "item1, other comment" }], "value is set correctly");
-});
-QUnit.test("Question title width for dynamic panels #2295", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "text", name: "question1", titleLocation: "left" },
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 1,
-        templateQuestionTitleLocation: "left",
-        templateElements: [
-          { type: "text", name: "q1" }
-        ]
-      }]
-  });
-  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  let q1 = qPanel.panels[0].getQuestionByName("q1");
-  assert.equal(q1.titleWidth, undefined, "q1 titleWidth, #1");
-  const page = survey.pages[0];
-  page.questionTitleWidth = "100px";
-  assert.equal(page.getQuestionTitleWidth(), "100px", "page titleWidth, #1");
-  assert.equal(q1.titleWidth, "100px", "q1 titleWidth, #2");
-  qPanel.templateQuestionTitleWidth = "200px";
-  assert.equal(qPanel.panels[0].getQuestionTitleWidth(), "200px", "panel titleWidth, #1");
-  assert.equal(q1.titleWidth, "200px", "q1 titleWidth, #4");
-  qPanel.addPanel();
-  assert.equal(qPanel.panels[0].getQuestionTitleWidth(), "200px", "panel titleWidth, #2");
-  q1 = qPanel.panels[0].getQuestionByName("q1");
-  assert.equal(q1.titleWidth, "200px", "q1 titleWidth, #5");
-});
-QUnit.test("Question title width for dynamic panels - property.visibleIf #2295", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        templateElements: [
-          { type: "text", name: "q1" }
-        ]
-      }]
-  });
-  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const prop = Serializer.findProperty("paneldynamic", "templateQuestionTitleWidth");
-  assert.equal(prop.isVisible("", qPanel), false, "#1");
-  qPanel.templateQuestionTitleLocation = "left";
-  assert.equal(prop.isVisible("", qPanel), true, "#2");
-  qPanel.templateQuestionTitleLocation = "top";
-  assert.equal(prop.isVisible("", qPanel), false, "#3");
-  const q1 = qPanel.template.getQuestionByName("q1");
-  q1.titleLocation = "left";
-  assert.equal(prop.isVisible("", qPanel), true, "#4");
-  q1.titleLocation = "top";
-  assert.equal(prop.isVisible("", qPanel), false, "#5");
-});
-QUnit.test("Question title location for dynamic panels - update dynamically #2295", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "q1" }
-        ]
-      }]
-  });
-  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel = <PanelModel>qPanel.panels[0];
-  const q1 = panel.getQuestionByName("q1");
-  const leftClass = q1.cssClasses.titleLeftRoot;
-  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#1");
-  qPanel.templateQuestionTitleLocation = "left";
-  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#2");
-  qPanel.templateQuestionTitleLocation = "default";
-  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#3");
-  survey.pages[0].questionTitleLocation = "left";
-  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#4");
-});
-QUnit.test("Question title location for dynamic panels, bypass dynamic panel titleLocation Bug#10452", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 1,
-        templateElements: [
-          { type: "text", name: "q1" }
-        ]
-      }]
-  });
-  const page = survey.pages[0];
-  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel = <PanelModel>qPanel.panels[0];
-  const q1 = panel.getQuestionByName("q1");
-  assert.equal(q1.getTitleLocation(), "top", "titleLocation #1");
-  qPanel.templateQuestionTitleLocation = "left";
-  assert.equal(q1.getTitleLocation(), "left", "titleLocation #2");
-  q1.titleLocation = "top";
-  assert.equal(q1.getTitleLocation(), "top", "titleLocation #3");
-  qPanel.templateQuestionTitleLocation = "default";
-  assert.equal(q1.getTitleLocation(), "top", "titleLocation #4");
-  q1.titleLocation = "default";
-  assert.equal(q1.getTitleLocation(), "top", "titleLocation #5");
-  page.questionTitleLocation = "left";
-  assert.equal(q1.getTitleLocation(), "left", "titleLocation #6");
-  qPanel.titleLocation = "hidden";
-  assert.equal(q1.getTitleLocation(), "left", "titleLocation #7");
-  qPanel.titleLocation = "top";
-  assert.equal(q1.getTitleLocation(), "left", "titleLocation #8");
-  page.questionTitleLocation = "top";
-  assert.equal(q1.getTitleLocation(), "top", "titleLocation #9");
-  page.questionTitleLocation = "left";
-  assert.equal(q1.getTitleLocation(), "left", "titleLocation #10");
-  page.questionTitleLocation = "default";
-  assert.equal(q1.getTitleLocation(), "top", "titleLocation #11");
-});
-QUnit.test("getFirstErrorInputElementId doesn't work correctly for panel dynamic", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 2,
-        templateElements: [
-          { type: "text", name: "q1", isRequired: true }
-        ]
-      }]
-  });
-
-  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const checkFunc = (): string => {
-    return qPanel["getFirstErrorInputElementId"]();
-  };
-  const panel1 = <PanelModel>qPanel.panels[0];
-  const q1 = panel1.getQuestionByName("q1");
-  const panel2 = <PanelModel>qPanel.panels[1];
-  const q2 = panel2.getQuestionByName("q1");
-  survey.tryComplete();
-  assert.equal(checkFunc(), q1.inputId, "check first panel #1");
-  q1.value = "1";
-  assert.equal(checkFunc(), q2.inputId, "check first panel #2");
-});
-QUnit.test("Using resetValueIf, visibleIf & default value for a question in dynamic panel may leads to infitive loop, Bug#9956", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rPanel",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "paneldynamic",
-            name: "dPanel",
-            templateElements: [
-              { type: "text", name: "q1", defaultValue: 100, resetValueIf: "{panel.q2} = 200 || {panel.q3} != 300" },
-              { type: "text", name: "q2", defaultValue: 200, resetValueIf: "{panel.q1} = 100 || {panel.q4} != 10" },
-              { type: "text", name: "q3", defaultValueExpression: "{rPanel[0].dPanel[0].q1} + {panel.q2} + {panel.q4}" },
-              { type: "text", name: "q4" }
-            ]
-          }]
-      }]
-  });
-  const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
-  const dPanel = <QuestionPanelDynamicModel>rPanel.panels[0].getQuestionByName("dPanel");
-  dPanel.addPanel();
-  const panel = dPanel.panels[0];
-  assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #1");
-  assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #1");
-  assert.equal(panel.getQuestionByName("q3").value, 300, "q3 value, #1");
-  panel.getQuestionByName("q4").value = 300;
-  assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #2");
-  assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #2");
-  assert.equal(panel.getQuestionByName("q3").value, 600, "q3 value, #2");
-  panel.getQuestionByName("q1").value = 1;
-  panel.getQuestionByName("q2").value = 2;
-  panel.getQuestionByName("q4").value = 400;
-  assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #3");
-  assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #3");
-  assert.equal(panel.getQuestionByName("q3").value, 700, "q3 value, #3");
-});
-QUnit.test("paneldynamic.getValueGetterContext()", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "rPanel",
-        panelCount: 1,
-        templateElements: [
-          { type: "dropdown", name: "q1", choices: [{ value: 1, text: "item1" }] },
-          {
-            type: "paneldynamic",
-            name: "dPanel",
-            templateElements: [
-              { type: "dropdown", name: "q2", choices: [1, { value: 2, text: "item2" }] },
-            ]
-          }]
-      }]
-  });
-  survey.data = { rPanel: [{ q1: 1, dPanel: [{ q2: 2 }, { q2: 2 }] }], var1: "b" };
-  const getter = new ValueGetter();
-  const context = survey.getValueGetterContext();
-  assert.equal(getter.getValue("rPanel[0].q1", context), 1, "#1");
-  assert.equal(getter.getDisplayValue("rPanel[0].q1", context), "item1", "text #1");
-  assert.equal(getter.getValue("rPanel[0].dPanel[1].q2", context), 2, "#2");
-  assert.equal(getter.getDisplayValue("rPanel[0].dPanel[1].q2", context), "item2", "text #2");
-  const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
-  const panelContext = (<any>rPanel.panels[0].data).getValueGetterContext();
-  assert.equal(getter.getValue("panel.q1", panelContext), 1, "panel context #1");
-  assert.equal(getter.getValue("var1", panelContext), "b", "panel context #2");
-});
-QUnit.test("paneldynamic.panelCountExpression custom property, Bug#10171", function (assert) {
-  Serializer.addProperty("paneldynamic", {
-    name: "panelCountExpression",
-    type: "condition",
-    category: "logic",
-    onExecuteExpression: (obj, res) => {
-      obj.panelCount = res;
-    }
-  });
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "text",
-        "name": "question1",
-        "defaultValue": 1
-      },
-      {
-        "type": "paneldynamic",
-        "name": "question2",
-        "panelCountExpression": "{question1}",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question2");
-  assert.equal(panel.panelCount, 1, "panelCount #1");
-  panel.removePanel(0);
-  assert.equal(panel.panelCount, 1, "panelCount #2");
-  panel.addPanelUI();
-  assert.equal(panel.panelCount, 1, "panelCount #3");
-  survey.setValue("question1", 2);
-  assert.equal(panel.panelCount, 2, "panelCount #4");
-  Serializer.removeProperty("paneldynamic", "panelCountExpression");
-});
-QUnit.test("paneldynamic nested question valueName & clearIncorrectValues, Bug#10206", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1",
-            "valueName": "q1Value"
-          }
-        ]
-      }
-    ]
-  });
-  survey.data = {
-    panel: [{ q1Value: 1, }, { q1Value: 2 }]
-  };
-  assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #1");
-  survey.clearIncorrectValues();
-  assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #2");
-});
-QUnit.test("survey.getData vs panel inside tempalte panel, Bug#10230", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "d1",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1"
-          }
-        ]
-      },
-      {
-        "type": "paneldynamic",
-        "name": "d2",
-        "templateElements": [
-          {
-            "type": "panel",
-            "name": "panel1",
-            "elements": [
-              {
-                "type": "text",
-                "name": "q2"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  });
-  survey.data = {
-    d1: [{ q1: 1, }, { q1: 2 }],
-    d2: [{ q2: 1 }, { q2: 2 }]
-  };
-  assert.deepEqual(survey.getData({ includePanels: true }),
-    { d1: [{ q1: 1 }, { q1: 2 }], d2: [{ panel1: { q2: 1 } }, { panel1: { q2: 2 } }] }
-    , "survey.getData #1");
-});
-QUnit.test("parentQuestion inside custom function, Bug#10210", function (assert) {
-  let notParentCalls = 0;
-  let parentCalls = 0;
-  function customFunc(params: any[]): any {
-    if (!this.question.parentQuestion) {
-      notParentCalls++;
-    } else {
-      parentCalls++;
-    }
-    return 1;
-  }
-  FunctionFactory.Instance.register("customFunc", customFunc);
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "d1",
-        "panelCount": 1,
-        "templateElements": [
-          {
-            "type": "expression",
-            "name": "q1",
-            "expression": "customFunc()"
-          }
-        ]
-      }
-    ]
-  });
-  assert.equal(notParentCalls, 0, "notParentCalls");
-  assert.equal(parentCalls > 0, true, "parentCalls #1");
-  //assert.equal(parentCalls, 1, "parentCalls #1");
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
-  const prevCalls = parentCalls;
-  panel.addPanel();
-  assert.equal(notParentCalls, 0, "notParentCalls");
-  assert.equal(parentCalls > prevCalls, true, "parentCalls #2");
-  /*
-  assert.equal(parentCalls, 2, "parentCalls #2");
-  panel.addPanel();
-  assert.equal(parentCalls, 3, "parentCalls #3");
-  panel.addPanel();
-  assert.equal(parentCalls, 4, "parentCalls #4");
-  */
-});
-QUnit.test("SurveyError.notificationType & validate in panel dynamic,Issue#9085", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic", name: "panel", panelCount: 2,
-        templateElements: [
-          { name: "q1", type: "text", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] },
-          { name: "q2", type: "text" }
-        ]
-      }
-    ]
-  });
-  const panel = <QuestionMatrixDynamicModel>survey.getQuestionByName("panel");
-  const panels = panel.panels;
-  const pnl1_q1 = panels[0].getQuestionByName("q1");
-  const pnl2_q1 = panels[1].getQuestionByName("q1");
-  pnl1_q1.value = 7;
-  pnl2_q1.value = 12;
-  let erroredQuestionName = "";
-  const callbackFunc = (res: boolean, question: Question) => {
-    erroredQuestionName = question?.name || "";
-  };
-  assert.equal(survey.currentPage.validate(true, true, callbackFunc), false, "There is an error");
-  assert.equal(erroredQuestionName, "q1", "The matrix question is returned");
-  assert.equal(pnl1_q1.errors.length, 1, "There is no error, cell1");
-  assert.equal(pnl1_q1["hasCssError"](), false, "There is no css error, cell1");
-  assert.equal(pnl1_q1["hasCssError"](true), true, "There is a warning, cell1");
-  assert.equal(pnl2_q1.errors.length, 2, "There is an error, cell2");
-  assert.equal(pnl2_q1["hasCssError"](), true, "There is css error, cell2");
-  assert.equal(pnl2_q1["hasCssError"](true), true, "There is css error, cell2");
-  pnl2_q1.value = 8;
-  assert.equal(pnl2_q1.errors.length, 1, "There is a warning, cell2");
-  assert.equal(pnl2_q1["hasCssError"](), false, "There is css error, cell2");
-  assert.equal(pnl2_q1["hasCssError"](true), true, "There is a css warning, cell2");
-  assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
-  assert.deepEqual(survey.data, { panel: [{ q1: 7 }, { q1: 8 }] }, "The data is correct");
-});
-QUnit.test("Panel dynamic vs multiple text in expression, Bug#10230", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "d1",
-        "panelCount": 1,
-        "templateElements": [
-          { "type": "multipletext", "name": "q1", items: [{ name: "item1" }, { name: "item2" }] },
-          { type: "text", name: "q2", setValueExpression: "{panel.q1.item1} + {panel.q1.item2}" }
-        ]
-      }
-    ]
-  });
-  const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
-  const panel = dp.panels[0];
-  const q1 = <QuestionMultipleTextModel>panel.getQuestionByName("q1");
-  const q2 = <QuestionTextModel>panel.getQuestionByName("q2");
-  q1.items[0].value = 1;
-  assert.equal(q2.value, 1, "q1.item1 = 1");
-  q1.items[1].value = 2;
-  assert.equal(q2.value, 3, "q1.item1 = 1, q1.item2 = 2");
-});
-QUnit.test("Panel dynamic vs visibleIf & dots in question names, Bug#10505", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "Q088"
-          },
-          {
-            "type": "boolean",
-            "name": "Q088.5"
-          },
-          {
-            "type": "text",
-            "name": "Q090",
-            "visibleIf": "{panel.Q088.5} = false"
-          }
-        ],
-        "panelCount": 1
-      }
-    ]
-  });
-  const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  const panel = dp.panels[0];
-  const q088 = <QuestionMultipleTextModel>panel.getQuestionByName("Q088");
-  const q088_5 = <QuestionTextModel>panel.getQuestionByName("Q088.5");
-  const q090 = <QuestionTextModel>panel.getQuestionByName("Q090");
-  assert.equal(q090.isVisible, false, "q090 visible #1");
-  q088_5.value = false;
-  assert.equal(q090.isVisible, true, "q090 visible #2");
-  q088.value = "0123456789";
-  assert.equal(q090.isVisible, true, "q090 visible #3");
-  q088_5.value = true;
-  assert.equal(q090.isVisible, false, "q090 visible #4");
-  q088_5.value = false;
-  assert.equal(q090.isVisible, true, "q090 visible #5");
-});
-QUnit.test("paneldynamic getPanelInDesignMode", function (assert) {
-  assert.notOk(new QuestionTextModel("q1").getPanelInDesignMode(), "text returns null");
-  const q1 = new QuestionPanelDynamicModel("q1");
-  assert.strictEqual(q1.getPanelInDesignMode(), q1.template, "returns tempalte");
-});
-QUnit.test("paneldynamic firstExpanded should not call scrollElementToTop on initial build, Bug#10998", function (assert) {
-  const done = assert.async();
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "relatives",
-        "templateElements": [{ "type": "text", "name": "q1" }],
-        "templateTitle": "Panel #{panelIndex}",
-        "panelCount": 3,
-        "panelsState": "firstExpanded"
-      }
-    ]
-  });
-  let scrollCalled = false;
-  survey.scrollElementToTop = (() => { scrollCalled = true; }) as any;
-  const q = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-  q.onFirstRendering();
-  assert.equal(q.panels[0].state, "expanded", "first panel is expanded");
-  assert.equal(q.panels[1].state, "collapsed", "second panel is collapsed");
-  setTimeout(() => {
-    assert.equal(scrollCalled, false, "scrollElementToTop should not be called on initial panel build");
-    done();
-  }, 50);
-});
-QUnit.test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "panel",
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1"
-          },
-          {
-            "type": "expression",
-            "name": "q2",
-            "expression": "{panel.q1} + {prevPanel.q1} + {nextPanel.q1}"
-          }
-        ],
-        "panelCount": 4
-      }
-    ]
-  });
-
-  const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-  dp.panels[0].getQuestionByName("q1").value = 10;
-  dp.panels[1].getQuestionByName("q1").value = 20;
-  dp.panels[2].getQuestionByName("q1").value = 30;
-  dp.panels[3].getQuestionByName("q1").value = 40;
-  assert.equal(dp.panels[0].getQuestionByName("q2").value, 10 + 20, "panel 0: only nextPanel");
-  assert.equal(dp.panels[1].getQuestionByName("q2").value, 10 + 20 + 30, "panel 1: prevPanel & nextPanel");
-  assert.equal(dp.panels[2].getQuestionByName("q2").value, 20 + 30 + 40, "panel 2: prevPanel & nextPanel");
-  assert.equal(dp.panels[3].getQuestionByName("q2").value, 30 + 40, "panel 3: only prevPanel");
-});
-QUnit.test("Nested paneldynamic editing a value. The bug was in V1, add unit test only, Bug#10674", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "rootPanel",
-        "panelCount": 1,
-        "templateElements": [
-          {
             "type": "paneldynamic",
-            "name": "innerPanel",
-            "panelCount": 5,
-            "templateElements": [
-              {
-                "type": "text",
-                "name": "q1",
-                "valueName": "q1Value"
-              }
-            ] }]
-      }
-    ]
-  });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
-  const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
-  assert.equal(innerPanel.panelCount, 5, "There are 5 inner panels");
-  innerPanel.panels[0].getQuestionByName("q1").value = 10;
-  assert.equal(innerPanel.panelCount, 5, "There are still 5 inner panels");
-  assert.deepEqual(survey.data, { rootPanel: [{ innerPanel: [{ q1Value: 10 }, {}, {}, {}, {}] }] }, "set value in the first inner panel");
-});
-QUnit.test("Removing panels in the nested panel, Bug#10739", function (assert) {
-  const survey = new SurveyModel({
-    "elements": [
-      {
-        "type": "paneldynamic",
-        "name": "rootPanel",
-        "panelCount": 1,
-        "templateElements": [
-          {
-            "type": "text",
-            "name": "q1",
-          },
-          {
-            "type": "paneldynamic",
-            "name": "innerPanel",
             "panelCount": 2,
             "templateElements": [
               {
+                "name": "q2",
                 "type": "text",
-                "name": "q2"
               }
-            ] }]
-      }
-    ]
+            ]
+          }] }] });
+    expect(survey.currentPageNo).toLooseEqual(0);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    q2.focus();
+    expect(survey.currentPageNo).toLooseEqual(1);
   });
-  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
-  const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
-  assert.equal(innerPanel.panelCount, 2, "There are 2 inner panels");
-  innerPanel.removePanel(0);
-  assert.equal(innerPanel.panelCount, 1, "There is 1 inner panel");
-  innerPanel.removePanel(0);
-  assert.equal(innerPanel.panelCount, 0, "There is no inner panel");
-  const q1 = rootPanel.panels[0].getQuestionByName("q1");
-  q1.value = 10;
-  assert.equal(innerPanel.panelCount, 0, "There is still no inner panel");
-});
-QUnit.test("ProcessValue.hasValue to access panel array in design mode", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q1",
-        templateElements: [
-          {
-            type: "text",
-            name: "a",
-          },
-          {
-            type: "text",
-            name: "b",
-          }
-        ],
-      },
-      { type: "text", name: "q2" }
-    ]
-  });
-  survey.setDesignMode(true);
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q2");
-  const q2Context = q2.getValueGetterContext();
-  const processValue = new ProcessValue(q2Context);
-  assert.equal(processValue.hasValue("q1[0].a"), true, "there is a question a");
-  assert.equal(processValue.hasValue("q1[0].c"), false, "there is no question c");
-  panel.panelCount = 0;
-  assert.equal(processValue.hasValue("q1[0].a"), true, "there is a question a, #2");
-  assert.equal(processValue.hasValue("q1[0].c"), false, "there is no question c, #2");
-});
-QUnit.test("Exception on validation panel dynamic if questions in validation are not exists", (assert) => {
-  const survey = new SurveyModel({
-    "elements": [
-      {
+  test("templateErrorLocation property", () => {
+    const survey = new SurveyModel({
+      "elements": [{
+        "name": "panel",
         "type": "paneldynamic",
-        "name": "panel1",
-        "titleLocation": "top",
+        "panelCount": 2,
         "templateElements": [
           {
-            "type": "matrixdynamic",
-            "name": "matrix1",
-            "validators": [
-              {
-                "type": "expression",
-                "expression": "{panel.nonfound3} = sum({panel.nonfound2},{panel.nonfound1})"
-              }
-            ],
-            "columns": [
-              {
-                "name": "col1",
-                "cellType": "text",
-                "validators": [
-                  {
-                    "type": "expression",
-                    "expression": "{row.col1} <> 0"
-                  }
-                ],
-                "totalType": "sum"
-              },
-              {
-                "name": "col2",
-                "cellType": "text",
-                "validators": [
-                  {
-                    "type": "expression",
-                    "expression": "{row.col2} <> 0"
-                  }
-                ],
-                "totalType": "sum"
-              }
-            ],
-            "cellType": "text",
-            "rowCount": 1,
-            "minRowCount": 1,
-          }
-        ],
-        "panelCount": 1,
-        "minPanelCount": 1,
-      }
-    ],
-    "checkErrorsMode": "onValueChanged"
-  });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const matrix = panel.panels[0].getQuestionByName("matrix1");
-  const row = matrix.visibleRows[0];
-  const cellQuestion = row.cells[0].question;
-  cellQuestion.value = 10;
-  assert.equal(cellQuestion.errors.length, 0, "There is no errors on");
-});
-
-QUnit.test("question valueName vs two paneldynamic & question triggers", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel1",
-        valueName: "panelA",
-        panelCount: 2,
-        templateElements: [
-          { name: "col1", type: "text", resetValueIf: "{panel.col2} = 'a'" },
-          { name: "col2", type: "radiogroup", choices: ["a", "b"] }
-        ]
-      },
-      { type: "paneldynamic",
-        name: "panel2",
-        valueName: "panelA",
-        panelCount: 2,
-        templateElements: [
-          { name: "col2", type: "radiogroup", choices: ["a", "b"] },
-          { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
-          { name: "col4", type: "text" }
-        ]
-      },
-      { type: "paneldynamic",
-        name: "panel3",
-        valueName: "panelA",
-        panelCount: 2,
-        templateElements: [
-          { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
-        ]
-      }
-    ]
-  });
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
-  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
-  panel1.panels[0].getQuestionByName("col1").value = "m1_r1_col1";
-  panel1.panels[1].getQuestionByName("col1").value = "m1_r2_col1";
-  panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
-  panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
-  panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
-  panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
-  panel1.panels[0].getQuestionByName("col2").value = "a";
-  panel2.panels[1].getQuestionByName("col2").value = "a";
-  assert.equal(panel1.panels[0].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row1, col1");
-  assert.equal(panel1.panels[1].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row2, col1");
-  assert.equal(panel2.panels[0].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row1, col3");
-  assert.equal(panel2.panels[1].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row2, col3");
-  assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
-  assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
-});
-
-QUnit.test("question valueName vs matrixdynamic and paneldynamic & question triggers", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "matrixdynamic",
-        name: "matrix1",
-        valueName: "panelA",
-        rowCount: 2,
-        columns: [
-          { name: "col1", type: "text", resetValueIf: "{row.col2} = 'a'" },
-          { name: "col2", type: "radiogroup", choices: ["a", "b"] }
-        ]
-      },
-      { type: "paneldynamic",
-        name: "panel2",
-        valueName: "panelA",
-        panelCount: 2,
-        templateElements: [
-          { name: "col2", type: "radiogroup", choices: ["a", "b"] },
-          { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
-          { name: "col4", type: "text" }
-        ]
-      },
-      { type: "paneldynamic",
-        name: "panel3",
-        valueName: "panelA",
-        panelCount: 2,
-        templateElements: [
-          { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
-        ]
-      }
-    ]
-  });
-  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
-  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
-  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
-  matrix1.visibleRows[0].getQuestionByName("col1").value = "m1_r1_col1";
-  matrix1.visibleRows[1].getQuestionByName("col1").value = "m1_r2_col1";
-  panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
-  panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
-  panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
-  panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
-  matrix1.visibleRows[0].getQuestionByName("col2").value = "a";
-  panel2.panels[1].getQuestionByName("col2").value = "a";
-  assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").isEmpty(), true, "Check value for panel1, row1, col1");
-  assert.equal(matrix1.visibleRows[1].getQuestionByName("col1").isEmpty(), true, "Check value for matrix, row2, col1");
-  assert.equal(panel2.panels[0].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row1, col3");
-  assert.equal(panel2.panels[1].getQuestionByName("col3").isEmpty(), true, "Check value for panel2, row2, col3");
-  assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
-  assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
-});
-
-QUnit.test("paneldynamic shared question value", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "paneldynamic",
-        name: "panel1",
-        panelCount: 2,
-        templateElements: [
-          { name: "q1", type: "text", valueName: "qa" },
-          { name: "q2", type: "text", valueName: "qa" }
-        ]
-      }
-    ]
-  });
-
-  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-
-  const q1 = panel1.panels[0].getQuestionByName("q1");
-  const q2 = panel1.panels[0].getQuestionByName("q2");
-
-  q1.value = "value1";
-  assert.equal(q2.value, "value1", "q2.value equals to q1.value");
-});
-
-QUnit.test("paneldynamic + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q1",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "radiogroup",
-            name: "q2",
-            choices: ["Item 1", "Item 2", "Item 3"],
-            showOtherItem: true,
-            isRequired: true
+            "name": "q1",
+            "type": "text",
           }
         ]
-      }
-    ]
+      }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    expect(q1.getErrorLocation(), "take from survey").toLooseEqual("top");
+    panel.errorLocation = "bottom";
+    expect(q1.getErrorLocation(), "take from question.errorLocation").toLooseEqual("bottom");
+    panel.templateErrorLocation = "top";
+    expect(q1.getErrorLocation(), "take from question.templateErrorLocation").toLooseEqual("top");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
-  radioQ.value = "other";
-  survey.tryComplete();
-  assert.equal(radioQ.errors.length, 1, "Required error is shown for the radiogroup");
-  radioQ.otherValue = "my other value";
-  assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
-});
-QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + radiogroup with showOtherItem clears required error on other value change, Bug#10964", function(assert) {
-  const survey = new SurveyModel({
-    checkErrorsMode: "onValueChanged",
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q1",
-        panelCount: 1,
-        templateElements: [
+  test("paneldynamic.removePanelUI & confirmActionAsync, #6736", () => {
+    const prevAsync = settings.confirmActionAsync;
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+            },
+          ]
+        },
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.confirmDelete = true;
+    panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+    expect(panel.panelCount, "There are 3 panels by default").toLooseEqual(3);
+    let f_resFunc = (res: boolean): void => {};
+    settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void): boolean => {
+      f_resFunc = resFunc;
+      return true;
+    };
+    panel.removePanelUI(1);
+    expect(panel.panelCount, "We are waiting for async function").toLooseEqual(3);
+    f_resFunc(false);
+    expect(panel.panelCount, "confirm action return false").toLooseEqual(3);
+    panel.removePanelUI(1);
+    expect(panel.panelCount, "We are waiting for async function, #2").toLooseEqual(3);
+    f_resFunc(true);
+    expect(panel.panelCount, "confirm action return true").toLooseEqual(2);
+    expect(panel.value, "Row is deleted correctly").toEqualValues([{ q1: 1 }, { q1: 3 }]);
+
+    settings.confirmActionAsync = prevAsync;
+  });
+  test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOnDelete", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 2,
+          defaultPanelValue: { q1: 1, q2: 2 },
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel.value, "Initial value is correct").toEqualValues([{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }]);
+    expect(panel.isRequireConfirmOnDelete(0), "#1").toLooseEqual(false);
+    panel.confirmDelete = true;
+    panel.panels[0].getQuestionByName("q1").value = 3;
+    expect(panel.isRequireConfirmOnDelete(0), "#2").toLooseEqual(true);
+    expect(panel.isRequireConfirmOnDelete(1), "#3").toLooseEqual(false);
+    expect(panel.isRequireConfirmOnDelete(-1), "#4").toLooseEqual(false);
+    expect(panel.isRequireConfirmOnDelete(2), "#5").toLooseEqual(false);
+
+    panel.panels[0].getQuestionByName("q1").clearValue();
+    panel.panels[0].getQuestionByName("q2").clearValue();
+    expect(panel.isRequireConfirmOnDelete(0), "#6").toLooseEqual(false);
+  });
+  test("panel property in custom function", () => {
+    const panelCustomFunc = function (params: any) {
+      if (!this.panel) return "";
+      const q = this.panel.getQuestionByName(params[0]);
+      if (q && !q.isEmpty()) return q.value + q.value;
+      return "";
+    };
+    FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            { name: "q1", type: "text" },
+            {
+              name: "q2",
+              type: "expression",
+              expression: "panelCustomFunc('q1')",
+            },
+          ],
+          panelCount: 2,
+        },
+      ],
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel = question.panels[0];
+    panel.getQuestionByName("q1").value = "abc";
+    expect(panel.getQuestionByName("q2").value, "Custom function with row property works correctly").toLooseEqual("abcabc");
+    FunctionFactory.Instance.unregister("panelCustomFunc");
+  });
+  test("nested panel.panelCount&expression question", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1"
+            },
+            {
+              "type": "paneldynamic",
+              "name": "panel2",
+              "templateElements": [
+                {
+                  "type": "expression",
+                  "name": "q2",
+                  "expression": "{panelIndex}"
+                }
+              ],
+              "panelCount": 3
+            }
+          ],
+          "panelCount": 1
+        }
+      ]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(rootPanel.panels.length).toLooseEqual(1);
+    const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
+    expect(panel1.panels.length, "It should be 3 panels").toLooseEqual(3);
+  });
+  test("defaultExpression vs panelIndex & adding/removing rows, bug#10521", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            { "type": "text", "name": "q1" },
+            { "type": "text", "name": "q2", defaultValueExpression: "{panelIndex}" },
+            { "type": "expression", "name": "q3", expression: "{panelIndex}" },
+          ],
+          "panelCount": 2
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.panels[0].getQuestionByName("q1").value = "a";
+    panel.panels[1].getQuestionByName("q1").value = "b";
+    panel.addPanel();
+    panel.panels[2].getQuestionByName("q1").value = "c";
+    expect(panel.panels.length, "There are three panels").toLooseEqual(3);
+    expect(panel.panels[0].getQuestionByName("q2").value, "q2.value #1").toLooseEqual("0");
+    expect(panel.panels[1].getQuestionByName("q2").value, "q2.value #2").toLooseEqual("1");
+    expect(panel.panels[2].getQuestionByName("q2").value, "q2.value #3").toLooseEqual("2");
+    panel.panels[2].getQuestionByName("q2").inputValue = "2";
+    panel.removePanel(0);
+    expect(panel.panels.length, "There are two panels").toLooseEqual(2);
+    expect(panel.panels[0].getQuestionByName("q2").value, "q2.value #4").toLooseEqual("0");
+    expect(panel.panels[1].getQuestionByName("q2").value, "q2.value #5").toLooseEqual("1");
+    panel.removePanel(0);
+    expect(panel.panels.length, "There is one panel").toLooseEqual(1);
+    expect(panel.panels[0].getQuestionByName("q1").value, "q1.value #6").toLooseEqual("c");
+    expect(panel.panels[0].getQuestionByName("q2").value, "q2.value #6").toLooseEqual("0");
+  });
+  test("templateElements question.onHidingContent", () => {
+    const survey = new SurveyModel({
+      "elements": [{
+        "name": "panel",
+        "type": "paneldynamic",
+        "panelCount": 2,
+        "templateElements": [
           {
-            type: "radiogroup",
-            name: "q2",
-            choices: ["Item 1", "Item 2", "Item 3"],
-            showOtherItem: true,
-            isRequired: true
+            "name": "q1",
+            "type": "text",
           }
         ]
+      }]
+    });
+    let counter = 0;
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+    panel.panels[1].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+    survey.doComplete();
+    expect(counter, "on do complete").toLooseEqual(2);
+  });
+  test("templateElements question.onHidingContent", () => {
+    const survey = new SurveyModel({
+      "elements": [{
+        "name": "panel",
+        "type": "paneldynamic",
+        "panelCount": 2,
+        "displayMode": "tab",
+        "templateElements": [
+          {
+            "name": "q1",
+            "type": "text",
+          }
+        ]
+      }]
+    });
+    let counter = 0;
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+    panel.currentIndex = 1;
+    expect(counter, "Go to another tab").toLooseEqual(1);
+  });
+  test("nested panel.panelCount&expression question", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "valueName": "shared",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "A"
+            }
+          ],
+          "panelCount": 1
+        },
+        {
+          "type": "paneldynamic",
+          "name": "panel2",
+          "valueName": "shared",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "B"
+            },
+            {
+              "type": "text",
+              "name": "C",
+              "defaultValueExpression": "{panel.A}",
+              "readOnly": true
+            },
+            {
+              "type": "text",
+              "name": "D",
+              "defaultValueExpression": "{panel.B}+{panel.C}",
+              "readOnly": true
+            },
+            {
+              "type": "expression",
+              "name": "E",
+              "expression": "{panel.B}+{panel.C}"
+            }
+          ]
+        }
+      ]
+    });
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel1.panels[0].getQuestionByName("A").value = 1;
+    const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+    const panel = panel2.panels[0];
+    panel.getQuestionByName("B").value = 2;
+    expect(panel.getQuestionByName("C").value, "C").toLooseEqual(1);
+    expect(panel.getQuestionByName("D").value, "D").toLooseEqual(3);
+    expect(panel.getQuestionByName("E").value, "E").toLooseEqual(3);
+  });
+  test("Footer css for nested panels", () => {
+    const footerCss = "abcd";
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" },
+            {
+              type: "paneldynamic",
+              name: "qq",
+              panelCount: 1,
+              templateElements: [{ type: "text", name: "q2" }],
+            },
+          ],
+        },
+      ],
+    });
+    setOldTheme(survey);
+    survey.css = {
+      panel: {
+        footer: footerCss
       }
-    ]
+    };
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
+    expect(question.panels[0].getFooterToolbar().containerCss, "root footer container css").toLooseEqual(footerCss);
+    const nested = <QuestionPanelDynamicModel>question.panels[0].getQuestionByName("qq");
+    expect(nested.panels[0].getFooterToolbar().containerCss, "nested footer container css on loading").toLooseEqual(footerCss);
+    nested.addPanel();
+    expect(nested.panels[1].getFooterToolbar().containerCss, "nested footer container css on creating").toLooseEqual(footerCss);
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
-  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
-  radioQ.value = "other";
-  radioQ.otherValue = "my other value 1";
-  assert.equal(radioQ.errors.length, 0, "There is no errors");
-  radioQ.otherValue = "";
-  assert.equal(radioQ.errors.length, 1, "Required error is shown for the radiogroup");
-  radioQ.otherValue = "my other value 2";
-  assert.equal(radioQ.errors.length, 0, "Required error is cleared after entering the Other value");
-});
-QUnit.test("Fire onValueChanged, onDynamicPanelValueChanging, onDynamicPanelValueChanged on comment change, bug#11001", function(assert) {
-  const survey = new SurveyModel({
-    pages: [
-      {
-        name: "page1",
-        elements: [
-          {
-            type: "paneldynamic",
-            name: "question1",
-            panelCount: 1,
-            templateElements: [
-              {
-                type: "radiogroup",
-                name: "question2",
-                showCommentArea: true,
-                choices: ["Item 1", "Item 2", "Item 3"],
-              },
-            ],
-          },
-        ],
-      },
-    ],
+  test("question.resetValueIf, basic functionality", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { name: "q1", type: "text" },
+            { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1" },
+            { name: "q3", type: "text" }
+          ]
+        }
+      ]
+    });
+    const panel = survey.getQuestionByName("panel");
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    const q3 = panel.panels[0].getQuestionByName("q3");
+    expect(q2.resetValueIf, "Load from JSON").toLooseEqual("{panel.q1} = 1");
+    q2.value = "abc";
+    q1.value = 2;
+    expect(q2.value, "value is set").toLooseEqual("abc");
+    q1.value = 1;
+    expect(q2.isEmpty(), "value is cleared").toLooseEqual(true);
+    q2.value = "edf";
+    expect(q2.value, "value is set, #2").toLooseEqual("edf");
+    q3.value = 3;
+    expect(q2.value, "value is stay, #3").toLooseEqual("edf");
   });
-  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
-  const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("question2");
-
-  const firedEvents: Array<{ event: string, name: string }> = [];
-  survey.onValueChanged.add((sender, options) => {
-    firedEvents.push({ event: "onValueChanged", name: options.name });
-  });
-  survey.onDynamicPanelValueChanging.add((sender, options) => {
-    firedEvents.push({ event: "onDynamicPanelValueChanging", name: options.name });
-  });
-  survey.onDynamicPanelValueChanged.add((sender, options) => {
-    firedEvents.push({ event: "onDynamicPanelValueChanged", name: options.name });
-  });
-
-  radioQ.value = "Item 1";
-  assert.deepEqual(firedEvents, [
-    { event: "onDynamicPanelValueChanging", name: "question2" },
-    { event: "onValueChanged", name: "question1" },
-    { event: "onDynamicPanelValueChanged", name: "question2" }
-  ], "All three events fire on value change with correct name");
-
-  firedEvents.length = 0;
-  radioQ.comment = "some comment";
-  assert.deepEqual(firedEvents, [
-    { event: "onDynamicPanelValueChanging", name: "question2-Comment" },
-    { event: "onValueChanged", name: "question1" },
-    { event: "onDynamicPanelValueChanged", name: "question2-Comment" }
-  ], "All three events fire on comment change with comment suffix in name");
-});
-
-QUnit.test("paneldynamic + checkErrorsMode: onValueChanged + expression validator should not show error on new panel, bug##11002", function(assert) {
-  const survey = new SurveyModel({
-    checkErrorsMode: "onValueChanged",
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "panel1",
-        panelCount: 1,
-        templateElements: [
-          {
-            type: "text",
+  test("question.resetValueIf & quesiton.defaultValueExpression", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [{
             name: "q1",
-            isRequired: true
+            type: "text"
           },
           {
-            type: "slider",
             name: "q2",
-            isRequired: true,
-            validators: [
-              {
-                type: "expression",
-                text: "Value must be >= 75",
-                expression: "{panel.q2} >= 75"
-              }
-            ],
-            min: 70,
-            max: 99,
-            step: 0.1
+            type: "text",
+            resetValueIf: "{panel.q1} = 1",
+            defaultValueExpression: "iif({panel.q3} > 2, {panel.q3}, '')"
+          },
+          {
+            name: "q3", type: "text"
+          }]
+        }
+      ]
+    });
+    const panel = survey.getQuestionByName("panel");
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    const q3 = panel.panels[0].getQuestionByName("q3");
+    q2.value = "abc";
+    q3.value = 3;
+    expect(q2.value, "value is set directly").toLooseEqual("abc");
+    q1.value = 1;
+    expect(q2.value, "value is set from defaultValueExpression").toLooseEqual(3);
+    q2.value = "edf";
+    expect(q2.value, "value is set directly, #2").toLooseEqual("edf");
+    q3.value = 4;
+    expect(q2.value, "value is stay, #3").toLooseEqual("edf");
+  });
+  test("question.resetValueIf based on root and row questions", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { name: "q1", type: "text" },
+            { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1 and {q4} = 4" },
+            { name: "q3", type: "text" }
+          ]
+        },
+        { type: "text", name: "q4" }
+      ]
+    });
+    const panel = survey.getQuestionByName("panel");
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    const q3 = panel.panels[0].getQuestionByName("q3");
+    const q4 = survey.getQuestionByName("q4");
+    q2.value = "abc";
+    q1.value = 2;
+    expect(q2.value, "q2.value #1").toLooseEqual("abc");
+    q1.value = 1;
+    expect(q2.value, "q2.value #2").toLooseEqual("abc");
+    q4.value = 4;
+    expect(q2.isEmpty(), "q2.value #3").toLooseEqual(true);
+    q2.value = "edf";
+    q1.value = 2;
+    expect(q2.value, "q2.value, #4").toLooseEqual("edf");
+    q1.value = 1;
+    expect(q2.isEmpty(), "q2.value #5").toLooseEqual(true);
+  });
+  test("question.setValueIf, basic functionality", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { name: "q1", type: "text" },
+            { name: "q2", type: "text", setValueIf: "{panel.q1} = 1", setValueExpression: "{panel.q1} + {panel.q3}" },
+            { name: "q3", type: "text" }
+          ]
+        }
+      ]
+    });
+    const panel = survey.getQuestionByName("panel");
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    const q3 = panel.panels[0].getQuestionByName("q3");
+    expect(q2.setValueIf, "Load from JSON setValueIf").toLooseEqual("{panel.q1} = 1");
+    expect(q2.setValueExpression, "Load from JSON setValueExpression").toLooseEqual("{panel.q1} + {panel.q3}");
+    q2.value = "abc";
+    q1.value = 2;
+    q3.value = 3;
+    expect(q2.value, "value is set").toLooseEqual("abc");
+    q1.value = 1;
+    expect(q2.value, "value is set correctly").toLooseEqual(4);
+    q2.value = "edf";
+    expect(q2.value, "value is set, #2").toLooseEqual("edf");
+    q3.value = 5;
+    expect(q2.value, "value is set, #3").toLooseEqual(1 + 5);
+    q2.value = "klm";
+    expect(q2.value, "value is set, #4").toLooseEqual("klm");
+    q1.value = 2;
+    expect(q2.value, "value is set, #5").toLooseEqual("klm");
+    q3.value = 5;
+    expect(q2.value, "value is set, #6").toLooseEqual("klm");
+  });
+  test("panel dynamic getPlainData & comment", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            { name: "q1", type: "text" },
+            { name: "q2", type: "text" }
+          ],
+          showCommentArea: true
+        }
+      ]
+    });
+    const q = survey.getQuestionByName("panel");
+    q.value = [{ q1: 1, q2: 2 }, { q1: 3, q2: 4 }];
+    q.comment = "Some comments";
+    const data: any = survey.getPlainData();
+    const qData = data[0].data;
+    expect(qData.length, "There are 3 records").toLooseEqual(3);
+    expect(qData[2].title, "comment title").toLooseEqual("Comment");
+    expect(qData[2].isComment, "comment isComment").toLooseEqual(true);
+  });
+  test("panel dynamic & dropdown with showOtherItem", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { name: "q1", type: "dropdown", choices: [1, 2, 3], showOtherItem: true }
+          ]
+        }
+      ]
+    });
+    const dynamicPanel = survey.getQuestionByName("panel");
+    const panel = dynamicPanel.panels[0];
+    const question = panel.getQuestionByName("q1");
+    question.value = "other";
+    question.otherValue = "comment1";
+    expect(dynamicPanel.value, "panel.value #1").toEqualValues([{ q1: "other", "q1-Comment": "comment1" }]);
+    question.value = 1;
+    expect(question.value, "question value is changed").toLooseEqual(1);
+    expect(question.comment, "comment is empty").toBeFalsy();
+    expect(dynamicPanel.value, "panel.value #2").toEqualValues([{ q1: 1 }]);
+    question.value = "other";
+    expect(dynamicPanel.value, "panel.value #3").toEqualValues([{ q1: "other" }]);
+    question.otherValue = "comment2";
+    expect(dynamicPanel.value, "panel.value #4").toEqualValues([{ q1: "other", "q1-Comment": "comment2" }]);
+  });
+  test("panel dynamic & getQuestionFromArray with non-build panels, #7693", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        {
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "panel",
+              panelCount: 1,
+              templateElements: [
+                { name: "q2", type: "text" }
+              ]
+            }
+          ]
+        }
+      ] });
+    const dynamicPanel = survey.getQuestionByName("panel");
+    expect(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet").toBeFalsy();
+    survey.currentPageNo = 1;
+    expect(dynamicPanel.getQuestionFromArray("q2", 0).name, "Panels are created").toLooseEqual("q2");
+  });
+  test("panel dynamic & addPanel/removePanel with non-build panels, #7693", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        {
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "panel",
+              panelCount: 1,
+              templateElements: [
+                { name: "q2", type: "text" }
+              ]
+            }
+          ]
+        }
+      ] });
+    const dynamicPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(dynamicPanel.panelCount, "panelCount #1").toLooseEqual(1);
+    expect(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet").toBeFalsy();
+    dynamicPanel.addPanel();
+    dynamicPanel.addPanel(1);
+    expect(dynamicPanel.panelCount, "panelCount #2").toLooseEqual(3);
+    dynamicPanel.removePanel(1);
+    expect(dynamicPanel.panelCount, "panelCount #3").toLooseEqual(2);
+    expect(dynamicPanel.getQuestionFromArray("q2", 0).name, "Panels are created").toLooseEqual("q2");
+  });
+  test("panel dynamic & panel visibleIf & checkbox vs carry forward, #7693", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "aboutMe",
+              "valueName": "household",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "firstName"
+                },
+                {
+                  "type": "text",
+                  "name": "lastName"
+                },
+                {
+                  "type": "expression",
+                  "name": "fullName",
+                  "visible": false,
+                  "expression": "{panel.firstName} + ' ' + {panel.lastName}"
+                }
+              ],
+              "panelCount": 2,
+              "minPanelCount": 1,
+              "templateVisibleIf": "{panelIndex} = 0"
+            }
+          ]
+        },
+        {
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "addChildren",
+              "valueName": "household",
+              "isRequired": true,
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "childFirstName",
+                  "valueName": "firstName"
+                },
+                {
+                  "type": "text",
+                  "name": "childLastName",
+                  "valueName": "lastName"
+                },
+                {
+                  "type": "expression",
+                  "name": "childFullName",
+                  "visible": false,
+                  "valueName": "fullName",
+                  "expression": "{panel.firstName} + ' ' + {panel.lastName}"
+                }
+              ],
+              "panelCount": 1,
+              "minPanelCount": 1,
+              "templateVisibleIf": "{panelIndex} > 0"
+            }
+          ]
+        },
+        {
+          "elements": [
+            {
+              "type": "checkbox",
+              "name": "addIncomeFor",
+              "choicesFromQuestion": "addChildren",
+              "choiceValuesFromQuestion": "fullName"
+            }
+          ]
+        },
+        {
+          "elements": [
+            {
+              "type": "paneldynamic",
+              "name": "householdIncome",
+              "valueName": "household",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question1"
+                }
+              ],
+              "templateTitle": "{panel.fullName}",
+              "panelsState": "collapsed",
+              "templateVisibleIf": "{addIncomeFor} contains {panel.fullName}"
+            }
+          ]
+        }
+      ]
+    });
+    survey.data = {
+      "household": [
+        {
+          "firstName": "first1",
+          "fullName": "first1 last1",
+          "lastName": "last1",
+          "question1": "text1"
+        },
+        {
+          "firstName": "first2",
+          "fullName": "first2 last2",
+          "lastName": "last2"
+        },
+        {
+          "firstName": "first3",
+          "fullName": "first3 last3",
+          "lastName": "last3",
+          "question1": "test3"
+        }
+      ],
+      "addIncomeFor": [
+        "first1 last1",
+        "first3 last3"
+      ]
+    };
+    survey.doComplete();
+    expect(survey.data).toEqualValues({
+      "household": [
+        {
+          "firstName": "first1",
+          "lastName": "last1",
+          "question1": "text1"
+        },
+        {
+          "firstName": "first2",
+          "lastName": "last2"
+        },
+        {
+          "firstName": "first3",
+          "lastName": "last3",
+          "question1": "test3"
+        }
+      ]
+    });
+  });
+
+  test("paneldynamic: panelsState & valueName Bug#8653", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          "type": "checkbox",
+          "name": "state_names",
+          "title": "States",
+          "valuePropertyName": "state_name",
+          "choices": ["ACT", "NSW", "QLD"]
+        },
+        {
+          "type": "paneldynamic",
+          "name": "regions",
+          "valueName": "state_names",
+          "allowAddPanel": false,
+          "allowRemovePanel": false,
+          "visibleIf": "{state_names} notempty",
+          "panelsState": "expanded",
+          "templateTitle": "Regions for State {panel.state_name}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1"
+            }
+          ]
+        }
+      ]
+    });
+    const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("state_names");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("regions");
+    checkbox.selectAll();
+    expect(panel.visiblePanels.length, "3 panels have been created").toLooseEqual(3);
+    expect(panel.visiblePanels[0].state, "panels[0] state is expanded").toLooseEqual("expanded");
+    expect(panel.visiblePanels[1].state, "panels[1] state is expanded").toLooseEqual("expanded");
+    expect(panel.visiblePanels[2].state, "panels[2] state is expanded").toLooseEqual("expanded");
+  });
+  test("paneldynamic: check renderedPanels", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { name: "q1", type: "text" },
+          ]
+        },
+        { type: "text", name: "q4" }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels).toEqualValues(question.visiblePanels);
+    question.addPanel(1);
+    expect(question.renderedPanels.length).toLooseEqual(2);
+    expect(question.renderedPanels).toEqualValues(question.visiblePanels);
+    question.addPanel(2);
+    expect(question.renderedPanels.length).toLooseEqual(3);
+    expect(question.renderedPanels).toEqualValues(question.visiblePanels);
+    question.removePanel(question.visiblePanels[1]);
+    expect(question.renderedPanels.length).toLooseEqual(2);
+    expect(question.renderedPanels).toEqualValues(question.visiblePanels);
+    question.removePanel(question.visiblePanels[0]);
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels).toEqualValues(question.visiblePanels);
+    question.addPanel(1);
+    expect(question.renderedPanels.length).toLooseEqual(2);
+    expect(question.renderedPanels).toEqualValues(question.visiblePanels);
+    question.displayMode = "tab";
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels[0]).toEqualValues(question.visiblePanels[0]);
+    question.currentIndex = 1;
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels[0]).toEqualValues(question.visiblePanels[1]);
+    question.currentIndex = 0;
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels[0]).toEqualValues(question.visiblePanels[0]);
+    question.addPanel(2);
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels[0]).toEqualValues(question.visiblePanels[2]);
+    question.removePanel(question.visiblePanels[2]);
+    expect(question.renderedPanels.length).toLooseEqual(1);
+    expect(question.renderedPanels[0]).toEqualValues(question.visiblePanels[1]);
+  });
+
+  test("paneldynamic: check panelsAnimation", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          templateElements: [
+            { name: "q1", type: "text" },
+          ]
+        },
+        { type: "text", name: "q4" }
+      ]
+    });
+    const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
+    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+
+    question.displayMode = "tab";
+    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
+    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+
+    question.displayMode = "carousel";
+    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeFalsy();
+    expect(question["panelsAnimation"] instanceof AnimationTab).toBeTruthy();
+
+    question.displayMode = "list";
+    expect(question["panelsAnimation"] instanceof AnimationGroup).toBeTruthy();
+    expect(question["panelsAnimation"] instanceof AnimationTab).toBeFalsy();
+  });
+  test("paneldynamic: Do not call onFirstRendered for hidden panels, Issue#10501", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          displayMode: "tab",
+          panelCount: 2,
+          templateElements: [
+            { name: "q1", type: "text" },
+          ]
+        },
+        {
+          type: "paneldynamic",
+          name: "panel2",
+          panelCount: 2,
+          templateElements: [
+            { name: "q2", type: "text" },
+          ]
+        },
+        {
+          type: "paneldynamic",
+          name: "panel3",
+          displayMode: "carousel",
+          panelCount: 2,
+          templateElements: [
+            { name: "q2", type: "text" },
+          ]
+        }
+      ]
+    });
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+    const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+    expect(panel1.panels[0].wasRendered, "panel1, #1").toLooseEqual(true);
+    expect(panel1.panels[1].wasRendered, "panel1, #1").toLooseEqual(false);
+    expect(panel2.panels[0].wasRendered, "panel2, #1").toLooseEqual(true);
+    expect(panel2.panels[1].wasRendered, "panel2, #2").toLooseEqual(true);
+    expect(panel3.panels[0].wasRendered, "panel3, #1").toLooseEqual(true);
+    expect(panel3.panels[1].wasRendered, "panel3, #2").toLooseEqual(false);
+    panel1.currentIndex = 1;
+    expect(panel1.panels[0].wasRendered, "panel1, #3").toLooseEqual(true);
+    panel3.currentIndex = 1;
+    expect(panel3.panels[1].wasRendered, "panel3, #3").toLooseEqual(true);
+    panel1.addPanel();
+    expect(panel1.panels[2].wasRendered, "panel1, #4").toLooseEqual(true);
+    panel2.addPanel();
+    expect(panel2.panels[2].wasRendered, "panel2, #4").toLooseEqual(true);
+    panel3.addPanel();
+    expect(panel3.panels[2].wasRendered, "panel3, #4").toLooseEqual(true);
+  });
+  test("paneldynamic vs nested panels: Do not call onFirstRendered for hidden panels, Issue#10501", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          displayMode: "tab",
+          panelCount: 2,
+          templateElements: [
+            { name: "panel2", type: "paneldynamic",
+              panelCount: 1,
+              minPanelCount: 1,
+              templateElements: [
+                { name: "q1", type: "text" },
+              ],
+            }
+          ]
+        }
+      ]
+    });
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel1.tabbedMenu?.actions.length, "There are two tabs").toLooseEqual(2);
+    const panel2 = <QuestionPanelDynamicModel>panel1.panels[0].getQuestionByName("panel2");
+    expect(panel1.panels[0].wasRendered, "panel1, #1").toLooseEqual(true);
+    expect(panel2.wasRendered, "panel2, #1").toLooseEqual(true);
+    expect(panel2.panels[0].wasRendered, "panel2, internal panel, #1").toLooseEqual(true);
+    const q1 = panel2.panels[0].getQuestionByName("q1");
+    expect(q1.wasRendered, "q1, #1").toLooseEqual(true);
+    expect(panel2.panels[0].rows.length, "panel2 internal panel.rows, #1").toLooseEqual(1);
+  });
+  test("paneldynamic: Render panel correctly, Issue#10501", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          displayMode: "tab",
+          panelCount: 2,
+          templateElements: [
+            { name: "q1", type: "text" }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.tabbedMenu?.actions.length, "There are two tabs").toLooseEqual(2);
+    const panel1 = panel.visiblePanels[0];
+    const panel2 = panel.visiblePanels[1];
+    expect(panel1.wasRendered, "panel1 was rendered").toLooseEqual(true);
+    expect(panel2.wasRendered, "panel2 was not rendered").toLooseEqual(false);
+    expect(panel2.visibleRows.length, "panel2 has no rows").toLooseEqual(0);
+    panel.currentIndex = 1;
+    expect(panel2.wasRendered, "panel2 was rendered").toLooseEqual(true);
+    expect(panel2.visibleRows.length, "panel2 has one row").toLooseEqual(1);
+    expect(panel2.visibleRows[0].elements.length, "panel2 first row has one element").toLooseEqual(1);
+    expect(panel2.visibleRows[0].elements[0].name, "panel2 first row first element is q1").toLooseEqual("q1");
+  });
+  test("paneldynamic: dynamic panel with tabs as a child, Issue#10501", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          minPanelCount: 1,
+          maxPanelCount: 1,
+          templateElements: [
+            { name: "panel1", type: "paneldynamic",
+              displayMode: "tab",
+              panelCount: 2,
+              minPanelCount: 1,
+              maxPanelCount: 3,
+              templateElements: [
+                { name: "q1", type: "text" }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const innerPanel = <QuestionPanelDynamicModel>panel.visiblePanels[0].getQuestionByName("panel1");
+    expect(innerPanel.displayMode, "inner panel displayMode is tab").toLooseEqual("tab");
+    expect(innerPanel.panelCount, "inner panel has two panels").toLooseEqual(2);
+    expect(innerPanel.wasRendered, "inner panel was rendered").toLooseEqual(true);
+    expect(innerPanel.tabbedMenu?.actions.length, "There are two tabs").toLooseEqual(2);
+    const panel1 = innerPanel.visiblePanels[0];
+    const panel2 = innerPanel.visiblePanels[1];
+    expect(panel1.wasRendered, "panel1 was rendered").toLooseEqual(true);
+    expect(panel2.wasRendered, "panel2 was not rendered").toLooseEqual(false);
+    expect(panel2.visibleRows.length, "panel2 has no rows").toLooseEqual(0);
+    innerPanel.currentIndex = 1;
+    expect(panel2.wasRendered, "panel2 was rendered").toLooseEqual(true);
+    expect(panel2.visibleRows.length, "panel2 has one row").toLooseEqual(1);
+    expect(panel2.visibleRows[0].elements.length, "panel2 first row has one element").toLooseEqual(1);
+    expect(panel2.visibleRows[0].elements[0].name, "panel2 first row first element is q1").toLooseEqual("q1");
+  });
+  test("paneldynamic: dynamic panel with tabs as a child at design time, Issue#10501", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 1,
+          minPanelCount: 1,
+          maxPanelCount: 1,
+          templateElements: [
+            { name: "panel1", type: "paneldynamic",
+              displayMode: "tab",
+              panelCount: 2,
+              minPanelCount: 1,
+              maxPanelCount: 3,
+              templateElements: [
+                { name: "q1", type: "text" }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const innerPanel = <QuestionPanelDynamicModel>panel.visiblePanels[0].getQuestionByName("panel1");
+    expect(innerPanel.displayMode, "inner panel displayMode is tab").toLooseEqual("tab");
+    expect(innerPanel.panelCount, "inner panel has two panels").toLooseEqual(2);
+    expect(innerPanel.wasRendered, "inner panel was rendered").toLooseEqual(true);
+    expect(innerPanel.tabbedMenu?.actions.length, "There is one tab").toLooseEqual(1);
+    const panel1 = innerPanel.visiblePanels[0];
+    expect(panel1, "panel1 is template panel").toBe(innerPanel.template);
+    expect(panel1.wasRendered, "panel1 was rendered").toLooseEqual(true);
+    expect(panel1.visibleRows.length, "panel1 has one row").toLooseEqual(1);
+    expect(panel1.visibleRows[0].elements.length, "panel1 first row has one element").toLooseEqual(1);
+    expect(panel1.visibleRows[0].elements[0].name, "panel1 first row first element is q1").toLooseEqual("q1");
+  });
+  test("paneldynamic: check panelsAnimation options", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 2,
+          templateElements: [
+            { name: "q1", type: "text" },
+          ]
+        },
+        { type: "text", name: "q4" }
+      ]
+    });
+    survey.css = {
+      paneldynamic: {
+        panelWrapperEnter: "enter",
+        panelWrapperLeave: "leave"
+      }
+    };
+    const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+    const options = question["getPanelsAnimationOptions"]();
+    const panelsContainer = document.createElement("div");
+    const panelContainer2 = document.createElement("div");
+    const panelContainer1 = document.createElement("div");
+    panelsContainer.appendChild(panelContainer2);
+    panelsContainer.appendChild(panelContainer1);
+    document.body.appendChild(panelsContainer);
+    // jsdom returns 0 for offsetHeight; stub it to mirror the heights set via style.height
+    // so the carousel-mode animation hooks can read element heights without real layout.
+    const stubOffsetHeight = (el: HTMLElement, value: number) => {
+      Object.defineProperty(el, "offsetHeight", { configurable: true, get: () => value });
+    };
+    let enterOptions = options.getEnterOptions(question.panels[0]);
+    let leaveOptions = options.getLeaveOptions(question.panels[1]);
+    expect(enterOptions.cssClass).toLooseEqual("enter");
+    expect(leaveOptions.cssClass).toLooseEqual("leave");
+    enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
+    expect(panelContainer1.style.getPropertyValue("--animation-height-to")).toLooseEqual("0px");
+    enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer1);
+    expect(panelContainer1.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
+    expect(panelContainer2.style.getPropertyValue("--animation-height-to")).toLooseEqual("0px");
+    leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
+    expect(panelContainer2.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    question.displayMode = "carousel";
+    question.currentIndex = 0;
+    question["_renderedPanels"] = [question.panels[0], question.panels[1]];
+
+    panelContainer1.style.height = "20px";
+    panelContainer2.style.height = "40px";
+    stubOffsetHeight(panelContainer1, 20);
+    stubOffsetHeight(panelContainer2, 40);
+
+    enterOptions = options.getEnterOptions(question.panels[0]);
+    leaveOptions = options.getLeaveOptions(question.panels[1]);
+    expect(enterOptions.cssClass).toLooseEqual("enter sv-pd-animation-right");
+    expect(leaveOptions.cssClass).toLooseEqual("leave sv-pd-animation-right");
+    enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer1);
+    leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer2);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toLooseEqual("40px");
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toLooseEqual("20px");
+    enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer1);
+    leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    question.currentIndex = 1;
+    question["_renderedPanels"] = [question.panels[0], question.panels[1]];
+
+    enterOptions = options.getEnterOptions(question.panels[0]);
+    leaveOptions = options.getLeaveOptions(question.panels[1]);
+    expect(enterOptions.cssClass).toLooseEqual("enter sv-pd-animation-left");
+    expect(leaveOptions.cssClass).toLooseEqual("leave sv-pd-animation-left");
+    enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+    leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toLooseEqual("20px");
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toLooseEqual("40px");
+    enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+    leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    question["focusNewPanelCallback"] = () => {};
+    enterOptions = options.getEnterOptions(question.panels[0]);
+    leaveOptions = options.getLeaveOptions(question.panels[1]);
+    expect(enterOptions.cssClass).toLooseEqual("enter sv-pd-animation-adding sv-pd-animation-left");
+    expect(leaveOptions.cssClass).toLooseEqual("leave sv-pd-animation-adding sv-pd-animation-left");
+    enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+    leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toLooseEqual("20px");
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toLooseEqual("40px");
+    enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+    leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    const removedPanel = question.panels[1];
+    question.removePanel(removedPanel);
+    question["_renderedPanels"] = [question.panels[0], removedPanel];
+
+    question["removedPanelIndex"] = 0;
+    enterOptions = options.getEnterOptions(question.panels[0]);
+    leaveOptions = options.getLeaveOptions(question.panels[1]);
+    expect(enterOptions.cssClass).toLooseEqual("enter sv-pd-animation-removing sv-pd-animation-left");
+    expect(leaveOptions.cssClass).toLooseEqual("leave sv-pd-animation-removing sv-pd-animation-left");
+    enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+    leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toLooseEqual("20px");
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toLooseEqual("40px");
+    enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+    leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    question["removedPanelIndex"] = 1;
+    enterOptions = options.getEnterOptions(question.panels[0]);
+    leaveOptions = options.getLeaveOptions(question.panels[1]);
+    expect(enterOptions.cssClass).toLooseEqual("enter sv-pd-animation-removing sv-pd-animation-right");
+    expect(leaveOptions.cssClass).toLooseEqual("leave sv-pd-animation-removing sv-pd-animation-right");
+    enterOptions.onBeforeRunAnimation && enterOptions.onBeforeRunAnimation(panelContainer2);
+    leaveOptions.onBeforeRunAnimation && leaveOptions.onBeforeRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toLooseEqual("20px");
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toLooseEqual("40px");
+    enterOptions.onAfterRunAnimation && enterOptions.onAfterRunAnimation(panelContainer2);
+    leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer1);
+    expect(panelsContainer.style.getPropertyValue("--animation-height-from")).toBeFalsy();
+    expect(panelsContainer.style.getPropertyValue("--animation-height-to")).toBeFalsy();
+
+    panelsContainer.remove();
+  });
+  test("onQuestionVisibleChanged should be fired", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "q2", panelCount: 1,
+          templateElements: [{ type: "text", name: "q3", visibleIf: "{q1} = 1" }, { type: "text", name: "q4" }]
+        }
+      ]
+    });
+    const questionNames = new Array<string>();
+    survey.onQuestionVisibleChanged.add((sender, options) => {
+      questionNames.push(options.question.name + ":" + options.question.isVisible);
+    });
+    survey.setValue("q1", 1);
+    survey.setValue("q1", 2);
+    expect(questionNames, "visiblity logs").toEqualValues(["q3:true", "q3:false"]);
+  });
+  test("Always focus on error in duplicated value, Bug8228", () => {
+    let focusedQuestionId = "";
+    var oldFunc = SurveyElement.FocusElement;
+    SurveyElement.FocusElement = function (elId: string): boolean {
+      focusedQuestionId = elId;
+      return true;
+    };
+    const survey = new SurveyModel({
+      "elements": [{
+        "name": "q1",
+        "type": "paneldynamic",
+        "keyName": "q2",
+        "templateElements": [
+          {
+            "name": "q2",
+            "type": "text"
           }
         ]
-      }
-    ]
+      },
+      ]
+    });
+    survey.data = { q1: [{ q2: 2 }, { q2: 2 }] };
+
+    const res = survey.validate(false, false);
+    expect(res, "There is an error").toLooseEqual(false);
+    expect(focusedQuestionId, "Do not focus").toBeFalsy();
+    survey.validate(false, true);
+    expect(focusedQuestionId, "Focus on the question").toBeTruthy();
+
+    SurveyElement.FocusElement = oldFunc;
   });
-  const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-  const slider0 = panelDynamic.panels[0].getQuestionByName("q2");
-  assert.equal(slider0.errors.length, 0, "No errors initially in the first panel's slider");
-  panelDynamic.addPanelUI();
-  assert.equal(panelDynamic.panels.length, 2, "Two panels now");
-  const slider1 = panelDynamic.panels[1].getQuestionByName("q2");
-  assert.equal(slider1.errors.length, 0, "No errors in the new panel's slider after adding a panel");
+  test("getFirstQuestionToFocus, Bug#8764", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 1,
+          templateElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", isRequired: true }]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.validate(true);
+    expect(panel.getFirstQuestionToFocus(false).name, "#1").toLooseEqual("q1");
+    expect(panel.getFirstQuestionToFocus(true).name, "#2").toLooseEqual("q2");
+    panel.panelCount = 0;
+    expect(panel.getFirstQuestionToFocus(false).name, "#3").toLooseEqual("panel");
+    expect(panel.getFirstQuestionToFocus(true), "#4").toBeFalsy();
+    panel.isRequired = true;
+    panel.validate(true);
+    expect(panel.getFirstQuestionToFocus(true).name, "#5").toLooseEqual("panel");
+  });
+  test("getFirstQuestionToFocus, Bug#8764", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          panelCount: 3,
+          displayMode: "tab",
+          templateElements: [
+            { type: "text", name: "q1" },
+            { type: "text", name: "q2" }
+          ]
+        }
+      ]
+    });
+
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.currentIndex = 1;
+
+    const q1 = panel.panels[1].getQuestionByName("q1");
+    expect(panel.getFirstQuestionToFocus(false).id, "#1").toLooseEqual(q1.id);
+    expect((<any>panel).getFirstInputElementId(), "#2").toLooseEqual(q1.inputId);
+  });
+  test("defaultRowValue in dynamic panel, Bug#8819", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "matrixdynamic",
+              "name": "matrix1",
+              "columns": [
+                {
+                  "name": "col1",
+                  "cellType": "text"
+                }
+              ],
+              "rowCount": 1,
+              "minRowCount": 1,
+              "defaultRowValue": {
+                "col1": "abc"
+              }
+            }
+          ],
+          "minPanelCount": 1
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel.value, "#1").toEqualValues([{ matrix1: [{ "col1": "abc" }] }]);
+    panel.addPanel();
+    expect(panel.value, "#2").toEqualValues([{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }] }]);
+    panel.panels[1].questions[0].addRow();
+    expect(panel.value, "#3").toEqualValues([{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }, { "col1": "abc" }] }]);
+  });
+  test("Do not allow to make panelCount be less than minPanelCount prop & more than maxPanelCount at design, Bug#9906", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [{ type: "text", name: "q1" }],
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.panelCount = 1;
+    panel.minPanelCount = 3;
+    expect(panel.panelCount, "#1").toLooseEqual(3);
+    panel.panelCount = 2;
+    expect(panel.panelCount, "#2").toLooseEqual(2);
+    panel.panelCount = 10;
+    panel.maxPanelCount = 5;
+    expect(panel.panelCount, "#3").toLooseEqual(5);
+    panel.panelCount = 7;
+    expect(panel.panelCount, "#4").toLooseEqual(7);
+    panel.panelCount = 4;
+    expect(panel.panelCount, "#5").toLooseEqual(4);
+    survey.setDesignMode(true);
+    panel.panelCount = 2;
+    expect(panel.panelCount, "#6").toLooseEqual(3);
+    panel.panelCount = 10;
+    expect(panel.panelCount, "#7").toLooseEqual(5);
+  });
+  test("maxRowCount & footer buttons, Bug#8865", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1"
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const btnAdd = panel.footerToolbar.getActionById("sv-pd-add-btn");
+    expect(btnAdd.isVisible, "#1").toLooseEqual(true);
+    panel.value = [{ q1: "abc" }];
+    expect(btnAdd.isVisible, "#2").toLooseEqual(true);
+    panel.maxPanelCount = 1;
+    expect(btnAdd.isVisible, "#3").toLooseEqual(false);
+    panel.maxPanelCount = 2;
+    expect(btnAdd.isVisible, "#4").toLooseEqual(true);
+  });
+  test("maxRowCount & footer buttons in detail matrix panel, Bug#9714", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "matrixdynamic",
+          "name": "matrix",
+          "columns": [
+            {
+              "name": "col1"
+            }
+          ],
+          "detailElements": [
+            {
+              "type": "paneldynamic",
+              "name": "panel",
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "question1"
+                }
+              ],
+              "maxPanelCount": 2
+            }
+          ],
+          "detailPanelMode": "underRowSingle",
+          "cellType": "text",
+          "rowCount": 2
+        }
+      ]
+    });
+    survey.pages[0].onFirstRendering();
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+    let row = matrix.visibleRows[0];
+    row.showDetailPanel();
+    let panel = row.getQuestionByName("panel");
+    const getAddBtn = () => {
+      return panel.footerToolbar.getActionById("sv-pd-add-btn");
+    };
+    expect(getAddBtn().isVisible, "addBtn #1").toLooseEqual(true);
+    panel.value = [{ q1: "abc" }];
+    expect(getAddBtn().isVisible, "#addBtn 2").toLooseEqual(true);
+    expect(panel.canAddPanel, "canAddPanel #2").toLooseEqual(true);
+    panel.value = [{ q1: "abc" }, { q1: "def" }];
+    expect(panel.panelCount, "panelCount #3").toLooseEqual(2);
+    expect(panel.maxPanelCount, "maxPanelCount #3").toLooseEqual(2);
+    expect(panel.canAddPanel, "canAddPanel #3").toLooseEqual(false);
+    expect(getAddBtn().isVisible, "addBtn #3").toLooseEqual(false);
+    panel.removePanel(0);
+    expect(getAddBtn().isVisible, "addBtn #4").toLooseEqual(true);
+    expect(panel.canAddPanel, "canAddPanel #4").toLooseEqual(true);
+    row = matrix.visibleRows[1];
+    row.showDetailPanel();
+    panel = row.getQuestionByName("panel");
+    panel.addPanel();
+    expect(getAddBtn().isVisible, "addBtn #5").toLooseEqual(true);
+    panel.addPanel();
+    expect(getAddBtn().isVisible, "addBtn #6").toLooseEqual(false);
+    panel.removePanel(0);
+    expect(getAddBtn().isVisible, "addBtn #7").toLooseEqual(true);
+  });
+  test("A dynamic matrix cell value is reset when adding a new outer dynanic panel, Bug#8892", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          type: "paneldynamic",
+          name: "main",
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "detail",
+              templateElements: [
+                {
+                  type: "matrixdynamic",
+                  name: "matrix",
+                  columns: [{ "name": "col1", "cellType": "text" }],
+                  rowCount: 1,
+                  minRowCount: 1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    const mainPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("main");
+    const panel1 = mainPanel.addPanel();
+    const detailPanel1 = <QuestionPanelDynamicModel>panel1.getQuestionByName("detail");
+    const matrix1 = detailPanel1.addPanel().getQuestionByName("matrix");
+    matrix1.visibleRows[0].getQuestionByName("col1").value = "main1_detail1";
+    const matrix2 = detailPanel1.addPanel().getQuestionByName("matrix");
+    matrix2.visibleRows[0].getQuestionByName("col1").value = "main1_detail2";
+    expect(mainPanel.value, "main panel value #1").toEqualValues([
+      { detail: [{ matrix: [{ col1: "main1_detail1" }] }, { matrix: [{ col1: "main1_detail2" }] }] }
+    ]);
+    const panel2 = mainPanel.addPanel();
+    const detailPanel2 = <QuestionPanelDynamicModel>panel2.getQuestionByName("detail");
+    const matrix3 = detailPanel2.addPanel().getQuestionByName("matrix");
+    matrix3.visibleRows[0].getQuestionByName("col1").value = "main2_detail1";
+    expect(mainPanel.value, "main panel value #2").toEqualValues([
+      { detail: [{ matrix: [{ col1: "main1_detail1" }] }, { matrix: [{ col1: "main1_detail2" }] }] },
+      { detail: [{ matrix: [{ col1: "main2_detail1" }] }] }
+    ]);
+    expect(matrix1.visibleRows[0].getQuestionByName("col1").value, "Last row value, matrix1").toLooseEqual("main1_detail1");
+    expect(matrix2.visibleRows[0].getQuestionByName("col1").value, "Last row value, matrix2").toLooseEqual("main1_detail2");
+  });
+  test("Validation doesn't work if a user doesn't visit the page, Bug#8937", () => {
+    const survey = new SurveyModel({
+      logoPosition: "right",
+      pages: [
+        {
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "panel",
+              templateElements: [{ type: "text", name: "question2", isRequired: true }],
+              panelCount: 1
+            }
+          ]
+        },
+        {
+          elements: [{ type: "text", name: "question3" }]
+        }
+      ],
+      checkErrorsMode: "onComplete"
+    });
+    survey.currentPageNo = 2;
+    survey.tryComplete();
+    expect(survey.state, "Still running").toLooseEqual("running");
+    expect(survey.currentPageNo, "move to page with panel").toLooseEqual(1);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    expect(panel.panels[0].getQuestionByName("question2").errors.length, "has an error").toLooseEqual(1);
+  });
+  test("default value for maxPanelCount, Bug#9000", () => {
+    expect(new QuestionPanelDynamicModel("q1").maxPanelCount, "default value").toLooseEqual(100);
+    settings.panel.maxPanelCount = 300;
+    expect(new QuestionPanelDynamicModel("q1").maxPanelCount, "updated default value").toLooseEqual(300);
+    settings.panel.maxPanelCount = 100;
+    expect(new QuestionPanelDynamicModel("q1").maxPanelCount, "default value again").toLooseEqual(100);
+  });
+  test("Do not serialize renderMode & showProgressBar", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "paneldynamic", name: "panel1", displayMode: "carousel", showProgressBar: false }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel.renderMode, "renderMode is set").toLooseEqual("progressTop");
+    expect(panel.displayMode, "displayMode is set").toLooseEqual("carousel");
+    expect(panel.showProgressBar, "showProgressBar is set").toLooseEqual(false);
+    expect(panel.showProgressBar, "showProgressBar is set").toLooseEqual(false);
+    const json = panel.toJSON();
+    expect(json.renderMode, "renderMode on json").toBeFalsy();
+    expect(json.displayMode, "displayMode is json").toLooseEqual("carousel");
+    expect(json.showProgressBar, "showProgressBar is json").toBeFalsy();
+    expect(json.showProgressBar, "showProgressBar is json").toLooseEqual(false);
+  });
+  test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", () => {
+    const survey = new SurveyModel({
+      showQuestionNumbers: true,
+      elements: [
+        { type: "text", name: "question1" },
+        { type: "paneldynamic", name: "panel1",
+          templateElements: [{ type: "text", name: "question3" }]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    expect(panel.no, "no #1").toLooseEqual("2.");
+    panel.addPanel();
+    expect(panel.no, "no #2").toLooseEqual("2.");
+  });
+  test("A Dynamic Panel question & showNumber=false Bug#10479.1", () => {
+    const survey = new SurveyModel({
+      showQuestionNumbers: true,
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "panel1", showNumber: false,
+          templateElements: [{ type: "text", name: "q2" }]
+        },
+        { type: "text", name: "q3" },
+      ]
+    });
+    const q3 = survey.getQuestionByName("q3");
+    expect(q3.no, "q3.no #1").toLooseEqual("2.");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.addPanel();
+    panel.addPanel();
+    expect(q3.no, "q3.no #2").toLooseEqual("2.");
+  });
+  test("A Dynamic Panel question & showNumber=false Bug#10479.2", () => {
+    const survey = new SurveyModel({
+      showQuestionNumbers: "recursive",
+      elements: [
+        { type: "panel", name: "panel",
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "paneldynamic", name: "panel1", showNumber: false,
+              templateElements: [{ type: "text", name: "q2" }]
+            },
+            { type: "text", name: "q3" }
+          ] },
+      ]
+    });
+    const q3 = survey.getQuestionByName("q3");
+    expect(q3.no, "q3.no #1").toLooseEqual("2.");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.addPanel();
+    panel.addPanel();
+    expect(q3.no, "q3.no #2").toLooseEqual("2.");
+  });
+  test("A Dynamic Panel question & showNumber=false Bug#10479.3", () => {
+    const survey = new SurveyModel({
+      showQuestionNumbers: "recursive",
+      questionStartIndex: "1.1.",
+      elements: [
+        { type: "panel", name: "panel",
+          elements: [
+            { type: "text", name: "q1" },
+            { type: "paneldynamic", name: "panel1", showNumber: false,
+              templateElements: [{ type: "text", name: "q2" }]
+            },
+            { type: "text", name: "q3" }
+          ] },
+      ]
+    });
+    const q3 = survey.getQuestionByName("q3");
+    expect(q3.no, "q3.no #1").toLooseEqual("2.");
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.addPanel();
+    panel.addPanel();
+    expect(q3.no, "q3.no #2").toLooseEqual("2.");
+  });
+  test("Test displayValue() function in dynamic panel, Bug#9635", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "q1",
+              choices: ["item1", "item2", "item3"],
+              showOtherItem: true
+            },
+            {
+              type: "text",
+              name: "q2",
+              setValueExpression: "displayValue('q1',{panel.q1})"
+            }
+          ]
+        }]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    panel.addPanel();
+    const q1 = panel.panels[0].getQuestionByName("q1");
+    const q2 = panel.panels[0].getQuestionByName("q2");
+    q1.value = ["item1", "other"];
+    expect(q2.value, "Other as other display value").toLooseEqual("item1, Other (describe)");
+    q1.otherValue = "other comment";
+    expect(q2.value, "Other is comment value").toLooseEqual("item1, other comment");
+    expect(panel.value, "value is set correctly").toEqualValues([{ q1: ["item1", "other"], "q1-Comment": "other comment", q2: "item1, other comment" }]);
+  });
+  test("Question title width for dynamic panels #2295", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "question1", titleLocation: "left" },
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateQuestionTitleLocation: "left",
+          templateElements: [
+            { type: "text", name: "q1" }
+          ]
+        }]
+    });
+    const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    let q1 = qPanel.panels[0].getQuestionByName("q1");
+    expect(q1.titleWidth, "q1 titleWidth, #1").toLooseEqual(undefined);
+    const page = survey.pages[0];
+    page.questionTitleWidth = "100px";
+    expect(page.getQuestionTitleWidth(), "page titleWidth, #1").toLooseEqual("100px");
+    expect(q1.titleWidth, "q1 titleWidth, #2").toLooseEqual("100px");
+    qPanel.templateQuestionTitleWidth = "200px";
+    expect(qPanel.panels[0].getQuestionTitleWidth(), "panel titleWidth, #1").toLooseEqual("200px");
+    expect(q1.titleWidth, "q1 titleWidth, #4").toLooseEqual("200px");
+    qPanel.addPanel();
+    expect(qPanel.panels[0].getQuestionTitleWidth(), "panel titleWidth, #2").toLooseEqual("200px");
+    q1 = qPanel.panels[0].getQuestionByName("q1");
+    expect(q1.titleWidth, "q1 titleWidth, #5").toLooseEqual("200px");
+  });
+  test("Question title width for dynamic panels - property.visibleIf #2295", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [
+            { type: "text", name: "q1" }
+          ]
+        }]
+    });
+    const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const prop = Serializer.findProperty("paneldynamic", "templateQuestionTitleWidth");
+    expect(prop.isVisible("", qPanel), "#1").toLooseEqual(false);
+    qPanel.templateQuestionTitleLocation = "left";
+    expect(prop.isVisible("", qPanel), "#2").toLooseEqual(true);
+    qPanel.templateQuestionTitleLocation = "top";
+    expect(prop.isVisible("", qPanel), "#3").toLooseEqual(false);
+    const q1 = qPanel.template.getQuestionByName("q1");
+    q1.titleLocation = "left";
+    expect(prop.isVisible("", qPanel), "#4").toLooseEqual(true);
+    q1.titleLocation = "top";
+    expect(prop.isVisible("", qPanel), "#5").toLooseEqual(false);
+  });
+  test("Question title location for dynamic panels - update dynamically #2295", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" }
+          ]
+        }]
+    });
+    const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel = <PanelModel>qPanel.panels[0];
+    const q1 = panel.getQuestionByName("q1");
+    const leftClass = q1.cssClasses.titleLeftRoot;
+    expect(q1.cssRoot.indexOf(leftClass) > -1, "#1").toLooseEqual(false);
+    qPanel.templateQuestionTitleLocation = "left";
+    expect(q1.cssRoot.indexOf(leftClass) > -1, "#2").toLooseEqual(true);
+    qPanel.templateQuestionTitleLocation = "default";
+    expect(q1.cssRoot.indexOf(leftClass) > -1, "#3").toLooseEqual(false);
+    survey.pages[0].questionTitleLocation = "left";
+    expect(q1.cssRoot.indexOf(leftClass) > -1, "#4").toLooseEqual(true);
+  });
+  test("Question title location for dynamic panels, bypass dynamic panel titleLocation Bug#10452", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "q1" }
+          ]
+        }]
+    });
+    const page = survey.pages[0];
+    const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel = <PanelModel>qPanel.panels[0];
+    const q1 = panel.getQuestionByName("q1");
+    expect(q1.getTitleLocation(), "titleLocation #1").toLooseEqual("top");
+    qPanel.templateQuestionTitleLocation = "left";
+    expect(q1.getTitleLocation(), "titleLocation #2").toLooseEqual("left");
+    q1.titleLocation = "top";
+    expect(q1.getTitleLocation(), "titleLocation #3").toLooseEqual("top");
+    qPanel.templateQuestionTitleLocation = "default";
+    expect(q1.getTitleLocation(), "titleLocation #4").toLooseEqual("top");
+    q1.titleLocation = "default";
+    expect(q1.getTitleLocation(), "titleLocation #5").toLooseEqual("top");
+    page.questionTitleLocation = "left";
+    expect(q1.getTitleLocation(), "titleLocation #6").toLooseEqual("left");
+    qPanel.titleLocation = "hidden";
+    expect(q1.getTitleLocation(), "titleLocation #7").toLooseEqual("left");
+    qPanel.titleLocation = "top";
+    expect(q1.getTitleLocation(), "titleLocation #8").toLooseEqual("left");
+    page.questionTitleLocation = "top";
+    expect(q1.getTitleLocation(), "titleLocation #9").toLooseEqual("top");
+    page.questionTitleLocation = "left";
+    expect(q1.getTitleLocation(), "titleLocation #10").toLooseEqual("left");
+    page.questionTitleLocation = "default";
+    expect(q1.getTitleLocation(), "titleLocation #11").toLooseEqual("top");
+  });
+  test("getFirstErrorInputElementId doesn't work correctly for panel dynamic", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 2,
+          templateElements: [
+            { type: "text", name: "q1", isRequired: true }
+          ]
+        }]
+    });
+
+    const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const checkFunc = (): string => {
+      return qPanel["getFirstErrorInputElementId"]();
+    };
+    const panel1 = <PanelModel>qPanel.panels[0];
+    const q1 = panel1.getQuestionByName("q1");
+    const panel2 = <PanelModel>qPanel.panels[1];
+    const q2 = panel2.getQuestionByName("q1");
+    survey.tryComplete();
+    expect(checkFunc(), "check first panel #1").toLooseEqual(q1.inputId);
+    q1.value = "1";
+    expect(checkFunc(), "check first panel #2").toLooseEqual(q2.inputId);
+  });
+  test("Using resetValueIf, visibleIf & default value for a question in dynamic panel may leads to infitive loop, Bug#9956", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "rPanel",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "paneldynamic",
+              name: "dPanel",
+              templateElements: [
+                { type: "text", name: "q1", defaultValue: 100, resetValueIf: "{panel.q2} = 200 || {panel.q3} != 300" },
+                { type: "text", name: "q2", defaultValue: 200, resetValueIf: "{panel.q1} = 100 || {panel.q4} != 10" },
+                { type: "text", name: "q3", defaultValueExpression: "{rPanel[0].dPanel[0].q1} + {panel.q2} + {panel.q4}" },
+                { type: "text", name: "q4" }
+              ]
+            }]
+        }]
+    });
+    const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
+    const dPanel = <QuestionPanelDynamicModel>rPanel.panels[0].getQuestionByName("dPanel");
+    dPanel.addPanel();
+    const panel = dPanel.panels[0];
+    expect(panel.getQuestionByName("q1").value, "q1 value, #1").toLooseEqual(100);
+    expect(panel.getQuestionByName("q2").value, "q2  value, #1").toLooseEqual(200);
+    expect(panel.getQuestionByName("q3").value, "q3 value, #1").toLooseEqual(300);
+    panel.getQuestionByName("q4").value = 300;
+    expect(panel.getQuestionByName("q1").value, "q1 value, #2").toLooseEqual(100);
+    expect(panel.getQuestionByName("q2").value, "q2  value, #2").toLooseEqual(200);
+    expect(panel.getQuestionByName("q3").value, "q3 value, #2").toLooseEqual(600);
+    panel.getQuestionByName("q1").value = 1;
+    panel.getQuestionByName("q2").value = 2;
+    panel.getQuestionByName("q4").value = 400;
+    expect(panel.getQuestionByName("q1").value, "q1 value, #3").toLooseEqual(100);
+    expect(panel.getQuestionByName("q2").value, "q2  value, #3").toLooseEqual(200);
+    expect(panel.getQuestionByName("q3").value, "q3 value, #3").toLooseEqual(700);
+  });
+  test("paneldynamic.getValueGetterContext()", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "rPanel",
+          panelCount: 1,
+          templateElements: [
+            { type: "dropdown", name: "q1", choices: [{ value: 1, text: "item1" }] },
+            {
+              type: "paneldynamic",
+              name: "dPanel",
+              templateElements: [
+                { type: "dropdown", name: "q2", choices: [1, { value: 2, text: "item2" }] },
+              ]
+            }]
+        }]
+    });
+    survey.data = { rPanel: [{ q1: 1, dPanel: [{ q2: 2 }, { q2: 2 }] }], var1: "b" };
+    const getter = new ValueGetter();
+    const context = survey.getValueGetterContext();
+    expect(getter.getValue("rPanel[0].q1", context), "#1").toLooseEqual(1);
+    expect(getter.getDisplayValue("rPanel[0].q1", context), "text #1").toLooseEqual("item1");
+    expect(getter.getValue("rPanel[0].dPanel[1].q2", context), "#2").toLooseEqual(2);
+    expect(getter.getDisplayValue("rPanel[0].dPanel[1].q2", context), "text #2").toLooseEqual("item2");
+    const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
+    const panelContext = (<any>rPanel.panels[0].data).getValueGetterContext();
+    expect(getter.getValue("panel.q1", panelContext), "panel context #1").toLooseEqual(1);
+    expect(getter.getValue("var1", panelContext), "panel context #2").toLooseEqual("b");
+  });
+  test("paneldynamic.panelCountExpression custom property, Bug#10171", () => {
+    Serializer.addProperty("paneldynamic", {
+      name: "panelCountExpression",
+      type: "condition",
+      category: "logic",
+      onExecuteExpression: (obj, res) => {
+        obj.panelCount = res;
+      }
+    });
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "text",
+          "name": "question1",
+          "defaultValue": 1
+        },
+        {
+          "type": "paneldynamic",
+          "name": "question2",
+          "panelCountExpression": "{question1}",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question2");
+    expect(panel.panelCount, "panelCount #1").toLooseEqual(1);
+    panel.removePanel(0);
+    expect(panel.panelCount, "panelCount #2").toLooseEqual(1);
+    panel.addPanelUI();
+    expect(panel.panelCount, "panelCount #3").toLooseEqual(1);
+    survey.setValue("question1", 2);
+    expect(panel.panelCount, "panelCount #4").toLooseEqual(2);
+    Serializer.removeProperty("paneldynamic", "panelCountExpression");
+  });
+  test("paneldynamic nested question valueName & clearIncorrectValues, Bug#10206", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1",
+              "valueName": "q1Value"
+            }
+          ]
+        }
+      ]
+    });
+    survey.data = {
+      panel: [{ q1Value: 1, }, { q1Value: 2 }]
+    };
+    expect(survey.getValue("panel"), "survey.data #1").toEqualValues([{ q1Value: 1 }, { q1Value: 2 }]);
+    survey.clearIncorrectValues();
+    expect(survey.getValue("panel"), "survey.data #2").toEqualValues([{ q1Value: 1 }, { q1Value: 2 }]);
+  });
+  test("survey.getData vs panel inside tempalte panel, Bug#10230", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "d1",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1"
+            }
+          ]
+        },
+        {
+          "type": "paneldynamic",
+          "name": "d2",
+          "templateElements": [
+            {
+              "type": "panel",
+              "name": "panel1",
+              "elements": [
+                {
+                  "type": "text",
+                  "name": "q2"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    survey.data = {
+      d1: [{ q1: 1, }, { q1: 2 }],
+      d2: [{ q2: 1 }, { q2: 2 }]
+    };
+    expect(survey.getData({ includePanels: true }), "survey.getData #1").toEqualValues({ d1: [{ q1: 1 }, { q1: 2 }], d2: [{ panel1: { q2: 1 } }, { panel1: { q2: 2 } }] });
+  });
+  test("parentQuestion inside custom function, Bug#10210", () => {
+    let notParentCalls = 0;
+    let parentCalls = 0;
+    function customFunc(params: any[]): any {
+      if (!this.question.parentQuestion) {
+        notParentCalls++;
+      } else {
+        parentCalls++;
+      }
+      return 1;
+    }
+    FunctionFactory.Instance.register("customFunc", customFunc);
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "d1",
+          "panelCount": 1,
+          "templateElements": [
+            {
+              "type": "expression",
+              "name": "q1",
+              "expression": "customFunc()"
+            }
+          ]
+        }
+      ]
+    });
+    expect(notParentCalls, "notParentCalls").toLooseEqual(0);
+    expect(parentCalls > 0, "parentCalls #1").toLooseEqual(true);
+    //expect(parentCalls, "parentCalls #1").toLooseEqual(1);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
+    const prevCalls = parentCalls;
+    panel.addPanel();
+    expect(notParentCalls, "notParentCalls").toLooseEqual(0);
+    expect(parentCalls > prevCalls, "parentCalls #2").toLooseEqual(true);
+  /*
+  expect(parentCalls, "parentCalls #2").toLooseEqual(2);
+  panel.addPanel();
+  expect(parentCalls, "parentCalls #3").toLooseEqual(3);
+  panel.addPanel();
+  expect(parentCalls, "parentCalls #4").toLooseEqual(4);
+  */
+  });
+  test("SurveyError.notificationType & validate in panel dynamic,Issue#9085", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 2,
+          templateElements: [
+            { name: "q1", type: "text", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] },
+            { name: "q2", type: "text" }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionMatrixDynamicModel>survey.getQuestionByName("panel");
+    const panels = panel.panels;
+    const pnl1_q1 = panels[0].getQuestionByName("q1");
+    const pnl2_q1 = panels[1].getQuestionByName("q1");
+    pnl1_q1.value = 7;
+    pnl2_q1.value = 12;
+    let erroredQuestionName = "";
+    const callbackFunc = (res: boolean, question: Question) => {
+      erroredQuestionName = question?.name || "";
+    };
+    expect(survey.currentPage.validate(true, true, callbackFunc), "There is an error").toLooseEqual(false);
+    expect(erroredQuestionName, "The matrix question is returned").toLooseEqual("q1");
+    expect(pnl1_q1.errors.length, "There is no error, cell1").toLooseEqual(1);
+    expect(pnl1_q1["hasCssError"](), "There is no css error, cell1").toLooseEqual(false);
+    expect(pnl1_q1["hasCssError"](true), "There is a warning, cell1").toLooseEqual(true);
+    expect(pnl2_q1.errors.length, "There is an error, cell2").toLooseEqual(2);
+    expect(pnl2_q1["hasCssError"](), "There is css error, cell2").toLooseEqual(true);
+    expect(pnl2_q1["hasCssError"](true), "There is css error, cell2").toLooseEqual(true);
+    pnl2_q1.value = 8;
+    expect(pnl2_q1.errors.length, "There is a warning, cell2").toLooseEqual(1);
+    expect(pnl2_q1["hasCssError"](), "There is css error, cell2").toLooseEqual(false);
+    expect(pnl2_q1["hasCssError"](true), "There is a css warning, cell2").toLooseEqual(true);
+    expect(survey.tryComplete(), "There is no error, complete the survey").toLooseEqual(true);
+    expect(survey.data, "The data is correct").toEqualValues({ panel: [{ q1: 7 }, { q1: 8 }] });
+  });
+  test("Panel dynamic vs multiple text in expression, Bug#10230", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "d1",
+          "panelCount": 1,
+          "templateElements": [
+            { "type": "multipletext", "name": "q1", items: [{ name: "item1" }, { name: "item2" }] },
+            { type: "text", name: "q2", setValueExpression: "{panel.q1.item1} + {panel.q1.item2}" }
+          ]
+        }
+      ]
+    });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
+    const panel = dp.panels[0];
+    const q1 = <QuestionMultipleTextModel>panel.getQuestionByName("q1");
+    const q2 = <QuestionTextModel>panel.getQuestionByName("q2");
+    q1.items[0].value = 1;
+    expect(q2.value, "q1.item1 = 1").toLooseEqual(1);
+    q1.items[1].value = 2;
+    expect(q2.value, "q1.item1 = 1, q1.item2 = 2").toLooseEqual(3);
+  });
+  test("Panel dynamic vs visibleIf & dots in question names, Bug#10505", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "Q088"
+            },
+            {
+              "type": "boolean",
+              "name": "Q088.5"
+            },
+            {
+              "type": "text",
+              "name": "Q090",
+              "visibleIf": "{panel.Q088.5} = false"
+            }
+          ],
+          "panelCount": 1
+        }
+      ]
+    });
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const panel = dp.panels[0];
+    const q088 = <QuestionMultipleTextModel>panel.getQuestionByName("Q088");
+    const q088_5 = <QuestionTextModel>panel.getQuestionByName("Q088.5");
+    const q090 = <QuestionTextModel>panel.getQuestionByName("Q090");
+    expect(q090.isVisible, "q090 visible #1").toLooseEqual(false);
+    q088_5.value = false;
+    expect(q090.isVisible, "q090 visible #2").toLooseEqual(true);
+    q088.value = "0123456789";
+    expect(q090.isVisible, "q090 visible #3").toLooseEqual(true);
+    q088_5.value = true;
+    expect(q090.isVisible, "q090 visible #4").toLooseEqual(false);
+    q088_5.value = false;
+    expect(q090.isVisible, "q090 visible #5").toLooseEqual(true);
+  });
+  test("paneldynamic getPanelInDesignMode", () => {
+    expect(new QuestionTextModel("q1").getPanelInDesignMode(), "text returns null").toBeFalsy();
+    const q1 = new QuestionPanelDynamicModel("q1");
+    expect(q1.getPanelInDesignMode(), "returns tempalte").toBe(q1.template);
+  });
+  test("paneldynamic firstExpanded should not call scrollElementToTop on initial build, Bug#10998", () => {
+    vi.useFakeTimers();
+    try {
+      const survey = new SurveyModel({
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "relatives",
+            "templateElements": [{ "type": "text", "name": "q1" }],
+            "templateTitle": "Panel #{panelIndex}",
+            "panelCount": 3,
+            "panelsState": "firstExpanded"
+          }
+        ]
+      });
+      let scrollCalled = false;
+      survey.scrollElementToTop = (() => { scrollCalled = true; }) as any;
+      const q = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+      q.onFirstRendering();
+      expect(q.panels[0].state, "first panel is expanded").toLooseEqual("expanded");
+      expect(q.panels[1].state, "second panel is collapsed").toLooseEqual("collapsed");
+      vi.advanceTimersByTime(50);
+      expect(scrollCalled, "scrollElementToTop should not be called on initial panel build").toLooseEqual(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1"
+            },
+            {
+              "type": "expression",
+              "name": "q2",
+              "expression": "{panel.q1} + {prevPanel.q1} + {nextPanel.q1}"
+            }
+          ],
+          "panelCount": 4
+        }
+      ]
+    });
+
+    const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    dp.panels[0].getQuestionByName("q1").value = 10;
+    dp.panels[1].getQuestionByName("q1").value = 20;
+    dp.panels[2].getQuestionByName("q1").value = 30;
+    dp.panels[3].getQuestionByName("q1").value = 40;
+    expect(dp.panels[0].getQuestionByName("q2").value, "panel 0: only nextPanel").toLooseEqual(10 + 20);
+    expect(dp.panels[1].getQuestionByName("q2").value, "panel 1: prevPanel & nextPanel").toLooseEqual(10 + 20 + 30);
+    expect(dp.panels[2].getQuestionByName("q2").value, "panel 2: prevPanel & nextPanel").toLooseEqual(20 + 30 + 40);
+    expect(dp.panels[3].getQuestionByName("q2").value, "panel 3: only prevPanel").toLooseEqual(30 + 40);
+  });
+  test("Nested paneldynamic editing a value. The bug was in V1, add unit test only, Bug#10674", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "rootPanel",
+          "panelCount": 1,
+          "templateElements": [
+            {
+              "type": "paneldynamic",
+              "name": "innerPanel",
+              "panelCount": 5,
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q1",
+                  "valueName": "q1Value"
+                }
+              ] }]
+        }
+      ]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+    const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
+    expect(innerPanel.panelCount, "There are 5 inner panels").toLooseEqual(5);
+    innerPanel.panels[0].getQuestionByName("q1").value = 10;
+    expect(innerPanel.panelCount, "There are still 5 inner panels").toLooseEqual(5);
+    expect(survey.data, "set value in the first inner panel").toEqualValues({ rootPanel: [{ innerPanel: [{ q1Value: 10 }, {}, {}, {}, {}] }] });
+  });
+  test("Removing panels in the nested panel, Bug#10739", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "rootPanel",
+          "panelCount": 1,
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "q1",
+            },
+            {
+              "type": "paneldynamic",
+              "name": "innerPanel",
+              "panelCount": 2,
+              "templateElements": [
+                {
+                  "type": "text",
+                  "name": "q2"
+                }
+              ] }]
+        }
+      ]
+    });
+    const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+    const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
+    expect(innerPanel.panelCount, "There are 2 inner panels").toLooseEqual(2);
+    innerPanel.removePanel(0);
+    expect(innerPanel.panelCount, "There is 1 inner panel").toLooseEqual(1);
+    innerPanel.removePanel(0);
+    expect(innerPanel.panelCount, "There is no inner panel").toLooseEqual(0);
+    const q1 = rootPanel.panels[0].getQuestionByName("q1");
+    q1.value = 10;
+    expect(innerPanel.panelCount, "There is still no inner panel").toLooseEqual(0);
+  });
+  test("ProcessValue.hasValue to access panel array in design mode", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q1",
+          templateElements: [
+            {
+              type: "text",
+              name: "a",
+            },
+            {
+              type: "text",
+              name: "b",
+            }
+          ],
+        },
+        { type: "text", name: "q2" }
+      ]
+    });
+    survey.setDesignMode(true);
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q2Context = q2.getValueGetterContext();
+    const processValue = new ProcessValue(q2Context);
+    expect(processValue.hasValue("q1[0].a"), "there is a question a").toLooseEqual(true);
+    expect(processValue.hasValue("q1[0].c"), "there is no question c").toLooseEqual(false);
+    panel.panelCount = 0;
+    expect(processValue.hasValue("q1[0].a"), "there is a question a, #2").toLooseEqual(true);
+    expect(processValue.hasValue("q1[0].c"), "there is no question c, #2").toLooseEqual(false);
+  });
+  test("Exception on validation panel dynamic if questions in validation are not exists", () => {
+    const survey = new SurveyModel({
+      "elements": [
+        {
+          "type": "paneldynamic",
+          "name": "panel1",
+          "titleLocation": "top",
+          "templateElements": [
+            {
+              "type": "matrixdynamic",
+              "name": "matrix1",
+              "validators": [
+                {
+                  "type": "expression",
+                  "expression": "{panel.nonfound3} = sum({panel.nonfound2},{panel.nonfound1})"
+                }
+              ],
+              "columns": [
+                {
+                  "name": "col1",
+                  "cellType": "text",
+                  "validators": [
+                    {
+                      "type": "expression",
+                      "expression": "{row.col1} <> 0"
+                    }
+                  ],
+                  "totalType": "sum"
+                },
+                {
+                  "name": "col2",
+                  "cellType": "text",
+                  "validators": [
+                    {
+                      "type": "expression",
+                      "expression": "{row.col2} <> 0"
+                    }
+                  ],
+                  "totalType": "sum"
+                }
+              ],
+              "cellType": "text",
+              "rowCount": 1,
+              "minRowCount": 1,
+            }
+          ],
+          "panelCount": 1,
+          "minPanelCount": 1,
+        }
+      ],
+      "checkErrorsMode": "onValueChanged"
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const matrix = panel.panels[0].getQuestionByName("matrix1");
+    const row = matrix.visibleRows[0];
+    const cellQuestion = row.cells[0].question;
+    cellQuestion.value = 10;
+    expect(cellQuestion.errors.length, "There is no errors on").toLooseEqual(0);
+  });
+
+  test("question valueName vs two paneldynamic & question triggers", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel1",
+          valueName: "panelA",
+          panelCount: 2,
+          templateElements: [
+            { name: "col1", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+            { name: "col2", type: "radiogroup", choices: ["a", "b"] }
+          ]
+        },
+        { type: "paneldynamic",
+          name: "panel2",
+          valueName: "panelA",
+          panelCount: 2,
+          templateElements: [
+            { name: "col2", type: "radiogroup", choices: ["a", "b"] },
+            { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+            { name: "col4", type: "text" }
+          ]
+        },
+        { type: "paneldynamic",
+          name: "panel3",
+          valueName: "panelA",
+          panelCount: 2,
+          templateElements: [
+            { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
+          ]
+        }
+      ]
+    });
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+    const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+    panel1.panels[0].getQuestionByName("col1").value = "m1_r1_col1";
+    panel1.panels[1].getQuestionByName("col1").value = "m1_r2_col1";
+    panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
+    panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
+    panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
+    panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
+    panel1.panels[0].getQuestionByName("col2").value = "a";
+    panel2.panels[1].getQuestionByName("col2").value = "a";
+    expect(panel1.panels[0].getQuestionByName("col1").isEmpty(), "Check value for panel1, row1, col1").toLooseEqual(true);
+    expect(panel1.panels[1].getQuestionByName("col1").isEmpty(), "Check value for panel1, row2, col1").toLooseEqual(true);
+    expect(panel2.panels[0].getQuestionByName("col3").isEmpty(), "Check value for panel2, row1, col3").toLooseEqual(true);
+    expect(panel2.panels[1].getQuestionByName("col3").isEmpty(), "Check value for panel2, row2, col3").toLooseEqual(true);
+    expect(panel3.panels[0].getQuestionByName("col5").isEmpty(), "Check value for panel3, row1, col5").toLooseEqual(true);
+    expect(panel3.panels[1].getQuestionByName("col5").isEmpty(), "Check value for panel3, row2, col5").toLooseEqual(true);
+  });
+
+  test("question valueName vs matrixdynamic and paneldynamic & question triggers", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "matrixdynamic",
+          name: "matrix1",
+          valueName: "panelA",
+          rowCount: 2,
+          columns: [
+            { name: "col1", type: "text", resetValueIf: "{row.col2} = 'a'" },
+            { name: "col2", type: "radiogroup", choices: ["a", "b"] }
+          ]
+        },
+        { type: "paneldynamic",
+          name: "panel2",
+          valueName: "panelA",
+          panelCount: 2,
+          templateElements: [
+            { name: "col2", type: "radiogroup", choices: ["a", "b"] },
+            { name: "col3", type: "text", resetValueIf: "{panel.col2} = 'a'" },
+            { name: "col4", type: "text" }
+          ]
+        },
+        { type: "paneldynamic",
+          name: "panel3",
+          valueName: "panelA",
+          panelCount: 2,
+          templateElements: [
+            { name: "col5", type: "text", resetValueIf: "{panel.col2} = 'a'" }
+          ]
+        }
+      ]
+    });
+    const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+    const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+    const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+    matrix1.visibleRows[0].getQuestionByName("col1").value = "m1_r1_col1";
+    matrix1.visibleRows[1].getQuestionByName("col1").value = "m1_r2_col1";
+    panel2.panels[0].getQuestionByName("col3").value = "m2_r1_col2";
+    panel2.panels[1].getQuestionByName("col3").value = "m2_r2_col2";
+    panel3.panels[0].getQuestionByName("col5").value = "m3_r1_col5";
+    panel3.panels[1].getQuestionByName("col5").value = "m3_r2_col5";
+    matrix1.visibleRows[0].getQuestionByName("col2").value = "a";
+    panel2.panels[1].getQuestionByName("col2").value = "a";
+    expect(matrix1.visibleRows[0].getQuestionByName("col1").isEmpty(), "Check value for panel1, row1, col1").toLooseEqual(true);
+    expect(matrix1.visibleRows[1].getQuestionByName("col1").isEmpty(), "Check value for matrix, row2, col1").toLooseEqual(true);
+    expect(panel2.panels[0].getQuestionByName("col3").isEmpty(), "Check value for panel2, row1, col3").toLooseEqual(true);
+    expect(panel2.panels[1].getQuestionByName("col3").isEmpty(), "Check value for panel2, row2, col3").toLooseEqual(true);
+    expect(panel3.panels[0].getQuestionByName("col5").isEmpty(), "Check value for panel3, row1, col5").toLooseEqual(true);
+    expect(panel3.panels[1].getQuestionByName("col5").isEmpty(), "Check value for panel3, row2, col5").toLooseEqual(true);
+  });
+
+  test("paneldynamic shared question value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic",
+          name: "panel1",
+          panelCount: 2,
+          templateElements: [
+            { name: "q1", type: "text", valueName: "qa" },
+            { name: "q2", type: "text", valueName: "qa" }
+          ]
+        }
+      ]
+    });
+
+    const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+
+    const q1 = panel1.panels[0].getQuestionByName("q1");
+    const q2 = panel1.panels[0].getQuestionByName("q2");
+
+    q1.value = "value1";
+    expect(q2.value, "q2.value equals to q1.value").toLooseEqual("value1");
+  });
+
+  test("paneldynamic + radiogroup with showOtherItem clears required error on other value change, Bug#10964", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "q2",
+              choices: ["Item 1", "Item 2", "Item 3"],
+              showOtherItem: true,
+              isRequired: true
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+    radioQ.value = "other";
+    survey.tryComplete();
+    expect(radioQ.errors.length, "Required error is shown for the radiogroup").toLooseEqual(1);
+    radioQ.otherValue = "my other value";
+    expect(radioQ.errors.length, "Required error is cleared after entering the Other value").toLooseEqual(0);
+  });
+  test("paneldynamic + checkErrorsMode: onValueChanged + radiogroup with showOtherItem clears required error on other value change, Bug#10964", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "radiogroup",
+              name: "q2",
+              choices: ["Item 1", "Item 2", "Item 3"],
+              showOtherItem: true,
+              isRequired: true
+            }
+          ]
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+    const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
+    radioQ.value = "other";
+    radioQ.otherValue = "my other value 1";
+    expect(radioQ.errors.length, "There is no errors").toLooseEqual(0);
+    radioQ.otherValue = "";
+    expect(radioQ.errors.length, "Required error is shown for the radiogroup").toLooseEqual(1);
+    radioQ.otherValue = "my other value 2";
+    expect(radioQ.errors.length, "Required error is cleared after entering the Other value").toLooseEqual(0);
+  });
+  test("Fire onValueChanged, onDynamicPanelValueChanging, onDynamicPanelValueChanged on comment change, bug#11001", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              panelCount: 1,
+              templateElements: [
+                {
+                  type: "radiogroup",
+                  name: "question2",
+                  showCommentArea: true,
+                  choices: ["Item 1", "Item 2", "Item 3"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    const radioQ = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("question2");
+
+    const firedEvents: Array<{ event: string, name: string }> = [];
+    survey.onValueChanged.add((sender, options) => {
+      firedEvents.push({ event: "onValueChanged", name: options.name });
+    });
+    survey.onDynamicPanelValueChanging.add((sender, options) => {
+      firedEvents.push({ event: "onDynamicPanelValueChanging", name: options.name });
+    });
+    survey.onDynamicPanelValueChanged.add((sender, options) => {
+      firedEvents.push({ event: "onDynamicPanelValueChanged", name: options.name });
+    });
+
+    radioQ.value = "Item 1";
+    expect(firedEvents, "All three events fire on value change with correct name").toEqualValues([
+      { event: "onDynamicPanelValueChanging", name: "question2" },
+      { event: "onValueChanged", name: "question1" },
+      { event: "onDynamicPanelValueChanged", name: "question2" }
+    ]);
+
+    firedEvents.length = 0;
+    radioQ.comment = "some comment";
+    expect(firedEvents, "All three events fire on comment change with comment suffix in name").toEqualValues([
+      { event: "onDynamicPanelValueChanging", name: "question2-Comment" },
+      { event: "onValueChanged", name: "question1" },
+      { event: "onDynamicPanelValueChanged", name: "question2-Comment" }
+    ]);
+  });
+
+  test("paneldynamic + checkErrorsMode: onValueChanged + expression validator should not show error on new panel, bug##11002", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "q1",
+              isRequired: true
+            },
+            {
+              type: "slider",
+              name: "q2",
+              isRequired: true,
+              validators: [
+                {
+                  type: "expression",
+                  text: "Value must be >= 75",
+                  expression: "{panel.q2} >= 75"
+                }
+              ],
+              min: 70,
+              max: 99,
+              step: 0.1
+            }
+          ]
+        }
+      ]
+    });
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const slider0 = panelDynamic.panels[0].getQuestionByName("q2");
+    expect(slider0.errors.length, "No errors initially in the first panel's slider").toLooseEqual(0);
+    panelDynamic.addPanelUI();
+    expect(panelDynamic.panels.length, "Two panels now").toLooseEqual(2);
+    const slider1 = panelDynamic.panels[1].getQuestionByName("q2");
+    expect(slider1.errors.length, "No errors in the new panel's slider after adding a panel").toLooseEqual(0);
+  });
 });

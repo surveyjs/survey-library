@@ -22,318 +22,300 @@ import {
 import { ListModel } from "../src/list";
 import { ChoiceItem } from "../src/question_baseselect";
 
-export default QUnit.module("choicesRestful");
-
-class ChoicesRestfulTester extends ChoicesRestful {
-  private delaySentRequestValue: boolean = false;
-  public static doNotSendRequest = false;
-  private nonProceedUrls = {};
-  public noCaching: boolean = false;
-  public lastProcesedUrl: string;
-  public items: any = null;
-  public sentRequestCounter: number = 0;
-  public get testProcessedUrl() {
-    return this.processedUrl;
-  }
-  public get delaySentRequest(): boolean {
-    return this.delaySentRequestValue;
-  }
-  public set delaySentRequest(val: boolean) {
-    if (this.delaySentRequest == val) return;
-    this.delaySentRequestValue = val;
-    if (!val) {
-      for (var key in this.nonProceedUrls) {
-        this.callResultCallback(this.nonProceedUrls[key], key);
+import { describe, test, expect } from "vitest";
+describe("choicesRestful", () => {
+  class ChoicesRestfulTester extends ChoicesRestful {
+    private delaySentRequestValue: boolean = false;
+    public static doNotSendRequest = false;
+    private nonProceedUrls = {};
+    public noCaching: boolean = false;
+    public lastProcesedUrl: string;
+    public items: any = null;
+    public sentRequestCounter: number = 0;
+    public get testProcessedUrl() {
+      return this.processedUrl;
+    }
+    public get delaySentRequest(): boolean {
+      return this.delaySentRequestValue;
+    }
+    public set delaySentRequest(val: boolean) {
+      if (this.delaySentRequest == val) return;
+      this.delaySentRequestValue = val;
+      if (!val) {
+        for (var key in this.nonProceedUrls) {
+          this.callResultCallback(this.nonProceedUrls[key], key);
+        }
+        this.nonProceedUrls = {};
       }
-      this.nonProceedUrls = {};
     }
-  }
-  public isRequestRunning: boolean;
-  public getIsRunning(): boolean {
-    if (this.isRequestRunning !== undefined) return this.isRequestRunning;
-    return super.getIsRunning();
-  }
-  public blockSendingRequest: boolean = ChoicesRestfulTester.doNotSendRequest;
-  public unblockSendRequest() {
-    this.blockSendingRequest = undefined;
-    this.sendRequest();
-  }
-  protected sendRequest() {
-    this.beforeSendRequest();
-    if (this.blockSendingRequest === true) return;
-    this.sentRequestCounter++;
-    this.lastProcesedUrl = this.processedUrl;
-    if (this.processedUrl.indexOf("empty") > -1)this.onLoad([]);
-    if (this.processedUrl.indexOf("countries") > -1) {
-      this.onLoad(getCountries());
+    public isRequestRunning: boolean;
+    public getIsRunning(): boolean {
+      if (this.isRequestRunning !== undefined) return this.isRequestRunning;
+      return super.getIsRunning();
     }
-    if (this.processedUrl.indexOf("localizedstrings") > -1) {
-      this.onLoad(getLocalized());
+    public blockSendingRequest: boolean = ChoicesRestfulTester.doNotSendRequest;
+    public unblockSendRequest() {
+      this.blockSendingRequest = undefined;
+      this.sendRequest();
     }
-    if (!!this.items) {
-      this.onLoad(this.items);
-      return;
+    protected sendRequest() {
+      this.beforeSendRequest();
+      if (this.blockSendingRequest === true) return;
+      this.sentRequestCounter++;
+      this.lastProcesedUrl = this.processedUrl;
+      if (this.processedUrl.indexOf("empty") > -1)this.onLoad([]);
+      if (this.processedUrl.indexOf("countries") > -1) {
+        this.onLoad(getCountries());
+      }
+      if (this.processedUrl.indexOf("localizedstrings") > -1) {
+        this.onLoad(getLocalized());
+      }
+      if (!!this.items) {
+        this.onLoad(this.items);
+        return;
+      }
+      if (this.processedUrl.indexOf("ca_cities") > -1)this.onLoad(getCACities());
+      if (this.processedUrl.indexOf("tx_cities") > -1)this.onLoad(getTXCities());
+      if (this.processedUrl.indexOf("xml") > -1)
+        this.onLoad(this.parseResponse(getXmlResponse()));
+      if (this.processedUrl.indexOf("text") > -1)
+        this.onLoad(this.parseResponse(getTextResponse()));
     }
-    if (this.processedUrl.indexOf("ca_cities") > -1)this.onLoad(getCACities());
-    if (this.processedUrl.indexOf("tx_cities") > -1)this.onLoad(getTXCities());
-    if (this.processedUrl.indexOf("xml") > -1)
-      this.onLoad(this.parseResponse(getXmlResponse()));
-    if (this.processedUrl.indexOf("text") > -1)
-      this.onLoad(this.parseResponse(getTextResponse()));
-  }
-  public doLoad(result: Array<any>) {
-    this.onLoad(result);
-  }
-  protected onLoad(result: any, loadingObjHash: string = null) {
-    this.beforeLoadRequest();
-    super.onLoad(result, loadingObjHash);
-  }
-  protected useChangedItemsResults(): boolean {
-    if (this.noCaching) return false;
-    return super.useChangedItemsResults();
-  }
-  protected callResultCallback(
-    items: Array<ItemValue>,
-    loadingObjHash: string
-  ) {
-    if (this.delaySentRequest) {
-      this.nonProceedUrls[loadingObjHash] = items;
-    } else {
-      super.callResultCallback(items, loadingObjHash);
+    public doLoad(result: Array<any>) {
+      this.onLoad(result);
     }
-  }
-}
-
-class TextProcessorTester implements ITextProcessor {
-  processText(text: string, returnDisplayValue: boolean): string {
-    return this.processTextEx({ text: text, doEncoding: true }).text;
-  }
-  processTextEx(params: ITextProcessorProp): ITextProcessorResult {
-    return { text: params.text, hasAllValuesOnLastRun: true };
-  }
-}
-
-class QuestionDropdownModelTester extends QuestionDropdownModel {
-  oldGetResultCallback: any;
-  public loadingFromChoicesCounter: number = 0;
-  constructor(name: string) {
-    super(name);
-    this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
-    var self = this;
-    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
-      self.newGetResultCallback(items);
-    };
-  }
-  public getType(): string {
-    return "dropdownrestfultester";
-  }
-  public get restFulTest(): ChoicesRestfulTester {
-    return <ChoicesRestfulTester>this.choicesByUrl;
-  }
-  protected createRestful(): ChoicesRestful {
-    var res = new ChoicesRestfulTester();
-    res.noCaching = true;
-    return res;
-  }
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
-    super.onLoadChoicesFromUrl(array);
-    this.loadingFromChoicesCounter++;
-  }
-  public hasItemsCallbackDelay: boolean = false;
-  private loadedItems: Array<ItemValue>;
-  public doResultsCallback() {
-    if (this.loadedItems) {
-      this.oldGetResultCallback(this.loadedItems);
+    protected onLoad(result: any, loadingObjHash: string = null) {
+      this.beforeLoadRequest();
+      super.onLoad(result, loadingObjHash);
     }
-    this.loadedItems = null;
-  }
-  protected newGetResultCallback(items: Array<ItemValue>) {
-    this.loadedItems = items;
-    if (!this.hasItemsCallbackDelay) {
-      this.doResultsCallback();
+    protected useChangedItemsResults(): boolean {
+      if (this.noCaching) return false;
+      return super.useChangedItemsResults();
     }
-  }
-  processor: ITextProcessor;
-  protected get textProcessor(): ITextProcessor {
-    if (!this.processor)this.processor = new TextProcessorTester();
-    return this.processor;
-  }
-}
-
-class QuestionCheckboxModelTester extends QuestionCheckboxModel {
-  oldGetResultCallback: any;
-  constructor(name: string) {
-    super(name);
-    this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
-    var self = this;
-    this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
-      self.newGetResultCallback(items);
-    };
-  }
-  public getType(): string {
-    return "dropdownrestfultester";
-  }
-  public get restFulTest(): ChoicesRestfulTester {
-    return <ChoicesRestfulTester>this.choicesByUrl;
-  }
-  protected createRestful(): ChoicesRestful {
-    var res = new ChoicesRestfulTester();
-    res.noCaching = true;
-    return res;
-  }
-  public hasItemsCallbackDelay: boolean = false;
-  private loadedItems: Array<ItemValue>;
-  public doResultsCallback() {
-    if (this.loadedItems) {
-      this.oldGetResultCallback(this.loadedItems);
+    protected callResultCallback(
+      items: Array<ItemValue>,
+      loadingObjHash: string
+    ) {
+      if (this.delaySentRequest) {
+        this.nonProceedUrls[loadingObjHash] = items;
+      } else {
+        super.callResultCallback(items, loadingObjHash);
+      }
     }
-    this.loadedItems = null;
-  }
-  protected newGetResultCallback(items: Array<ItemValue>) {
-    this.loadedItems = items;
-    if (!this.hasItemsCallbackDelay) {
-      this.doResultsCallback();
-    }
-  }
-  processor: ITextProcessor;
-  protected get textProcessor(): ITextProcessor {
-    if (!this.processor)this.processor = new TextProcessorTester();
-    return this.processor;
-  }
-}
-
-Serializer.addClass(
-  "dropdownrestfultester",
-  [],
-  function() {
-    return new QuestionDropdownModelTester("");
-  },
-  "dropdown"
-);
-
-class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
-  constructor(name: string) {
-    super(name);
-  }
-  protected createQuestionCore(
-    row: MatrixDropdownRowModelBase,
-    column: MatrixDropdownColumn
-  ): Question {
-    if (column.cellType == "dropdown") {
-      var newQuestion = new QuestionDropdownModelTester(this.name);
-      newQuestion.hasItemsCallbackDelay = true;
-      var json = column.templateQuestion.toJSON();
-      new JsonObject().toObject(json, newQuestion);
-      newQuestion.setSurveyImpl(row);
-      return newQuestion;
-    }
-    return super.createQuestionCore(row, column);
   }
 
-  processor: ITextProcessor;
-  protected get textProcessor(): ITextProcessor {
-    if (!this.processor)this.processor = new TextProcessorTester();
-    return this.processor;
+  class TextProcessorTester implements ITextProcessor {
+    processText(text: string, returnDisplayValue: boolean): string {
+      return this.processTextEx({ text: text, doEncoding: true }).text;
+    }
+    processTextEx(params: ITextProcessorProp): ITextProcessorResult {
+      return { text: params.text, hasAllValuesOnLastRun: true };
+    }
   }
-}
 
-class QuestionDropdownImageTester extends QuestionDropdownModel {
-  constructor(name: string) {
-    super(name);
+  class QuestionDropdownModelTester extends QuestionDropdownModel {
+    oldGetResultCallback: any;
+    public loadingFromChoicesCounter: number = 0;
+    constructor(name: string) {
+      super(name);
+      this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
+      var self = this;
+      this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+        self.newGetResultCallback(items);
+      };
+    }
+    public getType(): string {
+      return "dropdownrestfultester";
+    }
+    public get restFulTest(): ChoicesRestfulTester {
+      return <ChoicesRestfulTester>this.choicesByUrl;
+    }
+    protected createRestful(): ChoicesRestful {
+      var res = new ChoicesRestfulTester();
+      res.noCaching = true;
+      return res;
+    }
+    protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
+      super.onLoadChoicesFromUrl(array);
+      this.loadingFromChoicesCounter++;
+    }
+    public hasItemsCallbackDelay: boolean = false;
+    private loadedItems: Array<ItemValue>;
+    public doResultsCallback() {
+      if (this.loadedItems) {
+        this.oldGetResultCallback(this.loadedItems);
+      }
+      this.loadedItems = null;
+    }
+    protected newGetResultCallback(items: Array<ItemValue>) {
+      this.loadedItems = items;
+      if (!this.hasItemsCallbackDelay) {
+        this.doResultsCallback();
+      }
+    }
+    processor: ITextProcessor;
+    protected get textProcessor(): ITextProcessor {
+      if (!this.processor)this.processor = new TextProcessorTester();
+      return this.processor;
+    }
   }
-  protected createRestful(): ChoicesRestful {
-    var res = new ChoicesRestfulTester();
-    res.noCaching = true;
-    return res;
-  }
-  public getType(): string {
-    return "dropdown_image";
-  }
-  processor: ITextProcessor;
-  protected get textProcessor(): ITextProcessor {
-    if (!this.processor)this.processor = new TextProcessorTester();
-    return this.processor;
-  }
-}
 
-Serializer.addClass(
-  "dropdown_image",
-  [],
-  function() {
-    return new QuestionDropdownImageTester("");
-  },
-  "dropdown"
-);
-Serializer.addClass(
-  "imageitemvalues_choicesrest",
-  ["alpha3_code", "customProperty"],
-  null,
-  "itemvalue"
-);
-Serializer.addClass(
-  "imagepicker_choicesrest",
-  [
-    {
-      name: "choices:imageitemvalues_choicesrest",
-      onGetValue: function(obj) {
-        return ItemValue.getData(obj.choices);
-      },
-      onSetValue: function(obj, value) {
-        obj.choices = value;
-      },
+  class QuestionCheckboxModelTester extends QuestionCheckboxModel {
+    oldGetResultCallback: any;
+    constructor(name: string) {
+      super(name);
+      this.oldGetResultCallback = this.choicesByUrl.getResultCallback;
+      var self = this;
+      this.choicesByUrl.getResultCallback = function(items: Array<ItemValue>) {
+        self.newGetResultCallback(items);
+      };
+    }
+    public getType(): string {
+      return "dropdownrestfultester";
+    }
+    public get restFulTest(): ChoicesRestfulTester {
+      return <ChoicesRestfulTester>this.choicesByUrl;
+    }
+    protected createRestful(): ChoicesRestful {
+      var res = new ChoicesRestfulTester();
+      res.noCaching = true;
+      return res;
+    }
+    public hasItemsCallbackDelay: boolean = false;
+    private loadedItems: Array<ItemValue>;
+    public doResultsCallback() {
+      if (this.loadedItems) {
+        this.oldGetResultCallback(this.loadedItems);
+      }
+      this.loadedItems = null;
+    }
+    protected newGetResultCallback(items: Array<ItemValue>) {
+      this.loadedItems = items;
+      if (!this.hasItemsCallbackDelay) {
+        this.doResultsCallback();
+      }
+    }
+    processor: ITextProcessor;
+    protected get textProcessor(): ITextProcessor {
+      if (!this.processor)this.processor = new TextProcessorTester();
+      return this.processor;
+    }
+  }
+
+  Serializer.addClass(
+    "dropdownrestfultester",
+    [],
+    function() {
+      return new QuestionDropdownModelTester("");
     },
-  ],
-  null,
-  "dropdown_image"
-);
+    "dropdown"
+  );
 
-QUnit.test("Load countries", function(assert) {
-  var test = new ChoicesRestfulTester();
-  var items = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "allcountries";
-  test.path = "RestResponse;result";
-  test.run();
-  assert.equal(items.length, 5, "there are 5 countries");
-  assert.equal(
-    items[0].value,
-    "Afghanistan",
-    "the first country is Afghanistan"
-  );
-  assert.equal(
-    items[4].value,
-    "American Samoa",
-    "the fifth country is American Samoa"
-  );
-});
+  class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
+    constructor(name: string) {
+      super(name);
+    }
+    protected createQuestionCore(
+      row: MatrixDropdownRowModelBase,
+      column: MatrixDropdownColumn
+    ): Question {
+      if (column.cellType == "dropdown") {
+        var newQuestion = new QuestionDropdownModelTester(this.name);
+        newQuestion.hasItemsCallbackDelay = true;
+        var json = column.templateQuestion.toJSON();
+        new JsonObject().toObject(json, newQuestion);
+        newQuestion.setSurveyImpl(row);
+        return newQuestion;
+      }
+      return super.createQuestionCore(row, column);
+    }
 
-QUnit.test("Load countries, support dot '.' as path separator", function (assert) {
-  var test = new ChoicesRestfulTester();
-  var items: Array<ItemValue> = [];
-  test.getResultCallback = function (res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "allcountries";
-  test.path = "RestResponse.result";
-  test.run();
-  assert.equal(items.length, 5, "there are 5 countries");
-  assert.equal(
-    items[0].value,
-    "Afghanistan",
-    "the first country is Afghanistan"
-  );
-  assert.equal(
-    items[4].value,
-    "American Samoa",
-    "the fifth country is American Samoa"
-  );
-});
+    processor: ITextProcessor;
+    protected get textProcessor(): ITextProcessor {
+      if (!this.processor)this.processor = new TextProcessorTester();
+      return this.processor;
+    }
+  }
 
-QUnit.test(
-  "Check isRunning for restfull class that wait request from another restfull class, Bug#3039",
-  function(assert) {
+  class QuestionDropdownImageTester extends QuestionDropdownModel {
+    constructor(name: string) {
+      super(name);
+    }
+    protected createRestful(): ChoicesRestful {
+      var res = new ChoicesRestfulTester();
+      res.noCaching = true;
+      return res;
+    }
+    public getType(): string {
+      return "dropdown_image";
+    }
+    processor: ITextProcessor;
+    protected get textProcessor(): ITextProcessor {
+      if (!this.processor)this.processor = new TextProcessorTester();
+      return this.processor;
+    }
+  }
+
+  Serializer.addClass(
+    "dropdown_image",
+    [],
+    function() {
+      return new QuestionDropdownImageTester("");
+    },
+    "dropdown"
+  );
+  Serializer.addClass(
+    "imageitemvalues_choicesrest",
+    ["alpha3_code", "customProperty"],
+    null,
+    "itemvalue"
+  );
+  Serializer.addClass(
+    "imagepicker_choicesrest",
+    [
+      {
+        name: "choices:imageitemvalues_choicesrest",
+        onGetValue: function(obj) {
+          return ItemValue.getData(obj.choices);
+        },
+        onSetValue: function(obj, value) {
+          obj.choices = value;
+        },
+      },
+    ],
+    null,
+    "dropdown_image"
+  );
+
+  test("Load countries", () => {
+    var test = new ChoicesRestfulTester();
+    var items = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.run();
+    expect(items.length, "there are 5 countries").toLooseEqual(5);
+    expect(items[0].value, "the first country is Afghanistan").toLooseEqual("Afghanistan");
+    expect(items[4].value, "the fifth country is American Samoa").toLooseEqual("American Samoa");
+  });
+
+  test("Load countries, support dot '.' as path separator", () => {
+    var test = new ChoicesRestfulTester();
+    var items: Array<ItemValue> = [];
+    test.getResultCallback = function (res: Array<ItemValue>) {
+      items = res;
+    };
+    test.url = "allcountries";
+    test.path = "RestResponse.result";
+    test.run();
+    expect(items.length, "there are 5 countries").toLooseEqual(5);
+    expect(items[0].value, "the first country is Afghanistan").toLooseEqual("Afghanistan");
+    expect(items[4].value, "the fifth country is American Samoa").toLooseEqual("American Samoa");
+  });
+
+  test("Check isRunning for restfull class that wait request from another restfull class, Bug#3039", () => {
     ChoicesRestful.clearCache();
     var test = new ChoicesRestfulTester();
     var items = [];
@@ -344,7 +326,7 @@ QUnit.test(
     test.url = "allcountries";
     test.path = "RestResponse;result";
     test.run();
-    assert.equal(test.isRunning, true, "We are running");
+    expect(test.isRunning, "We are running").toLooseEqual(true);
     var test2 = new ChoicesRestfulTester();
     test2.getResultCallback = function(res: Array<ItemValue>) {
       items = res;
@@ -352,162 +334,129 @@ QUnit.test(
     test2.url = "allcountries";
     test2.path = "RestResponse;result";
     test2.run();
-    assert.equal(test2.isRunning, true, "We are running, test2");
+    expect(test2.isRunning, "We are running, test2").toLooseEqual(true);
     test.unblockSendRequest();
-    assert.equal(test.isRunning, false, "We are done");
-    assert.equal(test2.isRunning, false, "We are done, test2");
+    expect(test.isRunning, "We are done").toLooseEqual(false);
+    expect(test2.isRunning, "We are done, test2").toLooseEqual(false);
     ChoicesRestful.clearCache();
-  }
-);
+  });
 
-QUnit.test("attachData", function(assert) {
-  var test = new ChoicesRestfulTester();
-  var items: Array<ItemValue> = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.noCaching = true;
-  test.url = "allcountries";
-  test.path = "RestResponse;result";
-  test.attachData = true;
-  test.run();
-  assert.equal(items.length, 5, "there are 5 countries");
-  assert.equal(
-    items[0].value,
-    "Afghanistan",
-    "the first country is Afghanistan"
-  );
-  const originalItem = {
-    name: "Afghanistan",
-    locName: { en: "Afghanistan" },
-    alpha2_code: "AF",
-    alpha3_code: "AFG",
-  };
-  assert.deepEqual(items[0].originalItem, originalItem, "keeps the original item");
-  assert.deepEqual(items[0].data, originalItem, "keeps the original item");
-});
+  test("attachData", () => {
+    var test = new ChoicesRestfulTester();
+    var items: Array<ItemValue> = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.noCaching = true;
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.attachData = true;
+    test.run();
+    expect(items.length, "there are 5 countries").toLooseEqual(5);
+    expect(items[0].value, "the first country is Afghanistan").toLooseEqual("Afghanistan");
+    const originalItem = {
+      name: "Afghanistan",
+      locName: { en: "Afghanistan" },
+      alpha2_code: "AF",
+      alpha3_code: "AFG",
+    };
+    expect(items[0].originalItem, "keeps the original item").toEqualValues(originalItem);
+    expect(items[0].data, "keeps the original item").toEqualValues(originalItem);
+  });
 
-QUnit.test("attachData in question", function(assert) {
-  var question = new QuestionDropdownModelTester("q1");
-  question.fromJSON({
-    choicesByUrl: {
+  test("attachData in question", () => {
+    var question = new QuestionDropdownModelTester("q1");
+    question.fromJSON({
+      choicesByUrl: {
+        url: "allcountries",
+        path: "RestResponse;result",
+        attachData: true,
+      },
+    });
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices has been loaded").toLooseEqual(5);
+    const originalItem = {
+      name: "Afghanistan",
+      locName: { en: "Afghanistan" },
+      alpha2_code: "AF",
+      alpha3_code: "AFG",
+    };
+    expect(question.visibleChoices[0].originalItem, "keeps the original item").toEqualValues(originalItem);
+    expect(question.visibleChoices[0].data, "keeps the original item").toEqualValues(originalItem);
+  });
+
+  test("attachData in question", () => {
+    var question = new QuestionDropdownModelTester("q1");
+    question.fromJSON({
+      choicesByUrl: {
+        url: "allcountries",
+        path: "RestResponse;result",
+        attachData: true,
+      },
+    });
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices has been loaded").toLooseEqual(5);
+    const originalItem = {
+      name: "Afghanistan",
+      locName: { en: "Afghanistan" },
+      alpha2_code: "AF",
+      alpha3_code: "AFG",
+    };
+    expect(question.visibleChoices[0].originalItem, "keeps the original item").toEqualValues(originalItem);
+    expect(question.visibleChoices[0].data, "keeps the original item").toEqualValues(originalItem);
+  });
+
+  test("Load attachData value from JSON", () => {
+    var test = new ChoicesRestful();
+    expect(test.attachData, "attachData initially false").toBeFalsy();
+    test.fromJSON({
       url: "allcountries",
       path: "RestResponse;result",
       attachData: true,
-    },
-  });
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
-  const originalItem = {
-    name: "Afghanistan",
-    locName: { en: "Afghanistan" },
-    alpha2_code: "AF",
-    alpha3_code: "AFG",
-  };
-  assert.deepEqual(question.visibleChoices[0].originalItem, originalItem, "keeps the original item");
-  assert.deepEqual(question.visibleChoices[0].data, originalItem, "keeps the original item");
-});
+    });
+    expect(test.attachData, "attachData has been loaded").toBeTruthy();
 
-QUnit.test("attachData in question", function(assert) {
-  var question = new QuestionDropdownModelTester("q1");
-  question.fromJSON({
-    choicesByUrl: {
+    var question = new QuestionDropdownModel("q1");
+    expect(question.choicesByUrl.attachData, "question: attachData initially false").toBeFalsy();
+    question.fromJSON({
+      choicesByUrl: {
+        url: "allcountries",
+        path: "RestResponse;result",
+        attachData: true,
+      },
+    });
+    expect(question.choicesByUrl.url, "question: url has been loaded").toLooseEqual("allcountries");
+    expect(question.choicesByUrl.attachData, "question: attachData has been loaded").toBeTruthy();
+  });
+
+  test("Load attachData value from JSON", () => {
+    var test = new ChoicesRestful();
+    expect(test.attachData, "attachData initially false").toBeFalsy();
+    expect(test.attachOriginalItems, "attachOriginalItems initially false").toBeFalsy();
+    test.fromJSON({
       url: "allcountries",
       path: "RestResponse;result",
       attachData: true,
-    },
-  });
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
-  const originalItem = {
-    name: "Afghanistan",
-    locName: { en: "Afghanistan" },
-    alpha2_code: "AF",
-    alpha3_code: "AFG",
-  };
-  assert.deepEqual(question.visibleChoices[0].originalItem, originalItem, "keeps the original item");
-  assert.deepEqual(question.visibleChoices[0].data, originalItem, "keeps the original item");
-});
+    });
+    expect(test.attachData, "attachData has been loaded").toBeTruthy();
+    expect(test.attachOriginalItems, "attachOriginalItems has been loaded").toBeTruthy();
 
-QUnit.test("Load attachData value from JSON", function(assert) {
-  var test = new ChoicesRestful();
-  assert.notOk(test.attachData, "attachData initially false");
-  test.fromJSON({
-    url: "allcountries",
-    path: "RestResponse;result",
-    attachData: true,
+    var question = new QuestionDropdownModel("q1");
+    expect(question.choicesByUrl.attachData, "question: attachData initially false").toBeFalsy();
+    expect(question.choicesByUrl.attachOriginalItems, "question: attachOriginalItems initially false").toBeFalsy();
+    question.fromJSON({
+      choicesByUrl: {
+        url: "allcountries",
+        path: "RestResponse;result",
+        attachData: true,
+      },
+    });
+    expect(question.choicesByUrl.url, "question: url has been loaded").toLooseEqual("allcountries");
+    expect(question.choicesByUrl.attachData, "question: attachData has been loaded").toBeTruthy();
+    expect(question.choicesByUrl.attachOriginalItems, "question: attachOriginalItems has been loaded").toBeTruthy();
   });
-  assert.ok(test.attachData, "attachData has been loaded");
 
-  var question = new QuestionDropdownModel("q1");
-  assert.notOk(
-    question.choicesByUrl.attachData,
-    "question: attachData initially false"
-  );
-  question.fromJSON({
-    choicesByUrl: {
-      url: "allcountries",
-      path: "RestResponse;result",
-      attachData: true,
-    },
-  });
-  assert.equal(
-    question.choicesByUrl.url,
-    "allcountries",
-    "question: url has been loaded"
-  );
-  assert.ok(
-    question.choicesByUrl.attachData,
-    "question: attachData has been loaded"
-  );
-});
-
-QUnit.test("Load attachData value from JSON", function(assert) {
-  var test = new ChoicesRestful();
-  assert.notOk(test.attachData, "attachData initially false");
-  assert.notOk(test.attachOriginalItems, "attachOriginalItems initially false");
-  test.fromJSON({
-    url: "allcountries",
-    path: "RestResponse;result",
-    attachData: true,
-  });
-  assert.ok(test.attachData, "attachData has been loaded");
-  assert.ok(test.attachOriginalItems, "attachOriginalItems has been loaded");
-
-  var question = new QuestionDropdownModel("q1");
-  assert.notOk(
-    question.choicesByUrl.attachData,
-    "question: attachData initially false"
-  );
-  assert.notOk(
-    question.choicesByUrl.attachOriginalItems,
-    "question: attachOriginalItems initially false"
-  );
-  question.fromJSON({
-    choicesByUrl: {
-      url: "allcountries",
-      path: "RestResponse;result",
-      attachData: true,
-    },
-  });
-  assert.equal(
-    question.choicesByUrl.url,
-    "allcountries",
-    "question: url has been loaded"
-  );
-  assert.ok(
-    question.choicesByUrl.attachData,
-    "question: attachData has been loaded"
-  );
-  assert.ok(
-    question.choicesByUrl.attachOriginalItems,
-    "question: attachOriginalItems has been loaded"
-  );
-});
-
-QUnit.test(
-  "Do not run same request several times at the same time. Wait for the first one",
-  function(assert) {
+  test("Do not run same request several times at the same time. Wait for the first one", () => {
     ChoicesRestful.clearCache();
     var test1 = new ChoicesRestfulTester();
     var test2 = new ChoicesRestfulTester();
@@ -528,227 +477,185 @@ QUnit.test(
     test2.run();
     test1.delaySentRequest = false;
 
-    assert.equal(items1.length, 5, "there are 5 countries in items1");
-    assert.equal(items2.length, 5, "there are 5 countries in items2");
-    assert.equal(test1.sentRequestCounter, 1, "test1 send request one time");
-    assert.equal(test2.sentRequestCounter, 0, "test2 use requests");
-  }
-);
-
-QUnit.test("encode parameters", function(assert) {
-  var survey = new SurveyModel();
-  survey.setValue("q1", "R&D");
-  var test = new ChoicesRestfulTester();
-  test.url = "TestUrl/{q1}";
-  test.getResultCallback = function(res: Array<ItemValue>) {};
-  test.run(survey);
-  assert.equal(test.testProcessedUrl, "TestUrl/R%26D", "Encode the string");
-  settings.webserviceEncodeParameters = false;
-  test.run(survey);
-  assert.equal(test.testProcessedUrl, "TestUrl/R&D", "stop encoding");
-  settings.webserviceEncodeParameters = true;
-});
-
-QUnit.test("Process text in event", function(assert) {
-  var survey = new SurveyModel();
-  survey.onProcessDynamicText.add(function (sender, options) {
-    if (options.name == "q1") {
-      options.value = "R&D";
-      //options.isExists = true;
-    }
+    expect(items1.length, "there are 5 countries in items1").toLooseEqual(5);
+    expect(items2.length, "there are 5 countries in items2").toLooseEqual(5);
+    expect(test1.sentRequestCounter, "test1 send request one time").toLooseEqual(1);
+    expect(test2.sentRequestCounter, "test2 use requests").toLooseEqual(0);
   });
-  var test = new ChoicesRestfulTester();
-  test.url = "TestUrl/{q1}";
-  test.getResultCallback = function(res: Array<ItemValue>) {};
-  test.run(survey);
-  assert.equal(test.testProcessedUrl, "TestUrl/R%26D");
-});
 
-QUnit.test("Load from plain text", function(assert) {
-  var test = new ChoicesRestfulTester();
-  var items = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "text";
-  test.run();
-  assert.equal(items.length, 5, "there are 5 items");
-  assert.equal(items[0].value, "1", "the item is empty");
-  assert.equal(
-    items[4].calculatedText,
-    "Optimizes Work Processes",
-    "the 5th item text is 'Optimizes Work Processes'"
-  );
-});
+  test("encode parameters", () => {
+    var survey = new SurveyModel();
+    survey.setValue("q1", "R&D");
+    var test = new ChoicesRestfulTester();
+    test.url = "TestUrl/{q1}";
+    test.getResultCallback = function(res: Array<ItemValue>) {};
+    test.run(survey);
+    expect(test.testProcessedUrl, "Encode the string").toLooseEqual("TestUrl/R%26D");
+    settings.webserviceEncodeParameters = false;
+    test.run(survey);
+    expect(test.testProcessedUrl, "stop encoding").toLooseEqual("TestUrl/R&D");
+    settings.webserviceEncodeParameters = true;
+  });
 
-QUnit.test("Load countries, complex valueName property, Issue#459", function(
-  assert
-) {
-  var test = new ChoicesRestfulTester();
-  var items = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "allcountries";
-  test.path = "RestResponse;result";
-  test.valueName = "locName.en";
-  test.run();
-  assert.equal(items.length, 5, "there are 5 countries");
-  assert.equal(
-    items[0].value,
-    "Afghanistan",
-    "the first country is Afghanistan"
-  );
-  assert.equal(
-    items[4].value,
-    "American Samoa",
-    "the fifth country is American Samoa"
-  );
-});
+  test("Process text in event", () => {
+    var survey = new SurveyModel();
+    survey.onProcessDynamicText.add(function (sender, options) {
+      if (options.name == "q1") {
+        options.value = "R&D";
+      //options.isExists = true;
+      }
+    });
+    var test = new ChoicesRestfulTester();
+    test.url = "TestUrl/{q1}";
+    test.getResultCallback = function(res: Array<ItemValue>) {};
+    test.run(survey);
+    expect(test.testProcessedUrl).toLooseEqual("TestUrl/R%26D");
+  });
 
-QUnit.test("Test dropdown", function(assert) {
-  var question = new QuestionDropdownModelTester("q1");
-  assert.equal(question.choices.length, 0, "There is no choices by default");
-  assert.equal(
-    question.visibleChoices.length,
-    0,
-    "There is no visible choices by default"
-  );
-  question.choicesByUrl.url = "allcountries";
-  question.choicesByUrl.path = "RestResponse;result";
-  question.onSurveyLoad();
-  assert.equal(question.choices.length, 0, "Choices do not used");
-  assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
-});
-QUnit.test("Test dropdown in CreatorV2", function(assert) {
-  settings.showDefaultItemsInCreator = false;
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  const page = survey.addNewPage("p1");
-  const question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "allcountries";
-  question.choicesByUrl.path = "RestResponse;result";
-  assert.equal(question.choices.length, 0, "Choices do not used, #1");
-  page.addQuestion(question);
-  assert.equal(question.choices.length, 0, "Choices do not used, #2");
-  assert.equal(question.visibleChoices.length, 0, "Do not load countries, #2");
-  settings.showDefaultItemsInCreator = true;
-});
+  test("Load from plain text", () => {
+    var test = new ChoicesRestfulTester();
+    var items = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.url = "text";
+    test.run();
+    expect(items.length, "there are 5 items").toLooseEqual(5);
+    expect(items[0].value, "the item is empty").toLooseEqual("1");
+    expect(items[4].calculatedText, "the 5th item text is 'Optimizes Work Processes'").toLooseEqual("Optimizes Work Processes");
+  });
 
-QUnit.test(
-  "Do not show error or change the question value if quesiton is readOnly, Bug #1819",
-  function(assert) {
+  test("Load countries, complex valueName property, Issue#459", () => {
+    var test = new ChoicesRestfulTester();
+    var items = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.valueName = "locName.en";
+    test.run();
+    expect(items.length, "there are 5 countries").toLooseEqual(5);
+    expect(items[0].value, "the first country is Afghanistan").toLooseEqual("Afghanistan");
+    expect(items[4].value, "the fifth country is American Samoa").toLooseEqual("American Samoa");
+  });
+
+  test("Test dropdown", () => {
+    var question = new QuestionDropdownModelTester("q1");
+    expect(question.choices.length, "There is no choices by default").toLooseEqual(0);
+    expect(question.visibleChoices.length, "There is no visible choices by default").toLooseEqual(0);
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    expect(question.choices.length, "Choices do not used").toLooseEqual(0);
+    expect(question.visibleChoices.length, "There are 5 countries now").toLooseEqual(5);
+  });
+  test("Test dropdown in CreatorV2", () => {
+    settings.showDefaultItemsInCreator = false;
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    const page = survey.addNewPage("p1");
+    const question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    expect(question.choices.length, "Choices do not used, #1").toLooseEqual(0);
+    page.addQuestion(question);
+    expect(question.choices.length, "Choices do not used, #2").toLooseEqual(0);
+    expect(question.visibleChoices.length, "Do not load countries, #2").toLooseEqual(0);
+    settings.showDefaultItemsInCreator = true;
+  });
+
+  test("Do not show error or change the question value if quesiton is readOnly, Bug #1819", () => {
     var question = new QuestionDropdownModelTester("q1");
     question.value = "test";
     question.readOnly = true;
 
-    assert.equal(
-      question.visibleChoices.length,
-      0,
-      "There is no visible choices by default"
-    );
+    expect(question.visibleChoices.length, "There is no visible choices by default").toLooseEqual(0);
     question.choicesByUrl.url = "empty";
     question.choicesByUrl.path = "RestResponse;result";
     question.onSurveyLoad();
-    assert.equal(question.visibleChoices.length, 0, "Get no items");
-    assert.equal(question.value, "test", "Value do not changed");
-    assert.equal(question.errors.length, 0, "We do not have any errors");
-  }
-);
+    expect(question.visibleChoices.length, "Get no items").toLooseEqual(0);
+    expect(question.value, "Value do not changed").toLooseEqual("test");
+    expect(question.errors.length, "We do not have any errors").toLooseEqual(0);
+  });
 
-QUnit.test("Use variables", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
-  question.choicesByUrl.url = "{state}";
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  stateQuestion.value = "ca_cities";
-  assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
-  stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  stateQuestion.value = "";
-  assert.equal(question.visibleChoices.length, 0, "It is empty again");
-  stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities again, TX"
-  );
-});
+  test("Use variables", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+    question.choicesByUrl.url = "{state}";
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
+    stateQuestion.value = "ca_cities";
+    expect(question.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+    stateQuestion.value = "tx_cities";
+    expect(question.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    stateQuestion.value = "";
+    expect(question.visibleChoices.length, "It is empty again").toLooseEqual(0);
+    stateQuestion.value = "tx_cities";
+    expect(question.visibleChoices.length, "We have three cities again, TX").toLooseEqual(3);
+  });
 
-QUnit.test("Do not set items with old variable, Bug #2197", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
-  question.choicesByUrl.url = "{state}";
-  question.restFulTest.delaySentRequest = true;
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  stateQuestion.value = "ca_cities";
-  stateQuestion.value = "tx_cities";
-  question.restFulTest.delaySentRequest = false;
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  assert.equal(
-    question.loadingFromChoicesCounter,
-    2,
-    "Loaded choices one time + one time empty"
-  );
-  ChoicesRestful.clearCache();
-});
-QUnit.test("Load choices from url on changing locale", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
-  question.choicesByUrl.url = "{state}/{locale}";
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  stateQuestion.value = "ca_cities";
-  assert.equal(question.restFulTest.sentRequestCounter, 1, "Loaded choices one time");
-  survey.locale = "de";
-  assert.equal(question.restFulTest.sentRequestCounter, 2, "Loaded choices on changing locale");
-  survey.locale = "";
-  ChoicesRestful.clearCache();
-});
-QUnit.test("Keep choices on changing locale Bug#10921", function(assert) {
-  const survey = new SurveyModel();
-  survey.locale = "fr";
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.titleName = "text";
-  question.restFulTest.items = [
-    { value: "A", text: "AAA" },
-    { value: "B", text: "BBB" }
-  ];
-  const page = survey.pages[0];
-  page.addQuestion(question);
-  question.onSurveyLoad();
-  question.doResultsCallback();
-  assert.equal(question.visibleChoices.length, 2);
-  assert.equal(question.visibleChoices[0].text, "AAA", "Load choices #1");
-  assert.deepEqual(question.visibleChoices[0].toJSON(), { value: "A", text: "AAA" }, "Data is correct");
-  survey.locale = "de";
-  assert.equal(question.visibleChoices.length, 2);
-  assert.equal(question.visibleChoices[0].text, "AAA", "Load choices #2");
-});
-/*
-QUnit.test("Clear choices on changing variables", function (assert) {
+  test("Do not set items with old variable, Bug #2197", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+    question.choicesByUrl.url = "{state}";
+    question.restFulTest.delaySentRequest = true;
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
+    stateQuestion.value = "ca_cities";
+    stateQuestion.value = "tx_cities";
+    question.restFulTest.delaySentRequest = false;
+    expect(question.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    expect(question.loadingFromChoicesCounter, "Loaded choices one time + one time empty").toLooseEqual(2);
+    ChoicesRestful.clearCache();
+  });
+  test("Load choices from url on changing locale", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+    question.choicesByUrl.url = "{state}/{locale}";
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
+    stateQuestion.value = "ca_cities";
+    expect(question.restFulTest.sentRequestCounter, "Loaded choices one time").toLooseEqual(1);
+    survey.locale = "de";
+    expect(question.restFulTest.sentRequestCounter, "Loaded choices on changing locale").toLooseEqual(2);
+    survey.locale = "";
+    ChoicesRestful.clearCache();
+  });
+  test("Keep choices on changing locale Bug#10921", () => {
+    const survey = new SurveyModel();
+    survey.locale = "fr";
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.titleName = "text";
+    question.restFulTest.items = [
+      { value: "A", text: "AAA" },
+      { value: "B", text: "BBB" }
+    ];
+    const page = survey.pages[0];
+    page.addQuestion(question);
+    question.onSurveyLoad();
+    question.doResultsCallback();
+    expect(question.visibleChoices.length).toLooseEqual(2);
+    expect(question.visibleChoices[0].text, "Load choices #1").toLooseEqual("AAA");
+    expect(question.visibleChoices[0].toJSON(), "Data is correct").toEqualValues({ value: "A", text: "AAA" });
+    survey.locale = "de";
+    expect(question.visibleChoices.length).toLooseEqual(2);
+    expect(question.visibleChoices[0].text, "Load choices #2").toLooseEqual("AAA");
+  });
+  /*
+test("Clear choices on changing variables", () => {
   var survey = new SurveyModel();
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
@@ -756,167 +663,142 @@ QUnit.test("Clear choices on changing variables", function (assert) {
   var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
   question.choicesByUrl.url = "{state}";
   question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
+  expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
   stateQuestion.value = "ca_cities";
-  assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
+  expect(question.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
   question.restFulTest.delaySentRequest = true;
   stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    0,
-    "Clear choices on changing variables"
-  );
+  expect(question.visibleChoices.length, "Clear choices on changing variables").toLooseEqual(0);
   question.restFulTest.delaySentRequest = false;
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
+  expect(question.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
   ChoicesRestful.clearCache();
 });
 */
 
-QUnit.test("onLoadItemsFromServer event", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
-  question.choicesByUrl.url = "{state}";
+  test("onLoadItemsFromServer event", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <Question>survey.pages[0].addNewQuestion("text", "state");
+    question.choicesByUrl.url = "{state}";
 
-  survey.onChoicesLoaded.add(function (survey, options) {
-    if (options.question.name != "q1") return;
-    options.question.visible = options.choices.length > 0;
-    if (options.choices.length > 1) {
-      options.choices.shift();
-    }
+    survey.onChoicesLoaded.add(function (survey, options) {
+      if (options.question.name != "q1") return;
+      options.question.visible = options.choices.length > 0;
+      if (options.choices.length > 1) {
+        options.choices.shift();
+      }
+    });
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
+    expect(question.visible, "make it invisible on event").toLooseEqual(false);
+    stateQuestion.value = "ca_cities";
+    expect(question.visibleChoices.length, "We have two cities and we remove on event one, CA").toLooseEqual(1);
+    expect(question.visible, "make it visible on event").toLooseEqual(true);
+    stateQuestion.value = "tx_cities";
+    expect(question.visibleChoices.length, "We have three cities now and we remove on event one, TX").toLooseEqual(2);
+    stateQuestion.value = "";
+    expect(question.visibleChoices.length, "It is empty again").toLooseEqual(0);
+    expect(question.visible, "And it is again invisible").toLooseEqual(false);
   });
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  assert.equal(question.visible, false, "make it invisible on event");
-  stateQuestion.value = "ca_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    1,
-    "We have two cities and we remove on event one, CA"
-  );
-  assert.equal(question.visible, true, "make it visible on event");
-  stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    2,
-    "We have three cities now and we remove on event one, TX"
-  );
-  stateQuestion.value = "";
-  assert.equal(question.visibleChoices.length, 0, "It is empty again");
-  assert.equal(question.visible, false, "And it is again invisible");
-});
 
-QUnit.test(
-  "disable/enable on loading items, settings.disableOnGettingChoicesFromWeb",
-  function(assert) {
+  test("disable/enable on loading items, settings.disableOnGettingChoicesFromWeb", () => {
     settings.disableOnGettingChoicesFromWeb = true;
     var survey = new SurveyModel();
     survey.addNewPage("page1");
     var question = new QuestionDropdownModelTester("q1");
     var isReadOnly = question.isReadOnly;
-    assert.equal(isReadOnly, false, "It is not readOnly by default");
+    expect(isReadOnly, "It is not readOnly by default").toLooseEqual(false);
     survey.onChoicesLoaded.add(function (survey, options) {
       isReadOnly = question.isReadOnly;
     });
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
     survey.pages[0].addQuestion(question);
-    assert.equal(isReadOnly, true, "It was readOnly");
-    assert.equal(
-      question.isReadOnly,
-      false,
-      "It is not readOnly after getting choices"
-    );
+    expect(isReadOnly, "It was readOnly").toLooseEqual(true);
+    expect(question.isReadOnly, "It is not readOnly after getting choices").toLooseEqual(false);
     settings.disableOnGettingChoicesFromWeb = false;
-  }
-);
+  });
 
-QUnit.test("Set value before loading data, bug #1089", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "{state}";
-  survey.pages[0].addQuestion(question);
-  question.hasItemsCallbackDelay = true;
-  question.onSurveyLoad();
-  survey.setValue("q1", "CA");
-  question["onLoadChoicesFromUrl"]([new ItemValue("CA")]);
-  assert.equal(question.value, "CA", "'CA' value is still here");
-  assert.equal(question.selectedItem.value, "CA", "selectedItem is correct");
-});
-QUnit.test("Set value before loading data + defaultValue", function(assert) {
-  const survey = new SurveyModel();
-  survey.addNewPage("1");
-  const question = new QuestionDropdownModelTester("q1");
-  question.defaultValue = "CA";
-  question.choicesByUrl.url = "{state}";
-  survey.pages[0].addQuestion(question);
-  question.hasItemsCallbackDelay = true;
-  question.onSurveyLoad();
-  question.restFulTest.isRequestRunning = true;
-  assert.equal(question.restFulTest.isRunning, true, "request should be running");
-  assert.equal(question.value, "CA", "Set default Value");
-  survey.mergeData({ "q1": "TX" });
-  question.restFulTest.isRequestRunning = false;
-  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
-  assert.equal(question.value, "TX", "'TX' value is here");
-  assert.equal(question.selectedItem.value, "TX", "selectedItem is correct");
-});
-QUnit.test("Clear value on getting empty array, bug #6251", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "{state}";
-  survey.pages[0].addQuestion(question);
-  question.hasItemsCallbackDelay = true;
-  question.onSurveyLoad();
-  survey.setValue("q1", "CA");
-  question.choicesByUrl.error = new SurveyError("Empty request");
-  question["onLoadChoicesFromUrl"]([]);
-  assert.equal(question.isEmpty(), true, "value is empty");
-  const isSelected = !!question.selectedItem;
-  assert.equal(isSelected, false, "selectedItem is null");
-  assert.equal(question.errors.length, 1, "It shows error on empty result");
-});
-QUnit.test("Do not call loadedChoicesFromServer on setting same items", function(assert) {
-  var survey = new SurveyModel();
-  let counter = 0;
-  survey.loadedChoicesFromServer = (question: IQuestion) => {
-    counter ++;
-  };
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "{state}";
-  survey.pages[0].addQuestion(question);
-  question.hasItemsCallbackDelay = true;
-  question.onSurveyLoad();
-  question["onLoadChoicesFromUrl"]([]);
-  assert.equal(counter, 1, "#1");
-  question["onLoadChoicesFromUrl"]([]);
-  question["onLoadChoicesFromUrl"]([]);
-  assert.equal(counter, 1, "#2");
-  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
-  assert.equal(counter, 2, "#3");
-  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
-  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
-  assert.equal(counter, 2, "#4");
-  question["onLoadChoicesFromUrl"]([]);
-  assert.equal(counter, 3, "#5");
-  question["onLoadChoicesFromUrl"]([]);
-  assert.equal(counter, 3, "#6");
-  survey.setValue("q1", "CA");
-  question["onLoadChoicesFromUrl"]([]);
-  assert.equal(counter, 4, "#7");
-});
-QUnit.test(
-  "Set value before loading data + storeOthersAsComment, bug #1089",
-  function(assert) {
+  test("Set value before loading data, bug #1089", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "{state}";
+    survey.pages[0].addQuestion(question);
+    question.hasItemsCallbackDelay = true;
+    question.onSurveyLoad();
+    survey.setValue("q1", "CA");
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA")]);
+    expect(question.value, "'CA' value is still here").toLooseEqual("CA");
+    expect(question.selectedItem.value, "selectedItem is correct").toLooseEqual("CA");
+  });
+  test("Set value before loading data + defaultValue", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("1");
+    const question = new QuestionDropdownModelTester("q1");
+    question.defaultValue = "CA";
+    question.choicesByUrl.url = "{state}";
+    survey.pages[0].addQuestion(question);
+    question.hasItemsCallbackDelay = true;
+    question.onSurveyLoad();
+    question.restFulTest.isRequestRunning = true;
+    expect(question.restFulTest.isRunning, "request should be running").toLooseEqual(true);
+    expect(question.value, "Set default Value").toLooseEqual("CA");
+    survey.mergeData({ "q1": "TX" });
+    question.restFulTest.isRequestRunning = false;
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+    expect(question.value, "'TX' value is here").toLooseEqual("TX");
+    expect(question.selectedItem.value, "selectedItem is correct").toLooseEqual("TX");
+  });
+  test("Clear value on getting empty array, bug #6251", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "{state}";
+    survey.pages[0].addQuestion(question);
+    question.hasItemsCallbackDelay = true;
+    question.onSurveyLoad();
+    survey.setValue("q1", "CA");
+    question.choicesByUrl.error = new SurveyError("Empty request");
+    question["onLoadChoicesFromUrl"]([]);
+    expect(question.isEmpty(), "value is empty").toLooseEqual(true);
+    const isSelected = !!question.selectedItem;
+    expect(isSelected, "selectedItem is null").toLooseEqual(false);
+    expect(question.errors.length, "It shows error on empty result").toLooseEqual(1);
+  });
+  test("Do not call loadedChoicesFromServer on setting same items", () => {
+    var survey = new SurveyModel();
+    let counter = 0;
+    survey.loadedChoicesFromServer = (question: IQuestion) => {
+      counter ++;
+    };
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "{state}";
+    survey.pages[0].addQuestion(question);
+    question.hasItemsCallbackDelay = true;
+    question.onSurveyLoad();
+    question["onLoadChoicesFromUrl"]([]);
+    expect(counter, "#1").toLooseEqual(1);
+    question["onLoadChoicesFromUrl"]([]);
+    question["onLoadChoicesFromUrl"]([]);
+    expect(counter, "#2").toLooseEqual(1);
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+    expect(counter, "#3").toLooseEqual(2);
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+    expect(counter, "#4").toLooseEqual(2);
+    question["onLoadChoicesFromUrl"]([]);
+    expect(counter, "#5").toLooseEqual(3);
+    question["onLoadChoicesFromUrl"]([]);
+    expect(counter, "#6").toLooseEqual(3);
+    survey.setValue("q1", "CA");
+    question["onLoadChoicesFromUrl"]([]);
+    expect(counter, "#7").toLooseEqual(4);
+  });
+  test("Set value before loading data + storeOthersAsComment, bug #1089", () => {
     var survey = new SurveyModel();
     survey.addNewPage("1");
     var question = new QuestionDropdownModelTester("q1");
@@ -926,41 +808,38 @@ QUnit.test(
     question.hasItemsCallbackDelay = true;
     question.onSurveyLoad();
     survey.setValue("q1", "CA");
-    assert.equal(question.isOtherSelected, false, "There shuld not be other#1");
+    expect(question.isOtherSelected, "There shuld not be other#1").toLooseEqual(false);
     question["onLoadChoicesFromUrl"]([new ItemValue("CA")]);
-    assert.equal(question.isOtherSelected, false, "There shuld not be other#2");
-    assert.equal(question.value, "CA", "'CA' value is still here");
-    assert.equal(question.selectedItem.value, "CA", "selectedItem is correct");
-  }
-);
-
-QUnit.test("preset data and same data from url", function(assert) {
-  var survey = new SurveyModel();
-  var counter = 0;
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.storeOthersAsComment = false;
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "{state}";
-  survey.pages[0].addQuestion(question);
-  question.onSurveyLoad();
-  survey.data = { q1: "CA" };
-  survey.onValueChanging.add(function() {
-    counter++;
+    expect(question.isOtherSelected, "There shuld not be other#2").toLooseEqual(false);
+    expect(question.value, "'CA' value is still here").toLooseEqual("CA");
+    expect(question.selectedItem.value, "selectedItem is correct").toLooseEqual("CA");
   });
-  survey.onValueChanged.add(function() {
-    counter++;
-  });
-  assert.equal(question.value, "CA", "value is here");
-  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("AA")]);
-  assert.equal(question.value, "CA", "value is still here");
-  assert.equal(question.selectedItem.value, "CA", "selecteditem is correct");
-  assert.equal(counter, 0, "value doesn't change");
-});
 
-QUnit.test(
-  "defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055",
-  function(assert) {
+  test("preset data and same data from url", () => {
+    var survey = new SurveyModel();
+    var counter = 0;
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.storeOthersAsComment = false;
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "{state}";
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    survey.data = { q1: "CA" };
+    survey.onValueChanging.add(function() {
+      counter++;
+    });
+    survey.onValueChanged.add(function() {
+      counter++;
+    });
+    expect(question.value, "value is here").toLooseEqual("CA");
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("AA")]);
+    expect(question.value, "value is still here").toLooseEqual("CA");
+    expect(question.selectedItem.value, "selecteditem is correct").toLooseEqual("CA");
+    expect(counter, "value doesn't change").toLooseEqual(0);
+  });
+
+  test("defaultValue for radiogroup where value is object for choices by url, bug: https://surveyjs.answerdesk.io/ticket/details/T2055", () => {
     var json = {
       pages: [
         {
@@ -991,73 +870,58 @@ QUnit.test(
       { identity: { id: 1024 }, localizedData: { id: "A4" } },
     ].map((i) => new ItemValue(i.identity, i.localizedData.id));
     question["onLoadChoicesFromUrl"](loadedItems);
-    assert.equal(
-      question.value,
-      question["activeChoices"][2].value,
-      "Chosen exactly choice item value"
-    );
+    expect(question.value, "Chosen exactly choice item value").toLooseEqual(question["activeChoices"][2].value);
     survey.doComplete();
-    assert.deepEqual(
-      question.value,
-      {
+    expect(question.value, "Initial value is set correctly").toEqualValues({
+      id: 1023,
+    });
+    expect(survey.data, "Initial value is set correctly").toEqualValues({
+      test: {
         id: 1023,
       },
-      "Initial value is set correctly"
-    );
-    assert.deepEqual(
-      survey.data,
-      {
-        test: {
-          id: 1023,
-        },
-      },
-      "Initial value is set correctly"
-    );
-  }
-);
+    });
+  });
 
-QUnit.test("Map isExclusive, showCommentArea, isCommentRequired, visibleIf, enableIf property from restful automatically, #10865", (assert) => {
-  const test = new ChoicesRestfulTester();
-  const question = new QuestionCheckboxModel("q1");
-  test.createItemValue = (item: any): ItemValue => {
-    const res = new ChoiceItem(item.value, item.text);
-    res.locOwner = question;
-    return res;
-  };
-  let choices: Array<ItemValue> = [];
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    choices = res;
-  };
-  var loadedItems = [
-    { value: 1, text: "A", isExclusive: true, visibleIf: "{q1} notcontains 2" },
-    { value: 2, text: "B", showCommentArea: true, isCommentRequired: true },
-    { value: 3, text: "C", showCommentArea: true, enableIf: "{q1} contains 2" },
-  ];
-  test.doLoad(loadedItems);
-  assert.equal(choices.length, 3, "There are 3 choices loaded");
-  assert.equal(choices[0].getType(), "choiceitem", "It is choice item");
-  assert.ok(choices[0].isExclusive, "isExclusive is set correctly [0]");
-  assert.equal(choices[0].visibleIf, "{q1} notcontains 2", "visibleIf is set correctly [0]");
-  assert.notOk(choices[0].enableIf, "enableIf is not set [0]");
-  assert.equal(choices[0].showCommentArea, false, "showCommentArea is set correctly [0]");
-  assert.equal(choices[0].isCommentRequired, false, "isCommentRequired is set correctly [0]");
+  test("Map isExclusive, showCommentArea, isCommentRequired, visibleIf, enableIf property from restful automatically, #10865", () => {
+    const test = new ChoicesRestfulTester();
+    const question = new QuestionCheckboxModel("q1");
+    test.createItemValue = (item: any): ItemValue => {
+      const res = new ChoiceItem(item.value, item.text);
+      res.locOwner = question;
+      return res;
+    };
+    let choices: Array<ItemValue> = [];
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      choices = res;
+    };
+    var loadedItems = [
+      { value: 1, text: "A", isExclusive: true, visibleIf: "{q1} notcontains 2" },
+      { value: 2, text: "B", showCommentArea: true, isCommentRequired: true },
+      { value: 3, text: "C", showCommentArea: true, enableIf: "{q1} contains 2" },
+    ];
+    test.doLoad(loadedItems);
+    expect(choices.length, "There are 3 choices loaded").toLooseEqual(3);
+    expect(choices[0].getType(), "It is choice item").toLooseEqual("choiceitem");
+    expect(choices[0].isExclusive, "isExclusive is set correctly [0]").toBeTruthy();
+    expect(choices[0].visibleIf, "visibleIf is set correctly [0]").toLooseEqual("{q1} notcontains 2");
+    expect(choices[0].enableIf, "enableIf is not set [0]").toBeFalsy();
+    expect(choices[0].showCommentArea, "showCommentArea is set correctly [0]").toLooseEqual(false);
+    expect(choices[0].isCommentRequired, "isCommentRequired is set correctly [0]").toLooseEqual(false);
 
-  assert.notOk(choices[1].isExclusive, "isExclusive is set correctly [1]");
-  assert.equal(choices[1].showCommentArea, true, "showCommentArea is set correctly [1]");
-  assert.equal(choices[1].isCommentRequired, true, "isCommentRequired is set correctly [1]");
-  assert.notOk(choices[1].visibleIf, "visibleIf is not set [1]");
-  assert.notOk(choices[1].enableIf, "enableIf is not set [1]");
+    expect(choices[1].isExclusive, "isExclusive is set correctly [1]").toBeFalsy();
+    expect(choices[1].showCommentArea, "showCommentArea is set correctly [1]").toLooseEqual(true);
+    expect(choices[1].isCommentRequired, "isCommentRequired is set correctly [1]").toLooseEqual(true);
+    expect(choices[1].visibleIf, "visibleIf is not set [1]").toBeFalsy();
+    expect(choices[1].enableIf, "enableIf is not set [1]").toBeFalsy();
 
-  assert.notOk(choices[2].isExclusive, "isExclusive is set correctly [2]");
-  assert.equal(choices[2].showCommentArea, true, "showCommentArea is set correctly [2]");
-  assert.equal(choices[2].isCommentRequired, false, "isCommentRequired is set correctly [2]");
-  assert.notOk(choices[2].visibleIf, "visibleIf is not set [2]");
-  assert.equal(choices[2].enableIf, "{q1} contains 2", "enableIf is set correctly [2]");
-});
+    expect(choices[2].isExclusive, "isExclusive is set correctly [2]").toBeFalsy();
+    expect(choices[2].showCommentArea, "showCommentArea is set correctly [2]").toLooseEqual(true);
+    expect(choices[2].isCommentRequired, "isCommentRequired is set correctly [2]").toLooseEqual(false);
+    expect(choices[2].visibleIf, "visibleIf is not set [2]").toBeFalsy();
+    expect(choices[2].enableIf, "enableIf is set correctly [2]").toLooseEqual("{q1} contains 2");
+  });
 
-QUnit.test(
-  "valueChanged shouldn't be risen on choicesByUrl loaded - T3372 - onValueChanging (bug)",
-  function(assert) {
+  test("valueChanged shouldn't be risen on choicesByUrl loaded - T3372 - onValueChanging (bug)", () => {
     var json = {
       pages: [
         {
@@ -1087,13 +951,10 @@ QUnit.test(
     });
 
     question["onLoadChoicesFromUrl"](loadedItems);
-    assert.equal(changedCount, 0, "No changed events has been risen");
-  }
-);
+    expect(changedCount, "No changed events has been risen").toLooseEqual(0);
+  });
 
-QUnit.test(
-  "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2055",
-  function(assert) {
+  test("Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2055", () => {
     var survey = new SurveyModel();
     survey.addNewPage("1");
     var question = new QuestionDropdownModelTester("q1");
@@ -1112,20 +973,13 @@ QUnit.test(
       id: 1023,
     });
     question.doResultsCallback();
-    assert.equal(question.visibleChoices.length, 4, "Loaded Correctly");
-    assert.deepEqual(
-      question.value,
-      {
-        id: 1023,
-      },
-      "Complex value set correctly"
-    );
-  }
-);
+    expect(question.visibleChoices.length, "Loaded Correctly").toLooseEqual(4);
+    expect(question.value, "Complex value set correctly").toEqualValues({
+      id: 1023,
+    });
+  });
 
-QUnit.test(
-  "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2350",
-  function(assert) {
+  test("Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2350", () => {
     var survey = new SurveyModel();
     survey.addNewPage("1");
     var question = new QuestionCheckboxModelTester("q1");
@@ -1141,25 +995,15 @@ QUnit.test(
     survey.pages[0].addQuestion(question);
     question.onSurveyLoad();
     question.doResultsCallback();
-    assert.equal(question.choices.length, 0, "choices are empty");
-    assert.equal(question.visibleChoices.length, 4, "Loaded Correctly");
+    expect(question.choices.length, "choices are empty").toLooseEqual(0);
+    expect(question.visibleChoices.length, "Loaded Correctly").toLooseEqual(4);
     survey.setValue("q1", [{ id: 1023 }]);
-    assert.ok(
-      question.value[0] === question["activeChoices"][2].value,
-      "Chosen exactly choice item value"
-    );
+    expect(question.value[0] === question["activeChoices"][2].value, "Chosen exactly choice item value").toBeTruthy();
     survey.doComplete();
-    assert.deepEqual(
-      question.value,
-      [{ id: 1023 }],
-      "Complex value set correctly"
-    );
-  }
-);
+    expect(question.value, "Complex value set correctly").toEqualValues([{ id: 1023 }]);
+  });
 
-QUnit.test(
-  "Update display value on loading data",
-  function(assert) {
+  test("Update display value on loading data", () => {
     const survey = new SurveyModel();
     survey.addNewPage("1");
     const titleQuestion = survey.pages[0].addNewQuestion("text", "q2");
@@ -1177,7 +1021,7 @@ QUnit.test(
     titleQuestion.title = "test:{q1}";
     question.value = "A";
     question.onSurveyLoad();
-    assert.equal(titleQuestion.locTitle.renderedHtml, "test:A", "Use value, items are not loaded");
+    expect(titleQuestion.locTitle.renderedHtml, "Use value, items are not loaded").toLooseEqual("test:A");
     var onStrChangedCounter = 0;
     var onPageStrChangedCounter = 0;
     titleQuestion.locTitle.onChanged = () => {
@@ -1191,275 +1035,232 @@ QUnit.test(
       }
     };
     question.doResultsCallback();
-    assert.equal(question.visibleChoices.length, 2);
-    assert.equal(question.visibleChoices[0].text, "AAA");
-    assert.equal(onStrChangedCounter, 1);
-    assert.equal(titleQuestion.locTitle.renderedHtml, "test:AAA", "Use title, items are loaded");
-    assert.equal(onPageStrChangedCounter, 2, "for page and for navigation");
-    assert.equal(page.locTitle.renderedHtml, "pagetest:AAA", "Use title, items are loaded, for page");
+    expect(question.visibleChoices.length).toLooseEqual(2);
+    expect(question.visibleChoices[0].text).toLooseEqual("AAA");
+    expect(onStrChangedCounter).toLooseEqual(1);
+    expect(titleQuestion.locTitle.renderedHtml, "Use title, items are loaded").toLooseEqual("test:AAA");
+    expect(onPageStrChangedCounter, "for page and for navigation").toLooseEqual(2);
+    expect(page.locTitle.renderedHtml, "Use title, items are loaded, for page").toLooseEqual("pagetest:AAA");
     question.value = "B";
-    assert.equal(titleQuestion.locTitle.renderedHtml, "test:BBB", "Use title, set new value");
-    assert.equal(page.locTitle.renderedHtml, "pagetest:BBB", "Use title, set new value, for page");
-  }
-);
+    expect(titleQuestion.locTitle.renderedHtml, "Use title, set new value").toLooseEqual("test:BBB");
+    expect(page.locTitle.renderedHtml, "Use title, set new value, for page").toLooseEqual("pagetest:BBB");
+  });
 
-QUnit.test("Do not run conditions on resetting the value", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionCheckboxModelTester("q1");
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "identity";
-  question.restFulTest.items = [{ identity: 1 }, { identity: 2 }];
-  survey.pages[0].addQuestion(question);
-  survey.addNewPage("2");
-  survey.pages[1].addNewQuestion("text", "q2");
-  survey.pages[1].questions[0].visibleIf = "{q1} notempty";
-  question.onSurveyLoad();
-  question.value = [1];
-  survey.currentPageNo = 1;
-  assert.equal(survey.currentPageNo, 1, "The current page is second now");
-  question.doResultsCallback();
-  assert.deepEqual(question.value, [1], "Value is still here");
-  assert.equal(survey.currentPageNo, 1, "The current page doesn't chagned");
-});
+  test("Do not run conditions on resetting the value", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionCheckboxModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFulTest.items = [{ identity: 1 }, { identity: 2 }];
+    survey.pages[0].addQuestion(question);
+    survey.addNewPage("2");
+    survey.pages[1].addNewQuestion("text", "q2");
+    survey.pages[1].questions[0].visibleIf = "{q1} notempty";
+    question.onSurveyLoad();
+    question.value = [1];
+    survey.currentPageNo = 1;
+    expect(survey.currentPageNo, "The current page is second now").toLooseEqual(1);
+    question.doResultsCallback();
+    expect(question.value, "Value is still here").toEqualValues([1]);
+    expect(survey.currentPageNo, "The current page doesn't chagned").toLooseEqual(1);
+  });
 
-QUnit.test("Do not set comments on running values", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionCheckboxModelTester("q1");
-  question.showOtherItem = true;
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "id";
-  question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
-  survey.pages[0].addQuestion(question);
-  question.restFulTest.isRequestRunning = true;
-  question.onSurveyLoad();
-  assert.equal(
-    question.visibleChoices.length,
-    1,
-    "Choices are not loaded yet, we have other"
-  );
-  survey.data = { q1: ["id2", "id3"] };
-  question.restFulTest.isRequestRunning = false;
-  question.doResultsCallback();
-  assert.deepEqual(question.value, ["id2", "id3"], "Value is set correctly");
-  assert.notOk(question.comment, "Comment is empty");
-});
+  test("Do not set comments on running values", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionCheckboxModelTester("q1");
+    question.showOtherItem = true;
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "id";
+    question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
+    survey.pages[0].addQuestion(question);
+    question.restFulTest.isRequestRunning = true;
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices are not loaded yet, we have other").toLooseEqual(1);
+    survey.data = { q1: ["id2", "id3"] };
+    question.restFulTest.isRequestRunning = false;
+    question.doResultsCallback();
+    expect(question.value, "Value is set correctly").toEqualValues(["id2", "id3"]);
+    expect(question.comment, "Comment is empty").toBeFalsy();
+  });
 
-QUnit.test("Set comment on incorrect value", function(assert) {
-  var survey = new SurveyModel();
-  survey.storeOthersAsComment = false;
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.showOtherItem = true;
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "id";
-  question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
-  survey.pages[0].addQuestion(question);
-  question.restFulTest.isRequestRunning = true;
-  question.onSurveyLoad();
-  assert.equal(
-    question.visibleChoices.length,
-    1,
-    "Choices are not loaded yet, we have other"
-  );
-  survey.data = { q1: "id_unknown" };
-  question.restFulTest.isRequestRunning = false;
-  question.doResultsCallback();
-  assert.equal(question.value, "id_unknown", "Value is set correctly");
-  assert.equal(question.comment, "id_unknown");
-});
-QUnit.test("Set comment on incorrect value and empty results", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  survey.storeOthersAsComment = false;
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.showOtherItem = true;
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "id";
-  question.choicesByUrl.allowEmptyResponse = true;
-  question.restFulTest.items = [];
-  survey.pages[0].addQuestion(question);
-  question.restFulTest.isRequestRunning = true;
-  question.onSurveyLoad();
-  assert.equal(
-    question.visibleChoices.length,
-    1,
-    "Choices are not loaded yet, we have other"
-  );
-  survey.data = { q1: "id_unknown" };
-  question.restFulTest.isRequestRunning = false;
-  question.doResultsCallback();
-  assert.equal(question.value, "id_unknown", "Value is set correctly");
-  assert.equal(question.comment, "id_unknown");
-});
+  test("Set comment on incorrect value", () => {
+    var survey = new SurveyModel();
+    survey.storeOthersAsComment = false;
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.showOtherItem = true;
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "id";
+    question.restFulTest.items = [{ id: "id1" }, { id: "id2" }, { id: "id3" }];
+    survey.pages[0].addQuestion(question);
+    question.restFulTest.isRequestRunning = true;
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices are not loaded yet, we have other").toLooseEqual(1);
+    survey.data = { q1: "id_unknown" };
+    question.restFulTest.isRequestRunning = false;
+    question.doResultsCallback();
+    expect(question.value, "Value is set correctly").toLooseEqual("id_unknown");
+    expect(question.comment).toLooseEqual("id_unknown");
+  });
+  test("Set comment on incorrect value and empty results", () => {
+    var survey = new SurveyModel();
+    survey.storeOthersAsComment = false;
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.showOtherItem = true;
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "id";
+    question.choicesByUrl.allowEmptyResponse = true;
+    question.restFulTest.items = [];
+    survey.pages[0].addQuestion(question);
+    question.restFulTest.isRequestRunning = true;
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices are not loaded yet, we have other").toLooseEqual(1);
+    survey.data = { q1: "id_unknown" };
+    question.restFulTest.isRequestRunning = false;
+    question.doResultsCallback();
+    expect(question.value, "Value is set correctly").toLooseEqual("id_unknown");
+    expect(question.comment).toLooseEqual("id_unknown");
+  });
 
-QUnit.test("Use values and not text, Bug #627", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <QuestionDropdownModel>(
+  test("Use values and not text, Bug #627", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <QuestionDropdownModel>(
     survey.pages[0].addNewQuestion("dropdown", "state")
   );
-  stateQuestion.choices = [
-    { value: "ca_cities", text: "City from California" },
-    { value: "tx_cities", text: "City from Texas" },
-  ];
-  question.choicesByUrl.url = "{state}";
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  stateQuestion.value = "ca_cities";
-  assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
-  stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  stateQuestion.value = "";
-  assert.equal(question.visibleChoices.length, 0, "It is empty again");
-});
+    stateQuestion.choices = [
+      { value: "ca_cities", text: "City from California" },
+      { value: "tx_cities", text: "City from Texas" },
+    ];
+    question.choicesByUrl.url = "{state}";
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
+    stateQuestion.value = "ca_cities";
+    expect(question.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+    stateQuestion.value = "tx_cities";
+    expect(question.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    stateQuestion.value = "";
+    expect(question.visibleChoices.length, "It is empty again").toLooseEqual(0);
+  });
 
-QUnit.test("Process text in url as case insensitive, Bug #997", function(
-  assert
-) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  var stateQuestion = <QuestionDropdownModel>(
+  test("Process text in url as case insensitive, Bug #997", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    var stateQuestion = <QuestionDropdownModel>(
     survey.pages[0].addNewQuestion("dropdown", "State")
   );
-  stateQuestion.choices = [
-    { value: "ca_cities", text: "City from California" },
-    { value: "tx_cities", text: "City from Texas" },
-  ];
-  question.choicesByUrl.url = "{state}";
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "It is empty");
-  stateQuestion.value = "ca_cities";
-  assert.equal(question.visibleChoices.length, 2, "We have two cities now, CA");
-  stateQuestion.value = "tx_cities";
-  assert.equal(
-    question.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  stateQuestion.value = "";
-  assert.equal(question.visibleChoices.length, 0, "It is empty again");
-});
-
-QUnit.test("Process text in url with default text, bug#1000", function(assert) {
-  var json = {
-    elements: [
-      {
-        type: "dropdownrestfultester",
-        name: "q1",
-        choicesByUrl: { url: "{state}" },
-        defaultValue: "Los Angeles",
-      },
-      {
-        type: "text",
-        name: "state",
-        defaultValue: "ca_cities",
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
-  assert.equal(
-    question.visibleChoices.length,
-    2,
-    "We have two cities on loading survey, CA"
-  );
-  assert.equal(
-    question.value,
-    "Los Angeles",
-    "The value is set correctly from defaultValue"
-  );
-});
-QUnit.test("Process text in url with default text & showOtherItem, bug#10926", (assert) => {
-  ChoicesRestfulTester.doNotSendRequest = true;
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "dropdownrestfultester",
-        name: "q1",
-        choicesByUrl: { url: "ca_cities" },
-        defaultValue: "Los Angeles",
-        showOtherItem: true
-      }
-    ],
+    stateQuestion.choices = [
+      { value: "ca_cities", text: "City from California" },
+      { value: "tx_cities", text: "City from Texas" },
+    ];
+    question.choicesByUrl.url = "{state}";
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "It is empty").toLooseEqual(0);
+    stateQuestion.value = "ca_cities";
+    expect(question.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+    stateQuestion.value = "tx_cities";
+    expect(question.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    stateQuestion.value = "";
+    expect(question.visibleChoices.length, "It is empty again").toLooseEqual(0);
   });
-  const question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
-  assert.equal(question.visibleChoices.length, 1, "We have only other item on loading survey");
-  (<any>question.choicesByUrl).unblockSendRequest();
-  assert.equal(question.value, "Los Angeles", "The value is set correctly from defaultValue");
-  assert.equal(question.visibleChoices.length, 3, "We have two cities + other on loading survey, CA");
-  ChoicesRestfulTester.doNotSendRequest = false;
-});
-QUnit.test("Cascad dropdown in matrix dynamic", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionMatrixDynamicModelTester("q1");
-  question.rowCount = 2;
-  question.addColumn("state");
-  var dropdownColumn = question.addColumn("city");
-  dropdownColumn["choicesByUrl"].url = "{row.state}";
-  survey.pages[0].addQuestion(question);
-  question.onSurveyLoad();
-  var rows = question.visibleRows;
-  var cellDropdown = <QuestionDropdownModel>rows[0].cells[1].question;
-  assert.equal(cellDropdown.visibleChoices.length, 0, "It is empty");
-  rows[0].cells[0].question.value = "ca_cities";
-  assert.equal(
-    cellDropdown.visibleChoices.length,
-    2,
-    "We have two cities now, CA"
-  );
-  rows[0].cells[0].question.value = "tx_cities";
-  assert.equal(
-    cellDropdown.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  rows[0].cells[0].question.value = "";
-  assert.equal(cellDropdown.visibleChoices.length, 0, "It is empty again");
-});
 
-QUnit.test("Cascad dropdown in panel dynamic", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("1");
-  var question = new QuestionPanelDynamicModel("panel");
-  question.template.addNewQuestion("text", "state");
-  var dropDown = new QuestionDropdownModelTester("q1");
-  dropDown.choicesByUrl.url = "{panel.state}";
-  question.template.addQuestion(dropDown);
-  page.addElement(question);
-  question.panelCount = 1;
+  test("Process text in url with default text, bug#1000", () => {
+    var json = {
+      elements: [
+        {
+          type: "dropdownrestfultester",
+          name: "q1",
+          choicesByUrl: { url: "{state}" },
+          defaultValue: "Los Angeles",
+        },
+        {
+          type: "text",
+          name: "state",
+          defaultValue: "ca_cities",
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
+    expect(question.visibleChoices.length, "We have two cities on loading survey, CA").toLooseEqual(2);
+    expect(question.value, "The value is set correctly from defaultValue").toLooseEqual("Los Angeles");
+  });
+  test("Process text in url with default text & showOtherItem, bug#10926", () => {
+    ChoicesRestfulTester.doNotSendRequest = true;
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "dropdownrestfultester",
+          name: "q1",
+          choicesByUrl: { url: "ca_cities" },
+          defaultValue: "Los Angeles",
+          showOtherItem: true
+        }
+      ],
+    });
+    const question = <QuestionDropdownModelTester>survey.getQuestionByName("q1");
+    expect(question.visibleChoices.length, "We have only other item on loading survey").toLooseEqual(1);
+    (<any>question.choicesByUrl).unblockSendRequest();
+    expect(question.value, "The value is set correctly from defaultValue").toLooseEqual("Los Angeles");
+    expect(question.visibleChoices.length, "We have two cities + other on loading survey, CA").toLooseEqual(3);
+    ChoicesRestfulTester.doNotSendRequest = false;
+  });
+  test("Cascad dropdown in matrix dynamic", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionMatrixDynamicModelTester("q1");
+    question.rowCount = 2;
+    question.addColumn("state");
+    var dropdownColumn = question.addColumn("city");
+    dropdownColumn["choicesByUrl"].url = "{row.state}";
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    var rows = question.visibleRows;
+    var cellDropdown = <QuestionDropdownModel>rows[0].cells[1].question;
+    expect(cellDropdown.visibleChoices.length, "It is empty").toLooseEqual(0);
+    rows[0].cells[0].question.value = "ca_cities";
+    expect(cellDropdown.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+    rows[0].cells[0].question.value = "tx_cities";
+    expect(cellDropdown.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    rows[0].cells[0].question.value = "";
+    expect(cellDropdown.visibleChoices.length, "It is empty again").toLooseEqual(0);
+  });
 
-  var qState = <Question>question.panels[0].questions[0];
-  var qCity = <QuestionDropdownModelTester>question.panels[0].questions[1];
+  test("Cascad dropdown in panel dynamic", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("1");
+    var question = new QuestionPanelDynamicModel("panel");
+    question.template.addNewQuestion("text", "state");
+    var dropDown = new QuestionDropdownModelTester("q1");
+    dropDown.choicesByUrl.url = "{panel.state}";
+    question.template.addQuestion(dropDown);
+    page.addElement(question);
+    question.panelCount = 1;
 
-  assert.equal(qCity.visibleChoices.length, 0, "It is empty");
-  qState.value = "ca_cities";
-  assert.equal(qCity.visibleChoices.length, 2, "We have two cities now, CA");
-  qState.value = "tx_cities";
-  assert.equal(qCity.visibleChoices.length, 3, "We have three cities now, TX");
-  qState.value = "";
-  assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
-});
+    var qState = <Question>question.panels[0].questions[0];
+    var qCity = <QuestionDropdownModelTester>question.panels[0].questions[1];
 
-QUnit.test(
-  "Question in panel dynamic where url is depend on value outside panel, bug#1064",
-  function(assert) {
+    expect(qCity.visibleChoices.length, "It is empty").toLooseEqual(0);
+    qState.value = "ca_cities";
+    expect(qCity.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+    qState.value = "tx_cities";
+    expect(qCity.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    qState.value = "";
+    expect(qCity.visibleChoices.length, "It is empty again").toLooseEqual(0);
+  });
+
+  test("Question in panel dynamic where url is depend on value outside panel, bug#1064", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("1");
     page.addNewQuestion("text", "state");
@@ -1472,104 +1273,78 @@ QUnit.test(
 
     var qCity = <QuestionDropdownModelTester>question.panels[0].questions[0];
 
-    assert.equal(qCity.visibleChoices.length, 0, "It is empty");
+    expect(qCity.visibleChoices.length, "It is empty").toLooseEqual(0);
     survey.setValue("state", "ca_cities");
-    assert.equal(qCity.visibleChoices.length, 2, "We have two cities now, CA");
+    expect(qCity.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
     survey.setValue("state", "tx_cities");
-    assert.equal(
-      qCity.visibleChoices.length,
-      3,
-      "We have three cities now, TX"
-    );
+    expect(qCity.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
     survey.clearValue("state");
-    assert.equal(qCity.visibleChoices.length, 0, "It is empty again");
-  }
-);
+    expect(qCity.visibleChoices.length, "It is empty again").toLooseEqual(0);
+  });
 
-QUnit.test("Use complex variable, bug#T2705", function(assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("1");
-  var dropDown = new QuestionDropdownModelTester("q1");
-  dropDown.choicesByUrl.url = "{obj.state}";
-  page.addQuestion(dropDown);
+  test("Use complex variable, bug#T2705", () => {
+    var survey = new SurveyModel();
+    var page = survey.addNewPage("1");
+    var dropDown = new QuestionDropdownModelTester("q1");
+    dropDown.choicesByUrl.url = "{obj.state}";
+    page.addQuestion(dropDown);
 
-  assert.equal(dropDown.visibleChoices.length, 0, "It is empty");
-  survey.setVariable("obj", { state: "ca_cities" });
-  assert.equal(dropDown.visibleChoices.length, 2, "We have two cities now, CA");
-  survey.setVariable("obj", { state: "tx_cities" });
-  assert.equal(
-    dropDown.visibleChoices.length,
-    3,
-    "We have three cities now, TX"
-  );
-  survey.setVariable("obj", null);
-  assert.equal(dropDown.visibleChoices.length, 0, "It is empty again");
-});
+    expect(dropDown.visibleChoices.length, "It is empty").toLooseEqual(0);
+    survey.setVariable("obj", { state: "ca_cities" });
+    expect(dropDown.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+    survey.setVariable("obj", { state: "tx_cities" });
+    expect(dropDown.visibleChoices.length, "We have three cities now, TX").toLooseEqual(3);
+    survey.setVariable("obj", null);
+    expect(dropDown.visibleChoices.length, "It is empty again").toLooseEqual(0);
+  });
 
-QUnit.test(
-  "Question in panel dynamic where url is depend on value outside panel, bug#1089",
-  function(assert) {
+  test("Question in panel dynamic where url is depend on value outside panel, bug#1089", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("1");
     var dropDown = new QuestionDropdownModelTester("q1");
     dropDown.choicesByUrl.url = "{state}";
     page.addQuestion(dropDown);
-    assert.equal(dropDown.visibleChoices.length, 0, "It is empty");
+    expect(dropDown.visibleChoices.length, "It is empty").toLooseEqual(0);
     survey.data = { state: "ca_cities" };
-    assert.equal(
-      dropDown.visibleChoices.length,
-      2,
-      "We have two cities now, CA"
-    );
-  }
-);
+    expect(dropDown.visibleChoices.length, "We have two cities now, CA").toLooseEqual(2);
+  });
 
-QUnit.test("Load countries, custom properties, #615", function(assert) {
-  var test = new ChoicesRestfulTester();
-  test.noCaching = true;
-  var items = [];
-  Serializer.addProperty("itemvalue", "alpha2_code");
-  test.getResultCallback = function(res: Array<ItemValue>) {
-    items = res;
-  };
-  test.url = "allcountries";
-  test.path = "RestResponse;result";
-  test.run();
-  assert.equal(items.length, 5, "there are 5 countries");
-  assert.equal(items[0]["alpha2_code"], "AF", "the first alpha2_code is AF");
-  assert.equal(items[4]["alpha2_code"], "AS", "the fifth alpha2_code is AS");
-  Serializer.removeProperty("itemvalue", "alpha2_code");
-});
+  test("Load countries, custom properties, #615", () => {
+    var test = new ChoicesRestfulTester();
+    test.noCaching = true;
+    var items = [];
+    Serializer.addProperty("itemvalue", "alpha2_code");
+    test.getResultCallback = function(res: Array<ItemValue>) {
+      items = res;
+    };
+    test.url = "allcountries";
+    test.path = "RestResponse;result";
+    test.run();
+    expect(items.length, "there are 5 countries").toLooseEqual(5);
+    expect(items[0]["alpha2_code"], "the first alpha2_code is AF").toLooseEqual("AF");
+    expect(items[4]["alpha2_code"], "the fifth alpha2_code is AS").toLooseEqual("AS");
+    Serializer.removeProperty("itemvalue", "alpha2_code");
+  });
 
-QUnit.test("Load countries, custom itemvalue class", function(assert) {
-  Serializer.addProperty("itemvalue", "alpha3_code");
-  Serializer.addProperty("itemvalue", "customProperty");
-  var question = <QuestionDropdownImageTester>(
+  test("Load countries, custom itemvalue class", () => {
+    Serializer.addProperty("itemvalue", "alpha3_code");
+    Serializer.addProperty("itemvalue", "customProperty");
+    var question = <QuestionDropdownImageTester>(
     Serializer.createClass("imagepicker_choicesrest")
   );
-  question.choicesByUrl.url = "allcountries";
-  question.choicesByUrl.path = "RestResponse;result";
-  question.choicesByUrl["customPropertyName"] = "alpha2_code";
-  question.onSurveyLoad();
-  assert.equal(question.choices.length, 0, "Choices do not used");
-  assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
-  assert.equal(
-    question.visibleChoices[0]["alpha3_code"],
-    "AFG",
-    "Custom property is set"
-  );
-  assert.equal(
-    question.visibleChoices[0]["customProperty"],
-    "AF",
-    "Custom property is set via propertyName is set"
-  );
-  Serializer.removeProperty("itemvalue", "customProperty");
-  Serializer.removeProperty("itemvalue", "alpha3_code");
-});
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.choicesByUrl["customPropertyName"] = "alpha2_code";
+    question.onSurveyLoad();
+    expect(question.choices.length, "Choices do not used").toLooseEqual(0);
+    expect(question.visibleChoices.length, "There are 5 countries now").toLooseEqual(5);
+    expect(question.visibleChoices[0]["alpha3_code"], "Custom property is set").toLooseEqual("AFG");
+    expect(question.visibleChoices[0]["customProperty"], "Custom property is set via propertyName is set").toLooseEqual("AF");
+    Serializer.removeProperty("itemvalue", "customProperty");
+    Serializer.removeProperty("itemvalue", "alpha3_code");
+  });
 
-QUnit.test(
-  "choicesByUrl + custom itemvalue class, save/load to/from json",
-  function(assert) {
+  test("choicesByUrl + custom itemvalue class, save/load to/from json", () => {
     var question = <QuestionDropdownImageTester>(
       Serializer.createClass("imagepicker_choicesrest")
     );
@@ -1586,207 +1361,148 @@ QUnit.test(
         customPropertyName: "alpha2_code",
       },
     };
-    assert.deepEqual(
-      savedJson,
-      json,
-      "choicesByUrl + custom itemvalue class restore correctly"
-    );
+    expect(savedJson, "choicesByUrl + custom itemvalue class restore correctly").toEqualValues(json);
 
     var loadedQuestion = <QuestionDropdownImageTester>(
       Serializer.createClass("imagepicker_choicesrest")
     );
     new JsonObject().toObject(json, loadedQuestion);
-    assert.equal(
-      loadedQuestion.choicesByUrl["customPropertyName"],
-      "alpha2_code",
-      "Restore customproperty correctly from json"
-    );
-  }
-);
+    expect(loadedQuestion.choicesByUrl["customPropertyName"], "Restore customproperty correctly from json").toLooseEqual("alpha2_code");
+  });
 
-QUnit.test(
-  "choicesByUrl + clear value if it doesn't exists any more, #1",
-  function(assert) {
+  test("choicesByUrl + clear value if it doesn't exists any more, #1", () => {
     var question = new QuestionDropdownModelTester("q1");
     question.value = "Algeria";
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
     question.onSurveyLoad();
-    assert.equal(
-      question.value,
-      "Algeria",
-      "Value should not be changed, before choices were empty and value exists"
-    );
+    expect(question.value, "Value should not be changed, before choices were empty and value exists").toLooseEqual("Algeria");
     question.value = "Algeria1";
     question.onSurveyLoad();
-    assert.equal(
-      question.value,
-      "Algeria1",
-      "Value should not be changed, the value doesn't exists in choices before as well"
-    );
-  }
-);
+    expect(question.value, "Value should not be changed, the value doesn't exists in choices before as well").toLooseEqual("Algeria1");
+  });
 
-QUnit.test(
-  "choicesByUrl + clear value if it doesn't exists any more, #2",
-  function(assert) {
+  test("choicesByUrl + clear value if it doesn't exists any more, #2", () => {
     var question = new QuestionDropdownModelTester("q1");
     question.choices = ["USA", "UK"];
     question.value = "UK";
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
     question.onSurveyLoad();
-    assert.notOk(
-      question.value,
-      "Value is empty, it existed before and it doesn't exists now"
-    );
-  }
-);
+    expect(question.value, "Value is empty, it existed before and it doesn't exists now").toBeFalsy();
+  });
 
-QUnit.test(
-  "choicesByUrl + checkbox + clear value if it doesn't exists any more",
-  function(assert) {
+  test("choicesByUrl + checkbox + clear value if it doesn't exists any more", () => {
     var question = new QuestionCheckboxModelTester("q1");
     question.choices = ["USA", "UK"];
     question.value = ["UK", "Algeria", "UnknownCountry"];
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
     question.onSurveyLoad();
-    assert.deepEqual(
-      question.value,
-      ["Algeria", "UnknownCountry"],
-      "Remove 'UK' and leave the value that exists in the new or doesn't exists in the old"
-    );
-  }
-);
+    expect(question.value, "Remove 'UK' and leave the value that exists in the new or doesn't exists in the old").toEqualValues(["Algeria", "UnknownCountry"]);
+  });
 
-QUnit.test("choicesByUrl + isReady (not ready before call and ready after)", function(assert) {
-  var question = new QuestionCheckboxModelTester("q1");
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "identity";
-  question.restFulTest.items = [
-    { identity: { id: 1021 }, localizedData: { id: "A1" } },
-    { identity: { id: 1022 }, localizedData: { id: "A2" } },
-    { identity: { id: 1023 }, localizedData: { id: "A3" } },
-    { identity: { id: 1024 }, localizedData: { id: "A4" } },
-  ];
-  const survey = new SurveyModel();
-  survey.addNewPage("q1");
-  survey.pages[0].addQuestion(question);
-  question.onSurveyLoad();
-  assert.equal(question.isReady, false, "It is not ready yet");
-  question.doResultsCallback();
-  assert.equal(question.isReady, true, "IsReady should be true after load survey");
-});
+  test("choicesByUrl + isReady (not ready before call and ready after)", () => {
+    var question = new QuestionCheckboxModelTester("q1");
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFulTest.items = [
+      { identity: { id: 1021 }, localizedData: { id: "A1" } },
+      { identity: { id: 1022 }, localizedData: { id: "A2" } },
+      { identity: { id: 1023 }, localizedData: { id: "A3" } },
+      { identity: { id: 1024 }, localizedData: { id: "A4" } },
+    ];
+    const survey = new SurveyModel();
+    survey.addNewPage("q1");
+    survey.pages[0].addQuestion(question);
+    question.onSurveyLoad();
+    expect(question.isReady, "It is not ready yet").toLooseEqual(false);
+    question.doResultsCallback();
+    expect(question.isReady, "IsReady should be true after load survey").toLooseEqual(true);
+  });
 
-QUnit.test("choicesByUrl + isReady for questions with the same valueName (not ready before call and ready after)", function(assert) {
-  const survey = new SurveyModel();
-  survey.addNewPage("p1");
-  const panel = new QuestionPanelDynamicModel("q2");
-  panel.template.addNewQuestion("text", "q2_2");
-  panel.valueName = "q1";
-  survey.pages[0].addQuestion(panel);
-  var question = new QuestionCheckboxModelTester("q1");
-  question.valuePropertyName = "val1";
-  survey.pages[0].addQuestion(question);
-  assert.equal(question.isReady, true, "Question is not loaded yet");
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "identity";
-  question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
-  question.onSurveyLoad();
-  assert.equal(question.isReady, false, "It is not ready yet");
-  assert.equal(panel.isReady, false, "Related question is not ready");
-  question.doResultsCallback();
-  assert.equal(question.isReady, true, "IsReady should be true after load survey");
-  assert.equal(panel.isReady, true, "Related question is ready");
-});
-QUnit.test("choicesByUrl + isReady for carry-forward)", function(assert) {
-  const survey = new SurveyModel();
-  survey.addNewPage("p1");
-  var question = new QuestionCheckboxModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  const dropdown = new QuestionDropdownModel("q2");
-  survey.pages[0].addQuestion(dropdown);
-  dropdown.choicesFromQuestion = "q1";
-  assert.equal(question.isReady, true, "Question is not loaded yet");
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "identity";
-  question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
-  question.onSurveyLoad();
-  assert.equal(question.isReady, false, "It is not ready yet");
-  assert.equal(dropdown.isReady, false, "Related question is not ready");
-  question.doResultsCallback();
-  assert.equal(question.isReady, true, "IsReady should be true after load survey");
-  assert.equal(dropdown.isReady, true, "Related question is ready");
-});
-QUnit.test("choicesByUrl & carry-forward & value)", function(assert) {
-  const survey = new SurveyModel();
-  survey.addNewPage("p1");
-  var question = new QuestionCheckboxModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  const dropdown = new QuestionCheckboxModel("q2");
-  survey.pages[0].addQuestion(dropdown);
-  dropdown.choicesFromQuestion = "q1";
-  assert.equal(question.isReady, true, "Question is not loaded yet");
-  question.hasItemsCallbackDelay = true;
-  question.choicesByUrl.url = "something";
-  question.choicesByUrl.valueName = "identity";
-  question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
-  question.onSurveyLoad();
-  survey.data = { q1: ["item2", "item3"], q2: ["item1", "item4"] };
-  question.doResultsCallback();
-  assert.deepEqual(question.value, ["item2", "item3"], "question.value");
-  assert.deepEqual(dropdown.value, ["item1", "item4"], "dropdown.value");
-});
+  test("choicesByUrl + isReady for questions with the same valueName (not ready before call and ready after)", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    const panel = new QuestionPanelDynamicModel("q2");
+    panel.template.addNewQuestion("text", "q2_2");
+    panel.valueName = "q1";
+    survey.pages[0].addQuestion(panel);
+    var question = new QuestionCheckboxModelTester("q1");
+    question.valuePropertyName = "val1";
+    survey.pages[0].addQuestion(question);
+    expect(question.isReady, "Question is not loaded yet").toLooseEqual(true);
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+    question.onSurveyLoad();
+    expect(question.isReady, "It is not ready yet").toLooseEqual(false);
+    expect(panel.isReady, "Related question is not ready").toLooseEqual(false);
+    question.doResultsCallback();
+    expect(question.isReady, "IsReady should be true after load survey").toLooseEqual(true);
+    expect(panel.isReady, "Related question is ready").toLooseEqual(true);
+  });
+  test("choicesByUrl + isReady for carry-forward)", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    var question = new QuestionCheckboxModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    const dropdown = new QuestionDropdownModel("q2");
+    survey.pages[0].addQuestion(dropdown);
+    dropdown.choicesFromQuestion = "q1";
+    expect(question.isReady, "Question is not loaded yet").toLooseEqual(true);
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+    question.onSurveyLoad();
+    expect(question.isReady, "It is not ready yet").toLooseEqual(false);
+    expect(dropdown.isReady, "Related question is not ready").toLooseEqual(false);
+    question.doResultsCallback();
+    expect(question.isReady, "IsReady should be true after load survey").toLooseEqual(true);
+    expect(dropdown.isReady, "Related question is ready").toLooseEqual(true);
+  });
+  test("choicesByUrl & carry-forward & value)", () => {
+    const survey = new SurveyModel();
+    survey.addNewPage("p1");
+    var question = new QuestionCheckboxModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    const dropdown = new QuestionCheckboxModel("q2");
+    survey.pages[0].addQuestion(dropdown);
+    dropdown.choicesFromQuestion = "q1";
+    expect(question.isReady, "Question is not loaded yet").toLooseEqual(true);
+    question.hasItemsCallbackDelay = true;
+    question.choicesByUrl.url = "something";
+    question.choicesByUrl.valueName = "identity";
+    question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+    question.onSurveyLoad();
+    survey.data = { q1: ["item2", "item3"], q2: ["item1", "item4"] };
+    question.doResultsCallback();
+    expect(question.value, "question.value").toEqualValues(["item2", "item3"]);
+    expect(dropdown.value, "dropdown.value").toEqualValues(["item1", "item4"]);
+  });
 
-QUnit.test("isUsing cache", function(assert) {
-  var question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "someurl";
-  question.onSurveyLoad();
-  assert.equal(
-    question.choicesByUrl.isUsingCache,
-    true,
-    "Use cache by default"
-  );
-  settings.useCachingForChoicesRestful = false;
-  assert.equal(
-    question.choicesByUrl.isUsingCache,
-    false,
-    "Do not use cache by default"
-  );
-  settings.useCachingForChoicesRestful = true;
-  question.choicesByUrl.url = "someurl{NOCACHE}";
-  assert.equal(
-    question.choicesByUrl.isUsingCache,
-    false,
-    "Do not use cache by {NOCACHE}"
-  );
-  assert.equal(
-    question.restFulTest.testProcessedUrl,
-    "someurl",
-    "Remove {NOCACHE} from Url"
-  );
-  settings.useCachingForChoicesRestful = false;
-  question.choicesByUrl.url = "someurl{CACHE}";
-  assert.equal(
-    question.choicesByUrl.isUsingCache,
-    true,
-    "Use cache by {CACHE}"
-  );
-  assert.equal(
-    question.restFulTest.testProcessedUrl,
-    "someurl",
-    "Remove {CACHE} from Url"
-  );
-  settings.useCachingForChoicesRestful = true;
-});
+  test("isUsing cache", () => {
+    var question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "someurl";
+    question.onSurveyLoad();
+    expect(question.choicesByUrl.isUsingCache, "Use cache by default").toLooseEqual(true);
+    settings.useCachingForChoicesRestful = false;
+    expect(question.choicesByUrl.isUsingCache, "Do not use cache by default").toLooseEqual(false);
+    settings.useCachingForChoicesRestful = true;
+    question.choicesByUrl.url = "someurl{NOCACHE}";
+    expect(question.choicesByUrl.isUsingCache, "Do not use cache by {NOCACHE}").toLooseEqual(false);
+    expect(question.restFulTest.testProcessedUrl, "Remove {NOCACHE} from Url").toLooseEqual("someurl");
+    settings.useCachingForChoicesRestful = false;
+    question.choicesByUrl.url = "someurl{CACHE}";
+    expect(question.choicesByUrl.isUsingCache, "Use cache by {CACHE}").toLooseEqual(true);
+    expect(question.restFulTest.testProcessedUrl, "Remove {CACHE} from Url").toLooseEqual("someurl");
+    settings.useCachingForChoicesRestful = true;
+  });
 
-QUnit.test(
-  "Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563",
-  function(assert) {
+  test("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", () => {
     var counter = 0;
     var survey = new SurveyModel();
     survey.gridLayoutEnabled = false;
@@ -1811,350 +1527,327 @@ QUnit.test(
     };
     counter = 0;
     survey.fromJSON(json);
-    assert.equal(counter, 0, "We should call onPropertyValueChangedCallback on loading from JSON");
+    expect(counter, "We should call onPropertyValueChangedCallback on loading from JSON").toLooseEqual(0);
     var q = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q.choicesByUrl.url = "{state}{city}";
-    assert.equal(counter, 1, "call onPropertyValueChangedCallback this time");
+    expect(counter, "call onPropertyValueChangedCallback this time").toLooseEqual(1);
+  });
+
+  test("Load localized itemvalue text, bug#2735", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "{state}";
+    survey.onChoicesLoaded.add(function (survey, options) {
+      if (options.question.name != "q1") return;
+      var item = new ItemValue(1);
+      item.locText.setJson({ default: "item en", de: "item de" });
+      options.choices = [item];
+    });
+    survey.pages[0].addQuestion(question);
+    survey.currentPageNo = 0;
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "We have loaded visible choices").toLooseEqual(1);
+    var loctText = question.visibleChoices[0].locText;
+    var hasChanged = false;
+    loctText.onChanged = () => {
+      hasChanged = true;
+    };
+    expect(loctText.renderedHtml, "Default locale").toLooseEqual("item en");
+    survey.locale = "de";
+    expect(hasChanged, "localized string is changed").toLooseEqual(true);
+    expect(loctText.renderedHtml, "de locale").toLooseEqual("item de");
+    survey.locale = "";
+  });
+
+  test("Load localized strings", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionDropdownModelTester("q1");
+    question.choicesByUrl.url = "localizedstrings";
+    question.choicesByUrl.path = "RestResponse;result";
+    survey.pages[0].addQuestion(question);
+    survey.currentPageNo = 0;
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "We have loaded visible choices").toLooseEqual(1);
+    var loctText = question.visibleChoices[0].locText;
+    expect(loctText.renderedHtml, "Default locale").toLooseEqual("item1 en");
+    survey.locale = "de";
+    expect(loctText.renderedHtml, "de locale").toLooseEqual("item1 de");
+    survey.locale = "";
+  });
+
+  test("choicesByUrl + clear invsible values", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("p1");
+    var question = new QuestionDropdownModelTester("q1");
+    survey.pages[0].addQuestion(question);
+    question.value = "Unknown";
+    question.choicesByUrl.url = "allcountries";
+    question.choicesByUrl.path = "RestResponse;result";
+    question.onSurveyLoad();
+    var question2 = new QuestionDropdownModel("q2");
+    survey.pages[0].addQuestion(question2);
+    question2.value = "Unknown";
+    question2.choices = ["item1", "item2"];
+    expect(question.value, "Value is here, choices from web").toLooseEqual("Unknown");
+    expect(question.value, "Value is here, locale choices").toLooseEqual("Unknown");
+    survey.doComplete();
+    expect(question.isEmpty(), "Value is empty, choices from web").toLooseEqual(true);
+    expect(question2.isEmpty(), "Value is empty, locale choices").toLooseEqual(true);
+  });
+
+  test("matrix dynamic and has other, Bug #2854", () => {
+    var survey = new SurveyModel();
+    survey.addNewPage("1");
+    var question = new QuestionMatrixDynamicModelTester("q1");
+    question.rowCount = 1;
+    var column = question.addColumn("country");
+    column.cellType = "dropdown";
+    column.showOtherItem = true;
+    column["choicesByUrl"].url = "allcountries";
+    column["choicesByUrl"].path = "RestResponse;result";
+    survey.pages[0].addQuestion(question);
+    var data = {
+      q1: [{ country: "Afghanistan", "country-Comment": "Comment" }],
+    };
+    survey.data = data;
+    question.onSurveyLoad();
+    var rows = question.visibleRows;
+    var cellDropdown = <QuestionDropdownModelTester>rows[0].cells[0].question;
+    expect(cellDropdown.visibleChoices.length, "Choices are not loaded yet, 0 + other").toLooseEqual(1);
+    cellDropdown.doResultsCallback();
+    expect(cellDropdown.visibleChoices.length, "Choices are loaded, + showOtherItem").toLooseEqual(5 + 1);
+    expect(cellDropdown.value).toLooseEqual("Afghanistan");
+    survey.doComplete();
+    expect(survey.data, "value is not changed").toEqualValues(data);
+  });
+
+  test("Change default value for allowEmptyResponse property", () => {
+    let choicesRest = new ChoicesRestful();
+    expect(choicesRest.allowEmptyResponse).toBe(false);
+    Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = true;
+    choicesRest = new ChoicesRestful();
+    expect(choicesRest.allowEmptyResponse).toBe(true);
+    Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = undefined;
+    choicesRest = new ChoicesRestful();
+    expect(choicesRest.allowEmptyResponse).toBe(false);
+  });
+  test("Single: execute choicesByUrl in design time", () => {
+    const json = {
+      name: "urltest",
+      questionJSON: {
+        type: "dropdownrestfultester",
+        choicesByUrl: { url: "{state}" },
+      }
+    };
+    ComponentCollection.Instance.add(json);
+
+    const survey = new SurveyModel();
+    survey.onChoicesLoaded.add((sender, options) => {
+      options.choices = [new ItemValue(1), new ItemValue(2)];
+    });
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [{ type: "urltest", name: "q1", isRequired: true }],
+    });
+    const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+    expect(q1.contentQuestion.survey, "survey is set").toBeTruthy();
+    expect(q1.contentQuestion.visibleChoices.length, "event is executed").toLooseEqual(2);
+  });
+  test("Composite: execute choicesByUrl in design time", () => {
+    const json = {
+      name: "urltest",
+      elementsJSON: [{
+        type: "dropdownrestfultester",
+        name: "q1",
+        choicesByUrl: { url: "{state}" },
+      }]
+    };
+    ComponentCollection.Instance.add(json);
+
+    const survey = new SurveyModel();
+    survey.onChoicesLoaded.add((sender, options) => {
+      options.choices = [new ItemValue(1), new ItemValue(2)];
+    });
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [{ type: "urltest", name: "q1", isRequired: true }],
+    });
+    const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+    expect(q1.contentPanel.getQuestionByName("q1").visibleChoices.length, "event is executed").toLooseEqual(2);
+  });
+
+  test("allowCustomChoices: Add custom value into dropdown", () => {
+    const question = new QuestionDropdownModelTester("q1");
+    const survey = new SurveyModel();
+    survey.addNewPage("1");
+    survey.pages[0].addQuestion(question);
+    const dropdownListModel = question.dropdownListModel;
+    const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    const testCustomValue = "cuba";
+
+    question.allowCustomChoices = true;
+    question.fromJSON({
+      choicesByUrl: {
+        url: "allcountries",
+        path: "RestResponse;result",
+        attachData: true,
+      },
+    });
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices has been loaded").toLooseEqual(5);
+
+    dropdownListModel.inputStringRendered = testCustomValue;
+    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(testCustomValue);
+    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(6);
+    expect(listModel.actions[5].id, "#1 custom item id").toLooseEqual("newCustomItem");
+    expect(listModel.actions[5].visible, "#1 custom item visible").toLooseEqual(true);
+    expect(question.value, "#1 question.value").toLooseEqual(undefined);
+    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(5);
+    expect(survey.data, "#1 survey.data").toEqualValues({});
+
+    listModel.onItemClick(listModel.getActionById("newCustomItem"));
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
+    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(7);
+    expect(listModel.actions[0].id, "#2 custom value add into list - id").toLooseEqual(testCustomValue);
+    expect(listModel.actions[0].title, "#2 custom value add into list - title").toLooseEqual(testCustomValue);
+    expect(listModel.actions[6].id, "#2 custom item id").toLooseEqual("newCustomItem");
+    expect(listModel.actions[6].visible, "#2 custom item invisible").toLooseEqual(false);
+    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
+    expect(question.selectedItem.id, "#2 question.selectedItem").toLooseEqual(testCustomValue);
+    expect(question.visibleChoices.length, "#2 question.visibleChoices").toLooseEqual(6);
+    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toLooseEqual(testCustomValue);
+    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+
+    survey.tryComplete();
+    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+  });
+  test("Check objHash, Bug#10463", () => {
+    const question = new QuestionDropdownModelTester("q1");
+    const restful: any = question.choicesByUrl;
+    restful.url = "allcountries";
+    const cache1 = restful.objHash;
+    restful.valueName = "alpha2_code";
+    const cache2 = restful.objHash;
+    restful.titleName = "abc";
+    const cache3 = restful.objHash;
+    expect(cache1, "change valueName -> change cache").not.toLooseEqual(cache2);
+    expect(cache2, "change path -> change cache").not.toLooseEqual(cache3);
+    restful.attachData = true;
+    const cache4 = restful.objHash;
+    expect(cache3, "change attachData -> change cache").not.toLooseEqual(cache4);
+    restful.attachData = false;
+    const cache5 = restful.objHash;
+    expect(cache3, "change attachData back -> do not change cache").toLooseEqual(cache5);
+  });
+
+  test("Don't request options via choicesByUrl if onChoicesLazyLoad is enabled.", () => {
+    const question = new QuestionDropdownModelTester("q1");
+    const survey = new SurveyModel();
+    survey.addNewPage("1");
+    survey.pages[0].addQuestion(question);
+
+    question.fromJSON({
+      choicesLazyLoadEnabled: true,
+      choicesByUrl: {
+        url: "allcountries",
+        path: "RestResponse;result",
+        attachData: true,
+      },
+    });
+    question.onSurveyLoad();
+    expect(question.visibleChoices.length, "Choices has not loaded").toLooseEqual(0);
+  });
+  test("Create choicesByUrl on demand only", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "dropdown", name: "q1", choices: [1, 2, 3] }]
+    });
+    const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+    expect(question.getPropertyValue("choicesByUrl"), "choicesByUrl is not created by default").toLooseEqual(undefined);
+    survey.toJSON();
+    expect(question.getPropertyValue("choicesByUrl"), "choicesByUrl is not created by toJSON").toLooseEqual(undefined);
+    question.choicesByUrl.url = "allcountries";
+    expect(question.getPropertyValue("choicesByUrl"), "choicesByUrl is created on demand").not.toLooseEqual(undefined);
+  });
+  function getCACities() {
+    return ["Los Angeles", "San Francisco"];
   }
-);
+  function getTXCities() {
+    return ["Houston", "San Antonio", "Dallas"];
+  }
 
-QUnit.test("Load localized itemvalue text, bug#2735", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "{state}";
-  survey.onChoicesLoaded.add(function (survey, options) {
-    if (options.question.name != "q1") return;
-    var item = new ItemValue(1);
-    item.locText.setJson({ default: "item en", de: "item de" });
-    options.choices = [item];
-  });
-  survey.pages[0].addQuestion(question);
-  survey.currentPageNo = 0;
-  question.onSurveyLoad();
-  assert.equal(
-    question.visibleChoices.length,
-    1,
-    "We have loaded visible choices"
-  );
-  var loctText = question.visibleChoices[0].locText;
-  var hasChanged = false;
-  loctText.onChanged = () => {
-    hasChanged = true;
-  };
-  assert.equal(loctText.renderedHtml, "item en", "Default locale");
-  survey.locale = "de";
-  assert.equal(hasChanged, true, "localized string is changed");
-  assert.equal(loctText.renderedHtml, "item de", "de locale");
-  survey.locale = "";
-});
+  function getCountries(): any {
+    return {
+      RestResponse: {
+        messages: [
+          "More webservices are available at http://www.groupkt.com/post/f2129b88/services.htm",
+          "Total [249] records found.",
+        ],
+        result: [
+          {
+            name: "Afghanistan",
+            locName: { en: "Afghanistan" },
+            alpha2_code: "AF",
+            alpha3_code: "AFG",
+          },
+          {
+            name: "Åland Islands", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+            locName: { en: "Åland Islands" }, // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+            alpha2_code: "AX",
+            alpha3_code: "ALA",
+          },
+          {
+            name: "Albania",
+            locName: { en: "Albania" },
+            alpha2_code: "AL",
+            alpha3_code: "ALB",
+          },
+          {
+            name: "Algeria",
+            locName: { en: "Algeria" },
+            alpha2_code: "DZ",
+            alpha3_code: "DZA",
+          },
+          {
+            name: "American Samoa",
+            locName: { en: "American Samoa" },
+            alpha2_code: "AS",
+            alpha3_code: "ASM",
+          },
+        ],
+      },
+    };
+  }
 
-QUnit.test("Load localized strings", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionDropdownModelTester("q1");
-  question.choicesByUrl.url = "localizedstrings";
-  question.choicesByUrl.path = "RestResponse;result";
-  survey.pages[0].addQuestion(question);
-  survey.currentPageNo = 0;
-  question.onSurveyLoad();
-  assert.equal(
-    question.visibleChoices.length,
-    1,
-    "We have loaded visible choices"
-  );
-  var loctText = question.visibleChoices[0].locText;
-  assert.equal(loctText.renderedHtml, "item1 en", "Default locale");
-  survey.locale = "de";
-  assert.equal(loctText.renderedHtml, "item1 de", "de locale");
-  survey.locale = "";
-});
+  function getLocalized(): any {
+    return {
+      RestResponse: {
+        result: [
+          {
+            value: 1,
+            title: { en: "item1 en", de: "item1 de" },
+          },
+        ],
+      },
+    };
+  }
 
-QUnit.test("choicesByUrl + clear invsible values", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("p1");
-  var question = new QuestionDropdownModelTester("q1");
-  survey.pages[0].addQuestion(question);
-  question.value = "Unknown";
-  question.choicesByUrl.url = "allcountries";
-  question.choicesByUrl.path = "RestResponse;result";
-  question.onSurveyLoad();
-  var question2 = new QuestionDropdownModel("q2");
-  survey.pages[0].addQuestion(question2);
-  question2.value = "Unknown";
-  question2.choices = ["item1", "item2"];
-  assert.equal(question.value, "Unknown", "Value is here, choices from web");
-  assert.equal(question.value, "Unknown", "Value is here, locale choices");
-  survey.doComplete();
-  assert.equal(question.isEmpty(), true, "Value is empty, choices from web");
-  assert.equal(question2.isEmpty(), true, "Value is empty, locale choices");
-});
-
-QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
-  var survey = new SurveyModel();
-  survey.addNewPage("1");
-  var question = new QuestionMatrixDynamicModelTester("q1");
-  question.rowCount = 1;
-  var column = question.addColumn("country");
-  column.cellType = "dropdown";
-  column.showOtherItem = true;
-  column["choicesByUrl"].url = "allcountries";
-  column["choicesByUrl"].path = "RestResponse;result";
-  survey.pages[0].addQuestion(question);
-  var data = {
-    q1: [{ country: "Afghanistan", "country-Comment": "Comment" }],
-  };
-  survey.data = data;
-  question.onSurveyLoad();
-  var rows = question.visibleRows;
-  var cellDropdown = <QuestionDropdownModelTester>rows[0].cells[0].question;
-  assert.equal(
-    cellDropdown.visibleChoices.length,
-    1,
-    "Choices are not loaded yet, 0 + other"
-  );
-  cellDropdown.doResultsCallback();
-  assert.equal(
-    cellDropdown.visibleChoices.length,
-    5 + 1,
-    "Choices are loaded, + showOtherItem"
-  );
-  assert.equal(cellDropdown.value, "Afghanistan");
-  survey.doComplete();
-  assert.deepEqual(survey.data, data, "value is not changed");
-});
-
-QUnit.test("Change default value for allowEmptyResponse property", function(assert) {
-  let choicesRest = new ChoicesRestful();
-  assert.strictEqual(choicesRest.allowEmptyResponse, false);
-  Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = true;
-  choicesRest = new ChoicesRestful();
-  assert.strictEqual(choicesRest.allowEmptyResponse, true);
-  Serializer.findProperty("choicesByUrl", "allowEmptyResponse").defaultValue = undefined;
-  choicesRest = new ChoicesRestful();
-  assert.strictEqual(choicesRest.allowEmptyResponse, false);
-});
-QUnit.test("Single: execute choicesByUrl in design time", function (
-  assert
-) {
-  const json = {
-    name: "urltest",
-    questionJSON: {
-      type: "dropdownrestfultester",
-      choicesByUrl: { url: "{state}" },
-    }
-  };
-  ComponentCollection.Instance.add(json);
-
-  const survey = new SurveyModel();
-  survey.onChoicesLoaded.add((sender, options) => {
-    options.choices = [new ItemValue(1), new ItemValue(2)];
-  });
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    elements: [{ type: "urltest", name: "q1", isRequired: true }],
-  });
-  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
-  assert.ok(q1.contentQuestion.survey, "survey is set");
-  assert.equal(q1.contentQuestion.visibleChoices.length, 2, "event is executed");
-  ComponentCollection.Instance.clear();
-});
-QUnit.test("Composite: execute choicesByUrl in design time", function (
-  assert
-) {
-  const json = {
-    name: "urltest",
-    elementsJSON: [{
-      type: "dropdownrestfultester",
-      name: "q1",
-      choicesByUrl: { url: "{state}" },
-    }]
-  };
-  ComponentCollection.Instance.add(json);
-
-  const survey = new SurveyModel();
-  survey.onChoicesLoaded.add((sender, options) => {
-    options.choices = [new ItemValue(1), new ItemValue(2)];
-  });
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    elements: [{ type: "urltest", name: "q1", isRequired: true }],
-  });
-  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
-  assert.equal(q1.contentPanel.getQuestionByName("q1").visibleChoices.length, 2, "event is executed");
-  ComponentCollection.Instance.clear();
-});
-
-QUnit.test("allowCustomChoices: Add custom value into dropdown", function (assert) {
-  const question = new QuestionDropdownModelTester("q1");
-  const survey = new SurveyModel();
-  survey.addNewPage("1");
-  survey.pages[0].addQuestion(question);
-  const dropdownListModel = question.dropdownListModel;
-  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
-  const testCustomValue = "cuba";
-
-  question.allowCustomChoices = true;
-  question.fromJSON({
-    choicesByUrl: {
-      url: "allcountries",
-      path: "RestResponse;result",
-      attachData: true,
-    },
-  });
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
-
-  dropdownListModel.inputStringRendered = testCustomValue;
-  assert.equal(dropdownListModel.customValue, testCustomValue, "#1 customValue");
-  assert.equal(listModel.actions.length, 6, "#1 listModel.actions");
-  assert.equal(listModel.actions[5].id, "newCustomItem", "#1 custom item id");
-  assert.equal(listModel.actions[5].visible, true, "#1 custom item visible");
-  assert.equal(question.value, undefined, "#1 question.value");
-  assert.equal(question.selectedItem, undefined, "#1 question.selectedItem");
-  assert.equal(question.visibleChoices.length, 5, "#1 question.visibleChoices");
-  assert.deepEqual(survey.data, {}, "#1 survey.data");
-
-  listModel.onItemClick(listModel.getActionById("newCustomItem"));
-  assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
-  assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
-  assert.equal(listModel.actions.length, 7, "#2 listModel.actions");
-  assert.equal(listModel.actions[0].id, testCustomValue, "#2 custom value add into list - id");
-  assert.equal(listModel.actions[0].title, testCustomValue, "#2 custom value add into list - title");
-  assert.equal(listModel.actions[6].id, "newCustomItem", "#2 custom item id");
-  assert.equal(listModel.actions[6].visible, false, "#2 custom item invisible");
-  assert.equal(question.value, testCustomValue, "#2 question.value");
-  assert.equal(question.selectedItem.id, testCustomValue, "#2 question.selectedItem");
-  assert.equal(question.visibleChoices.length, 6, "#2 question.visibleChoices");
-  assert.equal(question.visibleChoices[0].value, testCustomValue, "#2 question.visibleChoices[0]");
-  assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
-
-  survey.tryComplete();
-  assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
-});
-QUnit.test("Check objHash, Bug#10463", function (assert) {
-  const question = new QuestionDropdownModelTester("q1");
-  const restful: any = question.choicesByUrl;
-  restful.url = "allcountries";
-  const cache1 = restful.objHash;
-  restful.valueName = "alpha2_code";
-  const cache2 = restful.objHash;
-  restful.titleName = "abc";
-  const cache3 = restful.objHash;
-  assert.notEqual(cache1, cache2, "change valueName -> change cache");
-  assert.notEqual(cache2, cache3, "change path -> change cache");
-  restful.attachData = true;
-  const cache4 = restful.objHash;
-  assert.notEqual(cache3, cache4, "change attachData -> change cache");
-  restful.attachData = false;
-  const cache5 = restful.objHash;
-  assert.equal(cache3, cache5, "change attachData back -> do not change cache");
-});
-
-QUnit.test("Don't request options via choicesByUrl if onChoicesLazyLoad is enabled.", function (assert) {
-  const question = new QuestionDropdownModelTester("q1");
-  const survey = new SurveyModel();
-  survey.addNewPage("1");
-  survey.pages[0].addQuestion(question);
-
-  question.fromJSON({
-    choicesLazyLoadEnabled: true,
-    choicesByUrl: {
-      url: "allcountries",
-      path: "RestResponse;result",
-      attachData: true,
-    },
-  });
-  question.onSurveyLoad();
-  assert.equal(question.visibleChoices.length, 0, "Choices has not loaded");
-});
-QUnit.test("Create choicesByUrl on demand only", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      { type: "dropdown", name: "q1", choices: [1, 2, 3] }]
-  });
-  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
-  assert.equal(question.getPropertyValue("choicesByUrl"), undefined, "choicesByUrl is not created by default");
-  survey.toJSON();
-  assert.equal(question.getPropertyValue("choicesByUrl"), undefined, "choicesByUrl is not created by toJSON");
-  question.choicesByUrl.url = "allcountries";
-  assert.notEqual(question.getPropertyValue("choicesByUrl"), undefined, "choicesByUrl is created on demand");
-});
-function getCACities() {
-  return ["Los Angeles", "San Francisco"];
-}
-function getTXCities() {
-  return ["Houston", "San Antonio", "Dallas"];
-}
-
-function getCountries(): any {
-  return {
-    RestResponse: {
-      messages: [
-        "More webservices are available at http://www.groupkt.com/post/f2129b88/services.htm",
-        "Total [249] records found.",
-      ],
-      result: [
-        {
-          name: "Afghanistan",
-          locName: { en: "Afghanistan" },
-          alpha2_code: "AF",
-          alpha3_code: "AFG",
-        },
-        {
-          name: "Åland Islands", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-          locName: { en: "Åland Islands" }, // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-          alpha2_code: "AX",
-          alpha3_code: "ALA",
-        },
-        {
-          name: "Albania",
-          locName: { en: "Albania" },
-          alpha2_code: "AL",
-          alpha3_code: "ALB",
-        },
-        {
-          name: "Algeria",
-          locName: { en: "Algeria" },
-          alpha2_code: "DZ",
-          alpha3_code: "DZA",
-        },
-        {
-          name: "American Samoa",
-          locName: { en: "American Samoa" },
-          alpha2_code: "AS",
-          alpha3_code: "ASM",
-        },
-      ],
-    },
-  };
-}
-
-function getLocalized(): any {
-  return {
-    RestResponse: {
-      result: [
-        {
-          value: 1,
-          title: { en: "item1 en", de: "item1 de" },
-        },
-      ],
-    },
-  };
-}
-
-function getTextResponse(): any {
-  return `
+  function getTextResponse(): any {
+    return `
   1
   2
   3
   4
   Optimizes Work Processes
   `;
-}
+  }
 
-function getXmlResponse(): any {
-  return `<?xml version="1.0" standalone="yes"?>
+  function getXmlResponse(): any {
+    return `<?xml version="1.0" standalone="yes"?>
   <NSurveyDataSource xmlns="http://www.nsurvey.org/NSurveyDataSource.xsd">
     <XmlDataSource>
       <XmlAnswers>
@@ -2185,4 +1878,5 @@ function getXmlResponse(): any {
       </XmlAnswers>
     </XmlDataSource>
   </NSurveyDataSource>`;
-}
+  }
+});

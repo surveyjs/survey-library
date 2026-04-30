@@ -2,114 +2,109 @@ import { IAction } from "../src/actions/action";
 import { Notifier } from "../src/notifier";
 import { settings } from "../src/settings";
 
-export default QUnit.module("Notifier model");
+import { describe, test, expect, vi } from "vitest";
+describe("Notifier model", () => {
+  const testCssClasses = {
+    root: "alert",
+    rootWithButtons: "alert--with-buttons",
+    info: "alert-info",
+    error: "alert-error",
+    success: "alert-success",
+    button: "alert-button",
+    shown: "alert-shown",
+  };
 
-const testCssClasses = {
-  root: "alert",
-  rootWithButtons: "alert--with-buttons",
-  info: "alert-info",
-  error: "alert-error",
-  success: "alert-success",
-  button: "alert-button",
-  shown: "alert-shown",
-};
+  test("getCssClass", () => {
+    const notifier = new Notifier(testCssClasses);
 
-QUnit.test("getCssClass", function (assert) {
-  const notifier = new Notifier(testCssClasses);
+    expect(notifier.getCssClass("error")).toLooseEqual("alert alert-error");
+    expect(notifier.getCssClass("info")).toLooseEqual("alert alert-info");
+    expect(notifier.getCssClass("text")).toLooseEqual("alert alert-info");
+    expect(notifier.getCssClass("success")).toLooseEqual("alert alert-success");
+  });
 
-  assert.equal(notifier.getCssClass("error"), "alert alert-error");
-  assert.equal(notifier.getCssClass("info"), "alert alert-info");
-  assert.equal(notifier.getCssClass("text"), "alert alert-info");
-  assert.equal(notifier.getCssClass("success"), "alert alert-success");
-});
+  test("action bar: button css", () => {
+    const notifier = new Notifier(testCssClasses);
 
-QUnit.test("action bar: button css", function (assert) {
-  const notifier = new Notifier(testCssClasses);
+    expect(!!notifier.actionBar).toBeTruthy();
+    expect(notifier.actionBar.actions.length).toLooseEqual(0);
 
-  assert.ok(!!notifier.actionBar);
-  assert.equal(notifier.actionBar.actions.length, 0);
+    notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
+    expect(notifier.actionBar.actions.length).toLooseEqual(1);
 
-  notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
-  assert.equal(notifier.actionBar.actions.length, 1);
+    const testAction = notifier.actionBar.actions[0];
+    expect(testAction.innerCss).toLooseEqual(testCssClasses.button);
+  });
 
-  const testAction = notifier.actionBar.actions[0];
-  assert.equal(testAction.innerCss, testCssClasses.button);
-});
+  test("action bar: button visibility", () => {
+    const notifier = new Notifier(testCssClasses);
+    notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
+    expect(notifier.actionBar.actions.length).toLooseEqual(1);
 
-QUnit.test("action bar: button visibility", function (assert) {
-  const notifier = new Notifier(testCssClasses);
-  notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
-  assert.equal(notifier.actionBar.actions.length, 1);
+    const testAction = notifier.actionBar.actions[0];
+    expect(testAction.visible).toLooseEqual(false);
 
-  const testAction = notifier.actionBar.actions[0];
-  assert.equal(testAction.visible, false);
+    notifier.updateActionsVisibility("error");
+    expect(testAction.visible).toLooseEqual(true);
 
-  notifier.updateActionsVisibility("error");
-  assert.equal(testAction.visible, true);
+    notifier.updateActionsVisibility("info");
+    expect(testAction.visible).toLooseEqual(false);
 
-  notifier.updateActionsVisibility("info");
-  assert.equal(testAction.visible, false);
+    notifier.updateActionsVisibility("error");
+    expect(testAction.visible).toLooseEqual(true);
 
-  notifier.updateActionsVisibility("error");
-  assert.equal(testAction.visible, true);
+    notifier.updateActionsVisibility("success");
+    expect(testAction.visible).toLooseEqual(false);
 
-  notifier.updateActionsVisibility("success");
-  assert.equal(testAction.visible, false);
+    expect(notifier.showActions, "showActions default is true").toLooseEqual(true);
+    notifier.showActions = false;
+    notifier.updateActionsVisibility("error");
+    expect(testAction.visible).toLooseEqual(false);
 
-  assert.equal(notifier.showActions, true, "showActions default is true");
-  notifier.showActions = false;
-  notifier.updateActionsVisibility("error");
-  assert.equal(testAction.visible, false);
+    notifier.showActions = true;
+    notifier.updateActionsVisibility("error");
+    expect(testAction.visible).toLooseEqual(true);
 
-  notifier.showActions = true;
-  notifier.updateActionsVisibility("error");
-  assert.equal(testAction.visible, true);
+  });
 
-});
+  test("message box visibility", () => {
+    vi.useFakeTimers();
+    const oldLifeTime = settings.notifications.lifetime;
+    settings.notifications.lifetime = 10;
+    try {
+      const notifier = new Notifier(testCssClasses);
+      notifier.notify("Test", "error");
 
-QUnit.test("message box visibility", function (assert) {
-  const oldLifeTime = settings.notifications.lifetime;
-  settings.notifications.lifetime = 10;
-  const done = assert.async(4);
-  const notifier = new Notifier(testCssClasses);
-  notifier.notify("Test", "error");
+      vi.advanceTimersByTime(1);
+      expect(notifier.active).toLooseEqual(true);
+      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
 
-  setTimeout(() => {
-    assert.equal(notifier.active, true);
-    assert.equal(notifier.css, "alert alert-error alert-shown");
-    done();
-
-    setTimeout(() => {
-      assert.equal(notifier.active, false, "success message is hidden");
-      assert.equal(notifier.css, "alert alert-error");
-
-      done();
+      vi.advanceTimersByTime(settings.notifications.lifetime + 2);
+      expect(notifier.active, "success message is hidden").toLooseEqual(false);
+      expect(notifier.css).toLooseEqual("alert alert-error");
 
       notifier.notify("Error", "error", true);
-      setTimeout(() => {
-        assert.equal(notifier.active, true);
-        assert.equal(notifier.css, "alert alert-error alert-shown");
+      vi.advanceTimersByTime(1);
+      expect(notifier.active).toLooseEqual(true);
+      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
 
-        done();
-        setTimeout(() => {
-          assert.equal(notifier.active, true, "error message is visible");
-          assert.equal(notifier.css, "alert alert-error alert-shown");
+      vi.advanceTimersByTime(settings.notifications.lifetime + 2);
+      expect(notifier.active, "error message is visible").toLooseEqual(true);
+      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
+    } finally {
+      settings.notifications.lifetime = oldLifeTime;
+      vi.useRealTimers();
+    }
+  });
 
-          done();
-          settings.notifications.lifetime = oldLifeTime;
-        }, settings.notifications.lifetime + 2);
-      }, 1);
-    }, settings.notifications.lifetime + 2);
-  }, 1);
-});
-
-QUnit.test("message box check getCssClass method", function (assert) {
-  const notifier = new Notifier(testCssClasses);
-  notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
-  notifier.showActions = true;
-  notifier.updateActionsVisibility("error");
-  assert.equal(notifier.getCssClass("error"), "alert alert--with-buttons alert-error");
-  notifier.showActions = false;
-  notifier.updateActionsVisibility("error");
-  assert.equal(notifier.getCssClass("error"), "alert alert-error");
+  test("message box check getCssClass method", () => {
+    const notifier = new Notifier(testCssClasses);
+    notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
+    notifier.showActions = true;
+    notifier.updateActionsVisibility("error");
+    expect(notifier.getCssClass("error")).toLooseEqual("alert alert--with-buttons alert-error");
+    notifier.showActions = false;
+    notifier.updateActionsVisibility("error");
+    expect(notifier.getCssClass("error")).toLooseEqual("alert alert-error");
+  });
 });

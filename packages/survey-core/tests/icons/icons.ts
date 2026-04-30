@@ -1,75 +1,58 @@
 import { settings } from "../../src/settings";
 import { getNewIconName, getCustomNewIconNameIfExists, getIconNameFromProxy, createSvg } from "../../src/utils/icons";
 
-export default QUnit.module("UtilsSVGIconsTests");
-
-QUnit.test(
-  "support old icon names in surveyjs codebase for backward compatibility",
-  (assert) => {
+import { describe, test, expect } from "vitest";
+describe("UtilsSVGIconsTests", () => {
+  test("support old icon names in surveyjs codebase for backward compatibility", () => {
     const oldIconName = "icon-changecamera"; // see renamedIcons dictionary
     const newIconName = "icon-flip-24x24";
 
-    assert.equal(getNewIconName(newIconName), newIconName, "newName didn't transform");
-    assert.equal(getNewIconName(oldIconName), newIconName, "oldName transformed to newName");
-  }
-);
+    expect(getNewIconName(newIconName), "newName didn't transform").toLooseEqual(newIconName);
+    expect(getNewIconName(oldIconName), "oldName transformed to newName").toLooseEqual(newIconName);
+  });
 
-QUnit.test(
-  "check settings.customIcons for built-in icons swap",
-  (assert) => {
+  test("check settings.customIcons for built-in icons swap", () => {
     const originalIconName = "icon-arrowdown-24x24";
     const builtInIconName = "icon-arrowleft-24x24";
     const customIconName = "icon-arrowright-24x24";
 
     settings.customIcons[builtInIconName] = customIconName;
 
-    assert.equal(getCustomNewIconNameIfExists(originalIconName), null, "this icon doesn't have a custom name");
-    assert.equal(getCustomNewIconNameIfExists(builtInIconName), customIconName, "returns custom name");
+    expect(getCustomNewIconNameIfExists(originalIconName), "this icon doesn't have a custom name").toLooseEqual(null);
+    expect(getCustomNewIconNameIfExists(builtInIconName), "returns custom name").toLooseEqual(customIconName);
 
     delete settings.customIcons[builtInIconName];
-  }
-);
+  });
 
-QUnit.test(
-  "check settings.customIcons for built-in icons swap: support old custom names",
-  (assert) => {
+  test("check settings.customIcons for built-in icons swap: support old custom names", () => {
     const builtInIconNameOld = "icon-arrow-left";
     const customIconNameOld = "icon-arrow-right";
     const customIconNameNew = "icon-arrowright-24x24";
 
     settings.customIcons[builtInIconNameOld] = customIconNameOld;
 
-    assert.equal(getCustomNewIconNameIfExists(builtInIconNameOld), customIconNameNew, "returns custom name and transformed to new");
+    expect(getCustomNewIconNameIfExists(builtInIconNameOld), "returns custom name and transformed to new").toLooseEqual(customIconNameNew);
 
     delete settings.customIcons[builtInIconNameOld];
-  }
-);
+  });
 
-QUnit.test(
-  "check getIconNameFromProxy: old name without customIcon",
-  (assert) => {
+  test("check getIconNameFromProxy: old name without customIcon", () => {
     const oldIconName = "icon-changecamera";
     const newIconName = "icon-flip-24x24";
-    assert.equal(getIconNameFromProxy(oldIconName), newIconName, "returns new name");
-  }
-);
+    expect(getIconNameFromProxy(oldIconName), "returns new name").toLooseEqual(newIconName);
+  });
 
-QUnit.test(
-  "Use proxy to get icons in svg, function getIconNameFromProxy",
-  (assert) => {
+  test("Use proxy to get icons in svg, function getIconNameFromProxy", () => {
     const oldIconName = "icon-changecamera";
     const newIconName = "icon-flip-24x24";
 
     settings.customIcons[oldIconName] = newIconName;
-    assert.equal(getIconNameFromProxy(oldIconName), newIconName);
-    assert.equal(getIconNameFromProxy(newIconName), newIconName);
+    expect(getIconNameFromProxy(oldIconName)).toLooseEqual(newIconName);
+    expect(getIconNameFromProxy(newIconName)).toLooseEqual(newIconName);
     delete settings.customIcons[oldIconName];
-  }
-);
+  });
 
-QUnit.test(
-  "Support old customIcons names in svg, function getIconNameFromProxy",
-  (assert) => {
+  test("Support old customIcons names in svg, function getIconNameFromProxy", () => {
     const oldIconName = "icon-changecamera";
     const newIconName = "icon-flip-24x24";
 
@@ -77,28 +60,25 @@ QUnit.test(
     const newIconNameToSwap = "icon-close-24x24";
 
     settings.customIcons[oldIconName] = oldIconNameToSwap;
-    assert.equal(getIconNameFromProxy(oldIconName), newIconNameToSwap);
-    assert.equal(getIconNameFromProxy(newIconName), newIconName);
+    expect(getIconNameFromProxy(oldIconName)).toLooseEqual(newIconNameToSwap);
+    expect(getIconNameFromProxy(newIconName)).toLooseEqual(newIconName);
     delete settings.customIcons[oldIconName];
-  }
-);
+  });
 
-QUnit.test(
-  "utils: createSvg",
-  function (assert) {
+  test("utils: createSvg", () => {
     var element: HTMLSpanElement = document.createElement("svg");
     element.innerHTML = "<use></use>";
     document.body.appendChild(element);
     createSvg(16, 0, 0, "icon-test", element, "titletext");
-    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#icon-test");
-    assert.equal(element.querySelectorAll("title").length, 1);
-    assert.equal(element.querySelector("title")?.innerHTML, "titletext");
+    expect(element.querySelector("use")?.getAttribute("xlink:href")).toLooseEqual("#icon-test");
+    expect(element.querySelectorAll("title").length).toLooseEqual(1);
+    expect(element.querySelector("title")?.innerHTML).toLooseEqual("titletext");
 
     createSvg(16, 0, 0, "icon-test", element, "titletext2");
-    assert.equal(element.querySelector("use")?.getAttribute("xlink:href"), "#icon-test");
-    assert.equal(element.querySelectorAll("title").length, 1);
-    assert.equal(element.querySelector("title")?.innerHTML, "titletext2");
+    expect(element.querySelector("use")?.getAttribute("xlink:href")).toLooseEqual("#icon-test");
+    expect(element.querySelectorAll("title").length).toLooseEqual(1);
+    expect(element.querySelector("title")?.innerHTML).toLooseEqual("titletext2");
 
     element.remove();
-  }
-);
+  });
+});

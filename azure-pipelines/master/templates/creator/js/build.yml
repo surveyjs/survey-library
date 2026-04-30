@@ -51,6 +51,6 @@ steps:
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)/packages/survey-creator-js/build/'
-        ArtifactName: $(ArtifactNameCreatorV2JS)
+        ArtifactName: $(ArtifactNameCreatorJS)
         publishLocation: 'Container'
         StoreAsTar: true

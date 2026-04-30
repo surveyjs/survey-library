@@ -71,6 +71,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public scrollHandler: (e?: any) => void;
   public loadingIndicatorVisibilityObserver: (isVisible: boolean) => void;
   public areSameItemsCallback: (item1: IAction, item2: IAction) => boolean;
+  public onGetItemExtraComponentData: (item: T) => any;
 
   private hasText(item: T, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;

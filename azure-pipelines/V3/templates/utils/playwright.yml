@@ -1,5 +1,0 @@
-steps:
-  - script: |
-      npm run postinstall
-      npx puppeteer browsers install chrome
-    displayName: "playwright & chrome"

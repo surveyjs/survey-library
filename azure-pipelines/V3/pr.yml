@@ -24,21 +24,22 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-library
+      ref: $(System.PullRequest.TargetBranch)
     - repository: Creator
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-creator
-      ref: V3
+      ref: $(System.PullRequest.TargetBranch)
     - repository: Analytics
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-analytics
-      ref: V3
+      ref: $(System.PullRequest.TargetBranch)
     - repository: PDF
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-pdf
-      ref: V3
+      ref: $(System.PullRequest.TargetBranch)
 
 
 trigger: none

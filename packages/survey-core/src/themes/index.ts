@@ -9,9 +9,9 @@ import SoftLightPanelless from "./soft-light-panelless";
 //import SoftDarkPanelless from "./soft-dark-panelless";
 
 import ContrastLight from "./contrast-light";
-import ContrastDark from "./contrast-dark";
+//import ContrastDark from "./contrast-dark";
 import ContrastLightPanelless from "./contrast-light-panelless";
-import ContrastDarkPanelless from "./contrast-dark-panelless";
+//import ContrastDarkPanelless from "./contrast-dark-panelless";
 
 import BorderlessLight from "./borderless-light";
 import BorderlessDark from "./borderless-dark";

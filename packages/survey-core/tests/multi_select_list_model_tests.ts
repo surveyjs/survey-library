@@ -96,8 +96,7 @@ describe("Multi select list model", () => {
     expect(multiSelectList.isItemSelected(multiSelectList.renderedActions[3])).toLooseEqual(false);
   });
 
-  // Skipped: focus behavior requires real DOM not provided by jsdom.
-  test.skip("selectFocusedItem", () => {
+  test("selectFocusedItem", () => {
     const items = createIActionArray(12);
     const list = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true });
     list.filterString = "1";
@@ -110,8 +109,7 @@ describe("Multi select list model", () => {
     expect(list.focusedItem === list.actions[1]).toBeTruthy();
   });
 
-  // Skipped: focus behavior requires real DOM not provided by jsdom.
-  test.skip("selectFocusedItem & hideSelectedItems", () => {
+  test("selectFocusedItem & hideSelectedItems", () => {
     const items = createIActionArray(12);
     const list = new MultiSelectListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true });
     list.hideSelectedItems = true;

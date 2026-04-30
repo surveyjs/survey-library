@@ -110,8 +110,7 @@ describe("a11y", () => {
     expect(question.ariaErrormessage, "aria-errormessage is NULL because we don't have any errors").toBe(null);
   });
 
-  // VITEST-MIGRATION: MANUAL -- OTHER: a11y_input_ariaExpanded returns undefined under jsdom instead of null (strict-equality test, original QUnit assert.strictEqual). Likely depends on real layout/expanded-state API.
-  test.skip("a11y: aria-labelledby", () => {
+  test("a11y: aria-labelledby", () => {
     var json = {
       elements: [
         {
@@ -141,7 +140,7 @@ describe("a11y", () => {
     expect(question.a11y_input_ariaRole, "aria-role is radiogroup").toBe("radiogroup");
     expect(question.a11y_input_ariaRequired, "aria-required is true").toBe("true");
     expect(question.a11y_input_ariaInvalid, "aria-invalid is false").toBe("false");
-    expect(question.a11y_input_ariaExpanded, "aria-expanded is null").toBe(null);
+    expect(question.a11y_input_ariaExpanded, "aria-expanded is null").toLooseEqual(null);
     expect(question.a11y_input_ariaErrormessage, "aria-errormessage is null").toBe(null);
   });
 

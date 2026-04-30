@@ -207,8 +207,7 @@ describe("List Model", () => {
     expect(list.isEmpty, "isEmpty").toBeTruthy();
   });
 
-  // Skipped: focus/scroll/mouse behavior requires real DOM not provided by jsdom.
-  test.skip("ListModel focus item", () => {
+  test("ListModel focus item", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     list.flushUpdates();
@@ -226,8 +225,7 @@ describe("List Model", () => {
     expect(list.focusedItem).toLooseEqual(list.actions[0]);
   });
 
-  // Skipped: focus behavior requires real DOM not provided by jsdom.
-  test.skip("focusNextVisibleItem item", () => {
+  test("focusNextVisibleItem item", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     list.focusedItem = list.actions[list.actions.length - 1];
@@ -239,8 +237,7 @@ describe("List Model", () => {
     expect(list.focusedItem === list.actions[1]).toBeTruthy();
   });
 
-  // Skipped: focus behavior requires real DOM not provided by jsdom.
-  test.skip("focusNextVisibleItem item + filtration", () => {
+  test("focusNextVisibleItem item + filtration", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     list.filterString = "1";
@@ -265,8 +262,7 @@ describe("List Model", () => {
     list.focusPrevVisibleItem();
     expect(list.focusedItem === list.actions[list.actions.length - 2]).toBeTruthy();
   });
-  // Skipped: focus behavior requires real DOM not provided by jsdom.
-  test.skip("focusPrevVisibleItem item + filtration", () => {
+  test("focusPrevVisibleItem item + filtration", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     list.filterString = "1";
@@ -290,8 +286,7 @@ describe("List Model", () => {
     expect(list.focusedItem === list.actions[2]).toBeTruthy();
   });
 
-  // Skipped: focus behavior requires real DOM not provided by jsdom.
-  test.skip("selectFocusedItem", () => {
+  test("selectFocusedItem", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     list.filterString = "1";
@@ -302,8 +297,7 @@ describe("List Model", () => {
     list.selectFocusedItem();
     expect(list.selectedItem === list.actions[1]).toBeTruthy();
   });
-  // Skipped: mouse event handling requires real DOM not provided by jsdom.
-  test.skip("onMouseMove", () => {
+  test("onMouseMove", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     list.filterString = "1";
@@ -313,14 +307,16 @@ describe("List Model", () => {
     list.onMouseMove(new MouseEvent("mouseMove"));
     expect(list.focusedItem).toLooseEqual(undefined);
   });
-  // Skipped: scroll handler attachment requires real DOM not provided by jsdom.
-  test.skip("add/remove scrollHandler", () => {
+  test("add/remove scrollHandler", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     let result = 0;
 
     const element = createListContainerHtmlElement();
     list.initListContainerHtmlElement(element);
+    // jsdom does not perform layout; force the scrollable container to report a vertical scroller.
+    Object.defineProperty(list.scrollableContainer, "scrollHeight", { configurable: true, value: 1000 });
+    Object.defineProperty(list.scrollableContainer, "offsetHeight", { configurable: true, value: 100 });
 
     expect(ElementHelper.hasVerticalScroller(list.scrollableContainer)).toLooseEqual(true);
     expect(!!list.scrollHandler).toLooseEqual(false);
@@ -356,13 +352,15 @@ describe("List Model", () => {
     document.body.removeChild(element);
   });
 
-  // Skipped: vertical scroll detection requires real DOM layout not provided by jsdom.
-  test.skip("onItemRended & hasVerticalScroller & isAllDataLoaded", () => {
+  test("onItemRended & hasVerticalScroller & isAllDataLoaded", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
     const element = createListContainerHtmlElement();
     list.initListContainerHtmlElement(element);
     list.isAllDataLoaded = false;
+    // jsdom does not perform layout; stub measurements so hasVerticalScroller can detect overflow.
+    Object.defineProperty(list.scrollableContainer, "scrollHeight", { configurable: true, value: 1000 });
+    Object.defineProperty(list.scrollableContainer, "offsetHeight", { configurable: true, value: 100 });
 
     expect(list.hasVerticalScroller).toLooseEqual(false);
 

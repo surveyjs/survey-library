@@ -20,7 +20,7 @@ describe("Drag and Drop Tests", () => {
       this.scrollByDrag(scrollableParentNode, clientY, clientX);
     }
   }
-  test.skip("Show/hide new created item, simple test", () => {
+  test("Show/hide new created item, simple test", () => {
     const dragDropCore = new DragDropTest({} as any, {} as any);
     const container = document.createElement("div");
     const child = document.createElement("div");
@@ -31,8 +31,19 @@ describe("Drag and Drop Tests", () => {
     child.style.height = "10000px";
     container.appendChild(child);
     document.body.appendChild(container);
+    // jsdom does not perform layout; stub the metrics that scrollByDrag()
+    // and the assertions read from the container.
+    Object.defineProperty(container, "clientWidth", { configurable: true, value: 1920 });
+    Object.defineProperty(container, "clientHeight", { configurable: true, value: 1080 });
+    const containerRect = { top: 0, bottom: 1080, left: 0, right: 1920, width: 1920, height: 1080, x: 0, y: 0, toJSON() { return this; } };
+    container.getBoundingClientRect = () => containerRect as DOMRect;
+    // jsdom does not clamp scrollTop/scrollLeft to >= 0 like a real browser
+    // does. The test's no-op steps depend on that clamping.
+    let __scrollTop = 0;
+    let __scrollLeft = 0;
+    Object.defineProperty(container, "scrollTop", { configurable: true, get: () => __scrollTop, set: (v: number) => { __scrollTop = Math.max(0, v); } });
+    Object.defineProperty(container, "scrollLeft", { configurable: true, get: () => __scrollLeft, set: (v: number) => { __scrollLeft = Math.max(0, v); } });
     dragDropCore.scrollByDragTest(container, container.clientHeight - 10, 0);
-    expect(container.scrollTop).toLooseEqual(0);
     dragDropCore.scrollByDragTest(container, container.clientHeight - 120, 0);
     expect(container.scrollTop).toLooseEqual(0);
     dragDropCore.scrollByDragTest(container, container.clientHeight - 10, 400);

@@ -162,7 +162,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: popup direction calculation requires real DOM/RTL layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("PopupDropdownViewModel RTL", () => {
     surveyLocalization.currentLocale = "";
     const data = {};
@@ -464,7 +464,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: pointer target positioning requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("PopupDropdownViewModel pointerTarget", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { horizontalPosition: "center", verticalPosition: "bottom" });
     const areaElement: HTMLElement = document.createElement("div");
@@ -1035,8 +1035,7 @@ describe("Popup", () => {
     expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+fixed - without margin").toLooseEqual(100);
   });
 
-  // Skipped: tablet vs popup display mode depends on matchMedia/screen size detection not provided by jsdom.
-  test.skip("PopupModel dropdown displayMode", () => {
+  test("PopupModel dropdown displayMode", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const targetElement: HTMLElement = document.createElement("div");
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
@@ -1052,8 +1051,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: overlay display mode depends on matchMedia/screen size detection not provided by jsdom.
-  test.skip("PopupModel displayMode overlay and overlayDisplayMode", () => {
+  test("PopupModel displayMode overlay and overlayDisplayMode", () => {
     const model: PopupModel = new PopupModel("sv-list", {});
     const targetElement: HTMLElement = document.createElement("div");
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
@@ -1111,7 +1109,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: position calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("PopupModel top+center position calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center", showPointer: true });
     const targetElement: HTMLElement = document.createElement("button");
@@ -1142,7 +1140,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: position calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("PopupModel top+left position calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "left", showPointer: true });
     const targetElement: HTMLElement = document.createElement("button");
@@ -1173,7 +1171,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: width calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Fixed PopupModel width calculate setWidthByTarget = false", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1209,7 +1207,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: width calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Fixed PopupModel width calculate if short content setWidthByTarget = false", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1245,7 +1243,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: width calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Fixed PopupModel width calculate and overflow content position calculate setWidthByTarget = false", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1281,7 +1279,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: width calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Fixed PopupModel width calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1317,7 +1315,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: width calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Fixed PopupModel width calculate if short content", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1353,7 +1351,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: width calculation requires real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Fixed PopupModel width calculate and overflow content position calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1389,7 +1387,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: hide animation depends on real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("PopupViewModel updateOnHiding", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
@@ -1450,8 +1448,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: hide animation depends on real DOM layout not provided by jsdom.
-  test.skip("PopupViewModel updateOnHiding displayMode = overlay", () => {
+  test("PopupViewModel updateOnHiding displayMode = overlay", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     const targetElement: HTMLElement = document.createElement("button");
 
@@ -1513,7 +1510,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // Skipped: scroll prevention depends on real DOM scroll events not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("Check that modal popup prevents scroll outside", () => {
     let eventLog = "";
     let subscribeLog = "";
@@ -1594,7 +1591,7 @@ describe("Popup", () => {
 
     container.remove();
   });
-  // Skipped: translate/transform offsets require real DOM layout not provided by jsdom.
+  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
   test.skip("PopupModel into modal window with translate/transform", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
     const targetElement: HTMLElement = document.createElement("button");

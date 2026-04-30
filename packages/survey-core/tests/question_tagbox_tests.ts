@@ -46,8 +46,7 @@ describe("Tagbox question", () => {
     }]
   };
 
-  // Skipped: hintString depends on popup/list rendering side-effects that don't fire under jsdom.
-  test.skip("clearValue", () => {
+  test("clearValue", () => {
     const json = {
       elements: [
         {

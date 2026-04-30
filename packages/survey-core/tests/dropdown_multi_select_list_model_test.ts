@@ -70,8 +70,7 @@ describe("DropdownMultiListModel", () => {
     expect(question.value.length).toLooseEqual(0);
   });
 
-  // Skipped: popup/list rendering side-effects don't fire under jsdom.
-  test.skip("DropdownListModel with MultiListModel & searchEnabled false", () => {
+  test("DropdownListModel with MultiListModel & searchEnabled false", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "tagbox",
@@ -216,8 +215,7 @@ describe("DropdownMultiListModel", () => {
     expect(dropdownListModel.filterStringPlaceholder).toLooseEqual("");
   });
 
-  // Skipped: hint/popup rendering side-effects don't fire under jsdom.
-  test.skip("hintString test", () => {
+  test("hintString test", () => {
     const survey = new SurveyModel(jsonTagbox);
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = new DropdownMultiSelectListModel(question);
@@ -290,8 +288,7 @@ describe("DropdownMultiListModel", () => {
     expect(dropdownListModel.inputString, "inputString").toLooseEqual("");
   });
 
-  // Skipped: focus/popup rendering side-effects don't fire under jsdom.
-  test.skip("reset placeholder on in-list focus change", () => {
+  test("reset placeholder on in-list focus change", () => {
     const survey = new SurveyModel(jsonTagbox);
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = new DropdownMultiSelectListModel(question);
@@ -302,8 +299,7 @@ describe("DropdownMultiListModel", () => {
     expect(dropdownListModel.filterStringPlaceholder).toLooseEqual("");
   });
 
-  // Skipped: keyboard event handling requires real DOM not provided by jsdom.
-  test.skip("tagbox using space", () => {
+  test("tagbox using space", () => {
     const survey = new SurveyModel(jsonTagbox);
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = new DropdownMultiSelectListModel(question);
@@ -335,8 +331,7 @@ describe("DropdownMultiListModel", () => {
     expect(question.value).toEqualValues([]);
   });
 
-  // Skipped: hint/popup rendering side-effects don't fire under jsdom.
-  test.skip("tagbox hint after deselect", () => {
+  test("tagbox hint after deselect", () => {
     const survey = new SurveyModel(jsonTagbox);
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = new DropdownMultiSelectListModel(question);

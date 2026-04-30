@@ -92,8 +92,7 @@ describe("Dropdown question", () => {
     expect(question.popupModel.contentComponentData.model instanceof ListModel).toBeTruthy();
   });
 
-  // Skipped: depends on hasMouse/IsTouch detection that returns wrong value under jsdom.
-  test.skip("Test dropdown renderAs select", () => {
+  test("Test dropdown renderAs select", () => {
     const json = {
       elements: [{
         type: "dropdown",
@@ -141,8 +140,7 @@ describe("Dropdown question", () => {
     expect(question.dropdownListModel.searchEnabled).toLooseEqual(true);
   });
 
-  // Skipped: depends on hasMouse/IsTouch detection that returns wrong value under jsdom.
-  test.skip("Test dropdown renderAs select searchEnabled property", () => {
+  test("Test dropdown renderAs select searchEnabled property", () => {
     const json = {
       elements: [{
         type: "dropdown",
@@ -1761,8 +1759,7 @@ describe("Dropdown question", () => {
     expect(question.dropdownListModel["listModel"].visibleItems.length, "#3").toLooseEqual(6);
     expect(question.dropdownListModel["listModel"].visibleItems[5].id).toLooseEqual("loadingIndicator");
   });
-  // Skipped: lazy load + blur depends on popup/list rendering side-effects not fired under jsdom.
-  test.skip("lazy loading: duplication of elements after blur", () => {
+  test("lazy loading: duplication of elements after blur", () => {
     const survey = new SurveyModel({
       elements: [{
         "type": "dropdown",
@@ -1815,8 +1812,7 @@ describe("Dropdown question", () => {
     expect(question.choices.length, "question.choices.length #4").toLooseEqual(25);
     expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #4").toLooseEqual("");
   });
-  // Skipped: lazy load callback path depends on popup/list rendering side-effects not fired under jsdom.
-  test.skip("lazy loading: check onChoicesLazyLoad callback count", () => {
+  test("lazy loading: check onChoicesLazyLoad callback count", () => {
     let callbackCount = 0;
     const survey = new SurveyModel({
       elements: [{
@@ -2055,8 +2051,7 @@ describe("Dropdown question", () => {
     expect(question.choices.length, "question.choices.length #5").toLooseEqual(5);
   });
 
-  // Skipped: custom choice creation depends on popup/list rendering side-effects not fired under jsdom.
-  test.skip("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: false", () => {
+  test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: false", () => {
     const survey = new SurveyModel({
       elements: [{
         name: "q1", type: "dropdown", searchEnabled: "false",
@@ -2315,8 +2310,7 @@ describe("Dropdown question", () => {
     expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
   });
 
-  // Skipped: hint string with custom value depends on popup/list rendering side-effects not fired under jsdom.
-  test.skip("allowCustomChoices: hintString with custom value if searchEnabled: true", () => {
+  test("allowCustomChoices: hintString with custom value if searchEnabled: true", () => {
     const survey = new SurveyModel({
       elements: [{
         name: "q1", type: "dropdown", searchEnabled: "true", allowCustomChoices: "true",

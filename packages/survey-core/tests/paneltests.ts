@@ -1756,6 +1756,7 @@ describe("Panel", () => {
     survey.css = {};
   });
 
+  // requires-product-fix: original QUnit.skip; `showPreview()` does not currently expose original pages as panels by name. Out of scope for jsdom layout migration.
   test.skip("Check panel styles with originalPage and showPreview", () => {
     const survey = new SurveyModel({
       pages: [

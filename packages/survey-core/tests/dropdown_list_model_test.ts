@@ -73,8 +73,7 @@ describe("DropdownListModel", () => {
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toLooseEqual(0);
   });
 
-  // Skipped: focus selector requires real DOM/focus tracking not provided by jsdom.
-  test.skip("DropdownListModel focusFirstInputSelector", () => {
+  test("DropdownListModel focusFirstInputSelector", () => {
     const survey = new SurveyModel(jsonDropdown);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;

@@ -8,9 +8,19 @@ import "../src/localization/german";
 import { settings } from "../src/settings";
 import { ComponentCollection } from "../src/question_custom";
 import { surveyLocalization } from "../src/surveyStrings";
+import { _setIsTouch } from "../src/utils/devices";
 
 settings.animationEnabled = false;
 settings.dropdownSearchDelay = 0;
+
+// jsdom exposes `ontouchstart` on window, which makes the device-detection
+// heuristic in src/utils/devices.ts treat the test environment as a touch
+// device by default. The legacy Karma/QUnit environment ran in a real desktop
+// browser where `IsTouch` was false; mirror that here so behavior gated on
+// `IsTouch` (e.g. `ListModel.focusFirstVisibleItem`) matches Karma. Tests
+// that need touch behavior call `_setIsTouch(true)` explicitly and reset it
+// in their own teardown.
+_setIsTouch(false);
 
 // jsdom does not implement matchMedia. SurveyJS responsive logic and popup
 // displayMode use it. Provide a controllable registry.

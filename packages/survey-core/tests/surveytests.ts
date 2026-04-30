@@ -14449,8 +14449,7 @@ describe("Survey", () => {
     }
   }
 
-  // Skipped: ResizeObserver/getComputedStyle stubbing path doesn't fire under jsdom.
-  test.skip("Check survey resize observer double process", () => {
+  test("Check survey resize observer double process", () => {
     window.requestAnimationFrame = (func: any) => !!func && func();
     const getComputedStyle = window.getComputedStyle;
     window.getComputedStyle = <any>((el: HTMLElement) => {
@@ -14459,6 +14458,9 @@ describe("Survey", () => {
     const ResizeObserver = window.ResizeObserver;
     window.ResizeObserver = <any>CustomResizeObserver;
     const rootEl = document.createElement("div");
+    // jsdom does not perform layout; mark the element as visible for isContainerVisible().
+    Object.defineProperty(rootEl, "offsetWidth", { configurable: true, value: 800 });
+    Object.defineProperty(rootEl, "offsetHeight", { configurable: true, value: 600 });
     window.document.body.appendChild(rootEl);
     const survey = new SurveyModel({
       "elements": [
@@ -14486,8 +14488,7 @@ describe("Survey", () => {
     rootEl.remove();
   });
 
-  // Skipped: ResizeObserver/getComputedStyle visibility detection doesn't fire under jsdom.
-  test.skip("Check survey resize observer do not process if container is not visible", () => {
+  test("Check survey resize observer do not process if container is not visible", () => {
     const getComputedStyle = window.getComputedStyle;
     window.getComputedStyle = <any>((el: HTMLElement) => {
       return el.style;
@@ -14512,9 +14513,14 @@ describe("Survey", () => {
       return true;
     };
     rootEl.style.display = "none";
+    // jsdom does not honor display:none for offset metrics; toggle the stub instead.
+    let __visible = false;
+    Object.defineProperty(rootEl, "offsetWidth", { configurable: true, get: () => __visible ? 800 : 0 });
+    Object.defineProperty(rootEl, "offsetHeight", { configurable: true, get: () => __visible ? 600 : 0 });
     survey.afterRenderSurvey(rootEl);
     expect(trace, "do not process responsivness on invisible container").toLooseEqual("");
     rootEl.style.display = "block";
+    __visible = true;
     (<any>survey["resizeObserver"]).call();
     expect(trace, "process responsivness on visible container").toLooseEqual("->processed");
     window.ResizeObserver = ResizeObserver;
@@ -17157,8 +17163,7 @@ describe("Survey", () => {
     expect(q2.value, "q2.value #2").toLooseEqual("");
   });
 
-  // Skipped: popup/overlay displayMode depends on matchMedia/screen size detection not provided by jsdom.
-  test.skip("Check onOpenDropdownMenu events", () => {
+  test("Check onOpenDropdownMenu events", () => {
     const survey = new SurveyModel({
       elements: [
         {
@@ -19837,8 +19842,7 @@ describe("Survey", () => {
     expect(survey.getQuestionByName("q4").value, "q3.value").toLooseEqual("d");
   });
 
-  // Skipped: shadow DOM querySelector path requires CSS.escape and real shadow root not provided by jsdom.
-  test.skip("Check that focusInput works correctly with shadow dom", () => {
+  test("Check that focusInput works correctly with shadow dom", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "text", name: "q1" },
@@ -19850,6 +19854,9 @@ describe("Survey", () => {
     survey.rootElement = document.createElement("div");
     const input = document.createElement("input");
     input.id = question.inputId;
+    // jsdom does not perform layout, so `offsetParent` is always null and
+    // SurveyElement.focusElementCore() bails out before calling focus().
+    Object.defineProperty(input, "offsetParent", { configurable: true, get: () => survey.rootElement });
     survey.rootElement.appendChild(input);
     root.shadowRoot?.appendChild(survey.rootElement);
     document.body.appendChild(root);

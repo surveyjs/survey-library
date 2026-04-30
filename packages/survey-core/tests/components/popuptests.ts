@@ -55,6 +55,35 @@ describe("Popup", () => {
     return <HTMLElement>root?.querySelector(".sv-popup__container");
   }
 
+  // jsdom does not perform layout, so getBoundingClientRect/offsetWidth/offsetHeight
+  // always report 0 even when an inline style sets a size. The popup positioning
+  // tests below need real values; this helper exposes them deterministically.
+  function stubElementLayout(el: HTMLElement, rect: { left?: number, top?: number, width?: number, height?: number, scrollHeight?: number }) {
+    const left = rect.left || 0;
+    const top = rect.top || 0;
+    const width = rect.width || 0;
+    const height = rect.height || 0;
+    const scrollHeight = rect.scrollHeight ?? height;
+    Object.defineProperty(el, "offsetWidth", { configurable: true, value: width });
+    Object.defineProperty(el, "offsetHeight", { configurable: true, value: height });
+    Object.defineProperty(el, "scrollHeight", { configurable: true, value: scrollHeight });
+    el.getBoundingClientRect = () => ({
+      x: left, y: top, left, top, width, height,
+      right: left + width, bottom: top + height,
+      toJSON() { return this; }
+    } as DOMRect);
+  }
+  // Reads the px value from an inline style (e.g., "200px") and stubs layout to match.
+  function stubFromInlineStyle(el: HTMLElement) {
+    const px = (v: string) => parseFloat(v) || 0;
+    stubElementLayout(el, {
+      left: px(el.style.left),
+      top: px(el.style.top),
+      width: px(el.style.width),
+      height: px(el.style.height),
+    });
+  }
+
   function createPopupViewModelTest(model: PopupModel, target: HTMLElement) {
     model.getTargetCallback = () => target;
     return createPopupViewModel(model);
@@ -162,13 +191,14 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("PopupDropdownViewModel RTL", () => {
+  test("PopupDropdownViewModel RTL", () => {
     surveyLocalization.currentLocale = "";
     const data = {};
     const model: PopupModel = new PopupModel("sv-list", data, { horizontalPosition: "right" });
 
     document.dir = "rtl";
+    // jsdom does not propagate document.dir into computed style; set it on body too.
+    document.body.style.direction = "rtl";
     const targetElement: HTMLElement = document.createElement("div");
     targetElement.style.position = "absolute";
     targetElement.style.top = "1000px";
@@ -178,6 +208,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -186,6 +217,9 @@ describe("Popup", () => {
     popupContainer.style.width = "200px";
     popupContainer.style.height = "400px";
     popupContainer.style.margin = "8px";
+    stubElementLayout(popupContainer, { width: 200, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
     (<any>window).innerHeight = 2000;
     (<any>window).innerWidth = 2000;
@@ -197,6 +231,7 @@ describe("Popup", () => {
     viewModel.dispose();
     targetElement.remove();
     document.dir = "";
+    document.body.style.direction = "";
   });
 
   test("PopupDropdownViewModel custom environment", () => {
@@ -464,8 +499,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("PopupDropdownViewModel pointerTarget", () => {
+  test("PopupDropdownViewModel pointerTarget", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { horizontalPosition: "center", verticalPosition: "bottom" });
     const areaElement: HTMLElement = document.createElement("div");
     model.getAreaCallback = (container) => {
@@ -480,6 +514,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "268px";
     popupContainer.style.height = "225px";
+    stubElementLayout(popupContainer, { width: 268, height: 225 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 268, height: 225 });
 
     let fixedPopupContainer = viewModel.container.querySelector(".sv-popup") as HTMLElement;
     fixedPopupContainer.getBoundingClientRect = () => { return <DOMRect>{ bottom: 953, height: 953, left: 0, right: 795, top: 0, width: 795, x: 0, y: 0 }; };
@@ -1109,8 +1146,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("PopupModel top+center position calculate", () => {
+  test("PopupModel top+center position calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center", showPointer: true });
     const targetElement: HTMLElement = document.createElement("button");
 
@@ -1122,6 +1158,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1130,6 +1167,9 @@ describe("Popup", () => {
     popupContainer.style.width = "200px";
     popupContainer.style.height = "400px";
     popupContainer.style.margin = "8px";
+    stubElementLayout(popupContainer, { width: 200, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
     (<any>window).innerHeight = 2000;
     (<any>window).innerWidth = 2000;
@@ -1140,8 +1180,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("PopupModel top+left position calculate", () => {
+  test("PopupModel top+left position calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "left", showPointer: true });
     const targetElement: HTMLElement = document.createElement("button");
 
@@ -1153,6 +1192,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1161,6 +1201,9 @@ describe("Popup", () => {
     popupContainer.style.width = "200px";
     popupContainer.style.height = "400px";
     popupContainer.style.margin = "8px";
+    stubElementLayout(popupContainer, { width: 200, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
     (<any>window).innerHeight = 2000;
     (<any>window).innerWidth = 2000;
@@ -1171,8 +1214,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Fixed PopupModel width calculate setWidthByTarget = false", () => {
+  test("Fixed PopupModel width calculate setWidthByTarget = false", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     model.setWidthByTarget = false;
@@ -1186,6 +1228,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1193,6 +1236,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "700px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 700, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 700, height: 400 });
 
     (<any>window).innerWidth = 1000;
     (<any>window).innerHeight = 800;
@@ -1207,8 +1253,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Fixed PopupModel width calculate if short content setWidthByTarget = false", () => {
+  test("Fixed PopupModel width calculate if short content setWidthByTarget = false", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     model.setWidthByTarget = false;
@@ -1222,6 +1267,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1229,6 +1275,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "200px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 200, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
     (<any>window).innerWidth = 1000;
     (<any>window).innerHeight = 800;
@@ -1243,8 +1292,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Fixed PopupModel width calculate and overflow content position calculate setWidthByTarget = false", () => {
+  test("Fixed PopupModel width calculate and overflow content position calculate setWidthByTarget = false", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     model.setWidthByTarget = false;
@@ -1258,6 +1306,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1265,6 +1314,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "1500px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 1500, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 1500, height: 400 });
 
     (<any>window).innerWidth = 1000;
     (<any>window).innerHeight = 800;
@@ -1279,8 +1331,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Fixed PopupModel width calculate", () => {
+  test("Fixed PopupModel width calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     model.setWidthByTarget = true;
@@ -1294,6 +1345,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1301,6 +1353,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "700px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 700, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 700, height: 400 });
 
     (<any>window).innerWidth = 1000;
     (<any>window).innerHeight = 800;
@@ -1315,8 +1370,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Fixed PopupModel width calculate if short content", () => {
+  test("Fixed PopupModel width calculate if short content", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     model.setWidthByTarget = true;
@@ -1330,6 +1384,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1337,6 +1392,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "200px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 200, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
     (<any>window).innerWidth = 1000;
     (<any>window).innerHeight = 800;
@@ -1351,8 +1409,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Fixed PopupModel width calculate and overflow content position calculate", () => {
+  test("Fixed PopupModel width calculate and overflow content position calculate", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     model.setWidthByTarget = true;
@@ -1366,6 +1423,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1373,6 +1431,9 @@ describe("Popup", () => {
     let popupContainer = getPopupContainer(viewModel.container);
     popupContainer.style.width = "1500px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 1500, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 1500, height: 400 });
 
     (<any>window).innerWidth = 1000;
     (<any>window).innerHeight = 800;
@@ -1387,8 +1448,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("PopupViewModel updateOnHiding", () => {
+  test("PopupViewModel updateOnHiding", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
     model.positionMode = "fixed";
     const targetElement: HTMLElement = document.createElement("button");
@@ -1401,6 +1461,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1408,6 +1469,9 @@ describe("Popup", () => {
     let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
     popupContainer.style.width = "550px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 550, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 550, height: 400 });
 
     expect(viewModel.isVisible).toLooseEqual(false);
     expect(viewModel.top).toLooseEqual("0px");
@@ -1510,8 +1574,7 @@ describe("Popup", () => {
     targetElement.remove();
   });
 
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("Check that modal popup prevents scroll outside", () => {
+  test("Check that modal popup prevents scroll outside", () => {
     let eventLog = "";
     let subscribeLog = "";
     const wrapEvent = (event) => {
@@ -1542,6 +1605,20 @@ describe("Popup", () => {
   </div>`;
     wrapContainer(container);
     addElementIntoBody(container);
+    // jsdom does not perform layout: stub offsetHeight/scrollHeight on the
+    // overflow:auto wrapper, and provide a settable scrollTop, so the
+    // production preventScrollOuside() can detect inner scrollability.
+    const scrollWrapper = container.children[0] as HTMLElement;
+    // jsdom does not expand the `overflow` shorthand into overflowY in
+    // getComputedStyle; set it explicitly so the production preventScrollOuside()
+    // recognizes the wrapper as scrollable.
+    scrollWrapper.style.overflowY = "auto";
+    Object.defineProperty(scrollWrapper, "offsetHeight", { configurable: true, value: 200 });
+    Object.defineProperty(scrollWrapper, "clientHeight", { configurable: true, value: 200 });
+    Object.defineProperty(scrollWrapper, "scrollHeight", { configurable: true, value: 400 });
+    let __scrollTop = 0;
+    Object.defineProperty(scrollWrapper, "scrollTop", { configurable: true, get: () => __scrollTop, set: (v: number) => { __scrollTop = v; } });
+    scrollWrapper.scrollTo = ((x: number, y: number) => { __scrollTop = y; }) as any;
     viewModel.setComponentElement(container);
     model.isVisible = true;
     viewModel.updateOnShowing();
@@ -1591,8 +1668,7 @@ describe("Popup", () => {
 
     container.remove();
   });
-  // requires-real-browser: depends on real DOM layout / scroll / animation; needs Playwright component test (tracked TODO).
-  test.skip("PopupModel into modal window with translate/transform", () => {
+  test("PopupModel into modal window with translate/transform", () => {
     const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "top", horizontalPosition: "center" });
     const targetElement: HTMLElement = document.createElement("button");
 
@@ -1604,6 +1680,7 @@ describe("Popup", () => {
     addElementIntoBody(targetElement);
     targetElement.parentElement.scrollTop = 0;
     targetElement.parentElement.scrollLeft = 0;
+    stubFromInlineStyle(targetElement);
 
     const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
     viewModel.initializePopupContainer();
@@ -1612,6 +1689,9 @@ describe("Popup", () => {
     let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
     popupContainer.style.width = "200px";
     popupContainer.style.height = "400px";
+    stubElementLayout(popupContainer, { width: 200, height: 400 });
+    const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
+    if (scrollContent) stubElementLayout(scrollContent, { width: 200, height: 400 });
 
     let fixedPopupContainer = viewModel.container.querySelector(".sv-popup") as HTMLElement;
     fixedPopupContainer.getBoundingClientRect = () => {

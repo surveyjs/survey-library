@@ -1680,12 +1680,12 @@ test("Rating displayRateDescriptionsAsExtremeItems with rateValues having custom
   expect(q1.visibleRateValues[2].description.text, "In dropdown mode, description shows maxRateDescription").toLooseEqual("Max desc");
   expect(q1.visibleRateValues[1].description, "Middle item has no description in dropdown mode").toBeFalsy();
 });
-// Skipped: jsdom does not compute element layout (offsetWidth/scrollWidth) needed
-// for responsiveness measurement. `vi.useFakeTimers()` alone does not fix this - the
-// test depends on real getComputedStyle/scrollWidth values that jsdom returns as 0.
-// Resolution deferred to vitest-migration/skipped-tests/01-jsdom-layout.prompt.md.
-test.skip("check rating triggerResponsiveness method", () => {
-  return new Promise(function(resolve) {
+// jsdom does not perform layout, so element scrollWidth is always 0. The
+// rating responsiveness logic reads `rootEl.scrollWidth` to decide between
+// default and compact (dropdown) rendering. Stubbing scrollWidth as a getter
+// derived from the inline styles makes this test deterministic in jsdom.
+test("check rating triggerResponsiveness method", () => {
+  return new Promise<void>(function(resolve) {
     let __remaining = 1;
     const __done = function() { if (--__remaining <= 0) resolve(); };
 
@@ -1707,6 +1707,21 @@ test.skip("check rating triggerResponsiveness method", () => {
     contentElement.appendChild(ratingElement);
     rootElement.append(contentElement);
     document.body.appendChild(rootElement);
+    // jsdom returns 0 for scrollWidth/offsetWidth; emulate the browser rule
+    // scrollWidth = max(container content-width, child width). Also stub
+    // offsetWidth so isContainerVisible() returns true.
+    Object.defineProperty(contentElement, "scrollWidth", {
+      configurable: true,
+      get: () => Math.max(parseFloat(contentElement.style.width) || 0, parseFloat(ratingElement.style.width) || 0)
+    });
+    Object.defineProperty(contentElement, "offsetWidth", {
+      configurable: true,
+      get: () => parseFloat(contentElement.style.width) || 0
+    });
+    Object.defineProperty(contentElement, "offsetHeight", {
+      configurable: true,
+      get: () => parseFloat(contentElement.style.height) || 0
+    });
 
     var json = {
       elements: [

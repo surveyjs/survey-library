@@ -29,7 +29,7 @@ describe("a11y", () => {
     expect(question.a11y_input_ariaLabel, "aria-label is correct").toBe("Title");
   });
 
-  test.skip("a11y: aria-labelledby", () => {
+  test("a11y: aria-labelledby", () => {
     var json = {
       elements: [
         {

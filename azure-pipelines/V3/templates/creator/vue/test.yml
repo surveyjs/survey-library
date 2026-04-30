@@ -1,0 +1,95 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "Example & A11Y"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run build:example:prod
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+        displayName: "Build Example"
+
+      - script: npm run test:a11y:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+        displayName: "Test A11Y"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.SourcesDirectory)/packages/survey-creator-vue/build/'
+          ArtifactName: 'SurveyJSCreatorV2BuildVue'
+          publishLocation: 'Container'
+          StoreAsTar: true
+
+  - job:
+    displayName: "E2E"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run build:example:prod
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+        displayName: "Build Example"
+        
+      - script: npm run e2e:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+        displayName: "Test E2E"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-vue/test-results"
+          ArtifactName: "Creator_Vue_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-vue/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator Vue E2E Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"
+
+  - job:
+    displayName: "SCR"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run build:example:prod
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+        displayName: "Build Example"
+        
+      - script: npm run test:scr:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
+        displayName: "Test SCR"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-vue/test-results"
+          ArtifactName: "Creator_Vue_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-vue/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator Vue SCR Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"

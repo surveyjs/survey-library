@@ -19,13 +19,6 @@ jobs:
         workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-vue
         displayName: "Test A11Y"
 
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: '$(Build.SourcesDirectory)/packages/survey-creator-vue/build/'
-          ArtifactName: 'SurveyJSCreatorBuildVue'
-          publishLocation: 'Container'
-          StoreAsTar: true
-
   - job:
     displayName: "E2E"
     steps:

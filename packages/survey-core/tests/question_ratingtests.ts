@@ -1283,8 +1283,7 @@ test("rating colors without css vars", () => {
   (QuestionRatingModel as any)["colorsCalculated"] = false;
 });
 
-// Skipped: jsdom canvas stub does not perform real CSS color normalization (e.g. "#c8140a" -> "rgba(200, 20, 10, 1)").
-test.skip("rating colors", () => {
+test("rating colors", () => {
   var json = {
     elements: [
       {
@@ -1381,8 +1380,7 @@ test.skip("rating colors", () => {
   rootElement.remove();
 });
 
-// Skipped: jsdom canvas stub does not perform real CSS color normalization.
-test.skip("rating colors when vars used", () => {
+test("rating colors when vars used", () => {
   var json = {
     elements: [
       {

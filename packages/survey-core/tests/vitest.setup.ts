@@ -105,19 +105,157 @@ if (typeof (globalThis as any).AnimationEvent === "undefined") {
   };
 }
 
+// jsdom's `getComputedStyle` returns only the element's own inline styles for
+// CSS custom properties (--*) and does not walk up the tree to inherit values
+// declared on ancestors (e.g. `document.documentElement`). Real browsers do
+// inherit custom properties. SurveyJS rating-color logic reads theme variables
+// like `--sd-rating-bad-color` from `getComputedStyle(rootElement)`, so without
+// this shim those reads return "" under jsdom even when the test set them on
+// `document.documentElement`. Patch only the `getPropertyValue` accessor to
+// fall back to ancestor inline styles for `--*` properties.
+if (typeof (globalThis as any).window !== "undefined" &&
+    typeof (globalThis as any).window.getComputedStyle === "function") {
+  const win: any = (globalThis as any).window;
+  if (!win.__sv_getComputedStyle_customPropPatched) {
+    const orig = win.getComputedStyle.bind(win);
+    const lookupCustomProp = (el: Element | null, name: string): string => {
+      let cur: Element | null = el;
+      while(cur) {
+        const inline = (cur as HTMLElement).style;
+        if (inline) {
+          const v = inline.getPropertyValue(name);
+          if (v) return v;
+        }
+        cur = cur.parentElement;
+      }
+      return "";
+    };
+    win.getComputedStyle = function (el: Element, pseudo?: string | null) {
+      const cs = orig(el, pseudo as any);
+      const origGet = cs.getPropertyValue.bind(cs);
+      cs.getPropertyValue = function (name: string) {
+        const v = origGet(name);
+        if (v) return v;
+        if (typeof name === "string" && name.startsWith("--")) {
+          return lookupCustomProp(el, name);
+        }
+        return v;
+      };
+      return cs;
+    };
+    win.__sv_getComputedStyle_customPropPatched = true;
+    if ((globalThis as any).getComputedStyle === orig.__originalRef ||
+        typeof (globalThis as any).getComputedStyle === "function") {
+      (globalThis as any).getComputedStyle = win.getComputedStyle;
+    }
+  }
+}
+
 // jsdom does not implement HTMLCanvasElement.getContext (without the optional
 // `canvas` npm package). signature_pad and rating-color logic both require a
 // 2D context. Provide a minimal stub that returns no-op methods plus a
 // settable `fillStyle` (rating-color logic reads back the normalized color).
 // Tests that need real canvas rendering must run under Karma + real browser.
+//
+// `fillStyle`/`strokeStyle` mimic the real-browser color-normalization
+// behavior: assigning a parseable CSS color stores the normalized form
+// (`#rrggbb` for opaque, `rgba(r, g, b, a)` otherwise); assigning an
+// unparseable value is silently ignored, leaving the previous value intact.
+// This is what `src/question_rating.ts#getRGBColor` relies on to translate
+// CSS variables (hex, named, `rgb(...)`, `rgba(...)`) into the canonical
+// `[r, g, b, a]` array used to build `--sd-rating-item-color` styles.
 if (typeof (globalThis as any).HTMLCanvasElement !== "undefined") {
   const proto: any = (globalThis as any).HTMLCanvasElement.prototype;
   if (!proto.__sv_getContext_stubbed) {
+    // Minimal CSS named-color table covering values used by the rating-color
+    // tests. Extend if other tests start exercising additional names.
+    const NAMED_COLORS: Record<string, [number, number, number]> = {
+      black: [0, 0, 0],
+      white: [255, 255, 255],
+      red: [255, 0, 0],
+      green: [0, 128, 0],
+      blue: [0, 0, 255],
+      gold: [255, 215, 0],
+      silver: [192, 192, 192],
+      gray: [128, 128, 128],
+      grey: [128, 128, 128],
+      yellow: [255, 255, 0],
+      orange: [255, 165, 0],
+      transparent: [0, 0, 0],
+    };
+    const parseCssColor = (value: unknown): [number, number, number, number] | null => {
+      if (typeof value !== "string") return null;
+      const s = value.trim().toLowerCase();
+      if (!s) return null;
+      let m = /^#([0-9a-f]{3})$/.exec(s);
+      if (m) {
+        const r = parseInt(m[1][0] + m[1][0], 16);
+        const g = parseInt(m[1][1] + m[1][1], 16);
+        const b = parseInt(m[1][2] + m[1][2], 16);
+        return [r, g, b, 1];
+      }
+      m = /^#([0-9a-f]{6})$/.exec(s);
+      if (m) {
+        return [
+          parseInt(m[1].slice(0, 2), 16),
+          parseInt(m[1].slice(2, 4), 16),
+          parseInt(m[1].slice(4, 6), 16),
+          1,
+        ];
+      }
+      m = /^#([0-9a-f]{8})$/.exec(s);
+      if (m) {
+        return [
+          parseInt(m[1].slice(0, 2), 16),
+          parseInt(m[1].slice(2, 4), 16),
+          parseInt(m[1].slice(4, 6), 16),
+          parseInt(m[1].slice(6, 8), 16) / 255,
+        ];
+      }
+      m = /^rgba?\(([^)]+)\)$/.exec(s);
+      if (m) {
+        const parts = m[1].split(",").map((p) => p.trim());
+        if (parts.length === 3 || parts.length === 4) {
+          const r = parseInt(parts[0], 10);
+          const g = parseInt(parts[1], 10);
+          const b = parseInt(parts[2], 10);
+          const a = parts.length === 4 ? parseFloat(parts[3]) : 1;
+          if (
+            [r, g, b].every((v) => !isNaN(v) && v >= 0 && v <= 255) &&
+            !isNaN(a) && a >= 0 && a <= 1
+          ) {
+            return [r, g, b, a];
+          }
+        }
+        return null;
+      }
+      const named = NAMED_COLORS[s];
+      if (named) return [named[0], named[1], named[2], 1];
+      return null;
+    };
+    const formatCssColor = (rgba: [number, number, number, number]): string => {
+      const [r, g, b, a] = rgba;
+      if (a === 1) {
+        const hex = (n: number) => n.toString(16).padStart(2, "0");
+        return "#" + hex(r) + hex(g) + hex(b);
+      }
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    };
+    const makeColorAccessor = (initial: string) => {
+      let current = initial;
+      return {
+        get(): string { return current; },
+        set(v: unknown) {
+          const parsed = parseCssColor(v);
+          if (parsed) current = formatCssColor(parsed);
+        },
+      };
+    };
     proto.getContext = function (type: string) {
       if (type !== "2d") return null;
+      const fillAccessor = makeColorAccessor("#000000");
+      const strokeAccessor = makeColorAccessor("#000000");
       const ctx: any = {
-        fillStyle: "#000000",
-        strokeStyle: "#000000",
         lineWidth: 1,
         canvas: this,
         save() { /* no-op */ },
@@ -146,6 +284,18 @@ if (typeof (globalThis as any).HTMLCanvasElement !== "undefined") {
         getTransform() { return { a: 1, b: 0, c: 0, d: 1, e: 0, f: 0 }; },
         measureText() { return { width: 0 }; },
       };
+      Object.defineProperty(ctx, "fillStyle", {
+        configurable: true,
+        enumerable: true,
+        get: fillAccessor.get,
+        set: fillAccessor.set,
+      });
+      Object.defineProperty(ctx, "strokeStyle", {
+        configurable: true,
+        enumerable: true,
+        get: strokeAccessor.get,
+        set: strokeAccessor.set,
+      });
       return ctx;
     };
     proto.toDataURL = function (type?: string) {

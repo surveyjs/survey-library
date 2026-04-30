@@ -671,11 +671,35 @@ describe("question signaturepad", () => {
     expect(log, "isReady changed only one time").toLooseEqual("->false->true");
   });
 
-  // Skipped: jsdom Image element does not fire onerror for invalid URLs the same way as a real browser, so onReadyChanged sequence does not complete within the timeout.
-  test.skip("Check storeDataAsText: false and no download file callback and incorrect link passed", () => {
-    return new Promise(function(resolve) {
+  // jsdom's HTMLImageElement does not fire `onerror` for unreachable URLs the
+  // same way a real browser does. Stub `window.Image` so an `onerror` event is
+  // dispatched immediately when `src` is assigned, mirroring the production
+  // `onReadyChanged` sequence the original Karma test relied on.
+  test("Check storeDataAsText: false and no download file callback and incorrect link passed", () => {
+    return new Promise<void>(function(resolve) {
+      const OriginalImage = (window as any).Image;
+      class StubImage {
+        public crossOrigin: string = "";
+        public onload: ((ev: Event) => void) | null = null;
+        public onerror: ((ev: Event) => void) | null = null;
+        private _src: string = "";
+        get src(): string { return this._src; }
+        set src(v: string) {
+          this._src = v;
+          if (!v || /^https?:\/\//i.test(v) || v === "invalid-link") {
+            queueMicrotask(() => { this.onerror && this.onerror(new Event("error")); });
+          } else {
+            queueMicrotask(() => { this.onload && this.onload(new Event("load")); });
+          }
+        }
+      }
+      Object.defineProperty(window, "Image", { configurable: true, writable: true, value: StubImage });
+
       let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
+      const __done = function() {
+        Object.defineProperty(window, "Image", { configurable: true, writable: true, value: OriginalImage });
+        if (--__remaining <= 0) resolve();
+      };
 
       const done = __done;
       const survey = new SurveyModel({
@@ -702,7 +726,7 @@ describe("question signaturepad", () => {
         expect(question.value).toLooseEqual(url);
         expect(log, "isReady changed only one time").toLooseEqual("->false->true");
         done();
-      }, 2500);
+      }, 50);
     });
   });
 

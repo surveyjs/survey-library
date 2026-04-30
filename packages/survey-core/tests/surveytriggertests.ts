@@ -400,7 +400,8 @@ describe("Triggers", () => {
     q3.value = "C";
     expect(q2.value, "Do not copy value").toLooseEqual("B");
   });
-  test.skip("copyvalue vs expression on changing fromName. We may want to introduce this behavior #10192", () => {
+  // Skipped: pending product decision - see https://github.com/surveyjs/survey-library/issues/10192
+  test.skip("copyvalue vs expression on changing fromName #10192", () => {
     const survey = new SurveyModel({
       elements: [
         { type: "text", name: "q1" },

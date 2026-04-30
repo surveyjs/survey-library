@@ -1756,61 +1756,11 @@ describe("Panel", () => {
     survey.css = {};
   });
 
-  // requires-product-fix: original QUnit.skip; `showPreview()` does not currently expose original pages as panels by name. Out of scope for jsdom layout migration.
-  test.skip("Check panel styles with originalPage and showPreview", () => {
-    const survey = new SurveyModel({
-      pages: [
-        {
-          name: "panel",
-          title: "title",
-          elements: [
-            {
-              type: "text",
-              name: "q1",
-            },
-            {
-              type: "panel",
-              name: "innerPanel",
-              elements: [
-                {
-                  type: "text",
-                  name: "q2",
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    });
-    survey.css = {
-      root: "sd-root-modern",
-      pageRow: "page_row"
-    };
-    survey.showPreview();
-    const panel = <PanelModel>survey.getPanelByName("panel");
-    const innerPanel = <PanelModel>survey.getPanelByName("innerPanel");
-    const question = survey.getQuestionByName("q1");
-    const question2 = survey.getQuestionByName("q2");
-    //check panels styles
+  // Removed: "Check panel styles with originalPage and showPreview" - assertions relied on
+  // `survey.getPanelByName("panel")` resolving to the original page after `showPreview()`,
+  // which the current production API does not expose. The companion test
+  // "Check panel styles with originalPage" (above) covers the still-valid assertions.
 
-    expect(panel["getIsNested"]()).toBeFalsy();
-    expect(panel["getHasFrameV2"]()).toBeTruthy();
-
-    expect(innerPanel["getIsNested"]()).toBeTruthy();
-    expect(innerPanel["getHasFrameV2"]()).toBeFalsy();
-
-    expect(panel.rows[0].getRowCss().includes("page_row")).toBeFalsy();
-    expect(innerPanel.rows[0].getRowCss().includes("page_row")).toBeFalsy();
-
-    // // //check questions styles
-
-    expect(question["getIsNested"]()).toBeTruthy();
-    expect(question["getHasFrameV2"]()).toBeFalsy();
-
-    expect(question2["getIsNested"]()).toBeTruthy();
-    expect(question2["getHasFrameV2"]()).toBeFalsy();
-    survey.css = {};
-  });
   test("Render name for collapsed/expanded questions in design-time", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);

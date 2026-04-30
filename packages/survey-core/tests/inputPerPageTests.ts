@@ -2328,7 +2328,7 @@ describe("Input Per Page Tests", () => {
     expect(panel.singleInputQuestion.name, "singleInputQuestion is q2, #10").toLooseEqual("q2");
   });
 
-  //TODO re-think this test. We need to include summaries into brasdscrum navigation
+  // Skipped: pending product spec - singleInput breadcrumb navigation for 3-level dynamic panels (must include summaries). Test body is also incomplete (`topPanel.value =` has no RHS) and needs to be authored once the spec lands.
   test.skip("singleInput bradscrum navigation for 3 level dynamic panels", () => {
     const survey = new SurveyModel({
       elements: [

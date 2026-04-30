@@ -3,7 +3,7 @@ import { PanelModel } from "../src/panel";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("SurveyShowPreviewTests", () => {
   settings.autoAdvanceDelay = 0;
 
@@ -103,12 +103,9 @@ describe("SurveyShowPreviewTests", () => {
     survey.tryComplete();
     expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
   });
-  test("showPreviewBeforeComplete = true, check async onCurrentPageChanging and async onCurrentPageChanged calls count", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 3;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+  test("showPreviewBeforeComplete = true, check async onCurrentPageChanging and async onCurrentPageChanged calls count", async () => {
+    vi.useFakeTimers();
+    try {
       const survey = new SurveyModel({
         pages: [
           { elements: [{ type: "text", name: "q1" }] },
@@ -121,21 +118,17 @@ describe("SurveyShowPreviewTests", () => {
       survey.onCurrentPageChanged.add(async () => { calls[1]++; });
       expect(calls, "There is no calls yet").toEqualValues([0, 0]);
       survey.nextPage();
-      setTimeout(() => {
-        expect(calls, "must be called one time on nextPage").toEqualValues([1, 1]);
-        done();
-        survey.showPreview();
-        setTimeout(() => {
-          expect(calls, "no extra calls on showPreview").toEqualValues([1, 1]);
-          done();
-          survey.tryComplete();
-          setTimeout(() => {
-            expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
-            done();
-          }, 100);
-        }, 100);
-      }, 100);
-    });
+      await vi.advanceTimersByTimeAsync(100);
+      expect(calls, "must be called one time on nextPage").toEqualValues([1, 1]);
+      survey.showPreview();
+      await vi.advanceTimersByTimeAsync(100);
+      expect(calls, "no extra calls on showPreview").toEqualValues([1, 1]);
+      survey.tryComplete();
+      await vi.advanceTimersByTimeAsync(100);
+      expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
   test("showPreviewBeforeComplete = true, and do noting onCompleting, options.allowComplete = false", () => {
     var survey = new SurveyModel({

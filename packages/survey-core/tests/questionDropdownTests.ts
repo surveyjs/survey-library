@@ -782,15 +782,9 @@ describe("Dropdown question", () => {
   });
 
   test("lazy loading + change filter string + dropdownSearchDelay", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 4;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    vi.useFakeTimers();
+    try {
       const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
-      const done1 = __done;
-      const done2 = __done;
-      const done3 = __done;
-      const done4 = __done;
 
       const json = {
         elements: [{
@@ -809,36 +803,31 @@ describe("Dropdown question", () => {
       question.dropdownListModel.popupModel.show();
       expect(question.choices.length, "show popup before request").toLooseEqual(0);
 
-      setTimeout(() => {
-        expect(question.choices.length, "show popup after request").toLooseEqual(25);
-        expect(question.choices[0].value, "show popup after request").toLooseEqual(1);
+      vi.advanceTimersByTime(onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+      expect(question.choices.length, "show popup after request").toLooseEqual(25);
+      expect(question.choices[0].value, "show popup after request").toLooseEqual(1);
 
-        settings.dropdownSearchDelay = newValueDebouncedInputValue;
-        question.dropdownListModel.filterString = "2";
-        setTimeout(() => {
-          expect(question.choices.length, "filter is 2").toLooseEqual(25);
-          expect(question.choices[0].value, "filter is 2").toLooseEqual(1);
+      settings.dropdownSearchDelay = newValueDebouncedInputValue;
+      question.dropdownListModel.filterString = "2";
+      vi.advanceTimersByTime(callbackTimeOutDelta);
+      expect(question.choices.length, "filter is 2").toLooseEqual(25);
+      expect(question.choices[0].value, "filter is 2").toLooseEqual(1);
 
-          settings.dropdownSearchDelay = newValueDebouncedInputValue;
-          question.dropdownListModel.filterString = "22";
-          setTimeout(() => {
-            expect(question.choices.length, "filter is 22 before request").toLooseEqual(25);
-            expect(question.choices[0].value, "filter is 22 before request").toLooseEqual(1);
+      settings.dropdownSearchDelay = newValueDebouncedInputValue;
+      question.dropdownListModel.filterString = "22";
+      vi.advanceTimersByTime(callbackTimeOutDelta);
+      expect(question.choices.length, "filter is 22 before request").toLooseEqual(25);
+      expect(question.choices[0].value, "filter is 22 before request").toLooseEqual(1);
 
-            setTimeout(() => {
-              expect(question.choices.length, "filter is 22 after request").toLooseEqual(25);
-              expect(question.choices[0].value, "filter is 22 after request").toLooseEqual(22);
+      vi.advanceTimersByTime(2 * (onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue));
+      expect(question.choices.length, "filter is 22 after request").toLooseEqual(25);
+      expect(question.choices[0].value, "filter is 22 after request").toLooseEqual(22);
 
-              settings.dropdownSearchDelay = 0;
-              done4();
-            }, 2 * (onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue));
-            done3();
-          }, callbackTimeOutDelta);
-          done2();
-        }, callbackTimeOutDelta);
-        done1();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    });
+      settings.dropdownSearchDelay = 0;
+    } finally {
+      settings.dropdownSearchDelay = 0;
+      vi.useRealTimers();
+    }
   });
 
   test("The onGetChoiceDisplayValue callback fires multiple times, #6078", () => {
@@ -1594,12 +1583,8 @@ describe("Dropdown question", () => {
   });
 
   test("isReady flag + onGetChoiceDisplayValue", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
-
+    vi.useFakeTimers();
+    try {
       const json = {
         elements: [{
           "type": "dropdown",
@@ -1610,6 +1595,7 @@ describe("Dropdown question", () => {
       const survey = new SurveyModel(json);
       const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
       let log = "";
+      let readyFired = false;
       survey.onGetChoiceDisplayValue.add((_, opt) => {
         setTimeout(() => {
           log += "->onGetChoiceDisplayValue";
@@ -1619,20 +1605,24 @@ describe("Dropdown question", () => {
       question.onReadyChanged.add((_, opt) => {
         log += `->onReadyChanged: ${opt.isReady}`;
         if (opt.isReady) {
+          readyFired = true;
           expect(question.isReady).toBeTruthy();
           expect(question.isReady).toBeTruthy();
           expect(question["waitingChoicesByURL"]).toBeFalsy();
           expect(question["waitingGetChoiceDisplayValueResponse"]).toBeFalsy();
           expect(log).toLooseEqual("->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
           expect(question.displayValue).toLooseEqual("Ford");
-          done();
         }
       });
       survey.data = { "q1": "ford" };
       expect(question.isReady).toBeFalsy();
       expect(question["waitingChoicesByURL"]).toBeFalsy();
       expect(question["waitingGetChoiceDisplayValueResponse"]).toBeTruthy();
-    });
+      vi.advanceTimersByTime(1);
+      expect(readyFired, "onReadyChanged true fired").toLooseEqual(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("isReady flag + onGetChoiceDisplayValue + setItems with empty array", () => {
@@ -1654,12 +1644,8 @@ describe("Dropdown question", () => {
   });
 
   test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
-
+    vi.useFakeTimers();
+    try {
       const json = {
         elements: [{
           "type": "dropdown",
@@ -1670,6 +1656,7 @@ describe("Dropdown question", () => {
       const survey = new SurveyModel(json);
       const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
       let log = "";
+      let readyFired = false;
       survey.onGetChoiceDisplayValue.add((_, opt) => {
         setTimeout(() => {
           log += "->onGetChoiceDisplayValue";
@@ -1679,11 +1666,11 @@ describe("Dropdown question", () => {
       question.onReadyChanged.add((_, opt) => {
         log += `->onReadyChanged: ${opt.isReady}`;
         if (opt.isReady) {
+          readyFired = true;
           expect(question.isReady).toBeTruthy();
           expect(question["waitingChoicesByURL"]).toBeFalsy();
           expect(question["waitingGetChoiceDisplayValueResponse"]).toBeFalsy();
           expect(log).toLooseEqual("->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
-          done();
         }
       });
       question.choicesByUrl.url = "some url";
@@ -1695,7 +1682,11 @@ describe("Dropdown question", () => {
       expect(question.isReady).toBeFalsy();
       expect(question["waitingChoicesByURL"]).toBeFalsy();
       expect(question["waitingGetChoiceDisplayValueResponse"]).toBeTruthy();
-    });
+      vi.advanceTimersByTime(1);
+      expect(readyFired, "onReadyChanged true fired").toLooseEqual(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
   test("isReady flag + there is no onChoicesLazyLoad & onGetChoiceDisplayValue, Bug#10642", () => {
     const json = {

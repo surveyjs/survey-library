@@ -2,7 +2,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { SurveyModel } from "../src/survey";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("question signaturepad", () => {
   test("QuestionSignaturePadModel dataFormat default value", () => {
     var question = new QuestionSignaturePadModel("q");
@@ -388,11 +388,9 @@ describe("question signaturepad", () => {
     expect(signaturepadQuestion.renderedCanvasWidth).toLooseEqual("100%");
   });
 
-  test("Question Signature upload files", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+  test("Question Signature upload files", async () => {
+    vi.useFakeTimers();
+    try {
       var json = {
         elements: [
           {
@@ -406,7 +404,6 @@ describe("question signaturepad", () => {
 
       var survey = new SurveyModel(json);
       var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
-      const done = __done;
 
       var eventFired;
       var fileLoaded;
@@ -446,7 +443,9 @@ describe("question signaturepad", () => {
       const width = 300 / window.devicePixelRatio;
       const height = 200 / window.devicePixelRatio;
 
+      let valueChanged = false;
       survey.onValueChanged.add((survey, options) => {
+        valueChanged = true;
         expect(q1.value).toLooseEqual("signature.svg_url");
         expect(eventFired).toBeTruthy();
         expect(fileLoaded).toBeTruthy();
@@ -454,9 +453,12 @@ describe("question signaturepad", () => {
         expect(fileType).toLooseEqual("image/svg+xml");
         expect(fileName).toLooseEqual("signature.svg");
         expect(fileContent).toLooseEqual("data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + width + " " + height + '" width="' + width + '" height="' + height + '"><circle r="1.5" cx="9" cy="11" fill="rgba(25, 179, 148, 1)"></circle><circle r="1.5" cx="15" cy="18" fill="rgba(25, 179, 148, 1)"></circle></svg>'));
-        done();
       });
-    });
+      await vi.advanceTimersByTimeAsync(100);
+      expect(valueChanged, "onValueChanged fired").toLooseEqual(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Question Signature upload files Error", () => {
@@ -490,11 +492,9 @@ describe("question signaturepad", () => {
     expect(q1.errors.map(e => e.text)).toEqualValues(["Error 2"]);
   });
 
-  test("Question Signature upload files - and complete", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+  test("Question Signature upload files - and complete", async () => {
+    vi.useFakeTimers();
+    try {
       var json = {
         elements: [
           {
@@ -507,7 +507,6 @@ describe("question signaturepad", () => {
 
       var survey = new SurveyModel(json);
       var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
-      const done = __done;
       var filesLoaded = false;
       survey.onUploadFiles.add((survey, options) => {
         setTimeout(
@@ -528,15 +527,19 @@ describe("question signaturepad", () => {
       el.append(document.createElement("canvas"));
       q1.afterRenderQuestionElement(el);
       q1.valueWasChangedFromLastUpload = true;
+      let completed = false;
       survey.onComplete.add((survey, options) => {
+        completed = true;
         expect(filesLoaded).toBeTruthy();
-        done();
       });
 
       q1.onBlur({ target: null } as any);
       survey.navigationBar.getActionById("sv-nav-complete").action();
-
-    });
+      await vi.advanceTimersByTimeAsync(2);
+      expect(completed, "survey completed").toLooseEqual(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Question Signature pad invisible - on complete", () => {
@@ -675,33 +678,26 @@ describe("question signaturepad", () => {
   // same way a real browser does. Stub `window.Image` so an `onerror` event is
   // dispatched immediately when `src` is assigned, mirroring the production
   // `onReadyChanged` sequence the original Karma test relied on.
-  test("Check storeDataAsText: false and no download file callback and incorrect link passed", () => {
-    return new Promise<void>(function(resolve) {
-      const OriginalImage = (window as any).Image;
-      class StubImage {
-        public crossOrigin: string = "";
-        public onload: ((ev: Event) => void) | null = null;
-        public onerror: ((ev: Event) => void) | null = null;
-        private _src: string = "";
-        get src(): string { return this._src; }
-        set src(v: string) {
-          this._src = v;
-          if (!v || /^https?:\/\//i.test(v) || v === "invalid-link") {
-            queueMicrotask(() => { this.onerror && this.onerror(new Event("error")); });
-          } else {
-            queueMicrotask(() => { this.onload && this.onload(new Event("load")); });
-          }
+  test("Check storeDataAsText: false and no download file callback and incorrect link passed", async () => {
+    vi.useFakeTimers();
+    const OriginalImage = (window as any).Image;
+    class StubImage {
+      public crossOrigin: string = "";
+      public onload: ((ev: Event) => void) | null = null;
+      public onerror: ((ev: Event) => void) | null = null;
+      private _src: string = "";
+      get src(): string { return this._src; }
+      set src(v: string) {
+        this._src = v;
+        if (!v || /^https?:\/\//i.test(v) || v === "invalid-link") {
+          queueMicrotask(() => { this.onerror && this.onerror(new Event("error")); });
+        } else {
+          queueMicrotask(() => { this.onload && this.onload(new Event("load")); });
         }
       }
-      Object.defineProperty(window, "Image", { configurable: true, writable: true, value: StubImage });
-
-      let __remaining = 1;
-      const __done = function() {
-        Object.defineProperty(window, "Image", { configurable: true, writable: true, value: OriginalImage });
-        if (--__remaining <= 0) resolve();
-      };
-
-      const done = __done;
+    }
+    Object.defineProperty(window, "Image", { configurable: true, writable: true, value: StubImage });
+    try {
       const survey = new SurveyModel({
         elements: [
           {
@@ -721,13 +717,14 @@ describe("question signaturepad", () => {
       survey.data = {
         signature: url
       };
-      setTimeout(() => {
-        expect(question.loadedData).toLooseEqual(undefined);
-        expect(question.value).toLooseEqual(url);
-        expect(log, "isReady changed only one time").toLooseEqual("->false->true");
-        done();
-      }, 50);
-    });
+      await vi.advanceTimersByTimeAsync(50);
+      expect(question.loadedData).toLooseEqual(undefined);
+      expect(question.value).toLooseEqual(url);
+      expect(log, "isReady changed only one time").toLooseEqual("->false->true");
+    } finally {
+      Object.defineProperty(window, "Image", { configurable: true, writable: true, value: OriginalImage });
+      vi.useRealTimers();
+    }
   });
 
   test("Check signature image cached in loadedData and loaded only once until value changed", () => {

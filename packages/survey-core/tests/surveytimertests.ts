@@ -3,7 +3,7 @@ import { SurveyTimer, surveyTimerFunctions, SurveyTimerEvent } from "../src/surv
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { setOldTheme } from "./oldTheme";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("SurveyTimer", () => {
   surveyTimerFunctions.setTimeout = function(func: () => any): number {
     return 1;
@@ -396,10 +396,8 @@ describe("SurveyTimer", () => {
   });
 
   test("Test SurveyTimerModel with clock", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    vi.useFakeTimers();
+    try {
       var survey = new SurveyModel();
       survey.timeLimit = 25;
       survey.timeLimitPerPage = 10;
@@ -411,36 +409,34 @@ describe("SurveyTimer", () => {
       survey.pages[2].addNewQuestion("text");
       survey.startTimer();
       let timerModel = survey.timerModel;
-      const done = __done;
       expect(timerModel.clockMajorText).toLooseEqual("0:10");
       expect(timerModel.clockMinorText).toLooseEqual("0:25");
       expect(timerModel.progress).toLooseEqual(0);
-      setTimeout(() => {
-        expect(timerModel.progress, "Should start animation to first second").toLooseEqual(0.1);
-        doTimer(3);
-        expect(timerModel.clockMajorText).toLooseEqual("0:07");
-        expect(timerModel.clockMinorText).toLooseEqual("0:22");
-        expect(timerModel.progress, "Should start animation to next second (3 + 1)/10").toLooseEqual(0.4);
-        doTimer(6);
-        expect(timerModel.clockMajorText).toLooseEqual("0:01");
-        expect(timerModel.clockMinorText).toLooseEqual("0:16");
-        expect(timerModel.progress).toLooseEqual(1);
-        survey.nextPage();
-        expect(timerModel.clockMajorText).toLooseEqual("0:10");
-        expect(timerModel.clockMinorText).toLooseEqual("0:16");
-        expect(timerModel.progress, "Timer should be reset after page switch").toLooseEqual(0);
-        doTimer(9);
-        expect(timerModel.clockMajorText).toLooseEqual("0:01");
-        expect(timerModel.clockMinorText).toLooseEqual("0:07");
-        expect(timerModel.progress).toLooseEqual(1);
-        survey.nextPage();
-        expect(timerModel.clockMajorText).toLooseEqual("0:10");
-        expect(timerModel.clockMinorText).toLooseEqual("0:07");
-        survey.stopTimer();
-        done();
-      }, 1);
-
-    });
+      vi.advanceTimersByTime(1);
+      expect(timerModel.progress, "Should start animation to first second").toLooseEqual(0.1);
+      doTimer(3);
+      expect(timerModel.clockMajorText).toLooseEqual("0:07");
+      expect(timerModel.clockMinorText).toLooseEqual("0:22");
+      expect(timerModel.progress, "Should start animation to next second (3 + 1)/10").toLooseEqual(0.4);
+      doTimer(6);
+      expect(timerModel.clockMajorText).toLooseEqual("0:01");
+      expect(timerModel.clockMinorText).toLooseEqual("0:16");
+      expect(timerModel.progress).toLooseEqual(1);
+      survey.nextPage();
+      expect(timerModel.clockMajorText).toLooseEqual("0:10");
+      expect(timerModel.clockMinorText).toLooseEqual("0:16");
+      expect(timerModel.progress, "Timer should be reset after page switch").toLooseEqual(0);
+      doTimer(9);
+      expect(timerModel.clockMajorText).toLooseEqual("0:01");
+      expect(timerModel.clockMinorText).toLooseEqual("0:07");
+      expect(timerModel.progress).toLooseEqual(1);
+      survey.nextPage();
+      expect(timerModel.clockMajorText).toLooseEqual("0:10");
+      expect(timerModel.clockMinorText).toLooseEqual("0:07");
+      survey.stopTimer();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Test showTimerAsClock flag", () => {

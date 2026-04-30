@@ -13,7 +13,7 @@ import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropert
 import { Base } from "../src/base";
 import { EventBase } from "../src/event";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
   element.innerHTML = text;
   const selection = document.getSelection();
@@ -264,67 +264,67 @@ test("Test animation utils: getAnimationDuration", () => {
   element.remove();
 });
 
-test("Test animation utils: onAnimationEnd", () => new Promise<void>(resolve => {
-  let __remaining = 1;
-  const __done = () => { if (--__remaining <= 0) resolve(); };
-  const done = __done;
-  const animationUtils = new AnimationUtils();
-  const element = document.createElement("div");
-  document.body.appendChild(element);
-  let log = "";
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated";
-  }, { } as any);
-  expect(log).toLooseEqual("->updated");
-  expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
-  element.style.animationName = "animation1, animation2";
-  element.style.animationDuration = "1s";
-  log = "";
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated";
-  }, { } as any);
-  expect(log).toLooseEqual("");
-  element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("");
-  element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->updated");
-  expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
+test("Test animation utils: onAnimationEnd", () => {
+  vi.useFakeTimers();
+  try {
+    const animationUtils = new AnimationUtils();
+    const element = document.createElement("div");
+    document.body.appendChild(element);
+    let log = "";
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated";
+    }, { } as any);
+    expect(log).toLooseEqual("->updated");
+    expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
+    element.style.animationName = "animation1, animation2";
+    element.style.animationDuration = "1s";
+    log = "";
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated";
+    }, { } as any);
+    expect(log).toLooseEqual("");
+    element.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toLooseEqual("");
+    element.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toLooseEqual("->updated");
+    expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 
-  element.style.animationName = "animation1";
-  element.style.animationDuration = "1s";
-  log = "";
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated";
-  }, { } as any);
-  expect(log).toLooseEqual("");
-  element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->updated");
-  expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
+    element.style.animationName = "animation1";
+    element.style.animationDuration = "1s";
+    log = "";
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated";
+    }, { } as any);
+    expect(log).toLooseEqual("");
+    element.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toLooseEqual("->updated");
+    expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 
-  element.style.animationName = "animation1";
-  element.style.animationDuration = "1ms";
-  log = "";
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated";
-  }, { } as any);
-  expect(log).toLooseEqual("");
-  animationUtils.cancel();
-  expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
+    element.style.animationName = "animation1";
+    element.style.animationDuration = "1ms";
+    log = "";
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated";
+    }, { } as any);
+    expect(log).toLooseEqual("");
+    animationUtils.cancel();
+    expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 
-  element.style.animationName = "animation1";
-  element.style.animationDuration = "1ms";
-  log = "";
-  animationUtils["onAnimationEnd"](element, () => {
-    log += "->updated";
-  }, { } as any);
-  expect(log).toLooseEqual("");
-  setTimeout(() => {
+    element.style.animationName = "animation1";
+    element.style.animationDuration = "1ms";
+    log = "";
+    animationUtils["onAnimationEnd"](element, () => {
+      log += "->updated";
+    }, { } as any);
+    expect(log).toLooseEqual("");
+    vi.advanceTimersByTime(11);
     expect(log).toLooseEqual("->updated");
     expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
     element.remove();
-    done();
-  }, 11);
-}));
+  } finally {
+    vi.useRealTimers();
+  }
+});
 
 test("Test animation utils: check cancel animation works correctly when mutliple animations applied", () => {
   const animationUtils = new AnimationUtils();
@@ -395,61 +395,60 @@ test("Test animation utils: enter animation", () => {
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
-test("Test animation utils: leave animation", () => new Promise<void>(resolve => {
-  let __remaining = 1;
-  const __done = () => { if (--__remaining <= 0) resolve(); };
-  const done = __done;
+test("Test animation utils: leave animation", () => {
+  vi.useFakeTimers();
   const oldRequestAnimationFrame = window.requestAnimationFrame;
-  window.requestAnimationFrame = (cb) => setTimeout(cb);
-  const animationUtils = new AnimationPropertyUtils();
-  const htmlElement = document.createElement("div");
-  htmlElement.style.animationName = "animation1";
-  htmlElement.style.animationDuration = "1s";
-  document.body.appendChild(htmlElement);
-  let log = "";
-  const animationOptions: IAnimationConsumer = {
-    getRerenderEvent: () => new EventBase(),
-    getLeaveOptions() {
-      return {
-        onAfterRunAnimation: (element) => {
-          expect(element).toLooseEqual(element);
-          log += "->afterRunAnimation";
-        },
-        onBeforeRunAnimation: (element) => {
-          expect(element).toLooseEqual(element);
-          log += "->beforeRunAnimation";
-        },
-        cssClass: "leave"
-      };
-    },
-    isAnimationEnabled() {
-      return true;
-    },
-    getAnimatedElement() {
-      return htmlElement;
-    },
-    getEnterOptions() {
-      return {} as any;
-    }
-  };
-  animationUtils.onLeave(animationOptions, () => {
-    log += "->updated";
-  },);
-  expect(log).toLooseEqual("->beforeRunAnimation");
-  expect(htmlElement.classList.contains("leave")).toBeTruthy();
-  htmlElement.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->beforeRunAnimation->updated");
-  expect(htmlElement.classList.contains("leave")).toBeTruthy();
-  setTimeout(() => {
-    setTimeout(() => {
-      expect(htmlElement.classList.contains("leave")).toBeFalsy();
-      expect(log).toLooseEqual("->beforeRunAnimation->updated->afterRunAnimation");
-      window.requestAnimationFrame = oldRequestAnimationFrame;
-      htmlElement.remove();
-      done();
-    });
-  });
-}));
+  window.requestAnimationFrame = (cb) => setTimeout(cb) as any;
+  try {
+    const animationUtils = new AnimationPropertyUtils();
+    const htmlElement = document.createElement("div");
+    htmlElement.style.animationName = "animation1";
+    htmlElement.style.animationDuration = "1s";
+    document.body.appendChild(htmlElement);
+    let log = "";
+    const animationOptions: IAnimationConsumer = {
+      getRerenderEvent: () => new EventBase(),
+      getLeaveOptions() {
+        return {
+          onAfterRunAnimation: (element) => {
+            expect(element).toLooseEqual(element);
+            log += "->afterRunAnimation";
+          },
+          onBeforeRunAnimation: (element) => {
+            expect(element).toLooseEqual(element);
+            log += "->beforeRunAnimation";
+          },
+          cssClass: "leave"
+        };
+      },
+      isAnimationEnabled() {
+        return true;
+      },
+      getAnimatedElement() {
+        return htmlElement;
+      },
+      getEnterOptions() {
+        return {} as any;
+      }
+    };
+    animationUtils.onLeave(animationOptions, () => {
+      log += "->updated";
+    },);
+    expect(log).toLooseEqual("->beforeRunAnimation");
+    expect(htmlElement.classList.contains("leave")).toBeTruthy();
+    htmlElement.dispatchEvent(new AnimationEvent("animationend"));
+    expect(log).toLooseEqual("->beforeRunAnimation->updated");
+    expect(htmlElement.classList.contains("leave")).toBeTruthy();
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(htmlElement.classList.contains("leave")).toBeFalsy();
+    expect(log).toLooseEqual("->beforeRunAnimation->updated->afterRunAnimation");
+    htmlElement.remove();
+  } finally {
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+    vi.useRealTimers();
+  }
+});
 
 test("Test animation utils: group enter animation", () => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
@@ -509,50 +508,48 @@ test("Test animation utils: group enter animation", () => {
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
-test("Test animation utils: group leave animation", () => new Promise<void>(resolve => {
-  let __remaining = 1;
-  const __done = () => { if (--__remaining <= 0) resolve(); };
-  const done = __done;
+test("Test animation utils: group leave animation", () => {
+  vi.useFakeTimers();
   const oldRequestAnimationFrame = window.requestAnimationFrame;
-  window.requestAnimationFrame = (cb) => setTimeout(cb);
-  const animationUtils = new AnimationGroupUtils<number>();
-  const elements = [0, 1, 2];
-  const htmlElements = elements.map(() => {
-    const element = document.createElement("div");
-    element.style.animationName = "animation1";
-    element.style.animationDuration = "1s";
-    document.body.appendChild(element);
-    return element;
-  });
-  let log = "";
-  const animationOptions: IAnimationGroupConsumer<number> = {
-    getRerenderEvent: () => new EventBase(),
-    getLeaveOptions(i) {
-      {
-        return {
-          onAfterRunAnimation: (element) => {
-            expect(element).toLooseEqual(element);
-            log += "->afterRunAnimation_" + i;
-          },
-          onBeforeRunAnimation: (element) => {
-            expect(element).toLooseEqual(element);
-            log += "->beforeRunAnimation_" + i;
-          },
-          cssClass: "leave_" + i
-        };
+  window.requestAnimationFrame = (cb) => setTimeout(cb) as any;
+  try {
+    const animationUtils = new AnimationGroupUtils<number>();
+    const elements = [0, 1, 2];
+    const htmlElements = elements.map(() => {
+      const element = document.createElement("div");
+      element.style.animationName = "animation1";
+      element.style.animationDuration = "1s";
+      document.body.appendChild(element);
+      return element;
+    });
+    let log = "";
+    const animationOptions: IAnimationGroupConsumer<number> = {
+      getRerenderEvent: () => new EventBase(),
+      getLeaveOptions(i) {
+        {
+          return {
+            onAfterRunAnimation: (element) => {
+              expect(element).toLooseEqual(element);
+              log += "->afterRunAnimation_" + i;
+            },
+            onBeforeRunAnimation: (element) => {
+              expect(element).toLooseEqual(element);
+              log += "->beforeRunAnimation_" + i;
+            },
+            cssClass: "leave_" + i
+          };
+        }
+      },
+      isAnimationEnabled() {
+        return true;
+      },
+      getAnimatedElement(i) {
+        return htmlElements[i];
       }
-    },
-    isAnimationEnabled() {
-      return true;
-    },
-    getAnimatedElement(i) {
-      return htmlElements[i];
-    }
-  };
-  animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], [], () => {
-    log += "->updated";
-  });
-  setTimeout(() => {
+    };
+    animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], [], () => {
+      log += "->updated";
+    });
     expect(log).toLooseEqual("->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
     expect(htmlElements[0].classList.contains("leave_0")).toBeTruthy();
     expect(htmlElements[1].classList.contains("leave_1")).toBeTruthy();
@@ -566,19 +563,18 @@ test("Test animation utils: group leave animation", () => new Promise<void>(reso
     expect(htmlElements[1].classList.contains("leave_1")).toBeTruthy();
     expect(htmlElements[2].classList.contains("leave_2")).toBeTruthy();
     log = "";
-    setTimeout(() => {
-      setTimeout(() => {
-        expect(htmlElements[0].classList.contains("leave_0")).toBeFalsy();
-        expect(htmlElements[1].classList.contains("leave_1")).toBeFalsy();
-        expect(htmlElements[2].classList.contains("leave_2")).toBeFalsy();
-        expect(log).toLooseEqual("->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
-        htmlElements.forEach(el => el.remove());
-        window.requestAnimationFrame = oldRequestAnimationFrame;
-        done();
-      });
-    });
-  });
-}));
+    vi.advanceTimersToNextTimer();
+    vi.advanceTimersToNextTimer();
+    expect(htmlElements[0].classList.contains("leave_0")).toBeFalsy();
+    expect(htmlElements[1].classList.contains("leave_1")).toBeFalsy();
+    expect(htmlElements[2].classList.contains("leave_2")).toBeFalsy();
+    expect(log).toLooseEqual("->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
+    htmlElements.forEach(el => el.remove());
+  } finally {
+    window.requestAnimationFrame = oldRequestAnimationFrame;
+    vi.useRealTimers();
+  }
+});
 
 test("Test animation property: boolean", () => {
   const oldRequestAnimationFrame = window.requestAnimationFrame;
@@ -813,49 +809,48 @@ test("Check onNextRender and cancel", () => {
   window.cancelAnimationFrame = oldCancelAnimationFrame;
 });
 
-test("Test animation property: check latest update persists", () => new Promise<void>(resolve => {
-  let __remaining = 1;
-  const __done = () => { if (--__remaining <= 0) resolve(); };
-  const done = __done;
-  let value: boolean = false;
-  let animationEnabled = false;
-  const animation = new AnimationBoolean({
-    getRerenderEvent: () => new EventBase(),
-    getEnterOptions: () => {
-      return {
-        cssClass: "enter",
-      };
-    },
-    isAnimationEnabled: () => {
-      return animationEnabled;
-    },
-    getAnimatedElement: () => {
-      return undefined as any;
-    },
-    getLeaveOptions: () => {
-      return {
-        cssClass: "leave"
-      };
-    }
-  }, (val: boolean) => {
-    value = val;
-  }, () => value);
-  animationEnabled = true;
-  animation.sync(true);
-  animationEnabled = false;
-  animation.sync(false);
-  setTimeout(() => {
+test("Test animation property: check latest update persists", () => {
+  vi.useFakeTimers();
+  try {
+    let value: boolean = false;
+    let animationEnabled = false;
+    const animation = new AnimationBoolean({
+      getRerenderEvent: () => new EventBase(),
+      getEnterOptions: () => {
+        return {
+          cssClass: "enter",
+        };
+      },
+      isAnimationEnabled: () => {
+        return animationEnabled;
+      },
+      getAnimatedElement: () => {
+        return undefined as any;
+      },
+      getLeaveOptions: () => {
+        return {
+          cssClass: "leave"
+        };
+      }
+    }, (val: boolean) => {
+      value = val;
+    }, () => value);
+    animationEnabled = true;
+    animation.sync(true);
+    animationEnabled = false;
+    animation.sync(false);
+    vi.advanceTimersToNextTimer();
     expect(value).toBeFalsy();
     animationEnabled = false;
     animation.sync(true);
     expect(value).toBeTruthy();
     animation.sync(false);
-    setTimeout(() => {
-      expect(value).toBeFalsy();
-      done();
-    });
-  });
-}));
+    vi.advanceTimersToNextTimer();
+    expect(value).toBeFalsy();
+  } finally {
+    vi.useRealTimers();
+  }
+});
 
 // VITEST-MIGRATION: MANUAL -- THROWS_SHAPE: contains assert.throws(...), manual rewrite required
 /*

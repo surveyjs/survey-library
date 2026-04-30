@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Drag and Drop Matrix Row Tests", () => {
   test("Clear the isGhostRow marker", () => {
     const survey = new SurveyModel({
@@ -53,11 +53,8 @@ describe("Drag and Drop Matrix Row Tests", () => {
   });
 
   test("doDragOver", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+    vi.useFakeTimers();
+    try {
 
       const json = {
         "pages": [
@@ -165,10 +162,10 @@ describe("Drag and Drop Matrix Row Tests", () => {
       ddHelper.dropTarget = dropRow;
       ddHelper["doDragOver"]();
 
-      setTimeout(() => {
-        expect(Object.keys(ddHelper["matrixRowMap"]).length, "matrices prepared for drag").toLooseEqual(4);
-        done();
-      }, 2000);
-    });
+      vi.advanceTimersByTime(2000);
+      expect(Object.keys(ddHelper["matrixRowMap"]).length, "matrices prepared for drag").toLooseEqual(4);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

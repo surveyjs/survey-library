@@ -2,7 +2,7 @@ import { IAction } from "../src/actions/action";
 import { Notifier } from "../src/notifier";
 import { settings } from "../src/settings";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Notifier model", () => {
   const testCssClasses = {
     root: "alert",
@@ -68,44 +68,33 @@ describe("Notifier model", () => {
   });
 
   test("message box visibility", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 4;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const oldLifeTime = settings.notifications.lifetime;
-      settings.notifications.lifetime = 10;
-      const done = __done;
+    vi.useFakeTimers();
+    const oldLifeTime = settings.notifications.lifetime;
+    settings.notifications.lifetime = 10;
+    try {
       const notifier = new Notifier(testCssClasses);
       notifier.notify("Test", "error");
 
-      setTimeout(() => {
-        expect(notifier.active).toLooseEqual(true);
-        expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
-        done();
+      vi.advanceTimersByTime(1);
+      expect(notifier.active).toLooseEqual(true);
+      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
 
-        setTimeout(() => {
-          expect(notifier.active, "success message is hidden").toLooseEqual(false);
-          expect(notifier.css).toLooseEqual("alert alert-error");
+      vi.advanceTimersByTime(settings.notifications.lifetime + 2);
+      expect(notifier.active, "success message is hidden").toLooseEqual(false);
+      expect(notifier.css).toLooseEqual("alert alert-error");
 
-          done();
+      notifier.notify("Error", "error", true);
+      vi.advanceTimersByTime(1);
+      expect(notifier.active).toLooseEqual(true);
+      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
 
-          notifier.notify("Error", "error", true);
-          setTimeout(() => {
-            expect(notifier.active).toLooseEqual(true);
-            expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
-
-            done();
-            setTimeout(() => {
-              expect(notifier.active, "error message is visible").toLooseEqual(true);
-              expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
-
-              done();
-              settings.notifications.lifetime = oldLifeTime;
-            }, settings.notifications.lifetime + 2);
-          }, 1);
-        }, settings.notifications.lifetime + 2);
-      }, 1);
-    });
+      vi.advanceTimersByTime(settings.notifications.lifetime + 2);
+      expect(notifier.active, "error message is visible").toLooseEqual(true);
+      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
+    } finally {
+      settings.notifications.lifetime = oldLifeTime;
+      vi.useRealTimers();
+    }
   });
 
   test("message box check getCssClass method", () => {

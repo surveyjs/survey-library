@@ -24,7 +24,7 @@ import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/action
 import { Serializer } from "../src/jsonobject";
 import { ProcessValue, ValueGetter } from "../src/conditions/conditionProcessValue";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Survey_QuestionPanelDynamic", () => {
   test("Create panels based on template on setting value", () => {
     var question = new QuestionPanelDynamicModel("q");
@@ -8283,11 +8283,8 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(q1.getPanelInDesignMode(), "returns tempalte").toBe(q1.template);
   });
   test("paneldynamic firstExpanded should not call scrollElementToTop on initial build, Bug#10998", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+    vi.useFakeTimers();
+    try {
       const survey = new SurveyModel({
         "elements": [
           {
@@ -8306,11 +8303,11 @@ describe("Survey_QuestionPanelDynamic", () => {
       q.onFirstRendering();
       expect(q.panels[0].state, "first panel is expanded").toLooseEqual("expanded");
       expect(q.panels[1].state, "second panel is collapsed").toLooseEqual("collapsed");
-      setTimeout(() => {
-        expect(scrollCalled, "scrollElementToTop should not be called on initial panel build").toLooseEqual(false);
-        done();
-      }, 50);
-    });
+      vi.advanceTimersByTime(50);
+      expect(scrollCalled, "scrollElementToTop should not be called on initial panel build").toLooseEqual(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
   test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", () => {
     const survey = new SurveyModel({

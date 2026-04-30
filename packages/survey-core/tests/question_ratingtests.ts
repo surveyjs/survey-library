@@ -13,7 +13,7 @@ import { PopupModel } from "../src/popup";
 import { setOldTheme } from "./oldTheme";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 test("check allowhover class in design mode", () => {
   const config = {
     elements: [
@@ -1685,14 +1685,11 @@ test("Rating displayRateDescriptionsAsExtremeItems with rateValues having custom
 // default and compact (dropdown) rendering. Stubbing scrollWidth as a getter
 // derived from the inline styles makes this test deterministic in jsdom.
 test("check rating triggerResponsiveness method", () => {
-  return new Promise<void>(function(resolve) {
-    let __remaining = 1;
-    const __done = function() { if (--__remaining <= 0) resolve(); };
-
-    RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
-    const ResizeObserver = window.ResizeObserver;
-    window.ResizeObserver = <any>CustomResizeObserver;
-    const done = __done;
+  vi.useFakeTimers();
+  const ResizeObserver = window.ResizeObserver;
+  RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
+  window.ResizeObserver = <any>CustomResizeObserver;
+  try {
 
     const rootElement = document.createElement("div");
     const contentElement = document.createElement("div");
@@ -1767,18 +1764,18 @@ test("check rating triggerResponsiveness method", () => {
 
     survey.triggerResponsiveness(true);
 
-    setTimeout(() => {
-      expect(q1.renderAs, "q1 renderAs #5").toLooseEqual("dropdown");
+    vi.advanceTimersByTime(1);
+    expect(q1.renderAs, "q1 renderAs #5").toLooseEqual("dropdown");
 
-      ratingElement.remove();
-      contentElement.remove();
-      rootElement.remove();
-      RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
-      window.ResizeObserver = ResizeObserver;
-      done();
-    }, 1);
+    ratingElement.remove();
+    contentElement.remove();
+    rootElement.remove();
+  } finally {
+    RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+    window.ResizeObserver = ResizeObserver;
+    vi.useRealTimers();
+  }
 
-  });
 });
 
 test("check rating in-matrix pre-defined items", () => {

@@ -12,7 +12,7 @@ import { AnimationOptions, AnimationUtils } from "../../src/utils/animation";
 import { ListModel } from "../../src/list";
 import { Action, IAction } from "../../src/actions/action";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 // const popupTemplate = require("html-loader?interpolate!val-loader!../../../../src/knockout/components/popup/popup.html");
 
 const popupTemplate = `<div>
@@ -1816,27 +1816,18 @@ describe("Popup", () => {
   });
 
   test("Check the sequence of method calls", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 6;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
+    vi.useFakeTimers();
+    settings.animationEnabled = true;
+    const animationTimeOut = 1;
+    const oldQueueMicrotask = window.queueMicrotask;
+    window.queueMicrotask = (callback) => { setTimeout(() => callback(), animationTimeOut); };
 
-      const done1 = __done;
-      const done2 = __done;
-      const done3 = __done;
-      const done4 = __done;
-      const done5 = __done;
-      const done6 = __done;
-
-      settings.animationEnabled = true;
-      const animationTimeOut = 1;
-      const oldQueueMicrotask = window.queueMicrotask;
-      window.queueMicrotask = (callback) => { setTimeout(() => callback(), animationTimeOut); };
-
+    const originalRefresh = ListModel.prototype["refresh"];
+    try {
       let log = "";
       const items: Array<Action> = [new Action({ id: "test", action: () => { } })];
       const listModel = new ListModel(items, () => { model.isVisible = false; }, true);
 
-      const originalRefresh = ListModel.prototype["refresh"];
       ListModel.prototype["refresh"] = function () {
         log += "listModel.refresh->";
         originalRefresh.call(this);
@@ -1857,47 +1848,36 @@ describe("Popup", () => {
       expect(log).toLooseEqual("");
 
       model.isVisible = true;
-      setTimeout(() => {
-        expect(log, "popup show").toLooseEqual("onShow:(viewModel.isVisible == false)->onVisibilityChanged:(viewModel.isVisible == true)->");
+      vi.advanceTimersByTime(animationTimeOut + 1);
+      expect(log, "popup show").toLooseEqual("onShow:(viewModel.isVisible == false)->onVisibilityChanged:(viewModel.isVisible == true)->");
 
-        log = "";
-        model.isVisible = false;
-        setTimeout(() => {
-          expect(log, "popup hide").toLooseEqual("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
+      log = "";
+      model.isVisible = false;
+      vi.advanceTimersByTime(animationTimeOut + 1);
+      expect(log, "popup hide").toLooseEqual("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
 
-          model.isVisible = true;
-          setTimeout(() => {
-            log = "";
-            listModel.onItemClick(items[0]);
-            setTimeout(() => {
-              expect(log, "item click").toLooseEqual("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
+      model.isVisible = true;
+      vi.advanceTimersByTime(animationTimeOut + 1);
+      log = "";
+      listModel.onItemClick(items[0]);
+      vi.advanceTimersByTime(animationTimeOut + 1);
+      expect(log, "item click").toLooseEqual("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
 
-              model.isVisible = true;
-              setTimeout(() => {
-                log = "";
-                viewModel.cancel();
-                setTimeout(() => {
-                  expect(log, "click cancel").toLooseEqual("onCancel->onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
+      model.isVisible = true;
+      vi.advanceTimersByTime(animationTimeOut + 1);
+      log = "";
+      viewModel.cancel();
+      vi.advanceTimersByTime(animationTimeOut + 1);
+      expect(log, "click cancel").toLooseEqual("onCancel->onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
 
-                  log = "";
-                  model.dispose();
-                  expect(log).toLooseEqual("onDispose");
-
-                  settings.animationEnabled = false;
-                  window.queueMicrotask = oldQueueMicrotask;
-
-                  done6();
-                }, animationTimeOut + 1);
-                done5();
-              }, animationTimeOut + 1);
-              done4();
-            }, animationTimeOut + 1);
-            done3();
-          }, animationTimeOut + 1);
-          done2();
-        }, animationTimeOut + 1);
-        done1();
-      }, animationTimeOut + 1);
-    });
+      log = "";
+      model.dispose();
+      expect(log).toLooseEqual("onDispose");
+    } finally {
+      ListModel.prototype["refresh"] = originalRefresh;
+      settings.animationEnabled = false;
+      window.queueMicrotask = oldQueueMicrotask;
+      vi.useRealTimers();
+    }
   });
 });

@@ -74,7 +74,7 @@ import { CustomError } from "../src/error";
 import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Survey", () => {
   settings.autoAdvanceDelay = 0;
 
@@ -2342,12 +2342,9 @@ describe("Survey", () => {
     survey.prevPage();
     expect(survey.currentPageNo, "The second page again").toLooseEqual(0);
   });
-  test("survey.onCurrentPageChanging async calls, Issue#10645", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+  test("survey.onCurrentPageChanging async calls, Issue#10645", async () => {
+    vi.useFakeTimers();
+    try {
       const survey = new SurveyModel({
         pages: [
           { name: "page1", elements: [{ type: "text", name: "q1" }] },
@@ -2376,52 +2373,45 @@ describe("Survey", () => {
       expect(survey.currentPageNo, "Still the first page, we are waiting for a callback").toLooseEqual(0);
       expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #1").toLooseEqual(true);
       expect(nextAction.enabled, "next action is disabled during navigation, #1").toLooseEqual(false);
-      setTimeout(() => {
-        expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toLooseEqual(false);
-        expect(survey.currentPageNo, "The second page").toLooseEqual(1);
-        expect(nextAction.enabled, "next action is enabled after navigation, #1").toLooseEqual(true);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toLooseEqual(false);
+      expect(survey.currentPageNo, "The second page").toLooseEqual(1);
+      expect(nextAction.enabled, "next action is enabled after navigation, #1").toLooseEqual(true);
 
-        allowChanging = false;
-        survey.nextPage();
-        expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toLooseEqual(true);
-        expect(nextAction.enabled, "next action is disabled during navigation, #2").toLooseEqual(false);
-        expect(prevAction.enabled, "prev action is disabled during navigation, #2").toLooseEqual(false);
-        expect(survey.currentPageNo, "Still the second page, we are waiting for a callback").toLooseEqual(1);
-        setTimeout(() => {
-          expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toLooseEqual(false);
-          expect(nextAction.enabled, "next action is enabled after navigation, #2").toLooseEqual(true);
-          expect(prevAction.enabled, "prev action is enabled after navigation, #2").toLooseEqual(true);
-          expect(survey.currentPageNo, "We do not move from the second page").toLooseEqual(1);
+      allowChanging = false;
+      survey.nextPage();
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toLooseEqual(true);
+      expect(nextAction.enabled, "next action is disabled during navigation, #2").toLooseEqual(false);
+      expect(prevAction.enabled, "prev action is disabled during navigation, #2").toLooseEqual(false);
+      expect(survey.currentPageNo, "Still the second page, we are waiting for a callback").toLooseEqual(1);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toLooseEqual(false);
+      expect(nextAction.enabled, "next action is enabled after navigation, #2").toLooseEqual(true);
+      expect(prevAction.enabled, "prev action is enabled after navigation, #2").toLooseEqual(true);
+      expect(survey.currentPageNo, "We do not move from the second page").toLooseEqual(1);
 
-          expect(messages, "There is no messages yet").toEqualValues([]);
-          messageToShow = "Test error";
-          allowChanging = false;
-          survey.nextPage();
-          setTimeout(() => {
-            allowChanging = true;
-            messageToShow = "Saving text";
-            survey.nextPage();
-            setTimeout(() => {
-              expect(messages).toEqualValues([
-                { message: "Test error", type: "error" },
-                { message: "Saving text", type: "success" }
-              ]);
-              expect(survey.currentPageNo, "We are on the last page now").toLooseEqual(2);
-
-              done();
-            }, 0);
-          }, 0);
-        }, 0);
-      }, 0);
-    });
+      expect(messages, "There is no messages yet").toEqualValues([]);
+      messageToShow = "Test error";
+      allowChanging = false;
+      survey.nextPage();
+      await vi.advanceTimersByTimeAsync(0);
+      allowChanging = true;
+      messageToShow = "Saving text";
+      survey.nextPage();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(messages).toEqualValues([
+        { message: "Test error", type: "error" },
+        { message: "Saving text", type: "success" }
+      ]);
+      expect(survey.currentPageNo, "We are on the last page now").toLooseEqual(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
-  test("survey.onCompleting async calls, Issue#10645", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+  test("survey.onCompleting async calls, Issue#10645", async () => {
+    vi.useFakeTimers();
+    try {
       const survey = new SurveyModel({
         pages: [
           { name: "page1", elements: [{ type: "text", name: "q1" }] },
@@ -2448,29 +2438,28 @@ describe("Survey", () => {
       expect(survey.state, "Survey is not completed yet, we are waiting for a callback").toLooseEqual("running");
       expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #1").toLooseEqual(true);
       expect(completeAction.enabled, "next action is disabled during navigation, #1").toLooseEqual(false);
-      setTimeout(() => {
-        expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toLooseEqual(false);
-        expect(survey.state, "Do not allow complete").toLooseEqual("running");
-        expect(completeAction.enabled, "next action is enabled after navigation, #1").toLooseEqual(true);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toLooseEqual(false);
+      expect(survey.state, "Do not allow complete").toLooseEqual("running");
+      expect(completeAction.enabled, "next action is enabled after navigation, #1").toLooseEqual(true);
 
-        allowComplete = true;
-        messageToShow = "Test success on complete";
-        survey.tryComplete();
-        expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toLooseEqual(true);
-        expect(completeAction.enabled, "next action is disabled during navigation, #2").toLooseEqual(false);
-        expect(survey.state, "Do not allow complete #2").toLooseEqual("running");
-        setTimeout(() => {
-          expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toLooseEqual(false);
-          expect(completeAction.enabled, "next action is enabled after navigation, #2").toLooseEqual(true);
-          expect(survey.state, "Survey is completed now").toLooseEqual("completed");
-          expect(messages).toEqualValues([
-            { message: "Test error on complete", type: "error" },
-            { message: "Test success on complete", type: "success" }
-          ]);
-          done();
-        }, 0);
-      }, 0);
-    });
+      allowComplete = true;
+      messageToShow = "Test success on complete";
+      survey.tryComplete();
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toLooseEqual(true);
+      expect(completeAction.enabled, "next action is disabled during navigation, #2").toLooseEqual(false);
+      expect(survey.state, "Do not allow complete #2").toLooseEqual("running");
+      await vi.advanceTimersByTimeAsync(0);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toLooseEqual(false);
+      expect(completeAction.enabled, "next action is enabled after navigation, #2").toLooseEqual(true);
+      expect(survey.state, "Survey is completed now").toLooseEqual("completed");
+      expect(messages).toEqualValues([
+        { message: "Test error on complete", type: "error" },
+        { message: "Test success on complete", type: "success" }
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("survey.onCurrentPageChanging, allow option (use it instead of allowChanging)", () => {
@@ -14587,11 +14576,8 @@ describe("Survey", () => {
   });
 
   test("Check addNavigationItem with taskManager.waitAndExecute", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+    vi.useFakeTimers();
+    try {
       const survey = new SurveyModel({
         "elements": [
           {
@@ -14631,15 +14617,15 @@ describe("Survey", () => {
 
       action.action();
 
-      setTimeout(() => {
-        expect(actionExecuted, "Action should be executed after task completion").toBeTruthy();
-        expect(actionExecutionOrder.length, "Should have 3 execution steps").toLooseEqual(3);
-        expect(actionExecutionOrder[0], "First should be task-started").toLooseEqual("task-started");
-        expect(actionExecutionOrder[1], "Second should be task-completed").toLooseEqual("task-completed");
-        expect(actionExecutionOrder[2], "Third should be action-executed").toLooseEqual("action-executed");
-        done();
-      }, 50);
-    });
+      vi.advanceTimersByTime(50);
+      expect(actionExecuted, "Action should be executed after task completion").toBeTruthy();
+      expect(actionExecutionOrder.length, "Should have 3 execution steps").toLooseEqual(3);
+      expect(actionExecutionOrder[0], "First should be task-started").toLooseEqual("task-started");
+      expect(actionExecutionOrder[1], "Second should be task-completed").toLooseEqual("task-completed");
+      expect(actionExecutionOrder[2], "Third should be action-executed").toLooseEqual("action-executed");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Check addNavigationItem without active tasks", () => {
@@ -15547,11 +15533,8 @@ describe("Survey", () => {
   });
 
   test("no scrolling to page top after focus a question on another page - https://github.com/surveyjs/survey-library/issues/5346", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+    vi.useFakeTimers();
+    try {
       const survey = new SurveyModel({
         "pages": [
           {
@@ -15591,21 +15574,16 @@ describe("Survey", () => {
       });
       expect(log, "initially no scrolling").toLooseEqual("");
       survey.focusQuestion(qName);
-      setTimeout(() => {
-        expect(log, "no scrolling after page changed and focused a question, scroll to the question only").toLooseEqual("->" + qName);
-        done();
-      }, 2);
-    });
+      vi.advanceTimersByTime(2);
+      expect(log, "no scrolling after page changed and focused a question, scroll to the question only").toLooseEqual("->" + qName);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("scrolling to page top after current page changed", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 3;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done1 = __done;
-      const done2 = __done;
-      const done3 = __done;
+    vi.useFakeTimers();
+    try {
       const timeOut = 2;
 
       const survey = new SurveyModel({
@@ -15645,34 +15623,29 @@ describe("Survey", () => {
       survey.afterRenderPage(<HTMLElement>{});
       expect(survey["isCurrentPageRendered"] === true, "render first page #2").toLooseEqual(true);
 
-      setTimeout(() => {
-        expect(scrollCount).toLooseEqual(0);
+      vi.advanceTimersByTime(timeOut);
+      expect(scrollCount).toLooseEqual(0);
 
-        survey.nextPage();
-        expect(survey["isCurrentPageRendered"] === false, "go to second page").toLooseEqual(true);
+      survey.nextPage();
+      expect(survey["isCurrentPageRendered"] === false, "go to second page").toLooseEqual(true);
 
-        survey.afterRenderPage(<HTMLElement>{});
-        expect(survey["isCurrentPageRendered"] === true, "render second page").toLooseEqual(true);
+      survey.afterRenderPage(<HTMLElement>{});
+      expect(survey["isCurrentPageRendered"] === true, "render second page").toLooseEqual(true);
 
-        setTimeout(() => {
-          expect(scrollCount, "scrolling after going to second page").toLooseEqual(1);
+      vi.advanceTimersByTime(timeOut);
+      expect(scrollCount, "scrolling after going to second page").toLooseEqual(1);
 
-          survey.prevPage();
-          expect(survey["isCurrentPageRendered"] === false, "go to first page").toLooseEqual(true);
+      survey.prevPage();
+      expect(survey["isCurrentPageRendered"] === false, "go to first page").toLooseEqual(true);
 
-          survey.afterRenderPage(<HTMLElement>{});
-          expect(survey["isCurrentPageRendered"] === true, "render first page #3").toLooseEqual(true);
+      survey.afterRenderPage(<HTMLElement>{});
+      expect(survey["isCurrentPageRendered"] === true, "render first page #3").toLooseEqual(true);
 
-          setTimeout(() => {
-            expect(scrollCount, "scrolling after back to first page").toLooseEqual(2);
-
-            done3();
-          }, timeOut);
-          done2();
-        }, timeOut);
-        done1();
-      }, timeOut);
-    });
+      vi.advanceTimersByTime(timeOut);
+      expect(scrollCount, "scrolling after back to first page").toLooseEqual(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("check descriptionLocation change css classes", () => {

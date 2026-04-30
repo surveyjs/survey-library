@@ -2,7 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { FunctionFactory } from "../src/functionsfactory";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("QuestionExpression", () => {
 //Dummy, to include expression question model into tests
   new QuestionExpressionModel("q1");
@@ -388,18 +388,16 @@ describe("QuestionExpression", () => {
     expect(counter, "counter #4").toLooseEqual(5);
   });
 
-  test("Support Promises in Custom Functions", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      function MyFunc(params: any): any {
+  test("Support Promises in Custom Functions", async () => {
+    vi.useFakeTimers();
+    try {
+      const MyFunc = function(params: any): any {
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(Number(params[0]) + 10);
           }, 1);
         });
-      }
+      };
       FunctionFactory.Instance.register("MyFunc", MyFunc, true);
       const survey = new SurveyModel({
         elements: [
@@ -413,20 +411,12 @@ describe("QuestionExpression", () => {
       });
       const q1 = survey.getQuestionByName("q1");
       const q2 = survey.getQuestionByName("q2");
-      const done = __done;
-      setTimeout(() => {
-        expect(q1.value, "The async function result is correct").toLooseEqual(13);
-        done();
-        // TODO: does not work, need to investigate (q1 is undefined after changing q2 even for sync functions)
-        // q2.value = 7;
-        // expect(q2.value, "The q2 value is set correctly").toLooseEqual(7);
-        // expect(survey.getValue("q1"), "The async function result is correct after changing q2").toLooseEqual(17);
-        // setTimeout(() => {
-        //   done();
-        // }, 10);
-      }, 10);
+      await vi.advanceTimersByTimeAsync(10);
+      expect(q1.value, "The async function result is correct").toLooseEqual(13);
       FunctionFactory.Instance.unregister("MyFunc");
-    });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Access page and panel properties in expression, #11198", () => {

@@ -8,7 +8,7 @@ import { Camera } from "../src/utils/camera";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
 describe("Survey_QuestionFile", () => {
   test("QuestionFile value initialization strings", () => {
@@ -217,10 +217,8 @@ describe("Survey_QuestionFile", () => {
   });
 
   test("QuestionFile upload files", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    vi.useFakeTimers();
+    try {
       var json = {
         elements: [
           {
@@ -238,7 +236,6 @@ describe("Survey_QuestionFile", () => {
 
       var survey = new SurveyModel(json);
       var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
-      const done = __done;
 
       survey.onUploadFiles.add((survey, options) => {
         setTimeout(
@@ -259,7 +256,9 @@ describe("Survey_QuestionFile", () => {
       ];
       q1.loadFiles(files);
 
+      let valueChanged = false;
       survey.onValueChanged.add((survey, options) => {
+        valueChanged = true;
         expect(q1.value.length, "2 files").toLooseEqual(2);
         expect(q1.value[0].content, "first content").toLooseEqual(q1.value[0].name + "_url");
         expect(q1.value[1].content, "second content").toLooseEqual(q1.value[1].name + "_url");
@@ -268,9 +267,12 @@ describe("Survey_QuestionFile", () => {
 
         expect(q1.previewValue[0].name, "preview name 1").toLooseEqual(q1.value[0].name);
         expect(q1.previewValue[1].name, "preview name 2").toLooseEqual(q1.value[1].name);
-        done();
       });
-    });
+      vi.advanceTimersByTime(2);
+      expect(valueChanged, "onValueChanged fired").toLooseEqual(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("QuestionFile remove file", () => {
@@ -478,14 +480,9 @@ describe("Survey_QuestionFile", () => {
     expect(q1.canPreviewImage({ content: "someth", type: "text/html" }), "other type").toBeFalsy();
   });
 
-  test("QuestionFile process errors during files uploading - https://surveyjs.answerdesk.io/ticket/details/T1075", async () => {
-    return new Promise(function(resolve) {
-      let __remaining = 2;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done1 = __done;
-      const done2 = __done;
-
+  test("QuestionFile process errors during files uploading - https://surveyjs.answerdesk.io/ticket/details/T1075", () => {
+    vi.useFakeTimers();
+    try {
       var json = {
         elements: [
           {
@@ -531,28 +528,26 @@ describe("Survey_QuestionFile", () => {
       isSuccess = false;
       q1.loadFiles([<any>{ name: "f1", type: "t1" }]);
 
-      setTimeout(() => {
-        expect(q1.isEmpty()).toBeTruthy();
-        expect(q1.value).toLooseEqual(undefined);
-        expect(stateSec).toLooseEqual("->loading->error->loaded");
-        expect(q1.errors.length, "Has errors").toLooseEqual(1);
-        expect(q1.errors[0].text, "Error text").toLooseEqual("custom error text");
-        expect(state).toLooseEqual("loaded");
-        done2();
+      vi.advanceTimersByTime(2);
+      expect(q1.isEmpty()).toBeTruthy();
+      expect(q1.value).toLooseEqual(undefined);
+      expect(stateSec).toLooseEqual("->loading->error->loaded");
+      expect(q1.errors.length, "Has errors").toLooseEqual(1);
+      expect(q1.errors[0].text, "Error text").toLooseEqual("custom error text");
+      expect(state).toLooseEqual("loaded");
 
-        isSuccess = true;
-        q1.loadFiles([<any>{ name: "f2", type: "t2" }]);
+      isSuccess = true;
+      q1.loadFiles([<any>{ name: "f2", type: "t2" }]);
 
-        setTimeout(() => {
-          expect(q1.isEmpty()).toBeFalsy();
-          expect(q1.value.length).toLooseEqual(1);
-          expect(q1.value[0].content).toLooseEqual("f2_url");
-          expect(stateSec).toLooseEqual("->loading->error->loaded->loading->loaded");
-          expect(state).toLooseEqual("loaded");
-          done1();
-        }, 2);
-      }, 2);
-    });
+      vi.advanceTimersByTime(2);
+      expect(q1.isEmpty()).toBeFalsy();
+      expect(q1.value.length).toLooseEqual(1);
+      expect(q1.value[0].content).toLooseEqual("f2_url");
+      expect(stateSec).toLooseEqual("->loading->error->loaded->loading->loaded");
+      expect(state).toLooseEqual("loaded");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("QuestionFile replace file for single file mode", () => {
@@ -880,12 +875,9 @@ describe("Survey_QuestionFile", () => {
     expect(q1.fileNavigatorVisible).toLooseEqual(false);
   });
 
-  test("QuestionFile inside a panel set value", async () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
-      const done = __done;
+  test("QuestionFile inside a panel set value", () => {
+    vi.useFakeTimers();
+    try {
       var json = {
         "name": "page1",
         "elements": [
@@ -926,13 +918,13 @@ describe("Survey_QuestionFile", () => {
         type: "image/png"
       }];
 
-      setTimeout(() => {
-        expect(downloadCallCount).toLooseEqual(1);
-        expect(q.previewValue.length).toLooseEqual(1);
-        expect(q.previewValue).toEqualValues([downloadedFile]);
-        done();
-      }, 2);
-    });
+      vi.advanceTimersByTime(2);
+      expect(downloadCallCount).toLooseEqual(1);
+      expect(q.previewValue.length).toLooseEqual(1);
+      expect(q.previewValue).toEqualValues([downloadedFile]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("preview item index on last file removed", () => {
@@ -1206,10 +1198,8 @@ describe("Survey_QuestionFile", () => {
   });
 
   test("Check previewValue order is correct", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    vi.useFakeTimers();
+    try {
       const json = {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
@@ -1237,19 +1227,16 @@ describe("Survey_QuestionFile", () => {
       survey.data = {
         file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
       };
-      const done = __done;
-      setTimeout(() => {
-        expect(question.previewValue.map(val => val.name)).toEqualValues(["f1", "f2", "f3"]);
-        done();
-      }, 100);
-    });
+      vi.advanceTimersByTime(100);
+      expect(question.previewValue.map(val => val.name)).toEqualValues(["f1", "f2", "f3"]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("File Question on Smaller Screens: navigation bar doesn't appear when the survey.onDownloadFile event is used", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 1;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    vi.useFakeTimers();
+    try {
       const json = {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
@@ -1285,16 +1272,15 @@ describe("Survey_QuestionFile", () => {
       survey.data = {
         file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
       };
-      const done = __done;
-      setTimeout(() => {
-        expect(question.previewValue.map(val => val.name)).toEqualValues(["f1", "f2", "f3"]);
-        expect(question.indexToShow).toLooseEqual(0);
-        expect(fileIndexAction.title).toLooseEqual("1 of 3");
-        expect(question.containsMultiplyFiles).toLooseEqual(true);
-        expect(question.fileNavigatorVisible).toLooseEqual(true);
-        done();
-      }, 100);
-    });
+      vi.advanceTimersByTime(100);
+      expect(question.previewValue.map(val => val.name)).toEqualValues(["f1", "f2", "f3"]);
+      expect(question.indexToShow).toLooseEqual(0);
+      expect(fileIndexAction.title).toLooseEqual("1 of 3");
+      expect(question.containsMultiplyFiles).toLooseEqual(true);
+      expect(question.fileNavigatorVisible).toLooseEqual(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Check file question navigator with different items count visible", () => {

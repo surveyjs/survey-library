@@ -7,7 +7,7 @@ import { settings } from "../src/settings";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { PageModel } from "../src/page";
 import { IAction } from "../src/actions/action";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Tagbox question", () => {
   const jsonTagbox = {
     elements: [{
@@ -377,15 +377,9 @@ describe("Tagbox question", () => {
   });
 
   test("lazy loading + change filter string + dropdownSearchDelay", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 4;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    vi.useFakeTimers();
+    try {
       const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
-      const done1 = __done;
-      const done2 = __done;
-      const done3 = __done;
-      const done4 = __done;
 
       const json = {
         elements: [{
@@ -404,34 +398,29 @@ describe("Tagbox question", () => {
       question.dropdownListModel.popupModel.show();
       expect(question.choices.length, "show popup before request").toLooseEqual(0);
 
-      setTimeout(() => {
-        expect(question.choices.length, "show popup after request").toLooseEqual(25);
-        expect(question.choices[0].value, "show popup after request").toLooseEqual(1);
-        settings.dropdownSearchDelay = newValueDebouncedInputValue;
-        question.dropdownListModel.filterString = "2";
-        setTimeout(() => {
-          expect(question.choices.length, "filter is 2").toLooseEqual(25);
-          expect(question.choices[0].value, "filter is 2").toLooseEqual(1);
-          settings.dropdownSearchDelay = newValueDebouncedInputValue;
-          question.dropdownListModel.filterString = "22";
-          setTimeout(() => {
-            expect(question.choices.length, "filter is 22 before request").toLooseEqual(25);
-            expect(question.choices[0].value, "filter is 22 before request").toLooseEqual(1);
+      vi.advanceTimersByTime(onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+      expect(question.choices.length, "show popup after request").toLooseEqual(25);
+      expect(question.choices[0].value, "show popup after request").toLooseEqual(1);
+      settings.dropdownSearchDelay = newValueDebouncedInputValue;
+      question.dropdownListModel.filterString = "2";
+      vi.advanceTimersByTime(callbackTimeOutDelta);
+      expect(question.choices.length, "filter is 2").toLooseEqual(25);
+      expect(question.choices[0].value, "filter is 2").toLooseEqual(1);
+      settings.dropdownSearchDelay = newValueDebouncedInputValue;
+      question.dropdownListModel.filterString = "22";
+      vi.advanceTimersByTime(callbackTimeOutDelta);
+      expect(question.choices.length, "filter is 22 before request").toLooseEqual(25);
+      expect(question.choices[0].value, "filter is 22 before request").toLooseEqual(1);
 
-            setTimeout(() => {
-              expect(question.choices.length, "filter is 22 after request").toLooseEqual(25);
-              expect(question.choices[0].value, "filter is 22 after request").toLooseEqual(22);
+      vi.advanceTimersByTime(2 * (onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue));
+      expect(question.choices.length, "filter is 22 after request").toLooseEqual(25);
+      expect(question.choices[0].value, "filter is 22 after request").toLooseEqual(22);
 
-              settings.dropdownSearchDelay = 0;
-              done4();
-            }, 2 * (onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue));
-            done3();
-          }, callbackTimeOutDelta);
-          done2();
-        }, callbackTimeOutDelta);
-        done1();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    });
+      settings.dropdownSearchDelay = 0;
+    } finally {
+      settings.dropdownSearchDelay = 0;
+      vi.useRealTimers();
+    }
   });
 
   test("storeOthersAsComment is false", assert => {

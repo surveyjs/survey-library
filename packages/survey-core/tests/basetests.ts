@@ -9,7 +9,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
 
 describe("Base", () => {
@@ -63,42 +63,43 @@ describe("Base", () => {
     event.fire(null, null);
     expect(counter, "function should not be called the second time").toBe(1);
   });
-  test("Add async event", () => new Promise<void>((resolve) => {
-    let __remaining = 1;
-    const __done = () => { if (--__remaining <= 0) resolve(); };
-    interface ResultOptions {
-      counter: number;
-    }
-    const event = new EventAsync<any, ResultOptions>();
-    const func1 = (sender: any, options: ResultOptions): Promise<void> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          options.counter++;
-          resolve();
-        }, 0);
-      });
-    };
-    const func2 = (sender: any, options: ResultOptions): Promise<void> => {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          options.counter++;
-          resolve();
-        }, 0);
-      });
-    };
-    const options: ResultOptions = { counter: 0 };
-    let completeCounter = 0;
-    let firstAsyncCounter = 0;
-    event.add(func1);
-    event.add(func2);
-    event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
-    setTimeout(() => {
+  test("Add async event", async () => {
+    vi.useFakeTimers();
+    try {
+      interface ResultOptions {
+        counter: number;
+      }
+      const event = new EventAsync<any, ResultOptions>();
+      const func1 = (sender: any, options: ResultOptions): Promise<void> => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            options.counter++;
+            resolve();
+          }, 0);
+        });
+      };
+      const func2 = (sender: any, options: ResultOptions): Promise<void> => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            options.counter++;
+            resolve();
+          }, 0);
+        });
+      };
+      const options: ResultOptions = { counter: 0 };
+      let completeCounter = 0;
+      let firstAsyncCounter = 0;
+      event.add(func1);
+      event.add(func2);
+      event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
+      expect(firstAsyncCounter, "onAsyncCallbacks called one time").toBe(1);
+      await vi.advanceTimersByTimeAsync(10);
       expect(options.counter, "function called 2 times").toBe(2);
       expect(firstAsyncCounter, "onAsyncCallbacks called one time #2").toBe(1);
-      __done();
-    }, 10);
-    expect(firstAsyncCounter, "onAsyncCallbacks called one time").toBe(1);
-  }));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
   test("Add sync functions to async event", () => {
   interface ResultOptions {
     counter: number;

@@ -12,7 +12,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { IAction } from "../src/actions/action";
 import { _setIsTouch } from "../src/utils/devices";
 
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 describe("Dropdown question", () => {
   test("Test dropdown choicesMax choicesMin properties", () => {
     const json = {
@@ -1949,19 +1949,14 @@ describe("Dropdown question", () => {
     expect(itemsSettings.items.length).toLooseEqual(25);
   });
 
-  // Skipped: nested setTimeout-based filter race depends on real microtask/timer interleaving and lazy-load callbacks not fired under jsdom.
   test("Rapidly Changing Search Filter", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 4;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
+    // Use fake timers so the precise window between the debounce firing and
+    // the lazy-load callback firing is deterministic (the original real-timer
+    // version was flaky on slow machines and CI).
+    vi.useFakeTimers();
+    try {
+      const debounceDelay = 2 * onChoicesLazyLoadCallbackTimeOut;
 
-      const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
-
-      const done1 = __done;
-      const done2 = __done;
-      const done3 = __done;
-      const done4 = __done;
-      let filterValue = "";
       let filterValueLog = "";
       const json = {
         elements: [{
@@ -1978,42 +1973,38 @@ describe("Dropdown question", () => {
 
       const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
       const dropdownListModel = question.dropdownListModel;
+      settings.dropdownSearchDelay = debounceDelay;
 
-      filterValue = "1";
-      settings.dropdownSearchDelay = newValueDebouncedInputValue;
-      dropdownListModel.inputStringRendered = filterValue;
-      setTimeout(() => {
-        expect(question.choices.length).toLooseEqual(0);
-        expect(filterValueLog, "filter value 1").toLooseEqual("");
+      // Type "1" - debounce armed.
+      dropdownListModel.inputStringRendered = "1";
+      vi.advanceTimersByTime(debounceDelay - 1); // not yet fired
+      expect(question.choices.length).toLooseEqual(0);
+      expect(filterValueLog, "filter value 1").toLooseEqual("");
 
-        filterValue += "2";
-        settings.dropdownSearchDelay = newValueDebouncedInputValue;
-        dropdownListModel.inputStringRendered = filterValue;
-        setTimeout(() => {
-          expect(question.choices.length).toLooseEqual(0);
-          expect(filterValueLog, "filter value 12").toLooseEqual("");
+      // Type "12" before debounce fires - debounce is reset.
+      dropdownListModel.inputStringRendered = "12";
+      vi.advanceTimersByTime(debounceDelay - 1);
+      expect(question.choices.length).toLooseEqual(0);
+      expect(filterValueLog, "filter value 12").toLooseEqual("");
 
-          filterValue += "3";
-          settings.dropdownSearchDelay = newValueDebouncedInputValue;
-          dropdownListModel.inputStringRendered = filterValue;
-          setTimeout(() => {
-            expect(filterValueLog, "filter value 123 #1").toLooseEqual("123->");
-            expect(question.choices.length).toLooseEqual(0);
+      // Type "123" before debounce fires - debounce is reset again.
+      dropdownListModel.inputStringRendered = "123";
+      // Advance exactly the debounce delay: debounce callback fires now and
+      // schedules the lazy-load callback for `onChoicesLazyLoadCallbackTimeOut`
+      // ms in the future. Choices haven't been populated yet.
+      vi.advanceTimersByTime(debounceDelay);
+      expect(filterValueLog, "filter value 123 #1").toLooseEqual("123->");
+      expect(question.choices.length).toLooseEqual(0);
 
-            setTimeout(() => {
-              expect(filterValueLog, "filter value 123 #2").toLooseEqual("123->");
-              expect(question.choices.length).toLooseEqual(25);
+      // Now let the lazy-load callback fire.
+      vi.advanceTimersByTime(onChoicesLazyLoadCallbackTimeOut);
+      expect(filterValueLog, "filter value 123 #2").toLooseEqual("123->");
+      expect(question.choices.length).toLooseEqual(25);
 
-              settings.dropdownSearchDelay = 0;
-              done4();
-            }, callbackTimeOutDelta + onChoicesLazyLoadCallbackTimeOut);
-            done3();
-          }, callbackTimeOutDelta + newValueDebouncedInputValue);
-          done2();
-        }, callbackTimeOutDelta);
-        done1();
-      }, callbackTimeOutDelta);
-    });
+      settings.dropdownSearchDelay = 0;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   test("Dropdown with Lazy Loading - A list of items display duplicate entries #9111", () => {

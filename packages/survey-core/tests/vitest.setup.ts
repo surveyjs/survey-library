@@ -67,6 +67,296 @@ if (typeof (globalThis as any).CSS === "undefined") {
   (globalThis as any).CSS.escape = (s: string) => String(s).replace(/[^\w-]/g, (c) => "\\" + c);
 }
 
+// jsdom's `Selection` does not implement the non-standard `modify()` method.
+// `sanitizeEditableContent()` calls `selection.modify("extend", "forward",
+// "character")` to walk a contenteditable cursor. Provide a minimal polyfill
+// that supports just the (alter, direction, granularity) combinations we use:
+// extend|move x left|right|forward|backward x character. Also patch
+// `Selection.toString()` so cross-node ranges concatenate <br> as "\n",
+// matching browser behavior the sanitizer relies on. Idempotent.
+if (typeof (globalThis as any).window !== "undefined" &&
+    typeof (globalThis as any).window.getSelection === "function") {
+  const __sampleSel = (globalThis as any).window.getSelection();
+  const __selProto = __sampleSel && Object.getPrototypeOf(__sampleSel);
+  // Helper: serialize a node tree as innerText (text + br -> "\n").
+  const __renderText = (node: Node): string => {
+    let out = "";
+    const kids = (node as any).childNodes;
+    if (!kids) return out;
+    for (let i = 0; i < kids.length; i++) {
+      const c: any = kids[i];
+      if (c.nodeType === 3 /* TEXT_NODE */) out += c.data;
+      else if (c.nodeName === "BR") out += "\n";
+      else if (c.nodeType === 1 /* ELEMENT_NODE */) out += __renderText(c);
+    }
+    return out;
+  };
+  // Flatten a subtree into per-character entries: 1 entry per text-node
+  // char, 1 entry "\n" per <br>. Used to compute selection.toString() in a
+  // way that matches real-browser behavior across mixed text/<br> ranges.
+  const __flattenChars = (root: Node): string[] => {
+    const out: string[] = [];
+    const walk = (n: Node) => {
+      if (n.nodeType === 3) {
+        const d = (n as Text).data;
+        for (let i = 0; i < d.length; i++) out.push(d[i]);
+        return;
+      }
+      if (n.nodeName === "BR") { out.push("\n"); return; }
+      const kids = (n as any).childNodes;
+      if (!kids) return;
+      for (let i = 0; i < kids.length; i++) walk(kids[i]);
+    };
+    walk(root);
+    return out;
+  };
+  // Visible-text offset of (target, targetOffset) within `ancestor`. Each
+  // text char and each <br> count as 1. A boundary positioned INSIDE an
+  // empty <br> at offset 0 is treated as PAST the br (real-browser semantic).
+  const __visibleOffset = (ancestor: Node, target: Node, targetOffset: number): number => {
+    let count = 0;
+    let found = false;
+    const walk = (node: Node) => {
+      if (found) return;
+      if (node === target) {
+        if (node.nodeType === 3) {
+          const data = (node as Text).data;
+          count += Math.min(targetOffset, data.length);
+        } else if (node.nodeName === "BR") {
+          count += 1;
+        } else {
+          const kids = (node as any).childNodes;
+          for (let i = 0; i < targetOffset && i < kids.length; i++) {
+            walk(kids[i]);
+            if (found) return;
+          }
+        }
+        found = true;
+        return;
+      }
+      if (node.nodeType === 3) {
+        count += (node as Text).data.length;
+        return;
+      }
+      if (node.nodeName === "BR") {
+        count += 1;
+        return;
+      }
+      const kids = (node as any).childNodes;
+      if (!kids) return;
+      for (let i = 0; i < kids.length; i++) {
+        walk(kids[i]);
+        if (found) return;
+      }
+    };
+    walk(ancestor);
+    return count;
+  };
+  if (__selProto && !__selProto.__sv_polyfilled) {
+    // Override toString to mirror what sanitizeEditableContent expects from
+    // a real browser selection across mixed text/<br> nodes. Each char and
+    // each <br>="\n" contribute one position.
+    __selProto.toString = function () {
+      if (this.rangeCount === 0) return "";
+      const range = this.getRangeAt(0);
+      const ancestor = range.commonAncestorContainer;
+      const startN = __visibleOffset(ancestor, range.startContainer, range.startOffset);
+      const endN = __visibleOffset(ancestor, range.endContainer, range.endOffset);
+      if (endN <= startN) return "";
+      const chars = __flattenChars(ancestor);
+      return chars.slice(startN, endN).join("");
+    };
+    __selProto.modify = function (alter: string, direction: string, granularity: string) {
+      if (this.rangeCount === 0) return;
+      const range = this.getRangeAt(0);
+      const forward = direction === "right" || direction === "forward";
+      let node: Node | null = forward ? range.endContainer : range.startContainer;
+      let offset = forward ? range.endOffset : range.startOffset;
+      const stepForward = (): boolean => {
+        while(node) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            const len = (node as Text).data.length;
+            if (offset < len) { offset += 1; return true; }
+            const parent = node.parentNode;
+            if (!parent) return false;
+            offset = Array.prototype.indexOf.call(parent.childNodes, node) + 1;
+            node = parent;
+            continue;
+          }
+          const elem = node as Element;
+          if (offset < elem.childNodes.length) {
+            const child = elem.childNodes[offset];
+            if (child.nodeType === Node.TEXT_NODE) {
+              if ((child as Text).data.length > 0) { node = child; offset = 1; return true; }
+              offset += 1; continue;
+            }
+            const childEl = child as Element;
+            const noChildren = !childEl.childNodes || childEl.childNodes.length === 0;
+            if (noChildren) { offset += 1; return true; }
+            node = childEl; offset = 0; continue;
+          }
+          const parent = node.parentNode;
+          if (!parent) return false;
+          offset = Array.prototype.indexOf.call(parent.childNodes, node) + 1;
+          node = parent;
+        }
+        return false;
+      };
+      const stepBackward = (): boolean => {
+        while(node) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            if (offset > 0) { offset -= 1; return true; }
+            const parent = node.parentNode;
+            if (!parent) return false;
+            offset = Array.prototype.indexOf.call(parent.childNodes, node);
+            node = parent;
+            continue;
+          }
+          const elem = node as Element;
+          if (offset > 0) {
+            const child = elem.childNodes[offset - 1];
+            if (child.nodeType === Node.TEXT_NODE) {
+              const len = (child as Text).data.length;
+              if (len > 0) { node = child; offset = len - 1; return true; }
+              offset -= 1; continue;
+            }
+            const childEl = child as Element;
+            const noChildren = !childEl.childNodes || childEl.childNodes.length === 0;
+            if (noChildren) { offset -= 1; return true; }
+            node = childEl; offset = childEl.childNodes.length; continue;
+          }
+          const parent = node.parentNode;
+          if (!parent) return false;
+          offset = Array.prototype.indexOf.call(parent.childNodes, node);
+          node = parent;
+        }
+        return false;
+      };
+      if (granularity === "character") {
+        if (forward) stepForward(); else stepBackward();
+      } else if (granularity === "word") {
+        if (node && node.nodeType === Node.TEXT_NODE) {
+          const text = (node as Text).data;
+          if (forward) {
+            const re = /\S+/g;
+            re.lastIndex = offset;
+            const m = re.exec(text);
+            offset = m ? m.index + m[0].length : text.length;
+          } else {
+            const before = text.slice(0, offset);
+            const m = /\S+\s*$/.exec(before);
+            offset = m ? m.index : 0;
+          }
+        }
+      }
+      if (!node) return;
+      const isExtend = alter === "extend";
+      if (isExtend) {
+        if (forward) range.setEnd(node, offset);
+        else range.setStart(node, offset);
+      } else {
+        range.setStart(node, offset);
+        range.setEnd(node, offset);
+      }
+    };
+    __selProto.__sv_polyfilled = true;
+  }
+}
+
+// jsdom does not implement HTMLElement.innerText. sanitizeEditableContent
+// reads and writes it. Provide a minimal polyfill: getter renders text with
+// <br> as "\n"; setter splits on "\n" and creates text/<br> children.
+if (typeof (globalThis as any).window !== "undefined" &&
+    typeof (globalThis as any).window.HTMLElement !== "undefined") {
+  const __HEProto: any = (globalThis as any).window.HTMLElement.prototype;
+  const __probe = (globalThis as any).document?.createElement?.("span");
+  if (__probe && typeof (__probe as any).innerText === "undefined" && !__HEProto.__sv_innerTextPolyfilled) {
+    const __renderTextEl = (node: Node): string => {
+      let out = "";
+      const kids = (node as any).childNodes;
+      if (!kids) return out;
+      for (let i = 0; i < kids.length; i++) {
+        const c: any = kids[i];
+        if (c.nodeType === 3) out += c.data;
+        else if (c.nodeName === "BR") out += "\n";
+        else if (c.nodeType === 1) out += __renderTextEl(c);
+      }
+      return out;
+    };
+    Object.defineProperty(__HEProto, "innerText", {
+      configurable: true,
+      get(this: HTMLElement) { return __renderTextEl(this); },
+      set(this: HTMLElement, value: any) {
+        while(this.firstChild)this.removeChild(this.firstChild);
+        const doc = this.ownerDocument || (globalThis as any).document;
+        const parts = String(value == null ? "" : value).split("\n");
+        for (let i = 0; i < parts.length; i++) {
+          if (i > 0)this.appendChild(doc.createElement("br"));
+          if (parts[i].length > 0)this.appendChild(doc.createTextNode(parts[i]));
+        }
+      },
+    });
+    __HEProto.__sv_innerTextPolyfilled = true;
+  }
+}
+
+// jsdom does not parse comma-separated CSS shorthand values like
+// `animationDuration: "5s, 3ms"` through `getComputedStyle`, and returns the
+// empty string for unset animation-* properties (real browsers default to
+// "0s"/"none"). The `AnimationUtils.getAnimationDuration` helper relies on
+// the round-trip and on the "0s" defaults. Wrap `window.getComputedStyle`
+// with a Proxy that falls back to inline style and finally to a sane
+// browser-style default for the animation-* shorthand props. Idempotent.
+if (typeof (globalThis as any).window !== "undefined" &&
+    typeof (globalThis as any).window.getComputedStyle === "function") {
+  const __win: any = (globalThis as any).window;
+  if (!__win.__sv_getComputedStyle_animationPatched) {
+    const __innerGCS = __win.getComputedStyle.bind(__win);
+    const __animDefaults: Record<string, string> = {
+      animationDuration: "0s",
+      animationDelay: "0s",
+      animationName: "none",
+    };
+    // Real browsers normalize CSS time values to seconds for computed style
+    // (e.g. `"3ms"` -> `"0.003s"`). jsdom returns the raw string. The
+    // production `getMsFromRule` helper assumes the trailing unit is exactly
+    // one character (an "s"), so an unnormalized `"3ms"` becomes `NaN`.
+    // Normalize each comma-separated entry the same way real browsers do.
+    const __normalizeAnimTime = (value: string): string => {
+      if (!value) return value;
+      return value.split(",").map((part) => {
+        const t = part.trim();
+        const m = /^(-?\d*\.?\d+)ms$/i.exec(t);
+        if (m) return (parseFloat(m[1]) / 1000) + "s";
+        return t;
+      }).join(", ");
+    };
+    __win.getComputedStyle = function (el: Element, pseudo?: string | null) {
+      const cs = __innerGCS(el, pseudo as any);
+      return new Proxy(cs, {
+        get(target, prop, receiver) {
+          if (typeof prop === "string" && prop in __animDefaults) {
+            let v = (target as any)[prop];
+            if (!v) {
+              const inline = (el as HTMLElement).style ? (el as HTMLElement).style[prop as any] : "";
+              v = inline || __animDefaults[prop];
+            }
+            if (prop === "animationDuration" || prop === "animationDelay") {
+              v = __normalizeAnimTime(v);
+            }
+            return v;
+          }
+          return Reflect.get(target, prop, receiver);
+        },
+      });
+    };
+    __win.__sv_getComputedStyle_animationPatched = true;
+    if (typeof (globalThis as any).getComputedStyle === "function") {
+      (globalThis as any).getComputedStyle = __win.getComputedStyle;
+    }
+  }
+}
+
 // jsdom's requestAnimationFrame uses setTimeout(cb, 16). Some SurveyJS code
 // schedules rAF chains during synchronous test flow; Vitest tests that don't
 // await time will miss the callback. Replace with a microtask-fast variant

@@ -35,8 +35,7 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart, clean
     nodeText: range.endContainer.textContent
   };
 }
-// VITEST-MIGRATION: MANUAL -- DOM_API: sanitizer relies on Selection.modify() (non-standard, not in jsdom).
-test.skip("utils: sanitizer", () => {
+test("utils: sanitizer", () => {
   var element: HTMLSpanElement = document.createElement("span");
   document.body.appendChild(element);
   element.contentEditable = "true";
@@ -65,8 +64,7 @@ test.skip("utils: sanitizer", () => {
   element.remove();
 });
 
-// VITEST-MIGRATION: MANUAL -- DOM_API: sanitizer relies on Selection.modify() (non-standard, not in jsdom).
-test.skip("utils: sanitizer with linebreaks", () => {
+test("utils: sanitizer with linebreaks", () => {
   var element: HTMLSpanElement = document.createElement("span");
   document.body.appendChild(element);
   element.contentEditable = "true";
@@ -88,8 +86,7 @@ test.skip("utils: sanitizer with linebreaks", () => {
   element.remove();
 });
 
-// VITEST-MIGRATION: MANUAL -- DOM_API: sanitizer relies on Selection.modify() (non-standard, not in jsdom).
-test.skip("utils: sanitizer with grapheme clusters", () => {
+test("utils: sanitizer with grapheme clusters", () => {
   var element: HTMLSpanElement = document.createElement("span");
   document.body.appendChild(element);
   element.contentEditable = "true";
@@ -229,8 +226,7 @@ test("Test animation utils: getAnimationsCount", () => {
   expect(animationUtils["getAnimationsCount"](element)).toLooseEqual(1);
 });
 
-// VITEST-MIGRATION: MANUAL -- DOM_API: jsdom does not parse comma-separated CSS animation-duration via getComputedStyle.
-test.skip("Test animation utils: getAnimationDuration", () => {
+test("Test animation utils: getAnimationDuration", () => {
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);
@@ -249,8 +245,7 @@ test.skip("Test animation utils: getAnimationDuration", () => {
   element.remove();
 });
 
-// VITEST-MIGRATION: MANUAL -- DOM_API: jsdom does not parse comma-separated CSS animation-duration via getComputedStyle.
-test.skip("Test animation utils: getAnimationDuration", () => {
+test("Test animation utils: getAnimationDuration", () => {
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);

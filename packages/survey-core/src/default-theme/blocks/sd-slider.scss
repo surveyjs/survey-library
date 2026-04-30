@@ -52,14 +52,14 @@
   position: absolute;
   height: var(--sjs2-size-x050);
   top: calc(var(--sjs2-size-x400) / 2 - var(--sjs2-size-x050) / 2);
-  border-radius: var(--sjs2-radius-component-track, 9999px);
+  border-radius: var(--sjs2-radius-component-slider, 9999px);
 }
 
 .sd-slider__inverse-track {
-  background: var(--sjs2-color-component-track-default-bg);
+  background: var(--sjs2-color-component-slider-default-bg);
   &::after,
   &::before {
-    background: var(--sjs2-color-component-track-default-bg);
+    background: var(--sjs2-color-component-slider-default-bg);
   }
 }
 
@@ -81,16 +81,16 @@
 
 .sd-slider__range-track {
   left: 0;
-  background: var(--sjs2-color-component-track-default-fg);
+  background: var(--sjs2-color-component-slider-default-fg);
 
   &::before {
     @include leftOutrangePath;
-    background: var(--sjs2-color-component-track-default-fg);
+    background: var(--sjs2-color-component-slider-default-fg);
   }
 
   &::after {
     @include rightOutrangePath;
-    background: var(--sjs2-color-component-track-default-fg);
+    background: var(--sjs2-color-component-slider-default-fg);
   }
 }
 
@@ -105,7 +105,7 @@
   flex-shrink: 0;
   width: var(--sjs2-size-x400);
   height: var(--sjs2-size-x400);
-  border-radius: var(--sjs2-radius-component-track-thumb, 9999px);
+  border-radius: var(--sjs2-radius-component-slider-thumb, 9999px);
 }
 
 .sd-slider__input {
@@ -130,9 +130,9 @@
 
 .sd-slider__thumb-container--focused {
   .sd-slider__thumb {
-    box-shadow: none;
-    background: var(--sjs2-color-component-track-focused-thumb);
-    border: var(--sjs2-border-width-x200) solid var(--sjs2-color-component-track-focused-thumb-border);
+    box-shadow: var(--sjs2-border-effect-trigger-default);
+    background: var(--sjs2-color-component-slider-focused-thumb);
+    border: var(--sjs2-border-width-a11y) solid var(--sjs2-color-utility-a11y);
   }
 
   .sd-slider__tooltip--on-hover {
@@ -146,17 +146,17 @@
   justify-content: center;
   align-items: center;
 
-  border-radius: var(--sjs2-radius-component-track-thumb, 9999px);
-  background: var(--sjs2-color-component-track-default-thumb);
-  box-shadow: var(--sjs2-border-effect-surface-default);
+  border-radius: var(--sjs2-radius-component-slider-thumb, 9999px);
+  background: var(--sjs2-color-component-slider-default-thumb);
+  box-shadow: var(--sjs2-border-effect-trigger-default);
 
   //  box-sizing: border-box;
 }
 
 .sd-slider__thumb-dot {
   display: flex;
-  border-radius: var(--sjs2-radius-component-track-item, 9999px);
-  background: var(--sjs2-color-component-track-default-dot);
+  border-radius: var(--sjs2-radius-component-slider-item, 9999px);
+  background: var(--sjs2-color-component-slider-default-dot);
   width: var(--sjs2-size-x150);
   height: var(--sjs2-size-x150);
   transition:
@@ -168,7 +168,6 @@
   opacity: 1;
   position: absolute;
   bottom: calc(100% + var(--sjs2-size-x075));
-  box-shadow: var(--sjs2-border-effect-surface-default), var(--sjs2-border-effect-floating-default);
   display: flex;
   flex-direction: column;
   user-select: none;
@@ -179,7 +178,7 @@
 .sd-slider__tooltip-panel {
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
   border-radius: var(--sjs2-radius-component-tooltip, 4px);
-  background: var(--sjs2-color-bg-basic-primary);
+  background: var(--sjs2-color-bg-neutral-primary);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -188,9 +187,8 @@
     content: " ";
     width: calc(var(--sjs2-size-x075) * 1.41);
     height: calc(var(--sjs2-size-x075) * 1.41);
-    background: var(--sjs2-color-bg-basic-primary);
+    background: var(--sjs2-color-bg-neutral-primary);
     position: absolute;
-    box-shadow: var(--sjs2-border-effect-surface-default), var(--sjs2-border-effect-floating-default);
     bottom: calc(var(--sjs2-size-x075) * 1.41 / -1);
     left: calc(50% - var(--sjs2-size-x075) * 1.41);
     clip-path: polygon(-100% -100%, -100% 200%, 200% 200%);
@@ -203,7 +201,7 @@
   font-size: var(--sjs2-font-size-x150);
   font-weight: 600;
   line-height: var(--sjs2-line-height-x200);
-  color: var(--sjs2-color-component-track-default-fg);
+  color: var(--sjs2-color-fg-neutral-on-primary);
 }
 
 .sd-slider__tooltip--on-hover {
@@ -252,7 +250,7 @@
   height: var(--sjs2-size-x050);
   flex-direction: column;
   align-items: flex-start;
-  background: var(--sjs2-color-component-track-default-thumb-border);
+  background: var(--sjs2-color-component-slider-default-thumb-border);
 }
 
 .sd-slider__label-text {
@@ -318,7 +316,7 @@ input[type="range"].sd-slider__input::-webkit-slider-thumb {
   width: var(--sjs2-size-x400);
   border-radius: 0px;
   border: 0 none;
-  background: var(--sjs2-color-component-track-default-dot);
+  background: var(--sjs2-color-component-slider-default-dot);
   -webkit-appearance: none;
   cursor: pointer;
   top: -50px;
@@ -336,7 +334,7 @@ input[type="range"].sd-slider__input::-moz-range-thumb {
   width: var(--sjs2-size-x400);
   border-radius: 0px;
   border: 0 none;
-  background: var(--sjs2-color-component-track-default-dot);
+  background: var(--sjs2-color-component-slider-default-dot);
   -webkit-appearance: none;
   cursor: pointer;
   top: -20px;
@@ -362,7 +360,8 @@ input[type="range"].sd-slider__input::-ms-tooltip {
   display: none;
 }
 
-:root, :host {
+:root,
+:host {
   --sjs-range-slider-range-input-thumb-width: 0px;
   --sjs-range-slider-range-input-thumb-left: 0;
   --sjs-range-slider-range-input-thumb-position: absolute;
@@ -415,37 +414,37 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider__thumb-container--focused {
     .sd-slider__thumb {
       box-shadow: none;
-      border: var(--sjs2-border-width-x200) solid var(--sjs2-color-component-track-readonly-thumb-border);
+      border: var(--sjs2-border-width-x200) solid var(--sjs2-color-component-slider-readonly-thumb-border);
     }
   }
 
   .sd-slider__thumb {
-    box-shadow: none;
-    background: var(--sjs2-color-component-track-readonly-thumb);
-    border: var(--sjs2-border-width-x200) solid var(--sjs2-color-component-track-readonly-thumb-border);
+    box-shadow: var(--sjs2-border-effect-trigger-readonly);
+    background: var(--sjs2-color-component-slider-readonly-thumb);
+    border: var(--sjs2-border-width-x200) solid var(--sjs2-color-component-slider-readonly-thumb-border);
 
     .sd-slider__thumb-dot {
-      background: transparent;
+      background: var(--sjs2-color-component-slider-readonly-dot);
     }
   }
 
   .sd-slider__inverse-track {
-    background: var(--sjs2-color-component-track-readonly-bg);
+    background: var(--sjs2-color-component-slider-readonly-bg);
     &::after,
     &::before {
-      background: var(--sjs2-color-component-track-readonly-bg);
+      background: var(--sjs2-color-component-slider-readonly-bg);
     }
   }
 
   .sd-slider__range-track {
-    background: var(--sjs2-color-component-track-readonly-fg);
+    background: var(--sjs2-color-component-slider-readonly-fg);
 
     &::before {
-      background: var(--sjs2-color-component-track-readonly-fg);
+      background: var(--sjs2-color-component-slider-readonly-fg);
     }
 
     &::after {
-      background: var(--sjs2-color-component-track-readonly-fg);
+      background: var(--sjs2-color-component-slider-readonly-fg);
     }
   }
 
@@ -462,7 +461,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider--single {
     .sd-slider__inverse-track--left {
       &::before {
-        background: var(--sjs2-color-component-track-readonly-fg);
+        background: var(--sjs2-color-component-slider-readonly-fg);
       }
     }
 
@@ -495,28 +494,28 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider__thumb {
     box-shadow: none;
     padding: 0;
-    background: var(--sjs2-color-component-track-readonly-thumb);
+    background: var(--sjs2-color-component-slider-readonly-thumb);
 
     .sd-slider__thumb-dot {
       width: calc(var(--sjs2-base-unit-size) * 0.125);
       height: var(--sjs2-size-x200);
-      background: var(--sjs2-color-component-track-readonly-dot);
+      background: var(--sjs2-color-component-slider-readonly-dot);
     }
   }
 
   .sd-slider__inverse-track {
     height: calc(var(--sjs2-base-unit-size) * 0.125);
-    background: var(--sjs2-color-component-track-readonly-bg);
+    background: var(--sjs2-color-component-slider-readonly-bg);
     &::after,
     &::before {
       height: calc(var(--sjs2-base-unit-size) * 0.125);
-      background: var(--sjs2-color-component-track-readonly-bg);
+      background: var(--sjs2-color-component-slider-readonly-bg);
     }
   }
 
   .sd-slider__range-track {
     height: calc(var(--sjs2-base-unit-size) * 0.125);
-    background: var(--sjs2-color-component-track-readonly-fg);
+    background: var(--sjs2-color-component-slider-readonly-fg);
 
     &::before {
       height: calc(var(--sjs2-base-unit-size) * 0.125);
@@ -532,13 +531,13 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   .sd-slider--negative-scale-mode {
     .sd-slider__inverse-track--left {
       &::before {
-        background: var(--sjs2-color-component-track-readonly-bg);
+        background: var(--sjs2-color-component-slider-readonly-bg);
       }
     }
   }
 
   .sd-slider__label-tick {
-    background: var(--sjs2-color-component-track-readonly-thumb-border);
+    background: var(--sjs2-color-component-slider-readonly-thumb-border);
   }
 
   .sd-slider__label-text--secondary {
@@ -548,27 +547,27 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 
 .sd-question--error {
   .sd-slider__inverse-track {
-    background: var(--sjs2-color-component-track-invalid-bg);
+    background: var(--sjs2-color-component-slider-invalid-bg);
     &::after,
     &::before {
-      background: var(--sjs2-color-component-track-invalid-bg);
+      background: var(--sjs2-color-component-slider-invalid-bg);
     }
   }
 
   .sd-slider__range-track {
-    background: var(--sjs2-color-component-track-invalid-fg);
+    background: var(--sjs2-color-component-slider-invalid-fg);
 
     &::before {
-      background: var(--sjs2-color-component-track-invalid-fg);
+      background: var(--sjs2-color-component-slider-invalid-fg);
     }
 
     &::after {
-      background: var(--sjs2-color-component-track-invalid-fg);
+      background: var(--sjs2-color-component-slider-invalid-fg);
     }
   }
 
   .sd-slider__thumb-dot {
-    background: var(--sjs2-color-component-track-invalid-dot);
+    background: var(--sjs2-color-component-slider-invalid-dot);
   }
 }
 

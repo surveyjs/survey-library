@@ -154,10 +154,16 @@ body {
   }
 }
 
+.sd-progress--pages,
+.sd-progress--buttons {
+  .sv-components-container-center {
+    background-color: var(--sjs2-color-bg-basic-primary);
+  }
+}
+
 .sv-root--sticky-top.sd-progress--pages,
 .sv-root--sticky-top.sd-progress--buttons {
   .sv-components-container-center {
-    background-color: $background-dim;
     box-shadow: $shadow-medium, $shadow-small;
   }
 }

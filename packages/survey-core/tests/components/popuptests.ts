@@ -1894,3 +1894,46 @@ QUnit.test("Check the sequence of method calls", assert => {
     done1();
   }, animationTimeOut + 1);
 });
+
+QUnit.test("PopupModel setWidthByTarget = 'fit-content", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, { verticalPosition: "bottom", horizontalPosition: "center", showPointer: true });
+  model.setWidthByTarget = "fit-content";
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  addElementIntoBody(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModelTest(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = getPopupContainer(viewModel.container);
+  popupContainer.style.width = "1500px";
+  popupContainer.style.height = "400px";
+
+  model.toggleVisibility();
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.width, "1500px", "width");
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.left, "-270px", "left");
+
+  popupContainer.style.width = "1000px";
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.width, "1000px", "width");
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.left, "-20px", "left");
+
+  popupContainer.style.width = "400px";
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.width, "560px", "width");
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.left, "200px", "left");
+
+  viewModel.dispose();
+  targetElement.remove();
+});

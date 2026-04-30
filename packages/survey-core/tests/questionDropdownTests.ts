@@ -841,17 +841,12 @@ describe("Dropdown question", () => {
     });
   });
 
-  // Skipped: lazy load callback path depends on popup/list rendering side-effects not fired under jsdom.
   test("The onGetChoiceDisplayValue callback fires multiple times, #6078", () => {
-    return new Promise(function(resolve) {
-      let __remaining = 3;
-      const __done = function() { if (--__remaining <= 0) resolve(); };
-
+    // Use fake timers so the order between request and response is deterministic.
+    vi.useFakeTimers();
+    try {
       let requestCount = 0;
       let responseCount = 0;
-      const done1 = __done;
-      const done2 = __done;
-      const done3 = __done;
       const json = {
         elements: [
           {
@@ -882,29 +877,27 @@ describe("Dropdown question", () => {
       expect(requestCount, "requestCount #2").toLooseEqual(1);
       expect(responseCount, "responseCount #2").toLooseEqual(0);
 
-      setTimeout(() => {
-        expect(requestCount, "requestCount #2.1").toLooseEqual(1);
-        expect(responseCount <= 1, "responseCount #2.1").toLooseEqual(true);
-        expect(["2", "DisplayText_2"].indexOf(question.selectedItemLocText.calculatedText) > -1, "calculatedText #2.1").toLooseEqual(true);
+      // Before the response timer fires.
+      vi.advanceTimersByTime(callbackTimeOutDelta);
+      expect(requestCount, "requestCount #2.1").toLooseEqual(1);
+      expect(responseCount <= 1, "responseCount #2.1").toLooseEqual(true);
+      expect(["2", "DisplayText_2"].indexOf(question.selectedItemLocText.calculatedText) > -1, "calculatedText #2.1").toLooseEqual(true);
 
-        setTimeout(() => {
-          expect(requestCount, "requestCount #3").toLooseEqual(1);
-          expect(responseCount, "responseCount #3").toLooseEqual(1);
+      // Let the response timer fire.
+      vi.advanceTimersByTime(onGetChoiceDisplayValueCallbackTimeOut);
+      expect(requestCount, "requestCount #3").toLooseEqual(1);
+      expect(responseCount, "responseCount #3").toLooseEqual(1);
 
-          setTimeout(() => {
-            expect(requestCount, "requestCount #3.1").toLooseEqual(1);
-            expect(responseCount, "responseCount #3.1").toLooseEqual(1);
-            expect(question.selectedItemLocText.calculatedText).toLooseEqual("DisplayText_2");
-            expect(question.selectedItem.locText.calculatedText, "locText.calculatedText").toLooseEqual("DisplayText_2");
-            expect(question.displayValue, "question.displayValue").toLooseEqual("DisplayText_2");
-
-            done3();
-          }, onGetChoiceDisplayValueCallbackTimeOut + 2 * callbackTimeOutDelta);
-          done2();
-        }, onGetChoiceDisplayValueCallbackTimeOut / 2);
-        done1();
-      }, callbackTimeOutDelta);
-    });
+      // Ensure no extra requests/responses are scheduled later.
+      vi.advanceTimersByTime(onGetChoiceDisplayValueCallbackTimeOut + 2 * callbackTimeOutDelta);
+      expect(requestCount, "requestCount #3.1").toLooseEqual(1);
+      expect(responseCount, "responseCount #3.1").toLooseEqual(1);
+      expect(question.selectedItemLocText.calculatedText).toLooseEqual("DisplayText_2");
+      expect(question.selectedItem.locText.calculatedText, "locText.calculatedText").toLooseEqual("DisplayText_2");
+      expect(question.displayValue, "question.displayValue").toLooseEqual("DisplayText_2");
+    } finally {
+      vi.useRealTimers();
+    }
   });
   test("storeOthersAsComment is false", () => {
     const json = {

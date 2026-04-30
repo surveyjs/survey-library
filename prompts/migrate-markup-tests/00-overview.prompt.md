@@ -1,12 +1,12 @@
 ---
 mode: agent
-description: Overview and shared context for migrating markup tests from Karma/QUnit (and Karma/Jasmine for Angular) to Vitest across all UI packages.
+description: Overview and shared context for migrating markup tests from Karma/QUnit to Vitest across all UI packages.
 ---
 
 # Migrate markup tests to Vitest — Overview
 
 ## Goal
-Replace the Karma-based markup-test runners in three UI packages with Vitest. The
+Replace the Karma-based markup-test runners in the remaining UI packages with Vitest. The
 canonical reference implementation already exists for Vue3 and works end-to-end —
 all other packages must converge on the same approach.
 
@@ -17,16 +17,15 @@ all other packages must converge on the same approach.
 | `packages/survey-vue3-ui` | **Vitest (jsdom)** | [tests/test.spec.ts](packages/survey-vue3-ui/tests/test.spec.ts) | **Reference — do not change.** |
 | `packages/survey-react-ui` | Karma + QUnit (Rollup-bundled) | [tests/markup.ts](packages/survey-react-ui/tests/markup.ts) | Migrate (prompt 01). |
 | `packages/survey-js-ui` | Karma + QUnit (Rollup-bundled) | [tests/markup.ts](packages/survey-js-ui/tests/markup.ts) | Migrate (prompt 02). |
-| `packages/survey-angular-ui` | Karma + Jasmine (`ng test`) | [test/markup/test.spec.ts](packages/survey-angular-ui/test/markup/test.spec.ts) | Migrate (prompt 03). |
 
-The three migration prompts are independent and may be executed in parallel — they
+The migration prompts are independent and may be executed in parallel — they
 edit disjoint files. None of them are allowed to modify shared code under
 [tests/markup/](tests/markup/).
 
 ## Shared invariants (do NOT break)
 
 1. **Do not change [tests/markup/helper.ts](tests/markup/helper.ts) or any
-   `etalon*.ts` / `*.snap.html` file.** They are shared by all four packages.
+   `etalon*.ts` / `*.snap.html` file.** They are shared by all UI packages.
 2. The `testQuestionMarkup(assert, test, platform)` helper expects a QUnit-shaped
    `assert` with `assert.async()` and `assert.equal(actual, expected, msg)`.
    Vue3 already wraps Vitest's `expect` in an `ExpectAssertAdapter` — reuse the
@@ -77,8 +76,7 @@ markupTests.forEach((markupTest) => {
 - All `markupTests` execute and pass under jsdom.
 - The shared `tests/markup/**` files are untouched.
 - The package's `karma.conf.js`, `rollup.tests.config.mjs`, and any
-  `tests/bundle/` artifacts are removed (or, for Angular, the corresponding
-  `karma.conf.js` / `test.ts` is removed) — but only after the new runner is
+  `tests/bundle/` artifacts are removed — but only after the new runner is
   green.
 - `npm install` succeeds; new dev-deps (`vitest`, `jsdom`,
   `vitest-canvas-mock`, framework adapter) are added; obsolete Karma deps are
@@ -90,6 +88,5 @@ markupTests.forEach((markupTest) => {
 2. Pick one of:
    - [01-migrate-react-ui.prompt.md](prompts/migrate-markup-tests/01-migrate-react-ui.prompt.md)
    - [02-migrate-js-ui.prompt.md](prompts/migrate-markup-tests/02-migrate-js-ui.prompt.md)
-   - [03-migrate-angular-ui.prompt.md](prompts/migrate-markup-tests/03-migrate-angular-ui.prompt.md)
-3. The three are independent. Run as separate sessions / subagents in parallel
+3. They are independent. Run as separate sessions / subagents in parallel
    to maximize throughput.

@@ -22,7 +22,7 @@ jobs:
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: '$(Build.SourcesDirectory)/packages/survey-creator-vue/build/'
-          ArtifactName: 'SurveyJSCreatorV2BuildVue'
+          ArtifactName: 'SurveyJSCreatorBuildVue'
           publishLocation: 'Container'
           StoreAsTar: true
 

@@ -1,19 +1,53 @@
 parameters:
-  - name: directory
-    type: string
+  - name: directories
+    type: object
 
 steps:
-  - task: Cache@2
-    displayName: "npm cache"
-    inputs:
-      key: "npm-cache-library | ${{ parameters.directory }}/package.json"
-      path: ${{ parameters.directory }}/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
+  - bash: |
+      set -e
+      export PLAYWRIGHT_SKIP_BROWSER_GC=1
+      CACHE_DIR="/tmp"
+      FLAGS="--prefer-offline --no-audit --no-fund --no-update-notifier --no-package-lock"
+      PIDS=()
+      DIRS=()
 
-  - task: Npm@1
+      for DIR in ${{ join(' ', parameters.directories) }}; do
+        (
+          PKG_JSON="$DIR/package.json"
+
+          if [ ! -f "$PKG_JSON" ]; then
+            echo "[$DIR] package.json not found"
+            exit 1
+          fi
+
+          PKG_HASH=$(sha256sum "$PKG_JSON" | awk '{print $1}')
+          CACHE_FILE="$CACHE_DIR/npm.$PKG_HASH.tar"
+          echo "[$DIR] npm install (cache: $CACHE_FILE)"
+
+          if [ -f "$CACHE_FILE" ]; then
+            echo "[$DIR] Found cache. Extracting..."
+            tar -xf "$CACHE_FILE" -C "$DIR"
+          else
+            echo "[$DIR] No cache found."
+          fi
+
+          cd "$DIR" && npm install $FLAGS
+
+          if [ ! -f "$CACHE_FILE" ]; then
+            echo "[$DIR] Creating cache archive..."
+            tar -cf "$CACHE_FILE" node_modules
+          fi
+        ) &
+        PIDS+=($!)
+        DIRS+=("$DIR")
+      done
+
+      FAILED=0
+      for i in "${!PIDS[@]}"; do
+        if ! wait "${PIDS[$i]}"; then
+          echo "FAILED: ${DIRS[$i]}"
+          FAILED=1
+        fi
+      done
+      exit $FAILED
     displayName: "npm install"
-    inputs:
-      command: install
-      verbose: false
-      workingDir: ${{ parameters.directory }}
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')

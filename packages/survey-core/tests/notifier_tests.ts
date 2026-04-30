@@ -44,26 +44,32 @@ QUnit.test("action bar: button visibility", function (assert) {
   const testAction = notifier.actionBar.actions[0];
   assert.equal(testAction.visible, false);
 
-  notifier.updateActionsVisibility("error");
+  notifier.updateActions("error");
   assert.equal(testAction.visible, true);
+  assert.equal(testAction.appearance.style, "alert");
 
-  notifier.updateActionsVisibility("info");
+  notifier.updateActions("info");
   assert.equal(testAction.visible, false);
+  assert.equal(testAction.appearance.style, "neutral");
 
-  notifier.updateActionsVisibility("error");
+  notifier.updateActions("error");
   assert.equal(testAction.visible, true);
+  assert.equal(testAction.appearance.style, "alert");
 
-  notifier.updateActionsVisibility("success");
+  notifier.updateActions("success");
   assert.equal(testAction.visible, false);
+  assert.equal(testAction.appearance.style, "brand");
 
   assert.equal(notifier.showActions, true, "showActions default is true");
   notifier.showActions = false;
-  notifier.updateActionsVisibility("error");
+  notifier.updateActions("error");
   assert.equal(testAction.visible, false);
+  assert.equal(testAction.appearance.style, "alert");
 
   notifier.showActions = true;
-  notifier.updateActionsVisibility("error");
+  notifier.updateActions("error");
   assert.equal(testAction.visible, true);
+  assert.equal(testAction.appearance.style, "alert");
 
 });
 
@@ -107,9 +113,9 @@ QUnit.test("message box check getCssClass method", function (assert) {
   const notifier = new Notifier(testCssClasses);
   notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
   notifier.showActions = true;
-  notifier.updateActionsVisibility("error");
+  notifier.updateActions("error");
   assert.equal(notifier.getCssClass("error"), "alert alert--with-buttons alert-error");
   notifier.showActions = false;
-  notifier.updateActionsVisibility("error");
+  notifier.updateActions("error");
   assert.equal(notifier.getCssClass("error"), "alert alert-error");
 });

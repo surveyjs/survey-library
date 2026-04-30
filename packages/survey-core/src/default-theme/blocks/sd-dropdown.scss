@@ -17,8 +17,7 @@
     bottom: 0;
     option {
       color: $foreground;
-      font-family: $font-family;
-      font-size: calcFontSize(1);
+      @include sjs2--typography--default;
     }
   }
   .sd-dropdown__group {
@@ -150,6 +149,6 @@
 }
 
 .sv-list-item--custom-value .sv-list__item-body {
-  font-weight: bold;
+  @include sjs2--typography--default-strong;
   color: $primary;
 }

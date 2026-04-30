@@ -60,8 +60,7 @@
 }
 
 .sd-action__title {
-  font-family: var(--sjs2-typography-font-family-text, "Open Sans");
-  font-weight: var(--sjs2-typography-font-weight-strong, 600);
+  @include sjs2--typography--default-strong;
   font-size: var(--sd-action-title-font-size);
   line-height: var(--sd-action-title-line-height);
   color: var(--sd-action-title-color);

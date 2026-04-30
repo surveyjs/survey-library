@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sv-save-data_root {
   position: fixed;
@@ -14,9 +15,7 @@
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
-  font-family: $font-family;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  @include sjs2--typography--default;
 
   display: flex;
   flex-direction: row;
@@ -61,34 +60,18 @@
 }
 
 .sv-save-data_root.sv-save-data_error {
-  background-color: $red;
-  color: $background;
-  font-weight: 600;
+  @include sjs2--typography--default-strong;
+  background-color: var(--sjs2-color-bg-alert-primary);
+  color: var(--sjs2-color-fg-alert-on-primary);
   gap: var(--sjs2-spacing-x600);
 }
 
-.sv-save-data_root.sv-save-data_error .sv-save-data_button {
-  font-weight: 600;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
-  height: var(--sjs2-size-x500);
-  color: #ffffff;
-  background-color: $red;
-  border: var(--sjs2-border-width-x200) solid #ffffff;
-  border-radius: calcCornerRadius(1.5);
-  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
-  display: flex;
-  align-items: center;
-}
-
-.sv-save-data_root.sv-save-data_error .sv-save-data_button:hover,
-.sv-save-data_root.sv-save-data_error .sv-save-data_button:focus {
-  color: $red;
-  background-color: $background;
-}
-
 .sv-save-data_root.sv-save-data_success {
-  background-color: $primary;
-  color: #ffffff;
-  font-weight: 600;
+  @include sjs2--typography--default-strong;
+  background-color: var(--sjs2-color-bg-brand-primary);
+  color: var(--sjs2-color-fg-brand-on-primary);
+}
+
+.sv-save-data_root .sv-save-data_button {
+  outline: var(--sjs2-border-width-x200) solid var(--sd-action-title-color);
 }

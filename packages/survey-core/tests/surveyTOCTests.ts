@@ -286,6 +286,65 @@ QUnit.test("questionsOnPageMode singlePage selectedItem tracks focused question"
   assert.equal(tocListModel.selectedItem.id, "page3", "3rd page is active after question3 focused");
 });
 
+QUnit.test("panelsInTocLevel includes nested titled panels up to configured depth", function (assert) {
+  const survey = new SurveyModel({
+    panelsInTocLevel: 2,
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "panel",
+            name: "panel1",
+            title: "Panel 1",
+            elements: [
+              {
+                type: "panel",
+                name: "panel11",
+                title: "Panel 1.1",
+                elements: [
+                  {
+                    type: "panel",
+                    name: "panel111",
+                    title: "Panel 1.1.1",
+                    elements: [{ type: "text", name: "q111" }]
+                  },
+                  { type: "text", name: "q11" }
+                ]
+              },
+              {
+                type: "panel",
+                name: "panel12",
+                elements: [{ type: "text", name: "q12" }]
+              }
+            ]
+          },
+          {
+            type: "panel",
+            name: "panel2",
+            elements: [{ type: "text", name: "q2" }]
+          },
+          { type: "text", name: "q1" }
+        ]
+      }
+    ]
+  });
+
+  const tocListModel = createTOCListModel(survey);
+  assert.deepEqual(
+    tocListModel.visibleItems.map(item => item.id),
+    ["page1", "panel1", "panel11"],
+    "Page and nested titled panels up to level 2 are included"
+  );
+
+  survey.panelsInTocLevel = 3;
+  assert.deepEqual(
+    tocListModel.visibleItems.map(item => item.id),
+    ["page1", "panel1", "panel11", "panel111"],
+    "Level 3 includes deeper nested panels"
+  );
+});
+
 QUnit.test("respects markup", function (assert) {
   let json: any = {
     "pages": [

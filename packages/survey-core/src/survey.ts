@@ -1697,6 +1697,22 @@ export class SurveyModel extends SurveyElementCore
    */
   @property() tocLocation: "left" | "right";
   /**
+   * Specifies the depth of nested panels included in the table of contents.
+   *
+   * Default value: `0` (nested panels are not included)
+   *
+   * Set this property to a positive number to include panels from pages:
+   *
+   * - `1` - includes direct child panels of a page
+   * - `2` - includes child and grandchild panels
+   * - `3` and greater - includes deeper nested levels accordingly
+   *
+   * Only panels with a visible title are shown in the table of contents.
+   * @see showTOC
+   * @see tocLocation
+   */
+  @property({ defaultValue: 0 }) panelsInTocLevel: number;
+  /**
    * Specifies whether to display the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
@@ -8698,6 +8714,13 @@ Serializer.addClass("survey", [
   },
   {
     name: "tocLocation", default: "left", choices: ["left", "right"],
+    dependsOn: ["showTOC"],
+    visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
+  },
+  {
+    name: "panelsInTocLevel:number",
+    default: 0,
+    minValue: 0,
     dependsOn: ["showTOC"],
     visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },

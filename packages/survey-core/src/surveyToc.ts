@@ -56,16 +56,50 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
     listModel.setItems(getTOCItems(survey, onAction));
   };
   survey.registerFunctionOnPropertyValueChanged("pages", updatePagesFunc, "toc");
+  survey.registerFunctionOnPropertyValueChanged("panelsInTocLevel", updatePagesFunc, "toc");
   survey.onEndLoadingFromJson.add(updatePagesFunc);
   return listModel;
 }
 
+interface ITOCItemInfo {
+  element: PanelModelBase;
+  level: number;
+}
+
+function fillPanelTOCItems(container: PanelModelBase, level: number, maxLevel: number, target: Array<ITOCItemInfo>): void {
+  if (!container || level > maxLevel || !(<any>container).elements) return;
+  const elements = (<any>container).elements;
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    if (!!el && el.isPanel) {
+      const panel = <PanelModelBase><any>el;
+      target.push({ element: panel, level: level });
+      fillPanelTOCItems(panel, level + 1, maxLevel, target);
+    }
+  }
+}
+
+function getTOCItemsSource(survey: SurveyModel): Array<ITOCItemInfo> {
+  const pagesSource: PanelModelBase[] = survey.pages || [];
+  const itemsSource: Array<ITOCItemInfo> = pagesSource.map(page => ({ element: page, level: 0 }));
+  const maxPanelLevel = Math.max(0, survey.panelsInTocLevel || 0);
+  if (maxPanelLevel > 0) {
+    for (let i = 0; i < pagesSource.length; i++) {
+      fillPanelTOCItems(pagesSource[i], 1, maxPanelLevel, itemsSource);
+    }
+  }
+  return itemsSource;
+}
+
 function getTOCItems(survey: SurveyModel, onAction: () => void) {
-  const pagesSource: PanelModelBase[] = survey.pages;
-  var items = (pagesSource || []).map(page => {
+  const itemsSource = getTOCItemsSource(survey);
+  var items = itemsSource.map(itemInfo => {
+    const page = itemInfo.element;
+    const level = itemInfo.level;
     return new Action({
       id: page.name,
       locTitle: page.locNavigationTitle,
+      data: { tocLevel: level },
       action: () => {
         DomDocumentHelper.activeElementBlur();
         !!onAction && onAction();
@@ -76,7 +110,9 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
         }
       },
       visible: <any>new ComputedUpdater(() => {
-        return page.isVisible && !((<any>page)["isStartPage"]);
+        const isRootItem = level === 0;
+        const hasVisibleTitle = !page.isPanel || (page.showTitle && page.hasTitle);
+        return page.isVisible && (!isRootItem || !((<any>page)["isStartPage"])) && (isRootItem || hasVisibleTitle);
       })
     });
   });
@@ -156,6 +192,7 @@ export class TOCModel {
   public dispose(): void {
     this.survey.unRegisterFunctionOnPropertyValueChanged("_isMobile", "toc");
     const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    this.survey.unRegisterFunctionOnPropertyValueChanged("panelsInTocLevel", "toc");
     this.survey.onEndLoadingFromJson.remove(handler);
     this.survey.onPageAdded.remove(handler);
     this.popupModel.dispose();

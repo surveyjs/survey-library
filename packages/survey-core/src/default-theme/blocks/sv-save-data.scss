@@ -61,13 +61,17 @@
 
 .sv-save-data_root.sv-save-data_error {
   @include sjs2--typography--default-strong;
-  background-color: $red;
-  color: $background;
+  background-color: var(--sjs2-color-bg-alert-primary);
+  color: var(--sjs2-color-fg-alert-on-primary);
   gap: var(--sjs2-spacing-x600);
 }
 
 .sv-save-data_root.sv-save-data_success {
   @include sjs2--typography--default-strong;
-  background-color: $primary;
-  color: #ffffff;
+  background-color: var(--sjs2-color-bg-brand-primary);
+  color: var(--sjs2-color-fg-brand-on-primary);
+}
+
+.sv-save-data_root .sv-save-data_button {
+  outline: var(--sjs2-border-width-x200) solid var(--sd-action-title-color);
 }

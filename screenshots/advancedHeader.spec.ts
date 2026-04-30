@@ -136,7 +136,7 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
 
-      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-header-default-description": "" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-header-default-description": "var(--sjs2-color-fg-brand-on-primary)" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-accent.png");

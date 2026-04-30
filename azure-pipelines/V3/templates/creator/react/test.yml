@@ -85,7 +85,7 @@ jobs:
 
   - job:
     displayName: "SCR Legacy"
-    condition: ne(variables['Build.SourceBranchName'], 'V3')
+    condition: ne(variables['System.PullRequest.TargetBranch'], 'V3')
     steps:
       - template: build.yml
         parameters:

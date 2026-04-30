@@ -306,56 +306,98 @@ if (typeof (globalThis as any).window !== "undefined" &&
 // "0s"/"none"). The `AnimationUtils.getAnimationDuration` helper relies on
 // the round-trip and on the "0s" defaults. Wrap `window.getComputedStyle`
 // with a Proxy that falls back to inline style and finally to a sane
-// browser-style default for the animation-* shorthand props. Idempotent.
-if (typeof (globalThis as any).window !== "undefined" &&
-    typeof (globalThis as any).window.getComputedStyle === "function") {
+// browser-style default for the animation-* shorthand props.
+//
+// Re-applied in `afterEach` (see end of file) so tests that override
+// `window.getComputedStyle` and forget to restore it (or run interleaved with
+// such tests in the same worker under `--no-isolate`) cannot poison
+// downstream tests.
+function __sv_installGetComputedStylePolyfills() {
+  if (typeof (globalThis as any).window === "undefined" ||
+      typeof (globalThis as any).window.getComputedStyle !== "function") {
+    return;
+  }
   const __win: any = (globalThis as any).window;
-  if (!__win.__sv_getComputedStyle_animationPatched) {
-    const __innerGCS = __win.getComputedStyle.bind(__win);
-    const __animDefaults: Record<string, string> = {
-      animationDuration: "0s",
-      animationDelay: "0s",
-      animationName: "none",
-    };
-    // Real browsers normalize CSS time values to seconds for computed style
-    // (e.g. `"3ms"` -> `"0.003s"`). jsdom returns the raw string. The
-    // production `getMsFromRule` helper assumes the trailing unit is exactly
-    // one character (an "s"), so an unnormalized `"3ms"` becomes `NaN`.
-    // Normalize each comma-separated entry the same way real browsers do.
-    const __normalizeAnimTime = (value: string): string => {
-      if (!value) return value;
-      return value.split(",").map((part) => {
-        const t = part.trim();
-        const m = /^(-?\d*\.?\d+)ms$/i.exec(t);
-        if (m) return (parseFloat(m[1]) / 1000) + "s";
-        return t;
-      }).join(", ");
-    };
-    __win.getComputedStyle = function (el: Element, pseudo?: string | null) {
-      const cs = __innerGCS(el, pseudo as any);
-      return new Proxy(cs, {
-        get(target, prop, receiver) {
-          if (typeof prop === "string" && prop in __animDefaults) {
-            let v = (target as any)[prop];
-            if (!v) {
-              const inline = (el as HTMLElement).style ? (el as HTMLElement).style[prop as any] : "";
-              v = inline || __animDefaults[prop];
-            }
-            if (prop === "animationDuration" || prop === "animationDelay") {
-              v = __normalizeAnimTime(v);
-            }
-            return v;
-          }
-          return Reflect.get(target, prop, receiver);
-        },
-      });
-    };
-    __win.__sv_getComputedStyle_animationPatched = true;
-    if (typeof (globalThis as any).getComputedStyle === "function") {
-      (globalThis as any).getComputedStyle = __win.getComputedStyle;
+  // If a previous install is still the active reference, nothing to do.
+  if (__win.getComputedStyle === __win.__sv_getComputedStylePatched) return;
+  // Capture the current (possibly test-overridden) `getComputedStyle` as the
+  // inner implementation. If the override returned a plain object (no
+  // `getPropertyValue`), our proxy still works for the animation-* and
+  // custom-property cases we care about.
+  const __innerGCSRaw = __win.getComputedStyle.bind(__win);
+  const __animDefaults: Record<string, string> = {
+    animationDuration: "0s",
+    animationDelay: "0s",
+    animationName: "none",
+  };
+  // Real browsers normalize CSS time values to seconds for computed style
+  // (e.g. `"3ms"` -> `"0.003s"`). jsdom returns the raw string. The
+  // production `getMsFromRule` helper assumes the trailing unit is exactly
+  // one character (an "s"), so an unnormalized `"3ms"` becomes `NaN`.
+  // Normalize each comma-separated entry the same way real browsers do.
+  const __normalizeAnimTime = (value: string): string => {
+    if (!value) return value;
+    return value.split(",").map((part) => {
+      const t = part.trim();
+      const m = /^(-?\d*\.?\d+)ms$/i.exec(t);
+      if (m) return (parseFloat(m[1]) / 1000) + "s";
+      return t;
+    }).join(", ");
+  };
+  // Custom-property inheritance fallback (replaces the second
+  // `getPropertyValue` patch that used to live below).
+  const __lookupCustomProp = (el: Element | null, name: string): string => {
+    let cur: Element | null = el;
+    while(cur) {
+      const inline = (cur as HTMLElement).style;
+      if (inline) {
+        const v = inline.getPropertyValue(name);
+        if (v) return v;
+      }
+      cur = cur.parentElement;
     }
+    return "";
+  };
+  const patched = function (el: Element, pseudo?: string | null) {
+    const cs = __innerGCSRaw(el, pseudo as any);
+    // Custom-property inheritance: patch getPropertyValue on the underlying
+    // CSSStyleDeclaration when present.
+    if (cs && typeof (cs as any).getPropertyValue === "function" && !(cs as any).__sv_customPropPatched) {
+      const origGet = (cs as any).getPropertyValue.bind(cs);
+      (cs as any).getPropertyValue = function (name: string) {
+        const v = origGet(name);
+        if (v) return v;
+        if (typeof name === "string" && name.startsWith("--")) {
+          return __lookupCustomProp(el, name);
+        }
+        return v;
+      };
+      (cs as any).__sv_customPropPatched = true;
+    }
+    return new Proxy(cs, {
+      get(target, prop, receiver) {
+        if (typeof prop === "string" && prop in __animDefaults) {
+          let v = (target as any)[prop];
+          if (!v) {
+            const inline = (el as HTMLElement).style ? (el as HTMLElement).style[prop as any] : "";
+            v = inline || __animDefaults[prop];
+          }
+          if (prop === "animationDuration" || prop === "animationDelay") {
+            v = __normalizeAnimTime(v);
+          }
+          return v;
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+    });
+  };
+  __win.getComputedStyle = patched;
+  __win.__sv_getComputedStylePatched = patched;
+  if (typeof (globalThis as any).getComputedStyle === "function") {
+    (globalThis as any).getComputedStyle = patched;
   }
 }
+__sv_installGetComputedStylePolyfills();
 
 // jsdom's requestAnimationFrame uses setTimeout(cb, 16). Some SurveyJS code
 // schedules rAF chains during synchronous test flow; Vitest tests that don't
@@ -395,51 +437,8 @@ if (typeof (globalThis as any).AnimationEvent === "undefined") {
   };
 }
 
-// jsdom's `getComputedStyle` returns only the element's own inline styles for
-// CSS custom properties (--*) and does not walk up the tree to inherit values
-// declared on ancestors (e.g. `document.documentElement`). Real browsers do
-// inherit custom properties. SurveyJS rating-color logic reads theme variables
-// like `--sd-rating-bad-color` from `getComputedStyle(rootElement)`, so without
-// this shim those reads return "" under jsdom even when the test set them on
-// `document.documentElement`. Patch only the `getPropertyValue` accessor to
-// fall back to ancestor inline styles for `--*` properties.
-if (typeof (globalThis as any).window !== "undefined" &&
-    typeof (globalThis as any).window.getComputedStyle === "function") {
-  const win: any = (globalThis as any).window;
-  if (!win.__sv_getComputedStyle_customPropPatched) {
-    const orig = win.getComputedStyle.bind(win);
-    const lookupCustomProp = (el: Element | null, name: string): string => {
-      let cur: Element | null = el;
-      while(cur) {
-        const inline = (cur as HTMLElement).style;
-        if (inline) {
-          const v = inline.getPropertyValue(name);
-          if (v) return v;
-        }
-        cur = cur.parentElement;
-      }
-      return "";
-    };
-    win.getComputedStyle = function (el: Element, pseudo?: string | null) {
-      const cs = orig(el, pseudo as any);
-      const origGet = cs.getPropertyValue.bind(cs);
-      cs.getPropertyValue = function (name: string) {
-        const v = origGet(name);
-        if (v) return v;
-        if (typeof name === "string" && name.startsWith("--")) {
-          return lookupCustomProp(el, name);
-        }
-        return v;
-      };
-      return cs;
-    };
-    win.__sv_getComputedStyle_customPropPatched = true;
-    if ((globalThis as any).getComputedStyle === orig.__originalRef ||
-        typeof (globalThis as any).getComputedStyle === "function") {
-      (globalThis as any).getComputedStyle = win.getComputedStyle;
-    }
-  }
-}
+// (Custom-property inheritance for `getComputedStyle().getPropertyValue("--*")`
+// is folded into `__sv_installGetComputedStylePolyfills` above.)
 
 // jsdom does not implement HTMLCanvasElement.getContext (without the optional
 // `canvas` npm package). signature_pad and rating-color logic both require a
@@ -693,4 +692,35 @@ afterEach(() => {
   // settings: re-apply our test defaults in case a test mutated them
   settings.animationEnabled = false;
   settings.dropdownSearchDelay = 0;
+  // settings.environment: tests in popuptests / svgRegistryTests swap
+  // `settings.environment` to point `root` at a detached shadow root. They
+  // restore it at the end of the test, but the restore captures whatever
+  // `document` was the live global at that moment.
+  //
+  // Vitest re-creates the jsdom realm for every test file even under
+  // `--no-isolate` (only the module graph is shared), so the `settings`
+  // singleton imported once at worker start retains an `environment.root`
+  // that points at the *previous* file's now-stale `document`. In a later
+  // file, `instanceof Document` checks on that stale root fail, breaking
+  // `getRootNode()` and `DragDropDOMAdapter.documentOrShadowRoot`.
+  //
+  // Re-anchor `environment.root` / `rootElement` / `popupMountContainer` to
+  // the live `document` whenever they have drifted away from it.
+  const __envRoot: any = (settings as any).environment?.root;
+  const __live = (globalThis as any).document;
+  if (__live && __envRoot !== __live &&
+      !(typeof ShadowRoot !== "undefined" && __envRoot instanceof ShadowRoot &&
+        (__envRoot as any).host && (__envRoot as any).host.isConnected)) {
+    (settings as any).environment = {
+      ...(settings as any).environment,
+      root: __live,
+      rootElement: __live.body,
+      popupMountContainer: __live.body,
+    };
+  }
+  // Re-install jsdom polyfills if a test replaced `window.getComputedStyle`
+  // (common pattern: `window.getComputedStyle = () => ({...})` without a
+  // try/finally restore). Under `--no-isolate` parallel files share the same
+  // jsdom and such leaks fail unrelated tests in another file.
+  __sv_installGetComputedStylePolyfills();
 });

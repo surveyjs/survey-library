@@ -383,22 +383,27 @@ test("ResponsivityManager - vertical process", () => {
     <any>container,
     <any>model
   );
+  const originalGetComputedStyle = (window as any).getComputedStyle;
   (window as any).getComputedStyle = () => {
     return { boxSizing: "border-box", paddingTop: 5, paddingBottom: 5 };
   };
 
-  model.flushUpdates();
+  try {
+    model.flushUpdates();
 
-  model.renderedActions.forEach(action => {
-    action.updateModeCallback = (mode, callback) => {
-      action.mode = mode;
-      const offsetHeight = action == model.dotsItem ? 30 : 20;
-      const content = new SimpleContainer({ offsetWidth: 20, offsetHeight });
-      callback(mode, content as any);
-    };
-  });
-  manager["process"]();
-  expect(model.hiddenItemsListModel.actions.length).toLooseEqual(7);
+    model.renderedActions.forEach(action => {
+      action.updateModeCallback = (mode, callback) => {
+        action.mode = mode;
+        const offsetHeight = action == model.dotsItem ? 30 : 20;
+        const content = new SimpleContainer({ offsetWidth: 20, offsetHeight });
+        callback(mode, content as any);
+      };
+    });
+    manager["process"]();
+    expect(model.hiddenItemsListModel.actions.length).toLooseEqual(7);
+  } finally {
+    (window as any).getComputedStyle = originalGetComputedStyle;
+  }
 });
 
 test("isResponsivenessDisabled", () => {

@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sv_window {
     position: fixed;
@@ -65,8 +66,8 @@
 }
 
 .sv_window_header_title_collapsed {
+    @include sjs2--typography--default-strong;
     color: $foreground-dim;
-    @include mixins.defaultBold;
     flex: 1;
     display: flex;
     justify-content: flex-start;
@@ -74,9 +75,9 @@
 }
 
 .sv_window_header_description {
+    @include sjs2--typography--default;
     color: $font-questiondescription-color;
     font-feature-settings: 'salt' on;
-    @include mixins.defaultFont;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

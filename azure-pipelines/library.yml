@@ -1,0 +1,9 @@
+resources:
+  repositories:
+    - repository: azurepipelines
+      type: github
+      endpoint: surveyjs
+      name: surveyjs/azure-pipelines
+      
+jobs:
+  - template: library.yml@azurepipelines 

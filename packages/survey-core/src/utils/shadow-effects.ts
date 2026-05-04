@@ -21,10 +21,10 @@ export function createBoxShadowReset(value: string): string {
 }
 
 function extractColorWithBalancedParens(value: string): { color: string, rest: string } | null {
-  const funcMatch = value.match(/(rgba?)\(/);
+  const funcMatch = value.match(/\b(rgba?|color)\(/i);
   if (!funcMatch) return null;
   const start = value.indexOf(funcMatch[0]);
-  const parenStart = start + funcMatch[1].length + 1;
+  const parenStart = start + funcMatch[0].length;
   let depth = 1;
   let i = parenStart;
   while(i < value.length && depth > 0) {

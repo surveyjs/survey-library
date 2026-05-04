@@ -1063,19 +1063,17 @@ export class Base implements IObjectValueContext {
     if (info.useStrictDependencies) {
       const survey: any = this.getSurvey();
       const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
-      if (!!keys) {
-        const runner = this.getExpressionByProperty(propName);
-        if (!!runner) {
-          const vars = runner.getVariables();
-          if (Array.isArray(vars) && vars.length > 0 && !runner.hasFunction()) {
-            if (!new ValueGetter().isAnyKeyChanged(keys, vars)) return;
-          }
-        }
-      }
+      if (this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys)) return;
     }
     this.runExpressionByProperty(propName, properties, (res) => {
       info.onExecute(this, res);
     });
+  }
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
+    if (!keys) return false;
+    if (!!runner && runner.hasFunction()) return false;
+    if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

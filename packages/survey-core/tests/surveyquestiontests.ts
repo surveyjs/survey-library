@@ -7738,5 +7738,41 @@ describe("Survey_Questions", () => {
 
     Serializer.removeProperty("question", "customExp");
   });
+  test("Run custom expression with a function without parameters on any value change, Issue#11233", () => {
+    let counter = 0;
+    let funcCounter = 0;
+    FunctionFactory.Instance.register("getCustomVal", (): number => {
+      funcCounter++;
+      return funcCounter;
+    });
+    Serializer.addProperty("question", {
+      name: "customExp:expression",
+      onExecuteExpression: (obj, res) => {
+        counter ++;
+        obj.setPropertyValue("customVal", res);
+      }
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", defaultValue: 2 },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3", customExp: "getCustomVal()" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    expect(counter, "custom expression is executed on creating").toBe(1);
+    expect(q3.getPropertyValue("customVal"), "#1").toBe(1);
+    q1.value = 1;
+    expect(counter, "custom expression is executed on changing q1").toBe(2);
+    expect(q3.getPropertyValue("customVal"), "#2").toBe(2);
+    q2.value = 2;
+    expect(counter, "custom expression is executed on changing q2").toBe(3);
+    expect(q3.getPropertyValue("customVal"), "#3").toBe(3);
+
+    Serializer.removeProperty("question", "customExp");
+    FunctionFactory.Instance.unregister("getCustomVal");
+  });
 
 });

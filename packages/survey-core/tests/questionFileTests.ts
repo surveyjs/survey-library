@@ -48,8 +48,8 @@ describe("Survey_QuestionFile", () => {
       image1: "someId",
       image2: "data:image/jpeg;base64,FILECONTENT",
     };
-    expect(q1.value).toEqualValues(survey.data.image1);
-    expect(q2.value).toEqualValues(survey.data.image2);
+    expect(q1.value).toEqual(survey.data.image1);
+    expect(q2.value).toEqual(survey.data.image2);
     expect(q1.previewValue.length, "remote stored file").toBe(1);
     expect(q2.previewValue.length, "file stored as text").toBe(1);
     expect(q1.previewValue[0].content, "remote stored file content").toBe("data:image/jpeg;base64,FILECONTENT1");
@@ -93,8 +93,8 @@ describe("Survey_QuestionFile", () => {
       image1: ["someId"],
       image2: ["data:image/jpeg;base64,FILECONTENT"],
     };
-    expect(q1.value).toEqualValues(survey.data.image1);
-    expect(q2.value).toEqualValues(survey.data.image2);
+    expect(q1.value).toEqual(survey.data.image1);
+    expect(q2.value).toEqual(survey.data.image2);
     expect(q1.previewValue.length, "remote stored file").toBe(1);
     expect(q2.previewValue.length, "file stored as text").toBe(1);
     expect(q1.previewValue[0].content, "remote stored file content").toBe("data:image/jpeg;base64,FILECONTENT1");
@@ -102,7 +102,7 @@ describe("Survey_QuestionFile", () => {
   });
   test("QuestionFile serialization", () => {
     const fileQuestion = new QuestionFileModel("q1");
-    expect(fileQuestion.toJSON(), "We have only name in serialziation by default").toEqualValues({ name: "q1" });
+    expect(fileQuestion.toJSON(), "We have only name in serialziation by default").toEqual({ name: "q1" });
   });
 
   test("QuestionFile change defaultValue for allowMultiple", () => {
@@ -166,8 +166,8 @@ describe("Survey_QuestionFile", () => {
     };
     expect(q1.inputTitle).toBe(" ");
     expect(q2.inputTitle).toBe(" ");
-    expect(q1.value).toEqualValues(survey.data.image1);
-    expect(q2.value).toEqualValues(survey.data.image2);
+    expect(q1.value).toEqual(survey.data.image1);
+    expect(q2.value).toEqual(survey.data.image2);
     expect(q1.previewValue.length, "remote stored file").toBe(1);
     expect(q2.previewValue.length, "file stored as text").toBe(1);
     expect(q1.previewValue[0].content, "remote stored file content").toBe("data:image/jpeg;base64,FILECONTENT1");
@@ -208,8 +208,8 @@ describe("Survey_QuestionFile", () => {
       image1: [{ content: "someId" }],
       image2: [{ content: "data:image/jpeg;base64,FILECONTENT" }],
     };
-    expect(q1.value).toEqualValues(survey.data.image1);
-    expect(q2.value).toEqualValues(survey.data.image2);
+    expect(q1.value).toEqual(survey.data.image1);
+    expect(q2.value).toEqual(survey.data.image2);
     expect(q1.previewValue.length, "remote stored file").toBe(1);
     expect(q2.previewValue.length, "file stored as text").toBe(1);
     expect(q1.previewValue[0].content, "remote stored file content").toBe(survey.data.image1[0].content);
@@ -297,12 +297,12 @@ describe("Survey_QuestionFile", () => {
     };
 
     q1.removeFile("f1");
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       image1: [{ name: "f2", content: "data" }],
     });
 
     q1.removeFile("f2");
-    expect(survey.data).toEqualValues({});
+    expect(survey.data).toEqual({});
   });
 
   test("QuestionFile remove files with the same name", () => {
@@ -324,10 +324,10 @@ describe("Survey_QuestionFile", () => {
     survey.data = { image1: [fileData1, fileData2] };
 
     q1.doRemoveFile(fileData2, { stopPropagation: () => {} });
-    expect(survey.data).toEqualValues({ image1: [{ name: "f1", content: "data1" }] });
+    expect(survey.data).toEqual({ image1: [{ name: "f1", content: "data1" }] });
 
     q1.doRemoveFile(fileData1, { stopPropagation: () => {} });
-    expect(survey.data).toEqualValues({});
+    expect(survey.data).toEqual({});
   });
 
   test("QuestionFile upload files that exceed max size - https://surveyjs.answerdesk.io/ticket/details/T994", () => {
@@ -609,7 +609,7 @@ describe("Survey_QuestionFile", () => {
     var fileQuestion = <QuestionFileModel>panel.panels[0].questions[0];
     expect(panel.panelCount, "One panel").toBe(1);
     var fileQuestion = <QuestionFileModel>panel.panels[0].questions[0];
-    expect(fileQuestion.value, "Question file name").toEqualValues(["someId"]);
+    expect(fileQuestion.value, "Question file name").toEqual(["someId"]);
   });
   test("Writable captions", () => {
     var json = {
@@ -921,7 +921,7 @@ describe("Survey_QuestionFile", () => {
       vi.advanceTimersByTime(2);
       expect(downloadCallCount).toBe(1);
       expect(q.previewValue.length).toBe(1);
-      expect(q.previewValue).toEqualValues([downloadedFile]);
+      expect([...(q.previewValue)]).toEqual([downloadedFile]);
     } finally {
       vi.useRealTimers();
     }
@@ -1117,7 +1117,7 @@ describe("Survey_QuestionFile", () => {
       callbacks[i]("success", contents[i]);
     }
     expect(question.isReady, "question is ready").toBe(true);
-    expect(question.previewValue).toEqualValues([{
+    expect([...(question.previewValue)]).toEqual([{
       content: "content1",
       name: "file1.png",
       type: "image/png"
@@ -1152,11 +1152,11 @@ describe("Survey_QuestionFile", () => {
       ],
     };
 
-    expect(q1.previewValue.length).toEqualValues(2);
+    expect(q1.previewValue.length).toEqual(2);
     q1.doRemoveFile(q1.previewValue[1], { stopPropagation: () => {} });
 
-    expect(q1.previewValue.length).toEqualValues(1);
-    expect(survey.data).toEqualValues({
+    expect(q1.previewValue.length).toEqual(1);
+    expect(survey.data).toEqual({
       image1: [{ name: "f1", content: "data" }],
     });
   });
@@ -1228,7 +1228,7 @@ describe("Survey_QuestionFile", () => {
         file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
       };
       vi.advanceTimersByTime(100);
-      expect(question.previewValue.map(val => val.name)).toEqualValues(["f1", "f2", "f3"]);
+      expect(question.previewValue.map(val => val.name)).toEqual(["f1", "f2", "f3"]);
     } finally {
       vi.useRealTimers();
     }
@@ -1273,7 +1273,7 @@ describe("Survey_QuestionFile", () => {
         file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
       };
       vi.advanceTimersByTime(100);
-      expect(question.previewValue.map(val => val.name)).toEqualValues(["f1", "f2", "f3"]);
+      expect(question.previewValue.map(val => val.name)).toEqual(["f1", "f2", "f3"]);
       expect(question.indexToShow).toBe(0);
       expect(fileIndexAction.title).toBe("1 of 3");
       expect(question.containsMultiplyFiles).toBe(true);
@@ -1615,21 +1615,21 @@ describe("Survey_QuestionFile", () => {
     expect(mConst.video.width).toBe(undefined);
     expect(mConst.video.height).toBe(undefined);
     mConst = new Camera().getMediaConstraints({ width: 100 });
-    expect(mConst.video.width).toEqualValues({ ideal: 100 });
+    expect(mConst.video.width).toEqual({ ideal: 100 });
     expect(mConst.video.height).toBe(undefined);
     mConst = new Camera().getMediaConstraints({ height: 100 });
     expect(mConst.video.width).toBe(undefined);
-    expect(mConst.video.height).toEqualValues({ ideal: 100 });
+    expect(mConst.video.height).toEqual({ ideal: 100 });
     mConst = new Camera().getMediaConstraints({ height: 100, width: 200 });
-    expect(mConst.video.width).toEqualValues({ ideal: 200 });
-    expect(mConst.video.height).toEqualValues({ ideal: 100 });
+    expect(mConst.video.width).toEqual({ ideal: 200 });
+    expect(mConst.video.height).toEqual({ ideal: 100 });
     Camera.clear();
   });
   test("Camera: check getImageSize method", () => {
     let imageSize = new Camera().getImageSize({ videoWidth: 100, videoHeight: 200 } as any);
-    expect(imageSize).toEqualValues({ width: 100, height: 200 });
+    expect(imageSize).toEqual({ width: 100, height: 200 });
     imageSize = new Camera().getImageSize({ videoWidth: 130, videoHeight: 250 } as any);
-    expect(imageSize).toEqualValues({ width: 130, height: 250 });
+    expect(imageSize).toEqual({ width: 130, height: 250 });
   });
   test("QuestionFile stop playing video on hiding question", () => {
     let survey = new SurveyModel({
@@ -1876,7 +1876,7 @@ describe("Survey_QuestionFile", () => {
   });
   test("QuestionFile allowImagesPreview and allowCameraAccess", () => {
     const prop1 = Serializer.getProperty("file", "allowImagesPreview");
-    expect(Serializer.getProperty("file", "showPreview").getDependedProperties()).toEqualValues([prop1.name]);
+    expect(Serializer.getProperty("file", "showPreview").getDependedProperties()).toEqual([prop1.name]);
     const q1 = new QuestionFileModel("q1");
     q1.showPreview = true;
     expect(prop1.isVisible(undefined, q1)).toBe(true);
@@ -2326,7 +2326,7 @@ describe("Survey_QuestionFile", () => {
       ],
     };
 
-    expect(q1.previewValue.length).toEqualValues(2);
+    expect(q1.previewValue.length).toEqual(2);
     const oldConfirmActionAsync = settings.confirmActionAsync;
     settings.confirmActionAsync = (m, cb, o) => (cb(true), true);
     try {
@@ -2335,8 +2335,8 @@ describe("Survey_QuestionFile", () => {
       settings.confirmActionAsync = oldConfirmActionAsync;
     }
 
-    expect(q1.previewValue.length).toEqualValues(1);
-    expect(survey.data).toEqualValues({
+    expect(q1.previewValue.length).toEqual(1);
+    expect(survey.data).toEqual({
       image1: [{ name: "f1", content: "data" }],
     });
   });
@@ -2370,15 +2370,15 @@ describe("Survey_QuestionFile", () => {
     const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
     q1.doRemoveFile(q1.previewValue[1], { stopPropagation: () => { } });
     expect(q1.showLoadingIndicator).toBeTruthy();
-    expect(q1.value.map(f => f.name)).toEqualValues(["f1", "f2", "f3"]);
+    expect(q1.value.map(f => f.name)).toEqual(["f1", "f2", "f3"]);
     callback();
-    expect(q1.value.map(f => f.name)).toEqualValues(["f1", "f3"]);
+    expect(q1.value.map(f => f.name)).toEqual(["f1", "f3"]);
     expect(q1.showLoadingIndicator).toBeFalsy();
     q1.clear();
-    expect(q1.value.map(f => f.name)).toEqualValues(["f1", "f3"]);
+    expect(q1.value.map(f => f.name)).toEqual(["f1", "f3"]);
     expect(q1.showLoadingIndicator).toBeTruthy();
     callback();
-    expect(q1.value.map(f => f.name)).toEqualValues([]);
+    expect(q1.value.map(f => f.name)).toEqual([]);
     expect(q1.showLoadingIndicator).toBeFalsy();
   });
 
@@ -2458,17 +2458,17 @@ describe("Survey_QuestionFile", () => {
     expect(q3.acceptedCategories[0], "q3 first category").toBe("custom");
     expect(q4.acceptedCategories.length, "q4 categories count").toBe(0);
     q4.acceptedTypes = ".doc,.txt";
-    expect(q4.acceptedCategories, "q4 categories after setting acceptedTypes").toEqualValues(["custom"]);
+    expect([...(q4.acceptedCategories)], "q4 categories after setting acceptedTypes").toEqual(["custom"]);
     q2.acceptedCategories.push("unknown");
-    expect(q2.acceptedCategories, "q2 categories after adding unknown category").toEqualValues(["document", "custom", "unknown"]);
-    expect(q2.toJSON(), "q2 json").toEqualValues({ name: "q2", acceptedCategories: ["document"], acceptedTypes: ".pdf,.jpeg" });
-    expect(q4.toJSON(), "q4 json").toEqualValues({ name: "q4", acceptedTypes: ".doc,.txt" });
+    expect([...(q2.acceptedCategories)], "q2 categories after adding unknown category").toEqual(["document", "custom", "unknown"]);
+    expect(q2.toJSON(), "q2 json").toEqual({ name: "q2", acceptedCategories: ["document"], acceptedTypes: ".pdf,.jpeg" });
+    expect(q4.toJSON(), "q4 json").toEqual({ name: "q4", acceptedTypes: ".doc,.txt" });
     q2.acceptedCategories.splice(1, 2);
-    expect(q2.acceptedCategories, "q2 categories after splicing").toEqualValues(["document"]);
+    expect([...(q2.acceptedCategories)], "q2 categories after splicing").toEqual(["document"]);
     expect(q2.acceptedTypes, "q2 acceptedTypes after splicing").toBeFalsy();
 
     q4.acceptedCategories = ["archive"];
-    expect(q4.acceptedCategories, "q4 categories after setting archive category").toEqualValues(["archive"]);
+    expect([...(q4.acceptedCategories)], "q4 categories after setting archive category").toEqual(["archive"]);
     expect(q4.acceptedTypes, "q4 acceptedTypes after setting archive category").toBeUndefined();
   });
   test("questionFile acceptedTypes property as an array, Bug#10627", () => {
@@ -2483,8 +2483,8 @@ describe("Survey_QuestionFile", () => {
     expect(q1.renderedAcceptedTypes, "#1").toBe(documentTypes + ",.jpeg");
     expect(q2.renderedAcceptedTypes, "#2").toBe(".pdf,.jpeg");
     q2.acceptedTypes = <any>[".doc", ".txt"];
-    expect(q2.acceptedCategories, "q2 categories after setting acceptedTypes").toEqualValues(["custom"]);
-    expect(q2.toJSON(), "q2 json").toEqualValues({ name: "q2", acceptedTypes: [".doc", ".txt"] });
+    expect([...(q2.acceptedCategories)], "q2 categories after setting acceptedTypes").toEqual(["custom"]);
+    expect(q2.toJSON(), "q2 json").toEqual({ name: "q2", acceptedTypes: [".doc", ".txt"] });
     expect(q2.renderedAcceptedTypes, "#4").toBe(".doc,.txt");
   });
   test("questionFile acceptedTypes property, could not remove custom, Bug#10647", () => {
@@ -2496,12 +2496,12 @@ describe("Survey_QuestionFile", () => {
     });
     const q1 = survey.getQuestionByName("q1") as QuestionFileModel;
     const q2 = survey.getQuestionByName("q2") as QuestionFileModel;
-    expect(q1.acceptedCategories, "q1 acceptedCategories, #1").toEqualValues(["document", "custom"]);
-    expect(q2.acceptedCategories, "q2 acceptedCategories, #1").toEqualValues(["custom"]);
+    expect([...(q1.acceptedCategories)], "q1 acceptedCategories, #1").toEqual(["document", "custom"]);
+    expect([...(q2.acceptedCategories)], "q2 acceptedCategories, #1").toEqual(["custom"]);
     q1.acceptedCategories = ["document"];
     q2.acceptedCategories = [];
-    expect(q1.acceptedCategories, "q1 acceptedCategories, #2").toEqualValues(["document"]);
-    expect(q2.acceptedCategories, "q2 acceptedCategories, #2").toEqualValues([]);
+    expect([...(q1.acceptedCategories)], "q1 acceptedCategories, #2").toEqual(["document"]);
+    expect([...(q2.acceptedCategories)], "q2 acceptedCategories, #2").toEqual([]);
     expect(q1.renderedAcceptedTypes, "q1 renderedAcceptedTypes").toBe(documentTypes);
     expect(q2.renderedAcceptedTypes, "q2 renderedAcceptedTypes").toBeUndefined();
   });

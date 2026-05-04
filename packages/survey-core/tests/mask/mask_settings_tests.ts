@@ -219,13 +219,13 @@ describe("Question text: Input mask", () => {
 
   test("Currency mask: text aligment", () => {
     const q = new QuestionTextModel("q1");
-    expect(q.inputStyle).toEqualValues({ width: "" });
+    expect(q.inputStyle).toEqual({ width: "" });
 
     q.maskType = "currency";
-    expect(q.inputStyle).toEqualValues({ width: "", textAlign: "right" });
+    expect(q.inputStyle).toEqual({ width: "", textAlign: "right" });
 
     q.inputTextAlignment = "left";
-    expect(q.inputStyle).toEqualValues({ width: "", textAlign: "left" });
+    expect(q.inputStyle).toEqual({ width: "", textAlign: "left" });
   });
 
   test("Text aligment inputType is date, maskType is numeric", () => {
@@ -236,7 +236,7 @@ describe("Question text: Input mask", () => {
       "inputType": "date",
       "maskType": "numeric"
     });
-    expect(q.inputStyle).toEqualValues({ width: "" });
+    expect(q.inputStyle).toEqual({ width: "" });
   });
 
   class IntegerMask extends InputMaskNumeric {

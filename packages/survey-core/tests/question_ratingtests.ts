@@ -364,12 +364,12 @@ test("Rating question, renderedRateItems", () => {
   rate.minRateDescription = "Worst";
   rate.maxRateDescription = "Best";
 
-  expect(rate.visibleChoices.map(r => r.locText.renderedHtml), "List of numeric values").toEqualValues(["1", "2", "3", "4", "5"]);
+  expect(rate.visibleChoices.map(r => r.locText.renderedHtml), "List of numeric values").toEqual(["1", "2", "3", "4", "5"]);
   expect(rate.hasMinLabel, "Rating has min label").toBeTruthy();
   expect(rate.hasMaxLabel, "Rating has max label").toBeTruthy();
 
   rate.displayRateDescriptionsAsExtremeItems = true;
-  expect(rate.visibleChoices.map(r => r.locText.renderedHtml), "List of numeric values and min/max").toEqualValues(["Worst", "2", "3", "4", "Best"]);
+  expect(rate.visibleChoices.map(r => r.locText.renderedHtml), "List of numeric values and min/max").toEqual(["Worst", "2", "3", "4", "Best"]);
   expect(rate.hasMinLabel, "Rating has no min label").toBeFalsy();
   expect(rate.hasMaxLabel, "Rating has no max label").toBeFalsy();
 });
@@ -408,9 +408,9 @@ test("QuestionRating reset highlight on click", () => {
   const question = new QuestionRatingModel("q");
   question.rateType = "stars";
   question.onItemMouseIn(question.visibleChoices[2]);
-  expect(question.visibleChoices.map(i => i.highlight)).toEqualValues(["highlighted", "highlighted", "highlighted", "none", "none"]);
+  expect(question.visibleChoices.map(i => i.highlight)).toEqual(["highlighted", "highlighted", "highlighted", "none", "none"]);
   question.setValueFromClick("3");
-  expect(question.visibleChoices.map(i => i.highlight)).toEqualValues(["none", "none", "none", "none", "none"]);
+  expect(question.visibleChoices.map(i => i.highlight)).toEqual(["none", "none", "none", "none", "none"]);
 });
 test("check stars highlighting", () => {
   _setIsTouch(false);
@@ -985,10 +985,10 @@ test("rateCount changing rateValues", () => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
   q1.rateCount = 2;
-  expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b"]);
+  expect(q1.rateValues.map(i => i.value)).toEqual(["a", "b"]);
 
   q1.rateCount = 4;
-  expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "item3", "item4"]);
+  expect(q1.rateValues.map(i => i.value)).toEqual(["a", "b", "item3", "item4"]);
 });
 
 test("rateMin/rateMax/rateStep does not change rateValues and rateCount", () => {
@@ -1004,19 +1004,19 @@ test("rateMin/rateMax/rateStep does not change rateValues and rateCount", () => 
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
-  expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
+  expect(q1.rateValues.map(i => i.value)).toEqual(["a", "b", "c"]);
   expect(q1.rateCount).toBe(3);
 
   q1.rateMax = 100;
-  expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
+  expect(q1.rateValues.map(i => i.value)).toEqual(["a", "b", "c"]);
   expect(q1.rateCount).toBe(3);
 
   q1.rateMin = 50;
-  expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
+  expect(q1.rateValues.map(i => i.value)).toEqual(["a", "b", "c"]);
   expect(q1.rateCount).toBe(3);
 
   q1.rateStep = 3;
-  expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
+  expect(q1.rateValues.map(i => i.value)).toEqual(["a", "b", "c"]);
   expect(q1.rateCount).toBe(3);
 });
 
@@ -1121,7 +1121,7 @@ test("when autoGenerate true rateValues ignored", () => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
   q1.autoGenerate = true;
-  expect(q1.visibleRateValues.map(i => i.value)).toEqualValues([1, 2, 3]);
+  expect(q1.visibleRateValues.map(i => i.value)).toEqual([1, 2, 3]);
 });
 
 test("rate autoGenerate loading from json", () => {
@@ -1275,11 +1275,11 @@ test("rating colors without css vars", () => {
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
 
-  expect(q1.visibleRateValues[0].style).toEqualValues({ "--sd-rating-item-color": null });
-  expect(q1.visibleRateValues[1].style).toEqualValues({ "--sd-rating-item-color": null });
-  expect(q1.visibleRateValues[2].style).toEqualValues({ "--sd-rating-item-color": null });
-  expect(q1.visibleRateValues[3].style).toEqualValues({ "--sd-rating-item-color": null });
-  expect(q1.visibleRateValues[4].style).toEqualValues({ "--sd-rating-item-color": null });
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": null });
+  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": null });
+  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": null });
+  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": null });
+  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": null });
   (QuestionRatingModel as any)["colorsCalculated"] = false;
 });
 
@@ -1309,64 +1309,64 @@ test("rating colors", () => {
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues[0].style).toEqualValues({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqualValues({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqualValues({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqualValues({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
   q1.readOnly = true;
-  expect(q1.visibleRateValues[0].style, "ro 1").toEqualValues({});
-  expect(q1.visibleRateValues[1].style, "ro 2").toEqualValues({});
-  expect(q1.visibleRateValues[2].style, "ro 3").toEqualValues({});
-  expect(q1.visibleRateValues[3].style, "ro 4").toEqualValues({});
-  expect(q1.visibleRateValues[4].style, "ro 5").toEqualValues({});
+  expect(q1.visibleRateValues[0].style, "ro 1").toEqual({});
+  expect(q1.visibleRateValues[1].style, "ro 2").toEqual({});
+  expect(q1.visibleRateValues[2].style, "ro 3").toEqual({});
+  expect(q1.visibleRateValues[3].style, "ro 4").toEqual({});
+  expect(q1.visibleRateValues[4].style, "ro 5").toEqual({});
 
   q1.readOnly = false;
-  expect(q1.visibleRateValues[0].style, "ro 1 after").toEqualValues({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style, "ro 2 after").toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style, "ro 3 after").toEqualValues({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style, "ro 4 after").toEqualValues({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style, "ro 5 after").toEqualValues({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  expect(q1.visibleRateValues[0].style, "ro 1 after").toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  expect(q1.visibleRateValues[1].style, "ro 2 after").toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  expect(q1.visibleRateValues[2].style, "ro 3 after").toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  expect(q1.visibleRateValues[3].style, "ro 4 after").toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  expect(q1.visibleRateValues[4].style, "ro 5 after").toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
   survey.showPreview();
   let qp = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(qp.visibleRateValues[0].style, "pv 1").toEqualValues({});
-  expect(qp.visibleRateValues[1].style, "pv 2").toEqualValues({});
-  expect(qp.visibleRateValues[2].style, "pv 3").toEqualValues({});
-  expect(qp.visibleRateValues[3].style, "pv 4").toEqualValues({});
-  expect(qp.visibleRateValues[4].style, "pv 5").toEqualValues({});
+  expect(qp.visibleRateValues[0].style, "pv 1").toEqual({});
+  expect(qp.visibleRateValues[1].style, "pv 2").toEqual({});
+  expect(qp.visibleRateValues[2].style, "pv 3").toEqual({});
+  expect(qp.visibleRateValues[3].style, "pv 4").toEqual({});
+  expect(qp.visibleRateValues[4].style, "pv 5").toEqual({});
   survey.cancelPreview();
 
   q1.onItemMouseIn(q1.visibleChoices[1]);
-  expect(q1.visibleRateValues[1].style, "onItemMouseIn").toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)", "--sd-rating-item-color-light": "rgba(227, 117, 5, 0.2)" });
+  expect(q1.visibleRateValues[1].style, "onItemMouseIn").toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)", "--sd-rating-item-color-light": "rgba(227, 117, 5, 0.2)" });
   q1.onItemMouseOut(q1.visibleChoices[1]);
 
   q1.scaleColorMode = "monochrome";
   q1.onItemMouseIn(q1.visibleChoices[1]);
-  expect(q1.visibleRateValues[1].style).toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
   q1.onItemMouseOut(q1.visibleChoices[1]);
 
-  expect(q1.visibleRateValues[0].style).toEqualValues({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqualValues({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqualValues({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqualValues({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "default";
 
-  expect(q1.visibleRateValues[0].style).toEqualValues({});
-  expect(q1.visibleRateValues[1].style).toEqualValues({});
-  expect(q1.visibleRateValues[2].style).toEqualValues({});
-  expect(q1.visibleRateValues[3].style).toEqualValues({});
-  expect(q1.visibleRateValues[4].style).toEqualValues({});
+  expect(q1.visibleRateValues[0].style).toEqual({});
+  expect(q1.visibleRateValues[1].style).toEqual({});
+  expect(q1.visibleRateValues[2].style).toEqual({});
+  expect(q1.visibleRateValues[3].style).toEqual({});
+  expect(q1.visibleRateValues[4].style).toEqual({});
   q1.value = null;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
   q1.isRequired = true;
   q1.validate();
-  expect(q1.visibleRateValues[0].style).toEqualValues({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
 
   document.documentElement.style.setProperty("--sd-rating-bad-color", null);
   document.documentElement.style.setProperty("--sd-rating-normal-color", null);
@@ -1416,11 +1416,11 @@ test("rating colors when vars used", () => {
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues[0].style).toEqualValues({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqualValues({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqualValues({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqualValues({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
 
   document.documentElement.style.setProperty("--stest-rating-bad-color", "rgb(10,200,20)");
   document.documentElement.style.setProperty("--stest-rating-normal-color", "gold");
@@ -1444,11 +1444,11 @@ test("rating colors when vars used", () => {
   q1.value = 4;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  expect(q1.visibleRateValues[0].style).toEqualValues({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
-  expect(q1.visibleRateValues[1].style).toEqualValues({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
-  expect(q1.visibleRateValues[2].style).toEqualValues({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
-  expect(q1.visibleRateValues[3].style).toEqualValues({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
-  expect(q1.visibleRateValues[4].style).toEqualValues({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
+  expect(q1.visibleRateValues[0].style).toEqual({ "--sd-rating-item-color": "rgba(200, 20, 10, 1)" });
+  expect(q1.visibleRateValues[1].style).toEqual({ "--sd-rating-item-color": "rgba(227, 117, 5, 1)" });
+  expect(q1.visibleRateValues[2].style).toEqual({ "--sd-rating-item-color": "rgba(255, 215, 0, 1)" });
+  expect(q1.visibleRateValues[3].style).toEqual({ "--sd-rating-item-color": "rgba(132, 207, 10, 1)" });
+  expect(q1.visibleRateValues[4].style).toEqual({ "--sd-rating-item-color": "rgba(10, 200, 20, 1)" });
   (QuestionRatingModel as any)["colorsCalculated"] = false;
 
   rootElement.remove();
@@ -1556,8 +1556,8 @@ test("check rating display dropdown description", () => {
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.displayMode = "dropdown";
 
-  expect(q1.visibleRateValues[0].description.text, "min description").toEqualValues("aaa");
-  expect(q1.visibleRateValues[q1.visibleRateValues.length - 1].description.text, "max description").toEqualValues("bbb");
+  expect(q1.visibleRateValues[0].description.text, "min description").toEqual("aaa");
+  expect(q1.visibleRateValues[q1.visibleRateValues.length - 1].description.text, "max description").toEqual("bbb");
 });
 test("Rating dropdown should show numeric values, not descriptions, as item text", () => {
   const survey = new SurveyModel({
@@ -1940,9 +1940,9 @@ test("renderAs in runtime", () => {
 
 test("Generate empty rating", () => {
   const q1 = new QuestionRatingModel("q1");
-  expect(q1.toJSON()).toEqualValues({ name: "q1" });
+  expect(q1.toJSON()).toEqual({ name: "q1" });
   q1.rateType = "stars";
-  expect(q1.toJSON()).toEqualValues({ name: "q1", rateType: "stars" });
+  expect(q1.toJSON()).toEqual({ name: "q1", rateType: "stars" });
   q1.rateType = "stars";
 });
 test("Generate empty rating in column", () => {
@@ -1952,7 +1952,7 @@ test("Generate empty rating in column", () => {
   const col2: any = q1.addColumn("col2");
   col2.cellType = "rating";
   col2.rateType = "stars";
-  expect(q1.toJSON()).toEqualValues({ name: "q1",
+  expect(q1.toJSON()).toEqual({ name: "q1",
     columns: [
       { name: "col1", cellType: "rating" },
       { name: "col2", cellType: "rating", rateType: "stars" }
@@ -2014,7 +2014,7 @@ test("Check dropdown rating text, #8953", () => {
     }]
   });
   const question = <QuestionRatingModel>survey.getAllQuestions()[0];
-  expect(question.visibleChoices.map(c => c.text)).toEqualValues(["Label0", "Label1"]);
+  expect(question.visibleChoices.map(c => c.text)).toEqual(["Label0", "Label1"]);
 });
 test("Ranking: items visibleIf and value, Bug#5959", () => {
   var survey = new SurveyModel({
@@ -2056,10 +2056,10 @@ test("Ranking: items visibleIf and value, Bug#5959", () => {
   q1.value = [1];
   expect(q2.visibleChoices.length, "renderedRateItems #8").toBe(3);
   q2.value = "b";
-  expect(q2.value, "value set correctly, #8").toEqualValues("b");
+  expect(q2.value, "value set correctly, #8").toEqual("b");
   q1.value = [2];
   expect(q2.visibleChoices.length, "renderedRateItems #9").toBe(2);
-  expect(q2.isEmpty(), "value is reset, #9").toEqualValues(true);
+  expect(q2.isEmpty(), "value is reset, #9").toEqual(true);
 });
 
 test("Rating: check in matrix mode", () => {

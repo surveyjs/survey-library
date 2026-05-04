@@ -80,7 +80,7 @@ describe("Expression Validation", () => {
       e.propertyName,
       e.errors.length,
       e.errors.map(er => er.errorType)
-    ]), "property + count + [...types]").toEqualValues([
+    ]), "property + count + [...types]").toEqual([
       ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
       ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
       ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
@@ -92,7 +92,7 @@ describe("Expression Validation", () => {
       e.propertyName,
       e.errors.length,
       e.errors.map(er => er.errorType)
-    ]), "property + count + [...types]").toEqualValues([
+    ]), "property + count + [...types]").toEqual([
       ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
       ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
       ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
@@ -155,11 +155,11 @@ describe("Expression Validation", () => {
     let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
     expect(result.length, "There are 5 invalid expressions").toBe(5);
 
-    expect(result.map(e => e.obj.getType()), "object types").toEqualValues(["expressionvalidator", "calculatedvalue", "runexpressiontrigger", "runexpressiontrigger", "urlconditionitem"]);
+    expect(result.map(e => e.obj.getType()), "object types").toEqual(["expressionvalidator", "calculatedvalue", "runexpressiontrigger", "runexpressiontrigger", "urlconditionitem"]);
 
-    expect(result.map(e => e.propertyName), "propertyNames").toEqualValues(["expression", "expression", "expression", "runExpression", "expression"]);
+    expect(result.map(e => e.propertyName), "propertyNames").toEqual(["expression", "expression", "expression", "runExpression", "expression"]);
 
-    expect(result.map(e => e.errors.length), "Number of errors").toEqualValues([1, 1, 1, 1, 1]);
+    expect(result.map(e => e.errors.length), "Number of errors").toEqual([1, 1, 1, 1, 1]);
   });
 
   test("Test validateExpressions selectbase", () => {
@@ -188,7 +188,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 11 invalid expressions").toBe(11);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["dropdown", "visibleIf", 1],
       ["dropdown", "enableIf", 1],
       ["dropdown", "resetValueIf", 1],
@@ -238,7 +238,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 5 invalid expressions").toBe(5);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["expressionvalidator", "expression", 1],
       ["matrixcolumn", "visibleIf", 1],
       ["matrixcolumn", "enableIf", 1],
@@ -300,7 +300,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 18 invalid expressions").toBe(18);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
       ["text", "resetValueIf", 1],
@@ -356,7 +356,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 10 invalid expressions").toBe(10);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["matrixdropdowncolumn", "visibleIf", 1],
       ["matrixdropdowncolumn", "enableIf", 1],
       ["matrixdropdowncolumn", "requiredIf", 1],
@@ -397,7 +397,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 7 invalid expressions").toBe(7);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
       ["text", "resetValueIf", 1],
@@ -430,7 +430,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 1 invalid expressions").toBe(1);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["ratingitem", "visibleIf", 1]
     ]);
   });
@@ -462,7 +462,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 7 invalid expressions").toBe(7);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
       ["text", "resetValueIf", 1],
@@ -494,7 +494,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 2 invalid expressions").toBe(2);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["checkboxitem", "visibleIf", 1],
       ["checkboxitem", "enableIf", 1]
     ]);
@@ -526,7 +526,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 1 invalid expressions").toBe(1);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["expressionvalidator", "expression", 1]
     ]);
   });
@@ -552,7 +552,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 2 invalid expressions").toBe(2);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["imagemaparea", "visibleIf", 1],
       ["imagemaparea", "enableIf", 1]
     ]);
@@ -583,7 +583,7 @@ describe("Expression Validation", () => {
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
     expect(result.length, "There are 2 invalid expressions").toBe(2);
-    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "enableIf", 1],
       ["text", "enableIf", 1]
     ]);

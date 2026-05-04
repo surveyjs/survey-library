@@ -174,7 +174,7 @@ describe("Popup", () => {
     //expect(ko.isWritableObservable(viewModel.popupDirection)).toBe(true);
     expect(viewModel.popupDirection).toBe("left");
     //expect(ko.isWritableObservable(viewModel.pointerTarget)).toBe(true);
-    expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
+    expect(viewModel.pointerTarget).toEqual({ left: "0px", top: "0px" });
     // expect(ko.isWritableObservable(viewModel.isVisible)).toBe(true);
     expect(viewModel.isVisible).toBe(false);
 
@@ -370,7 +370,7 @@ describe("Popup", () => {
     expect(viewModel.top).toBe("0px");
     expect(viewModel.left).toBe("0px");
     expect(viewModel.popupDirection).toBe("left");
-    expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
+    expect(viewModel.pointerTarget).toEqual({ left: "0px", top: "0px" });
 
     let trace: string = "";
     model.onHide = () => {
@@ -418,7 +418,7 @@ describe("Popup", () => {
     expect(viewModel.top).toBe("0px");
     expect(viewModel.left).toBe("0px");
     expect(viewModel.popupDirection).toBe("left");
-    expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
+    expect(viewModel.pointerTarget).toEqual({ left: "0px", top: "0px" });
 
     let trace: string = "";
     model.onHide = () => {
@@ -464,7 +464,7 @@ describe("Popup", () => {
     expect(viewModel.top).toBe("0px");
     expect(viewModel.left).toBe("0px");
     expect(viewModel.popupDirection).toBe("left");
-    expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
+    expect(viewModel.pointerTarget).toEqual({ left: "0px", top: "0px" });
 
     let trace: string = "";
     model.onHide = () => {
@@ -480,7 +480,7 @@ describe("Popup", () => {
     expect(viewModel.top).toBe("0px");
     expect(viewModel.left).toBe("0px");
     expect(viewModel.popupDirection).toBe("left");
-    expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
+    expect(viewModel.pointerTarget).toEqual({ left: "0px", top: "0px" });
     trace = "";
 
     model.toggleVisibility();
@@ -527,7 +527,7 @@ describe("Popup", () => {
     expect(viewModel.popupDirection).toBe("bottom");
     expect(viewModel.top).toBe("292px");
     expect(viewModel.left).toBe("131px");
-    expect(viewModel.pointerTarget).toEqualValues({ left: "134px", top: "0px" });
+    expect(viewModel.pointerTarget).toEqual({ left: "134px", top: "0px" });
 
     viewModel.dispose();
     targetElement.remove();
@@ -737,66 +737,66 @@ describe("Popup", () => {
   });
 
   test("Check calculatePosition method", () => {
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "left"), "top left").toEqualValues({ left: 0, top: 60 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "center"), "top center").toEqualValues({ left: 35, top: 10 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "right"), "top right").toEqualValues({ left: 70, top: 60 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "left"), "top left").toEqual({ left: 0, top: 60 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "center"), "top center").toEqual({ left: 35, top: 10 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "right"), "top right").toEqual({ left: 70, top: 60 });
 
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "middle", "left"), "middle left").toEqualValues({ left: 0, top: 40 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "middle", "center"), "middle center").toEqualValues({ left: 35, top: 40 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "middle", "right"), "middle right").toEqualValues({ left: 70, top: 40 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "middle", "left"), "middle left").toEqual({ left: 0, top: 40 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "middle", "center"), "middle center").toEqual({ left: 35, top: 40 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "middle", "right"), "middle right").toEqual({ left: 70, top: 40 });
 
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "left"), "bottom left").toEqualValues({ left: 0, top: 20 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "center"), "bottom center").toEqualValues({ left: 35, top: 70 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "right"), "bottom right").toEqualValues({ left: 70, top: 20 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "left"), "bottom left").toEqual({ left: 0, top: 20 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "center"), "bottom center").toEqual({ left: 35, top: 70 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "right"), "bottom right").toEqual({ left: 70, top: 20 });
 
     //cases with pointer
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "left"/*, true*/)).toEqualValues({ left: 0, top: 60 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "right"/*, true*/)).toEqualValues({ left: 70, top: 60 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "left"/*, true*/)).toEqualValues({ left: 0, top: 20 });
-    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "right"/*, true*/)).toEqualValues({ left: 70, top: 20 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "left"/*, true*/)).toEqual({ left: 0, top: 60 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "top", "right"/*, true*/)).toEqual({ left: 70, top: 60 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "left"/*, true*/)).toEqual({ left: 0, top: 20 });
+    expect(PopupUtils.calculatePosition(<any>targetRect, 10, 20, "bottom", "right"/*, true*/)).toEqual({ left: 70, top: 20 });
   });
 
   test("Check calculatateDirection method", () => {
-    expect(PopupUtils.calculatePopupDirection("top", "left")).toEqualValues("left");
+    expect(PopupUtils.calculatePopupDirection("top", "left")).toEqual("left");
 
-    expect(PopupUtils.calculatePopupDirection("top", "center")).toEqualValues("top");
+    expect(PopupUtils.calculatePopupDirection("top", "center")).toEqual("top");
 
-    expect(PopupUtils.calculatePopupDirection("top", "right")).toEqualValues("right");
-    expect(PopupUtils.calculatePopupDirection("middle", "left")).toEqualValues("left");
-    expect(PopupUtils.calculatePopupDirection("middle", "center")).toEqualValues(undefined);
-    expect(PopupUtils.calculatePopupDirection("middle", "right")).toEqualValues("right");
-    expect(PopupUtils.calculatePopupDirection("bottom", "left")).toEqualValues("left");
-    expect(PopupUtils.calculatePopupDirection("bottom", "center")).toEqualValues("bottom");
-    expect(PopupUtils.calculatePopupDirection("bottom", "right")).toEqualValues("right");
+    expect(PopupUtils.calculatePopupDirection("top", "right")).toEqual("right");
+    expect(PopupUtils.calculatePopupDirection("middle", "left")).toEqual("left");
+    expect(PopupUtils.calculatePopupDirection("middle", "center")).toEqual(undefined);
+    expect(PopupUtils.calculatePopupDirection("middle", "right")).toEqual("right");
+    expect(PopupUtils.calculatePopupDirection("bottom", "left")).toEqual("left");
+    expect(PopupUtils.calculatePopupDirection("bottom", "center")).toEqual("bottom");
+    expect(PopupUtils.calculatePopupDirection("bottom", "right")).toEqual("right");
   });
 
   test("Check calculatePointer target method", () => {
-    expect(PopupUtils.calculatePointerTarget(<any>targetRect, 10, 10, "top", "left")).toEqualValues({ left: 10, top: 35 });
+    expect(PopupUtils.calculatePointerTarget(<any>targetRect, 10, 10, "top", "left")).toEqual({ left: 10, top: 35 });
 
-    expect(PopupUtils.calculatePointerTarget(<any>targetRect, 10, 10, "top", "center")).toEqualValues({ left: 35, top: 10 });
+    expect(PopupUtils.calculatePointerTarget(<any>targetRect, 10, 10, "top", "center")).toEqual({ left: 35, top: 10 });
 
-    expect(PopupUtils.calculatePointerTarget(<any>targetRect, 10, 10, "top", "right")).toEqualValues({ left: 60, top: 35 });
+    expect(PopupUtils.calculatePointerTarget(<any>targetRect, 10, 10, "top", "right")).toEqual({ left: 60, top: 35 });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
       10,
       "middle",
       "left"
-    )).toEqualValues({ left: 10, top: 35 });
+    )).toEqual({ left: 10, top: 35 });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
       20,
       "middle",
       "center"
-    )).toEqualValues({ left: NaN, top: NaN });
+    )).toEqual({ left: NaN, top: NaN });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
       10,
       "middle",
       "right"
-    )).toEqualValues({ left: 60, top: 35 });
+    )).toEqual({ left: 60, top: 35 });
 
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
@@ -804,7 +804,7 @@ describe("Popup", () => {
       10,
       "bottom",
       "left"
-    )).toEqualValues({ left: 10, top: 35 });
+    )).toEqual({ left: 10, top: 35 });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
@@ -813,14 +813,14 @@ describe("Popup", () => {
       "left",
       10,
       15
-    ), "pointer target takes into account margin").toEqualValues({ left: -15, top: 35 });
+    ), "pointer target takes into account margin").toEqual({ left: -15, top: 35 });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
       10,
       "bottom",
       "center"
-    )).toEqualValues({ left: 35, top: 60 });
+    )).toEqual({ left: 35, top: 60 });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
@@ -829,14 +829,14 @@ describe("Popup", () => {
       "center",
       10,
       15
-    ), "pointer target takes into account margin").toEqualValues({ left: 25, top: 60 });
+    ), "pointer target takes into account margin").toEqual({ left: 25, top: 60 });
     expect(PopupUtils.calculatePointerTarget(
       <any>targetRect,
       10,
       10,
       "bottom",
       "right"
-    )).toEqualValues({ left: 60, top: 35 });
+    )).toEqual({ left: 60, top: 35 });
   });
 
   test("Check calculatePosition with window size method", () => {
@@ -856,7 +856,7 @@ describe("Popup", () => {
       "bottom",
       windowHeight
     );
-    expect(verticalPosition, "vertical position is changed to top cause doesn't fit in bottom").toEqualValues("top");
+    expect(verticalPosition, "vertical position is changed to top cause doesn't fit in bottom").toEqual("top");
     targetRect.top = 50;
     targetRect.bottom = 70;
     verticalPosition = PopupUtils.updateVerticalPosition(
@@ -866,7 +866,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "vertical position is changed to bottom cause doesn't fit in top").toEqualValues("bottom");
+    expect(verticalPosition, "vertical position is changed to bottom cause doesn't fit in top").toEqual("bottom");
     targetRect.top = 200;
     targetRect.bottom = 220;
     verticalPosition = PopupUtils.updateVerticalPosition(
@@ -876,7 +876,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "both directions do not fit: result top").toEqualValues("top");
+    expect(verticalPosition, "both directions do not fit: result top").toEqual("top");
     targetRect.top = 100;
     targetRect.bottom = 120;
     verticalPosition = PopupUtils.updateVerticalPosition(
@@ -886,7 +886,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "both directions do not fit: result bottom").toEqualValues("bottom");
+    expect(verticalPosition, "both directions do not fit: result bottom").toEqual("bottom");
     targetRect.top = 50;
     targetRect.bottom = 70;
     verticalPosition = PopupUtils.updateVerticalPosition(
@@ -896,7 +896,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "with pointer: top vertical position is not changed").toEqualValues("top");
+    expect(verticalPosition, "with pointer: top vertical position is not changed").toEqual("top");
     verticalPosition = PopupUtils.updateVerticalPosition(
       targetRect,
       100,
@@ -904,7 +904,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "with pointer: top vertical position is changed to bottom").toEqualValues("bottom");
+    expect(verticalPosition, "with pointer: top vertical position is changed to bottom").toEqual("bottom");
 
     targetRect.top = 250;
     targetRect.bottom = 270;
@@ -915,7 +915,7 @@ describe("Popup", () => {
       "bottom",
       windowHeight
     );
-    expect(verticalPosition, "with pointer: bottom vertical position is not changed").toEqualValues("bottom");
+    expect(verticalPosition, "with pointer: bottom vertical position is not changed").toEqual("bottom");
     verticalPosition = PopupUtils.updateVerticalPosition(
       targetRect,
       100,
@@ -923,7 +923,7 @@ describe("Popup", () => {
       "bottom",
       windowHeight
     );
-    expect(verticalPosition, "with pointer: bottom vertical position is changed to top").toEqualValues("top");
+    expect(verticalPosition, "with pointer: bottom vertical position is changed to top").toEqual("top");
     targetRect.top = 200;
     targetRect.bottom = 220;
     verticalPosition = PopupUtils.updateVerticalPosition(
@@ -933,7 +933,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "with pointer: both directions do not fit: result top").toEqualValues("top");
+    expect(verticalPosition, "with pointer: both directions do not fit: result top").toEqual("top");
     targetRect.top = 100;
     targetRect.bottom = 120;
     verticalPosition = PopupUtils.updateVerticalPosition(
@@ -943,7 +943,7 @@ describe("Popup", () => {
       "top",
       windowHeight
     );
-    expect(verticalPosition, "with pointer: both directions do not fit: result bottom").toEqualValues("bottom");
+    expect(verticalPosition, "with pointer: both directions do not fit: result bottom").toEqual("bottom");
   });
 
   test("Check calculatePosition with window size method", () => {
@@ -957,28 +957,28 @@ describe("Popup", () => {
     };
     let windowWidth = 300;
     let horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "right", windowWidth);
-    expect(horizontalPosition, "horizontal position is changed to top cause doesn't fit in right").toEqualValues("left");
+    expect(horizontalPosition, "horizontal position is changed to top cause doesn't fit in right").toEqual("left");
 
     horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 25, "right", windowWidth);
-    expect(horizontalPosition, "right horizontal position is not changed").toEqualValues("right");
+    expect(horizontalPosition, "right horizontal position is not changed").toEqual("right");
 
     targetRect.left = 50;
     targetRect.right = 70;
     horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 100, "left", windowWidth);
-    expect(horizontalPosition, "horizontal position is changed to bottom cause doesn't fit in left").toEqualValues("right");
+    expect(horizontalPosition, "horizontal position is changed to bottom cause doesn't fit in left").toEqual("right");
 
     horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 40, "left", windowWidth);
-    expect(horizontalPosition, "left horizontal position is not changed").toEqualValues("left");
+    expect(horizontalPosition, "left horizontal position is not changed").toEqual("left");
 
     targetRect.left = 200;
     targetRect.right = 220;
     horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", windowWidth);
-    expect(horizontalPosition, "both directions do not fit: result left").toEqualValues("left");
+    expect(horizontalPosition, "both directions do not fit: result left").toEqual("left");
 
     targetRect.left = 100;
     targetRect.right = 120;
     horizontalPosition = PopupUtils.updateHorizontalPosition(targetRect, 300, "left", windowWidth);
-    expect(horizontalPosition, "both directions do not fit: result right").toEqualValues("right");
+    expect(horizontalPosition, "both directions do not fit: result right").toEqual("right");
   });
 
   test("Check getCorrectedVerticalDimensions if both directions do not fit", () => {
@@ -1757,11 +1757,11 @@ describe("Popup", () => {
     model.isVisible = true;
     viewModel.afterRerender();
     expect(logger.log, "correct order of updates when entering").toBe("->model:isVisible:true->viewModel:isVisible:true->onEnter");
-    expect(viewModel.getAnimation().passedEnterClass, "correct css classes passed to animation's onEnter").toEqualValues("sv-popup--enter");
+    expect(viewModel.getAnimation().passedEnterClass, "correct css classes passed to animation's onEnter").toEqual("sv-popup--enter");
     logger.log = "";
     model.isVisible = false;
     expect(logger.log, "correct order of updates when leaving").toBe("->model:isVisible:false->onLeave->viewModel:isVisible:false");
-    expect(viewModel.getAnimation().passedLeaveClass, "correct css classes passed to animation's onLeave").toEqualValues("sv-popup--leave");
+    expect(viewModel.getAnimation().passedLeaveClass, "correct css classes passed to animation's onLeave").toEqual("sv-popup--leave");
     settings.animationEnabled = false;
     window.queueMicrotask = oldQueueMicrotask;
   });

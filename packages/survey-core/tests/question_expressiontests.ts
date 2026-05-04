@@ -225,10 +225,10 @@ describe("QuestionExpression", () => {
       heightCm: 169
     };
     expect(q.value, "correct value on survey.onValueChanging event, #1").toBe(31);
-    expect(survey.data, "survey.data is correct, #1").toEqualValues({ weightKg: 88, heightCm: 169, bmi: 31 });
+    expect(survey.data, "survey.data is correct, #1").toEqual({ weightKg: 88, heightCm: 169, bmi: 31 });
     survey.setValue("weightKg", 100);
     expect(q.value, "correct value on survey.onValueChanging event, #2").toBe(35);
-    expect(survey.data, "survey.data is correct, #2").toEqualValues({ weightKg: 100, heightCm: 169, bmi: 35 });
+    expect(survey.data, "survey.data is correct, #2").toEqual({ weightKg: 100, heightCm: 169, bmi: 35 });
   });
   test("Handle Infinity", () => {
     const survey = new SurveyModel({
@@ -288,8 +288,8 @@ describe("QuestionExpression", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.value, "function returns object").toEqualValues({ a: 1, b: 2 });
-    expect(q2.value, "function returns array").toEqualValues([{ a: 1 }, { b: 2 }]);
+    expect(q1.value, "function returns object").toEqual({ a: 1, b: 2 });
+    expect(q2.value, "function returns array").toEqual([{ a: 1 }, { b: 2 }]);
 
     FunctionFactory.Instance.unregister("func1");
     FunctionFactory.Instance.unregister("func2");
@@ -318,7 +318,7 @@ describe("QuestionExpression", () => {
     q1.setValueExpression = "def";
     q1.resetValueIf = "ghi";
     q1.isRequired = true;
-    expect(q1.toJSON(), "Serialize only expression").toEqualValues({ name: "q1", expression: "{q2} + {q3}" });
+    expect(q1.toJSON(), "Serialize only expression").toEqual({ name: "q1", expression: "{q2} + {q3}" });
   });
   test("Values as number and as string, Bug#9690", () => {
     const survey = new SurveyModel({

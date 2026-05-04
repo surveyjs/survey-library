@@ -360,8 +360,8 @@ describe("choicesRestful", () => {
       alpha2_code: "AF",
       alpha3_code: "AFG",
     };
-    expect(items[0].originalItem, "keeps the original item").toEqualValues(originalItem);
-    expect(items[0].data, "keeps the original item").toEqualValues(originalItem);
+    expect(items[0].originalItem, "keeps the original item").toEqual(originalItem);
+    expect(items[0].data, "keeps the original item").toEqual(originalItem);
   });
 
   test("attachData in question", () => {
@@ -381,8 +381,8 @@ describe("choicesRestful", () => {
       alpha2_code: "AF",
       alpha3_code: "AFG",
     };
-    expect(question.visibleChoices[0].originalItem, "keeps the original item").toEqualValues(originalItem);
-    expect(question.visibleChoices[0].data, "keeps the original item").toEqualValues(originalItem);
+    expect(question.visibleChoices[0].originalItem, "keeps the original item").toEqual(originalItem);
+    expect(question.visibleChoices[0].data, "keeps the original item").toEqual(originalItem);
   });
 
   test("attachData in question", () => {
@@ -402,8 +402,8 @@ describe("choicesRestful", () => {
       alpha2_code: "AF",
       alpha3_code: "AFG",
     };
-    expect(question.visibleChoices[0].originalItem, "keeps the original item").toEqualValues(originalItem);
-    expect(question.visibleChoices[0].data, "keeps the original item").toEqualValues(originalItem);
+    expect(question.visibleChoices[0].originalItem, "keeps the original item").toEqual(originalItem);
+    expect(question.visibleChoices[0].data, "keeps the original item").toEqual(originalItem);
   });
 
   test("Load attachData value from JSON", () => {
@@ -649,7 +649,7 @@ describe("choicesRestful", () => {
     question.doResultsCallback();
     expect(question.visibleChoices.length).toBe(2);
     expect(question.visibleChoices[0].text, "Load choices #1").toBe("AAA");
-    expect(question.visibleChoices[0].toJSON(), "Data is correct").toEqualValues({ value: "A", text: "AAA" });
+    expect(question.visibleChoices[0].toJSON(), "Data is correct").toEqual({ value: "A", text: "AAA" });
     survey.locale = "de";
     expect(question.visibleChoices.length).toBe(2);
     expect(question.visibleChoices[0].text, "Load choices #2").toBe("AAA");
@@ -872,10 +872,10 @@ test("Clear choices on changing variables", () => {
     question["onLoadChoicesFromUrl"](loadedItems);
     expect(question.value, "Chosen exactly choice item value").toBe(question["activeChoices"][2].value);
     survey.doComplete();
-    expect(question.value, "Initial value is set correctly").toEqualValues({
+    expect(question.value, "Initial value is set correctly").toEqual({
       id: 1023,
     });
-    expect(survey.data, "Initial value is set correctly").toEqualValues({
+    expect(survey.data, "Initial value is set correctly").toEqual({
       test: {
         id: 1023,
       },
@@ -974,7 +974,7 @@ test("Clear choices on changing variables", () => {
     });
     question.doResultsCallback();
     expect(question.visibleChoices.length, "Loaded Correctly").toBe(4);
-    expect(question.value, "Complex value set correctly").toEqualValues({
+    expect(question.value, "Complex value set correctly").toEqual({
       id: 1023,
     });
   });
@@ -1000,7 +1000,7 @@ test("Clear choices on changing variables", () => {
     survey.setValue("q1", [{ id: 1023 }]);
     expect(question.value[0] === question["activeChoices"][2].value, "Chosen exactly choice item value").toBeTruthy();
     survey.doComplete();
-    expect(question.value, "Complex value set correctly").toEqualValues([{ id: 1023 }]);
+    expect([...(question.value)], "Complex value set correctly").toEqual([{ id: 1023 }]);
   });
 
   test("Update display value on loading data", () => {
@@ -1063,7 +1063,7 @@ test("Clear choices on changing variables", () => {
     survey.currentPageNo = 1;
     expect(survey.currentPageNo, "The current page is second now").toBe(1);
     question.doResultsCallback();
-    expect(question.value, "Value is still here").toEqualValues([1]);
+    expect([...(question.value)], "Value is still here").toEqual([1]);
     expect(survey.currentPageNo, "The current page doesn't chagned").toBe(1);
   });
 
@@ -1083,7 +1083,7 @@ test("Clear choices on changing variables", () => {
     survey.data = { q1: ["id2", "id3"] };
     question.restFulTest.isRequestRunning = false;
     question.doResultsCallback();
-    expect(question.value, "Value is set correctly").toEqualValues(["id2", "id3"]);
+    expect([...(question.value)], "Value is set correctly").toEqual(["id2", "id3"]);
     expect(question.comment, "Comment is empty").toBeFalsy();
   });
 
@@ -1361,7 +1361,7 @@ test("Clear choices on changing variables", () => {
         customPropertyName: "alpha2_code",
       },
     };
-    expect(savedJson, "choicesByUrl + custom itemvalue class restore correctly").toEqualValues(json);
+    expect(savedJson, "choicesByUrl + custom itemvalue class restore correctly").toEqual(json);
 
     var loadedQuestion = <QuestionDropdownImageTester>(
       Serializer.createClass("imagepicker_choicesrest")
@@ -1399,7 +1399,7 @@ test("Clear choices on changing variables", () => {
     question.choicesByUrl.url = "allcountries";
     question.choicesByUrl.path = "RestResponse;result";
     question.onSurveyLoad();
-    expect(question.value, "Remove 'UK' and leave the value that exists in the new or doesn't exists in the old").toEqualValues(["Algeria", "UnknownCountry"]);
+    expect([...(question.value)], "Remove 'UK' and leave the value that exists in the new or doesn't exists in the old").toEqual(["Algeria", "UnknownCountry"]);
   });
 
   test("choicesByUrl + isReady (not ready before call and ready after)", () => {
@@ -1480,8 +1480,8 @@ test("Clear choices on changing variables", () => {
     question.onSurveyLoad();
     survey.data = { q1: ["item2", "item3"], q2: ["item1", "item4"] };
     question.doResultsCallback();
-    expect(question.value, "question.value").toEqualValues(["item2", "item3"]);
-    expect(dropdown.value, "dropdown.value").toEqualValues(["item1", "item4"]);
+    expect([...(question.value)], "question.value").toEqual(["item2", "item3"]);
+    expect([...(dropdown.value)], "dropdown.value").toEqual(["item1", "item4"]);
   });
 
   test("isUsing cache", () => {
@@ -1620,7 +1620,7 @@ test("Clear choices on changing variables", () => {
     expect(cellDropdown.visibleChoices.length, "Choices are loaded, + showOtherItem").toBe(5 + 1);
     expect(cellDropdown.value).toBe("Afghanistan");
     survey.doComplete();
-    expect(survey.data, "value is not changed").toEqualValues(data);
+    expect(survey.data, "value is not changed").toEqual(data);
   });
 
   test("Change default value for allowEmptyResponse property", () => {
@@ -1706,7 +1706,7 @@ test("Clear choices on changing variables", () => {
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(5);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
@@ -1720,10 +1720,10 @@ test("Clear choices on changing variables", () => {
     expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(6);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: testCustomValue });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: testCustomValue });
   });
   test("Check objHash, Bug#10463", () => {
     const question = new QuestionDropdownModelTester("q1");

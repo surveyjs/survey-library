@@ -392,15 +392,15 @@ describe("Pattern mask", () => {
     const q = new QuestionTextModel("q1");
     const jsonObject = new JsonObject();
     let json = jsonObject.toJsonObject(q);
-    expect(json, "empty mask").toEqualValues({ name: "q1" });
+    expect(json, "empty mask").toEqual({ name: "q1" });
 
     q.maskType = "pattern";
     json = jsonObject.toJsonObject(q);
-    expect(json, "empty pattern").toEqualValues({ name: "q1", maskType: "pattern" });
+    expect(json, "empty pattern").toEqual({ name: "q1", maskType: "pattern" });
 
     q.maskSettings["pattern"] = "9999-9999";
     json = jsonObject.toJsonObject(q);
-    expect(json, "set pattern pattern").toEqualValues({
+    expect(json, "set pattern pattern").toEqual({
       name: "q1",
       maskType: "pattern",
       maskSettings: {
@@ -410,7 +410,7 @@ describe("Pattern mask", () => {
 
     q.maskSettings.saveMaskedValue = true;
     json = jsonObject.toJsonObject(q);
-    expect(json, "saveMaskedValue pattern").toEqualValues({
+    expect(json, "saveMaskedValue pattern").toEqual({
       name: "q1",
       maskType: "pattern",
       maskSettings: {

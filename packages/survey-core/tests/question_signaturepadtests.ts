@@ -353,7 +353,7 @@ describe("question signaturepad", () => {
   test("check placeholder property visibility", () => {
     const prop1 = Serializer.getProperty("signaturepad", "placeholder");
     const prop2 = Serializer.getProperty("signaturepad", "placeholderReadOnly");
-    expect(Serializer.getProperty("signaturepad", "showPlaceholder").getDependedProperties()).toEqualValues([prop1.name, prop2.name]);
+    expect(Serializer.getProperty("signaturepad", "showPlaceholder").getDependedProperties()).toEqual([prop1.name, prop2.name]);
     const q1 = new QuestionSignaturePadModel("q1");
     q1.showPlaceholder = true;
     expect(prop1.isVisible(undefined, q1)).toBe(true);
@@ -486,10 +486,10 @@ describe("question signaturepad", () => {
     q1.valueWasChangedFromLastUpload = true;
     q1.onBlur({ target: null } as any);
 
-    expect(q1.errors.map(e => e.text)).toEqualValues(["Error 1"]);
+    expect(q1.errors.map(e => e.text)).toEqual(["Error 1"]);
     q1.valueWasChangedFromLastUpload = true;
     q1.onBlur({ target: null } as any);
-    expect(q1.errors.map(e => e.text)).toEqualValues(["Error 2"]);
+    expect(q1.errors.map(e => e.text)).toEqual(["Error 2"]);
   });
 
   test("Question Signature upload files - and complete", async () => {
@@ -560,7 +560,7 @@ describe("question signaturepad", () => {
     var survey = new SurveyModel(json);
     survey.getQuestionByName("text").value = "abc";
     survey.doComplete();
-    expect(survey.data).toEqualValues({ text: "abc" });
+    expect(survey.data).toEqual({ text: "abc" });
   });
 
   test("Check signature download file event", () => {
@@ -879,14 +879,14 @@ describe("question signaturepad", () => {
 
     expect(q1.nothingIsDrawn()).toBe(false);
 
-    expect(q1.errors.map(e => e.text)).toEqualValues([]);
+    expect(q1.errors.map(e => e.text)).toEqual([]);
 
     q1.valueWasChangedFromLastUpload = true;
     q1.onBlur({ target: null } as any);
     expect(q1.hasDrawnStroke).toBeTruthy();
     expect(q1.nothingIsDrawn()).toBe(false);
     expect(q1.value).toBeFalsy();
-    expect(q1.errors.map(e => e.text)).toEqualValues(["Error 1"]);
+    expect(q1.errors.map(e => e.text)).toEqual(["Error 1"]);
 
     q1.clearValue(true, true);
     expect(q1.value).toBeFalsy();

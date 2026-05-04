@@ -655,7 +655,7 @@ test("Validation dependencies: simple case, endDate depends on startDate", () =>
     ]
   });
   const endDate = survey.getQuestionByName("endDate");
-  expect(endDate["getValidatorVariableNames"](), "endDate depends on startDate and startDate2").toEqualValues(["startDate", "startDate2"]);
+  expect(endDate["getValidatorVariableNames"](), "endDate depends on startDate and startDate2").toEqual(["startDate", "startDate2"]);
   survey.setValue("startDate", "2024-01-01");
   survey.setValue("endDate", "2025-06-01");
   expect(endDate.errors.length, "Error: more than 1 year").toBe(1);
@@ -799,16 +799,16 @@ test("Validation dependencies: reset on adding/removing validators", () => {
   });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
-  expect(q2["getValidatorVariableNames"](), "No dependencies initially").toEqualValues([]);
+  expect(q2["getValidatorVariableNames"](), "No dependencies initially").toEqual([]);
   q2.validators.push(new ExpressionValidator("{q1} + {q2} <= 10"));
-  expect(q2["getValidatorVariableNames"](), "Depends on q1 after adding validator").toEqualValues(["q1"]);
+  expect(q2["getValidatorVariableNames"](), "Depends on q1 after adding validator").toEqual(["q1"]);
   q2.value = 6;
   q1.value = 7;
   expect(q2.errors.length, "Error: 7+6>10").toBe(1);
   q1.value = 3;
   expect(q2.errors.length, "Error cleared: 3+6<=10").toBe(0);
   q2.validators.splice(0, 1);
-  expect(q2["getValidatorVariableNames"](), "No dependencies after removing validator").toEqualValues([]);
+  expect(q2["getValidatorVariableNames"](), "No dependencies after removing validator").toEqual([]);
   q1.value = 7;
   expect(q2.errors.length, "No error after removing validator").toBe(0);
 });
@@ -824,7 +824,7 @@ test("Validation dependencies: no validation on value change without onValueChan
   });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
-  expect(q2["getValidatorVariableNames"](), "q2 depends on q1").toEqualValues(["q1"]);
+  expect(q2["getValidatorVariableNames"](), "q2 depends on q1").toEqual(["q1"]);
   q1.value = 7;
   q2.value = 6;
   expect(q2.errors.length, "No error on q2: default mode does not validate on value change").toBe(0);
@@ -851,12 +851,12 @@ test("Validation dependencies: reset on changing validator expression", () => {
   const q3 = survey.getQuestionByName("q3");
   const validator = new ExpressionValidator("{q1} + {q3} <= 10");
   q3.validators.push(validator);
-  expect(q3["getValidatorVariableNames"](), "Depends on q1").toEqualValues(["q1"]);
+  expect(q3["getValidatorVariableNames"](), "Depends on q1").toEqual(["q1"]);
   q1.value = 7;
   q3.value = 6;
   expect(q3.errors.length, "Error: 7+6>10").toBe(1);
   validator.expression = "{q2} + {q3} <= 10";
-  expect(q3["getValidatorVariableNames"](), "Now depends on q2 after expression change").toEqualValues(["q2"]);
+  expect(q3["getValidatorVariableNames"](), "Now depends on q2 after expression change").toEqual(["q2"]);
   q2.value = 3;
   expect(q3.errors.length, "Error cleared with new expression: 3+6<=10").toBe(0);
   q1.value = 100;

@@ -112,25 +112,25 @@ describe("Tagbox question", () => {
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
     expect(list.isItemSelected(list.actions[0])).toBe(true);
     expect(list.isItemSelected(list.actions[3])).toBe(false);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     list.onItemClick(list.actions[0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(0);
     expect(list.isItemSelected(list.actions[0])).toBe(false);
     expect(list.isItemSelected(list.actions[3])).toBe(false);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     list.onItemClick(list.actions[3]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
     expect(list.isItemSelected(list.actions[0])).toBe(false);
     expect(list.isItemSelected(list.actions[3])).toBe(true);
-    expect(question.value).toEqualValues(["item4"]);
+    expect([...(question.value)]).toEqual(["item4"]);
 
     list.onItemClick(list.actions[0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(2);
     expect(list.isItemSelected(list.actions[0])).toBe(true);
     expect(list.isItemSelected(list.actions[3])).toBe(true);
-    expect(question.value).toEqualValues(["item4", "item1"]);
+    expect([...(question.value)]).toEqual(["item4", "item1"]);
   });
 
   const jsonTagboxWithSelectAll = {
@@ -167,22 +167,22 @@ describe("Tagbox question", () => {
 
     list.onItemClick(selectAllItem); // select all items
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(5);
-    expect(question.value, "question.value isSelectAll").toEqualValues(["item1", "item2", "item3", "item4", "item5"]);
+    expect([...(question.value)], "question.value isSelectAll").toEqual(["item1", "item2", "item3", "item4", "item5"]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "list.selectedItems.length").toBe(6);
 
     list.onItemClick(item1); // 4 elements out of 5 are selected
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(4);
-    expect(question.value, "question.value").toEqualValues(["item2", "item3", "item4", "item5"]);
+    expect([...(question.value)], "question.value").toEqual(["item2", "item3", "item4", "item5"]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "list.selectedItems.length").toBe(4);
 
     list.onItemClick(selectAllItem); // select all items
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(5);
-    expect(question.value, "question.value  isSelectAll").toEqualValues(["item1", "item2", "item3", "item4", "item5"]);
+    expect([...(question.value)], "question.value  isSelectAll").toEqual(["item1", "item2", "item3", "item4", "item5"]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "list.selectedItems.length").toBe(6);
 
     list.onItemClick(selectAllItem); // reset all items
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(0);
-    expect(question.value, "question.value").toEqualValues([]);
+    expect([...(question.value)], "question.value").toEqual([]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "list.selectedItems.length").toBe(0);
   });
 
@@ -203,17 +203,17 @@ describe("Tagbox question", () => {
 
     list.onItemClick(item1); // 1 element out of 5 is selected
     expect(question.selectedItems.length, "item1 selected").toBe(1);
-    expect(question.value, "item1 selected").toEqualValues(["item1"]);
+    expect([...(question.value)], "item1 selected").toEqual(["item1"]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "item1 selected").toBe(1);
 
     list.onItemClick(noneItem); // reset all items
     expect(question.selectedItems.length, "none selected").toBe(1);
-    expect(question.value, "none selected").toEqualValues(["none"]);
+    expect([...(question.value)], "none selected").toEqual(["none"]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "none selected").toBe(1);
 
     list.onItemClick(item1); // 1 element out of 5 is selected
     expect(question.selectedItems.length, "item1 selected").toBe(1);
-    expect(question.value, "item1 selected").toEqualValues(["item1"]);
+    expect([...(question.value)], "item1 selected").toEqual(["item1"]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "item1 selected").toBe(1);
   });
 
@@ -239,25 +239,25 @@ describe("Tagbox question", () => {
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
     expect(list.actions[0].visible).toBe(true);
     expect(list.actions[3].visible).toBe(true);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     list.onItemClick(list.actions[0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(0);
     expect(list.actions[0].visible).toBe(true);
     expect(list.actions[3].visible).toBe(true);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     list.onItemClick(list.actions[3]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
     expect(list.actions[0].visible).toBe(true);
     expect(list.actions[3].visible).toBe(true);
-    expect(question.value).toEqualValues(["item4"]);
+    expect([...(question.value)]).toEqual(["item4"]);
 
     list.onItemClick(list.actions[0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(2);
     expect(list.actions[0].visible).toBe(true);
     expect(list.actions[3].visible).toBe(true);
-    expect(question.value).toEqualValues(["item4", "item1"]);
+    expect([...(question.value)]).toEqual(["item4", "item1"]);
   });
 
   test("Tagbox hideSelectedItems property set is true", () => {
@@ -284,25 +284,25 @@ describe("Tagbox question", () => {
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
     expect(list.actions[0].visible).toBe(false);
     expect(list.actions[3].visible).toBe(true);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     list.onItemClick(list.actions[0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(0);
     expect(list.actions[0].visible).toBe(true);
     expect(list.actions[3].visible).toBe(true);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     list.onItemClick(list.actions[3]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
     expect(list.actions[0].visible).toBe(true);
     expect(list.actions[3].visible).toBe(false);
-    expect(question.value).toEqualValues(["item4"]);
+    expect([...(question.value)]).toEqual(["item4"]);
 
     list.onItemClick(list.actions[0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(2);
     expect(list.actions[0].visible).toBe(false);
     expect(list.actions[3].visible).toBe(false);
-    expect(question.value).toEqualValues(["item4", "item1"]);
+    expect([...(question.value)]).toEqual(["item4", "item1"]);
   });
 
   function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
@@ -444,10 +444,10 @@ describe("Tagbox question", () => {
     expect(question.visibleChoices[0].value).toBe("other");
 
     question.renderedValue = ["other"];
-    expect(question.value, "#1").toEqualValues(["other"]);
+    expect([...(question.value)], "#1").toEqual(["other"]);
     question.otherValue = "text1";
-    expect(question.value, "#2").toEqualValues(["text1"]);
-    expect(survey.data, "#3").toEqualValues({ q1: ["text1"] });
+    expect([...(question.value)], "#2").toEqual(["text1"]);
+    expect(survey.data, "#3").toEqual({ q1: ["text1"] });
   });
 
   test("lazy loading: storeOthersAsComment is false", assert => {
@@ -483,10 +483,10 @@ describe("Tagbox question", () => {
     expect(question.visibleChoices[70].value).toBe("other");
 
     question.renderedValue = ["other"];
-    expect(question.value, "#1").toEqualValues(["other"]);
+    expect([...(question.value)], "#1").toEqual(["other"]);
     question.otherValue = "text1";
-    expect(question.value, "#2").toEqualValues(["text1"]);
-    expect(survey.data, "#3").toEqualValues({ q1: ["text1"] });
+    expect([...(question.value)], "#2").toEqual(["text1"]);
+    expect(survey.data, "#3").toEqual({ q1: ["text1"] });
   });
   test("lazy loading: A value disappears when open tagbox popup again", assert => {
     const json = {
@@ -514,7 +514,7 @@ describe("Tagbox question", () => {
 
     list.flushUpdates();
     list.onItemClick(list.renderedActions[28]);
-    expect(question.value).toEqualValues([29]);
+    expect([...(question.value)]).toEqual([29]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedItems[0].value).toBe(29);
 
@@ -526,7 +526,7 @@ describe("Tagbox question", () => {
 
     list.flushUpdates();
     list.onItemClick(list.renderedActions[55]);
-    expect(question.value).toEqualValues([29, 56]);
+    expect([...(question.value)]).toEqual([29, 56]);
     expect(question.selectedItems.length, "selected items length 1").toBe(2);
     expect(question.selectedItems[0].value, "selected items[0] value 29 1").toBe(29);
     expect(question.selectedItems[0].text, "selected items[0] text 29 1").toBe("DisplayText_29");
@@ -534,7 +534,7 @@ describe("Tagbox question", () => {
     expect(question.selectedItems[1].text, "selected items[1] value 56 1").toBe("DisplayText_56");
 
     question.dropdownListModel.popupModel.hide();
-    expect(question.value).toEqualValues([29, 56]);
+    expect([...(question.value)]).toEqual([29, 56]);
     expect(question.selectedItems.length, "selected items length 2").toBe(2);
     expect(question.selectedItems[0].value, "selected items[0] value 29 2").toBe(29);
     expect(question.selectedItems[0].text, "selected items[0] text 29 2").toBe("DisplayText_29");
@@ -542,7 +542,7 @@ describe("Tagbox question", () => {
     expect(question.selectedItems[1].text, "selected items[1] value 56 2").toBe("DisplayText_56");
 
     question.dropdownListModel.popupModel.show();
-    expect(question.value).toEqualValues([29, 56]);
+    expect([...(question.value)]).toEqual([29, 56]);
     expect(question.selectedItems.length, "selected items length 3").toBe(2);
     expect(question.selectedItems[0].value, "selected items[0] value 29 3").toBe(29);
     expect(question.selectedItems[0].text, "selected items[0] text 29 3").toBe("DisplayText_29");
@@ -550,7 +550,7 @@ describe("Tagbox question", () => {
     expect(question.selectedItems[1].text, "selected items[1] value 56 3").toBe("DisplayText_56");
 
     doneCallback(opts[2]);
-    expect(question.value).toEqualValues([29, 56]);
+    expect([...(question.value)]).toEqual([29, 56]);
     expect(question.selectedItems.length, "selected items length 4").toBe(2);
     expect(question.selectedItems[0].value, "selected items[0] value 29 4").toBe(29);
     expect(question.selectedItems[0].text, "selected items[0] text 29 4").toBe("DisplayText_29");
@@ -595,7 +595,7 @@ describe("Tagbox question", () => {
     const questionTitle = <QuestionTagboxModel>survey.getAllQuestions()[1];
     expect(question.choicesLazyLoadEnabled).toBe(true);
     expect(question.choices.length).toBe(0);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].value, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -608,7 +608,7 @@ describe("Tagbox question", () => {
     expect(question.choices.length).toBe(25);
     expect(question.choices[0].value).toBe(1);
     expect(question.choices[24].value).toBe(25);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].value, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -637,7 +637,7 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     expect(question.choicesLazyLoadEnabled).toBe(true);
     expect(question.choices.length).toBe(0);
-    expect(question.value).toEqualValues([{ id: 52 }, { id: 55 }]);
+    expect([...(question.value)]).toEqual([{ id: 52 }, { id: 55 }]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].value.id, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -649,7 +649,7 @@ describe("Tagbox question", () => {
     expect(question.choices.length).toBe(25);
     expect(question.choices[0].value).toBe(1);
     expect(question.choices[24].value).toBe(25);
-    expect(question.value).toEqualValues([{ id: 52 }, { id: 55 }]);
+    expect([...(question.value)]).toEqual([{ id: 52 }, { id: 55 }]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].value.id, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -678,7 +678,7 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     expect(question.choicesLazyLoadEnabled).toBe(true);
     expect(question.choices.length).toBe(0);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].value, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -690,7 +690,7 @@ describe("Tagbox question", () => {
     expect(question.choices.length).toBe(25);
     expect(question.choices[0].value).toBe(1);
     expect(question.choices[24].value).toBe(25);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].value, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -698,7 +698,7 @@ describe("Tagbox question", () => {
     expect(question.selectedItems[1].text, "question.selectedItems[1] text").toBe("DisplayText_55");
 
     question.renderedValue = [52, 55, 10];
-    expect(question.value).toEqualValues([52, 55, 10]);
+    expect([...(question.value)]).toEqual([52, 55, 10]);
     expect(question.selectedItems.length, "question.selectedItems.length").toBe(3);
     expect(question.selectedItems[0].value, "question.selectedItems[0] value").toBe(52);
     expect(question.selectedItems[0].text, "question.selectedItems[0] text").toBe("DisplayText_52");
@@ -726,23 +726,23 @@ describe("Tagbox question", () => {
       }
     });
 
-    expect(survey.data, "before doComplete before item load").toEqualValues({ "q1": [52, 55] });
+    expect(survey.data, "before doComplete before item load").toEqual({ "q1": [52, 55] });
     survey.doComplete();
-    expect(survey.data, "after doComplete before item load").toEqualValues({ "q1": [52, 55] });
+    expect(survey.data, "after doComplete before item load").toEqual({ "q1": [52, 55] });
 
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     expect(question.choicesLazyLoadEnabled).toBe(true);
     expect(question.choices.length).toBe(0);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
     expect(question.choices.length).toBe(25);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
 
-    expect(survey.data, "before doComplete after item load").toEqualValues({ "q1": [52, 55] });
+    expect(survey.data, "before doComplete after item load").toEqual({ "q1": [52, 55] });
     survey.doComplete();
-    expect(survey.data, "after doComplete after item load").toEqualValues({ "q1": [52, 55] });
+    expect(survey.data, "after doComplete after item load").toEqual({ "q1": [52, 55] });
   });
 
   test("lazy loading data is lost: set survey data", assert => {
@@ -762,24 +762,24 @@ describe("Tagbox question", () => {
       }
     });
     survey.data = { "q1": [52, 55] };
-    expect(survey.data, "before doComplete before item load").toEqualValues({ "q1": [52, 55] });
+    expect(survey.data, "before doComplete before item load").toEqual({ "q1": [52, 55] });
     survey.doComplete();
-    expect(survey.data, "after doComplete before item load").toEqualValues({ "q1": [52, 55] });
+    expect(survey.data, "after doComplete before item load").toEqual({ "q1": [52, 55] });
 
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     expect(question.choices.length).toBe(0);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
     expect(question.choices.length).toBe(25);
-    expect(question.value).toEqualValues([52, 55]);
+    expect([...(question.value)]).toEqual([52, 55]);
 
     question.renderedValue = [52, 55, 10];
-    expect(question.value).toEqualValues([52, 55, 10]);
-    expect(survey.data, "before doComplete after item load").toEqualValues({ "q1": [52, 55, 10] });
+    expect([...(question.value)]).toEqual([52, 55, 10]);
+    expect(survey.data, "before doComplete after item load").toEqual({ "q1": [52, 55, 10] });
     survey.doComplete();
-    expect(survey.data, "after doComplete after item load").toEqualValues({ "q1": [52, 55, 10] });
+    expect(survey.data, "after doComplete after item load").toEqual({ "q1": [52, 55, 10] });
   });
 
   test("lazy loading + change filter string", assert => {
@@ -914,22 +914,22 @@ describe("Tagbox question", () => {
     listModel.onItemClick(actions[0]);
     expect(doneAction.enabled).toBeTruthy();
     doneAction.action();
-    expect(question.value).toEqualValues(["Item 1"]);
+    expect([...(question.value)]).toEqual(["Item 1"]);
 
     popupModel.show();
     expect(doneAction.enabled).toBeFalsy();
     listModel.onItemClick(actions[1]);
     expect(doneAction.enabled).toBeTruthy();
-    expect(question.value).toEqualValues(["Item 1", "Item 2"]);
+    expect([...(question.value)]).toEqual(["Item 1", "Item 2"]);
     cancelAction.action();
-    expect(question.value).toEqualValues(["Item 1"]);
+    expect([...(question.value)]).toEqual(["Item 1"]);
 
     popupModel.show();
     expect(doneAction.enabled).toBeFalsy();
     listModel.onItemClick(actions[0]);
     expect(doneAction.enabled).toBeTruthy();
     doneAction.action();
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
     _setIsTouch(false);
   });
   test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", () => {
@@ -1094,7 +1094,7 @@ describe("Tagbox question", () => {
     expect(list.actions[1].enabled).toBe(true);
     expect(list.actions[2].enabled).toBe(true);
     expect(list.actions[3].enabled).toBe(true);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     list.onItemClick(list.actions[1]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(2);
@@ -1102,7 +1102,7 @@ describe("Tagbox question", () => {
     expect(list.actions[1].enabled).toBe(true);
     expect(list.actions[2].enabled).toBe(false);
     expect(list.actions[3].enabled).toBe(false);
-    expect(question.value).toEqualValues(["item1", "item2"]);
+    expect([...(question.value)]).toEqual(["item1", "item2"]);
 
     list.onItemClick(list.actions[3]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(2);
@@ -1110,7 +1110,7 @@ describe("Tagbox question", () => {
     expect(list.actions[1].enabled).toBe(true);
     expect(list.actions[2].enabled).toBe(false);
     expect(list.actions[3].enabled).toBe(false);
-    expect(question.value).toEqualValues(["item1", "item2"]);
+    expect([...(question.value)]).toEqual(["item1", "item2"]);
 
     list.onItemClick(list.actions[1]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(1);
@@ -1118,7 +1118,7 @@ describe("Tagbox question", () => {
     expect(list.actions[1].enabled).toBe(true);
     expect(list.actions[2].enabled).toBe(true);
     expect(list.actions[3].enabled).toBe(true);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
   });
 
   test("reset filterstring after select item", () => {
@@ -1172,7 +1172,7 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     expect(question.value.length).toBe(1);
     expect(question.selectedChoices.length).toBe(0);
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       "question1": ["value1"],
     });
   });
@@ -1193,7 +1193,7 @@ describe("Tagbox question", () => {
     expect(question.value.length).toBe(1);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].id).toBe("other");
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       question1: ["value1"],
       "question1-Comment": "value1"
     });
@@ -1264,7 +1264,7 @@ describe("Tagbox question", () => {
       options.setItems(["France"]);
     });
 
-    expect(question.value).toEqualValues(["FRA"]);
+    expect([...(question.value)]).toEqual(["FRA"]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedItems[0].value).toBe("FRA");
     expect(question.selectedItems[0].text).toBe("France");
@@ -1319,14 +1319,14 @@ describe("Tagbox question", () => {
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.value).toEqualValues([1]);
+    expect([...(question.value)]).toEqual([1]);
     expect(question.choices.length).toBe(30);
     for (let index = 0; index < list.actions.length - 1; index++) {
       expect(list.actions[index].enabled, list.actions[index].id + " is enabled before clear").toBeTruthy();
     }
 
     list.onItemClick(list.actions[1]);
-    expect(question.value).toEqualValues([1, 2]);
+    expect([...(question.value)]).toEqual([1, 2]);
     expect(list.actions[0].enabled, "action 1 is enabled before clear").toBeTruthy();
     expect(list.actions[1].enabled, "action 2 is enabled before clear").toBeTruthy();
     for (let index = 2; index < list.actions.length - 1; index++) {
@@ -1341,16 +1341,16 @@ describe("Tagbox question", () => {
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[1]);
-    expect(question.value, "question value is empty").toEqualValues([]);
+    expect([...(question.value)], "question value is empty").toEqual([]);
     list.onItemClick(list.actions[0]);
-    expect(question.value, "question value is [1]").toEqualValues([1]);
+    expect([...(question.value)], "question value is [1]").toEqual([1]);
 
     for (let index = 0; index < list.actions.length - 1; index++) {
       expect(list.actions[index].enabled, list.actions[index].id + " is enabled after clear").toBeTruthy();
     }
 
     list.onItemClick(list.actions[1]);
-    expect(question.value, "question value is [1, 2] after clear").toEqualValues([1, 2]);
+    expect([...(question.value)], "question value is [1, 2] after clear").toEqual([1, 2]);
     expect(list.actions[0].enabled, "action 1 is enabled after clear").toBeTruthy();
     expect(list.actions[1].enabled, "action 2 is enabled after clear").toBeTruthy();
     for (let index = 2; index < list.actions.length - 1; index++) {
@@ -1380,14 +1380,14 @@ describe("Tagbox question", () => {
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.value).toEqualValues([1]);
+    expect([...(question.value)]).toEqual([1]);
     expect(question.choices.length).toBe(30);
     for (let index = 0; index < list.actions.length - 1; index++) {
       expect(list.actions[index].enabled, list.actions[index].id + " is enabled before unselecting choice").toBeTruthy();
     }
 
     list.onItemClick(list.actions[1]);
-    expect(question.value).toEqualValues([1, 2]);
+    expect([...(question.value)]).toEqual([1, 2]);
     expect(list.actions[0].enabled, "action 1 is enabled before unselecting choice").toBeTruthy();
     expect(list.actions[1].enabled, "action 2 is enabled before unselecting choice").toBeTruthy();
     for (let index = 2; index < list.actions.length - 1; index++) {
@@ -1395,7 +1395,7 @@ describe("Tagbox question", () => {
     }
     question.dropdownListModel.popupModel.hide;
     question.dropdownListModel.popupModel.show();
-    expect(question.value, "question value is [1, 2]").toEqualValues([1, 2]);
+    expect([...(question.value)], "question value is [1, 2]").toEqual([1, 2]);
     expect(list.actions[0].enabled, "action 1 is enabled").toBeTruthy();
     expect(list.actions[1].enabled, "action 2 is enabled").toBeTruthy();
     for (let index = 2; index < list.actions.length - 1; index++) {
@@ -1403,7 +1403,7 @@ describe("Tagbox question", () => {
     }
 
     list.onItemClick(list.actions[1]);
-    expect(question.value, "question value is [1]").toEqualValues([1]);
+    expect([...(question.value)], "question value is [1]").toEqual([1]);
     for (let index = 0; index < list.actions.length - 1; index++) {
       expect(list.actions[index].enabled, list.actions[index].id + " is enabled after unselecting choice").toBeTruthy();
     }
@@ -1559,28 +1559,28 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-    expect(question.value, "question value").toEqualValues([5]);
+    expect([...(question.value)], "question value").toEqual([5]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedChoices.length).toBe(1);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
     dropdownListModel.inputStringRendered = "777";
-    expect(question.value, "question value").toEqualValues([5]);
+    expect([...(question.value)], "question value").toEqual([5]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedChoices.length).toBe(1);
     doneCallback(opts[1]);
     list.onItemClick(list.actions[0]);
-    expect(question.value, "question value").toEqualValues([5, 777]);
+    expect([...(question.value)], "question value").toEqual([5, 777]);
     expect(question.selectedItems.length).toBe(2);
     expect(question.selectedChoices.length).toBe(2);
     doneCallback(opts[2]);
     dropdownListModel.inputStringRendered = "888";
-    expect(question.value, "question value").toEqualValues([5, 777]);
+    expect([...(question.value)], "question value").toEqual([5, 777]);
     expect(question.selectedItems.length).toBe(2);
     expect(question.selectedChoices.length).toBe(2);
     doneCallback(opts[3]);
-    expect(question.value, "question value").toEqualValues([5, 777]);
+    expect([...(question.value)], "question value").toEqual([5, 777]);
     expect(question.selectedItems.length).toBe(2);
     expect(question.selectedChoices.length).toBe(2);
   });
@@ -1607,23 +1607,23 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-    expect(question.value, "question value #1").toEqualValues([222]);
+    expect([...(question.value)], "question value #1").toEqual([222]);
     expect(question.selectedChoices.length).toBe(1);
 
     dropdownListModel.onClear(null);
-    expect(question.value, "question value #2").toEqualValues([]);
+    expect([...(question.value)], "question value #2").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
     dropdownListModel.inputStringRendered = "999";
     doneCallback(opts[0]);
-    expect(question.value, "question value #3").toEqualValues([]);
+    expect([...(question.value)], "question value #3").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
     doneCallback(opts[1]);
     list.onItemClick(list.actions[0]);
-    expect(question.value, "question value #4").toEqualValues([999]);
+    expect([...(question.value)], "question value #4").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #1").toBe(999);
     doneCallback(opts[2]);
-    expect(question.value, "question value #5").toEqualValues([999]);
+    expect([...(question.value)], "question value #5").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #2").toBe(999);
   });
@@ -1649,29 +1649,29 @@ describe("Tagbox question", () => {
     const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-    expect(question.value, "question value is empty").toEqualValues([]);
+    expect([...(question.value)], "question value is empty").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
 
     dropdownListModel.inputStringRendered = "222";
     doneCallback(opts[0]);
     list.onItemClick(list.actions[0]);
-    expect(question.value, "question value #1").toEqualValues([222]);
+    expect([...(question.value)], "question value #1").toEqual([222]);
     expect(question.selectedChoices.length).toBe(1);
     doneCallback(opts[1]);
     dropdownListModel.onClear(null);
-    expect(question.value, "question value #2").toEqualValues([]);
+    expect([...(question.value)], "question value #2").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
     doneCallback(opts[2]);
     dropdownListModel.inputStringRendered = "999";
-    expect(question.value, "question value #3").toEqualValues([]);
+    expect([...(question.value)], "question value #3").toEqual([]);
     expect(question.selectedChoices.length).toBe(0);
     doneCallback(opts[3]);
     list.onItemClick(list.actions[0]);
-    expect(question.value, "question value #4").toEqualValues([999]);
+    expect([...(question.value)], "question value #4").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #1").toBe(999);
     doneCallback(opts[4]);
-    expect(question.value, "question value #5").toEqualValues([999]);
+    expect([...(question.value)], "question value #5").toEqual([999]);
     expect(question.selectedChoices.length).toBe(1);
     expect(question.selectedChoices[0].value, "question.selectedChoices[0] value #2").toBe(999);
   });
@@ -1807,7 +1807,7 @@ describe("Tagbox question", () => {
     expect(question.value.length, "#1 question.value").toBe(0);
     expect(question.selectedItems.length, "#1 question.selectedItems").toBe(0);
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe("");
@@ -1818,12 +1818,12 @@ describe("Tagbox question", () => {
     expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
     expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
     expect(question.value.length, "#2 question.value.length").toBe(1);
-    expect(question.value, "#2 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#2 question.value").toEqual([testCustomValue]);
     expect(question.selectedItems.length, "#2 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].id, "#2 question.selectedItems").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: [testCustomValue] });
 
     listModel.onItemClick(listModel.actions[1]);
     expect(dropdownListModel.inputStringRendered, "#3 inputStringRendered").toBe("");
@@ -1834,15 +1834,15 @@ describe("Tagbox question", () => {
     expect(listModel.actions[5].id, "#3 custom item id").toBe("newCustomItem");
     expect(listModel.actions[5].visible, "#3 custom item invisible").toBe(false);
     expect(question.value.length, "#3 question.value.length").toBe(2);
-    expect(question.value, "#3 question.value").toEqualValues([testCustomValue, "item1"]);
+    expect([...(question.value)], "#3 question.value").toEqual([testCustomValue, "item1"]);
     expect(question.selectedItems.length, "#3 question.selectedItems.length").toBe(2);
     expect(question.selectedItems[0].id, "#3 question.selectedItems").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#3 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#3 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: [testCustomValue, "item1"] });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: [testCustomValue, "item1"] });
 
     survey.tryComplete();
-    expect(survey.data, "#4 survey.data").toEqualValues({ q1: [testCustomValue, "item1"] });
+    expect(survey.data, "#4 survey.data").toEqual({ q1: [testCustomValue, "item1"] });
   });
 
   test("allowCustomChoices: inputStringRendered isn't reset after backspace, if searchEnabled: false", () => {
@@ -1965,7 +1965,7 @@ describe("Tagbox question", () => {
     expect(question.value.length, "#1 question.value").toBe(0);
     expect(question.selectedItems.length, "#1 question.selectedItems").toBe(0);
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe("");
@@ -1976,15 +1976,15 @@ describe("Tagbox question", () => {
     expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
     expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
     expect(question.value.length, "#2 question.value.length").toBe(1);
-    expect(question.value, "#2 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#2 question.value").toEqual([testCustomValue]);
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].id, "#2 question.selectedItems").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: [testCustomValue] });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: [testCustomValue] });
   });
 
   test("allowCustomChoices: hintString with custom value if searchEnabled: true", () => {
@@ -2055,38 +2055,38 @@ describe("Tagbox question", () => {
     dropdownListModel.inputStringRendered = testCustomValue;
     expect(question.value.length, "#1 question.value").toBe(0);
     expect(question.selectedItems.length, "#1 question.selectedItems").toBe(0);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.actions[4]);
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe("");
     expect(question.value.length, "#2 question.value.length").toBe(1);
-    expect(question.value, "#2 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#2 question.value").toEqual([testCustomValue]);
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].value, "#2 question.selectedItems[0].id").toBe(testCustomValue);
     expect(question.selectedItems[0].text, "#2 question.selectedItems.text").toBe(testCustomValueUpperCase);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: [testCustomValue] });
     expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
     expect(listModel.actions[5].title, "#2 custom item text").toBe("newCustomItem");
     expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
 
     dropdownListModel.inputStringRendered = testCustomValue + "1";
     expect(question.value.length, "#3 question.value.length").toBe(1);
-    expect(question.value, "#3 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#3 question.value").toEqual([testCustomValue]);
 
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].value, "#3 question.selectedItems[0].id").toBe(testCustomValue);
     expect(question.selectedItems[0].text, "#3 question.selectedItems.text").toBe(testCustomValueUpperCase);
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: [testCustomValue] });
 
     listModel.onItemClick(listModel.actions[5]);
     expect(dropdownListModel.inputStringRendered, "#4 inputStringRendered").toBe("");
     expect(question.value.length, "#4 question.value.length").toBe(1);
-    expect(question.value, "#4 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#4 question.value").toEqual([testCustomValue]);
 
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].value, "#4 question.selectedItems[0].id").toBe(testCustomValue);
     expect(question.selectedItems[0].text, "#4 question.selectedItems.text").toBe(testCustomValueUpperCase);
-    expect(survey.data, "#4 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#4 survey.data").toEqual({ q1: [testCustomValue] });
     expect(listModel.actions[5].id, "#4 custom item id").toBe("newCustomItem");
     expect(listModel.actions[5].title, "#4 custom item text").toBe("newCustomItem");
     expect(listModel.actions[5].visible, "#4 custom item invisible").toBe(false);
@@ -2230,7 +2230,7 @@ describe("Tagbox question", () => {
     expect(question.value.length, "#1 question.value").toBe(0);
     expect(question.selectedItems.length, "#1 question.selectedItems").toBe(0);
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(0);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
     expect(dropdownListModel.popupModel.isVisible, "#1 popupModel.isVisible").toBe(true);
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
@@ -2245,15 +2245,15 @@ describe("Tagbox question", () => {
     expect(listModel.actions[27].id, "#2 loadingIndicator id").toBe("loadingIndicator");
     expect(listModel.actions[27].visible, "#2 loadingIndicator invisible").toBe(true);
     expect(question.value.length, "#2 question.value.length").toBe(1);
-    expect(question.value, "#2 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#2 question.value").toEqual([testCustomValue]);
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].id, "#2 question.selectedItems").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(26);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ country: [testCustomValue] });
+    expect(survey.data, "#2 survey.data").toEqual({ country: [testCustomValue] });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ country: [testCustomValue] });
+    expect(survey.data, "#3 survey.data").toEqual({ country: [testCustomValue] });
   });
 
   test("allowCustomChoices: Filter choices if choicesLazyLoadEnabled is true", () => {
@@ -2386,7 +2386,7 @@ describe("Tagbox question", () => {
     expect(question.value.length, "#1 question.value").toBe(0);
     expect(question.selectedItems.length, "#1 question.selectedItems").toBe(0);
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe("");
@@ -2397,15 +2397,15 @@ describe("Tagbox question", () => {
     expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
     expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
     expect(question.value.length, "#2 question.value.length").toBe(1);
-    expect(question.value, "#2 question.value").toEqualValues([testCustomValue]);
+    expect([...(question.value)], "#2 question.value").toEqual([testCustomValue]);
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(1);
     expect(question.selectedItems[0].id, "#2 question.selectedItems").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: [testCustomValue] });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: [testCustomValue] });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: [testCustomValue] });
 
     _setIsTouch(false);
   });
@@ -2424,24 +2424,24 @@ describe("Tagbox question", () => {
     const q = <QuestionTagboxModel>survey.getQuestionByName("q1");
     const listModel: MultiSelectListModel = q.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
     listModel.onItemClick(<any>q.selectAllItem);
-    expect(q.value, "#1").toEqualValues(["apple", "banana", "orange"]);
+    expect([...(q.value)], "#1").toEqual(["apple", "banana", "orange"]);
     expect(q.isAllSelected, "#3, all is selected").toBe(true);
     listModel.onItemClick(q.choices[2]);
-    expect(q.value, "#4").toEqualValues(["none2"]);
+    expect([...(q.value)], "#4").toEqual(["none2"]);
     expect(q.isAllSelected, "#5, all is not selected").toBe(false);
     listModel.onItemClick(<any>q.selectAllItem);
-    expect(q.value, "#6").toEqualValues(["apple", "banana", "orange"]);
+    expect([...(q.value)], "#6").toEqual(["apple", "banana", "orange"]);
     listModel.onItemClick(<any>q.noneItem);
-    expect(q.value, "#7").toEqualValues(["none"]);
+    expect([...(q.value)], "#7").toEqual(["none"]);
     listModel.onItemClick(q.choices[2]);
-    expect(q.value, "#8").toEqualValues(["none2"]);
+    expect([...(q.value)], "#8").toEqual(["none2"]);
     listModel.onItemClick(q.choices[0]);
-    expect(q.value, "#10").toEqualValues(["apple"]);
+    expect([...(q.value)], "#10").toEqual(["apple"]);
 
     q.renderedValue = ["apple", "none2"];
-    expect(q.value, "#11").toEqualValues(["none2"]);
+    expect([...(q.value)], "#11").toEqual(["none2"]);
     q.renderedValue = ["none2", "none"];
-    expect(q.value, "#12").toEqualValues(["none"]);
+    expect([...(q.value)], "#12").toEqual(["none"]);
   });
 
   test("lazy loading + isReady", () => {
@@ -2505,11 +2505,11 @@ describe("Tagbox question", () => {
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
 
     expect(list.actions.length).toBe(3);
-    expect(question.value, "#1").toEqualValues([]);
+    expect([...(question.value)], "#1").toEqual([]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "#2").toBe(0);
 
     list.onItemClick(list.actions[0]);
-    expect(question.value, "#3").toEqualValues([0]);
+    expect([...(question.value)], "#3").toEqual([0]);
     expect(list.actions.filter(item => list.isItemSelected(item)).length, "#4").toBe(1);
   });
 
@@ -2535,14 +2535,14 @@ describe("Tagbox question", () => {
     survey.data = data;
 
     expect(question.value.length, "#1 question.value.length").toBe(3);
-    expect(question.value).toEqualValues(questionValue);
+    expect([...(question.value)]).toEqual(questionValue);
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(3);
     expect(question.selectedItems[2].id, "#1 question.selectedItem").toBe(customValue);
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(8);
     expect(listModel.actions.length, "listModel.actions.length").toBe(9);
     expect(listModel.actions[0].id, "#1 new custom item").toBe(customValue);
     expect(listModel.actions[0].visible, "#1 new custom item visible").toBe(true);
-    expect(survey.data, "#1 survey.data").toEqualValues(data);
+    expect(survey.data, "#1 survey.data").toEqual(data);
   });
 
   test("allowCustomChoices: custom choices with displayName from survey.data", () => {
@@ -2567,7 +2567,7 @@ describe("Tagbox question", () => {
     survey.data = data;
 
     expect(question.value.length, "#1 question.value.length").toBe(3);
-    expect(question.value).toEqualValues(questionValue);
+    expect([...(question.value)]).toEqual(questionValue);
     expect(question.selectedItems.length, "#1 question.selectedItems.length").toBe(3);
     expect(question.selectedItems[0].id, "#1 question.selectedItem 0").toBe("PCPU");
     expect(question.selectedItems[0].title, "#1 question.selectedItem 0").toBe("Powerful CPU");
@@ -2579,7 +2579,7 @@ describe("Tagbox question", () => {
     expect(listModel.actions.length, "listModel.actions.length").toBe(9);
     expect(listModel.actions[0].id, "#1 new custom item").toBe(customValue);
     expect(listModel.actions[0].visible, "#1 new custom item visible").toBe(true);
-    expect(survey.data, "#1 survey.data").toEqualValues(data);
+    expect(survey.data, "#1 survey.data").toEqual(data);
   });
   test("Select All and Deselect All text", () => {
     const survey = new SurveyModel({
@@ -2617,14 +2617,14 @@ describe("Tagbox question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before Tab").toEqualValues([]);
+    expect([...(question.value)], "value empty before Tab").toEqual([]);
     expect(question.selectedItems.length).toBe(0);
     expect(list.visibleItems.length).toBe(3);
 
     const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
     dropdownListModel.keyHandler(event);
 
-    expect(question.value, "custom value selected on Tab").toEqualValues([focusedItem]);
+    expect([...(question.value)], "custom value selected on Tab").toEqual([focusedItem]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedItems[0]?.value, "selectedItem is item1").toBe(focusedItem);
     expect(list.visibleItems.length).toBe(3);
@@ -2649,7 +2649,7 @@ describe("Tagbox question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before Tab").toEqualValues([]);
+    expect([...(question.value)], "value empty before Tab").toEqual([]);
     expect(question.selectedItems.length).toBe(0);
     expect(list.visibleItems.length, "only custom item visible").toBe(1);
     expect(list.visibleItems[0].id, "visible item is custom").toBe("newCustomItem");
@@ -2657,7 +2657,7 @@ describe("Tagbox question", () => {
     const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
     dropdownListModel.keyHandler(event);
 
-    expect(question.value, "custom value selected on Tab").toEqualValues([customValue]);
+    expect([...(question.value)], "custom value selected on Tab").toEqual([customValue]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedItems[0]?.value, "selectedItem is custom").toBe(customValue);
     expect(list.visibleItems.length).toBe(4);
@@ -2685,13 +2685,13 @@ describe("Tagbox question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before blur").toEqualValues([]);
+    expect([...(question.value)], "value empty before blur").toEqual([]);
     expect(question.selectedItems.length).toBe(0);
     expect(list.visibleItems.length, "only custom item visible").toBe(1);
 
     dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
 
-    expect(question.value, "custom value selected on blur").toEqualValues([customValue]);
+    expect([...(question.value)], "custom value selected on blur").toEqual([customValue]);
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedItems[0]?.value, "selectedItem is custom").toBe(customValue);
     expect(list.visibleItems.length).toBe(4);
@@ -2717,13 +2717,13 @@ describe("Tagbox question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before blur").toEqualValues([]);
+    expect([...(question.value)], "value empty before blur").toEqual([]);
     expect(question.selectedItems.length).toBe(0);
     expect(list.visibleItems.length).toBe(3);
 
     dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
 
-    expect(question.value, "value empty after blur").toEqualValues([]);
+    expect([...(question.value)], "value empty after blur").toEqual([]);
     expect(question.selectedItems.length).toBe(0);
     expect(list.visibleItems.length).toBe(3);
   });
@@ -2748,13 +2748,13 @@ describe("Tagbox question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before blur").toEqualValues([]);
+    expect([...(question.value)], "value empty before blur").toEqual([]);
     expect(question.selectedItems.length).toBe(0);
     expect(list.visibleItems.length).toBe(3);
 
     dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
 
-    expect(question.value).toEqualValues([focusedItem]), "focused item is selected on blur";
+    expect([...(question.value)]).toEqual([focusedItem]), "focused item is selected on blur";
     expect(question.selectedItems.length).toBe(1);
     expect(question.selectedItems[0]?.value, "selectedItem is focused item").toBe(focusedItem);
     expect(list.visibleItems.length).toBe(3);

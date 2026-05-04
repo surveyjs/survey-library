@@ -455,7 +455,7 @@ describe("TOC", () => {
     survey.setValue("question3", "val3");
     expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #6").toBe(true);
     expect(survey.currentPageNo, "currentPageNo #6").toBe(3);
-    expect(pages, "Check onCurrentPageChanged").toEqualValues(["page2", "page1", "page3", "page1", "page4"]);
+    expect(pages, "Check onCurrentPageChanged").toEqual(["page2", "page1", "page3", "page1", "page4"]);
 
     survey.clear();
     expect(survey.currentPageNo, "currentPageNo #7").toBe(0);
@@ -699,24 +699,24 @@ describe("TOC", () => {
       logs.push(options.page.name);
     });
     expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
-    expect(logs, "logs #1").toEqualValues(["page1"]);
+    expect(logs, "logs #1").toEqual(["page1"]);
     survey.setValue("question1", "val1");
     expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(true);
-    expect(logs, "logs #2").toEqualValues(["page1", "page1"]);
+    expect(logs, "logs #2").toEqual(["page1", "page1"]);
     expect(survey.tryNavigateToPage(survey.pages[0]), "try #3").toBe(true);
-    expect(logs, "logs #3").toEqualValues(["page1", "page1"]);
+    expect(logs, "logs #3").toEqual(["page1", "page1"]);
     expect(survey.tryNavigateToPage(survey.pages[2]), "try #4").toBe(false);
     expect(survey.currentPageNo, "currentPageNo #4").toBe(1);
-    expect(logs, "logs #4").toEqualValues(["page1", "page1", "page1"]);
+    expect(logs, "logs #4").toEqual(["page1", "page1", "page1"]);
     expect(survey.tryNavigateToPage(survey.pages[1]), "try #5").toBe(false);
-    expect(logs, "logs #5").toEqualValues(["page1", "page1", "page1"]);
+    expect(logs, "logs #5").toEqual(["page1", "page1", "page1"]);
     expect(survey.tryNavigateToPage(survey.pages[2]), "try #6").toBe(false);
-    expect(logs, "logs #6").toEqualValues(["page1", "page1", "page1", "page2"]);
+    expect(logs, "logs #6").toEqual(["page1", "page1", "page1", "page2"]);
     survey.setValue("question2", "val2");
     expect(survey.tryNavigateToPage(survey.pages[2]), "try #7").toBe(true);
-    expect(logs, "logs #7").toEqualValues(["page1", "page1", "page1", "page2", "page2"]);
+    expect(logs, "logs #7").toEqual(["page1", "page1", "page1", "page2", "page2"]);
     expect(survey.tryNavigateToPage(survey.pages[0]), "try #8").toBe(true);
-    expect(logs, "logs #8").toEqualValues(["page1", "page1", "page1", "page2", "page2"]);
+    expect(logs, "logs #8").toEqual(["page1", "page1", "page1", "page2", "page2"]);
   });
   test("survey.tryNavigateToPage & survey.validationEnabled = false, Bug#9363", () => {
     let json: any = {

@@ -744,24 +744,24 @@ test("Test animation tab", () => {
     return ([] as number[]).concat(newValue, oldValue);
   },);
   animation["_sync"]([1]);
-  expect(elements).toEqualValues([1, 0]);
+  expect(elements).toEqual([1, 0]);
   expect(log).toBe("->updated: 1,0");
   log = "";
   animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   expect(log).toBe("->before-enter_1->before-leave_0->updated: 1->after-enter_1->after-leave_0");
-  expect(elements).toEqualValues([1]);
+  expect(elements).toEqual([1]);
   log = "";
   animation["_sync"]([0]);
-  expect(elements).toEqualValues([0, 1]);
+  expect(elements).toEqual([0, 1]);
   expect(log).toBe("->updated: 0,1");
   log = "";
   animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   expect(log).toBe("->before-enter_0->before-leave_1->updated: 0->after-enter_0->after-leave_1");
-  expect(elements).toEqualValues([0]);
+  expect(elements).toEqual([0]);
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
@@ -856,52 +856,52 @@ test("Test animation property: check latest update persists", () => {
 /*
 test("test compareArrays function", () => {
   let res: any = compareArrays([0, 1, 2, 3, 4], [5, 3, 6, 1, 7], (i) => i);
-  expect(res.deletedItems).toEqualValues([0, 2, 4]);
-  expect(res.addedItems).toEqualValues([5, 6, 7]);
-  expect(res.reorderedItems).toEqualValues([{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
-  expect(res.mergedItems).toEqualValues([5, 0, 3, 6, 2, 1, 7, 4]);
+  expect(res.deletedItems).toEqual([0, 2, 4]);
+  expect(res.addedItems).toEqual([5, 6, 7]);
+  expect(res.reorderedItems).toEqual([{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
+  expect(res.mergedItems).toEqual([5, 0, 3, 6, 2, 1, 7, 4]);
 
   res = compareArrays([0, 1, 2, 3, 4], [3, 1], (i) => i);
-  expect(res.deletedItems).toEqualValues([0, 2, 4]);
-  expect(res.addedItems).toEqualValues([]);
-  expect(res.reorderedItems).toEqualValues([{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
-  expect(res.mergedItems).toEqualValues([0, 3, 2, 1, 4]);
+  expect(res.deletedItems).toEqual([0, 2, 4]);
+  expect(res.addedItems).toEqual([]);
+  expect(res.reorderedItems).toEqual([{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
+  expect(res.mergedItems).toEqual([0, 3, 2, 1, 4]);
 
   res = compareArrays([1, 3], [5, 3, 6, 1, 7], (i) => i);
-  expect(res.deletedItems).toEqualValues([]);
-  expect(res.addedItems).toEqualValues([5, 6, 7]);
-  expect(res.reorderedItems).toEqualValues([{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
-  expect(res.mergedItems).toEqualValues([5, 3, 6, 1, 7]);
+  expect(res.deletedItems).toEqual([]);
+  expect(res.addedItems).toEqual([5, 6, 7]);
+  expect(res.reorderedItems).toEqual([{ item: 3, movedForward: false }, { item: 1, movedForward: true }]);
+  expect(res.mergedItems).toEqual([5, 3, 6, 1, 7]);
 
   res = compareArrays([0, 1, 2, 3, 4], [5, 1, 6, 3, 7], (i) => i);
-  expect(res.deletedItems).toEqualValues([0, 2, 4]);
-  expect(res.addedItems).toEqualValues([5, 6, 7]);
-  expect(res.reorderedItems).toEqualValues([]);
-  expect(res.mergedItems).toEqualValues([5, 0, 1, 6, 2, 3, 7, 4]);
+  expect(res.deletedItems).toEqual([0, 2, 4]);
+  expect(res.addedItems).toEqual([5, 6, 7]);
+  expect(res.reorderedItems).toEqual([]);
+  expect(res.mergedItems).toEqual([5, 0, 1, 6, 2, 3, 7, 4]);
 
   res = compareArrays([0, 1, 2, 3, 4], [], (i) => i);
-  expect(res.deletedItems).toEqualValues([0, 1, 2, 3, 4]);
-  expect(res.addedItems).toEqualValues([]);
-  expect(res.reorderedItems).toEqualValues([]);
-  expect(res.mergedItems).toEqualValues([0, 1, 2, 3, 4]);
+  expect(res.deletedItems).toEqual([0, 1, 2, 3, 4]);
+  expect(res.addedItems).toEqual([]);
+  expect(res.reorderedItems).toEqual([]);
+  expect(res.mergedItems).toEqual([0, 1, 2, 3, 4]);
 
   res = compareArrays([], [5, 1, 6, 3, 7], (i) => i);
-  expect(res.deletedItems).toEqualValues([]);
-  expect(res.addedItems).toEqualValues([5, 1, 6, 3, 7]);
-  expect(res.reorderedItems).toEqualValues([]);
-  expect(res.mergedItems).toEqualValues([5, 1, 6, 3, 7]);
+  expect(res.deletedItems).toEqual([]);
+  expect(res.addedItems).toEqual([5, 1, 6, 3, 7]);
+  expect(res.reorderedItems).toEqual([]);
+  expect(res.mergedItems).toEqual([5, 1, 6, 3, 7]);
 
   res = compareArrays([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }], [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }], (item) => item.value);
-  expect(res.deletedItems).toEqualValues([{ value: 0 }, { value: 2 }, { value: 4 }]);
-  expect(res.addedItems).toEqualValues([{ value: 5 }, { value: 6 }, { value: 7 }]);
-  expect(res.reorderedItems).toEqualValues([{ item: { value: 3 }, movedForward: false }, { item: { value: 1 }, movedForward: true }]);
-  expect(res.mergedItems).toEqualValues([{ value: 5 }, { value: 0 }, { value: 3 }, { value: 6 }, { value: 2 }, { value: 1 }, { value: 7 }, { value: 4 }]);
+  expect(res.deletedItems).toEqual([{ value: 0 }, { value: 2 }, { value: 4 }]);
+  expect(res.addedItems).toEqual([{ value: 5 }, { value: 6 }, { value: 7 }]);
+  expect(res.reorderedItems).toEqual([{ item: { value: 3 }, movedForward: false }, { item: { value: 1 }, movedForward: true }]);
+  expect(res.mergedItems).toEqual([{ value: 5 }, { value: 0 }, { value: 3 }, { value: 6 }, { value: 2 }, { value: 1 }, { value: 7 }, { value: 4 }]);
 
   res = compareArrays([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }], [{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }], (item) => item);
-  expect(res.deletedItems).toEqualValues([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
-  expect(res.addedItems).toEqualValues([{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }]);
-  expect(res.reorderedItems).toEqualValues([]);
-  expect(res.mergedItems).toEqualValues([{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }, { value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
+  expect(res.deletedItems).toEqual([{ value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
+  expect(res.addedItems).toEqual([{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }]);
+  expect(res.reorderedItems).toEqual([]);
+  expect(res.mergedItems).toEqual([{ value: 5 }, { value: 3 }, { value: 6 }, { value: 1 }, { value: 7 }, { value: 0 }, { value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }]);
 
   assert.throws(() => compareArrays([{ value: 0 }, { value: 0 }], [], (item) => item.value), new Error("keys must be unique"));
   assert.throws(() => compareArrays([], [{ value: 1 }, { value: 1 }], (item) => item.value), new Error("keys must be unique"));
@@ -1026,7 +1026,7 @@ test("getSafeUrl", () => {
 test("animation helper functions", () => {
   const el = document.createElement("div");
   setPropertiesOnElementForAnimation(el, { height: "200px", marginTop: "300px" });
-  expect(el["__sv_created_properties"]).toEqualValues(["--animation-height", "--animation-margin-top"]);
+  expect(el["__sv_created_properties"]).toEqual(["--animation-height", "--animation-margin-top"]);
   expect(el.style.getPropertyValue("--animation-height")).toBe("200px");
   expect(el.style.getPropertyValue("--animation-margin-top")).toBe("300px");
   cleanHtmlElementAfterAnimation(el);

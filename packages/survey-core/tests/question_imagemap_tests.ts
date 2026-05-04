@@ -137,31 +137,31 @@ describe("imagemap", () => {
     expect(q1.multiSelect, "multiSelect is true by default").toBe(true);
 
     q1.mapItemToggle(q1.areas[0]);
-    expect(q1.value, "value must be ['val1'] after first tooggle").toEqualValues(["val1"]);
+    expect(q1.value, "value must be ['val1'] after first tooggle").toEqual(["val1"]);
     expect(q1.isItemSelected(q1.areas[0]), "must be selected after first click").toBe(true);
     expect(q1.isItemSelected(q1.areas[1]), "must not be selected after first click").toBe(false);
 
     q1.mapItemToggle(q1.areas[0]);
-    expect(q1.value, "value must be [] untoggling off item").toEqualValues([]);
+    expect(q1.value, "value must be [] untoggling off item").toEqual([]);
 
     q1.mapItemToggle(q1.areas[0]);
     q1.mapItemToggle(q1.areas[1]);
-    expect(q1.value, "value must be ['val1', 'val2'] after selecting two items").toEqualValues(["val1", "val2"]);
+    expect(q1.value, "value must be ['val1', 'val2'] after selecting two items").toEqual(["val1", "val2"]);
 
     q1.readOnly = true;
     q1.mapItemToggle(q1.areas[1]);
     q1.mapItemToggle(q1.areas[2]);
-    expect(q1.value, "value must be unchanged in readOnly mode").toEqualValues(["val1", "val2"]);
+    expect(q1.value, "value must be unchanged in readOnly mode").toEqual(["val1", "val2"]);
     q1.readOnly = false;
 
     model.readOnly = true;
     q1.mapItemToggle(q1.areas[1]);
     q1.mapItemToggle(q1.areas[2]);
-    expect(q1.value, "value must be unchanged in survey readOnly mode").toEqualValues(["val1", "val2"]);
+    expect(q1.value, "value must be unchanged in survey readOnly mode").toEqual(["val1", "val2"]);
     model.readOnly = false;
 
     q1.mapItemToggle(q1.areas[0]);
-    expect(q1.value, "value must be ['val2'] after toggling first item off").toEqualValues(["val2"]);
+    expect(q1.value, "value must be ['val2'] after toggling first item off").toEqual(["val2"]);
 
     q1.multiSelect = false;
     expect(q1.multiSelect, "multiSelect must be false now").toBe(false);
@@ -319,10 +319,10 @@ describe("imagemap", () => {
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
     q1.value = ["TX"];
-    expect(q1.value, "value is set correctly as array").toEqualValues([{ state: "TX" }]);
+    expect(q1.value, "value is set correctly as array").toEqual([{ state: "TX" }]);
 
     q1.value = "TX";
-    expect(q1.value, "value is set correctly as string").toEqualValues([{ state: "TX" }]);
+    expect(q1.value, "value is set correctly as string").toEqual([{ state: "TX" }]);
   });
 
   test("check defaultValue with valuePropertyName", () => {
@@ -340,7 +340,7 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.value, "defaultValue is set correctly").toEqualValues([{ state: "TX" }]);
+    expect(q1.value, "defaultValue is set correctly").toEqual([{ state: "TX" }]);
   });
 
   test("check maxSelectedChoices via mapItemTooggle", () => {
@@ -372,7 +372,7 @@ describe("imagemap", () => {
     q1.mapItemToggle(q1.areas[1]);
     q1.mapItemToggle(q1.areas[2]);
 
-    expect(q1.value, "the third item is not added, max is 2").toEqualValues(["val1", "val2"]);
+    expect(q1.value, "the third item is not added, max is 2").toEqual(["val1", "val2"]);
   });
 
   test("check minSelectedAreas + maxSelectedChoices and errors", () => {
@@ -539,20 +539,20 @@ describe("imagemap", () => {
 
     q2.value = ["a", "b", "c"];
     survey.tryComplete();
-    expect(q2.value, "value is not changed if clearIfInvisible == 'none'").toEqualValues(["a", "b", "c"]);
+    expect(q2.value, "value is not changed if clearIfInvisible == 'none'").toEqual(["a", "b", "c"]);
     survey.clear();
 
     q2.clearIfInvisible = "onComplete";
 
     q2.value = ["a", "b", "c"];
     survey.tryComplete();
-    expect(q2.value, "only 'a' remains after complete").toEqualValues(["a"]);
+    expect(q2.value, "only 'a' remains after complete").toEqual(["a"]);
     survey.clear();
 
     q1.value = [1];
     q2.value = ["a", "b", "c"];
     survey.tryComplete();
-    expect(q2.value, "only 'a' and 'b' remain after complete").toEqualValues(["a", "b"]);
+    expect(q2.value, "only 'a' and 'b' remain after complete").toEqual(["a", "b"]);
     survey.clear();
 
     q2.multiSelect = false;
@@ -600,11 +600,11 @@ describe("imagemap", () => {
     const q3 = survey.getQuestionByName("q3");
 
     q2.value = ["a", "b", "c"];
-    expect(q2.value, "q2.value is correct").toEqualValues(["a", "b", "c"]);
+    expect(q2.value, "q2.value is correct").toEqual(["a", "b", "c"]);
     expect(q3.isVisible, "q3 is visible").toBe(true);
 
     q1.value = [1];
-    expect(q2.value, "q2.value is correct after q1 change to [1]").toEqualValues(["a", "b"]);
+    expect(q2.value, "q2.value is correct after q1 change to [1]").toEqual(["a", "b"]);
     expect(q3.isVisible, "q3 is not visible").toBe(false);
   });
 
@@ -687,12 +687,12 @@ describe("imagemap", () => {
     expect(q2.areas[1].isEnabled, "area[1] is disabled initially").toBe(false);
     q2.mapItemToggle(q2.areas[0]);
     q2.mapItemToggle(q2.areas[1]);
-    expect(q2.value, "area[1] is disabled, so not added to value").toEqualValues(["a"]);
+    expect(q2.value, "area[1] is disabled, so not added to value").toEqual(["a"]);
     q1.value = true;
     q2.mapItemToggle(q2.areas[1]);
     expect(q2.areas[0].isEnabled, "area[0] is enabled still").toBe(true);
     expect(q2.areas[1].isEnabled, "area[1] is enabled now").toBe(true);
-    expect(q2.value, "area[1] is enabled, so added to value").toEqualValues(["a", "b"]);
+    expect(q2.value, "area[1] is enabled, so added to value").toEqual(["a", "b"]);
   });
 
   test("Value is not unique", () => {

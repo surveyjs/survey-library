@@ -458,16 +458,16 @@ describe("List Model", () => {
     list.filterString = "2";
     filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
     expect(filteredActions.length).toBe(3);
-    expect(filteredActions.map(a => a.title)).toEqualValues(["test2", "test28", "test29"]);
+    expect(filteredActions.map(a => a.title)).toEqual(["test2", "test28", "test29"]);
 
     list.filterString = "1";
     filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
     expect(filteredActions.length).toBe(1);
-    expect(filteredActions.map(a => a.title)).toEqualValues(["test1"]);
+    expect(filteredActions.map(a => a.title)).toEqual(["test1"]);
     list.filterString = "28";
     filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
     expect(filteredActions.length).toBe(1);
-    expect(filteredActions.map(a => a.title)).toEqualValues(["test28"]);
+    expect(filteredActions.map(a => a.title)).toEqual(["test28"]);
 
     ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
   });
@@ -493,8 +493,8 @@ describe("List Model", () => {
     list.filterString = "2";
     filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
     expect(filteredActions.length).toBe(3);
-    expect(filteredActions.map(a => a.title)).toEqualValues(["test2", "test28", "test29"]);
-    expect(filteredActions.map(a => a.iconName)).toEqualValues(["icon2", "icon2", "icon2"]);
+    expect(filteredActions.map(a => a.title)).toEqual(["test2", "test28", "test29"]);
+    expect(filteredActions.map(a => a.iconName)).toEqual(["icon2", "icon2", "icon2"]);
 
     list.filterString = "";
     filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));

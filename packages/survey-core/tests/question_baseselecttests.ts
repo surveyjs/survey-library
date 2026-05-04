@@ -36,10 +36,10 @@ describe("baseselect", () => {
     settings.itemFlowDirection = "row";
     const question = <QuestionSelectBase>survey.getAllQuestions()[0];
     let columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection row").toEqualValues([["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]]);
+    expect(columns, "check itemFlowDirection row").toEqual([["Item1", "Item4"], ["Item2", "Item5"], ["Item3"]]);
     settings.itemFlowDirection = "column";
     columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection column").toEqualValues([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
+    expect(columns, "check itemFlowDirection column").toEqual([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
   });
   test("Check QuestionSelectBase columns property and creator V2", () => {
     var json = {
@@ -57,12 +57,12 @@ describe("baseselect", () => {
     survey.fromJSON(json);
     const question = <QuestionSelectBase>survey.getAllQuestions()[0];
     let columns = getValuesInColumns(question);
-    expect(columns, "one column").toEqualValues([[], []]);
+    expect(columns, "one column").toEqual([[], []]);
     let headItems = question.headItems.map((item) => item.id);
     let footItems = question.footItems.map((item) => item.id);
 
-    expect(headItems, "check head items").toEqualValues(["selectall"]);
-    expect(footItems, "check foot items").toEqualValues(["newitem", "none", "other"]);
+    expect(headItems, "check head items").toEqual(["selectall"]);
+    expect(footItems, "check foot items").toEqual(["newitem", "none", "other"]);
   });
 
   test("Check QuestionSelectBase head and foot items property", () => {
@@ -84,7 +84,7 @@ describe("baseselect", () => {
 
     settings.itemFlowDirection = "column";
     let columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection col - runtime").toEqualValues([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
+    expect(columns, "check itemFlowDirection col - runtime").toEqual([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
 
     survey.setDesignMode(true);
 
@@ -92,12 +92,12 @@ describe("baseselect", () => {
     expect(question.hasHeadItems).toBeTruthy();
     expect(question.hasFootItems).toBeTruthy();
     columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection col - design").toEqualValues([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
+    expect(columns, "check itemFlowDirection col - design").toEqual([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
     let headItems = question.headItems.map((item) => item.id);
     let footItems = question.footItems.map((item) => item.id);
 
-    expect(headItems, "check head items").toEqualValues(["selectall"]);
-    expect(footItems, "check foot items").toEqualValues(["newitem", "none", "other"]);
+    expect(headItems, "check head items").toEqual(["selectall"]);
+    expect(footItems, "check foot items").toEqual(["newitem", "none", "other"]);
     settings.itemFlowDirection = "row";
   });
 
@@ -124,7 +124,7 @@ describe("baseselect", () => {
 
     settings.itemFlowDirection = "column";
     let columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection col - runtime").toEqualValues([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
+    expect(columns, "check itemFlowDirection col - runtime").toEqual([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
 
     survey.setDesignMode(true);
 
@@ -132,12 +132,12 @@ describe("baseselect", () => {
     expect(question.hasHeadItems).toBeTruthy();
     expect(question.hasFootItems).toBeTruthy();
     columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection col - design").toEqualValues([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
+    expect(columns, "check itemFlowDirection col - design").toEqual([["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]]);
     let headItems = question.headItems.map((item) => item.id);
     let footItems = question.footItems.map((item) => item.id);
 
-    expect(headItems, "check head items").toEqualValues(["selectall"]);
-    expect(footItems, "check foot items").toEqualValues(["newitem", "none", "refused", "dontknow", "other"]);
+    expect(headItems, "check head items").toEqual(["selectall"]);
+    expect(footItems, "check foot items").toEqual(["newitem", "none", "refused", "dontknow", "other"]);
     settings.itemFlowDirection = "row";
     refuseProp.visible = false;
     dontKnowProp.visible = false;
@@ -166,19 +166,19 @@ describe("baseselect", () => {
 
     let columns = getValuesInColumns(question);
     settings.itemFlowDirection = "column";
-    expect(columns, "check columns with no separateSpecialChoices").toEqualValues([["selectall", "Item2", "other"], ["Item1", "none"]]);
+    expect(columns, "check columns with no separateSpecialChoices").toEqual([["selectall", "Item2", "other"], ["Item1", "none"]]);
 
     question.separateSpecialChoices = true;
     expect(question.hasHeadItems).toBeTruthy();
     expect(question.hasFootItems).toBeTruthy();
 
     columns = getValuesInColumns(question);
-    expect(columns, "check columns with separateSpecialChoices").toEqualValues([["Item1"], ["Item2"]]);
+    expect(columns, "check columns with separateSpecialChoices").toEqual([["Item1"], ["Item2"]]);
     let headItems = question.headItems.map((item) => item.id);
     let footItems = question.footItems.map((item) => item.id);
 
-    expect(headItems, "check head items").toEqualValues(["selectall"]);
-    expect(footItems, "check foot items").toEqualValues(["none", "other"]);
+    expect(headItems, "check head items").toEqual(["selectall"]);
+    expect(footItems, "check foot items").toEqual(["none", "other"]);
     settings.itemFlowDirection = "row";
   });
   test("settings.noneItemValue", () => {
@@ -248,11 +248,11 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
     q1.clickItemHandler(q1.choices[0], true);
-    expect(survey.data, "check q1").toEqualValues({ data: ["a"] });
+    expect(survey.data, "check q1").toEqual({ data: ["a"] });
     q2.clickItemHandler(q2.choices[0], true);
-    expect(survey.data, "check q2").toEqualValues({ data: ["a", "b"] });
-    expect(q1.value, "q1 value is correct").toEqualValues(["a", "b"]);
-    expect(q2.value, "q2 value is correct").toEqualValues(["a", "b"]);
+    expect(survey.data, "check q2").toEqual({ data: ["a", "b"] });
+    expect([...(q1.value)], "q1 value is correct").toEqual(["a", "b"]);
+    expect([...(q2.value)], "q2 value is correct").toEqual(["a", "b"]);
     expect(q1.isItemSelected(q1.choices[0]), "q1 item is selected").toBe(true);
     expect(q2.isItemSelected(q2.choices[0]), "q2 item is selected").toBe(true);
   });
@@ -277,11 +277,11 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
     q1.clickItemHandler(q1.choices[0], true);
-    expect(survey.data, "check q1").toEqualValues({ data: ["a"] });
+    expect(survey.data, "check q1").toEqual({ data: ["a"] });
     q2.clickItemHandler(q2.choices[0], true);
-    expect(survey.data, "check q2").toEqualValues({ data: ["a", "b"] });
-    expect(q1.value, "q1 value is correct").toEqualValues(["a", "b"]);
-    expect(q2.value, "q2 value is correct").toEqualValues(["a", "b"]);
+    expect(survey.data, "check q2").toEqual({ data: ["a", "b"] });
+    expect([...(q1.value)], "q1 value is correct").toEqual(["a", "b"]);
+    expect([...(q2.value)], "q2 value is correct").toEqual(["a", "b"]);
     expect(q1.isItemSelected(q1.choices[0]), "q1 item is selected").toBe(true);
     expect(q2.isItemSelected(q2.choices[0]), "q2 item is selected").toBe(true);
   });
@@ -444,7 +444,7 @@ describe("baseselect", () => {
     q.selectItem(q.otherItem, false);
     expect(counter).toBe(1);
     q.selectItem(q.otherItem, true);
-    expect(q.value, "other is selected in question value").toEqualValues(["item1", "other"]);
+    expect([...(q.value)], "other is selected in question value").toEqual(["item1", "other"]);
     expect(counter).toBe(2);
   });
   test("Do not focus element on setting defaultValue & on setting value to survey.data, Bug#9700", () => {
@@ -482,7 +482,7 @@ describe("baseselect", () => {
     const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     question.value = ["Item 1"];
     question.selectItem(question.otherItem, true);
-    expect(question.value, "question value is correct").toEqualValues(["Item 1", "other"]);
+    expect([...(question.value)], "question value is correct").toEqual(["Item 1", "other"]);
     expect(counter, "Focus on setting the question value").toBe(1);
     SurveyElement.FocusElement = oldFunc;
   });
@@ -538,19 +538,19 @@ describe("baseselect", () => {
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.valuePropertyName = "fruit";
     q.renderedValue = ["apple"];
-    expect(q.value, "#1").toEqualValues([{ fruit: "apple" }]);
-    expect(q.renderedValue, "#2").toEqualValues(["apple"]);
+    expect([...(q.value)], "#1").toEqual([{ fruit: "apple" }]);
+    expect([...(q.renderedValue)], "#2").toEqual(["apple"]);
     expect(q.isItemSelected(q.choices[0]), "#2.1").toBe(true);
     expect(q.isItemSelected(q.choices[1]), "#2.2").toBe(false);
     expect(q.isItemSelected(q.choices[2]), "#2.3").toBe(false);
     q.value = [{ fruit: "apple" }, { fruit: "orange" }];
-    expect(q.renderedValue, "#3").toEqualValues(["apple", "orange"]);
-    expect(survey.data, "convert to data correctly, #4").toEqualValues({ q1: [{ fruit: "apple" }, { fruit: "orange" }] });
+    expect([...(q.renderedValue)], "#3").toEqual(["apple", "orange"]);
+    expect(survey.data, "convert to data correctly, #4").toEqual({ q1: [{ fruit: "apple" }, { fruit: "orange" }] });
     expect(q.isItemSelected(q.choices[0]), "#3.1").toBe(true);
     expect(q.isItemSelected(q.choices[1]), "#3.2").toBe(false);
     expect(q.isItemSelected(q.choices[2]), "#3.3").toBe(true);
     survey.doComplete();
-    expect(survey.data, "survey.data is correct on complete, #5").toEqualValues({ q1: [{ fruit: "apple" }, { fruit: "orange" }] });
+    expect(survey.data, "survey.data is correct on complete, #5").toEqual({ q1: [{ fruit: "apple" }, { fruit: "orange" }] });
   });
   test("checkbox valuePropertyName and shared data vs panel dynamic ", () => {
     const survey = new SurveyModel({
@@ -582,28 +582,28 @@ describe("baseselect", () => {
     expect(q2.panelCount, "#1, Panel count is changed").toBe(2);
     q2.panels[0].getQuestionByName("name").value = "text1";
     q2.panels[1].getQuestionByName("name").value = "text2";
-    expect(survey.data, "#2, combine results").toEqualValues({
+    expect(survey.data, "#2, combine results").toEqual({
       data: [
         { fruit: "apple", name: "text1" },
         { fruit: "orange", name: "text2" }]
     });
     q1.renderedValue = ["apple"];
-    expect(survey.data, "#3, keep results").toEqualValues({
+    expect(survey.data, "#3, keep results").toEqual({
       data: [
         { fruit: "apple", name: "text1" }]
     });
     q1.renderedValue = ["apple", "orange"];
-    expect(survey.data, "#4, add new value").toEqualValues({
+    expect(survey.data, "#4, add new value").toEqual({
       data: [
         { fruit: "apple", name: "text1" },
         { fruit: "orange" }]
     });
     q2.removePanel(0);
-    expect(survey.data, "#5, remove panel, data").toEqualValues({
+    expect(survey.data, "#5, remove panel, data").toEqual({
       data: [
         { fruit: "orange" }]
     });
-    expect(q1.renderedValue, "#6, remove panel, renderedValue").toEqualValues(["orange"]);
+    expect([...(q1.renderedValue)], "#6, remove panel, renderedValue").toEqual(["orange"]);
   });
   test("checkbox vs valuePropertyName, check selectAll and none", () => {
     const survey = new SurveyModel({
@@ -620,11 +620,11 @@ describe("baseselect", () => {
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.toggleSelectAll();
-    expect(q.renderedValue, "#1").toEqualValues(["apple", "banana", "orange"]);
-    expect(q.value, "#2").toEqualValues([{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }]);
+    expect([...(q.renderedValue)], "#1").toEqual(["apple", "banana", "orange"]);
+    expect([...(q.value)], "#2").toEqual([{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }]);
     expect(q.isAllSelected, "#3, all is selected").toBe(true);
     q.clickItemHandler(q.noneItem, true);
-    expect(q.value, "#4").toEqualValues([{ fruit: "none" }]);
+    expect([...(q.value)], "#4").toEqual([{ fruit: "none" }]);
     expect(q.isAllSelected, "#5, all is not selected").toBe(false);
   });
   test("checkbox vs valuePropertyName, check selectAll and none & refuse & dontknow", () => {
@@ -644,37 +644,37 @@ describe("baseselect", () => {
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.toggleSelectAll();
-    expect(q.renderedValue, "#1").toEqualValues(["apple", "banana", "orange"]);
-    expect(q.value, "#2").toEqualValues([{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }]);
+    expect([...(q.renderedValue)], "#1").toEqual(["apple", "banana", "orange"]);
+    expect([...(q.value)], "#2").toEqual([{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }]);
     expect(q.isAllSelected, "#3, all is selected").toBe(true);
     q.clickItemHandler(q.refuseItem, true);
-    expect(q.value, "#4").toEqualValues([{ fruit: "refused" }]);
+    expect([...(q.value)], "#4").toEqual([{ fruit: "refused" }]);
     expect(q.isAllSelected, "#5, all is not selected").toBe(false);
     q.clickItemHandler(q.selectAllItem, true);
-    expect(q.renderedValue, "#6").toEqualValues(["apple", "banana", "orange"]);
+    expect([...(q.renderedValue)], "#6").toEqual(["apple", "banana", "orange"]);
     q.clickItemHandler(q.dontKnowItem, true);
-    expect(q.value, "#7").toEqualValues([{ fruit: "dontknow" }]);
+    expect([...(q.value)], "#7").toEqual([{ fruit: "dontknow" }]);
     q.clickItemHandler(q.refuseItem, true);
-    expect(q.value, "#8").toEqualValues([{ fruit: "refused" }]);
+    expect([...(q.value)], "#8").toEqual([{ fruit: "refused" }]);
     q.clickItemHandler(q.noneItem, true);
-    expect(q.value, "#9").toEqualValues([{ fruit: "none" }]);
+    expect([...(q.value)], "#9").toEqual([{ fruit: "none" }]);
     q.clickItemHandler(q.choices[0], true);
-    expect(q.value, "#10").toEqualValues([{ fruit: "apple" }]);
+    expect([...(q.value)], "#10").toEqual([{ fruit: "apple" }]);
     q.renderedValue = ["refused"];
-    expect(q.value, "#11").toEqualValues([{ fruit: "refused" }]);
+    expect([...(q.value)], "#11").toEqual([{ fruit: "refused" }]);
     q.clickItemHandler(q.choices[0], true);
-    expect(q.value, "#12").toEqualValues([{ fruit: "apple" }]);
+    expect([...(q.value)], "#12").toEqual([{ fruit: "apple" }]);
 
     q.renderedValue = ["apple", "none"];
-    expect(q.value, "#13").toEqualValues([{ fruit: "none" }]);
+    expect([...(q.value)], "#13").toEqual([{ fruit: "none" }]);
     q.renderedValue = ["none", "refused"];
-    expect(q.value, "#14").toEqualValues([{ fruit: "refused" }]);
+    expect([...(q.value)], "#14").toEqual([{ fruit: "refused" }]);
     q.renderedValue = ["refused", "dontknow"];
-    expect(q.value, "#15").toEqualValues([{ fruit: "dontknow" }]);
+    expect([...(q.value)], "#15").toEqual([{ fruit: "dontknow" }]);
     q.renderedValue = ["dontknow", "none"];
-    expect(q.value, "#16").toEqualValues([{ fruit: "none" }]);
+    expect([...(q.value)], "#16").toEqual([{ fruit: "none" }]);
     q.renderedValue = ["none", "apple"];
-    expect(q.value, "#17").toEqualValues([{ fruit: "apple" }]);
+    expect([...(q.value)], "#17").toEqual([{ fruit: "apple" }]);
   });
   test("checkbox:readonly:clickItemHandler", () => {
     const survey = new SurveyModel({
@@ -693,7 +693,7 @@ describe("baseselect", () => {
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.clickItemHandler(q.choices[2], true);
-    expect(q.value, "nothing changed").toEqualValues([{ fruit: "banana" }]);
+    expect([...(q.value)], "nothing changed").toEqual([{ fruit: "banana" }]);
   });
   test("checkbox vs valuePropertyName, check showOtherItem", () => {
     const survey = new SurveyModel({
@@ -710,9 +710,9 @@ describe("baseselect", () => {
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     expect(q.getStoreOthersAsComment(), "It becomes false because of valuePropertyName").toBe(false);
     q.renderedValue = ["other"];
-    expect(q.value, "#1").toEqualValues([{ fruit: "other" }]);
+    expect([...(q.value)], "#1").toEqual([{ fruit: "other" }]);
     q.otherValue = "text1";
-    expect(survey.data, "2").toEqualValues({ q1: [{ fruit: "text1" }] });
+    expect(survey.data, "2").toEqual({ q1: [{ fruit: "text1" }] });
   });
   test("checkbox vs valuePropertyName, getDisplayValue", () => {
     const survey = new SurveyModel({
@@ -726,7 +726,7 @@ describe("baseselect", () => {
       ]
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(q.getDisplayValue(false, [{ fruit: 1 }, { fruit: 3 }]), "display value for all values").toEqualValues("apple, orange");
+    expect(q.getDisplayValue(false, [{ fruit: 1 }, { fruit: 3 }]), "display value for all values").toEqual("apple, orange");
   });
   test("checkbox vs valuePropertyName, getDisplayValue & value name uses uppercase letters, Bug#10707", () => {
     const survey = new SurveyModel({
@@ -745,7 +745,7 @@ describe("baseselect", () => {
       ]
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(q1.getDisplayValue(false, [{ fruitID: 1 }, { fruitID: 3 }]), "display value for all values").toEqualValues("apple, orange");
+    expect(q1.getDisplayValue(false, [{ fruitID: 1 }, { fruitID: 3 }]), "display value for all values").toEqual("apple, orange");
     q1.value = [{ fruitID: 2 }];
     const q2 = survey.getQuestionByName("q2");
     expect(q2.locTitle.renderedHtml, "display value in text question").toBe("banana");
@@ -765,10 +765,10 @@ describe("baseselect", () => {
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.renderedValue = ["other"];
-    expect(q.value, "#1").toEqualValues([{ fruit: "other" }]);
+    expect([...(q.value)], "#1").toEqual([{ fruit: "other" }]);
     q.otherValue = "text1";
-    expect(q.value, "#2").toEqualValues([{ fruit: "text1" }]);
-    expect(survey.data, "#3").toEqualValues({ q1: [{ fruit: "text1" }] });
+    expect([...(q.value)], "#2").toEqual([{ fruit: "text1" }]);
+    expect(survey.data, "#3").toEqual({ q1: [{ fruit: "text1" }] });
   });
   test("checkbox vs valuePropertyName, check showOtherItem vs storeOthersAsComment & matrix", () => {
     const survey = new SurveyModel({
@@ -801,7 +801,7 @@ describe("baseselect", () => {
     expect(rows.length, "matrix rows").toBe(2);
     expect(rows[0].cells[1].question.value, "rows[0]").toBe("apple");
     expect(rows[1].cells[1].question.value, "rows[1]").toBe("text1");
-    expect(survey.data, "survey.data").toEqualValues({ q1: [{ fruit: "apple", col2: "apple" }, { fruit: "text1", col2: "text1" }] });
+    expect(survey.data, "survey.data").toEqual({ q1: [{ fruit: "apple", col2: "apple" }, { fruit: "text1", col2: "text1" }] });
   });
   test("checkbox vs valuePropertyName, use in expression", () => {
     const survey = new SurveyModel({
@@ -827,10 +827,10 @@ describe("baseselect", () => {
     const q2 = survey.getQuestionByName("q2");
     expect(q2.isVisible, "#1").toBe(false);
     q1.renderedValue = ["apple", "orange"];
-    expect(q1.value, "q1.value. #1").toEqualValues([{ fruit: "apple" }, { fruit: "orange" }]);
+    expect([...(q1.value)], "q1.value. #1").toEqual([{ fruit: "apple" }, { fruit: "orange" }]);
     expect(q2.isVisible, "#2").toBe(true);
     q1.renderedValue = ["orange"];
-    expect(q1.value, "q1.value. #2").toEqualValues([{ fruit: "orange" }]);
+    expect([...(q1.value)], "q1.value. #2").toEqual([{ fruit: "orange" }]);
     expect(q2.isVisible, "#3").toBe(false);
   });
 
@@ -849,7 +849,7 @@ describe("baseselect", () => {
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q1.renderedValue = ["apple", "orange"];
-    expect(q1.value, "q1.value").toEqualValues([{ fruit: "apple" }, { fruit: "orange" }]);
+    expect([...(q1.value)], "q1.value").toEqual([{ fruit: "apple" }, { fruit: "orange" }]);
   });
   test("checkbox vs valuePropertyName & defaultValueExpression, Bug#8973", () => {
     const survey = new SurveyModel({
@@ -871,8 +871,8 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
     q2.renderedValue = ["apple", "orange"];
-    expect(q2.value, "q2.value").toEqualValues(["apple", "orange"]);
-    expect(q1.value, "q1.value").toEqualValues([{ fruit: "apple" }, { fruit: "orange" }]);
+    expect([...(q2.value)], "q2.value").toEqual(["apple", "orange"]);
+    expect([...(q1.value)], "q1.value").toEqual([{ fruit: "apple" }, { fruit: "orange" }]);
   });
   test("checkbox vs valuePropertyName & setValueExpression, Bug#8973", () => {
     const survey = new SurveyModel({
@@ -894,11 +894,11 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
     q2.renderedValue = ["apple", "orange"];
-    expect(q2.value, "q2.value, #1").toEqualValues(["apple", "orange"]);
-    expect(q1.value, "q1.value, #2").toEqualValues([{ fruit: "apple" }, { fruit: "orange" }]);
+    expect([...(q2.value)], "q2.value, #1").toEqual(["apple", "orange"]);
+    expect([...(q1.value)], "q1.value, #2").toEqual([{ fruit: "apple" }, { fruit: "orange" }]);
     q2.renderedValue = ["banana", "orange"];
-    expect(q2.value, "q2.value, #2").toEqualValues(["banana", "orange"]);
-    expect(q1.value, "q1.value, #2").toEqualValues([{ fruit: "banana" }, { fruit: "orange" }]);
+    expect([...(q2.value)], "q2.value, #2").toEqual(["banana", "orange"]);
+    expect([...(q1.value)], "q1.value, #2").toEqual([{ fruit: "banana" }, { fruit: "orange" }]);
   });
 
   test("check radiogroup title actions", () => {
@@ -957,14 +957,14 @@ describe("baseselect", () => {
     expect(question1.getSelectBaseRootCss()).toBe("css-root");
     expect(question2.getSelectBaseRootCss()).toBe("css-root");
 
-    expect(question1.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
-    expect(question2.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
+    expect(question1.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
+    expect(question2.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
 
-    expect(question1.bodyItems.map((item) => item.id)).toEqualValues(["Item 1", "none"]);
-    expect(question2.bodyItems.map((item) => item.id)).toEqualValues(["selectall", "Item 1", "none"]);
+    expect(question1.bodyItems.map((item) => item.id)).toEqual(["Item 1", "none"]);
+    expect(question2.bodyItems.map((item) => item.id)).toEqual(["selectall", "Item 1", "none"]);
 
-    expect(question1.rowLayout).toEqualValues(false);
-    expect(question2.rowLayout).toEqualValues(false);
+    expect(question1.rowLayout).toEqual(false);
+    expect(question2.rowLayout).toEqual(false);
 
     question1.colCount = 0;
     question2.colCount = 0;
@@ -972,17 +972,17 @@ describe("baseselect", () => {
     expect(question1.getSelectBaseRootCss()).toBe("css-root css-root-row");
     expect(question2.getSelectBaseRootCss()).toBe("css-root css-root-row");
 
-    expect(question1.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
-    expect(question2.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
+    expect(question1.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
+    expect(question2.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
 
-    expect(question1.bodyItems.map((item) => item.id)).toEqualValues(["Item 1", "none"]);
-    expect(question2.bodyItems.map((item) => item.id)).toEqualValues(["selectall", "Item 1", "none"]);
+    expect(question1.bodyItems.map((item) => item.id)).toEqual(["Item 1", "none"]);
+    expect(question2.bodyItems.map((item) => item.id)).toEqual(["selectall", "Item 1", "none"]);
 
-    expect(question1.rowLayout).toEqualValues(true);
-    expect(question2.rowLayout).toEqualValues(true);
+    expect(question1.rowLayout).toEqual(true);
+    expect(question2.rowLayout).toEqual(true);
 
-    expect(question1.blockedRow).toEqualValues(false);
-    expect(question2.blockedRow).toEqualValues(false);
+    expect(question1.blockedRow).toEqual(false);
+    expect(question2.blockedRow).toEqual(false);
 
     question1.separateSpecialChoices = true;
     question2.separateSpecialChoices = true;
@@ -990,17 +990,17 @@ describe("baseselect", () => {
     expect(question1.getSelectBaseRootCss()).toBe("css-root");
     expect(question2.getSelectBaseRootCss()).toBe("css-root");
 
-    expect(question1.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
-    expect(question2.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
+    expect(question1.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
+    expect(question2.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
 
-    expect(question1.bodyItems.map((item) => item.id)).toEqualValues(["Item 1"]);
-    expect(question2.bodyItems.map((item) => item.id)).toEqualValues(["Item 1"]);
+    expect(question1.bodyItems.map((item) => item.id)).toEqual(["Item 1"]);
+    expect(question2.bodyItems.map((item) => item.id)).toEqual(["Item 1"]);
 
-    expect(question1.rowLayout).toEqualValues(false);
-    expect(question2.rowLayout).toEqualValues(false);
+    expect(question1.rowLayout).toEqual(false);
+    expect(question2.rowLayout).toEqual(false);
 
-    expect(question1.blockedRow).toEqualValues(true);
-    expect(question2.blockedRow).toEqualValues(true);
+    expect(question1.blockedRow).toEqual(true);
+    expect(question2.blockedRow).toEqual(true);
 
     question1.separateSpecialChoices = false;
     question2.separateSpecialChoices = false;
@@ -1010,17 +1010,17 @@ describe("baseselect", () => {
     expect(question1.getSelectBaseRootCss()).toBe("css-root");
     expect(question2.getSelectBaseRootCss()).toBe("css-root");
 
-    expect(question1.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
-    expect(question2.dataChoices.map((item) => item.id)).toEqualValues(["Item 1"]);
+    expect(question1.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
+    expect(question2.dataChoices.map((item) => item.id)).toEqual(["Item 1"]);
 
-    expect(question1.bodyItems.map((item) => item.id)).toEqualValues(["Item 1"]);
-    expect(question2.bodyItems.map((item) => item.id)).toEqualValues(["Item 1"]);
+    expect(question1.bodyItems.map((item) => item.id)).toEqual(["Item 1"]);
+    expect(question2.bodyItems.map((item) => item.id)).toEqual(["Item 1"]);
 
-    expect(question1.rowLayout).toEqualValues(false);
-    expect(question2.rowLayout).toEqualValues(false);
+    expect(question1.rowLayout).toEqual(false);
+    expect(question2.rowLayout).toEqual(false);
 
-    expect(question1.blockedRow).toEqualValues(true);
-    expect(question2.blockedRow).toEqualValues(true);
+    expect(question1.blockedRow).toEqual(true);
+    expect(question2.blockedRow).toEqual(true);
   });
   test("autoOtherMode property, radiogroup", () => {
     const question = new QuestionRadiogroupModel("q1");
@@ -1061,18 +1061,18 @@ describe("baseselect", () => {
     expect(question.isOtherSelected, "other is not selected by resetting comment").toBe(false);
     question.value = [1, 3];
     question.otherValue = "comment";
-    expect(question.value, "other is selected by setting comments, value").toEqualValues([1, 3, "other"]);
-    expect(survey.data, "survey: other is selected by setting comments, value").toEqualValues({ q1: [1, 3, "other"], "q1-Comment": "comment" });
+    expect([...(question.value)], "other is selected by setting comments, value").toEqual([1, 3, "other"]);
+    expect(survey.data, "survey: other is selected by setting comments, value").toEqual({ q1: [1, 3, "other"], "q1-Comment": "comment" });
     question.otherValue = "";
-    expect(question.value, "other is not selected by resetting comment, value").toEqualValues([1, 3]);
-    expect(survey.data, "survey: other is not selected by resetting comment, value").toEqualValues({ q1: [1, 3] });
+    expect([...(question.value)], "other is not selected by resetting comment, value").toEqual([1, 3]);
+    expect(survey.data, "survey: other is not selected by resetting comment, value").toEqual({ q1: [1, 3] });
     question.storeOthersAsComment = false;
     question.otherValue = "comment1";
-    expect(question.value, "other is selected by setting comments, value + storeOthersAsComment").toEqualValues([1, 3, "comment1"]);
-    expect(survey.data, "survey: other is selected by setting comments, value + storeOthersAsComment").toEqualValues({ q1: [1, 3, "comment1"] });
+    expect([...(question.value)], "other is selected by setting comments, value + storeOthersAsComment").toEqual([1, 3, "comment1"]);
+    expect(survey.data, "survey: other is selected by setting comments, value + storeOthersAsComment").toEqual({ q1: [1, 3, "comment1"] });
     question.otherValue = "";
-    expect(question.value, "other is not selected by resetting comment, value + storeOthersAsComment").toEqualValues([1, 3]);
-    expect(survey.data, "survey: other is not selected by resetting comment, value + storeOthersAsComment").toEqualValues({ q1: [1, 3] });
+    expect([...(question.value)], "other is not selected by resetting comment, value + storeOthersAsComment").toEqual([1, 3]);
+    expect(survey.data, "survey: other is not selected by resetting comment, value + storeOthersAsComment").toEqual({ q1: [1, 3] });
   });
   test("check locOwner for items", () => {
     const question = new QuestionCheckboxModel("q1");
@@ -1190,7 +1190,7 @@ describe("baseselect", () => {
     expect("val6", "other value, #16").toBe(question.otherValue);
     expect("val6", "question value, #17").toBe(question.value);
     expect("", "comment, #18").toBe(question.comment);
-    expect(survey.data, "survey data, #1").toEqualValues({ q1: "val6" });
+    expect(survey.data, "survey data, #1").toEqual({ q1: "val6" });
 
     question.showCommentArea = false;
     question.storeOthersAsComment = false;
@@ -1199,7 +1199,7 @@ describe("baseselect", () => {
     expect("val7", "question value, #20").toBe(question.value);
     expect("val7", "comment, #21").toBe(question.comment);
     expect(question.selectedItem.value, "selectedItem #5").toBe("other");
-    expect(survey.data, "survey data, #2").toEqualValues({ q1: "val7" });
+    expect(survey.data, "survey data, #2").toEqual({ q1: "val7" });
 
     question.showCommentArea = true;
     question.value = "other";
@@ -1228,13 +1228,13 @@ describe("baseselect", () => {
     expect("item22", "q1 otherValue, #6").toBe(q1.otherValue);
     q2.renderedValue = ["other"];
     q2.otherValue = "a";
-    expect(["a"], "q2 value, #1").toEqualValues(q2.value);
+    expect([...(["a"])], "q2 value, #1").toEqual([...(q2.value)]);
     expect("a", "q2 otherValue, #2").toBe(q2.otherValue);
     q2.otherValue = "item3";
-    expect(["other"], "q2 value, #3").toEqualValues(q2.value);
+    expect(["other"], "q2 value, #3").toEqual([...(q2.value)]);
     expect("item3", "q2 otherValue, #4").toBe(q2.otherValue);
     q2.otherValue = "item33";
-    expect(["item33"], "q2 value, #5").toEqualValues(q2.value);
+    expect(["item33"], "q2 value, #5").toEqual([...(q2.value)]);
     expect("item33", "q2 otherValue, #6").toBe(q2.otherValue);
   });
   test("selectbase, showOtherItem & checkErrorsMode: 'onValueChanged'", () => {
@@ -1260,9 +1260,9 @@ describe("baseselect", () => {
     q2.renderedValue = ["other"];
     q2.otherValue = "val2";
     const data = { q1: "other", "q1-Comment": "val1", q2: ["other"], "q2-Comment": "val2" };
-    expect(survey.data, "before complete").toEqualValues(data);
+    expect(survey.data, "before complete").toEqual(data);
     survey.doComplete();
-    expect(survey.data, "after complete").toEqualValues(data);
+    expect(survey.data, "after complete").toEqual(data);
   });
   test("quesstion commentId/otherId", () => {
     const q1 = new QuestionCheckboxModel("q1");
@@ -1281,7 +1281,7 @@ describe("baseselect", () => {
     expect(q1.isItemSelected(q1.noneItem), "non item is selected").toBe(true);
     survey.clearIncorrectValues();
     expect(q1.value, "question value is correct").toBe("no value");
-    expect(survey.data, "survey.data is correct").toEqualValues({ q1: "no value" });
+    expect(survey.data, "survey.data is correct").toEqual({ q1: "no value" });
   });
   test("SelectBase visibleChoices order", () => {
     const survey = new SurveyModel();
@@ -1443,7 +1443,7 @@ describe("baseselect", () => {
     ] });
     const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
     expect(q2.visibleChoices.length).toBe(1);
-    expect(q2.visibleChoices[0].locText.getJson()).toEqualValues({ default: "A de", en: "A en" });
+    expect(q2.visibleChoices[0].locText.getJson()).toEqual({ default: "A de", en: "A en" });
     expect(q2.visibleChoices[0].text).toBe("A en");
     let counter = 0;
     q2.visibleChoices[0].locText.onStringChanged.add((sender, options) => {
@@ -1465,7 +1465,7 @@ describe("baseselect", () => {
     q1.value = "B";
     expect(q2.value, "keep value").toBe("X");
     survey.doComplete();
-    expect(survey.data, "keep value on compete").toEqualValues({ q1: "B", q2: "X" });
+    expect(survey.data, "keep value on compete").toEqual({ q1: "B", q2: "X" });
   });
   test("Check isUsingCarryForward on deleting question", () => {
     const survey = new SurveyModel();
@@ -1561,7 +1561,7 @@ describe("baseselect", () => {
     expect(q2.visibleChoices.length, "There is no choices").toBe(0);
     expect(q2.visibleChoices.length, "There is no choices, row is empty").toBe(0);
     q1.visibleRows[0].cells[0].value = "A";
-    expect(survey.data, "survey.data is correct").toEqualValues({ q1: [{ col1: "A" }, {}] });
+    expect(survey.data, "survey.data is correct").toEqual({ q1: [{ col1: "A" }, {}] });
     expect(q2.visibleChoices.length, "There is one choice").toBe(1);
     expect(q2.visibleChoices[0].value, "the first value is correct").toBe("A");
     q1.visibleRows[1].cells[0].value = "B";
@@ -1570,7 +1570,7 @@ describe("baseselect", () => {
     q1.addRow();
     expect(q2.visibleChoices.length, "There are two choice, new row is empty").toBe(2);
     q1.visibleRows[2].cells[0].value = "C";
-    expect(survey.data, "survey.data is correct, #2").toEqualValues({ q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] });
+    expect(survey.data, "survey.data is correct, #2").toEqual({ q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] });
     expect(q2.visibleChoices.length, "There are three choice").toBe(3);
     expect(q2.visibleChoices[2].value, "the third value is correct").toBe("C");
   });
@@ -1767,7 +1767,7 @@ describe("baseselect", () => {
     expect(q2.visibleChoices.length, "There is no choices").toBe(0);
     expect(q2.visibleChoices.length, "There is no choices, row is empty").toBe(0);
     q1.visibleRows[0].cells[0].value = "A";
-    expect(survey.data, "survey.data is correct").toEqualValues({ q1: [{ col1: "A" }, {}] });
+    expect(survey.data, "survey.data is correct").toEqual({ q1: [{ col1: "A" }, {}] });
     expect(q2.visibleChoices.length, "There is one choice, filtering").toBe(0);
     q1.visibleRows[1].cells[0].value = "B";
     expect(q2.visibleChoices.length, "There is one choice").toBe(1);
@@ -1775,7 +1775,7 @@ describe("baseselect", () => {
     q1.addRow();
     expect(q2.visibleChoices.length, "There is one choice, new row is empty").toBe(1);
     q1.visibleRows[2].cells[0].value = "C";
-    expect(survey.data, "survey.data is correct, #2").toEqualValues({ q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] });
+    expect(survey.data, "survey.data is correct, #2").toEqual({ q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] });
     expect(q2.visibleChoices.length, "There are three choice").toBe(2);
     expect(q2.visibleChoices[1].value, "the third value is correct").toBe("C");
   });
@@ -2120,19 +2120,19 @@ describe("baseselect", () => {
     const selectAll = question.selectAllItem;
     expect(question.isItemSelected(selectAll), "#1.1").toBe(false);
     question.selectAll();
-    expect(question.value, "#1.2").toEqualValues(["c"]);
+    expect([...(question.value)], "#1.2").toEqual(["c"]);
     expect(question.isItemSelected(selectAll), "#1.3").toBe(true);
 
     survey.setVariable("val1", 1);
     expect(question.isItemSelected(selectAll), "#2.1").toBe(false);
     question.selectAll();
-    expect(question.value, "#2.2").toEqualValues(["a", "c"]);
+    expect([...(question.value)], "#2.2").toEqual(["a", "c"]);
     expect(question.isItemSelected(selectAll), "#2.3").toBe(true);
 
     survey.setVariable("val2", 1);
     expect(question.isItemSelected(selectAll), "#3.1").toBe(false);
     question.selectAll();
-    expect(question.value, "#3.2").toEqualValues(["a", "b", "c"]);
+    expect([...(question.value)], "#3.2").toEqual(["a", "b", "c"]);
     expect(question.isItemSelected(selectAll), "#3.3").toBe(true);
   });
   test("Select all disable/enabled showOtherItem=true", () => {
@@ -2236,17 +2236,17 @@ describe("baseselect", () => {
     question.value = [2, 3];
     expect(question.validate(), "validate #1").toBe(false);
     question.clickItemHandler(question.noneItem, true);
-    expect(question.value, "value #2").toEqualValues(["none"]);
+    expect([...(question.value)], "value #2").toEqual(["none"]);
     expect(question.validate(), "validate #2").toBe(true);
     question.value = [2, 3];
     expect(question.validate(), "validate #3").toBe(false);
     question.clickItemHandler(question.refuseItem, true);
-    expect(question.value, "value #4").toEqualValues(["refused"]);
+    expect([...(question.value)], "value #4").toEqual(["refused"]);
     expect(question.validate(), "validate #4").toBe(true);
     question.value = [2];
     expect(question.validate(), "validate #5").toBe(false);
     question.clickItemHandler(question.dontKnowItem, true);
-    expect(question.value, "value #6").toEqualValues(["dontknow"]);
+    expect([...(question.value)], "value #6").toEqual(["dontknow"]);
     expect(question.validate(), "validate #6").toBe(true);
   });
   test("checkbox, selectAll & survey.data, bug#7657", () => {
@@ -2269,11 +2269,11 @@ describe("baseselect", () => {
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.selectAll();
     q.clickItemHandler(q.choices[2]);
-    expect(q.value, "q.value, #1").toEqualValues(["One", "Two"]);
-    expect(survey.data, "survey.data, #1").toEqualValues({ q1: ["One", "Two"] });
+    expect([...(q.value)], "q.value, #1").toEqual(["One", "Two"]);
+    expect(survey.data, "survey.data, #1").toEqual({ q1: ["One", "Two"] });
     survey.doComplete();
-    expect(q.value, "q.value, #2").toEqualValues(["One", "Two"]);
-    expect(survey.data, "survey.data, #2").toEqualValues({ q1: ["One", "Two"] });
+    expect([...(q.value)], "q.value, #2").toEqual(["One", "Two"]);
+    expect(survey.data, "survey.data, #2").toEqual({ q1: ["One", "Two"] });
   });
   test("Do not show show choices in designer", () => {
     const json = { elements: [
@@ -2304,7 +2304,7 @@ describe("baseselect", () => {
       "showOtherItem": true
     });
     q1.value = ["Item 1", "Item 2", "Other Value"];
-    expect(q1.displayValue, "Other value should be kept").toEqualValues("Item 1, Item 2, Other Value");
+    expect(q1.displayValue, "Other value should be kept").toEqual("Item 1, Item 2, Other Value");
   });
   test("Default comment & otherItem text, Bug#9733", () => {
     const q1 = new QuestionCheckboxModel("q1");
@@ -2327,11 +2327,11 @@ describe("baseselect", () => {
       ]
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(q.value, "q.value").toEqualValues(["other"]);
+    expect([...(q.value)], "q.value").toEqual(["other"]);
     expect(q.comment, "q.comment").toBe("101");
-    expect(survey.data, "survey.data").toEqualValues({ q1: ["other"], "q1-Comment": "101" });
+    expect(survey.data, "survey.data").toEqual({ q1: ["other"], "q1-Comment": "101" });
     survey.doComplete(false);
-    expect(survey.data, "survey.data").toEqualValues({ q1: ["other"], "q1-Comment": "101" });
+    expect(survey.data, "survey.data").toEqual({ q1: ["other"], "q1-Comment": "101" });
   });
   test("radiogroup with incorrect defaultValue, other & survey.data Bug#7943", () => {
     const survey = new SurveyModel({
@@ -2348,11 +2348,11 @@ describe("baseselect", () => {
       ]
     });
     const q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
-    expect(q.value, "q.value").toEqualValues("other");
+    expect(q.value, "q.value").toEqual("other");
     expect(q.comment, "q.comment").toBe("101");
-    expect(survey.data, "survey.data").toEqualValues({ q1: "other", "q1-Comment": "101" });
+    expect(survey.data, "survey.data").toEqual({ q1: "other", "q1-Comment": "101" });
     survey.doComplete(false);
-    expect(survey.data, "survey.data on complete").toEqualValues({ q1: "other", "q1-Comment": "101" });
+    expect(survey.data, "survey.data on complete").toEqual({ q1: "other", "q1-Comment": "101" });
   });
   test("On value changed, comment and valueName Bug#8137", () => {
     const survey = new SurveyModel({
@@ -2433,9 +2433,9 @@ describe("baseselect", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     const res = { type: "radiogroup", name: "q1", choices: ["Item1"] };
-    expect(q1.getConditionJson(), "q1").toEqualValues(res);
+    expect(q1.getConditionJson(), "q1").toEqual(res);
     res.name = "q2";
-    expect(q2.getConditionJson(), "q2").toEqualValues(res);
+    expect(q2.getConditionJson(), "q2").toEqual(res);
   });
   test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8226", () => {
     var json = {
@@ -2491,12 +2491,12 @@ describe("baseselect", () => {
     q2.value = ["green", "other"];
     expect(q2.isOtherSelected, "q2, isOther is selected, #1").toBe(true);
     q2.otherValue = "red";
-    expect(q2.value, "q2, Make the red item seleted, #1").toEqualValues(["green", "red"]);
+    expect([...(q2.value)], "q2, Make the red item seleted, #1").toEqual(["green", "red"]);
     expect(q2.isOtherSelected, "q2, isOther is not selected, #1").toBe(false);
     q2.value = ["green", "other"];
     expect(q2.isOtherSelected, "q2, isOther is selected, #2").toBe(true);
     q2.otherValue = "green";
-    expect(q2.value, "q2, Make the red item seleted, #2").toEqualValues(["green"]);
+    expect([...(q2.value)], "q2, Make the red item seleted, #2").toEqual(["green"]);
     expect(q2.isOtherSelected, "q2, isOther is not selected, #2").toBe(false);
   });
   test("valuePropertyName & complete trigger, bug#8434", () => {
@@ -2553,11 +2553,11 @@ describe("baseselect", () => {
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.clickItemHandler(q.noneItem, true);
-    expect(q.value, "#1").toEqualValues(["none"]);
+    expect([...(q.value)], "#1").toEqual(["none"]);
     q.clickItemHandler(q.noneItem, false);
     expect(q.isEmpty(), "#2").toBe(true);
     q.clickItemHandler(q.noneItem, true);
-    expect(q.value, "#3").toEqualValues(["none"]);
+    expect([...(q.value)], "#3").toEqual(["none"]);
   });
 
   test("Add condition custom property", () => {
@@ -2599,7 +2599,7 @@ describe("baseselect", () => {
     expect(q1.choicesByUrl.valueName, "valueName").toBe("name");
     expect(q1.choicesByUrl["jsonpath"], "load jsonpath").toBe("mypath");
     q1.choicesByUrl["jsonpath"] = "newpath";
-    expect(q1.toJSON(), "#2").toEqualValues({ name: "q1", choicesByUrl: { valueName: "name", jsonpath: "newpath" } });
+    expect(q1.toJSON(), "#2").toEqual({ name: "q1", choicesByUrl: { valueName: "name", jsonpath: "newpath" } });
     Serializer.removeProperty("choicesByUrl", "jsonpath");
   });
   test("Clear action in locale & survey.locale change, Bug#9113", () => {
@@ -2653,7 +2653,7 @@ describe("baseselect", () => {
     let question = <QuestionSelectBase>survey.getAllQuestions()[0];
     settings.itemFlowDirection = "column";
     let columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection column").toEqualValues([["Item1", "Item2", "Item3", "Item4"], ["Item5", "Item6", "Item7", "Item8"], ["Item9", "Item10"]]);
+    expect(columns, "check itemFlowDirection column").toEqual([["Item1", "Item2", "Item3", "Item4"], ["Item5", "Item6", "Item7", "Item8"], ["Item9", "Item10"]]);
 
     json = {
       elements: [{
@@ -2672,7 +2672,7 @@ describe("baseselect", () => {
     question = <QuestionSelectBase>survey.getAllQuestions()[0];
     settings.itemFlowDirection = "column";
     columns = getValuesInColumns(question);
-    expect(columns, "check itemFlowDirection column (2)").toEqualValues([["Item1", "Item2"], ["Item3"], ["Item4"]]);
+    expect(columns, "check itemFlowDirection column (2)").toEqual([["Item1", "Item2"], ["Item3"], ["Item4"]]);
   });
   test("Dropdown question show selected item incorrectly if choices set after the question value is set, Bug#9791", () => {
     const survey = new SurveyModel({
@@ -2713,7 +2713,7 @@ describe("baseselect", () => {
       { value: "val4", text: "Item 4" },
     ];
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(q1.value, "q1.value is correct").toEqualValues(["val2", "val4"]);
+    expect([...(q1.value)], "q1.value is correct").toEqual(["val2", "val4"]);
     expect(q1.isOtherSelected, "q1.isOtherSelected is false").toBe(false);
     expect(q1.selectedChoices.length, "q1.selectedChoices.length is correct").toBe(2);
   });
@@ -2804,7 +2804,7 @@ describe("baseselect", () => {
     q2.renderedValue = 2;
     q2.setCommentValue(q1.choices[1], "test comment2");
     survey.doComplete();
-    expect(survey.data, "survey.data after complete").toEqualValues({ q1: { value: 2, comment: "test comment1" }, q2: { value: 2, comment: "test comment2" } });
+    expect(survey.data, "survey.data after complete").toEqual({ q1: { value: 2, comment: "test comment1" }, q2: { value: 2, comment: "test comment2" } });
   });
   test("Radiogroup question, choices has comment and defaultValue", () => {
     const survey = new SurveyModel({
@@ -2966,13 +2966,13 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     expect(q1.getValuePropertyName(), "getValuePropertyName").toBe("value");
     q1.renderedValue = [1, 2, "other"];
-    expect(q1.value, "q1.value, #1").toEqualValues([{ value: 1 }, { value: 2 }, { value: "other" }]);
+    expect([...(q1.value)], "q1.value, #1").toEqual([{ value: 1 }, { value: 2 }, { value: "other" }]);
     q1.setCommentValue(q1.choices[1], "choices comment1");
     q1.setCommentValue(q1.otherItem, "other comment1");
-    expect(q1.value, "q1.value, #2").toEqualValues([{ value: 1 }, { value: 2, comment: "choices comment1" }, { value: "other comment1" }]);
+    expect([...(q1.value)], "q1.value, #2").toEqual([{ value: 1 }, { value: 2, comment: "choices comment1" }, { value: "other comment1" }]);
     q1.value = [{ value: 1 }, { value: 3, comment: "choice comment3" }, { value: "other comment2" }];
-    expect(q1.renderedValue, "q1.renderedValue, #3").toEqualValues([1, 3, "other"]);
-    expect(q1.value, "q1.value, #3").toEqualValues([{ value: 1 }, { value: 3, comment: "choice comment3" }, { value: "other comment2" }]);
+    expect([...(q1.renderedValue)], "q1.renderedValue, #3").toEqual([1, 3, "other"]);
+    expect([...(q1.value)], "q1.value, #3").toEqual([{ value: 1 }, { value: 3, comment: "choice comment3" }, { value: "other comment2" }]);
     expect(q1.getCommentValue(q1.choices[0]), "getCommentValue for choices[0], #3").toBe("");
     expect(q1.getCommentValue(q1.choices[1]), "getCommentValue for choices[1], #3").toBe("");
     expect(q1.getCommentValue(q1.choices[2]), "getCommentValue for choices[2], #3").toBe("choice comment3");
@@ -2992,8 +2992,8 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     expect(q1.getValuePropertyName(), "getValuePropertyName").toBe("value");
     q1.value = [1, 2, "other"];
-    expect(q1.value, "q1.value, #1").toEqualValues([{ value: 1 }, { value: 2 }, { value: "other" }]);
-    expect(q1.renderedValue, "q1.renderedValue, #1").toEqualValues([1, 2, "other"]);
+    expect([...(q1.value)], "q1.value, #1").toEqual([{ value: 1 }, { value: 2 }, { value: "other" }]);
+    expect([...(q1.renderedValue)], "q1.renderedValue, #1").toEqual([1, 2, "other"]);
   });
   test("Radiogroup question and choices has comment, storeOthersAsComment: false", () => {
     const survey = new SurveyModel({
@@ -3111,24 +3111,24 @@ describe("baseselect", () => {
     });
     const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q.toggleSelectAll();
-    expect(q.value, "#1").toEqualValues(["apple", "banana", "orange"]);
+    expect([...(q.value)], "#1").toEqual(["apple", "banana", "orange"]);
     expect(q.isAllSelected, "#3, all is selected").toBe(true);
     q.clickItemHandler(q.choices[2], true);
-    expect(q.value, "#4").toEqualValues(["none2"]);
+    expect([...(q.value)], "#4").toEqual(["none2"]);
     expect(q.isAllSelected, "#5, all is not selected").toBe(false);
     q.clickItemHandler(q.selectAllItem, true);
-    expect(q.value, "#6").toEqualValues(["apple", "banana", "orange"]);
+    expect([...(q.value)], "#6").toEqual(["apple", "banana", "orange"]);
     q.clickItemHandler(q.noneItem, true);
-    expect(q.value, "#7").toEqualValues(["none"]);
+    expect([...(q.value)], "#7").toEqual(["none"]);
     q.clickItemHandler(q.choices[2], true);
-    expect(q.value, "#8").toEqualValues(["none2"]);
+    expect([...(q.value)], "#8").toEqual(["none2"]);
     q.clickItemHandler(q.choices[0], true);
-    expect(q.value, "#10").toEqualValues(["apple"]);
+    expect([...(q.value)], "#10").toEqual(["apple"]);
 
     q.renderedValue = ["apple", "none2"];
-    expect(q.value, "#11").toEqualValues(["none2"]);
+    expect([...(q.value)], "#11").toEqual(["none2"]);
     q.renderedValue = ["none2", "none"];
-    expect(q.value, "#12").toEqualValues(["none"]);
+    expect([...(q.value)], "#12").toEqual(["none"]);
   });
   test("checkbox vs selectAll and enableIf, Bug#10895", () => {
     const survey = new SurveyModel({
@@ -3145,18 +3145,18 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
     q1.toggleSelectAll();
-    expect(q1.value, "#1").toEqualValues(["item1", "item4"]);
+    expect([...(q1.value)], "#1").toEqual(["item1", "item4"]);
     expect(q1.isAllSelected, "#1, all is selected").toBe(true);
     q2.value = 1;
     expect(q1.isAllSelected, "#2, all is not selected").toBe(false);
     q1.toggleSelectAll();
-    expect(q1.value, "#3").toEqualValues(["item1", "item2", "item4"]);
+    expect([...(q1.value)], "#3").toEqual(["item1", "item2", "item4"]);
     q2.value = 2;
     expect(q1.isAllSelected, "#4, all is not selected").toBe(false);
     q1.toggleSelectAll();
-    expect(q1.value, "#5").toEqualValues(["item1", "item2", "item3", "item4"]);
+    expect([...(q1.value)], "#5").toEqual(["item1", "item2", "item3", "item4"]);
     q1.toggleSelectAll();
-    expect(q1.value, "#6").toEqualValues(["item2"]);
+    expect([...(q1.value)], "#6").toEqual(["item2"]);
   });
   test("Focus element on selecting showCommentArea element", () => {
     const oldFunc = SurveyElement.FocusElement;
@@ -3188,16 +3188,16 @@ describe("baseselect", () => {
     let choice1Id = q1.choices[0].uniqueId.toString();
     let choice3Id = q1.choices[2].uniqueId.toString();
     q1.selectItem(q1.otherItem, true);
-    expect(els, "q1.focus #1").toEqualValues([otherId]);
+    expect(els, "q1.focus #1").toEqual([otherId]);
     q1.selectItem(q1.otherItem, false);
-    expect(els, "q1.focus #2").toEqualValues([otherId]);
+    expect(els, "q1.focus #2").toEqual([otherId]);
     q1.selectItem(q1.choices[0], true);
-    expect(els, "q1.focus #3").toEqualValues([otherId, choice1Id]);
+    expect(els, "q1.focus #3").toEqual([otherId, choice1Id]);
     q1.selectItem(q1.choices[0], false);
     q1.selectItem(q1.choices[1], true);
-    expect(els, "q1.focus #4").toEqualValues([otherId, choice1Id]);
+    expect(els, "q1.focus #4").toEqual([otherId, choice1Id]);
     q1.selectItem(q1.choices[2], true);
-    expect(els, "q1.focus #5").toEqualValues([otherId, choice1Id, choice3Id]);
+    expect(els, "q1.focus #5").toEqual([otherId, choice1Id, choice3Id]);
 
     const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
     otherId = q2.otherItem.uniqueId.toString();
@@ -3205,20 +3205,20 @@ describe("baseselect", () => {
     choice3Id = q2.choices[2].uniqueId.toString();
     els.length = 0;
     q2.selectItem(q2.otherItem);
-    expect(els, "q2.focus #1").toEqualValues([otherId]);
+    expect(els, "q2.focus #1").toEqual([otherId]);
     q2.selectItem(q2.choices[0]);
-    expect(els, "q2.focus #2").toEqualValues([otherId, choice1Id]);
+    expect(els, "q2.focus #2").toEqual([otherId, choice1Id]);
     q2.selectItem(q2.choices[1]);
-    expect(els, "q2.focus #3").toEqualValues([otherId, choice1Id]);
+    expect(els, "q2.focus #3").toEqual([otherId, choice1Id]);
     q2.selectItem(q2.choices[2]);
-    expect(els, "q2.focus #4").toEqualValues([otherId, choice1Id, choice3Id]);
+    expect(els, "q2.focus #4").toEqual([otherId, choice1Id, choice3Id]);
 
     els.length = 0;
     q1.autoOtherMode = true;
     q2.autoOtherMode = true;
     q1.selectItem(q1.otherItem, true);
     q2.selectItem(q2.otherItem);
-    expect(els, "autoOtherMode, focus is not called").toEqualValues([]);
+    expect(els, "autoOtherMode, focus is not called").toEqual([]);
     SurveyElement.FocusElement = oldFunc;
   });
   test("Radiogroup/dropdown showCommentArea validation", () => {
@@ -3370,12 +3370,12 @@ describe("baseselect", () => {
     expect(q1.validate(), "q1 validate, #2").toBe(true);
     expect(q2.validate(), "q2 validate, #2").toBe(true);
     q2.setCommentValue(q2.choices[2], "");
-    expect(q2.value, "q2.value #1").toEqualValues([{ value: 2 }, { value: 3 }]);
+    expect([...(q2.value)], "q2.value #1").toEqual([{ value: 2 }, { value: 3 }]);
     q1.setCommentValue(q2.choices[2], "test comment1");
     q2.setCommentValue(q2.choices[2], "test comment2");
     expect(q2.validate(), "q2 validate, #3").toBe(true);
-    expect(q1.value, "q1.value #2").toEqualValues({ value: 3, comment: "test comment1" });
-    expect(q2.value, "q2.value #2").toEqualValues([{ value: 2 }, { value: 3, comment: "test comment2" }]);
+    expect(q1.value, "q1.value #2").toEqual({ value: 3, comment: "test comment1" });
+    expect([...(q2.value)], "q2.value #2").toEqual([{ value: 2 }, { value: 3, comment: "test comment2" }]);
   });
   test("radiogroup showCommentArea & renderedValue/value", () => {
     const survey = new SurveyModel({
@@ -3392,7 +3392,7 @@ describe("baseselect", () => {
     expect(q1.renderedValue, "q1.renderedValue #1").toBe(1);
     q1.setCommentValue(q1.choices[0], "test comment1");
     expect(q1.renderedValue, "q1.renderedValue #2").toBe(1);
-    expect(q1.value, "q1.value #2").toEqualValues({ value: 1, comment: "test comment1" });
+    expect(q1.value, "q1.value #2").toEqual({ value: 1, comment: "test comment1" });
     q1.renderedValue = 3;
     expect(q1.value, "q1.value #3").toBe(3);
     q1.value = { value: 1, comment: "test comment2" };
@@ -3412,10 +3412,10 @@ describe("baseselect", () => {
     const survey = new SurveyModel({
       elements: [{ name: "q1", type: "radiogroup", choices: [1] }] });
     const q = survey.getQuestionByName("q1");
-    expect(q.toJSON(), "serialization without commentPlaceholder").toEqualValues({ name: "q1", choices: [1] });
+    expect(q.toJSON(), "serialization without commentPlaceholder").toEqual({ name: "q1", choices: [1] });
     q.choices[0].commentPlaceholder = "val1";
     expect(q.choices[0].locCommentPlaceholder.text, "locCommentPlaceholder.text is set").toBe("val1");
-    expect(q.toJSON(), "serialization vs commentPlaceholder").toEqualValues({ name: "q1", choices: [{ value: 1, commentPlaceholder: "val1" }] });
+    expect(q.toJSON(), "serialization vs commentPlaceholder").toEqual({ name: "q1", choices: [{ value: 1, commentPlaceholder: "val1" }] });
     q.fromJSON({ name: "q1", type: "radiogroup", choices: [{ value: 1, commentPlaceholder: { default: "en-val", de: "de-val" } }] });
     expect(q.choices[0].locCommentPlaceholder.text, "locCommentPlaceholder.text for locale 'default'").toBe("en-val");
     survey.locale = "de";
@@ -3424,9 +3424,9 @@ describe("baseselect", () => {
     expect(q.choices[0].locCommentPlaceholder.text, "locCommentPlaceholder.text for locale 'fr #1'").toBe("en-val");
     q.choices[0].locCommentPlaceholder.text = "fr-val";
     expect(q.choices[0].locCommentPlaceholder.text, "locCommentPlaceholder.text for locale 'fr #2'").toBe("fr-val");
-    expect(q.toJSON(), "serialization vs commentPlaceholder&locales").toEqualValues({ name: "q1", choices: [{ value: 1, commentPlaceholder: { "default": "en-val", "de": "de-val", fr: "fr-val" } }] });
+    expect(q.toJSON(), "serialization vs commentPlaceholder&locales").toEqual({ name: "q1", choices: [{ value: 1, commentPlaceholder: { "default": "en-val", "de": "de-val", fr: "fr-val" } }] });
     q.choices[0].locCommentPlaceholder.clear();
-    expect(q.toJSON(), "serialization without commentPlaceholder #2").toEqualValues({ name: "q1", choices: [1] });
+    expect(q.toJSON(), "serialization without commentPlaceholder #2").toEqual({ name: "q1", choices: [1] });
   });
   test("Do not remove spaces in other area, bug#10875", () => {
     const survey = new SurveyModel({
@@ -3450,12 +3450,12 @@ describe("baseselect", () => {
     expect(!!otherArea, "otherText is created").toBeTruthy();
     otherArea.onTextAreaBlur({ target: { value: "   some text   " } });
     expect(q1.otherValue, "do not trim spaces").toBe("   some text   ");
-    expect(survey.data, "data is correct").toEqualValues({ q1: "other", "q1-Comment": "   some text   " });
+    expect(survey.data, "data is correct").toEqual({ q1: "other", "q1-Comment": "   some text   " });
     expect(q1.validate(), "no error on validation").toBe(true);
     otherArea.onTextAreaBlur({ target: { value: "      " } });
     expect(q1.otherValue, "trim spaces to empty, #2").toBe("");
     expect(q1.validate(), "there is an error on validation").toBe(false);
-    expect(survey.data, "There is no comment in data").toEqualValues({ q1: "other" });
+    expect(survey.data, "There is no comment in data").toEqual({ q1: "other" });
   });
   test("checbox question and choices has comment - custom placeholder", () => {
     const survey = new SurveyModel({
@@ -3493,7 +3493,7 @@ describe("baseselect", () => {
       ]
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(q1.renderedValue, "q1.renderedValue").toEqualValues([1, 2]);
+    expect([...(q1.renderedValue)], "q1.renderedValue").toEqual([1, 2]);
     expect(q1.getCommentValue(q1.choices[0]), "getCommentValue for choices[0], #1").toBe("abc");
     expect(q1.getCommentValue(q1.choices[1]), "getCommentValue for choices[1], #1").toBe("edf");
   });
@@ -3512,7 +3512,7 @@ describe("baseselect", () => {
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q1.value = [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }];
-    expect(q1.renderedValue, "q1.renderedValue").toEqualValues([1, 2]);
+    expect([...(q1.renderedValue)], "q1.renderedValue").toEqual([1, 2]);
     expect(q1.getCommentValue(q1.choices[0]), "getCommentValue for choices[0], #1").toBe("abc");
     expect(q1.getCommentValue(q1.choices[1]), "getCommentValue for choices[1], #1").toBe("edf");
   });
@@ -3531,7 +3531,7 @@ describe("baseselect", () => {
       ]
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(q1.renderedValue, "q1.renderedValue").toEqualValues(1);
+    expect(q1.renderedValue, "q1.renderedValue").toEqual(1);
     expect(q1.getCommentValue(q1.choices[0]), "getCommentValue for choices[0], #1").toBe("abc");
   });
   test("checkbox vs dataItems and isExclusive, Bug10002", () => {
@@ -3625,15 +3625,15 @@ describe("baseselect", () => {
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     q1.renderedValue = ["item2", "item3"];
     q1.clickItemHandler(q1.choices[0], true);
-    expect(q1.renderedValue, "q1.renderedValue, #1").toEqualValues(["item1"]);
-    expect(q1.value, "q1.value, #1").toEqualValues([{ value: "item1" }]);
+    expect([...(q1.renderedValue)], "q1.renderedValue, #1").toEqual(["item1"]);
+    expect([...(q1.value)], "q1.value, #1").toEqual([{ value: "item1" }]);
     const textArea = q1.getCommentTextAreaModel(q1.choices[0]);
     textArea.onTextAreaBlur({ target: { value: "" } });
-    expect(q1.renderedValue, "q1.renderedValue, #2").toEqualValues(["item1"]);
-    expect(q1.value, "q1.value, #2").toEqualValues([{ value: "item1" }]);
+    expect([...(q1.renderedValue)], "q1.renderedValue, #2").toEqual(["item1"]);
+    expect([...(q1.value)], "q1.value, #2").toEqual([{ value: "item1" }]);
     textArea.onTextAreaBlur({ target: { value: "abc" } });
-    expect(q1.renderedValue, "q1.renderedValue, #3").toEqualValues(["item1"]);
-    expect(q1.value, "q1.value, #3").toEqualValues([{ value: "item1", comment: "abc" }]);
+    expect([...(q1.renderedValue)], "q1.renderedValue, #3").toEqual(["item1"]);
+    expect([...(q1.value)], "q1.value, #3").toEqual([{ value: "item1", comment: "abc" }]);
   });
   test("checkbox choices vs showComment & selection, Bug#10243", () => {
     const survey = new SurveyModel({
@@ -3647,8 +3647,8 @@ describe("baseselect", () => {
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     survey.data = { q1: [{ value: "item1", comment: "abc" }, "item2"] };
-    expect(q1.value, "q1.value, #1").toEqualValues([{ value: "item1", comment: "abc" }, "item2"]);
-    expect(q1.renderedValue, "q1.renderedValue, #1").toEqualValues(["item1", "item2"]);
+    expect([...(q1.value)], "q1.value, #1").toEqual([{ value: "item1", comment: "abc" }, "item2"]);
+    expect([...(q1.renderedValue)], "q1.renderedValue, #1").toEqual(["item1", "item2"]);
     expect(q1.getCommentTextAreaModel(q1.choices[0]).getTextValue(), "comment text area value, #1").toBe("abc");
   });
   test("radiogroup choices vs showComment & showOther & question showComment , Bug#10272", () => {
@@ -3672,12 +3672,12 @@ describe("baseselect", () => {
     q1.value = "abc2";
     expect(q1.value, "q1.value #2").toBe("abc2");
     expect(q1.comment, "q1.comment #2").toBe("edf");
-    expect(survey.data, "survey.data #1").toEqualValues({ q1: "abc2", "q1-Comment": "edf" });
+    expect(survey.data, "survey.data #1").toEqual({ q1: "abc2", "q1-Comment": "edf" });
     q1.clickItemHandler(q1.choices[0]);
     q1.getCommentTextAreaModel(q1.choices[0]).onTextAreaBlur({ target: { value: "xyz" } });
-    expect(q1.value, "q1.value #3").toEqualValues({ value: "item1", comment: "xyz" });
+    expect(q1.value, "q1.value #3").toEqual({ value: "item1", comment: "xyz" });
     expect(q1.comment, "q1.comment #3").toBe("edf");
-    expect(survey.data, "survey.data #2").toEqualValues({ q1: { value: "item1", comment: "xyz" }, "q1-Comment": "edf" });
+    expect(survey.data, "survey.data #2").toEqual({ q1: { value: "item1", comment: "xyz" }, "q1-Comment": "edf" });
   });
   test("getComment function, Issue#10378", () => {
     const survey = new SurveyModel({
@@ -3765,7 +3765,7 @@ describe("baseselect", () => {
     const item3 = q1.choices[2];
     item3.panel.addNewQuestion("text", "q1_3");
     expect(item3.panel.getSurvey(), "item3, panel.survey is not null").toBeTruthy();
-    expect(q1.toJSON(), "toJSON is correct").toEqualValues({ name: "q1", choices: [
+    expect(q1.toJSON(), "toJSON is correct").toEqual({ name: "q1", choices: [
       "item1",
       { value: "item2", elements: [{ type: "text", name: "q1_1" }] },
       { value: "item3", elements: [{ type: "text", name: "q1_3" }] }
@@ -4037,7 +4037,7 @@ describe("baseselect", () => {
       ]
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(survey.getUsedLocales(), "There is one non-default locale").toEqualValues(["en", "de"]);
+    expect(survey.getUsedLocales(), "There is one non-default locale").toEqual(["en", "de"]);
     const q1_1 = survey.getQuestionByName("q1_1");
     const q1_2 = survey.getQuestionByName("q1_2");
     const q1_2_1 = survey.getQuestionByName("q1_2_1");
@@ -4105,11 +4105,11 @@ describe("baseselect", () => {
     expect(q1_1.value, "q1_1 value is set").toBe("abc");
     expect(q1_2.value, "q1_2 value is set").toBe("edf");
     expect(q1_1.value, "q1_1 value is not cleared by default").toBe("abc");
-    expect(survey.data, "survey.data #1").toEqualValues({ q1: ["item2"], "q1_1": "abc", "q1_2": "edf" });
+    expect(survey.data, "survey.data #1").toEqual({ q1: ["item2"], "q1_1": "abc", "q1_2": "edf" });
     survey.doComplete();
     expect(q1_1.value, "q1_1 value is cleared").toBeFalsy();
     expect(q1_2.value, "q1_2 value is not cleared").toBe("edf");
-    expect(survey.data, "survey.data #2").toEqualValues({ q1: ["item2"], "q1_2": "edf" });
+    expect(survey.data, "survey.data #2").toEqual({ q1: ["item2"], "q1_2": "edf" });
   });
   test("choice item elements & clearInvisible values in nested panels, Issue#10384", () => {
     const survey = new SurveyModel({
@@ -4136,7 +4136,7 @@ describe("baseselect", () => {
     q2_1.value = "abc";
     q1.clickItemHandler(q1.choices[0], false);
     survey.doComplete();
-    expect(survey.data, "survey.data is empty").toEqualValues({});
+    expect(survey.data, "survey.data is empty").toEqual({});
   });
   test("choice item elements  vs nested panels & clearInvisible is 'onHiddenContainer', Issue#10530", () => {
     const survey = new SurveyModel({
@@ -4163,7 +4163,7 @@ describe("baseselect", () => {
     q2.clickItemHandler(q2.choices[0]);
     q2_1.value = "abc";
     q1.clickItemHandler(q1.choices[0], false);
-    expect(survey.data, "survey.data is empty").toEqualValues({});
+    expect(survey.data, "survey.data is empty").toEqual({});
   });
   test("choice item & dispose, Issue#10384", () => {
     const survey = new SurveyModel({
@@ -4210,7 +4210,7 @@ describe("baseselect", () => {
     const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
     const q2_1 = survey.getQuestionByName("q2_1");
     const q1_2 = survey.getQuestionByName("q1_2");
-    expect(q1.value, "q1.value is correct").toEqualValues(["item1", "item2"]);
+    expect([...(q1.value)], "q1.value is correct").toEqual(["item1", "item2"]);
     expect(q2.value, "q2.value is correct").toBe("item1");
     expect(q2_1.value, "q2_1.value is correct").toBe("abc");
     expect(q1_2.value, "q1_2.value is correct").toBe("edf");
@@ -4243,7 +4243,7 @@ describe("baseselect", () => {
     const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
     const q2_1 = survey.getQuestionByName("q2_1");
     const q1_2 = survey.getQuestionByName("q1_2");
-    expect(q1.value, "q1.value is correct").toEqualValues(["item1", "item2"]);
+    expect([...(q1.value)], "q1.value is correct").toEqual(["item1", "item2"]);
     expect(q2.value, "q2.value is correct").toBe("item1");
     expect(q2_1.value, "q2_1.value is correct").toBe("abc");
     expect(q1_2.value, "q1_2.value is correct").toBe("edf");
@@ -4313,7 +4313,7 @@ describe("baseselect", () => {
     survey.setValue("q1", 1);
     expect(survey.currentPage.name, "the survey is on the page3").toBe("page3");
     survey.tryComplete();
-    expect(survey.data, "the data is correct").toEqualValues({ q1: 1, q2: ["item1"] });
+    expect(survey.data, "the data is correct").toEqual({ q1: 1, q2: ["item1"] });
   });
   test("Create noneItem, refuseItem,  dontKnowItem and otherItem on demand", () => {
     const survey = new SurveyModel({
@@ -4466,7 +4466,7 @@ describe("baseselect", () => {
     expect(q2.isVisible, "q2 is visible after selecting 1").toBe(true);
     q1.setCommentValue(q1.choices[0], "test comment");
     expect(q2.isVisible, "q2 should stay visible after setting comment on choice 1").toBe(true);
-    expect(q1.value, "q1 value has comment").toEqualValues({ value: 1, comment: "test comment" });
+    expect(q1.value, "q1 value has comment").toEqual({ value: 1, comment: "test comment" });
   });
   test("Checkbox question with choice comment should not break visibleIf", () => {
     const survey = new SurveyModel({
@@ -4502,10 +4502,10 @@ describe("baseselect", () => {
     expect(q2.isVisible, "q2 is visible after selecting 1").toBe(true);
     q1.setCommentValue(q1.choices[0], "test comment");
     expect(q2.isVisible, "q2 should stay visible after setting comment on choice 1").toBe(true);
-    expect(q1.value, "q1 value has comment").toEqualValues([{ value: 1, comment: "test comment" }]);
+    expect([...(q1.value)], "q1 value has comment").toEqual([{ value: 1, comment: "test comment" }]);
     q1.clickItemHandler(q1.choices[1], true);
     q1.setCommentValue(q1.choices[1], "test comment 2");
     expect(q2.isVisible, "q2 should stay visible after setting comment on choice 2").toBe(true);
-    expect(q1.value, "q1 value has two comments").toEqualValues([{ value: 1, comment: "test comment" }, { value: 2, comment: "test comment 2" }]);
+    expect([...(q1.value)], "q1 value has two comments").toEqual([{ value: 1, comment: "test comment" }, { value: 2, comment: "test comment 2" }]);
   });
 });

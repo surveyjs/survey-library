@@ -17,12 +17,12 @@ describe("Separate locales", () => {
     question.locDescription.setLocaleText("de", "Beschreibung");
     question.locDescription.setLocaleText("fr", "La description");
 
-    expect(question.toJSON({ storeLocaleStrings: false }), "storeLocalizableStrings: none").toEqualValues({
+    expect(question.toJSON({ storeLocaleStrings: false }), "storeLocalizableStrings: none").toEqual({
       name: "q1",
       inputType: "date",
       visibleIf: "{q2} = 1",
     });
-    expect(question.toJSON({ storeLocaleStrings: true }), "storeLocalizableStrings: all").toEqualValues({
+    expect(question.toJSON({ storeLocaleStrings: true }), "storeLocalizableStrings: all").toEqual({
       name: "q1",
       inputType: "date",
       visibleIf: "{q2} = 1",
@@ -37,31 +37,31 @@ describe("Separate locales", () => {
         fr: "La description",
       },
     });
-    expect(question.toJSON({ storeLocaleStrings: true, locales: ["de"] }), "storeLocalizableStrings: selected with one locale").toEqualValues({
+    expect(question.toJSON({ storeLocaleStrings: true, locales: ["de"] }), "storeLocalizableStrings: selected with one locale").toEqual({
       name: "q1",
       inputType: "date",
       visibleIf: "{q2} = 1",
       title: "Titel",
       description: "Beschreibung",
     });
-    expect(question.toJSON({ locales: ["de", "fr"] }), "storeLocalizableStrings: selected with two locales").toEqualValues({
+    expect(question.toJSON({ locales: ["de", "fr"] }), "storeLocalizableStrings: selected with two locales").toEqual({
       name: "q1",
       inputType: "date",
       visibleIf: "{q2} = 1",
       title: { de: "Titel", fr: "Titre" },
       description: { de: "Beschreibung", fr: "La description" },
     });
-    expect(question.getLocalizationJSON(), "storeLocalizableStrings: stringsOnly without selectedLocales").toEqualValues({
+    expect(question.getLocalizationJSON(), "storeLocalizableStrings: stringsOnly without selectedLocales").toEqual({
       name: "q1",
       title: { default: "Title", de: "Titel", fr: "Titre" },
       description: { default: "Description", de: "Beschreibung", fr: "La description" },
     });
-    expect(question.getLocalizationJSON(["de"]), "storeLocalizableStrings: stringsOnly with one locale").toEqualValues({
+    expect(question.getLocalizationJSON(["de"]), "storeLocalizableStrings: stringsOnly with one locale").toEqual({
       name: "q1",
       title: "Titel",
       description: "Beschreibung",
     });
-    expect(question.getLocalizationJSON(["de", "fr"]), "storeLocalizableStrings: stringsOnly with two locales").toEqualValues({
+    expect(question.getLocalizationJSON(["de", "fr"]), "storeLocalizableStrings: stringsOnly with two locales").toEqual({
       name: "q1",
       title: { de: "Titel", fr: "Titre" },
       description: { de: "Beschreibung", fr: "La description" },
@@ -79,14 +79,14 @@ describe("Separate locales", () => {
         },
       ],
     });
-    expect(survey.toJSON({ storeLocaleStrings: false }), "storeLocalizableStrings: none").toEqualValues({
+    expect(survey.toJSON({ storeLocaleStrings: false }), "storeLocalizableStrings: none").toEqual({
       pages: [{ name: "page1", elements: [
         {
           type: "text",
           name: "q1",
         },
       ] }] });
-    expect(survey.getLocalizationJSON(["de"]), "storeLocalizableStrings: selected with one locale").toEqualValues({
+    expect(survey.getLocalizationJSON(["de"]), "storeLocalizableStrings: selected with one locale").toEqual({
       locale: "de",
       title: "Umfrage Titel",
       pages: [{ name: "page1", elements: [
@@ -97,7 +97,7 @@ describe("Separate locales", () => {
           description: "Beschreibung",
         },
       ] }] });
-    expect(survey.toJSON({ locales: ["de", "fr"] }), "storeLocalizableStrings: selected with two locales").toEqualValues({
+    expect(survey.toJSON({ locales: ["de", "fr"] }), "storeLocalizableStrings: selected with two locales").toEqual({
       title: { de: "Umfrage Titel", fr: "Titre de l." },
       pages: [{ name: "page1", elements: [
         {
@@ -121,7 +121,7 @@ describe("Separate locales", () => {
     };
     survey.mergeLocalizationJSON(allLocales, ["de"]);
     expect(survey.locale, "keep locale the same").toBe("");
-    expect(survey.toJSON(), "merge de locale correctly").toEqualValues({
+    expect(survey.toJSON(), "merge de locale correctly").toEqual({
       title: { de: "Umfrage Titel" },
       pages: [{
         "name": "page1",
@@ -143,7 +143,7 @@ describe("Separate locales", () => {
     };
     survey.mergeLocalizationJSON(deStrings);
     expect(survey.locale, "keep locale the same").toBe("");
-    expect(survey.toJSON(), "merge de locale correctly").toEqualValues({
+    expect(survey.toJSON(), "merge de locale correctly").toEqual({
       title: { de: "Umfrage Titel" },
       pages: [{
         "name": "page1",
@@ -163,7 +163,7 @@ describe("Separate locales", () => {
     question.choices[0].locText.setLocaleText("de", "Eins");
     question.choices[0].locText.setLocaleText("fr", "Un");
     question.choices[2].locText.setLocaleText("de", "Drei");
-    expect(question.getLocalizationJSON(["de"]), "get choices locale strings for one locale").toEqualValues({
+    expect(question.getLocalizationJSON(["de"]), "get choices locale strings for one locale").toEqual({
       name: "q1",
       choices: [
         { value: 1, text: "Eins" },
@@ -189,7 +189,7 @@ describe("Separate locales", () => {
         }
       ]
     });
-    expect(survey.getLocalizationJSON(["de"]), "get completedHtmlOnCondition locale strings for one locale").toEqualValues({
+    expect(survey.getLocalizationJSON(["de"]), "get completedHtmlOnCondition locale strings for one locale").toEqual({
       locale: "de",
       completedHtmlOnCondition: [
         {},
@@ -222,7 +222,7 @@ describe("Separate locales", () => {
         },
       ]
     });
-    expect(survey.toJSON(), "merge completedHtmlOnCondition locale strings for one locale").toEqualValues({
+    expect(survey.toJSON(), "merge completedHtmlOnCondition locale strings for one locale").toEqual({
       completedHtmlOnCondition: [
         {
           expression: "{q1} = 1",
@@ -253,12 +253,12 @@ describe("Separate locales", () => {
     const plainJSON = survey.toJSON({ storeLocaleStrings: false });
     const enJSON = survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] });
     const deJSON = survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] });
-    expect(plainJSON.pages[0].elements[0], "plain JSON").toEqualValues({
+    expect(plainJSON.pages[0].elements[0], "plain JSON").toEqual({
       type: "slider",
       name: "q1",
       customLabels: [1, 5]
     });
-    expect(enJSON.pages[0].elements[0], "en JSON").toEqualValues({
+    expect(enJSON.pages[0].elements[0], "en JSON").toEqual({
       type: "slider",
       name: "q1",
       customLabels: [
@@ -267,7 +267,7 @@ describe("Separate locales", () => {
       ]
     });
     expect(deJSON.locale, "de locale").toBe("de");
-    expect(deJSON.pages[0].elements[0], "de JSON").toEqualValues({
+    expect(deJSON.pages[0].elements[0], "de JSON").toEqual({
       type: "slider",
       name: "q1",
       customLabels: [
@@ -277,7 +277,7 @@ describe("Separate locales", () => {
     });
     const mergedSurvey = new SurveyModel(plainJSON);
     mergedSurvey.mergeLocalizationJSON(enJSON);
-    expect(mergedSurvey.toJSON().pages[0].elements[0], "merged JSON vs en JSON").toEqualValues({
+    expect(mergedSurvey.toJSON().pages[0].elements[0], "merged JSON vs en JSON").toEqual({
       type: "slider",
       name: "q1",
       customLabels: [
@@ -286,7 +286,7 @@ describe("Separate locales", () => {
       ]
     });
     mergedSurvey.mergeLocalizationJSON(deJSON);
-    expect(mergedSurvey.toJSON().pages[0].elements[0], "merged JSON vs de JSON").toEqualValues({
+    expect(mergedSurvey.toJSON().pages[0].elements[0], "merged JSON vs de JSON").toEqual({
       type: "slider",
       name: "q1",
       customLabels: [
@@ -306,16 +306,16 @@ describe("Separate locales", () => {
       }]
     });
     const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
-    expect(question.toJSON({ storeLocaleStrings: false }), "storeLocalizableStrings: none").toEqualValues({
+    expect(question.toJSON({ storeLocaleStrings: false }), "storeLocalizableStrings: none").toEqual({
       name: "q1",
       columns: ["col1"],
       rows: ["row1"],
     });
-    expect(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] }), "storeLocalizableStrings: default").toEqualValues({
+    expect(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] }), "storeLocalizableStrings: default").toEqual({
       name: "q1",
       cells: { row1: { col1: "text" } }
     });
-    expect(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }), "storeLocalizableStrings: de").toEqualValues({
+    expect(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }), "storeLocalizableStrings: de").toEqual({
       name: "q1",
       cells: { row1: { col1: "text-de" } }
     });
@@ -329,7 +329,7 @@ describe("Separate locales", () => {
     });
     mergedSurvey.mergeLocalizationJSON(survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] }));
     mergedSurvey.mergeLocalizationJSON(survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }));
-    expect(mergedSurvey.getQuestionByName("q1").toJSON(), "merged JSON").toEqualValues({
+    expect(mergedSurvey.getQuestionByName("q1").toJSON(), "merged JSON").toEqual({
       name: "q1",
       columns: ["col1"],
       rows: ["row1"],
@@ -352,7 +352,7 @@ describe("Separate locales", () => {
     expect(defaultLocale, "default locale is 'en'").toBe("en");
     const jsonDefault = survey.getLocalizationJSON(["default"]);
     const jsonEn = survey.getLocalizationJSON(["en"]);
-    expect(jsonEn, "getLocalizationJSON(['en']) returns default English strings").toEqualValues({
+    expect(jsonEn, "getLocalizationJSON(['en']) returns default English strings").toEqual({
       locale: "en",
       title: "Survey Title",
       pages: [{ name: "page1", elements: [
@@ -382,7 +382,7 @@ describe("Separate locales", () => {
     expect(surveyLocalization.defaultLocale, "default locale is 'en'").toBe("en");
     survey.mergeLocalizationJSON(allLocales, ["en"]);
     expect(survey.locale, "keep locale the same").toBe("");
-    expect(survey.toJSON(), "merge en locale correctly into default").toEqualValues({
+    expect(survey.toJSON(), "merge en locale correctly into default").toEqual({
       title: "Survey Title",
       pages: [{
         "name": "page1",
@@ -390,7 +390,7 @@ describe("Separate locales", () => {
       }]
     });
     survey.mergeLocalizationJSON(allLocales, ["de"]);
-    expect(survey.toJSON(), "merge de locale after en merge").toEqualValues({
+    expect(survey.toJSON(), "merge de locale after en merge").toEqual({
       title: { default: "Survey Title", de: "Umfrage Titel" },
       pages: [{
         "name": "page1",

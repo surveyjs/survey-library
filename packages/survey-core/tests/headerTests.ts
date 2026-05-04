@@ -22,34 +22,34 @@ describe("header", () => {
     const cover = new Cover();
     cover.survey = new SurveyModel();
 
-    expect(cover.cells[0].style, "top left").toEqualValues({
+    expect(cover.cells[0].style, "top left").toEqual({
       gridColumn: 1,
       gridRow: 1,
       "width": undefined
     });
-    expect(cover.cells[0].contentStyle, "top left").toEqualValues({
+    expect(cover.cells[0].contentStyle, "top left").toEqual({
       justifyContent: "flex-start",
       alignItems: "flex-start",
       textAlign: "start",
       "maxWidth": undefined,
     });
-    expect(cover.cells[1].style, "top center").toEqualValues({
+    expect(cover.cells[1].style, "top center").toEqual({
       gridColumn: 2,
       gridRow: 1,
       "width": undefined
     });
-    expect(cover.cells[1].contentStyle, "top center").toEqualValues({
+    expect(cover.cells[1].contentStyle, "top center").toEqual({
       justifyContent: "flex-start",
       alignItems: "center",
       textAlign: "center",
       "maxWidth": undefined,
     });
-    expect(cover.cells[2].style, "top right").toEqualValues({
+    expect(cover.cells[2].style, "top right").toEqual({
       gridColumn: 3,
       gridRow: 1,
       "width": undefined
     });
-    expect(cover.cells[2].contentStyle, "top right").toEqualValues({
+    expect(cover.cells[2].contentStyle, "top right").toEqual({
       justifyContent: "flex-start",
       alignItems: "flex-end",
       textAlign: "end",
@@ -137,21 +137,21 @@ describe("header", () => {
     const cover = new Cover();
     cover.backgroundImage = "some_url";
 
-    expect(cover.backgroundImageStyle, "default backgroundImageStyle").toEqualValues({
+    expect(cover.backgroundImageStyle, "default backgroundImageStyle").toEqual({
       opacity: 1,
       backgroundImage: "url(some_url)",
       backgroundSize: "cover",
     });
 
     cover.backgroundImageFit = "fill";
-    expect(cover.backgroundImageStyle, "backgroundImageFit is fill").toEqualValues({
+    expect(cover.backgroundImageStyle, "backgroundImageFit is fill").toEqual({
       opacity: 1,
       backgroundImage: "url(some_url)",
       backgroundSize: "100% 100%",
     });
 
     cover.backgroundImageFit = "contain";
-    expect(cover.backgroundImageStyle, "backgroundImageFit is contain").toEqualValues({
+    expect(cover.backgroundImageStyle, "backgroundImageFit is contain").toEqual({
       opacity: 1,
       backgroundImage: "url(some_url)",
       backgroundSize: "contain",
@@ -169,12 +169,12 @@ describe("header", () => {
     });
 
     expect(cover.cells[0].css, "top left cell css").toBe("sv-header__cell sv-header__cell--left sv-header__cell--top");
-    expect(cover.cells[0].style, "top left cell style").toEqualValues({
+    expect(cover.cells[0].style, "top left cell style").toEqual({
       "gridColumn": 1,
       "gridRow": 1,
       "width": undefined
     });
-    expect(cover.cells[0].contentStyle, "top left cell content style").toEqualValues({
+    expect(cover.cells[0].contentStyle, "top left cell content style").toEqual({
       "alignItems": "flex-start",
       "justifyContent": "flex-start",
       "textAlign": "start",
@@ -182,12 +182,12 @@ describe("header", () => {
     });
 
     expect(cover.cells[6].css, "bottom left cell css").toBe("sv-header__cell sv-header__cell--left sv-header__cell--bottom");
-    expect(cover.cells[6].style, "bottom left cell style").toEqualValues({
+    expect(cover.cells[6].style, "bottom left cell style").toEqual({
       "gridColumn": 1,
       "gridRow": 2,
       "width": undefined
     });
-    expect(cover.cells[6].contentStyle, "bottom left cell content style").toEqualValues({
+    expect(cover.cells[6].contentStyle, "bottom left cell content style").toEqual({
       "alignItems": "flex-start",
       "justifyContent": "flex-end",
       "textAlign": "start",
@@ -213,12 +213,12 @@ describe("header", () => {
     });
 
     expect(cover.cells[4].css, "middle center cell css").toBe("sv-header__cell sv-header__cell--center sv-header__cell--middle");
-    expect(cover.cells[4].style, "middle center cell style").toEqualValues({
+    expect(cover.cells[4].style, "middle center cell style").toEqual({
       "gridColumn": 2,
       "gridRow": 1,
       "width": undefined
     });
-    expect(cover.cells[4].contentStyle, "middle center cell content style").toEqualValues({
+    expect(cover.cells[4].contentStyle, "middle center cell content style").toEqual({
       "alignItems": "center",
       "justifyContent": "center",
       "textAlign": "center",
@@ -305,38 +305,38 @@ describe("header", () => {
     const cover = new Cover();
     cover.survey = getSurveyWithLogoTitleAndDescription();
 
-    expect(cover.getVisibleRows(), "default: logo top, title bottom, description bottom").toEqualValues([1, 3]);
+    expect(cover.getVisibleRows(), "default: logo top, title bottom, description bottom").toEqual([1, 3]);
 
     cover.logoPositionY = "top";
     cover.titlePositionY = "top";
     cover.descriptionPositionY = "top";
-    expect(cover.getVisibleRows(), "all elements in top").toEqualValues([1]);
+    expect(cover.getVisibleRows(), "all elements in top").toEqual([1]);
 
     cover.logoPositionY = "middle";
     cover.titlePositionY = "middle";
     cover.descriptionPositionY = "middle";
-    expect(cover.getVisibleRows(), "all elements in middle").toEqualValues([2]);
+    expect(cover.getVisibleRows(), "all elements in middle").toEqual([2]);
 
     cover.logoPositionY = "bottom";
     cover.titlePositionY = "bottom";
     cover.descriptionPositionY = "bottom";
-    expect(cover.getVisibleRows(), "all elements in bottom").toEqualValues([3]);
+    expect(cover.getVisibleRows(), "all elements in bottom").toEqual([3]);
 
     cover.logoPositionY = "top";
     cover.titlePositionY = "middle";
     cover.descriptionPositionY = "bottom";
-    expect(cover.getVisibleRows(), "elements in different positions").toEqualValues([1, 2, 3]);
+    expect(cover.getVisibleRows(), "elements in different positions").toEqual([1, 2, 3]);
 
     cover.logoPositionY = "top";
     cover.titlePositionY = "top";
     cover.descriptionPositionY = "bottom";
-    expect(cover.getVisibleRows(), "two elements in top, one in bottom").toEqualValues([1, 3]);
+    expect(cover.getVisibleRows(), "two elements in top, one in bottom").toEqual([1, 3]);
 
     cover.survey = new SurveyModel({});
-    expect(cover.getVisibleRows(), "empty survey").toEqualValues([1, 2, 3]);
+    expect(cover.getVisibleRows(), "empty survey").toEqual([1, 2, 3]);
 
     cover.survey.title = "Title";
-    expect(cover.getVisibleRows(), "survey with title only").toEqualValues([1]);
+    expect(cover.getVisibleRows(), "survey with title only").toEqual([1]);
   });
 
   test("should calculate correct grid positions based on logo, title and description positions", () => {
@@ -354,19 +354,19 @@ describe("header", () => {
     const middleCenterCell = cover.cells[4];
     const bottomRightCell = cover.cells[8];
 
-    expect(topLeftCell.style).toEqualValues({
+    expect(topLeftCell.style).toEqual({
       gridRow: 1,
       gridColumn: 1,
       width: undefined,
     });
 
-    expect(middleCenterCell.style).toEqualValues({
+    expect(middleCenterCell.style).toEqual({
       gridRow: 2,
       gridColumn: 2,
       width: undefined,
     });
 
-    expect(bottomRightCell.style).toEqualValues({
+    expect(bottomRightCell.style).toEqual({
       gridRow: 3,
       gridColumn: 3,
       width: undefined,
@@ -387,14 +387,14 @@ describe("header", () => {
     const middleLeftCell = cover.cells[3];
     const bottomCenterCell = cover.cells[7];
 
-    expect(middleLeftCell.style).toEqualValues({
+    expect(middleLeftCell.style).toEqual({
       gridRow: 0,
       gridColumn: 0,
       width: undefined,
       display: "none"
     });
 
-    expect(bottomCenterCell.style).toEqualValues({
+    expect(bottomCenterCell.style).toEqual({
       gridRow: 0,
       gridColumn: 0,
       width: undefined,

@@ -61,10 +61,10 @@ describe("DragDropHelper Tests", () => {
     );
     ddHelper["isBottom"] = true;
     afterDragOver(dropTargetNode);
-    expect(question.visibleChoices.map((c) => c.value)).toEqualValues(["item2", "item3", "item1", "item4"]);
+    expect(question.visibleChoices.map((c) => c.value)).toEqual(["item2", "item3", "item1", "item4"]);
     ddHelper["allowDropHere"] = true;
     ddHelper["drop"]();
-    expect(question.choices.map((c) => c.value), "this!").toEqualValues(["item2", "item3", "item1", "item4"]);
+    expect(question.choices.map((c) => c.value), "this!").toEqual(["item2", "item3", "item1", "item4"]);
 
     question = getNewQuestion();
     item1 = question.choices[0];
@@ -79,10 +79,10 @@ describe("DragDropHelper Tests", () => {
     );
     ddHelper["isBottom"] = false;
     afterDragOver(dropTargetNode);
-    expect(question.visibleChoices.map((c) => c.value)).toEqualValues(["item1", "item2", "item4", "item3"]);
+    expect(question.visibleChoices.map((c) => c.value)).toEqual(["item1", "item2", "item4", "item3"]);
     ddHelper["allowDropHere"] = true;
     ddHelper["drop"]();
-    expect(question.choices.map((c) => c.value)).toEqualValues(["item1", "item2", "item4", "item3"]);
+    expect(question.choices.map((c) => c.value)).toEqual(["item1", "item2", "item4", "item3"]);
 
     question = getNewQuestion();
     item1 = question.choices[0];
@@ -97,10 +97,10 @@ describe("DragDropHelper Tests", () => {
     );
     ddHelper["isBottom"] = true;
     afterDragOver(dropTargetNode);
-    expect(question.visibleChoices.map((c) => c.value)).toEqualValues(["item2", "item1", "item3", "item4"]);
+    expect(question.visibleChoices.map((c) => c.value)).toEqual(["item2", "item1", "item3", "item4"]);
     ddHelper["allowDropHere"] = true;
     ddHelper["drop"]();
-    expect(question.choices.map((c) => c.value)).toEqualValues(["item2", "item1", "item3", "item4"]);
+    expect(question.choices.map((c) => c.value)).toEqual(["item2", "item1", "item3", "item4"]);
 
     dropTargetNode.remove();
   });
@@ -608,8 +608,8 @@ describe("DragDropHelper Tests", () => {
     // Verify row was moved correctly
     expect(question1.visibleRows.length, "First matrix has two rows left").toBe(2);
     expect(question2.visibleRows.length, "Second matrix has four rows").toBe(4);
-    expect(question1.value, "Dragged row is gone from first matrix").toEqualValues([{ "Col1": "item1" }, { "Col1": "item3" }]);
-    expect(question2.value, "Dragged row is now in second matrix").toEqualValues([{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }]);
+    expect(question1.value, "Dragged row is gone from first matrix").toEqual([{ "Col1": "item1" }, { "Col1": "item3" }]);
+    expect(question2.value, "Dragged row is now in second matrix").toEqual([{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }]);
   });
 
   test("rows: check events matrixdynamic d&d between different matrices in detail panels", () => {
@@ -726,8 +726,8 @@ describe("DragDropHelper Tests", () => {
     ddHelper["doDrop"]();
     ddHelper.clear();
 
-    expect(question1Detail.value, "Dragged row is gone from first matrix").toEqualValues([{ "Col1": "detail2" }]);
-    expect(question2Detail.value, "Dragged row is now in second matrix").toEqualValues([{ "Col1": "detail3" }, { "Col1": "detail4" }, { "Col1": "detail1" }]);
+    expect(question1Detail.value, "Dragged row is gone from first matrix").toEqual([{ "Col1": "detail2" }]);
+    expect(question2Detail.value, "Dragged row is now in second matrix").toEqual([{ "Col1": "detail3" }, { "Col1": "detail4" }, { "Col1": "detail1" }]);
 
     const firstEvent = changes[0];
     const lastEvent = changes[changes.length - 1];
@@ -799,14 +799,14 @@ describe("DragDropHelper Tests", () => {
 
     let questionSelectBase = getNewQuestion();
     ddHelper["parentElement"] = <any>questionSelectBase;
-    expect(ddHelper["getChoices"]()).toEqualValues(questionSelectBase.visibleChoices);
+    expect(ddHelper["getChoices"]()).toEqual(questionSelectBase.visibleChoices);
 
     let questionRanking = getNewRankingQuestion();
     ddHelper["parentElement"] = <any>questionRanking;
-    expect(ddHelper["getChoices"]()).toEqualValues(questionRanking.rankingChoices);
+    expect(ddHelper["getChoices"]()).toEqual(questionRanking.rankingChoices);
     questionRanking.selectToRankEnabled = true;
     ddHelper["parentElement"] = <any>questionRanking;
-    expect(ddHelper["getChoices"]()).toEqualValues(questionRanking.unRankingChoices);
+    expect(ddHelper["getChoices"]()).toEqual(questionRanking.unRankingChoices);
   });
 
   test("DragDropMatrixRows matrix row drag and drop", () => {
@@ -943,7 +943,7 @@ describe("DragDropHelper Tests", () => {
     // Verify row was moved correctly to empty matrix
     expect(question1.visibleRows.length, "First matrix has two rows left").toBe(2);
     expect(question2.visibleRows.length, "Second matrix has one row").toBe(1);
-    expect(question1.value, "Dragged row is gone from first matrix").toEqualValues([{ "Col1": "item1" }, { "Col1": "item3" }]);
-    expect(question2.value, "Dragged row is now in second matrix").toEqualValues([{ "Col1": "item2" }]);
+    expect(question1.value, "Dragged row is gone from first matrix").toEqual([{ "Col1": "item1" }, { "Col1": "item3" }]);
+    expect(question2.value, "Dragged row is now in second matrix").toEqual([{ "Col1": "item2" }]);
   });
 });

@@ -386,7 +386,7 @@ describe("Input Per Page Tests", () => {
     survey.performNext();
     getSingleQuestion(page).value = "d";
     expect(survey.tryComplete(), "compete").toBe(true);
-    expect(survey.data, "survey.data").toEqualValues({ panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
+    expect(survey.data, "survey.data").toEqual({ panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
   });
   test("singleInput and focus on errors", () => {
     const survey = new SurveyModel({
@@ -421,7 +421,7 @@ describe("Input Per Page Tests", () => {
     panel1.singleInputQuestion.value = "d";
     survey.performNext();
     expect(survey.tryComplete(), "compete").toBe(true);
-    expect(survey.data, "survey.data").toEqualValues({ panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
+    expect(survey.data, "survey.data").toEqual({ panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
   });
   test("singleInput and focus on errors on singleInputAddItem & tryComplete", () => {
     const survey = new SurveyModel({
@@ -456,7 +456,7 @@ describe("Input Per Page Tests", () => {
     panel1.singleInputQuestion.value = "d";
     survey.performNext();
     expect(survey.tryComplete(), "compete").toBe(true);
-    expect(survey.data, "survey.data").toEqualValues({ panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
+    expect(survey.data, "survey.data").toEqual({ panel1: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
   });
   test("singleInput and focus on errors on singleInputAddItem & tryComplete for matrix dynamic", () => {
     const survey = new SurveyModel({
@@ -494,7 +494,7 @@ describe("Input Per Page Tests", () => {
     matrix.singleInputQuestion.value = "d";
     survey.performNext();
     expect(survey.tryComplete(), "compete").toBe(true);
-    expect(survey.data, "survey.data").toEqualValues({ matrix: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
+    expect(survey.data, "survey.data").toEqual({ matrix: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] });
   });
   test("matrixdynamic vs allowRemoveRows = false, Bug#9859", () => {
     const survey = new SurveyModel({
@@ -666,8 +666,8 @@ describe("Input Per Page Tests", () => {
     expect(matrix1.singleInputQuestion.choices.length, "singleInputQuestion.choices.length, #2").toBe(4);
     expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #2").toBe(true);
     matrix1.singleInputQuestion.value = "col3";
-    expect(matrix1.value, "matrix1.value").toEqualValues({ row1: "col2", row2: "col3" });
-    expect(survey.data, "survey.data").toEqualValues({ matrix1: { row1: "col2", row2: "col3" } });
+    expect(matrix1.value, "matrix1.value").toEqual({ row1: "col2", row2: "col3" });
+    expect(survey.data, "survey.data").toEqual({ matrix1: { row1: "col2", row2: "col3" } });
   });
   test("singleInput and single matrix", () => {
     const survey = new SurveyModel({
@@ -1164,7 +1164,7 @@ describe("Input Per Page Tests", () => {
     survey.performNext();
     expect(addBtn.visible, "addBtn visible #2").toBe(false);
     survey.doComplete();
-    expect(survey.data, "survey.data").toEqualValues({ panel1: [{ q1: "a" }, { q1: "b" }, { q1: "c" }] });
+    expect(survey.data, "survey.data").toEqual({ panel1: [{ q1: "a" }, { q1: "b" }, { q1: "c" }] });
   });
   const nestedJSON = {
     elements: [
@@ -1485,7 +1485,7 @@ describe("Input Per Page Tests", () => {
     expect(survey.isShowNextButton, "isShowNextButton, #11").toBe(false);
     expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible, #11").toBe(true);
     expect(addBtn.visible, "addBtn.visible, #11").toBe(false);
-    expect(survey.data, "check survey.data").toEqualValues({
+    expect(survey.data, "check survey.data").toEqual({
       "employers": [{
         "employee-name": "emp1",
         "city": "city1",

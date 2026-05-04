@@ -95,13 +95,13 @@ describe("SurveyShowPreviewTests", () => {
     const calls = [0, 0];
     survey.onCurrentPageChanging.add(() => { calls[0]++; });
     survey.onCurrentPageChanged.add(() => { calls[1]++; });
-    expect(calls, "There is no calls yet").toEqualValues([0, 0]);
+    expect(calls, "There is no calls yet").toEqual([0, 0]);
     survey.nextPage();
-    expect(calls, "must be called one time on nextPage").toEqualValues([1, 1]);
+    expect(calls, "must be called one time on nextPage").toEqual([1, 1]);
     survey.showPreview();
-    expect(calls, "no extra calls on showPreview").toEqualValues([1, 1]);
+    expect(calls, "no extra calls on showPreview").toEqual([1, 1]);
     survey.tryComplete();
-    expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
+    expect(calls, "extra calls on tryComplete").toEqual([2, 2]);
   });
   test("showPreviewBeforeComplete = true, check async onCurrentPageChanging and async onCurrentPageChanged calls count", async () => {
     vi.useFakeTimers();
@@ -116,16 +116,16 @@ describe("SurveyShowPreviewTests", () => {
       const calls = [0, 0];
       survey.onCurrentPageChanging.add(async () => { calls[0]++; });
       survey.onCurrentPageChanged.add(async () => { calls[1]++; });
-      expect(calls, "There is no calls yet").toEqualValues([0, 0]);
+      expect(calls, "There is no calls yet").toEqual([0, 0]);
       survey.nextPage();
       await vi.advanceTimersByTimeAsync(100);
-      expect(calls, "must be called one time on nextPage").toEqualValues([1, 1]);
+      expect(calls, "must be called one time on nextPage").toEqual([1, 1]);
       survey.showPreview();
       await vi.advanceTimersByTimeAsync(100);
-      expect(calls, "no extra calls on showPreview").toEqualValues([1, 1]);
+      expect(calls, "no extra calls on showPreview").toEqual([1, 1]);
       survey.tryComplete();
       await vi.advanceTimersByTimeAsync(100);
-      expect(calls, "extra calls on tryComplete").toEqualValues([2, 2]);
+      expect(calls, "extra calls on tryComplete").toEqual([2, 2]);
     } finally {
       vi.useRealTimers();
     }
@@ -770,6 +770,6 @@ describe("SurveyShowPreviewTests", () => {
     expect(survey.state, "Survey is in preview state").toBe("preview");
     survey.tryComplete();
     expect(survey.state, "Survey is completed").toBe("completed");
-    expect(survey.data, "Data should not contain values from hidden page2 questions").toEqualValues({ q1: "b", q4: "val4" });
+    expect(survey.data, "Data should not contain values from hidden page2 questions").toEqual({ q1: "b", q4: "val4" });
   });
 });

@@ -6,18 +6,18 @@ import { describe, test, expect } from "vitest";
 describe("SurveyStateTest", () => {
   test("restore element state property", () => {
     const survey = new SurveyModel();
-    expect(survey.uiState, "there is no state").toEqualValues({});
+    expect(survey.uiState, "there is no state").toEqual({});
 
     const page = survey.addNewPage("page1");
     expect(page.uiState, "page state is undefined").toBeUndefined();
 
     const quesiton = page.addNewQuestion("text", "question1");
     expect(quesiton.uiState, "quesiton state is undefined").toBeUndefined();
-    expect(survey.uiState, "there is no state #2").toEqualValues({});
+    expect(survey.uiState, "there is no state #2").toEqual({});
 
     quesiton.collapse();
-    expect(quesiton.uiState, "quesiton state is no undefined").toEqualValues({ collapsed: true });
-    expect(survey.uiState, "survey state is no undefined").toEqualValues({ questions: { question1: { collapsed: true } } });
+    expect(quesiton.uiState, "quesiton state is no undefined").toEqual({ collapsed: true });
+    expect(survey.uiState, "survey state is no undefined").toEqual({ questions: { question1: { collapsed: true } } });
 
     survey.uiState = { questions: { question1: { collapsed: false } } };
     expect(quesiton.isExpanded, "question is expanded").toBe(true);
@@ -48,12 +48,12 @@ describe("SurveyStateTest", () => {
     };
 
     let survey = new SurveyModel(config);
-    expect(survey.uiState, "there is no state").toEqualValues({});
+    expect(survey.uiState, "there is no state").toEqual({});
     survey.whenQuestionFocusIn(survey.getQuestionByName("q3"));
-    expect(survey.uiState, "there is no state").toEqualValues({ "activeElementName": "q3" });
+    expect(survey.uiState, "there is no state").toEqual({ "activeElementName": "q3" });
 
     survey = new SurveyModel(config);
-    expect(survey.uiState, "there is no state #2").toEqualValues({});
+    expect(survey.uiState, "there is no state #2").toEqual({});
     expect(survey.currentPageNo, "survey on first page").toBe(0);
     survey.uiState = { "activeElementName": "q5" };
     expect(survey.currentPageNo, "survey on last page").toBe(2);
@@ -64,12 +64,12 @@ describe("SurveyStateTest", () => {
     panel.template.addNewQuestion("text", "question1");
     panel.panelCount = 3;
 
-    expect(panel.uiState, "panel state is undefined").toEqualValues(undefined);
+    expect(panel.uiState, "panel state is undefined").toEqual(undefined);
 
     panel.displayMode = "tab";
     panel.currentIndex = 1;
 
-    expect(panel.uiState, "panel current index is 1").toEqualValues({ activePanelIndex: 1 });
+    expect(panel.uiState, "panel current index is 1").toEqual({ activePanelIndex: 1 });
 
     panel.uiState = { activePanelIndex: 2 };
     expect(panel.currentIndex, "panel current index is 2").toBe(2);
@@ -109,7 +109,7 @@ describe("SurveyStateTest", () => {
     panel.currentIndex = 1;
 
     survey.whenQuestionFocusIn(panel.panels[1].getQuestionByName("q6"));
-    expect(survey.uiState, "survey state with last active").toEqualValues({ questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" });
+    expect(survey.uiState, "survey state with last active").toEqual({ questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" });
 
     survey = new SurveyModel(config);
     survey.uiState = { questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" };
@@ -148,7 +148,7 @@ describe("SurveyStateTest", () => {
     panel.currentIndex = 1;
     survey.whenQuestionFocusIn(panel.currentPanel.getQuestionByName("q4"));
 
-    expect(events, "check received events").toEqualValues([
+    expect(events, "check received events").toEqual([
       { reason: "collapsed", name: "q1" },
       { reason: "activePanelIndex", name: "q2" },
       { reason: "activeElementName", name: "q4" }

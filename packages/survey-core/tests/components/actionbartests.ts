@@ -449,34 +449,34 @@ test("Check getRootStyle method", () => {
 test("Check actions container update merge options", () => {
   const container = new AdaptiveActionContainer();
   let newOptions = container["mergeUpdateOptions"]({}, { });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
 
   newOptions = container["mergeUpdateOptions"]({ needUpdateActions: false }, { needUpdateActions: false });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateActions: true }, { needUpdateActions: false });
-  expect(newOptions).toEqualValues({ "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateActions: true }, { needUpdateActions: true });
-  expect(newOptions).toEqualValues({ "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
 
   newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: false }, { needUpdateIsEmpty: false });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: true }, { needUpdateIsEmpty: false });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: true }, { needUpdateIsEmpty: true });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
 
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.None }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light }, { updateResponsivenessMode: UpdateResponsivenessMode.Light });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.Light });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.Hard });
-  expect(newOptions).toEqualValues({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
 });
 class TestAdaptiveActionContainer extends AdaptiveActionContainer {
   callback: (options: AdaptiveContainerUpdateOptions) => void;
@@ -498,9 +498,9 @@ test("Check actions container update called only once", () => {
     container["raiseUpdate"]({ needUpdateActions: true });
     container["raiseUpdate"]({ needUpdateIsEmpty: true });
     container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
-    expect(results).toEqualValues([]);
+    expect(results).toEqual([]);
     queueMicrotask(() => {
-      expect(results).toEqualValues([{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
+      expect(results).toEqual([{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
       done();
     });
   });
@@ -516,7 +516,7 @@ test("Check actions container flushUpdates", () => {
   container["raiseUpdate"]({ needUpdateIsEmpty: true });
   container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
   container.flushUpdates();
-  expect(results).toEqualValues([{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
+  expect(results).toEqual([{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
 });
 
 class TestResponsivityManager extends ResponsivityManager {

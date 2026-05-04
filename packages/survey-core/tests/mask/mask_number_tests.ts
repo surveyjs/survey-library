@@ -618,11 +618,11 @@ describe("Numeric mask", () => {
     const q = new QuestionTextModel("q1");
     const jsonObject = new JsonObject();
     let json = jsonObject.toJsonObject(q);
-    expect(json, "empty mask").toEqualValues({ name: "q1" });
+    expect(json, "empty mask").toEqual({ name: "q1" });
 
     q.maskType = "numeric";
     json = jsonObject.toJsonObject(q);
-    expect(json, "init numbermask").toEqualValues({
+    expect(json, "init numbermask").toEqual({
       name: "q1",
       maskType: "numeric"
     });
@@ -636,7 +636,7 @@ describe("Numeric mask", () => {
     q.maskSettings["max"] = 1000;
 
     json = jsonObject.toJsonObject(q);
-    expect(json, "all setting is changed numbermask").toEqualValues({
+    expect(json, "all setting is changed numbermask").toEqual({
       name: "q1",
       maskType: "numeric",
       maskSettings: {

@@ -47,7 +47,7 @@ describe("Multiple text: Input mask", () => {
     expect(multipletext.items[2].maskType).toBe("datetime");
     expect(multipletext.items[2].maskSettings.getType()).toBe("datetimemask");
 
-    expect(survey.toJSON()).toEqualValues(json);
+    expect(survey.toJSON()).toEqual(json);
   });
 
   test("Initial mask settings", () => {
@@ -112,12 +112,12 @@ describe("Multiple text: Input mask", () => {
     multipletext.addItem("item1");
     const item = multipletext.items[0];
     const itemEditor = item.editor;
-    expect(itemEditor.inputStyle).toEqualValues({ width: "" });
+    expect(itemEditor.inputStyle).toEqual({ width: "" });
 
     item.maskType = "currency";
-    expect(itemEditor.inputStyle).toEqualValues({ width: "", textAlign: "right" });
+    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "right" });
 
     item.inputTextAlignment = "left";
-    expect(itemEditor.inputStyle).toEqualValues({ width: "", textAlign: "left" });
+    expect(itemEditor.inputStyle).toEqual({ width: "", textAlign: "left" });
   });
 });

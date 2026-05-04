@@ -9,11 +9,11 @@ describe("Currency mask", () => {
     const q = new QuestionTextModel("q1");
     const jsonObject = new JsonObject();
     let json = jsonObject.toJsonObject(q);
-    expect(json, "empty mask").toEqualValues({ name: "q1" });
+    expect(json, "empty mask").toEqual({ name: "q1" });
 
     q.maskType = "currency";
     json = jsonObject.toJsonObject(q);
-    expect(json, "init currency").toEqualValues({
+    expect(json, "init currency").toEqual({
       name: "q1",
       maskType: "currency",
     });
@@ -30,7 +30,7 @@ describe("Currency mask", () => {
     maskSettings.suffix = " USD";
 
     json = jsonObject.toJsonObject(q);
-    expect(json, "all setting is changed currency").toEqualValues({
+    expect(json, "all setting is changed currency").toEqual({
       name: "q1",
       maskType: "currency",
       maskSettings: {

@@ -11,15 +11,15 @@ describe("Datetime mask", () => {
     const q = new QuestionTextModel("q1");
     const jsonObject = new JsonObject();
     let json = jsonObject.toJsonObject(q);
-    expect(json, "empty mask").toEqualValues({ name: "q1" });
+    expect(json, "empty mask").toEqual({ name: "q1" });
 
     q.maskType = "datetime";
     json = jsonObject.toJsonObject(q);
-    expect(json, "empty datetime").toEqualValues({ name: "q1", maskType: "datetime" });
+    expect(json, "empty datetime").toEqual({ name: "q1", maskType: "datetime" });
 
     q.maskSettings["pattern"] = "mm/dd/yyyy";
     json = jsonObject.toJsonObject(q);
-    expect(json, "set pattern datetime").toEqualValues({
+    expect(json, "set pattern datetime").toEqual({
       name: "q1",
       maskType: "datetime",
       maskSettings: {
@@ -29,7 +29,7 @@ describe("Datetime mask", () => {
 
     q.maskSettings.saveMaskedValue = true;
     json = jsonObject.toJsonObject(q);
-    expect(json, "saveMaskedValue datetime").toEqualValues({
+    expect(json, "saveMaskedValue datetime").toEqual({
       name: "q1",
       maskType: "datetime",
       maskSettings: {
@@ -41,7 +41,7 @@ describe("Datetime mask", () => {
     q.maskSettings["max"] = "2000-01-01";
     q.maskSettings["min"] = "1900-01-01";
     json = jsonObject.toJsonObject(q);
-    expect(json, "min & max datetime").toEqualValues({
+    expect(json, "min & max datetime").toEqual({
       name: "q1",
       maskType: "datetime",
       maskSettings: {

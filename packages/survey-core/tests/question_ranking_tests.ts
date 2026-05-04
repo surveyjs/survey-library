@@ -20,10 +20,10 @@ describe("question ranking", () => {
     });
     var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
 
-    expect(rankingQuestion.rankingChoices.map((c)=>c.value), "rankingChoices returns visibleChoices if empty value").toEqualValues(["a", "b", "c"]);
+    expect(rankingQuestion.rankingChoices.map((c)=>c.value), "rankingChoices returns visibleChoices if empty value").toEqual(["a", "b", "c"]);
 
     rankingQuestion.value = ["c", "b", "a"];
-    expect(rankingQuestion.rankingChoices.map((c)=>c.value), "rankingChoices returns visibleChoices if empty value").toEqualValues(["c", "b", "a"]);
+    expect(rankingQuestion.rankingChoices.map((c)=>c.value), "rankingChoices returns visibleChoices if empty value").toEqual(["c", "b", "a"]);
   });
 
   test("Ranking: predefined Survey data", () => {
@@ -38,9 +38,9 @@ describe("question ranking", () => {
     });
     survey.data = { q1: ["b", "a", "c"] };
     var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
-    expect(q1.value).toEqualValues(["b", "a", "c"]);
-    expect(q1.isEmpty()).toEqualValues(false);
-    expect(q1.rankingChoices.map(item => item.value)).toEqualValues(["b", "a", "c"]);
+    expect([...(q1.value)]).toEqual(["b", "a", "c"]);
+    expect(q1.isEmpty()).toEqual(false);
+    expect(q1.rankingChoices.map(item => item.value)).toEqual(["b", "a", "c"]);
 
     var survey = new SurveyModel({
       elements: [
@@ -66,10 +66,10 @@ describe("question ranking", () => {
     });
     survey.data = { q1: ["3", "2", "1"] };
     var q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
-    expect(q1.value).toEqualValues(["3", "2", "1"]);
-    expect(q1.isEmpty()).toEqualValues(false);
-    expect(q1.rankingChoices.map(item => item.text)).toEqualValues(["c", "b", "a"]);
-    expect(q1.rankingChoices.map(item => item.value)).toEqualValues(["3", "2", "1"]);
+    expect([...(q1.value)]).toEqual(["3", "2", "1"]);
+    expect(q1.isEmpty()).toEqual(false);
+    expect(q1.rankingChoices.map(item => item.text)).toEqual(["c", "b", "a"]);
+    expect(q1.rankingChoices.map(item => item.value)).toEqual(["3", "2", "1"]);
   });
 
   test("Ranking: check removing other from visibleChoices", () => {
@@ -84,7 +84,7 @@ describe("question ranking", () => {
       ],
     });
     var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
-    expect(rankingQuestion.rankingChoices.length).toEqualValues(3);
+    expect(rankingQuestion.rankingChoices.length).toEqual(3);
   });
 
   test("Ranking: Carry Forward", () => {
@@ -102,32 +102,32 @@ describe("question ranking", () => {
     var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
 
-    expect(q2.rankingChoices).toEqualValues([]);
-    expect(q2.isEmpty()).toEqualValues(true);
+    expect([...(q2.rankingChoices)]).toEqual([]);
+    expect(q2.isEmpty()).toEqual(true);
 
     q1.value = [2, 3];
     q2.value = q2.rankingChoices.map(choice => choice.text); //imitate user's drag drop from the ui
-    expect(q2.isEmpty()).toEqualValues(false);
-    expect(survey.data).toEqualValues({
+    expect(q2.isEmpty()).toEqual(false);
+    expect(survey.data).toEqual({
       q1: [2, 3],
       q2: [2, 3],
     });
 
     // ranking question with only one choice doesn't make sense
     q1.value = ["2"];
-    expect(q2.isEmpty()).toEqualValues(false);
-    expect(survey.data).toEqualValues({
+    expect(q2.isEmpty()).toEqual(false);
+    expect(survey.data).toEqual({
       q1: [2],
     });
 
     q1.value = [];
-    expect(q2.isEmpty()).toEqualValues(true);
-    expect(q2.rankingChoices.map(item => item.text)).toEqualValues([]);
+    expect(q2.isEmpty()).toEqual(true);
+    expect(q2.rankingChoices.map(item => item.text)).toEqual([]);
 
     q1.value = [2, 3];
     q2.value = q2.rankingChoices.map(choice => choice.text); //imitate user's drag drop from the ui
-    expect(q2.isEmpty()).toEqualValues(false);
-    expect(survey.data).toEqualValues({
+    expect(q2.isEmpty()).toEqual(false);
+    expect(survey.data).toEqual({
       q1: [2, 3],
       q2: [2, 3],
     });
@@ -147,8 +147,8 @@ describe("question ranking", () => {
     var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
 
-    expect(q2.rankingChoices).toEqualValues([]);
-    expect(q2.isEmpty()).toEqualValues(true);
+    expect([...(q2.rankingChoices)]).toEqual([]);
+    expect(q2.isEmpty()).toEqual(true);
 
     q1.value = [2, 3, "other"];
     expect(q2.visibleChoices.length, "2, 3 other is empty").toBe(2);
@@ -206,14 +206,14 @@ describe("question ranking", () => {
     var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
 
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       q1: [1, 2, 3],
       q2: [1, 2, 3],
     });
 
     q1.value = [1, 2];
 
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       q1: [1, 2],
       q2: [1, 2],
     });
@@ -241,7 +241,7 @@ describe("question ranking", () => {
       "q2": [3, 2, 1]
     };
 
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       q1: [1, 2, 3],
       q2: [3, 2, 1],
     });
@@ -352,20 +352,20 @@ describe("question ranking", () => {
 
     settings.animationEnabled = true;
     q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[1]);
-    expect(q.unRankingChoices.map((item) => item.value)).toEqualValues(["a", "c"]);
-    expect(q.rankingChoices.map((item) => item.value)).toEqualValues(["b"]);
+    expect(q.unRankingChoices.map((item) => item.value)).toEqual(["a", "c"]);
+    expect(q.rankingChoices.map((item) => item.value)).toEqual(["b"]);
 
     q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
-    expect(q.unRankingChoices.map((item) => item.value)).toEqualValues(["c"]);
-    expect(q.rankingChoices.map((item) => item.value)).toEqualValues(["b", "a"]);
+    expect(q.unRankingChoices.map((item) => item.value)).toEqual(["c"]);
+    expect(q.rankingChoices.map((item) => item.value)).toEqual(["b", "a"]);
 
     q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[1]);
-    expect(q.unRankingChoices.map((item) => item.value)).toEqualValues(["b", "c"]);
-    expect(q.rankingChoices.map((item) => item.value)).toEqualValues(["a"]);
+    expect(q.unRankingChoices.map((item) => item.value)).toEqual(["b", "c"]);
+    expect(q.rankingChoices.map((item) => item.value)).toEqual(["a"]);
 
     q.handleKeydown(<any>{ key: " ", preventDefault: () => {} }, q.choices[0]);
-    expect(q.unRankingChoices.map((item) => item.value)).toEqualValues(["a", "b", "c"]);
-    expect(q.rankingChoices.map((item) => item.value)).toEqualValues([]);
+    expect(q.unRankingChoices.map((item) => item.value)).toEqual(["a", "b", "c"]);
+    expect(q.rankingChoices.map((item) => item.value)).toEqual([]);
 
     (window as any).event = undefined;
     settings.animationEnabled = false;
@@ -382,17 +382,17 @@ describe("question ranking", () => {
       ],
     });
     const question = <QuestionRankingModel>survey.getAllQuestions()[0];
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["a", "b", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["a", "b", "c"]);
     question.value = ["b", "a", "c"];
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["b", "a", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["b", "a", "c"]);
     question.value = ["a", "c", "b"];
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["a", "c", "b"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["a", "c", "b"]);
     question.value = undefined;
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["a", "b", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["a", "b", "c"]);
     question.rankingChoices.pop();
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["a", "b"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["a", "b"]);
     question.rankingChoices.push(new ItemValue("c"));
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["a", "b", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["a", "b", "c"]);
   });
 
   test("Ranking: check rendered rankingChoices and unRankingChoices are updated when rankingChoices and unRankingChoices changing", () => {
@@ -407,24 +407,24 @@ describe("question ranking", () => {
       ],
     });
     const question = <QuestionRankingModel>survey.getAllQuestions()[0];
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["a", "b", "c"]);
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues([]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["a", "b", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual([]);
     question.value = ["b", "c"];
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["a"]);
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["b", "c"]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["a"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["b", "c"]);
     question.value = ["c", "b"];
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["a"]);
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["c", "b"]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["a"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["c", "b"]);
     question.value = ["a"];
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["b", "c"]);
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues(["a"]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["b", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual(["a"]);
     question.value = undefined;
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["a", "b", "c"]);
-    expect(question.renderedRankingChoices.map(item => item.value)).toEqualValues([]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["a", "b", "c"]);
+    expect(question.renderedRankingChoices.map(item => item.value)).toEqual([]);
     question.unRankingChoices.pop();
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["a", "b"]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["a", "b"]);
     question.unRankingChoices.push(new ItemValue("c"));
-    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqualValues(["a", "b", "c"]);
+    expect(question.renderedUnRankingChoices.map(item => item.value)).toEqual(["a", "b", "c"]);
   });
 
   test("Ranking: test animation options", () => {
@@ -593,7 +593,7 @@ describe("question ranking", () => {
     var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
     q2.value = ["c", "d", "a", "b"];
     q1.value = [1];
-    expect(q2.value, "value is correct").toEqualValues([]);
+    expect([...(q2.value)], "value is correct").toEqual([]);
     expect(q2.rankingChoices.length, "2 items are shown").toBe(2);
   });
   test("Ranking: strict compare, Bug#6644", () => {
@@ -811,14 +811,14 @@ describe("question ranking", () => {
     survey.data = { q1: [3, 1, 2] };
     survey.questionsOnPageMode = "singlePage";
     const q1 = <QuestionRankingModel>survey.getQuestionByName("q1");
-    expect(q1.value, "#1").toEqualValues([3, 1, 2]);
-    expect(q1.renderedValue, "#2").toEqualValues([3, 1, 2]);
-    expect(q1.rankingChoices[0].value, "#3").toEqualValues(3);
-    expect(q1.renderedRankingChoices[0].value, "#4").toEqualValues(3);
+    expect([...(q1.value)], "#1").toEqual([3, 1, 2]);
+    expect([...(q1.renderedValue)], "#2").toEqual([3, 1, 2]);
+    expect(q1.rankingChoices[0].value, "#3").toEqual(3);
+    expect(q1.renderedRankingChoices[0].value, "#4").toEqual(3);
   });
   // EO selectToRankEnabled
 
   test("A11Y", () => {
-    expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqualValues("group");
+    expect(new QuestionRankingModel("q1").ariaRole, "aria-role").toEqual("group");
   });
 });

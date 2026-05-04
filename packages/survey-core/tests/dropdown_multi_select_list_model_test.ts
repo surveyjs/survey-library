@@ -55,16 +55,16 @@ describe("DropdownMultiListModel", () => {
 
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
     expect(list.actions.length).toBe(28);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     list.onItemClick(list.actions[0]);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     list.onItemClick(list.actions[3]);
-    expect(question.value).toEqualValues(["item1", "item4"]);
+    expect([...(question.value)]).toEqual(["item1", "item4"]);
 
     list.onItemClick(list.actions[0]);
-    expect(question.value).toEqualValues(["item4"]);
+    expect([...(question.value)]).toEqual(["item4"]);
 
     dropdownListModel.onClear(new Event("click"));
     expect(question.value.length).toBe(0);
@@ -165,11 +165,11 @@ describe("DropdownMultiListModel", () => {
     list.onItemClick(getVisibleActionByIndex(list, 3));
     expect(popup.isVisible, "popup.isVisible 3").toBe(true);
     expect(dropdownListModel.filterString, "filterString 3").toBe("");
-    expect(question.value, "question.value before onClear").toEqualValues(["item12"]);
+    expect([...(question.value)], "question.value before onClear").toEqual(["item12"]);
 
     dropdownListModel.onClear(new Event("click"));
     expect(dropdownListModel.filterString, "filterString after onClear").toBe("");
-    expect(question.value, "question.value after onClear").toEqualValues([]);
+    expect([...(question.value)], "question.value after onClear").toEqual([]);
   });
 
   test("remove last selected item", () => {
@@ -178,14 +178,14 @@ describe("DropdownMultiListModel", () => {
     const dropdownListModel = new DropdownMultiSelectListModel(question);
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
 
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     list.onItemClick(list.actions[3]);
     list.onItemClick(list.actions[0]);
-    expect(question.value).toEqualValues(["item4", "item1"]);
+    expect([...(question.value)]).toEqual(["item4", "item1"]);
 
     dropdownListModel.removeLastSelectedItem();
-    expect(question.value).toEqualValues(["item4"]);
+    expect([...(question.value)]).toEqual(["item4"]);
 
     dropdownListModel.removeLastSelectedItem();
     expect(question.value.length).toBe(0);
@@ -319,16 +319,16 @@ describe("DropdownMultiListModel", () => {
 
     event.keyCode = 32;
     dropdownListModel.keyHandler(event);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     event.keyCode = 32;
     dropdownListModel.keyHandler(event);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     dropdownListModel.inputStringRendered = "item";
     event.keyCode = 32;
     dropdownListModel.keyHandler(event);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
   });
 
   test("tagbox hint after deselect", () => {
@@ -352,11 +352,11 @@ describe("DropdownMultiListModel", () => {
 
     event.keyCode = 32;
     dropdownListModel.keyHandler(event);
-    expect(question.value).toEqualValues(["item1"]);
+    expect([...(question.value)]).toEqual(["item1"]);
 
     event.keyCode = 32;
     dropdownListModel.keyHandler(event);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
     expect(dropdownListModel.hintString, "item3 hintString again").toBe("item1");
   });
 
@@ -386,14 +386,14 @@ describe("DropdownMultiListModel", () => {
 
     const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
     expect(list.actions.length).toBe(11);
-    expect(question.value).toEqualValues([]);
+    expect([...(question.value)]).toEqual([]);
 
     dropdownListModel.popupModel.show();
     expect(dropdownListModel.popupModel.isVisible).toBe(true);
     expect(list.actions[0].title).toBe("Select All");
 
     list.onItemClick(list.actions[0]);
-    expect(question.value.length).toEqualValues(10);
+    expect(question.value.length).toEqual(10);
     expect(dropdownListModel.popupModel.isVisible).toBe(false);
     expect(list.actions[0].title).toBe("Deselect all");
   });

@@ -398,10 +398,10 @@ describe("Panel", () => {
     survey.setValue("q2", "val2");
     survey.setValue("q3", "val3");
 
-    expect(panel3.getValue(), "Nested panel.getValue() works correctly").toEqualValues({ q3: "val3" });
-    expect(panel1.getValue(), "Panel.getValue()  works correctly").toEqualValues({ q1: "val1", q3: "val3" });
-    expect(page.getValue(), "Page.getValue() works correctly").toEqualValues({ q1: "val1", q2: "val2", q3: "val3" });
-    expect(page.getValue(), "survey.data == page.getValue() in our case").toEqualValues(survey.data);
+    expect(panel3.getValue(), "Nested panel.getValue() works correctly").toEqual({ q3: "val3" });
+    expect(panel1.getValue(), "Panel.getValue()  works correctly").toEqual({ q1: "val1", q3: "val3" });
+    expect(page.getValue(), "Page.getValue() works correctly").toEqual({ q1: "val1", q2: "val2", q3: "val3" });
+    expect(page.getValue(), "survey.data == page.getValue() in our case").toEqual(survey.data);
   });
 
   test("Panel.getValue() + others, Bug# 1573, T1701", () => {
@@ -422,18 +422,18 @@ describe("Panel", () => {
     });
     survey.setValue("spread", "other");
     survey.setComment("spread", "Jam");
-    expect(survey.data, "survey.data is correct").toEqualValues({ spread: "other", "spread-Comment": "Jam" });
-    expect(survey.currentPage.getValue(), "survey.currentPage.getValue() is correct").toEqualValues({ spread: "other", "spread-Comment": "Jam" });
+    expect(survey.data, "survey.data is correct").toEqual({ spread: "other", "spread-Comment": "Jam" });
+    expect(survey.currentPage.getValue(), "survey.currentPage.getValue() is correct").toEqual({ spread: "other", "spread-Comment": "Jam" });
     const question = <QuestionCheckboxModel>survey.getQuestionByName("spread");
     question.otherValue = "";
     question.value = "butter";
-    expect(survey.data, "survey.data is correct, not other").toEqualValues({ spread: "butter" });
-    expect(survey.currentPage.getValue(), "survey.currentPage.getValue() is correct, not other").toEqualValues({ spread: "butter" });
+    expect(survey.data, "survey.data is correct, not other").toEqual({ spread: "butter" });
+    expect(survey.currentPage.getValue(), "survey.currentPage.getValue() is correct, not other").toEqual({ spread: "butter" });
     survey.storeOthersAsComment = false;
     question.value = "other";
     question.otherValue = "Jam";
-    expect(survey.data, "survey.data is correct, other +  storeOthersAsComment = false").toEqualValues({ spread: "Jam" });
-    expect(survey.currentPage.getValue(), "survey.currentPage.getValue() is correct + storeOthersAsComment = false").toEqualValues({ spread: "Jam" });
+    expect(survey.data, "survey.data is correct, other +  storeOthersAsComment = false").toEqual({ spread: "Jam" });
+    expect(survey.currentPage.getValue(), "survey.currentPage.getValue() is correct + storeOthersAsComment = false").toEqual({ spread: "Jam" });
   });
 
   test("Panel.getComments()", () => {
@@ -450,9 +450,9 @@ describe("Panel", () => {
     survey.setComment("q2", "val2");
     survey.setComment("q3", "val3");
 
-    expect(panel3.getComments(), "Nested panel.getComments() works correctly").toEqualValues({ q3: "val3" });
-    expect(panel1.getComments(), "Panel.getComments()  works correctly").toEqualValues({ q1: "val1", q3: "val3" });
-    expect(page.getComments(), "Page.getComments() works correctly").toEqualValues({ q1: "val1", q2: "val2", q3: "val3" });
+    expect(panel3.getComments(), "Nested panel.getComments() works correctly").toEqual({ q3: "val3" });
+    expect(panel1.getComments(), "Panel.getComments()  works correctly").toEqual({ q1: "val1", q3: "val3" });
+    expect(page.getComments(), "Page.getComments() works correctly").toEqual({ q1: "val1", q2: "val2", q3: "val3" });
   });
 
   test("Page getPanels and Survey getAllPanels", () => {
@@ -689,7 +689,7 @@ describe("Panel", () => {
     panel2.addNewQuestion("expression", "q6");
     page.getQuestionByName("q1").value = 1;
     page.getQuestionByName("q3").value = 2;
-    expect(page.getProgressInfo()).toEqualValues({
+    expect(page.getProgressInfo()).toEqual({
       questionCount: 4,
       answeredQuestionCount: 2,
       requiredQuestionCount: 2,
@@ -1950,25 +1950,25 @@ describe("Panel", () => {
     });
     const page = <PageModel>survey.getPageByName("page1");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     let question = new QuestionTextModel("q6");
     question.startWithNewLine = false;
     page.addElement(question, 2);
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q6", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q6", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     question = new QuestionTextModel("q7");
     question.startWithNewLine = false;
     page.addElement(question, 4);
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q6", "q3", "q7", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q6", "q3", "q7", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
   test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: true", () => {
     const survey = new SurveyModel();
@@ -1988,28 +1988,28 @@ describe("Panel", () => {
     });
     const page = <PageModel>survey.getPageByName("page1");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     let question = new QuestionTextModel("q6");
     question.startWithNewLine = true;
     page.addElement(question, 2);
     expect(page.rows.length).toBe(4);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q6", "q3", "q4"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q6", "q3", "q4"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     question = new QuestionTextModel("q7");
     question.startWithNewLine = true;
     page.addElement(question, 4);
     expect(page.rows.length).toBe(5);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q6", "q3"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q7", "q4"]);
-    expect(page.rows[4].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q6", "q3"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q7", "q4"]);
+    expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
   test("Check updateRowsOnElementAdded method: insert between rows with swnl: false", () => {
     const survey = new SurveyModel();
@@ -2029,25 +2029,25 @@ describe("Panel", () => {
     });
     const page = <PageModel>survey.getPageByName("page1");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     let question = new QuestionTextModel("q6");
     question.startWithNewLine = false;
     page.addElement(question, 2);
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2", "q6"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2", "q6"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     question = new QuestionTextModel("q7");
     question.startWithNewLine = false;
     page.addElement(question, 5);
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2", "q6"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4", "q7"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2", "q6"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4", "q7"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
   test("Check updateRowsOnElementAdded method: insert between rows with swnl: true", () => {
     const survey = new SurveyModel();
@@ -2067,28 +2067,28 @@ describe("Panel", () => {
     });
     const page = <PageModel>survey.getPageByName("page1");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     let question = new QuestionTextModel("q6");
     question.startWithNewLine = true;
     page.addElement(question, 2);
     expect(page.rows.length).toBe(4);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q6"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q6"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     question = new QuestionTextModel("q7");
     question.startWithNewLine = true;
     page.addElement(question, 5);
     expect(page.rows.length).toBe(5);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q6"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
-    expect(page.rows[4].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q6"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q7"]);
+    expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
   test("Check swnl changed: change swnl for first element on page", () => {
     const survey = new SurveyModel();
@@ -2107,15 +2107,15 @@ describe("Panel", () => {
     const question = survey.getQuestionByName("q1");
 
     expect(page.rows.length).toBe(1);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
 
     question.startWithNewLine = false;
     expect(page.rows.length).toBe(1);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
 
     question.startWithNewLine = true;
     expect(page.rows.length).toBe(1);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
   });
   test("Check swnl changed: change swnl for first element in row", () => {
     const survey = new SurveyModel();
@@ -2137,14 +2137,14 @@ describe("Panel", () => {
     const question = survey.getQuestionByName("q2");
 
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     question.startWithNewLine = false;
     expect(page.rows.length).toBe(2);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2", "q3", "q4"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2", "q3", "q4"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
 
   test("Check swnl changed: change swnl for last element in row", () => {
@@ -2167,16 +2167,16 @@ describe("Panel", () => {
     const question = survey.getQuestionByName("q4");
 
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
 
     question.startWithNewLine = true;
     expect(page.rows.length).toBe(4);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q4"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q4"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q5"]);
   });
 
   test("Check swnl changed: change swnl for middle element in row", () => {
@@ -2201,16 +2201,16 @@ describe("Panel", () => {
     const question = survey.getQuestionByName("q4");
 
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4", "q5", "q6"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4", "q5", "q6"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q7"]);
 
     question.startWithNewLine = true;
     expect(page.rows.length).toBe(4);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q4", "q5", "q6"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q4", "q5", "q6"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q7"]);
   });
 
   test("Check swnl changed: change swnl for single element in row", () => {
@@ -2234,16 +2234,16 @@ describe("Panel", () => {
     const question = survey.getQuestionByName("q5");
 
     expect(page.rows.length).toBe(4);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q6"]);
 
     question.startWithNewLine = false;
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q2", "q3", "q4", "q5"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q2", "q3", "q4", "q5"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q6"]);
   });
 
   test("Check insert function: insert in empty page", () => {
@@ -2261,7 +2261,7 @@ describe("Panel", () => {
     expect(page.rows.length).toBe(0);
     page.insertElement(new QuestionTextModel("q1"));
     expect(page.rows.length).toBe(1);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1"]);
   });
 
   test("Check insert function: insert before first element in row", () => {
@@ -2308,15 +2308,15 @@ describe("Panel", () => {
       calledBuildRows++;
     };
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q3"), "left");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q7", "q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q7", "q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     expect(calledBuildRows).toBe(0);
   });
@@ -2364,15 +2364,15 @@ describe("Panel", () => {
       calledBuildRows++;
     };
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q4"), "right");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4", "q7"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4", "q7"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     expect(calledBuildRows).toBe(0);
   });
@@ -2423,21 +2423,21 @@ describe("Panel", () => {
     };
 
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q3"), "right");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q7", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q7", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q8"), survey.getQuestionByName("q7"), "left");
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q8", "q7", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q8", "q7", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     expect(calledBuildRows).toBe(0);
 
@@ -2489,43 +2489,43 @@ describe("Panel", () => {
     };
 
     expect(page.rows.length).toBe(3);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q4"), "bottom");
     expect(page.rows.length).toBe(4);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q7"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q8"), survey.getQuestionByName("q3"), "top");
     expect(page.rows.length).toBe(5);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q8"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
-    expect(page.rows[4].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q8"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q7"]);
+    expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q9"), survey.getQuestionByName("q4"), "top");
     expect(page.rows.length).toBe(6);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q8"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q9"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[4].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
-    expect(page.rows[5].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q8"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q9"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q7"]);
+    expect(page.rows[5].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     page.insertElement(new QuestionTextModel("q10"), survey.getQuestionByName("q3"), "bottom");
     expect(page.rows.length).toBe(7);
-    expect(page.rows[0].visibleElements.map(q => q.name)).toEqualValues(["q1", "q2"]);
-    expect(page.rows[1].visibleElements.map(q => q.name)).toEqualValues(["q8"]);
-    expect(page.rows[2].visibleElements.map(q => q.name)).toEqualValues(["q9"]);
-    expect(page.rows[3].visibleElements.map(q => q.name)).toEqualValues(["q3", "q4"]);
-    expect(page.rows[4].visibleElements.map(q => q.name)).toEqualValues(["q10"]);
-    expect(page.rows[5].visibleElements.map(q => q.name)).toEqualValues(["q7"]);
-    expect(page.rows[6].visibleElements.map(q => q.name)).toEqualValues(["q5", "q6"]);
+    expect(page.rows[0].visibleElements.map(q => q.name)).toEqual(["q1", "q2"]);
+    expect(page.rows[1].visibleElements.map(q => q.name)).toEqual(["q8"]);
+    expect(page.rows[2].visibleElements.map(q => q.name)).toEqual(["q9"]);
+    expect(page.rows[3].visibleElements.map(q => q.name)).toEqual(["q3", "q4"]);
+    expect(page.rows[4].visibleElements.map(q => q.name)).toEqual(["q10"]);
+    expect(page.rows[5].visibleElements.map(q => q.name)).toEqual(["q7"]);
+    expect(page.rows[6].visibleElements.map(q => q.name)).toEqual(["q5", "q6"]);
 
     expect(calledBuildRows).toBe(0);
   });
@@ -3555,11 +3555,11 @@ describe("Panel", () => {
     let res = page.validate(true, false, callbackValidators);
     expect(res, "res #1").toBeUndefined();
     expect(returnResults.length, "returnResults, #1").toBe(1);
-    expect(callbackResults, "callbackResults, #1").toEqualValues([]);
+    expect(callbackResults, "callbackResults, #1").toEqual([]);
     expect(q1.errors.length, "q1.errors #1").toBe(0);
     returnResults[0](false);
     expect(q1.errors.length, "q1.errors #2").toBe(1);
-    expect(callbackResults, "callbackResults, #2").toEqualValues([{ res: false, name: "q1" }]);
+    expect(callbackResults, "callbackResults, #2").toEqual([{ res: false, name: "q1" }]);
 
     q1.value = 3;
     returnResults.splice(0, returnResults.length);
@@ -3567,13 +3567,13 @@ describe("Panel", () => {
     res = page.validate(true, false, callbackValidators);
     expect(res, "res #3").toBe(false);
     expect(returnResults.length, "returnResults, #3").toBe(1);
-    expect(callbackResults, "callbackResults, #3").toEqualValues([{ res: false, name: "q3" }]);
+    expect(callbackResults, "callbackResults, #3").toEqual([{ res: false, name: "q3" }]);
     expect(q1.errors.length, "q1.errors #3").toBe(0);
     expect(q3.errors.length, "q3.errors #3").toBe(1);
     returnResults[0](false);
     expect(q1.errors.length, "q1.errors #4").toBe(1);
     expect(q3.errors.length, "q3.errors #4").toBe(1);
-    expect(callbackResults, "callbackResults, #4").toEqualValues([{ res: false, name: "q3" }]);
+    expect(callbackResults, "callbackResults, #4").toEqual([{ res: false, name: "q3" }]);
 
     q2.value = 30;
     returnResults.splice(0, returnResults.length);
@@ -3581,13 +3581,13 @@ describe("Panel", () => {
     res = page.validate(true, false, callbackValidators);
     expect(res, "res #5").toBeUndefined();
     expect(returnResults.length, "returnResults, #5").toBe(1);
-    expect(callbackResults, "callbackResults, #5").toEqualValues([]);
+    expect(callbackResults, "callbackResults, #5").toEqual([]);
     expect(q1.errors.length, "q1.errors #5").toBe(0);
     expect(q3.errors.length, "q3.errors #5").toBe(0);
     returnResults[0](true);
     expect(q1.errors.length, "q1.errors #6").toBe(0);
     expect(q3.errors.length, "q3.errors #6").toBe(0);
-    expect(callbackResults, "callbackResults, #6").toEqualValues([{ res: true, name: "" }]);
+    expect(callbackResults, "callbackResults, #6").toEqual([{ res: true, name: "" }]);
 
     FunctionFactory.Instance.unregister("asyncFunc");
   });

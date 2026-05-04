@@ -21,7 +21,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     const matrix = new QuestionMatrixDropdownModelBase("q1");
 
     expect(matrix["generatedVisibleRows"], "generatedVisibleRows is null").toBeNull();
-    expect(matrix.getAllErrors(), "getAllErrors method doesn't fall").toEqualValues([]);
+    expect(matrix.getAllErrors(), "getAllErrors method doesn't fall").toEqual([]);
   });
   test("allowAdaptiveActions", () => {
     const matrix = new QuestionMatrixDropdownModelBase("q1");
@@ -595,7 +595,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(matrix.visibleRows.length, "Three rows has been created").toBe(3);
     expect(matrix.visibleRows[0].rowName, "The rowName is 0").toBe(0);
     matrix.visibleRows[0].cells[0].question.value = "val1";
-    expect(survey.data, "Set row value correctly").toEqualValues({ q1: { 0: { col1: "val1" } } });
+    expect(survey.data, "Set row value correctly").toEqual({ q1: { 0: { col1: "val1" } } });
   });
   test("survey.onPropertyValueChangedCallback on column property changed", () => {
     var survey = new SurveyModel({
@@ -901,15 +901,15 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     const q3 = row.getQuestionByName("none");
     q1.value = ["dog"];
     q2.value = ["cat"];
-    expect(q1.value, "q1.value #1").toEqualValues(["dog"]);
-    expect(q2.value, "q2.value #1").toEqualValues(["cat"]);
+    expect([...(q1.value)], "q1.value #1").toEqual(["dog"]);
+    expect([...(q2.value)], "q2.value #1").toEqual(["cat"]);
     expect(q3.isEmpty(), "q3.value #1").toBe(true);
     q3.value = ["none"];
     expect(q1.isEmpty(), "q1.value #2").toBe(true);
     expect(q2.isEmpty(), "q2.value #2").toBe(true);
-    expect(q3.value, "q3.value #2").toEqualValues(["none"]);
+    expect([...(q3.value)], "q3.value #2").toEqual(["none"]);
     q1.value = ["dog"];
-    expect(q1.value, "q1.value #3").toEqualValues(["dog"]);
+    expect([...(q1.value)], "q1.value #3").toEqual(["dog"]);
     expect(q3.isEmpty(), "q2.value #3").toBe(true);
     expect(q3.isEmpty(), "q3.value #3").toBe(true);
   });
@@ -1228,7 +1228,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     const qDetail = row.detailPanel.getQuestionByName("q1");
     expect(qDetail.title, "set title").toBe("Question 1");
     row.hideDetailPanel();
-    expect(actions, "check actions").toEqualValues(["show:0", "hide:0"]);
+    expect(actions, "check actions").toEqual(["show:0", "hide:0"]);
   });
   test("column.visibleIf", () => {
     const survey = new SurveyModel({
@@ -1864,7 +1864,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     matrix.addRow();
     matrix.addRow();
     expect(matrix.visibleRows.length, "The first row is visible only, #2").toBe(1);
-    expect(matrix.value, "matrix.data").toEqualValues([{ no: 1, column2: 1 }, { no: 2, column2: 2 }, { no: 3, column2: 3 }, { no: 4, column2: 4 }]);
+    expect(matrix.value, "matrix.data").toEqual([{ no: 1, column2: 1 }, { no: 2, column2: 2 }, { no: 3, column2: 3 }, { no: 4, column2: 4 }]);
   });
   test("isQuestion answered & design time", () => {
     const survey = new SurveyModel();
@@ -1899,7 +1899,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     const matrix = new QuestionMatrixDropdownModel("q1");
     matrix.addColumn("col1");
     matrix.addColumn("col2", "Column2");
-    expect(matrix.toJSON(), "Serialize empty title").toEqualValues({
+    expect(matrix.toJSON(), "Serialize empty title").toEqual({
       name: "q1",
       columns: [{ name: "col1", title: "col1" }, { name: "col2", title: "Column2" }]
     });
@@ -2052,7 +2052,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
       questionNames.push(options.question.name);
     });
     survey.tryComplete();
-    expect(questionNames, "We should validate matrix and all its cells").toEqualValues(["col1", "col2", "col1", "col2", "col1", "col2", "matrix"]);
+    expect(questionNames, "We should validate matrix and all its cells").toEqual(["col1", "col2", "col1", "col2", "col1", "col2", "matrix"]);
   });
   test("Incorrect encoding of number mask in the error of a marix cell, Bug#10034", () => {
     const survey = new SurveyModel({
@@ -2117,7 +2117,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     });
     const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
     matrix.columns[0].cellType = "file";
-    expect(matrix.defaultRowValue, "defaultRowValue, #1").toEqualValues({ col2: 2 });
+    expect(matrix.defaultRowValue, "defaultRowValue, #1").toEqual({ col2: 2 });
     matrix.columns[1].cellType = "file";
     expect(matrix.defaultRowValue, "defaultRowValue, #2").toBeUndefined();
   });
@@ -2193,7 +2193,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(totalRow.cells[0].question.value, "col1 total value").toBe(4000.8);
     expect(totalRow.cells[1].question.value, "col2 total value").toBe(6001.2);
     expect(totalRow.cells[2].question.value, "col3 total value").toBe(10002);
-    expect(survey.data, "matrix value").toEqualValues({ matrix: [
+    expect(survey.data, "matrix value").toEqual({ matrix: [
       { col1: "1.000,4", col2: "2.000,6", col3: 3001 },
       { col1: "3.000,4", col2: "4.000,6", col3: 7001 }],
     "matrix-total": {
@@ -2261,7 +2261,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(totalRow.cells[0].question.value, "col1 total value").toBe(4000.8);
     expect(totalRow.cells[1].question.value, "col2 total value").toBe(6001.2);
     expect(totalRow.cells[2].question.value, "col3 total value").toBe(10002);
-    expect(survey.data, "matrix value").toEqualValues({ matrix: [
+    expect(survey.data, "matrix value").toEqual({ matrix: [
       { col1: "1.000,4", col2: "2.000,6", col3: "3.001" },
       { col1: "3.000,4", col2: "4.000,6", col3: "7.001" }],
     "matrix-total": {
@@ -2420,7 +2420,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     rows[2].showDetailPanel();
     rows[0].showDetailPanel();
     rows[0].hideDetailPanel();
-    expect(logs, "The detail panel visibility log is correct").toEqualValues([
+    expect(logs, "The detail panel visibility log is correct").toEqual([
       { rowIndex: 0, isVisible: true },
       { rowIndex: 0, isVisible: false },
       { rowIndex: 1, isVisible: true },
@@ -2538,13 +2538,13 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     rows[0].cells[1].question.value = 2;
     rows[0].cells[2].question.value = 3;
     expect(rows[0].cells[1].question.isVisible, "row 1, cell 2 is visible, #2").toBe(true);
-    expect(matrix.value, "matrix.value #2").toEqualValues({ row1: { col1: 1, col2: 2, col3: 3 } });
+    expect(matrix.value, "matrix.value #2").toEqual({ row1: { col1: 1, col2: 2, col3: 3 } });
     rows[0].cells[0].question.value = 2;
     expect(rows[0].cells[1].question.isVisible, "row 1, cell 2 is invisible, #3").toBe(false);
     expect(rows[0].cells[2].question.isVisible, "row 1, cell 3 is invisible, #3").toBe(false);
     expect(rows[0].cells[1].question.isEmpty(), "cell 2 value is cleared, #3").toBe(true);
     expect(rows[0].cells[2].question.isEmpty(), "cell 3 value is cleared, #3").toBe(true);
-    expect(matrix.value, "matrix.value #3").toEqualValues({ row1: { col1: 2 } });
+    expect(matrix.value, "matrix.value #3").toEqual({ row1: { col1: 2 } });
   });
   test("Clear value on hidden questions in cell, Bug#10603", () => {
     const survey = new SurveyModel({
@@ -2578,7 +2578,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     matrix.value = { row1: { col1: 1, col2: 2, col3: 3 }, row2: { col1: 1, col2: 2, col3: 4 } };
     const rows = matrix.visibleRows;
     rows[0].cells[0].question.value = 2;
-    expect(matrix.value, "matrix.value #2").toEqualValues({ row1: { col1: 2 } });
+    expect(matrix.value, "matrix.value #2").toEqual({ row1: { col1: 2 } });
   });
   test("Detail elements serialization", () => {
     const survey = new SurveyModel({
@@ -2594,7 +2594,7 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
       ],
     });
     const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
-    expect(matrix.toJSON().detailElements, "detailElements serialization").toEqualValues([{ type: "text", name: "q1" }]);
+    expect(matrix.toJSON().detailElements, "detailElements serialization").toEqual([{ type: "text", name: "q1" }]);
   });
   test("Create detailPanel on demand", () => {
     const survey = new SurveyModel({

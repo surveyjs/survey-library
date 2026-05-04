@@ -40,16 +40,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(visibleRows[2].cells.length, "There are two cells in each row").toBe(2);
     var q1 = <QuestionDropdownModel>visibleRows[0].cells[0].question;
     var q2 = <QuestionDropdownModel>visibleRows[0].cells[1].question;
-    expect(ItemValue.getData(q1.choices), "get choices from matrix").toEqualValues(ItemValue.getData(question.choices));
-    expect(ItemValue.getData(q2.choices), "get choices from column").toEqualValues(ItemValue.getData(question.columns[1]["choices"]));
+    expect(ItemValue.getData(q1.choices), "get choices from matrix").toEqual(ItemValue.getData(question.choices));
+    expect(ItemValue.getData(q2.choices), "get choices from column").toEqual(ItemValue.getData(question.columns[1]["choices"]));
     expect(visibleRows[0].cells[1].value, "value is not set").toBeUndefined();
     expect(visibleRows[1].cells[0].value, "value was set").toBe(2);
 
     question.value = null;
     visibleRows[0].cells[1].value = 4;
-    expect(question.value, "set the cell value correctly").toEqualValues({ row1: { column2: 4 } });
+    expect(question.value, "set the cell value correctly").toEqual({ row1: { column2: 4 } });
     visibleRows[0].cells[1].value = null;
-    expect(question.value, "set to null if all cells are null").toEqualValues(null);
+    expect(question.value, "set to null if all cells are null").toEqual(null);
   });
   test("Matrixdynamic cells tests", () => {
     var question = new QuestionMatrixDynamicModel("matrixDynamic");
@@ -66,16 +66,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(visibleRows[2].cells.length, "There are two cells in each row").toBe(2);
     var q1 = <QuestionDropdownModel>visibleRows[0].cells[0].question;
     var q2 = <QuestionDropdownModel>visibleRows[0].cells[1].question;
-    expect(ItemValue.getData(q1.choices), "get choices from matrix").toEqualValues(ItemValue.getData(question.choices));
-    expect(ItemValue.getData(q2.choices), "get choices from column").toEqualValues(ItemValue.getData(question.columns[1]["choices"]));
+    expect(ItemValue.getData(q1.choices), "get choices from matrix").toEqual(ItemValue.getData(question.choices));
+    expect(ItemValue.getData(q2.choices), "get choices from column").toEqual(ItemValue.getData(question.columns[1]["choices"]));
     expect(visibleRows[0].cells[1].value, "value is not set").toBeUndefined();
     expect(visibleRows[1].cells[0].value, "value was set").toBe(2);
 
     question.value = null;
     visibleRows[1].cells[1].value = 4;
-    expect(question.value, "set the cell value correctly").toEqualValues([{}, { column2: 4 }, {}]);
+    expect(question.value, "set the cell value correctly").toEqual([{}, { column2: 4 }, {}]);
     visibleRows[1].cells[1].value = null;
-    expect(question.value, "set to null if all cells are null - array is empty").toEqualValues([]);
+    expect(question.value, "set to null if all cells are null - array is empty").toEqual([]);
   });
   test("Matrixdynamic make the question empty on null cell value, Bug #608", () => {
     var question = new QuestionMatrixDynamicModel("matrixDynamic");
@@ -84,9 +84,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.columns.push(new MatrixDropdownColumn("column2"));
     var visibleRows = question.visibleRows;
     visibleRows[1].cells[0].question.value = 2;
-    expect(question.value, "The value set correctly").toEqualValues([{}, { column1: 2 }, {}]);
+    expect(question.value, "The value set correctly").toEqual([{}, { column1: 2 }, {}]);
     visibleRows[1].cells[0].question.value = null;
-    expect(question.value, "Clear the question value if all cells are empty - empty array").toEqualValues([]);
+    expect(question.value, "Clear the question value if all cells are empty - empty array").toEqual([]);
   });
 
   test("Matrixdynamic set null value, Bug Editor #156", () => {
@@ -100,7 +100,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     survey.pages[0].addQuestion(question);
     /*
       question.value = null;
-      expect(question.value, "Set null value correctly").toEqualValues([{}, {}, {}]);
+      expect(question.value, "Set null value correctly").toEqual([{}, {}, {}]);
       */
     var visibleRows = question.visibleRows;
     expect(visibleRows.length, "There shoud be 3 rows").toBe(3);
@@ -147,7 +147,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.value = [{}, { column1: 2 }, {}];
     question.removeRow(1);
     expect(question.rowCount, "one row is removed").toBe(2);
-    expect(question.value, "value is null now - array is empty").toEqualValues([]);
+    expect(question.value, "value is null now - array is empty").toEqual([]);
     expect(survey.getValue("q1"), "survey value is undefined or null").toBeUndefined();
     question.addRow();
     expect(question.rowCount, "one row is added").toBe(3);
@@ -526,7 +526,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     matrix.rowCount = 1;
     expect(matrix.visibleRows.length, "one row").toBe(1);
-    expect(matrix.value, "matrix.value, one row").toEqualValues([{ col2: "A" }]);
+    expect(matrix.value, "matrix.value, one row").toEqual([{ col2: "A" }]);
   });
 
   //QUnit.test("Matrixdynamic validate cell values - do not allow to have the same value", function (assert) {
@@ -663,7 +663,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const cellQuestion = matrix.visibleRows[0].cells[0].question;
     cellQuestion.value = "test";
     expect(cellQuestion.value, "Value has been changed").toBe("test!");
-    expect(survey.data, "Correct survey data").toEqualValues({ q1: { row1: { col1: "test!" } } });
+    expect(survey.data, "Correct survey data").toEqual({ q1: { row1: { col1: "test!" } } });
   });
 
   test("Matrixdropdown different cell types", () => {
@@ -698,7 +698,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var visibleRows = question.visibleRows;
     visibleRows[0].cells[0].question.value = true;
     visibleRows[0].cells[1].question.value = false;
-    expect(question.value, "Boolean field set value correctly").toEqualValues({ row1: { col1: true, col2: false } });
+    expect(question.value, "Boolean field set value correctly").toEqual({ row1: { col1: true, col2: false } });
   });
   test("Matrixdropdown booleanDefaultValue", () => {
     var question = new QuestionMatrixDropdownModel("matrixDropdown");
@@ -711,7 +711,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     question.rows = ["row1"];
     var visibleRows = question.visibleRows;
-    expect(question.value, "Boolean field set value correctly").toEqualValues({ row1: { col1: true, col2: false } });
+    expect(question.value, "Boolean field set value correctly").toEqual({ row1: { col1: true, col2: false } });
   });
 
   test("Matrixdropdown defaultValue", () => {
@@ -736,7 +736,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       ],
     });
     var question = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
-    expect(question.value, "default value has been assign").toEqualValues({ row1: { col1: 1 } });
+    expect(question.value, "default value has been assign").toEqual({ row1: { col1: 1 } });
   });
 
   test("matrixdynamic.defaultValue - check the complex property", () => {
@@ -753,7 +753,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
         },
       ],
     });
-    expect(survey.getValue("matrix"), "set complex defaultValue correctly").toEqualValues([
+    expect(survey.getValue("matrix"), "set complex defaultValue correctly").toEqual([
       { col1: 1, col2: 2 },
       { col1: 3, col2: 4 },
     ]);
@@ -1071,7 +1071,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const json = column.toJSON();
     expect(json.allowClear, "allowClear should not be serialized for radiogroup column").toBeFalsy();
     expect(column.templateQuestion["allowClear"], "allowClear should be false on radiogroup template").toBe(false);
-    expect(json.choices, "choices should be preserved after cellType change").toEqualValues([1, 2, 3]);
+    expect(json.choices, "choices should be preserved after cellType change").toEqual([1, 2, 3]);
     expect(json.choicesOrder, "choicesOrder should be preserved after cellType change").toBe("asc");
     expect(json.showOtherItem, "showOtherItem should be preserved after cellType change").toBe(true);
     expect(json.isRequired, "isRequired should be preserved after cellType change").toBe(true);
@@ -1165,7 +1165,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.addColumn("col2");
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1176,7 +1176,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, question.columns[0]);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1188,7 +1188,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, true);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context equals true").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context equals true").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1252,7 +1252,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     survey.getAllQuestions(true, false, true).forEach((q) => {
       names.push(q.name);
     });
-    expect(names, "panel + matrix + 2 columns").toEqualValues(["panel", "matrix", "col1", "col2"]);
+    expect(names, "panel + matrix + 2 columns").toEqual(["panel", "matrix", "col1", "col2"]);
   });
   test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition=0", () => {
     settings.matrixMaxRowCountInCondition = 0;
@@ -1263,15 +1263,15 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.addColumn("col2");
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic").toEqualValues([]);
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic").toEqual([]);
     objs = [];
     question.addConditionObjectsByContext(objs, question.columns[0]);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context").toEqualValues([{ name: "row.col2", text: "row.col2", question: "matrix", context: "col1" }]);
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context").toEqual([{ name: "row.col2", text: "row.col2", question: "matrix", context: "col1" }]);
     objs = [];
     question.addConditionObjectsByContext(objs, true);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context equals true").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic with context equals true").toEqual([
       { name: "matrix.row.col1", text: "Matrix.row.Column 1", question: "matrix", context: "matrix" },
       { name: "matrix.row.col2", text: "Matrix.row.col2", question: "matrix", context: "matrix" },
     ]);
@@ -1284,7 +1284,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.addColumn("col1", "Column 1");
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs, true);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1296,7 +1296,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs, true);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 0").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 0").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1306,7 +1306,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs, true);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 4, but settings.matrixMaxRowCountInCondition is 3").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, rowCount is 4, but settings.matrixMaxRowCountInCondition is 3").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1332,7 +1332,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.rows[0].text = "Row 1";
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dropdown").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dropdown").toEqual([
       {
         name: "matrix.row1.col1",
         text: "Matrix.Row 1.Column 1",
@@ -1357,7 +1357,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, question.columns[0]);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dropdown with context").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dropdown with context").toEqual([
       {
         name: "matrix.row1.col1",
         text: "Matrix.Row 1.Column 1",
@@ -1383,7 +1383,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, true);
     updateObjsQuestions(objs);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dropdown with context equals true").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dropdown with context equals true").toEqual([
       {
         name: "matrix.row1.col1",
         text: "Matrix.Row 1.Column 1",
@@ -1419,10 +1419,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.columns[1]["choices"] = [1, 2, 3];
     question.rowCount = 2;
     var json = question.getConditionJson("equals", "[0].col1");
-    expect(json.choices, "column 1 get choices").toEqualValues([1, 2]);
+    expect(json.choices, "column 1 get choices").toEqual([1, 2]);
     expect(json.type, "column 1 get type").toBe("dropdown");
     json = question.getConditionJson("equals", "row.col2");
-    expect(json.choices, "column 2 get choices").toEqualValues([1, 2, 3]);
+    expect(json.choices, "column 2 get choices").toEqual([1, 2, 3]);
     expect(json.type, "column 2 get type").toBe("checkbox");
     json = question.getConditionJson("contains", "[0].col2");
     expect(json.type, "column 2 get type for contains").toBe("radiogroup");
@@ -1436,7 +1436,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.detailPanelMode = "underRow";
     question.addConditionObjectsByContext(objs, null);
     updateObjsQuestions(objs, true);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, #1").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, #1").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1449,7 +1449,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     objs = [];
     question.addConditionObjectsByContext(objs, question.columns[0]);
     updateObjsQuestions(objs, true);
-    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, #2").toEqualValues([
+    expect(objs, "addConditionObjectsByContext work correctly for matrix dynamic, #2").toEqual([
       {
         name: "matrix[0].col1",
         text: "Matrix[0].Column 1",
@@ -1475,7 +1475,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     question.detailPanelMode = "underRow";
     question.rowCount = 2;
     var json = question.getConditionJson("equals", "[0].q1");
-    expect(json.choices, "column 1 get choices").toEqualValues([1, 2]);
+    expect(json.choices, "column 1 get choices").toEqual([1, 2]);
     expect(json.type, "column 1 get type").toBe("dropdown");
   });
 
@@ -1492,7 +1492,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       { col4: 1, col2: 2 },
     ];
     question.clearIncorrectValues();
-    expect(question.value, "clear unexisting columns and values").toEqualValues([{ col1: 1 }, { col2: 2 }]);
+    expect(question.value, "clear unexisting columns and values").toEqual([{ col1: 1 }, { col2: 2 }]);
   });
 
   test("matrixDropdown.clearInvisibleValues", () => {
@@ -1509,7 +1509,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       row2: { col4: 1, col2: 2 },
     };
     question.clearIncorrectValues();
-    expect(question.value, "clear unexisting columns and values").toEqualValues({ row1: { col1: 1 }, row2: { col2: 2 } });
+    expect(question.value, "clear unexisting columns and values").toEqual({ row1: { col1: 1 }, row2: { col2: 2 } });
   });
 
   test("matrixDropdown.clearInvisibleValues, do not clear totals, Bug#2553", () => {
@@ -1545,7 +1545,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     };
     survey.data = data;
     survey.clearIncorrectValues(true);
-    expect(survey.data, "values should be the same").toEqualValues(data);
+    expect(survey.data, "values should be the same").toEqual(data);
   });
 
   test("Set totals correctly for read-only question", () => {
@@ -1588,7 +1588,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(renderedTable.rows[0].cells[2].question.value, "Value for cell expression set correctly").toBe(3);
     expect(renderedTable.footerRow.cells[2].question.value, "Value for total row expression set correctly, #rendered table").toBe(3);
     expect(question.visibleTotalRow.cells[2].question.value, "Value for total row expression set correctly, #visibleTotalRow").toBe(3);
-    expect(survey.data, "values should be the same").toEqualValues(data);
+    expect(survey.data, "values should be the same").toEqual(data);
   });
 
   test("matrixdropdown.clearInvisibleValues do not call it on changing condition", () => {
@@ -1619,7 +1619,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     survey.setValue("var1", 1);
     question.value = { "2": "abc" };
     survey.setValue("var1", 2);
-    expect(question.value, "Change nothing").toEqualValues({ "2": "abc" });
+    expect(question.value, "Change nothing").toEqual({ "2": "abc" });
     survey.setValue("var1", 1);
   });
 
@@ -1744,7 +1744,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows.length, "all rows are shown").toBe(3);
     matrix.value = { row1: { col1: "a" } };
     expect(matrix.visibleRows.length, "row1 is hidden").toBe(2);
-    expect(matrix.value, "matrix.value #1").toEqualValues({ row1: { col1: "a" } });
+    expect(matrix.value, "matrix.value #1").toEqual({ row1: { col1: "a" } });
     matrix.value = { row1: { col1: "a" }, row3: { col1: "a" } };
     expect(matrix.visibleRows.length, "row1, row3 are hidden").toBe(1);
     matrix.clearValue();
@@ -1876,9 +1876,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     survey.setValue("q1", "a");
     expect(matrix.visibleRows.length, "row1, row3 are hidden").toBe(1);
     matrix.visibleRows[0].cells[1].value = 100;
-    expect(matrix.value, "Value set correctly").toEqualValues([{ col1: "a", col2: 5 }, { col1: "b", col2: 100 }, { col1: "a", col2: 15 }]);
+    expect(matrix.value, "Value set correctly").toEqual([{ col1: "a", col2: 5 }, { col1: "b", col2: 100 }, { col1: "a", col2: 15 }]);
     survey.doComplete();
-    expect(matrix.value, "Remove items correctly").toEqualValues([{ col1: "b", col2: 100 }]);
+    expect(matrix.value, "Remove items correctly").toEqual([{ col1: "b", col2: 100 }]);
   });
   test("Invisible rows & validation, Bug#8853", () => {
     var survey = new SurveyModel({
@@ -1902,7 +1902,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.validate(), "matrix validate").toBe(true);
     survey.doComplete();
     expect(survey.state, "survey state").toBe("completed");
-    expect(survey.data, "survey.data").toEqualValues(data);
+    expect(survey.data, "survey.data").toEqual(data);
   });
   test("Do not clear data for shared values & rowsVisibleIf", () => {
     var survey = new SurveyModel({
@@ -1932,9 +1932,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows.length, "all rows are shown in matrix").toBe(3);
     expect(matrix1.visibleRows.length, "2 rows are shown in matrix1").toBe(2);
     expect(matrix2.visibleRows.length, "1 row is shown in matrix2").toBe(1);
-    expect(matrix.value, "Value set correctly").toEqualValues([{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }]);
+    expect(matrix.value, "Value set correctly").toEqual([{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }]);
     survey.doComplete();
-    expect(matrix.value, "Values are shared we don't remove anything").toEqualValues([{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }]);
+    expect(matrix.value, "Values are shared we don't remove anything").toEqual([{ col1: "a", col2: 5 }, { col1: "b", col2: 10 }, { col1: "a", col2: 15 }]);
   });
   test("matrixdropdown.rowsVisibleIf, clear value on making the value invisible", () => {
     const survey = new SurveyModel({
@@ -1952,16 +1952,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
     cars.value = ["BMW", "Audi", "Mercedes"];
     expect(qBestCar.visibleRows.length, "visible rows #1").toBe(3);
     qBestCar.value = { BMW: { col1: 1 }, Audi: { col2: 2 } };
-    expect(qBestCar.value, "Audi is selected").toEqualValues({ BMW: { col1: 1 }, Audi: { col2: 2 } });
+    expect(qBestCar.value, "Audi is selected").toEqual({ BMW: { col1: 1 }, Audi: { col2: 2 } });
     cars.value = ["BMW"];
     expect(qBestCar.visibleRows.length, "visible rows #2").toBe(1);
     survey.doComplete();
-    expect(qBestCar.value, "Audi is removed").toEqualValues({ BMW: { col1: 1 } });
+    expect(qBestCar.value, "Audi is removed").toEqual({ BMW: { col1: 1 } });
     survey.clear(false);
     cars.value = ["Mercedes"];
     expect(qBestCar.visibleRows.length, "visible rows #3").toBe(1);
     survey.doComplete();
-    expect(qBestCar.isEmpty(), "All checks are removed").toEqualValues(true);
+    expect(qBestCar.isEmpty(), "All checks are removed").toEqual(true);
   });
 
   test("matrix.defaultRowValue, apply from json and then from UI", () => {
@@ -1983,12 +1983,12 @@ describe("Survey_QuestionMatrixDynamic", () => {
     };
     var survey = new SurveyModel(json);
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
-    expect(question.value, "defaultRowValue set correctly on json loading").toEqualValues([
+    expect(question.value, "defaultRowValue set correctly on json loading").toEqual([
       { column1: "val1", column3: "val3" },
       { column1: "val1", column3: "val3" },
     ]);
     question.addRow();
-    expect(question.value, "defaultRowValue set correclty on adding row").toEqualValues([
+    expect(question.value, "defaultRowValue set correclty on adding row").toEqual([
       { column1: "val1", column3: "val3" },
       { column1: "val1", column3: "val3" },
       { column1: "val1", column3: "val3" },
@@ -2018,7 +2018,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     };
     var survey = new SurveyModel(json);
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
-    expect(question.value, "defaultValue is used").toEqualValues([
+    expect(question.value, "defaultValue is used").toEqual([
       { column1: "val2", column3: "val5" },
       { column2: "val2", column3: "val4" },
     ]);
@@ -2303,11 +2303,11 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
     var rows = question.visibleRows;
     expect(rows.length, "There are two rows").toBe(2);
-    expect(question.value, "defaultValue set correctly").toEqualValues([{ col1: false }, { col1: false }]);
+    expect(question.value, "defaultValue set correctly").toEqual([{ col1: false }, { col1: false }]);
     question.removeRow(1);
     rows = question.visibleRows;
     expect(rows.length, "There is one row").toBe(1);
-    expect(question.value, "defaultValue is still there for the first row").toEqualValues([{ col1: false }]);
+    expect(question.value, "defaultValue is still there for the first row").toEqual([{ col1: false }]);
   });
 
   test("Test copyDefaultValueFromLastEntry property", () => {
@@ -2327,13 +2327,13 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(question.isEmpty(), "It is empty").toBe(true);
     question.value = [{ col1: 1, col2: 2 }];
     question.addRow();
-    expect(question.value, "copyDefaultValueFromLastEntry is working").toEqualValues([
+    expect(question.value, "copyDefaultValueFromLastEntry is working").toEqual([
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2 },
     ]);
     question.defaultRowValue = { col1: 11, col3: 3 };
     question.addRow();
-    expect(question.value, "copyDefaultValueFromLastEntry is merging with defaultRowValue").toEqualValues([
+    expect(question.value, "copyDefaultValueFromLastEntry is merging with defaultRowValue").toEqual([
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2 },
       { col1: 1, col2: 2, col3: 3 },
@@ -2502,16 +2502,16 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     var newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
     q1.value = newValue;
-    expect(q1.value, "set correctly to the first question").toEqualValues(newValue);
-    expect(q2.value, "shared correctly to the second question").toEqualValues(newValue);
+    expect(q1.value, "set correctly to the first question").toEqual(newValue);
+    expect(q2.value, "shared correctly to the second question").toEqual(newValue);
     expect(3 * 2, "q2 renderedTable rows are correct, #1").toBe(q2.renderedTable.rows.length);
     q1.addRow();
     q1.visibleRows[3].cells[0].value = 4;
     newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }, { col1: 4 }];
-    expect(q2.visibleRows.length, "There are  4 rows in the second question").toEqualValues(4);
+    expect(q2.visibleRows.length, "There are  4 rows in the second question").toEqual(4);
     expect(4 * 2, "q2 renderedTable rows are correct, #2").toBe(q2.renderedTable.rows.length);
-    expect(q1.value, "2. set correctly to the first question").toEqualValues(newValue);
-    expect(q2.value, "2. shared correctly to the second question").toEqualValues(newValue);
+    expect(q1.value, "2. set correctly to the first question").toEqual(newValue);
+    expect(q2.value, "2. shared correctly to the second question").toEqual(newValue);
   });
 
   test("Copy matrix value on trigger, Bug# https://surveyjs.answerdesk.io/ticket/details/T1322", () => {
@@ -2554,7 +2554,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(q2.visibleRows.length, "q2 - two rows are by default").toBe(2);
     var newValue = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
     q1.value = newValue;
-    expect(q1.value, "set correctly to the first question").toEqualValues(newValue);
+    expect(q1.value, "set correctly to the first question").toEqual(newValue);
     var rowsChangedCounter = 0;
     q2.visibleRowsChangedCallback = function () {
       rowsChangedCounter++;
@@ -2562,7 +2562,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(2 * 2, "q2 renderedTable rows are correct, #1").toBe(q2.renderedTable.rows.length);
     survey.setValue("copyValue", true);
     expect(3 * 2, "q2 renderedTable rows are correct, #2").toBe(q2.renderedTable.rows.length);
-    expect(q2.value, "set correctly to the second question on trigger").toEqualValues(newValue);
+    expect(q2.value, "set correctly to the second question on trigger").toEqual(newValue);
   });
   test("columnsVisibleIf produce the bug, Bug#1540", () => {
     const survey = new SurveyModel({
@@ -2758,7 +2758,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       }
     );
     matrix.columns[0].choices = ["1", "2", "3"];
-    expect(question.choices.length, "Choices set correctly").toEqualValues(3);
+    expect(question.choices.length, "Choices set correctly").toEqual(3);
     expect(counter, "There was only one change").toBe(1);
   });
   test("customwidget.readOnlyChangedCallback doesn't work correctly, https://surveyjs.answerdesk.io/ticket/details/T1869", () => {
@@ -2828,7 +2828,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q2");
     expect(matrix.visibleRows.length, "One row is visible").toBe(1);
     survey.doComplete();
-    expect(survey.data, "Remove value for invisible row").toEqualValues({ q1: 2, q2: { row2: { col2: "b" } } });
+    expect(survey.data, "Remove value for invisible row").toEqual({ q1: 2, q2: { row2: { col2: "b" } } });
   });
 
   test("matrix.hasTotal property", () => {
@@ -2869,8 +2869,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(question.value, "Calculated correctly").toBe(1 + 2 + 4);
     expect(row.cells[1].value, "Calculated correctly, the second cell").toBe(10 + 20 + 40);
     expect(row.cells[2].value, "Calculated correctly, {row.col1} + {row.col2}").toBe(1 + 2 + 4 + 10 + 20 + 40);
-    expect(matrix.totalValue, "Total value calculated correctly").toEqualValues({ col1: 7, col2: 70, col3: 77 });
-    expect(survey.getValue("q1-total"), "Total value set into survey correctly").toEqualValues({ col1: 7, col2: 70, col3: 77 });
+    expect(matrix.totalValue, "Total value calculated correctly").toEqual({ col1: 7, col2: 70, col3: 77 });
+    expect(survey.getValue("q1-total"), "Total value set into survey correctly").toEqual({ col1: 7, col2: 70, col3: 77 });
   });
   test("sumInArray vs conditional logic, #10305", () => {
     const survey = new SurveyModel({
@@ -2890,13 +2890,13 @@ describe("Survey_QuestionMatrixDynamic", () => {
       { col1: 3, col2: 30 },
       { col1: 4, col2: 40 },
     ];
-    expect(matrix.totalValue, "Total value #1").toEqualValues({ col1: 10 });
+    expect(matrix.totalValue, "Total value #1").toEqual({ col1: 10 });
     survey.setValue("q1", 15);
-    expect(matrix.totalValue, "Total value #2").toEqualValues({ col1: 9 });
+    expect(matrix.totalValue, "Total value #2").toEqual({ col1: 9 });
     survey.setValue("q1", 35);
-    expect(matrix.totalValue, "Total value #3").toEqualValues({ col1: 4 });
+    expect(matrix.totalValue, "Total value #3").toEqual({ col1: 4 });
     survey.setValue("q1", 1);
-    expect(matrix.totalValue, "Total value #4").toEqualValues({ col1: 10 });
+    expect(matrix.totalValue, "Total value #4").toEqual({ col1: 10 });
   });
 
   test("Test totals, different value types", () => {
@@ -3804,7 +3804,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     ];
     survey.setValue("qualita", test_qualita);
     var matrixDynamic = survey.getQuestionByName("employer_names");
-    expect(matrixDynamic.value, "Value set correctly").toEqualValues(test_qualita);
+    expect(matrixDynamic.value, "Value set correctly").toEqual(test_qualita);
   });
 
   test("Totals in row using total in matrix, Bug #T3162 (https://surveyjs.answerdesk.io/ticket/details/T3162)", () => {
@@ -4129,9 +4129,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const commentCell = matrix.renderedTable.rows[1].cells[5];
     expect(commentCell.isOtherChoice, "it is not other choice index").toBe(false);
     cell.question.otherValue = "comment1";
-    expect(matrix.value, "Matrix value col1-comment is set").toEqualValues({ row1: { col1: ["other"], "col1-Comment": "comment1" } });
+    expect(matrix.value, "Matrix value col1-comment is set").toEqual({ row1: { col1: ["other"], "col1-Comment": "comment1" } });
     cell.question.otherValue = "comment2";
-    expect(matrix.value, "Matrix value col1-comment is set, #2").toEqualValues({ row1: { col1: ["other"], "col1-Comment": "comment2" } });
+    expect(matrix.value, "Matrix value col1-comment is set, #2").toEqual({ row1: { col1: ["other"], "col1-Comment": "comment2" } });
     cell.question.otherValue = "";
     expect(matrix.value, "Reset comment value").toBeFalsy();
   });
@@ -4706,10 +4706,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(rows[0].cells[1].question.errors.length, "There is no errors yet in the cell, first row, second column").toBe(0);
     expect(rows[1].cells[0].question.errors.length, "There is no errors yet in the cell, second row, first column").toBe(0);
     expect(matrix.value, "do not set value to matrix").toBeFalsy();
-    expect(survey.data, "do not set value into survey").toEqualValues({});
+    expect(survey.data, "do not set value into survey").toEqual({});
     rows[0].cells[0].value = "a@a.com";
-    expect(matrix.value, "set value to matrix").toEqualValues([{ col1: "a@a.com" }, {}]);
-    expect(survey.data, "set value into survey").toEqualValues({ question1: [{ col1: "a@a.com" }, {}] });
+    expect(matrix.value, "set value to matrix").toEqual([{ col1: "a@a.com" }, {}]);
+    expect(survey.data, "set value into survey").toEqual({ question1: [{ col1: "a@a.com" }, {}] });
   });
 
   test("Survey.checkErrorsMode=onValueChanging and column.isUnique", () => {
@@ -4740,10 +4740,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var rows = matrix.visibleRows;
     rows[0].cells[0].value = "val1";
     expect(rows[0].cells[0].question.errors.length, "There is no error").toBe(0);
-    expect(matrix.value).toEqualValues([{ col1: "val1" }, {}]);
+    expect(matrix.value).toEqual([{ col1: "val1" }, {}]);
     rows[1].cells[0].value = "val1";
     expect(rows[1].cells[0].question.errors.length, "There is a duplication error, second row, first column").toBe(1);
-    expect(matrix.value).toEqualValues([{ col1: "val1" }, {}]);
+    expect(matrix.value).toEqual([{ col1: "val1" }, {}]);
     rows[1].cells[0].value = "val2";
     expect(rows[1].cells[0].question.errors.length, "There is no errors yet in the cell, second row, first column").toBe(0);
   });
@@ -4787,7 +4787,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(question.renderedTable).toBeTruthy();
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 9 - 2,
       answeredQuestionCount: 2,
       requiredQuestionCount: 3,
@@ -4819,7 +4819,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       ],
     });
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 3,
       answeredQuestionCount: 0,
       requiredQuestionCount: 3,
@@ -4827,7 +4827,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     survey.data = { matrix: { row1: { col1: "1" }, row2: { col1: "2" }, row3: {} } };
     expect(question.renderedTable).toBeTruthy();
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 3,
       answeredQuestionCount: 2,
       requiredQuestionCount: 3,
@@ -4859,7 +4859,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     var question = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     question.rowCount = 3;
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 3,
       answeredQuestionCount: 0,
       requiredQuestionCount: 3,
@@ -4867,7 +4867,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     survey.data = { matrix: [{ col1: "1" }, { col1: "2" }, {}] };
     expect(question.renderedTable).toBeTruthy();
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 3,
       answeredQuestionCount: 2,
       requiredQuestionCount: 3,
@@ -4898,7 +4898,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     survey.data = { matrix: [{ col1: "1" }, { col2: "2" }, []] };
     var question = survey.getQuestionByName("matrix");
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 9,
       answeredQuestionCount: 2,
       requiredQuestionCount: 3,
@@ -4931,7 +4931,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     survey.data = { matrix: { row1: { col1: "1" }, row2: { col2: "2" } } };
     var question = survey.getQuestionByName("matrix");
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 9,
       answeredQuestionCount: 2,
       requiredQuestionCount: 3,
@@ -4965,14 +4965,14 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     survey.data = { matrix: { row1: { col1: "1" }, row2: { col2: "2" } } };
     const question = survey.getQuestionByName("matrix");
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 3,
       answeredQuestionCount: 0,
       requiredQuestionCount: 1,
       requiredAnsweredQuestionCount: 0,
     });
     survey.setValue("q1", 1);
-    expect(question.getProgressInfo()).toEqualValues({
+    expect(question.getProgressInfo()).toEqual({
       questionCount: 6,
       answeredQuestionCount: 1,
       requiredQuestionCount: 2,
@@ -5067,7 +5067,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cellQuestion.getType(), "Cell question was created correctly").toBe("dropdown");
     cellQuestion.value = cellQuestion.otherItem.value;
     cellQuestion.otherValue = "My Comment";
-    expect(question.value, "Has comment").toEqualValues([{ col1: "other", "col1-Comment": "My Comment" }]);
+    expect(question.value, "Has comment").toEqual([{ col1: "other", "col1-Comment": "My Comment" }]);
     question.value = [{ col1: 1 }];
     expect(cellQuestion.value, "value sets correctly into cell").toBe(1);
     expect(cellQuestion.comment, "comment clears correctly in cell question").toBe("");
@@ -5104,19 +5104,19 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cellQuestion.getType(), "Cell question was created correctly").toBe("checkbox");
     cellQuestion.value = [1, cellQuestion.otherItem.value];
     cellQuestion.otherValue = "My Comment";
-    expect(cellQuestion.value, "question.value #1").toEqualValues([1, "other"]);
-    expect(question.value, "Has comment").toEqualValues([{ col1: [1, "other"], "col1-Comment": "My Comment" }]);
-    expect(survey.data, "survey.data is correct, set").toEqualValues({ q1: [{ col1: [1, "other"], "col1-Comment": "My Comment" }] });
+    expect(cellQuestion.value, "question.value #1").toEqual([1, "other"]);
+    expect(question.value, "Has comment").toEqual([{ col1: [1, "other"], "col1-Comment": "My Comment" }]);
+    expect(survey.data, "survey.data is correct, set").toEqual({ q1: [{ col1: [1, "other"], "col1-Comment": "My Comment" }] });
     question.value = [{ col1: [1] }];
-    expect(cellQuestion.value, "value sets correctly into cell").toEqualValues([1]);
-    expect(survey.data, "survey.data is correct, clear").toEqualValues({ q1: [{ col1: [1] }] });
+    expect(cellQuestion.value, "value sets correctly into cell").toEqual([1]);
+    expect(survey.data, "survey.data is correct, clear").toEqual({ q1: [{ col1: [1] }] });
     expect(cellQuestion.comment, "comment clears correctly in cell question").toBe("");
     question.value = [{ col1: [1, "other"], "col1-Comment": "New Comment" }];
-    expect(cellQuestion.value, "value other sets correctly into cell").toEqualValues([1, "other"]);
+    expect(cellQuestion.value, "value other sets correctly into cell").toEqual([1, "other"]);
     expect(cellQuestion.comment, "comment sets correctly into cell question").toBe("New Comment");
     question.value = [{ col1: [1] }];
     question.value = [{ col1: [1, "NotInList"] }];
-    expect(cellQuestion.value, "value other sets correctly into cell using NotInList").toEqualValues([1, "other"]);
+    expect(cellQuestion.value, "value other sets correctly into cell using NotInList").toEqual([1, "other"]);
     expect(cellQuestion.comment, "comment sets correctly into cell question using NotInList").toBe("NotInList");
   });
   test("Use survey.storeOthersAsComment = false in matrix, cellType = checkbox", () => {
@@ -5145,18 +5145,18 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cellQuestion.getType(), "Cell question was created correctly").toBe("checkbox");
     cellQuestion.value = [1, cellQuestion.otherItem.value];
     cellQuestion.otherValue = "My Comment";
-    expect(question.value, "Has comment in value").toEqualValues([{ col1: [1, "My Comment"] }]);
-    expect(survey.data, "survey.data is correct, set").toEqualValues({ q1: [{ col1: [1, "My Comment"] }] });
+    expect(question.value, "Has comment in value").toEqual([{ col1: [1, "My Comment"] }]);
+    expect(survey.data, "survey.data is correct, set").toEqual({ q1: [{ col1: [1, "My Comment"] }] });
     question.value = [{ col1: [1] }];
-    expect(cellQuestion.value, "value sets correctly into cell").toEqualValues([1]);
-    expect(survey.data, "survey.data is correct, clear").toEqualValues({ q1: [{ col1: [1] }] });
+    expect(cellQuestion.value, "value sets correctly into cell").toEqual([1]);
+    expect(survey.data, "survey.data is correct, clear").toEqual({ q1: [{ col1: [1] }] });
     expect(cellQuestion.comment, "comment clears correctly in cell question").toBe("");
     question.value = [{ col1: [1, "New Comment"] }];
-    expect(cellQuestion.value, "value other sets correctly into cell").toEqualValues([1, "New Comment"]);
+    expect(cellQuestion.value, "value other sets correctly into cell").toEqual([1, "New Comment"]);
     expect(cellQuestion.comment, "comment sets correctly into cell question").toBe("New Comment");
     question.value = [{ col1: [1] }];
     question.value = [{ col1: [1, "NotInList"] }];
-    expect(cellQuestion.value, "value other sets correctly into cell using NotInList").toEqualValues([1, "NotInList"]);
+    expect(cellQuestion.value, "value other sets correctly into cell using NotInList").toEqual([1, "NotInList"]);
     expect(cellQuestion.comment, "comment sets correctly into cell question using NotInList").toBe("NotInList");
   });
   test("Use survey.storeOthersAsComment in matrix, cellType = dropdown, set comment from survey", () => {
@@ -5215,7 +5215,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows[0].detailPanel.questions.length, "There is one question here").toBe(1);
     expect(matrix.visibleRows[0].detailPanel.questions[0].value, "The value is set correctly").toBe("r1v2");
     matrix.visibleRows[0].detailPanel.questions[0].value = "r1v2_changed";
-    expect(matrix.value, "matrix value changed from detail panel").toEqualValues([
+    expect(matrix.value, "matrix value changed from detail panel").toEqual([
       { col1: "r1v1", q2: "r1v2_changed" },
       { col1: "r2v1", q2: "r2v2" },
     ]);
@@ -5253,7 +5253,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows[0].isDetailPanelShowing, "detail panel is showing").toBe(true);
     expect(matrix.visibleRows[0].detailPanel, "Detail Panel is created").toBeTruthy();
     matrix.visibleRows[0].detailPanel.getQuestionByName("q1").value = 1;
-    expect(survey.data, "Survey data set correctly").toEqualValues({ matrix: { row1: { q1: 1 } } });
+    expect(survey.data, "Survey data set correctly").toEqual({ matrix: { row1: { q1: 1 } } });
     survey.data = { matrix: { row1: { q1: 2 }, row2: { col1: 1, q1: 3 } } };
     expect(matrix.visibleRows[0].detailPanel.getQuestionByName("q1").value, "The value set from the survey correctly into opened detail panel question").toBe(2);
     matrix.visibleRows[1].showDetailPanel();
@@ -5401,7 +5401,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     matrix.value = [{ col1: "col1Value", q1: "q1Value" }];
     matrix.addRow();
-    expect(matrix.value).toEqualValues([{ col1: "col1Value", q1: "q1Value" }, { col1: "col1Value", q1: "q1Value" }]);
+    expect(matrix.value).toEqual([{ col1: "col1Value", q1: "q1Value" }, { col1: "col1Value", q1: "q1Value" }]);
   });
   test("Detail panel, rendered table", () => {
     var survey = new SurveyModel({
@@ -5485,7 +5485,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     expect(rows[2].cells[rows[2].cells.length - 1].isActionsCell, "the last cell in detail panel is actions cell").toBe(true);
 
-    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqualValues(["show-detail-mobile", "remove-row"]);
+    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqual(["show-detail-mobile", "remove-row"]);
   });
 
   test("Detail panel, rendered table mobile - expand collapse", () => {
@@ -5598,7 +5598,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     matrix.visibleRows[0].detailPanel.questions[0].value = "value2";
     matrix.visibleRows[0].detailPanel.footerActions[0].action();
     expect(matrix.visibleRows[0].isDetailPanelShowing, "We close detail panel").toBe(false);
-    expect(matrix.value).toEqualValues([{ col1: "value2", q1: "value2" }]);
+    expect(matrix.value).toEqual([{ col1: "value2", q1: "value2" }]);
   });
   test("Detail panel, detailPanelShowOnAdding property", () => {
     var survey = new SurveyModel({
@@ -5822,9 +5822,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
       logs.push({ name: options.name, value: options.value });
     });
     q1.value = "abc";
-    expect(logs, "#1").toEqualValues([{ name: "matrix", value: [{ q1: "abc" }, {}] }]);
+    expect(logs, "#1").toEqual([{ name: "matrix", value: [{ q1: "abc" }, {}] }]);
     q1.clearValue();
-    expect(logs, "#2").toEqualValues([
+    expect(logs, "#2").toEqual([
       { name: "matrix", value: [{ q1: "abc" }, {}] },
       { name: "matrix", value: [] }
     ]);
@@ -5898,13 +5898,13 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const q2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
     q1.value = [{ a1: "val1" }, { a1: "val2" }];
     survey.setValue("a", true);
-    expect(q2.value, "copy value to q2, #1").toEqualValues([{ a1: "val1" }, { a1: "val2" }]);
+    expect(q2.value, "copy value to q2, #1").toEqual([{ a1: "val1" }, { a1: "val2" }]);
     survey.setValue("a", false);
     q2.addRow();
     q2.visibleRows[2].cells[0].value = "val3";
-    expect(q2.value, "added row").toEqualValues([{ a1: "val1" }, { a1: "val2" }, { a1: "val3" }]);
+    expect(q2.value, "added row").toEqual([{ a1: "val1" }, { a1: "val2" }, { a1: "val3" }]);
     survey.setValue("a", true);
-    expect(q2.value, "copy value to q2, #2").toEqualValues([{ a1: "val1" }, { a1: "val2" }]);
+    expect(q2.value, "copy value to q2, #2").toEqual([{ a1: "val1" }, { a1: "val2" }]);
   });
   test("MatrixDynamic, test renderedTable.showTable&showAddRowOnBottom", () => {
     var survey = new SurveyModel({
@@ -5988,7 +5988,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(surveyFromEvent == survey).toBeTruthy();
     expect(options.question == matrix).toBeTruthy();
     expect(options.row == matrix.visibleRows[0]).toBeTruthy();
-    expect(options.actions).toEqualValues([]);
+    expect(options.actions).toEqual([]);
   });
 
   test("Row actions, check getUpdatedMatrixRowActions", () => {
@@ -6008,14 +6008,14 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     var actions = [];
-    expect(survey.getUpdatedMatrixRowActions(matrix, matrix.visibleRows[0], actions)).toEqualValues(expectedActions);
+    expect(survey.getUpdatedMatrixRowActions(matrix, matrix.visibleRows[0], actions)).toEqual(expectedActions);
   });
 
   test("moveRowByIndex test", () => {
     var matrixD = new QuestionMatrixDynamicModel("q1");
     matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
     matrixD.moveRowByIndex(1, 0);
-    expect(matrixD.value).toEqualValues([{ v2: "v2" }, { v1: "v1" }]);
+    expect(matrixD.value).toEqual([{ v2: "v2" }, { v1: "v1" }]);
   });
 
   test("moveRowByIndex - detail panels, Bug#10472", () => {
@@ -6143,10 +6143,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(visibleRowsCount, "There should be three visible rows in event").toBe(3);
     q1.removeRow(1);
     expect(q1.rowCount, "there is one row now").toBe(1);
-    expect(q1.value, "We have value in the cell").toEqualValues([{ col1: 1 }]);
+    expect(q1.value, "We have value in the cell").toEqual([{ col1: 1 }]);
     q1.removeRow(0);
     expect(q1.rowCount, "We do not allow to remove the row").toBe(1);
-    expect(q1.value, "We clear value in the row").toEqualValues([]);
+    expect(q1.value, "We clear value in the row").toEqual([]);
   });
   test("Text processing in rows and columns, rendered table", () => {
     var survey = new SurveyModel({
@@ -6203,8 +6203,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
       counter++;
     });
     var displayValue = matrix.getDisplayValue(true, [{ col1: 2 }]);
-    expect(displayValue, "Do not use value").toEqualValues([{ "Column 1": "B" }]);
-    expect(matrix.value, "Value is still the same").toEqualValues([{ col1: 1 }, { col1: 3 }]);
+    expect(displayValue, "Do not use value").toEqual([{ "Column 1": "B" }]);
+    expect(matrix.value, "Value is still the same").toEqual([{ col1: 1 }, { col1: 3 }]);
     expect(counter, "We do not change the value during processing").toBe(0);
   });
 
@@ -6237,8 +6237,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
       counter++;
     });
     var displayValue = matrix.getDisplayValue(true, { row1: { col1: 2 } });
-    expect(displayValue, "Do not use value").toEqualValues({ "Row 1": { "Column 1": "B" } });
-    expect(matrix.value, "Value is still the same").toEqualValues({ row1: { col1: 1 } });
+    expect(displayValue, "Do not use value").toEqual({ "Row 1": { "Column 1": "B" } });
+    expect(matrix.value, "Value is still the same").toEqual({ row1: { col1: 1 } });
     expect(counter, "We do not change the value during processing").toBe(0);
   });
   test("getDisplayValue() function in matrix Dropdown with rowsVisibleIf, Bug#3430", () => {
@@ -6271,7 +6271,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     matrix.value = { row2: { col1: 1 }, row3: { col1: 2 } };
     const displayValue = matrix.getDisplayValue(true);
-    expect(displayValue, "Rows are filtered").toEqualValues({ "row2": { "col1": "A" }, "row3": { "col1": "B" } });
+    expect(displayValue, "Rows are filtered").toEqual({ "row2": { "col1": "A" }, "row3": { "col1": "B" } });
   });
 
   test("Error on setting properties into column cellType:'text', Bug#2897", () => {
@@ -6547,7 +6547,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(rows[1].cells[0].question.value, "cell[0,0].value #2").toBe("a");
     expect(rows[1].cells[1].question.value, "cell[0,1].value #2").toBe("b");
     expect(rows[1].cells[1].question.isVisible, "cell[0,1].isVisible #2").toBe(true);
-    expect(matrix.value, "matrix.value #2").toEqualValues([{ col1: "c" }, { col1: "a", col2: "b" }]);
+    expect(matrix.value, "matrix.value #2").toEqual([{ col1: "c" }, { col1: "a", col2: "b" }]);
     const renderedRows = matrix.renderedTable.rows;
     expect(renderedRows.length, "There are 4 rendered rows").toBe(4);
     expect(renderedRows[0].cells.length, "There are 4 cells in row").toBe(4);
@@ -6597,7 +6597,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(rows[0].cells[0].question.dropdownListModel.showHintString, "cell[0,0].dropdownListModel.showHintString #2").toBe(false);
     expect(rows[1].cells[1].question.value, "cell[0,1].value #2").toBe("b");
     expect(rows[1].cells[1].question.isVisible, "cell[0,1].isVisible #2").toBe(true);
-    expect(matrix.value, "matrix.value #2").toEqualValues([{ col1: "c" }, { col1: "a", col2: "b" }]);
+    expect(matrix.value, "matrix.value #2").toEqual([{ col1: "c" }, { col1: "a", col2: "b" }]);
     const renderedRows = matrix.renderedTable.rows;
     expect(renderedRows.length, "There are 4 rendered rows").toBe(4);
     expect(renderedRows[0].cells.length, "There are 4 cells in row").toBe(4);
@@ -6732,13 +6732,13 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const rows1 = matrix1.visibleRows;
     rows1[0].cells[0].value = "val1";
     rows1[1].cells[0].value = "val2";
-    expect(matrix2.value).toEqualValues([{ col1: "val1" }, { col1: "val2" }]);
+    expect(matrix2.value).toEqual([{ col1: "val1" }, { col1: "val2" }]);
     matrix2.removeRow(1);
-    expect(matrix2.value).toEqualValues([{ col1: "val1" }]);
+    expect(matrix2.value).toEqual([{ col1: "val1" }]);
     matrix2.addRow();
     const rows2 = matrix2.visibleRows;
     rows2[1].cells[0].value = "val2_2";
-    expect(matrix2.value).toEqualValues([{ col1: "val1" }, { col1: "val2_2" }]);
+    expect(matrix2.value).toEqual([{ col1: "val1" }, { col1: "val2_2" }]);
   });
   test("call locationChangedCallback for cell question", () => {
     const survey = new SurveyModel({
@@ -6927,7 +6927,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     q.value = "1";
     expect(matrix.visibleTotalRow.cells[0].value, "summary for first column is empty").toBeFalsy();
-    expect(survey.data, "matrix is empty").toEqualValues({ col1: "1", "matrix-total": { col2: 0 } });
+    expect(survey.data, "matrix is empty").toEqual({ col1: "1", "matrix-total": { col2: 0 } });
   });
   test("Get choices from matrix for default column type", () => {
     const survey = new SurveyModel({
@@ -7001,7 +7001,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix1 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
     expect(matrix1.columns[0].rateMax, "rateMax loaded correctly").toBe(10);
     matrix1.columns[0].cellType = "default";
-    expect(matrix1.toJSON(), "There is no rateMax").toEqualValues({
+    expect(matrix1.toJSON(), "There is no rateMax").toEqual({
       name: "matrix1",
       cellType: "rating",
       columns: [{ name: "col1" }]
@@ -7009,7 +7009,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix2 = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
     expect(matrix2.columns[0].choices.length, "choices loaded correctly").toBe(2);
     matrix2.columns[0].cellType = "default";
-    expect(matrix2.toJSON(), "There is no choices").toEqualValues({
+    expect(matrix2.toJSON(), "There is no choices").toEqual({
       name: "matrix2",
       columns: [{ name: "col1" }]
     });
@@ -7089,12 +7089,12 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
     const colQuestion = matrix.columns[0].templateQuestion;
     expect(colQuestion.getType(), "template is dropdown").toBe("dropdown");
-    expect(colQuestion.choices.length, "template has 4 choices").toEqualValues(4);
+    expect(colQuestion.choices.length, "template has 4 choices").toEqual(4);
     expect(colQuestion.choices[2].value, "template has correct choices").toBe("c");
     const rows = matrix.visibleRows;
     const cellQuestion = rows[0].cells[0].question;
     expect(cellQuestion.getType(), "update the cell type").toBe("dropdown");
-    expect(cellQuestion.choices.length, "load 4 choices").toEqualValues(4);
+    expect(cellQuestion.choices.length, "load 4 choices").toEqual(4);
     expect(cellQuestion.choices[2].value, "load choices correctly").toBe("c");
   });
   test("Vertical column layout & allowRowReorder, rendered table", () => {
@@ -7142,7 +7142,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     rows[0].cells[1].value = 2;
     rows[1].cells[0].value = 3;
     rows[1].cells[1].value = 4;
-    expect(survey.data, "#1").toEqualValues({
+    expect(survey.data, "#1").toEqual({
       matrix: {
         row1: { col1: 1, col2: 2, col3: 3, },
         row2: { col1: 3, col2: 4, col3: 7 }
@@ -7150,7 +7150,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
       "matrix-total": { col1: 4, col3: 10 }
     });
     matrix.rows = ["row1"];
-    expect(survey.data, "#2").toEqualValues({
+    expect(survey.data, "#2").toEqual({
       matrix: { row1: { col1: 1, col2: 2, col3: 3, } },
       "matrix-total": { col1: 1, col3: 3 }
     });
@@ -7213,9 +7213,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const cell = matrix.visibleRows[0].cells[0].question;
     cell.value = 10;
-    expect(matrix.value, "matrix question value").toEqualValues([{ col1: 10, col2: 20 }]);
-    expect(matrix.value, "event options.value").toEqualValues([{ col1: 10, col2: 20 }]);
-    expect(survey.data, "survey.data").toEqualValues({ matrix: [{ col1: 10, col2: 20 }] });
+    expect(matrix.value, "matrix question value").toEqual([{ col1: 10, col2: 20 }]);
+    expect(matrix.value, "event options.value").toEqual([{ col1: 10, col2: 20 }]);
+    expect(survey.data, "survey.data").toEqual({ matrix: [{ col1: 10, col2: 20 }] });
   });
   test("Matrix calls survey.onValueChanged before making expression calculation, Bug#10094", () => {
     const survey = new SurveyModel({
@@ -7248,9 +7248,9 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const row = matrix.visibleRows[0];
     row.getQuestionByName("a").value = 10;
-    expect(questionValue, "onValueChanged options.value after setting a").toEqualValues([{ a: 10, c: 10 }]);
+    expect(questionValue, "onValueChanged options.value after setting a").toEqual([{ a: 10, c: 10 }]);
     row.getQuestionByName("b").value = 20;
-    expect(questionValue, "onValueChanged options.value after setting b").toEqualValues([{ a: 10, b: 20, c: 30 }]);
+    expect(questionValue, "onValueChanged options.value after setting b").toEqual([{ a: 10, b: 20, c: 30 }]);
   });
   test("Do not run total expressions if matrix is read-only, bug#5644", () => {
     const survey = new SurveyModel({
@@ -7294,7 +7294,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(expQuestion.isEmpty(), "Expression question is empty").toBe(true);
     expect(totalQuestion.isReadOnly, "Total Expression question is readOnly").toBe(false);
     expect(totalQuestion.isEmpty(), "Total Expression question is empty").toBe(false);
-    expect(survey.data, "Data set in survey correctly.").toEqualValues({
+    expect(survey.data, "Data set in survey correctly.").toEqual({
       q1: 1, q2: 2, "matrix-total": { col1: 3 },
       "matrix": [{ "col1": 1 }]
     });
@@ -7400,8 +7400,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(q.visibleRows.length, "one row").toBe(1);
-    expect(q.value, "matrix.data").toEqualValues([{ col1: 2 }]);
-    expect(survey.data, "survey.data").toEqualValues({ matrix: [{ col1: 2 }] });
+    expect(q.value, "matrix.data").toEqual([{ col1: 2 }]);
+    expect(survey.data, "survey.data").toEqual({ matrix: [{ col1: 2 }] });
   });
 
   test("Errors: matrixdropdown", () => {
@@ -7903,7 +7903,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(q.visibleRows.length, "We are waiting for async function, #2").toBe(3);
     f_resFunc(true);
     expect(q.visibleRows.length, "confirm action return true").toBe(2);
-    expect(q.value, "Row is deleted correctly").toEqualValues([{ col1: 1 }, { col1: 3 }]);
+    expect(q.value, "Row is deleted correctly").toEqual([{ col1: 1 }, { col1: 3 }]);
 
     settings.confirmActionAsync = prevAsync;
   });
@@ -7928,7 +7928,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     funcRes = true;
     q.removeRow(1, true);
     expect(q.visibleRows.length, "confirm action return true").toBe(2);
-    expect(q.value, "Row is deleted correctly").toEqualValues([{ col1: 1 }, { col1: 3 }]);
+    expect(q.value, "Row is deleted correctly").toEqual([{ col1: 1 }, { col1: 3 }]);
 
     (<any>settings).confirmActionFunc = undefined;
   });
@@ -8013,10 +8013,10 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.value, "matrix is empty").toBeFalsy();
     checkbox.renderedValue = ["Item 1"];
     expect(matrix.visibleRows.length, "matrix rows #1").toBe(1);
-    expect(matrix.value, "matrix value #1").toEqualValues([{ testItem: "Item 1", col1: "Item 1 - matrix" }]);
+    expect(matrix.value, "matrix value #1").toEqual([{ testItem: "Item 1", col1: "Item 1 - matrix" }]);
     checkbox.renderedValue = ["Item 1", "Item 2"];
     expect(matrix.visibleRows.length, "matrix rows #2").toBe(2);
-    expect(matrix.value, "matrix value #2").toEqualValues([{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }]);
+    expect(matrix.value, "matrix value #2").toEqual([{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }]);
   });
   test("matrix dynamic expression & checkbox valuePropertyName & sumInArray function", () => {
     const survey = new SurveyModel({
@@ -8170,7 +8170,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix2 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix2");
     matrix1.visibleRows[0].getQuestionByName("col1").value = "a1";
     matrix1.visibleRows[1].getQuestionByName("col1").value = "a2";
-    expect(matrix2.value, "#1").toEqualValues([{ col1: "a1" }, { col1: "a2" }]);
+    expect(matrix2.value, "#1").toEqual([{ col1: "a1" }, { col1: "a2" }]);
   });
   test("matrix dynamic detail panel & checkbox valuePropertyName, Bug8697", () => {
     const survey = new SurveyModel({
@@ -8193,8 +8193,8 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const rows = matrix.visibleRows;
     const checkbox = rows[0].getQuestionByName("col1");
     checkbox.renderedValue = [1, 4];
-    expect(checkbox.renderedValue, "renderedValue #1").toEqualValues([1, 4]);
-    expect(checkbox.value, "value #1").toEqualValues([{ prop1: 1 }, { prop1: 4 }]);
+    expect(checkbox.renderedValue, "renderedValue #1").toEqual([1, 4]);
+    expect(checkbox.value, "value #1").toEqual([{ prop1: 1 }, { prop1: 4 }]);
   });
   test("matrix dynamic detail panel & checkbox valuePropertyName & matrix dynamic in detail panel, Bug8697", () => {
     const survey = new SurveyModel({
@@ -8228,11 +8228,11 @@ describe("Survey_QuestionMatrixDynamic", () => {
     rows[0].showDetailPanel();
     rows[0].getQuestionByName("col1").renderedValue = [1, 3, 4, 5];
     let matrix1 = <QuestionMatrixDynamicModel>rows[0].getQuestionByName("matrix1");
-    expect(matrix1.value, "#1").toEqualValues([{ prop1: 1 }, { prop1: 3 }, { prop1: 4 }, { prop1: 5 }]);
+    expect(matrix1.value, "#1").toEqual([{ prop1: 1 }, { prop1: 3 }, { prop1: 4 }, { prop1: 5 }]);
     rows[1].getQuestionByName("col1").renderedValue = [3];
     rows[1].showDetailPanel();
     matrix1 = <QuestionMatrixDynamicModel>rows[1].getQuestionByName("matrix1");
-    expect(matrix1.value, "#2").toEqualValues([{ prop1: 3 }]);
+    expect(matrix1.value, "#2").toEqual([{ prop1: 3 }]);
   });
   test("matrix dynamic & detail panel, add a new row when the last row is expanded, errorLocation: 'bottom', Bug9147", () => {
     const survey = new SurveyModel({
@@ -8475,7 +8475,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     const renderedTable = matrix.renderedTable;
     expect(renderedTable.renderedRows.length).toBe(4);
-    expect(renderedTable.renderedRows).toEqualValues(renderedTable.rows);
+    expect(renderedTable.renderedRows).toEqual(renderedTable.rows);
     matrix.addRow();
     expect(renderedTable.rows.length).toBe(6);
     expect(renderedTable.renderedRows.length).toBe(6);
@@ -8728,7 +8728,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix2.visibleRows.length, "matrix2 rowCount: 2").toBe(2);
     expect(matrix3.visibleRows.length, "matrix3 rowCount: 3").toBe(3);
     expect(matrix4.visibleRows.length, "matrix4 rowCount: 4").toBe(4);
-    expect(matrix4.value, "matrix4 value").toEqualValues([{ col1: 1 }, { col1: 1 }, { col1: 1 }, { col1: 1 }]);
+    expect(matrix4.value, "matrix4 value").toEqual([{ col1: 1 }, { col1: 1 }, { col1: 1 }, { col1: 1 }]);
   });
   test("Validation doesn't work if a user doesn't visit the page, Bug#8937", () => {
     const survey = new SurveyModel({
@@ -8946,22 +8946,22 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.isEmpty(), "matrix value #1").toBe(true);
     survey.setValue("toggleMatrix", "Yes");
     expect(matrix.visibleRows.length, "matrix visible rows #2").toBe(1);
-    expect(matrix.value, "matrix value #2").toEqualValues([{ col1: "Value 1", col2: "Value 2" }]);
+    expect(matrix.value, "matrix value #2").toEqual([{ col1: "Value 1", col2: "Value 2" }]);
     survey.setValue("toggleMatrix", "No");
     expect(matrix.visibleRows.length, "matrix visible rows #3").toBe(0);
     expect(matrix.isEmpty(), "matrix value #3").toBe(true);
     survey.setValue("toggleMatrix", "Yes");
     expect(matrix.visibleRows.length, "matrix visible rows #4").toBe(1);
-    expect(matrix.value, "matrix value #4").toEqualValues([{ col1: "Value 1", col2: "Value 2" }]);
+    expect(matrix.value, "matrix value #4").toEqual([{ col1: "Value 1", col2: "Value 2" }]);
     survey.setValue("toggleMatrix", "No");
     expect(matrix.visibleRows.length, "matrix visible rows #5").toBe(0);
     expect(matrix.isEmpty(), "matrix value #5").toBe(true);
     matrix.value = [{ col1: "Value A", col2: "Value B" }, { col1: "Value C", col2: "Value D" }];
     expect(matrix.visibleRows.length, "matrix visible rows #6").toBe(2);
-    expect(matrix.value, "matrix value #6").toEqualValues([{ col1: "Value A", col2: "Value B" }, { col1: "Value C", col2: "Value D" }]);
+    expect(matrix.value, "matrix value #6").toEqual([{ col1: "Value A", col2: "Value B" }, { col1: "Value C", col2: "Value D" }]);
     survey.setValue("toggleMatrix", "Yes");
     expect(matrix.visibleRows.length, "matrix visible rows #7").toBe(1);
-    expect(matrix.value, "matrix value #7").toEqualValues([{ col1: "Value 1", col2: "Value 2" }]);
+    expect(matrix.value, "matrix value #7").toEqual([{ col1: "Value 1", col2: "Value 2" }]);
   });
   test("The Set Value trigger doesn't work on subsequent runs, Bug#10017", () => {
     const survey = new SurveyModel({
@@ -9080,7 +9080,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
           "panelCount": 1
         }
       ] });
-    expect(survey.data, "The default value is correct").toEqualValues({ question1: [{ question2: [{ b: 0 }, { b: 0 }] }] });
+    expect(survey.data, "The default value is correct").toEqual({ question1: [{ question2: [{ b: 0 }, { b: 0 }] }] });
   });
   test("SurveyError.notificationType & validate in matrices,Issue#9085", () => {
     const survey = new SurveyModel({
@@ -9123,7 +9123,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cell2["hasCssError"](), "There is css error, cell2").toBe(false);
     expect(cell2["hasCssError"](true), "There is a css warning, cell2").toBe(true);
     expect(survey.tryComplete(), "There is no error, complete the survey").toBe(true);
-    expect(survey.data, "The data is correct").toEqualValues({ matrix: [{ col1: 7 }, { col1: 8 }] });
+    expect(survey.data, "The data is correct").toEqual({ matrix: [{ col1: 7 }, { col1: 8 }] });
   });
   test("Detail panel, do not create detail panels on value-changing validation", () => {
     var survey = new SurveyModel({
@@ -9236,11 +9236,11 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows.length, "There is one default row").toBe(1);
     matrix.addRow();
     matrix.visibleRows[1].getQuestionByColumnName("col1").value = "def";
-    expect(matrix.value, "The value is correct before setting empty array").toEqualValues([{ col1: "abc" }, { col1: "def" }]);
+    expect(matrix.value, "The value is correct before setting empty array").toEqual([{ col1: "abc" }, { col1: "def" }]);
     expect(matrix.renderedTable.rows.length, "There are two data rows before setting empty array").toBe(4);
     matrix.removeRow(1);
     matrix.removeRow(0);
-    expect(matrix.value, "The value is empty array").toEqualValues([]);
+    expect(matrix.value, "The value is empty array").toEqual([]);
     expect(matrix.visibleRows.length, "There is no rows").toBe(0);
     expect(matrix.renderedTable.rows.length, "There are no data rows").toBe(0);
     matrix.value = [{ col1: "row1" }];
@@ -9393,7 +9393,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     const row = matrix.visibleRows[0];
     row.getQuestionByName("name").value = "name1";
     row.getQuestionByName("title").value = "name1";
-    expect(matrix.value[0], "Initial values are set correctly").toEqualValues({ name: "name1", title: "name1" });
+    expect(matrix.value[0], "Initial values are set correctly").toEqual({ name: "name1", title: "name1" });
 
     row.showDetailPanel();
 

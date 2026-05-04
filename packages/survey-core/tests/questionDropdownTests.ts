@@ -216,7 +216,7 @@ describe("Dropdown question", () => {
     expect(question.placeholder).toBe("Select...");
     expect(question.allowClear === true).toBeTruthy();
 
-    expect(question.toJSON()).toEqualValues({
+    expect(question.toJSON()).toEqual({
       "name": "car",
       "title": "What car are you driving?",
       "choices": [
@@ -235,7 +235,7 @@ describe("Dropdown question", () => {
     question.placeholder = "New placeholder";
     question.allowClear = false;
 
-    expect(question.toJSON()).toEqualValues({
+    expect(question.toJSON()).toEqual({
       "name": "car",
       "title": "What car are you driving?",
       "allowClear": false,
@@ -287,7 +287,7 @@ describe("Dropdown question", () => {
     expect(question.showOptionsCaption === false).toBeTruthy();
     expect(question.allowClear === false).toBeTruthy();
 
-    expect(question.toJSON()).toEqualValues({
+    expect(question.toJSON()).toEqual({
       "name": "car",
       "title": "What car are you driving?",
       "allowClear": false,
@@ -386,7 +386,7 @@ describe("Dropdown question", () => {
     expect(question.choices[0].locText.textOrHtml, "choices[0]").toBe("Item 1_Item 1");
     expect(question.choices[1].locText.textOrHtml, "choices[1]").toBe("Item 2_Item 2");
     expect(question.choices[2].locText.textOrHtml, "choices[2]").toBe("Item 3_Item 3");
-    expect(itemsValues).toEqualValues([1, 2, 3]);
+    expect(itemsValues).toEqual([1, 2, 3]);
   });
   test("readOnlyText visibleChoices changed", () => {
     const json = {
@@ -619,7 +619,7 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     expect(question.value).toBe("value1");
     expect(question.selectedItem).toBeNull();
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       "question1": "value1",
     });
   });
@@ -639,7 +639,7 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     expect(question.value).toBe("other");
     expect(question.selectedItem.id).toBe("other");
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       "question1": "value1",
       "question1-Comment": "value1"
     });
@@ -909,10 +909,10 @@ describe("Dropdown question", () => {
     expect(question.visibleChoices[0].value).toBe("other");
 
     question.renderedValue = "other";
-    expect(question.value, "#1").toEqualValues("other");
+    expect(question.value, "#1").toEqual("other");
     question.otherValue = "text1";
-    expect(question.value, "#2").toEqualValues("text1");
-    expect(survey.data, "#3").toEqualValues({ q1: "text1" });
+    expect(question.value, "#2").toEqual("text1");
+    expect(survey.data, "#3").toEqual({ q1: "text1" });
   });
 
   test("lazy loading: storeOthersAsComment is false", () => {
@@ -948,10 +948,10 @@ describe("Dropdown question", () => {
     expect(question.visibleChoices[55].value).toBe("other");
 
     question.renderedValue = "other";
-    expect(question.value, "#1").toEqualValues("other");
+    expect(question.value, "#1").toEqual("other");
     question.otherValue = "text1";
-    expect(question.value, "#2").toEqualValues("text1");
-    expect(survey.data, "#3").toEqualValues({ q1: "text1" });
+    expect(question.value, "#2").toEqual("text1");
+    expect(survey.data, "#3").toEqual({ q1: "text1" });
   });
 
   test("itemsSettings property", () => {
@@ -1346,9 +1346,9 @@ describe("Dropdown question", () => {
       }
     });
 
-    expect(survey.data, "before doComplete before item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "before doComplete before item load").toEqual({ "q1": 55 });
     survey.doComplete();
-    expect(survey.data, "after doComplete before item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "after doComplete before item load").toEqual({ "q1": 55 });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     expect(question.choices.length).toBe(0);
@@ -1359,9 +1359,9 @@ describe("Dropdown question", () => {
     expect(question.choices.length).toBe(25);
     expect(question.value).toBe(55);
 
-    expect(survey.data, "before doComplete after item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "before doComplete after item load").toEqual({ "q1": 55 });
     survey.doComplete();
-    expect(survey.data, "after doComplete after item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "after doComplete after item load").toEqual({ "q1": 55 });
   });
 
   test("lazy loading data is lost: set survey data", () => {
@@ -1380,9 +1380,9 @@ describe("Dropdown question", () => {
       }
     });
     survey.data = { "q1": 55 };
-    expect(survey.data, "before doComplete before item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "before doComplete before item load").toEqual({ "q1": 55 });
     survey.doComplete();
-    expect(survey.data, "after doComplete before item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "after doComplete before item load").toEqual({ "q1": 55 });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     expect(question.choices.length).toBe(0);
@@ -1393,9 +1393,9 @@ describe("Dropdown question", () => {
     expect(question.choices.length).toBe(25);
     expect(question.value).toBe(55);
 
-    expect(survey.data, "before doComplete after item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "before doComplete after item load").toEqual({ "q1": 55 });
     survey.doComplete();
-    expect(survey.data, "after doComplete after item load").toEqualValues({ "q1": 55 });
+    expect(survey.data, "after doComplete after item load").toEqual({ "q1": 55 });
   });
 
   test("lazy loading + change filter string", () => {
@@ -2124,7 +2124,7 @@ describe("Dropdown question", () => {
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
@@ -2138,10 +2138,10 @@ describe("Dropdown question", () => {
     expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: testCustomValue });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: testCustomValue });
 
   });
 
@@ -2265,7 +2265,7 @@ describe("Dropdown question", () => {
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
@@ -2279,10 +2279,10 @@ describe("Dropdown question", () => {
     expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: testCustomValue });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: testCustomValue });
   });
 
   test("allowCustomChoices: hintString with custom value if searchEnabled: true", () => {
@@ -2380,7 +2380,7 @@ describe("Dropdown question", () => {
     dropdownListModel.inputStringRendered = testCustomValue;
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
     expect(listModel.actions[4].id).toBe("newCustomItem");
 
     listModel.onItemClick(listModel.actions[4]);
@@ -2388,13 +2388,13 @@ describe("Dropdown question", () => {
     expect(question.value, "#2 question.value").toBe(testCustomValue);
     expect(question.selectedItem.value, "#2 question.selectedItem.id").toBe(testCustomValue);
     expect(question.selectedItem.text, "#2 question.selectedItem.text").toBe(testCustomValueUpperCase);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: testCustomValue });
 
     dropdownListModel.inputStringRendered = testCustomValue + "1";
     expect(question.value, "#3 question.value").toBe(testCustomValue);
     expect(question.selectedItem.value, "#3 question.selectedItem.id").toBe(testCustomValue);
     expect(question.selectedItem.text, "#3 question.selectedItem.text").toBe(testCustomValueUpperCase);
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: testCustomValue });
     expect(listModel.actions[5].id).toBe("newCustomItem");
 
     listModel.onItemClick(listModel.actions[5]);
@@ -2402,7 +2402,7 @@ describe("Dropdown question", () => {
     expect(question.value, "#4 question.value").toBe(testCustomValue);
     expect(question.selectedItem.value, "#4 question.selectedItem.id").toBe(testCustomValue);
     expect(question.selectedItem.text, "#4 question.selectedItem.text").toBe(testCustomValueUpperCase);
-    expect(survey.data, "#4 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#4 survey.data").toEqual({ q1: testCustomValue });
   });
 
   test("allowCustomChoices: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", () => {
@@ -2538,7 +2538,7 @@ describe("Dropdown question", () => {
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(0);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
     expect(dropdownListModel.popupModel.isVisible, "#1 popupModel.isVisible").toBe(true);
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
@@ -2559,10 +2559,10 @@ describe("Dropdown question", () => {
     expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(26);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ country: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ country: testCustomValue });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ country: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ country: testCustomValue });
   });
 
   test("allowCustomChoices: Possibility of creating an element with custom value (mobile mode)", () => {
@@ -2647,7 +2647,7 @@ describe("Dropdown question", () => {
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
@@ -2660,10 +2660,10 @@ describe("Dropdown question", () => {
     expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
     expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: testCustomValue });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: testCustomValue });
 
     _setIsTouch(false);
   });
@@ -2687,7 +2687,7 @@ describe("Dropdown question", () => {
     expect(question.value, "#1 question.value").toBeUndefined();
     expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(5);
-    expect(survey.data, "#1 survey.data").toEqualValues({});
+    expect(survey.data, "#1 survey.data").toEqual({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
     expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
@@ -2701,10 +2701,10 @@ describe("Dropdown question", () => {
     expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
     expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(6);
     expect(question.visibleChoices[2].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
-    expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#2 survey.data").toEqual({ q1: testCustomValue });
 
     survey.tryComplete();
-    expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
+    expect(survey.data, "#3 survey.data").toEqual({ q1: testCustomValue });
   });
 
   test("allowCustomChoices: custom choices from survey.data", () => {
@@ -2733,7 +2733,7 @@ describe("Dropdown question", () => {
     expect(listModel.actions.length, "listModel.actions.length").toBe(9);
     expect(listModel.actions[0].id, "#1 new custom item").toBe(customValue);
     expect(listModel.actions[0].visible, "#1 new custom item visible").toBe(true);
-    expect(survey.data, "#1 survey.data").toEqualValues(data);
+    expect(survey.data, "#1 survey.data").toEqual(data);
   });
 
   test("allowCustomChoices: choices with displayName from survey.data", () => {
@@ -2760,7 +2760,7 @@ describe("Dropdown question", () => {
     expect(question.selectedItem.id, "#1 question.selectedItem").toBe(value);
     expect(question.selectedItem.title, "#1 question.selectedItem").toBe("Large screen size");
     expect(listModel.actions.length, "listModel.actions.length").toBe(8);
-    expect(survey.data, "#1 survey.data").toEqualValues(data);
+    expect(survey.data, "#1 survey.data").toEqual(data);
   });
 
   test("lazy loading + isReady", () => {

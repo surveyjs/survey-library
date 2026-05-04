@@ -97,20 +97,20 @@ describe("Survey", () => {
 
   test("set data property", () => {
     var survey = new SurveyModel();
-    expect(survey.data, "there is no data").toEqualValues({});
+    expect(survey.data, "there is no data").toEqual({});
     survey.data = { strVal: "item1", intVal: 5 };
-    expect(survey.data, "set the object").toEqualValues({ strVal: "item1", intVal: 5 });
+    expect(survey.data, "set the object").toEqual({ strVal: "item1", intVal: 5 });
     survey.data = null;
-    expect(survey.data, "clear data").toEqualValues({});
+    expect(survey.data, "clear data").toEqual({});
   });
   test("merge data property", () => {
     var survey = new SurveyModel();
     survey.mergeData({ strVal: "item1", intVal: 5 });
-    expect(survey.data, "works as set data for empty data").toEqualValues({ strVal: "item1", intVal: 5 });
+    expect(survey.data, "works as set data for empty data").toEqual({ strVal: "item1", intVal: 5 });
     survey.mergeData({ intVal: 7, boolVal: false });
-    expect(survey.data, "merge the data, overrides values").toEqualValues({ strVal: "item1", intVal: 7, boolVal: false });
+    expect(survey.data, "merge the data, overrides values").toEqual({ strVal: "item1", intVal: 7, boolVal: false });
     survey.mergeData(null);
-    expect(survey.data, "do nothing").toEqualValues({ strVal: "item1", intVal: 7, boolVal: false });
+    expect(survey.data, "do nothing").toEqual({ strVal: "item1", intVal: 7, boolVal: false });
   });
   test("merge data for image question", () => {
     const survey = new SurveyModel({
@@ -132,7 +132,7 @@ describe("Survey", () => {
     ];
     survey.mergeData({ image: imageData });
     const question = <QuestionImageModel>survey.getQuestionByName("image");
-    expect(question.value, "value set correctly").toEqualValues(imageData);
+    expect(question.value, "value set correctly").toEqual(imageData);
   });
   test("Add two pages", () => {
     var survey = new SurveyModel();
@@ -1524,7 +1524,7 @@ describe("Survey", () => {
     matrixQuestion.visibleRows[0].value = "col2";
     expect(counter, "onValueChanged event is called one time").toBe(1);
     expect(name, "onValueChanged event, property name is correct").toBe("matrix");
-    expect(newValue, "onValueChanged event, property newValue is correct").toEqualValues({ row1: "col2" });
+    expect(newValue, "onValueChanged event, property newValue is correct").toEqual({ row1: "col2" });
   });
   test("onValueChanged event is not called on changing multi text value", () => {
     var survey = twoPageSimplestSurvey();
@@ -1543,7 +1543,7 @@ describe("Survey", () => {
     multiTextQuestion.items[1].value = "text1";
     expect(counter, "onValueChanged event is called one time").toBe(1);
     expect(name, "onValueChanged event, property name is correct").toBe("multitext");
-    expect(newValue, "onValueChanged event, property newValue is correct").toEqualValues({ item2: "text1" });
+    expect(newValue, "onValueChanged event, property newValue is correct").toEqual({ item2: "text1" });
   });
   test("onValueChanging event", () => {
     var survey = twoPageSimplestSurvey();
@@ -2390,7 +2390,7 @@ describe("Survey", () => {
       expect(prevAction.enabled, "prev action is enabled after navigation, #2").toBe(true);
       expect(survey.currentPageNo, "We do not move from the second page").toBe(1);
 
-      expect(messages, "There is no messages yet").toEqualValues([]);
+      expect(messages, "There is no messages yet").toEqual([]);
       messageToShow = "Test error";
       allowChanging = false;
       survey.nextPage();
@@ -2399,7 +2399,7 @@ describe("Survey", () => {
       messageToShow = "Saving text";
       survey.nextPage();
       await vi.advanceTimersByTimeAsync(0);
-      expect(messages).toEqualValues([
+      expect(messages).toEqual([
         { message: "Test error", type: "error" },
         { message: "Saving text", type: "success" }
       ]);
@@ -2453,7 +2453,7 @@ describe("Survey", () => {
       expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toBe(false);
       expect(completeAction.enabled, "next action is enabled after navigation, #2").toBe(true);
       expect(survey.state, "Survey is completed now").toBe("completed");
-      expect(messages).toEqualValues([
+      expect(messages).toEqual([
         { message: "Test error on complete", type: "error" },
         { message: "Test success on complete", type: "success" }
       ]);
@@ -2739,7 +2739,7 @@ describe("Survey", () => {
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     panel.panels[0].getQuestionByName("question1").value = "valueQ2";
-    expect(survey.data, "trigger copy the value correctly").toEqualValues({
+    expect(survey.data, "trigger copy the value correctly").toEqual({
       panel1: [
         {
           question1: "valueQ2",
@@ -2825,7 +2825,7 @@ describe("Survey", () => {
     var survey = twoPageSimplestSurvey();
     survey.setVariable("user", "admin");
     survey.setVariable("type", "2");
-    expect(survey.getVariableNames()).toEqualValues(["user", "type"]);
+    expect(survey.getVariableNames()).toEqual(["user", "type"]);
   });
   test("pre process title", () => {
     var survey = twoPageSimplestSurvey();
@@ -3251,12 +3251,12 @@ describe("Survey", () => {
     q1.value = 1;
     q2.visible = false;
     survey.doComplete();
-    expect(survey.data, "The value should be keeped").toEqualValues({ value: 1 });
+    expect(survey.data, "The value should be keeped").toEqual({ value: 1 });
     survey.clear();
     q1.value = 2;
     q1.visible = false;
     survey.doComplete();
-    expect(survey.data, "The value should be cleaned").toEqualValues({});
+    expect(survey.data, "The value should be cleaned").toEqual({});
   });
   test("clearInvisibleValues is onComplete (default value), visible and invisible questions with the same name and valueName", () => {
     const survey = new SurveyModel();
@@ -3267,7 +3267,7 @@ describe("Survey", () => {
     q2.value = 1;
     q1.visible = false;
     survey.doComplete();
-    expect(survey.data, "The value should be kept").toEqualValues({ q1: 1 });
+    expect(survey.data, "The value should be kept").toEqual({ q1: 1 });
   });
   test("clearInvisibleValues - comments and other values, #309", () => {
     var survey = new SurveyModel();
@@ -3285,9 +3285,9 @@ describe("Survey", () => {
     q3.value = "val3";
     q1.visible = false;
     q2.visible = false;
-    expect(survey.data, "There are many vlues yet").not.toEqualValues({ q3: "val3" });
+    expect(survey.data, "There are many vlues yet").not.toEqual({ q3: "val3" });
     survey.doComplete();
-    expect(survey.data, "There should be one value only").toEqualValues({ q3: "val3" });
+    expect(survey.data, "There should be one value only").toEqual({ q3: "val3" });
   });
   test("Do not store others value if others is not selected, #311", () => {
     var survey = new SurveyModel();
@@ -3298,9 +3298,9 @@ describe("Survey", () => {
     q1.value = q1.otherItem.value;
     q1.otherValue = "comment1";
     q1.value = 1;
-    expect(survey.data, "There is no comment already").toEqualValues({ q1: 1 });
+    expect(survey.data, "There is no comment already").toEqual({ q1: 1 });
     survey.doComplete();
-    expect(survey.data, "There no comment").toEqualValues({ q1: 1 });
+    expect(survey.data, "There no comment").toEqual({ q1: 1 });
   });
   test("merge values", () => {
     class MySurvey extends SurveyModel {
@@ -3314,13 +3314,13 @@ describe("Survey", () => {
     var survey = new MySurvey();
     var dest = {};
     survey.doMergeValues({ val: 1 }, dest);
-    expect(dest).toEqualValues({ val: 1 });
+    expect(dest).toEqual({ val: 1 });
 
     survey.doMergeValues({ val2: { val1: "str" } }, dest);
-    expect({ val: 1, val2: { val1: "str" } }).toEqualValues(dest);
+    expect({ val: 1, val2: { val1: "str" } }).toEqual(dest);
 
     survey.doMergeValues({ val2: { val2: 2 } }, dest);
-    expect({ val: 1, val2: { val1: "str", val2: 2 } }).toEqualValues(dest);
+    expect({ val: 1, val2: { val1: "str", val2: 2 } }).toEqual(dest);
     var a = "test";
     survey.doMergeValues({ val: 1 }, a);
     expect(a, "Do nothing if dest is string").toBe("test");
@@ -3764,11 +3764,11 @@ describe("Survey", () => {
     expect(survey.isNavigationButtonsShowingOnBottom, "isNavigationButtonsShowingOnBottom is true").toBe(true);
     expect(survey.isNavigationButtonsShowingOnTop, "isNavigationButtonsShowingOnTop is true").toBe(true);
     const getContainerContent = getContainerContentFunction(survey);
-    expect(getContainerContent("contentTop"), "nav both contentTop").toEqualValues([{
+    expect(getContainerContent("contentTop"), "nav both contentTop").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation-top"
     }]);
-    expect(getContainerContent("contentBottom"), "nav both contentBottom").toEqualValues([{
+    expect(getContainerContent("contentBottom"), "nav both contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
@@ -4192,11 +4192,11 @@ describe("Survey", () => {
     var page = survey.addNewPage("page1");
     var q1 = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
     survey.setValue("q1", [1]);
-    expect(survey.getValue("q1"), "survey.getValue returns array").toEqualValues([1]);
-    expect(q1.value, "q1.value returns array").toEqualValues([1]);
+    expect(survey.getValue("q1"), "survey.getValue returns array").toEqual([1]);
+    expect([...(q1.value)], "q1.value returns array").toEqual([1]);
     survey.setValue("q1", 1);
-    expect(survey.getValue("q1"), "survey.getValue return value").toEqualValues(1);
-    expect(q1.value, "q1.value still returns array").toEqualValues([1]);
+    expect(survey.getValue("q1"), "survey.getValue return value").toEqual(1);
+    expect([...(q1.value)], "q1.value still returns array").toEqual([1]);
   });
 
   test("visibleIf and page rows", () => {
@@ -4423,7 +4423,7 @@ describe("Survey", () => {
   test("ElementFactory.getAllToolboxTypes()", () => {
     let defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
     let defaultNames = ElementFactory.Instance.getAllTypes();
-    expect(defaultToolboxNames, "They are the same by default").toEqualValues(defaultNames);
+    expect(defaultToolboxNames, "They are the same by default").toEqual(defaultNames);
     const type = "toolbox-test-type";
     ElementFactory.Instance.registerElement(type, (name: string): IElement => { return new PanelModel(name); }, false);
     defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
@@ -5139,9 +5139,9 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.data, "The default value is set").toEqualValues({ question1: "item3" });
+    expect(survey.data, "The default value is set").toEqual({ question1: "item3" });
     survey.clearIncorrectValues();
-    expect(survey.data, "The default value is removed").toEqualValues({});
+    expect(survey.data, "The default value is removed").toEqual({});
   });
 
   test("survey.clearIncorrectValues with parameter removeNonExisingKeys", () => {
@@ -5161,9 +5161,9 @@ describe("Survey", () => {
     survey.setValue("q1", "v1");
     survey.setValue("q2", "v2");
     survey.setValue("q3", "v3");
-    expect(survey.data, "values set correctly").toEqualValues({ q1: "v1", q2: "v2", q3: "v3" });
+    expect(survey.data, "values set correctly").toEqual({ q1: "v1", q2: "v2", q3: "v3" });
     survey.clearIncorrectValues(true);
-    expect(survey.data, "Remove q3 and val3 keys").toEqualValues({ q1: "v1", q2: "v2" });
+    expect(survey.data, "Remove q3 and val3 keys").toEqual({ q1: "v1", q2: "v2" });
   });
 
   test("Create questions from elements array - issue #395", () => {
@@ -5604,9 +5604,9 @@ describe("Survey", () => {
   test("Clear value if empty array is set, Bug #608", () => {
     var survey = new SurveyModel();
     survey.setValue("q1", ["1"]);
-    expect(survey.data, "The array is set").toEqualValues({ q1: ["1"] });
+    expect(survey.data, "The array is set").toEqual({ q1: ["1"] });
     survey.setValue("q1", []);
-    expect(survey.data, "The value with empty array is removed").toEqualValues({});
+    expect(survey.data, "The value with empty array is removed").toEqual({});
   });
 
   test("Question description and text processing, variable, Bug #632", () => {
@@ -5679,13 +5679,13 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.data, "check initial state").toEqualValues({ q1: "other", q2: ["other"] });
+    expect(survey.data, "check initial state").toEqual({ q1: "other", q2: ["other"] });
     survey.getQuestionByName("q1").otherValue = "comment1";
     survey.getQuestionByName("q2").otherValue = "comment2";
     expect(survey.getQuestionByName("q1").getPropertyValue("comment")).toBe("comment1");
     survey.clear();
     expect(survey.getQuestionByName("q1").getPropertyValue("comment")).toBe("");
-    expect(survey.data, "clear comments").toEqualValues({ q1: "other", q2: ["other"] });
+    expect(survey.data, "clear comments").toEqual({ q1: "other", q2: ["other"] });
   });
 
   test("Dublicate errors", () => {
@@ -5765,7 +5765,7 @@ describe("Survey", () => {
     survey.setValue("q2", "val2");
     page2.visible = false;
     survey.doComplete();
-    expect(survey.data, "Remove value for invisible question q2").toEqualValues({ q1: "val1" });
+    expect(survey.data, "Remove value for invisible question q2").toEqual({ q1: "val1" });
   });
   test("required text can be empty: Bug #693", () => {
     var survey = new SurveyModel();
@@ -6192,13 +6192,13 @@ describe("Survey", () => {
     question.otherValue = "other2";
     survey.isSinglePage = true;
     expect(survey.storeOthersAsComment, "Keep storeOthersAsComment false").toBe(false);
-    expect(survey.getValue("q1")).toEqualValues(["other2"]);
+    expect(survey.getValue("q1")).toEqual(["other2"]);
     question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    expect(question.value, "question value").toEqualValues(["other2"]);
-    expect(question.renderedValue, "question renderedValue").toEqualValues(["other"]);
-    expect(question.comment, "question comment").toEqualValues("other2");
-    expect(survey.getValue("q1"), "survey value").toEqualValues(["other2"]);
-    expect(survey.getComment("q1"), "survey comment").toEqualValues("");
+    expect([...(question.value)], "question value").toEqual(["other2"]);
+    expect([...(question.renderedValue)], "question renderedValue").toEqual(["other"]);
+    expect(question.comment, "question comment").toEqual("other2");
+    expect(survey.getValue("q1"), "survey value").toEqual(["other2"]);
+    expect(survey.getComment("q1"), "survey comment").toEqual("");
   });
 
   test("survey.storeOthersAsComment add checkbox question from code with preset value", () => {
@@ -6211,11 +6211,11 @@ describe("Survey", () => {
     question.choices = [1, 2];
     question.showOtherItem = true;
     survey.pages[0].addQuestion(question);
-    expect(question.value, "question value").toEqualValues(["other2"]);
-    expect(question.renderedValue, "question renderedValue").toEqualValues(["other"]);
-    expect(question.comment, "question comment").toEqualValues("other2");
-    expect(survey.getValue("q1"), "survey value").toEqualValues(["other2"]);
-    expect(survey.getComment("q1"), "survey comment").toEqualValues("");
+    expect([...(question.value)], "question value").toEqual(["other2"]);
+    expect([...(question.renderedValue)], "question renderedValue").toEqual(["other"]);
+    expect(question.comment, "question comment").toEqual("other2");
+    expect(survey.getValue("q1"), "survey value").toEqual(["other2"]);
+    expect(survey.getComment("q1"), "survey comment").toEqual("");
   });
   test("survey.questionsOnPageMode = 'questionOnPage', page rows & currentSingleQuestion", () => {
     const survey = twoPageSimplestSurvey();
@@ -6362,8 +6362,8 @@ describe("Survey", () => {
     var q2 = survey.getQuestionByName("question2");
     q1.value = ["item1"];
     q1.value = ["item1", "item2"];
-    expect(q2.value, "Set default value").toEqualValues(["item1"]);
-    expect(q2.renderedValue, "Set default value into rendered value").toEqualValues(["item1"]);
+    expect([...(q2.value)], "Set default value").toEqual(["item1"]);
+    expect([...(q2.renderedValue)], "Set default value into rendered value").toEqual(["item1"]);
     survey.data = {};
     q1.isRequired = true;
     expect(survey.tryComplete(), "You can't complete the last page").toBe(false);
@@ -6637,9 +6637,9 @@ describe("Survey", () => {
     survey.getQuestionByName("name").value = "John";
     survey.getQuestionByName("email").value = "john@gmail.com";
     survey.start();
-    expect(survey.data, "Data on the first page is saved").toEqualValues({ name: "John", email: "john@gmail.com" });
+    expect(survey.data, "Data on the first page is saved").toEqual({ name: "John", email: "john@gmail.com" });
     survey.doComplete();
-    expect(survey.data, "Data on the first page is still here after complete.").toEqualValues({ name: "John", email: "john@gmail.com" });
+    expect(survey.data, "Data on the first page is still here after complete.").toEqual({ name: "John", email: "john@gmail.com" });
   });
 
   test("Validate questions on the first page, firstPageIsStartPage = true, Bug #1976", () => {
@@ -6883,7 +6883,7 @@ describe("Survey", () => {
     ];
     var qText = page.addNewQuestion("text", "onename");
     survey.setValue("onename", ["item1"]);
-    expect(survey.getValue("onename"), "The value set correctly").toEqualValues(["item1"]);
+    expect(survey.getValue("onename"), "The value set correctly").toEqual(["item1"]);
   });
 
   test("visibleIf and adding/remove elements on changing visible, Bug #1044", () => {
@@ -7824,7 +7824,7 @@ describe("Survey", () => {
       question1: "value_should_be_selected",
     };
     survey.data = data;
-    expect(survey.data).toEqualValues(data);
+    expect(survey.data).toEqual(data);
   });
 
   test("Do not call onValueChanged event onComplete event, Bug# T1239", () => {
@@ -7845,9 +7845,9 @@ describe("Survey", () => {
     });
     survey.setValue("name", "name1");
     survey.setValue("test", "Yes");
-    expect(counter, "onValueChanged called two times").toEqualValues(2);
+    expect(counter, "onValueChanged called two times").toEqual(2);
     survey.doComplete();
-    expect(counter, "onValueChanged called still two times").toEqualValues(2);
+    expect(counter, "onValueChanged called still two times").toEqual(2);
   });
 
   test("Call onValueChanged event onComplete event only one for real field, Bug# T1239", () => {
@@ -8086,8 +8086,8 @@ describe("Survey", () => {
 
     expect(plainData[1].name).toBe("question3");
     expect(plainData[1].title).toBe("checkbox");
-    expect(plainData[1].value).toEqualValues(["item1", "item2"]);
-    expect(plainData[1].displayValue).toEqualValues("item1, item2");
+    expect([...(plainData[1].value)]).toEqual(["item1", "item2"]);
+    expect(plainData[1].displayValue).toEqual("item1, item2");
     expect(plainData[1].isNode).toBeTruthy();
     expect(plainData[1].data.length).toBe(2);
     expect(plainData[1].data[0].value).toBe("item1");
@@ -8370,24 +8370,24 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.length, "all questions are present").toBe(12);
-    expect(plainData[0].value).toEqualValues(3);
+    expect(plainData[0].value).toEqual(3);
     expect(plainData[0].score).toBe(11);
     expect(plainData[0].isNode).toBe(false);
-    expect(plainData[1].value).toEqualValues("item2");
+    expect(plainData[1].value).toEqual("item2");
     expect(plainData[1].score).toBe(12);
     expect(plainData[1].isNode).toBe(true);
     expect(plainData[1].data[0].score).toBe(2);
-    expect(plainData[2].value).toEqualValues("some text 13");
+    expect(plainData[2].value).toEqual("some text 13");
     expect(plainData[2].score).toBe(13);
-    expect(plainData[3].value).toEqualValues(["item2", "item3"]);
+    expect([...(plainData[3].value)]).toEqual(["item2", "item3"]);
     expect(plainData[3].score).toBe(14);
-    expect(plainData[4].value).toEqualValues("item1");
+    expect(plainData[4].value).toEqual("item1");
     expect(plainData[4].score).toBe(1);
-    expect(plainData[5].value).toEqualValues("comment2");
+    expect(plainData[5].value).toEqual("comment2");
     expect(plainData[5].score).toBe(2);
-    expect(plainData[6].value).toEqualValues("giraffe");
+    expect(plainData[6].value).toEqual("giraffe");
     expect(plainData[6].score).toBe(3);
-    expect(plainData[7].value).toEqualValues([
+    expect(plainData[7].value).toEqual([
       {
         content: "data:image/x-icon;base64,A=",
         name: "favicon.ico",
@@ -8395,15 +8395,15 @@ describe("Survey", () => {
       },
     ]);
     expect(plainData[7].score).toBe(4);
-    expect(plainData[8].value).toEqualValues({ text1: "a", text2: "b" });
+    expect(plainData[8].value).toEqual({ text1: "a", text2: "b" });
     expect(plainData[8].score).toBe(5);
-    expect(plainData[9].value).toEqualValues({
+    expect(plainData[9].value).toEqual({
       "Row 1": { "Column 1": 1, "Column 2": 2, "Column 3": 3 },
       "Row 2": { "Column 1": 4, "Column 2": 5, "Column 3": 4 },
     });
     expect(plainData[9].score).toBe(9);
 
-    expect(plainData[10].value).toEqualValues({
+    expect(plainData[10].value).toEqual({
       "Row 1": "Column 1",
       "Row 2": "Column 2",
     });
@@ -8411,7 +8411,7 @@ describe("Survey", () => {
     expect(plainData[10].data[0].score).toBe(1);
     expect(plainData[10].data[1].score).toBe(2);
 
-    expect(plainData[11].value).toEqualValues([
+    expect(plainData[11].value).toEqual([
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" },
     ]);
@@ -8480,10 +8480,10 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.score).toBe(3);
-    expect(plainData.value).toEqualValues("giraffe");
+    expect(plainData.value).toEqual("giraffe");
     expect(plainData.isNode).toBe(true);
     expect(plainData.data[0].score).toBe(2);
-    expect(plainData.data[0].value).toEqualValues("giraffe");
+    expect(plainData.data[0].value).toEqual("giraffe");
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -8542,14 +8542,14 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.score).toBe(3);
-    expect(plainData.value).toEqualValues(["giraffe", "panda"]);
-    expect(plainData.displayValue).toEqualValues("giraffe22, panda");
+    expect([...(plainData.value)]).toEqual(["giraffe", "panda"]);
+    expect(plainData.displayValue).toEqual("giraffe22, panda");
     expect(plainData.isNode).toBe(true);
     expect(plainData.data[0].score).toBe(2);
-    expect(plainData.data[0].value).toEqualValues("giraffe");
-    expect(plainData.data[0].displayValue).toEqualValues("giraffe22");
+    expect(plainData.data[0].value).toEqual("giraffe");
+    expect(plainData.data[0].displayValue).toEqual("giraffe22");
     expect(plainData.data[1].score).toBe(3);
-    expect(plainData.data[1].value).toEqualValues("panda");
+    expect(plainData.data[1].value).toEqual("panda");
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -8575,14 +8575,14 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.score).toBe(4);
-    expect(plainData.value).toEqualValues([
+    expect(plainData.value).toEqual([
       {
         name: "favicon.ico",
         type: "image/x-icon",
         content: "data:image/x-icon;base64,A=",
       },
     ]);
-    expect(plainData.displayValue).toEqualValues([
+    expect(plainData.displayValue).toEqual([
       {
         name: "favicon.ico",
         type: "image/x-icon",
@@ -8590,8 +8590,8 @@ describe("Survey", () => {
       },
     ]);
     expect(plainData.isNode).toBe(false);
-    expect(plainData.data[0].value).toEqualValues("data:image/x-icon;base64,A=");
-    expect(plainData.data[0].displayValue).toEqualValues("favicon.ico");
+    expect(plainData.data[0].value).toEqual("data:image/x-icon;base64,A=");
+    expect(plainData.data[0].displayValue).toEqual("favicon.ico");
 
     Serializer.removeProperty("question", "score");
   });
@@ -8633,24 +8633,24 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.score).toBe(10);
-    expect(plainData.value).toEqualValues({
+    expect(plainData.value).toEqual({
       "Row 1": "Column 1",
       "Row 2": "Column 2",
     });
-    expect(plainData.displayValue).toEqualValues({
+    expect(plainData.displayValue).toEqual({
       "Row 1 title": "Column 1",
       "Row 2": "Column 2",
     });
     expect(plainData.isNode).toBe(true);
-    expect(plainData.data[0].name).toEqualValues("Row 1");
-    expect(plainData.data[0].title).toEqualValues("Row 1 title");
-    expect(plainData.data[0].value).toEqualValues("Column 1");
-    expect(plainData.data[0].displayValue).toEqualValues("Column 1");
-    expect(plainData.data[0].score).toEqualValues(1);
-    expect(plainData.data[1].name).toEqualValues("Row 2");
-    expect(plainData.data[1].value).toEqualValues("Column 2");
-    expect(plainData.data[1].displayValue).toEqualValues("Column 2");
-    expect(plainData.data[1].score).toEqualValues(2);
+    expect(plainData.data[0].name).toEqual("Row 1");
+    expect(plainData.data[0].title).toEqual("Row 1 title");
+    expect(plainData.data[0].value).toEqual("Column 1");
+    expect(plainData.data[0].displayValue).toEqual("Column 1");
+    expect(plainData.data[0].score).toEqual(1);
+    expect(plainData.data[1].name).toEqual("Row 2");
+    expect(plainData.data[1].value).toEqual("Column 2");
+    expect(plainData.data[1].displayValue).toEqual("Column 2");
+    expect(plainData.data[1].score).toEqual(2);
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -8715,11 +8715,11 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.score).toBe(9);
-    expect(plainData.value).toEqualValues({
+    expect(plainData.value).toEqual({
       "Row 1": { "Column 1": 1, "Column 2": "2", "Column 3": 3 },
       "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 },
     });
-    expect(plainData.displayValue).toEqualValues({
+    expect(plainData.displayValue).toEqual({
       "Row 1 Title": {
         "Column 1": "1",
         "Column 2": "2",
@@ -8733,25 +8733,25 @@ describe("Survey", () => {
     });
     expect(plainData.isNode).toBe(true);
     expect(plainData.data.length, "Two rows in matrix").toBe(2);
-    expect(plainData.data[0].name).toEqualValues("Row 1");
-    expect(plainData.data[0].title).toEqualValues("Row 1 Title");
-    expect(plainData.data[0].value).toEqualValues({
+    expect(plainData.data[0].name).toEqual("Row 1");
+    expect(plainData.data[0].title).toEqual("Row 1 Title");
+    expect(plainData.data[0].value).toEqual({
       "Column 1": 1,
       "Column 2": 2,
       "Column 3": 3,
     });
-    expect(plainData.data[0].displayValue).toEqualValues({
+    expect(plainData.data[0].displayValue).toEqual({
       "Column 1": "1",
       "Column 2": "2",
       "Column 3": "3",
     });
-    expect(plainData.data[1].name).toEqualValues("Row 2");
-    expect(plainData.data[1].value).toEqualValues({
+    expect(plainData.data[1].name).toEqual("Row 2");
+    expect(plainData.data[1].value).toEqual({
       "Column 1": 4,
       "Column 2": 5,
       "Column 3": 4,
     });
-    expect(plainData.data[1].displayValue).toEqualValues({
+    expect(plainData.data[1].displayValue).toEqual({
       "Column 1": "4",
       "Column 2": "5",
       "Column 3": "4",
@@ -8824,28 +8824,28 @@ describe("Survey", () => {
       calculations: [{ propertyName: "score" }],
     });
     expect(plainData.score).toBe(8);
-    expect(plainData.value).toEqualValues([
+    expect(plainData.value).toEqual([
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" },
     ]);
-    expect(plainData.displayValue).toEqualValues([
+    expect(plainData.displayValue).toEqual([
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" },
     ]);
     expect(plainData.isNode).toBe(true);
-    expect(plainData.data[0].name).toEqualValues(0);
-    expect(plainData.data[0].title).toEqualValues("Panel");
-    expect(plainData.data[0].value).toEqualValues({
+    expect(plainData.data[0].name).toEqual(0);
+    expect(plainData.data[0].title).toEqual("Panel");
+    expect(plainData.data[0].value).toEqual({
       question21: "Panel dynamic content 1",
     });
-    expect(plainData.data[0].displayValue).toEqualValues({
+    expect(plainData.data[0].displayValue).toEqual({
       question21: "Panel dynamic content 1",
     });
-    expect(plainData.data[1].name).toEqualValues(1);
-    expect(plainData.data[1].value).toEqualValues({
+    expect(plainData.data[1].name).toEqual(1);
+    expect(plainData.data[1].value).toEqual({
       question21: "Panel dynamic content 2",
     });
-    expect(plainData.data[1].displayValue).toEqualValues({
+    expect(plainData.data[1].displayValue).toEqual({
       question21: "Panel dynamic content 2",
     });
 
@@ -9272,17 +9272,17 @@ describe("Survey", () => {
     question.otherValue = "Other value text";
 
     const plainData = question.getPlainData();
-    expect(plainData.value).toEqualValues(["other", "giraffe"]);
+    expect([...(plainData.value)]).toEqual(["other", "giraffe"]);
     expect(plainData.isNode).toBe(true);
-    expect(plainData.data.length).toEqualValues(2);
-    expect(plainData.data[0].isNode).toEqualValues(false);
-    expect(plainData.data[0].isOther).toEqualValues(true);
-    expect(plainData.data[0].value).toEqualValues("other");
-    expect(plainData.data[0].title).toEqualValues("Choice option");
-    expect(plainData.data[0].displayValue).toEqualValues("Other value text");
-    expect(plainData.data[1].isNode).toEqualValues(false);
-    expect(plainData.data[1].value).toEqualValues("giraffe");
-    expect(plainData.data[1].title).toEqualValues("Choice option");
+    expect(plainData.data.length).toEqual(2);
+    expect(plainData.data[0].isNode).toEqual(false);
+    expect(plainData.data[0].isOther).toEqual(true);
+    expect(plainData.data[0].value).toEqual("other");
+    expect(plainData.data[0].title).toEqual("Choice option");
+    expect(plainData.data[0].displayValue).toEqual("Other value text");
+    expect(plainData.data[1].isNode).toEqual(false);
+    expect(plainData.data[1].value).toEqual("giraffe");
+    expect(plainData.data[1].title).toEqual("Choice option");
   });
 
   test("question.getPlainData - select base - multiple select - comment", () => {
@@ -9314,16 +9314,16 @@ describe("Survey", () => {
     question.comment = "Comment text";
 
     var plainData = question.getPlainData();
-    expect(plainData.value).toEqualValues(["giraffe"]);
+    expect([...(plainData.value)]).toEqual(["giraffe"]);
     expect(plainData.isNode).toBe(true);
-    expect(plainData.data.length).toEqualValues(2);
-    expect(plainData.data[0].isNode).toEqualValues(false);
-    expect(plainData.data[0].isComment).toEqualValues(true);
-    expect(plainData.data[0].title).toEqualValues("Comment");
-    expect(plainData.data[0].value).toEqualValues("-Comment");
-    expect(plainData.data[0].displayValue).toEqualValues("Comment text");
-    expect(plainData.data[1].value).toEqualValues("giraffe");
-    expect(plainData.data[1].title).toEqualValues("Choice option");
+    expect(plainData.data.length).toEqual(2);
+    expect(plainData.data[0].isNode).toEqual(false);
+    expect(plainData.data[0].isComment).toEqual(true);
+    expect(plainData.data[0].title).toEqual("Comment");
+    expect(plainData.data[0].value).toEqual("-Comment");
+    expect(plainData.data[0].displayValue).toEqual("Comment text");
+    expect(plainData.data[1].value).toEqual("giraffe");
+    expect(plainData.data[1].title).toEqual("Choice option");
   });
 
   test("question.getPlainData - select base - single select - other", () => {
@@ -9355,14 +9355,14 @@ describe("Survey", () => {
     question.otherValue = "Other value text";
 
     var plainData = question.getPlainData();
-    expect(plainData.value).toEqualValues(["other"]);
+    expect([...(plainData.value)]).toEqual(["other"]);
     expect(plainData.isNode).toBe(true);
-    expect(plainData.data.length).toEqualValues(1);
-    expect(plainData.data[0].isNode).toEqualValues(false);
-    expect(plainData.data[0].isOther).toEqualValues(true);
-    expect(plainData.data[0].value).toEqualValues("other");
-    expect(plainData.data[0].title).toEqualValues("Choice option");
-    expect(plainData.data[0].displayValue).toEqualValues("Other value text");
+    expect(plainData.data.length).toEqual(1);
+    expect(plainData.data[0].isNode).toEqual(false);
+    expect(plainData.data[0].isOther).toEqual(true);
+    expect(plainData.data[0].value).toEqual("other");
+    expect(plainData.data[0].title).toEqual("Choice option");
+    expect(plainData.data[0].displayValue).toEqual("Other value text");
   });
 
   test("question.getPlainData - select base - single select - comment", () => {
@@ -9394,16 +9394,16 @@ describe("Survey", () => {
     question.comment = "Comment text";
 
     var plainData = question.getPlainData();
-    expect(plainData.value).toEqualValues(["giraffe"]);
+    expect([...(plainData.value)]).toEqual(["giraffe"]);
     expect(plainData.isNode).toBe(true);
-    expect(plainData.data.length).toEqualValues(2);
-    expect(plainData.data[0].isNode).toEqualValues(false);
-    expect(plainData.data[0].isComment).toEqualValues(true);
-    expect(plainData.data[0].title).toEqualValues("Comment");
-    expect(plainData.data[0].value).toEqualValues("-Comment");
-    expect(plainData.data[0].displayValue).toEqualValues("Comment text");
-    expect(plainData.data[1].value).toEqualValues("giraffe");
-    expect(plainData.data[1].title).toEqualValues("Choice option");
+    expect(plainData.data.length).toEqual(2);
+    expect(plainData.data[0].isNode).toEqual(false);
+    expect(plainData.data[0].isComment).toEqual(true);
+    expect(plainData.data[0].title).toEqual("Comment");
+    expect(plainData.data[0].value).toEqual("-Comment");
+    expect(plainData.data[0].displayValue).toEqual("Comment text");
+    expect(plainData.data[1].value).toEqual("giraffe");
+    expect(plainData.data[1].title).toEqual("Choice option");
   });
 
   test("question.getPlainData - markdown processed titles - T3888 - question#getPlainData() returns markdown-rendered values, but not markdown-rendered titles", () => {
@@ -9437,9 +9437,9 @@ describe("Survey", () => {
     question.value = "giraffe";
 
     var plainData = question.getPlainData();
-    expect(plainData.value).toEqualValues("giraffe");
-    expect(plainData.title).toEqualValues("Title <>marked<>");
-    expect(plainData.displayValue).toEqualValues("giraffe <>marked<>");
+    expect(plainData.value).toEqual("giraffe");
+    expect(plainData.title).toEqual("Title <>marked<>");
+    expect(plainData.displayValue).toEqual("giraffe <>marked<>");
   });
 
   test("question.getPlainData - optional question type", () => {
@@ -9458,12 +9458,12 @@ describe("Survey", () => {
     survey.data = { q1: 2 };
 
     var plainData = question.getPlainData();
-    expect(plainData.name).toEqualValues("q1");
-    expect(plainData.questionType).toEqualValues(undefined);
+    expect(plainData.name).toEqual("q1");
+    expect(plainData.questionType).toEqual(undefined);
 
     plainData = question.getPlainData({ includeQuestionTypes: true });
-    expect(plainData.name).toEqualValues("q1");
-    expect(plainData.questionType).toEqualValues("radiogroup");
+    expect(plainData.name).toEqual("q1");
+    expect(plainData.questionType).toEqual("radiogroup");
   });
 
   test("question.getPlainData - optional survey values", () => {
@@ -9485,10 +9485,10 @@ describe("Survey", () => {
     survey.setValue("customValue", "test");
 
     var plainData = survey.getPlainData();
-    expect(plainData.length).toEqualValues(1);
+    expect(plainData.length).toEqual(1);
     delete plainData[0]["getString"];
     delete plainData[0]["data"];
-    expect(plainData[0], "Question only").toEqualValues({
+    expect(plainData[0], "Question only").toEqual({
       "displayValue": "1",
       "isNode": true,
       "name": "question1",
@@ -9497,19 +9497,19 @@ describe("Survey", () => {
     });
 
     plainData = survey.getPlainData({ includeValues: true });
-    expect(plainData.length).toEqualValues(2);
+    expect(plainData.length).toEqual(2);
     delete plainData[0]["getString"];
     delete plainData[0]["data"];
     delete plainData[1]["getString"];
     delete plainData[1]["data"];
-    expect(plainData[0], "Question").toEqualValues({
+    expect(plainData[0], "Question").toEqual({
       "displayValue": "1",
       "isNode": true,
       "name": "question1",
       "title": "question1",
       "value": 1
     });
-    expect(plainData[1], "Value").toEqualValues({
+    expect(plainData[1], "Value").toEqual({
       "displayValue": "test",
       "isNode": false,
       "name": "customValue",
@@ -9763,7 +9763,7 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     survey.data = { q1: 2, q2: { row1: "col1", row2: "col2" } };
     survey.doComplete();
-    expect(survey.data, "Remove value for invisible row").toEqualValues({ q1: 2, q2: { row2: "col2" } });
+    expect(survey.data, "Remove value for invisible row").toEqual({ q1: 2, q2: { row2: "col2" } });
   });
 
   test("Values from invisible choices should be removed, #1644", () => {
@@ -9785,7 +9785,7 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     survey.data = { q1: 2, q2: "val1", q3: ["val1", "val2"] };
     survey.doComplete();
-    expect(survey.data, "Remove values for invisible choices").toEqualValues({ q1: 2, q3: ["val2"] });
+    expect(survey.data, "Remove values for invisible choices").toEqual({ q1: 2, q3: ["val2"] });
   });
 
   test("True/False strings do not work, Bug #https://surveyjs.answerdesk.io/ticket/details/T2425", () => {
@@ -10165,9 +10165,9 @@ describe("Survey", () => {
     question.addItem("text1");
     question.addItem("text2");
     question.value = { text1: "val1" };
-    expect(survey.data, "The data is here").toEqualValues({ q1: { text1: "val1" } });
+    expect(survey.data, "The data is here").toEqual({ q1: { text1: "val1" } });
     question.items[0].value = "";
-    expect(survey.data, "survey is empty").toEqualValues({});
+    expect(survey.data, "survey is empty").toEqual({});
     expect(question.isEmpty(), "question is empty").toBe(true);
   });
 
@@ -10231,13 +10231,13 @@ describe("Survey", () => {
     var rows1 = matrix1.visibleRows;
     var rows2 = matrix2.visibleRows;
     var panels1 = panel1.panels;
-    expect(survey.data, "The initial value").toEqualValues({ shared: [{ elementId: 1 }] });
+    expect(survey.data, "The initial value").toEqual({ shared: [{ elementId: 1 }] });
     rows1[0].cells[1].value = "col1_Value";
-    expect(survey.data, "set matrix1 col1").toEqualValues({ shared: [{ elementId: 1, col1: "col1_Value" }] });
+    expect(survey.data, "set matrix1 col1").toEqual({ shared: [{ elementId: 1, col1: "col1_Value" }] });
     rows2[0].cells[0].value = "col2_Value";
-    expect(survey.data, "set matrix2 col2").toEqualValues({ shared: [{ elementId: 1, col1: "col1_Value", col2: "col2_Value" }] });
+    expect(survey.data, "set matrix2 col2").toEqual({ shared: [{ elementId: 1, col1: "col1_Value", col2: "col2_Value" }] });
     panels1[0].getQuestionByName("ed1").value = "ed1_Value";
-    expect(survey.data, "set panel1 ed1").toEqualValues({
+    expect(survey.data, "set panel1 ed1").toEqual({
       shared: [
         {
           elementId: 1,
@@ -10248,7 +10248,7 @@ describe("Survey", () => {
       ],
     });
     rows2[0].cells[0].value = "col2_Value2";
-    expect(survey.data, "replace matrix2 col2").toEqualValues({
+    expect(survey.data, "replace matrix2 col2").toEqual({
       shared: [
         {
           elementId: 1,
@@ -10259,7 +10259,7 @@ describe("Survey", () => {
       ],
     });
     survey.clearIncorrectValues();
-    expect(survey.data, "keep all data since they are all correct").toEqualValues({
+    expect(survey.data, "keep all data since they are all correct").toEqual({
       shared: [
         {
           elementId: 1,
@@ -10316,10 +10316,10 @@ describe("Survey", () => {
     const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     const rows1 = matrix1.visibleRows;
     rows1[0].cells[1].value = 1;
-    expect(survey.data, "set matrix1 col1").toEqualValues({ shared: [{ elementId: 1, col1: 1 }] });
+    expect(survey.data, "set matrix1 col1").toEqual({ shared: [{ elementId: 1, col1: 1 }] });
     panel1.panels[0].getQuestionByName("ed1").value = 1;
-    expect(matrix1.getDisplayValue(false)).toEqualValues([{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
-    expect(panel1.getDisplayValue(false)).toEqualValues([{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
+    expect(matrix1.getDisplayValue(false)).toEqual([{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
+    expect(panel1.getDisplayValue(false)).toEqual([{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
     expect(panel1.panels[0].locTitle.renderedHtml, "Get the display text").toBe("Item 1");
   });
 
@@ -10901,11 +10901,11 @@ describe("Survey", () => {
     m1.visibleRows[1].value = "2";
     m2.visibleRows[0].value = "1";
     m2.visibleRows[1].value = "3";
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       a: { item1: "1", item2: "2", item3: "1", item4: "3" },
     });
     survey.doComplete();
-    expect(survey.data).toEqualValues({
+    expect(survey.data).toEqual({
       a: { item1: "1", item2: "2", item3: "1", item4: "3" },
     });
   });
@@ -11212,7 +11212,7 @@ describe("Survey", () => {
     survey.questionStartIndex = "# 1.";
     survey.requiredMark = "(*)";
     var options = survey.getQuestionTitlePatternOptions();
-    expect(options).toEqualValues([
+    expect(options).toEqual([
       {
         value: "numTitleRequire",
         text: "# 1. Question Title (*)",
@@ -11400,7 +11400,7 @@ describe("Survey", () => {
       survey.getQuestionByName("question1")
     );
     question1.items[0].editor.value = "value1";
-    expect(survey.data, "Data set correctly").toEqualValues({ question1: { item1: "value1" } });
+    expect(survey.data, "Data set correctly").toEqual({ question1: { item1: "value1" } });
     expect(question1.errors.length, "There is no errors yet").toBe(0);
     expect(question1.items[1].editor.errors.length, "There is no errors in item2").toBe(0);
     survey.tryComplete();
@@ -11947,7 +11947,7 @@ describe("Survey", () => {
       ],
     });
     survey.data = { panel: [{ q1: "1" }, { q2: "2" }, []], tq2: "3" };
-    expect(survey.getProgressInfo()).toEqualValues({
+    expect(survey.getProgressInfo()).toEqual({
       questionCount: 12,
       answeredQuestionCount: 3,
       requiredQuestionCount: 5,
@@ -11983,7 +11983,7 @@ describe("Survey", () => {
     });
     var visibleRows = survey.getQuestionByName("q1").visibleRows;
     visibleRows[0].cells[0].value = "cell1";
-    expect(survey.data, "trigger works correctly").toEqualValues({ q1: { row1: { col1: "cell1" } }, q2: { row3: { col3: "cell1" } } });
+    expect(survey.data, "trigger works correctly").toEqual({ q1: { row1: { col1: "cell1" } }, q2: { row3: { col3: "cell1" } } });
   });
 
   test("defaultValue and survey.clearInvisibleValues='onHidden', Bug#2428", () => {
@@ -12044,14 +12044,14 @@ describe("Survey", () => {
     var p1 = <PanelModel>survey.getPanelByName("p1");
     survey.data = { q1: 1, q2: 2, q3: 3, q4: 4 };
     p1.visible = false;
-    expect(survey.data, "Clear values on clearing panel").toEqualValues({ q3: 3, q4: 4 });
+    expect(survey.data, "Clear values on clearing panel").toEqual({ q3: 3, q4: 4 });
     p1.visible = true;
-    expect(survey.data, "Restore default value on making panel visible").toEqualValues({ q1: 5, q3: 3, q4: 4 });
+    expect(survey.data, "Restore default value on making panel visible").toEqual({ q1: 5, q3: 3, q4: 4 });
     survey.data = { q1: 1, q2: 2, q3: 3, q4: 4 };
     survey.pages[0].visible = false;
-    expect(survey.data, "Clear values on clearing page").toEqualValues({ q4: 4 });
+    expect(survey.data, "Clear values on clearing page").toEqual({ q4: 4 });
     survey.pages[0].visible = true;
-    expect(survey.data, "Restore default value on making page visbile").toEqualValues({ q1: 5, q4: 4 });
+    expect(survey.data, "Restore default value on making page visbile").toEqual({ q1: 5, q4: 4 });
   });
 
   test("Add this.question into custom function for validators", () => {
@@ -12123,7 +12123,7 @@ describe("Survey", () => {
     });
     survey.data = { q1: 5 };
     survey.runTriggers();
-    expect(survey.data, "Triggers run successful").toEqualValues({ q1: 5, q2: 5, q3: 10, q4: 20 });
+    expect(survey.data, "Triggers run successful").toEqual({ q1: 5, q2: 5, q3: 10, q4: 20 });
   });
   test("Run expression for date", () => {
     var survey = new SurveyModel({
@@ -12622,7 +12622,7 @@ describe("Survey", () => {
     survey.onGetPanelTitleActions.add((sender, options) => {
       options.actions = testActions;
     });
-    expect(panel.getTitleActions()).toEqualValues(testActions);
+    expect([...(panel.getTitleActions())]).toEqual(testActions);
   });
 
   test("Check onGetQuestionTitleActions event", () => {
@@ -12639,7 +12639,7 @@ describe("Survey", () => {
       options.actions = testActions;
     });
     var question = <Question>survey.getQuestionByName("text1");
-    expect(question.getTitleActions()).toEqualValues(testActions);
+    expect([...(question.getTitleActions())]).toEqual(testActions);
   });
 
   test("Check onGetPageTitleActions event", () => {
@@ -12651,7 +12651,7 @@ describe("Survey", () => {
       options.actions = testActions;
     });
     var page = <PageModel>survey.pages[0];
-    expect(page.getTitleActions()).toEqualValues(testActions);
+    expect([...(page.getTitleActions())]).toEqual(testActions);
   });
   test("Stackoverflow error, https://surveyjs.answerdesk.io//ticket/details/T6023, Bug#2598", () => {
     var survey = new SurveyModel({
@@ -13091,9 +13091,9 @@ describe("Survey", () => {
       newValue = options.newValue;
     });
     q1.locDataList.setLocaleText("", "Item 1\nItem 2\nItem 3");
-    expect(q1.dataList, "question dataList is correct").toEqualValues(["Item 1", "Item 2", "Item 3"]);
-    expect(newValue, "we send notification").toEqualValues({ default: ["Item 1", "Item 2", "Item 3"] });
-    expect(oldValue, "old Value is correct").toEqualValues({ default: ["Item 1", "Item 2"] });
+    expect(q1.dataList, "question dataList is correct").toEqual(["Item 1", "Item 2", "Item 3"]);
+    expect(newValue, "we send notification").toEqual({ default: ["Item 1", "Item 2", "Item 3"] });
+    expect(oldValue, "old Value is correct").toEqual({ default: ["Item 1", "Item 2"] });
   });
 
   test("onAfterRenderPage calls incorrect for the first page when there is the started page, Bug #", () => {
@@ -13161,12 +13161,12 @@ describe("Survey", () => {
   });
   test("getElementWrapperComponentName", () => {
     var survey = new SurveyModel();
-    expect(survey.getElementWrapperComponentName(null), "default component").toEqualValues(SurveyModel.TemplateRendererComponentName);
-    expect(survey.getElementWrapperComponentName(null, "logo-image"), "logo-image default component").toEqualValues("sv-logo-image");
+    expect(survey.getElementWrapperComponentName(null), "default component").toEqual(SurveyModel.TemplateRendererComponentName);
+    expect(survey.getElementWrapperComponentName(null, "logo-image"), "logo-image default component").toEqual("sv-logo-image");
   });
   test("getQuestionContentWrapperComponentName", () => {
     var survey = new SurveyModel();
-    expect(survey.getQuestionContentWrapperComponentName(null), "default component").toEqualValues(SurveyModel.TemplateRendererComponentName);
+    expect(survey.getQuestionContentWrapperComponentName(null), "default component").toEqual(SurveyModel.TemplateRendererComponentName);
   });
   test("onElementWrapperComponentName event", () => {
     const survey = new SurveyModel({
@@ -13680,13 +13680,13 @@ describe("Survey", () => {
     };
     let survey = new SurveyModel(json);
     let question = survey.getQuestionByName("q1") as QuestionCommentModel;
-    expect(question.toJSON(), "#1").toEqualValues({ name: "q1" });
+    expect(question.toJSON(), "#1").toEqual({ name: "q1" });
     question.allowResize = false;
     question.autoGrow = false;
-    expect(question.toJSON(), "#2").toEqualValues({ name: "q1", allowResize: false, autoGrow: false });
+    expect(question.toJSON(), "#2").toEqual({ name: "q1", allowResize: false, autoGrow: false });
     question.allowResize = true;
     question.autoGrow = true;
-    expect(question.toJSON(), "#3").toEqualValues({ name: "q1", allowResize: true, autoGrow: true });
+    expect(question.toJSON(), "#3").toEqual({ name: "q1", allowResize: true, autoGrow: true });
   });
   test("survey.allowResizeComment", () => {
     let json = {
@@ -14016,7 +14016,7 @@ describe("Survey", () => {
     expect(counter).toBe(1);
     rows[1].cells[0].value = " Val2 ";
     expect(counter).toBe(2);
-    expect(question.value).toEqualValues([{ col1: "val1" }, { col1: " Val2 " }]);
+    expect(question.value).toEqual([{ col1: "val1" }, { col1: " Val2 " }]);
   });
   test("page.fromJSON() doesn't work correctly, Bug#3331", () => {
     const survey = new SurveyModel({
@@ -14204,10 +14204,10 @@ describe("Survey", () => {
     });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
     matrix.value = "val2";
-    expect(survey.data, "value is in data").toEqualValues({ invisible: "val2" });
+    expect(survey.data, "value is in data").toEqual({ invisible: "val2" });
     survey.setValue("q1", 1);
     survey.doComplete();
-    expect(survey.data, "value is empty now").toEqualValues({ q1: 1 });
+    expect(survey.data, "value is empty now").toEqual({ q1: 1 });
   });
   test("Randomized questions and onQuestionAdded", () => {
     const survey = new SurveyModel({
@@ -14264,13 +14264,13 @@ describe("Survey", () => {
         { type: "checkbox", name: "q2", choices: [1, 2, 3] },
       ]
     });
-    expect(survey.data, "Survey data is correct").toEqualValues({ q1: 1, q2: [1, 2] });
+    expect(survey.data, "Survey data is correct").toEqual({ q1: 1, q2: [1, 2] });
     const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
     expect(q1.value, "radiogroup value").toBe(1);
-    expect(q2.value, "checkbox value").toEqualValues([1, 2]);
+    expect([...(q2.value)], "checkbox value").toEqual([1, 2]);
     expect(q1.renderedValue, "radiogroup rendered value").toBe(1);
-    expect(q2.renderedValue, "checkbox rendered value").toEqualValues([1, 2]);
+    expect([...(q2.renderedValue)], "checkbox rendered value").toEqual([1, 2]);
   });
   test("Checkbox, invsible item with default Value", () => {
     const survey = new SurveyModel();
@@ -14288,15 +14288,15 @@ describe("Survey", () => {
     const q2 = survey.getQuestionByName("q2");
     expect(q2.isEmpty(), "question is empty").toBe(true);
     survey.setValue("q1", 2);
-    expect(q2.value, "Respect default value").toEqualValues([1]);
+    expect([...(q2.value)], "Respect default value").toEqual([1]);
     survey.setValue("q1", 1);
     expect(q2.isEmpty(), "question is empty again").toBe(true);
     survey.setValue("q1", 2);
-    expect(q2.value, "Respect default value again").toEqualValues([1]);
+    expect([...(q2.value)], "Respect default value again").toEqual([1]);
     q2.value = [2];
     survey.setValue("q1", 1);
     survey.setValue("q1", 2);
-    expect(q2.value, "default value is goine").toEqualValues([2]);
+    expect([...(q2.value)], "default value is goine").toEqual([2]);
   });
   test("clearInvisibleValues: `none` and copyvalue trigger", () => {
     const survey = new SurveyModel({
@@ -14333,9 +14333,9 @@ describe("Survey", () => {
     });
     survey.setValue("question1", "item2");
     expect(survey.getValue("question2"), "Trigger is working").toBe("item2");
-    expect(survey.data, "Data is correct").toEqualValues({ question1: "item2", question2: "item2" });
+    expect(survey.data, "Data is correct").toEqual({ question1: "item2", question2: "item2" });
     survey.doComplete();
-    expect(survey.data, "Data is correct after completed").toEqualValues({ question1: "item2", question2: "item2" });
+    expect(survey.data, "Data is correct after completed").toEqual({ question1: "item2", question2: "item2" });
   });
   test("Assign survey data callback", () => {
     const survey = new SurveyModel();
@@ -14387,7 +14387,7 @@ describe("Survey", () => {
     const question2 = survey.getQuestionByName("question2");
     expect(question2.isVisible, "Invisible by default").toBe(false);
     survey.setComment("question1", "abcd");
-    expect(survey.data, "Check comment value").toEqualValues({ "question1-Comment": "abcd" });
+    expect(survey.data, "Check comment value").toEqual({ "question1-Comment": "abcd" });
     expect(question2.isVisible, "visible").toBe(true);
     survey.setComment("question1", "abc");
     expect(question2.isVisible, "Invisible again").toBe(false);
@@ -15779,73 +15779,73 @@ describe("Survey", () => {
     expect(survey.progressBarType).toBe("pages");
     expect(survey.showProgressBar).toBe(false);
 
-    expect(getContainerContent("header"), "default header").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([{
+    expect(getContainerContent("header"), "default header").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
 
     survey.showNavigationButtons = true;
     survey.navigationButtonsLocation = "top";
-    expect(getContainerContent("header"), "nav top header").toEqualValues([]);
-    expect(getContainerContent("footer"), "nav top footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "nav top contentTop").toEqualValues([{
+    expect(getContainerContent("header"), "nav top header").toEqual([]);
+    expect(getContainerContent("footer"), "nav top footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "nav top contentTop").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation-top"
     }]);
-    expect(getContainerContent("contentBottom"), "nav top contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "nav top left").toEqualValues([]);
-    expect(getContainerContent("right"), "nav top right").toEqualValues([]);
+    expect(getContainerContent("contentBottom"), "nav top contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "nav top left").toEqual([]);
+    expect(getContainerContent("right"), "nav top right").toEqual([]);
 
     survey.showNavigationButtons = true;
     survey.navigationButtonsLocation = "topBottom";
-    expect(getContainerContent("header"), "nav both header").toEqualValues([]);
-    expect(getContainerContent("footer"), "nav both footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "nav both contentTop").toEqualValues([{
+    expect(getContainerContent("header"), "nav both header").toEqual([]);
+    expect(getContainerContent("footer"), "nav both footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "nav both contentTop").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation-top"
     }]);
-    expect(getContainerContent("contentBottom"), "nav both contentBottom").toEqualValues([{
+    expect(getContainerContent("contentBottom"), "nav both contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "nav both left").toEqualValues([]);
-    expect(getContainerContent("right"), "nav both right").toEqualValues([]);
+    expect(getContainerContent("left"), "nav both left").toEqual([]);
+    expect(getContainerContent("right"), "nav both right").toEqual([]);
 
     survey.showTOC = true;
-    expect(getContainerContent("header"), "nav left header").toEqualValues([]);
-    expect(getContainerContent("footer"), "nav left footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "nav left contentTop").toEqualValues([{
+    expect(getContainerContent("header"), "nav left header").toEqual([]);
+    expect(getContainerContent("footer"), "nav left footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "nav left contentTop").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation-top"
     }]);
-    expect(getContainerContent("contentBottom"), "nav left contentBottom").toEqualValues([{
+    expect(getContainerContent("contentBottom"), "nav left contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "nav left left").toEqualValues([{
+    expect(getContainerContent("left"), "nav left left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "nav left right").toEqualValues([]);
+    expect(getContainerContent("right"), "nav left right").toEqual([]);
 
     survey.tocLocation = "right";
-    expect(getContainerContent("header"), "nav right header").toEqualValues([]);
-    expect(getContainerContent("footer"), "nav right footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "nav right contentTop").toEqualValues([{
+    expect(getContainerContent("header"), "nav right header").toEqual([]);
+    expect(getContainerContent("footer"), "nav right footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "nav right contentTop").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation-top"
     }]);
-    expect(getContainerContent("contentBottom"), "nav right contentBottom").toEqualValues([{
+    expect(getContainerContent("contentBottom"), "nav right contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "nav right left").toEqualValues([]);
-    expect(getContainerContent("right"), "nav right right").toEqualValues([{
+    expect(getContainerContent("left"), "nav right left").toEqual([]);
+    expect(getContainerContent("right"), "nav right right").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
@@ -15853,12 +15853,12 @@ describe("Survey", () => {
     survey.showProgressBar = false;
     survey.showNavigationButtons = false;
     survey.showTOC = false;
-    expect(getContainerContent("header"), "nav none header").toEqualValues([]);
-    expect(getContainerContent("footer"), "nav none footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "nav none contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "nav none contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "nav none left").toEqualValues([]);
-    expect(getContainerContent("right"), "nav none right").toEqualValues([]);
+    expect(getContainerContent("header"), "nav none header").toEqual([]);
+    expect(getContainerContent("footer"), "nav none footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "nav none contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "nav none contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "nav none left").toEqual([]);
+    expect(getContainerContent("right"), "nav none right").toEqual([]);
   });
 
   test("getContainerContent - progress (legacyProgressBarView)", () => {
@@ -15905,114 +15905,114 @@ describe("Survey", () => {
       expect(survey.progressBarType).toBe("pages");
       expect(survey.showProgressBar).toBe(false);
 
-      expect(getContainerContent("header"), "default header").toEqualValues([]);
-      expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "default left").toEqualValues([]);
-      expect(getContainerContent("right"), "default right").toEqualValues([]);
+      expect(getContainerContent("header"), "default header").toEqual([]);
+      expect(getContainerContent("footer"), "default footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "default left").toEqual([]);
+      expect(getContainerContent("right"), "default right").toEqual([]);
 
       survey.showProgressBar = "top";
-      expect(getContainerContent("header"), "progress top header").toEqualValues([]);
-      expect(getContainerContent("center"), "progress top center").toEqualValues([{
+      expect(getContainerContent("header"), "progress top header").toEqual([]);
+      expect(getContainerContent("center"), "progress top center").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages"
       }]);
-      expect(getContainerContent("footer"), "progress top footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "progress top contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress top left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress top right").toEqualValues([]);
+      expect(getContainerContent("footer"), "progress top footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "progress top contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress top left").toEqual([]);
+      expect(getContainerContent("right"), "progress top right").toEqual([]);
 
       survey.showProgressBar = "bottom";
-      expect(getContainerContent("header"), "progress bottom header").toEqualValues([]);
-      expect(getContainerContent("footer"), "progress bottom footer").toEqualValues([{
+      expect(getContainerContent("header"), "progress bottom header").toEqual([]);
+      expect(getContainerContent("footer"), "progress bottom footer").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages"
       }]);
-      expect(getContainerContent("contentTop"), "progress bottom contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress bottom contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress bottom left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress bottom right").toEqualValues([]);
+      expect(getContainerContent("contentTop"), "progress bottom contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress bottom contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress bottom left").toEqual([]);
+      expect(getContainerContent("right"), "progress bottom right").toEqual([]);
 
       survey.showProgressBar = "both";
-      expect(getContainerContent("header"), "progress both header").toEqualValues([]);
-      expect(getContainerContent("center"), "progress both center").toEqualValues([{
+      expect(getContainerContent("header"), "progress both header").toEqual([]);
+      expect(getContainerContent("center"), "progress both center").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages"
       }]);
-      expect(getContainerContent("footer"), "progress both footer").toEqualValues([{
+      expect(getContainerContent("footer"), "progress both footer").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages"
       }]);
-      expect(getContainerContent("contentTop"), "progress both contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress both contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress both left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress both right").toEqualValues([]);
+      expect(getContainerContent("contentTop"), "progress both contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress both contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress both left").toEqual([]);
+      expect(getContainerContent("right"), "progress both right").toEqual([]);
 
       survey.progressBarType = "questions";
-      expect(getContainerContent("header"), "progress questions both header").toEqualValues([]);
-      expect(getContainerContent("center"), "progress questions both header").toEqualValues([{
+      expect(getContainerContent("header"), "progress questions both header").toEqual([]);
+      expect(getContainerContent("center"), "progress questions both header").toEqual([{
         "component": "sv-progress-questions",
         "id": "progress-questions"
       }]);
-      expect(getContainerContent("footer"), "progress questions both footer").toEqualValues([{
+      expect(getContainerContent("footer"), "progress questions both footer").toEqual([{
         "component": "sv-progress-questions",
         "id": "progress-questions"
       }]);
-      expect(getContainerContent("contentTop"), "progress questions both contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress questions both contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress questions both left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress questions both right").toEqualValues([]);
+      expect(getContainerContent("contentTop"), "progress questions both contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress questions both contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress questions both left").toEqual([]);
+      expect(getContainerContent("right"), "progress questions both right").toEqual([]);
 
       survey.showTOC = true;
-      expect(getContainerContent("header"), "progress toc both header").toEqualValues([]);
-      expect(getContainerContent("center"), "progress toc both center").toEqualValues([{
+      expect(getContainerContent("header"), "progress toc both header").toEqual([]);
+      expect(getContainerContent("center"), "progress toc both center").toEqual([{
         "component": "sv-progress-questions",
         "id": "progress-questions"
       }]);
-      expect(getContainerContent("footer"), "progress toc both footer").toEqualValues([{
+      expect(getContainerContent("footer"), "progress toc both footer").toEqual([{
         "component": "sv-progress-questions",
         "id": "progress-questions"
       }]);
-      expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress toc both left").toEqualValues([{
+      expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress toc both left").toEqual([{
         "component": "sv-navigation-toc",
         "id": "toc-navigation"
       }]);
-      expect(getContainerContent("right"), "progress toc both right").toEqualValues([]);
+      expect(getContainerContent("right"), "progress toc both right").toEqual([]);
 
       survey.showProgressBar = false;
       survey.tocLocation = "left";
-      expect(getContainerContent("header"), "progress toc left header").toEqualValues([]);
-      expect(getContainerContent("footer"), "progress toc left footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "progress toc left contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress toc left contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress toc left left").toEqualValues([{
+      expect(getContainerContent("header"), "progress toc left header").toEqual([]);
+      expect(getContainerContent("footer"), "progress toc left footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "progress toc left contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress toc left contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress toc left left").toEqual([{
         "component": "sv-navigation-toc",
         "id": "toc-navigation"
       }]);
-      expect(getContainerContent("right"), "progress toc left right").toEqualValues([]);
+      expect(getContainerContent("right"), "progress toc left right").toEqual([]);
 
       survey.tocLocation = "right";
-      expect(getContainerContent("header"), "progress toc right header").toEqualValues([]);
-      expect(getContainerContent("footer"), "progress toc right footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "progress toc right contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress toc right contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress toc right left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress toc right right").toEqualValues([{
+      expect(getContainerContent("header"), "progress toc right header").toEqual([]);
+      expect(getContainerContent("footer"), "progress toc right footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "progress toc right contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress toc right contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress toc right left").toEqual([]);
+      expect(getContainerContent("right"), "progress toc right right").toEqual([{
         "component": "sv-navigation-toc",
         "id": "toc-navigation"
       }]);
 
       survey.showTOC = false;
-      expect(getContainerContent("header"), "default header").toEqualValues([]);
-      expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "default left").toEqualValues([]);
-      expect(getContainerContent("right"), "default right").toEqualValues([]);
+      expect(getContainerContent("header"), "default header").toEqual([]);
+      expect(getContainerContent("footer"), "default footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "default left").toEqual([]);
+      expect(getContainerContent("right"), "default right").toEqual([]);
 
     } finally {
       settings.legacyProgressBarView = false;
@@ -16061,114 +16061,114 @@ describe("Survey", () => {
     expect(survey.progressBarType).toBe("pages");
     expect(survey.showProgressBar).toBe(false);
 
-    expect(getContainerContent("header"), "default header").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("header"), "default header").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
 
     survey.showProgressBar = "top";
-    expect(getContainerContent("header"), "progress top header").toEqualValues([]);
-    expect(getContainerContent("center"), "progress top center").toEqualValues([{
+    expect(getContainerContent("header"), "progress top header").toEqual([]);
+    expect(getContainerContent("center"), "progress top center").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("footer"), "progress top footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "progress top contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress top left").toEqualValues([]);
-    expect(getContainerContent("right"), "progress top right").toEqualValues([]);
+    expect(getContainerContent("footer"), "progress top footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "progress top contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress top left").toEqual([]);
+    expect(getContainerContent("right"), "progress top right").toEqual([]);
 
     survey.showProgressBar = "bottom";
-    expect(getContainerContent("header"), "progress bottom header").toEqualValues([]);
-    expect(getContainerContent("footer"), "progress bottom footer").toEqualValues([{
+    expect(getContainerContent("header"), "progress bottom header").toEqual([]);
+    expect(getContainerContent("footer"), "progress bottom footer").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("contentTop"), "progress bottom contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress bottom contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress bottom left").toEqualValues([]);
-    expect(getContainerContent("right"), "progress bottom right").toEqualValues([]);
+    expect(getContainerContent("contentTop"), "progress bottom contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress bottom contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress bottom left").toEqual([]);
+    expect(getContainerContent("right"), "progress bottom right").toEqual([]);
 
     survey.showProgressBar = "both";
-    expect(getContainerContent("header"), "progress both header").toEqualValues([]);
-    expect(getContainerContent("center"), "progress both center").toEqualValues([{
+    expect(getContainerContent("header"), "progress both header").toEqual([]);
+    expect(getContainerContent("center"), "progress both center").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("footer"), "progress both footer").toEqualValues([{
+    expect(getContainerContent("footer"), "progress both footer").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("contentTop"), "progress both contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress both contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress both left").toEqualValues([]);
-    expect(getContainerContent("right"), "progress both right").toEqualValues([]);
+    expect(getContainerContent("contentTop"), "progress both contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress both contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress both left").toEqual([]);
+    expect(getContainerContent("right"), "progress both right").toEqual([]);
 
     survey.progressBarType = "questions";
-    expect(getContainerContent("header"), "progress questions both header").toEqualValues([]);
-    expect(getContainerContent("center"), "progress questions both header").toEqualValues([{
+    expect(getContainerContent("header"), "progress questions both header").toEqual([]);
+    expect(getContainerContent("center"), "progress questions both header").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("footer"), "progress questions both footer").toEqualValues([{
+    expect(getContainerContent("footer"), "progress questions both footer").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("contentTop"), "progress questions both contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress questions both contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress questions both left").toEqualValues([]);
-    expect(getContainerContent("right"), "progress questions both right").toEqualValues([]);
+    expect(getContainerContent("contentTop"), "progress questions both contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress questions both contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress questions both left").toEqual([]);
+    expect(getContainerContent("right"), "progress questions both right").toEqual([]);
 
     survey.showTOC = true;
-    expect(getContainerContent("header"), "progress toc both header").toEqualValues([]);
-    expect(getContainerContent("center"), "progress toc both center").toEqualValues([{
+    expect(getContainerContent("header"), "progress toc both header").toEqual([]);
+    expect(getContainerContent("center"), "progress toc both center").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("footer"), "progress toc both footer").toEqualValues([{
+    expect(getContainerContent("footer"), "progress toc both footer").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress toc both left").toEqualValues([{
+    expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress toc both left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "progress toc both right").toEqualValues([]);
+    expect(getContainerContent("right"), "progress toc both right").toEqual([]);
 
     survey.showProgressBar = false;
     survey.tocLocation = "left";
-    expect(getContainerContent("header"), "progress toc left header").toEqualValues([]);
-    expect(getContainerContent("footer"), "progress toc left footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "progress toc left contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress toc left contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress toc left left").toEqualValues([{
+    expect(getContainerContent("header"), "progress toc left header").toEqual([]);
+    expect(getContainerContent("footer"), "progress toc left footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "progress toc left contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress toc left contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress toc left left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "progress toc left right").toEqualValues([]);
+    expect(getContainerContent("right"), "progress toc left right").toEqual([]);
 
     survey.tocLocation = "right";
-    expect(getContainerContent("header"), "progress toc right header").toEqualValues([]);
-    expect(getContainerContent("footer"), "progress toc right footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "progress toc right contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress toc right contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress toc right left").toEqualValues([]);
-    expect(getContainerContent("right"), "progress toc right right").toEqualValues([{
+    expect(getContainerContent("header"), "progress toc right header").toEqual([]);
+    expect(getContainerContent("footer"), "progress toc right footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "progress toc right contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress toc right contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress toc right left").toEqual([]);
+    expect(getContainerContent("right"), "progress toc right right").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
 
     survey.showTOC = false;
-    expect(getContainerContent("header"), "default header").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("header"), "default header").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
   });
 
   test("getContainerContent - do not show TOC on preview", () => {
@@ -16199,31 +16199,31 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "show toc left").toEqualValues([{
+    expect(getContainerContent("left"), "show toc left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.nextPage();
     survey.showPreview();
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "do not show toc left").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "do not show toc left").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
   });
 
   test("getContainerContent - do not show TOC on start page", () => {
@@ -16262,28 +16262,28 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "empty on the start page").toEqualValues([]);
+    expect(getContainerContent("left"), "empty on the start page").toEqual([]);
 
     survey.start();
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "show toc left").toEqualValues([{
+    expect(getContainerContent("left"), "show toc left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("right"), "").toEqual([]);
   });
 
   test("getContainerContent - do not show buttons progress on completed page", () => {
@@ -16324,31 +16324,31 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("center"), "").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("center"), "").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.doComplete();
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
   });
   test("getContainerContent - do not show advanced header on completed page", () => {
     const json = {
@@ -16376,32 +16376,32 @@ describe("Survey", () => {
       return result;
     }
 
-    expect(getContainerContent("header"), "header for running survey").toEqualValues([{
+    expect(getContainerContent("header"), "header for running survey").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.doComplete();
 
-    expect(getContainerContent("header"), "header on complete page").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("header"), "header on complete page").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
   });
   test("getContainerContent - do show advanced header on completed page if showHeaderOnCompletePage is set", () => {
     const json = {
@@ -16433,37 +16433,37 @@ describe("Survey", () => {
     expect(survey.showHeaderOnCompletePage).toBe("auto");
     survey.showHeaderOnCompletePage = true;
 
-    expect(getContainerContent("header"), "header for running survey").toEqualValues([{
+    expect(getContainerContent("header"), "header for running survey").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.doComplete();
 
-    expect(getContainerContent("header"), "header on complete page").toEqualValues([{
+    expect(getContainerContent("header"), "header on complete page").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([{
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
   });
 
   const structedDataSurveyJSON = {
@@ -16506,37 +16506,37 @@ describe("Survey", () => {
     survey.setValue("q21", 2100);
     survey.setValue("q22", 2200);
     const data = survey.data;
-    expect(survey.getStructuredData(true, 0), "Level is 0, true").toEqualValues(data);
-    expect(survey.getStructuredData(false, 0), "Level is 0, false").toEqualValues(data);
-    expect(survey.getStructuredData(), "includePages: true, level: -1").toEqualValues({
+    expect(survey.getStructuredData(true, 0), "Level is 0, true").toEqual(data);
+    expect(survey.getStructuredData(false, 0), "Level is 0, false").toEqual(data);
+    expect(survey.getStructuredData(), "includePages: true, level: -1").toEqual({
       page1: { q1: 100, panel1: { q2: 200, panel2: { q3: 300 } } },
       page2: { q21: 2100, panel21: { q22: 2200 } },
     });
-    expect(survey.getStructuredData(false), "includePages: false, level: -1").toEqualValues({
+    expect(survey.getStructuredData(false), "includePages: false, level: -1").toEqual({
       q1: 100, panel1: { q2: 200, panel2: { q3: 300 } },
       q21: 2100, panel21: { q22: 2200 },
     });
-    expect(survey.getStructuredData(true, 1), "includePages: true, level: 1").toEqualValues({
+    expect(survey.getStructuredData(true, 1), "includePages: true, level: 1").toEqual({
       page1: { q1: 100, q2: 200, q3: 300 },
       page2: { q21: 2100, q22: 2200 },
     });
-    expect(survey.getStructuredData(false, 1), "includePages: false, level: 1").toEqualValues({
+    expect(survey.getStructuredData(false, 1), "includePages: false, level: 1").toEqual({
       q1: 100, panel1: { q2: 200, q3: 300 },
       q21: 2100, panel21: { q22: 2200 },
     });
-    expect(survey.getStructuredData(true, 2), "includePages: true, level: 2").toEqualValues({
+    expect(survey.getStructuredData(true, 2), "includePages: true, level: 2").toEqual({
       page1: { q1: 100, panel1: { q2: 200, q3: 300 } },
       page2: { q21: 2100, panel21: { q22: 2200 } },
     });
-    expect(survey.getStructuredData(false, 2), "includePages: false, level: 2").toEqualValues({
+    expect(survey.getStructuredData(false, 2), "includePages: false, level: 2").toEqual({
       q1: 100, panel1: { q2: 200, panel2: { q3: 300 } },
       q21: 2100, panel21: { q22: 2200 },
     });
-    expect(survey.getStructuredData(true, 3), "includePages: true, level: 3").toEqualValues({
+    expect(survey.getStructuredData(true, 3), "includePages: true, level: 3").toEqual({
       page1: { q1: 100, panel1: { q2: 200, panel2: { q3: 300 } } },
       page2: { q21: 2100, panel21: { q22: 2200 } },
     });
-    expect(survey.getStructuredData(false, 3), "includePages: false, level: 3").toEqualValues({
+    expect(survey.getStructuredData(false, 3), "includePages: false, level: 3").toEqual({
       q1: 100, panel1: { q2: 200, panel2: { q3: 300 } },
       q21: 2100, panel21: { q22: 2200 },
     });
@@ -16550,18 +16550,18 @@ describe("Survey", () => {
     survey.setValue("q21", 2100);
     survey.setValue("q22", 2200);
     const data = survey.data;
-    expect(survey.getData(), "survey.getData()").toEqualValues(data);
-    expect(survey.getData({}), "survey.getData({})").toEqualValues(data);
-    expect(survey.getData({ includePages: false, includePanels: false }), "survey.getData({ includePages: false, includePanels: false })").toEqualValues(data);
-    expect(survey.getData({ includePages: true, includePanels: false }), "survey.getData({ includePages: true, includePanels: false })").toEqualValues({
+    expect(survey.getData(), "survey.getData()").toEqual(data);
+    expect(survey.getData({}), "survey.getData({})").toEqual(data);
+    expect(survey.getData({ includePages: false, includePanels: false }), "survey.getData({ includePages: false, includePanels: false })").toEqual(data);
+    expect(survey.getData({ includePages: true, includePanels: false }), "survey.getData({ includePages: true, includePanels: false })").toEqual({
       page1: { q1: 100, q2: 200, q3: 300 },
       page2: { q21: 2100, q22: 2200 },
     });
-    expect(survey.getData({ includePages: true, includePanels: true }), "survey.getData({ includePages: true, includePanels: true })").toEqualValues({
+    expect(survey.getData({ includePages: true, includePanels: true }), "survey.getData({ includePages: true, includePanels: true })").toEqual({
       page1: { q1: 100, panel1: { q2: 200, panel2: { q3: 300 } } },
       page2: { q21: 2100, panel21: { q22: 2200 } },
     });
-    expect(survey.getData({ includePages: false, includePanels: true }), "survey.getData({ includePages: true, includePanels: true })").toEqualValues({
+    expect(survey.getData({ includePages: false, includePanels: true }), "survey.getData({ includePages: true, includePanels: true })").toEqual({
       q1: 100, panel1: { q2: 200, panel2: { q3: 300 } },
       q21: 2100, panel21: { q22: 2200 },
     });
@@ -16572,21 +16572,21 @@ describe("Survey", () => {
       page1: { q1: 100, panel1: { q2: 200, panel2: { q3: 300 } } },
       page2: { q21: 2100, panel21: { q22: 2200 } }
     });
-    expect(survey.data, "#1").toEqualValues({ q1: 100, q2: 200, q3: 300, q21: 2100, q22: 2200 });
+    expect(survey.data, "#1").toEqual({ q1: 100, q2: 200, q3: 300, q21: 2100, q22: 2200 });
     survey.setStructuredData({
       q1: 101, panel1: { q2: 201, panel2: { q3: 301 } },
       q21: 2101, panel21: { q22: 2201 }
     });
-    expect(survey.data, "#2").toEqualValues({ q1: 101, q2: 201, q3: 301, q21: 2101, q22: 2201 });
+    expect(survey.data, "#2").toEqual({ q1: 101, q2: 201, q3: 301, q21: 2101, q22: 2201 });
     survey.setStructuredData({
       page1: { q1: 102, q2: 202, q3: 302 },
       page2: { q21: 2102, q22: 2202 },
     });
-    expect(survey.data, "#3").toEqualValues({ q1: 102, q2: 202, q3: 302, q21: 2102, q22: 2202 });
+    expect(survey.data, "#3").toEqual({ q1: 102, q2: 202, q3: 302, q21: 2102, q22: 2202 });
     survey.setStructuredData({ page1: { q1: 103 } }, true);
-    expect(survey.data, "#4").toEqualValues({ q1: 103, q2: 202, q3: 302, q21: 2102, q22: 2202 });
+    expect(survey.data, "#4").toEqual({ q1: 103, q2: 202, q3: 302, q21: 2102, q22: 2202 });
     survey.setStructuredData({ page1: { q1: 104 } });
-    expect(survey.data, "#5").toEqualValues({ q1: 104 });
+    expect(survey.data, "#5").toEqual({ q1: 104 });
   });
 
   test("check titleNumInline cssClass", () => {
@@ -16795,34 +16795,34 @@ describe("Survey", () => {
     expect(survey.showNavigationButtons).toBe(true);
     expect(survey.navigationButtonsLocation).toBe("bottom");
 
-    expect(getContainerContent("header"), "nav none header").toEqualValues([]);
-    expect(getContainerContent("footer"), "nav none footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "nav none contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "nav none contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "nav none left").toEqualValues([]);
-    expect(getContainerContent("right"), "nav none right").toEqualValues([]);
+    expect(getContainerContent("header"), "nav none header").toEqual([]);
+    expect(getContainerContent("footer"), "nav none footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "nav none contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "nav none contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "nav none left").toEqual([]);
+    expect(getContainerContent("right"), "nav none right").toEqual([]);
 
     survey.nextPage();
-    expect(getContainerContent("header"), "default header").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([{
+    expect(getContainerContent("header"), "default header").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
 
     survey.showNavigationButtons = false;
-    expect(getContainerContent("header"), "default header").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([{
+    expect(getContainerContent("header"), "default header").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
   });
   test("survey.showNavigationButtons = 'none', page.showNavigationButtons = true & firstPageIsStartPage is true, Bug#9248", () => {
     const survey = new SurveyModel({
@@ -16887,7 +16887,7 @@ describe("Survey", () => {
     });
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
 
-    expect(getContainerContent("header"), "advanved header first, progress next").toEqualValues([
+    expect(getContainerContent("header"), "advanved header first, progress next").toEqual([
       {
         "component": "sv-header",
         "container": "header",
@@ -17324,10 +17324,10 @@ describe("Survey", () => {
     const p1 = survey.getAllQuestions()[0];
     const p2 = survey.getAllQuestions()[1];
     p1.addPanel();
-    expect(survey.data, "survey.data").toEqualValues({ sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] });
-    expect(p2.value, "panel2.data").toEqualValues([{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }]);
+    expect(survey.data, "survey.data").toEqual({ sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] });
+    expect(p2.value, "panel2.data").toEqual([{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }]);
     const matrix = <QuestionMatrixDynamicModel>p2.panels[0].questions[0];
-    expect(matrix.value, "panel2[0].matrix1.data").toEqualValues([{ b_eil_nr: 1, b_name: "1 name" }]);
+    expect(matrix.value, "panel2[0].matrix1.data").toEqual([{ b_eil_nr: 1, b_name: "1 name" }]);
     const table = matrix.renderedTable;
     expect(table.rows.length, "One row in rendered table").toBe(2);
     expect(table.rows[1].cells[0].question.value).toBe(1);
@@ -17580,7 +17580,7 @@ describe("Survey", () => {
     row.showDetailPanel();
     row.getQuestionByName("col1").value = [1, 3];
     row.getQuestionByName("q3_q1").value = [1, 2, 3];
-    expect(survey.data, "displayValue works correctly").toEqualValues({
+    expect(survey.data, "displayValue works correctly").toEqual({
       q1: [1, 2], q1_exp: "Item 1, Item 2",
       q2: [{ q2_q1: [2, 3], q2_q1_exp: "Item 2, Item 3" }],
       q3: [{ col1: [1, 3], col1_exp: "Item 1, Item 3", q3_q1: [1, 2, 3], q3_q1_exp: "Item 1, Item 2, Item 3" }]
@@ -17741,7 +17741,7 @@ describe("Survey", () => {
     });
     survey.getQuestionByName("q2").addPanel();
     survey.getQuestionByName("q3").addRow();
-    expect(survey.data, "propertyValue works correctly").toEqualValues({
+    expect(survey.data, "propertyValue works correctly").toEqual({
       q1_exp: "Q1",
       q2: [{ q2_q1_exp: "Q2_Q1" }],
       q3: [{ col1_exp: "Column 1" }]
@@ -17827,7 +17827,7 @@ describe("Survey", () => {
     expect(surveyJson.pages[0].elements.length, "surveyJson elements count").toBe(3);
     expect(prepareJSON.pages[0].elements.length, "prepareJSON elements count").toBe(3);
 
-    expect(surveyJson).toEqualValues(prepareJSON);
+    expect(surveyJson).toEqual(prepareJSON);
   });
   test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questionPerPage is used #7359, #2", () => {
     const surveyJson = {
@@ -17862,7 +17862,7 @@ describe("Survey", () => {
     expect(surveyJson.pages[0].elements.length, "surveyJson elements count").toBe(3);
     expect(prepareJSON.pages[0].elements.length, "prepareJSON elements count").toBe(3);
 
-    expect(surveyJson).toEqualValues(prepareJSON);
+    expect(surveyJson).toEqual(prepareJSON);
   });
   test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, Bug #9276", () => {
     const surveyJson = {
@@ -17986,7 +17986,7 @@ describe("Survey", () => {
     };
 
     const survey = new SurveyModel(surveyJson);
-    expect(survey.data, "survey.data").toEqualValues({ q1_1: "A", q2_1: "A" });
+    expect(survey.data, "survey.data").toEqual({ q1_1: "A", q2_1: "A" });
     survey.setValue("q3", "B");
     const q1_1 = survey.getQuestionByName("q1_1");
     const q2_1 = survey.getQuestionByName("q2_1");
@@ -18114,17 +18114,17 @@ describe("Survey", () => {
     const q4 = survey.getQuestionByName("q4");
     expect(q1.value, "q1.value #1").toBe("value1");
     expect(q2.value, "q2.value #1").toBe("value2");
-    expect(q3.value, "q3.value #1").toEqualValues(["item1", "item3"]);
+    expect([...(q3.value)], "q3.value #1").toEqual(["item1", "item3"]);
     expect(q4.value, "q4.value #1").toBe("item2");
     survey.data = { q1: "val1" };
     expect(q1.value, "q1.value #2").toBe("val1");
     expect(q2.value, "q2.value #2").toBeFalsy();
-    expect(q3.value, "q3.value #2").toEqualValues([]);
+    expect([...(q3.value)], "q3.value #2").toEqual([]);
     expect(q4.value, "q4.value #2").toBeFalsy();
     q2.value = "val2";
     expect(q1.value, "q1.value #3").toBe("val1");
     expect(q2.value, "q2.value #3").toBe("val2");
-    expect(q3.value, "q3.value #3").toEqualValues([]);
+    expect([...(q3.value)], "q3.value #3").toEqual([]);
     expect(q4.value, "q4.value #3").toBeFalsy();
   });
   test("theme assignment affects headerView", () => {
@@ -18214,35 +18214,35 @@ describe("Survey", () => {
       expect(survey.progressBarType).toBe("pages");
       expect(survey.showProgressBar).toBe(false);
 
-      expect(getContainerContent("header"), "default header").toEqualValues([{
+      expect(getContainerContent("header"), "default header").toEqual([{
         "component": "sv-header",
         "container": "header",
         "id": "advanced-header",
         "index": -100
       }]);
-      expect(getContainerContent("center"), "default center").toEqualValues([]);
-      expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "default left").toEqualValues([]);
-      expect(getContainerContent("right"), "default right").toEqualValues([]);
+      expect(getContainerContent("center"), "default center").toEqual([]);
+      expect(getContainerContent("footer"), "default footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "default left").toEqual([]);
+      expect(getContainerContent("right"), "default right").toEqual([]);
 
       survey.showProgressBar = "top";
-      expect(getContainerContent("header"), "progress top header alone").toEqualValues([{
+      expect(getContainerContent("header"), "progress top header alone").toEqual([{
         "component": "sv-header",
         "container": "header",
         "id": "advanced-header",
         "index": -100
       }]);
-      expect(getContainerContent("center"), "progress top center alone").toEqualValues([{
+      expect(getContainerContent("center"), "progress top center alone").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages"
       }]);
-      expect(getContainerContent("footer"), "progress top footer alone").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "progress top contentTop alone").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress top contentBottom alone").toEqualValues([]);
-      expect(getContainerContent("left"), "progress top left alone").toEqualValues([]);
-      expect(getContainerContent("right"), "progress top right alone").toEqualValues([]);
+      expect(getContainerContent("footer"), "progress top footer alone").toEqual([]);
+      expect(getContainerContent("contentTop"), "progress top contentTop alone").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress top contentBottom alone").toEqual([]);
+      expect(getContainerContent("left"), "progress top left alone").toEqual([]);
+      expect(getContainerContent("right"), "progress top right alone").toEqual([]);
 
       survey.applyTheme({
         header: {},
@@ -18250,7 +18250,7 @@ describe("Survey", () => {
           "--sjs-header-backcolor": "transparent"
         }
       } as any);
-      expect(getContainerContent("header"), "progress top header").toEqualValues([{
+      expect(getContainerContent("header"), "progress top header").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages",
         "index": -150
@@ -18260,29 +18260,29 @@ describe("Survey", () => {
         "id": "advanced-header",
         "index": -100
       }]);
-      expect(getContainerContent("center"), "progress top center").toEqualValues([]);
-      expect(getContainerContent("footer"), "progress top footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "progress top contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress top left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress top right").toEqualValues([]);
+      expect(getContainerContent("center"), "progress top center").toEqual([]);
+      expect(getContainerContent("footer"), "progress top footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "progress top contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress top left").toEqual([]);
+      expect(getContainerContent("right"), "progress top right").toEqual([]);
 
       survey.showProgressBar = "belowHeader";
-      expect(getContainerContent("header"), "progress top header").toEqualValues([{
+      expect(getContainerContent("header"), "progress top header").toEqual([{
         "component": "sv-header",
         "container": "header",
         "id": "advanced-header",
         "index": -100
       }]);
-      expect(getContainerContent("center"), "progress top center").toEqualValues([{
+      expect(getContainerContent("center"), "progress top center").toEqual([{
         "component": "sv-progress-pages",
         "id": "progress-pages",
       }]);
-      expect(getContainerContent("footer"), "progress top footer").toEqualValues([]);
-      expect(getContainerContent("contentTop"), "progress top contentTop").toEqualValues([]);
-      expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqualValues([]);
-      expect(getContainerContent("left"), "progress top left").toEqualValues([]);
-      expect(getContainerContent("right"), "progress top right").toEqualValues([]);
+      expect(getContainerContent("footer"), "progress top footer").toEqual([]);
+      expect(getContainerContent("contentTop"), "progress top contentTop").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqual([]);
+      expect(getContainerContent("left"), "progress top left").toEqual([]);
+      expect(getContainerContent("right"), "progress top right").toEqual([]);
     } finally {
       settings.legacyProgressBarView = false;
     }
@@ -18336,35 +18336,35 @@ describe("Survey", () => {
     expect(survey.progressBarType).toBe("pages");
     expect(survey.showProgressBar).toBe(false);
 
-    expect(getContainerContent("header"), "default header").toEqualValues([{
+    expect(getContainerContent("header"), "default header").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("center"), "default center").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("center"), "default center").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
 
     survey.showProgressBar = "top";
-    expect(getContainerContent("header"), "progress top header alone").toEqualValues([{
+    expect(getContainerContent("header"), "progress top header alone").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("center"), "progress top center alone").toEqualValues([{
+    expect(getContainerContent("center"), "progress top center alone").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("footer"), "progress top footer alone").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "progress top contentTop alone").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress top contentBottom alone").toEqualValues([]);
-    expect(getContainerContent("left"), "progress top left alone").toEqualValues([]);
-    expect(getContainerContent("right"), "progress top right alone").toEqualValues([]);
+    expect(getContainerContent("footer"), "progress top footer alone").toEqual([]);
+    expect(getContainerContent("contentTop"), "progress top contentTop alone").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress top contentBottom alone").toEqual([]);
+    expect(getContainerContent("left"), "progress top left alone").toEqual([]);
+    expect(getContainerContent("right"), "progress top right alone").toEqual([]);
 
     survey.applyTheme({
       header: {},
@@ -18372,7 +18372,7 @@ describe("Survey", () => {
         "--sjs-header-backcolor": "transparent"
       }
     } as any);
-    expect(getContainerContent("header"), "progress top header").toEqualValues([{
+    expect(getContainerContent("header"), "progress top header").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons",
       "index": -150
@@ -18382,12 +18382,12 @@ describe("Survey", () => {
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("center"), "progress top center").toEqualValues([]);
-    expect(getContainerContent("footer"), "progress top footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "progress top contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "progress top left").toEqualValues([]);
-    expect(getContainerContent("right"), "progress top right").toEqualValues([]);
+    expect(getContainerContent("center"), "progress top center").toEqual([]);
+    expect(getContainerContent("footer"), "progress top footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "progress top contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "progress top left").toEqual([]);
+    expect(getContainerContent("right"), "progress top right").toEqual([]);
   });
 
   test("getContainerContent - do not show timer panel in display mode", () => {
@@ -18420,32 +18420,32 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(getContainerContent("header"), "default header").toEqualValues([{
+    expect(getContainerContent("header"), "default header").toEqual([{
       "component": "sv-timerpanel",
       "id": "timerpanel",
       "template": "survey-timerpanel"
     }]);
-    expect(getContainerContent("center"), "default center").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([{
+    expect(getContainerContent("center"), "default center").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
 
     survey.readOnly = true;
-    expect(getContainerContent("header"), "default header").toEqualValues([]);
-    expect(getContainerContent("center"), "default center").toEqualValues([]);
-    expect(getContainerContent("footer"), "default footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "default contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "default contentBottom").toEqualValues([{
+    expect(getContainerContent("header"), "default header").toEqual([]);
+    expect(getContainerContent("center"), "default center").toEqual([]);
+    expect(getContainerContent("footer"), "default footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "default contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "default contentBottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "default left").toEqualValues([]);
-    expect(getContainerContent("right"), "default right").toEqualValues([]);
+    expect(getContainerContent("left"), "default left").toEqual([]);
+    expect(getContainerContent("right"), "default right").toEqual([]);
   });
 
   test("Check triggerReponsiveness is called when isCompact changed", () => {
@@ -18576,22 +18576,22 @@ describe("Survey", () => {
     expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
     expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
 
-    expect(getContainerContent("header"), "empty header").toEqualValues([]);
-    expect(getContainerContent("footer"), "empty footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "empty contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "empty contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "empty left").toEqualValues([]);
-    expect(getContainerContent("right"), "empty right").toEqualValues([]);
-    expect(getContainerContent("center"), "empty center").toEqualValues([]);
+    expect(getContainerContent("header"), "empty header").toEqual([]);
+    expect(getContainerContent("footer"), "empty footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "empty contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "empty contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "empty left").toEqual([]);
+    expect(getContainerContent("right"), "empty right").toEqual([]);
+    expect(getContainerContent("center"), "empty center").toEqual([]);
 
     survey.showProgressBar = "auto";
-    expect(getContainerContent("header"), "auto pages header").toEqualValues([]);
-    expect(getContainerContent("footer"), "auto pages footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "auto pages contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "auto pages contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "auto pages left").toEqualValues([]);
-    expect(getContainerContent("right"), "auto pages right").toEqualValues([]);
-    expect(getContainerContent("center"), "auto pages center").toEqualValues([{
+    expect(getContainerContent("header"), "auto pages header").toEqual([]);
+    expect(getContainerContent("footer"), "auto pages footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "auto pages contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "auto pages contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "auto pages left").toEqual([]);
+    expect(getContainerContent("right"), "auto pages right").toEqual([]);
+    expect(getContainerContent("center"), "auto pages center").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
@@ -18600,13 +18600,13 @@ describe("Survey", () => {
 
     expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
 
-    expect(getContainerContent("header"), "auto buttons header").toEqualValues([]);
-    expect(getContainerContent("footer"), "auto buttons footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "auto buttons contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "auto buttons contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "auto buttons left").toEqualValues([]);
-    expect(getContainerContent("right"), "auto buttons right").toEqualValues([]);
-    expect(getContainerContent("center"), "auto buttons center").toEqualValues([{
+    expect(getContainerContent("header"), "auto buttons header").toEqual([]);
+    expect(getContainerContent("footer"), "auto buttons footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "auto buttons contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "auto buttons contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "auto buttons left").toEqual([]);
+    expect(getContainerContent("right"), "auto buttons right").toEqual([]);
+    expect(getContainerContent("center"), "auto buttons center").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
@@ -18614,41 +18614,41 @@ describe("Survey", () => {
     survey.progressBarType = "pages";
 
     survey.showProgressBar = "aboveHeader";
-    expect(getContainerContent("header"), "aboveHeader pages header").toEqualValues([{
+    expect(getContainerContent("header"), "aboveHeader pages header").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons",
       "index": -150
     }]);
-    expect(getContainerContent("footer"), "aboveHeader pages footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "aboveHeader pages contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "aboveHeader pages contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "aboveHeader pages left").toEqualValues([]);
-    expect(getContainerContent("right"), "aboveHeader pages right").toEqualValues([]);
-    expect(getContainerContent("center"), "aboveHeader pages center").toEqualValues([]);
+    expect(getContainerContent("footer"), "aboveHeader pages footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "aboveHeader pages contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "aboveHeader pages contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "aboveHeader pages left").toEqual([]);
+    expect(getContainerContent("right"), "aboveHeader pages right").toEqual([]);
+    expect(getContainerContent("center"), "aboveHeader pages center").toEqual([]);
 
     survey.showProgressBar = "belowHeader";
-    expect(getContainerContent("header"), "belowHeader pages header").toEqualValues([]);
-    expect(getContainerContent("footer"), "belowHeader pages footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "belowHeader pages contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "belowHeader pages contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "belowHeader pages left").toEqualValues([]);
-    expect(getContainerContent("right"), "belowHeader pages right").toEqualValues([]);
-    expect(getContainerContent("center"), "belowHeader pages center").toEqualValues([{
+    expect(getContainerContent("header"), "belowHeader pages header").toEqual([]);
+    expect(getContainerContent("footer"), "belowHeader pages footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "belowHeader pages contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "belowHeader pages contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "belowHeader pages left").toEqual([]);
+    expect(getContainerContent("right"), "belowHeader pages right").toEqual([]);
+    expect(getContainerContent("center"), "belowHeader pages center").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
 
     survey.showProgressBar = "topBottom";
-    expect(getContainerContent("header"), "topBottom pages header").toEqualValues([]);
-    expect(getContainerContent("footer"), "topBottom pages footer").toEqualValues([{
+    expect(getContainerContent("header"), "topBottom pages header").toEqual([]);
+    expect(getContainerContent("footer"), "topBottom pages footer").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("contentTop"), "topBottom pages contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "topBottom pages contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "topBottom pages left").toEqualValues([]);
-    expect(getContainerContent("right"), "topBottom pages right").toEqualValues([]);
-    expect(getContainerContent("center"), "topBottom pages center").toEqualValues([{
+    expect(getContainerContent("contentTop"), "topBottom pages contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "topBottom pages contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "topBottom pages left").toEqual([]);
+    expect(getContainerContent("right"), "topBottom pages right").toEqual([]);
+    expect(getContainerContent("center"), "topBottom pages center").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
@@ -18686,27 +18686,27 @@ describe("Survey", () => {
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" } });
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(getContainerContent("header"), "advanced header").toEqualValues([{
+    expect(getContainerContent("header"), "advanced header").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("footer"), "advanced footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "advanced contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "advanced contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "advanced left").toEqualValues([]);
-    expect(getContainerContent("right"), "advanced right").toEqualValues([]);
-    expect(getContainerContent("center"), "advanced center").toEqualValues([]);
+    expect(getContainerContent("footer"), "advanced footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "advanced contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "advanced contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "advanced left").toEqual([]);
+    expect(getContainerContent("right"), "advanced right").toEqual([]);
+    expect(getContainerContent("center"), "advanced center").toEqual([]);
 
     survey.headerView = "basic";
-    expect(getContainerContent("header"), "empty header").toEqualValues([]);
-    expect(getContainerContent("footer"), "empty footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "empty contentTop").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "empty contentBottom").toEqualValues([]);
-    expect(getContainerContent("left"), "empty left").toEqualValues([]);
-    expect(getContainerContent("right"), "empty right").toEqualValues([]);
-    expect(getContainerContent("center"), "empty center").toEqualValues([]);
+    expect(getContainerContent("header"), "empty header").toEqual([]);
+    expect(getContainerContent("footer"), "empty footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "empty contentTop").toEqual([]);
+    expect(getContainerContent("contentBottom"), "empty contentBottom").toEqual([]);
+    expect(getContainerContent("left"), "empty left").toEqual([]);
+    expect(getContainerContent("right"), "empty right").toEqual([]);
+    expect(getContainerContent("center"), "empty center").toEqual([]);
   });
 
   test("survey.runExpressions(), #7694", () => {
@@ -18782,8 +18782,8 @@ describe("Survey", () => {
     expect(log).toBe("");
     survey.chooseFiles(document.createElement("input"), () => { }, { element: { a: 1 }, propertyName: "a" } as any);
     expect(log).toBe("->onOpenFileChooser");
-    expect(lastContext).toEqualValues({ element: { a: 1 }, propertyName: "a" });
-    expect(lastContextElement).toEqualValues({ a: 1 });
+    expect(lastContext).toEqual({ element: { a: 1 }, propertyName: "a" });
+    expect(lastContextElement).toEqual({ a: 1 });
     expect(lastContextPropertyName).toBe("a");
   });
   test("Advanced header title/description color", () => {
@@ -19079,52 +19079,52 @@ describe("Survey", () => {
     expect(survey.questionsOnPageMode).toBe("standard");
     expect(survey.showProgressBar).toBe(true);
     expect(survey.progressBarLocation).toBe("auto");
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("center"), "Progress is shown").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("center"), "Progress is shown").toEqual([{
       "component": "sv-progress-buttons",
       "id": "progress-buttons"
     }]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.questionsOnPageMode = "singlePage";
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("center"), "Buttons progress is not shown in the single page mode").toEqualValues([]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("center"), "Buttons progress is not shown in the single page mode").toEqual([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.progressBarType = "questions";
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("center"), "Buttons progress is shown in the single page mode for questions mode").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("center"), "Buttons progress is shown in the single page mode for questions mode").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("footer"), "").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("footer"), "").toEqual([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
 
     survey.showProgressBar = "bottom";
 
-    expect(getContainerContent("header"), "").toEqualValues([]);
-    expect(getContainerContent("center"), "").toEqualValues([]);
-    expect(getContainerContent("footer"), "Buttons progress is shown in the single page mode for questions mode in bottom").toEqualValues([{
+    expect(getContainerContent("header"), "").toEqual([]);
+    expect(getContainerContent("center"), "").toEqual([]);
+    expect(getContainerContent("footer"), "Buttons progress is shown in the single page mode for questions mode in bottom").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("contentTop"), "").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "").toEqualValues([]);
-    expect(getContainerContent("left"), "").toEqualValues([]);
-    expect(getContainerContent("right"), "").toEqualValues([]);
+    expect(getContainerContent("contentTop"), "").toEqual([]);
+    expect(getContainerContent("contentBottom"), "").toEqual([]);
+    expect(getContainerContent("left"), "").toEqual([]);
+    expect(getContainerContent("right"), "").toEqual([]);
   });
 
   test("getContainerContent - show advanced header in content top container if no header background", () => {
@@ -19145,24 +19145,24 @@ describe("Survey", () => {
     expect(survey.questionsOnPageMode).toBe("standard");
     expect(survey.showProgressBar).toBe(false);
     expect(survey.progressBarLocation).toBe("auto");
-    expect(getContainerContent("header"), "header").toEqualValues([]);
-    expect(getContainerContent("center"), "center").toEqualValues([]);
-    expect(getContainerContent("footer"), "footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "header in center top").toEqualValues([{
+    expect(getContainerContent("header"), "header").toEqual([]);
+    expect(getContainerContent("center"), "center").toEqual([]);
+    expect(getContainerContent("footer"), "footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "header in center top").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("contentBottom"), "center bottom").toEqualValues([{
+    expect(getContainerContent("contentBottom"), "center bottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "left").toEqualValues([{
+    expect(getContainerContent("left"), "left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "right").toEqualValues([]);
+    expect(getContainerContent("right"), "right").toEqual([]);
   });
 
   test("getContainerContent - show advanced header in header container if header background is set", () => {
@@ -19184,24 +19184,24 @@ describe("Survey", () => {
     expect(survey.questionsOnPageMode).toBe("standard");
     expect(survey.showProgressBar).toBe(false);
     expect(survey.progressBarLocation).toBe("auto");
-    expect(getContainerContent("header"), "header in header").toEqualValues([{
+    expect(getContainerContent("header"), "header in header").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("center"), "Progress is shown").toEqualValues([]);
-    expect(getContainerContent("footer"), "footer").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "center top").toEqualValues([]);
-    expect(getContainerContent("contentBottom"), "center bottom").toEqualValues([{
+    expect(getContainerContent("center"), "Progress is shown").toEqual([]);
+    expect(getContainerContent("footer"), "footer").toEqual([]);
+    expect(getContainerContent("contentTop"), "center top").toEqual([]);
+    expect(getContainerContent("contentBottom"), "center bottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "left").toEqualValues([{
+    expect(getContainerContent("left"), "left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "right").toEqualValues([]);
+    expect(getContainerContent("right"), "right").toEqual([]);
   });
 
   test("Display mode in design time 2", () => {
@@ -19598,15 +19598,15 @@ describe("Survey", () => {
       { newPage: "page1", oldPage: "page2", newQuestion: "q2", oldQuestion: "q3", forward: false, backward: true },
       { newPage: "page1", oldPage: "page1", newQuestion: "q1", oldQuestion: "q2", forward: false, backward: true },
     ];
-    expect(onPageChanging, "onChanged #1").toEqualValues(result);
-    expect(onPageChanged, "onChanging #1").toEqualValues(result);
+    expect(onPageChanging, "onChanged #1").toEqual(result);
+    expect(onPageChanged, "onChanging #1").toEqual(result);
     onPageChanging.splice(0, onPageChanging.length);
     onPageChanged.splice(0, onPageChanged.length);
     doAllow = false;
     survey.performNext();
     expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #8").toBe("q1");
-    expect(onPageChanged, "onChanged #2").toEqualValues([]);
-    expect(onPageChanging, "onChanging #2").toEqualValues([{ newPage: "page1", oldPage: "page1", newQuestion: "q2", oldQuestion: "q1", forward: true, backward: false }]);
+    expect(onPageChanged, "onChanged #2").toEqual([]);
+    expect(onPageChanging, "onChanging #2").toEqual([{ newPage: "page1", oldPage: "page1", newQuestion: "q2", oldQuestion: "q1", forward: true, backward: false }]);
   });
 
   test("Question is not in the hash with it is on the first page & questionsOnPageMode is 'singlePage', Bug#8583", () => {
@@ -19940,9 +19940,9 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "q1", defaultValue: 1 }],
       calculatedValues: [{ name: "val1", expression: "2" }]
     });
-    expect(survey.getFilteredValues(), "survey in running state").toEqualValues({ q1: 1, val1: 2 });
+    expect(survey.getFilteredValues(), "survey in running state").toEqual({ q1: 1, val1: 2 });
     survey.setDesignMode(true);
-    expect(survey.getFilteredValues(), "survey at design time").toEqualValues({ val1: 2 });
+    expect(survey.getFilteredValues(), "survey at design time").toEqual({ val1: 2 });
   });
   test("onValueChanged event & isExpressionRunning parameter", () => {
     const survey = new SurveyModel({
@@ -19966,8 +19966,8 @@ describe("Survey", () => {
       });
     });
     survey.getQuestionByName("q1").value = 1;
-    expect(survey.data, "survey.data #1").toEqualValues({ q1: 1, q2: 2, q3: 3 });
-    expect(logs, "logs #1").toEqualValues([
+    expect(survey.data, "survey.data #1").toEqual({ q1: 1, q2: 2, q3: 3 });
+    expect(logs, "logs #1").toEqual([
       { name: "q3", val: 3, reason: "expression" },
       { name: "q4", val: undefined, reason: "expression" },
       { name: "q2", val: 2, reason: "expression" },
@@ -19975,15 +19975,15 @@ describe("Survey", () => {
 
     logs.splice(0, logs.length);
     survey.getQuestionByName("q4").value = 2;
-    expect(survey.data, "survey.data #2").toEqualValues({ q1: 1, q2: 2, q3: 3, q4: 2, q5: 5 });
-    expect(logs, "logs #2").toEqualValues([
+    expect(survey.data, "survey.data #2").toEqual({ q1: 1, q2: 2, q3: 3, q4: 2, q5: 5 });
+    expect(logs, "logs #2").toEqual([
       { name: "q5", val: 5, reason: "trigger" },
       { name: "q4", val: 2, reason: undefined }]);
 
     logs.splice(0, logs.length);
     survey.getQuestionByName("q4").value = 3;
-    expect(survey.data, "survey.data #3").toEqualValues({ q1: 1, q2: 2, q3: 3, q4: 3, q5: 8 });
-    expect(logs, "logs #3").toEqualValues([
+    expect(survey.data, "survey.data #3").toEqual({ q1: 1, q2: 2, q3: 3, q4: 3, q5: 8 });
+    expect(logs, "logs #3").toEqual([
       { name: "q5", val: 8, reason: "trigger" },
       { name: "q4", val: 3, reason: undefined }]);
   });
@@ -20519,28 +20519,28 @@ describe("Survey", () => {
     let survey = new SurveyModel(json);
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(getContainerContent("header"), "header is empty").toEqualValues([]);
-    expect(getContainerContent("center"), "progress + toc in center").toEqualValues([{
+    expect(getContainerContent("header"), "header is empty").toEqual([]);
+    expect(getContainerContent("center"), "progress + toc in center").toEqual([{
       "component": "sv-progress-questions",
       "id": "progress-questions",
       "index": -150
     }]);
-    expect(getContainerContent("footer"), "footer is empty").toEqualValues([]);
-    expect(getContainerContent("contentTop"), "header in content top").toEqualValues([{
+    expect(getContainerContent("footer"), "footer is empty").toEqual([]);
+    expect(getContainerContent("contentTop"), "header in content top").toEqual([{
       "component": "sv-header",
       "container": "header",
       "id": "advanced-header",
       "index": -100
     }]);
-    expect(getContainerContent("contentBottom"), "nav buttons in content bottom").toEqualValues([{
+    expect(getContainerContent("contentBottom"), "nav buttons in content bottom").toEqual([{
       "component": "sv-action-bar",
       "id": "buttons-navigation"
     }]);
-    expect(getContainerContent("left"), "show toc left").toEqualValues([{
+    expect(getContainerContent("left"), "show toc left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
     }]);
-    expect(getContainerContent("right"), "right is empty").toEqualValues([]);
+    expect(getContainerContent("right"), "right is empty").toEqual([]);
   });
   test("Warn in console if the expression has invalid function in a question, #981", () => {
     const prev = ConsoleWarnings.warn;
@@ -20563,7 +20563,7 @@ describe("Survey", () => {
       reportTexts.push(text);
     };
     survey.setValue("q2", "test");
-    expect(reportTexts, "show warnings with the quesiton info").toEqualValues(["Unknown function name: 'invalFunc1'. It is used in the question: 'q1'.",
+    expect(reportTexts, "show warnings with the quesiton info").toEqual(["Unknown function name: 'invalFunc1'. It is used in the question: 'q1'.",
       "Unknown function name: 'invalFunc2'."]);
     ConsoleWarnings.warn = prev;
   });
@@ -20595,7 +20595,7 @@ describe("Survey", () => {
     expect(survey3.mode, "mode #4").toBe("edit");
     expect(survey3.readOnly, "readOnly #4").toBe(false);
     survey3.readOnly = true;
-    expect(survey3.toJSON(), "survey3 is serialized correctly").toEqualValues({
+    expect(survey3.toJSON(), "survey3 is serialized correctly").toEqual({
       readOnly: true
     });
   });

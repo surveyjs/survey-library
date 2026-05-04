@@ -294,11 +294,11 @@ describe("Expressions", () => {
     values = { num: -0.5 };
     expect(runner.runValues(values), "-0.5 is rounded to -1").toBe(-1);
     (<any>values).num = "0.5";
-    expect(runner.runValues(values), "A string value \"0.5\" is rounded to a numeric value 1").toEqualValues(1);
+    expect(runner.runValues(values), "A string value \"0.5\" is rounded to a numeric value 1").toEqual(1);
     (<any>values).num = "-0.5";
-    expect(runner.runValues(values), "A string value \"-0.5\" is rounded to a numeric value -1").toEqualValues(-1);
+    expect(runner.runValues(values), "A string value \"-0.5\" is rounded to a numeric value -1").toEqual(-1);
     (<any>values).num = undefined;
-    expect(runner.runValues(values), "The value passed to the round() function is not a number").toEqualValues(NaN);
+    expect(runner.runValues(values), "The value passed to the round() function is not a number").toEqual(NaN);
   });
   test("Run round() function with precision", () => {
     const runner = new ExpressionRunner("round({num}, {precision})");
@@ -319,7 +319,7 @@ describe("Expressions", () => {
     values = { num: -1, precision: 2 };
     expect(runner.runValues(values), "-1 is rounded to -1 with precision of 2").toBe(-1);
     (<any>values).precision = "test";
-    expect(runner.runValues(values), "The precision value passed to the round() function is not a number").toEqualValues(NaN);
+    expect(runner.runValues(values), "The precision value passed to the round() function is not a number").toEqual(NaN);
   });
   test("Run trunc() function without precision", () => {
     const runner = new ExpressionRunner("trunc({num})");
@@ -349,7 +349,7 @@ describe("Expressions", () => {
     values = { num: -5.015, precision: 2 };
     expect(runner.runValues(values), "-5.015 is truncated to -5.01 with precision of 2").toBe(-5.01);
     (<any>values).precision = "test";
-    expect(runner.runValues(values), "The precision value passed to the truncated() function is not a number").toEqualValues(NaN);
+    expect(runner.runValues(values), "The precision value passed to the truncated() function is not a number").toEqual(NaN);
   });
   test("Run age function", () => {
     var runner = new ConditionRunner("age({bithday}) >= 21");
@@ -470,9 +470,9 @@ describe("Expressions", () => {
     const d1 = new Date("2021-01-01");
     const values = { d1: d1 };
     var runner = new ExpressionRunner("dateAdd({d1}, 32)");
-    expect(runner.runValues(values), "February 2, 2021").toEqualValues(new Date("2021-02-02"));
+    expect(runner.runValues(values), "February 2, 2021").toEqual(new Date("2021-02-02"));
     runner = new ExpressionRunner("dateAdd({d1}, -10)");
-    expect(runner.runValues(values), "December 22, 2020").toEqualValues(new Date("2020-12-22"));
+    expect(runner.runValues(values), "December 22, 2020").toEqual(new Date("2020-12-22"));
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
@@ -480,9 +480,9 @@ describe("Expressions", () => {
     const d1 = new Date("2021-01-01");
     const values = { d1: d1 };
     var runner = new ExpressionRunner("dateAdd({d1}, 13, 'months')");
-    expect(runner.runValues(values), "February 1, 2022").toEqualValues(new Date("2022-02-01"));
+    expect(runner.runValues(values), "February 1, 2022").toEqual(new Date("2022-02-01"));
     runner = new ExpressionRunner("dateAdd({d1}, -2, 'months')");
-    expect(runner.runValues(values), "November 1, 2020").toEqualValues(new Date("2020-11-01"));
+    expect(runner.runValues(values), "November 1, 2020").toEqual(new Date("2020-11-01"));
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
@@ -490,9 +490,9 @@ describe("Expressions", () => {
     const d1 = new Date("2020-02-29");
     const values = { d1: d1 };
     var runner = new ExpressionRunner("dateAdd({d1}, 2, 'years')");
-    expect(runner.runValues(values), "March 1, 2022").toEqualValues(new Date("2022-03-01"));
+    expect(runner.runValues(values), "March 1, 2022").toEqual(new Date("2022-03-01"));
     runner = new ExpressionRunner("dateAdd({d1}, -2, 'years')");
-    expect(runner.runValues(values), "March 1, 2018").toEqualValues(new Date("2018-03-01"));
+    expect(runner.runValues(values), "March 1, 2018").toEqual(new Date("2018-03-01"));
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
@@ -500,11 +500,11 @@ describe("Expressions", () => {
     const d1 = new Date("2026-02-28T00:00:00");
     const values = { d1: d1 };
     var runner = new ExpressionRunner("dateAdd({d1}, 2, 'hours')");
-    expect(runner.runValues(values), "Add 2 hours to 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-28T02:00:00"));
+    expect(runner.runValues(values), "Add 2 hours to 2026-02-28T00:00:00").toEqual(new Date("2026-02-28T02:00:00"));
     runner = new ExpressionRunner("dateAdd({d1}, -2, 'hours')");
-    expect(runner.runValues(values), "Subtract 2 hours from 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-27T22:00:00"));
+    expect(runner.runValues(values), "Subtract 2 hours from 2026-02-28T00:00:00").toEqual(new Date("2026-02-27T22:00:00"));
     runner = new ExpressionRunner("dateAdd({d1}, 48, 'hours')");
-    expect(runner.runValues(values), "Add 48 (2 days) hours to 2026-02-28T00:00:00").toEqualValues(new Date("2026-03-02T00:00:00"));
+    expect(runner.runValues(values), "Add 48 (2 days) hours to 2026-02-28T00:00:00").toEqual(new Date("2026-03-02T00:00:00"));
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
@@ -512,13 +512,13 @@ describe("Expressions", () => {
     const d1 = new Date("2026-02-28T00:00:00");
     const values = { d1: d1 };
     var runner = new ExpressionRunner("dateAdd({d1}, 2, 'minutes')");
-    expect(runner.runValues(values), "Add 2 minutes to 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-28T00:02:00"));
+    expect(runner.runValues(values), "Add 2 minutes to 2026-02-28T00:00:00").toEqual(new Date("2026-02-28T00:02:00"));
     runner = new ExpressionRunner("dateAdd({d1}, -2, 'minutes')");
-    expect(runner.runValues(values), "Subtract 2 minutes from 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-27T23:58:00"));
+    expect(runner.runValues(values), "Subtract 2 minutes from 2026-02-28T00:00:00").toEqual(new Date("2026-02-27T23:58:00"));
     runner = new ExpressionRunner("dateAdd({d1}, 48, 'minutes')");
-    expect(runner.runValues(values), "Add 48 minutes to 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-28T00:48:00"));
+    expect(runner.runValues(values), "Add 48 minutes to 2026-02-28T00:00:00").toEqual(new Date("2026-02-28T00:48:00"));
     runner = new ExpressionRunner("dateAdd({d1}, 2880, 'minutes')");
-    expect(runner.runValues(values), "Add 2880 (2 days) minutes to 2026-02-28T00:00:00").toEqualValues(new Date("2026-03-02T00:00:00"));
+    expect(runner.runValues(values), "Add 2880 (2 days) minutes to 2026-02-28T00:00:00").toEqual(new Date("2026-03-02T00:00:00"));
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
@@ -526,13 +526,13 @@ describe("Expressions", () => {
     const d1 = new Date("2026-02-28T00:00:00");
     const values = { d1: d1 };
     var runner = new ExpressionRunner("dateAdd({d1}, 2, 'seconds')");
-    expect(runner.runValues(values), "Add 2 seconds to 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-28T00:00:02"));
+    expect(runner.runValues(values), "Add 2 seconds to 2026-02-28T00:00:00").toEqual(new Date("2026-02-28T00:00:02"));
     runner = new ExpressionRunner("dateAdd({d1}, -2, 'seconds')");
-    expect(runner.runValues(values), "Subtract 2 seconds from 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-27T23:59:58"));
+    expect(runner.runValues(values), "Subtract 2 seconds from 2026-02-28T00:00:00").toEqual(new Date("2026-02-27T23:59:58"));
     runner = new ExpressionRunner("dateAdd({d1}, 48, 'seconds')");
-    expect(runner.runValues(values), "Add 48 seconds to 2026-02-28T00:00:00").toEqualValues(new Date("2026-02-28T00:00:48"));
+    expect(runner.runValues(values), "Add 48 seconds to 2026-02-28T00:00:00").toEqual(new Date("2026-02-28T00:00:48"));
     runner = new ExpressionRunner("dateAdd({d1}, 172800, 'seconds')");
-    expect(runner.runValues(values), "Add 172800 (2 days) seconds to 2026-02-28T00:00:00").toEqualValues(new Date("2026-03-02T00:00:00"));
+    expect(runner.runValues(values), "Add 172800 (2 days) seconds to 2026-02-28T00:00:00").toEqual(new Date("2026-03-02T00:00:00"));
     (<any>values).d1 = undefined;
     expect(runner.runValues(values), "a value is undefined").toBeNull();
   });
@@ -1704,7 +1704,7 @@ describe("Expressions", () => {
   test("Arrays and plus operations", () => {
     const runner1 = new ExpressionRunner("{a} + {b}");
     const values1 = { a: [1, 2, 3], b: [4, 5] };
-    expect(runner1.runValues(values1), "Contact arrays").toEqualValues([1, 2, 3, 4, 5]);
+    expect(runner1.runValues(values1), "Contact arrays").toEqual([1, 2, 3, 4, 5]);
     const runner2 = new ExpressionRunner("{a} + ' '");
     const values2 = { a: ["a", "b", "c"] };
     expect(runner2.runValues(values2), "Contact strings").toBe("a, b, c ");
@@ -1717,26 +1717,26 @@ describe("Expressions", () => {
   });
   test("today(1) <= today(10)", () => {
     const runner = new ExpressionRunner("today(1) <= today(10)");
-    expect(runner.runValues({}), "today(1) <= today(10)").toEqualValues(true);
+    expect(runner.runValues({}), "today(1) <= today(10)").toEqual(true);
   });
 
   test("year, month, day, weekday", () => {
     let runner = new ExpressionRunner("year('2023-07-28')");
-    expect(runner.runValues({}), "year").toEqualValues(2023);
+    expect(runner.runValues({}), "year").toEqual(2023);
     runner = new ExpressionRunner("month('2023-07-28')");
-    expect(runner.runValues({}), "month").toEqualValues(7);
+    expect(runner.runValues({}), "month").toEqual(7);
     runner = new ExpressionRunner("day('2023-07-28')");
-    expect(runner.runValues({}), "day").toEqualValues(28);
+    expect(runner.runValues({}), "day").toEqual(28);
     runner = new ExpressionRunner("weekday('2023-07-28')");
-    expect(runner.runValues({}), "weekday").toEqualValues(5);
+    expect(runner.runValues({}), "weekday").toEqual(5);
     runner = new ExpressionRunner("year()");
-    expect(runner.runValues({}), "current year").toEqualValues(new Date().getFullYear());
+    expect(runner.runValues({}), "current year").toEqual(new Date().getFullYear());
     runner = new ExpressionRunner("month()");
-    expect(runner.runValues({}), "current month").toEqualValues(new Date().getMonth() + 1);
+    expect(runner.runValues({}), "current month").toEqual(new Date().getMonth() + 1);
     runner = new ExpressionRunner("day()");
-    expect(runner.runValues({}), "current day").toEqualValues(new Date().getDate());
+    expect(runner.runValues({}), "current day").toEqual(new Date().getDate());
     runner = new ExpressionRunner("weekday()");
-    expect(runner.runValues({}), "current weekday").toEqualValues(new Date().getDay());
+    expect(runner.runValues({}), "current weekday").toEqual(new Date().getDay());
   });
   test("Sum two float numbers as string", () => {
     let runner = new ExpressionRunner("{a} + {b}");
@@ -1781,9 +1781,9 @@ describe("Expressions", () => {
     FunctionFactory.Instance.register("func2", func2);
 
     let runner = new ExpressionRunner("func1()");
-    expect(runner.runValues({}, {}), "function returns object").toEqualValues({ a: 1, b: 2 });
+    expect(runner.runValues({}, {}), "function returns object").toEqual({ a: 1, b: 2 });
     runner.expression = "func2()";
-    expect(runner.runValues({}, {}), "function returns array").toEqualValues([{ a: 1 }, { b: 2 }]);
+    expect(runner.runValues({}, {}), "function returns array").toEqual([{ a: 1 }, { b: 2 }]);
 
     FunctionFactory.Instance.unregister("func1");
     FunctionFactory.Instance.unregister("func2");
@@ -1877,7 +1877,7 @@ describe("Expressions", () => {
   });
   test("Work with objects like constants, Bug#10448", () => {
     let runner = new ExpressionRunner("{\"key\": 1}");
-    expect(runner.runContext(new VariableGetterContext({})), "#1").toEqualValues({ key: 1 });
+    expect(runner.runContext(new VariableGetterContext({})), "#1").toEqual({ key: 1 });
     runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value\"}");
     expect(runner.runContext(new VariableGetterContext({})), "#2").toBe(true);
     runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value1\"}");

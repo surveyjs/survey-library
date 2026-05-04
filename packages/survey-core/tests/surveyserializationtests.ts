@@ -151,7 +151,7 @@ describe("SurveySerialization", () => {
       question2: true,
       question3: ["red", "white"],
     };
-    expect(data, "check if get data works correctly").toEqualValues(expectedData);
+    expect(data, "check if get data works correctly").toEqual(expectedData);
   });
   test("Deserialize survey data", () => {
     var survey = new SurveyModel();
@@ -163,7 +163,7 @@ describe("SurveySerialization", () => {
     survey.data = data;
     expect(survey.getValue("question1"), "survey data for question 1").toBe("value1");
     expect(survey.getValue("question2"), "survey data for question 2").toBe(true);
-    expect(survey.getValue("question3"), "survey data for question 3").toEqualValues(["red", "white"]);
+    expect(survey.getValue("question3"), "survey data for question 3").toEqual(["red", "white"]);
   });
   test("Serialize mutltiple text question", () => {
     var mtQuestion = new QuestionMultipleTextModel("q1");
@@ -187,8 +187,8 @@ describe("SurveySerialization", () => {
     survey.setDesignMode(true);
     survey.addNewPage("p");
     survey.pages[0].addElement(q);
-    expect(q.defaultValue, "Default value is in object").toEqualValues(json.defaultValue);
-    expect(q.toJSON(), "Default value serialized correctly").toEqualValues(json);
+    expect(q.defaultValue, "Default value is in object").toEqual(json.defaultValue);
+    expect(q.toJSON(), "Default value serialized correctly").toEqual(json);
   });
   test("Serialize restful choices", () => {
     var question = new QuestionDropdownModel("q1");
@@ -286,7 +286,7 @@ describe("SurveySerialization", () => {
         },
       ],
     };
-    expect(json, "Jsons should be the same").toEqualValues(checkedJson);
+    expect(json, "Jsons should be the same").toEqual(checkedJson);
   });
 
   test("Survey deserialize checkbox.choices localization", () => {
@@ -320,7 +320,7 @@ describe("SurveySerialization", () => {
     new JsonObject().toObject(origionalJson, survey);
 
     var newJsonObj = new JsonObject().toJsonObject(survey);
-    expect(newJsonObj, "Two json objects should be equal").toEqualValues(origionalJson);
+    expect(newJsonObj, "Two json objects should be equal").toEqual(origionalJson);
   });
 
   test("Survey deserialize dynamic matrix with different locale, Issue #507", () => {
@@ -355,7 +355,7 @@ describe("SurveySerialization", () => {
     expect((<ItemValue>question.choices[0]).locText.renderedHtml, "The default locale is 2").toBe("2");
     expect((<ItemValue>question.choices[0])["imageLink"], "Custom property is deserialized").toBe("link to image");
     var json = jsonObj.toJsonObject(question);
-    expect(json, "Custom property has serialized correctly").toEqualValues(originalJson);
+    expect(json, "Custom property has serialized correctly").toEqual(originalJson);
     Serializer.removeProperty("itemvalue", "imageLink");
   });
   test("Serialize numeric validation, minValue=0, Editor#239", () => {
@@ -374,7 +374,7 @@ describe("SurveySerialization", () => {
         },
       ],
     };
-    expect(json, "minValue should be here").toEqualValues(originalJson);
+    expect(json, "minValue should be here").toEqual(originalJson);
   });
 
   test("Expressions + markup https://surveyjs.answerdesk.io/ticket/details/T909", () => {
@@ -439,7 +439,7 @@ describe("SurveySerialization", () => {
         },
       ],
     };
-    expect(survey.toJSON(), "in questions we should have only type and name").toEqualValues(originalJson);
+    expect(survey.toJSON(), "in questions we should have only type and name").toEqual(originalJson);
   });
 
   test("Test fromJSON/clone/ensureUniqueNames functionalities", () => {
@@ -617,7 +617,7 @@ describe("SurveySerialization", () => {
     q.minWidth = "";
     expect(q.minWidth, "set empty width").toBe("");
     const json = q.toJSON();
-    expect(json, "Serialize empty minWidth").toEqualValues({ name: "q1", minWidth: "" });
+    expect(json, "Serialize empty minWidth").toEqual({ name: "q1", minWidth: "" });
     q.setPropertyValue("minWidth", undefined);
     expect(q.minWidth, "Default value again").toBe("300px");
     q.fromJSON({ name: "q1", minWidth: "" });
@@ -727,7 +727,7 @@ describe("SurveySerialization", () => {
     (<any>q.items[0])["customProp1"] = "value2";
     const json = q.toJSON();
     expect(json.items[0]["customProp1"], "custom property is serialized").toBe("value2");
-    expect(changes, "one property changed event is fired").toEqualValues([{ type: "multipletextitem", name: "customProp1", oldValue: "value1", newValue: "value2" }
+    expect(changes, "one property changed event is fired").toEqual([{ type: "multipletextitem", name: "customProp1", oldValue: "value1", newValue: "value2" }
     ]);
 
     Serializer.removeProperty("multipletextitem", "customProp1");

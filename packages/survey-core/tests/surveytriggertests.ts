@@ -209,7 +209,7 @@ describe("Triggers", () => {
     survey.setValue("q1", 2);
     survey.setValue("q1", 3);
     survey.nextPage();
-    expect(triggers).toEqualValues(["setvaluetrigger", "completetrigger"]);
+    expect(triggers).toEqual(["setvaluetrigger", "completetrigger"]);
   });
   test("On trigger executed && executeCompleteTriggerOnValueChanged=true", () => {
     settings.executeCompleteTriggerOnValueChanged = true;
@@ -237,7 +237,7 @@ describe("Triggers", () => {
     });
     survey.setValue("q1", 3);
     expect(survey.state).toBe("completed");
-    expect(triggers).toEqualValues(["completetrigger"]);
+    expect(triggers).toEqual(["completetrigger"]);
     expect(isCompleteEvent).toBe(true);
     expect(completeTrigger.expression).toBe("{q1} = 3");
     settings.executeCompleteTriggerOnValueChanged = false;
@@ -345,7 +345,7 @@ describe("Triggers", () => {
     survey.data = data;
     survey.nextPage();
     survey.doComplete();
-    expect(survey.data, "We do not change anything").toEqualValues(data);
+    expect(survey.data, "We do not change anything").toEqual(data);
   });
   test("copyvalue from checkbox", () => {
     const survey = new SurveyModel({
@@ -371,9 +371,9 @@ describe("Triggers", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     q1.value = [1, 3];
-    expect(q2.value, "Copy value correctly").toEqualValues("Item1, Item3");
+    expect(q2.value, "Copy value correctly").toEqual("Item1, Item3");
     q1.value = [1, 2];
-    expect(q2.value, "Copy value correctly").toEqualValues("Item1, Item2");
+    expect(q2.value, "Copy value correctly").toEqual("Item1, Item2");
   });
   test("copyvalue without expression, bug#7030", () => {
     const survey = new SurveyModel({
@@ -482,9 +482,9 @@ describe("Triggers", () => {
     survey.setValue("q1", 5);
     survey.nextPage();
     survey.setValue("q2", "yes");
-    expect(survey.data, "trigger is not executed yet").toEqualValues({ q1: 5, q2: "yes" });
+    expect(survey.data, "trigger is not executed yet").toEqual({ q1: 5, q2: "yes" });
     survey.doComplete();
-    expect(survey.data, "trigger is executed").toEqualValues({ q1: 5, q2: "yes", q3: 50 });
+    expect(survey.data, "trigger is executed").toEqual({ q1: 5, q2: "yes", q3: 50 });
     Serializer.removeClass("runexpression2trigger");
   });
 
@@ -1024,7 +1024,7 @@ describe("Triggers", () => {
 
     survey.setValue("q1", "item1");
     survey.setValue("q3", "item1");
-    expect(survey.data, "q5 should have item1 value").toEqualValues({
+    expect(survey.data, "q5 should have item1 value").toEqual({
       "q1": "item1",
       "q2": "item1",
       "q3": "item1",

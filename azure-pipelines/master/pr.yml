@@ -28,6 +28,10 @@ resources:
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-pdf
       ref: $(System.PullRequest.TargetBranch)
+  pipelines:
+    - pipeline: ReleaseVersion
+      source: Release Version
+      trigger: none
 
 
 trigger: none
@@ -64,6 +68,10 @@ stages:
         displayName: "Parse PR title"
         steps:
           - template: templates/utils/pr_title_parser.yml
+      - job: Version
+        displayName: "Get Release Version"
+        steps:
+          - template: templates/utils/version.yml
  
  
   ###############

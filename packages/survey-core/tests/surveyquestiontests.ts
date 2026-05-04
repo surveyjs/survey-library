@@ -7708,4 +7708,35 @@ describe("Survey_Questions", () => {
     survey.setValue("matrix", { "Row 1": { "Column 1": "abc" } });
     expect(htmlQuestion.locHtml.textOrHtml, "Html updated after setting matrix cell value").toBe("Matrix cell value: abc");
   });
+  test("Run custom expression initially and then on changing the related value as for other expressions, Issue#11233", () => {
+    let counter = 0;
+    Serializer.addProperty("question", {
+      name: "customExp:expression",
+      onExecuteExpression: (obj, res) => {
+        counter ++;
+        obj.setPropertyValue("customVal", res);
+      }
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", defaultValue: 2 },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3", customExp: "{q1} + 3" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    expect(counter, "custom expression is executed on creating").toBe(1);
+    expect(q3.getPropertyValue("customVal"), "#1").toBe(5);
+    q1.value = 1;
+    expect(q3.getPropertyValue("customVal"), "#2").toBe(4);
+    expect(counter, "custom expression is executed on changing the related value").toBe(2);
+    q2.value = 2;
+    expect(counter, "custom expression is executed on changing non related value").toBe(2);
+    expect(q3.getPropertyValue("customVal"), "#3").toBe(4);
+
+    Serializer.removeProperty("question", "customExp");
+  });
+
 });

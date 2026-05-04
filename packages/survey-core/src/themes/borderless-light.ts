@@ -6,8 +6,12 @@ export default {
   "cssVariables": {
     "--sjs2-color-bg-basic-primary": "rgba(255, 255, 255, 1)",
     "--sjs2-color-bg-basic-primary-dim": "rgba(241, 246, 255, 1)",
+    "--sjs2-color-utility-toolbox": "rgba(255, 255, 255, 1)",
+    "--sjs2-color-utility-property-grid": "rgba(255, 255, 255, 1)",
+    "--sjs2-color-utility-tabs": "rgba(255, 255, 255, 1)",
     "--sjs2-color-bg-neutral-tertiary-dim": "rgba(231, 240, 255, 1)",
     "--sjs2-color-utility-surface-survey": "rgba(231, 240, 255, 1)",
+    "--sjs2-color-utility-surface-designer": "rgba(231, 240, 255, 1)",
     "--sjs2-color-utility-surface-survey-panelless": "rgba(231, 240, 255, 1)",
     "--sjs2-color-bg-basic-secondary": "rgba(238, 245, 255, 1)",
     "--sjs2-color-bg-basic-secondary-dim": "rgba(223, 233, 250, 1)",

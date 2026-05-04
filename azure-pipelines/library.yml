@@ -4,6 +4,12 @@ resources:
       type: github
       endpoint: surveyjs
       name: surveyjs/azure-pipelines
+
+trigger: none
+pr: none
+
+pool:
+  name: main-selfhosted
       
 extends:
   template: library.yml@azurepipelines

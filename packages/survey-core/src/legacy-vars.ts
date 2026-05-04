@@ -13,7 +13,7 @@ export const legacyCssVariables = {
   "--sjs-primary-backcolor-dark": "--sjs2-color-bg-brand-primary-dim", //rgba(20, 164, 139, 1)",
   "--sjs-primary-forecolor": "--sjs2-color-fg-brand-on-primary", //rgba(255, 255, 255, 1)",
   "--sjs-primary-forecolor-light": "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
-  "--sjs-base-unit": "--sjs2-base-unit-size", //"8px"
+  "--sjs-base-unit": ["--sjs2-base-unit-size", "--sjs2-base-unit-spacing"], //"8px"
   "--sjs-corner-radius": "--sjs2-base-unit-radius", //"4px"
   "--sjs-secondary-backcolor": "--sjs2-color-bg-accent-primary", //rgba(255, 152, 20, 1)",
   "--sjs-secondary-backcolor-light": "--sjs2-color-bg-accent-secondary", //rgba(255, 152, 20, 0.1)",

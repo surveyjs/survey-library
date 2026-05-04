@@ -1,6 +1,6 @@
 // Setup file for Vitest. Mirrors the side-effect imports and global settings
 // from the Karma+QUnit entry barrel at tests/entries/test.ts.
-import { afterEach } from "vitest";
+import { afterEach, expect } from "vitest";
 import "../src/localization/russian";
 import "../src/localization/french";
 import "../src/localization/finnish";
@@ -594,6 +594,36 @@ if (typeof (globalThis as any).HTMLCanvasElement !== "undefined") {
     proto.__sv_getContext_stubbed = true;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Global equality tester: ignore observable-array function overrides.
+// ---------------------------------------------------------------------------
+// `Base.createNewArray` overrides `push`/`pop`/`shift`/`unshift`/`splice` as
+// own enumerable function properties on the array. Vitest's default `toEqual`
+// walks own enumerable string keys and would see those mismatched against a
+// plain `[1, 2]` literal -- failing the assertion, then formatting a diff
+// that recursively serializes the whole Survey/Panel/Question object graph
+// (with cycles), which can blow the worker heap into the multi-GB range.
+//
+// Register a global equality tester so `toEqual` on arrays compares strictly
+// by indexed elements (ignoring own non-index function-typed overrides).
+// This restores the semantics QUnit's `assert.deepEqual` (and the legacy
+// `toEqualValues` matcher) provided.
+expect.addEqualityTesters([
+  function arrayValuesEqual(a: unknown, b: unknown, customTesters: unknown[]) {
+    const aIsArr = Array.isArray(a);
+    const bIsArr = Array.isArray(b);
+    if (!aIsArr && !bIsArr) return undefined;
+    if (!aIsArr || !bIsArr) return false;
+    if ((a as unknown[]).length !== (b as unknown[]).length) return false;
+    for (let i = 0; i < (a as unknown[]).length; i++) {
+      if (!(this as any).equals((a as unknown[])[i], (b as unknown[])[i], customTesters as never)) {
+        return false;
+      }
+    }
+    return true;
+  },
+]);
 
 // ---------------------------------------------------------------------------
 // Generalizable singleton cleanup.

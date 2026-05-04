@@ -5,5 +5,5 @@ resources:
       endpoint: surveyjs
       name: surveyjs/azure-pipelines
       
-jobs:
-  - template: library.yml@azurepipelines 
+extends:
+  template: library.yml@azurepipelines

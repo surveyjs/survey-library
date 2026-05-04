@@ -15,16 +15,16 @@ steps:
     condition: ne(variables['PR'], '')
     displayName: "Switch to PR $(PR)"
 
-  - ${{ if eq(parameters.store, true) }}:
-    - script: npm run release -- --release-as $(VERSION) --skip.tag
-      workingDirectory: $(Build.SourcesDirectory)
-      displayName: "npm run release"
-
   - template: ../../utils/npm.yml
     parameters:
       directories: 
         - $(Build.SourcesDirectory)
         - $(Build.SourcesDirectory)/packages/survey-core
+
+  - ${{ if eq(parameters.store, true) }}:
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "npm run release"
 
   - script: npm run build:all
     workingDirectory: $(Build.SourcesDirectory)/packages/survey-core

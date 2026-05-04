@@ -28,6 +28,18 @@ resources:
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-pdf
       ref: $(System.PullRequest.TargetBranch)
+    - repository: Service
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/service
+    - repository: SiteData
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/surveyjs-site-data
+    - repository: Utils
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-utils
   pipelines:
     - pipeline: ReleaseVersion
       source: Release Version
@@ -89,6 +101,9 @@ stages:
           - template: templates/library/core/build.yml
             parameters:
               store: true
+      - job:
+        steps:
+          - template: templates/library/core/build.yml
 
   - stage: LibraryReactBuild
     displayName: "Library React Build"

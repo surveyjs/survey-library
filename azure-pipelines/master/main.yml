@@ -83,7 +83,6 @@ jobs:
   - job: Core
     dependsOn:
       - NPMCache
-
     steps:
       - checkout: self
         clean: true
@@ -183,6 +182,10 @@ jobs:
           npm run test:postcss
         displayName: "check postcss compatibility"
 
+
+
+
+
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
           npm run doc_gen
@@ -224,6 +227,9 @@ jobs:
           }
         displayName: "Git surveyjs/service push updated docs for $(CurrentBranch)"
 
+
+
+
       - powershell: |
           $branch = "V2"
           cd $(Build.SourcesDirectory)/surveyjs-site-data
@@ -259,6 +265,16 @@ jobs:
               git push origin $branch
           }
         displayName: "Git surveyjs-site-data push updated docs for V2"
+
+
+
+
+
+
+
+
+        
+
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-utils
@@ -330,7 +346,6 @@ jobs:
   - job: React
     dependsOn:
       - Core
-
     steps:
       - checkout: self
         clean: true
@@ -481,7 +496,6 @@ jobs:
   - job: Angular
     dependsOn:
       - Core
-
     steps:
       - checkout: self
         clean: true
@@ -643,7 +657,6 @@ jobs:
   - job: Vue3
     dependsOn:
       - Core
-
     steps:
       - checkout: self
         clean: true
@@ -805,7 +818,6 @@ jobs:
   - job: Preact_ShadowDOM_BoxSizing
     dependsOn:
       - Core
-
     steps:
       - checkout: self
         clean: true

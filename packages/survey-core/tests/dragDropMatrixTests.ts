@@ -22,11 +22,11 @@ describe("Drag and Drop Matrix Row Tests", () => {
     const renderedTable = matrixQuestion.renderedTable;
     const dd = matrixQuestion.dragDropMatrixRows;
 
-    expect(renderedTable.rows[1].isGhostRow, "Row 0 isGhostRow marker is clear initially").toLooseEqual(false);
+    expect(renderedTable.rows[1].isGhostRow, "Row 0 isGhostRow marker is clear initially").toBe(false);
     dd.dragInit(<any>{}, renderedTable.rows[1].row, matrixQuestion);
-    expect(renderedTable.rows[1].isGhostRow, "Row 0 marked as being dragged").toLooseEqual(true);
+    expect(renderedTable.rows[1].isGhostRow, "Row 0 marked as being dragged").toBe(true);
     dd.clear();
-    expect(renderedTable.rows[1].isGhostRow, "Row 0 isGhostRow marker is reset").toLooseEqual(false);
+    expect(renderedTable.rows[1].isGhostRow, "Row 0 isGhostRow marker is reset").toBe(false);
   });
 
   test("matrix.lockedRowCount", () => {
@@ -48,8 +48,8 @@ describe("Drag and Drop Matrix Row Tests", () => {
     const rows = matrixQuestion.visibleRows;
     const dd = matrixQuestion.dragDropMatrixRows;
     dd.dragInit(<any>undefined, <any>undefined, matrixQuestion);
-    expect(dd.canInsertIntoThisRow(<any>rows[0]), "row0").toLooseEqual(false);
-    expect(dd.canInsertIntoThisRow(<any>rows[1]), "row1").toLooseEqual(true);
+    expect(dd.canInsertIntoThisRow(<any>rows[0]), "row0").toBe(false);
+    expect(dd.canInsertIntoThisRow(<any>rows[1]), "row1").toBe(true);
   });
 
   test("doDragOver", () => {
@@ -141,7 +141,7 @@ describe("Drag and Drop Matrix Row Tests", () => {
       const survey = new SurveyModel(json);
       const ddHelper = new DragDropMatrixRows(survey);
       survey.onMatrixRowDragOver.add(()=>{});
-      expect(Object.keys(ddHelper["matrixRowMap"]).length, "initial state").toLooseEqual(0);
+      expect(Object.keys(ddHelper["matrixRowMap"]).length, "initial state").toBe(0);
 
       const question0: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
     survey.getQuestionByName("question0")
@@ -163,7 +163,7 @@ describe("Drag and Drop Matrix Row Tests", () => {
       ddHelper["doDragOver"]();
 
       vi.advanceTimersByTime(2000);
-      expect(Object.keys(ddHelper["matrixRowMap"]).length, "matrices prepared for drag").toLooseEqual(4);
+      expect(Object.keys(ddHelper["matrixRowMap"]).length, "matrices prepared for drag").toBe(4);
     } finally {
       vi.useRealTimers();
     }

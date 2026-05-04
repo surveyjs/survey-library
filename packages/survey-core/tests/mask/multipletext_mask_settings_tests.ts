@@ -38,14 +38,14 @@ describe("Multiple text: Input mask", () => {
     };
     const survey = new SurveyModel(json);
     const multipletext = survey.getQuestionByName("question1") as QuestionMultipleTextModel;
-    expect(multipletext.items[0].maskType).toLooseEqual("numeric");
-    expect(multipletext.items[0].maskSettings.getType()).toLooseEqual("numericmask");
+    expect(multipletext.items[0].maskType).toBe("numeric");
+    expect(multipletext.items[0].maskSettings.getType()).toBe("numericmask");
 
-    expect(multipletext.items[1].maskType).toLooseEqual("pattern");
-    expect(multipletext.items[1].maskSettings.getType()).toLooseEqual("patternmask");
+    expect(multipletext.items[1].maskType).toBe("pattern");
+    expect(multipletext.items[1].maskSettings.getType()).toBe("patternmask");
 
-    expect(multipletext.items[2].maskType).toLooseEqual("datetime");
-    expect(multipletext.items[2].maskSettings.getType()).toLooseEqual("datetimemask");
+    expect(multipletext.items[2].maskType).toBe("datetime");
+    expect(multipletext.items[2].maskSettings.getType()).toBe("datetimemask");
 
     expect(survey.toJSON()).toEqualValues(json);
   });
@@ -58,14 +58,14 @@ describe("Multiple text: Input mask", () => {
     const item = multipletext.items[0];
     const itemEditor = item.editor;
     itemEditor.input = testInput;
-    expect(item.maskType).toLooseEqual("none");
-    expect(item.maskSettings.getType()).toLooseEqual("masksettings");
-    expect(!!itemEditor["maskInputAdapter"]).toLooseEqual(false);
+    expect(item.maskType).toBe("none");
+    expect(item.maskSettings.getType()).toBe("masksettings");
+    expect(!!itemEditor["maskInputAdapter"]).toBe(false);
 
     item.maskType = "pattern";
-    expect(item.maskType).toLooseEqual("pattern");
-    expect(item.maskSettings.getType()).toLooseEqual("patternmask");
-    expect(!!itemEditor["maskInputAdapter"]).toLooseEqual(true);
+    expect(item.maskType).toBe("pattern");
+    expect(item.maskSettings.getType()).toBe("patternmask");
+    expect(!!itemEditor["maskInputAdapter"]).toBe(true);
 
     testInput.remove();
   });
@@ -79,32 +79,32 @@ describe("Multiple text: Input mask", () => {
     item.maskType = "pattern";
     item.maskSettings.fromJSON({ pattern: "+99-99" });
     item.value = "1234";
-    expect(item.value).toLooseEqual("1234");
-    expect(itemEditor.inputValue).toLooseEqual("+12-34");
+    expect(item.value).toBe("1234");
+    expect(itemEditor.inputValue).toBe("+12-34");
 
     itemEditor.inputValue = "+78-68";
-    expect(item.value).toLooseEqual("7868");
-    expect(itemEditor.inputValue).toLooseEqual("+78-68");
+    expect(item.value).toBe("7868");
+    expect(itemEditor.inputValue).toBe("+78-68");
   });
 
   test("Switch mask type", () => {
     const multipletext = new QuestionMultipleTextModel("q1");
     multipletext.addItem("item1");
     const item = multipletext.items[0];
-    expect(item.maskType).toLooseEqual("none");
-    expect(item.maskSettings instanceof InputMaskBase).toLooseEqual(true);
+    expect(item.maskType).toBe("none");
+    expect(item.maskSettings instanceof InputMaskBase).toBe(true);
 
     item.maskType = "pattern";
-    expect(item.maskType).toLooseEqual("pattern");
-    expect(item.maskSettings instanceof InputMaskPattern).toLooseEqual(true);
+    expect(item.maskType).toBe("pattern");
+    expect(item.maskSettings instanceof InputMaskPattern).toBe(true);
 
     item.maskType = "numeric";
-    expect(item.maskType).toLooseEqual("numeric");
-    expect(item.maskSettings instanceof InputMaskNumeric).toLooseEqual(true);
+    expect(item.maskType).toBe("numeric");
+    expect(item.maskSettings instanceof InputMaskNumeric).toBe(true);
 
     item.maskType = "none";
-    expect(item.maskType).toLooseEqual("none");
-    expect(item.maskSettings instanceof InputMaskBase).toLooseEqual(true);
+    expect(item.maskType).toBe("none");
+    expect(item.maskSettings instanceof InputMaskBase).toBe(true);
   });
 
   test("Currency mask: text aligment", () => {

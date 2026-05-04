@@ -151,11 +151,11 @@ describe("question ranking", () => {
     expect(q2.isEmpty()).toEqualValues(true);
 
     q1.value = [2, 3, "other"];
-    expect(q2.visibleChoices.length, "2, 3 other is empty").toLooseEqual(2);
+    expect(q2.visibleChoices.length, "2, 3 other is empty").toBe(2);
     q1.otherValue = "someText";
-    expect(q2.visibleChoices.length, "2, 3 and other").toLooseEqual(3);
-    expect(q2.visibleChoices[2].value, "other value").toLooseEqual("other");
-    expect(q2.visibleChoices[2].text, "other text").toLooseEqual("someText");
+    expect(q2.visibleChoices.length, "2, 3 and other").toBe(3);
+    expect(q2.visibleChoices[2].value, "other value").toBe("other");
+    expect(q2.visibleChoices[2].text, "other text").toBe("someText");
   });
   test("Ranking: Carry Forward and unrankIfChoicesChanged", () => {
     var survey = new SurveyModel({
@@ -174,15 +174,15 @@ describe("question ranking", () => {
 
     checkboxQuestion.value = [1];
     checkboxQuestion.value = [1, 2];
-    expect(rankingQuestion.value.length, "rank items by default").toLooseEqual(0);
+    expect(rankingQuestion.value.length, "rank items by default").toBe(0);
 
     checkboxQuestion.value = [1, 2, 3];
-    expect(rankingQuestion.value.length, "unrank items after choices changed").toLooseEqual(0);
+    expect(rankingQuestion.value.length, "unrank items after choices changed").toBe(0);
 
     rankingQuestion["isValueSetByUser"] = true;
     rankingQuestion.value = [1, 2, 3];
     checkboxQuestion.value = [1, 2];
-    expect(rankingQuestion.value.length, "after user's arrengement unrank should stop working").toLooseEqual(2);
+    expect(rankingQuestion.value.length, "after user's arrengement unrank should stop working").toBe(2);
   });
 
   test("Ranking: Carry Forward: Default Value", () => {
@@ -260,9 +260,9 @@ describe("question ranking", () => {
     });
     var q = <QuestionRankingModel>survey.getQuestionByName("q1");
     q.value = ["a", "b"];
-    expect(q.isAnswerCorrect(), "Answer is not correct").toLooseEqual(false);
+    expect(q.isAnswerCorrect(), "Answer is not correct").toBe(false);
     q.value = ["b", "a"];
-    expect(q.isAnswerCorrect(), "Answer is correct").toLooseEqual(true);
+    expect(q.isAnswerCorrect(), "Answer is correct").toBe(true);
   });
 
   test("Ranking: ReadOnlyMode ", () => {
@@ -280,15 +280,15 @@ describe("question ranking", () => {
     var q = <QuestionRankingModel>survey.getQuestionByName("q");
     var choise = q.choices[0];
 
-    expect(q["isAllowStartDrag"](target, choise)).toLooseEqual(true);
+    expect(q["isAllowStartDrag"](target, choise)).toBe(true);
 
     survey.readOnly = true;
-    expect(q["isAllowStartDrag"](target, choise)).toLooseEqual(false);
+    expect(q["isAllowStartDrag"](target, choise)).toBe(false);
 
     survey.readOnly = false;
-    expect(q["isAllowStartDrag"](target, choise)).toLooseEqual(true);
+    expect(q["isAllowStartDrag"](target, choise)).toBe(true);
     choise.enabled = false;
-    expect(q["isAllowStartDrag"](target, choise)).toLooseEqual(false);
+    expect(q["isAllowStartDrag"](target, choise)).toBe(false);
   });
 
   test("Ranking: design mode", () => {
@@ -317,21 +317,21 @@ describe("question ranking", () => {
     function preventDefault() { preventDefaultCalled++; }
 
     q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);
-    expect(upCalled).toLooseEqual(1);
-    expect(downCalled).toLooseEqual(0);
-    expect(preventDefaultCalled).toLooseEqual(1);
+    expect(upCalled).toBe(1);
+    expect(downCalled).toBe(0);
+    expect(preventDefaultCalled).toBe(1);
 
     q.handleKeydown(<any>{ key: "ArrowDown", preventDefault: preventDefault }, q.choices[1]);
-    expect(upCalled).toLooseEqual(1);
-    expect(downCalled).toLooseEqual(1);
-    expect(preventDefaultCalled).toLooseEqual(2);
+    expect(upCalled).toBe(1);
+    expect(downCalled).toBe(1);
+    expect(preventDefaultCalled).toBe(2);
 
     survey["_isDesignMode"] = true;
     q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);
     q.handleKeydown(<any>{ key: "ArrowDown", preventDefault: preventDefault }, q.choices[1]);
-    expect(upCalled).toLooseEqual(1);
-    expect(downCalled).toLooseEqual(1);
-    expect(preventDefaultCalled).toLooseEqual(2);
+    expect(upCalled).toBe(1);
+    expect(downCalled).toBe(1);
+    expect(preventDefaultCalled).toBe(2);
   });
 
   test("Ranking: selectToRank key navigation with animation", () => {
@@ -466,45 +466,45 @@ describe("question ranking", () => {
     expect(rcAnimationOptions.isAnimationEnabled()).toBeTruthy();
 
     //test enterOptions
-    expect(rcAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding");
-    expect(ucAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding");
+    expect(rcAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding");
+    expect(ucAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding");
 
-    expect(rcAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding");
-    expect(ucAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding");
+    expect(rcAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding");
+    expect(ucAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding");
 
     question.selectToRankAreasLayout = "vertical";
 
-    expect(rcAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding");
-    expect(ucAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding");
+    expect(rcAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding");
+    expect(ucAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding");
 
-    expect(rcAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding-empty");
-    expect(ucAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-adding-empty");
+    expect(rcAnimationOptions.getEnterOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding-empty");
+    expect(ucAnimationOptions.getEnterOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-adding-empty");
 
     //test leave options
     question.selectToRankAreasLayout = "horizontal";
-    expect(rcAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing");
-    expect(ucAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing");
+    expect(rcAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing");
+    expect(ucAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing");
 
-    expect(rcAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing");
-    expect(ucAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing");
+    expect(rcAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing");
+    expect(ucAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing");
 
     question.selectToRankAreasLayout = "vertical";
 
-    expect(rcAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing");
-    expect(ucAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing");
+    expect(rcAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing");
+    expect(ucAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing");
 
-    expect(rcAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing-empty");
-    expect(ucAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toLooseEqual("sv-ranking-item--animate-item-removing-empty");
+    expect(rcAnimationOptions.getLeaveOptions(question.rankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing-empty");
+    expect(ucAnimationOptions.getLeaveOptions(question.unRankingChoices[0]).cssClass).toBe("sv-ranking-item--animate-item-removing-empty");
 
     //test reorder options
     question.value = ["a", "b"];
     question.currentDropTarget = question.rankingChoices[0];
 
-    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[0], false).cssClass).toLooseEqual("");
-    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[0], true).cssClass).toLooseEqual("");
+    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[0], false).cssClass).toBe("");
+    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[0], true).cssClass).toBe("");
 
-    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[1], false).cssClass).toLooseEqual("sv-dragdrop-moveup");
-    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[1], true).cssClass).toLooseEqual("sv-dragdrop-movedown");
+    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[1], false).cssClass).toBe("sv-dragdrop-moveup");
+    expect(rcAnimationOptions.getReorderOptions(question.rankingChoices[1], true).cssClass).toBe("sv-dragdrop-movedown");
 
     settings.animationEnabled = false;
   });
@@ -528,23 +528,23 @@ describe("question ranking", () => {
     Settings.rankingDragHandleArea = "icon"; // 1
     dragStartTargetNode = document.createElement("div");
     result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toLooseEqual(false);
+    expect(result).toBe(false);
 
     dragStartTargetNode.classList.add(iconHoverClass);
     result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toLooseEqual(true);
+    expect(result).toBe(true);
 
     Settings.rankingDragHandleArea = "entireItem"; // 2
     result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toLooseEqual(true);
+    expect(result).toBe(true);
 
     dragStartTargetNode.classList.remove(iconHoverClass);
     result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toLooseEqual(true);
+    expect(result).toBe(true);
 
     Settings.rankingDragHandleArea = "some"; // 3
     result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
-    expect(result).toLooseEqual(true);
+    expect(result).toBe(true);
 
     dragStartTargetNode.remove();
   });
@@ -562,9 +562,9 @@ describe("question ranking", () => {
       ],
     });
     const rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q1");
-    expect(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), "#1").toLooseEqual(true);
+    expect(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), "#1").toBe(true);
     rankingQuestion.value = ["b", "c", "a"];
-    expect(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), "#2").toLooseEqual(true);
+    expect(rankingQuestion.isItemSelected(rankingQuestion.choices[0]), "#2").toBe(true);
   });
 
   test("Ranking: separateSpecialChoices ", () => {
@@ -594,7 +594,7 @@ describe("question ranking", () => {
     q2.value = ["c", "d", "a", "b"];
     q1.value = [1];
     expect(q2.value, "value is correct").toEqualValues([]);
-    expect(q2.rankingChoices.length, "2 items are shown").toLooseEqual(2);
+    expect(q2.rankingChoices.length, "2 items are shown").toBe(2);
   });
   test("Ranking: strict compare, Bug#6644", () => {
     var survey = new SurveyModel({
@@ -606,13 +606,13 @@ describe("question ranking", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.isVisible, "not visible initially").toLooseEqual(false);
+    expect(q2.isVisible, "not visible initially").toBe(false);
     q1.value = ["a", "b", "c"];
-    expect(q2.isVisible, "not visible #2").toLooseEqual(false);
+    expect(q2.isVisible, "not visible #2").toBe(false);
     q1.value = ["b", "c", "a"];
-    expect(q2.isVisible, "visible #3").toLooseEqual(true);
+    expect(q2.isVisible, "visible #3").toBe(true);
     q1.value = ["a", "c", "b"];
-    expect(q2.isVisible, "not visible #3").toLooseEqual(false);
+    expect(q2.isVisible, "not visible #3").toBe(false);
   });
   test("Ranking: strict compare with not equal, Bug#7298", () => {
     var survey = new SurveyModel({
@@ -624,11 +624,11 @@ describe("question ranking", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.isVisible, "visible initially").toLooseEqual(true);
+    expect(q2.isVisible, "visible initially").toBe(true);
     q1.value = ["b", "c", "a"];
-    expect(q2.isVisible, "not visible #2").toLooseEqual(false);
+    expect(q2.isVisible, "not visible #2").toBe(false);
     q1.value = ["a", "c", "b"];
-    expect(q2.isVisible, "visible #3").toLooseEqual(true);
+    expect(q2.isVisible, "visible #3").toBe(true);
   });
 
   test("Ranking: disabledItem", () => {
@@ -651,8 +651,8 @@ describe("question ranking", () => {
     const rankingQuestion = survey.getQuestionByName("q1");
     const disabledItem = rankingQuestion.choices[1];
 
-    expect(rankingQuestion.canStartDragDueItemEnabled(disabledItem), "can't start drag disabled item").toLooseEqual(false);
-    expect(rankingQuestion.getItemTabIndex(disabledItem), "can't move disabled item via keyboard").toLooseEqual(undefined);
+    expect(rankingQuestion.canStartDragDueItemEnabled(disabledItem), "can't start drag disabled item").toBe(false);
+    expect(rankingQuestion.getItemTabIndex(disabledItem), "can't move disabled item via keyboard").toBeUndefined();
   });
 
   test("Ranking: disabledItem with selectToRank and maxSelectedChoices", () => {
@@ -675,7 +675,7 @@ describe("question ranking", () => {
     const rankingQuestion = survey.getQuestionByName("q1");
     const rankedItem = rankingQuestion.rankingChoices[0];
 
-    expect(rankingQuestion.canStartDragDueItemEnabled(rankedItem), "should be able to start drag rankedItem item for uranking action").toLooseEqual(true);
+    expect(rankingQuestion.canStartDragDueItemEnabled(rankedItem), "should be able to start drag rankedItem item for uranking action").toBe(true);
   });
 
   // selectToRankEnabled
@@ -704,16 +704,16 @@ describe("question ranking", () => {
   test("selectToRankEnabled : initial", () => {
     const selectToRankEnabled = true;
     const questionModel = createRankingQuestionModel(selectToRankEnabled);
-    expect(questionModel.unRankingChoices.length, "unRankingChoices count").toLooseEqual(3);
-    expect(questionModel.rankingChoices.length, "rankingChoices count").toLooseEqual(0);
+    expect(questionModel.unRankingChoices.length, "unRankingChoices count").toBe(3);
+    expect(questionModel.rankingChoices.length, "rankingChoices count").toBe(0);
   });
 
   test("selectToRankEnabled : defaultValue", () => {
     const selectToRankEnabled = true;
     const withDefaultValue = true;
     const questionWithDefaultValueModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
-    expect(questionWithDefaultValueModel.unRankingChoices.length, "unRankingChoices count").toLooseEqual(1);
-    expect(questionWithDefaultValueModel.rankingChoices.length, "rankingChoices count").toLooseEqual(2);
+    expect(questionWithDefaultValueModel.unRankingChoices.length, "unRankingChoices count").toBe(1);
+    expect(questionWithDefaultValueModel.rankingChoices.length, "rankingChoices count").toBe(2);
   });
 
   test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", () => {
@@ -721,11 +721,11 @@ describe("question ranking", () => {
     const withDefaultValue = false;
     const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
 
-    expect(questionModel.checkMaxSelectedChoicesUnreached(), "without MaxSelectedChoices").toLooseEqual(true);
+    expect(questionModel.checkMaxSelectedChoicesUnreached(), "without MaxSelectedChoices").toBe(true);
 
     questionModel.maxSelectedChoices = 2;
     questionModel.value = ["11", "22"];
-    expect(questionModel.checkMaxSelectedChoicesUnreached(), "MaxSelectedChoices limit reached").toLooseEqual(false);
+    expect(questionModel.checkMaxSelectedChoicesUnreached(), "MaxSelectedChoices limit reached").toBe(false);
   });
 
   test("selectToRankEnabled : checkMaxSelectedChoices and handleKeydownSelectToRank", () => {
@@ -737,11 +737,11 @@ describe("question ranking", () => {
     const fakeEvent:any = { key: " ", preventDefault: ()=>{} };
     questionModel.handleKeydownSelectToRank(fakeEvent, questionModel.unRankingChoices[0], " ", false);
 
-    expect(questionModel.value.length, "can't add due to MaxSelectedChoices").toLooseEqual(2);
+    expect(questionModel.value.length, "can't add due to MaxSelectedChoices").toBe(2);
 
     questionModel.handleKeydownSelectToRank(fakeEvent, questionModel.rankingChoices[0], " ", false);
 
-    expect(questionModel.value.length, "unrank with MaxSelectedChoices").toLooseEqual(1);
+    expect(questionModel.value.length, "unrank with MaxSelectedChoices").toBe(1);
   });
 
   test("Ranking: renderedSelectToRankAreasLayout", () => {
@@ -749,21 +749,21 @@ describe("question ranking", () => {
     const withDefaultValue = false;
     const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
 
-    expect(questionModel.selectToRankAreasLayout, "default").toLooseEqual("horizontal");
-    expect(questionModel.renderedSelectToRankAreasLayout, "default").toLooseEqual("horizontal");
+    expect(questionModel.selectToRankAreasLayout, "default").toBe("horizontal");
+    expect(questionModel.renderedSelectToRankAreasLayout, "default").toBe("horizontal");
 
     questionModel.selectToRankAreasLayout = "vertical";
-    expect(questionModel.selectToRankAreasLayout, "set vertical").toLooseEqual("vertical");
-    expect(questionModel.renderedSelectToRankAreasLayout, "set vertical").toLooseEqual("vertical");
+    expect(questionModel.selectToRankAreasLayout, "set vertical").toBe("vertical");
+    expect(questionModel.renderedSelectToRankAreasLayout, "set vertical").toBe("vertical");
 
     questionModel.isMobileMode = ()=>{ return true; }; // set mobile env
 
-    expect(questionModel.selectToRankAreasLayout, "set vertical").toLooseEqual("vertical");
-    expect(questionModel.renderedSelectToRankAreasLayout, "'vertical' by default on mobile").toLooseEqual("vertical");
+    expect(questionModel.selectToRankAreasLayout, "set vertical").toBe("vertical");
+    expect(questionModel.renderedSelectToRankAreasLayout, "'vertical' by default on mobile").toBe("vertical");
 
     questionModel.selectToRankAreasLayout = "horizontal";
-    expect(questionModel.selectToRankAreasLayout, "default").toLooseEqual("horizontal");
-    expect(questionModel.renderedSelectToRankAreasLayout, "'vertical' always on mobile").toLooseEqual("vertical");
+    expect(questionModel.selectToRankAreasLayout, "default").toBe("horizontal");
+    expect(questionModel.renderedSelectToRankAreasLayout, "'vertical' always on mobile").toBe("vertical");
   });
 
   test("Ranking: check SelectToRankEmptyRankedAreaText & SelectToRankEmptyUnrankedAreaText properties", () => {
@@ -788,15 +788,15 @@ describe("question ranking", () => {
     const rankedProp = Serializer.getProperty("ranking", "selectToRankEmptyRankedAreaText");
     const unrankedProp = Serializer.getProperty("ranking", "selectToRankEmptyUnrankedAreaText");
 
-    expect(rankedProp.isVisible("", question)).toLooseEqual(false);
-    expect(unrankedProp.isVisible("", question)).toLooseEqual(false);
+    expect(rankedProp.isVisible("", question)).toBe(false);
+    expect(unrankedProp.isVisible("", question)).toBe(false);
 
     question.selectToRankEnabled = true;
-    expect(rankedProp.isVisible("", question)).toLooseEqual(true);
-    expect(unrankedProp.isVisible("", question)).toLooseEqual(true);
+    expect(rankedProp.isVisible("", question)).toBe(true);
+    expect(unrankedProp.isVisible("", question)).toBe(true);
 
-    expect(question.selectToRankEmptyRankedAreaText).toLooseEqual("empty ranked");
-    expect(question.selectToRankEmptyUnrankedAreaText).toLooseEqual("empty unranked");
+    expect(question.selectToRankEmptyRankedAreaText).toBe("empty ranked");
+    expect(question.selectToRankEmptyUnrankedAreaText).toBe("empty unranked");
   });
   test("Response is reset on changing questionsOnPageMode", () => {
     const survey = new SurveyModel({

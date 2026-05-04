@@ -42,24 +42,24 @@ test("utils: sanitizer", () => {
   element.focus();
 
   var res = checkSanitizer(element, "sometext", 0, 2);
-  expect(res.text).toLooseEqual("sometext");
-  expect(res.offset).toLooseEqual(2);
+  expect(res.text).toBe("sometext");
+  expect(res.offset).toBe(2);
 
   var res = checkSanitizer(element, "some<br/>text", 0, 2);
-  expect(res.text).toLooseEqual("sometext");
-  expect(res.offset).toLooseEqual(2);
+  expect(res.text).toBe("sometext");
+  expect(res.offset).toBe(2);
 
   var res = checkSanitizer(element, "sometex<b>t</b>", 1, 1);
-  expect(res.text).toLooseEqual("sometext");
-  expect(res.offset).toLooseEqual(8);
+  expect(res.text).toBe("sometext");
+  expect(res.offset).toBe(8);
 
   var res = checkSanitizer(element, "some<b>t</b>ext", 2, 1);
-  expect(res.text).toLooseEqual("sometext");
-  expect(res.offset).toLooseEqual(6);
+  expect(res.text).toBe("sometext");
+  expect(res.offset).toBe(6);
 
   var res = checkSanitizer(element, "", -1, 0);
-  expect(res.text).toLooseEqual("");
-  expect(res.offset).toLooseEqual(0);
+  expect(res.text).toBe("");
+  expect(res.offset).toBe(0);
 
   element.remove();
 });
@@ -70,18 +70,18 @@ test("utils: sanitizer with linebreaks", () => {
   element.contentEditable = "true";
 
   var res = checkSanitizer(element, "some<br/>text", 0, 2, false);
-  expect(res.plainText).toLooseEqual("some\ntext");
-  expect(res.offset).toLooseEqual(2);
-  expect(res.nodeText).toLooseEqual("some");
+  expect(res.plainText).toBe("some\ntext");
+  expect(res.offset).toBe(2);
+  expect(res.nodeText).toBe("some");
 
   var res = checkSanitizer(element, "some<br/>text<br/><br/>", 3, 0, false);
-  expect(res.plainText).toLooseEqual("some\ntext\n\n");
-  expect(res.position).toLooseEqual(10);
+  expect(res.plainText).toBe("some\ntext\n\n");
+  expect(res.position).toBe(10);
 
   var res = checkSanitizer(element, "some<br/>text<br/>and more", 2, 3, false);
-  expect(res.plainText).toLooseEqual("some\ntext\nand more");
-  expect(res.offset).toLooseEqual(3);
-  expect(res.nodeText).toLooseEqual("text");
+  expect(res.plainText).toBe("some\ntext\nand more");
+  expect(res.offset).toBe(3);
+  expect(res.nodeText).toBe("text");
 
   element.remove();
 });
@@ -92,21 +92,21 @@ test("utils: sanitizer with grapheme clusters", () => {
   element.contentEditable = "true";
 
   var res = checkSanitizer(element, "พุธ", 0, 2, false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(res.plainText.length).toLooseEqual(3);
-  expect(res.plainText).toLooseEqual("พุธ");// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(res.offset).toLooseEqual(2);
-  expect(res.nodeText).toLooseEqual("พุธ"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(res.plainText.length).toBe(3);
+  expect(res.plainText).toBe("พุธ");// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(res.offset).toBe(2);
+  expect(res.nodeText).toBe("พุธ"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
   var res = checkSanitizer(element, "sพุธe", 0, 3, false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(res.plainText.length).toLooseEqual(5);
-  expect(res.plainText).toLooseEqual("sพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(res.offset).toLooseEqual(3);
-  expect(res.nodeText).toLooseEqual("sพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(res.plainText.length).toBe(5);
+  expect(res.plainText).toBe("sพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(res.offset).toBe(3);
+  expect(res.nodeText).toBe("sพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
   var res = checkSanitizer(element, "พุธs<br/>พุธe", 2, 2, false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(res.plainText).toLooseEqual("พุธs\nพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(res.offset).toLooseEqual(2);
-  expect(res.nodeText).toLooseEqual("พุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(res.plainText).toBe("พุธs\nพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(res.offset).toBe(2);
+  expect(res.nodeText).toBe("พุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
   element.remove();
 });
@@ -160,22 +160,22 @@ test("utils: keytoclick - support tab keyup", () => {
 
   var options = {};
   doKey2ClickUp(event as any, options);
-  expect(classAdded).toLooseEqual("sv-focused--by-key");
+  expect(classAdded).toBe("sv-focused--by-key");
 });
 
 test("utils: devices: isTouch", () => {
   mouseInfo.hasMouse = true;
-  expect(mouseInfo.isTouch, "isTouch, #1").toLooseEqual(false);
+  expect(mouseInfo.isTouch, "isTouch, #1").toBe(false);
   mouseInfo.hasMouse = false;
   const hasTouchEvent = mouseInfo.hasTouchEvent;
-  expect(mouseInfo.isTouch, "isTouch, #2. hasTouch in window: " + hasTouchEvent).toLooseEqual(hasTouchEvent);
+  expect(mouseInfo.isTouch, "isTouch, #2. hasTouch in window: " + hasTouchEvent).toBe(hasTouchEvent);
   if (!hasTouchEvent) {
     window["ontouchstart"] = () => { };
   }
   mouseInfo.hasMouse = true;
-  expect(mouseInfo.isTouch, "isTouch, #3").toLooseEqual(false);
+  expect(mouseInfo.isTouch, "isTouch, #3").toBe(false);
   mouseInfo.hasMouse = false;
-  expect(mouseInfo.isTouch, "isTouch, #4").toLooseEqual(true);
+  expect(mouseInfo.isTouch, "isTouch, #4").toBe(true);
   mouseInfo.hasMouse = true;
   if (!hasTouchEvent) {
     window["ontouchstart"] = undefined;
@@ -187,18 +187,18 @@ test("utils: devices: detectMouseSupport", () => {
 
   let matchMediaFunction: MatchMediaMethod = null;
   result = detectMouseSupport(matchMediaFunction);
-  expect(result, "no matchMedia function").toLooseEqual(false);
+  expect(result, "no matchMedia function").toBe(false);
 
   matchMediaFunction = ()=> { return null; };
   result = detectMouseSupport(matchMediaFunction);
-  expect(result, "matchMedia might return null at some environments").toLooseEqual(false);
+  expect(result, "matchMedia might return null at some environments").toBe(false);
 
   matchMediaFunction = (query:string) => {
     if (query === "(pointer:fine)") return { matches: true };
     return { matches: false };
   };
   result = detectMouseSupport(matchMediaFunction);
-  expect(result, "matchMedia pointer:fine").toLooseEqual(true);
+  expect(result, "matchMedia pointer:fine").toBe(true);
 
   matchMediaFunction = (query:string) => {
     if (query === "(pointer:fine)") return { matches: false };
@@ -206,42 +206,42 @@ test("utils: devices: detectMouseSupport", () => {
     return { matches: false };
   };
   result = detectMouseSupport(matchMediaFunction);
-  expect(result, "matchMedia any-hover:hover").toLooseEqual(true);
+  expect(result, "matchMedia any-hover:hover").toBe(true);
 });
 
 test("utils: configConfirmDialog", () => {
   const popupViewModel = new PopupBaseViewModel(new PopupModel("", undefined));
   configConfirmDialog(popupViewModel);
-  expect(popupViewModel.width).toLooseEqual("min-content");
+  expect(popupViewModel.width).toBe("min-content");
 });
 
 test("Test animation utils: getAnimationsCount", () => {
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);
-  expect(animationUtils["getAnimationsCount"](element)).toLooseEqual(0);
+  expect(animationUtils["getAnimationsCount"](element)).toBe(0);
   element.style.animationName = "animation1, animation2";
-  expect(animationUtils["getAnimationsCount"](element)).toLooseEqual(2);
+  expect(animationUtils["getAnimationsCount"](element)).toBe(2);
   element.style.animationName = "animation1";
-  expect(animationUtils["getAnimationsCount"](element)).toLooseEqual(1);
+  expect(animationUtils["getAnimationsCount"](element)).toBe(1);
 });
 
 test("Test animation utils: getAnimationDuration", () => {
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(0);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(0);
   element.style.animationDuration = "5s, 3ms";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(5000);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(5000);
   element.style.animationDuration = "3s";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(3000);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(3000);
 
   element.style.animationDuration = "5s, 3ms, 2s";
   element.style.animationDelay = "4ms, 3s";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(5004);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(5004);
   element.style.animationDuration = "5s, 3ms, 6s";
   element.style.animationDelay = "3ms, 1s";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(6003);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(6003);
   element.remove();
 });
 
@@ -249,18 +249,18 @@ test("Test animation utils: getAnimationDuration", () => {
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   document.body.appendChild(element);
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(0);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(0);
   element.style.animationDuration = "5s, 3ms";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(5000);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(5000);
   element.style.animationDuration = "3s";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(3000);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(3000);
 
   element.style.animationDuration = "5s, 3ms, 2s";
   element.style.animationDelay = "4ms, 3s";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(5004);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(5004);
   element.style.animationDuration = "5s, 3ms, 6s";
   element.style.animationDelay = "3ms, 1s";
-  expect(animationUtils["getAnimationDuration"](element)).toLooseEqual(6003);
+  expect(animationUtils["getAnimationDuration"](element)).toBe(6003);
   element.remove();
 });
 
@@ -274,7 +274,7 @@ test("Test animation utils: onAnimationEnd", () => {
     animationUtils["onAnimationEnd"](element, () => {
       log += "->updated";
     }, { } as any);
-    expect(log).toLooseEqual("->updated");
+    expect(log).toBe("->updated");
     expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
     element.style.animationName = "animation1, animation2";
     element.style.animationDuration = "1s";
@@ -282,11 +282,11 @@ test("Test animation utils: onAnimationEnd", () => {
     animationUtils["onAnimationEnd"](element, () => {
       log += "->updated";
     }, { } as any);
-    expect(log).toLooseEqual("");
+    expect(log).toBe("");
     element.dispatchEvent(new AnimationEvent("animationend"));
-    expect(log).toLooseEqual("");
+    expect(log).toBe("");
     element.dispatchEvent(new AnimationEvent("animationend"));
-    expect(log).toLooseEqual("->updated");
+    expect(log).toBe("->updated");
     expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 
     element.style.animationName = "animation1";
@@ -295,9 +295,9 @@ test("Test animation utils: onAnimationEnd", () => {
     animationUtils["onAnimationEnd"](element, () => {
       log += "->updated";
     }, { } as any);
-    expect(log).toLooseEqual("");
+    expect(log).toBe("");
     element.dispatchEvent(new AnimationEvent("animationend"));
-    expect(log).toLooseEqual("->updated");
+    expect(log).toBe("->updated");
     expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 
     element.style.animationName = "animation1";
@@ -306,7 +306,7 @@ test("Test animation utils: onAnimationEnd", () => {
     animationUtils["onAnimationEnd"](element, () => {
       log += "->updated";
     }, { } as any);
-    expect(log).toLooseEqual("");
+    expect(log).toBe("");
     animationUtils.cancel();
     expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 
@@ -316,9 +316,9 @@ test("Test animation utils: onAnimationEnd", () => {
     animationUtils["onAnimationEnd"](element, () => {
       log += "->updated";
     }, { } as any);
-    expect(log).toLooseEqual("");
+    expect(log).toBe("");
     vi.advanceTimersByTime(11);
-    expect(log).toLooseEqual("->updated");
+    expect(log).toBe("->updated");
     expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
     element.remove();
   } finally {
@@ -346,9 +346,9 @@ test("Test animation utils: check cancel animation works correctly when mutliple
     log += "->updated3";
   }, { } as any);
 
-  expect(log).toLooseEqual("");
+  expect(log).toBe("");
   animationUtils.cancel();
-  expect(log).toLooseEqual("->updated1->updated2->updated3");
+  expect(log).toBe("->updated1->updated2->updated3");
   expect(animationUtils["cancelQueue"].length == 0).toBeTruthy();
 });
 
@@ -375,11 +375,11 @@ test("Test animation utils: enter animation", () => {
     getEnterOptions() {
       return {
         onAfterRunAnimation: (element) => {
-          expect(element).toLooseEqual(element);
+          expect(element).toBe(element);
           log += "->afterRunAnimation";
         },
         onBeforeRunAnimation: (element) => {
-          expect(element).toLooseEqual(element);
+          expect(element).toBe(element);
           log += "->beforeRunAnimation";
         },
         cssClass: "enter"
@@ -387,10 +387,10 @@ test("Test animation utils: enter animation", () => {
     }
   };
   animationUtils.onEnter(animationOptions);
-  expect(log).toLooseEqual("->beforeRunAnimation");
+  expect(log).toBe("->beforeRunAnimation");
   expect(htmlElement.classList.contains("enter")).toBeTruthy();
   htmlElement.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->beforeRunAnimation->afterRunAnimation");
+  expect(log).toBe("->beforeRunAnimation->afterRunAnimation");
   expect(htmlElement.classList.contains("enter")).toBeFalsy();
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
@@ -411,11 +411,11 @@ test("Test animation utils: leave animation", () => {
       getLeaveOptions() {
         return {
           onAfterRunAnimation: (element) => {
-            expect(element).toLooseEqual(element);
+            expect(element).toBe(element);
             log += "->afterRunAnimation";
           },
           onBeforeRunAnimation: (element) => {
-            expect(element).toLooseEqual(element);
+            expect(element).toBe(element);
             log += "->beforeRunAnimation";
           },
           cssClass: "leave"
@@ -434,15 +434,15 @@ test("Test animation utils: leave animation", () => {
     animationUtils.onLeave(animationOptions, () => {
       log += "->updated";
     },);
-    expect(log).toLooseEqual("->beforeRunAnimation");
+    expect(log).toBe("->beforeRunAnimation");
     expect(htmlElement.classList.contains("leave")).toBeTruthy();
     htmlElement.dispatchEvent(new AnimationEvent("animationend"));
-    expect(log).toLooseEqual("->beforeRunAnimation->updated");
+    expect(log).toBe("->beforeRunAnimation->updated");
     expect(htmlElement.classList.contains("leave")).toBeTruthy();
     vi.advanceTimersToNextTimer();
     vi.advanceTimersToNextTimer();
     expect(htmlElement.classList.contains("leave")).toBeFalsy();
-    expect(log).toLooseEqual("->beforeRunAnimation->updated->afterRunAnimation");
+    expect(log).toBe("->beforeRunAnimation->updated->afterRunAnimation");
     htmlElement.remove();
   } finally {
     window.requestAnimationFrame = oldRequestAnimationFrame;
@@ -468,11 +468,11 @@ test("Test animation utils: group enter animation", () => {
     getEnterOptions(i) {
       return {
         onAfterRunAnimation: (element) => {
-          expect(element).toLooseEqual(element);
+          expect(element).toBe(element);
           log += "->afterRunAnimation_" + i;
         },
         onBeforeRunAnimation: (element) => {
-          expect(element).toLooseEqual(element);
+          expect(element).toBe(element);
           log += "->beforeRunAnimation_" + i;
         },
         cssClass: "enter_" + i
@@ -489,7 +489,7 @@ test("Test animation utils: group enter animation", () => {
     }
   };
   animationUtils.runGroupAnimation(animationOptions, [0, 1, 2], [], []);
-  expect(log).toLooseEqual("->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
+  expect(log).toBe("->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
   expect(htmlElements[0].classList.contains("enter_0")).toBeTruthy();
   expect(htmlElements[1].classList.contains("enter_1")).toBeTruthy();
   expect(htmlElements[2].classList.contains("enter_2")).toBeTruthy();
@@ -499,7 +499,7 @@ test("Test animation utils: group enter animation", () => {
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
 
-  expect(log).toLooseEqual("->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
+  expect(log).toBe("->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
   expect(htmlElements[0].classList.contains("enter_0")).toBeFalsy();
   expect(htmlElements[1].classList.contains("enter_1")).toBeFalsy();
   expect(htmlElements[2].classList.contains("enter_2")).toBeFalsy();
@@ -529,11 +529,11 @@ test("Test animation utils: group leave animation", () => {
         {
           return {
             onAfterRunAnimation: (element) => {
-              expect(element).toLooseEqual(element);
+              expect(element).toBe(element);
               log += "->afterRunAnimation_" + i;
             },
             onBeforeRunAnimation: (element) => {
-              expect(element).toLooseEqual(element);
+              expect(element).toBe(element);
               log += "->beforeRunAnimation_" + i;
             },
             cssClass: "leave_" + i
@@ -550,7 +550,7 @@ test("Test animation utils: group leave animation", () => {
     animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], [], () => {
       log += "->updated";
     });
-    expect(log).toLooseEqual("->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
+    expect(log).toBe("->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
     expect(htmlElements[0].classList.contains("leave_0")).toBeTruthy();
     expect(htmlElements[1].classList.contains("leave_1")).toBeTruthy();
     expect(htmlElements[2].classList.contains("leave_2")).toBeTruthy();
@@ -558,7 +558,7 @@ test("Test animation utils: group leave animation", () => {
     htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
     htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
     htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
-    expect(log).toLooseEqual("->updated");
+    expect(log).toBe("->updated");
     expect(htmlElements[0].classList.contains("leave_0")).toBeTruthy();
     expect(htmlElements[1].classList.contains("leave_1")).toBeTruthy();
     expect(htmlElements[2].classList.contains("leave_2")).toBeTruthy();
@@ -568,7 +568,7 @@ test("Test animation utils: group leave animation", () => {
     expect(htmlElements[0].classList.contains("leave_0")).toBeFalsy();
     expect(htmlElements[1].classList.contains("leave_1")).toBeFalsy();
     expect(htmlElements[2].classList.contains("leave_2")).toBeFalsy();
-    expect(log).toLooseEqual("->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
+    expect(log).toBe("->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2");
     htmlElements.forEach(el => el.remove());
   } finally {
     window.requestAnimationFrame = oldRequestAnimationFrame;
@@ -623,12 +623,12 @@ test("Test animation property: boolean", () => {
   animation["_sync"](true);
   animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->updated: true->before-enter->after-enter");
+  expect(log).toBe("->updated: true->before-enter->after-enter");
 
   log = "";
   animation["_sync"](false);
   element.dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->before-leave->updated: false->after-leave");
+  expect(log).toBe("->before-leave->updated: false->after-leave");
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
@@ -683,13 +683,13 @@ test("Test animation property: array", () => {
   animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
+  expect(log).toBe("->updated: 0,1,2,3->before-enter_1->before-enter_2->after-enter_1->after-enter_2");
 
   log = "";
   animation["_sync"]([1, 2]);
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[3].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->before-leave_0->before-leave_3->updated: 1,2->after-leave_0->after-leave_3");
+  expect(log).toBe("->before-leave_0->before-leave_3->updated: 1,2->after-leave_0->after-leave_3");
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
@@ -745,22 +745,22 @@ test("Test animation tab", () => {
   },);
   animation["_sync"]([1]);
   expect(elements).toEqualValues([1, 0]);
-  expect(log).toLooseEqual("->updated: 1,0");
+  expect(log).toBe("->updated: 1,0");
   log = "";
   animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->before-enter_1->before-leave_0->updated: 1->after-enter_1->after-leave_0");
+  expect(log).toBe("->before-enter_1->before-leave_0->updated: 1->after-enter_1->after-leave_0");
   expect(elements).toEqualValues([1]);
   log = "";
   animation["_sync"]([0]);
   expect(elements).toEqualValues([0, 1]);
-  expect(log).toLooseEqual("->updated: 0,1");
+  expect(log).toBe("->updated: 0,1");
   log = "";
   animation["animationOptions"].getRerenderEvent().fire(undefined as any, {});
   htmlElements[0].dispatchEvent(new AnimationEvent("animationend"));
   htmlElements[1].dispatchEvent(new AnimationEvent("animationend"));
-  expect(log).toLooseEqual("->before-enter_0->before-leave_1->updated: 0->after-enter_0->after-leave_1");
+  expect(log).toBe("->before-enter_0->before-leave_1->updated: 0->after-enter_0->after-leave_1");
   expect(elements).toEqualValues([0]);
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
@@ -784,7 +784,7 @@ test("Check onNextRender and cancel", () => {
     log += "->updated";
   });
   animation.cancel();
-  expect(log).toLooseEqual("->raf: 1->updated->canceled: 1");
+  expect(log).toBe("->raf: 1->updated->canceled: 1");
   id = 0;
   log = "";
   animation["onNextRender"](() => {
@@ -792,7 +792,7 @@ test("Check onNextRender and cancel", () => {
   });
   latestCb();
   animation.cancel();
-  expect(log).toLooseEqual("->raf: 1->running: 1->raf: 2->updated->canceled: 2");
+  expect(log).toBe("->raf: 1->running: 1->raf: 2->updated->canceled: 2");
   id = 0;
   log = "";
   animation["onNextRender"](() => {
@@ -800,10 +800,10 @@ test("Check onNextRender and cancel", () => {
   });
   latestCb();
   latestCb();
-  expect(log).toLooseEqual("->raf: 1->running: 1->raf: 2->running: 2->updated");
+  expect(log).toBe("->raf: 1->running: 1->raf: 2->running: 2->updated");
   log = "";
   animation.cancel();
-  expect(log).toLooseEqual("");
+  expect(log).toBe("");
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
   window.cancelAnimationFrame = oldCancelAnimationFrame;
@@ -922,9 +922,9 @@ test("test onNextRender function", () => {
   }, () => {
     log += "->cancelled";
   });
-  expect(log).toLooseEqual("");
+  expect(log).toBe("");
   rerenderEvent.fire(undefined, {});
-  expect(log).toLooseEqual("->callback");
+  expect(log).toBe("->callback");
   expect(rerenderEvent.isEmpty).toBeTruthy();
   expect(!!animation["cancelCallback"]).toBeFalsy();
 
@@ -934,9 +934,9 @@ test("test onNextRender function", () => {
   }, () => {
     log += "->cancelled";
   });
-  expect(log).toLooseEqual("");
+  expect(log).toBe("");
   animation.cancel();
-  expect(log).toLooseEqual("->cancelled");
+  expect(log).toBe("->cancelled");
   expect(rerenderEvent.isEmpty).toBeTruthy();
   expect(!!animation["cancelCallback"]).toBeFalsy();
 
@@ -961,10 +961,10 @@ test("test onNextRender function", () => {
   }, () => {
     log += "->cancelled";
   });
-  expect(log).toLooseEqual("->raf: 1");
+  expect(log).toBe("->raf: 1");
   log = "";
   latestRafCb();
-  expect(log).toLooseEqual("->running: 1->callback");
+  expect(log).toBe("->running: 1->callback");
   expect(!!animation["cancelCallback"]).toBeFalsy();
 
   log = "";
@@ -973,10 +973,10 @@ test("test onNextRender function", () => {
   }, () => {
     log += "->cancelled";
   });
-  expect(log).toLooseEqual("->raf: 2");
+  expect(log).toBe("->raf: 2");
   log = "";
   animation.cancel();
-  expect(log).toLooseEqual("->cancelled->canceled raf: 2");
+  expect(log).toBe("->cancelled->canceled raf: 2");
   expect(!!animation["cancelCallback"]).toBeFalsy();
 
   window.requestAnimationFrame = oldRequestAnimationFrame;
@@ -1010,29 +1010,29 @@ test("check animation when rerendered event fired with isCanceled option", () =>
     log += "->updated";
   }, () => value);
 
-  expect(rerenderEvent.length).toLooseEqual(0);
-  expect(log).toLooseEqual("");
+  expect(rerenderEvent.length).toBe(0);
+  expect(log).toBe("");
   animation["_sync"](true);
-  expect(rerenderEvent.length).toLooseEqual(1);
+  expect(rerenderEvent.length).toBe(1);
   rerenderEvent.fire(null as any, { isCancel: true });
-  expect(log).toLooseEqual("->updated");
-  expect(value).toLooseEqual(true);
+  expect(log).toBe("->updated");
+  expect(value).toBe(true);
 });
 test("getSafeUrl", () => {
-  expect(getSafeUrl("https://surveyjs.io"), "https://surveyjs.io").toLooseEqual("https://surveyjs.io");
-  expect(getSafeUrl("javascript:alert('1')"), "javascript:alert('1')").toLooseEqual("javascript%3Aalert('1')");
+  expect(getSafeUrl("https://surveyjs.io"), "https://surveyjs.io").toBe("https://surveyjs.io");
+  expect(getSafeUrl("javascript:alert('1')"), "javascript:alert('1')").toBe("javascript%3Aalert('1')");
 });
 
 test("animation helper functions", () => {
   const el = document.createElement("div");
   setPropertiesOnElementForAnimation(el, { height: "200px", marginTop: "300px" });
   expect(el["__sv_created_properties"]).toEqualValues(["--animation-height", "--animation-margin-top"]);
-  expect(el.style.getPropertyValue("--animation-height")).toLooseEqual("200px");
-  expect(el.style.getPropertyValue("--animation-margin-top")).toLooseEqual("300px");
+  expect(el.style.getPropertyValue("--animation-height")).toBe("200px");
+  expect(el.style.getPropertyValue("--animation-margin-top")).toBe("300px");
   cleanHtmlElementAfterAnimation(el);
-  expect(el["__sv_created_properties"]).toLooseEqual(undefined);
-  expect(el.style.getPropertyValue("--animation-height")).toLooseEqual("");
-  expect(el.style.getPropertyValue("--animation-margin-top")).toLooseEqual("");
+  expect(el["__sv_created_properties"]).toBeUndefined();
+  expect(el.style.getPropertyValue("--animation-height")).toBe("");
+  expect(el.style.getPropertyValue("--animation-margin-top")).toBe("");
 });
 
 test("test isBase64", () => {
@@ -1074,14 +1074,14 @@ test("test getRootNode function", () => {
   const div = document.createElement("div");
   const shadowDiv = document.createElement("div");
   let res = getRootNode(div);
-  expect(res, "detached node doesn't have rootNode").toLooseEqual(null);
+  expect(res, "detached node doesn't have rootNode").toBeNull();
   document.body.appendChild(div);
   res = getRootNode(div);
-  expect(res, "document is rootNode").toLooseEqual(document);
+  expect(res, "document is rootNode").toBe(document);
   const shadowRoot = div.attachShadow({ mode: "open" });
   shadowRoot.appendChild(shadowDiv);
   res = getRootNode(shadowDiv);
-  expect(res, "shadowRoot is rootNode").toLooseEqual(shadowRoot);
+  expect(res, "shadowRoot is rootNode").toBe(shadowRoot);
   document.body.removeChild(div);
 });
 
@@ -1097,15 +1097,15 @@ test("test getActiveElement function", () => {
   document.body.appendChild(shadowDiv);
 
   let res = getActiveElement();
-  expect(res, "no active element").toLooseEqual(document.body);
+  expect(res, "no active element").toBe(document.body);
 
   input.focus();
   res = getActiveElement();
-  expect(res, "div is active element").toLooseEqual(input);
+  expect(res, "div is active element").toBe(input);
 
   shadowInput.focus();
   res = getActiveElement();
-  expect(res, "shadowDiv is active element").toLooseEqual(shadowInput);
+  expect(res, "shadowDiv is active element").toBe(shadowInput);
   document.body.removeChild(div);
   document.body.removeChild(shadowDiv);
 });
@@ -1113,26 +1113,26 @@ test("test getActiveElement function", () => {
 test("PRN generator: mulberry32", () => {
 
   let random = mulberry32(12345);
-  expect(random()).toLooseEqual(0.9797282677609473);
-  expect(random()).toLooseEqual(0.3067522644996643);
-  expect(random()).toLooseEqual(0.484205421525985);
-  expect(random()).toLooseEqual(0.817934412509203);
+  expect(random()).toBe(0.9797282677609473);
+  expect(random()).toBe(0.3067522644996643);
+  expect(random()).toBe(0.484205421525985);
+  expect(random()).toBe(0.817934412509203);
 
   random = mulberry32(123456);
-  expect(random()).toLooseEqual(0.38233304349705577);
-  expect(random()).toLooseEqual(0.7972629074938595);
-  expect(random()).toLooseEqual(0.9965302373748273);
-  expect(random()).toLooseEqual(0.16001168475486338);
+  expect(random()).toBe(0.38233304349705577);
+  expect(random()).toBe(0.7972629074938595);
+  expect(random()).toBe(0.9965302373748273);
+  expect(random()).toBe(0.16001168475486338);
 
   random = mulberry32(Number.MAX_SAFE_INTEGER);
-  expect(random()).toLooseEqual(0.8964226141106337);
-  expect(random()).toLooseEqual(0.04910933715291321);
-  expect(random()).toLooseEqual(0.09994429117068648);
-  expect(random()).toLooseEqual(0.7937536616809666);
+  expect(random()).toBe(0.8964226141106337);
+  expect(random()).toBe(0.04910933715291321);
+  expect(random()).toBe(0.09994429117068648);
+  expect(random()).toBe(0.7937536616809666);
 
   random = mulberry32(Number.MIN_SAFE_INTEGER);
-  expect(random()).toLooseEqual(0.6270739405881613);
-  expect(random()).toLooseEqual(0.002735721180215478);
-  expect(random()).toLooseEqual(0.5274470399599522);
-  expect(random()).toLooseEqual(0.9810509674716741);
+  expect(random()).toBe(0.6270739405881613);
+  expect(random()).toBe(0.002735721180215478);
+  expect(random()).toBe(0.5274470399599522);
+  expect(random()).toBe(0.9810509674716741);
 });

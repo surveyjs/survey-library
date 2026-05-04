@@ -458,33 +458,33 @@ Serializer.addClass("getpropertyvalue", [
 
 describe("JsonSerializationTests", () => {
   test("Metadata for non inherited class", () => {
-    expect(Serializer.getProperties("dealer").length, "Flat properties list").toLooseEqual(10);
-    expect(Serializer.getProperties("dealer")[0].name, "Name property").toLooseEqual("name");
+    expect(Serializer.getProperties("dealer").length, "Flat properties list").toBe(10);
+    expect(Serializer.getProperties("dealer")[0].name, "Name property").toBe("name");
   });
   test("Metadata add at the beginning parent class properties ", () => {
-    expect(Serializer.getProperties("truck").length, "2 + 1 parent properties").toLooseEqual(3);
-    expect(Serializer.getProperties("truck")[0].name, "parent properties first").toLooseEqual("name");
+    expect(Serializer.getProperties("truck").length, "2 + 1 parent properties").toBe(3);
+    expect(Serializer.getProperties("truck")[0].name, "parent properties first").toBe("name");
   });
   test("One object - one property serialization", () => {
     var dealer = new Dealer();
     dealer.name = "small";
     dealer.unserializedName = "none";
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize just one property").toLooseEqual('{"name":"small"}');
+    expect(JSON.stringify(jsObj), "serialize just one property").toBe('{"name":"small"}');
   });
   test("String array serialization", () => {
     var dealer = new Dealer();
     dealer.stringArray = ["one", "two"];
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize array").toLooseEqual('{"stringArray":["one","two"]}');
+    expect(JSON.stringify(jsObj), "serialize array").toBe('{"stringArray":["one","two"]}');
   });
   test("Use onGetValue during serialization", () => {
     var dealer = new Dealer();
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "default value of this property is not serialized").toLooseEqual("{}");
+    expect(JSON.stringify(jsObj), "default value of this property is not serialized").toBe("{}");
     dealer.defaultValue = "nondefault";
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize non default property as any other").toLooseEqual('{"defaultValue":"nondefault"}');
+    expect(JSON.stringify(jsObj), "serialize non default property as any other").toBe('{"defaultValue":"nondefault"}');
   });
   test("Serialize object with it's type", () => {
     var dealer = new Dealer();
@@ -492,7 +492,7 @@ describe("JsonSerializationTests", () => {
     truck.maxWeight = 10000;
     dealer.car = truck;
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize object with it's type").toLooseEqual('{"car":{"type":"truck","maxWeight":10000}}');
+    expect(JSON.stringify(jsObj), "serialize object with it's type").toBe('{"car":{"type":"truck","maxWeight":10000}}');
   });
   test("Serialize create readOnly custom property using onGetValue", () => {
     Serializer.addProperty("truck", {
@@ -504,19 +504,19 @@ describe("JsonSerializationTests", () => {
     });
     var truck = new Truck();
     truck.maxWeight = 100;
-    expect(truck["calc"], "100 * 2").toLooseEqual("200");
+    expect(truck["calc"], "100 * 2").toBe(200);
     Serializer.removeProperty("truck", "calc");
   });
   test("Check isRequired property", () => {
-    expect(Serializer.findProperty("sport", "maxSpeed").isRequired, "maxSpeed is required property").toLooseEqual(true);
-    expect(Serializer.findProperty("truck", "maxWeight").isRequired, "maxWeight is not required property").toLooseEqual(false);
+    expect(Serializer.findProperty("sport", "maxSpeed").isRequired, "maxSpeed is required property").toBe(true);
+    expect(Serializer.findProperty("truck", "maxWeight").isRequired, "maxWeight is not required property").toBe(false);
   });
   test("Create isRequired properties", () => {
     Serializer.addProperty("sport", "!property1");
     Serializer.addProperty("sport", { name: "property2", isRequired: true });
 
-    expect(Serializer.findProperty("sport", "property1").isRequired, "! makes property required").toLooseEqual(true);
-    expect(Serializer.findProperty("sport", "property2").isRequired, "attribute isRequired works").toLooseEqual(true);
+    expect(Serializer.findProperty("sport", "property1").isRequired, "! makes property required").toBe(true);
+    expect(Serializer.findProperty("sport", "property2").isRequired, "attribute isRequired works").toBe(true);
 
     Serializer.removeProperty("sport", "property1");
     Serializer.removeProperty("sport", "property2");
@@ -529,10 +529,10 @@ describe("JsonSerializationTests", () => {
     sport.maxSpeed = 320;
     dealer.cars = [sport, truck];
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize objects with their type").toLooseEqual('{"cars":[{"type":"sport","maxSpeed":320},{"type":"truck","maxWeight":10000}]}');
+    expect(JSON.stringify(jsObj), "serialize objects with their type").toBe('{"cars":[{"type":"sport","maxSpeed":320},{"type":"truck","maxWeight":10000}]}');
   });
   test("Serialize 0 for number ", () => {
-    expect(Helpers.isValueEmpty(0), "The value is not default").toLooseEqual(false);
+    expect(Helpers.isValueEmpty(0), "The value is not default").toBe(false);
     var sport = new SportCar();
     sport.maxSpeed = 0;
     var jsObj = new JsonObject().toJsonObject(sport);
@@ -544,7 +544,7 @@ describe("JsonSerializationTests", () => {
     dealer.truck = new Truck();
     dealer.truck.maxWeight = 10000;
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize object without it's type").toLooseEqual('{"truck":{"maxWeight":10000}}');
+    expect(JSON.stringify(jsObj), "serialize object without it's type").toBe('{"truck":{"maxWeight":10000}}');
   });
   test("Serialize arrays with serializable objects and get type by it's property", () => {
     var dealer = new Dealer();
@@ -553,13 +553,13 @@ describe("JsonSerializationTests", () => {
     dealer.trucks[0].maxWeight = 10000;
     dealer.trucks[1].maxWeight = 15000;
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "serialize objects without their type").toLooseEqual('{"trucks":[{"maxWeight":10000},{"maxWeight":15000}]}');
+    expect(JSON.stringify(jsObj), "serialize objects without their type").toBe('{"trucks":[{"maxWeight":10000},{"maxWeight":15000}]}');
   });
 
   test("One object - one property deserialization", () => {
     var dealer = new Dealer();
     new JsonObject().toObject({ name: "small" }, dealer);
-    expect(dealer.name, "deserialize just one property").toLooseEqual("small");
+    expect(dealer.name, "deserialize just one property").toBe("small");
   });
   test("String array deserialization", () => {
     var dealer = new Dealer();
@@ -573,9 +573,9 @@ describe("JsonSerializationTests", () => {
       dealer
     );
     var truck: any = dealer.car;
-    expect(truck.maxWeight, "deserialize object with it's type").toLooseEqual(10000);
-    expect(truck.getType(), "the live object").toLooseEqual("truck");
-    expect(truck.type, "type is removed").not.toLooseEqual("truck");
+    expect(truck.maxWeight, "deserialize object with it's type").toBe(10000);
+    expect(truck.getType(), "the live object").toBe("truck");
+    expect(truck.type, "type is removed").not.toBe("truck");
   });
   test("Deserialize arrays with serializable objects", () => {
     var dealer = new Dealer();
@@ -588,19 +588,19 @@ describe("JsonSerializationTests", () => {
       },
       dealer
     );
-    expect(dealer.cars.length, "two objects in array should be deserialized").toLooseEqual(2);
+    expect(dealer.cars.length, "two objects in array should be deserialized").toBe(2);
     var sport: any = dealer.cars[0];
     var truck: any = dealer.cars[1];
-    expect(sport.maxSpeed, "deserialize the first object").toLooseEqual(320);
-    expect(sport.getType(), "deserialize the first object").toLooseEqual("sport");
-    expect(truck.maxWeight, "deserialize the second object").toLooseEqual(10000);
-    expect(truck.getType(), "deserialize the second object").toLooseEqual("truck");
+    expect(sport.maxSpeed, "deserialize the first object").toBe(320);
+    expect(sport.getType(), "deserialize the first object").toBe("sport");
+    expect(truck.maxWeight, "deserialize the second object").toBe(10000);
+    expect(truck.getType(), "deserialize the second object").toBe("truck");
   });
   test("Deserialize object and get type by it's property className", () => {
     var dealer = new Dealer();
     new JsonObject().toObject({ truck: { maxWeight: 10000 } }, dealer);
-    expect(dealer.truck.maxWeight, "deserialize object with it's type").toLooseEqual(10000);
-    expect(dealer.truck.getType(), "the live object").toLooseEqual("truck");
+    expect(dealer.truck.maxWeight, "deserialize object with it's type").toBe(10000);
+    expect(dealer.truck.getType(), "the live object").toBe("truck");
   });
   test("Deserialize arrays with serializable objects and get type by it's property className", () => {
     var dealer = new Dealer();
@@ -608,16 +608,16 @@ describe("JsonSerializationTests", () => {
       { trucks: [{ maxWeight: 10000 }, { maxWeight: 15000 }] },
       dealer
     );
-    expect(dealer.trucks.length, "two objects in array should be deserialized").toLooseEqual(2);
-    expect(dealer.trucks[0].maxWeight, "deserialize the first object").toLooseEqual(10000);
-    expect(dealer.trucks[0].getType(), "deserialize the first object").toLooseEqual("truck");
-    expect(dealer.trucks[1].maxWeight, "deserialize the second object").toLooseEqual(15000);
-    expect(dealer.trucks[1].getType(), "deserialize the second object").toLooseEqual("truck");
+    expect(dealer.trucks.length, "two objects in array should be deserialized").toBe(2);
+    expect(dealer.trucks[0].maxWeight, "deserialize the first object").toBe(10000);
+    expect(dealer.trucks[0].getType(), "deserialize the first object").toBe("truck");
+    expect(dealer.trucks[1].maxWeight, "deserialize the second object").toBe(15000);
+    expect(dealer.trucks[1].getType(), "deserialize the second object").toBe("truck");
   });
   test("Use on setValue during deserialization", () => {
     var dealer = new Dealer();
     new JsonObject().toObject({ changeNameOnSet: "nameIsChanged" }, dealer);
-    expect(dealer.name, "the property name is set").toLooseEqual("nameIsChanged");
+    expect(dealer.name, "the property name is set").toBe("nameIsChanged");
   });
   test("ItemValueListOwner serialization", () => {
     var list = new ItemValueListOwner();
@@ -626,7 +626,7 @@ describe("JsonSerializationTests", () => {
     list.items.push(new ItemValue("item"));
 
     var jsObj = new JsonObject().toJsonObject(list);
-    expect(JSON.stringify(jsObj), "serialize ItemValueListOwner").toLooseEqual('{"items":[{"value":7,"text":"Item 1"},5,"item"]}');
+    expect(JSON.stringify(jsObj), "serialize ItemValueListOwner").toBe('{"items":[{"value":7,"text":"Item 1"},5,"item"]}');
   });
   test("ItemValueListOwner deserialization", () => {
     var list = new ItemValueListOwner();
@@ -634,18 +634,18 @@ describe("JsonSerializationTests", () => {
       { items: [{ value: 7, text: "Item 1" }, 5, "item", "value1|text1"] },
       list
     );
-    expect(list.items.length, "there are 4 items").toLooseEqual(4);
-    expect(list.items[1].value, "set correct value property for the second item").toLooseEqual(5);
-    expect(list.items[1].calculatedText, "set correct text property for the second item").toLooseEqual("5");
-    expect(list.items[3].value, "set correct value property for the fourth item").toLooseEqual("value1");
-    expect(list.items[3].calculatedText, "set correct text property for the fourth item").toLooseEqual("text1");
+    expect(list.items.length, "there are 4 items").toBe(4);
+    expect(list.items[1].value, "set correct value property for the second item").toBe(5);
+    expect(list.items[1].calculatedText, "set correct text property for the second item").toBe("5");
+    expect(list.items[3].value, "set correct value property for the fourth item").toBe("value1");
+    expect(list.items[3].calculatedText, "set correct text property for the fourth item").toBe("text1");
   });
   test("ItemValueListOwner deserialization with empty object, #1667", () => {
     var list = new ItemValueListOwner();
     new JsonObject().toObject({ items: [{}, 1] }, list);
-    expect(list.items.length, "there are two items").toLooseEqual(2);
-    expect(list.items[0].getType(), "the type created correct").toLooseEqual("itemvalue");
-    expect(list.items[0].value, "The value is null").toLooseEqual(null);
+    expect(list.items.length, "there are two items").toBe(2);
+    expect(list.items[0].getType(), "the type created correct").toBe("itemvalue");
+    expect(list.items[0].value, "The value is null").toBeUndefined();
   });
   test("ItemValueListOwner deserialization, custom property in ItemValue", () => {
     Serializer.addProperty("itemvalue", "price:number");
@@ -662,8 +662,8 @@ describe("JsonSerializationTests", () => {
       },
       list
     );
-    expect(list.items.length, "there are 4 items").toLooseEqual(4);
-    expect(list.items[0]["price"], "set custom value correctly").toLooseEqual(55.5);
+    expect(list.items.length, "there are 4 items").toBe(4);
+    expect(list.items[0]["price"], "set custom value correctly").toBe(55.5);
     Serializer.removeProperty("itemvalue", "price");
   });
   test("ItemValueListOwner deserialization, value as object, remove pos", () => {
@@ -677,8 +677,8 @@ describe("JsonSerializationTests", () => {
   });
   test("itemvalue.value is required and unique", () => {
     const prop = Serializer.findProperty("itemvalue", "value");
-    expect(prop.isRequired, "itemvalue.value is required").toLooseEqual(true);
-    expect(prop.isUnique, "itemvalue.value is unique").toLooseEqual(true);
+    expect(prop.isRequired, "itemvalue.value is required").toBe(true);
+    expect(prop.isUnique, "itemvalue.value is unique").toBe(true);
   });
   test("defaultValue and defaultRowValue deserialization, remove pos", () => {
     var json = {
@@ -737,11 +737,11 @@ describe("JsonSerializationTests", () => {
     const car: any = new Car();
     car.fromJSON(json);
 
-    expect(car.options.itemValue, "check itemValue").toLooseEqual("abcdef");
-    expect(car.options.pos.start, "pos1").toLooseEqual(1);
-    expect(car.options.label.pos.start, "pos2").toLooseEqual(10);
-    expect(car.optionsarray[0].pos.start, "pos3").toLooseEqual(20);
-    expect(car.optionsarray[0].label.pos.start, "pos4").toLooseEqual(30);
+    expect(car.options.itemValue, "check itemValue").toBe("abcdef");
+    expect(car.options.pos.start, "pos1").toBe(1);
+    expect(car.options.label.pos.start, "pos2").toBe(10);
+    expect(car.optionsarray[0].pos.start, "pos3").toBe(20);
+    expect(car.optionsarray[0].label.pos.start, "pos4").toBe(30);
 
     const car_json = car.toJSON();
     expect(car_json.options["pos"], "no pos1").toBeFalsy();
@@ -807,7 +807,7 @@ describe("JsonSerializationTests", () => {
     owner.items.push(l1);
     owner.items.push(l2);
     var jsObj = new JsonObject().toJsonObject(owner);
-    expect(JSON.stringify(jsObj), "serialize LongNamesOwner").toLooseEqual('{"items":[{"type":"itemA","A":5},{"type":"itemB","B":15}]}');
+    expect(JSON.stringify(jsObj), "serialize LongNamesOwner").toBe('{"items":[{"type":"itemA","A":5},{"type":"itemB","B":15}]}');
   });
   test("ItemValueListOwner deserialization", () => {
     var owner = new LongNamesOwner();
@@ -820,9 +820,9 @@ describe("JsonSerializationTests", () => {
       },
       owner
     );
-    expect(owner.items.length, "there are 2 items").toLooseEqual(2);
-    expect(owner.items[0].getType(), "the first object is live").toLooseEqual("itemA_thelongpart");
-    expect(owner.items[1].getType(), "the second object is live").toLooseEqual("itemB_thelongpart");
+    expect(owner.items.length, "there are 2 items").toBe(2);
+    expect(owner.items[0].getType(), "the first object is live").toBe("itemA_thelongpart");
+    expect(owner.items[1].getType(), "the second object is live").toBe("itemB_thelongpart");
   });
   test("Do not change Json", () => {
     var json = {
@@ -834,7 +834,7 @@ describe("JsonSerializationTests", () => {
     var jsonText = JSON.stringify(json);
     var owner = new LongNamesOwner();
     new JsonObject().toObject(json, owner);
-    expect(JSON.stringify(json), "Json object should be the same after deserialization").toLooseEqual(jsonText);
+    expect(JSON.stringify(json), "Json object should be the same after deserialization").toBe(jsonText);
   });
 
   test("Unknown property error on deserialization", () => {
@@ -850,17 +850,17 @@ describe("JsonSerializationTests", () => {
       },
       owner
     );
-    expect(jsonObj.errors.length, "it has two errors").toLooseEqual(2);
+    expect(jsonObj.errors.length, "it has two errors").toBe(2);
     const error1 = <JsonUnknownPropertyError>jsonObj.errors[0];
-    expect(error1.propertyName, "the property Name in the first error").toLooseEqual("unknown1");
-    expect(error1.element.getType(), "element is set correctly in first error").toLooseEqual("LongNamesOwner");
+    expect(error1.propertyName, "the property Name in the first error").toBe("unknown1");
+    expect(error1.element.getType(), "element is set correctly in first error").toBe("LongNamesOwner");
     expect(error1.jsonObj, "jsonObj is here").toBeTruthy();
-    expect(error1.className, "the class Name in the first error").toLooseEqual("LongNamesOwner");
+    expect(error1.className, "the class Name in the first error").toBe("LongNamesOwner");
     const error2 = <JsonUnknownPropertyError>jsonObj.errors[1];
-    expect(error2.propertyName, "the property Name in the second error").toLooseEqual("unknown2");
-    expect(error2.className, "the class Name in the second error").toLooseEqual("itemB_thelongpart");
-    expect(error2.element.getType(), "the element property in the second error").toLooseEqual("itemB_thelongpart");
-    expect(error2.jsonObj["B"], "jsonObj is correct").toLooseEqual(15);
+    expect(error2.propertyName, "the property Name in the second error").toBe("unknown2");
+    expect(error2.className, "the class Name in the second error").toBe("itemB_thelongpart");
+    expect(error2.element.getType(), "the element property in the second error").toBe("itemB_thelongpart");
+    expect(error2.jsonObj["B"], "jsonObj is correct").toBe(15);
   });
   test("Having 'pos' property for objects with errors", () => {
     var owner = new LongNamesOwner();
@@ -881,13 +881,13 @@ describe("JsonSerializationTests", () => {
       },
       owner
     );
-    expect(jsonObj.errors.length, "it should be two errors").toLooseEqual(2);
+    expect(jsonObj.errors.length, "it should be two errors").toBe(2);
     const error1 = jsonObj.errors[0];
     const error2 = jsonObj.errors[1];
-    expect(error1.at).toLooseEqual(20);
-    expect(error1.end).toLooseEqual(29);
-    expect(error2.at).toLooseEqual(41);
-    expect(error2.end).toLooseEqual(50);
+    expect(error1.at).toBe(20);
+    expect(error1.end).toBe(29);
+    expect(error2.at).toBe(41);
+    expect(error2.end).toBe(50);
   });
   test("Do not remove 'pos' property from objects", () => {
     var dealer = new Dealer();
@@ -903,7 +903,7 @@ describe("JsonSerializationTests", () => {
       dealer
     );
     var truck = <Truck>dealer.cars[0];
-    expect(truck["pos"].start, "deserialize the second object").toLooseEqual(20);
+    expect(truck["pos"].start, "deserialize the second object").toBe(20);
   });
   test("Deserialize arrays with missing type property", () => {
     var dealer = new Dealer();
@@ -912,12 +912,12 @@ describe("JsonSerializationTests", () => {
       { cars: [{ maxSpeed: 320 }, { type: "truck", maxWeight: 10000 }] },
       dealer
     );
-    expect(dealer.cars.length, "can only one object deserialized").toLooseEqual(1);
+    expect(dealer.cars.length, "can only one object deserialized").toBe(1);
     var truck = <Truck>dealer.cars[0];
-    expect(truck.maxWeight, "deserialize the second object").toLooseEqual(10000);
-    expect(truck.getType(), "deserialize the second object").toLooseEqual("truck");
-    expect(jsonObj.errors.length, "there should be one error").toLooseEqual(1);
-    expect(jsonObj.errors[0].type, "The missing type property error").toLooseEqual("missingtypeproperty");
+    expect(truck.maxWeight, "deserialize the second object").toBe(10000);
+    expect(truck.getType(), "deserialize the second object").toBe("truck");
+    expect(jsonObj.errors.length, "there should be one error").toBe(1);
+    expect(jsonObj.errors[0].type, "The missing type property error").toBe("missingtypeproperty");
   });
   test("Deserialize arrays with incorrect type property", () => {
     var dealer = new Dealer();
@@ -931,72 +931,72 @@ describe("JsonSerializationTests", () => {
       },
       dealer
     );
-    expect(dealer.cars.length, "can only one object deserialized").toLooseEqual(1);
+    expect(dealer.cars.length, "can only one object deserialized").toBe(1);
     var truck = <Truck>dealer.cars[0];
-    expect(truck.maxWeight, "deserialize the second object").toLooseEqual(10000);
-    expect(truck.getType(), "deserialize the second object").toLooseEqual("truck");
-    expect(jsonObj.errors.length, "there should be one error").toLooseEqual(1);
-    expect(jsonObj.errors[0].type, "The incorrect type property error").toLooseEqual("incorrecttypeproperty");
+    expect(truck.maxWeight, "deserialize the second object").toBe(10000);
+    expect(truck.getType(), "deserialize the second object").toBe("truck");
+    expect(jsonObj.errors.length, "there should be one error").toBe(1);
+    expect(jsonObj.errors[0].type, "The incorrect type property error").toBe("incorrecttypeproperty");
   });
   test("Deserialization - required property error", () => {
     Serializer.addProperty("truck", { name: "req:number", default: 0, isRequired: true });
     const car = new Truck();
     var jsonObj = new JsonObject();
     jsonObj.toObject({ maxWeight: 5000 }, car);
-    expect(car.maxWeight, "Property is deserialized").toLooseEqual(5000);
-    expect(jsonObj.errors.length, "req property is required, but it has a default value").toLooseEqual(0);
+    expect(car.maxWeight, "Property is deserialized").toBe(5000);
+    expect(jsonObj.errors.length, "req property is required, but it has a default value").toBe(0);
     Serializer.removeProperty("truck", "req");
   });
   test("Deserialization - required property with default value should not produce error", () => {
     var dealer = new Dealer();
     var jsonObj = new JsonObject();
     jsonObj.toObject({ cars: [{ type: "sport" }] }, dealer);
-    expect(dealer.cars.length, "One object is deserialized").toLooseEqual(1);
-    expect(jsonObj.errors.length, "there should be one error about required property").toLooseEqual(1);
+    expect(dealer.cars.length, "One object is deserialized").toBe(1);
+    expect(jsonObj.errors.length, "there should be one error about required property").toBe(1);
     let error1 = <JsonRequiredPropertyError>jsonObj.errors[0];
-    expect(error1.type, "The required property error, #1").toLooseEqual("requiredproperty");
-    expect(error1.propertyName, "propertyName is set, #1").toLooseEqual("maxSpeed");
-    expect(error1.element.getType(), "element is set into error, #1").toLooseEqual("sport");
+    expect(error1.type, "The required property error, #1").toBe("requiredproperty");
+    expect(error1.propertyName, "propertyName is set, #1").toBe("maxSpeed");
+    expect(error1.element.getType(), "element is set into error, #1").toBe("sport");
 
     Serializer.addProperty("dealer", "!foo");
     jsonObj = new JsonObject();
     jsonObj.toObject({}, dealer);
-    expect(jsonObj.errors.length, "dealer: there should be one error about required property").toLooseEqual(1);
+    expect(jsonObj.errors.length, "dealer: there should be one error about required property").toBe(1);
     error1 = <JsonRequiredPropertyError>jsonObj.errors[0];
-    expect(error1.type, "dealer: The required property error, #2").toLooseEqual("requiredproperty");
-    expect(error1.propertyName, "property name is set, #2").toLooseEqual("foo");
-    expect(error1.element.getType(), "element is set into error, #2").toLooseEqual("dealer");
-    expect(error1.message.indexOf("foo") > -1, "dealer: show that 'foo' is missing:" + error1.message).toLooseEqual(true);
+    expect(error1.type, "dealer: The required property error, #2").toBe("requiredproperty");
+    expect(error1.propertyName, "property name is set, #2").toBe("foo");
+    expect(error1.element.getType(), "element is set into error, #2").toBe("dealer");
+    expect(error1.message.indexOf("foo") > -1, "dealer: show that 'foo' is missing:" + error1.message).toBe(true);
     Serializer.removeProperty("dealer", "foo");
   });
   test("Deserialization - required property error", () => {
     var children = Serializer.getChildrenClasses("car");
-    expect(children.length, "There are 5 children classes").toLooseEqual(5);
+    expect(children.length, "There are 5 children classes").toBe(5);
     children = Serializer.getChildrenClasses("car", true);
-    expect(children.length, "There are 3 children classes that can be created.").toLooseEqual(3);
+    expect(children.length, "There are 3 children classes that can be created.").toBe(3);
   });
   test("Property Type test", () => {
     var properties = Serializer.getProperties("truck");
-    expect(properties[0].name, "It is a 'name' property").toLooseEqual("name");
-    expect(properties[0].type, "Name property is string").toLooseEqual("string");
-    expect(properties[1].name, "It is a 'maxWeight' property").toLooseEqual("maxWeight");
-    expect(properties[1].type, "maxWeight property is number").toLooseEqual("number");
+    expect(properties[0].name, "It is a 'name' property").toBe("name");
+    expect(properties[0].type, "Name property is string").toBe("string");
+    expect(properties[1].name, "It is a 'maxWeight' property").toBe("maxWeight");
+    expect(properties[1].type, "maxWeight property is number").toBe("number");
   });
   test("Property Choices test", () => {
     var properties = Serializer.getProperties("truck");
-    expect(properties[0].name, "It is a 'name' property").toLooseEqual("name");
-    expect(properties[0].type, "Name property is string").toLooseEqual("string");
-    expect(properties[1].name, "It is a 'maxWeight' property").toLooseEqual("maxWeight");
-    expect(properties[1].type, "maxWeight property is number").toLooseEqual("number");
+    expect(properties[0].name, "It is a 'name' property").toBe("name");
+    expect(properties[0].type, "Name property is string").toBe("string");
+    expect(properties[1].name, "It is a 'maxWeight' property").toBe("maxWeight");
+    expect(properties[1].type, "maxWeight property is number").toBe("number");
   });
   test("Property Choices test", () => {
     var properties = Serializer.getProperties("sport");
-    expect(properties[1].name, "It is a 'maxSpeed' property").toLooseEqual("maxSpeed");
+    expect(properties[1].name, "It is a 'maxSpeed' property").toBe("maxSpeed");
     expect(properties[1].choices, "'maxSpeed' property choices").toEqualValues([100, 150, 200, 250]);
   });
   test("Property Choices func test", () => {
     var properties = Serializer.getProperties("truck");
-    expect(properties[1].name, "It is a 'maxWeight' property").toLooseEqual("maxWeight");
+    expect(properties[1].name, "It is a 'maxWeight' property").toBe("maxWeight");
     expect(properties[1].choices, "'maxWeight' property choices").toEqualValues([500, 1500]);
   });
   test("Property set choices test", () => {
@@ -1019,9 +1019,9 @@ describe("JsonSerializationTests", () => {
       { items: [{ type: "shouldnotcreate", A: 320 }], obj: { A: 200 } },
       container
     );
-    expect(container.items.length, "one object is added").toLooseEqual(1);
-    expect(container.items[0].getType(), "created the right class in array").toLooseEqual("shouldcreate");
-    expect(container.obj.getType(), "created the right class in property").toLooseEqual("shouldcreate");
+    expect(container.items.length, "one object is added").toBe(1);
+    expect(container.items[0].getType(), "created the right class in array").toBe("shouldcreate");
+    expect(container.obj.getType(), "created the right class in property").toBe("shouldcreate");
   });
 
   test("Optionally do not save all properties", () => {
@@ -1043,11 +1043,11 @@ describe("JsonSerializationTests", () => {
     sport.maxSpeed = 320;
     dealer.cars = [sport, truck];
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(jsObj.cars).not.toLooseEqual(dealer.cars);
-    expect(jsObj.cars[0]).not.toLooseEqual(dealer.cars[0]);
+    expect(jsObj.cars).not.toBe(dealer.cars);
+    expect(jsObj.cars[0]).not.toBe(dealer.cars[0]);
     dealer.cars.push(sport);
-    expect(dealer.cars.length).toLooseEqual(3);
-    expect(jsObj.cars.length).toLooseEqual(2);
+    expect(dealer.cars.length).toBe(3);
+    expect(jsObj.cars.length).toBe(2);
   });
 
   test("Add new property to object", () => {
@@ -1058,47 +1058,47 @@ describe("JsonSerializationTests", () => {
       { truck: { isUsed: true, maxWeight: 10000 } },
       dealer
     );
-    expect(dealer.truck["isUsed"], "new property is here").toLooseEqual(true);
-    expect(propertiesCount + 1, "there is on one property more").toLooseEqual(Serializer.getProperties("truck").length);
+    expect(dealer.truck["isUsed"], "new property is here").toBe(true);
+    expect(propertiesCount + 1, "there is on one property more").toBe(Serializer.getProperties("truck").length);
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "property is serialized").toLooseEqual('{"truck":{"isUsed":true,"maxWeight":10000}}');
+    expect(JSON.stringify(jsObj), "property is serialized").toBe('{"truck":{"isUsed":true,"maxWeight":10000}}');
     Serializer.removeProperty("car", "isUsed");
-    expect(propertiesCount, "the additional property is removed").toLooseEqual(Serializer.getProperties("truck").length);
+    expect(propertiesCount, "the additional property is removed").toBe(Serializer.getProperties("truck").length);
   });
 
   test("Add property into alternative name of class", () => {
     Serializer.addAlterNativeClassName("truck", "trick");
-    expect(Serializer.findClass("trick").name, "Find class by alternative name").toLooseEqual("truck");
+    expect(Serializer.findClass("trick").name, "Find class by alternative name").toBe("truck");
     var propertiesCount = Serializer.getProperties("truck").length;
     Serializer.addProperty("trick", "isUsed:boolean");
-    expect(propertiesCount + 1, "there is on one property more").toLooseEqual(Serializer.getProperties("truck").length);
-    expect(propertiesCount + 1, "alternative name returns correct properties as well").toLooseEqual(Serializer.getProperties("trick").length);
+    expect(propertiesCount + 1, "there is on one property more").toBe(Serializer.getProperties("truck").length);
+    expect(propertiesCount + 1, "alternative name returns correct properties as well").toBe(Serializer.getProperties("trick").length);
     var dealer = new Dealer();
     new JsonObject().toObject(
       { truck: { isUsed: true, maxWeight: 10000 } },
       dealer
     );
-    expect(dealer.truck["isUsed"], "new property is here").toLooseEqual(true);
+    expect(dealer.truck["isUsed"], "new property is here").toBe(true);
     var jsObj = new JsonObject().toJsonObject(dealer);
     expect(jsObj, "property is serialized").toEqualValues({ truck: { isUsed: true, maxWeight: 10000 } });
     Serializer.removeProperty("trick", "isUsed");
-    expect(propertiesCount, "the additional property is removed").toLooseEqual(Serializer.getProperties("truck").length);
+    expect(propertiesCount, "the additional property is removed").toBe(Serializer.getProperties("truck").length);
   });
 
   test("Add a new number property with default value", () => {
     Serializer.addProperty("car", { name: "tag:number", default: 1 });
     var dealer = new Dealer();
     new JsonObject().toObject({ truck: { tag: 10, maxWeight: 10000 } }, dealer);
-    expect(dealer.truck["tag"], "new property is here").toLooseEqual(10);
+    expect(dealer.truck["tag"], "new property is here").toBe(10);
     var jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "property is serialized").toLooseEqual('{"truck":{"tag":10,"maxWeight":10000}}');
+    expect(JSON.stringify(jsObj), "property is serialized").toBe('{"truck":{"tag":10,"maxWeight":10000}}');
     dealer.truck["tag"] = 1;
     jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "property is serialized").toLooseEqual('{"truck":{"maxWeight":10000}}');
+    expect(JSON.stringify(jsObj), "property is serialized").toBe('{"truck":{"maxWeight":10000}}');
 
     new JsonObject().toObject({ truck: { maxWeight: 10000 } }, dealer);
     jsObj = new JsonObject().toJsonObject(dealer);
-    expect(JSON.stringify(jsObj), "property is serialized").toLooseEqual('{"truck":{"maxWeight":10000}}');
+    expect(JSON.stringify(jsObj), "property is serialized").toBe('{"truck":{"maxWeight":10000}}');
 
     Serializer.removeProperty("car", "tag");
   });
@@ -1113,10 +1113,10 @@ describe("JsonSerializationTests", () => {
       default: true,
     });
     var car = new Truck();
-    expect(car["isNew"], "New boolean property is added with correct default value").toLooseEqual(true);
+    expect(car["isNew"], "New boolean property is added with correct default value").toBe(true);
 
     var item = new ItemValue(1);
-    expect(item["isNew"], "New boolean property is added with correct default value into itemvalue").toLooseEqual(true);
+    expect(item["isNew"], "New boolean property is added with correct default value into itemvalue").toBe(true);
 
     Serializer.removeProperty("itemvalue", "isNew");
     Serializer.removeProperty("car", "isNew");
@@ -1132,15 +1132,15 @@ describe("JsonSerializationTests", () => {
 
   test("Get property and readonly", () => {
     var property = Serializer.findProperty("truck", "name");
-    expect(property.readOnly, "readOnly is false by default").toLooseEqual(false);
+    expect(property.readOnly, "readOnly is false by default").toBe(false);
     property.readOnly = true;
     var property2 = Serializer.findProperty("truck", "name");
-    expect(property2.readOnly, "readOnly is true now").toLooseEqual(true);
+    expect(property2.readOnly, "readOnly is true now").toBe(true);
   });
 
   test("Set readOnly by default", () => {
     var property = Serializer.findProperty("truck", "readOnlyName");
-    expect(property.readOnly, "readOnly is true by default").toLooseEqual(true);
+    expect(property.readOnly, "readOnly is true by default").toBe(true);
   });
 
   test("Add alternative/misspelled property support, https://github.com/surveyjs/surveyjs/issues/280", () => {
@@ -1157,12 +1157,12 @@ describe("JsonSerializationTests", () => {
       dealer
     );
     var truck: any = dealer.cars[1];
-    expect(truck.maxWeight, "deserialize the second object").toLooseEqual(10000);
+    expect(truck.maxWeight, "deserialize the second object").toBe(10000);
   });
 
   test("Check if visible is set", () => {
-    expect(Serializer.findProperty("dealer", "name").visible, "By default the property is visible").toLooseEqual(true);
-    expect(Serializer.findProperty("dealer", "cars").visible, "Cars is invisible").toLooseEqual(false);
+    expect(Serializer.findProperty("dealer", "name").visible, "By default the property is visible").toBe(true);
+    expect(Serializer.findProperty("dealer", "cars").visible, "Cars is invisible").toBe(false);
   });
 
   test("Test getPropertyValue and isLocalizable", () => {
@@ -1176,16 +1176,16 @@ describe("JsonSerializationTests", () => {
     obj.locPropertyGetter.text = "loc_yes";
 
     var property = Serializer.findProperty(obj.getType(), "directProp");
-    expect(property.getPropertyValue(obj), "dirProperty works correctly").toLooseEqual("dirValue");
+    expect(property.getPropertyValue(obj), "dirProperty works correctly").toBe("dirValue");
 
     property = Serializer.findProperty(obj.getType(), "getValueProp");
-    expect(property.getPropertyValue(obj), "getValueProp works correctly").toLooseEqual("getValue_yes");
+    expect(property.getPropertyValue(obj), "getValueProp works correctly").toBe("getValue_yes");
 
     property = Serializer.findProperty(obj.getType(), "serProperty");
     expect(property.getPropertyValue(obj), "getValueProp works correctly").toEqualValues({ text: "serProperty_yes" });
 
     property = Serializer.findProperty(obj.getType(), "locProperty");
-    expect(property.getPropertyValue(obj), "getValueProp works correctly").toLooseEqual("loc_yes");
+    expect(property.getPropertyValue(obj), "getValueProp works correctly").toBe("loc_yes");
   });
   test("Deserialize number and boolean correctly, bug #439", () => {
     Serializer.addProperty("car", "isUsed:boolean");
@@ -1194,12 +1194,12 @@ describe("JsonSerializationTests", () => {
       { type: "truck", maxWeight: "10", isUsed: "false" },
       truck
     );
-    expect(truck.maxWeight, "deserialize property as number").toLooseEqual(10);
+    expect(truck.maxWeight, "deserialize property as number").toBe(10);
     truck.maxWeight += 1;
-    expect(truck.maxWeight, "it should becomes 11 now").toLooseEqual(11);
-    expect(truck["isUsed"], "deserialize property as boolean").toLooseEqual(false);
+    expect(truck.maxWeight, "it should becomes 11 now").toBe(11);
+    expect(truck["isUsed"], "deserialize property as boolean").toBe(false);
     truck["isUsed"] = !truck["isUsed"];
-    expect(truck["isUsed"], "it should become true").toLooseEqual(true);
+    expect(truck["isUsed"], "it should become true").toBe(true);
     Serializer.removeProperty("car", "isUsed");
   });
 
@@ -1209,18 +1209,18 @@ describe("JsonSerializationTests", () => {
       { name: "obj", items: [{ name: "item1" }, { name: "item2" }] },
       obj
     );
-    expect(obj.name).toLooseEqual("obj");
-    expect(obj.items.length).toLooseEqual(2);
-    expect(obj.items[1].name).toLooseEqual("item2");
-    expect(obj.startLoadingFromJsonCounter, "obj: startLoadingFromJson was called one time").toLooseEqual(1);
-    expect(obj.endLoadingFromJsonCounter, "obj: endLoadingFromJson was called one time").toLooseEqual(1);
-    expect(obj.items[1].startLoadingFromJsonCounter, "item1: startLoadingFromJson was called one time").toLooseEqual(1);
-    expect(obj.items[1].endLoadingFromJsonCounter, "item1: endLoadingFromJson was called one time").toLooseEqual(1);
+    expect(obj.name).toBe("obj");
+    expect(obj.items.length).toBe(2);
+    expect(obj.items[1].name).toBe("item2");
+    expect(obj.startLoadingFromJsonCounter, "obj: startLoadingFromJson was called one time").toBe(1);
+    expect(obj.endLoadingFromJsonCounter, "obj: endLoadingFromJson was called one time").toBe(1);
+    expect(obj.items[1].startLoadingFromJsonCounter, "item1: startLoadingFromJson was called one time").toBe(1);
+    expect(obj.items[1].endLoadingFromJsonCounter, "item1: endLoadingFromJson was called one time").toBe(1);
   });
 
   test("Override type property in a successor class", () => {
     var property = Serializer.findProperty("fast", "name");
-    expect(property.type, "The default type").toLooseEqual("string");
+    expect(property.type, "The default type").toBe("string");
     function findProperty() {
       property = null;
       var properties = Serializer.getProperties("fast");
@@ -1232,14 +1232,14 @@ describe("JsonSerializationTests", () => {
       }
     }
     findProperty();
-    expect(property.type, "The default type").toLooseEqual("string");
+    expect(property.type, "The default type").toBe("string");
     Serializer.addProperty("fast", "name:text");
     property = Serializer.findProperty("fast", "name");
-    expect(property.type, "The type is text for fast car").toLooseEqual("text");
+    expect(property.type, "The type is text for fast car").toBe("text");
     property = Serializer.findProperty("car", "name");
-    expect(property.type, "The type is string for car").toLooseEqual("string");
+    expect(property.type, "The type is string for car").toBe("string");
     findProperty();
-    expect(property.type, "The type is text for fast car, getProperties").toLooseEqual("text");
+    expect(property.type, "The type is text for fast car, getProperties").toBe("text");
   });
 
   test("Set default value to the custom property", () => {
@@ -1249,8 +1249,8 @@ describe("JsonSerializationTests", () => {
     });
     Serializer.addProperty("car", { name: "tag:number", default: 0 });
     var truck = new Truck();
-    expect(truck["isUsed"], "the default boolean value is set").toLooseEqual(true);
-    expect(truck["tag"], "the default numeric value is set").toLooseEqual(0);
+    expect(truck["isUsed"], "the default boolean value is set").toBe(true);
+    expect(truck["tag"], "the default numeric value is set").toBe(0);
     Serializer.removeProperty("car", "isUsed");
     Serializer.removeProperty("car", "tag");
   });
@@ -1260,19 +1260,19 @@ describe("JsonSerializationTests", () => {
       isLocalizable: true,
     });
     var property = Serializer.findProperty("car", "myLocalizableProp");
-    expect(property.serializationProperty, "set correct serializationProperty").toLooseEqual("locMyLocalizableProp");
+    expect(property.serializationProperty, "set correct serializationProperty").toBe("locMyLocalizableProp");
     var truck = new Truck();
     expect(truck["myLocalizableProp"], "It is empty").toBeFalsy();
     expect(property.getPropertyValue(truck), "It is empty, via property").toBeFalsy();
 
     truck["myLocalizableProp"] = "default_Text";
-    expect(property.getPropertyValue(truck), "get value via property").toLooseEqual("default_Text");
-    expect(truck["myLocalizableProp"], "The default text is here").toLooseEqual("default_Text");
+    expect(property.getPropertyValue(truck), "get value via property").toBe("default_Text");
+    expect(truck["myLocalizableProp"], "The default text is here").toBe("default_Text");
     truck.locale = "de";
     truck["myLocalizableProp"] = "de_Text";
-    expect(truck["myLocalizableProp"], "The 'de' text is here").toLooseEqual("de_Text");
+    expect(truck["myLocalizableProp"], "The 'de' text is here").toBe("de_Text");
     truck.locale = "en";
-    expect(truck["myLocalizableProp"], "Use default value again").toLooseEqual("default_Text");
+    expect(truck["myLocalizableProp"], "Use default value again").toBe("default_Text");
     expect(new JsonObject().toJsonObject(truck), "Serialized correctly").toEqualValues({ myLocalizableProp: { default: "default_Text", de: "de_Text" } });
 
     Serializer.removeProperty("car", "myLocalizableProp");
@@ -1292,16 +1292,16 @@ describe("JsonSerializationTests", () => {
 
     //property.setValue(itemValue, "default_Text", null);
     itemValue["myLocalizableProp"] = "default_Text";
-    expect(property.getPropertyValue(itemValue), "get value via property").toLooseEqual("default_Text");
-    expect(itemValue["myLocalizableProp"], "The default text is here").toLooseEqual("default_Text");
+    expect(property.getPropertyValue(itemValue), "get value via property").toBe("default_Text");
+    expect(itemValue["myLocalizableProp"], "The default text is here").toBe("default_Text");
     car.locale = "de";
     //property.setValue(itemValue, "de_Text", null);
     itemValue["myLocalizableProp"] = "de_Text";
-    expect(property.getPropertyValue(itemValue), "The 'de' text is here, via property").toLooseEqual("de_Text");
-    expect(itemValue["myLocalizableProp"], "The 'de' text is here").toLooseEqual("de_Text");
+    expect(property.getPropertyValue(itemValue), "The 'de' text is here, via property").toBe("de_Text");
+    expect(itemValue["myLocalizableProp"], "The 'de' text is here").toBe("de_Text");
     car.locale = "en";
-    expect(itemValue["myLocalizableProp"], "Use default value again").toLooseEqual("default_Text");
-    expect(property.getPropertyValue(itemValue), "Use default value again via property").toLooseEqual("default_Text");
+    expect(itemValue["myLocalizableProp"], "Use default value again").toBe("default_Text");
+    expect(property.getPropertyValue(itemValue), "Use default value again via property").toBe("default_Text");
 
     Serializer.removeProperty("itemvalue", "myLocalizableProp");
   });
@@ -1317,20 +1317,20 @@ describe("JsonSerializationTests", () => {
       },
       dealer
     );
-    expect(dealer.cars.length, "can only one object deserialized").toLooseEqual(1);
+    expect(dealer.cars.length, "can only one object deserialized").toBe(1);
     var truck = <Truck>dealer.cars[0];
-    expect(truck.maxWeight, "maxWeight is deserialized").toLooseEqual(10000);
-    expect(truck["description"], "added property is deserialized").toLooseEqual("some text");
-    expect(truck["isCustom"], "added property created if it is default").toLooseEqual(true);
-    expect(truck.getType(), "type is customtruck").toLooseEqual("customtruck");
-    expect(truck.getTemplate(), "template is truck").toLooseEqual("truck");
+    expect(truck.maxWeight, "maxWeight is deserialized").toBe(10000);
+    expect(truck["description"], "added property is deserialized").toBe("some text");
+    expect(truck["isCustom"], "added property created if it is default").toBe(true);
+    expect(truck.getType(), "type is customtruck").toBe("customtruck");
+    expect(truck.getTemplate(), "template is truck").toBe("truck");
   });
 
   test("Custom class - do not serialize invisible properties with default value", () => {
     var dealer = <Dealer>Serializer.createClass("customdealer");
     expect(dealer, "The object is created").toBeTruthy();
-    expect(dealer.getType(), "type is customdealer").toLooseEqual("customdealer");
-    expect(dealer.getTemplate(), "template is dealer").toLooseEqual("dealer");
+    expect(dealer.getType(), "type is customdealer").toBe("customdealer");
+    expect(dealer.getTemplate(), "template is dealer").toBe("dealer");
     dealer.name = "mydealer";
     var jsonObj = new JsonObject();
     var json = jsonObj.toJsonObject(dealer);
@@ -1345,17 +1345,17 @@ describe("JsonSerializationTests", () => {
   test("Generate properties on the fly", () => {
     var carOwner = <CarOwner>Serializer.createClass("carowner");
     expect(carOwner, "The object is created").toBeTruthy();
-    expect(carOwner.getType(), "type is carowner").toLooseEqual("carowner");
-    expect(carOwner.carType, "the default value is fast").toLooseEqual("fast");
-    expect(carOwner.car.getType(), "the car is fast car").toLooseEqual("fast");
+    expect(carOwner.getType(), "type is carowner").toBe("carowner");
+    expect(carOwner.carType, "the default value is fast").toBe("fast");
+    expect(carOwner.car.getType(), "the car is fast car").toBe("fast");
     carOwner.carType = "truck";
-    expect(carOwner.carType, "the default value is truck").toLooseEqual("truck");
-    expect(carOwner.car.getType(), "the car is fast truck").toLooseEqual("truck");
+    expect(carOwner.carType, "the default value is truck").toBe("truck");
+    expect(carOwner.car.getType(), "the car is fast truck").toBe("truck");
     carOwner["maxWeight"] = 100;
-    expect(carOwner.car["maxWeight"], "The property has been added correctly").toLooseEqual(100);
+    expect(carOwner.car["maxWeight"], "The property has been added correctly").toBe(100);
     carOwner.carType = "fast";
-    expect(carOwner.car["maxWeight"], "The property doesn't equal 100").not.toLooseEqual(100);
-    expect(carOwner["maxWeight"], "The property doesn't exist").toLooseEqual(undefined);
+    expect(carOwner.car["maxWeight"], "The property doesn't equal 100").not.toBe(100);
+    expect(carOwner["maxWeight"], "The property doesn't exist").toBeUndefined();
   });
 
   test("Serialize/deserialize dynamic properties", () => {
@@ -1368,17 +1368,17 @@ describe("JsonSerializationTests", () => {
     expect(new JsonObject().toJsonObject(carOwner), "There is no additional properties").toEqualValues({});
     carOwner = new CarOwner();
     new JsonObject().toObject({ carType: "truck", maxWeight: 200 }, carOwner);
-    expect(carOwner.carType, "the car type was created correctly").toLooseEqual("truck");
-    expect(carOwner["maxWeight"], "The dynamic property loaded correctly").toLooseEqual(200);
-    expect(carOwner.car["maxWeight"], "The dynamic property set correctly").toLooseEqual(200);
+    expect(carOwner.carType, "the car type was created correctly").toBe("truck");
+    expect(carOwner["maxWeight"], "The dynamic property loaded correctly").toBe(200);
+    expect(carOwner.car["maxWeight"], "The dynamic property set correctly").toBe(200);
   });
 
   test("Add property into questionbase", () => {
     Serializer.addProperty("questionbase", "custom");
     var question = new Question("q1");
     new JsonObject().toObject({ name: "q2", custom: "customValue1" }, question);
-    expect(question.name, "name serialzied successful").toLooseEqual("q2");
-    expect(question["custom"], "custom serialzied successful").toLooseEqual("customValue1");
+    expect(question.name, "name serialzied successful").toBe("q2");
+    expect(question["custom"], "custom serialzied successful").toBe("customValue1");
     Serializer.removeProperty("questionbase", "custom");
   });
 
@@ -1390,7 +1390,7 @@ describe("JsonSerializationTests", () => {
     var question = new Question("q1");
 
     var property = Serializer.findProperty("questionbase", "customItems");
-    expect(property.type, "Property should have correct type").toLooseEqual("textitem[]");
+    expect(property.type, "Property should have correct type").toBe("textitem[]");
 
     Serializer.removeProperty("questionbase", "customItems");
   });
@@ -1400,16 +1400,16 @@ describe("JsonSerializationTests", () => {
     var question = new Question("q1");
 
     var property = Serializer.findProperty("questionbase", "customArray");
-    expect(property.type, "Property should have correct type").toLooseEqual("itemvalue[]");
-    expect(property.className, "Property should have correct className").toLooseEqual("itemvalue");
+    expect(property.type, "Property should have correct type").toBe("itemvalue[]");
+    expect(property.className, "Property should have correct className").toBe("itemvalue");
 
-    expect(question["customArray"].length, "customArray deserialzied successful").toLooseEqual(0);
+    expect(question["customArray"].length, "customArray deserialzied successful").toBe(0);
     new JsonObject().toObject(
       { name: "q2", custom: "customValue1", customArray: [1, 2, 3, 4] },
       question
     );
-    expect(question["customArray"].length, "customArray deserialzied successful").toLooseEqual(4);
-    expect(question["customArray"][0].value, "customArray content deserialzied successful").toLooseEqual(1);
+    expect(question["customArray"].length, "customArray deserialzied successful").toBe(4);
+    expect(question["customArray"][0].value, "customArray content deserialzied successful").toBe(1);
 
     var json = new JsonObject().toJsonObject(question);
     expect(json.customArray, "customArray serialzied successful").toEqualValues([1, 2, 3, 4]);
@@ -1421,7 +1421,7 @@ describe("JsonSerializationTests", () => {
       default: [1, 3, 5],
     });
     question = new Question("q2");
-    expect(question["customArray"].length, "defaultValue loaded successful").toLooseEqual(3);
+    expect(question["customArray"].length, "defaultValue loaded successful").toBe(3);
     Serializer.removeProperty("questionbase", "customArray");
   });
 
@@ -1432,9 +1432,9 @@ describe("JsonSerializationTests", () => {
     q1.readOnly = false;
     var json = new JsonObject().toJsonObject(q1, true);
 
-    expect(json["readOnly"], "default value for readOnly property has been serialzied successfully").toLooseEqual(false);
+    expect(json["readOnly"], "default value for readOnly property has been serialzied successfully").toBe(false);
     const jsonKeys = Object.keys(json);
-    expect(jsonKeys.indexOf("validators"), "no validators").toLooseEqual(-1);
+    expect(jsonKeys.indexOf("validators"), "no validators").toBe(-1);
 
     q2.readOnly = true;
     new JsonObject().toObject(json, q2);
@@ -1448,7 +1448,7 @@ describe("JsonSerializationTests", () => {
     });
     var question = new Question("q1");
 
-    expect(question["customArray"].length, "customArray defaults applied successfully").toLooseEqual(5);
+    expect(question["customArray"].length, "customArray defaults applied successfully").toBe(5);
 
     question["customArray"][0].text = "text 1";
 
@@ -1467,7 +1467,7 @@ describe("JsonSerializationTests", () => {
     question = new Question("q1");
 
     new JsonObject().toObject(json, question);
-    expect(question["customArray"][0].text, "text deserialized ok").toLooseEqual("text 1");
+    expect(question["customArray"][0].text, "text deserialized ok").toBe("text 1");
 
     json = new JsonObject().toJsonObject(question);
     expect(json.customArray, "customArray serialzied successful 2").toEqualValues([
@@ -1505,7 +1505,7 @@ describe("JsonSerializationTests", () => {
     });
     var question = new Question("q1");
 
-    expect(question["customArray"].length, "customArray defaults applied successfully").toLooseEqual(1);
+    expect(question["customArray"].length, "customArray defaults applied successfully").toBe(1);
 
     question["customArray"][0].text = "text 1";
     question.locOwner = <any>{
@@ -1544,7 +1544,7 @@ describe("JsonSerializationTests", () => {
       },
       list
     );
-    expect(jsonObject.errors.length, "there are no errors on deserialization").toLooseEqual(0);
+    expect(jsonObject.errors.length, "there are no errors on deserialization").toBe(0);
   });
 
   test("Extend ItemValue via inheritance with custom property", () => {
@@ -1565,9 +1565,9 @@ describe("JsonSerializationTests", () => {
     var question = new Question("q1");
 
     question["customArray"][0]["points"] = 1;
-    expect(question["customArray"][0]["points"], "one should be able to read and write the custom property").toLooseEqual(1);
+    expect(question["customArray"][0]["points"], "one should be able to read and write the custom property").toBe(1);
     question["customArray"][0]["guid"] = "2";
-    expect(question["customArray"][0]["guid"], "one should be able to read and write the inherited custom property").toLooseEqual("2");
+    expect(question["customArray"][0]["guid"], "one should be able to read and write the inherited custom property").toBe("2");
 
     var jsonObject = new JsonObject();
     jsonObject.toObject(
@@ -1582,9 +1582,9 @@ describe("JsonSerializationTests", () => {
       },
       question
     );
-    expect(question["customArray"].length, "custom array should be deserialized").toLooseEqual(4);
-    expect(question["customArray"][0]["points"], "custom property value should be deserialized").toLooseEqual(5);
-    expect(jsonObject.errors.length, "there are no errors on deserialization").toLooseEqual(0);
+    expect(question["customArray"].length, "custom array should be deserialized").toBe(4);
+    expect(question["customArray"][0]["points"], "custom property value should be deserialized").toBe(5);
+    expect(jsonObject.errors.length, "there are no errors on deserialization").toBe(0);
     Serializer.removeProperty("questionbase", "customArray");
     Serializer.removeProperty("itemvalue", "guid");
   });
@@ -1602,9 +1602,9 @@ describe("JsonSerializationTests", () => {
   });
   test("property.isVisible", () => {
     var property = Serializer.findProperty("dealer", "dummyname");
-    expect(property.visible, "Property is visible").toLooseEqual(true);
-    expect(property.isVisible("row"), "Property is visible in row layout").toLooseEqual(true);
-    expect(property.isVisible("flow"), "Property is invisible in flow layout").toLooseEqual(false);
+    expect(property.visible, "Property is visible").toBe(true);
+    expect(property.isVisible("row"), "Property is visible in row layout").toBe(true);
+    expect(property.isVisible("flow"), "Property is invisible in flow layout").toBe(false);
   });
   test("title property.isVisible", () => {
     const prop = Serializer.findProperty("question", "title");
@@ -1612,13 +1612,13 @@ describe("JsonSerializationTests", () => {
       return obj.name != "abc";
     };
     const q = new QuestionTextModel("q1");
-    expect(prop.isVisible("row", q), "row, #1").toLooseEqual(true);
-    expect(prop.isVisible("detail", q), "detail #2").toLooseEqual(false);
-    expect(prop.isVisible("", q), "empty #1").toLooseEqual(true);
+    expect(prop.isVisible("row", q), "row, #1").toBe(true);
+    expect(prop.isVisible("detail", q), "detail #2").toBe(false);
+    expect(prop.isVisible("", q), "empty #1").toBe(true);
     q.name = "abc";
-    expect(prop.isVisible("row", q), "row, #2").toLooseEqual(false);
-    expect(prop.isVisible("detail", q), "detail #2").toLooseEqual(false);
-    expect(prop.isVisible("", q), "empty #2").toLooseEqual(false);
+    expect(prop.isVisible("row", q), "row, #2").toBe(false);
+    expect(prop.isVisible("detail", q), "detail #2").toBe(false);
+    expect(prop.isVisible("", q), "empty #2").toBe(false);
     (<any>prop).visibleIf = undefined;
   });
 
@@ -1633,11 +1633,11 @@ describe("JsonSerializationTests", () => {
       name: "newChoices2:itemvalues",
       baseValue: "Row",
     });
-    expect(Serializer.findProperty("questionbase", "newChoices2").getBaseValue(), "getBaseValue works fine with constant").toLooseEqual("Row");
-    expect(Serializer.findProperty("questionbase", "newChoices1").getBaseValue(), "getBaseValue works fine with function").toLooseEqual("Column");
-    expect(Serializer.findProperty("selectbase", "choices").getBaseValue(), "it is item for choices").toLooseEqual("item");
-    expect(Serializer.findProperty("matrix", "rows").getBaseValue(), "it is Row for rows").toLooseEqual("Row");
-    expect(Serializer.findProperty("matrix", "columns").getBaseValue(), "it is Column for columns").toLooseEqual("Column");
+    expect(Serializer.findProperty("questionbase", "newChoices2").getBaseValue(), "getBaseValue works fine with constant").toBe("Row");
+    expect(Serializer.findProperty("questionbase", "newChoices1").getBaseValue(), "getBaseValue works fine with function").toBe("Column");
+    expect(Serializer.findProperty("selectbase", "choices").getBaseValue(), "it is item for choices").toBe("item");
+    expect(Serializer.findProperty("matrix", "rows").getBaseValue(), "it is Row for rows").toBe("Row");
+    expect(Serializer.findProperty("matrix", "columns").getBaseValue(), "it is Column for columns").toBe("Column");
 
     Serializer.removeProperty("questionbase", "newChoices1");
     Serializer.removeProperty("questionbase", "newChoices2");
@@ -1682,10 +1682,10 @@ describe("JsonSerializationTests", () => {
   test("property.visibleIf functionality", () => {
     var dealer = new Dealer();
     var propTruck = Serializer.findProperty("dealer", "truck");
-    expect(propTruck.isVisible("row", dealer), "It is invisible by default").toLooseEqual(false);
+    expect(propTruck.isVisible("row", dealer), "It is invisible by default").toBe(false);
     dealer.car = new Truck();
     dealer.car.name = "mycar";
-    expect(propTruck.isVisible("row", dealer), "The visibleIf returns true").toLooseEqual(true);
+    expect(propTruck.isVisible("row", dealer), "The visibleIf returns true").toBe(true);
   });
 
   test("Apply defaultValue property serializer attribute for all object in constructor", () => {
@@ -1693,7 +1693,7 @@ describe("JsonSerializationTests", () => {
     var oldValue = propDefaultValue.defaultValue;
     propDefaultValue.defaultValue = "MyValue";
     var dealer = new Dealer();
-    expect(dealer.defaultValue).toLooseEqual("MyValue");
+    expect(dealer.defaultValue).toBe("MyValue");
     propDefaultValue.defaultValue = oldValue;
   });
 
@@ -1706,7 +1706,7 @@ describe("JsonSerializationTests", () => {
     });
     var car = new Car();
     car["onSetValueCheck"] = "dummy";
-    expect(car["dummyProperty"], "onSetValue attribute is working").toLooseEqual("dummy");
+    expect(car["dummyProperty"], "onSetValue attribute is working").toBe("dummy");
     Serializer.removeProperty("car", "onSetValueCheck");
   });
 
@@ -1738,10 +1738,10 @@ describe("JsonSerializationTests", () => {
     var carOwner = <CarOwner>Serializer.createClass("carowner");
     carOwner.carType = "numberedcarredefinedname";
     var newProperties = Serializer.getPropertiesByObj(carOwner);
-    expect(properties.length, "We do not add new property, since it has the same name as original").toLooseEqual(newProperties.length);
+    expect(properties.length, "We do not add new property, since it has the same name as original").toBe(newProperties.length);
     var nameProperties = newProperties.filter((p) => p.name === "name");
-    expect(nameProperties.length, "Only one name property").toLooseEqual(1);
-    expect(nameProperties[0].type, "We do not change the property").toLooseEqual("string");
+    expect(nameProperties.length, "Only one name property").toBe(1);
+    expect(nameProperties[0].type, "We do not change the property").toBe("string");
     Serializer.removeClass("numberedcarredefinedname");
   });
 
@@ -1787,22 +1787,22 @@ describe("JsonSerializationTests", () => {
       propItemValueChangeCounter++;
     });
     dealer["orders"].push(new ItemValue(1, "11", "itemorder"));
-    expect(propChangeCounter, "One time was changed").toLooseEqual(1);
-    expect(propChangeSenderType, "sender type is correct").toLooseEqual("dealer");
-    expect(propChangeName, "prop name is correct").toLooseEqual("orders");
+    expect(propChangeCounter, "One time was changed").toBe(1);
+    expect(propChangeSenderType, "sender type is correct").toBe("dealer");
+    expect(propChangeName, "prop name is correct").toBe("orders");
     var orderItem = dealer["orders"][0];
     orderItem.value = 2;
-    expect(propItemValueChangeCounter, "ItemValue: One time was changed").toLooseEqual(1);
-    expect(propItemValueChangeSenderType, "ItemValue: sender type is correct").toLooseEqual("dealer");
-    expect(propItemValueChangeObjType, "ItemValue: itemvalue type is correct").toLooseEqual("itemorder");
-    expect(propItemValueChangePropertyName, "ItemValue: property name is correct").toLooseEqual("orders");
-    expect(propItemValueChangeName, "ItemValue: itemvalue name is correct").toLooseEqual("value");
+    expect(propItemValueChangeCounter, "ItemValue: One time was changed").toBe(1);
+    expect(propItemValueChangeSenderType, "ItemValue: sender type is correct").toBe("dealer");
+    expect(propItemValueChangeObjType, "ItemValue: itemvalue type is correct").toBe("itemorder");
+    expect(propItemValueChangePropertyName, "ItemValue: property name is correct").toBe("orders");
+    expect(propItemValueChangeName, "ItemValue: itemvalue name is correct").toBe("value");
     orderItem.price = 10;
-    expect(propItemValueChangeCounter, "ItemValue (price): One time was changed").toLooseEqual(2);
-    expect(propItemValueChangeSenderType, "ItemValue (price): sender type is correct").toLooseEqual("dealer");
-    expect(propItemValueChangeObjType, "ItemValue (price): itemvalue type is correct").toLooseEqual("itemorder");
-    expect(propItemValueChangePropertyName, "ItemValue (price): property name is correct").toLooseEqual("orders");
-    expect(propItemValueChangeName, "ItemValue (price): itemvalue name is correct").toLooseEqual("price");
+    expect(propItemValueChangeCounter, "ItemValue (price): One time was changed").toBe(2);
+    expect(propItemValueChangeSenderType, "ItemValue (price): sender type is correct").toBe("dealer");
+    expect(propItemValueChangeObjType, "ItemValue (price): itemvalue type is correct").toBe("itemorder");
+    expect(propItemValueChangePropertyName, "ItemValue (price): property name is correct").toBe("orders");
+    expect(propItemValueChangeName, "ItemValue (price): itemvalue name is correct").toBe("price");
     Serializer.removeProperty("dealer", "orders");
     Serializer.removeClass("itemorder");
   });
@@ -1827,12 +1827,12 @@ describe("JsonSerializationTests", () => {
     );
     var properties = Serializer.getProperties("itemvalue");
     var propertiesOrder = Serializer.getProperties("itemorder");
-    expect(properties.length, "The number of properties are the same").toLooseEqual(propertiesOrder.length);
+    expect(properties.length, "The number of properties are the same").toBe(propertiesOrder.length);
     var l = properties.length - 1;
-    expect(properties[l].name, "itemvalue: price propeprty").toLooseEqual("price");
-    expect(properties[l].visible, "itemvalue: price invisible").toLooseEqual(false);
-    expect(propertiesOrder[l].name, "itemorder: price propeprty").toLooseEqual("price");
-    expect(propertiesOrder[l].visible, "itemorder: price visible").toLooseEqual(true);
+    expect(properties[l].name, "itemvalue: price propeprty").toBe("price");
+    expect(properties[l].visible, "itemvalue: price invisible").toBe(false);
+    expect(propertiesOrder[l].name, "itemorder: price propeprty").toBe("price");
+    expect(propertiesOrder[l].visible, "itemorder: price visible").toBe(true);
     Serializer.removeClass("itemorder");
     Serializer.removeProperty("item", "price");
   });
@@ -1847,11 +1847,11 @@ describe("JsonSerializationTests", () => {
       "val_changed"
     );
     itemValue.value = "Test";
-    expect(valueChangedCount, "changed notification has been fired").toLooseEqual(1);
+    expect(valueChangedCount, "changed notification has been fired").toBe(1);
     itemValue.unregisterPropertyChangedHandlers(["value"], "val_changed");
   });
   test("property.displayName", () => {
-    expect(Serializer.findProperty("truck", "maxWeight").displayName, "property.displayName is correct").toLooseEqual("Maximum Weight");
+    expect(Serializer.findProperty("truck", "maxWeight").displayName, "property.displayName is correct").toBe("Maximum Weight");
   });
   test("Serializer.getAllClasses() function", () => {
     var classes = Serializer.getAllClasses();
@@ -1861,15 +1861,15 @@ describe("JsonSerializationTests", () => {
   });
   test("Serializer.getAllPropertiesByName() function", () => {
     var properties = Serializer.getAllPropertiesByName("description");
-    expect(properties.length, "survey, panel, page, question, customtruck, nonvalue").toLooseEqual(6);
-    expect(properties[0].name, "Find property with the correct name").toLooseEqual("description");
+    expect(properties.length, "survey, panel, page, question, customtruck, nonvalue").toBe(6);
+    expect(properties[0].name, "Find property with the correct name").toBe("description");
   });
   test("nextToProperty attribute", () => {
     var prop = Serializer.addProperty("truck", {
       name: "test",
       nextToProperty: "name",
     });
-    expect(prop.nextToProperty, "created with correct nextToProperty attribute").toLooseEqual("name");
+    expect(prop.nextToProperty, "created with correct nextToProperty attribute").toBe("name");
     Serializer.removeProperty("truck", "test");
   });
   test("check dataList attribute", () => {
@@ -1892,21 +1892,21 @@ describe("JsonSerializationTests", () => {
     owner["ar"] = ["A"];
     owner["ar"].push("B");
     expect(owner["ar"], "property set correctly").toEqualValues(["A", "B"]);
-    expect(counter, "onPropertyChanged called two times").toLooseEqual(2);
-    expect(propName, "onPropertyChanged called on chaning 'ar' property").toLooseEqual("ar");
+    expect(counter, "onPropertyChanged called two times").toBe(2);
+    expect(propName, "onPropertyChanged called on chaning 'ar' property").toBe("ar");
     Serializer.removeProperty("carowner", "ar");
   });
   test("always return false for a boolean property", () => {
     Serializer.addProperty("truck", "boolProp:boolean");
     var truck = new Truck();
-    expect(truck.getPropertyValue("boolProp"), "There is no default value, but we use false as default for boolean ").toLooseEqual(false);
+    expect(truck.getPropertyValue("boolProp"), "There is no default value, but we use false as default for boolean ").toBe(false);
     Serializer.removeProperty("truck", "boolProp");
   });
   test("Serialize title with whitespace, Bug#2725", () => {
     var question = new Question("q1");
     question.title = " ";
-    expect(question.title, "White space is set").toLooseEqual(" ");
-    expect(question.locTitle.isEmpty, "Value is not empty").toLooseEqual(false);
+    expect(question.title, "White space is set").toBe(" ");
+    expect(question.locTitle.isEmpty, "Value is not empty").toBe(false);
     expect(question.toJSON(), "Serialize white space").toEqualValues({ name: "q1", title: " " });
   });
   test("itemvalue enableIf property visibility test", () => {
@@ -1917,69 +1917,69 @@ describe("JsonSerializationTests", () => {
 
     var property = Serializer.findProperty("itemvalue", "enableIf");
     expect(property, "Property is here").toBeTruthy();
-    expect(property.isVisible("form", rating.rateValues[0]), "We do not show enableIf for rateValues").toLooseEqual(false);
-    expect(property.isVisible("form", checkbox.choices[0]), "We show enableIf for all other properties").toLooseEqual(true);
+    expect(property.isVisible("form", rating.rateValues[0]), "We do not show enableIf for rateValues").toBe(false);
+    expect(property.isVisible("form", checkbox.choices[0]), "We show enableIf for all other properties").toBe(true);
   });
   test("Change default value for question.showNumber", () => {
-    expect(new Question("q1").showNumber, "By default showNumber returns true").toLooseEqual(true);
+    expect(new Question("q1").showNumber, "By default showNumber returns true").toBe(true);
     Serializer.findProperty("question", "showNumber").defaultValue = false;
-    expect(new Question("q1").showNumber, "We have override showNumber").toLooseEqual(false);
+    expect(new Question("q1").showNumber, "We have override showNumber").toBe(false);
     Serializer.findProperty("question", "showNumber").defaultValue = true;
-    expect(new Question("q1").showNumber, "We made showNumber true by default again").toLooseEqual(true);
+    expect(new Question("q1").showNumber, "We made showNumber true by default again").toBe(true);
   });
   test("Serializer.getProperty()", () => {
     Serializer.addClass("new_dealer", [], null, "dealer");
     let new_dealer: Dealer = Serializer.createClass("new_dealer");
-    expect(new_dealer.defaultValue, "Use attribute from dealer for new_dealer").toLooseEqual("default");
+    expect(new_dealer.defaultValue, "Use attribute from dealer for new_dealer").toBe("default");
     Serializer.getProperty("new_dealer", "defaultValue").defaultValue = "new_default";
     new_dealer = Serializer.createClass("new_dealer");
-    expect(new_dealer.defaultValue, "Use attribute from new_dealer").toLooseEqual("new_default");
+    expect(new_dealer.defaultValue, "Use attribute from new_dealer").toBe("new_default");
     let dealer: Dealer = Serializer.createClass("dealer");
-    expect(dealer.defaultValue, "Use attribute from dealer").toLooseEqual("default");
+    expect(dealer.defaultValue, "Use attribute from dealer").toBe("default");
     Serializer.removeClass("new_dealer");
   });
   test("Serializer.getProperty For not-arrays and arrays", () => {
     Serializer.addClass("new_selectbase", [], null, "selectbase");
     let hasOtherFind = Serializer.findProperty("new_selectbase", "hasOther");
-    expect(hasOtherFind.isArray, "Find hasOther for new_selectbase is not array").toLooseEqual(false);
+    expect(hasOtherFind.isArray, "Find hasOther for new_selectbase is not array").toBe(false);
     let hasOtherGet = Serializer.getProperty("new_selectbase", "hasOther");
-    expect(hasOtherGet.isArray, "Get hasOther for new_selectbase is not array").toLooseEqual(false);
+    expect(hasOtherGet.isArray, "Get hasOther for new_selectbase is not array").toBe(false);
 
     let choicesPropFind = Serializer.findProperty("new_selectbase", "choices");
-    expect(choicesPropFind.isArray, "Find Choices for new_selectbase is array").toLooseEqual(true);
+    expect(choicesPropFind.isArray, "Find Choices for new_selectbase is array").toBe(true);
     let choicesPropGet = Serializer.getProperty("new_selectbase", "choices");
-    expect(choicesPropGet.isArray, "Get Choices for new_selectbase is array").toLooseEqual(true);
+    expect(choicesPropGet.isArray, "Get Choices for new_selectbase is array").toBe(true);
     Serializer.removeClass("new_selectbase");
   });
   test("Declared @property", () => {
     const obj = new TestDeclaredProps();
-    expect(obj.numberProp, "get default number prop").toLooseEqual(5);
+    expect(obj.numberProp, "get default number prop").toBe(5);
     expect(obj["locStr1"], "locStr1 exists").toBeTruthy();
     expect(obj["locStr1"].owner, "locStr1 owner is correct").toBe(obj);
     obj["locStr1"].setLocaleText("", "val1", "locStr1 set value");
-    expect(obj["locStr1"].getLocaleText(""), "locStr1 get value").toLooseEqual("val1");
+    expect(obj["locStr1"].getLocaleText(""), "locStr1 get value").toBe("val1");
 
     expect(obj["locStrName"], "locStrName exists").toBeTruthy();
     expect(obj["locStrName"].owner, "locStrName owner is correct").toBe(obj);
     obj["locStrName"].setLocaleText("", "val2", "locStrName set value");
-    expect(obj["locStrName"].getLocaleText(""), "locStrName get value").toLooseEqual("val2");
-    expect(obj.str2, "str2 get value").toLooseEqual("val2");
+    expect(obj["locStrName"].getLocaleText(""), "locStrName get value").toBe("val2");
+    expect(obj.str2, "str2 get value").toBe("val2");
 
     expect(obj["locStr3"], "locStr3 exists").toBeTruthy();
     expect(obj["locStr3"].owner, "locStr3 owner is correct").toBe(obj);
-    expect(obj.str3, "get default value from localizable strings").toLooseEqual("Complete");
+    expect(obj.str3, "get default value from localizable strings").toBe("Complete");
     obj["locStr3"].setLocaleText("", "val3", "locStr3 set value");
-    expect(obj["locStr3"].getLocaleText(""), "locStr3 get value").toLooseEqual("val3");
-    expect(obj.str3, "str3 get value").toLooseEqual("val3");
+    expect(obj["locStr3"].getLocaleText(""), "locStr3 get value").toBe("val3");
+    expect(obj.str3, "str3 get value").toBe("val3");
     obj.locale = "";
   });
   test("Check Declared @property localizable string defaultStr", () => {
     const obj = new TestDeclaredProps();
     expect(obj["locStr3"], "locStr3 exists").toBeTruthy();
     expect(obj["locStr3"].owner, "locStr3 owner is correct").toBe(obj);
-    expect(obj["locStr3"].renderedHtml, "get renderedHtml for loc string from default string").toLooseEqual("Complete");
+    expect(obj["locStr3"].renderedHtml, "get renderedHtml for loc string from default string").toBe("Complete");
     obj["locStr3"].setLocaleText("", "val3", "locStr3 set value");
-    expect(obj["locStr3"].renderedHtml, "get renderedHtml for loc string from changed default string").toLooseEqual("val3");
+    expect(obj["locStr3"].renderedHtml, "get renderedHtml for loc string from changed default string").toBe("val3");
     obj.locale = "";
   });
   test("TextValidator, serialize allowDigits property", () => {
@@ -1994,19 +1994,19 @@ describe("JsonSerializationTests", () => {
     expect(validator.toJSON(), "minLength and maxLenght are not null").toEqualValues({ minLength: 1, maxLength: 10 });
   });
   test("Change question isRequired default value", () => {
-    expect(new Question("q1").isRequired, "It is false by defult").toLooseEqual(false);
+    expect(new Question("q1").isRequired, "It is false by defult").toBe(false);
     Serializer.findProperty("question", "isRequired").defaultValue = true;
-    expect(new Question("q1").isRequired, "It is true now").toLooseEqual(true);
+    expect(new Question("q1").isRequired, "It is true now").toBe(true);
     Serializer.findProperty("question", "isRequired").defaultValue = false;
-    expect(new Question("q1").isRequired, "It is false again").toLooseEqual(false);
+    expect(new Question("q1").isRequired, "It is false again").toBe(false);
   });
   test("Change question readOnly default value", () => {
-    expect(new Question("q1").readOnly, "It is false by defult").toLooseEqual(false);
+    expect(new Question("q1").readOnly, "It is false by defult").toBe(false);
     Serializer.findProperty("question", "readOnly").defaultValue = true;
-    expect(new Question("q1").readOnly, "It is true now").toLooseEqual(true);
+    expect(new Question("q1").readOnly, "It is true now").toBe(true);
     expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #1").toEqualValues({ name: "q1" });
     Serializer.findProperty("question", "readOnly").defaultValue = false;
-    expect(new Question("q1").readOnly, "It is false again").toLooseEqual(false);
+    expect(new Question("q1").readOnly, "It is false again").toBe(false);
     expect(new Question("q1").toJSON(), "no readOnly attribute in JSON, #2").toEqualValues({ name: "q1" });
   });
   test("Load localizable @property", () => {
@@ -2028,13 +2028,13 @@ describe("JsonSerializationTests", () => {
         "default": "strProp en"
       }
     });
-    expect(obj.str1, "default string").toLooseEqual("str1 en");
-    expect(obj.strProp, "default string").toLooseEqual("strProp en");
-    expect(obj["locStr1"].renderedHtml, "default html string").toLooseEqual("str1 en");
+    expect(obj.str1, "default string").toBe("str1 en");
+    expect(obj.strProp, "default string").toBe("strProp en");
+    expect(obj["locStr1"].renderedHtml, "default html string").toBe("str1 en");
     obj.locale = "da";
-    expect(obj.str1, "da string").toLooseEqual("str1 da");
-    expect(obj.strProp, "da string").toLooseEqual("strProp da");
-    expect(obj["locStr1"].renderedHtml, "da html string").toLooseEqual("str1 da");
+    expect(obj.str1, "da string").toBe("str1 da");
+    expect(obj.strProp, "da string").toBe("strProp da");
+    expect(obj["locStr1"].renderedHtml, "da html string").toBe("str1 da");
     Serializer.removeClass("new_declared_props");
   });
   test("Load localizable @property with undefined creator", () => {
@@ -2056,13 +2056,13 @@ describe("JsonSerializationTests", () => {
         "default": "strProp en"
       }
     });
-    expect(obj.str1, "default string").toLooseEqual("str1 en");
-    expect(obj.strProp, "default string").toLooseEqual("strProp en");
-    expect(obj["locStr1"].renderedHtml, "default html string").toLooseEqual("str1 en");
+    expect(obj.str1, "default string").toBe("str1 en");
+    expect(obj.strProp, "default string").toBe("strProp en");
+    expect(obj["locStr1"].renderedHtml, "default html string").toBe("str1 en");
     obj.locale = "da";
-    expect(obj.str1, "da string").toLooseEqual("str1 da");
-    expect(obj.strProp, "da string").toLooseEqual("strProp da");
-    expect(obj["locStr1"].renderedHtml, "da html string").toLooseEqual("str1 da");
+    expect(obj.str1, "da string").toBe("str1 da");
+    expect(obj.strProp, "da string").toBe("strProp da");
+    expect(obj["locStr1"].renderedHtml, "da html string").toBe("str1 da");
     Serializer.removeClass("new_declared_props");
   });
   test("Get default value for custom localizable @property from global localized strings", () => {
@@ -2073,7 +2073,7 @@ describe("JsonSerializationTests", () => {
     const obj = new Car();
     expect(obj["strWithDefaultValue"], "It is empty by default").toBeFalsy();
     englishStrings["strWithDefaultValue"] = "default value";
-    expect(obj["strWithDefaultValue"], "get value from localization strings").toLooseEqual("default value");
+    expect(obj["strWithDefaultValue"], "get value from localization strings").toBe("default value");
     delete englishStrings["strWithDefaultValue"];
     Serializer.removeProperty("car", "strWithDefaultValue");
   });
@@ -2091,7 +2091,7 @@ describe("JsonSerializationTests", () => {
 
     settings.defaultNumverValue = 10;
     const obj = new TestDeclaredProps();
-    expect(obj.numberProp).toLooseEqual(10);
+    expect(obj.numberProp).toBe(10);
   });
 
   test("Creator custom ItemValue class, and a property an array of custom ItemValue + default value ", () => {
@@ -2106,9 +2106,9 @@ describe("JsonSerializationTests", () => {
     });
 
     const car: any = new Car();
-    expect(car.colors.length, "There are two colors by default").toLooseEqual(2);
-    expect(car.colors[0].value, "value set correctly #1").toLooseEqual("A1");
-    expect(car.colors[1].color, "color set correctly #2").toLooseEqual("#00ff00");
+    expect(car.colors.length, "There are two colors by default").toBe(2);
+    expect(car.colors[0].value, "value set correctly #1").toBe("A1");
+    expect(car.colors[1].color, "color set correctly #2").toBe("#00ff00");
     expect(car.toJSON(), "toJSON. It should be empty #3").toEqualValues({});
     car.colors.splice(0, 1);
     const newItem = new ItemValue("A3", undefined, "coloritemvalue");
@@ -2121,9 +2121,9 @@ describe("JsonSerializationTests", () => {
         { value: "B2", color: "-00ff00" },
         { value: "B3", color: "-ffffff" }]
     });
-    expect(car.colors.length, "There are three colors loaded #5").toLooseEqual(3);
-    expect(car.colors[0].value, "value set correctly #6").toLooseEqual("B1");
-    expect(car.colors[2].color, "color set correctly #7").toLooseEqual("-ffffff");
+    expect(car.colors.length, "There are three colors loaded #5").toBe(3);
+    expect(car.colors[0].value, "value set correctly #6").toBe("B1");
+    expect(car.colors[2].color, "color set correctly #7").toBe("-ffffff");
 
     Serializer.removeProperty("car", "colors");
     Serializer.removeClass("coloritemvalue");
@@ -2145,15 +2145,15 @@ describe("JsonSerializationTests", () => {
       ]
     });
     const matrix = <QuestionMatrixModel>survey.getQuestionByName("q1");
-    expect(matrix.showHeader, "Header is visible").toLooseEqual(true);
+    expect(matrix.showHeader, "Header is visible").toBe(true);
     matrix.showHeaderIf = "{val1} = 1";
-    expect(matrix.showHeader, "Header is invisible #1").toLooseEqual(false);
+    expect(matrix.showHeader, "Header is invisible #1").toBe(false);
     survey.setValue("val1", 2);
-    expect(matrix.showHeader, "Header is invisible #2").toLooseEqual(false);
+    expect(matrix.showHeader, "Header is invisible #2").toBe(false);
     survey.setValue("val1", 1);
-    expect(matrix.showHeader, "Header is visible #3").toLooseEqual(true);
+    expect(matrix.showHeader, "Header is visible #3").toBe(true);
     survey.setValue("val1", 3);
-    expect(matrix.showHeader, "Header is invisible #4").toLooseEqual(false);
+    expect(matrix.showHeader, "Header is invisible #4").toBe(false);
     Serializer.removeProperty("matrix", "showHeaderIf");
   });
   test("Add condition custom property into survey", () => {
@@ -2170,22 +2170,22 @@ describe("JsonSerializationTests", () => {
         }
       ]
     });
-    expect(survey.showTitle, "It is false by default").toLooseEqual(false);
+    expect(survey.showTitle, "It is false by default").toBe(false);
     survey.setValue("q1", 1);
-    expect(survey.showTitle, "It is shown").toLooseEqual(true);
+    expect(survey.showTitle, "It is shown").toBe(true);
     survey.setValue("q1", 2);
-    expect(survey.showTitle, "It is hidden again").toLooseEqual(false);
+    expect(survey.showTitle, "It is hidden again").toBe(false);
     Serializer.removeProperty("survey", "showTitleIf");
   });
   test("base.isDescendantOf", () => {
     const big = new BigCar();
     const dealer = <Dealer>Serializer.createClass("customdealer");
-    expect(big.isDescendantOf("car"), "big->car").toLooseEqual(true);
-    expect(big.isDescendantOf("big"), "big->big").toLooseEqual(true);
-    expect(big.isDescendantOf("dealer"), "big->dealer").toLooseEqual(false);
-    expect(dealer.isDescendantOf("customdealer"), "customdealer->customdealer").toLooseEqual(true);
-    expect(dealer.isDescendantOf("dealer"), "customdealer->dealer").toLooseEqual(true);
-    expect(dealer.isDescendantOf("car"), "customdealer->car").toLooseEqual(false);
+    expect(big.isDescendantOf("car"), "big->car").toBe(true);
+    expect(big.isDescendantOf("big"), "big->big").toBe(true);
+    expect(big.isDescendantOf("dealer"), "big->dealer").toBe(false);
+    expect(dealer.isDescendantOf("customdealer"), "customdealer->customdealer").toBe(true);
+    expect(dealer.isDescendantOf("dealer"), "customdealer->dealer").toBe(true);
+    expect(dealer.isDescendantOf("car"), "customdealer->car").toBe(false);
   });
   test("Add custom calculatedValues property into survey, isArray attribute", () => {
     const prop = Serializer.addProperty("survey", {
@@ -2193,23 +2193,23 @@ describe("JsonSerializationTests", () => {
       className: "calculatedvalue",
       isArray: true
     });
-    expect(prop.isArray, "Custom property is array").toLooseEqual(true);
+    expect(prop.isArray, "Custom property is array").toBe(true);
     const survey = new SurveyModel();
     let funcs = <Array<CalculatedValue>>survey.customFunctions;
-    expect(funcs.length, "It is false by default").toLooseEqual(0);
+    expect(funcs.length, "It is false by default").toBe(0);
     const func = new CalculatedValue("func1", "testFunc");
     funcs.push(func);
-    expect(funcs.length, "It is false by default").toLooseEqual(1);
+    expect(funcs.length, "It is false by default").toBe(1);
     const json = survey.toJSON();
     const expectedJson = { customFunctions: [{ name: "func1", expression: "testFunc" }] };
     expect(json, "Serialized successful").toEqualValues(expectedJson);
     const survey2 = new SurveyModel();
     survey2.fromJSON(json);
     funcs = <Array<CalculatedValue>>survey2.customFunctions;
-    expect(funcs.length, "Deserialized one item").toLooseEqual(1);
-    expect(funcs[0].name, "Deserialized item name").toLooseEqual("func1");
-    expect(funcs[0].expression, "Deserialized item expression").toLooseEqual("testFunc");
-    expect(funcs[0].getType(), "Deserialized item has correct type").toLooseEqual("calculatedvalue");
+    expect(funcs.length, "Deserialized one item").toBe(1);
+    expect(funcs[0].name, "Deserialized item name").toBe("func1");
+    expect(funcs[0].expression, "Deserialized item expression").toBe("testFunc");
+    expect(funcs[0].getType(), "Deserialized item has correct type").toBe("calculatedvalue");
     Serializer.removeProperty("survey", "customFunctions");
   });
   test("Store column title in json if it equals to name, but it was set manually", () => {
@@ -2237,12 +2237,12 @@ describe("JsonSerializationTests", () => {
     var dealer = new Dealer();
     dealer.name = "4";
     new JsonObject().toObject({ name: ["small"] }, dealer);
-    expect(dealer.name, "deserialize property for different types").toLooseEqual("4");
+    expect(dealer.name, "deserialize property for different types").toBe("4");
   });
   test("Find out are properties addingin in addClass are custom or not", () => {
     Serializer.addClass("testcar", ["name"]);
-    expect(Serializer.findProperty("testcar", "name").isCustom, "testcar properties are custom").toLooseEqual(true);
-    expect(Serializer.findProperty("car", "name").isCustom, "car properties are not custom").toLooseEqual(false);
+    expect(Serializer.findProperty("testcar", "name").isCustom, "testcar properties are custom").toBe(true);
+    expect(Serializer.findProperty("car", "name").isCustom, "car properties are not custom").toBe(false);
   });
   test("Custom survey serialization, onSerializingProperty", () => {
     const mapping: any = {
@@ -2293,17 +2293,17 @@ describe("JsonSerializationTests", () => {
   });
   test("return correct uniquePropertyName", () => {
     const rowsMatrixDropdownProp = Serializer.findProperty("matrixdropdown", "rows");
-    expect(rowsMatrixDropdownProp.uniquePropertyName, "matrixdropdown.rows").toLooseEqual("value");
+    expect(rowsMatrixDropdownProp.uniquePropertyName, "matrixdropdown.rows").toBe("value");
     const rowsMatrixProp = Serializer.findProperty("matrix", "rows");
-    expect(rowsMatrixProp.uniquePropertyName, "matrix.rows").toLooseEqual("value");
+    expect(rowsMatrixProp.uniquePropertyName, "matrix.rows").toBe("value");
     const columnsMatrixProp = Serializer.findProperty("matrix", "columns");
-    expect(columnsMatrixProp.uniquePropertyName, "matrix.columns").toLooseEqual("value");
+    expect(columnsMatrixProp.uniquePropertyName, "matrix.columns").toBe("value");
   });
   test("default value inheritance", () => {
     const checkboxProp = Serializer.findProperty("checkbox", "itemComponent");
     const rankingProp = Serializer.findProperty("ranking", "itemComponent");
-    expect(checkboxProp.defaultValue, "survey-checkbox-item default").toLooseEqual("survey-checkbox-item");
-    expect(rankingProp.defaultValue, "ranking default is empty").toLooseEqual("sv-ranking-item");
+    expect(checkboxProp.defaultValue, "survey-checkbox-item default").toBe("survey-checkbox-item");
+    expect(rankingProp.defaultValue, "ranking default is empty").toBe("sv-ranking-item");
   });
   test("Do not load choices and rows without value", () => {
     const q = new QuestionCheckboxModel("q1");
@@ -2311,47 +2311,47 @@ describe("JsonSerializationTests", () => {
       name: "q2",
       choices: [1, { value: 2 }, { text: "abc" }]
     });
-    expect(q.choices.length).toLooseEqual(3);
-    expect(q.choices[0].value, "First choice").toLooseEqual(1);
-    expect(q.choices[1].value, "Second choice").toLooseEqual(2);
-    expect(q.choices[2].value, "Third choice").toLooseEqual("abc");
+    expect(q.choices.length).toBe(3);
+    expect(q.choices[0].value, "First choice").toBe(1);
+    expect(q.choices[1].value, "Second choice").toBe(2);
+    expect(q.choices[2].value, "Third choice").toBe("abc");
   });
   test("QuestionMatrixModel and commentText property, Bug#5562", () => {
     const q = new QuestionMatrixModel("q1");
     const prop = Serializer.findProperty(q.getType(), "commentText");
     expect(prop, "Property is here").toBeTruthy();
-    expect(prop.isVisible("row", q), "commentText is invisible by default").toLooseEqual(false);
+    expect(prop.isVisible("row", q), "commentText is invisible by default").toBe(false);
     q.showCommentArea = true;
-    expect(prop.isVisible("row", q), "commentText is visible now").toLooseEqual(true);
+    expect(prop.isVisible("row", q), "commentText is visible now").toBe(true);
     const survey = new SurveyModel({
       elements: [{ type: "matrix", name: "q1", commentText: "comment_text" }]
     });
-    expect(survey.getQuestionByName("q1").commentText, "Loaded correctly").toLooseEqual("comment_text");
+    expect(survey.getQuestionByName("q1").commentText, "Loaded correctly").toBe("comment_text");
   });
   test("QuestionMatrixModel and commentPlaceholder property, Bug#5569", () => {
     const q = new QuestionMatrixModel("q1");
     const prop = Serializer.findProperty(q.getType(), "commentPlaceholder");
     expect(prop, "Property is here").toBeTruthy();
-    expect(prop.isVisible("row", q), "commentPlaceholder is invisible by default").toLooseEqual(false);
+    expect(prop.isVisible("row", q), "commentPlaceholder is invisible by default").toBe(false);
     q.showCommentArea = true;
-    expect(prop.isVisible("row", q), "commentPlaceholder is visible now").toLooseEqual(true);
+    expect(prop.isVisible("row", q), "commentPlaceholder is visible now").toBe(true);
     const survey = new SurveyModel({
       elements: [{ type: "matrix", name: "q1", commentPlaceholder: "comment_text" }]
     });
-    expect(survey.getQuestionByName("q1").commentPlaceholder, "Loaded correctly").toLooseEqual("comment_text");
+    expect(survey.getQuestionByName("q1").commentPlaceholder, "Loaded correctly").toBe("comment_text");
   });
   test("Add defaultFunc attribute support, Bug#5615", () => {
     const obj = new DefaultValueClassObj();
-    expect(obj.prop1, "The default value is 5").toLooseEqual(5);
+    expect(obj.prop1, "The default value is 5").toBe(5);
     defaultValueForProp1 = 7;
-    expect(obj.prop1, "The default value is 7 now").toLooseEqual(7);
+    expect(obj.prop1, "The default value is 7 now").toBe(7);
   });
   test("QuestionHtmlModel", () => {
     let html = new QuestionHtmlModel("q1");
-    expect(html.renderAs, "default is default").toLooseEqual("default");
+    expect(html.renderAs, "default is default").toBe("default");
     Serializer.addProperty("html", { name: "renderAs", default: "auto", choices: ["auto", "standard", "image"] });
     html = new QuestionHtmlModel("q1");
-    expect(html.renderAs, "default is auto").toLooseEqual("auto");
+    expect(html.renderAs, "default is auto").toBe("auto");
     Serializer.removeProperty("html", "renderAs");
   });
   test("Ignore type for typed array elements", () => {
@@ -2363,41 +2363,41 @@ describe("JsonSerializationTests", () => {
       }]
     });
     const htmls = survey.completedHtmlOnCondition;
-    expect(htmls.length, "completedHtmlOnCondition is loaded").toLooseEqual(1);
-    expect(htmls[0].getType(), "It has corrected type").toLooseEqual("htmlconditionitem");
+    expect(htmls.length, "completedHtmlOnCondition is loaded").toBe(1);
+    expect(htmls[0].getType(), "It has corrected type").toBe("htmlconditionitem");
   });
   test("ImageItemValue get imageLink property", () => {
     const prop = new ImageItemValue("val1").getPropertyByName("imageLink");
     expect(prop, "property is return correctly").toBeTruthy();
-    expect(new ImageItemValue("val1").locImageLink.disableLocalization, "image link is localizable").toLooseEqual(false);
+    expect(new ImageItemValue("val1").locImageLink.disableLocalization, "image link is localizable").toBe(false);
     prop.isLocalizable = false;
-    expect(new ImageItemValue("val1").locImageLink.disableLocalization, "image link is not localizable").toLooseEqual(true);
+    expect(new ImageItemValue("val1").locImageLink.disableLocalization, "image link is not localizable").toBe(true);
     prop.isLocalizable = true;
   });
   test("overridingProperty test", () => {
-    expect(Serializer.findProperty("question", "visible").overridingProperty, "visible property check").toLooseEqual("visibleIf");
-    expect(Serializer.findProperty("question", "readOnly").overridingProperty, "readOnly property check").toLooseEqual("enableIf");
-    expect(Serializer.findProperty("question", "isRequired").overridingProperty, "isRequired property check").toLooseEqual("requiredIf");
+    expect(Serializer.findProperty("question", "visible").overridingProperty, "visible property check").toBe("visibleIf");
+    expect(Serializer.findProperty("question", "readOnly").overridingProperty, "readOnly property check").toBe("enableIf");
+    expect(Serializer.findProperty("question", "isRequired").overridingProperty, "isRequired property check").toBe("requiredIf");
   });
   test("multipletextitem, name property should be required and unique", () => {
     const prop = Serializer.findProperty("multipletextitem", "name");
-    expect(prop.isRequired, "name property is required").toLooseEqual(true);
-    expect(prop.isUnique, "name property is unique").toLooseEqual(true);
+    expect(prop.isRequired, "name property is required").toBe(true);
+    expect(prop.isUnique, "name property is unique").toBe(true);
   });
   test("load matrix column, visible property", () => {
     const matrix = new QuestionMatrixDynamicModel("q1");
     const column = matrix.addColumn("col1");
-    expect(column.visible, "It is visible by default").toLooseEqual(true);
+    expect(column.visible, "It is visible by default").toBe(true);
     column.fromJSON({ title: "column1", visible: false });
-    expect(column.title, "set column title correctly").toLooseEqual("column1");
-    expect(column.visible, "column.visible is false").toLooseEqual(false);
+    expect(column.title, "set column title correctly").toBe("column1");
+    expect(column.visible, "column.visible is false").toBe(false);
   });
   test("defaultValue for matrix rowTitleWidth and columnMinWidth properties", () => {
     Serializer.findProperty("matrix", "rowTitleWidth").defaultValue = "110px";
     Serializer.findProperty("matrix", "columnMinWidth").defaultValue = "220px";
     const matrix = new QuestionMatrixModel("q1");
-    expect(matrix.rowTitleWidth, "rowTitleWidth").toLooseEqual("110px");
-    expect(matrix.columnMinWidth, "columnMinWidth").toLooseEqual("220px");
+    expect(matrix.rowTitleWidth, "rowTitleWidth").toBe("110px");
+    expect(matrix.columnMinWidth, "columnMinWidth").toBe("220px");
     Serializer.findProperty("matrix", "rowTitleWidth").defaultValue = undefined;
     Serializer.findProperty("matrix", "columnMinWidth").defaultValue = undefined;
   });
@@ -2420,7 +2420,7 @@ describe("JsonSerializationTests", () => {
   });
   test("Add a quesition into page elements array", () => {
     const prop = Serializer.findProperty("page", "elements");
-    expect(prop.isArray, "Elements is an array").toLooseEqual(true);
+    expect(prop.isArray, "Elements is an array").toBe(true);
     const survey = new SurveyModel({
       pages: [
         {
@@ -2428,59 +2428,59 @@ describe("JsonSerializationTests", () => {
         }
       ]
     });
-    expect(survey.pages.length, "There is one page").toLooseEqual(1);
-    expect(survey.pages[0].elements.length, "There is one element in the page").toLooseEqual(1);
-    expect(survey.pages[0].elements[0].name, "Element has a correct name").toLooseEqual("q1");
-    expect(survey.jsonErrors.length, "There is a JSON error").toLooseEqual(1);
-    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name").toLooseEqual("elements");
+    expect(survey.pages.length, "There is one page").toBe(1);
+    expect(survey.pages[0].elements.length, "There is one element in the page").toBe(1);
+    expect(survey.pages[0].elements[0].name, "Element has a correct name").toBe("q1");
+    expect(survey.jsonErrors.length, "There is a JSON error").toBe(1);
+    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name").toBe("elements");
   });
   test("Add a quesition into survey questions array", () => {
     const prop = Serializer.findProperty("survey", "elements");
-    expect(prop.isArray, "Elements is an array").toLooseEqual(true);
+    expect(prop.isArray, "Elements is an array").toBe(true);
     const survey = new SurveyModel({
       questions: { type: "text", name: "q1" }
     });
-    expect(survey.pages.length, "There is one page").toLooseEqual(1);
-    expect(survey.pages[0].elements.length, "There is one element in the page").toLooseEqual(1);
-    expect(survey.pages[0].elements[0].name, "Element has a correct name").toLooseEqual("q1");
-    expect(survey.jsonErrors.length, "There is a JSON error").toLooseEqual(1);
-    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name").toLooseEqual("questions");
+    expect(survey.pages.length, "There is one page").toBe(1);
+    expect(survey.pages[0].elements.length, "There is one element in the page").toBe(1);
+    expect(survey.pages[0].elements[0].name, "Element has a correct name").toBe("q1");
+    expect(survey.jsonErrors.length, "There is a JSON error").toBe(1);
+    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name").toBe("questions");
   });
   test("Add a required property into survey model & check the json error, Bug#10811", () => {
     Serializer.addProperty("survey", "!version");
     const props = Serializer.findClass("survey").getRequiredProperties();
-    expect(props.length, "there is one required property").toLooseEqual(1);
-    expect(props[0].name, "the required property is version").toLooseEqual("version");
+    expect(props.length, "there is one required property").toBe(1);
+    expect(props[0].name, "the required property is version").toBe("version");
     const survey = new SurveyModel({
     });
-    expect(survey.jsonErrors.length, "There is a JSON error").toLooseEqual(1);
-    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name").toLooseEqual("version");
+    expect(survey.jsonErrors.length, "There is a JSON error").toBe(1);
+    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name").toBe("version");
     Serializer.removeProperty("survey", "version");
   });
   test("Add a page into survey pages array", () => {
     const prop = Serializer.findProperty("survey", "pages");
-    expect(prop.isArray, "Elements is an array").toLooseEqual(true);
+    expect(prop.isArray, "Elements is an array").toBe(true);
     const survey = new SurveyModel({
       pages: { questions: { type: "text", name: "q1" } }
     });
-    expect(survey.pages.length, "There is one page").toLooseEqual(1);
-    expect(survey.pages[0].elements.length, "There is one element in the page").toLooseEqual(1);
-    expect(survey.pages[0].elements[0].name, "Element has a correct name").toLooseEqual("q1");
-    expect(survey.jsonErrors.length, "There are JSONs error").toLooseEqual(2);
-    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name #1").toLooseEqual("pages");
-    expect((<any>survey.jsonErrors[1]).propertyName, "Correct property name #2").toLooseEqual("questions");
+    expect(survey.pages.length, "There is one page").toBe(1);
+    expect(survey.pages[0].elements.length, "There is one element in the page").toBe(1);
+    expect(survey.pages[0].elements[0].name, "Element has a correct name").toBe("q1");
+    expect(survey.jsonErrors.length, "There are JSONs error").toBe(2);
+    expect((<any>survey.jsonErrors[0]).propertyName, "Correct property name #1").toBe("pages");
+    expect((<any>survey.jsonErrors[1]).propertyName, "Correct property name #2").toBe("questions");
   });
   test("selectbase colCount property default value", () => {
     const q = new QuestionCheckboxModel("q");
-    expect(q.colCount, "Default value is 1").toLooseEqual(1);
+    expect(q.colCount, "Default value is 1").toBe(1);
     const prop = Serializer.findProperty("checkboxbase", "colCount");
     const defaultVal = prop.defaultValue;
     prop.defaultValue = 0;
-    expect(q.colCount, "Default value is 0").toLooseEqual(0);
+    expect(q.colCount, "Default value is 0").toBe(0);
     prop.defaultValue = 2;
-    expect(q.colCount, "Default value is 2").toLooseEqual(2);
+    expect(q.colCount, "Default value is 2").toBe(2);
     prop.defaultValue = defaultVal;
-    expect(q.colCount, "Default value is 1 again").toLooseEqual(1);
+    expect(q.colCount, "Default value is 1 again").toBe(1);
   });
   test("Validated property values", () => {
     const survey = new SurveyModel();
@@ -2490,12 +2490,12 @@ describe("JsonSerializationTests", () => {
         { type: "text", name: "q1", textUpdateMode: "edf" }
       ]
     }, { validatePropertyValues: true });
-    expect(survey.getAllQuestions().length, "We have one question loaded").toLooseEqual(1);
-    expect(survey.jsonErrors.length, "There are two errors").toLooseEqual(2);
-    expect(survey.jsonErrors[0].message, "errors[0].message").toLooseEqual("The property value: 'abc' is incorrect for property 'clearInvisibleValues'.");
-    expect(survey.jsonErrors[0].element.getType(), "errors[0].element").toLooseEqual("survey");
-    expect(survey.jsonErrors[1].message, "errors[1].message").toLooseEqual("The property value: 'edf' is incorrect for property 'textUpdateMode'.");
-    expect(survey.jsonErrors[1].element.getType(), "errors[1].element").toLooseEqual("text");
+    expect(survey.getAllQuestions().length, "We have one question loaded").toBe(1);
+    expect(survey.jsonErrors.length, "There are two errors").toBe(2);
+    expect(survey.jsonErrors[0].message, "errors[0].message").toBe("The property value: 'abc' is incorrect for property 'clearInvisibleValues'.");
+    expect(survey.jsonErrors[0].element.getType(), "errors[0].element").toBe("survey");
+    expect(survey.jsonErrors[1].message, "errors[1].message").toBe("The property value: 'edf' is incorrect for property 'textUpdateMode'.");
+    expect(survey.jsonErrors[1].element.getType(), "errors[1].element").toBe("text");
   });
   test("Validated property values & get choices by obj, Bug#10818", () => {
     Serializer.addProperty("question", { name: "prop1", choices: (obj: Base) => {
@@ -2508,7 +2508,7 @@ describe("JsonSerializationTests", () => {
         { type: "checkbox", name: "q2", prop1: 5 }
       ]
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There are no errors").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There are no errors").toBeNull();
     Serializer.removeProperty("question", "prop1");
   });
   test("Validated property values & get choices by obj vs callback function, Bug#10845", () => {
@@ -2526,7 +2526,7 @@ describe("JsonSerializationTests", () => {
         { type: "checkbox", name: "q2", prop1: 5 }
       ]
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There are no errors").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There are no errors").toBeNull();
     Serializer.removeProperty("question", "prop1");
   });
   test("Validated property values with boolean property type, Bug#10759", () => {
@@ -2535,22 +2535,22 @@ describe("JsonSerializationTests", () => {
       showQuestionNumbers: true
 
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There is no errors, #1").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There is no errors, #1").toBeNull();
     survey.fromJSON({
       showQuestionNumbers: false
 
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There is no errors, #2").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There is no errors, #2").toBeNull();
     survey.fromJSON({
       showQuestionNumbers: "abc"
 
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors.length, "There is one error, #3").toLooseEqual(1);
+    expect(survey.jsonErrors.length, "There is one error, #3").toBe(1);
     survey.fromJSON({
       showQuestionNumbers: "recursive"
 
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There is no errors, #4").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There is no errors, #4").toBeNull();
   });
   test("Validated property values where choices values are objects, Bug#10773", () => {
     Serializer.addProperty("survey", { name: "prop1", choices: [
@@ -2563,7 +2563,7 @@ describe("JsonSerializationTests", () => {
       prop1: { }
 
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There is no errors, #1").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There is no errors, #1").toBeNull();
     Serializer.removeProperty("survey", "prop1");
   });
   test("Validated property values where choices values are objects vs {value, text}, Bug#10813", () => {
@@ -2577,7 +2577,7 @@ describe("JsonSerializationTests", () => {
       prop1: 2
 
     }, { validatePropertyValues: true });
-    expect(survey.jsonErrors, "There is no errors, #1").toLooseEqual(undefined);
+    expect(survey.jsonErrors, "There is no errors, #1").toBeNull();
     Serializer.removeProperty("survey", "prop1");
   });
   test("getRequiredProperties", () => {
@@ -2595,24 +2595,24 @@ describe("JsonSerializationTests", () => {
     Serializer.addProperty("page", { name: "customProp:text", isLocalizable: true, default: "Page text" });
     const question = new Question("q1");
     const page = new PageModel("page1");
-    expect(question["customProp"], "Question prop #1").toLooseEqual("Question text");
-    expect(page["customProp"], "Page prop #1").toLooseEqual("Page text");
-    expect(question.getPropertyValue("customProp"), "Question getPropertyValue #1").toLooseEqual("Question text");
-    expect(page.getPropertyValue("customProp"), "Page getPropertyValue #1").toLooseEqual("Page text");
+    expect(question["customProp"], "Question prop #1").toBe("Question text");
+    expect(page["customProp"], "Page prop #1").toBe("Page text");
+    expect(question.getPropertyValue("customProp"), "Question getPropertyValue #1").toBe("Question text");
+    expect(page.getPropertyValue("customProp"), "Page getPropertyValue #1").toBe("Page text");
 
     question["customProp"] = "Set question val";
     page["customProp"] = "Set page val";
-    expect(question["customProp"], "Question prop #2").toLooseEqual("Set question val");
-    expect(page["customProp"], "Page prop #2").toLooseEqual("Set page val");
-    expect(question.getPropertyValue("customProp"), "Question getPropertyValue #2").toLooseEqual("Set question val");
-    expect(page.getPropertyValue("customProp"), "Page getPropertyValue #2").toLooseEqual("Set page val");
+    expect(question["customProp"], "Question prop #2").toBe("Set question val");
+    expect(page["customProp"], "Page prop #2").toBe("Set page val");
+    expect(question.getPropertyValue("customProp"), "Question getPropertyValue #2").toBe("Set question val");
+    expect(page.getPropertyValue("customProp"), "Page getPropertyValue #2").toBe("Set page val");
 
     question.resetPropertyValue("customProp");
     page.resetPropertyValue("customProp");
-    expect(question["customProp"], "Question prop #3").toLooseEqual("Question text");
-    expect(page["customProp"], "Page prop #3").toLooseEqual("Page text");
-    expect(question.getPropertyValue("customProp"), "Question getPropertyValue #3").toLooseEqual("Question text");
-    expect(page.getPropertyValue("customProp"), "Page getPropertyValue #3").toLooseEqual("Page text");
+    expect(question["customProp"], "Question prop #3").toBe("Question text");
+    expect(page["customProp"], "Page prop #3").toBe("Page text");
+    expect(question.getPropertyValue("customProp"), "Question getPropertyValue #3").toBe("Question text");
+    expect(page.getPropertyValue("customProp"), "Page getPropertyValue #3").toBe("Page text");
 
     Serializer.removeProperty("question", "customProp");
     Serializer.removeProperty("page", "customProp");
@@ -2627,15 +2627,15 @@ describe("JsonSerializationTests", () => {
   });
   test("Versions in property", () => {
     const prop = Serializer.addProperty("question", { name: "testProperty", version: "1.9.127" });
-    expect(prop.version, "version is set correclty").toLooseEqual("1.9.127");
-    expect(prop.isAvailableInVersion("1.9.5"), "#1").toLooseEqual(false);
-    expect(prop.isAvailableInVersion("1.9.200"), "#2").toLooseEqual(true);
-    expect(prop.isAvailableInVersion("2"), "#3").toLooseEqual(true);
-    expect(prop.isAvailableInVersion("1"), "#4").toLooseEqual(false);
-    expect(prop.isAvailableInVersion("1.9.127"), "#5").toLooseEqual(true);
-    expect(prop.isAvailableInVersion("1.9.126"), "#6").toLooseEqual(false);
-    expect(prop.isAvailableInVersion("1.9.128"), "#7").toLooseEqual(true);
-    expect(prop.isAvailableInVersion(""), "#8").toLooseEqual(true);
+    expect(prop.version, "version is set correclty").toBe("1.9.127");
+    expect(prop.isAvailableInVersion("1.9.5"), "#1").toBe(false);
+    expect(prop.isAvailableInVersion("1.9.200"), "#2").toBe(true);
+    expect(prop.isAvailableInVersion("2"), "#3").toBe(true);
+    expect(prop.isAvailableInVersion("1"), "#4").toBe(false);
+    expect(prop.isAvailableInVersion("1.9.127"), "#5").toBe(true);
+    expect(prop.isAvailableInVersion("1.9.126"), "#6").toBe(false);
+    expect(prop.isAvailableInVersion("1.9.128"), "#7").toBe(true);
+    expect(prop.isAvailableInVersion(""), "#8").toBe(true);
     Serializer.removeProperty("question", "testProperty");
   });
   test("Versions in new property serialization", () => {
@@ -2650,12 +2650,12 @@ describe("JsonSerializationTests", () => {
   test("Versions & alternative name", () => {
     const prop = Serializer.addProperty("question", { name: "testProperty", version: "1.9.127", alternativeName: "testProp" });
 
-    expect(prop.isAvailableInVersion("1.9.5"), "isAvailableInVersion: #1").toLooseEqual(true);
-    expect(prop.isAvailableInVersion("1.9.200"), "isAvailableInVersion: #2").toLooseEqual(true);
-    expect(prop.isAvailableInVersion(""), "isAvailableInVersion: #3").toLooseEqual(true);
-    expect(prop.getSerializedName("1.9.5"), "getSerializedName: #1").toLooseEqual("testProp");
-    expect(prop.getSerializedName("1.9.200"), "getSerializedName: #2").toLooseEqual("testProperty");
-    expect(prop.getSerializedName(""), "getSerializedName: #3").toLooseEqual("testProperty");
+    expect(prop.isAvailableInVersion("1.9.5"), "isAvailableInVersion: #1").toBe(true);
+    expect(prop.isAvailableInVersion("1.9.200"), "isAvailableInVersion: #2").toBe(true);
+    expect(prop.isAvailableInVersion(""), "isAvailableInVersion: #3").toBe(true);
+    expect(prop.getSerializedName("1.9.5"), "getSerializedName: #1").toBe("testProp");
+    expect(prop.getSerializedName("1.9.200"), "getSerializedName: #2").toBe("testProperty");
+    expect(prop.getSerializedName(""), "getSerializedName: #3").toBe("testProperty");
 
     const question = new QuestionTextModel("q1");
     question.testProperty = "abc";
@@ -2685,7 +2685,7 @@ describe("JsonSerializationTests", () => {
     const column = survey.getQuestionByName("matrix").columns[0];
     const prop = Serializer.findProperty("matrixdropdowncolumn", "showInMultipleColumns");
     expect(prop, "property is here").toBeTruthy();
-    expect(prop.isVisible("", column), "column is visible").toLooseEqual(true);
+    expect(prop.isVisible("", column), "column is visible").toBe(true);
   });
   test("displayName, empty string", () => {
     const prop1 = Serializer.addProperty("question", { name: "testProperty1", displayName: "" });
@@ -2709,22 +2709,22 @@ describe("JsonSerializationTests", () => {
     const q = new Question("q1");
 
     expect(prop1.enableIf, "prop1.enableIf").toBeFalsy();
-    expect(prop1.isEnable(null), "prop1 #1").toLooseEqual(false);
-    expect(prop1.isEnable(q), "prop1 #2").toLooseEqual(false);
+    expect(prop1.isEnable(null), "prop1 #1").toBe(false);
+    expect(prop1.isEnable(q), "prop1 #2").toBe(false);
 
     expect(prop2.enableIf, "prop2.enableIf").toBeTruthy();
-    expect(prop2.isEnable(null), "prop2 #1").toLooseEqual(true);
-    expect(prop2.isEnable(q), "prop2 #2").toLooseEqual(false);
+    expect(prop2.isEnable(null), "prop2 #1").toBe(true);
+    expect(prop2.isEnable(q), "prop2 #2").toBe(false);
     q.title = "abc";
-    expect(prop2.isEnable(q), "prop2 #3").toLooseEqual(true);
+    expect(prop2.isEnable(q), "prop2 #3").toBe(true);
 
     expect(prop3.enableIf, "prop3.enableIf").toBeFalsy();
-    expect(prop3.isEnable(null), "prop3 #1").toLooseEqual(true);
-    expect(prop3.isEnable(q), "prop3 #2").toLooseEqual(true);
+    expect(prop3.isEnable(null), "prop3 #1").toBe(true);
+    expect(prop3.isEnable(q), "prop3 #2").toBe(true);
 
     expect(prop4.enableIf, "prop4.enableIf").toBeTruthy();
-    expect(prop4.isEnable(null), "prop4 #1").toLooseEqual(false);
-    expect(prop4.isEnable(q), "prop4 #2").toLooseEqual(false);
+    expect(prop4.isEnable(null), "prop4 #1").toBe(false);
+    expect(prop4.isEnable(q), "prop4 #2").toBe(false);
 
     Serializer.removeProperty("question", "testProperty1");
     Serializer.removeProperty("question", "testProperty2");
@@ -2741,8 +2741,8 @@ describe("JsonSerializationTests", () => {
       testProperty1: "abc",
       testProperty2: "edf"
     });
-    expect(q.testProperty1, "testProperty1 value").toLooseEqual("abc");
-    expect(q.testProperty2, "testProperty2 value").toLooseEqual("edf");
+    expect(q.testProperty1, "testProperty1 value").toBe("abc");
+    expect(q.testProperty2, "testProperty2 value").toBe("edf");
 
     Serializer.removeProperty("question", "testProperty1");
     Serializer.removeProperty("question", "testProperty2");
@@ -2829,13 +2829,13 @@ describe("JsonSerializationTests", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.prop1, "text question").toLooseEqual(true);
-    expect(q2.columns[0].prop1, "columns[0]").toLooseEqual(true);
-    expect(q2.columns[1].prop1, "columns[1]").toLooseEqual(false);
-    expect(q2.columns[2].prop1, "columns[2]").toLooseEqual(true);
-    expect(onSetValueObjType, "object is not a column in onSetValue").not.toLooseEqual(q2.columns[0].getType());
-    expect(onSettingValueObjType, "object is not a column in onSettingValue").not.toLooseEqual(q2.columns[0].getType());
-    expect(onGetValueObjType, "object is not a column in onGetValueObjType").not.toLooseEqual(q2.columns[0].getType());
+    expect(q1.prop1, "text question").toBe(true);
+    expect(q2.columns[0].prop1, "columns[0]").toBe(true);
+    expect(q2.columns[1].prop1, "columns[1]").toBe(false);
+    expect(q2.columns[2].prop1, "columns[2]").toBe(true);
+    expect(onSetValueObjType, "object is not a column in onSetValue").not.toBe(q2.columns[0].getType());
+    expect(onSettingValueObjType, "object is not a column in onSettingValue").not.toBe(q2.columns[0].getType());
+    expect(onGetValueObjType, "object is not a column in onGetValueObjType").not.toBe(q2.columns[0].getType());
     Serializer.removeProperty("question", "prop1");
   });
   test("Add availableInMatrixColumn attribute", () => {
@@ -2843,9 +2843,9 @@ describe("JsonSerializationTests", () => {
     const prop2 = Serializer.addProperty("question", { name: "prop2", availableInMatrixColumn: false });
     const prop3 = Serializer.addProperty("question", { name: "prop3" });
 
-    expect(prop1.availableInMatrixColumn, "prop1").toLooseEqual(true);
-    expect(prop2.availableInMatrixColumn, "prop2").toLooseEqual(undefined);
-    expect(prop3.availableInMatrixColumn, "prop3").toLooseEqual(undefined);
+    expect(prop1.availableInMatrixColumn, "prop1").toBe(true);
+    expect(prop2.availableInMatrixColumn, "prop2").toBeUndefined();
+    expect(prop3.availableInMatrixColumn, "prop3").toBeUndefined();
 
     Serializer.removeProperty("question", "prop1");
     Serializer.removeProperty("question", "prop2");
@@ -2854,17 +2854,17 @@ describe("JsonSerializationTests", () => {
   test("Add defaultFunc attribute based on another property & obj parameter, Bug#9108", () => {
     Serializer.addProperty("question", { name: "secondName", defaultFunc: (obj: any) => { return obj.name + "_second"; } });
     const obj: any = new QuestionTextModel("q1");
-    expect(obj.secondName, "secondName #1").toLooseEqual("q1_second");
+    expect(obj.secondName, "secondName #1").toBe("q1_second");
     obj.name = "q2";
-    expect(obj.secondName, "secondName #2").toLooseEqual("q2_second");
+    expect(obj.secondName, "secondName #2").toBe("q2_second");
     expect(obj.toJSON(), "toJSON #1").toEqualValues({ name: "q2" });
 
     obj.secondName = "q3_s";
-    expect(obj.secondName, "secondName #3").toLooseEqual("q3_s");
+    expect(obj.secondName, "secondName #3").toBe("q3_s");
     expect(obj.toJSON(), "toJSON #2").toEqualValues({ name: "q2", secondName: "q3_s" });
 
     obj.resetPropertyValue("secondName");
-    expect(obj.secondName, "secondName #4").toLooseEqual("q2_second");
+    expect(obj.secondName, "secondName #4").toBe("q2_second");
     expect(obj.toJSON(), "toJSON #3").toEqualValues({ name: "q2" });
 
     Serializer.removeProperty("question", "secondName");
@@ -2878,10 +2878,10 @@ describe("JsonSerializationTests", () => {
     pageDescription.placeholder = "pageD";
     panelTitle.placeholder = "panelT";
     panelDescription.placeholder = "panelD";
-    expect(pageTitle.placeholder, "page title unique").toLooseEqual("pageT");
-    expect(pageDescription.placeholder, "page description unique").toLooseEqual("pageD");
-    expect(panelTitle.placeholder, "panel title unique").toLooseEqual("panelT");
-    expect(panelDescription.placeholder, "panel description unique").toLooseEqual("panelD");
+    expect(pageTitle.placeholder, "page title unique").toBe("pageT");
+    expect(pageDescription.placeholder, "page description unique").toBe("pageD");
+    expect(panelTitle.placeholder, "panel title unique").toBe("panelT");
+    expect(panelDescription.placeholder, "panel description unique").toBe("panelD");
   });
   test("property showMode -> locationInTable, #9291", () => {
     const prop1 = Serializer.addProperty("question", { name: "prop1", showMode: "form" });
@@ -2891,38 +2891,38 @@ describe("JsonSerializationTests", () => {
     const prop5 = Serializer.addProperty("question", { name: "prop5", locationInTable: "column" });
     const prop6 = Serializer.addProperty("question", { name: "prop6", locationInTable: "both" });
 
-    expect(prop1.showMode, "prop1.showMode").toLooseEqual("form");
-    expect(prop1.locationInTable, "prop1.locationInTable").toLooseEqual("detail");
-    expect(prop2.showMode, "prop2.showMode").toLooseEqual("form");
-    expect(prop2.locationInTable, "prop2.locationInTable").toLooseEqual("detail");
-    expect(prop3.showMode, "prop3.showMode").toLooseEqual("");
-    expect(prop3.locationInTable, "prop3.locationInTable").toLooseEqual("column");
-    expect(prop4.showMode, "prop4.showMode").toLooseEqual("list");
-    expect(prop4.locationInTable, "prop4.locationInTable").toLooseEqual("column");
-    expect(prop5.showMode, "prop5.showMode").toLooseEqual("list");
-    expect(prop5.locationInTable, "prop5.locationInTable").toLooseEqual("column");
-    expect(prop6.showMode, "prop6.showMode").toLooseEqual("");
-    expect(prop6.locationInTable, "prop6.locationInTable").toLooseEqual("both");
+    expect(prop1.showMode, "prop1.showMode").toBe("form");
+    expect(prop1.locationInTable, "prop1.locationInTable").toBe("detail");
+    expect(prop2.showMode, "prop2.showMode").toBe("form");
+    expect(prop2.locationInTable, "prop2.locationInTable").toBe("detail");
+    expect(prop3.showMode, "prop3.showMode").toBe("");
+    expect(prop3.locationInTable, "prop3.locationInTable").toBe("column");
+    expect(prop4.showMode, "prop4.showMode").toBe("list");
+    expect(prop4.locationInTable, "prop4.locationInTable").toBe("column");
+    expect(prop5.showMode, "prop5.showMode").toBe("list");
+    expect(prop5.locationInTable, "prop5.locationInTable").toBe("column");
+    expect(prop6.showMode, "prop6.showMode").toBe("");
+    expect(prop6.locationInTable, "prop6.locationInTable").toBe("both");
 
     prop1.showMode = "";
-    expect(prop1.showMode, "prop1.showMode, #2").toLooseEqual("");
-    expect(prop1.locationInTable, "prop1.locationInTable, #2").toLooseEqual("column");
+    expect(prop1.showMode, "prop1.showMode, #2").toBe("");
+    expect(prop1.locationInTable, "prop1.locationInTable, #2").toBe("column");
     prop1.showMode = "list";
-    expect(prop1.showMode, "prop1.showMode, #3").toLooseEqual("list");
-    expect(prop1.locationInTable, "prop1.locationInTable, #3").toLooseEqual("column");
+    expect(prop1.showMode, "prop1.showMode, #3").toBe("list");
+    expect(prop1.locationInTable, "prop1.locationInTable, #3").toBe("column");
     prop1.showMode = "form";
-    expect(prop1.showMode, "prop1.showMode, #4").toLooseEqual("form");
-    expect(prop1.locationInTable, "prop1.locationInTable, #4").toLooseEqual("detail");
+    expect(prop1.showMode, "prop1.showMode, #4").toBe("form");
+    expect(prop1.locationInTable, "prop1.locationInTable, #4").toBe("detail");
 
     prop1.locationInTable = "both";
-    expect(prop1.showMode, "prop1.showMode, #5").toLooseEqual("");
-    expect(prop1.locationInTable, "prop1.locationInTable, #5").toLooseEqual("both");
+    expect(prop1.showMode, "prop1.showMode, #5").toBe("");
+    expect(prop1.locationInTable, "prop1.locationInTable, #5").toBe("both");
     prop1.locationInTable = "column";
-    expect(prop1.showMode, "prop1.showMode, #6").toLooseEqual("list");
-    expect(prop1.locationInTable, "prop1.locationInTable, #6").toLooseEqual("column");
+    expect(prop1.showMode, "prop1.showMode, #6").toBe("list");
+    expect(prop1.locationInTable, "prop1.locationInTable, #6").toBe("column");
     prop1.locationInTable = "detail";
-    expect(prop1.showMode, "prop1.showMode, #7").toLooseEqual("form");
-    expect(prop1.locationInTable, "prop1.locationInTable, #7").toLooseEqual("detail");
+    expect(prop1.showMode, "prop1.showMode, #7").toBe("form");
+    expect(prop1.locationInTable, "prop1.locationInTable, #7").toBe("detail");
 
     Serializer.removeProperty("question", "prop1");
     Serializer.removeProperty("question", "prop2");
@@ -2963,12 +2963,12 @@ describe("JsonSerializationTests", () => {
       const col2 = q.addColumn("col2");
       col2.isRequired = false;
       const col3 = q.addColumn("col3");
-      expect(col1.toJSON().isRequired, "col1.toJSON() is required, #" + num).toLooseEqual(dv1);
-      expect(col2.toJSON().isRequired, "col2.toJSON() is required, #" + num).toLooseEqual(dv2);
-      expect(col3.toJSON().isRequired, "col3.toJSON() is required, #" + num).toLooseEqual(dv3);
-      expect(col1.isRequired, "col1 is required, #" + num).toLooseEqual(v1);
-      expect(col2.isRequired, "col2 is required, #" + num).toLooseEqual(v2);
-      expect(col3.isRequired, "col3 is required, #" + num).toLooseEqual(v3);
+      expect(col1.toJSON().isRequired, "col1.toJSON() is required, #" + num).toBe(dv1);
+      expect(col2.toJSON().isRequired, "col2.toJSON() is required, #" + num).toBe(dv2);
+      expect(col3.toJSON().isRequired, "col3.toJSON() is required, #" + num).toBe(dv3);
+      expect(col1.isRequired, "col1 is required, #" + num).toBe(v1);
+      expect(col2.isRequired, "col2 is required, #" + num).toBe(v2);
+      expect(col3.isRequired, "col3 is required, #" + num).toBe(v3);
     };
     doChecks(1, true, undefined, undefined, true, false, false);
     Serializer.findProperty("question", "isRequired").defaultValue = true;
@@ -2986,25 +2986,25 @@ describe("JsonSerializationTests", () => {
     const prop = Serializer.findProperty("choiceitem", "showCommentArea");
     const q1 = new QuestionCheckboxModel("q1");
     q1.choices = [1];
-    expect(prop.isVisible("", q1.choices[0]), "showCommentArea is visible choice item in checkbox question").toLooseEqual(true);
+    expect(prop.isVisible("", q1.choices[0]), "showCommentArea is visible choice item in checkbox question").toBe(true);
     const q2 = new QuestionTagboxModel("q2");
     q2.choices = [1];
-    expect(prop.isVisible("", q2.choices[0]), "showCommentArea is invisible choice item in tagbox question").toLooseEqual(false);
+    expect(prop.isVisible("", q2.choices[0]), "showCommentArea is invisible choice item in tagbox question").toBe(false);
   });
   test("Could not override default value for valueName & titleName properties in choicesByUrl object, Bug#10088", () => {
     const valueProp = Serializer.findProperty("choicesbyurl", "valueName");
     const titleProp = Serializer.findProperty("choicesbyurl", "titleName");
     const q = new QuestionCheckboxModel("q1");
-    expect(q.choicesByUrl.valueName, "default valueName, #1").toLooseEqual("");
-    expect(q.choicesByUrl.titleName, "default titleName, #1").toLooseEqual("");
+    expect(q.choicesByUrl.valueName, "default valueName, #1").toBe("");
+    expect(q.choicesByUrl.titleName, "default titleName, #1").toBe("");
     valueProp.defaultValue = "id";
     titleProp.defaultValue = "name";
-    expect(q.choicesByUrl.valueName, "default valueName, #2").toLooseEqual("id");
-    expect(q.choicesByUrl.titleName, "default titleName, #2").toLooseEqual("name");
+    expect(q.choicesByUrl.valueName, "default valueName, #2").toBe("id");
+    expect(q.choicesByUrl.titleName, "default titleName, #2").toBe("name");
     valueProp.defaultValue = undefined;
     titleProp.defaultValue = undefined;
-    expect(q.choicesByUrl.valueName, "default valueName, #3").toLooseEqual("");
-    expect(q.choicesByUrl.titleName, "default titleName, #3").toLooseEqual("");
+    expect(q.choicesByUrl.valueName, "default valueName, #3").toBe("");
+    expect(q.choicesByUrl.titleName, "default titleName, #3").toBe("");
   });
   test("Make expression question invisible by default, Bug#10135", () => {
     Serializer.getProperty("expression", "visible").defaultValue = false;
@@ -3026,9 +3026,9 @@ describe("JsonSerializationTests", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
-    expect(q1.visible, "expression q1 is invisible by default").toLooseEqual(false);
-    expect(q2.visible, "expression q2 is visible").toLooseEqual(true);
-    expect(q3.visible, "text q3 is visible").toLooseEqual(true);
+    expect(q1.visible, "expression q1 is invisible by default").toBe(false);
+    expect(q2.visible, "expression q2 is visible").toBe(true);
+    expect(q3.visible, "text q3 is visible").toBe(true);
     expect(q1.toJSON(), "expression q1 toJSON is empty").toEqualValues({ name: "q1" });
     expect(q2.toJSON(), "expression q2 toJSON is not empty").toEqualValues({ name: "q2", visible: true });
     expect(q3.toJSON(), "text q3 toJSON is empty").toEqualValues({ name: "q3" });
@@ -3036,9 +3036,9 @@ describe("JsonSerializationTests", () => {
   });
   test("Do not create localization string on serializing", () => {
     const q = new QuestionTextModel("q1");
-    expect(q.getLocalizableString("description"), "There is no description by default").toLooseEqual(undefined);
+    expect(q.getLocalizableString("description"), "There is no description by default").toBeUndefined();
     q.toJSON();
-    expect(q.getLocalizableString("description"), "There is no description after serializing").toLooseEqual(undefined);
+    expect(q.getLocalizableString("description"), "There is no description after serializing").toBeUndefined();
     q.description = "desc";
     expect(q.getLocalizableString("description"), "There is a description after setting the value").toBeTruthy();
   });

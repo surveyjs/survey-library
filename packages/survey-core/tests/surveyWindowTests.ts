@@ -7,9 +7,9 @@ describe("PopupSurvey", () => {
   test("Survey is created", () => {
     const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
     const questions = window.survey.getAllQuestions();
-    expect(questions.length, "There is one question").toLooseEqual(1);
-    expect(questions[0].name, "The question name is correct").toLooseEqual("q1");
-    expect(window.survey.showTitle, "Show survey title by default").toLooseEqual(true);
+    expect(questions.length, "There is one question").toBe(1);
+    expect(questions[0].name, "The question name is correct").toBe("q1");
+    expect(window.survey.showTitle, "Show survey title by default").toBe(true);
   });
   test("isShowing/isExpanded properties", () => {
     const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
@@ -21,32 +21,32 @@ describe("PopupSurvey", () => {
     window.showingChangedCallback = () => {
       showingCounter ++;
     };
-    expect(window.isShowing, "It is showing by default").toLooseEqual(false);
-    expect(window.isExpanded, "It is not expanded by default").toLooseEqual(false);
+    expect(window.isShowing, "It is showing by default").toBe(false);
+    expect(window.isExpanded, "It is not expanded by default").toBe(false);
     window.show();
-    expect(window.isShowing, "show window").toLooseEqual(true);
-    expect(showingCounter, "showingCounter #1").toLooseEqual(1);
-    expect(expandedCounter, "expandedCounter #1").toLooseEqual(0);
+    expect(window.isShowing, "show window").toBe(true);
+    expect(showingCounter, "showingCounter #1").toBe(1);
+    expect(expandedCounter, "expandedCounter #1").toBe(0);
     window.expand();
-    expect(window.isExpanded, "expand window").toLooseEqual(true);
-    expect(showingCounter, "showingCounter #2").toLooseEqual(1);
-    expect(expandedCounter, "expandedCounter #2").toLooseEqual(1);
+    expect(window.isExpanded, "expand window").toBe(true);
+    expect(showingCounter, "showingCounter #2").toBe(1);
+    expect(expandedCounter, "expandedCounter #2").toBe(1);
     window.collapse();
-    expect(window.isExpanded, "collapse window").toLooseEqual(false);
-    expect(showingCounter, "showingCounter #3").toLooseEqual(1);
-    expect(expandedCounter, "expandedCounter #3").toLooseEqual(2);
+    expect(window.isExpanded, "collapse window").toBe(false);
+    expect(showingCounter, "showingCounter #3").toBe(1);
+    expect(expandedCounter, "expandedCounter #3").toBe(2);
     window.changeExpandCollapse();
-    expect(window.isExpanded, "changeExpandCollapse window, #1").toLooseEqual(true);
-    expect(showingCounter, "showingCounter #4").toLooseEqual(1);
-    expect(expandedCounter, "expandedCounter #4").toLooseEqual(3);
+    expect(window.isExpanded, "changeExpandCollapse window, #1").toBe(true);
+    expect(showingCounter, "showingCounter #4").toBe(1);
+    expect(expandedCounter, "expandedCounter #4").toBe(3);
     window.changeExpandCollapse();
-    expect(window.isExpanded, "changeExpandCollapse window, #2").toLooseEqual(false);
-    expect(showingCounter, "showingCounter #5").toLooseEqual(1);
-    expect(expandedCounter, "expandedCounter #5").toLooseEqual(4);
+    expect(window.isExpanded, "changeExpandCollapse window, #2").toBe(false);
+    expect(showingCounter, "showingCounter #5").toBe(1);
+    expect(expandedCounter, "expandedCounter #5").toBe(4);
     window.hide();
-    expect(window.isShowing, "hide window").toLooseEqual(false);
-    expect(showingCounter, "showingCounter #6").toLooseEqual(2);
-    expect(expandedCounter, "expandedCounter #6").toLooseEqual(4);
+    expect(window.isShowing, "hide window").toBe(false);
+    expect(showingCounter, "showingCounter #6").toBe(2);
+    expect(expandedCounter, "expandedCounter #6").toBe(4);
   });
   test("buttonCss", () => {
     const css = surveyCss.getCss();
@@ -56,14 +56,14 @@ describe("PopupSurvey", () => {
     css.window.header.buttonExpanded = "state2";
 
     const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    expect(window.css.window.header.buttonCollapsed, "check state1").toLooseEqual("state1");
-    expect(window.css.window.header.buttonExpanded, "check state2").toLooseEqual("state2");
+    expect(window.css.window.header.buttonCollapsed, "check state1").toBe("state1");
+    expect(window.css.window.header.buttonExpanded, "check state2").toBe("state2");
     window.show();
-    expect(window.cssButton, "Collapsed").toLooseEqual("state1");
+    expect(window.cssButton, "Collapsed").toBe("state1");
     window.expand();
-    expect(window.cssButton, "expanded").toLooseEqual("state2");
+    expect(window.cssButton, "expanded").toBe("state2");
     window.collapse();
-    expect(window.cssButton, "Collapsed #2").toLooseEqual("state1");
+    expect(window.cssButton, "Collapsed #2").toBe("state1");
 
     css.window.header.buttonCollapsed = oldCssCollapsed;
     css.window.header.buttonExpanded = oldCssExpanded;
@@ -80,11 +80,11 @@ describe("PopupSurvey", () => {
 
     const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
     window.show();
-    expect(window.cssRoot, "Root collapsed").toLooseEqual("windowRoot windowRoot--collapsed");
+    expect(window.cssRoot, "Root collapsed").toBe("windowRoot windowRoot--collapsed");
     window.changeExpandCollapse();
-    expect(window.cssRoot, "Root expanded").toLooseEqual("windowRoot");
-    expect(window.cssHeaderRoot, "HeaderRoot").toLooseEqual("headerRoot");
-    expect(window.cssBody, "windowBody").toLooseEqual("windowBody");
+    expect(window.cssRoot, "Root expanded").toBe("windowRoot");
+    expect(window.cssHeaderRoot, "HeaderRoot").toBe("headerRoot");
+    expect(window.cssBody, "windowBody").toBe("windowBody");
     css.window.root = oldCssRoot;
     css.window.header.root = oldCssHeaderRoot;
     css.window.body = oldCssBody;
@@ -105,17 +105,17 @@ describe("PopupSurvey", () => {
   test("toggleFullScreen", () => {
     const popup = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
     popup.show();
-    expect(popup.isExpanded, "It is not expanded by default").toLooseEqual(false);
+    expect(popup.isExpanded, "It is not expanded by default").toBe(false);
 
     popup.toggleFullScreen();
-    expect(popup.isExpanded, "expanded if full screen on").toLooseEqual(true);
+    expect(popup.isExpanded, "expanded if full screen on").toBe(true);
 
     popup.isExpanded = false;
-    expect(popup.isFullScreen, "fullScreen is off after collapsed").toLooseEqual(false);
+    expect(popup.isFullScreen, "fullScreen is off after collapsed").toBe(false);
 
     popup.isExpanded = true;
     popup.toggleFullScreen();
     popup.toggleFullScreen();
-    expect(popup.isExpanded, "expanded after full screen off").toLooseEqual(true);
+    expect(popup.isExpanded, "expanded after full screen off").toBe(true);
   });
 });

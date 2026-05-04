@@ -7,8 +7,8 @@ describe("UtilsSVGIconsTests", () => {
     const oldIconName = "icon-changecamera"; // see renamedIcons dictionary
     const newIconName = "icon-flip-24x24";
 
-    expect(getNewIconName(newIconName), "newName didn't transform").toLooseEqual(newIconName);
-    expect(getNewIconName(oldIconName), "oldName transformed to newName").toLooseEqual(newIconName);
+    expect(getNewIconName(newIconName), "newName didn't transform").toBe(newIconName);
+    expect(getNewIconName(oldIconName), "oldName transformed to newName").toBe(newIconName);
   });
 
   test("check settings.customIcons for built-in icons swap", () => {
@@ -18,8 +18,8 @@ describe("UtilsSVGIconsTests", () => {
 
     settings.customIcons[builtInIconName] = customIconName;
 
-    expect(getCustomNewIconNameIfExists(originalIconName), "this icon doesn't have a custom name").toLooseEqual(null);
-    expect(getCustomNewIconNameIfExists(builtInIconName), "returns custom name").toLooseEqual(customIconName);
+    expect(getCustomNewIconNameIfExists(originalIconName), "this icon doesn't have a custom name").toBeNull();
+    expect(getCustomNewIconNameIfExists(builtInIconName), "returns custom name").toBe(customIconName);
 
     delete settings.customIcons[builtInIconName];
   });
@@ -31,7 +31,7 @@ describe("UtilsSVGIconsTests", () => {
 
     settings.customIcons[builtInIconNameOld] = customIconNameOld;
 
-    expect(getCustomNewIconNameIfExists(builtInIconNameOld), "returns custom name and transformed to new").toLooseEqual(customIconNameNew);
+    expect(getCustomNewIconNameIfExists(builtInIconNameOld), "returns custom name and transformed to new").toBe(customIconNameNew);
 
     delete settings.customIcons[builtInIconNameOld];
   });
@@ -39,7 +39,7 @@ describe("UtilsSVGIconsTests", () => {
   test("check getIconNameFromProxy: old name without customIcon", () => {
     const oldIconName = "icon-changecamera";
     const newIconName = "icon-flip-24x24";
-    expect(getIconNameFromProxy(oldIconName), "returns new name").toLooseEqual(newIconName);
+    expect(getIconNameFromProxy(oldIconName), "returns new name").toBe(newIconName);
   });
 
   test("Use proxy to get icons in svg, function getIconNameFromProxy", () => {
@@ -47,8 +47,8 @@ describe("UtilsSVGIconsTests", () => {
     const newIconName = "icon-flip-24x24";
 
     settings.customIcons[oldIconName] = newIconName;
-    expect(getIconNameFromProxy(oldIconName)).toLooseEqual(newIconName);
-    expect(getIconNameFromProxy(newIconName)).toLooseEqual(newIconName);
+    expect(getIconNameFromProxy(oldIconName)).toBe(newIconName);
+    expect(getIconNameFromProxy(newIconName)).toBe(newIconName);
     delete settings.customIcons[oldIconName];
   });
 
@@ -60,8 +60,8 @@ describe("UtilsSVGIconsTests", () => {
     const newIconNameToSwap = "icon-close-24x24";
 
     settings.customIcons[oldIconName] = oldIconNameToSwap;
-    expect(getIconNameFromProxy(oldIconName)).toLooseEqual(newIconNameToSwap);
-    expect(getIconNameFromProxy(newIconName)).toLooseEqual(newIconName);
+    expect(getIconNameFromProxy(oldIconName)).toBe(newIconNameToSwap);
+    expect(getIconNameFromProxy(newIconName)).toBe(newIconName);
     delete settings.customIcons[oldIconName];
   });
 
@@ -70,14 +70,14 @@ describe("UtilsSVGIconsTests", () => {
     element.innerHTML = "<use></use>";
     document.body.appendChild(element);
     createSvg(16, 0, 0, "icon-test", element, "titletext");
-    expect(element.querySelector("use")?.getAttribute("xlink:href")).toLooseEqual("#icon-test");
-    expect(element.querySelectorAll("title").length).toLooseEqual(1);
-    expect(element.querySelector("title")?.innerHTML).toLooseEqual("titletext");
+    expect(element.querySelector("use")?.getAttribute("xlink:href")).toBe("#icon-test");
+    expect(element.querySelectorAll("title").length).toBe(1);
+    expect(element.querySelector("title")?.innerHTML).toBe("titletext");
 
     createSvg(16, 0, 0, "icon-test", element, "titletext2");
-    expect(element.querySelector("use")?.getAttribute("xlink:href")).toLooseEqual("#icon-test");
-    expect(element.querySelectorAll("title").length).toLooseEqual(1);
-    expect(element.querySelector("title")?.innerHTML).toLooseEqual("titletext2");
+    expect(element.querySelector("use")?.getAttribute("xlink:href")).toBe("#icon-test");
+    expect(element.querySelectorAll("title").length).toBe(1);
+    expect(element.querySelector("title")?.innerHTML).toBe("titletext2");
 
     element.remove();
   });

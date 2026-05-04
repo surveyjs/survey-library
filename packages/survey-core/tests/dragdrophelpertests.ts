@@ -109,7 +109,7 @@ describe("DragDropHelper Tests", () => {
     let ddHelper: any = new DragDropChoices(undefined);
 
     ddHelper.draggedElement = new ItemValue(null);
-    expect(ddHelper.dropTargetDataAttributeName).toLooseEqual("[data-sv-drop-target-item-value]");
+    expect(ddHelper.dropTargetDataAttributeName).toBe("[data-sv-drop-target-item-value]");
   });
 
   test("choices: onDragStart, onDragEnd, onDragClear events", () => {
@@ -147,16 +147,16 @@ describe("DragDropHelper Tests", () => {
 
     ddHelper["createDraggedElementShortcut"] = ()=>{};
     ddHelper.dragInit(null, ddHelper.draggedElement, ddHelper.parentElement, document.createElement("div"));
-    expect(beforeCount).toLooseEqual(1);
+    expect(beforeCount).toBe(1);
     ddHelper["allowDropHere"] = true;
     ddHelper["domAdapter"]["draggedElementShortcut"] = document.body.appendChild(
       document.createElement("div")
     );
     ddHelper["drop"]();
-    expect(afterCount).toLooseEqual(1);
-    expect(draggedElementParent.name).toLooseEqual("q");
+    expect(afterCount).toBe(1);
+    expect(draggedElementParent.name).toBe("q");
     ddHelper["clear"]();
-    expect(clearCount).toLooseEqual(1);
+    expect(clearCount).toBe(1);
   });
 
   test("DragDropRankingChoices shortcutClass getter", () => {
@@ -172,7 +172,7 @@ describe("DragDropHelper Tests", () => {
     let dndRanking: any = new DragDropRankingChoices(undefined);
     dndRanking.parentElement = survey.getQuestionByName("q");
 
-    expect(dndRanking.shortcutClass).toLooseEqual("sv-ranking");
+    expect(dndRanking.shortcutClass).toBe("sv-ranking");
   });
 
   test("DragDropRankingChoices getIsDragOverRootNode", () => {
@@ -181,12 +181,12 @@ describe("DragDropHelper Tests", () => {
 
     let pathElement = document.createElement("path");
     result = dndRanking.getIsDragOverRootNode(pathElement);
-    expect(result).toLooseEqual(false);
+    expect(result).toBe(false);
 
     const rootNode = document.createElement("div");
     rootNode.className = "someclass sv-ranking someclass2";
     result = dndRanking.getIsDragOverRootNode(rootNode);
-    expect(result).toLooseEqual(true);
+    expect(result).toBe(true);
 
     pathElement.remove();
     rootNode.remove();
@@ -212,14 +212,14 @@ describe("DragDropHelper Tests", () => {
     dndRanking.parentElement.dropTargetNodeMove = null;
     dndRanking.parentElement.updateRankingChoices(true);
 
-    expect(count, "After update w/o longs tap").toLooseEqual(2);
+    expect(count, "After update w/o longs tap").toBe(2);
     count = 0;
 
     dndRanking.parentElement.longTap = true;
     dndRanking.parentElement.dropTargetNodeMove = null;
     dndRanking.parentElement.updateRankingChoices(true);
 
-    expect(count, "After update with longs tap").toLooseEqual(2);
+    expect(count, "After update with longs tap").toBe(2);
   });
 
   test("DragDrop shortcutCoordinates", () => {
@@ -229,25 +229,25 @@ describe("DragDropHelper Tests", () => {
     const shortcutWidth = 20;
     const shortcutXOffset = 10;
     const shortcutRightCoordinate = dnd["getShortcutRightCoordinate"](currentXCoordinate, shortcutWidth, shortcutXOffset);
-    expect(shortcutRightCoordinate).toLooseEqual(20 + 20 - 10);
+    expect(shortcutRightCoordinate).toBe(20 + 20 - 10);
 
     const currentYCoordinate = 10;
     const shortcutHeight = 10;
     const shortcutYOffset = 5;
     const shortcutBottomCoordinate = dnd["getShortcutBottomCoordinate"](currentYCoordinate, shortcutHeight, shortcutYOffset);
-    expect(shortcutBottomCoordinate).toLooseEqual(10 + 10 - 5);
+    expect(shortcutBottomCoordinate).toBe(10 + 10 - 5);
   });
 
   test("DragDropDOMAdapter documentOrShadowRoot", () => {
     let dndDomAdapter: any = new DragDropDOMAdapter(<any>null);
-    expect(dndDomAdapter.documentOrShadowRoot).toLooseEqual(document);
+    expect(dndDomAdapter.documentOrShadowRoot).toBe(document);
 
     let node = document.createElement("div");
     node.attachShadow({ mode: "open" });
     document.body.appendChild(node);
     let shadowRoot = <Document | ShadowRoot>node.shadowRoot;
     settings.environment.root = shadowRoot;
-    expect(dndDomAdapter.documentOrShadowRoot).toLooseEqual(shadowRoot);
+    expect(dndDomAdapter.documentOrShadowRoot).toBe(shadowRoot);
     settings.environment.root = document;
     document.body.removeChild(node);
   });
@@ -262,13 +262,13 @@ describe("DragDropHelper Tests", () => {
     testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><div class=\"sd-imagepicker__no-image\"></div><div class=\"svc-image-item-value-controls\"></div>";
     const draggedElement1 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
     let result1 = createImagePickerShortcut(item, "", draggedElement1, null);
-    expect(result1.querySelectorAll(".sd-imagepicker__no-image").length).toLooseEqual(1);
+    expect(result1.querySelectorAll(".sd-imagepicker__no-image").length).toBe(1);
 
     item.imageLink = "#";
     testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><img src=\"#\"></div><div class=\"svc-image-item-value-controls\"></div>";
     const draggedElement2 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
     let result2 = createImagePickerShortcut(item, "", draggedElement2, null);
-    expect(result2.querySelectorAll("img").length).toLooseEqual(1);
+    expect(result2.querySelectorAll("img").length).toBe(1);
     element.remove();
   });
 
@@ -297,8 +297,8 @@ describe("DragDropHelper Tests", () => {
     const questionModel = createRankingQuestionModel();
 
     dndModel.selectToRank(questionModel, 1, 0);
-    expect(questionModel.unRankingChoices.length, "unRankingChoices count").toLooseEqual(2);
-    expect(questionModel.rankingChoices.length, "rankingChoices count").toLooseEqual(1);
+    expect(questionModel.unRankingChoices.length, "unRankingChoices count").toBe(2);
+    expect(questionModel.rankingChoices.length, "rankingChoices count").toBe(1);
   });
 
   test("DragDropRankingSelectToRank unselectFromRank", () => {
@@ -307,8 +307,8 @@ describe("DragDropHelper Tests", () => {
     const questionModel = createRankingQuestionModel(withDefaultValue);
 
     dndModel.unselectFromRank(questionModel, 1);
-    expect(questionModel.unRankingChoices.length, "unRankingChoices count").toLooseEqual(2);
-    expect(questionModel.rankingChoices.length, "rankingChoices count").toLooseEqual(1);
+    expect(questionModel.unRankingChoices.length, "unRankingChoices count").toBe(2);
+    expect(questionModel.rankingChoices.length, "rankingChoices count").toBe(1);
   });
 
   test("DragDropRankingSelectToRank reorderRankedItem", () => {
@@ -318,9 +318,9 @@ describe("DragDropHelper Tests", () => {
     dndModel["parentElement"] = questionModel;
 
     dndModel.reorderRankedItem(questionModel, 0, 1);
-    expect(questionModel.rankingChoices[0].value, "item 1 is correct").toLooseEqual("22");
-    expect(questionModel.rankingChoices[1].value, "item 2 is correct").toLooseEqual("33");
-    expect(questionModel.rankingChoices.length, "rankingChoices count").toLooseEqual(2);
+    expect(questionModel.rankingChoices[0].value, "item 1 is correct").toBe("22");
+    expect(questionModel.rankingChoices[1].value, "item 2 is correct").toBe("33");
+    expect(questionModel.rankingChoices.length, "rankingChoices count").toBe(2);
   });
 
   test("DragDropRankingSelectToRank getIndices", () => {
@@ -328,52 +328,52 @@ describe("DragDropHelper Tests", () => {
     const dndModel = new DragDropRankingSelectToRank();
     const questionModel = createRankingQuestionModel(withDefaultValue);
     let toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(2);
+    expect(toIndex).toBe(2);
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(2);
+    expect(toIndex).toBe(2);
 
     dndModel.draggedElement = questionModel.rankingChoices[0];
     dndModel.dropTarget = questionModel.rankingChoices[1];
     dndModel["_isBottom"] = false;
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(0);
+    expect(toIndex).toBe(0);
 
     dndModel.draggedElement = questionModel.rankingChoices[0];
     dndModel.dropTarget = questionModel.rankingChoices[1];
     dndModel["_isBottom"] = true;
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(1);
+    expect(toIndex).toBe(1);
 
     dndModel.draggedElement = questionModel.rankingChoices[1];
     dndModel.dropTarget = questionModel.rankingChoices[0];
     dndModel["_isBottom"] = false;
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(0);
+    expect(toIndex).toBe(0);
 
     dndModel.draggedElement = questionModel.rankingChoices[1];
     dndModel.dropTarget = questionModel.rankingChoices[0];
     dndModel["_isBottom"] = true;
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(1);
+    expect(toIndex).toBe(1);
 
     dndModel.dropTarget = questionModel.unRankingChoices[0];
     dndModel.draggedElement = questionModel.rankingChoices[1];
     dndModel["_isBottom"] = true;
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(1);
+    expect(toIndex).toBe(1);
 
     dndModel["_isBottom"] = false;
     dndModel.dropTarget = questionModel.unRankingChoices[0];
     dndModel.draggedElement = questionModel.rankingChoices[1];
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(0);
+    expect(toIndex).toBe(0);
 
     questionModel.value = ["11", "22", "33"];
     dndModel.draggedElement = questionModel.rankingChoices[0];
     dndModel.dropTarget = questionModel.rankingChoices[1];
     dndModel["_isBottom"] = true;
     toIndex = dndModel.getIndices(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
-    expect(toIndex).toLooseEqual(1);
+    expect(toIndex).toBe(1);
   });
   // EO selectToRankEnabled
 
@@ -403,13 +403,13 @@ describe("DragDropHelper Tests", () => {
     ddHelper.draggedElement = draggedRow;
     ddHelper["onStartDrag"]();
     ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
-    expect(ddHelper["fromIndex"]).toLooseEqual(1);
+    expect(ddHelper["fromIndex"]).toBe(1);
     expect(question.renderedTable.rows[3].isGhostRow).toBeTruthy();
 
     ddHelper.dropTarget = dropRow;
     ddHelper.isBottom = true;
     ddHelper["afterDragOver"](<any>undefined);
-    expect(ddHelper["toIndex"]).toLooseEqual(3);
+    expect(ddHelper["toIndex"]).toBe(3);
     expect(question.renderedTable.rows[4].row).toBe(dropRow);
     expect(question.renderedTable.rows[5].isGhostRow).toBeTruthy();
     expect(question.renderedTable.rows[5].row).toBe(draggedRow);
@@ -426,13 +426,13 @@ describe("DragDropHelper Tests", () => {
     ddHelper.draggedElement = draggedRow;
     ddHelper["onStartDrag"]();
     ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
-    expect(ddHelper["fromIndex"]).toLooseEqual(2);
+    expect(ddHelper["fromIndex"]).toBe(2);
     expect(question.renderedTable.rows[5].isGhostRow).toBeTruthy();
 
     ddHelper.dropTarget = dropRow;
     ddHelper.isBottom = false;
     ddHelper["afterDragOver"](<any>undefined);
-    expect(ddHelper["toIndex"]).toLooseEqual(0);
+    expect(ddHelper["toIndex"]).toBe(0);
     expect(question.renderedTable.rows[2].row).toBe(dropRow);
     expect(question.renderedTable.rows[1].isGhostRow).toBeTruthy();
     expect(question.renderedTable.rows[1].row).toBe(draggedRow);
@@ -481,7 +481,7 @@ describe("DragDropHelper Tests", () => {
     ddHelper.draggedElement = draggedRow;
     ddHelper["onStartDrag"]();
     ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
-    expect(ddHelper["fromIndex"]).toLooseEqual(2);
+    expect(ddHelper["fromIndex"]).toBe(2);
 
     ddHelper.dropTarget = dropRow;
     ddHelper.isBottom = true;
@@ -526,17 +526,17 @@ describe("DragDropHelper Tests", () => {
     ddHelper.draggedElement = draggedRow;
     ddHelper["onStartDrag"]();
     ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
-    expect(ddHelper["fromIndex"]).toLooseEqual(1);
+    expect(ddHelper["fromIndex"]).toBe(1);
     expect(question.renderedTable.rows[3].isGhostRow).toBeTruthy();
 
     ddHelper.dropTarget = dropRow;
     ddHelper.isBottom = true;
     ddHelper["afterDragOver"](<any>undefined);
-    expect(ddHelper["toIndex"]).toLooseEqual(3);
+    expect(ddHelper["toIndex"]).toBe(3);
 
     dropRow.showDetailPanel();
     ddHelper["afterDragOver"](<any>undefined);
-    expect(ddHelper["toIndex"]).toLooseEqual(2);
+    expect(ddHelper["toIndex"]).toBe(2);
   });
 
   test("rows: check matrixdynamic d&d between different matrices", () => {
@@ -585,18 +585,18 @@ describe("DragDropHelper Tests", () => {
     ddHelper.dropTarget = dropRow;
     ddHelper["onStartDrag"]();
     ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
-    expect(ddHelper["fromIndex"]).toLooseEqual(1);
+    expect(ddHelper["fromIndex"]).toBe(1);
     expect(question1.renderedTable.rows[3].isGhostRow).toBeTruthy();
 
     ddHelper.dropTarget = dropRow;
-    expect(ddHelper["toIndex"]).toLooseEqual(null);
+    expect(ddHelper["toIndex"]).toBeNull();
     expect(question1.renderedTable.rows[3].isGhostRow).toBeTruthy();
     expect(question2.renderedTable.rows.length).toBe(6);
 
     allowDragDrop = true;
     ddHelper.isBottom = true;
     ddHelper["afterDragOver"](<any>undefined);
-    expect(ddHelper["toIndex"]).toLooseEqual(2);
+    expect(ddHelper["toIndex"]).toBe(2);
     expect(question2.renderedTable.rows[3].row).toBe(dropRow);
     expect(question2.renderedTable.rows.length).toBe(7);
     expect(question2.renderedTable.rows[4].isGhostRow).toBeTruthy();
@@ -606,8 +606,8 @@ describe("DragDropHelper Tests", () => {
     ddHelper.clear();
 
     // Verify row was moved correctly
-    expect(question1.visibleRows.length, "First matrix has two rows left").toLooseEqual(2);
-    expect(question2.visibleRows.length, "Second matrix has four rows").toLooseEqual(4);
+    expect(question1.visibleRows.length, "First matrix has two rows left").toBe(2);
+    expect(question2.visibleRows.length, "Second matrix has four rows").toBe(4);
     expect(question1.value, "Dragged row is gone from first matrix").toEqualValues([{ "Col1": "item1" }, { "Col1": "item3" }]);
     expect(question2.value, "Dragged row is now in second matrix").toEqualValues([{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }]);
   });
@@ -711,7 +711,7 @@ describe("DragDropHelper Tests", () => {
 
     const matrixRowMap = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
     const expectedRowCount = q.visibleRows.length + question1Detail.visibleRows.length + question2Detail.visibleRows.length;
-    expect(Object.keys(matrixRowMap).length, "matrixRowMap should contain rows from detail matrices").toLooseEqual(expectedRowCount);
+    expect(Object.keys(matrixRowMap).length, "matrixRowMap should contain rows from detail matrices").toBe(expectedRowCount);
 
     const row1id = question1Detail.visibleRows[0].id;
     const row2id = question2Detail.visibleRows[1].id;
@@ -731,10 +731,10 @@ describe("DragDropHelper Tests", () => {
 
     const firstEvent = changes[0];
     const lastEvent = changes[changes.length - 1];
-    expect(firstEvent[0]["q_detail"].length, "first delete (source changed)").toLooseEqual(1);
-    expect(firstEvent[1]["q_detail"].length, "first delete (target not changed)").toLooseEqual(2);
-    expect(lastEvent[0]["q_detail"].length, "second insert (source not changed)").toLooseEqual(1);
-    expect(lastEvent[1]["q_detail"].length, "second insert (target changed)").toLooseEqual(3);
+    expect(firstEvent[0]["q_detail"].length, "first delete (source changed)").toBe(1);
+    expect(firstEvent[1]["q_detail"].length, "first delete (target not changed)").toBe(2);
+    expect(lastEvent[0]["q_detail"].length, "second insert (source not changed)").toBe(1);
+    expect(lastEvent[1]["q_detail"].length, "second insert (target changed)").toBe(3);
   });
 
   test("ranking selectToRank for ChoicesDND(creator)", () => {
@@ -752,7 +752,7 @@ describe("DragDropHelper Tests", () => {
 
     let ddHelper:any = new DragDropChoices(survey);
     ddHelper.parentElement = survey.getQuestionByName("q1");
-    expect(ddHelper["getChoices"]().length).toLooseEqual(4);
+    expect(ddHelper["getChoices"]().length).toBe(4);
   });
 
   test("DragDropDOMAdapter: getNodeIndexInParent", () => {
@@ -765,8 +765,8 @@ describe("DragDropHelper Tests", () => {
 
     const ddengine: any = null;
     let domAdapter: any = new DragDropDOMAdapter(ddengine);
-    expect(domAdapter.getNodeIndexInParent(child1)).toLooseEqual(0);
-    expect(domAdapter.getNodeIndexInParent(child2)).toLooseEqual(1);
+    expect(domAdapter.getNodeIndexInParent(child1)).toBe(0);
+    expect(domAdapter.getNodeIndexInParent(child2)).toBe(1);
   });
 
   test("DragDropDOMAdapter: insertNodeToParentAtIndex", () => {
@@ -780,8 +780,8 @@ describe("DragDropHelper Tests", () => {
     let domAdapter: any = new DragDropDOMAdapter(ddengine);
     domAdapter.insertNodeToParentAtIndex(parent, child2, 0);
 
-    expect(domAdapter.getNodeIndexInParent(child2)).toLooseEqual(0);
-    expect(domAdapter.getNodeIndexInParent(child1)).toLooseEqual(1);
+    expect(domAdapter.getNodeIndexInParent(child2)).toBe(0);
+    expect(domAdapter.getNodeIndexInParent(child1)).toBe(1);
   });
 
   test("check rootContainer", () => {
@@ -790,8 +790,8 @@ describe("DragDropHelper Tests", () => {
     let survey:any = { rootElement: h1 };
     let creator:any = { rootElement: h2 };
     let dd: any = new DragDropChoices(survey);
-    expect(dd.getRootElement(survey)).toLooseEqual(h1);
-    expect(dd.getRootElement(survey, creator)).toLooseEqual(h2);
+    expect(dd.getRootElement(survey)).toBe(h1);
+    expect(dd.getRootElement(survey, creator)).toBe(h2);
   });
 
   test("getChoices", () => {
@@ -845,11 +845,11 @@ describe("DragDropHelper Tests", () => {
 
     // Verify matrixRowMap contains only matrix1 rows
     const matrixRowMap = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
-    expect(Object.keys(matrixRowMap).length, "Only matrix1 rows should be in matrixRowMap").toLooseEqual(matrix1.visibleRows.length);
+    expect(Object.keys(matrixRowMap).length, "Only matrix1 rows should be in matrixRowMap").toBe(matrix1.visibleRows.length);
 
     for (const key in matrixRowMap) {
       const { matrix } = matrixRowMap[key];
-      expect(matrix, "All rows should belong to matrix1").toLooseEqual(matrix1);
+      expect(matrix, "All rows should belong to matrix1").toBe(matrix1);
     }
 
     // Test when onMatrixRowDragOver event is set
@@ -865,7 +865,7 @@ describe("DragDropHelper Tests", () => {
     // Verify matrixRowMap contains rows from both matrix1 and matrix3
     const matrixRowMap2 = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
     const expectedRowCount = matrix1.visibleRows.length + matrix3.visibleRows.length;
-    expect(Object.keys(matrixRowMap2).length, "matrixRowMap should contain rows from both matrix1 and matrix3").toLooseEqual(expectedRowCount);
+    expect(Object.keys(matrixRowMap2).length, "matrixRowMap should contain rows from both matrix1 and matrix3").toBe(expectedRowCount);
 
     const matricesInMap = new Set<QuestionMatrixDynamicModel>();
     for (const key in matrixRowMap2) {
@@ -920,19 +920,19 @@ describe("DragDropHelper Tests", () => {
     ddHelper.draggedElement = draggedRow;
     ddHelper["onStartDrag"]();
     ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
-    expect(ddHelper["fromIndex"]).toLooseEqual(1);
+    expect(ddHelper["fromIndex"]).toBe(1);
     expect(question1.renderedTable.rows[3].isGhostRow).toBeTruthy();
 
     // Set drop target to empty matrix (no specific row)
     ddHelper.dropTarget = question2;
-    expect(ddHelper["toIndex"]).toLooseEqual(null);
+    expect(ddHelper["toIndex"]).toBeNull();
     expect(question1.renderedTable.rows[3].isGhostRow).toBeTruthy();
     expect(question2.renderedTable.rows.length).toBe(1);
 
     allowDragDrop = true;
     ddHelper.isBottom = true;
     ddHelper["afterDragOver"](<any>undefined);
-    expect(ddHelper["toIndex"]).toLooseEqual(0);
+    expect(ddHelper["toIndex"]).toBe(0);
     expect(question2.renderedTable.rows.length).toBe(2);
     expect(question2.renderedTable.rows[0].isGhostRow).toBeTruthy();
     expect(question2.renderedTable.rows[0].row).toBe(draggedRow);
@@ -941,8 +941,8 @@ describe("DragDropHelper Tests", () => {
     ddHelper.clear();
 
     // Verify row was moved correctly to empty matrix
-    expect(question1.visibleRows.length, "First matrix has two rows left").toLooseEqual(2);
-    expect(question2.visibleRows.length, "Second matrix has one row").toLooseEqual(1);
+    expect(question1.visibleRows.length, "First matrix has two rows left").toBe(2);
+    expect(question2.visibleRows.length, "Second matrix has one row").toBe(1);
     expect(question1.value, "Dragged row is gone from first matrix").toEqualValues([{ "Col1": "item1" }, { "Col1": "item3" }]);
     expect(question2.value, "Dragged row is now in second matrix").toEqualValues([{ "Col1": "item2" }]);
   });

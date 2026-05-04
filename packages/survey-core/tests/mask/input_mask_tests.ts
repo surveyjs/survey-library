@@ -15,16 +15,16 @@ describe("Input mask", () => {
       "suffix": " Eur"
     });
     let adapter = new InputElementAdapter(inputMask, testInput, 12345.67);
-    expect(testInput.value).toLooseEqual("12 345,67 Eur");
+    expect(testInput.value).toBe("12 345,67 Eur");
 
     adapter = new InputElementAdapter(inputMask, testInput);
-    expect(testInput.value).toLooseEqual("");
+    expect(testInput.value).toBe("");
 
     adapter = new InputElementAdapter(inputMask, testInput, undefined);
-    expect(testInput.value).toLooseEqual("");
+    expect(testInput.value).toBe("");
 
     adapter = new InputElementAdapter(inputMask, testInput, null);
-    expect(testInput.value).toLooseEqual("");
+    expect(testInput.value).toBe("");
 
     testInput.remove();
   });
@@ -40,11 +40,11 @@ describe("Input mask", () => {
       value: "123"
     };
     let args = adapter.createArgs({ data: "a", inputType: "insertText", target: target });
-    expect(args.insertedChars).toLooseEqual("a");
-    expect(args.selectionStart).toLooseEqual(1);
-    expect(args.selectionEnd).toLooseEqual(1);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("forward");
+    expect(args.insertedChars).toBe("a");
+    expect(args.selectionStart).toBe(1);
+    expect(args.selectionEnd).toBe(1);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("forward");
 
     testInput.remove();
   });
@@ -60,31 +60,31 @@ describe("Input mask", () => {
       value: "123"
     };
     let args = adapter.createArgs({ data: null, inputType: "deleteContentForward", target: target });
-    expect(args.insertedChars).toLooseEqual(null);
-    expect(args.selectionStart).toLooseEqual(1);
-    expect(args.selectionEnd).toLooseEqual(2);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("forward");
+    expect(args.insertedChars).toBeNull();
+    expect(args.selectionStart).toBe(1);
+    expect(args.selectionEnd).toBe(2);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("forward");
 
     target.selectionStart = 3;
     target.selectionEnd = 3;
 
     args = adapter.createArgs({ data: null, inputType: "deleteContentForward", target: target });
-    expect(args.insertedChars).toLooseEqual(null);
-    expect(args.selectionStart).toLooseEqual(3);
-    expect(args.selectionEnd).toLooseEqual(4);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("forward");
+    expect(args.insertedChars).toBeNull();
+    expect(args.selectionStart).toBe(3);
+    expect(args.selectionEnd).toBe(4);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("forward");
 
     target.selectionStart = 1;
     target.selectionEnd = 2;
 
     args = adapter.createArgs({ data: null, inputType: "deleteContentForward", target: target });
-    expect(args.insertedChars).toLooseEqual(null);
-    expect(args.selectionStart).toLooseEqual(1);
-    expect(args.selectionEnd).toLooseEqual(2);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("forward");
+    expect(args.insertedChars).toBeNull();
+    expect(args.selectionStart).toBe(1);
+    expect(args.selectionEnd).toBe(2);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("forward");
 
     testInput.remove();
   });
@@ -101,29 +101,29 @@ describe("Input mask", () => {
       value: "123"
     };
     let args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
-    expect(args.insertedChars).toLooseEqual(null);
-    expect(args.selectionStart).toLooseEqual(0);
-    expect(args.selectionEnd).toLooseEqual(1);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("backward");
+    expect(args.insertedChars).toBeNull();
+    expect(args.selectionStart).toBe(0);
+    expect(args.selectionEnd).toBe(1);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("backward");
 
     target.selectionStart = 0;
     target.selectionEnd = 0;
     args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
-    expect(args.insertedChars).toLooseEqual(null);
-    expect(args.selectionStart).toLooseEqual(0);
-    expect(args.selectionEnd).toLooseEqual(0);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("backward");
+    expect(args.insertedChars).toBeNull();
+    expect(args.selectionStart).toBe(0);
+    expect(args.selectionEnd).toBe(0);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("backward");
 
     target.selectionStart = 1;
     target.selectionEnd = 2;
     args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
-    expect(args.insertedChars).toLooseEqual(null);
-    expect(args.selectionStart).toLooseEqual(1);
-    expect(args.selectionEnd).toLooseEqual(2);
-    expect(args.prevValue).toLooseEqual("123");
-    expect(args.inputDirection).toLooseEqual("backward");
+    expect(args.insertedChars).toBeNull();
+    expect(args.selectionStart).toBe(1);
+    expect(args.selectionEnd).toBe(2);
+    expect(args.prevValue).toBe("123");
+    expect(args.inputDirection).toBe("backward");
 
     testInput.remove();
   });
@@ -133,20 +133,20 @@ describe("Input mask", () => {
     const inputMaskPattern = new InputMaskPattern();
     inputMaskPattern.pattern = "999";
     let adapter = new InputElementAdapter(inputMaskPattern, testInput, "123");
-    expect(testInput.value).toLooseEqual("123");
+    expect(testInput.value).toBe("123");
 
     inputMaskPattern.pattern = "9";
-    expect(testInput.value).toLooseEqual("1");
+    expect(testInput.value).toBe("1");
 
     const inputMaskNumeric = new InputMaskNumeric();
     adapter = new InputElementAdapter(inputMaskNumeric, testInput, "123456");
-    expect(testInput.value).toLooseEqual("123,456");
+    expect(testInput.value).toBe("123,456");
 
     inputMaskNumeric.thousandsSeparator = " ";
-    expect(testInput.value).toLooseEqual("123 456");
+    expect(testInput.value).toBe("123 456");
 
     inputMaskNumeric.thousandsSeparator = ",";
-    expect(testInput.value).toLooseEqual("123,456");
+    expect(testInput.value).toBe("123,456");
 
     testInput.remove();
   });
@@ -156,12 +156,12 @@ describe("Input mask", () => {
     const inputMaskPattern = new InputMaskPattern();
     inputMaskPattern.pattern = "999-99-99";
     let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
-    expect(testInput.value).toLooseEqual("___-__-__");
+    expect(testInput.value).toBe("___-__-__");
 
     testInput.focus();
     testInput.value = "+123456789";
     testInput.dispatchEvent(new Event("change"));
-    expect(testInput.value).toLooseEqual("123-45-67");
+    expect(testInput.value).toBe("123-45-67");
 
     testInput.remove();
   });
@@ -172,11 +172,11 @@ describe("Input mask", () => {
       "pattern": "mm-dd-yyyy",
     });
     let adapter = new InputElementAdapter(inputMask, testInput, "1999-01-19");
-    expect(testInput.value).toLooseEqual("01-19-1999");
+    expect(testInput.value).toBe("01-19-1999");
 
     inputMask.saveMaskedValue = true;
     adapter = new InputElementAdapter(inputMask, testInput, "01-19-1999");
-    expect(testInput.value).toLooseEqual("01-19-1999");
+    expect(testInput.value).toBe("01-19-1999");
 
     testInput.remove();
   });
@@ -188,25 +188,25 @@ describe("Input mask", () => {
     inputMaskPattern.pattern = "999-99-99";
     let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
 
-    expect(testInput.placeholder, "#1").toLooseEqual("test");
-    expect(testInput.value, "value is empty before focus").toLooseEqual("");
+    expect(testInput.placeholder, "#1").toBe("test");
+    expect(testInput.value, "value is empty before focus").toBe("");
 
     testInput.dispatchEvent(new Event("focus"));
-    expect(testInput.placeholder, "#2").toLooseEqual("test");
-    expect(testInput.value, "Mask visible when focused").toLooseEqual("___-__-__");
+    expect(testInput.placeholder, "#2").toBe("test");
+    expect(testInput.value, "Mask visible when focused").toBe("___-__-__");
 
     testInput.dispatchEvent(new Event("blur"));
-    expect(testInput.placeholder, "#3").toLooseEqual("test");
-    expect(testInput.value, "value is empty after blur").toLooseEqual("");
+    expect(testInput.placeholder, "#3").toBe("test");
+    expect(testInput.value, "value is empty after blur").toBe("");
 
     testInput.value = "123-45-78";
     testInput.dispatchEvent(new Event("focus"));
-    expect(testInput.placeholder, "#4").toLooseEqual("test");
-    expect(testInput.value, "focused").toLooseEqual("123-45-78");
+    expect(testInput.placeholder, "#4").toBe("test");
+    expect(testInput.value, "focused").toBe("123-45-78");
 
     testInput.dispatchEvent(new Event("blur"));
-    expect(testInput.placeholder, "#5").toLooseEqual("test");
-    expect(testInput.value, "blur").toLooseEqual("123-45-78");
+    expect(testInput.placeholder, "#5").toBe("test");
+    expect(testInput.value, "blur").toBe("123-45-78");
 
     testInput.remove();
   });
@@ -217,25 +217,25 @@ describe("Input mask", () => {
     inputMaskPattern.pattern = "999-99-99";
     let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
 
-    expect(testInput.placeholder, "#1").toLooseEqual("");
-    expect(testInput.value, "#1").toLooseEqual("___-__-__");
+    expect(testInput.placeholder, "#1").toBe("");
+    expect(testInput.value, "#1").toBe("___-__-__");
 
     testInput.dispatchEvent(new Event("focus"));
-    expect(testInput.placeholder, "#2").toLooseEqual("");
-    expect(testInput.value, "#2").toLooseEqual("___-__-__");
+    expect(testInput.placeholder, "#2").toBe("");
+    expect(testInput.value, "#2").toBe("___-__-__");
 
     testInput.dispatchEvent(new Event("blur"));
-    expect(testInput.placeholder, "#3").toLooseEqual("");
-    expect(testInput.value, "#3").toLooseEqual("___-__-__");
+    expect(testInput.placeholder, "#3").toBe("");
+    expect(testInput.value, "#3").toBe("___-__-__");
 
     testInput.value = "123-45-78";
     testInput.dispatchEvent(new Event("focus"));
-    expect(testInput.placeholder, "#4").toLooseEqual("");
-    expect(testInput.value, "focused").toLooseEqual("123-45-78");
+    expect(testInput.placeholder, "#4").toBe("");
+    expect(testInput.value, "focused").toBe("123-45-78");
 
     testInput.dispatchEvent(new Event("blur"));
-    expect(testInput.placeholder, "#5").toLooseEqual("");
-    expect(testInput.value, "blur").toLooseEqual("123-45-78");
+    expect(testInput.placeholder, "#5").toBe("");
+    expect(testInput.value, "blur").toBe("123-45-78");
 
     testInput.remove();
   });

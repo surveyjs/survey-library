@@ -114,17 +114,17 @@ describe("Popup", () => {
     const data = {};
     const model: PopupModel = new PopupModel("sv-list", data);
 
-    expect(model.contentComponentName).toLooseEqual("sv-list");
-    expect(model.contentComponentData).toLooseEqual(data);
-    expect(model.verticalPosition).toLooseEqual("bottom");
-    expect(model.horizontalPosition).toLooseEqual("left");
-    expect(model.showPointer).toLooseEqual(true);
-    expect(model.isModal).toLooseEqual(false);
-    expect(typeof model.onCancel).toLooseEqual("function");
-    expect(typeof model.onApply).toLooseEqual("function");
-    expect(typeof model.onHide).toLooseEqual("function");
-    expect(typeof model.onShow).toLooseEqual("function");
-    expect(model.cssClass).toLooseEqual("");
+    expect(model.contentComponentName).toBe("sv-list");
+    expect(model.contentComponentData).toBe(data);
+    expect(model.verticalPosition).toBe("bottom");
+    expect(model.horizontalPosition).toBe("left");
+    expect(model.showPointer).toBe(true);
+    expect(model.isModal).toBe(false);
+    expect(typeof model.onCancel).toBe("function");
+    expect(typeof model.onApply).toBe("function");
+    expect(typeof model.onHide).toBe("function");
+    expect(typeof model.onShow).toBe("function");
+    expect(model.cssClass).toBe("");
     expect(model.onVisibilityChanged.isEmpty).toBeTruthy();
   });
 
@@ -135,14 +135,14 @@ describe("Popup", () => {
     let trace = "";
 
     model.toggleVisibility();
-    expect(trace).toLooseEqual("");
+    expect(trace).toBe("");
 
     model.onVisibilityChanged.add(() => {
       trace += "->onToggleVisibility";
     });
 
     model.toggleVisibility();
-    expect(trace).toLooseEqual("->onToggleVisibility");
+    expect(trace).toBe("->onToggleVisibility");
   });
 
   test("PopupDropdownViewModel defaults", () => {
@@ -155,37 +155,37 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.contentComponentName).toLooseEqual("sv-list");
-    expect(viewModel.contentComponentData).toLooseEqual(data);
-    expect(viewModel.model.verticalPosition).toLooseEqual("bottom");
-    expect(viewModel.model.horizontalPosition).toLooseEqual("left");
-    expect(viewModel.showHeader).toLooseEqual(true);
-    expect(viewModel.isModal).toLooseEqual(false);
-    expect(typeof viewModel.model.onCancel).toLooseEqual("function");
-    expect(typeof viewModel.model.onApply).toLooseEqual("function");
-    expect(typeof viewModel.model.onHide).toLooseEqual("function");
-    expect(typeof viewModel.model.onShow).toLooseEqual("function");
-    expect(viewModel.model.cssClass).toLooseEqual("");
+    expect(viewModel.contentComponentName).toBe("sv-list");
+    expect(viewModel.contentComponentData).toBe(data);
+    expect(viewModel.model.verticalPosition).toBe("bottom");
+    expect(viewModel.model.horizontalPosition).toBe("left");
+    expect(viewModel.showHeader).toBe(true);
+    expect(viewModel.isModal).toBe(false);
+    expect(typeof viewModel.model.onCancel).toBe("function");
+    expect(typeof viewModel.model.onApply).toBe("function");
+    expect(typeof viewModel.model.onHide).toBe("function");
+    expect(typeof viewModel.model.onShow).toBe("function");
+    expect(viewModel.model.cssClass).toBe("");
 
-    //expect(ko.isWritableObservable(viewModel.top)).toLooseEqual(true);
-    expect(viewModel.top).toLooseEqual("0px");
-    //expect(ko.isWritableObservable(viewModel.left)).toLooseEqual(true);
-    expect(viewModel.left).toLooseEqual("0px");
-    //expect(ko.isWritableObservable(viewModel.popupDirection)).toLooseEqual(true);
-    expect(viewModel.popupDirection).toLooseEqual("left");
-    //expect(ko.isWritableObservable(viewModel.pointerTarget)).toLooseEqual(true);
+    //expect(ko.isWritableObservable(viewModel.top)).toBe(true);
+    expect(viewModel.top).toBe("0px");
+    //expect(ko.isWritableObservable(viewModel.left)).toBe(true);
+    expect(viewModel.left).toBe("0px");
+    //expect(ko.isWritableObservable(viewModel.popupDirection)).toBe(true);
+    expect(viewModel.popupDirection).toBe("left");
+    //expect(ko.isWritableObservable(viewModel.pointerTarget)).toBe(true);
     expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
-    // expect(ko.isWritableObservable(viewModel.isVisible)).toLooseEqual(true);
-    expect(viewModel.isVisible).toLooseEqual(false);
+    // expect(ko.isWritableObservable(viewModel.isVisible)).toBe(true);
+    expect(viewModel.isVisible).toBe(false);
 
     const container: HTMLElement = viewModel.container;
-    expect(!!container).toLooseEqual(true);
-    expect(container.tagName).toLooseEqual("DIV");
-    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toLooseEqual(0);
-    expect(container.parentElement.tagName).toLooseEqual("BODY");
+    expect(!!container).toBe(true);
+    expect(container.tagName).toBe("DIV");
+    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toBe(0);
+    expect(container.parentElement.tagName).toBe("BODY");
 
-    expect(viewModel.footerToolbar.actions.length).toLooseEqual(1);
-    expect(viewModel.footerToolbar.actions[0].title).toLooseEqual(viewModel.cancelButtonText);
+    expect(viewModel.footerToolbar.actions.length).toBe(1);
+    expect(viewModel.footerToolbar.actions[0].title).toBe(viewModel.cancelButtonText);
 
     viewModel.dispose();
     targetElement.remove();
@@ -226,7 +226,7 @@ describe("Popup", () => {
     viewModel.updateOnShowing();
 
     viewModel.updatePosition(false, false);
-    expect(viewModel.popupDirection).toLooseEqual("left");
+    expect(viewModel.popupDirection).toBe("left");
 
     viewModel.dispose();
     targetElement.remove();
@@ -260,12 +260,12 @@ describe("Popup", () => {
     viewModel.container.innerHTML = popupTemplate;
 
     const container: HTMLElement = viewModel.container;
-    expect(!!container).toLooseEqual(true);
-    expect(container.tagName).toLooseEqual("DIV");
-    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toLooseEqual(0);
+    expect(!!container).toBe(true);
+    expect(container.tagName).toBe("DIV");
+    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toBe(0);
 
-    expect(container.parentElement?.tagName).toLooseEqual("DIV");
-    expect(container.parentElement?.id).toLooseEqual("shadowElement");
+    expect(container.parentElement?.tagName).toBe("DIV");
+    expect(container.parentElement?.id).toBe("shadowElement");
 
     viewModel.dispose();
     targetElement.remove();
@@ -290,29 +290,29 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.contentComponentName).toLooseEqual("sv-list");
-    expect(viewModel.contentComponentData).toLooseEqual(data);
-    expect(viewModel.model.verticalPosition).toLooseEqual("bottom");
-    expect(viewModel.model.horizontalPosition).toLooseEqual("left");
-    expect(viewModel.isModal).toLooseEqual(true);
-    expect(typeof viewModel.model.onCancel).toLooseEqual("function");
-    expect(typeof viewModel.model.onApply).toLooseEqual("function");
-    expect(typeof viewModel.model.onHide).toLooseEqual("function");
-    expect(typeof viewModel.model.onShow).toLooseEqual("function");
-    expect(viewModel.model.cssClass).toLooseEqual("");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(viewModel.contentComponentName).toBe("sv-list");
+    expect(viewModel.contentComponentData).toBe(data);
+    expect(viewModel.model.verticalPosition).toBe("bottom");
+    expect(viewModel.model.horizontalPosition).toBe("left");
+    expect(viewModel.isModal).toBe(true);
+    expect(typeof viewModel.model.onCancel).toBe("function");
+    expect(typeof viewModel.model.onApply).toBe("function");
+    expect(typeof viewModel.model.onHide).toBe("function");
+    expect(typeof viewModel.model.onShow).toBe("function");
+    expect(viewModel.model.cssClass).toBe("");
+    expect(viewModel.isVisible).toBe(false);
 
     const container: HTMLElement = viewModel.container;
-    expect(!!container).toLooseEqual(true);
-    expect(container.tagName).toLooseEqual("DIV");
-    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toLooseEqual(0);
-    expect(container.parentElement.tagName).toLooseEqual("BODY");
+    expect(!!container).toBe(true);
+    expect(container.tagName).toBe("DIV");
+    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toBe(0);
+    expect(container.parentElement.tagName).toBe("BODY");
 
-    expect(viewModel.applyButtonText).toLooseEqual("Apply");
-    expect(viewModel.cancelButtonText).toLooseEqual("Cancel");
-    expect(viewModel.footerToolbar.actions.length).toLooseEqual(2);
-    expect(viewModel.footerToolbar.actions[0].title).toLooseEqual(viewModel.cancelButtonText);
-    expect(viewModel.footerToolbar.actions[1].title).toLooseEqual(viewModel.applyButtonText);
+    expect(viewModel.applyButtonText).toBe("Apply");
+    expect(viewModel.cancelButtonText).toBe("Cancel");
+    expect(viewModel.footerToolbar.actions.length).toBe(2);
+    expect(viewModel.footerToolbar.actions[0].title).toBe(viewModel.cancelButtonText);
+    expect(viewModel.footerToolbar.actions[1].title).toBe(viewModel.applyButtonText);
 
     viewModel.dispose();
     targetElement.remove();
@@ -325,14 +325,14 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.model.horizontalPosition).toLooseEqual("left");
-    expect(viewModel["getActualHorizontalPosition"]()).toLooseEqual("left");
+    expect(viewModel.model.horizontalPosition).toBe("left");
+    expect(viewModel["getActualHorizontalPosition"]()).toBe("left");
 
     document.body.style.direction = "rtl";
-    expect(viewModel["getActualHorizontalPosition"]()).toLooseEqual("right");
+    expect(viewModel["getActualHorizontalPosition"]()).toBe("right");
 
     document.body.style.direction = "";
-    expect(viewModel["getActualHorizontalPosition"]()).toLooseEqual("left");
+    expect(viewModel["getActualHorizontalPosition"]()).toBe("left");
 
     viewModel.dispose();
     targetElement.remove();
@@ -345,15 +345,15 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.styleClass).toLooseEqual("sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
+    expect(viewModel.styleClass).toBe("sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
     model.cssClass = "my-css-class";
-    expect(viewModel.styleClass).toLooseEqual("my-css-class sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
+    expect(viewModel.styleClass).toBe("my-css-class sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
 
     viewModel.popupDirection = "down";
-    expect(viewModel.styleClass).toLooseEqual("my-css-class sv-popup--menu-popup sv-popup--show-pointer sv-popup--down");
+    expect(viewModel.styleClass).toBe("my-css-class sv-popup--menu-popup sv-popup--show-pointer sv-popup--down");
 
     model.showPointer = false;
-    expect(viewModel.styleClass).toLooseEqual("my-css-class sv-popup--menu-popup");
+    expect(viewModel.styleClass).toBe("my-css-class sv-popup--menu-popup");
 
     viewModel.dispose();
     targetElement.remove();
@@ -366,10 +366,10 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
     expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
 
     let trace: string = "";
@@ -383,24 +383,24 @@ describe("Popup", () => {
     model.toggleVisibility();
 
     //viewModel.isVisible(!viewModel.isVisible());
-    expect(trace).toLooseEqual("->onShow");
-    expect(viewModel.isVisible).toLooseEqual(true);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
-    expect(viewModel.pointerTarget.left).toLooseEqual("0px");
-    expect(viewModel.pointerTarget.top).toLooseEqual("0px");
+    expect(trace).toBe("->onShow");
+    expect(viewModel.isVisible).toBe(true);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
+    expect(viewModel.pointerTarget.left).toBe("0px");
+    expect(viewModel.pointerTarget.top).toBe("0px");
     trace = "";
 
     model.toggleVisibility();
     //viewModel.isVisible(!viewModel.isVisible());
-    expect(trace).toLooseEqual("->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
-    expect(viewModel.pointerTarget.left).toLooseEqual("0px");
-    expect(viewModel.pointerTarget.top).toLooseEqual("0px");
+    expect(trace).toBe("->onHide");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
+    expect(viewModel.pointerTarget.left).toBe("0px");
+    expect(viewModel.pointerTarget.top).toBe("0px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -414,10 +414,10 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
     expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
 
     let trace: string = "";
@@ -430,24 +430,24 @@ describe("Popup", () => {
 
     model.toggleVisibility();
     //viewModel.isVisible(!viewModel.isVisible());
-    expect(trace).toLooseEqual("->onShow");
-    expect(viewModel.isVisible).toLooseEqual(true);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
-    expect(viewModel.pointerTarget.left).toLooseEqual("0px");
-    expect(viewModel.pointerTarget.top).toLooseEqual("0px");
+    expect(trace).toBe("->onShow");
+    expect(viewModel.isVisible).toBe(true);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
+    expect(viewModel.pointerTarget.left).toBe("0px");
+    expect(viewModel.pointerTarget.top).toBe("0px");
     trace = "";
 
     model.toggleVisibility();
     //viewModel.isVisible(!viewModel.isVisible());
-    expect(trace).toLooseEqual("->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
-    expect(viewModel.pointerTarget.left).toLooseEqual("0px");
-    expect(viewModel.pointerTarget.top).toLooseEqual("0px");
+    expect(trace).toBe("->onHide");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
+    expect(viewModel.pointerTarget.left).toBe("0px");
+    expect(viewModel.pointerTarget.top).toBe("0px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -460,10 +460,10 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
     expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
 
     let trace: string = "";
@@ -475,24 +475,24 @@ describe("Popup", () => {
     };
 
     viewModel.clickOutside();
-    expect(trace).toLooseEqual("");
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
+    expect(trace).toBe("");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
     expect(viewModel.pointerTarget).toEqualValues({ left: "0px", top: "0px" });
     trace = "";
 
     model.toggleVisibility();
     trace = "";
     viewModel.clickOutside();
-    expect(trace).toLooseEqual("->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.popupDirection).toLooseEqual("left");
-    expect(viewModel.pointerTarget.left).toLooseEqual("0px");
-    expect(viewModel.pointerTarget.top).toLooseEqual("0px");
+    expect(trace).toBe("->onHide");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.popupDirection).toBe("left");
+    expect(viewModel.pointerTarget.left).toBe("0px");
+    expect(viewModel.pointerTarget.top).toBe("0px");
     trace = "";
 
     viewModel.dispose();
@@ -524,9 +524,9 @@ describe("Popup", () => {
     model.toggleVisibility();
     viewModel.updatePosition(true, false);
 
-    expect(viewModel.popupDirection).toLooseEqual("bottom");
-    expect(viewModel.top).toLooseEqual("292px");
-    expect(viewModel.left).toLooseEqual("131px");
+    expect(viewModel.popupDirection).toBe("bottom");
+    expect(viewModel.top).toBe("292px");
+    expect(viewModel.left).toBe("131px");
     expect(viewModel.pointerTarget).toEqualValues({ left: "134px", top: "0px" });
 
     viewModel.dispose();
@@ -542,7 +542,7 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(viewModel.isVisible).toBe(false);
 
     let trace: string = "";
     model.onHide = () => {
@@ -555,8 +555,8 @@ describe("Popup", () => {
     model.toggleVisibility();
     trace = "";
     viewModel.clickOutside();
-    expect(trace).toLooseEqual("");
-    expect(viewModel.isVisible).toLooseEqual(true);
+    expect(trace).toBe("");
+    expect(viewModel.isVisible).toBe(true);
     trace = "";
 
     viewModel.dispose();
@@ -573,7 +573,7 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(viewModel.isVisible).toBe(false);
 
     let trace: string = "";
     model.onCancel = () => {
@@ -587,23 +587,23 @@ describe("Popup", () => {
     };
 
     viewModel.cancel();
-    expect(trace).toLooseEqual("->onCancel");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(trace).toBe("->onCancel");
+    expect(viewModel.isVisible).toBe(false);
     trace = "";
 
     model.toggleVisibility();
     trace = "";
     viewModel.cancel();
-    expect(trace).toLooseEqual("->onCancel->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(trace).toBe("->onCancel->onHide");
+    expect(viewModel.isVisible).toBe(false);
     trace = "";
 
     model.isModal = true;
     model.toggleVisibility();
     trace = "";
     viewModel.cancel();
-    expect(trace).toLooseEqual("->onCancel->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(trace).toBe("->onCancel->onHide");
+    expect(viewModel.isVisible).toBe(false);
     trace = "";
 
     viewModel.dispose();
@@ -618,7 +618,7 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(viewModel.isVisible).toBe(false);
 
     let trace: string = "";
     model.onApply = () => {
@@ -633,23 +633,23 @@ describe("Popup", () => {
     };
 
     viewModel.apply();
-    expect(trace).toLooseEqual("->onApply");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(trace).toBe("->onApply");
+    expect(viewModel.isVisible).toBe(false);
     trace = "";
 
     model.toggleVisibility();
     trace = "";
     viewModel.apply();
-    expect(trace).toLooseEqual("->onApply->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(trace).toBe("->onApply->onHide");
+    expect(viewModel.isVisible).toBe(false);
     trace = "";
 
     model.isModal = true;
     model.toggleVisibility();
     trace = "";
     viewModel.apply();
-    expect(trace).toLooseEqual("->onApply->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(trace).toBe("->onApply->onHide");
+    expect(viewModel.isVisible).toBe(false);
     trace = "";
 
     viewModel.dispose();
@@ -664,7 +664,7 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(viewModel.isVisible).toBe(false);
 
     let canApply = false;
     model.onApply = (): boolean => {
@@ -672,12 +672,12 @@ describe("Popup", () => {
     };
 
     model.toggleVisibility();
-    expect(viewModel.isVisible).toLooseEqual(true);
+    expect(viewModel.isVisible).toBe(true);
     viewModel.apply();
-    expect(viewModel.isVisible).toLooseEqual(true);
+    expect(viewModel.isVisible).toBe(true);
     canApply = true;
     viewModel.apply();
-    expect(viewModel.isVisible).toLooseEqual(false);
+    expect(viewModel.isVisible).toBe(false);
 
     viewModel.dispose();
     targetElement.remove();
@@ -708,10 +708,10 @@ describe("Popup", () => {
     };
 
     model.isVisible = true;
-    expect(trace).toLooseEqual("");
-    expect(!!viewModel.container).toLooseEqual(false);
-    expect(container.tagName).toLooseEqual("DIV");
-    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toLooseEqual(0);
+    expect(trace).toBe("");
+    expect(!!viewModel.container).toBe(false);
+    expect(container.tagName).toBe("DIV");
+    expect(container.innerHTML.indexOf('<div class="sv-popup"')).not.toBe(0);
 
     targetElement.remove();
   });
@@ -726,12 +726,12 @@ describe("Popup", () => {
       targetElement
     );
 
-    expect(!!viewModel.container).toLooseEqual(false);
+    expect(!!viewModel.container).toBe(false);
     viewModel.initializePopupContainer();
-    expect(!!viewModel.container).toLooseEqual(true);
+    expect(!!viewModel.container).toBe(true);
 
     viewModel.dispose();
-    expect(!!viewModel.container).toLooseEqual(false);
+    expect(!!viewModel.container).toBe(false);
 
     targetElement.remove();
   });
@@ -983,93 +983,93 @@ describe("Popup", () => {
 
   test("Check getCorrectedVerticalDimensions if both directions do not fit", () => {
     let newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(-20, 200, 300, "bottom");
-    expect(newVerticalDimensions.height).toLooseEqual(180);
-    expect(newVerticalDimensions.top).toLooseEqual(0);
+    expect(newVerticalDimensions.height).toBe(180);
+    expect(newVerticalDimensions.top).toBe(-0);
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 200, 300, "bottom");
-    expect(newVerticalDimensions.height).toLooseEqual(150 - PopupUtils.bottomIndent);
-    expect(newVerticalDimensions.top).toLooseEqual(150);
+    expect(newVerticalDimensions.height).toBe(150 - PopupUtils.bottomIndent);
+    expect(newVerticalDimensions.top).toBe(150);
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 450, 300, "bottom");
-    expect(newVerticalDimensions.height).toLooseEqual(150 - PopupUtils.bottomIndent);
-    expect(newVerticalDimensions.top).toLooseEqual(150);
+    expect(newVerticalDimensions.height).toBe(150 - PopupUtils.bottomIndent);
+    expect(newVerticalDimensions.top).toBe(150);
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300, "bottom");
     expect(newVerticalDimensions).toBeFalsy();
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300, "top");
-    expect(newVerticalDimensions.height).toLooseEqual(200);
-    expect(newVerticalDimensions.top).toLooseEqual(10);
+    expect(newVerticalDimensions.height).toBe(200);
+    expect(newVerticalDimensions.top).toBe(10);
   });
 
   test("Check getCorrectedVerticalDimensions if both directions do not fit and canShrink = false", () => {
     let newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(-20, 200, 300, "bottom", false);
-    expect(newVerticalDimensions.height).toLooseEqual(200);
-    expect(newVerticalDimensions.top).toLooseEqual(0);
+    expect(newVerticalDimensions.height).toBe(200);
+    expect(newVerticalDimensions.top).toBe(-0);
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 200, 300, "bottom", false);
-    expect(newVerticalDimensions.height).toLooseEqual(200);
-    expect(newVerticalDimensions.top).toLooseEqual(100 - PopupUtils.bottomIndent);
+    expect(newVerticalDimensions.height).toBe(200);
+    expect(newVerticalDimensions.top).toBe(100 - PopupUtils.bottomIndent);
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 450, 300, "bottom", false);
-    expect(newVerticalDimensions.height).toLooseEqual(300 - PopupUtils.bottomIndent);
-    expect(newVerticalDimensions.top).toLooseEqual(0);
+    expect(newVerticalDimensions.height).toBe(300 - PopupUtils.bottomIndent);
+    expect(newVerticalDimensions.top).toBe(-0);
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300, "bottom", false);
     expect(newVerticalDimensions).toBeFalsy();
 
     newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300, "top", false);
-    expect(newVerticalDimensions.height).toLooseEqual(200);
-    expect(newVerticalDimensions.top).toLooseEqual(10);
+    expect(newVerticalDimensions.height).toBe(200);
+    expect(newVerticalDimensions.top).toBe(10);
   });
 
   test("Check updateHorizontalDimensions", () => {
     let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "center");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - fitting left out - width").toLooseEqual(200);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - fitting left out - left").toLooseEqual(0);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - fitting left out - width").toBe(200);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - fitting left out - left").toBe(0);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-100, 300, 250, "center");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - not-fitting left out - width").toLooseEqual(250);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - not-fitting left out - left").toLooseEqual(0);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - not-fitting left out - width").toBe(250);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - not-fitting left out - left").toBe(0);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 200, 250, "center");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - fitting right out - width").toLooseEqual(200);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - fitting right out - left").toLooseEqual(50);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - fitting right out - width").toBe(200);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - fitting right out - left").toBe(50);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - non-fitting right out - width").toLooseEqual(250);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - non-fitting right out - left").toLooseEqual(0);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center - non-fitting right out - width").toBe(250);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center - non-fitting right out - left").toBe(0);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - left - left out - width").toLooseEqual(200);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - left - left out - left").toLooseEqual(0);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - left - left out - width").toBe(200);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - left - left out - left").toBe(0);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - right - right out - width").toLooseEqual(200);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - right - right out - left").toLooseEqual(100);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - right - right out - width").toBe(200);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - right - right out - left").toBe(100);
   });
   test("Check updateHorizontalDimensions with margins positionMode is flex", () => {
     let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "flex", { left: 10, right: 15 });
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center+flex - non-fitting right out - width").toLooseEqual(225);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+flex - non-fitting right out - left").toLooseEqual(10);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center+flex - non-fitting right out - width").toBe(225);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+flex - non-fitting right out - left").toBe(10);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "left", "flex", { left: 10, right: 15 });
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - left+flex - left out - width").toLooseEqual(200);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - left+flex - left out - left").toLooseEqual(10);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - left+flex - left out - width").toBe(200);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - left+flex - left out - left").toBe(10);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 250, 300, "right", "flex", { left: 10, right: 15 });
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - right+flex - right out - width").toLooseEqual(175);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - right+flex - right out - left").toLooseEqual(100);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - right+flex - right out - width").toBe(175);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - right+flex - right out - left").toBe(100);
   });
 
   test("Check updateHorizontalDimensions positionMode is fixed", () => {
     let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "fixed", { left: 10, right: 15 });
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center+fixed - non-fitting right out - width").toLooseEqual(125);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+fixed - non-fitting right out - left").toLooseEqual(90);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center+fixed - non-fitting right out - width").toBe(125);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+fixed - non-fitting right out - left").toBe(90);
 
     newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(100, 300, 250, "center", "fixed");
-    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center+fixed - without margin").toLooseEqual(150);
-    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+fixed - without margin").toLooseEqual(100);
+    expect(newHorizontalDimensions.width, "updateHorizontalDimensions - center+fixed - without margin").toBe(150);
+    expect(newHorizontalDimensions.left, "updateHorizontalDimensions - center+fixed - without margin").toBe(100);
   });
 
   test("PopupModel dropdown displayMode", () => {
@@ -1079,10 +1079,10 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.showFooter).toLooseEqual(false);
-    expect(viewModel.styleClass).toLooseEqual("sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
+    expect(viewModel.showFooter).toBe(false);
+    expect(viewModel.styleClass).toBe("sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
     model.displayMode = "overlay";
-    expect(viewModel.styleClass).toLooseEqual("sv-popup--menu-popup");
+    expect(viewModel.styleClass).toBe("sv-popup--menu-popup");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1095,24 +1095,24 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.showFooter).toLooseEqual(false);
-    expect(model.overlayDisplayMode).toLooseEqual("auto");
+    expect(viewModel.showFooter).toBe(false);
+    expect(model.overlayDisplayMode).toBe("auto");
 
-    expect(viewModel.styleClass, "default").toLooseEqual("sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
+    expect(viewModel.styleClass, "default").toBe("sv-popup--menu-popup sv-popup--show-pointer sv-popup--left");
     model.displayMode = "overlay";
-    expect(viewModel.styleClass, "overlayDisplayMode auto").toLooseEqual("sv-popup--menu-popup");
+    expect(viewModel.styleClass, "overlayDisplayMode auto").toBe("sv-popup--menu-popup");
 
     model.overlayDisplayMode = "dropdown-overlay";
-    expect(viewModel.styleClass, "overlayDisplayMode dropdown-overlay").toLooseEqual("sv-popup--menu-phone");
+    expect(viewModel.styleClass, "overlayDisplayMode dropdown-overlay").toBe("sv-popup--menu-phone");
 
     model.overlayDisplayMode = "tablet-dropdown-overlay";
-    expect(viewModel.styleClass, "overlayDisplayMode tablet-dropdown-overlay").toLooseEqual("sv-popup--menu-tablet");
+    expect(viewModel.styleClass, "overlayDisplayMode tablet-dropdown-overlay").toBe("sv-popup--menu-tablet");
 
     model.overlayDisplayMode = "plain";
-    expect(viewModel.styleClass, "overlayDisplayMode plain").toLooseEqual("sv-popup--menu-popup");
+    expect(viewModel.styleClass, "overlayDisplayMode plain").toBe("sv-popup--menu-popup");
 
     model.overlayDisplayMode = "auto";
-    expect(viewModel.styleClass, "overlayDisplayMode auto").toLooseEqual("sv-popup--menu-popup");
+    expect(viewModel.styleClass, "overlayDisplayMode auto").toBe("sv-popup--menu-popup");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1126,9 +1126,9 @@ describe("Popup", () => {
     viewModel.initializePopupContainer();
     viewModel.container.innerHTML = popupTemplate;
 
-    expect(viewModel.styleClass).toLooseEqual("sv-popup--modal-popup");
+    expect(viewModel.styleClass).toBe("sv-popup--modal-popup");
     model.displayMode = "overlay";
-    expect(viewModel.styleClass).toLooseEqual("sv-popup--modal-overlay");
+    expect(viewModel.styleClass).toBe("sv-popup--modal-overlay");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1139,9 +1139,9 @@ describe("Popup", () => {
     const targetElement: HTMLElement = document.createElement("div");
     const viewModel: PopupModalViewModel = createPopupViewModelTest(model, targetElement) as PopupModalViewModel;
     viewModel.initializePopupContainer();
-    expect(viewModel.getLocalizationString("modalApplyButtonText"), "en Apply text").toLooseEqual(englishStrings.modalApplyButtonText);
+    expect(viewModel.getLocalizationString("modalApplyButtonText"), "en Apply text").toBe(englishStrings.modalApplyButtonText);
     viewModel.locale = "de";
-    expect(viewModel.getLocalizationString("modalApplyButtonText"), "de Apply text").toLooseEqual(germanSurveyStrings.modalApplyButtonText);
+    expect(viewModel.getLocalizationString("modalApplyButtonText"), "de Apply text").toBe(germanSurveyStrings.modalApplyButtonText);
     viewModel.dispose();
     targetElement.remove();
   });
@@ -1174,7 +1174,7 @@ describe("Popup", () => {
     (<any>window).innerHeight = 2000;
     (<any>window).innerWidth = 2000;
     viewModel.updateOnShowing();
-    expect(viewModel.left).toLooseEqual((1000 - 200 / 2 - 8 + 32 / 2) + "px");
+    expect(viewModel.left).toBe((1000 - 200 / 2 - 8 + 32 / 2) + "px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1208,7 +1208,7 @@ describe("Popup", () => {
     (<any>window).innerHeight = 2000;
     (<any>window).innerWidth = 2000;
     viewModel.updateOnShowing();
-    expect(viewModel.pointerTarget.left).toLooseEqual("200px");
+    expect(viewModel.pointerTarget.left).toBe("200px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1244,10 +1244,10 @@ describe("Popup", () => {
     (<any>window).innerHeight = 800;
     model.toggleVisibility();
     viewModel.updateOnShowing();
-    expect(viewModel.minWidth, "minWidth").toLooseEqual("auto");
-    expect(viewModel.width, "width").toLooseEqual("auto");
-    expect(viewModel.left, "left").toLooseEqual("200px");
-    expect(viewModel.top, "top").toLooseEqual("178px");
+    expect(viewModel.minWidth, "minWidth").toBe("auto");
+    expect(viewModel.width, "width").toBe("auto");
+    expect(viewModel.left, "left").toBe("200px");
+    expect(viewModel.top, "top").toBe("178px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1283,10 +1283,10 @@ describe("Popup", () => {
     (<any>window).innerHeight = 800;
     model.toggleVisibility();
     viewModel.updateOnShowing();
-    expect(viewModel.minWidth, "minWidth").toLooseEqual("auto");
-    expect(viewModel.width, "width").toLooseEqual("auto");
-    expect(viewModel.left, "left").toLooseEqual("200px");
-    expect(viewModel.top, "top").toLooseEqual("178px");
+    expect(viewModel.minWidth, "minWidth").toBe("auto");
+    expect(viewModel.width, "width").toBe("auto");
+    expect(viewModel.left, "left").toBe("200px");
+    expect(viewModel.top, "top").toBe("178px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1322,10 +1322,10 @@ describe("Popup", () => {
     (<any>window).innerHeight = 800;
     model.toggleVisibility();
     viewModel.updateOnShowing();
-    expect(viewModel.minWidth, "minWidth").toLooseEqual("auto");
-    expect(viewModel.width, "width").toLooseEqual("800px");
-    expect(viewModel.left, "left").toLooseEqual("200px");
-    expect(viewModel.top, "top").toLooseEqual("178px");
+    expect(viewModel.minWidth, "minWidth").toBe("auto");
+    expect(viewModel.width, "width").toBe("800px");
+    expect(viewModel.left, "left").toBe("200px");
+    expect(viewModel.top, "top").toBe("178px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1361,10 +1361,10 @@ describe("Popup", () => {
     (<any>window).innerHeight = 800;
     model.toggleVisibility();
     viewModel.updateOnShowing();
-    expect(viewModel.minWidth, "minWidth").toLooseEqual("560px");
-    expect(viewModel.width, "width").toLooseEqual("560px");
-    expect(viewModel.left, "left").toLooseEqual("200px");
-    expect(viewModel.top, "top").toLooseEqual("178px");
+    expect(viewModel.minWidth, "minWidth").toBe("560px");
+    expect(viewModel.width, "width").toBe("560px");
+    expect(viewModel.left, "left").toBe("200px");
+    expect(viewModel.top, "top").toBe("178px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1400,10 +1400,10 @@ describe("Popup", () => {
     (<any>window).innerHeight = 800;
     model.toggleVisibility();
     viewModel.updateOnShowing();
-    expect(viewModel.minWidth, "minWidth").toLooseEqual("560px");
-    expect(viewModel.width, "width").toLooseEqual("560px");
-    expect(viewModel.left, "left").toLooseEqual("200px");
-    expect(viewModel.top, "top").toLooseEqual("178px");
+    expect(viewModel.minWidth, "minWidth").toBe("560px");
+    expect(viewModel.width, "width").toBe("560px");
+    expect(viewModel.left, "left").toBe("200px");
+    expect(viewModel.top, "top").toBe("178px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1439,10 +1439,10 @@ describe("Popup", () => {
     (<any>window).innerHeight = 800;
     model.toggleVisibility();
     viewModel.updateOnShowing();
-    expect(viewModel.minWidth, "minWidth").toLooseEqual("560px");
-    expect(viewModel.width, "width").toLooseEqual("560px");
-    expect(viewModel.left, "left").toLooseEqual("200px");
-    expect(viewModel.top, "top").toLooseEqual("178px");
+    expect(viewModel.minWidth, "minWidth").toBe("560px");
+    expect(viewModel.width, "width").toBe("560px");
+    expect(viewModel.left, "left").toBe("200px");
+    expect(viewModel.top, "top").toBe("178px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1473,11 +1473,11 @@ describe("Popup", () => {
     const scrollContent = popupContainer.querySelector(".sv-popup__scrolling-content") as HTMLElement;
     if (scrollContent) stubElementLayout(scrollContent, { width: 550, height: 400 });
 
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.height).toLooseEqual("auto");
-    expect(viewModel.width).toLooseEqual("auto");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.height).toBe("auto");
+    expect(viewModel.width).toBe("auto");
 
     let trace: string = "";
     model.onHide = () => {
@@ -1492,21 +1492,21 @@ describe("Popup", () => {
     (<any>window).innerHeight = 400;
     viewModel.updateOnShowing();
 
-    expect(trace).toLooseEqual("->onShow");
-    expect(viewModel.isVisible).toLooseEqual(true);
-    expect(viewModel.top, "onShow top").not.toLooseEqual("0px");
-    expect(viewModel.left, "onShow left").not.toLooseEqual("0px");
-    expect(viewModel.height, "onShow height").not.toLooseEqual("auto");
-    expect(viewModel.width, "onShow width").not.toLooseEqual("auto");
+    expect(trace).toBe("->onShow");
+    expect(viewModel.isVisible).toBe(true);
+    expect(viewModel.top, "onShow top").not.toBe("0px");
+    expect(viewModel.left, "onShow left").not.toBe("0px");
+    expect(viewModel.height, "onShow height").not.toBe("auto");
+    expect(viewModel.width, "onShow width").not.toBe("auto");
     trace = "";
 
     model.toggleVisibility();
-    expect(trace).toLooseEqual("->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top, "onHide top").toLooseEqual("0px");
-    expect(viewModel.left, "onHide left").toLooseEqual("0px");
-    expect(viewModel.height, "onHide height").toLooseEqual("auto");
-    expect(viewModel.width, "onHide width").toLooseEqual("auto");
+    expect(trace).toBe("->onHide");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top, "onHide top").toBe("0px");
+    expect(viewModel.left, "onHide left").toBe("0px");
+    expect(viewModel.height, "onHide height").toBe("auto");
+    expect(viewModel.width, "onHide width").toBe("auto");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1533,13 +1533,13 @@ describe("Popup", () => {
     popupContainer.style.height = "400px";
 
     model.displayMode = "overlay";
-    expect(viewModel.styleClass).toLooseEqual("sv-popup--menu-popup");
+    expect(viewModel.styleClass).toBe("sv-popup--menu-popup");
 
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top).toLooseEqual("0px");
-    expect(viewModel.left).toLooseEqual("0px");
-    expect(viewModel.height).toLooseEqual("auto");
-    expect(viewModel.width).toLooseEqual("auto");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top).toBe("0px");
+    expect(viewModel.left).toBe("0px");
+    expect(viewModel.height).toBe("auto");
+    expect(viewModel.width).toBe("auto");
 
     let trace: string = "";
     model.onHide = () => {
@@ -1554,21 +1554,21 @@ describe("Popup", () => {
     (<any>window).innerHeight = 400;
     viewModel.updateOnShowing();
 
-    expect(trace).toLooseEqual("->onShow");
-    expect(viewModel.isVisible).toLooseEqual(true);
-    expect(viewModel.top, "onShow top").toLooseEqual("");
-    expect(viewModel.left, "onShow left").toLooseEqual("");
-    expect(viewModel.height, "onShow height").toLooseEqual("");
-    expect(viewModel.width, "onShow width").toLooseEqual("");
+    expect(trace).toBe("->onShow");
+    expect(viewModel.isVisible).toBe(true);
+    expect(viewModel.top, "onShow top").toBe("");
+    expect(viewModel.left, "onShow left").toBe("");
+    expect(viewModel.height, "onShow height").toBe("");
+    expect(viewModel.width, "onShow width").toBe("");
     trace = "";
 
     model.toggleVisibility();
-    expect(trace).toLooseEqual("->onHide");
-    expect(viewModel.isVisible).toLooseEqual(false);
-    expect(viewModel.top, "onHide top").toLooseEqual("0px");
-    expect(viewModel.left, "onHide left").toLooseEqual("0px");
-    expect(viewModel.height, "onHide height").toLooseEqual("auto");
-    expect(viewModel.width, "onHide width").toLooseEqual("auto");
+    expect(trace).toBe("->onHide");
+    expect(viewModel.isVisible).toBe(false);
+    expect(viewModel.top, "onHide top").toBe("0px");
+    expect(viewModel.left, "onHide left").toBe("0px");
+    expect(viewModel.height, "onHide height").toBe("auto");
+    expect(viewModel.width, "onHide width").toBe("auto");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1622,49 +1622,49 @@ describe("Popup", () => {
     viewModel.setComponentElement(container);
     model.isVisible = true;
     viewModel.updateOnShowing();
-    expect(subscribeLog).toLooseEqual("->subscribed");
+    expect(subscribeLog).toBe("->subscribed");
 
     let event = new WheelEvent("wheel", { deltaY: 20, cancelable: true });
     wrapEvent(event);
     container.dispatchEvent(event);
-    expect(eventLog, "prevented scroll when not scrolling inside").toLooseEqual("->prevented");
+    expect(eventLog, "prevented scroll when not scrolling inside").toBe("->prevented");
 
     eventLog = "";
     event = new WheelEvent("wheel", { deltaY: 20, bubbles: true, cancelable: true });
     wrapEvent(event);
     container.children[0].children[0].dispatchEvent(event);
-    expect(eventLog, "scroll inside (not prevented)").toLooseEqual("");
+    expect(eventLog, "scroll inside (not prevented)").toBe("");
 
     eventLog = "";
     event = new WheelEvent("wheel", { deltaY: -20, bubbles: true, cancelable: true });
     wrapEvent(event);
     container.children[0].scrollTo(0, 20);
     container.children[0].children[0].dispatchEvent(event);
-    expect(eventLog, "scroll inside (not prevented)").toLooseEqual("");
+    expect(eventLog, "scroll inside (not prevented)").toBe("");
 
     eventLog = "";
     event = new WheelEvent("wheel", { deltaY: 20, bubbles: true, cancelable: true });
     wrapEvent(event);
     container.children[0].scrollTo(0, 150);
     container.children[0].children[0].dispatchEvent(event);
-    expect(eventLog, "scroll inside (not prevented)").toLooseEqual("");
+    expect(eventLog, "scroll inside (not prevented)").toBe("");
 
     eventLog = "";
     event = new WheelEvent("wheel", { deltaY: -20, bubbles: true, cancelable: true });
     wrapEvent(event);
     container.children[0].scrollTo(0, 0);
     container.children[0].children[0].dispatchEvent(event);
-    expect(eventLog, "overscroll inside (prevented)").toLooseEqual("->prevented");
+    expect(eventLog, "overscroll inside (prevented)").toBe("->prevented");
 
     eventLog = "";
     event = new WheelEvent("wheel", { deltaY: 20, bubbles: true, cancelable: true });
     wrapEvent(event);
     container.children[0].scrollTo(0, 200);
     container.children[0].children[0].dispatchEvent(event);
-    expect(eventLog, "overscroll inside (prevented)").toLooseEqual("->prevented");
+    expect(eventLog, "overscroll inside (prevented)").toBe("->prevented");
 
     model.toggleVisibility();
-    expect(subscribeLog).toLooseEqual("->subscribed->unsubscribed");
+    expect(subscribeLog).toBe("->subscribed->unsubscribed");
 
     container.remove();
   });
@@ -1701,8 +1701,8 @@ describe("Popup", () => {
     (<any>window).innerHeight = 2000;
     (<any>window).innerWidth = 2000;
     viewModel.updateOnShowing();
-    expect(viewModel.top, "top").toLooseEqual(174 + "px");
-    expect(viewModel.left, "left").toLooseEqual(66 + "px");
+    expect(viewModel.top, "top").toBe(174 + "px");
+    expect(viewModel.left, "left").toBe(66 + "px");
 
     viewModel.dispose();
     targetElement.remove();
@@ -1756,11 +1756,11 @@ describe("Popup", () => {
     viewModel.enableOnElementRerenderedEvent();
     model.isVisible = true;
     viewModel.afterRerender();
-    expect(logger.log, "correct order of updates when entering").toLooseEqual("->model:isVisible:true->viewModel:isVisible:true->onEnter");
+    expect(logger.log, "correct order of updates when entering").toBe("->model:isVisible:true->viewModel:isVisible:true->onEnter");
     expect(viewModel.getAnimation().passedEnterClass, "correct css classes passed to animation's onEnter").toEqualValues("sv-popup--enter");
     logger.log = "";
     model.isVisible = false;
-    expect(logger.log, "correct order of updates when leaving").toLooseEqual("->model:isVisible:false->onLeave->viewModel:isVisible:false");
+    expect(logger.log, "correct order of updates when leaving").toBe("->model:isVisible:false->onLeave->viewModel:isVisible:false");
     expect(viewModel.getAnimation().passedLeaveClass, "correct css classes passed to animation's onLeave").toEqualValues("sv-popup--leave");
     settings.animationEnabled = false;
     window.queueMicrotask = oldQueueMicrotask;
@@ -1778,10 +1778,10 @@ describe("Popup", () => {
       logger.log += `->viewModel:isVisible:${options.isVisible}`;
     });
     model.isVisible = true;
-    expect(logger.log, "correct order of updates when entering without animation").toLooseEqual("->model:isVisible:true->viewModel:isVisible:true");
+    expect(logger.log, "correct order of updates when entering without animation").toBe("->model:isVisible:true->viewModel:isVisible:true");
     logger.log = "";
     model.isVisible = false;
-    expect(logger.log, "correct order of updates when leaving without animation").toLooseEqual("->model:isVisible:false->viewModel:isVisible:false");
+    expect(logger.log, "correct order of updates when leaving without animation").toBe("->model:isVisible:false->viewModel:isVisible:false");
   });
 
   test("PopupViewModel: check popupViewModel is working correctly when shouldRunAnimation is false", () => {
@@ -1799,10 +1799,10 @@ describe("Popup", () => {
       logger.log += `->viewModel:isVisible:${options.isVisible}`;
     });
     model.isVisible = true;
-    expect(logger.log, "correct order of updates when entering without animation").toLooseEqual("->model:isVisible:true->viewModel:isVisible:true");
+    expect(logger.log, "correct order of updates when entering without animation").toBe("->model:isVisible:true->viewModel:isVisible:true");
     logger.log = "";
     model.isVisible = false;
-    expect(logger.log, "correct order of updates when leaving without animation").toLooseEqual("->model:isVisible:false->viewModel:isVisible:false");
+    expect(logger.log, "correct order of updates when leaving without animation").toBe("->model:isVisible:false->viewModel:isVisible:false");
   });
 
   test("PopupViewModel: check getShouldRunAnimation method", () => {
@@ -1845,34 +1845,34 @@ describe("Popup", () => {
       viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
         log += "onVisibilityChanged:(viewModel.isVisible == " + options.isVisible + ")->";
       });
-      expect(log).toLooseEqual("");
+      expect(log).toBe("");
 
       model.isVisible = true;
       vi.advanceTimersByTime(animationTimeOut + 1);
-      expect(log, "popup show").toLooseEqual("onShow:(viewModel.isVisible == false)->onVisibilityChanged:(viewModel.isVisible == true)->");
+      expect(log, "popup show").toBe("onShow:(viewModel.isVisible == false)->onVisibilityChanged:(viewModel.isVisible == true)->");
 
       log = "";
       model.isVisible = false;
       vi.advanceTimersByTime(animationTimeOut + 1);
-      expect(log, "popup hide").toLooseEqual("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
+      expect(log, "popup hide").toBe("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
 
       model.isVisible = true;
       vi.advanceTimersByTime(animationTimeOut + 1);
       log = "";
       listModel.onItemClick(items[0]);
       vi.advanceTimersByTime(animationTimeOut + 1);
-      expect(log, "item click").toLooseEqual("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
+      expect(log, "item click").toBe("onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
 
       model.isVisible = true;
       vi.advanceTimersByTime(animationTimeOut + 1);
       log = "";
       viewModel.cancel();
       vi.advanceTimersByTime(animationTimeOut + 1);
-      expect(log, "click cancel").toLooseEqual("onCancel->onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
+      expect(log, "click cancel").toBe("onCancel->onVisibilityChanged:(viewModel.isVisible == false)->listModel.refresh->onHide:(viewModel.isVisible == false)");
 
       log = "";
       model.dispose();
-      expect(log).toLooseEqual("onDispose");
+      expect(log).toBe("onDispose");
     } finally {
       ListModel.prototype["refresh"] = originalRefresh;
       settings.animationEnabled = false;

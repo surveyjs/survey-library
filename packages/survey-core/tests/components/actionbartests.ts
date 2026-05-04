@@ -29,12 +29,12 @@ test("Check action sort items", () => {
     { id: "first", visibleIndex: 0 },
     { id: "undefined_index", visibleIndex: undefined },
   ]);
-  expect(model.actions.length).toLooseEqual(4);
-  expect(model.actions[0].id).toLooseEqual("first");
-  expect(model.actions[1].id).toLooseEqual("second");
-  expect(model.actions[2].id).toLooseEqual("third");
+  expect(model.actions.length).toBe(4);
+  expect(model.actions[0].id).toBe("first");
+  expect(model.actions[1].id).toBe("second");
+  expect(model.actions[2].id).toBe("third");
   //item with undefined index should be put in the end of array
-  expect(model.actions[3].id).toLooseEqual("undefined_index");
+  expect(model.actions[3].id).toBe("undefined_index");
 });
 
 test("isVisible", () => {
@@ -50,24 +50,24 @@ test("Create Action from Action", () => {
   const action = new Action(<any>{ title: "action" });
   const newAction = new Action(action);
   newAction.title = "new action";
-  expect(newAction.title).toLooseEqual("new action");
-  expect(action.title).toLooseEqual("action");
+  expect(newAction.title).toBe("new action");
+  expect(action.title).toBe("action");
 });
 
 test("AdaptiveActionContainer.css", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.addAction({ id: "1" });
   model.flushUpdates();
-  expect(model.getRootCss()).toLooseEqual("sv-action-bar sv-action-bar--default-size-mode");
+  expect(model.getRootCss()).toBe("sv-action-bar sv-action-bar--default-size-mode");
   model.containerCss = "footer";
-  expect(model.getRootCss()).toLooseEqual("sv-action-bar sv-action-bar--default-size-mode footer");
+  expect(model.getRootCss()).toBe("sv-action-bar sv-action-bar--default-size-mode footer");
 });
 
 test("getActionRootCss", () => {
   const action = new Action(<any>{ css: "custom" });
-  expect(action.getActionRootCss()).toLooseEqual("sv-action custom");
+  expect(action.getActionRootCss()).toBe("sv-action custom");
   action.visible = false;
-  expect(action.getActionRootCss()).toLooseEqual("sv-action custom sv-action--hidden");
+  expect(action.getActionRootCss()).toBe("sv-action custom sv-action--hidden");
 });
 
 test("Check hideItemsGreaterN with minVisibleItemsCount", () => {
@@ -82,14 +82,14 @@ test("Check hideItemsGreaterN with minVisibleItemsCount", () => {
   let model = createTestModel();
   model.flushUpdates();
   model["hideItemsGreaterN"](0);
-  expect(model.actions[0].mode).toLooseEqual("popup");
-  expect(model.actions[1].mode).toLooseEqual("popup");
+  expect(model.actions[0].mode).toBe("popup");
+  expect(model.actions[1].mode).toBe("popup");
   model = createTestModel();
   model.flushUpdates();
   model.minVisibleItemsCount = 1;
   model["hideItemsGreaterN"](0);
-  expect(model.actions[0].mode).toLooseEqual("large");
-  expect(model.actions[1].mode).toLooseEqual("popup");
+  expect(model.actions[0].mode).toBe("large");
+  expect(model.actions[1].mode).toBe("popup");
 });
 
 test("Check dropdown action pressed state", () => {
@@ -112,16 +112,16 @@ test("Check dropdown action pressed state", () => {
 test("Check action title", () => {
   const action = new Action({ id: "" });
   action.title = "simple_title";
-  expect(action.title).toLooseEqual("simple_title");
+  expect(action.title).toBe("simple_title");
   const locTitle = new LocalizableString(null);
   locTitle.text = "loc_title_1";
   action.locTitle = locTitle;
-  expect(action.title).toLooseEqual("loc_title_1");
+  expect(action.title).toBe("loc_title_1");
   locTitle.text = "loc_title_2";
-  expect(action.title).toLooseEqual("loc_title_2");
+  expect(action.title).toBe("loc_title_2");
   action.title = "loc_title_3";
-  expect(action.title).toLooseEqual("loc_title_3");
-  expect(locTitle.text).toLooseEqual("loc_title_3");
+  expect(action.title).toBe("loc_title_3");
+  expect(locTitle.text).toBe("loc_title_3");
 });
 
 test("Check action bar cssClasses", () => {
@@ -131,8 +131,8 @@ test("Check action bar cssClasses", () => {
     root: "custom-action-bar"
   };
   expect(actionBar.cssClasses !== defaultActionBarCss).toBeTruthy();
-  expect(actionBar.cssClasses.root).toLooseEqual("custom-action-bar");
-  expect(actionBar.cssClasses.item).toLooseEqual("sv-action-bar-item");
+  expect(actionBar.cssClasses.root).toBe("custom-action-bar");
+  expect(actionBar.cssClasses.item).toBe("sv-action-bar-item");
 });
 test("Action title", () => {
   const page = new PageModel("page1");
@@ -141,11 +141,11 @@ test("Action title", () => {
     title: <any>new ComputedUpdater<string>(() => page.name)
   };
   const action = new Action(actionInner);
-  expect(action.title, "title: get from page name #1").toLooseEqual("page1");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toLooseEqual("page1");
+  expect(action.title, "title: get from page name #1").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toBe("page1");
   page.name = "page2";
-  expect(action.title, "title: get from page name #2").toLooseEqual("page2");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #2").toLooseEqual("page2");
+  expect(action.title, "title: get from page name #2").toBe("page2");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #2").toBe("page2");
 });
 test("Action title set title updater later", () => {
   const page = new PageModel("page1");
@@ -153,13 +153,13 @@ test("Action title set title updater later", () => {
     id: page.id,
   };
   const action = new Action(actionInner);
-  expect(action.title, "title: undefined").toLooseEqual(undefined);
+  expect(action.title, "title: undefined").toBeUndefined();
   action.title = <any>new ComputedUpdater<string>(() => page.name);
-  expect(action.title, "title: get from page name #1").toLooseEqual("page1");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toLooseEqual("page1");
+  expect(action.title, "title: get from page name #1").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toBe("page1");
   page.name = "page2";
-  expect(action.title, "title: get from page name #2").toLooseEqual("page2");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #2").toLooseEqual("page2");
+  expect(action.title, "title: get from page name #2").toBe("page2");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #2").toBe("page2");
 });
 test("Action title set title updater later and depends on page visibility", () => {
   const page = new PageModel("page1");
@@ -167,20 +167,20 @@ test("Action title set title updater later and depends on page visibility", () =
     id: page.id,
   };
   const action = new Action(actionInner);
-  expect(action.title, "title: undefined").toLooseEqual(undefined);
+  expect(action.title, "title: undefined").toBeUndefined();
   action.title = <any>new ComputedUpdater<string>(() => page.visible ? page.name : "hidden");
-  expect(action.title, "title: get from page name #1").toLooseEqual("page1");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toLooseEqual("page1");
+  expect(action.title, "title: get from page name #1").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toBe("page1");
   page.visible = false;
-  expect(action.title, "title: hidden #2").toLooseEqual("hidden");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: hidden #2").toLooseEqual("hidden");
+  expect(action.title, "title: hidden #2").toBe("hidden");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: hidden #2").toBe("hidden");
   action.title = <any>undefined;
   action.title = <any>new ComputedUpdater<string>(() => page.visible ? page.name : "hidden");
-  expect(action.title, "title: hidden #3").toLooseEqual("hidden");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: hidden #3").toLooseEqual("hidden");
+  expect(action.title, "title: hidden #3").toBe("hidden");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: hidden #3").toBe("hidden");
   page.visible = true;
-  expect(action.title, "title: get from page name #4").toLooseEqual("page1");
-  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #4").toLooseEqual("page1");
+  expect(action.title, "title: get from page name #4").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #4").toBe("page1");
 });
 test("Empty action title", () => {
   const action = new Action({ id: "1" });
@@ -193,14 +193,14 @@ test("Action title", () => {
     locTitleName: "selectAllItemText",
     locTooltipName: "previewText"
   });
-  expect(action1.locTitle.text, "take text from en localization").toLooseEqual("Select All");
-  expect(action1.title, "Update action title en localization").toLooseEqual("Select All");
-  expect(action1.tooltip, "take tooltip from en localization").toLooseEqual("Preview");
+  expect(action1.locTitle.text, "take text from en localization").toBe("Select All");
+  expect(action1.title, "Update action title en localization").toBe("Select All");
+  expect(action1.tooltip, "take tooltip from en localization").toBe("Preview");
   survey.locale = "de";
-  expect(action1.getLocale(), "locale de").toLooseEqual("de");
-  expect(action1.locTitle.text, "take text from de localization").toLooseEqual("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(action1.title, "Update action title de localization").toLooseEqual("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(action1.tooltip, "take tooltip from de localization").toLooseEqual("Vorschau");
+  expect(action1.getLocale(), "locale de").toBe("de");
+  expect(action1.locTitle.text, "take text from de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.title, "Update action title de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.tooltip, "take tooltip from de localization").toBe("Vorschau");
   survey.locale = "";
 });
 test("Action title in list model", () => {
@@ -213,14 +213,14 @@ test("Action title in list model", () => {
   const list = new ListModel({ items: [action1], onSelectionChanged: () => { }, allowSelection: true } as any);
   const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
   survey.addNavigationItem({ id: "action2", title: "test", popupModel: popupModel });
-  expect(action1.locTitle.text, "take text from en localization").toLooseEqual("Select All");
-  expect(action1.title, "Update action title en localization").toLooseEqual("Select All");
-  expect(action1.tooltip, "take tooltip from en localization").toLooseEqual("Preview");
+  expect(action1.locTitle.text, "take text from en localization").toBe("Select All");
+  expect(action1.title, "Update action title en localization").toBe("Select All");
+  expect(action1.tooltip, "take tooltip from en localization").toBe("Preview");
   survey.locale = "de";
-  expect(action1.getLocale()).toLooseEqual("de");
-  expect(action1.locTitle.text, "take text from de localization").toLooseEqual("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(action1.title, "Update action title de localization").toLooseEqual("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  expect(action1.tooltip, "take tooltip from de localization").toLooseEqual("Vorschau");
+  expect(action1.getLocale()).toBe("de");
+  expect(action1.locTitle.text, "take text from de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.title, "Update action title de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.tooltip, "take tooltip from de localization").toBe("Vorschau");
   survey.locale = "";
 });
 test("ariaChecked", () => {
@@ -251,23 +251,23 @@ test("Dispose dots item and all it content", () => {
   model.flushUpdates();
 
   model["hideItemsGreaterN"](0);
-  expect(model.actions[0].mode).toLooseEqual("popup");
-  expect(model.actions[1].mode).toLooseEqual("popup");
-  expect(model.dotsItem.popupModel, "popup model exists").not.toLooseEqual(undefined);
-  expect(model.dotsItem.popupModel.isDisposed, "popup model is not disposed").toLooseEqual(false);
-  expect(model.dotsItem.data, "list model exists").not.toLooseEqual(undefined);
-  expect(model.dotsItem.data.isDisposed, "list model is not disposed").toLooseEqual(false);
+  expect(model.actions[0].mode).toBe("popup");
+  expect(model.actions[1].mode).toBe("popup");
+  expect(model.dotsItem.popupModel, "popup model exists").not.toBeUndefined();
+  expect(model.dotsItem.popupModel.isDisposed, "popup model is not disposed").toBe(false);
+  expect(model.dotsItem.data, "list model exists").not.toBeUndefined();
+  expect(model.dotsItem.data.isDisposed, "list model is not disposed").toBe(false);
 
   const action1 = model.actions[0];
   const action2 = model.actions[1];
 
   model.dispose();
-  expect(model.actions.length, "actions are removed").toLooseEqual(0);
-  expect(action1.isDisposed, "action 1 is disposed").toLooseEqual(true);
-  expect(action2.isDisposed, "action 2 is disposed").toLooseEqual(true);
-  expect(model.dotsItem.isDisposed, "dotsItem is disposed").toLooseEqual(true);
-  expect(model.dotsItem.popupModel.isDisposed, "popup model is disposed").toLooseEqual(true);
-  expect(model.dotsItem.data.isDisposed, "list model is disposed").toLooseEqual(true);
+  expect(model.actions.length, "actions are removed").toBe(0);
+  expect(action1.isDisposed, "action 1 is disposed").toBe(true);
+  expect(action2.isDisposed, "action 2 is disposed").toBe(true);
+  expect(model.dotsItem.isDisposed, "dotsItem is disposed").toBe(true);
+  expect(model.dotsItem.popupModel.isDisposed, "popup model is disposed").toBe(true);
+  expect(model.dotsItem.data.isDisposed, "list model is disposed").toBe(true);
 });
 test("createDropdownActionModel: switch action title", () => {
   let items: Array<any> = [];
@@ -282,16 +282,16 @@ test("createDropdownActionModel: switch action title", () => {
   );
   const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
 
-  expect(selectedValue).toLooseEqual(undefined);
-  expect(dropdownAction.title).toLooseEqual("Test");
+  expect(selectedValue).toBeUndefined();
+  expect(dropdownAction.title).toBe("Test");
 
   list.onItemClick(items[1]);
-  expect(selectedValue).toLooseEqual("1");
-  expect(dropdownAction.title).toLooseEqual("item1");
+  expect(selectedValue).toBe("1");
+  expect(dropdownAction.title).toBe("item1");
 
   list.onItemClick(items[10]);
-  expect(selectedValue).toLooseEqual("10");
-  expect(dropdownAction.title).toLooseEqual("item10");
+  expect(selectedValue).toBe("10");
+  expect(dropdownAction.title).toBe("item10");
 });
 test("createDropdownActionModel: title is not changed", () => {
   let items: Array<any> = [];
@@ -306,16 +306,16 @@ test("createDropdownActionModel: title is not changed", () => {
   );
   const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
 
-  expect(selectedValue).toLooseEqual(undefined);
-  expect(dropdownAction.title).toLooseEqual("Test");
+  expect(selectedValue).toBeUndefined();
+  expect(dropdownAction.title).toBe("Test");
 
   list.onItemClick(items[1]);
-  expect(selectedValue).toLooseEqual("1");
-  expect(dropdownAction.title).toLooseEqual("Test");
+  expect(selectedValue).toBe("1");
+  expect(dropdownAction.title).toBe("Test");
 
   list.onItemClick(items[10]);
-  expect(selectedValue).toLooseEqual("10");
-  expect(dropdownAction.title).toLooseEqual("Test");
+  expect(selectedValue).toBe("10");
+  expect(dropdownAction.title).toBe("Test");
 });
 test("Action locTitleName doesn't work correctly, bug#8093", () => {
   const survey = new SurveyModel({ locale: "fr", elements: [{ type: "text", name: "q1" }] });
@@ -328,11 +328,11 @@ test("Action locTitleName doesn't work correctly, bug#8093", () => {
     id: "clearPage",
     locTitleName: "clearPage"
   });
-  expect(action1.title, "Clear page fr#1").toLooseEqual("Effacer la page");
+  expect(action1.title, "Clear page fr#1").toBe("Effacer la page");
   survey.locale = "";
-  expect(action1.title, "Clear page en#1").toLooseEqual("Clear page");
+  expect(action1.title, "Clear page en#1").toBe("Clear page");
   survey.locale = "fr";
-  expect(action1.title, "Clear page fr#2").toLooseEqual("Effacer la page");
+  expect(action1.title, "Clear page fr#2").toBe("Effacer la page");
 });
 test("Action setSubItems popup canShrink property", () => {
   const action = new Action({ id: "test2", title: "test2" });
@@ -348,7 +348,7 @@ test("Action setSubItems popup item click", () => {
   let event = "";
   (action as Action).setSubItems({ items: subitems, onSelectionChanged: (item) => { event = item.title; } });
   action.popupModel.contentComponentData.model.onItemClick(action.items[1]);
-  expect(event).toLooseEqual("test29");
+  expect(event).toBe("test29");
 });
 
 test("Action setSubItems does not change existing popup", () => {
@@ -357,7 +357,7 @@ test("Action setSubItems does not change existing popup", () => {
   (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
   var lastPopup = action.popupModel;
   (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
-  expect(lastPopup).toLooseEqual(action.popupModel);
+  expect(lastPopup).toBe(action.popupModel);
 });
 
 test("Action subitems show timeout - we should wait other popup to hide", () => {
@@ -378,11 +378,11 @@ test("Action subitems show timeout - we should wait other popup to hide", () => 
   actionBar.subItemsHideDelay = 30;
 
   actionBar.mouseOverHandler(action1);
-  expect(delayCalled).toLooseEqual(20);
+  expect(delayCalled).toBe(20);
 
   action2.popupModel.show();
   actionBar.mouseOverHandler(action1);
-  expect(delayCalled).toLooseEqual(30);
+  expect(delayCalled).toBe(30);
 });
 
 test("Check rendered actions", () => {
@@ -393,42 +393,42 @@ test("Check rendered actions", () => {
     { id: "test2", title: "test3" }
   ]);
   actionBar.flushUpdates();
-  expect(actionBar.renderedActions.length).toLooseEqual(2);
-  expect(actionBar.renderedActions[0].title).toLooseEqual("test1");
-  expect(actionBar.renderedActions[1].title).toLooseEqual("test3");
+  expect(actionBar.renderedActions.length).toBe(2);
+  expect(actionBar.renderedActions[0].title).toBe("test1");
+  expect(actionBar.renderedActions[1].title).toBe("test3");
 
   actionBar.actions[0].visible = false;
   actionBar.flushUpdates();
-  expect(actionBar.renderedActions.length).toLooseEqual(1);
-  expect(actionBar.renderedActions[0].title).toLooseEqual("test3");
+  expect(actionBar.renderedActions.length).toBe(1);
+  expect(actionBar.renderedActions[0].title).toBe("test3");
 
   actionBar.actions[1].visible = true;
   actionBar.flushUpdates();
-  expect(actionBar.renderedActions.length).toLooseEqual(2);
-  expect(actionBar.renderedActions[0].title).toLooseEqual("test2");
-  expect(actionBar.renderedActions[1].title).toLooseEqual("test3");
+  expect(actionBar.renderedActions.length).toBe(2);
+  expect(actionBar.renderedActions[0].title).toBe("test2");
+  expect(actionBar.renderedActions[1].title).toBe("test3");
 });
 
 test("Check rendered actions for adaptive container", () => {
   const actionBar = new AdaptiveActionContainer();
-  expect(actionBar.renderedActions.length).toLooseEqual(0);
+  expect(actionBar.renderedActions.length).toBe(0);
 
   actionBar.setItems([{ id: "test1", title: "test1" }]);
   actionBar.flushUpdates();
-  expect(actionBar.renderedActions.length).toLooseEqual(2);
-  expect(actionBar.renderedActions[0].id).toLooseEqual("test1");
+  expect(actionBar.renderedActions.length).toBe(2);
+  expect(actionBar.renderedActions[0].id).toBe("test1");
   expect(actionBar.renderedActions[1].id == actionBar.dotsItem.id).toBeTruthy();
 
   actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }]);
   actionBar.flushUpdates();
-  expect(actionBar.renderedActions.length).toLooseEqual(1);
-  expect(actionBar.renderedActions[0].id).toLooseEqual("test1");
+  expect(actionBar.renderedActions.length).toBe(1);
+  expect(actionBar.renderedActions[0].id).toBe("test1");
 
   actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }, { id: "test2", title: "test2" }]);
   actionBar.flushUpdates();
-  expect(actionBar.renderedActions.length).toLooseEqual(3);
-  expect(actionBar.renderedActions[0].id).toLooseEqual("test1");
-  expect(actionBar.renderedActions[1].id).toLooseEqual("test2");
+  expect(actionBar.renderedActions.length).toBe(3);
+  expect(actionBar.renderedActions[0].id).toBe("test1");
+  expect(actionBar.renderedActions[1].id).toBe("test2");
   expect(actionBar.renderedActions[2] == actionBar.dotsItem).toBeTruthy();
 });
 
@@ -541,36 +541,36 @@ test("Check actions container update method", () => {
   let responsivityLog = "";
   container.initResponsivityManager(document.createElement("div"), (forceUpdate: boolean) => responsivityLog += `->called:${forceUpdate}`);
 
-  expect(container.visibleActions.length).toLooseEqual(0);
-  expect(container.isEmpty).toLooseEqual(true);
-  expect(responsivityLog).toLooseEqual("");
+  expect(container.visibleActions.length).toBe(0);
+  expect(container.isEmpty).toBe(true);
+  expect(responsivityLog).toBe("");
 
   container["update"]({ needUpdateActions: true });
-  expect(container.visibleActions.length).toLooseEqual(1);
-  expect(container.visibleActions[0].id).toLooseEqual("test");
-  expect(container.isEmpty).toLooseEqual(true);
-  expect(responsivityLog).toLooseEqual("");
+  expect(container.visibleActions.length).toBe(1);
+  expect(container.visibleActions[0].id).toBe("test");
+  expect(container.isEmpty).toBe(true);
+  expect(responsivityLog).toBe("");
 
   container["update"]({ needUpdateIsEmpty: true });
-  expect(container.visibleActions.length).toLooseEqual(1);
-  expect(container.visibleActions[0].id).toLooseEqual("test");
-  expect(container.isEmpty).toLooseEqual(false);
-  expect(responsivityLog).toLooseEqual("");
+  expect(container.visibleActions.length).toBe(1);
+  expect(container.visibleActions[0].id).toBe("test");
+  expect(container.isEmpty).toBe(false);
+  expect(responsivityLog).toBe("");
 
   container.setItems([]);
   container["update"]({ needUpdateIsEmpty: true });
-  expect(container.visibleActions.length).toLooseEqual(1);
-  expect(container.visibleActions[0].id).toLooseEqual("test");
-  expect(container.isEmpty).toLooseEqual(false);
-  expect(responsivityLog).toLooseEqual("");
+  expect(container.visibleActions.length).toBe(1);
+  expect(container.visibleActions[0].id).toBe("test");
+  expect(container.isEmpty).toBe(false);
+  expect(responsivityLog).toBe("");
 
   container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.None });
-  expect(responsivityLog).toLooseEqual("");
+  expect(responsivityLog).toBe("");
   container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
-  expect(responsivityLog).toLooseEqual("->called:false");
+  expect(responsivityLog).toBe("->called:false");
   responsivityLog = "";
   container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
-  expect(responsivityLog).toLooseEqual("->called:true");
+  expect(responsivityLog).toBe("->called:true");
 
 });
 test("Make sure that createActionCore is called for bars & list", () => {
@@ -583,10 +583,10 @@ test("Make sure that createActionCore is called for bars & list", () => {
   }
   const container = new TestLocContainer();
   container.setItems([{ id: "test" }]);
-  expect(container.actions[0].template).toLooseEqual("custom");
+  expect(container.actions[0].template).toBe("custom");
   container.addAction({ id: "test2" });
-  expect(container.actions[1].template).toLooseEqual("custom");
+  expect(container.actions[1].template).toBe("custom");
   const list = container.hiddenItemsListModel;
   list.addAction({ id: "test3" });
-  expect(list.actions[0].template).toLooseEqual("custom");
+  expect(list.actions[0].template).toBe("custom");
 });

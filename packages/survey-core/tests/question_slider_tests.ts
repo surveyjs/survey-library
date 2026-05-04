@@ -15,7 +15,7 @@ describe("question slider", () => {
     };
     const survey = new SurveyModel(json);
     const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-    expect(q1.value).toLooseEqual(undefined);
+    expect(q1.value).toBeUndefined();
 
     q1.value = 50;
     expect(survey.data).toEqualValues({ q1: 50 });
@@ -51,7 +51,7 @@ describe("question slider", () => {
     };
     const survey = new SurveyModel(json);
     const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-    expect(q1.getType()).toLooseEqual("slider");
+    expect(q1.getType()).toBe("slider");
   });
 
   test("check defaultValue: single", () => {
@@ -170,8 +170,8 @@ describe("question slider", () => {
     };
     let survey = new SurveyModel(json);
     let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-    expect(q1.labelCount, "default labelCount").toLooseEqual(-1);
-    expect(q1.renderedLabelCount, "default renderedLabelCount").toLooseEqual(6);
+    expect(q1.labelCount, "default labelCount").toBe(-1);
+    expect(q1.renderedLabelCount, "default renderedLabelCount").toBe(6);
 
     json = {
       elements: [
@@ -443,9 +443,9 @@ describe("question slider", () => {
     q1.sliderType = "single";
     q1.value = [40];
     const renderedValue = q1.renderedValue;
-    expect(renderedValue[0]).toLooseEqual(40);
+    expect(renderedValue[0]).toBe(40);
     renderedValue[0] = 100;
-    expect(q1.value).toLooseEqual(40);
+    expect(q1.value).toEqualValues([40]);
   });
 
   test("renderedValue and maxRangeLength", () => {
@@ -501,10 +501,10 @@ describe("question slider", () => {
     };
     let survey = new SurveyModel(json);
     let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-    expect(q1.autoGenerate).toLooseEqual(false);
+    expect(q1.autoGenerate).toBe(false);
     expect(q1.labelCount).toEqualValues(1);
     q1.autoGenerate = true;
-    expect(q1.autoGenerate).toLooseEqual(true);
+    expect(q1.autoGenerate).toBe(true);
     expect(q1.labelCount).toEqualValues(-1);
   });
 
@@ -703,7 +703,7 @@ describe("question slider", () => {
 
   test("getLabelPosition", () => {
     let q1 = new QuestionSliderModel("q1");
-    expect(q1.renderedLabelCount).toLooseEqual(6);
+    expect(q1.renderedLabelCount).toBe(6);
     expect(q1.getLabelPosition(0)).toEqualValues(0);
     expect(q1.getLabelPosition(1)).toEqualValues(20);
   });
@@ -712,11 +712,11 @@ describe("question slider", () => {
     let q1 = new QuestionSliderModel("q1");
     q1.sliderType = "single";
     q1.setSliderValue(50);
-    expect(q1.value).toLooseEqual(50);
+    expect(q1.value).toBe(50);
     q1.setSliderValue([50]);
-    expect(q1.value).toLooseEqual(50);
+    expect(q1.value).toBe(50);
     q1.setSliderValue([50, 60]);
-    expect(q1.value).toLooseEqual(50);
+    expect(q1.value).toBe(50);
 
     q1.sliderType = "range";
     q1.setSliderValue([50, 60]);
@@ -727,31 +727,31 @@ describe("question slider", () => {
     let q1 = new QuestionSliderModel("q1");
     q1.sliderType = "single";
     q1.defaultValue = [50, 60];
-    expect(q1.renderedValue, "rendered value is ok").toLooseEqual(50);
-    expect(q1.value, "value is ok").toLooseEqual(50);
+    expect(q1.renderedValue, "rendered value is ok").toEqualValues([50]);
+    expect(q1.value, "value is ok").toBe(50);
   });
 
   test("disable allowSwap when minRangeLength is set", () => {
     let q1 = new QuestionSliderModel("q1");
     q1.sliderType = "range";
-    expect(q1.allowSwap, "default").toLooseEqual(true);
+    expect(q1.allowSwap, "default").toBe(true);
     q1.minRangeLength = 20;
-    expect(q1.allowSwap, "disabled due to minRangeLength").toLooseEqual(false);
+    expect(q1.allowSwap, "disabled due to minRangeLength").toBe(false);
   });
 
   test("auto generated labels", () => {
     let q1 = new QuestionSliderModel("q1");
     (<any>q1.generatedLabels).customTag = "#1";
-    expect(q1.generatedLabels.length, "generated labels #1").toLooseEqual(6);
+    expect(q1.generatedLabels.length, "generated labels #1").toBe(6);
     q1.max = 120;
-    expect(q1.generatedLabels.length, "generated labels #2").toLooseEqual(6);
-    expect((<any>q1.generatedLabels).customTag, "custom tag #2").toLooseEqual("#1");
+    expect(q1.generatedLabels.length, "generated labels #2").toBe(6);
+    expect((<any>q1.generatedLabels).customTag, "custom tag #2").toBe("#1");
     q1.autoGenerate = false;
-    expect(q1.generatedLabels.length, "generated labels #3").toLooseEqual(6);
-    expect((<any>q1.generatedLabels).customTag, "custom tag #3").toLooseEqual("#1");
+    expect(q1.generatedLabels.length, "generated labels #3").toBe(6);
+    expect((<any>q1.generatedLabels).customTag, "custom tag #3").toBe("#1");
     q1.autoGenerate = true;
-    expect(q1.generatedLabels.length, "generated labels #4").toLooseEqual(6);
-    expect((<any>q1.generatedLabels).customTag, "custom tag #4").toLooseEqual("#1");
+    expect(q1.generatedLabels.length, "generated labels #4").toBe(6);
+    expect((<any>q1.generatedLabels).customTag, "custom tag #4").toBe("#1");
   });
 
   test("formatNumber", () => {
@@ -759,7 +759,7 @@ describe("question slider", () => {
     q1.sliderType = "range";
     q1.max = 30;
     q1.step = 0.1;
-    expect(q1.getTooltipValue(1)).toLooseEqual(30);
+    expect(q1.getTooltipValue(1)).toBe("30");
   });
 
   test("setNewValue", () => {
@@ -767,9 +767,9 @@ describe("question slider", () => {
     q1.sliderType = "single";
     q1.max = 100;
     q1.value = 110;
-    expect(q1.renderedValue).toLooseEqual(100);
-    expect(q1.value).toLooseEqual(100);
-    expect(q1.isIndeterminate).toLooseEqual(false);
+    expect(q1.renderedValue).toEqualValues([100]);
+    expect(q1.value).toBe(100);
+    expect(q1.isIndeterminate).toBe(false);
   });
 
   test("check valueName", () => {
@@ -791,12 +791,12 @@ describe("question slider", () => {
     let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
     let q2 = <QuestionSliderModel>survey.getQuestionByName("q2");
     expect(q1.renderedValue, "indeterminate state").toEqualValues([0]);
-    expect(q1.isIndeterminate).toLooseEqual(true);
+    expect(q1.isIndeterminate).toBe(true);
     q2.value = 110;
     expect(q1.value, "slider value respect max").toEqualValues(100);
     q2.value = -100;
     expect(q1.value, "slider value respect min").toEqualValues(0);
-    expect(q1.isIndeterminate).toLooseEqual(false);
+    expect(q1.isIndeterminate).toBe(false);
   });
 
   test("check if customLabels produces correct renderedLabels", () => {
@@ -820,7 +820,7 @@ describe("question slider", () => {
   test("check if autoGenerated labels correct when max is set", () => {
     let q1 = new QuestionSliderModel("q1");
     q1.max = 1000;
-    expect(q1.renderedLabels[q1.renderedLabels.length - 1].value, "auto generated label values are correct").toLooseEqual(1000);
+    expect(q1.renderedLabels[q1.renderedLabels.length - 1].value, "auto generated label values are correct").toBe(1000);
   });
 
   test("check labelFormat for autogenerated", () => {
@@ -841,7 +841,7 @@ describe("question slider", () => {
     q1.labelFormat = "{0} $";
     expect(q1.customLabels.map(l=>l.locText.textOrHtml), "labelFormat").toEqualValues(["50 $", "60 $", "70 $", "80 $", "90 $", "100 $"]);
     q1.customLabels[1].value = 55;
-    expect(q1.customLabels[1].locText.textOrHtml, "custom label value is correct").toLooseEqual("55 $");
+    expect(q1.customLabels[1].locText.textOrHtml, "custom label value is correct").toBe("55 $");
   });
 
   test("labelFormat", () => {
@@ -868,17 +868,17 @@ describe("question slider", () => {
     };
     let survey = new SurveyModel(json);
     let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-    expect(q1.renderedLabels[0].locText.renderedHtml).toLooseEqual("begin");
-    expect(q1.renderedLabels[1].locText.renderedHtml).toLooseEqual("50");
-    expect(q1.renderedLabels[2].locText.renderedHtml).toLooseEqual("100%");
+    expect(q1.renderedLabels[0].locText.renderedHtml).toBe("begin");
+    expect(q1.renderedLabels[1].locText.renderedHtml).toBe("50");
+    expect(q1.renderedLabels[2].locText.renderedHtml).toBe("100%");
   });
 
   test("check labelCount=1 works correctly", () => {
     let q1 = new QuestionSliderModel("q1");
     q1.labelCount = 1;
     q1.autoGenerate = false;
-    expect(q1.renderedLabels[0].value).toLooseEqual(0);
-    expect(q1.renderedLabels[0].text).toLooseEqual("0");
+    expect(q1.renderedLabels[0].value).toBe(0);
+    expect(q1.renderedLabels[0].text).toBe("0");
   });
 
   test("check labelCount=0 works correctly", () => {
@@ -966,16 +966,16 @@ describe("question slider", () => {
     q1.labelCount = 1;
     const label1 = q1.generatedLabels[0];
     label1.text = "min";
-    expect(q1.autoGenerate).toLooseEqual(false);
-    expect(q1.customLabels[0].text).toLooseEqual("min");
-    expect(q1.customLabels[0].value).toLooseEqual(0);
+    expect(q1.autoGenerate).toBe(false);
+    expect(q1.customLabels[0].text).toBe("min");
+    expect(q1.customLabels[0].value).toBe(0);
 
     let q2 = new QuestionSliderModel("q2");
     q2.labelCount = 1;
     const label2 = q2.generatedLabels[0];
     label2.text = "5";
-    expect(q2.autoGenerate).toLooseEqual(false);
-    expect(q2.customLabels[0].text).toLooseEqual("5");
-    expect(q2.customLabels[0].value).toLooseEqual(5);
+    expect(q2.autoGenerate).toBe(false);
+    expect(q2.customLabels[0].text).toBe("5");
+    expect(q2.customLabels[0].value).toBe(5);
   });
 });

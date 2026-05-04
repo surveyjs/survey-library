@@ -120,7 +120,7 @@ describe("Separate locales", () => {
       ]
     };
     survey.mergeLocalizationJSON(allLocales, ["de"]);
-    expect(survey.locale, "keep locale the same").toLooseEqual("");
+    expect(survey.locale, "keep locale the same").toBe("");
     expect(survey.toJSON(), "merge de locale correctly").toEqualValues({
       title: { de: "Umfrage Titel" },
       pages: [{
@@ -142,7 +142,7 @@ describe("Separate locales", () => {
       ]
     };
     survey.mergeLocalizationJSON(deStrings);
-    expect(survey.locale, "keep locale the same").toLooseEqual("");
+    expect(survey.locale, "keep locale the same").toBe("");
     expect(survey.toJSON(), "merge de locale correctly").toEqualValues({
       title: { de: "Umfrage Titel" },
       pages: [{
@@ -266,7 +266,7 @@ describe("Separate locales", () => {
         { text: "Very good" },
       ]
     });
-    expect(deJSON.locale, "de locale").toLooseEqual("de");
+    expect(deJSON.locale, "de locale").toBe("de");
     expect(deJSON.pages[0].elements[0], "de JSON").toEqualValues({
       type: "slider",
       name: "q1",
@@ -349,7 +349,7 @@ describe("Separate locales", () => {
       ],
     });
     const defaultLocale = surveyLocalization.defaultLocale;
-    expect(defaultLocale, "default locale is 'en'").toLooseEqual("en");
+    expect(defaultLocale, "default locale is 'en'").toBe("en");
     const jsonDefault = survey.getLocalizationJSON(["default"]);
     const jsonEn = survey.getLocalizationJSON(["en"]);
     expect(jsonEn, "getLocalizationJSON(['en']) returns default English strings").toEqualValues({
@@ -364,9 +364,9 @@ describe("Separate locales", () => {
         },
       ] }]
     });
-    expect(jsonDefault.title, "titles match").toLooseEqual(jsonEn.title);
-    expect(jsonDefault.pages[0].elements[0].title, "question titles match").toLooseEqual(jsonEn.pages[0].elements[0].title);
-    expect(jsonDefault.pages[0].elements[0].description, "descriptions match").toLooseEqual(jsonEn.pages[0].elements[0].description);
+    expect(jsonDefault.title, "titles match").toBe(jsonEn.title);
+    expect(jsonDefault.pages[0].elements[0].title, "question titles match").toBe(jsonEn.pages[0].elements[0].title);
+    expect(jsonDefault.pages[0].elements[0].description, "descriptions match").toBe(jsonEn.pages[0].elements[0].description);
   });
   test("mergeLocalizationJSON with 'en' locale should merge into default locale, Bug#11037", () => {
     const survey = new SurveyModel({
@@ -379,9 +379,9 @@ describe("Separate locales", () => {
           description: { default: "Description", de: "Beschreibung", fr: "La description" } }
       ]
     };
-    expect(surveyLocalization.defaultLocale, "default locale is 'en'").toLooseEqual("en");
+    expect(surveyLocalization.defaultLocale, "default locale is 'en'").toBe("en");
     survey.mergeLocalizationJSON(allLocales, ["en"]);
-    expect(survey.locale, "keep locale the same").toLooseEqual("");
+    expect(survey.locale, "keep locale the same").toBe("");
     expect(survey.toJSON(), "merge en locale correctly into default").toEqualValues({
       title: "Survey Title",
       pages: [{

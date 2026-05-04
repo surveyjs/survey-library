@@ -28,17 +28,17 @@ describe("Survey", () => {
         },
       ]
     });
-    expect(survey.widthMode).toLooseEqual("auto");
-    expect(survey.calculateWidthMode(), "calculate width for linear veritical survey").toLooseEqual("static");
+    expect(survey.widthMode).toBe("auto");
+    expect(survey.calculateWidthMode(), "calculate width for linear veritical survey").toBe("static");
 
     survey.getQuestionByName("name2").startWithNewLine = false;
-    expect(survey.calculateWidthMode(), "calculate width 2 startWithNewLine").toLooseEqual("responsive");
+    expect(survey.calculateWidthMode(), "calculate width 2 startWithNewLine").toBe("responsive");
 
     survey.getQuestionByName("name3").startWithNewLine = false;
-    expect(survey.calculateWidthMode(), "calculate width 3 startWithNewLine").toLooseEqual("responsive");
+    expect(survey.calculateWidthMode(), "calculate width 3 startWithNewLine").toBe("responsive");
 
     survey.widthMode = "static";
-    expect(survey.calculateWidthMode(), "calculate width 3 startWithNewLine with static").toLooseEqual("static");
+    expect(survey.calculateWidthMode(), "calculate width 3 startWithNewLine with static").toBe("static");
 
   });
 
@@ -80,7 +80,7 @@ describe("Survey", () => {
         },
       ]
     });
-    expect(survey.calculateWidthMode(), "calculate width for panel survey").toLooseEqual("responsive");
+    expect(survey.calculateWidthMode(), "calculate width for panel survey").toBe("responsive");
   });
 
   test("Survey widthMode property for matrices questions", () => {
@@ -109,8 +109,8 @@ describe("Survey", () => {
         },
       ]
     });
-    expect(survey3.widthMode).toLooseEqual("auto");
-    expect(survey3.calculateWidthMode(), "calculate width for survey with matrices").toLooseEqual("responsive");
+    expect(survey3.widthMode).toBe("auto");
+    expect(survey3.calculateWidthMode(), "calculate width for survey with matrices").toBe("responsive");
   });
 
   test("Survey widthMode for 'input per page'", () => {
@@ -139,10 +139,10 @@ describe("Survey", () => {
         },
       ]
     });
-    expect(survey3.widthMode).toLooseEqual("auto");
-    expect(survey3.calculateWidthMode(), "calculate width for survey with matrices in standard mode").toLooseEqual("responsive");
+    expect(survey3.widthMode).toBe("auto");
+    expect(survey3.calculateWidthMode(), "calculate width for survey with matrices in standard mode").toBe("responsive");
     survey3.questionsOnPageMode = "inputPerPage";
-    expect(survey3.calculateWidthMode(), "calculate width for survey with matrices in input per page mode").toLooseEqual("static");
+    expect(survey3.calculateWidthMode(), "calculate width for survey with matrices in input per page mode").toBe("static");
   });
 
   test("Survey widthMode - css", () => {
@@ -154,9 +154,9 @@ describe("Survey", () => {
       ]
     });
     survey.widthMode = "static";
-    expect(survey.bodyCss, "calculate body css for static width mode").toLooseEqual(survey.css.body + " " + survey.css.body + "--static");
+    expect(survey.bodyCss, "calculate body css for static width mode").toBe(survey.css.body + " " + survey.css.body + "--static");
     survey.widthMode = "responsive";
-    expect(survey.bodyCss, "calculate body css for responsive width mode").toLooseEqual(survey.css.body + " " + survey.css.body + "--responsive");
+    expect(survey.bodyCss, "calculate body css for responsive width mode").toBe(survey.css.body + " " + survey.css.body + "--responsive");
   });
 
   test("Survey widthMode property for rating questions", () => {
@@ -173,25 +173,25 @@ describe("Survey", () => {
       ]
     });
     var q: QuestionRatingModel = survey3.getQuestionByName("question1") as QuestionRatingModel;
-    expect(survey3.widthMode).toLooseEqual("auto");
-    expect(survey3.calculateWidthMode(), "default rating widthMode is static").toLooseEqual("static");
+    expect(survey3.widthMode).toBe("auto");
+    expect(survey3.calculateWidthMode(), "default rating widthMode is static").toBe("static");
     q.rateMax = 20;
-    expect(survey3.calculateWidthMode(), "big rateMax rating widthMode is responsive").toLooseEqual("responsive");
+    expect(survey3.calculateWidthMode(), "big rateMax rating widthMode is responsive").toBe("responsive");
     q.rateMin = 15;
-    expect(survey3.calculateWidthMode(), "big rateMin rating widthMode is static").toLooseEqual("static");
+    expect(survey3.calculateWidthMode(), "big rateMin rating widthMode is static").toBe("static");
     q.rateMin = 0;
     q.rateStep = 5;
-    expect(survey3.calculateWidthMode(), "big rateStep rating widthMode is static").toLooseEqual("static");
+    expect(survey3.calculateWidthMode(), "big rateStep rating widthMode is static").toBe("static");
     q.minRateDescription = "desc_min";
-    expect(survey3.calculateWidthMode(), "minRateDescription rating widthMode is responsive").toLooseEqual("responsive");
+    expect(survey3.calculateWidthMode(), "minRateDescription rating widthMode is responsive").toBe("responsive");
     q.minRateDescription = "";
     q.maxRateDescription = "desc_max";
-    expect(survey3.calculateWidthMode(), "maxRateDescription rating widthMode is responsive").toLooseEqual("responsive");
+    expect(survey3.calculateWidthMode(), "maxRateDescription rating widthMode is responsive").toBe("responsive");
     q.minRateDescription = "desc_min";
-    expect(survey3.calculateWidthMode(), "both descriptions rating widthMode is responsive").toLooseEqual("responsive");
+    expect(survey3.calculateWidthMode(), "both descriptions rating widthMode is responsive").toBe("responsive");
 
     q.displayMode = "dropdown";
-    expect(survey3.calculateWidthMode(), "dropdown rating widthMode is static").toLooseEqual("static");
+    expect(survey3.calculateWidthMode(), "dropdown rating widthMode is static").toBe("static");
 
     survey3.fromJSON({
       pages: [
@@ -215,7 +215,7 @@ describe("Survey", () => {
         },
       ]
     });
-    expect(survey3.calculateWidthMode(), "rating with rate values widthMode is static").toLooseEqual("static");
+    expect(survey3.calculateWidthMode(), "rating with rate values widthMode is static").toBe("static");
   });
 
   test("Survey width scaling", () => {
@@ -226,32 +226,32 @@ describe("Survey", () => {
         },
       ]
     });
-    expect(survey.widthMode).toLooseEqual("auto");
-    expect(survey.width).toLooseEqual(undefined);
-    expect(survey.widthScale).toLooseEqual(100);
-    expect(survey.isScaled).toLooseEqual(false);
-    expect(survey.renderedWidth).toLooseEqual(undefined);
+    expect(survey.widthMode).toBe("auto");
+    expect(survey.width).toBeUndefined();
+    expect(survey.widthScale).toBe(100);
+    expect(survey.isScaled).toBe(false);
+    expect(survey.renderedWidth).toBeUndefined();
 
     survey.responsiveStartWidth = 1000;
     survey.widthMode = "static";
-    expect(survey.isScaled).toLooseEqual(false);
-    expect(survey.renderedWidth).toLooseEqual(undefined);
+    expect(survey.isScaled).toBe(false);
+    expect(survey.renderedWidth).toBeUndefined();
 
     survey.width = "500px";
-    expect(survey.isScaled).toLooseEqual(false);
-    expect(survey.renderedWidth).toLooseEqual("500px");
+    expect(survey.isScaled).toBe(false);
+    expect(survey.renderedWidth).toBe("500px");
 
     survey.widthScale = 75;
-    expect(survey.isScaled).toLooseEqual(true);
-    expect(survey.renderedWidth).toLooseEqual("375px");
+    expect(survey.isScaled).toBe(true);
+    expect(survey.renderedWidth).toBe("375px");
 
     survey.widthMode = "responsive";
-    expect(survey.isScaled).toLooseEqual(true);
-    expect(survey.renderedWidth).toLooseEqual("750px");
+    expect(survey.isScaled).toBe(true);
+    expect(survey.renderedWidth).toBe("750px");
 
     survey.setResponsiveStartWidth(1200);
-    expect(survey.isScaled).toLooseEqual(true);
-    expect(survey.renderedWidth).toLooseEqual("900px");
+    expect(survey.isScaled).toBe(true);
+    expect(survey.renderedWidth).toBe("900px");
   });
 
   test("Question min width scaling", () => {
@@ -264,11 +264,11 @@ describe("Survey", () => {
       ]
     });
     const q = survey.getAllQuestions()[0];
-    expect(survey.widthScale).toLooseEqual(100);
-    expect(q.rootStyle["minWidth"]).toLooseEqual("min(100%, 300px)");
+    expect(survey.widthScale).toBe(100);
+    expect(q.rootStyle["minWidth"]).toBe("min(100%, 300px)");
 
     survey.widthScale = 50;
-    expect(survey.widthScale).toLooseEqual(50);
-    expect(q.rootStyle["minWidth"]).toLooseEqual("min(100%, 150px)");
+    expect(survey.widthScale).toBe(50);
+    expect(q.rootStyle["minWidth"]).toBe("min(100%, 150px)");
   });
 });

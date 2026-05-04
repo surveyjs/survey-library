@@ -21,9 +21,9 @@ test("Add choices in runtime", () => {
   ];
   question.choices = choicesJSON;
 
-  expect(question.choices.length, "2 choices").toLooseEqual(2);
-  expect(question.choices[0].getType(), "choice type is imageitemvalue").toLooseEqual("imageitemvalue");
-  expect(question.choices[1].imageLink, "choice imageLink value").toLooseEqual("link2");
+  expect(question.choices.length, "2 choices").toBe(2);
+  expect(question.choices[0].getType(), "choice type is imageitemvalue").toBe("imageitemvalue");
+  expect(question.choices[1].imageLink, "choice imageLink value").toBe("link2");
 });
 
 test("Localized imageLink", () => {
@@ -49,11 +49,11 @@ test("Localized imageLink", () => {
   ];
   question.choices = choicesJSON;
 
-  expect(question.choices.length, "2 choices").toLooseEqual(2);
-  expect(question.choices[1].imageLink, "choice imageLink default langiage value").toLooseEqual("link2");
+  expect(question.choices.length, "2 choices").toBe(2);
+  expect(question.choices[1].imageLink, "choice imageLink default langiage value").toBe("link2");
 
   survey.locale = "de";
-  expect(question.choices[1].imageLink, "choice imageLink DE langiage value").toLooseEqual("link2de");
+  expect(question.choices[1].imageLink, "choice imageLink DE langiage value").toBe("link2de");
   survey.locale = "";
 });
 
@@ -64,7 +64,7 @@ test("check dependency getItemClass method on colCount", () => {
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   question.choices = [{ value: "item1" }, { value: "item2" }];
   const item = question.visibleChoices[0];
-  expect(question.getItemClass(item)).toLooseEqual("sv_q_imgsel sv_q_imagepicker_inline");
+  expect(question.getItemClass(item)).toBe("sv_q_imgsel sv_q_imagepicker_inline");
 });
 test("check process responsiveness for imagepicker, colCount == 0", () => {
   let survey = new SurveyModel({});
@@ -80,17 +80,17 @@ test("check process responsiveness for imagepicker, colCount == 0", () => {
   question.minImageHeight = 50;
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
-  expect(question.renderedImageWidth).toLooseEqual(100);
-  expect(question.renderedImageHeight).toLooseEqual(50);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 
   question["processResponsiveness"](0, 548);
-  expect(question.renderedImageWidth).toLooseEqual(125);
-  expect(question["responsiveImageHeight"]).toLooseEqual(62.5);
-  expect(question.renderedImageHeight).toLooseEqual(62);
+  expect(question.renderedImageWidth).toBe(125);
+  expect(question["responsiveImageHeight"]).toBe(62.5);
+  expect(question.renderedImageHeight).toBe(62);
 
   question["processResponsiveness"](0, 900);
-  expect(question.renderedImageWidth).toLooseEqual(200);
-  expect(question.renderedImageHeight).toLooseEqual(100);
+  expect(question.renderedImageWidth).toBe(200);
+  expect(question.renderedImageHeight).toBe(100);
 });
 
 test("check process responsiveness for imagepicker, colCount !== 0", () => {
@@ -108,24 +108,24 @@ test("check process responsiveness for imagepicker, colCount !== 0", () => {
   question.minImageHeight = 50;
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
-  expect(question["getCurrentColCount"]()).toLooseEqual(3);
-  expect(question.renderedImageWidth).toLooseEqual("100");
-  expect(question.renderedImageHeight).toLooseEqual("50");
+  expect(question["getCurrentColCount"]()).toBe(3);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 
   question["processResponsiveness"](0, 900);
-  expect(question["getCurrentColCount"]()).toLooseEqual(3);
-  expect(question.renderedImageWidth).toLooseEqual("200");
-  expect(question.renderedImageHeight).toLooseEqual("100");
+  expect(question["getCurrentColCount"]()).toBe(3);
+  expect(question.renderedImageWidth).toBe(200);
+  expect(question.renderedImageHeight).toBe(100);
 
   question["processResponsiveness"](0, 216);
-  expect(question["getCurrentColCount"]()).toLooseEqual(2);
-  expect(question.renderedImageWidth).toLooseEqual("100");
-  expect(question.renderedImageHeight).toLooseEqual("50");
+  expect(question["getCurrentColCount"]()).toBe(2);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 
   question["processResponsiveness"](0, 100);
-  expect(question["getCurrentColCount"]()).toLooseEqual(1);
-  expect(question.renderedImageWidth).toLooseEqual("100");
-  expect(question.renderedImageHeight).toLooseEqual("50");
+  expect(question["getCurrentColCount"]()).toBe(1);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 });
 
 test("check isResponsive getter", () => {
@@ -226,13 +226,13 @@ test("check resizeObserver behavior", () => {
     return true;
   };
   q.afterRender(rootEl);
-  expect(trace).toLooseEqual("->processed");
+  expect(trace).toBe("->processed");
   (<any>q["resizeObserver"]).call();
-  expect(trace, "prevent from double call").toLooseEqual("->processed");
+  expect(trace, "prevent from double call").toBe("->processed");
   (<any>q["resizeObserver"]).call();
-  expect(trace).toLooseEqual("->processed->processed");
+  expect(trace).toBe("->processed->processed");
   survey.setIsMobile(true);
-  expect(trace, "always process when isMobile changed").toLooseEqual("->processed->processed->processed");
+  expect(trace, "always process when isMobile changed").toBe("->processed->processed->processed");
   window.ResizeObserver = ResizeObserver;
   window.setTimeout = setTimeout;
 
@@ -282,10 +282,10 @@ test("check resizeObserver not process if container is not visible", () => {
   };
   rootEl.style.display = "none";
   q.afterRender(rootEl);
-  expect(trace, "do not process responsivness on invisible container").toLooseEqual("");
+  expect(trace, "do not process responsivness on invisible container").toBe("");
   rootEl.style.display = "block";
   (<any>q["resizeObserver"]).call();
-  expect(trace, "process responsivness on visible container").toLooseEqual("->processed");
+  expect(trace, "process responsivness on visible container").toBe("->processed");
   window.ResizeObserver = ResizeObserver;
 
   contentEl.remove();
@@ -385,48 +385,48 @@ test("supports survey width scale", () => {
   expect(question["isResponsiveValue"]).toBeTruthy();
   expect(question["isResponsive"]).toBeTruthy();
 
-  expect(survey.widthScale).toLooseEqual(100);
-  expect(question.renderedImageWidth).toLooseEqual(200);
-  expect(question.renderedImageHeight).toLooseEqual(150);
+  expect(survey.widthScale).toBe(100);
+  expect(question.renderedImageWidth).toBe(200);
+  expect(question.renderedImageHeight).toBe(150);
 
   survey.widthScale = 75;
-  expect(survey.widthScale).toLooseEqual(75);
-  expect(question.renderedImageWidth).toLooseEqual(150);
-  expect(question.renderedImageHeight).toLooseEqual(112.5);
+  expect(survey.widthScale).toBe(75);
+  expect(question.renderedImageWidth).toBe(150);
+  expect(question.renderedImageHeight).toBe(112.5);
 
   survey.widthScale = 100;
-  expect(survey.widthScale).toLooseEqual(100);
+  expect(survey.widthScale).toBe(100);
   question["processResponsiveness"](0, 600);
-  expect(question.renderedImageWidth).toLooseEqual(600);
-  expect(question.renderedImageHeight).toLooseEqual(133);
+  expect(question.renderedImageWidth).toBe(600);
+  expect(question.renderedImageHeight).toBe(133);
 
   question["processResponsiveness"](0, 100);
-  expect(question.renderedImageWidth).toLooseEqual(3000);
-  expect(question.renderedImageHeight).toLooseEqual(133);
+  expect(question.renderedImageWidth).toBe(3000);
+  expect(question.renderedImageHeight).toBe(133);
 
   survey.widthScale = 75;
   question["processResponsiveness"](0, 100);
-  expect(survey.widthScale).toLooseEqual(75);
-  expect(question.renderedImageWidth).toLooseEqual(2250);
-  expect(question.renderedImageHeight).toLooseEqual(99);
+  expect(survey.widthScale).toBe(75);
+  expect(question.renderedImageWidth).toBe(2250);
+  expect(question.renderedImageHeight).toBe(99);
 
   question["processResponsiveness"](0, 600);
-  expect(question.renderedImageWidth).toLooseEqual(600);
-  expect(question.renderedImageHeight).toLooseEqual(99);
+  expect(question.renderedImageWidth).toBe(600);
+  expect(question.renderedImageHeight).toBe(99);
 
   question.imageWidth = 150;
   question.imageHeight = 100;
-  expect(question.renderedImageWidth).toLooseEqual(112.5);
-  expect(question.renderedImageHeight).toLooseEqual(75);
+  expect(question.renderedImageWidth).toBe(112.5);
+  expect(question.renderedImageHeight).toBe(75);
 });
 
 test("inputRequiredAttribute", () => {
   const q = new QuestionImagePickerModel("q");
-  expect(q.inputRequiredAttribute).toLooseEqual(null);
+  expect(q.inputRequiredAttribute).toBeNull();
   q.isRequired = true;
-  expect(q.inputRequiredAttribute).toLooseEqual(null);
+  expect(q.inputRequiredAttribute).toBeNull();
   q.multiSelect = true;
-  expect(q.inputRequiredAttribute).toLooseEqual(true);
+  expect(q.inputRequiredAttribute).toBe(true);
   q.isRequired = false;
-  expect(q.inputRequiredAttribute).toLooseEqual(false);
+  expect(q.inputRequiredAttribute).toBe(false);
 });

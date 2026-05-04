@@ -24,9 +24,9 @@ describe("QuestionExpression", () => {
     expression.expression = "{q1} + {q2}";
     expect(expression.value, "q1 and q2 is undefined").toBeFalsy();
     survey.setValue("q1", 1);
-    expect(expression.value, "q1 = 1").toLooseEqual(1);
+    expect(expression.value, "q1 = 1").toBe(1);
     survey.setValue("q2", 2);
-    expect(expression.value, "q1 = 1 and q2 = 2").toLooseEqual(3);
+    expect(expression.value, "q1 = 1 and q2 = 2").toBe(3);
   });
 
   test("Display text + format", () => {
@@ -37,10 +37,10 @@ describe("QuestionExpression", () => {
     expect(expression.value, "expression is empty").toBeFalsy();
     expression.expression = "{q1} + {q2}";
     survey.data = { q1: 1, q2: 3 };
-    expect(expression.value, "q1 = 1 and q2 = 2").toLooseEqual(4);
-    expect(expression.displayValue, "format is empty").toLooseEqual("4");
+    expect(expression.value, "q1 = 1 and q2 = 2").toBe(4);
+    expect(expression.displayValue, "format is empty").toBe("4");
     expression.format = "{0} $";
-    expect(expression.displayValue, "format is {0} $").toLooseEqual("4 $");
+    expect(expression.displayValue, "format is {0} $").toBe("4 $");
   });
   test("Display text + defaltValue", () => {
     var survey = createSurveyWith3Questions();
@@ -50,9 +50,9 @@ describe("QuestionExpression", () => {
     expect(expression.value, "expression is empty").toBeFalsy();
     expression.expression = "{q1} + {q2}";
     expression.defaultValue = 0;
-    expect(expression.value, "use default value").toLooseEqual(0);
+    expect(expression.value, "use default value").toBe(0);
     survey.data = { q1: 1, q2: 3 };
-    expect(expression.value, "do not use default value").toLooseEqual(4);
+    expect(expression.value, "do not use default value").toBe(4);
   });
   test("Display text + displayStyle", () => {
     var survey = createSurveyWith3Questions();
@@ -63,7 +63,7 @@ describe("QuestionExpression", () => {
     expression.expression = "{q1} + {q2}";
     survey.data = { q1: 1, q2: 3 };
     expression.displayStyle = "currency";
-    expect(expression.displayValue, "format is empty").toLooseEqual("$4.00");
+    expect(expression.displayValue, "format is empty").toBe("$4.00");
   });
   test("Display text + fraction digitals", () => {
     var survey = createSurveyWith3Questions();
@@ -74,7 +74,7 @@ describe("QuestionExpression", () => {
     survey.data = { q1: 4 };
     expression.displayStyle = "decimal";
     expression.maximumFractionDigits = 2;
-    expect(expression.displayValue, "2 digits").toLooseEqual("21.33");
+    expect(expression.displayValue, "2 digits").toBe("21.33");
   });
   test("Display text + survey.onExpressionDisplayValue event", () => {
     var survey = createSurveyWith3Questions();
@@ -88,7 +88,7 @@ describe("QuestionExpression", () => {
     expression.expression = "10";
     survey.data = { q1: 4 };
     expression.displayStyle = "decimal";
-    expect(expression.displayValue, "Use event").toLooseEqual("$10.");
+    expect(expression.displayValue, "Use event").toBe("$10.");
   });
   test("Formated value", () => {
     const survey = new SurveyModel({
@@ -103,15 +103,15 @@ describe("QuestionExpression", () => {
     const exp1 = <QuestionExpressionModel>survey.getQuestionByName("exp1");
     const exp2 = <QuestionExpressionModel>survey.getQuestionByName("exp2");
     const exp3 = <QuestionExpressionModel>survey.getQuestionByName("exp3");
-    expect(exp1.formatedValue, "exp1 no value").toLooseEqual("");
-    expect(exp2.formatedValue, "exp2 no value").toLooseEqual("");
-    expect(exp3.formatedValue, "exp3 correct value").toLooseEqual("$1.00");
+    expect(exp1.formatedValue, "exp1 no value").toBe("");
+    expect(exp2.formatedValue, "exp2 no value").toBe("");
+    expect(exp3.formatedValue, "exp3 correct value").toBe("$1.00");
     survey.setValue("q1", 2);
-    expect(exp1.formatedValue, "exp1 correct").toLooseEqual("2");
-    expect(exp2.formatedValue, "exp2 correct").toLooseEqual("2 $");
+    expect(exp1.formatedValue, "exp1 correct").toBe("2");
+    expect(exp2.formatedValue, "exp2 correct").toBe("2 $");
     exp1.currency = "USD";
     exp1.displayStyle = "currency";
-    expect(exp1.formatedValue, "exp1 correct with USD").toLooseEqual("$2.00");
+    expect(exp1.formatedValue, "exp1 correct with USD").toBe("$2.00");
   });
 
   function createSurveyWith3Questions(): SurveyModel {
@@ -142,9 +142,9 @@ describe("QuestionExpression", () => {
     });
     survey.data = { q1: 1, q2: 2, q3: 3 };
     const question = <QuestionExpressionModel>survey.getQuestionByName("q3");
-    expect(question.value, "value is correct").toLooseEqual(3);
-    expect(question.displayValue, "display value is correct").toLooseEqual("3");
-    expect(question.formatedValue, "formatedValue is correct").toLooseEqual("3");
+    expect(question.value, "value is correct").toBe(3);
+    expect(question.displayValue, "display value is correct").toBe("3");
+    expect(question.formatedValue, "formatedValue is correct").toBe("3");
   });
   test("setting data doesn't calculate expressions survey.questionsOnPageMode = 'singlePage'", () => {
     const survey = new SurveyModel({
@@ -167,9 +167,9 @@ describe("QuestionExpression", () => {
     survey.data = { q1: 1, q2: 2 };
     survey.questionsOnPageMode = "singlePage";
     const question = <QuestionExpressionModel>survey.getQuestionByName("q3");
-    expect(question.value, "value is correct").toLooseEqual(3);
-    expect(question.displayValue, "display value is correct").toLooseEqual("3");
-    expect(question.formatedValue, "formatedValue is correct").toLooseEqual("3");
+    expect(question.value, "value is correct").toBe(3);
+    expect(question.displayValue, "display value is correct").toBe("3");
+    expect(question.formatedValue, "formatedValue is correct").toBe("3");
   });
   test("round to digits", () => {
     const survey = new SurveyModel({
@@ -184,14 +184,14 @@ describe("QuestionExpression", () => {
     const q2 = <QuestionExpressionModel>survey.getQuestionByName("q2");
     const q3 = <QuestionExpressionModel>survey.getQuestionByName("q3");
     const q4 = <QuestionExpressionModel>survey.getQuestionByName("q4");
-    expect(q1.precision, "precision:-1").toLooseEqual(-1);
-    expect(q2.precision, "precision:2").toLooseEqual(2);
-    expect(q3.precision, "precision:1").toLooseEqual(1);
-    expect(q4.precision, "precision:0").toLooseEqual(0);
-    expect(q1.value, "precision - default (-1)").toLooseEqual(8.888);
-    expect(q2.value, "precision - 2").toLooseEqual(8.89);
-    expect(q3.value, "precision - 1").toLooseEqual(8.9);
-    expect(q4.value, "precision - 0").toLooseEqual(9);
+    expect(q1.precision, "precision:-1").toBe(-1);
+    expect(q2.precision, "precision:2").toBe(2);
+    expect(q3.precision, "precision:1").toBe(1);
+    expect(q4.precision, "precision:0").toBe(0);
+    expect(q1.value, "precision - default (-1)").toBe(8.888);
+    expect(q2.value, "precision - 2").toBe(8.89);
+    expect(q3.value, "precision - 1").toBe(8.9);
+    expect(q4.value, "precision - 0").toBe(9);
   });
   test("survey.onValueChanging, bug#6548", () => {
     const survey = new SurveyModel({
@@ -224,10 +224,10 @@ describe("QuestionExpression", () => {
       weightKg: 88,
       heightCm: 169
     };
-    expect(q.value, "correct value on survey.onValueChanging event, #1").toLooseEqual(31);
+    expect(q.value, "correct value on survey.onValueChanging event, #1").toBe(31);
     expect(survey.data, "survey.data is correct, #1").toEqualValues({ weightKg: 88, heightCm: 169, bmi: 31 });
     survey.setValue("weightKg", 100);
-    expect(q.value, "correct value on survey.onValueChanging event, #2").toLooseEqual(35);
+    expect(q.value, "correct value on survey.onValueChanging event, #2").toBe(35);
     expect(survey.data, "survey.data is correct, #2").toEqualValues({ weightKg: 100, heightCm: 169, bmi: 35 });
   });
   test("Handle Infinity", () => {
@@ -255,13 +255,13 @@ describe("QuestionExpression", () => {
     });
     const q3 = survey.getQuestionByName("q3");
     survey.setValue("q2", 1);
-    expect(counter, "is not updated").toLooseEqual(0);
+    expect(counter, "is not updated").toBe(0);
     survey.setValue("q2", 3);
-    expect(counter, "is not updated yet").toLooseEqual(0);
-    expect(q3.isEmpty(), "expression question is undefined").toLooseEqual(true);
+    expect(counter, "is not updated yet").toBe(0);
+    expect(q3.isEmpty(), "expression question is undefined").toBe(true);
     survey.setValue("q1", 2);
-    expect(counter, "updated one time").toLooseEqual(1);
-    expect(q3.value, "calculated correctly").toLooseEqual(4);
+    expect(counter, "updated one time").toBe(1);
+    expect(q3.value, "calculated correctly").toBe(4);
   });
   test("Custom function returns object&array, #7050", () => {
     function func1(params: any[]): any {
@@ -302,14 +302,14 @@ describe("QuestionExpression", () => {
       ]
     });
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.value, "default value is 'a'").toLooseEqual("a");
-    expect(q1.formatedValue, "formatedValue, default value is 'a'").toLooseEqual("a");
+    expect(q1.value, "default value is 'a'").toBe("a");
+    expect(q1.formatedValue, "formatedValue, default value is 'a'").toBe("a");
     survey.setValue("q2", 1);
-    expect(q1.value, "var1 = 1").toLooseEqual("b");
-    expect(q1.formatedValue, "formatedValue, var1 = 1").toLooseEqual("b");
+    expect(q1.value, "var1 = 1").toBe("b");
+    expect(q1.formatedValue, "formatedValue, var1 = 1").toBe("b");
     survey.setValue("q2", 2);
-    expect(q1.value, "var1 = 2").toLooseEqual("");
-    expect(q1.formatedValue, "formatedValue, var1 = 2").toLooseEqual("");
+    expect(q1.value, "var1 = 2").toBe("");
+    expect(q1.formatedValue, "formatedValue, var1 = 2").toBe("");
   });
   test("Do not serialized required, resetValueIf, setValueIf, defaultValueExpression and other properties, Bug#9559", () => {
     const q1 = new QuestionExpressionModel("q1");
@@ -334,24 +334,24 @@ describe("QuestionExpression", () => {
   });
   test("minimumFractionDigits/maximumFractionDigits  onSettingValue property function", () => {
     const q = new QuestionExpressionModel("q1");
-    expect(q.minimumFractionDigits, "min #0").toLooseEqual(-1);
-    expect(q.maximumFractionDigits, "max #0").toLooseEqual(-1);
+    expect(q.minimumFractionDigits, "min #0").toBe(-1);
+    expect(q.maximumFractionDigits, "max #0").toBe(-1);
 
     q.minimumFractionDigits = 2;
-    expect(q.minimumFractionDigits, "min #1").toLooseEqual(2);
-    expect(q.maximumFractionDigits, "max #1").toLooseEqual(-1);
+    expect(q.minimumFractionDigits, "min #1").toBe(2);
+    expect(q.maximumFractionDigits, "max #1").toBe(-1);
 
     q.maximumFractionDigits = 1;
-    expect(q.minimumFractionDigits, "min #2").toLooseEqual(2);
-    expect(q.maximumFractionDigits, "max #2").toLooseEqual(2);
+    expect(q.minimumFractionDigits, "min #2").toBe(2);
+    expect(q.maximumFractionDigits, "max #2").toBe(2);
 
     q.minimumFractionDigits = 3;
-    expect(q.minimumFractionDigits, "min #3").toLooseEqual(2);
-    expect(q.maximumFractionDigits, "max #3").toLooseEqual(2);
+    expect(q.minimumFractionDigits, "min #3").toBe(2);
+    expect(q.maximumFractionDigits, "max #3").toBe(2);
 
     q.maximumFractionDigits = 3;
-    expect(q.minimumFractionDigits, "min #4").toLooseEqual(2);
-    expect(q.maximumFractionDigits, "max #4").toLooseEqual(3);
+    expect(q.minimumFractionDigits, "min #4").toBe(2);
+    expect(q.maximumFractionDigits, "max #4").toBe(3);
   });
   test("survey.onExpressionRunning, #10258", () => {
     const survey = new SurveyModel({
@@ -372,20 +372,20 @@ describe("QuestionExpression", () => {
       }
     });
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.value, "q1.value #1").toLooseEqual(2);
-    expect(counter, "counter #1").toLooseEqual(0);
+    expect(q1.value, "q1.value #1").toBe(2);
+    expect(counter, "counter #1").toBe(0);
     survey.setValue("q2", 2);
-    expect(q1.value, "q1.value #2").toLooseEqual(3);
-    expect(counter, "counter #2").toLooseEqual(2);
+    expect(q1.value, "q1.value #2").toBe(3);
+    expect(counter, "counter #2").toBe(2);
     allow = false;
     survey.setValue("q2", 3);
-    expect(q1.value, "q1.value #3").toLooseEqual(3);
-    expect(counter, "counter #3").toLooseEqual(3);
+    expect(q1.value, "q1.value #3").toBe(3);
+    expect(counter, "counter #3").toBe(3);
     allow = true;
     expression = "{q2} + 2";
     survey.setValue("q2", 4);
-    expect(q1.value, "q1.value #4").toLooseEqual(6);
-    expect(counter, "counter #4").toLooseEqual(5);
+    expect(q1.value, "q1.value #4").toBe(6);
+    expect(counter, "counter #4").toBe(5);
   });
 
   test("Support Promises in Custom Functions", async () => {
@@ -412,7 +412,7 @@ describe("QuestionExpression", () => {
       const q1 = survey.getQuestionByName("q1");
       const q2 = survey.getQuestionByName("q2");
       await vi.advanceTimersByTimeAsync(10);
-      expect(q1.value, "The async function result is correct").toLooseEqual(13);
+      expect(q1.value, "The async function result is correct").toBe(13);
       FunctionFactory.Instance.unregister("MyFunc");
     } finally {
       vi.useRealTimers();
@@ -484,9 +484,9 @@ describe("QuestionExpression", () => {
     const question4 = survey.getQuestionByName("question4");
     const question5 = survey.getQuestionByName("question5");
 
-    expect(question2.value, "question2: access panel1.title").toLooseEqual("Panel Title");
-    expect(question3.value, "question3: access question1.title").toLooseEqual("Yes/No Title");
-    expect(question4.value, "question4: access page1.title").toLooseEqual("Page 1 Title");
-    expect(question5.value, "question5: access survey.title").toLooseEqual("Survey Title");
+    expect(question2.value, "question2: access panel1.title").toBe("Panel Title");
+    expect(question3.value, "question3: access question1.title").toBe("Yes/No Title");
+    expect(question4.value, "question4: access page1.title").toBe("Page 1 Title");
+    expect(question5.value, "question5: access survey.title").toBe("Survey Title");
   });
 });

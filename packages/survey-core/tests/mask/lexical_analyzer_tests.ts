@@ -5,24 +5,24 @@ describe("Lexical Analyzer", () => {
   test("getLexems", () => {
     const analyzer = new LexicalAnalyzer();
     let result = analyzer.getLexems("ab");
-    expect(result.length).toLooseEqual(2);
+    expect(result.length).toBe(2);
 
     result = analyzer.getLexems("b+a");
-    expect(result.length).toLooseEqual(2);
+    expect(result.length).toBe(2);
 
     result = analyzer.getLexems("ab*");
-    expect(result.length).toLooseEqual(2);
+    expect(result.length).toBe(2);
 
     result = analyzer.getLexems("a|b");
-    expect(result.length).toLooseEqual(3);
+    expect(result.length).toBe(3);
 
     result = analyzer.getLexems("\\a|b");
-    expect(result.length).toLooseEqual(3);
+    expect(result.length).toBe(3);
 
     result = analyzer.getLexems("a|\\b");
-    expect(result.length).toLooseEqual(3);
+    expect(result.length).toBe(3);
 
     result = analyzer.getLexems("(a|b)*abb");
-    expect(result.length).toLooseEqual(4);
+    expect(result.length).toBe(4);
   });
 });

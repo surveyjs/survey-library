@@ -26,35 +26,35 @@ describe("Expression Validation", () => {
     const q1 = survey.getQuestionByName("q1");
 
     let result = q1.validateExpression("enableIf", q1.enableIf, { functions: false, variables: false, semantics: false });
-    expect(result, "There is no error - valid expression").toLooseEqual(undefined);
+    expect(result, "There is no error - valid expression").toBeUndefined();
 
     result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: false, semantics: false });
-    expect(result, "There is no error due to disabled checks").toLooseEqual(undefined);
+    expect(result, "There is no error due to disabled checks").toBeUndefined();
 
     result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: false, semantics: false });
-    expect(result, "There is an error").not.toLooseEqual(undefined);
-    expect(result.errors.length, "There is 1 error").toLooseEqual(1);
-    expect(result.errors[0].errorType, "Error type is 'UnknownFunction'").toLooseEqual(ExpressionErrorType.UnknownFunction);
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors.length, "There is 1 error").toBe(1);
+    expect(result.errors[0].errorType, "Error type is 'UnknownFunction'").toBe(ExpressionErrorType.UnknownFunction);
 
     result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: true, semantics: false });
-    expect(result, "There is an error").not.toLooseEqual(undefined);
-    expect(result.errors.length, "There is 1 error").toLooseEqual(1);
-    expect(result.errors[0].errorType, "Error type is 'UnknownVariable'").toLooseEqual(ExpressionErrorType.UnknownVariable);
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors.length, "There is 1 error").toBe(1);
+    expect(result.errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
 
     result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: true, semantics: false });
-    expect(result, "There is an error").not.toLooseEqual(undefined);
-    expect(result.errors.length, "There is 2 errors").toLooseEqual(2);
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors.length, "There is 2 errors").toBe(2);
 
     result = q1.validateExpression("requiredIf", q1.requiredIf, { functions: true, variables: true, semantics: false });
-    expect(result, "There is an error").not.toLooseEqual(undefined);
-    expect(result.errors[0].errorType, "Error type is 'SyntaxError'").toLooseEqual(ExpressionErrorType.SyntaxError);
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors[0].errorType, "Error type is 'SyntaxError'").toBe(ExpressionErrorType.SyntaxError);
 
     result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: false });
-    expect(result, "There is no error - due to disabled semantics check").toLooseEqual(undefined);
+    expect(result, "There is no error - due to disabled semantics check").toBeUndefined();
 
     result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: true });
-    expect(result, "There is an error").not.toLooseEqual(undefined);
-    expect(result.errors[0].errorType, "Error type is 'SemanticError'").toLooseEqual(ExpressionErrorType.SemanticError);
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors[0].errorType, "Error type is 'SemanticError'").toBe(ExpressionErrorType.SemanticError);
   });
 
   test("Test validateExpressions in Object", () => {
@@ -75,7 +75,7 @@ describe("Expression Validation", () => {
     const q1 = survey.getQuestionByName("q1");
     let result = convertIExpressionErrors(q1.validateExpressions({ functions: true, variables: true, semantics: true }));
 
-    expect(result.length, "There are 3 invalid expressions").toLooseEqual(3);
+    expect(result.length, "There are 3 invalid expressions").toBe(3);
     expect(result.map(e => [
       e.propertyName,
       e.errors.length,
@@ -87,7 +87,7 @@ describe("Expression Validation", () => {
     ]);
 
     result = convertIExpressionErrors(q1.validateExpressions());
-    expect(result.length, "There are 3 invalid expressions with default options").toLooseEqual(3);
+    expect(result.length, "There are 3 invalid expressions with default options").toBe(3);
     expect(result.map(e => [
       e.propertyName,
       e.errors.length,
@@ -99,8 +99,8 @@ describe("Expression Validation", () => {
     ]);
 
     result = convertIExpressionErrors(q1.validateExpressions({ functions: false, variables: false, semantics: false }));
-    expect(result.length, "There are 1 invalid expressions - only syntax errors are checked").toLooseEqual(1);
-    expect(result[0].errors[0].errorType, "Only syntax error is checked").toLooseEqual(ExpressionErrorType.SyntaxError);
+    expect(result.length, "There are 1 invalid expressions - only syntax errors are checked").toBe(1);
+    expect(result[0].errors[0].errorType, "Only syntax error is checked").toBe(ExpressionErrorType.SyntaxError);
   });
 
   test("Test validateExpressions in Object including children", () => {
@@ -119,14 +119,14 @@ describe("Expression Validation", () => {
 
     let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
 
-    expect(result.length, "There are 2 invalid expressions").toLooseEqual(2);
-    expect(result[0].propertyName, "First error is for 'visibleIf'").toLooseEqual("visibleIf");
-    expect(result[0].name, "First filed name for error is 'q1'").toLooseEqual("q1");
-    expect(result[0].errors.length, "There is 2 errors for 'visibleIf'").toLooseEqual(2);
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
+    expect(result[0].propertyName, "First error is for 'visibleIf'").toBe("visibleIf");
+    expect(result[0].name, "First filed name for error is 'q1'").toBe("q1");
+    expect(result[0].errors.length, "There is 2 errors for 'visibleIf'").toBe(2);
 
-    expect(result[1].propertyName, "Second error is for 'requiredIf'").toLooseEqual("requiredIf");
-    expect(result[1].name, "Second filed name for error is 'q1'").toLooseEqual("q1");
-    expect(result[1].errors.length, "There is 1 error for 'requiredIf'").toLooseEqual(1);
+    expect(result[1].propertyName, "Second error is for 'requiredIf'").toBe("requiredIf");
+    expect(result[1].name, "Second filed name for error is 'q1'").toBe("q1");
+    expect(result[1].errors.length, "There is 1 error for 'requiredIf'").toBe(1);
   });
 
   test("Test validateExpressions with Survey + expressions", () => {
@@ -153,7 +153,7 @@ describe("Expression Validation", () => {
     });
 
     let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
-    expect(result.length, "There are 5 invalid expressions").toLooseEqual(5);
+    expect(result.length, "There are 5 invalid expressions").toBe(5);
 
     expect(result.map(e => e.obj.getType()), "object types").toEqualValues(["expressionvalidator", "calculatedvalue", "runexpressiontrigger", "runexpressiontrigger", "urlconditionitem"]);
 
@@ -187,7 +187,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 11 invalid expressions").toLooseEqual(11);
+    expect(result.length, "There are 11 invalid expressions").toBe(11);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["dropdown", "visibleIf", 1],
       ["dropdown", "enableIf", 1],
@@ -237,7 +237,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 5 invalid expressions").toLooseEqual(5);
+    expect(result.length, "There are 5 invalid expressions").toBe(5);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["expressionvalidator", "expression", 1],
       ["matrixcolumn", "visibleIf", 1],
@@ -299,7 +299,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 18 invalid expressions").toLooseEqual(18);
+    expect(result.length, "There are 18 invalid expressions").toBe(18);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
@@ -355,7 +355,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 10 invalid expressions").toLooseEqual(10);
+    expect(result.length, "There are 10 invalid expressions").toBe(10);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["matrixdropdowncolumn", "visibleIf", 1],
       ["matrixdropdowncolumn", "enableIf", 1],
@@ -396,7 +396,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 7 invalid expressions").toLooseEqual(7);
+    expect(result.length, "There are 7 invalid expressions").toBe(7);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
@@ -429,7 +429,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 1 invalid expressions").toLooseEqual(1);
+    expect(result.length, "There are 1 invalid expressions").toBe(1);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["ratingitem", "visibleIf", 1]
     ]);
@@ -461,7 +461,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 7 invalid expressions").toLooseEqual(7);
+    expect(result.length, "There are 7 invalid expressions").toBe(7);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
@@ -493,7 +493,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 2 invalid expressions").toLooseEqual(2);
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["checkboxitem", "visibleIf", 1],
       ["checkboxitem", "enableIf", 1]
@@ -525,7 +525,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 1 invalid expressions").toLooseEqual(1);
+    expect(result.length, "There are 1 invalid expressions").toBe(1);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["expressionvalidator", "expression", 1]
     ]);
@@ -551,7 +551,7 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 2 invalid expressions").toLooseEqual(2);
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["imagemaparea", "visibleIf", 1],
       ["imagemaparea", "enableIf", 1]
@@ -582,14 +582,14 @@ describe("Expression Validation", () => {
 
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 2 invalid expressions").toLooseEqual(2);
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
     expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqualValues([
       ["text", "enableIf", 1],
       ["text", "enableIf", 1]
     ]);
 
-    expect(result[0].errors[0].errorType, "error type is SemanticError").toLooseEqual(ExpressionErrorType.SemanticError);
-    expect(result[1].errors[0].errorType, "error type is SemanticError #2").toLooseEqual(ExpressionErrorType.SemanticError);
+    expect(result[0].errors[0].errorType, "error type is SemanticError").toBe(ExpressionErrorType.SemanticError);
+    expect(result[1].errors[0].errorType, "error type is SemanticError #2").toBe(ExpressionErrorType.SemanticError);
   });
 
   test("Direct - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
@@ -619,7 +619,7 @@ describe("Expression Validation", () => {
       ],
     });
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-    expect(result.length, "There are 0 invalid expressions").toLooseEqual(0);
+    expect(result.length, "There are 0 invalid expressions").toBe(0);
   });
   test("fromJSON - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
     const survey = new SurveyModel();
@@ -650,7 +650,7 @@ describe("Expression Validation", () => {
       ],
     });
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-    expect(result.length, "There are 0 invalid expressions").toLooseEqual(0);
+    expect(result.length, "There are 0 invalid expressions").toBe(0);
   });
   test("fromJSON & design mode - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
     const survey = new SurveyModel();
@@ -681,7 +681,7 @@ describe("Expression Validation", () => {
       ],
     });
     let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-    expect(result.length, "There are 0 invalid expressions").toLooseEqual(0);
+    expect(result.length, "There are 0 invalid expressions").toBe(0);
   });
   test("validate expressions in empty paneldynamic by arrays, but with set panelCount property, Bug#10841", () => {
     const survey = new SurveyModel();
@@ -707,9 +707,9 @@ describe("Expression Validation", () => {
       ],
     });
     const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
-    expect(result, "There is no error in expression with paneldynamic array item").toLooseEqual(undefined);
+    expect(result, "There is no error in expression with paneldynamic array item").toBeUndefined();
     let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-    expect(results.length, "There are 0 invalid expressions").toLooseEqual(0);
+    expect(results.length, "There are 0 invalid expressions").toBe(0);
   });
   test("validate expressions in empty matrixdynamic by arrays, but with set rowCount property, Bug#10841", () => {
     const survey = new SurveyModel();
@@ -735,9 +735,9 @@ describe("Expression Validation", () => {
       ],
     });
     const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
-    expect(result, "There is no error in expression with paneldynamic array item").toLooseEqual(undefined);
+    expect(result, "There is no error in expression with paneldynamic array item").toBeUndefined();
     let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-    expect(results.length, "There are 0 invalid expressions").toLooseEqual(0);
+    expect(results.length, "There are 0 invalid expressions").toBe(0);
   });
   test("validateExpressions() creates extra panel instances when defaultValue set on question inside templateElements[], Bug#10881", () => {
     const survey = new SurveyModel();
@@ -759,10 +759,10 @@ describe("Expression Validation", () => {
       ],
     });
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.panelCount, "panelCount is 1 before validateExpressions").toLooseEqual(1);
+    expect(q1.panelCount, "panelCount is 1 before validateExpressions").toBe(1);
     const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-    expect(results.length, "There are 0 invalid expressions").toLooseEqual(0);
-    expect(q1.panelCount, "panelCount is 1 after validateExpressions").toLooseEqual(1);
+    expect(results.length, "There are 0 invalid expressions").toBe(0);
+    expect(q1.panelCount, "panelCount is 1 after validateExpressions").toBe(1);
   });
 
   test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", () => {
@@ -832,7 +832,7 @@ describe("Expression Validation", () => {
 
     const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
-    expect(result.length, "There are 5 invalid expressions").toLooseEqual(5);
-    expect(result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(), "Errors are correct").toLooseEqual("q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo");
+    expect(result.length, "There are 5 invalid expressions").toBe(5);
+    expect(result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(), "Errors are correct").toBe("q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo");
   });
 });

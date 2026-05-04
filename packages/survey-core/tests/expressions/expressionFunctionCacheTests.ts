@@ -13,15 +13,15 @@ describe("Expressions Function Cache Tests", () => {
     registerFunction({ name: "func1", func: func1, useCache: true });
     var runner = new ExpressionRunner("func1({val})");
     const values = { val: 5 };
-    expect(runner.runValues(values), "5 + 10 = 15").toLooseEqual(15);
-    expect(counter, "func1 called one time").toLooseEqual(1);
-    expect(runner.runValues(values), "5 + 10 = 15").toLooseEqual(15);
-    expect(counter, "func1 called one time again, the result was taken from cache").toLooseEqual(1);
+    expect(runner.runValues(values), "5 + 10 = 15").toBe(15);
+    expect(counter, "func1 called one time").toBe(1);
+    expect(runner.runValues(values), "5 + 10 = 15").toBe(15);
+    expect(counter, "func1 called one time again, the result was taken from cache").toBe(1);
     values.val = 10;
-    expect(runner.runValues(values), "10 + 10 = 20").toLooseEqual(20);
-    expect(counter, "func1 called one more time with new parameter").toLooseEqual(2);
-    expect(runner.runValues(values), "10 + 10 = 20").toLooseEqual(20);
-    expect(counter, "func1 called one more time again, the result was taken from cache").toLooseEqual(2);
+    expect(runner.runValues(values), "10 + 10 = 20").toBe(20);
+    expect(counter, "func1 called one more time with new parameter").toBe(2);
+    expect(runner.runValues(values), "10 + 10 = 20").toBe(20);
+    expect(counter, "func1 called one more time again, the result was taken from cache").toBe(2);
     unregisterFunction("func1");
   });
   test("Async caching by parameter", () => {
@@ -38,23 +38,23 @@ describe("Expressions Function Cache Tests", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
-    expect(resolveFuncs.length, "There is one resolve function").toLooseEqual(1);
+    expect(resolveFuncs.length, "There is one resolve function").toBe(1);
     resolveFuncs[0](15);
-    expect(exp.value, "The value is set to 15").toLooseEqual(15);
+    expect(exp.value, "The value is set to 15").toBe(15);
     q1.value = 5;
-    expect(resolveFuncs.length, "There is one resolve function").toLooseEqual(2);
+    expect(resolveFuncs.length, "There is one resolve function").toBe(2);
     resolveFuncs[1](16);
-    expect(exp.value, "The value is set to 16").toLooseEqual(16);
+    expect(exp.value, "The value is set to 16").toBe(16);
     q1.value = 6;
-    expect(resolveFuncs.length, "There are two resolve functions").toLooseEqual(3);
+    expect(resolveFuncs.length, "There are two resolve functions").toBe(3);
     resolveFuncs[2](18);
-    expect(exp.value, "The value is set to 18").toLooseEqual(18);
+    expect(exp.value, "The value is set to 18").toBe(18);
     q1.value = 5;
-    expect(resolveFuncs.length, "Take from cache, #1").toLooseEqual(3);
-    expect(exp.value, "The value is set to 16").toLooseEqual(16);
+    expect(resolveFuncs.length, "Take from cache, #1").toBe(3);
+    expect(exp.value, "The value is set to 16").toBe(16);
     q1.value = 6;
-    expect(resolveFuncs.length, "Take from cache, #2").toLooseEqual(3);
-    expect(exp.value, "The value is set to 18").toLooseEqual(18);
+    expect(resolveFuncs.length, "Take from cache, #2").toBe(3);
+    expect(exp.value, "The value is set to 18").toBe(18);
 
     unregisterFunction("func1");
   });
@@ -75,31 +75,31 @@ describe("Expressions Function Cache Tests", () => {
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
 
-    expect(counter, "func1 was not called one time").toLooseEqual(1);
-    expect(exp.value, "undefined + 10 = 10").toLooseEqual(10);
+    expect(counter, "func1 was not called one time").toBe(1);
+    expect(exp.value, "undefined + 10 = 10").toBe(10);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time").toLooseEqual(2);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time").toBe(2);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
     q1.value = 7;
-    expect(counter, "func1 was not called one more time").toLooseEqual(3);
-    expect(exp.value, "7 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time").toBe(3);
+    expect(exp.value, "7 + 10 = 17").toBe(17);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toLooseEqual(3);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toBe(3);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
 
     q1.value = 7;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toLooseEqual(3);
-    expect(exp.value, "7 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toBe(3);
+    expect(exp.value, "7 + 10 = 17").toBe(17);
 
     q1.value = 15;
-    expect(counter, "func1 was not called with new value").toLooseEqual(4);
-    expect(exp.value, "15 + 10 = 25").toLooseEqual(25);
+    expect(counter, "func1 was not called with new value").toBe(4);
+    expect(exp.value, "15 + 10 = 25").toBe(25);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toLooseEqual(4);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toBe(4);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
 
     unregisterFunction("func1");
   });
@@ -121,39 +121,39 @@ describe("Expressions Function Cache Tests", () => {
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
 
-    expect(counter, "func1 was not called one time").toLooseEqual(1);
-    expect(exp.value, "undefined + 10 = 10").toLooseEqual(10);
+    expect(counter, "func1 was not called one time").toBe(1);
+    expect(exp.value, "undefined + 10 = 10").toBe(10);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time").toLooseEqual(2);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time").toBe(2);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
     survey.setVariable("var1", 2);
-    expect(counter, "func1 was not called one more time").toLooseEqual(3);
-    expect(exp.value, "5 + 2 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time").toBe(3);
+    expect(exp.value, "5 + 2 + 10 = 17").toBe(17);
 
     survey.setVariable("var1", 3);
-    expect(counter, "func1 was not called one more time").toLooseEqual(4);
-    expect(exp.value, "5 + 3 + 10 = 18").toLooseEqual(18);
+    expect(counter, "func1 was not called one more time").toBe(4);
+    expect(exp.value, "5 + 3 + 10 = 18").toBe(18);
 
     survey.setVariable("var1", 2);
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toLooseEqual(4);
-    expect(exp.value, "5 + 2 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toBe(4);
+    expect(exp.value, "5 + 2 + 10 = 17").toBe(17);
 
     q1.value = 7;
-    expect(counter, "call func1 with new q1 value").toLooseEqual(5);
-    expect(exp.value, "7 + 2 + 10 = 19").toLooseEqual(19);
+    expect(counter, "call func1 with new q1 value").toBe(5);
+    expect(exp.value, "7 + 2 + 10 = 19").toBe(19);
 
     survey.setVariable("var1", 3);
-    expect(counter, "call func1 with new var1 value").toLooseEqual(6);
-    expect(exp.value, "7 + 3 + 10 = 20").toLooseEqual(20);
+    expect(counter, "call func1 with new var1 value").toBe(6);
+    expect(exp.value, "7 + 3 + 10 = 20").toBe(20);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toLooseEqual(6);
-    expect(exp.value, "5 + 3 + 10 = 18").toLooseEqual(18);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toBe(6);
+    expect(exp.value, "5 + 3 + 10 = 18").toBe(18);
 
     survey.setVariable("var1", 2);
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #4").toLooseEqual(6);
-    expect(exp.value, "5 + 2 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #4").toBe(6);
+    expect(exp.value, "5 + 2 + 10 = 17").toBe(17);
 
     unregisterFunction("func1");
   });
@@ -175,31 +175,31 @@ describe("Expressions Function Cache Tests", () => {
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
 
-    expect(counter, "func1 was not called one time").toLooseEqual(1);
-    expect(exp.value, "undefined + 10 = 10").toLooseEqual(10);
+    expect(counter, "func1 was not called one time").toBe(1);
+    expect(exp.value, "undefined + 10 = 10").toBe(10);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time").toLooseEqual(2);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time").toBe(2);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
     q1.value = 7;
-    expect(counter, "func1 was not called one more time").toLooseEqual(3);
-    expect(exp.value, "7 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time").toBe(3);
+    expect(exp.value, "7 + 10 = 17").toBe(17);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toLooseEqual(3);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toBe(3);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
 
     q1.value = 7;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toLooseEqual(3);
-    expect(exp.value, "7 + 10 = 17").toLooseEqual(17);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toBe(3);
+    expect(exp.value, "7 + 10 = 17").toBe(17);
 
     q1.value = 15;
-    expect(counter, "func1 was not called with new value").toLooseEqual(4);
-    expect(exp.value, "15 + 10 = 25").toLooseEqual(25);
+    expect(counter, "func1 was not called with new value").toBe(4);
+    expect(exp.value, "15 + 10 = 25").toBe(25);
 
     q1.value = 5;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toLooseEqual(4);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #3").toBe(4);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
 
     unregisterFunction("func1");
   });
@@ -226,27 +226,27 @@ describe("Expressions Function Cache Tests", () => {
     const q2 = survey.getQuestionByName("q2");
     const exp = survey.getQuestionByName("exp1");
 
-    expect(counter, "func1 was not called one time").toLooseEqual(1);
-    expect(exp.value, "undefined + 10 = 10").toLooseEqual(10);
+    expect(counter, "func1 was not called one time").toBe(1);
+    expect(exp.value, "undefined + 10 = 10").toBe(10);
     q1.value = 5;
     q2.value = 20;
-    expect(counter, "calls two more times").toLooseEqual(3);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "calls two more times").toBe(3);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
     q1.visible = false;
     q1.value = 7;
-    expect(counter, "calls one more time").toLooseEqual(4);
-    expect(exp.value, "20 + 10 = 30").toLooseEqual(30);
+    expect(counter, "calls one more time").toBe(4);
+    expect(exp.value, "20 + 10 = 30").toBe(30);
 
     q1.visible = true;
-    expect(counter, "question visibility changed").toLooseEqual(4);
+    expect(counter, "question visibility changed").toBe(4);
     q1.value = 5;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toLooseEqual(4);
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #1").toBe(4);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
 
     q1.visible = false;
     q1.value = 7;
-    expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toLooseEqual(4);
-    expect(exp.value, "20 + 10 = 30").toLooseEqual(30);
+    expect(counter, "func1 was not called one more time, the value was taken from cache, #2").toBe(4);
+    expect(exp.value, "20 + 10 = 30").toBe(30);
 
     unregisterFunction("func1");
   });
@@ -269,18 +269,18 @@ describe("Expressions Function Cache Tests", () => {
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
     q1.value = 5;
-    expect(exp.value, "5 + 10 = 15").toLooseEqual(15);
+    expect(exp.value, "5 + 10 = 15").toBe(15);
 
     const cache = FunctionFactory.Instance["functionCache"]["func1"];
-    expect(cache.length, "There is one survey cached value").toLooseEqual(1);
+    expect(cache.length, "There is one survey cached value").toBe(1);
     const item = cache[0];
-    expect(item.surveyValues.length, "There is no survey cached value item").toLooseEqual(0);
-    expect(item.parameters.length, "There is no parameters in cache").toLooseEqual(0);
-    expect(item.objectValues.length, "There is one object cached value item").toLooseEqual(1);
+    expect(item.surveyValues.length, "There is no survey cached value item").toBe(0);
+    expect(item.parameters.length, "There is no parameters in cache").toBe(0);
+    expect(item.objectValues.length, "There is one object cached value item").toBe(1);
     const objItem = item.objectValues[0];
-    expect(objItem.obj.name, "The cached object is q1").toLooseEqual("q1");
-    expect(objItem.name, "The cached property name is value").toLooseEqual("value");
-    expect(objItem.value, "The cached value is 5").toLooseEqual(5);
+    expect(objItem.obj.name, "The cached object is q1").toBe("q1");
+    expect(objItem.name, "The cached property name is value").toBe("value");
+    expect(objItem.value, "The cached value is 5").toBe(5);
 
     unregisterFunction("func1");
   });
@@ -302,9 +302,9 @@ describe("Expressions Function Cache Tests", () => {
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
     q1.value = 5;
-    expect(exp.value, "Nested cached function call should not crash, 5 + 1 = 6").toLooseEqual(6);
+    expect(exp.value, "Nested cached function call should not crash, 5 + 1 = 6").toBe(6);
     q1.value = 10;
-    expect(exp.value, "Second call works correctly, 10 + 1 = 11").toLooseEqual(11);
+    expect(exp.value, "Second call works correctly, 10 + 1 = 11").toBe(11);
 
     unregisterFunction("innerFunc_nested");
     unregisterFunction("outerFunc_nested");
@@ -323,23 +323,23 @@ describe("Expressions Function Cache Tests", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const exp = survey.getQuestionByName("exp1");
-    expect(resolveFuncs.length, "There is one resolve function").toLooseEqual(1);
+    expect(resolveFuncs.length, "There is one resolve function").toBe(1);
     resolveFuncs[0](15);
-    expect(exp.value, "The value is set to 15").toLooseEqual(15);
+    expect(exp.value, "The value is set to 15").toBe(15);
     q1.value = 5;
-    expect(resolveFuncs.length, "There is one resolve function").toLooseEqual(2);
+    expect(resolveFuncs.length, "There is one resolve function").toBe(2);
     resolveFuncs[1](16);
-    expect(exp.value, "The value is set to 16").toLooseEqual(16);
+    expect(exp.value, "The value is set to 16").toBe(16);
     q1.value = 6;
-    expect(resolveFuncs.length, "There are two resolve functions").toLooseEqual(3);
+    expect(resolveFuncs.length, "There are two resolve functions").toBe(3);
     resolveFuncs[2](18);
-    expect(exp.value, "The value is set to 18").toLooseEqual(18);
+    expect(exp.value, "The value is set to 18").toBe(18);
     q1.value = 5;
-    expect(resolveFuncs.length, "Take from cache, #1").toLooseEqual(3);
-    expect(exp.value, "The value is set to 16").toLooseEqual(16);
+    expect(resolveFuncs.length, "Take from cache, #1").toBe(3);
+    expect(exp.value, "The value is set to 16").toBe(16);
     q1.value = 6;
-    expect(resolveFuncs.length, "Take from cache, #2").toLooseEqual(3);
-    expect(exp.value, "The value is set to 18").toLooseEqual(18);
+    expect(resolveFuncs.length, "Take from cache, #2").toBe(3);
+    expect(exp.value, "The value is set to 18").toBe(18);
 
     unregisterFunction("func1");
   });

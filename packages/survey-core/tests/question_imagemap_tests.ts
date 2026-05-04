@@ -81,24 +81,24 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.getType(), "type is imagemap").toLooseEqual("imagemap");
-    expect(q1.imageLink, "imageLink is imageLink_url").toLooseEqual("imageLink_url");
-    expect(q1.areas.length, "imageMap.length is 2").toLooseEqual(3);
+    expect(q1.getType(), "type is imagemap").toBe("imagemap");
+    expect(q1.imageLink, "imageLink is imageLink_url").toBe("imageLink_url");
+    expect(q1.areas.length, "imageMap.length is 2").toBe(3);
 
-    expect(q1.areas[0].getType(), "areas[0] type is imagemaparea").toLooseEqual("imagemaparea");
+    expect(q1.areas[0].getType(), "areas[0] type is imagemaparea").toBe("imagemaparea");
 
-    expect(q1.areas[0].value, "[0].value must be val1").toLooseEqual("val1");
-    expect(q1.areas[0].shape, "default shape must be inherit").toLooseEqual("inherit");
-    expect(q1.areas[0].getShape(), "default shape must be poly").toLooseEqual("poly");
-    expect(q1.areas[0].coords, "coords must be set").toLooseEqual("x1,y1,x2,y2,x3,y3,x4,y4");
+    expect(q1.areas[0].value, "[0].value must be val1").toBe("val1");
+    expect(q1.areas[0].shape, "default shape must be inherit").toBe("inherit");
+    expect(q1.areas[0].getShape(), "default shape must be poly").toBe("poly");
+    expect(q1.areas[0].coords, "coords must be set").toBe("x1,y1,x2,y2,x3,y3,x4,y4");
 
-    expect(q1.areas[1].value, "[1].value must be val2").toLooseEqual("val2");
-    expect(q1.areas[1].shape, "second item shape must be rect").toLooseEqual("rect");
+    expect(q1.areas[1].value, "[1].value must be val2").toBe("val2");
+    expect(q1.areas[1].shape, "second item shape must be rect").toBe("rect");
 
     q1.shape = "circle";
-    expect(q1.areas[0].shape, "shape must be inherit #2").toLooseEqual("inherit");
-    expect(q1.areas[0].getShape(), "shape must be circle").toLooseEqual("circle");
-    expect(q1.areas[1].shape, "second item shape must be rect still").toLooseEqual("rect");
+    expect(q1.areas[0].shape, "shape must be inherit #2").toBe("inherit");
+    expect(q1.areas[0].getShape(), "shape must be circle").toBe("circle");
+    expect(q1.areas[1].shape, "second item shape must be rect still").toBe("rect");
   });
 
   test("Check toggle and multiSelect change", () => {
@@ -133,13 +133,13 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.value, "value must be undefined initially").toLooseEqual(undefined);
-    expect(q1.multiSelect, "multiSelect is true by default").toLooseEqual(true);
+    expect(q1.value, "value must be undefined initially").toBeUndefined();
+    expect(q1.multiSelect, "multiSelect is true by default").toBe(true);
 
     q1.mapItemToggle(q1.areas[0]);
     expect(q1.value, "value must be ['val1'] after first tooggle").toEqualValues(["val1"]);
-    expect(q1.isItemSelected(q1.areas[0]), "must be selected after first click").toLooseEqual(true);
-    expect(q1.isItemSelected(q1.areas[1]), "must not be selected after first click").toLooseEqual(false);
+    expect(q1.isItemSelected(q1.areas[0]), "must be selected after first click").toBe(true);
+    expect(q1.isItemSelected(q1.areas[1]), "must not be selected after first click").toBe(false);
 
     q1.mapItemToggle(q1.areas[0]);
     expect(q1.value, "value must be [] untoggling off item").toEqualValues([]);
@@ -164,25 +164,25 @@ describe("imagemap", () => {
     expect(q1.value, "value must be ['val2'] after toggling first item off").toEqualValues(["val2"]);
 
     q1.multiSelect = false;
-    expect(q1.multiSelect, "multiSelect must be false now").toLooseEqual(false);
-    expect(q1.value, "value must be undefined #1").toLooseEqual(undefined);
+    expect(q1.multiSelect, "multiSelect must be false now").toBe(false);
+    expect(q1.value, "value must be undefined #1").toBeUndefined();
 
     q1.mapItemToggle(q1.areas[0]);
-    expect(q1.value, "Single: value must be val1").toLooseEqual("val1");
-    expect(q1.isItemSelected(q1.areas[0]), "Single: imageMap[0] must be selected").toLooseEqual(true);
-    expect(q1.isItemSelected(q1.areas[1]), "Single: imageMap[1] must not be selected").toLooseEqual(false);
+    expect(q1.value, "Single: value must be val1").toBe("val1");
+    expect(q1.isItemSelected(q1.areas[0]), "Single: imageMap[0] must be selected").toBe(true);
+    expect(q1.isItemSelected(q1.areas[1]), "Single: imageMap[1] must not be selected").toBe(false);
 
     q1.mapItemToggle(q1.areas[0]);
-    expect(q1.value, "Single: value must be undefined after toggling off").toLooseEqual(undefined);
+    expect(q1.value, "Single: value must be undefined after toggling off").toBeUndefined();
 
     q1.mapItemToggle(q1.areas[1]);
-    expect(q1.value, "Single: value must be val2").toLooseEqual("val2");
-    expect(q1.isItemSelected(q1.areas[0]), "Single: imageMap[0] must not be selected").toLooseEqual(false);
-    expect(q1.isItemSelected(q1.areas[1]), "Single: imageMap[1] must be selected").toLooseEqual(true);
+    expect(q1.value, "Single: value must be val2").toBe("val2");
+    expect(q1.isItemSelected(q1.areas[0]), "Single: imageMap[0] must not be selected").toBe(false);
+    expect(q1.isItemSelected(q1.areas[1]), "Single: imageMap[1] must be selected").toBe(true);
 
     q1.multiSelect = true;
-    expect(q1.multiSelect, "multiSelect must be true now").toLooseEqual(true);
-    expect(q1.value, "value must be undefined #2").toLooseEqual(undefined);
+    expect(q1.multiSelect, "multiSelect must be true now").toBe(true);
+    expect(q1.value, "value must be undefined #2").toBeUndefined();
   });
 
   test("Check init", () => {
@@ -208,7 +208,7 @@ describe("imagemap", () => {
     const bg = container.querySelector(`#${model.id}-bg`) as HTMLImageElement;
     bg.dispatchEvent(new Event("load"));
     flushRAF();
-    expect(renderSVGCount, "renderSVG must be called 1 time after init").toLooseEqual(1);
+    expect(renderSVGCount, "renderSVG must be called 1 time after init").toBe(1);
   });
 
   test("Check svg render", () => {
@@ -244,13 +244,13 @@ describe("imagemap", () => {
     (container.querySelector(`#${q1.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
     flushRAF();
 
-    expect(q1.areas[0].svg.outerHTML, "area[0] SVG incorrect").toLooseEqual(`<polygon data-uid="${ q1.areas[0].uniqueId }" points="${ q1.areas[0].coords }" class="${ q1.areas[0].getCSSClasses() }" title="${ q1.areas[0].title }"></polygon>`);
+    expect(q1.areas[0].svg.outerHTML, "area[0] SVG incorrect").toBe(`<polygon data-uid="${ q1.areas[0].uniqueId }" points="${ q1.areas[0].coords }" class="${ q1.areas[0].getCSSClasses() }" title="${ q1.areas[0].title }"></polygon>`);
 
     let a1coords = q1.areas[1].coords.split(",").map(Number);
-    expect(q1.areas[1].svg.outerHTML, "area[1] SVG incorrect").toLooseEqual(`<rect data-uid="${ q1.areas[1].uniqueId }" x="${ a1coords[0] }" y="${ a1coords[1] }" width="${ a1coords[2] - a1coords[0] }" height="${ a1coords[3] - a1coords[1] }" class="${ q1.areas[1].getCSSClasses() }" title="${ q1.areas[1].title }"></rect>`);
+    expect(q1.areas[1].svg.outerHTML, "area[1] SVG incorrect").toBe(`<rect data-uid="${ q1.areas[1].uniqueId }" x="${ a1coords[0] }" y="${ a1coords[1] }" width="${ a1coords[2] - a1coords[0] }" height="${ a1coords[3] - a1coords[1] }" class="${ q1.areas[1].getCSSClasses() }" title="${ q1.areas[1].title }"></rect>`);
 
     let a2coords = q1.areas[2].coords.split(",").map(Number);
-    expect(q1.areas[2].svg.outerHTML, "area[2] SVG incorrect").toLooseEqual(`<circle data-uid="${ q1.areas[2].uniqueId }" cx="${ a2coords[0] }" cy="${ a2coords[1] }" r="${ a2coords[2] }" class="${ q1.areas[2].getCSSClasses() }" title="${ q1.areas[2].title }"></circle>`);
+    expect(q1.areas[2].svg.outerHTML, "area[2] SVG incorrect").toBe(`<circle data-uid="${ q1.areas[2].uniqueId }" cx="${ a2coords[0] }" cy="${ a2coords[1] }" r="${ a2coords[2] }" class="${ q1.areas[2].getCSSClasses() }" title="${ q1.areas[2].title }"></circle>`);
   });
 
   test("css variables", () => {
@@ -285,7 +285,7 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.getCSSVariables(), "question css variables empty by default").toLooseEqual("");
+    expect(q1.getCSSVariables(), "question css variables empty by default").toBe("");
 
     q1.idleFillColor = "dfc";
     q1.idleStrokeColor = "dsc";
@@ -297,11 +297,11 @@ describe("imagemap", () => {
     q1.selectedStrokeColor = "dsc";
     q1.selectedStrokeWidth = 3;
 
-    expect(q1.getCSSVariables(), "question css variables correct").toLooseEqual("--sd-imagemap-idle-fill-color: dfc; --sd-imagemap-idle-stroke-color: dsc; --sd-imagemap-idle-stroke-width: 1; --sd-imagemap-hover-fill-color: dhc; --sd-imagemap-hover-stroke-color: dsc; --sd-imagemap-hover-stroke-width: 2; --sd-imagemap-selected-fill-color: dsc; --sd-imagemap-selected-stroke-color: dsc; --sd-imagemap-selected-stroke-width: 3");
+    expect(q1.getCSSVariables(), "question css variables correct").toBe("--sd-imagemap-idle-fill-color: dfc; --sd-imagemap-idle-stroke-color: dsc; --sd-imagemap-idle-stroke-width: 1; --sd-imagemap-hover-fill-color: dhc; --sd-imagemap-hover-stroke-color: dsc; --sd-imagemap-hover-stroke-width: 2; --sd-imagemap-selected-fill-color: dsc; --sd-imagemap-selected-stroke-color: dsc; --sd-imagemap-selected-stroke-width: 3");
 
-    expect(q1.areas[0].getCSSVariables(), "area[1] css variables correct").toLooseEqual("");
+    expect(q1.areas[0].getCSSVariables(), "area[1] css variables correct").toBe("");
 
-    expect(q1.areas[1].getCSSVariables(), "area[1] css variables correct").toLooseEqual("--sd-imagemap-idle-fill-color: ifc; --sd-imagemap-idle-stroke-color: isc; --sd-imagemap-idle-stroke-width: 1; --sd-imagemap-hover-fill-color: hfc; --sd-imagemap-hover-stroke-color: hsc; --sd-imagemap-hover-stroke-width: 2; --sd-imagemap-selected-fill-color: sfc; --sd-imagemap-selected-stroke-color: ssc; --sd-imagemap-selected-stroke-width: 3");
+    expect(q1.areas[1].getCSSVariables(), "area[1] css variables correct").toBe("--sd-imagemap-idle-fill-color: ifc; --sd-imagemap-idle-stroke-color: isc; --sd-imagemap-idle-stroke-width: 1; --sd-imagemap-hover-fill-color: hfc; --sd-imagemap-hover-stroke-color: hsc; --sd-imagemap-hover-stroke-width: 2; --sd-imagemap-selected-fill-color: sfc; --sd-imagemap-selected-stroke-color: ssc; --sd-imagemap-selected-stroke-width: 3");
   });
 
   test("Check set value and multiSelect change with valuePropertyName", () => {
@@ -391,16 +391,16 @@ describe("imagemap", () => {
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
     q1.value = ["val1"];
-    expect(q1.validate(), "there is only one item, min is 2").toLooseEqual(false);
-    expect(q1.errors.length, "there is one error").toLooseEqual(1);
+    expect(q1.validate(), "there is only one item, min is 2").toBe(false);
+    expect(q1.errors.length, "there is one error").toBe(1);
 
     q1.value = ["val1", "val2"];
-    expect(q1.validate(), "there are two items, min is 2").toLooseEqual(true);
-    expect(q1.errors.length, "there is no error").toLooseEqual(0);
+    expect(q1.validate(), "there are two items, min is 2").toBe(true);
+    expect(q1.errors.length, "there is no error").toBe(0);
 
     q1.value = ["val1", "val2", "val3", "val4"];
-    expect(q1.validate(), "there are four items, max is 3").toLooseEqual(false);
-    expect(q1.errors.length, "there is one error").toLooseEqual(1);
+    expect(q1.validate(), "there are four items, max is 3").toBe(false);
+    expect(q1.errors.length, "there is one error").toBe(1);
   });
 
   test("check getDisplayValue without valuePropertyName", () => {
@@ -429,10 +429,10 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.getDisplayValue(false, "val1"), "display value for single item").toLooseEqual("val1_text");
-    expect(q1.getDisplayValue(false, ["val1", "val2"]), "display value for multiple items").toLooseEqual("val1_text, val2_text");
-    expect(q1.getDisplayValue(false, ["val1", "val10", "val2"]), "display value for multiple items with one wrong").toLooseEqual("val1_text, val2_text");
-    expect(q1.getDisplayValue(false, [{ value: "val1" }]), "display value for wrong item").toLooseEqual("");
+    expect(q1.getDisplayValue(false, "val1"), "display value for single item").toBe("val1_text");
+    expect(q1.getDisplayValue(false, ["val1", "val2"]), "display value for multiple items").toBe("val1_text, val2_text");
+    expect(q1.getDisplayValue(false, ["val1", "val10", "val2"]), "display value for multiple items with one wrong").toBe("val1_text, val2_text");
+    expect(q1.getDisplayValue(false, [{ value: "val1" }]), "display value for wrong item").toBe("");
   });
 
   test("check getDisplayValue with valuePropertyName", () => {
@@ -462,16 +462,16 @@ describe("imagemap", () => {
     });
     const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-    expect(q1.getDisplayValue(false, "val1"), "display value for single item").toLooseEqual("val1_text");
-    expect(q1.getDisplayValue(false, ["val1", "val2"]), "display value for multiple items").toLooseEqual("val1_text, val2_text");
+    expect(q1.getDisplayValue(false, "val1"), "display value for single item").toBe("val1_text");
+    expect(q1.getDisplayValue(false, ["val1", "val2"]), "display value for multiple items").toBe("val1_text, val2_text");
 
-    expect(q1.getDisplayValue(false, { state: "val1" }), "display value for single (object) item").toLooseEqual("val1_text");
-    expect(q1.getDisplayValue(false, [{ state: "val1" }]), "display value for single (array) item").toLooseEqual("val1_text");
-    expect(q1.getDisplayValue(false, [{ state: "val1" }, { state: "val2" }]), "display value for multiple items").toLooseEqual("val1_text, val2_text");
+    expect(q1.getDisplayValue(false, { state: "val1" }), "display value for single (object) item").toBe("val1_text");
+    expect(q1.getDisplayValue(false, [{ state: "val1" }]), "display value for single (array) item").toBe("val1_text");
+    expect(q1.getDisplayValue(false, [{ state: "val1" }, { state: "val2" }]), "display value for multiple items").toBe("val1_text, val2_text");
 
-    expect(q1.getDisplayValue(false, { wrong: "val1" }), "display value for single wrong (object) item").toLooseEqual("");
-    expect(q1.getDisplayValue(false, [{ wrong: "val1" }, { wrong: "val1" }]), "display value for single wrong (object) item").toLooseEqual("");
-    expect(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "display value for multiple items with 2 wrong").toLooseEqual("val2_text");
+    expect(q1.getDisplayValue(false, { wrong: "val1" }), "display value for single wrong (object) item").toBe("");
+    expect(q1.getDisplayValue(false, [{ wrong: "val1" }, { wrong: "val1" }]), "display value for single wrong (object) item").toBe("");
+    expect(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "display value for multiple items with 2 wrong").toBe("val2_text");
   });
 
   test("visibleIf render", () => {
@@ -501,19 +501,19 @@ describe("imagemap", () => {
     (container.querySelector(`#${q2.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
     flushRAF();
 
-    expect(q2.svg.innerHTML, "check #1").toLooseEqual(q2.areas[0].svg.outerHTML);
+    expect(q2.svg.innerHTML, "check #1").toBe(q2.areas[0].svg.outerHTML);
 
     q1.value = [1];
     flushRAF();
-    expect(q2.svg.innerHTML, "check #2").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML + q2.areas[4].svg.outerHTML);
+    expect(q2.svg.innerHTML, "check #2").toBe(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML + q2.areas[4].svg.outerHTML);
 
     q1.value = [2];
     flushRAF();
-    expect(q2.svg.innerHTML, "check #3").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[2].svg.outerHTML + q2.areas[3].svg.outerHTML);
+    expect(q2.svg.innerHTML, "check #3").toBe(q2.areas[0].svg.outerHTML + q2.areas[2].svg.outerHTML + q2.areas[3].svg.outerHTML);
 
     q1.value = [3];
     flushRAF();
-    expect(q2.svg.innerHTML, "check #4").toLooseEqual(q2.areas[0].svg.outerHTML);
+    expect(q2.svg.innerHTML, "check #4").toBe(q2.areas[0].svg.outerHTML);
   });
 
   test("visibleIf clear incorrect values", () => {
@@ -560,16 +560,16 @@ describe("imagemap", () => {
     q1.value = undefined;
     q2.value = "b";
     survey.tryComplete();
-    expect(q2.value, "single: value unset after complete").toLooseEqual(undefined);
+    expect(q2.value, "single: value unset after complete").toBeUndefined();
     survey.clear();
 
     q2.value = "a";
-    expect(q2.value, "single: value is 'a'").toLooseEqual("a");
+    expect(q2.value, "single: value is 'a'").toBe("a");
     survey.clear();
 
     q1.value = [1];
     q2.value = "b";
-    expect(q2.value, "single: value is 'b'").toLooseEqual("b");
+    expect(q2.value, "single: value is 'b'").toBe("b");
   });
 
   test("check dependent question visibility with clearIfInvisible:onHidden", () => {
@@ -601,11 +601,11 @@ describe("imagemap", () => {
 
     q2.value = ["a", "b", "c"];
     expect(q2.value, "q2.value is correct").toEqualValues(["a", "b", "c"]);
-    expect(q3.isVisible, "q3 is visible").toLooseEqual(true);
+    expect(q3.isVisible, "q3 is visible").toBe(true);
 
     q1.value = [1];
     expect(q2.value, "q2.value is correct after q1 change to [1]").toEqualValues(["a", "b"]);
-    expect(q3.isVisible, "q3 is not visible").toLooseEqual(false);
+    expect(q3.isVisible, "q3 is not visible").toBe(false);
   });
 
   test("Locale change test", () => {
@@ -640,8 +640,8 @@ describe("imagemap", () => {
     (container.querySelector(`#${q2.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
     flushRAF();
 
-    expect(q2.areas[0].text, "v1 default locale text").toLooseEqual("v1_text");
-    expect(q2.areas[1].text, "v2 default locale text").toLooseEqual("v2_text");
+    expect(q2.areas[0].text, "v1 default locale text").toBe("v1_text");
+    expect(q2.areas[1].text, "v2 default locale text").toBe("v2_text");
 
     let calls = 0;
     const renderSVG = q2.renderSVG;
@@ -652,16 +652,16 @@ describe("imagemap", () => {
 
     model.locale = "de";
 
-    expect(calls, "renderSVG called on locale change").toLooseEqual(1);
+    expect(calls, "renderSVG called on locale change").toBe(1);
     flushRAF();
 
-    expect(q2.areas[0].text, "v1 'de' locale text").toLooseEqual("v1_text_de");
-    expect(q2.areas[0].svg.outerHTML, "area[0] 'de' locale svg render").toLooseEqual(`<polygon data-uid="${ q2.areas[0].uniqueId }" points="${ q2.areas[0].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[0].text }"></polygon>`);
+    expect(q2.areas[0].text, "v1 'de' locale text").toBe("v1_text_de");
+    expect(q2.areas[0].svg.outerHTML, "area[0] 'de' locale svg render").toBe(`<polygon data-uid="${ q2.areas[0].uniqueId }" points="${ q2.areas[0].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[0].text }"></polygon>`);
 
-    expect(q2.areas[1].text, "v2 'de' locale text").toLooseEqual("v2_text");
-    expect(q2.areas[1].svg.outerHTML, "area[1] 'de' locale svg render").toLooseEqual(`<polygon data-uid="${ q2.areas[1].uniqueId }" points="${ q2.areas[1].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[1].text }"></polygon>`);
+    expect(q2.areas[1].text, "v2 'de' locale text").toBe("v2_text");
+    expect(q2.areas[1].svg.outerHTML, "area[1] 'de' locale svg render").toBe(`<polygon data-uid="${ q2.areas[1].uniqueId }" points="${ q2.areas[1].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[1].text }"></polygon>`);
 
-    expect(q2.svg.innerHTML, "svg innerHTML on 'de' locale").toLooseEqual(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML);
+    expect(q2.svg.innerHTML, "svg innerHTML on 'de' locale").toBe(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML);
   });
 
   test("enableIf", () => {
@@ -683,20 +683,20 @@ describe("imagemap", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
 
-    expect(q2.areas[0].isEnabled, "area[0] is enabled by default").toLooseEqual(true);
-    expect(q2.areas[1].isEnabled, "area[1] is disabled initially").toLooseEqual(false);
+    expect(q2.areas[0].isEnabled, "area[0] is enabled by default").toBe(true);
+    expect(q2.areas[1].isEnabled, "area[1] is disabled initially").toBe(false);
     q2.mapItemToggle(q2.areas[0]);
     q2.mapItemToggle(q2.areas[1]);
     expect(q2.value, "area[1] is disabled, so not added to value").toEqualValues(["a"]);
     q1.value = true;
     q2.mapItemToggle(q2.areas[1]);
-    expect(q2.areas[0].isEnabled, "area[0] is enabled still").toLooseEqual(true);
-    expect(q2.areas[1].isEnabled, "area[1] is enabled now").toLooseEqual(true);
+    expect(q2.areas[0].isEnabled, "area[0] is enabled still").toBe(true);
+    expect(q2.areas[1].isEnabled, "area[1] is enabled now").toBe(true);
     expect(q2.value, "area[1] is enabled, so added to value").toEqualValues(["a", "b"]);
   });
 
   test("Value is not unique", () => {
-    expect(Serializer.findProperty("imagemaparea", "value").isUnique, "imagemaparea.value is not unique").toLooseEqual(false);
+    expect(Serializer.findProperty("imagemaparea", "value").isUnique, "imagemaparea.value is not unique").toBe(false);
   });
 
   test("control points in design mode", () => {
@@ -735,54 +735,54 @@ describe("imagemap", () => {
     (container.querySelector(`#${q2.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
     flushRAF();
 
-    expect(q2.createControlPoint(1, 2, 3).outerHTML, "createControlPoint created correctly").toLooseEqual("<circle cx=\"1\" cy=\"2\" r=\"4\" class=\"sd-imagemap-control-point\" data-idx=\"3\"></circle>");
+    expect(q2.createControlPoint(1, 2, 3).outerHTML, "createControlPoint created correctly").toBe("<circle cx=\"1\" cy=\"2\" r=\"4\" class=\"sd-imagemap-control-point\" data-idx=\"3\"></circle>");
 
-    expect(q2.svg.childNodes.length, "No control points initially").toLooseEqual(q2.areas.length);
+    expect(q2.svg.childNodes.length, "No control points initially").toBe(q2.areas.length);
 
     q2.selectedArea = q2.areas[0];
     flushRAF();
-    expect(q2.svg.childNodes.length, "Control points created for rect #1").toLooseEqual(q2.areas.length + 2);
+    expect(q2.svg.childNodes.length, "Control points created for rect #1").toBe(q2.areas.length + 2);
     q2.selectedArea = undefined;
     flushRAF();
-    expect(q2.svg.childNodes.length, "Control points removed").toLooseEqual(q2.areas.length);
+    expect(q2.svg.childNodes.length, "Control points removed").toBe(q2.areas.length);
     q2.selectedArea = q2.areas[1];
     flushRAF();
-    expect(q2.svg.childNodes.length, "Control points created for poly").toLooseEqual(q2.areas.length + 5);
+    expect(q2.svg.childNodes.length, "Control points created for poly").toBe(q2.areas.length + 5);
     q2.selectedArea = q2.areas[0];
     flushRAF();
-    expect(q2.svg.childNodes.length, "Control points created for rect #2").toLooseEqual(q2.areas.length + 2);
+    expect(q2.svg.childNodes.length, "Control points created for rect #2").toBe(q2.areas.length + 2);
     q2.selectedArea = q2.areas[1];
     q2.areas[1].addCoord(11, 12);
     q2.renderSVG();
     flushRAF();
-    expect(q2.svg.childNodes.length, "Control point added for poly").toLooseEqual(q2.areas.length + 6);
-    expect(q2.areas[1].coords, "New coord added correctly").toLooseEqual("1,2,3,4,5,6,7,8,9,10,11,12");
+    expect(q2.svg.childNodes.length, "Control point added for poly").toBe(q2.areas.length + 6);
+    expect(q2.areas[1].coords, "New coord added correctly").toBe("1,2,3,4,5,6,7,8,9,10,11,12");
     q2.areas[1].removeCoord(1);
     q2.renderSVG();
     flushRAF();
-    expect(q2.svg.childNodes.length, "Control removed").toLooseEqual(q2.areas.length + 5);
-    expect(q2.areas[1].coords, "Coord removed correctly").toLooseEqual("1,2,5,6,7,8,9,10,11,12");
+    expect(q2.svg.childNodes.length, "Control removed").toBe(q2.areas.length + 5);
+    expect(q2.areas[1].coords, "Coord removed correctly").toBe("1,2,5,6,7,8,9,10,11,12");
     q2.selectedArea = q2.areas[0];
     q2.areas[0].addCoord(5, 6);
     q2.renderSVG();
     flushRAF();
-    expect(q2.svg.childNodes.length, "No new control point for rect").toLooseEqual(q2.areas.length + 2);
-    expect(q2.areas[0].coords, "No coords changed for rect #1").toLooseEqual("1,2,3,4");
+    expect(q2.svg.childNodes.length, "No new control point for rect").toBe(q2.areas.length + 2);
+    expect(q2.areas[0].coords, "No coords changed for rect #1").toBe("1,2,3,4");
     q2.areas[0].removeCoord(1);
     q2.renderSVG();
     flushRAF();
-    expect(q2.svg.childNodes.length, "No new control point for rect").toLooseEqual(q2.areas.length + 2);
-    expect(q2.areas[0].coords, "No coords changed for rect #2").toLooseEqual("1,2,3,4");
+    expect(q2.svg.childNodes.length, "No new control point for rect").toBe(q2.areas.length + 2);
+    expect(q2.areas[0].coords, "No coords changed for rect #2").toBe("1,2,3,4");
     q2.selectedArea = q2.areas[2];
     q2.areas[2].addCoord(5, 6);
     q2.renderSVG();
     flushRAF();
-    expect(q2.svg.childNodes.length, "No new control point for circle").toLooseEqual(q2.areas.length + 2);
-    expect(q2.areas[2].coords, "No coords changed for circle #1").toLooseEqual("1,2,3");
+    expect(q2.svg.childNodes.length, "No new control point for circle").toBe(q2.areas.length + 2);
+    expect(q2.areas[2].coords, "No coords changed for circle #1").toBe("1,2,3");
     q2.areas[2].removeCoord(1);
     q2.renderSVG();
     flushRAF();
-    expect(q2.svg.childNodes.length, "No new control point for circle").toLooseEqual(q2.areas.length + 2);
-    expect(q2.areas[2].coords, "No coords changed for circle #2").toLooseEqual("1,2,3");
+    expect(q2.svg.childNodes.length, "No new control point for circle").toBe(q2.areas.length + 2);
+    expect(q2.areas[2].coords, "No coords changed for circle #2").toBe("1,2,3");
   });
 });

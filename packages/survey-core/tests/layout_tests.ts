@@ -36,18 +36,18 @@ describe("Layout:", () => {
     const q3 = surveyModel.getQuestionByName("q3");
     const q4 = surveyModel.getQuestionByName("q4");
 
-    expect(page.rows.length, "There are two rows").toLooseEqual(2);
-    expect(page.columns.length).toLooseEqual(3);
-    expect(page.columns[0].width).toLooseEqual(undefined);
-    expect(floorTo2Decimals(page.columns[0].effectiveWidth)).toLooseEqual(33.33);
+    expect(page.rows.length, "There are two rows").toBe(2);
+    expect(page.columns.length).toBe(3);
+    expect(page.columns[0].width).toBeUndefined();
+    expect(floorTo2Decimals(page.columns[0].effectiveWidth)).toBe(33.33);
 
-    expect(page.getColumsForElement(q1).length).toLooseEqual(1);
+    expect(page.getColumsForElement(q1).length).toBe(1);
     expect(page.getColumsForElement(q1), "q1").toEqualValues([page.columns[0]]);
-    expect(page.getColumsForElement(q2).length).toLooseEqual(2);
+    expect(page.getColumsForElement(q2).length).toBe(2);
     expect(page.getColumsForElement(q2), "q2").toEqualValues([page.columns[1], page.columns[2]]);
-    expect(page.getColumsForElement(q3).length).toLooseEqual(1);
+    expect(page.getColumsForElement(q3).length).toBe(1);
     expect(page.getColumsForElement(q3), "q3").toEqualValues([page.columns[0]]);
-    expect(page.getColumsForElement(q4).length).toLooseEqual(2);
+    expect(page.getColumsForElement(q4).length).toBe(2);
     expect(page.getColumsForElement(q4), "q4").toEqualValues([page.columns[1], page.columns[2]]);
   });
 
@@ -81,10 +81,10 @@ describe("Layout:", () => {
     const q3 = surveyModel.getQuestionByName("q3");
     const q4 = surveyModel.getQuestionByName("q4");
 
-    expect(page.rows.length, "There are two rows").toLooseEqual(2);
-    expect(page.columns.length).toLooseEqual(3);
-    expect(page.columns[0].width).toLooseEqual(undefined);
-    expect(floorTo2Decimals(page.columns[0].effectiveWidth)).toLooseEqual(33.33);
+    expect(page.rows.length, "There are two rows").toBe(2);
+    expect(page.columns.length).toBe(3);
+    expect(page.columns[0].width).toBeUndefined();
+    expect(floorTo2Decimals(page.columns[0].effectiveWidth)).toBe(33.33);
 
     expect(Helpers.isTwoValueEquals(page.getColumsForElement(q1), [page.columns[0]]), "q1").toBeTruthy();
     expect(Helpers.isTwoValueEquals(page.getColumsForElement(q2), [page.columns[1], page.columns[1]]), "q2").toBeTruthy();
@@ -212,7 +212,7 @@ describe("Layout:", () => {
     };
     const surveyModel = new SurveyModel(json);
     const page = surveyModel.pages[0];
-    expect(page.gridLayoutColumns.length).toLooseEqual(3);
+    expect(page.gridLayoutColumns.length).toBe(3);
 
     const result = surveyModel.toJSON();
     expect(result).toEqualValues(json);
@@ -236,8 +236,8 @@ describe("Layout:", () => {
     const page = surveyModel.pages[0];
     const q1 = surveyModel.getQuestionByName("q1");
     const q2 = surveyModel.getQuestionByName("q2");
-    expect(page.getPropertyValue("gridLayoutColumns").length, "Do not do calculation").toLooseEqual(1);
-    expect(page.gridLayoutColumns.length, "Do calculation").toLooseEqual(2);
+    expect(page.getPropertyValue("gridLayoutColumns").length, "Do not do calculation").toBe(1);
+    expect(page.gridLayoutColumns.length, "Do calculation").toBe(2);
 
     expect(page.columns.length).toEqualValues(2);
     expect(page.columns[0].width).toEqualValues(40);
@@ -245,8 +245,8 @@ describe("Layout:", () => {
     expect(page.columns[1].width).toEqualValues(undefined);
     expect(page.columns[1].effectiveWidth).toEqualValues(60);
 
-    expect(q1.rootStyle["flexBasis"]).toLooseEqual("40%");
-    expect(q2.rootStyle["flexBasis"]).toLooseEqual("60%");
+    expect(q1.rootStyle["flexBasis"]).toBe("40%");
+    expect(q2.rootStyle["flexBasis"]).toBe("60%");
   });
 
   test("apply columns from gridLayoutColumns #2", () => {
@@ -284,9 +284,9 @@ describe("Layout:", () => {
     expect(page.columns[2].width).toEqualValues(25);
     expect(page.columns[3].width).toEqualValues(25);
 
-    expect(q1.rootStyle["flexBasis"], "q1 rootStyle flexBasis").toLooseEqual("20%");
-    expect(q2.rootStyle["flexBasis"], "q2 rootStyle flexBasis").toLooseEqual("30%");
-    expect(q3.rootStyle["flexBasis"], "q3 rootStyle flexBasis").toLooseEqual("50%");
+    expect(q1.rootStyle["flexBasis"], "q1 rootStyle flexBasis").toBe("20%");
+    expect(q2.rootStyle["flexBasis"], "q2 rootStyle flexBasis").toBe("30%");
+    expect(q3.rootStyle["flexBasis"], "q3 rootStyle flexBasis").toBe("50%");
   });
 
   test("apply columns from gridLayoutColumns with given colSpan", () => {
@@ -323,9 +323,9 @@ describe("Layout:", () => {
     expect(page.columns[1].width).toEqualValues(30);
     expect(page.columns[2].width).toEqualValues(25);
 
-    expect(q1.rootStyle["flexBasis"], "q1 rootStyle flexBasis").toLooseEqual("20%");
-    expect(q2.rootStyle["flexBasis"], "q2 rootStyle flexBasis").toLooseEqual("30%");
-    expect(q3.rootStyle["flexBasis"], "q3 rootStyle flexBasis").toLooseEqual("25%");
+    expect(q1.rootStyle["flexBasis"], "q1 rootStyle flexBasis").toBe("20%");
+    expect(q2.rootStyle["flexBasis"], "q2 rootStyle flexBasis").toBe("30%");
+    expect(q3.rootStyle["flexBasis"], "q3 rootStyle flexBasis").toBe("25%");
   });
 
   test("check question width if column width is set for only one column", () => {
@@ -363,8 +363,8 @@ describe("Layout:", () => {
     expect(page.columns[2].width).toEqualValues(undefined);
     expect(page.columns[2].effectiveWidth).toEqualValues(37.5);
 
-    expect(q1.rootStyle["flexBasis"], "q1 rootStyle flexBasis").toLooseEqual("25%");
-    expect(q2.rootStyle["flexBasis"], "q2 rootStyle flexBasis").toLooseEqual("75%");
+    expect(q1.rootStyle["flexBasis"], "q1 rootStyle flexBasis").toBe("25%");
+    expect(q2.rootStyle["flexBasis"], "q2 rootStyle flexBasis").toBe("75%");
   });
 
   test("effectiveColSpan #1", () => {
@@ -393,32 +393,32 @@ describe("Layout:", () => {
     const page = surveyModel.pages[0];
 
     expect(page.gridLayoutColumns.length, "#0").toEqualValues(2);
-    expect(q1.effectiveColSpan, "q1 effectiveColSpan #0").toLooseEqual(1);
-    expect(q2.effectiveColSpan, "q2 effectiveColSpan #0").toLooseEqual(1);
-    expect(q3.effectiveColSpan, "q3 effectiveColSpan #0").toLooseEqual(1);
-    expect(q4.effectiveColSpan, "q4 effectiveColSpan #0").toLooseEqual(1);
+    expect(q1.effectiveColSpan, "q1 effectiveColSpan #0").toBe(1);
+    expect(q2.effectiveColSpan, "q2 effectiveColSpan #0").toBe(1);
+    expect(q3.effectiveColSpan, "q3 effectiveColSpan #0").toBe(1);
+    expect(q4.effectiveColSpan, "q4 effectiveColSpan #0").toBe(1);
 
     q2.colSpan = 2;
     expect(page.gridLayoutColumns.length, "#1").toEqualValues(3);
-    expect(q1.colSpan, "q1 colSpan #1").toLooseEqual(1);
-    expect(q1.effectiveColSpan, "q1 effectiveColSpan #1").toLooseEqual(1);
-    expect(q2.colSpan, "q2 colSpan #1").toLooseEqual(2);
-    expect(q2.effectiveColSpan, "q2 effectiveColSpan #1").toLooseEqual(2);
-    expect(q3.colSpan, "q3 colSpan #1").toLooseEqual(1);
-    expect(q3.effectiveColSpan, "q3 effectiveColSpan #1").toLooseEqual(1);
-    expect(q4.colSpan, "q4 colSpan #1").toLooseEqual(1);
-    expect(q4.effectiveColSpan, "q4 effectiveColSpan #1").toLooseEqual(2);
+    expect(q1.colSpan, "q1 colSpan #1").toBe(1);
+    expect(q1.effectiveColSpan, "q1 effectiveColSpan #1").toBe(1);
+    expect(q2.colSpan, "q2 colSpan #1").toBe(2);
+    expect(q2.effectiveColSpan, "q2 effectiveColSpan #1").toBe(2);
+    expect(q3.colSpan, "q3 colSpan #1").toBe(1);
+    expect(q3.effectiveColSpan, "q3 effectiveColSpan #1").toBe(1);
+    expect(q4.colSpan, "q4 colSpan #1").toBe(1);
+    expect(q4.effectiveColSpan, "q4 effectiveColSpan #1").toBe(2);
 
     q3.colSpan = 2;
     expect(page.gridLayoutColumns.length, "#2").toEqualValues(3);
-    expect(q1.colSpan, "q1 colSpan #2").toLooseEqual(1);
-    expect(q1.effectiveColSpan, "q1 effectiveColSpan #2").toLooseEqual(1);
-    expect(q2.colSpan, "q2 colSpan #2").toLooseEqual(2);
-    expect(q2.effectiveColSpan, "q2 effectiveColSpan #2").toLooseEqual(2);
-    expect(q3.colSpan, "q3 colSpan #2").toLooseEqual(2);
-    expect(q3.effectiveColSpan, "q3 effectiveColSpan #2").toLooseEqual(2);
-    expect(q4.colSpan, "q4 colSpan #2").toLooseEqual(1);
-    expect(q4.effectiveColSpan, "q4 effectiveColSpan #2").toLooseEqual(1);
+    expect(q1.colSpan, "q1 colSpan #2").toBe(1);
+    expect(q1.effectiveColSpan, "q1 effectiveColSpan #2").toBe(1);
+    expect(q2.colSpan, "q2 colSpan #2").toBe(2);
+    expect(q2.effectiveColSpan, "q2 effectiveColSpan #2").toBe(2);
+    expect(q3.colSpan, "q3 colSpan #2").toBe(2);
+    expect(q3.effectiveColSpan, "q3 effectiveColSpan #2").toBe(2);
+    expect(q4.colSpan, "q4 colSpan #2").toBe(1);
+    expect(q4.effectiveColSpan, "q4 effectiveColSpan #2").toBe(1);
   });
 
   test("columns effectiveWidth #1", () => {
@@ -450,20 +450,20 @@ describe("Layout:", () => {
 
     const page = surveyModel.pages[0];
 
-    expect(page.gridLayoutColumns.length).toLooseEqual(4);
-    expect(page.gridLayoutColumns[0].effectiveWidth).toLooseEqual(25);
-    expect(page.gridLayoutColumns[1].effectiveWidth).toLooseEqual(30);
-    expect(page.gridLayoutColumns[2].effectiveWidth).toLooseEqual(35);
-    expect(page.gridLayoutColumns[3].effectiveWidth).toLooseEqual(10);
-    expect(page.gridLayoutColumns[3].width).toLooseEqual(undefined);
+    expect(page.gridLayoutColumns.length).toBe(4);
+    expect(page.gridLayoutColumns[0].effectiveWidth).toBe(25);
+    expect(page.gridLayoutColumns[1].effectiveWidth).toBe(30);
+    expect(page.gridLayoutColumns[2].effectiveWidth).toBe(35);
+    expect(page.gridLayoutColumns[3].effectiveWidth).toBe(10);
+    expect(page.gridLayoutColumns[3].width).toBeUndefined();
 
     page.gridLayoutColumns[0].effectiveWidth = 20;
-    expect(page.gridLayoutColumns[0].effectiveWidth).toLooseEqual(20);
-    expect(page.gridLayoutColumns[0].width).toLooseEqual(20);
-    expect(page.gridLayoutColumns[1].effectiveWidth).toLooseEqual(30);
-    expect(page.gridLayoutColumns[2].effectiveWidth).toLooseEqual(35);
-    expect(page.gridLayoutColumns[3].effectiveWidth).toLooseEqual(15);
-    expect(page.gridLayoutColumns[3].width).toLooseEqual(undefined);
+    expect(page.gridLayoutColumns[0].effectiveWidth).toBe(20);
+    expect(page.gridLayoutColumns[0].width).toBe(20);
+    expect(page.gridLayoutColumns[1].effectiveWidth).toBe(30);
+    expect(page.gridLayoutColumns[2].effectiveWidth).toBe(35);
+    expect(page.gridLayoutColumns[3].effectiveWidth).toBe(15);
+    expect(page.gridLayoutColumns[3].width).toBeUndefined();
   });
 
   test("colSpan for first row", () => {
@@ -491,11 +491,11 @@ describe("Layout:", () => {
     const q4 = surveyModel.getQuestionByName("q4");
     const page = surveyModel.pages[0];
 
-    expect(page.gridLayoutColumns.length).toLooseEqual(3);
-    expect(q1.effectiveColSpan, "q1 effectiveColSpan").toLooseEqual(1);
-    expect(q2.effectiveColSpan, "q2 effectiveColSpan").toLooseEqual(2);
-    expect(q3.effectiveColSpan, "q3 effectiveColSpan").toLooseEqual(3);
-    expect(q4.effectiveColSpan, "q4 effectiveColSpan").toLooseEqual(3);
+    expect(page.gridLayoutColumns.length).toBe(3);
+    expect(q1.effectiveColSpan, "q1 effectiveColSpan").toBe(1);
+    expect(q2.effectiveColSpan, "q2 effectiveColSpan").toBe(2);
+    expect(q3.effectiveColSpan, "q3 effectiveColSpan").toBe(3);
+    expect(q4.effectiveColSpan, "q4 effectiveColSpan").toBe(3);
   });
 
   test("expand last question in row whitch does not have colSpan set", () => {
@@ -526,9 +526,9 @@ describe("Layout:", () => {
     const q10 = surveyModel.getQuestionByName("question10");
     const page = surveyModel.pages[0];
 
-    expect(page.gridLayoutColumns.length).toLooseEqual(5);
-    expect(q9.effectiveColSpan, "q9 effectiveColSpan").toLooseEqual(3);
-    expect(q10.effectiveColSpan, "q10 effectiveColSpan").toLooseEqual(2);
+    expect(page.gridLayoutColumns.length).toBe(5);
+    expect(q9.effectiveColSpan, "q9 effectiveColSpan").toBe(3);
+    expect(q10.effectiveColSpan, "q10 effectiveColSpan").toBe(2);
   });
 
   test("recalculate column width after question added", () => {
@@ -547,17 +547,17 @@ describe("Layout:", () => {
 
     const page = surveyModel.pages[0];
 
-    expect(page.gridLayoutColumns.length).toLooseEqual(2);
-    expect(page.gridLayoutColumns[0].effectiveWidth).toLooseEqual(50);
-    expect(page.gridLayoutColumns[1].effectiveWidth).toLooseEqual(50);
+    expect(page.gridLayoutColumns.length).toBe(2);
+    expect(page.gridLayoutColumns[0].effectiveWidth).toBe(50);
+    expect(page.gridLayoutColumns[1].effectiveWidth).toBe(50);
 
     const q3 = new QuestionTextModel("q3");
     q3.startWithNewLine = false;
     page.addElement(q3, 2);
-    expect(page.gridLayoutColumns.length).toLooseEqual(3);
-    expect(page.gridLayoutColumns[0].effectiveWidth).toLooseEqual(33.33);
-    expect(page.gridLayoutColumns[1].effectiveWidth).toLooseEqual(33.33);
-    expect(page.gridLayoutColumns[2].effectiveWidth).toLooseEqual(33.33);
+    expect(page.gridLayoutColumns.length).toBe(3);
+    expect(page.gridLayoutColumns[0].effectiveWidth).toBe(33.33);
+    expect(page.gridLayoutColumns[1].effectiveWidth).toBe(33.33);
+    expect(page.gridLayoutColumns[2].effectiveWidth).toBe(33.33);
   });
 
   test("recalculate column width after question deleted", () => {
@@ -579,15 +579,15 @@ describe("Layout:", () => {
     });
 
     const page = surveyModel.pages[0];
-    expect(page.gridLayoutColumns.length).toLooseEqual(2);
-    expect(page.gridLayoutColumns[0].effectiveWidth).toLooseEqual(51);
-    expect(page.gridLayoutColumns[1].effectiveWidth).toLooseEqual(47);
+    expect(page.gridLayoutColumns.length).toBe(2);
+    expect(page.gridLayoutColumns[0].effectiveWidth).toBe(51);
+    expect(page.gridLayoutColumns[1].effectiveWidth).toBe(47);
 
     const q3 = surveyModel.getQuestionByName("q2");
     q3.delete();
 
-    expect(page.gridLayoutColumns.length).toLooseEqual(1);
-    expect(page.gridLayoutColumns[0].effectiveWidth).toLooseEqual(51);
+    expect(page.gridLayoutColumns.length).toBe(1);
+    expect(page.gridLayoutColumns[0].effectiveWidth).toBe(51);
   });
 
   test("question root style", () => {
@@ -720,23 +720,23 @@ describe("Layout:", () => {
     const q6 = surveyModel.getQuestionByName("q6");
 
     expect(page.gridLayoutColumns.length).toEqualValues(6);
-    expect(q1.visible, "q1 visible").toLooseEqual(true);
-    expect(q2.visible, "q2 visible").toLooseEqual(true);
-    expect(q3.visible, "q3 visible").toLooseEqual(false);
-    expect(q4.visible, "q4 visible").toLooseEqual(false);
-    expect(q5.visible, "q5 visible").toLooseEqual(false);
-    expect(q6.visible, "q6 visible").toLooseEqual(false);
+    expect(q1.visible, "q1 visible").toBe(true);
+    expect(q2.visible, "q2 visible").toBe(true);
+    expect(q3.visible, "q3 visible").toBe(false);
+    expect(q4.visible, "q4 visible").toBe(false);
+    expect(q5.visible, "q5 visible").toBe(false);
+    expect(q6.visible, "q6 visible").toBe(false);
 
-    expect(q1.effectiveColSpan, "q1 effectiveColSpan").toLooseEqual(1);
-    expect(q2.effectiveColSpan, "q2 effectiveColSpan").toLooseEqual(1);
+    expect(q1.effectiveColSpan, "q1 effectiveColSpan").toBe(1);
+    expect(q2.effectiveColSpan, "q2 effectiveColSpan").toBe(1);
 
     q2.value = "No";
-    expect(q1.visible, "q1 visible").toLooseEqual(true);
-    expect(q2.visible, "q2 visible").toLooseEqual(true);
-    expect(q3.visible, "q3 visible").toLooseEqual(false);
-    expect(q4.visible, "q4 visible").toLooseEqual(true);
-    expect(q5.visible, "q5 visible").toLooseEqual(true);
-    expect(q6.visible, "q6 visible").toLooseEqual(false);
+    expect(q1.visible, "q1 visible").toBe(true);
+    expect(q2.visible, "q2 visible").toBe(true);
+    expect(q3.visible, "q3 visible").toBe(false);
+    expect(q4.visible, "q4 visible").toBe(true);
+    expect(q5.visible, "q5 visible").toBe(true);
+    expect(q6.visible, "q6 visible").toBe(false);
   });
 
   test("Do not call survey.onPropertyValueChangedCallback on loading choicesByUrl, Bug#2563", () => {
@@ -748,7 +748,7 @@ describe("Layout:", () => {
     };
     counter = 0;
     survey.fromJSON({ elements: [{ type: "text", name: "q1" }] });
-    expect(counter, "We shouldn't call onPropertyValueChangedCallback on loading from JSON").toLooseEqual(0);
+    expect(counter, "We shouldn't call onPropertyValueChangedCallback on loading from JSON").toBe(0);
   });
 
   test("gridLayoutColumns: 1 - 3 - 2 layout", () => {

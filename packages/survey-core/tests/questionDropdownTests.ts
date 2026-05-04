@@ -28,9 +28,9 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-    expect(question.choicesMin, "choicesMin is ok").toLooseEqual(1);
-    expect(question.choicesMax, "choicesMax is ok").toLooseEqual(115);
-    expect(question.visibleChoices.length, "visibleChoices is ok").toLooseEqual(115);
+    expect(question.choicesMin, "choicesMin is ok").toBe(1);
+    expect(question.choicesMax, "choicesMax is ok").toBe(115);
+    expect(question.visibleChoices.length, "visibleChoices is ok").toBe(115);
   });
 
   test("check dropdown disabled class", () => {
@@ -136,8 +136,8 @@ describe("Dropdown question", () => {
     expect(question.popupModel.contentComponentData.model instanceof ListModel).toBeTruthy();
 
     const listModel = question.popupModel.contentComponentData.model as ListModel;
-    expect(listModel.showFilter).toLooseEqual(false);
-    expect(question.dropdownListModel.searchEnabled).toLooseEqual(true);
+    expect(listModel.showFilter).toBe(false);
+    expect(question.dropdownListModel.searchEnabled).toBe(true);
   });
 
   test("Test dropdown renderAs select searchEnabled property", () => {
@@ -181,12 +181,12 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const listModel = question.popupModel.contentComponentData.model as ListModel;
-    expect(listModel.showFilter).toLooseEqual(false);
-    expect(question.dropdownListModel.searchEnabled).toLooseEqual(false);
+    expect(listModel.showFilter).toBe(false);
+    expect(question.dropdownListModel.searchEnabled).toBe(false);
 
     question.searchEnabled = true;
-    expect(listModel.showFilter).toLooseEqual(false);
-    expect(question.dropdownListModel.searchEnabled).toLooseEqual(true);
+    expect(listModel.showFilter).toBe(false);
+    expect(question.dropdownListModel.searchEnabled).toBe(true);
   });
 
   test("add placeholder & allowClear", () => {
@@ -213,7 +213,7 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-    expect(question.placeholder).toLooseEqual("Select...");
+    expect(question.placeholder).toBe("Select...");
     expect(question.allowClear === true).toBeTruthy();
 
     expect(question.toJSON()).toEqualValues({
@@ -281,8 +281,8 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-    expect(question.placeholder).toLooseEqual("New placeholder");
-    expect(question.placeholder).toLooseEqual("New placeholder");
+    expect(question.placeholder).toBe("New placeholder");
+    expect(question.placeholder).toBe("New placeholder");
 
     expect(question.showOptionsCaption === false).toBeTruthy();
     expect(question.allowClear === false).toBeTruthy();
@@ -323,15 +323,15 @@ describe("Dropdown question", () => {
     };
     const survey = new SurveyModel(json);
     const q = <QuestionDropdownModel>survey.getQuestionByName("q1");
-    expect(q.showClearButton, "question is empty").toLooseEqual(false);
+    expect(q.showClearButton, "question is empty").toBe(false);
     q.value = "Ford";
-    expect(q.showClearButton, "question is not empty").toLooseEqual(true);
+    expect(q.showClearButton, "question is not empty").toBe(true);
     q.allowClear = false;
-    expect(q.showClearButton, "allowClear is false").toLooseEqual(false);
+    expect(q.showClearButton, "allowClear is false").toBe(false);
     q.allowClear = true;
     survey.setDesignMode(true);
 
-    expect(q.showClearButton, "Creator V2").toLooseEqual(true);
+    expect(q.showClearButton, "Creator V2").toBe(true);
   });
 
   test("ListModel localization", () => {
@@ -360,9 +360,9 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const listModel = question.popupModel.contentComponentData.model as ListModel;
-    expect(listModel.filterStringPlaceholder, "filtered text in en").toLooseEqual("Type to search...");
+    expect(listModel.filterStringPlaceholder, "filtered text in en").toBe("Type to search...");
     survey.locale = "de";
-    expect(listModel.filterStringPlaceholder, "filtered text in de").toLooseEqual("Tippen Sie, um zu suchen...");
+    expect(listModel.filterStringPlaceholder, "filtered text in de").toBe("Tippen Sie, um zu suchen...");
     survey.locale = "";
   });
   test("survey.onTextMarkdown, options.item #9601", () => {
@@ -383,9 +383,9 @@ describe("Dropdown question", () => {
       options.html = options.text + "_" + options.text;
     });
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choices[0].locText.textOrHtml, "choices[0]").toLooseEqual("Item 1_Item 1");
-    expect(question.choices[1].locText.textOrHtml, "choices[1]").toLooseEqual("Item 2_Item 2");
-    expect(question.choices[2].locText.textOrHtml, "choices[2]").toLooseEqual("Item 3_Item 3");
+    expect(question.choices[0].locText.textOrHtml, "choices[0]").toBe("Item 1_Item 1");
+    expect(question.choices[1].locText.textOrHtml, "choices[1]").toBe("Item 2_Item 2");
+    expect(question.choices[2].locText.textOrHtml, "choices[2]").toBe("Item 3_Item 3");
     expect(itemsValues).toEqualValues([1, 2, 3]);
   });
   test("readOnlyText visibleChoices changed", () => {
@@ -421,8 +421,8 @@ describe("Dropdown question", () => {
     survey.data = { "q1": "Item 1", "q2": "Item 1" };
 
     const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
-    expect(q2.readOnlyText, "readOnlyText").toLooseEqual("Item 1");
-    expect(q2.selectedItem.id, "selectedItem.id").toLooseEqual("Item 1");
+    expect(q2.readOnlyText, "readOnlyText").toBe("Item 1");
+    expect(q2.selectedItem.id, "selectedItem.id").toBe("Item 1");
   });
   test("readOnlyText render as select", () => {
     const json = {
@@ -442,19 +442,19 @@ describe("Dropdown question", () => {
       options.html = options.text + "_" + options.text;
     });
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.readOnlyText, "use place-holder").toLooseEqual("click");
-    expect(question.locReadOnlyText.textOrHtml, "use place-holder, locReadOnlyText").toLooseEqual("click_click");
-    expect(question.locReadOnlyText.hasHtml, "use place-holder, locReadOnlyText.hasHtml").toLooseEqual(true);
+    expect(question.readOnlyText, "use place-holder").toBe("click");
+    expect(question.locReadOnlyText.textOrHtml, "use place-holder, locReadOnlyText").toBe("click_click");
+    expect(question.locReadOnlyText.hasHtml, "use place-holder, locReadOnlyText.hasHtml").toBe(true);
     question.value = "other";
-    expect(question.readOnlyText, "use other").toLooseEqual("Other (describe)");
+    expect(question.readOnlyText, "use other").toBe("Other (describe)");
     question.value = 2;
-    expect(question.readOnlyText, "use choice text").toLooseEqual("item 2");
+    expect(question.readOnlyText, "use choice text").toBe("item 2");
     question.value = "none";
-    expect(question.readOnlyText, "use none text").toLooseEqual("None");
+    expect(question.readOnlyText, "use none text").toBe("None");
     question.clearValue();
-    expect(question.readOnlyText, "use placeholder").toLooseEqual("click");
+    expect(question.readOnlyText, "use placeholder").toBe("click");
     question.placeholder = "Placeholder test";
-    expect(question.readOnlyText, "use placeholder").toLooseEqual("Placeholder test");
+    expect(question.readOnlyText, "use placeholder").toBe("Placeholder test");
   });
   test("readOnlyText on changing locale", () => {
     const json = {
@@ -470,11 +470,11 @@ describe("Dropdown question", () => {
     survey.setDesignMode(true);
     survey.fromJSON(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.readOnlyText, "english locale").toLooseEqual("Select...");
+    expect(question.readOnlyText, "english locale").toBe("Select...");
     survey.locale = "de";
-    expect(question.readOnlyText, "de locale").toLooseEqual("Bitte auswählen..."); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(question.readOnlyText, "de locale").toBe("Bitte auswählen..."); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     survey.locale = "";
-    expect(new QuestionDropdownModel("q1").readOnlyText, "English by default").toLooseEqual("Select...");
+    expect(new QuestionDropdownModel("q1").readOnlyText, "English by default").toBe("Select...");
   });
   test("inputFieldComponent", () => {
     const json = {
@@ -493,14 +493,14 @@ describe("Dropdown question", () => {
     survey.setDesignMode(true);
     survey.fromJSON(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.itemComponent).toLooseEqual(itemTemplate);
-    expect(question.inputFieldComponent).toLooseEqual(undefined);
-    expect(question.inputFieldComponentName).toLooseEqual(itemTemplate);
+    expect(question.itemComponent).toBe(itemTemplate);
+    expect(question.inputFieldComponent).toBeUndefined();
+    expect(question.inputFieldComponentName).toBe(itemTemplate);
 
     question.inputFieldComponent = newInputFieldComponent;
-    expect(question.itemComponent).toLooseEqual(itemTemplate);
-    expect(question.inputFieldComponent).toLooseEqual(newInputFieldComponent);
-    expect(question.inputFieldComponentName).toLooseEqual(newInputFieldComponent);
+    expect(question.itemComponent).toBe(itemTemplate);
+    expect(question.inputFieldComponent).toBe(newInputFieldComponent);
+    expect(question.inputFieldComponentName).toBe(newInputFieldComponent);
   });
   test("showSelectedItemLocText", () => {
     const json = {
@@ -516,13 +516,13 @@ describe("Dropdown question", () => {
     survey.setDesignMode(true);
     survey.fromJSON(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.showSelectedItemLocText, "#1").toLooseEqual(false);
+    expect(question.showSelectedItemLocText, "#1").toBe(false);
 
     question.value = 1;
-    expect(question.showSelectedItemLocText, "#2").toLooseEqual(true);
+    expect(question.showSelectedItemLocText, "#2").toBe(true);
 
     question.itemComponent = "my-item";
-    expect(question.showSelectedItemLocText, "#3").toLooseEqual(false);
+    expect(question.showSelectedItemLocText, "#3").toBe(false);
   });
   test("selectedItemLocText, showOtherItem & storeOthersAsComment=false, Bug#3800", () => {
     const json = {
@@ -538,13 +538,13 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     survey.data = { q1: 4 };
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.showSelectedItemLocText).toLooseEqual(true);
+    expect(question.showSelectedItemLocText).toBe(true);
 
-    expect(question.selectedItem.value).toLooseEqual("other");
-    expect(question.selectedItemLocText.renderedHtml).toLooseEqual("Other (describe)");
+    expect(question.selectedItem.value).toBe("other");
+    expect(question.selectedItemLocText.renderedHtml).toBe("Other (describe)");
     question.value = 3;
-    expect(question.selectedItem.value).toLooseEqual("3");
-    expect(question.selectedItemLocText.renderedHtml).toLooseEqual("3");
+    expect(question.selectedItem.value).toBe(3);
+    expect(question.selectedItemLocText.renderedHtml).toBe("3");
   });
   test("showInputFieldComponent", () => {
     const json = {
@@ -560,13 +560,13 @@ describe("Dropdown question", () => {
     survey.setDesignMode(true);
     survey.fromJSON(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.showInputFieldComponent).toLooseEqual(false);
+    expect(question.showInputFieldComponent).toBe(false);
 
     question.itemComponent = "my-item";
-    expect(question.showInputFieldComponent).toLooseEqual(false);
+    expect(question.showInputFieldComponent).toBe(false);
 
     question.value = 1;
-    expect(question.showInputFieldComponent).toLooseEqual(true);
+    expect(question.showInputFieldComponent).toBe(true);
   });
   test("clearValue", () => {
     const json = {
@@ -584,25 +584,25 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
 
-    expect(question.value, "init").toLooseEqual(undefined);
-    expect(dropdownListModel.filterString, "init").toLooseEqual("");
-    expect(dropdownListModel.inputStringRendered, "init").toLooseEqual("");
-    expect(dropdownListModel.hintString, "init").toLooseEqual("");
+    expect(question.value, "init").toBeUndefined();
+    expect(dropdownListModel.filterString, "init").toBe("");
+    expect(dropdownListModel.inputStringRendered, "init").toBe("");
+    expect(dropdownListModel.hintString, "init").toBe("");
 
     question.value = 2;
     dropdownListModel.inputStringRendered = "i";
 
-    expect(question.value).toLooseEqual(2);
-    expect(dropdownListModel.filterString).toLooseEqual("i");
-    expect(dropdownListModel.inputStringRendered).toLooseEqual("i");
-    expect(dropdownListModel.hintString).toLooseEqual("item 2");
+    expect(question.value).toBe(2);
+    expect(dropdownListModel.filterString).toBe("i");
+    expect(dropdownListModel.inputStringRendered).toBe("i");
+    expect(dropdownListModel.hintString).toBe("item 2");
 
     question.clearValue();
 
-    expect(question.value, "after clear").toLooseEqual(undefined);
-    expect(dropdownListModel.filterString, "after clear").toLooseEqual("");
-    expect(dropdownListModel.inputStringRendered, "after clear").toLooseEqual("");
-    expect(dropdownListModel.hintString, "after clear").toLooseEqual("");
+    expect(question.value, "after clear").toBeUndefined();
+    expect(dropdownListModel.filterString, "after clear").toBe("");
+    expect(dropdownListModel.inputStringRendered, "after clear").toBe("");
+    expect(dropdownListModel.hintString, "after clear").toBe("");
   });
 
   test("Dropdown doesn't displays a value which doesn't exist in a list of choices", () => {
@@ -617,8 +617,8 @@ describe("Dropdown question", () => {
       question1: "value1"
     };
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.value).toLooseEqual("value1");
-    expect(question.selectedItem).toLooseEqual(null);
+    expect(question.value).toBe("value1");
+    expect(question.selectedItem).toBeNull();
     expect(survey.data).toEqualValues({
       "question1": "value1",
     });
@@ -637,8 +637,8 @@ describe("Dropdown question", () => {
       question1: "value1"
     };
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.value).toLooseEqual("other");
-    expect(question.selectedItem.id).toLooseEqual("other");
+    expect(question.value).toBe("other");
+    expect(question.selectedItem.id).toBe("other");
     expect(survey.data).toEqualValues({
       "question1": "value1",
       "question1-Comment": "value1"
@@ -657,12 +657,12 @@ describe("Dropdown question", () => {
       question1: "Item 1"
     };
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.value).toLooseEqual("Item 1");
-    expect(question.selectedItem.id).toLooseEqual("Item 1");
+    expect(question.value).toBe("Item 1");
+    expect(question.selectedItem.id).toBe("Item 1");
 
     question.setPropertyValue("visibleChoices", []);
-    expect(question.value).toLooseEqual("Item 1");
-    expect(question.selectedItem).toLooseEqual(null);
+    expect(question.value).toBe("Item 1");
+    expect(question.selectedItem).toBeNull();
   });
 
   function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
@@ -713,14 +713,14 @@ describe("Dropdown question", () => {
     survey.onChoicesLazyLoad.add((_, options) => { opt = options; });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opt);
-    expect(question.choices.length).toLooseEqual(30);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[29].value).toLooseEqual(30);
+    expect(question.choices.length).toBe(30);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[29].value).toBe(30);
   });
 
   test("lazy loading: first loading - default value", () => {
@@ -738,13 +738,13 @@ describe("Dropdown question", () => {
     survey.onChoicesLazyLoad.add((_, options) => { opt = options; });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
     question.dropdownListModel.popupModel.show();
     question.dropdownListModel.changeSelectionWithKeyboard(false);
     doneCallback(opt);
-    expect(question.choices.length).toLooseEqual(30);
-    expect(question.dropdownListModel.inputStringRendered).toLooseEqual("1");
+    expect(question.choices.length).toBe(30);
+    expect(question.dropdownListModel.inputStringRendered).toBe("1");
   });
 
   test("lazy loading: several loading", () => {
@@ -759,26 +759,26 @@ describe("Dropdown question", () => {
     survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
 
     question.dropdownListModel["updateQuestionChoices"]();
     doneCallback(opts[1]);
-    expect(question.choices.length).toLooseEqual(50);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[49].value).toLooseEqual(50);
+    expect(question.choices.length).toBe(50);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[49].value).toBe(50);
 
     question.dropdownListModel["updateQuestionChoices"]();
     doneCallback(opts[2]);
-    expect(question.choices.length).toLooseEqual(55);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[54].value).toLooseEqual(55);
+    expect(question.choices.length).toBe(55);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[54].value).toBe(55);
   });
 
   test("lazy loading + change filter string + dropdownSearchDelay", () => {
@@ -797,31 +797,31 @@ describe("Dropdown question", () => {
       survey.onChoicesLazyLoad.add(callback);
 
       const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-      expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-      expect(question.choices.length).toLooseEqual(0);
+      expect(question.choicesLazyLoadEnabled).toBe(true);
+      expect(question.choices.length).toBe(0);
 
       question.dropdownListModel.popupModel.show();
-      expect(question.choices.length, "show popup before request").toLooseEqual(0);
+      expect(question.choices.length, "show popup before request").toBe(0);
 
       vi.advanceTimersByTime(onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-      expect(question.choices.length, "show popup after request").toLooseEqual(25);
-      expect(question.choices[0].value, "show popup after request").toLooseEqual(1);
+      expect(question.choices.length, "show popup after request").toBe(25);
+      expect(question.choices[0].value, "show popup after request").toBe(1);
 
       settings.dropdownSearchDelay = newValueDebouncedInputValue;
       question.dropdownListModel.filterString = "2";
       vi.advanceTimersByTime(callbackTimeOutDelta);
-      expect(question.choices.length, "filter is 2").toLooseEqual(25);
-      expect(question.choices[0].value, "filter is 2").toLooseEqual(1);
+      expect(question.choices.length, "filter is 2").toBe(25);
+      expect(question.choices[0].value, "filter is 2").toBe(1);
 
       settings.dropdownSearchDelay = newValueDebouncedInputValue;
       question.dropdownListModel.filterString = "22";
       vi.advanceTimersByTime(callbackTimeOutDelta);
-      expect(question.choices.length, "filter is 22 before request").toLooseEqual(25);
-      expect(question.choices[0].value, "filter is 22 before request").toLooseEqual(1);
+      expect(question.choices.length, "filter is 22 before request").toBe(25);
+      expect(question.choices[0].value, "filter is 22 before request").toBe(1);
 
       vi.advanceTimersByTime(2 * (onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue));
-      expect(question.choices.length, "filter is 22 after request").toLooseEqual(25);
-      expect(question.choices[0].value, "filter is 22 after request").toLooseEqual(22);
+      expect(question.choices.length, "filter is 22 after request").toBe(25);
+      expect(question.choices[0].value, "filter is 22 after request").toBe(22);
 
       settings.dropdownSearchDelay = 0;
     } finally {
@@ -859,31 +859,31 @@ describe("Dropdown question", () => {
       });
 
       const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-      expect(requestCount, "requestCount #1").toLooseEqual(0);
-      expect(responseCount, "responseCount #1").toLooseEqual(0);
+      expect(requestCount, "requestCount #1").toBe(0);
+      expect(responseCount, "responseCount #1").toBe(0);
 
-      expect(question.showSelectedItemLocText, "showSelectedItemLocText").toLooseEqual(true);
-      expect(requestCount, "requestCount #2").toLooseEqual(1);
-      expect(responseCount, "responseCount #2").toLooseEqual(0);
+      expect(question.showSelectedItemLocText, "showSelectedItemLocText").toBe(true);
+      expect(requestCount, "requestCount #2").toBe(1);
+      expect(responseCount, "responseCount #2").toBe(0);
 
       // Before the response timer fires.
       vi.advanceTimersByTime(callbackTimeOutDelta);
-      expect(requestCount, "requestCount #2.1").toLooseEqual(1);
-      expect(responseCount <= 1, "responseCount #2.1").toLooseEqual(true);
-      expect(["2", "DisplayText_2"].indexOf(question.selectedItemLocText.calculatedText) > -1, "calculatedText #2.1").toLooseEqual(true);
+      expect(requestCount, "requestCount #2.1").toBe(1);
+      expect(responseCount <= 1, "responseCount #2.1").toBe(true);
+      expect(["2", "DisplayText_2"].indexOf(question.selectedItemLocText.calculatedText) > -1, "calculatedText #2.1").toBe(true);
 
       // Let the response timer fire.
       vi.advanceTimersByTime(onGetChoiceDisplayValueCallbackTimeOut);
-      expect(requestCount, "requestCount #3").toLooseEqual(1);
-      expect(responseCount, "responseCount #3").toLooseEqual(1);
+      expect(requestCount, "requestCount #3").toBe(1);
+      expect(responseCount, "responseCount #3").toBe(1);
 
       // Ensure no extra requests/responses are scheduled later.
       vi.advanceTimersByTime(onGetChoiceDisplayValueCallbackTimeOut + 2 * callbackTimeOutDelta);
-      expect(requestCount, "requestCount #3.1").toLooseEqual(1);
-      expect(responseCount, "responseCount #3.1").toLooseEqual(1);
-      expect(question.selectedItemLocText.calculatedText).toLooseEqual("DisplayText_2");
-      expect(question.selectedItem.locText.calculatedText, "locText.calculatedText").toLooseEqual("DisplayText_2");
-      expect(question.displayValue, "question.displayValue").toLooseEqual("DisplayText_2");
+      expect(requestCount, "requestCount #3.1").toBe(1);
+      expect(responseCount, "responseCount #3.1").toBe(1);
+      expect(question.selectedItemLocText.calculatedText).toBe("DisplayText_2");
+      expect(question.selectedItem.locText.calculatedText, "locText.calculatedText").toBe("DisplayText_2");
+      expect(question.displayValue, "question.displayValue").toBe("DisplayText_2");
     } finally {
       vi.useRealTimers();
     }
@@ -904,9 +904,9 @@ describe("Dropdown question", () => {
     survey.onChoicesLazyLoad.add((_, opt) => {});
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.visibleChoices.length).toLooseEqual(1);
-    expect(question.visibleChoices[0].id).toLooseEqual("other");
-    expect(question.visibleChoices[0].value).toLooseEqual("other");
+    expect(question.visibleChoices.length).toBe(1);
+    expect(question.visibleChoices[0].id).toBe("other");
+    expect(question.visibleChoices[0].value).toBe("other");
 
     question.renderedValue = "other";
     expect(question.value, "#1").toEqualValues("other");
@@ -934,18 +934,18 @@ describe("Dropdown question", () => {
     survey.onChoicesLazyLoad.add((_, options) => { opt = options; });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.visibleChoices.length).toLooseEqual(1);
-    expect(question.visibleChoices[0].id).toLooseEqual("other");
-    expect(question.visibleChoices[0].value).toLooseEqual("other");
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.visibleChoices.length).toBe(1);
+    expect(question.visibleChoices[0].id).toBe("other");
+    expect(question.visibleChoices[0].value).toBe("other");
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opt);
-    expect(question.visibleChoices.length).toLooseEqual(56);
-    expect(question.visibleChoices[0].value).toLooseEqual(1);
-    expect(question.visibleChoices[54].value).toLooseEqual(55);
-    expect(question.visibleChoices[55].id).toLooseEqual("other");
-    expect(question.visibleChoices[55].value).toLooseEqual("other");
+    expect(question.visibleChoices.length).toBe(56);
+    expect(question.visibleChoices[0].value).toBe(1);
+    expect(question.visibleChoices[54].value).toBe(55);
+    expect(question.visibleChoices[55].id).toBe("other");
+    expect(question.visibleChoices[55].value).toBe("other");
 
     question.renderedValue = "other";
     expect(question.value, "#1").toEqualValues("other");
@@ -968,31 +968,31 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const listModel = question.popupModel.contentComponentData.model as ListModel;
     const itemsSettings = question.dropdownListModel["itemsSettings"];
-    expect(itemsSettings.skip).toLooseEqual(0);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(0);
-    expect(itemsSettings.items.length).toLooseEqual(0);
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(0);
+    expect(itemsSettings.skip).toBe(0);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(0);
+    expect(itemsSettings.items.length).toBe(0);
+    expect(listModel.actions.length, "listModel.actions").toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
 
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(26);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(listModel.actions.length, "listModel.actions").toBe(26);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     question.dropdownListModel.popupModel.hide();
 
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(26);
-    expect(itemsSettings.skip).toLooseEqual(0);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(0);
-    expect(itemsSettings.items.length).toLooseEqual(0);
+    expect(listModel.actions.length, "listModel.actions").toBe(26);
+    expect(itemsSettings.skip).toBe(0);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(0);
+    expect(itemsSettings.items.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(0);
+    expect(listModel.actions.length, "listModel.actions").toBe(0);
   });
   test("rendering actions id", () => {
     const json = {
@@ -1008,11 +1008,11 @@ describe("Dropdown question", () => {
     const listModel = question.popupModel.contentComponentData.model as ListModel;
     listModel.flushUpdates();
     const actions = listModel.renderedActions;
-    expect(actions.length, "two actions").toLooseEqual(2);
-    expect((<IAction>actions[0]).elementId, "elementId, action1").toLooseEqual("el1i_listItem1");
-    expect((<IAction>actions[1]).elementId, "elementId, action2").toLooseEqual("el1i_listItem2");
-    expect((<IAction>actions[0]).disableTabStop, "disableTabStop, action1").toLooseEqual(true);
-    expect((<IAction>actions[1]).disableTabStop, "disableTabStop, action2").toLooseEqual(true);
+    expect(actions.length, "two actions").toBe(2);
+    expect((<IAction>actions[0]).elementId, "elementId, action1").toBe("el1i_listItem1");
+    expect((<IAction>actions[1]).elementId, "elementId, action2").toBe("el1i_listItem2");
+    expect((<IAction>actions[0]).disableTabStop, "disableTabStop, action1").toBe(true);
+    expect((<IAction>actions[1]).disableTabStop, "disableTabStop, action2").toBe(true);
   });
 
   test("Test dropdown choices change should update strings", () => {
@@ -1028,12 +1028,12 @@ describe("Dropdown question", () => {
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-    expect(question.readOnlyText, "readOnlyText #1").toLooseEqual("Select...");
-    expect(question.placeholder, "placeholder").toLooseEqual("Select...");
+    expect(question.readOnlyText, "readOnlyText #1").toBe("Select...");
+    expect(question.placeholder, "placeholder").toBe("Select...");
     question.value = "i3";
-    expect(question.readOnlyText, "readOnlyText #2").toLooseEqual("Select...");
+    expect(question.readOnlyText, "readOnlyText #2").toBe("Select...");
     question.choices = ["i1", "i2", "i3"];
-    expect(question.readOnlyText, "readOnlyText #3").toLooseEqual("i3");
+    expect(question.readOnlyText, "readOnlyText #3").toBe("i3");
   });
 
   test("Test update readOnlyText after onGetChoiceDisplayValue", () => {
@@ -1053,10 +1053,10 @@ describe("Dropdown question", () => {
       options.setItems(["France"]);
     });
 
-    expect(question.value).toLooseEqual("FRA");
-    expect(question.selectedItem.value).toLooseEqual("FRA");
-    expect(question.selectedItem.text).toLooseEqual("France");
-    expect(question.readOnlyText, "readOnlyText").toLooseEqual("France");
+    expect(question.value).toBe("FRA");
+    expect(question.selectedItem.value).toBe("FRA");
+    expect(question.selectedItem.text).toBe("France");
+    expect(question.readOnlyText, "readOnlyText").toBe("France");
   });
 
   test("min page size", () => {
@@ -1074,19 +1074,19 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const listModel = question.popupModel.contentComponentData.model as ListModel;
     const itemsSettings = question.dropdownListModel["itemsSettings"];
-    expect(itemsSettings.skip).toLooseEqual(0);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(0);
-    expect(itemsSettings.items.length).toLooseEqual(0);
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(0);
+    expect(itemsSettings.skip).toBe(0);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(0);
+    expect(itemsSettings.items.length).toBe(0);
+    expect(listModel.actions.length, "listModel.actions").toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(26);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(listModel.actions.length, "listModel.actions").toBe(26);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
   });
 
   test("selectedItem until all data is loaded", () => {
@@ -1104,32 +1104,32 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const listModel = question.popupModel.contentComponentData.model as ListModel;
 
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(0);
-    expect(question.selectedItem).toLooseEqual(null);
+    expect(listModel.actions.length, "listModel.actions").toBe(0);
+    expect(question.selectedItem).toBeNull();
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(30);
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(31);
+    expect(question.choices.length).toBe(30);
+    expect(listModel.actions.length, "listModel.actions").toBe(31);
 
     question.dropdownListModel["updateQuestionChoices"]();
     doneCallback(opts[1]);
-    expect(question.choices.length).toLooseEqual(55);
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(55);
-    expect(question.choices[54].value).toLooseEqual(55);
+    expect(question.choices.length).toBe(55);
+    expect(listModel.actions.length, "listModel.actions").toBe(55);
+    expect(question.choices[54].value).toBe(55);
 
     question.value = question.choices[54].value;
-    expect(question.selectedItem.value).toLooseEqual(55);
+    expect(question.selectedItem.value).toBe(55);
 
     question.dropdownListModel.popupModel.hide();
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[2]);
-    expect(question.choices.length).toLooseEqual(30);
-    expect(listModel.actions.length, "listModel.actions").toLooseEqual(31);
-    expect(question.selectedItem.value).toLooseEqual(55);
+    expect(question.choices.length).toBe(30);
+    expect(listModel.actions.length, "listModel.actions").toBe(31);
+    expect(question.selectedItem.value).toBe(55);
 
     question.clearValue();
-    expect(question.selectedItem).toLooseEqual(null);
+    expect(question.selectedItem).toBeNull();
   });
   function getObjectArray(skip = 1, count = 25): Array<{value: number, text: string}> {
     const result:Array<{value: number, text: string}> = [];
@@ -1172,21 +1172,21 @@ describe("Dropdown question", () => {
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const questionTitle = <Question>survey.getAllQuestions()[1];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value).toLooseEqual(55);
-    expect(question.selectedItem.value).toLooseEqual(55);
-    expect(question.selectedItem.text).toLooseEqual("DisplayText_55");
-    expect(questionTitle.locTitle.textOrHtml, "display text is correct").toLooseEqual("DisplayText_55");
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(question.value).toBe(55);
+    expect(question.selectedItem.value).toBe(55);
+    expect(question.selectedItem.text).toBe("DisplayText_55");
+    expect(questionTitle.locTitle.textOrHtml, "display text is correct").toBe("DisplayText_55");
 
     question.dropdownListModel.popupModel.show();
     doCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
-    expect(question.value).toLooseEqual(55);
-    expect(question.selectedItem.value).toLooseEqual(55);
-    expect(question.selectedItem.text).toLooseEqual("DisplayText_55");
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
+    expect(question.value).toBe(55);
+    expect(question.selectedItem.value).toBe(55);
+    expect(question.selectedItem.text).toBe("DisplayText_55");
   });
   test("lazy loading + onGetChoiceDisplayValue: defaultValue & custom property", () => {
     Serializer.addProperty("itemvalue", "customProp");
@@ -1213,13 +1213,13 @@ describe("Dropdown question", () => {
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const questionTitle = <Question>survey.getAllQuestions()[1];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value).toLooseEqual(55);
-    expect(question.selectedItem.value).toLooseEqual(55);
-    expect(question.selectedItem.text).toLooseEqual("DisplayText_55");
-    expect(question.selectedItem.customProp).toLooseEqual("customProp_55");
-    expect(questionTitle.locTitle.textOrHtml, "display text is correct").toLooseEqual("DisplayText_55");
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(question.value).toBe(55);
+    expect(question.selectedItem.value).toBe(55);
+    expect(question.selectedItem.text).toBe("DisplayText_55");
+    expect(question.selectedItem.customProp).toBe("customProp_55");
+    expect(questionTitle.locTitle.textOrHtml, "display text is correct").toBe("DisplayText_55");
     Serializer.removeProperty("itemvalue", "customProp");
   });
   test("lazy loading + onGetChoiceDisplayValue, selected last item", () => {
@@ -1246,15 +1246,15 @@ describe("Dropdown question", () => {
       }
     });
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value).toLooseEqual(undefined);
-    expect(question.selectedItem).toLooseEqual(undefined);
+    expect(question.choices.length).toBe(0);
+    expect(question.value).toBeUndefined();
+    expect(question.selectedItem).toBeNull();
 
     question.dropdownListModel.popupModel.show();
     question.value = 54;
-    expect(question.choices.length).toLooseEqual(30);
-    expect(question.value).toLooseEqual(54);
-    expect(question.selectedItem.locText.calculatedText).toLooseEqual("DisplayText_54");
+    expect(question.choices.length).toBe(30);
+    expect(question.value).toBe(54);
+    expect(question.selectedItem.locText.calculatedText).toBe("DisplayText_54");
   });
 
   test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", () => {
@@ -1275,24 +1275,24 @@ describe("Dropdown question", () => {
     });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value.id).toLooseEqual(55);
-    expect(question.selectedItem.value.id).toLooseEqual(55);
-    expect(question.selectedItem.text).toLooseEqual("DisplayText_55");
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(question.value.id).toBe(55);
+    expect(question.selectedItem.value.id).toBe(55);
+    expect(question.selectedItem.text).toBe("DisplayText_55");
     question.dropdownListModel.onFocus(null);
-    expect(question.dropdownListModel.inputString).toLooseEqual("DisplayText_55");
+    expect(question.dropdownListModel.inputString).toBe("DisplayText_55");
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
-    expect(question.value.id).toLooseEqual(55);
-    expect(question.selectedItem.value.id).toLooseEqual(55);
-    expect(question.selectedItem.text, "selectedItem.text").toLooseEqual("DisplayText_55");
-    expect(question.displayValue, "displayValue").toLooseEqual("DisplayText_55");
-    expect(question.dropdownListModel.inputString).toLooseEqual("DisplayText_55");
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
+    expect(question.value.id).toBe(55);
+    expect(question.selectedItem.value.id).toBe(55);
+    expect(question.selectedItem.text, "selectedItem.text").toBe("DisplayText_55");
+    expect(question.displayValue, "displayValue").toBe("DisplayText_55");
+    expect(question.dropdownListModel.inputString).toBe("DisplayText_55");
   });
 
   test("lazy loading + onGetChoiceDisplayValue: set survey data", () => {
@@ -1313,20 +1313,20 @@ describe("Dropdown question", () => {
     survey.data = { "q1": 55 };
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value).toLooseEqual(55);
-    expect(question.selectedItem.value).toLooseEqual(55);
-    expect(question.selectedItem.text).toLooseEqual("DisplayText_55");
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(question.value).toBe(55);
+    expect(question.selectedItem.value).toBe(55);
+    expect(question.selectedItem.text).toBe("DisplayText_55");
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
-    expect(question.value).toLooseEqual(55);
-    expect(question.selectedItem.value).toLooseEqual(55);
-    expect(question.selectedItem.text).toLooseEqual("DisplayText_55");
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
+    expect(question.value).toBe(55);
+    expect(question.selectedItem.value).toBe(55);
+    expect(question.selectedItem.text).toBe("DisplayText_55");
   });
 
   test("lazy loading data is lost: defaultValue", () => {
@@ -1351,13 +1351,13 @@ describe("Dropdown question", () => {
     expect(survey.data, "after doComplete before item load").toEqualValues({ "q1": 55 });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value).toLooseEqual(55);
+    expect(question.choices.length).toBe(0);
+    expect(question.value).toBe(55);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.value).toLooseEqual(55);
+    expect(question.choices.length).toBe(25);
+    expect(question.value).toBe(55);
 
     expect(survey.data, "before doComplete after item load").toEqualValues({ "q1": 55 });
     survey.doComplete();
@@ -1385,13 +1385,13 @@ describe("Dropdown question", () => {
     expect(survey.data, "after doComplete before item load").toEqualValues({ "q1": 55 });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.value).toLooseEqual(55);
+    expect(question.choices.length).toBe(0);
+    expect(question.value).toBe(55);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.value).toLooseEqual(55);
+    expect(question.choices.length).toBe(25);
+    expect(question.value).toBe(55);
 
     expect(survey.data, "before doComplete after item load").toEqualValues({ "q1": 55 });
     survey.doComplete();
@@ -1412,42 +1412,42 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const itemsSettings = question.dropdownListModel["itemsSettings"];
 
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(itemsSettings.skip).toLooseEqual(0);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(0);
-    expect(itemsSettings.items.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(itemsSettings.skip).toBe(0);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(0);
+    expect(itemsSettings.items.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     question.dropdownListModel.filterString = "2";
     doneCallback(opts[1]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(2);
-    expect(question.choices[24].value).toLooseEqual(123);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(2);
+    expect(question.choices[24].value).toBe(123);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     question.dropdownListModel.filterString = "22";
     doneCallback(opts[2]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(22);
-    expect(question.choices[24].value).toLooseEqual(1223);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(22);
+    expect(question.choices[24].value).toBe(1223);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
   });
 
   test("lazy loading + change listModel filter string", () => {
@@ -1465,42 +1465,42 @@ describe("Dropdown question", () => {
     const itemsSettings = question.dropdownListModel["itemsSettings"];
     const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(itemsSettings.skip).toLooseEqual(0);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(0);
-    expect(itemsSettings.items.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(itemsSettings.skip).toBe(0);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(0);
+    expect(itemsSettings.items.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     listModel.filterString = "2";
     doneCallback(opts[1]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(2);
-    expect(question.choices[24].value).toLooseEqual(123);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(2);
+    expect(question.choices[24].value).toBe(123);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     listModel.filterString = "22";
     doneCallback(opts[2]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(22);
-    expect(question.choices[24].value).toLooseEqual(1223);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(22);
+    expect(question.choices[24].value).toBe(1223);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
   });
 
   test("show comment and show other together", () => {
@@ -1515,13 +1515,13 @@ describe("Dropdown question", () => {
     };
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.showOtherItem, "showOtherItem is true").toLooseEqual(true);
-    expect(question.showCommentArea, "showCommentArea is true").toLooseEqual(true);
-    expect(question.getStoreOthersAsComment(), "we have show comment").toLooseEqual(false);
+    expect(question.showOtherItem, "showOtherItem is true").toBe(true);
+    expect(question.showCommentArea, "showCommentArea is true").toBe(true);
+    expect(question.getStoreOthersAsComment(), "we have show comment").toBe(false);
     question.showCommentArea = false;
-    expect(question.getStoreOthersAsComment(), "show comment is hidden").toLooseEqual(true);
+    expect(question.getStoreOthersAsComment(), "show comment is hidden").toBe(true);
     question.showCommentArea = true;
-    expect(question.getStoreOthersAsComment(), "show comment again").toLooseEqual(false);
+    expect(question.getStoreOthersAsComment(), "show comment again").toBe(false);
   });
 
   test("ItemValue: check action fields", () => {
@@ -1535,22 +1535,22 @@ describe("Dropdown question", () => {
     };
     const survey = new SurveyModel(json);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.visibleChoices[0].component).toLooseEqual("custom-component");
-    expect(question.visibleChoices[0].locTitle.text).toLooseEqual("Item 1");
-    expect(question.visibleChoices[0].title).toLooseEqual("Item 1");
-    expect(question.visibleChoices[0].id).toLooseEqual("Item1");
-    expect(question.visibleChoices[0].data).toLooseEqual(undefined);
-    expect(question.visibleChoices[0].visible).toLooseEqual(true);
+    expect(question.visibleChoices[0].component).toBe("custom-component");
+    expect(question.visibleChoices[0].locTitle.text).toBe("Item 1");
+    expect(question.visibleChoices[0].title).toBe("Item 1");
+    expect(question.visibleChoices[0].id).toBe("Item1");
+    expect(question.visibleChoices[0].data).toBeUndefined();
+    expect(question.visibleChoices[0].visible).toBe(true);
     question.visibleChoices[0].setIsVisible(false);
-    expect(question.visibleChoices[0].visible).toLooseEqual(false);
-    expect(question.visibleChoices[0].enabled).toLooseEqual(true);
+    expect(question.visibleChoices[0].visible).toBe(false);
+    expect(question.visibleChoices[0].enabled).toBe(true);
     question.visibleChoices[0].setIsEnabled(false);
-    expect(question.visibleChoices[0].enabled).toLooseEqual(false);
-    expect(question.visibleChoices[0].selected).toLooseEqual(true);
-    expect(question.visibleChoices[1].selected).toLooseEqual(false);
+    expect(question.visibleChoices[0].enabled).toBe(false);
+    expect(question.visibleChoices[0].selected).toBe(true);
+    expect(question.visibleChoices[1].selected).toBe(false);
     question.value = "Item2";
-    expect(question.visibleChoices[0].selected).toLooseEqual(false);
-    expect(question.visibleChoices[1].selected).toLooseEqual(true);
+    expect(question.visibleChoices[0].selected).toBe(false);
+    expect(question.visibleChoices[1].selected).toBe(true);
   });
 
   test("lazy loading placeholder", () => {
@@ -1571,15 +1571,15 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
     const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
-    expect(list.actions.length).toLooseEqual(0);
-    expect(list.emptyMessage).toLooseEqual("Loading...");
-    expect(question.choices.length).toLooseEqual(0);
+    expect(list.actions.length).toBe(0);
+    expect(list.emptyMessage).toBe("Loading...");
+    expect(question.choices.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doCallback(opts[0]);
-    expect(list.actions.length).toLooseEqual(0);
-    expect(list.emptyMessage).toLooseEqual("No data to display");
-    expect(question.choices.length).toLooseEqual(0);
+    expect(list.actions.length).toBe(0);
+    expect(list.emptyMessage).toBe("No data to display");
+    expect(question.choices.length).toBe(0);
   });
 
   test("isReady flag + onGetChoiceDisplayValue", () => {
@@ -1610,8 +1610,8 @@ describe("Dropdown question", () => {
           expect(question.isReady).toBeTruthy();
           expect(question["waitingChoicesByURL"]).toBeFalsy();
           expect(question["waitingGetChoiceDisplayValueResponse"]).toBeFalsy();
-          expect(log).toLooseEqual("->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
-          expect(question.displayValue).toLooseEqual("Ford");
+          expect(log).toBe("->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
+          expect(question.displayValue).toBe("Ford");
         }
       });
       survey.data = { "q1": "ford" };
@@ -1619,7 +1619,7 @@ describe("Dropdown question", () => {
       expect(question["waitingChoicesByURL"]).toBeFalsy();
       expect(question["waitingGetChoiceDisplayValueResponse"]).toBeTruthy();
       vi.advanceTimersByTime(1);
-      expect(readyFired, "onReadyChanged true fired").toLooseEqual(true);
+      expect(readyFired, "onReadyChanged true fired").toBe(true);
     } finally {
       vi.useRealTimers();
     }
@@ -1640,7 +1640,7 @@ describe("Dropdown question", () => {
     });
     survey.data = { "q1": "ford" };
     expect(question.isReady).toBeTruthy();
-    expect(question.displayValue).toLooseEqual("ford");
+    expect(question.displayValue).toBe("ford");
   });
 
   test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", () => {
@@ -1670,7 +1670,7 @@ describe("Dropdown question", () => {
           expect(question.isReady).toBeTruthy();
           expect(question["waitingChoicesByURL"]).toBeFalsy();
           expect(question["waitingGetChoiceDisplayValueResponse"]).toBeFalsy();
-          expect(log).toLooseEqual("->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
+          expect(log).toBe("->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
         }
       });
       question.choicesByUrl.url = "some url";
@@ -1683,7 +1683,7 @@ describe("Dropdown question", () => {
       expect(question["waitingChoicesByURL"]).toBeFalsy();
       expect(question["waitingGetChoiceDisplayValueResponse"]).toBeTruthy();
       vi.advanceTimersByTime(1);
-      expect(readyFired, "onReadyChanged true fired").toLooseEqual(true);
+      expect(readyFired, "onReadyChanged true fired").toBe(true);
     } finally {
       vi.useRealTimers();
     }
@@ -1700,7 +1700,7 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     survey.data = { "q1": "ford" };
     expect(question.isReady, "There is no onGetChoiceDisplayValue, isReady = true").toBeTruthy();
-    expect(question.displayValue, "displayValue is correct").toLooseEqual("ford");
+    expect(question.displayValue, "displayValue is correct").toBe("ford");
   });
   test("lazy loading: change choicesLazyLoadEnabled on runtime", () => {
     const json = {
@@ -1725,23 +1725,23 @@ describe("Dropdown question", () => {
     });
 
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(false);
-    expect(question.choices.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(false);
+    expect(question.choices.length).toBe(0);
 
     question.choicesLazyLoadEnabled = true;
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.dropdownListModel["listModel"].visibleItems.length, "#1").toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(question.dropdownListModel["listModel"].visibleItems.length, "#1").toBe(0);
 
     question.dropdownListModel.popupModel.show();
-    expect(question.choices.length).toLooseEqual(15);
-    expect(question.dropdownListModel["listModel"].visibleItems.length, "#2").toLooseEqual(16);
-    expect(question.dropdownListModel["listModel"].visibleItems[15].id).toLooseEqual("loadingIndicator");
+    expect(question.choices.length).toBe(15);
+    expect(question.dropdownListModel["listModel"].visibleItems.length, "#2").toBe(16);
+    expect(question.dropdownListModel["listModel"].visibleItems[15].id).toBe("loadingIndicator");
 
     question.dropdownListModel.filterString = "des";
-    expect(question.choices.length).toLooseEqual(5);
-    expect(question.dropdownListModel["listModel"].visibleItems.length, "#3").toLooseEqual(6);
-    expect(question.dropdownListModel["listModel"].visibleItems[5].id).toLooseEqual("loadingIndicator");
+    expect(question.choices.length).toBe(5);
+    expect(question.dropdownListModel["listModel"].visibleItems.length, "#3").toBe(6);
+    expect(question.dropdownListModel["listModel"].visibleItems[5].id).toBe("loadingIndicator");
   });
   test("lazy loading: duplication of elements after blur", () => {
     const survey = new SurveyModel({
@@ -1757,44 +1757,44 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const itemsSettings = question.dropdownListModel["itemsSettings"];
 
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length, "question.choices.length #0").toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length, "question.choices.length #0").toBe(0);
     question.dropdownListModel.popupModel.show();
     question.dropdownListModel.changeSelectionWithKeyboard(false);
     doneCallback(opts[0]);
-    expect(question.choices.length, "question.choices.length #1").toLooseEqual(25);
-    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #1").toLooseEqual("");
-    expect(itemsSettings.skip, "skip #1").toLooseEqual(25);
-    expect(itemsSettings.take, "take #1").toLooseEqual(25);
-    expect(itemsSettings.totalCount, "totalCount #1").toLooseEqual(55);
-    expect(itemsSettings.items.length, "items.length #1").toLooseEqual(25);
+    expect(question.choices.length, "question.choices.length #1").toBe(25);
+    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #1").toBe("");
+    expect(itemsSettings.skip, "skip #1").toBe(25);
+    expect(itemsSettings.take, "take #1").toBe(25);
+    expect(itemsSettings.totalCount, "totalCount #1").toBe(55);
+    expect(itemsSettings.items.length, "items.length #1").toBe(25);
     question.dropdownListModel.inputStringRendered = "11";
     doneCallback(opts[1]);
 
-    expect(question.choices.length, "question.choices.length #2").toLooseEqual(25);
-    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #2").toLooseEqual("11");
-    expect(itemsSettings.skip, "skip #2").toLooseEqual(25);
-    expect(itemsSettings.take, "take #2").toLooseEqual(25);
-    expect(itemsSettings.totalCount, "totalCount #2").toLooseEqual(55);
-    expect(itemsSettings.items.length, "items.length #2").toLooseEqual(25);
+    expect(question.choices.length, "question.choices.length #2").toBe(25);
+    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #2").toBe("11");
+    expect(itemsSettings.skip, "skip #2").toBe(25);
+    expect(itemsSettings.take, "take #2").toBe(25);
+    expect(itemsSettings.totalCount, "totalCount #2").toBe(55);
+    expect(itemsSettings.items.length, "items.length #2").toBe(25);
     question.dropdownListModel.onBlur({
       keyCode: 0,
       preventDefault: () => { },
       stopPropagation: () => { }
     });
 
-    expect(question.value).toLooseEqual(undefined);
-    expect(question.choices.length, "question.choices.length #3").toLooseEqual(25);
-    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #3").toLooseEqual("");
-    expect(itemsSettings.skip, "skip #3").toLooseEqual(0);
-    expect(itemsSettings.take, "take #3").toLooseEqual(25);
-    expect(itemsSettings.totalCount, "totalCount #3").toLooseEqual(0);
-    expect(itemsSettings.items.length, "items.length #3").toLooseEqual(0);
+    expect(question.value).toBeUndefined();
+    expect(question.choices.length, "question.choices.length #3").toBe(25);
+    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #3").toBe("");
+    expect(itemsSettings.skip, "skip #3").toBe(0);
+    expect(itemsSettings.take, "take #3").toBe(25);
+    expect(itemsSettings.totalCount, "totalCount #3").toBe(0);
+    expect(itemsSettings.items.length, "items.length #3").toBe(0);
     question.dropdownListModel.popupModel.show();
 
     doneCallback(opts[2]);
-    expect(question.choices.length, "question.choices.length #4").toLooseEqual(25);
-    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #4").toLooseEqual("");
+    expect(question.choices.length, "question.choices.length #4").toBe(25);
+    expect(question.dropdownListModel.inputStringRendered, "question.dropdownListModel.inputStringRendered #4").toBe("");
   });
   test("lazy loading: check onChoicesLazyLoad callback count", () => {
     let callbackCount = 0;
@@ -1818,22 +1818,22 @@ describe("Dropdown question", () => {
     survey.onChoicesLazyLoad.add((_, opt) => { opts.push(opt); });
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-    expect(callbackCount).toLooseEqual(0);
+    expect(callbackCount).toBe(0);
     question.dropdownListModel.popupModel.show();
     question.dropdownListModel.changeSelectionWithKeyboard(false);
     doCallback(opts[0]);
-    expect(callbackCount).toLooseEqual(1);
+    expect(callbackCount).toBe(1);
     question.dropdownListModel.inputStringRendered = "11";
 
     doCallback(opts[1]);
-    expect(callbackCount).toLooseEqual(2);
+    expect(callbackCount).toBe(2);
     question.dropdownListModel.onBlur({
       keyCode: 0,
       preventDefault: () => { },
       stopPropagation: () => { }
     });
 
-    expect(callbackCount).toLooseEqual(2);
+    expect(callbackCount).toBe(2);
     question.dropdownListModel.popupModel.show();
 
     doCallback(opts[2]);
@@ -1851,15 +1851,15 @@ describe("Dropdown question", () => {
     });
     const q1 = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const listModel = q1.dropdownListModel["listModel"];
-    expect(listModel.filterStringPlaceholder, "filterStringPlaceholder").toLooseEqual("Tippen Sie, um zu suchen...");
-    expect(listModel.emptyMessage, "emptyMessage").toLooseEqual("Es gibt noch keine Daten.");
-    expect(listModel.loadingIndicator.title, "loadingText").toLooseEqual("Wird hochgeladen...");
+    expect(listModel.filterStringPlaceholder, "filterStringPlaceholder").toBe("Tippen Sie, um zu suchen...");
+    expect(listModel.emptyMessage, "emptyMessage").toBe("Es gibt noch keine Daten.");
+    expect(listModel.loadingIndicator.title, "loadingText").toBe("Wird hochgeladen...");
 
     let popupViewModel: PopupBaseViewModel = new PopupDropdownViewModel(q1.dropdownListModel.popupModel);
-    expect(popupViewModel.cancelButtonText, "cancelButtonText").toLooseEqual("Abbrechen");
+    expect(popupViewModel.cancelButtonText, "cancelButtonText").toBe("Abbrechen");
 
     popupViewModel = new PopupModalViewModel(q1.dropdownListModel.popupModel);
-    expect((popupViewModel as PopupModalViewModel).applyButtonText, "applyButtonText").toLooseEqual("Anwenden");
+    expect((popupViewModel as PopupModalViewModel).applyButtonText, "applyButtonText").toBe("Anwenden");
   });
 
   test("Dropdown choicesLazyLoadEnabled into matrixdynamic", () => {
@@ -1895,42 +1895,42 @@ describe("Dropdown question", () => {
     const itemsSettings = question.dropdownListModel["itemsSettings"];
     const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(5);
-    expect(itemsSettings.skip).toLooseEqual(0);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(0);
-    expect(itemsSettings.items.length).toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(5);
+    expect(itemsSettings.skip).toBe(0);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(0);
+    expect(itemsSettings.items.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doneCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(1);
-    expect(question.choices[24].value).toLooseEqual(25);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(1);
+    expect(question.choices[24].value).toBe(25);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     listModel.filterString = "2";
     doneCallback(opts[1]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(2);
-    expect(question.choices[24].value).toLooseEqual(123);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(2);
+    expect(question.choices[24].value).toBe(123);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
 
     listModel.filterString = "22";
     doneCallback(opts[2]);
-    expect(question.choices.length).toLooseEqual(25);
-    expect(question.choices[0].value).toLooseEqual(22);
-    expect(question.choices[24].value).toLooseEqual(1223);
-    expect(itemsSettings.skip).toLooseEqual(25);
-    expect(itemsSettings.take).toLooseEqual(25);
-    expect(itemsSettings.totalCount).toLooseEqual(55);
-    expect(itemsSettings.items.length).toLooseEqual(25);
+    expect(question.choices.length).toBe(25);
+    expect(question.choices[0].value).toBe(22);
+    expect(question.choices[24].value).toBe(1223);
+    expect(itemsSettings.skip).toBe(25);
+    expect(itemsSettings.take).toBe(25);
+    expect(itemsSettings.totalCount).toBe(55);
+    expect(itemsSettings.items.length).toBe(25);
   });
 
   test("Rapidly Changing Search Filter", () => {
@@ -1962,14 +1962,14 @@ describe("Dropdown question", () => {
       // Type "1" - debounce armed.
       dropdownListModel.inputStringRendered = "1";
       vi.advanceTimersByTime(debounceDelay - 1); // not yet fired
-      expect(question.choices.length).toLooseEqual(0);
-      expect(filterValueLog, "filter value 1").toLooseEqual("");
+      expect(question.choices.length).toBe(0);
+      expect(filterValueLog, "filter value 1").toBe("");
 
       // Type "12" before debounce fires - debounce is reset.
       dropdownListModel.inputStringRendered = "12";
       vi.advanceTimersByTime(debounceDelay - 1);
-      expect(question.choices.length).toLooseEqual(0);
-      expect(filterValueLog, "filter value 12").toLooseEqual("");
+      expect(question.choices.length).toBe(0);
+      expect(filterValueLog, "filter value 12").toBe("");
 
       // Type "123" before debounce fires - debounce is reset again.
       dropdownListModel.inputStringRendered = "123";
@@ -1977,13 +1977,13 @@ describe("Dropdown question", () => {
       // schedules the lazy-load callback for `onChoicesLazyLoadCallbackTimeOut`
       // ms in the future. Choices haven't been populated yet.
       vi.advanceTimersByTime(debounceDelay);
-      expect(filterValueLog, "filter value 123 #1").toLooseEqual("123->");
-      expect(question.choices.length).toLooseEqual(0);
+      expect(filterValueLog, "filter value 123 #1").toBe("123->");
+      expect(question.choices.length).toBe(0);
 
       // Now let the lazy-load callback fire.
       vi.advanceTimersByTime(onChoicesLazyLoadCallbackTimeOut);
-      expect(filterValueLog, "filter value 123 #2").toLooseEqual("123->");
-      expect(question.choices.length).toLooseEqual(25);
+      expect(filterValueLog, "filter value 123 #2").toBe("123->");
+      expect(question.choices.length).toBe(25);
 
       settings.dropdownSearchDelay = 0;
     } finally {
@@ -2004,26 +2004,26 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const itemsSettings = question.dropdownListModel["itemsSettings"];
 
-    expect(question.choicesLazyLoadEnabled).toLooseEqual(true);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(question.choices.length, "question.choices.length #1").toLooseEqual(0);
-    expect(itemsSettings.items.length, "itemsSettings.items.length #1").toLooseEqual(0);
+    expect(question.choicesLazyLoadEnabled).toBe(true);
+    expect(question.choices.length).toBe(0);
+    expect(question.choices.length, "question.choices.length #1").toBe(0);
+    expect(itemsSettings.items.length, "itemsSettings.items.length #1").toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doCallback(opts[0]);
-    expect(question.choices.length, "question.choices.length #2").toLooseEqual(5);
+    expect(question.choices.length, "question.choices.length #2").toBe(5);
 
     question.dropdownListModel.filterString = "22";
     doCallback(opts[1]);
-    expect(question.choices.length, "question.choices.length #3").toLooseEqual(5);
+    expect(question.choices.length, "question.choices.length #3").toBe(5);
 
     question.dropdownListModel.filterString = "2";
     doCallback(opts[2]);
-    expect(question.choices.length, "question.choices.length #4").toLooseEqual(5);
+    expect(question.choices.length, "question.choices.length #4").toBe(5);
 
     question.dropdownListModel.filterString = "";
     doCallback(opts[3]);
-    expect(question.choices.length, "question.choices.length #5").toLooseEqual(5);
+    expect(question.choices.length, "question.choices.length #5").toBe(5);
   });
 
   test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: false", () => {
@@ -2040,69 +2040,69 @@ describe("Dropdown question", () => {
     const testCustomValue = "item10";
     listModel.flushUpdates();
 
-    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toLooseEqual(false);
-    expect(dropdownListModel.inputStringRendered, "#1 inputStringRendered").toLooseEqual("");
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#1 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(4);
+    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toBe(false);
+    expect(dropdownListModel.inputStringRendered, "#1 inputStringRendered").toBe("");
+    expect(dropdownListModel.customValue, "#1 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#1 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(4);
 
     dropdownListModel.inputStringRendered = testCustomValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toLooseEqual(false);
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(dropdownListModel.popupModel.isVisible, "#2 popupModel.isVisible").toLooseEqual(true);
-    expect(listModel.isEmpty, "#2 listModel is empty").toLooseEqual(true);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(4);
-    expect(listModel.focusedItem, "#2 focusedItem").toLooseEqual(undefined);
+    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toBe(false);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(dropdownListModel.popupModel.isVisible, "#2 popupModel.isVisible").toBe(true);
+    expect(listModel.isEmpty, "#2 listModel is empty").toBe(true);
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(4);
+    expect(listModel.focusedItem, "#2 focusedItem").toBeUndefined();
 
     question.allowCustomChoices = true;
     dropdownListModel.inputStringRendered = testCustomValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#3 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#3 customValue").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.popupModel.isVisible, "#3 popupModel.isVisible").toLooseEqual(true);
-    expect(listModel.isEmpty, "#3 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#3 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#3 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#3 custom item text").toLooseEqual("Create \"item10\" item...");
-    expect(listModel.actions[4].visible, "#3 custom item visible").toLooseEqual(true);
-    expect(listModel.focusedItem.id, "#3 focusedItem").toLooseEqual("newCustomItem");
+    expect(dropdownListModel.allowCustomChoices, "#3 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#3 customValue").toBe(testCustomValue);
+    expect(dropdownListModel.popupModel.isVisible, "#3 popupModel.isVisible").toBe(true);
+    expect(listModel.isEmpty, "#3 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#3 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#3 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#3 custom item text").toBe("Create \"item10\" item...");
+    expect(listModel.actions[4].visible, "#3 custom item visible").toBe(true);
+    expect(listModel.focusedItem.id, "#3 focusedItem").toBe("newCustomItem");
 
     dropdownListModel.inputStringRendered = testExistValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#4 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#4 customValue").toLooseEqual(undefined);
-    expect(dropdownListModel.popupModel.isVisible, "#4 popupModel.isVisible").toLooseEqual(true);
-    expect(listModel.isEmpty, "#4 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#4 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#4 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#4 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#4 custom item invisible").toLooseEqual(false);
-    expect(listModel.focusedItem.id, "#4 focusedItem").toLooseEqual("item2");
+    expect(dropdownListModel.allowCustomChoices, "#4 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#4 customValue").toBeUndefined();
+    expect(dropdownListModel.popupModel.isVisible, "#4 popupModel.isVisible").toBe(true);
+    expect(listModel.isEmpty, "#4 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#4 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#4 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#4 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#4 custom item invisible").toBe(false);
+    expect(listModel.focusedItem.id, "#4 focusedItem").toBe("item2");
 
     dropdownListModel.inputStringRendered = testExistValue + "test";
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#5 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#5 customValue").toLooseEqual(testExistValue + "test");
-    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toLooseEqual(true);
-    expect(listModel.isEmpty, "#5 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#5 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#5 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#5 custom item text").toLooseEqual("Create \"item2test\" item...");
-    expect(listModel.actions[4].visible, "#5 custom item visible").toLooseEqual(true);
-    expect(listModel.focusedItem.id, "#5 focusedItem").toLooseEqual("newCustomItem");
+    expect(dropdownListModel.allowCustomChoices, "#5 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#5 customValue").toBe(testExistValue + "test");
+    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toBe(true);
+    expect(listModel.isEmpty, "#5 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#5 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#5 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#5 custom item text").toBe("Create \"item2test\" item...");
+    expect(listModel.actions[4].visible, "#5 custom item visible").toBe(true);
+    expect(listModel.focusedItem.id, "#5 focusedItem").toBe("newCustomItem");
 
     dropdownListModel.popupModel.hide();
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#6 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#6 customValue").toLooseEqual(undefined);
-    expect(dropdownListModel.popupModel.isVisible, "#6 popupModel.isVisible").toLooseEqual(false);
-    expect(listModel.isEmpty, "#6 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#6 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#6 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#6 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#6 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.allowCustomChoices, "#6 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#6 customValue").toBeUndefined();
+    expect(dropdownListModel.popupModel.isVisible, "#6 popupModel.isVisible").toBe(false);
+    expect(listModel.isEmpty, "#6 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#6 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#6 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#6 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#6 custom item invisible").toBe(false);
   });
 
   test("allowCustomChoices: Add custom value if searchEnabled: false", () => {
@@ -2118,26 +2118,26 @@ describe("Dropdown question", () => {
     const testCustomValue = "item10";
 
     dropdownListModel.inputStringRendered = testCustomValue;
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#1 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#1 custom item visible").toLooseEqual(true);
-    expect(question.value, "#1 question.value").toLooseEqual(undefined);
-    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
-    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(4);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#1 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#1 custom item visible").toBe(true);
+    expect(question.value, "#1 question.value").toBeUndefined();
+    expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
     expect(survey.data, "#1 survey.data").toEqualValues({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(6);
-    expect(listModel.actions[0].id, "#2 custom value add into list - id").toLooseEqual(testCustomValue);
-    expect(listModel.actions[0].title, "#2 custom value add into list - title").toLooseEqual(testCustomValue);
-    expect(listModel.actions[5].id, "#2 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[5].visible, "#2 custom item invisible").toLooseEqual(false);
-    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.id, "#2 question.selectedItem").toLooseEqual(testCustomValue);
-    expect(question.visibleChoices.length, "#2 question.visibleChoices").toLooseEqual(5);
-    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toLooseEqual(testCustomValue);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(6);
+    expect(listModel.actions[0].id, "#2 custom value add into list - id").toBe(testCustomValue);
+    expect(listModel.actions[0].title, "#2 custom value add into list - title").toBe(testCustomValue);
+    expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
+    expect(question.value, "#2 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
+    expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
+    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
     expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
 
     survey.tryComplete();
@@ -2163,16 +2163,16 @@ describe("Dropdown question", () => {
     };
 
     dropdownListModel.inputStringRendered = testCustomValue1;
-    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(testCustomValue1);
-    expect(dropdownListModel.hintStringPrefix, "#1 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#1 hintStringSuffix").toLooseEqual("");
+    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#1 customValue").toBe(testCustomValue1);
+    expect(dropdownListModel.hintStringPrefix, "#1 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#1 hintStringSuffix").toBe("");
 
     dropdownListModel.keyHandler(event);
-    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toLooseEqual(true);
+    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toBe(true);
     expect(dropdownListModel.customValue, "#2 customValue not empty").toBeTruthy();
-    expect(dropdownListModel.hintStringPrefix, "#2 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#2 hintStringSuffix").toLooseEqual("");
+    expect(dropdownListModel.hintStringPrefix, "#2 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#2 hintStringSuffix").toBe("");
   });
 
   test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: true", () => {
@@ -2189,61 +2189,61 @@ describe("Dropdown question", () => {
     const testCustomValue = "item10";
     listModel.flushUpdates();
 
-    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toLooseEqual(false);
-    expect(dropdownListModel.inputStringRendered, "#1 inputStringRendered").toLooseEqual("");
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#1 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(4);
+    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toBe(false);
+    expect(dropdownListModel.inputStringRendered, "#1 inputStringRendered").toBe("");
+    expect(dropdownListModel.customValue, "#1 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#1 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(4);
 
     dropdownListModel.inputStringRendered = testCustomValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toLooseEqual(false);
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#2 listModel is empty").toLooseEqual(true);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(4);
+    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toBe(false);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#2 listModel is empty").toBe(true);
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(4);
 
     question.allowCustomChoices = true;
     dropdownListModel.inputStringRendered = testCustomValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#3 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#3 customValue").toLooseEqual(testCustomValue);
-    expect(listModel.isEmpty, "#3 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#3 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#3 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#3 custom item text").toLooseEqual("Create \"item10\" item...");
-    expect(listModel.actions[4].visible, "#3 custom item visible").toLooseEqual(true);
+    expect(dropdownListModel.allowCustomChoices, "#3 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#3 customValue").toBe(testCustomValue);
+    expect(listModel.isEmpty, "#3 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#3 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#3 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#3 custom item text").toBe("Create \"item10\" item...");
+    expect(listModel.actions[4].visible, "#3 custom item visible").toBe(true);
 
     dropdownListModel.inputStringRendered = testExistValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#4 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#4 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#4 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#4 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#4 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#4 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#4 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.allowCustomChoices, "#4 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#4 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#4 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#4 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#4 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#4 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#4 custom item invisible").toBe(false);
 
     dropdownListModel.inputStringRendered = testExistValue + "test";
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#5 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#5 customValue").toLooseEqual(testExistValue + "test");
-    expect(listModel.isEmpty, "#5 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#5 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#5 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#5 custom item text").toLooseEqual("Create \"item2test\" item...");
-    expect(listModel.actions[4].visible, "#5 custom item visible").toLooseEqual(true);
-    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toLooseEqual(true);
+    expect(dropdownListModel.allowCustomChoices, "#5 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#5 customValue").toBe(testExistValue + "test");
+    expect(listModel.isEmpty, "#5 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#5 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#5 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#5 custom item text").toBe("Create \"item2test\" item...");
+    expect(listModel.actions[4].visible, "#5 custom item visible").toBe(true);
+    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toBe(true);
 
     dropdownListModel.popupModel.hide();
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#6 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#6 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#6 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#6 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#6 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#6 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#6 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.allowCustomChoices, "#6 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#6 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#6 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#6 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#6 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#6 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#6 custom item invisible").toBe(false);
   });
 
   test("allowCustomChoices: Add custom value if searchEnabled: true", () => {
@@ -2259,26 +2259,26 @@ describe("Dropdown question", () => {
     const testCustomValue = "item10";
 
     dropdownListModel.inputStringRendered = testCustomValue;
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#1 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#1 custom item visible").toLooseEqual(true);
-    expect(question.value, "#1 question.value").toLooseEqual(undefined);
-    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
-    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(4);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#1 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#1 custom item visible").toBe(true);
+    expect(question.value, "#1 question.value").toBeUndefined();
+    expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
     expect(survey.data, "#1 survey.data").toEqualValues({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(6);
-    expect(listModel.actions[0].id, "#2 custom value add into list - id").toLooseEqual(testCustomValue);
-    expect(listModel.actions[0].title, "#2 custom value add into list - title").toLooseEqual(testCustomValue);
-    expect(listModel.actions[5].id, "#2 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[5].visible, "#2 custom item invisible").toLooseEqual(false);
-    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.id, "#2 question.selectedItem").toLooseEqual(testCustomValue);
-    expect(question.visibleChoices.length, "#2 question.visibleChoices").toLooseEqual(5);
-    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toLooseEqual(testCustomValue);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(6);
+    expect(listModel.actions[0].id, "#2 custom value add into list - id").toBe(testCustomValue);
+    expect(listModel.actions[0].title, "#2 custom value add into list - title").toBe(testCustomValue);
+    expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
+    expect(question.value, "#2 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
+    expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
+    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
     expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
 
     survey.tryComplete();
@@ -2300,16 +2300,16 @@ describe("Dropdown question", () => {
     const testCustomValue3 = "item";
 
     dropdownListModel.inputStringRendered = testCustomValue1;
-    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(testCustomValue1);
-    expect(dropdownListModel.hintStringPrefix, "#1 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#1 hintStringSuffix").toLooseEqual("");
+    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#1 customValue").toBe(testCustomValue1);
+    expect(dropdownListModel.hintStringPrefix, "#1 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#1 hintStringSuffix").toBe("");
 
     dropdownListModel.inputStringRendered = testCustomValue2;
-    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(testCustomValue2);
-    expect(dropdownListModel.hintStringPrefix, "#2 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#2 hintStringSuffix").toLooseEqual("");
+    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#2 customValue").toBe(testCustomValue2);
+    expect(dropdownListModel.hintStringPrefix, "#2 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#2 hintStringSuffix").toBe("");
 
     const event = {
       keyCode: 38,
@@ -2318,23 +2318,23 @@ describe("Dropdown question", () => {
     };
 
     dropdownListModel.inputStringRendered = testCustomValue3;
-    expect(dropdownListModel.inputStringRendered, "#3 inputStringRendered").toLooseEqual(testCustomValue3);
-    expect(dropdownListModel.customValue, "#3 customValue").toLooseEqual(testCustomValue3);
-    expect(dropdownListModel.hintStringPrefix, "#3 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#3 hintStringSuffix").toLooseEqual("1");
+    expect(dropdownListModel.inputStringRendered, "#3 inputStringRendered").toBe(testCustomValue3);
+    expect(dropdownListModel.customValue, "#3 customValue").toBe(testCustomValue3);
+    expect(dropdownListModel.hintStringPrefix, "#3 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#3 hintStringSuffix").toBe("1");
 
     dropdownListModel.keyHandler(event);
-    expect(dropdownListModel.inputStringRendered, "#4 inputStringRendered").toLooseEqual(testCustomValue3);
-    expect(dropdownListModel.customValue, "#4 customValue").toLooseEqual(testCustomValue3);
-    expect(dropdownListModel.hintStringPrefix, "#4 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#4 hintStringSuffix").toLooseEqual("");
+    expect(dropdownListModel.inputStringRendered, "#4 inputStringRendered").toBe(testCustomValue3);
+    expect(dropdownListModel.customValue, "#4 customValue").toBe(testCustomValue3);
+    expect(dropdownListModel.hintStringPrefix, "#4 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#4 hintStringSuffix").toBe("");
 
     dropdownListModel.keyHandler(event);
     listModel.onItemClick(listModel.actions[4]);
-    expect(dropdownListModel.inputStringRendered, "#5 inputStringRendered").toLooseEqual(testCustomValue3);
-    expect(dropdownListModel.customValue, "#5 customValue").toLooseEqual(undefined);
-    expect(dropdownListModel.hintStringPrefix, "#5 hintStringPrefix").toLooseEqual("");
-    expect(dropdownListModel.hintStringSuffix, "#5 hintStringSuffix").toLooseEqual("");
+    expect(dropdownListModel.inputStringRendered, "#5 inputStringRendered").toBe(testCustomValue3);
+    expect(dropdownListModel.customValue, "#5 customValue").toBeUndefined();
+    expect(dropdownListModel.hintStringPrefix, "#5 hintStringPrefix").toBe("");
+    expect(dropdownListModel.hintStringSuffix, "#5 hintStringSuffix").toBe("");
   });
 
   test("allowCustomChoices: Option to create item not available if item exist (case-insensitive).", () => {
@@ -2351,10 +2351,10 @@ describe("Dropdown question", () => {
     listModel.flushUpdates();
 
     dropdownListModel.inputStringRendered = testExistValue.toUpperCase();
-    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#1 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(4);
+    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#1 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#1 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(4);
   });
 
   test("allowCustomChoices: onCreateCustomChoiceItem event.", () => {
@@ -2378,30 +2378,30 @@ describe("Dropdown question", () => {
     const testCustomValueUpperCase = testCustomValue.toUpperCase();
 
     dropdownListModel.inputStringRendered = testCustomValue;
-    expect(question.value, "#1 question.value").toLooseEqual(undefined);
-    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
+    expect(question.value, "#1 question.value").toBeUndefined();
+    expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
     expect(survey.data, "#1 survey.data").toEqualValues({});
-    expect(listModel.actions[4].id).toLooseEqual("newCustomItem");
+    expect(listModel.actions[4].id).toBe("newCustomItem");
 
     listModel.onItemClick(listModel.actions[4]);
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValueUpperCase);
-    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.value, "#2 question.selectedItem.id").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.text, "#2 question.selectedItem.text").toLooseEqual(testCustomValueUpperCase);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValueUpperCase);
+    expect(question.value, "#2 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.value, "#2 question.selectedItem.id").toBe(testCustomValue);
+    expect(question.selectedItem.text, "#2 question.selectedItem.text").toBe(testCustomValueUpperCase);
     expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
 
     dropdownListModel.inputStringRendered = testCustomValue + "1";
-    expect(question.value, "#3 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.value, "#3 question.selectedItem.id").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.text, "#3 question.selectedItem.text").toLooseEqual(testCustomValueUpperCase);
+    expect(question.value, "#3 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.value, "#3 question.selectedItem.id").toBe(testCustomValue);
+    expect(question.selectedItem.text, "#3 question.selectedItem.text").toBe(testCustomValueUpperCase);
     expect(survey.data, "#3 survey.data").toEqualValues({ q1: testCustomValue });
-    expect(listModel.actions[5].id).toLooseEqual("newCustomItem");
+    expect(listModel.actions[5].id).toBe("newCustomItem");
 
     listModel.onItemClick(listModel.actions[5]);
-    expect(dropdownListModel.inputStringRendered, "#4 inputStringRendered").toLooseEqual("");
-    expect(question.value, "#4 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.value, "#4 question.selectedItem.id").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.text, "#4 question.selectedItem.text").toLooseEqual(testCustomValueUpperCase);
+    expect(dropdownListModel.inputStringRendered, "#4 inputStringRendered").toBe("");
+    expect(question.value, "#4 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.value, "#4 question.selectedItem.id").toBe(testCustomValue);
+    expect(question.selectedItem.text, "#4 question.selectedItem.text").toBe(testCustomValueUpperCase);
     expect(survey.data, "#4 survey.data").toEqualValues({ q1: testCustomValue });
   });
 
@@ -2431,64 +2431,64 @@ describe("Dropdown question", () => {
     dropdownListModel.popupModel.show();
     doCallback(opts[0]);
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toLooseEqual(false);
-    expect(dropdownListModel.inputStringRendered, "#1 inputStringRendered").toLooseEqual("");
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#1 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(26);
+    expect(dropdownListModel.allowCustomChoices, "#1 allowCustomChoices").toBe(false);
+    expect(dropdownListModel.inputStringRendered, "#1 inputStringRendered").toBe("");
+    expect(dropdownListModel.customValue, "#1 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#1 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(26);
 
     dropdownListModel.inputStringRendered = testCustomValue1;
     doCallback(opts[1]);
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toLooseEqual(false);
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue1);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#2 listModel is empty").toLooseEqual(true);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(0);
+    expect(dropdownListModel.allowCustomChoices, "#2 allowCustomChoices").toBe(false);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue1);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#2 listModel is empty").toBe(true);
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(0);
 
     question.allowCustomChoices = true;
     dropdownListModel.inputStringRendered = testCustomValue2;
     doCallback(opts[2]);
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#3 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#3 customValue").toLooseEqual(testCustomValue2);
-    expect(listModel.isEmpty, "#3 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#3 listModel.actions").toLooseEqual(1);
-    expect(listModel.actions[0].id, "#3 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[0].title, "#3 custom item text").toLooseEqual("Create \"customItem2\" item...");
-    expect(listModel.actions[0].visible, "#3 custom item visible").toLooseEqual(true);
+    expect(dropdownListModel.allowCustomChoices, "#3 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#3 customValue").toBe(testCustomValue2);
+    expect(listModel.isEmpty, "#3 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#3 listModel.actions").toBe(1);
+    expect(listModel.actions[0].id, "#3 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[0].title, "#3 custom item text").toBe("Create \"customItem2\" item...");
+    expect(listModel.actions[0].visible, "#3 custom item visible").toBe(true);
 
     dropdownListModel.inputStringRendered = testExistValue;
     doCallback(opts[3]);
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#4 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#4 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#4 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#4 listModel.actions").toLooseEqual(27);
-    expect(listModel.actions[25].id, "#4 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[25].title, "#4 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[25].visible, "#4 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.allowCustomChoices, "#4 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#4 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#4 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#4 listModel.actions").toBe(27);
+    expect(listModel.actions[25].id, "#4 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[25].title, "#4 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[25].visible, "#4 custom item invisible").toBe(false);
 
     dropdownListModel.inputStringRendered = testExistValue + "test";
     doCallback(opts[4]);
     listModel.flushUpdates();
-    expect(dropdownListModel.allowCustomChoices, "#5 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#5 customValue").toLooseEqual(testExistValue + "test");
-    expect(listModel.isEmpty, "#5 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#5 listModel.actions").toLooseEqual(1);
-    expect(listModel.actions[0].id, "#5 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[0].title, "#5 custom item text").toLooseEqual("Create \"2test\" item...");
-    expect(listModel.actions[0].visible, "#5 custom item visible").toLooseEqual(true);
-    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toLooseEqual(true);
+    expect(dropdownListModel.allowCustomChoices, "#5 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#5 customValue").toBe(testExistValue + "test");
+    expect(listModel.isEmpty, "#5 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#5 listModel.actions").toBe(1);
+    expect(listModel.actions[0].id, "#5 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[0].title, "#5 custom item text").toBe("Create \"2test\" item...");
+    expect(listModel.actions[0].visible, "#5 custom item visible").toBe(true);
+    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toBe(true);
 
     dropdownListModel.popupModel.hide();
-    expect(dropdownListModel.allowCustomChoices, "#6 allowCustomChoices").toLooseEqual(true);
-    expect(dropdownListModel.customValue, "#6 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#6 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#6 listModel.actions").toLooseEqual(1);
-    expect(listModel.actions[0].id, "#6 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[0].title, "#6 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[0].visible, "#6 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.allowCustomChoices, "#6 allowCustomChoices").toBe(true);
+    expect(dropdownListModel.customValue, "#6 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#6 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#6 listModel.actions").toBe(1);
+    expect(listModel.actions[0].id, "#6 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[0].title, "#6 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[0].visible, "#6 custom item invisible").toBe(false);
   });
 
   test("allowCustomChoices: Add custom value if choicesLazyLoadEnabled is true", () => {
@@ -2524,41 +2524,41 @@ describe("Dropdown question", () => {
     const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
     const testCustomValue = "testCustomValue";
 
-    expect(question.visibleChoices.length).toLooseEqual(0);
+    expect(question.visibleChoices.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doCallback(opts[0]);
-    expect(question.visibleChoices.length).toLooseEqual(25);
+    expect(question.visibleChoices.length).toBe(25);
 
     dropdownListModel.inputStringRendered = testCustomValue;
     doCallback(opts[1]);
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(1);
-    expect(listModel.actions[0].id, "#1 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[0].visible, "#1 custom item visible").toLooseEqual(true);
-    expect(question.value, "#1 question.value").toLooseEqual(undefined);
-    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
-    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(0);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(1);
+    expect(listModel.actions[0].id, "#1 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[0].visible, "#1 custom item visible").toBe(true);
+    expect(question.value, "#1 question.value").toBeUndefined();
+    expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(0);
     expect(survey.data, "#1 survey.data").toEqualValues({});
-    expect(dropdownListModel.popupModel.isVisible, "#1 popupModel.isVisible").toLooseEqual(true);
+    expect(dropdownListModel.popupModel.isVisible, "#1 popupModel.isVisible").toBe(true);
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
-    expect(dropdownListModel.popupModel.isVisible, "popupModel.isVisible false").toLooseEqual(false);
+    expect(dropdownListModel.popupModel.isVisible, "popupModel.isVisible false").toBe(false);
 
     question.dropdownListModel.popupModel.show();
     doCallback(opts[2]);
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(28);
-    expect(listModel.actions[0].id, "#2 custom value add into list - id").toLooseEqual(testCustomValue);
-    expect(listModel.actions[0].title, "#2 custom value add into list - title").toLooseEqual(testCustomValue);
-    expect(listModel.actions[26].id, "#2 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[26].visible, "#2 custom item invisible").toLooseEqual(false);
-    expect(listModel.actions[27].id, "#2 loadingIndicator id").toLooseEqual("loadingIndicator");
-    expect(listModel.actions[27].visible, "#2 loadingIndicator invisible").toLooseEqual(true);
-    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.id, "#2 question.selectedItem").toLooseEqual(testCustomValue);
-    expect(question.visibleChoices.length, "#2 question.visibleChoices").toLooseEqual(26);
-    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toLooseEqual(testCustomValue);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(28);
+    expect(listModel.actions[0].id, "#2 custom value add into list - id").toBe(testCustomValue);
+    expect(listModel.actions[0].title, "#2 custom value add into list - title").toBe(testCustomValue);
+    expect(listModel.actions[26].id, "#2 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[26].visible, "#2 custom item invisible").toBe(false);
+    expect(listModel.actions[27].id, "#2 loadingIndicator id").toBe("loadingIndicator");
+    expect(listModel.actions[27].visible, "#2 loadingIndicator invisible").toBe(true);
+    expect(question.value, "#2 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
+    expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(26);
+    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
     expect(survey.data, "#2 survey.data").toEqualValues({ country: testCustomValue });
 
     survey.tryComplete();
@@ -2581,47 +2581,47 @@ describe("Dropdown question", () => {
     const testCustomValue = "item10";
     listModel.flushUpdates();
 
-    expect(dropdownListModel.customValue, "#1 customValue").toLooseEqual(undefined);
-    expect(listModel.searchEnabled, "#1 listModel searchEnabled").toLooseEqual(true);
-    expect(listModel.isEmpty, "#1 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(4);
+    expect(dropdownListModel.customValue, "#1 customValue").toBeUndefined();
+    expect(listModel.searchEnabled, "#1 listModel searchEnabled").toBe(true);
+    expect(listModel.isEmpty, "#1 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(4);
 
     listModel.filterString = testCustomValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.customValue, "#3 customValue").toLooseEqual(testCustomValue);
-    expect(listModel.isEmpty, "#3 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#3 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#3 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#3 custom item text").toLooseEqual("Create \"item10\" item...");
-    expect(listModel.actions[4].visible, "#3 custom item visible").toLooseEqual(true);
+    expect(dropdownListModel.customValue, "#3 customValue").toBe(testCustomValue);
+    expect(listModel.isEmpty, "#3 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#3 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#3 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#3 custom item text").toBe("Create \"item10\" item...");
+    expect(listModel.actions[4].visible, "#3 custom item visible").toBe(true);
 
     listModel.filterString = testExistValue;
     listModel.flushUpdates();
-    expect(dropdownListModel.customValue, "#4 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#4 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#4 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#4 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#4 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#4 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.customValue, "#4 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#4 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#4 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#4 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#4 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#4 custom item invisible").toBe(false);
 
     listModel.filterString = testExistValue + "test";
     listModel.flushUpdates();
-    expect(dropdownListModel.customValue, "#5 customValue").toLooseEqual(testExistValue + "test");
-    expect(listModel.isEmpty, "#5 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#5 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#5 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#5 custom item text").toLooseEqual("Create \"item2test\" item...");
-    expect(listModel.actions[4].visible, "#5 custom item visible").toLooseEqual(true);
-    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toLooseEqual(true);
+    expect(dropdownListModel.customValue, "#5 customValue").toBe(testExistValue + "test");
+    expect(listModel.isEmpty, "#5 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#5 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#5 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#5 custom item text").toBe("Create \"item2test\" item...");
+    expect(listModel.actions[4].visible, "#5 custom item visible").toBe(true);
+    expect(dropdownListModel.popupModel.isVisible, "#5 popupModel.isVisible").toBe(true);
 
     dropdownListModel.popupModel.hide();
     listModel.flushUpdates();
-    expect(dropdownListModel.customValue, "#6 customValue").toLooseEqual(undefined);
-    expect(listModel.isEmpty, "#6 listModel is not empty").toLooseEqual(false);
-    expect(listModel.actions.length, "#6 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#6 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].title, "#6 custom item text").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#6 custom item invisible").toLooseEqual(false);
+    expect(dropdownListModel.customValue, "#6 customValue").toBeUndefined();
+    expect(listModel.isEmpty, "#6 listModel is not empty").toBe(false);
+    expect(listModel.actions.length, "#6 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#6 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].title, "#6 custom item text").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#6 custom item invisible").toBe(false);
 
     _setIsTouch(false);
   });
@@ -2641,25 +2641,25 @@ describe("Dropdown question", () => {
     const testCustomValue = "item10";
 
     listModel.filterString = testCustomValue;
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(5);
-    expect(listModel.actions[4].id, "#1 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[4].visible, "#1 custom item visible").toLooseEqual(true);
-    expect(question.value, "#1 question.value").toLooseEqual(undefined);
-    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
-    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(4);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(5);
+    expect(listModel.actions[4].id, "#1 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[4].visible, "#1 custom item visible").toBe(true);
+    expect(question.value, "#1 question.value").toBeUndefined();
+    expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(4);
     expect(survey.data, "#1 survey.data").toEqualValues({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(6);
-    expect(listModel.actions[0].id, "#2 custom value add into list - id").toLooseEqual(testCustomValue);
-    expect(listModel.actions[0].title, "#2 custom value add into list - title").toLooseEqual(testCustomValue);
-    expect(listModel.actions[5].id, "#2 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[5].visible, "#2 custom item invisible").toLooseEqual(false);
-    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.id, "#2 question.selectedItem").toLooseEqual(testCustomValue);
-    expect(question.visibleChoices.length, "#2 question.visibleChoices").toLooseEqual(5);
-    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toLooseEqual(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(6);
+    expect(listModel.actions[0].id, "#2 custom value add into list - id").toBe(testCustomValue);
+    expect(listModel.actions[0].title, "#2 custom value add into list - title").toBe(testCustomValue);
+    expect(listModel.actions[5].id, "#2 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[5].visible, "#2 custom item invisible").toBe(false);
+    expect(question.value, "#2 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
+    expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(5);
+    expect(question.visibleChoices[0].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
     expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
 
     survey.tryComplete();
@@ -2681,26 +2681,26 @@ describe("Dropdown question", () => {
     const testCustomValue = "GHI";
 
     dropdownListModel.inputStringRendered = testCustomValue;
-    expect(listModel.actions.length, "#1 listModel.actions").toLooseEqual(6);
-    expect(listModel.actions[5].id, "#1 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[5].visible, "#1 custom item visible").toLooseEqual(true);
-    expect(question.value, "#1 question.value").toLooseEqual(undefined);
-    expect(question.selectedItem, "#1 question.selectedItem").toLooseEqual(undefined);
-    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(5);
+    expect(listModel.actions.length, "#1 listModel.actions").toBe(6);
+    expect(listModel.actions[5].id, "#1 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[5].visible, "#1 custom item visible").toBe(true);
+    expect(question.value, "#1 question.value").toBeUndefined();
+    expect(question.selectedItem, "#1 question.selectedItem").toBeNull();
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(5);
     expect(survey.data, "#1 survey.data").toEqualValues({});
 
     listModel.onItemClick(listModel.getActionById("newCustomItem"));
-    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toLooseEqual(testCustomValue);
-    expect(dropdownListModel.customValue, "#2 customValue").toLooseEqual(undefined);
-    expect(listModel.actions.length, "#2 listModel.actions").toLooseEqual(7);
-    expect(listModel.actions[2].id, "#2 custom value add into list - id").toLooseEqual(testCustomValue);
-    expect(listModel.actions[2].title, "#2 custom value add into list - title").toLooseEqual(testCustomValue);
-    expect(listModel.actions[6].id, "#2 custom item id").toLooseEqual("newCustomItem");
-    expect(listModel.actions[6].visible, "#2 custom item invisible").toLooseEqual(false);
-    expect(question.value, "#2 question.value").toLooseEqual(testCustomValue);
-    expect(question.selectedItem.id, "#2 question.selectedItem").toLooseEqual(testCustomValue);
-    expect(question.visibleChoices.length, "#2 question.visibleChoices").toLooseEqual(6);
-    expect(question.visibleChoices[2].value, "#2 question.visibleChoices[0]").toLooseEqual(testCustomValue);
+    expect(dropdownListModel.inputStringRendered, "#2 inputStringRendered").toBe(testCustomValue);
+    expect(dropdownListModel.customValue, "#2 customValue").toBeUndefined();
+    expect(listModel.actions.length, "#2 listModel.actions").toBe(7);
+    expect(listModel.actions[2].id, "#2 custom value add into list - id").toBe(testCustomValue);
+    expect(listModel.actions[2].title, "#2 custom value add into list - title").toBe(testCustomValue);
+    expect(listModel.actions[6].id, "#2 custom item id").toBe("newCustomItem");
+    expect(listModel.actions[6].visible, "#2 custom item invisible").toBe(false);
+    expect(question.value, "#2 question.value").toBe(testCustomValue);
+    expect(question.selectedItem.id, "#2 question.selectedItem").toBe(testCustomValue);
+    expect(question.visibleChoices.length, "#2 question.visibleChoices").toBe(6);
+    expect(question.visibleChoices[2].value, "#2 question.visibleChoices[0]").toBe(testCustomValue);
     expect(survey.data, "#2 survey.data").toEqualValues({ q1: testCustomValue });
 
     survey.tryComplete();
@@ -2727,12 +2727,12 @@ describe("Dropdown question", () => {
     const data = { q1: customValue };
     survey.data = data;
 
-    expect(question.value, "#1 question.value").toLooseEqual(customValue);
-    expect(question.selectedItem.id, "#1 question.selectedItem").toLooseEqual(customValue);
-    expect(question.visibleChoices.length, "#1 question.visibleChoices").toLooseEqual(8);
-    expect(listModel.actions.length, "listModel.actions.length").toLooseEqual(9);
-    expect(listModel.actions[0].id, "#1 new custom item").toLooseEqual(customValue);
-    expect(listModel.actions[0].visible, "#1 new custom item visible").toLooseEqual(true);
+    expect(question.value, "#1 question.value").toBe(customValue);
+    expect(question.selectedItem.id, "#1 question.selectedItem").toBe(customValue);
+    expect(question.visibleChoices.length, "#1 question.visibleChoices").toBe(8);
+    expect(listModel.actions.length, "listModel.actions.length").toBe(9);
+    expect(listModel.actions[0].id, "#1 new custom item").toBe(customValue);
+    expect(listModel.actions[0].visible, "#1 new custom item visible").toBe(true);
     expect(survey.data, "#1 survey.data").toEqualValues(data);
   });
 
@@ -2756,10 +2756,10 @@ describe("Dropdown question", () => {
     const data = { q1: value };
     survey.data = data;
 
-    expect(question.value, "#1 question.value").toLooseEqual(value);
-    expect(question.selectedItem.id, "#1 question.selectedItem").toLooseEqual(value);
-    expect(question.selectedItem.title, "#1 question.selectedItem").toLooseEqual("Large screen size");
-    expect(listModel.actions.length, "listModel.actions.length").toLooseEqual(8);
+    expect(question.value, "#1 question.value").toBe(value);
+    expect(question.selectedItem.id, "#1 question.selectedItem").toBe(value);
+    expect(question.selectedItem.title, "#1 question.selectedItem").toBe("Large screen size");
+    expect(listModel.actions.length, "listModel.actions.length").toBe(8);
     expect(survey.data, "#1 survey.data").toEqualValues(data);
   });
 
@@ -2775,13 +2775,13 @@ describe("Dropdown question", () => {
       });
 
       const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-      expect(question.choicesLazyLoadEnabled, "#1").toLooseEqual(true);
-      expect(question.choices.length, "#1").toLooseEqual(0);
-      expect(question.isReady, "#1").toLooseEqual(true);
+      expect(question.choicesLazyLoadEnabled, "#1").toBe(true);
+      expect(question.choices.length, "#1").toBe(0);
+      expect(question.isReady, "#1").toBe(true);
 
       question.waitForQuestionIsReady(() => {
-        expect(question.choices.length, "#2").toLooseEqual(25);
-        expect(question.isReady, "#2").toLooseEqual(true);
+        expect(question.choices.length, "#2").toBe(25);
+        expect(question.isReady, "#2").toBe(true);
         done();
       });
     });
@@ -2809,33 +2809,33 @@ describe("Dropdown question", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
     const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
-    expect(list.actions.length).toLooseEqual(0);
-    expect(question.choices.length).toLooseEqual(0);
+    expect(list.actions.length).toBe(0);
+    expect(question.choices.length).toBe(0);
 
     question.dropdownListModel.popupModel.show();
     doCallback(opts[0]);
-    expect(question.choices.length).toLooseEqual(0);
-    expect(list.actions.length).toLooseEqual(0);
+    expect(question.choices.length).toBe(0);
+    expect(list.actions.length).toBe(0);
 
     question.dropdownListModel.filterString = "fruit";
     doCallback(opts[1]);
-    expect(question.choices.length).toLooseEqual(4);
-    expect(list.actions.length).toLooseEqual(4);
-    expect(list.actions.filter(item => list.isItemVisible(item)).length).toLooseEqual(4);
+    expect(question.choices.length).toBe(4);
+    expect(list.actions.length).toBe(4);
+    expect(list.actions.filter(item => list.isItemVisible(item)).length).toBe(4);
   });
   test("Dropdown getInputId & getFirstInputElementId, bug#10567", () => {
     const q: any = new QuestionDropdownModel("q1");
-    expect(q.getInputId(), "getInputId #1").toLooseEqual(q.id + "i_0");
-    expect(q.getFirstInputElementId(), "getFirstInputElementId #1").toLooseEqual(q.id + "i_0");
+    expect(q.getInputId(), "getInputId #1").toBe(q.id + "i_0");
+    expect(q.getFirstInputElementId(), "getFirstInputElementId #1").toBe(q.id + "i_0");
     q.searchEnabled = false;
-    expect(q.getInputId(), "getInputId #2").toLooseEqual(q.id + "i_0");
-    expect(q.getFirstInputElementId(), "getFirstInputElementId #2").toLooseEqual(q.id + "i");
+    expect(q.getInputId(), "getInputId #2").toBe(q.id + "i_0");
+    expect(q.getFirstInputElementId(), "getFirstInputElementId #2").toBe(q.id + "i");
     q.searchEnabled = true;
-    expect(q.getInputId(), "getInputId #3").toLooseEqual(q.id + "i_0");
-    expect(q.getFirstInputElementId(), "getFirstInputElementId #3").toLooseEqual(q.id + "i_0");
+    expect(q.getInputId(), "getInputId #3").toBe(q.id + "i_0");
+    expect(q.getFirstInputElementId(), "getFirstInputElementId #3").toBe(q.id + "i_0");
     q.renderAs = "select";
-    expect(q.getInputId(), "getInputId #4").toLooseEqual(q.id + "i");
-    expect(q.getFirstInputElementId(), "getFirstInputElementId #4").toLooseEqual(q.id + "i");
+    expect(q.getInputId(), "getInputId #4").toBe(q.id + "i");
+    expect(q.getFirstInputElementId(), "getFirstInputElementId #4").toBe(q.id + "i");
   });
 
   test("auto-select focused item on Tab", () => {
@@ -2856,16 +2856,16 @@ describe("Dropdown question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before Tab").toLooseEqual(undefined);
-    expect(question.selectedItem, "selectedItem is undefined").toLooseEqual(undefined);
-    expect(list.visibleItems.length).toLooseEqual(3);
+    expect(question.value, "value empty before Tab").toBeUndefined();
+    expect(question.selectedItem, "selectedItem is undefined").toBeNull();
+    expect(list.visibleItems.length).toBe(3);
 
     const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
     dropdownListModel.keyHandler(event);
 
-    expect(question.value, "item1 selected on Tab").toLooseEqual(focusedItem);
-    expect(question.selectedItem?.value, "selectedItem is item1").toLooseEqual(focusedItem);
-    expect(list.visibleItems.length).toLooseEqual(3);
+    expect(question.value, "item1 selected on Tab").toBe(focusedItem);
+    expect(question.selectedItem?.value, "selectedItem is item1").toBe(focusedItem);
+    expect(list.visibleItems.length).toBe(3);
   });
 
   test("auto-select custom item on Tab", () => {
@@ -2887,17 +2887,17 @@ describe("Dropdown question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before Tab").toLooseEqual(undefined);
-    expect(list.visibleItems.length, "only custom item visible").toLooseEqual(1);
-    expect(list.visibleItems[0].id, "visible item is custom").toLooseEqual("newCustomItem");
+    expect(question.value, "value empty before Tab").toBeUndefined();
+    expect(list.visibleItems.length, "only custom item visible").toBe(1);
+    expect(list.visibleItems[0].id, "visible item is custom").toBe("newCustomItem");
 
     const event = { keyCode: 9, preventDefault: () => { }, stopPropagation: () => { } };
     dropdownListModel.keyHandler(event);
 
-    expect(question.value, "custom value selected on Tab").toLooseEqual(customValue);
-    expect(question.selectedItem?.value, "selectedItem is custom").toLooseEqual(customValue);
-    expect(list.visibleItems.length).toLooseEqual(4);
-    expect(list.visibleItems[0].id).toLooseEqual(customValue);
+    expect(question.value, "custom value selected on Tab").toBe(customValue);
+    expect(question.selectedItem?.value, "selectedItem is custom").toBe(customValue);
+    expect(list.visibleItems.length).toBe(4);
+    expect(list.visibleItems[0].id).toBe(customValue);
   });
 
   test("auto-select custom item on blur", () => {
@@ -2921,15 +2921,15 @@ describe("Dropdown question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before blur").toLooseEqual(undefined);
-    expect(list.visibleItems.length, "only custom item visible").toLooseEqual(1);
+    expect(question.value, "value empty before blur").toBeUndefined();
+    expect(list.visibleItems.length, "only custom item visible").toBe(1);
 
     dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
 
-    expect(question.value, "custom value selected on blur").toLooseEqual(customValue);
-    expect(question.selectedItem?.value, "selectedItem is custom").toLooseEqual(customValue);
-    expect(list.visibleItems.length).toLooseEqual(4);
-    expect(list.visibleItems[0].id).toLooseEqual(customValue);
+    expect(question.value, "custom value selected on blur").toBe(customValue);
+    expect(question.selectedItem?.value, "selectedItem is custom").toBe(customValue);
+    expect(list.visibleItems.length).toBe(4);
+    expect(list.visibleItems[0].id).toBe(customValue);
 
     settings.dropdownSaveOnOutsideClick = false;
   });
@@ -2951,13 +2951,13 @@ describe("Dropdown question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before blur").toLooseEqual(undefined);
-    expect(list.visibleItems.length).toLooseEqual(3);
+    expect(question.value, "value empty before blur").toBeUndefined();
+    expect(list.visibleItems.length).toBe(3);
 
     dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
 
-    expect(question.value, "value empty after blur").toLooseEqual(undefined);
-    expect(list.visibleItems.length).toLooseEqual(3);
+    expect(question.value, "value empty after blur").toBeUndefined();
+    expect(list.visibleItems.length).toBe(3);
   });
 
   test("auto-select focused item on blur, settings.dropdownSaveOnOutsideClick = true", () => {
@@ -2980,14 +2980,14 @@ describe("Dropdown question", () => {
     dropdownListModel.popupModel.show();
     list.flushUpdates();
 
-    expect(question.value, "value empty before blur").toLooseEqual(undefined);
-    expect(list.visibleItems.length).toLooseEqual(3);
+    expect(question.value, "value empty before blur").toBeUndefined();
+    expect(list.visibleItems.length).toBe(3);
 
     dropdownListModel.onBlur({ target: null, relatedTarget: document.createElement("div"), stopPropagation: () => { } });
 
-    expect(question.value, "focused item is selected on blur").toLooseEqual(customValue);
-    expect(question.selectedItem?.value, "selectedItem is focused item").toLooseEqual(customValue);
-    expect(list.visibleItems.length).toLooseEqual(3);
+    expect(question.value, "focused item is selected on blur").toBe(customValue);
+    expect(question.selectedItem?.value, "selectedItem is focused item").toBe(customValue);
+    expect(list.visibleItems.length).toBe(3);
 
     settings.dropdownSaveOnOutsideClick = false;
   });
@@ -3010,7 +3010,7 @@ describe("Dropdown question", () => {
     dropdownListModel.inputStringRendered = "new Item";
     dropdownListModel.popupModel.show();
     list.flushUpdates();
-    expect(dropdownListModel.customItemValue.text, "customItemValue is set correctly").toLooseEqual("Add \"new Item\" as a new");
+    expect(dropdownListModel.customItemValue.text, "customItemValue is set correctly").toBe("Add \"new Item\" as a new");
 
   });
 });

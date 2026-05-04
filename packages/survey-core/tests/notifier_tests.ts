@@ -17,53 +17,53 @@ describe("Notifier model", () => {
   test("getCssClass", () => {
     const notifier = new Notifier(testCssClasses);
 
-    expect(notifier.getCssClass("error")).toLooseEqual("alert alert-error");
-    expect(notifier.getCssClass("info")).toLooseEqual("alert alert-info");
-    expect(notifier.getCssClass("text")).toLooseEqual("alert alert-info");
-    expect(notifier.getCssClass("success")).toLooseEqual("alert alert-success");
+    expect(notifier.getCssClass("error")).toBe("alert alert-error");
+    expect(notifier.getCssClass("info")).toBe("alert alert-info");
+    expect(notifier.getCssClass("text")).toBe("alert alert-info");
+    expect(notifier.getCssClass("success")).toBe("alert alert-success");
   });
 
   test("action bar: button css", () => {
     const notifier = new Notifier(testCssClasses);
 
     expect(!!notifier.actionBar).toBeTruthy();
-    expect(notifier.actionBar.actions.length).toLooseEqual(0);
+    expect(notifier.actionBar.actions.length).toBe(0);
 
     notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
-    expect(notifier.actionBar.actions.length).toLooseEqual(1);
+    expect(notifier.actionBar.actions.length).toBe(1);
 
     const testAction = notifier.actionBar.actions[0];
-    expect(testAction.innerCss).toLooseEqual(testCssClasses.button);
+    expect(testAction.innerCss).toBe(testCssClasses.button);
   });
 
   test("action bar: button visibility", () => {
     const notifier = new Notifier(testCssClasses);
     notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
-    expect(notifier.actionBar.actions.length).toLooseEqual(1);
+    expect(notifier.actionBar.actions.length).toBe(1);
 
     const testAction = notifier.actionBar.actions[0];
-    expect(testAction.visible).toLooseEqual(false);
+    expect(testAction.visible).toBe(false);
 
     notifier.updateActionsVisibility("error");
-    expect(testAction.visible).toLooseEqual(true);
+    expect(testAction.visible).toBe(true);
 
     notifier.updateActionsVisibility("info");
-    expect(testAction.visible).toLooseEqual(false);
+    expect(testAction.visible).toBe(false);
 
     notifier.updateActionsVisibility("error");
-    expect(testAction.visible).toLooseEqual(true);
+    expect(testAction.visible).toBe(true);
 
     notifier.updateActionsVisibility("success");
-    expect(testAction.visible).toLooseEqual(false);
+    expect(testAction.visible).toBe(false);
 
-    expect(notifier.showActions, "showActions default is true").toLooseEqual(true);
+    expect(notifier.showActions, "showActions default is true").toBe(true);
     notifier.showActions = false;
     notifier.updateActionsVisibility("error");
-    expect(testAction.visible).toLooseEqual(false);
+    expect(testAction.visible).toBe(false);
 
     notifier.showActions = true;
     notifier.updateActionsVisibility("error");
-    expect(testAction.visible).toLooseEqual(true);
+    expect(testAction.visible).toBe(true);
 
   });
 
@@ -76,21 +76,21 @@ describe("Notifier model", () => {
       notifier.notify("Test", "error");
 
       vi.advanceTimersByTime(1);
-      expect(notifier.active).toLooseEqual(true);
-      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
+      expect(notifier.active).toBe(true);
+      expect(notifier.css).toBe("alert alert-error alert-shown");
 
       vi.advanceTimersByTime(settings.notifications.lifetime + 2);
-      expect(notifier.active, "success message is hidden").toLooseEqual(false);
-      expect(notifier.css).toLooseEqual("alert alert-error");
+      expect(notifier.active, "success message is hidden").toBe(false);
+      expect(notifier.css).toBe("alert alert-error");
 
       notifier.notify("Error", "error", true);
       vi.advanceTimersByTime(1);
-      expect(notifier.active).toLooseEqual(true);
-      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
+      expect(notifier.active).toBe(true);
+      expect(notifier.css).toBe("alert alert-error alert-shown");
 
       vi.advanceTimersByTime(settings.notifications.lifetime + 2);
-      expect(notifier.active, "error message is visible").toLooseEqual(true);
-      expect(notifier.css).toLooseEqual("alert alert-error alert-shown");
+      expect(notifier.active, "error message is visible").toBe(true);
+      expect(notifier.css).toBe("alert alert-error alert-shown");
     } finally {
       settings.notifications.lifetime = oldLifeTime;
       vi.useRealTimers();
@@ -102,9 +102,9 @@ describe("Notifier model", () => {
     notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
     notifier.showActions = true;
     notifier.updateActionsVisibility("error");
-    expect(notifier.getCssClass("error")).toLooseEqual("alert alert--with-buttons alert-error");
+    expect(notifier.getCssClass("error")).toBe("alert alert--with-buttons alert-error");
     notifier.showActions = false;
     notifier.updateActionsVisibility("error");
-    expect(notifier.getCssClass("error")).toLooseEqual("alert alert-error");
+    expect(notifier.getCssClass("error")).toBe("alert alert-error");
   });
 });

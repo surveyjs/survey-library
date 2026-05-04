@@ -14,6 +14,6 @@ test("Check goToItemsMethod works correctly", () => {
     preventDefault: () => {}
   };
   list.goToItems(<any>event);
-  expect(document.activeElement).toLooseEqual(listElement);
+  expect(document.activeElement).toBe(listElement);
   element.remove();
 });

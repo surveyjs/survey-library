@@ -598,23 +598,7 @@ if (typeof (globalThis as any).HTMLCanvasElement !== "undefined") {
 // ---------------------------------------------------------------------------
 // Custom matchers that bridge QUnit semantics into Vitest.
 // ---------------------------------------------------------------------------
-// QUnit's `assert.equal(a, b)` uses `==` (loose equality), while Vitest's
-// `expect(a).toBe(b)` uses `Object.is` (strict). The migration codemod maps
-// `assert.equal` -> `expect().toLooseEqual()` so that legacy comparisons like
-// `assert.equal(undefined, null)` or `assert.equal("0", 0)` keep their
-// original semantics. New tests should prefer `toBe`/`toEqual` directly.
 expect.extend({
-  toLooseEqual(received: unknown, expected: unknown) {
-    // eslint-disable-next-line eqeqeq
-    const pass = received == expected;
-    return {
-      pass,
-      message: () =>
-        pass
-          ? `expected ${this.utils.printReceived(received)} not to loosely equal ${this.utils.printExpected(expected)}`
-          : `expected ${this.utils.printReceived(received)} to loosely equal ${this.utils.printExpected(expected)}`,
-    };
-  },
   // Mirrors QUnit's `assert.deepEqual` for survey-library observable arrays.
   // `Base.createNewArray` overrides `push`/`pop`/`shift`/`unshift`/`splice` as
   // own enumerable function properties on the array. Vitest's `toEqual` walks
@@ -658,11 +642,9 @@ expect.extend({
 
 declare module "vitest" {
   interface Assertion<T = any> {
-    toLooseEqual(expected: unknown): T;
     toEqualValues(expected: unknown): T;
   }
   interface AsymmetricMatchersContaining {
-    toLooseEqual(expected: unknown): unknown;
     toEqualValues(expected: unknown): unknown;
   }
 }

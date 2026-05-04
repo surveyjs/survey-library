@@ -41,30 +41,30 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel(json);
     let tocListModel = createTOCListModel(survey);
 
-    expect("page1", "Page 1 is current").toLooseEqual(tocListModel.selectedItem.id);
+    expect("page1", "Page 1 is current").toBe(tocListModel.selectedItem.id);
     survey.nextPage();
-    expect("page2", "Page 2 is current after navigation").toLooseEqual(tocListModel.selectedItem.id);
+    expect("page2", "Page 2 is current after navigation").toBe(tocListModel.selectedItem.id);
   });
 
   test("root CSS", () => {
     let survey: SurveyModel = new SurveyModel({});
 
     let tocRootCss = getTocRootCss(survey);
-    expect("sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky", "toc left css").toLooseEqual(tocRootCss);
+    expect("sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky", "toc left css").toBe(tocRootCss);
 
     survey.tocLocation = "right";
     tocRootCss = getTocRootCss(survey);
-    expect("sv_progress-toc sv_progress-toc--right sv_progress-toc--sticky", "toc right css").toLooseEqual(tocRootCss);
+    expect("sv_progress-toc sv_progress-toc--right sv_progress-toc--sticky", "toc right css").toBe(tocRootCss);
 
     TOCModel.StickyPosition = false;
     survey.tocLocation = "left";
 
     tocRootCss = getTocRootCss(survey);
-    expect("sv_progress-toc sv_progress-toc--left", "toc left css").toLooseEqual(tocRootCss);
+    expect("sv_progress-toc sv_progress-toc--left", "toc left css").toBe(tocRootCss);
 
     survey.tocLocation = "right";
     tocRootCss = getTocRootCss(survey);
-    expect("sv_progress-toc sv_progress-toc--right", "toc right css").toLooseEqual(tocRootCss);
+    expect("sv_progress-toc sv_progress-toc--right", "toc right css").toBe(tocRootCss);
 
     TOCModel.StickyPosition = true;
   });
@@ -104,11 +104,11 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel(json);
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length, "All pages are visible").toLooseEqual(3);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible").toLooseEqual(survey.pages[0].name);
+    expect(tocListModel.visibleItems.length, "All pages are visible").toBe(3);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible").toBe(survey.pages[0].name);
     survey.pages[0].visible = false;
-    expect(tocListModel.visibleItems.length, "only 2 pages are visible").toLooseEqual(2);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is invisible, page 2 is the first").toLooseEqual(survey.pages[1].name);
+    expect(tocListModel.visibleItems.length, "only 2 pages are visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is invisible, page 2 is the first").toBe(survey.pages[1].name);
   });
 
   test("pages visibility, do not include start page into TOC, bug #6192", () => {
@@ -147,11 +147,11 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel(json);
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length, "First page is not visible").toLooseEqual(2);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is invisible, page 2 is the first").toLooseEqual(survey.pages[1].name);
+    expect(tocListModel.visibleItems.length, "First page is not visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is invisible, page 2 is the first").toBe(survey.pages[1].name);
     survey.firstPageIsStartPage = false;
-    expect(tocListModel.visibleItems.length, "First page is visible").toLooseEqual(3);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible, page 1 is the first").toLooseEqual(survey.pages[0].name);
+    expect(tocListModel.visibleItems.length, "First page is visible").toBe(3);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible, page 1 is the first").toBe(survey.pages[0].name);
   });
 
   test("pages navigation with start page, bug #6327", () => {
@@ -198,10 +198,10 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel(json);
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length, "First page is not visible").toLooseEqual(3);
-    expect(survey.currentPage.name, "Current page is 2").toLooseEqual("page2");
+    expect(tocListModel.visibleItems.length, "First page is not visible").toBe(3);
+    expect(survey.currentPage.name, "Current page is 2").toBe("page2");
     tocListModel.visibleItems[1].action();
-    expect(survey.currentPage.name, "Current page is 3").toLooseEqual("page3");
+    expect(survey.currentPage.name, "Current page is 3").toBe("page3");
   });
 
   test("questionsOnPageMode singlePage", () => {
@@ -239,11 +239,11 @@ describe("TOC", () => {
     const survey: SurveyModel = new SurveyModel(json);
     const tocListModel = createTOCListModel(survey);
     const page = survey.currentPage;
-    expect(page.elements.length, "There are two elements in the root").toLooseEqual(3);
-    expect(tocListModel.visibleItems.length, "3 items is TOC").toLooseEqual(3);
-    expect(tocListModel.visibleItems[0].id, "Page 1").toLooseEqual(page.elements[0].name);
-    expect(tocListModel.visibleItems[1].id, "Page 2").toLooseEqual(page.elements[1].name);
-    expect(tocListModel.visibleItems[2].id, "Page 3").toLooseEqual(page.elements[2].name);
+    expect(page.elements.length, "There are two elements in the root").toBe(3);
+    expect(tocListModel.visibleItems.length, "3 items is TOC").toBe(3);
+    expect(tocListModel.visibleItems[0].id, "Page 1").toBe(page.elements[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2").toBe(page.elements[1].name);
+    expect(tocListModel.visibleItems[2].id, "Page 3").toBe(page.elements[2].name);
   });
 
   test("questionsOnPageMode singlePage selectedItem tracks focused question", () => {
@@ -280,10 +280,10 @@ describe("TOC", () => {
     };
     const survey: SurveyModel = new SurveyModel(json);
     const tocListModel = createTOCListModel(survey);
-    expect(tocListModel.visibleItems.length, "3 items is TOC").toLooseEqual(3);
-    expect(tocListModel.selectedItem.id, "first page is active").toLooseEqual("page1");
+    expect(tocListModel.visibleItems.length, "3 items is TOC").toBe(3);
+    expect(tocListModel.selectedItem.id, "first page is active").toBe("page1");
     survey.getQuestionByName("question3").focusIn();
-    expect(tocListModel.selectedItem.id, "3rd page is active after question3 focused").toLooseEqual("page3");
+    expect(tocListModel.selectedItem.id, "3rd page is active after question3 focused").toBe("page3");
   });
 
   test("respects markup", () => {
@@ -335,13 +335,13 @@ describe("TOC", () => {
     });
     let tocListModel = createTOCListModel(survey);
 
-    expect(survey.pages[2].locTitle.textOrHtml, "survey.pages[2]").toLooseEqual("markup Page 3");
+    expect(survey.pages[2].locTitle.textOrHtml, "survey.pages[2]").toBe("markup Page 3");
 
-    expect(tocListModel.visibleItems.length, "2 items is TOC").toLooseEqual(4);
-    expect(tocListModel.visibleItems[0].locTitle.textOrHtml, "Page 1 = locTitle").toLooseEqual("markup Text with <strong>strong text</strong>");
-    expect(tocListModel.visibleItems[1].locTitle.textOrHtml, "Page 2 - nav title").toLooseEqual("markup Text with <em>emphasys text</em>");
-    expect(tocListModel.visibleItems[2].locTitle.textOrHtml, "Page 3").toLooseEqual("markup Page 3");
-    expect(tocListModel.visibleItems[3].locTitle.textOrHtml, "Page 4").toLooseEqual("page4");
+    expect(tocListModel.visibleItems.length, "2 items is TOC").toBe(4);
+    expect(tocListModel.visibleItems[0].locTitle.textOrHtml, "Page 1 = locTitle").toBe("markup Text with <strong>strong text</strong>");
+    expect(tocListModel.visibleItems[1].locTitle.textOrHtml, "Page 2 - nav title").toBe("markup Text with <em>emphasys text</em>");
+    expect(tocListModel.visibleItems[2].locTitle.textOrHtml, "Page 3").toBe("markup Page 3");
+    expect(tocListModel.visibleItems[3].locTitle.textOrHtml, "Page 4").toBe("page4");
   });
 
   test("shouldn't affect page title", () => {
@@ -363,14 +363,14 @@ describe("TOC", () => {
     const survey: SurveyModel = new SurveyModel(json);
 
     const page = survey.pages[0];
-    expect(page.locTitle.textOrHtml, "Page 1 title").toLooseEqual("Page 1 title");
-    expect(page.locNavigationTitle.textOrHtml, "Page 1 - nav title").toLooseEqual("Text with <em>emphasys text</em>");
+    expect(page.locTitle.textOrHtml, "Page 1 title").toBe("Page 1 title");
+    expect(page.locNavigationTitle.textOrHtml, "Page 1 - nav title").toBe("Text with <em>emphasys text</em>");
 
     const tocListModel = createTOCListModel(survey);
-    expect(page.locNavigationTitle.textOrHtml, "Page 1 - nav title").toLooseEqual("Text with <em>emphasys text</em>");
-    expect(tocListModel.visibleItems.length, "2 items is TOC").toLooseEqual(1);
-    expect(tocListModel.visibleItems[0].locTitle.textOrHtml, "Page 1 - nav title in TOC").toLooseEqual("Text with <em>emphasys text</em>");
-    expect(page.locTitle.textOrHtml, "Page 1 title").toLooseEqual("Page 1 title");
+    expect(page.locNavigationTitle.textOrHtml, "Page 1 - nav title").toBe("Text with <em>emphasys text</em>");
+    expect(tocListModel.visibleItems.length, "2 items is TOC").toBe(1);
+    expect(tocListModel.visibleItems[0].locTitle.textOrHtml, "Page 1 - nav title in TOC").toBe("Text with <em>emphasys text</em>");
+    expect(page.locTitle.textOrHtml, "Page 1 title").toBe("Page 1 title");
   });
 
   test("shouldn't show search", () => {
@@ -389,7 +389,7 @@ describe("TOC", () => {
     };
     const survey: SurveyModel = new SurveyModel(json);
     const tocListModel = createTOCListModel(survey);
-    expect(tocListModel.searchEnabled, "Search in TOC should be disabled").toLooseEqual(false);
+    expect(tocListModel.searchEnabled, "Search in TOC should be disabled").toBe(false);
   });
 
   test("survey.tryNavigateToPage", () => {
@@ -440,36 +440,36 @@ describe("TOC", () => {
     survey.onCurrentPageChanged.add((sender, options) => {
       pages.push(options.newCurrentPage.name);
     });
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(0);
-    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #1").toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(1);
-    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #2").toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #3").toLooseEqual(1);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #3").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #4").toLooseEqual(0);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #1").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #2").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #3").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #3").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(0);
     survey.setValue("question2", "val2");
-    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #4").toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #4").toLooseEqual(2);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #5").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #5").toLooseEqual(0);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #4").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(2);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #5").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #5").toBe(0);
     survey.setValue("question3", "val3");
-    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #6").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #6").toLooseEqual(3);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #6").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #6").toBe(3);
     expect(pages, "Check onCurrentPageChanged").toEqualValues(["page2", "page1", "page3", "page1", "page4"]);
 
     survey.clear();
-    expect(survey.currentPageNo, "currentPageNo #7").toLooseEqual(0);
-    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #7").toLooseEqual(false);
+    expect(survey.currentPageNo, "currentPageNo #7").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #7").toBe(false);
     survey.checkErrorsMode = "onComplete";
-    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #8").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #9").toLooseEqual(3);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #8").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #9").toBe(3);
   });
 
   test("should be created for survey with no current page", () => {
     let json: any = { "logoPosition": "right", "pages": [{ "name": "page1", "elements": [{ "type": "panel", "name": "panel1", "width": "1180px" }] }] };
     const survey: SurveyModel = new SurveyModel(json);
-    expect(survey.pages.length).toLooseEqual(1);
-    expect(survey.currentPageNo).toLooseEqual(-1);
+    expect(survey.pages.length).toBe(1);
+    expect(survey.currentPageNo).toBe(-1);
     const tocListModel = createTOCListModel(survey);
     expect(!!tocListModel, "TOC model should be created").toBeTruthy();
   });
@@ -499,7 +499,7 @@ describe("TOC", () => {
       height: 40,
     } as any);
     const tocRootElement = rootElementWithTitle.querySelector(".sv_progress-toc") as HTMLDivElement;
-    expect(tocRootElement.style.height, "No height set").toLooseEqual("");
+    expect(tocRootElement.style.height, "No height set").toBe("");
 
     const scrollElement = rootElementWithTitle.querySelector(".sv-scroll__scroller") as HTMLDivElement;
     let _scrollTop = 0;
@@ -523,49 +523,49 @@ describe("TOC", () => {
     };
 
     tocModel.updateStickyTOCSize(mockRootEl);
-    expect(tocRootElement.style.height, "Height updated").toLooseEqual("159px");
+    expect(tocRootElement.style.height, "Height updated").toBe("159px");
 
     scrollElement.scrollTop = 60;
     tocModel.updateStickyTOCSize(mockRootEl);
-    expect(tocRootElement.style.height, "Height updated to full container").toLooseEqual("199px");
+    expect(tocRootElement.style.height, "Height updated to full container").toBe("199px");
 
     scrollElement.scrollTop = 20;
     tocModel.updateStickyTOCSize(mockRootEl);
-    expect(tocRootElement.style.height, "Height updated to half title").toLooseEqual("179px");
+    expect(tocRootElement.style.height, "Height updated to half title").toBe("179px");
   });
 
   test("update toc list model on add new page and add new question", () => {
     let json: any = { "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "q1" }] }] };
     const survey: SurveyModel = new SurveyModel(json);
-    expect(survey.pages.length).toLooseEqual(1);
-    expect(survey.currentPageNo).toLooseEqual(0);
+    expect(survey.pages.length).toBe(1);
+    expect(survey.currentPageNo).toBe(0);
     const tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.actions.length).toLooseEqual(1);
-    expect(tocListModel.actions[0].visible).toLooseEqual(true);
-    expect(tocListModel.actions[0].title).toLooseEqual("page1");
+    expect(tocListModel.actions.length).toBe(1);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[0].title).toBe("page1");
 
     const newPage = survey.addNewPage("newpage");
 
-    expect(tocListModel.actions.length).toLooseEqual(2);
-    expect(tocListModel.actions[0].visible).toLooseEqual(true);
-    expect(tocListModel.actions[1].visible).toLooseEqual(false);
-    expect(tocListModel.actions[1].title).toLooseEqual("newpage");
+    expect(tocListModel.actions.length).toBe(2);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[1].visible).toBe(false);
+    expect(tocListModel.actions[1].title).toBe("newpage");
 
     newPage.title = "New Page";
 
-    expect(tocListModel.actions.length).toLooseEqual(2);
-    expect(tocListModel.actions[0].visible).toLooseEqual(true);
-    expect(tocListModel.actions[1].visible).toLooseEqual(false);
-    expect(tocListModel.actions[1].title).toLooseEqual("New Page");
+    expect(tocListModel.actions.length).toBe(2);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[1].visible).toBe(false);
+    expect(tocListModel.actions[1].title).toBe("New Page");
 
     newPage.addNewQuestion("text", "q2");
 
-    expect(tocListModel.actions.length).toLooseEqual(2);
-    expect(tocListModel.actions[0].visible).toLooseEqual(true);
-    expect(tocListModel.actions[0].title).toLooseEqual("page1");
-    expect(tocListModel.actions[1].visible).toLooseEqual(true);
-    expect(tocListModel.actions[1].title).toLooseEqual("New Page");
+    expect(tocListModel.actions.length).toBe(2);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[0].title).toBe("page1");
+    expect(tocListModel.actions[1].visible).toBe(true);
+    expect(tocListModel.actions[1].title).toBe("New Page");
   });
 
   test("TOC navigation shows page numbers", () => {
@@ -580,9 +580,9 @@ describe("TOC", () => {
       }]
     });
     const tocListModel = createTOCListModel(survey);
-    expect(tocListModel.actions.length).toLooseEqual(1);
-    expect(tocListModel.actions[0].visible).toLooseEqual(true);
-    expect(tocListModel.actions[0].title).toLooseEqual("1. page1");
+    expect(tocListModel.actions.length).toBe(1);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[0].title).toBe("1. page1");
   });
 
   test("survey.tryNavigateToPage respects validationAllowSwitchPages and validationAllowComplete", () => {
@@ -628,35 +628,35 @@ describe("TOC", () => {
       ]
     };
     const survey = new SurveyModel(json);
-    expect(survey.validationAllowSwitchPages).toLooseEqual(false);
-    expect(survey.validationAllowComplete).toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(0);
-    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #1").toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(1);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #2").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(0);
-    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #3").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(1);
+    expect(survey.validationAllowSwitchPages).toBe(false);
+    expect(survey.validationAllowComplete).toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #1").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #2").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #3").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(1);
 
     survey.validationAllowSwitchPages = true;
-    expect(survey.validationAllowSwitchPages).toLooseEqual(true);
-    expect(survey.validationAllowComplete).toLooseEqual(false);
-    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #4").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #3").toLooseEqual(2);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #5").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(0);
-    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #6").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(1);
+    expect(survey.validationAllowSwitchPages).toBe(true);
+    expect(survey.validationAllowComplete).toBe(false);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #4").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #3").toBe(2);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #5").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #6").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
 
     survey.validationAllowComplete = true;
-    expect(survey.validationAllowSwitchPages).toLooseEqual(true);
-    expect(survey.validationAllowComplete).toLooseEqual(true);
-    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #7").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #3").toLooseEqual(2);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #8").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(0);
-    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #9").toLooseEqual(true);
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(1);
+    expect(survey.validationAllowSwitchPages).toBe(true);
+    expect(survey.validationAllowComplete).toBe(true);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #7").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #3").toBe(2);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #8").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #9").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
   });
   test("survey.tryNavigateToPage & survey.onValidatePage, Bug#9241", () => {
     let json: any = {
@@ -698,24 +698,24 @@ describe("TOC", () => {
     survey.onValidatePage.add((sender, options) => {
       logs.push(options.page.name);
     });
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toLooseEqual(false);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
     expect(logs, "logs #1").toEqualValues(["page1"]);
     survey.setValue("question1", "val1");
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toLooseEqual(true);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(true);
     expect(logs, "logs #2").toEqualValues(["page1", "page1"]);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "try #3").toLooseEqual(true);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "try #3").toBe(true);
     expect(logs, "logs #3").toEqualValues(["page1", "page1"]);
-    expect(survey.tryNavigateToPage(survey.pages[2]), "try #4").toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #4").toLooseEqual(1);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "try #4").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(1);
     expect(logs, "logs #4").toEqualValues(["page1", "page1", "page1"]);
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #5").toLooseEqual(false);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #5").toBe(false);
     expect(logs, "logs #5").toEqualValues(["page1", "page1", "page1"]);
-    expect(survey.tryNavigateToPage(survey.pages[2]), "try #6").toLooseEqual(false);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "try #6").toBe(false);
     expect(logs, "logs #6").toEqualValues(["page1", "page1", "page1", "page2"]);
     survey.setValue("question2", "val2");
-    expect(survey.tryNavigateToPage(survey.pages[2]), "try #7").toLooseEqual(true);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "try #7").toBe(true);
     expect(logs, "logs #7").toEqualValues(["page1", "page1", "page1", "page2", "page2"]);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "try #8").toLooseEqual(true);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "try #8").toBe(true);
     expect(logs, "logs #8").toEqualValues(["page1", "page1", "page1", "page2", "page2"]);
   });
   test("survey.tryNavigateToPage & survey.validationEnabled = false, Bug#9363", () => {
@@ -755,9 +755,9 @@ describe("TOC", () => {
     };
     const survey = new SurveyModel(json);
     const logs = new Array<string>();
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toLooseEqual(false);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
     survey.validationEnabled = false;
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toLooseEqual(true);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(true);
   });
   test("The survey.onServerValidateQuestions function is not invoked when a user navigates between pages using the progress bar #9332", () => {
     const survey = new SurveyModel({
@@ -791,25 +791,25 @@ describe("TOC", () => {
       counter++;
     });
 
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toLooseEqual(false);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(0);
-    expect(counter, "server validation counter, try #1").toLooseEqual(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(counter, "server validation counter, try #1").toBe(0);
     survey.setValue("question1", 101);
 
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toLooseEqual(false);
-    expect(counter, "server validation counter, try #2").toLooseEqual(1);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(false);
+    expect(counter, "server validation counter, try #2").toBe(1);
     opt.errors["question1"] = "Error";
     opt.complete();
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(0);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(0);
 
-    expect(survey.tryNavigateToPage(survey.pages[1]), "try #3").toLooseEqual(false);
-    expect(counter, "server validation counter, try #3").toLooseEqual(2);
-    expect(survey.currentPageNo, "currentPageNo #3.1").toLooseEqual(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #3").toBe(false);
+    expect(counter, "server validation counter, try #3").toBe(2);
+    expect(survey.currentPageNo, "currentPageNo #3.1").toBe(0);
     opt.complete();
-    expect(survey.currentPageNo, "currentPageNo #3.2").toLooseEqual(1);
-    expect(survey.tryNavigateToPage(survey.pages[0]), "try #4").toLooseEqual(true);
-    expect(counter, "server validation counter, try #4").toLooseEqual(2);
-    expect(survey.currentPageNo, "currentPageNo #4").toLooseEqual(0);
+    expect(survey.currentPageNo, "currentPageNo #3.2").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "try #4").toBe(true);
+    expect(counter, "server validation counter, try #4").toBe(2);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(0);
   });
 
   test("pages visibility from visibleIf", () => {
@@ -840,14 +840,14 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel(json);
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length, "One page is visible").toLooseEqual(1);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toLooseEqual(survey.pages[0].name);
+    expect(tocListModel.visibleItems.length, "One page is visible").toBe(1);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
     survey.data = {
       question1: "val1"
     };
-    expect(tocListModel.visibleItems.length, "All pages are visible").toLooseEqual(2);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toLooseEqual(survey.pages[0].name);
-    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toLooseEqual(survey.pages[1].name);
+    expect(tocListModel.visibleItems.length, "All pages are visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
   });
   test("pages visibility on value changed", () => {
     let json: any = {
@@ -882,20 +882,20 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel(json);
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length, "One page is visible").toLooseEqual(1);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toLooseEqual(survey.pages[0].name);
+    expect(tocListModel.visibleItems.length, "One page is visible").toBe(1);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
     survey.data = {
       question1: "val1",
     };
-    expect(tocListModel.visibleItems.length, "One page is visible - page2 is empty").toLooseEqual(1);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC - page2 is empty").toLooseEqual(survey.pages[0].name);
+    expect(tocListModel.visibleItems.length, "One page is visible - page2 is empty").toBe(1);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC - page2 is empty").toBe(survey.pages[0].name);
     survey.data = {
       question1: "val1",
       question2: "val2"
     };
-    expect(tocListModel.visibleItems.length, "All pages are visible").toLooseEqual(2);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toLooseEqual(survey.pages[0].name);
-    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toLooseEqual(survey.pages[1].name);
+    expect(tocListModel.visibleItems.length, "All pages are visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
   });
 
   test("navigate to page in single page mode", () => {
@@ -926,12 +926,12 @@ describe("TOC", () => {
     survey.pages[2].focusFirstQuestion = () => focus3rdPageCounter++;
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length).toLooseEqual(4);
-    expect(survey.currentPage.name).toLooseEqual("single-page");
-    expect(focus3rdPageCounter).toLooseEqual(0);
+    expect(tocListModel.visibleItems.length).toBe(4);
+    expect(survey.currentPage.name).toBe("single-page");
+    expect(focus3rdPageCounter).toBe(0);
     tocListModel.visibleItems[2].action();
-    expect(survey.currentPage.name).toLooseEqual("single-page");
-    expect(focus3rdPageCounter).toLooseEqual(1);
+    expect(survey.currentPage.name).toBe("single-page");
+    expect(focus3rdPageCounter).toBe(1);
   });
   test("update TOC pages on survey loaded from JSON", () => {
     let json: any = {
@@ -960,13 +960,13 @@ describe("TOC", () => {
     let survey: SurveyModel = new SurveyModel({});
     let tocListModel = createTOCListModel(survey);
 
-    expect(tocListModel.visibleItems.length, "No TOC items in empty survey").toLooseEqual(0);
+    expect(tocListModel.visibleItems.length, "No TOC items in empty survey").toBe(0);
     survey.fromJSON(json);
-    expect(tocListModel.visibleItems.length, "Two pages are visible in TOC").toLooseEqual(2);
-    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toLooseEqual(survey.pages[0].name);
-    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toLooseEqual(survey.pages[1].name);
-    expect(tocListModel.actions.length, "Two pages are visible in TOC actions").toLooseEqual(2);
-    expect(tocListModel.actions[0].title, "Page 1 is visible in TOC actions").toLooseEqual(survey.pages[0].name);
-    expect(tocListModel.actions[1].title, "Page 2 is visible in TOC actions").toLooseEqual(survey.pages[1].name);
+    expect(tocListModel.visibleItems.length, "Two pages are visible in TOC").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
+    expect(tocListModel.actions.length, "Two pages are visible in TOC actions").toBe(2);
+    expect(tocListModel.actions[0].title, "Page 1 is visible in TOC actions").toBe(survey.pages[0].name);
+    expect(tocListModel.actions[1].title, "Page 2 is visible in TOC actions").toBe(survey.pages[1].name);
   });
 });

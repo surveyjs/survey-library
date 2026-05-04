@@ -49,11 +49,11 @@ describe("Triggers", () => {
 
   test("Check trigger operations", () => {
     var trigger = new TriggerTester(null);
-    expect(trigger.operator, "The default is equal").toLooseEqual("equal");
+    expect(trigger.operator, "The default is equal").toBe("equal");
     trigger.operator = "eq";
-    expect(trigger.operator, "There is no operator 'eq'").toLooseEqual("equal");
+    expect(trigger.operator, "There is no operator 'eq'").toBe("equal");
     trigger.operator = "less";
-    expect(trigger.operator, "It can be changed on 'less'").toLooseEqual("less");
+    expect(trigger.operator, "It can be changed on 'less'").toBe("less");
   });
   test("Simple custom trigger", () => {
     var counterSuccess = 0;
@@ -68,39 +68,39 @@ describe("Triggers", () => {
     );
     trigger.value = 6;
     trigger.check(5);
-    expect(counterSuccess, "5 != 6").toLooseEqual(0);
-    expect(counterFalure, "5 != 6").toLooseEqual(1);
+    expect(counterSuccess, "5 != 6").toBe(0);
+    expect(counterFalure, "5 != 6").toBe(1);
     trigger.check(6);
-    expect(counterSuccess, "6 == 6").toLooseEqual(1);
-    expect(counterFalure, "6 == 6").toLooseEqual(1);
+    expect(counterSuccess, "6 == 6").toBe(1);
+    expect(counterFalure, "6 == 6").toBe(1);
     trigger.value = 2;
     trigger.operator = "contains";
     trigger.check([]);
-    expect(counterSuccess, "2 in []").toLooseEqual(1);
-    expect(counterFalure, "2 in []").toLooseEqual(2);
+    expect(counterSuccess, "2 in []").toBe(1);
+    expect(counterFalure, "2 in []").toBe(2);
     trigger.check([2, 3]);
-    expect(counterSuccess, "2 in [2, 3]").toLooseEqual(2);
-    expect(counterFalure, "2 not in [2, 3]").toLooseEqual(2);
+    expect(counterSuccess, "2 in [2, 3]").toBe(2);
+    expect(counterFalure, "2 not in [2, 3]").toBe(2);
 
     trigger.value = 2;
     trigger.operator = "notcontains";
     trigger.check([]);
-    expect(counterSuccess, "2 not in []").toLooseEqual(3);
-    expect(counterFalure, "2 not in []").toLooseEqual(2);
+    expect(counterSuccess, "2 not in []").toBe(3);
+    expect(counterFalure, "2 not in []").toBe(2);
     trigger.check([2, 3]);
-    expect(counterSuccess, "2 not in []").toLooseEqual(3);
-    expect(counterFalure, "2 not in [2, 3]").toLooseEqual(3);
+    expect(counterSuccess, "2 not in []").toBe(3);
+    expect(counterFalure, "2 not in [2, 3]").toBe(3);
   });
   test("Visibility trigger", () => {
     var owner = new SurveyTriggerVisibleOwnerTester();
     var trigger = new SurveyTriggerVisible();
     trigger.setOwner(owner);
-    expect(owner.items[0].visible, "By default the item.visible = false").toLooseEqual(false);
+    expect(owner.items[0].visible, "By default the item.visible = false").toBe(false);
     trigger.value = 10;
     trigger.check(10);
-    expect(owner.items[0].visible, "The trigger should succeed").toLooseEqual(true);
+    expect(owner.items[0].visible, "The trigger should succeed").toBe(true);
     trigger.check(11);
-    expect(owner.items[0].visible, "The trigger should failed").toLooseEqual(false);
+    expect(owner.items[0].visible, "The trigger should failed").toBe(false);
   });
 
   test("setvalue trigger", () => {
@@ -134,10 +134,10 @@ describe("Triggers", () => {
       ],
     });
     survey.setValue("matrix", [{ Col1: 1 }, { Col2: 2 }]);
-    expect(survey.getValue("q1"), "Trigger executed correctly").toLooseEqual("exec");
+    expect(survey.getValue("q1"), "Trigger executed correctly").toBe("exec");
     survey.setValue("q1", "notExec");
     survey.setValue("matrix", [{ Col1: 1, Col2: 1 }, { Col2: 2 }]);
-    expect(survey.getValue("q1"), "Trigger not executed correctly").toLooseEqual("notExec");
+    expect(survey.getValue("q1"), "Trigger not executed correctly").toBe("notExec");
   });
   test("Clear seValue on setToName property in design mode", () => {
     const survey = new SurveyModel({
@@ -160,14 +160,14 @@ describe("Triggers", () => {
       ],
     });
     const trigger = <SurveyTriggerSetValue>survey.triggers[0];
-    expect(trigger.setToName).toLooseEqual("q1");
-    expect(trigger.setValue).toLooseEqual("1");
+    expect(trigger.setToName).toBe("q1");
+    expect(trigger.setValue).toBe("1");
     trigger.setToName = "q2";
-    expect(trigger.setToName).toLooseEqual("q2");
-    expect(trigger.setValue).toLooseEqual("1");
+    expect(trigger.setToName).toBe("q2");
+    expect(trigger.setValue).toBe("1");
     survey.setDesignMode(true);
     trigger.setToName = "q1";
-    expect(trigger.setToName).toLooseEqual("q1");
+    expect(trigger.setToName).toBe("q1");
     expect(trigger.setValue).toBeFalsy();
   });
   test("On trigger executed", () => {
@@ -236,10 +236,10 @@ describe("Triggers", () => {
       completeTrigger = options.completeTrigger;
     });
     survey.setValue("q1", 3);
-    expect(survey.state).toLooseEqual("completed");
+    expect(survey.state).toBe("completed");
     expect(triggers).toEqualValues(["completetrigger"]);
-    expect(isCompleteEvent).toLooseEqual(true);
-    expect(completeTrigger.expression).toLooseEqual("{q1} = 3");
+    expect(isCompleteEvent).toBe(true);
+    expect(completeTrigger.expression).toBe("{q1} = 3");
     settings.executeCompleteTriggerOnValueChanged = false;
   });
   test("On trigger executed && options.completeTrigger", () => {
@@ -262,11 +262,11 @@ describe("Triggers", () => {
       completeTrigger = options.completeTrigger;
     });
     survey.setValue("q1", 3);
-    expect(survey.state).toLooseEqual("running");
+    expect(survey.state).toBe("running");
     survey.tryComplete();
-    expect(survey.state).toLooseEqual("completed");
-    expect(isCompleteEvent).toLooseEqual(true);
-    expect(completeTrigger.expression).toLooseEqual("{q1} = 3");
+    expect(survey.state).toBe("completed");
+    expect(isCompleteEvent).toBe(true);
+    expect(completeTrigger.expression).toBe("{q1} = 3");
   });
   test("Show complete button instead of next if complete trigger is going to be executed", () => {
     const survey = new SurveyModel({
@@ -290,27 +290,27 @@ describe("Triggers", () => {
         },
       ],
     });
-    expect(survey.isShowNextButton, "#1-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#1-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#1-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#1-complete").toBe(false);
     survey.setValue("q1", 1);
-    expect(survey.isShowNextButton, "#2-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#2-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#2-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#2-complete").toBe(false);
     survey.setValue("q1", 3);
-    expect(survey.isShowNextButton, "#3-next").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "#3-complete").toLooseEqual(true);
+    expect(survey.isShowNextButton, "#3-next").toBe(false);
+    expect(survey.isCompleteButtonVisible, "#3-complete").toBe(true);
     survey.setValue("q1", 5);
-    expect(survey.isShowNextButton, "#4-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#4-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#4-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#4-complete").toBe(false);
     survey.setValue("q1", 3);
-    expect(survey.isShowNextButton, "#5-next").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "#5-complete").toLooseEqual(true);
+    expect(survey.isShowNextButton, "#5-next").toBe(false);
+    expect(survey.isCompleteButtonVisible, "#5-complete").toBe(true);
     survey.clear();
-    expect(survey.isShowNextButton, "#6-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#6-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#6-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#6-complete").toBe(false);
     settings.changeNavigationButtonsOnCompleteTrigger = false;
     survey.setValue("q1", 3);
-    expect(survey.isShowNextButton, "#7-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#7-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#7-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#7-complete").toBe(false);
     settings.changeNavigationButtonsOnCompleteTrigger = true;
   });
   test("Do not execute copy and set trigger on page changed", () => {
@@ -395,10 +395,10 @@ describe("Triggers", () => {
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
     q1.value = "A";
-    expect(q2.value, "Copy value correctly").toLooseEqual("A");
+    expect(q2.value, "Copy value correctly").toBe("A");
     q2.value = "B";
     q3.value = "C";
-    expect(q2.value, "Do not copy value").toLooseEqual("B");
+    expect(q2.value, "Do not copy value").toBe("B");
   });
   // Skipped: pending product decision - see https://github.com/surveyjs/survey-library/issues/10192
   test.skip("copyvalue vs expression on changing fromName #10192", () => {
@@ -423,21 +423,21 @@ describe("Triggers", () => {
     const q3 = survey.getQuestionByName("q3");
     const q4 = survey.getQuestionByName("q4");
     q1.value = "A";
-    expect(q2.value, "value 1").toLooseEqual(undefined);
+    expect(q2.value, "value 1").toBeUndefined();
     q4.value = "B";
-    expect(q2.value, "value 2").toLooseEqual("A");
+    expect(q2.value, "value 2").toBe("A");
     q1.value = "C";
-    expect(q2.value, "value 3").toLooseEqual("C");
+    expect(q2.value, "value 3").toBe("C");
     q2.value = "D";
-    expect(q2.value, "value 4").toLooseEqual("D");
+    expect(q2.value, "value 4").toBe("D");
     q3.value = "E";
-    expect(q2.value, "value 5").toLooseEqual("D");
+    expect(q2.value, "value 5").toBe("D");
     q1.value = "F";
-    expect(q2.value, "value 6").toLooseEqual("F");
+    expect(q2.value, "value 6").toBe("F");
     q4.value = "";
-    expect(q2.value, "value 7").toLooseEqual("F");
+    expect(q2.value, "value 7").toBe("F");
     q1.value = "G";
-    expect(q2.value, "value 8").toLooseEqual("F");
+    expect(q2.value, "value 8").toBe("F");
   });
 
   test("Execute trigger on complete", () => {
@@ -505,15 +505,15 @@ describe("Triggers", () => {
     });
     const q1 = <QuestionMatrixModel>survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.value, "#1").toLooseEqual(undefined);
+    expect(q1.value, "#1").toBeUndefined();
     q1.value = { a: 1 };
-    expect(q2.value, "#2").toLooseEqual(undefined);
+    expect(q2.value, "#2").toBeUndefined();
     q1.value = { a: 1, b: 2, c: 3 };
-    expect(q2.value, "#3").toLooseEqual(6);
+    expect(q2.value, "#3").toBe(6);
     q1.value = { a: 3, b: 2, c: 3 };
-    expect(q2.value, "#4").toLooseEqual(8);
+    expect(q2.value, "#4").toBe(8);
     q1.value = { b: 2, c: 3 };
-    expect(q2.value, "#5").toLooseEqual(8);
+    expect(q2.value, "#5").toBe(8);
   });
   test("Show complete button instead of next for single matrix, bug#6152", () => {
     const survey = new SurveyModel({
@@ -545,27 +545,27 @@ describe("Triggers", () => {
         }
       ]
     });
-    expect(survey.isShowNextButton, "#1-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#1-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#1-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#1-complete").toBe(false);
     const q1 = survey.getQuestionByName("q1");
     q1.value = { row2: 1 };
-    expect(survey.isShowNextButton, "#2-next").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "#2-complete").toLooseEqual(true);
+    expect(survey.isShowNextButton, "#2-next").toBe(false);
+    expect(survey.isCompleteButtonVisible, "#2-complete").toBe(true);
     q1.value = { row1: 1, row2: 1 };
-    expect(survey.isShowNextButton, "#3-next").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "#3-complete").toLooseEqual(true);
+    expect(survey.isShowNextButton, "#3-next").toBe(false);
+    expect(survey.isCompleteButtonVisible, "#3-complete").toBe(true);
     q1.value = { row1: 1 };
-    expect(survey.isShowNextButton, "#4-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#4-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#4-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#4-complete").toBe(false);
     q1.value = { row1: 1, row2: 2 };
-    expect(survey.isShowNextButton, "#5-next").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "#5-complete").toLooseEqual(false);
+    expect(survey.isShowNextButton, "#5-next").toBe(true);
+    expect(survey.isCompleteButtonVisible, "#5-complete").toBe(false);
     q1.value = { row1: 1, row2: 1 };
-    expect(survey.isShowNextButton, "#6-next").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "#6-complete").toLooseEqual(true);
+    expect(survey.isShowNextButton, "#6-next").toBe(false);
+    expect(survey.isCompleteButtonVisible, "#6-complete").toBe(true);
     q1.value = { row1: 2, row2: 1, row3: 2 };
-    expect(survey.isShowNextButton, "#7-next").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "#7-complete").toLooseEqual(true);
+    expect(survey.isShowNextButton, "#7-next").toBe(false);
+    expect(survey.isCompleteButtonVisible, "#7-complete").toBe(true);
   });
   test("skip trigger for showOtherItem, Bug#6792", () => {
     const survey = new SurveyModel({
@@ -604,7 +604,7 @@ describe("Triggers", () => {
       ] });
     const q1 = survey.getQuestionByName("question1");
     q1.value = "other";
-    expect(survey.currentPageNo, "We are staying on the same page").toLooseEqual(0);
+    expect(survey.currentPageNo, "We are staying on the same page").toBe(0);
   });
   test("complete trigger for showOtherItem, Bug#6792", () => {
     const oldSettings = settings.triggers.executeCompleteOnValueChanged;
@@ -644,8 +644,8 @@ describe("Triggers", () => {
       ] });
     const q1 = survey.getQuestionByName("question1");
     q1.value = "other";
-    expect(survey.currentPageNo, "We are staying on the same page").toLooseEqual(0);
-    expect(survey.state, "Survey is not completed").toLooseEqual("running");
+    expect(survey.currentPageNo, "We are staying on the same page").toBe(0);
+    expect(survey.state, "Survey is not completed").toBe("running");
     settings.triggers.executeCompleteOnValueChanged = oldSettings;
   });
   test("complete trigger and next/complete buttons, Bug#6970", () => {
@@ -687,17 +687,17 @@ describe("Triggers", () => {
       ] });
     const q2 = survey.getQuestionByName("question2");
     survey.nextPage();
-    expect(survey.isCompleteButtonVisible, "complete button is invisible, #1").toLooseEqual(false);
-    expect(survey.isShowNextButton, "next button is visible, #1").toLooseEqual(true);
+    expect(survey.isCompleteButtonVisible, "complete button is invisible, #1").toBe(false);
+    expect(survey.isShowNextButton, "next button is visible, #1").toBe(true);
     q2.value = "a";
-    expect(survey.isCompleteButtonVisible, "complete button is visible, #2").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next button is invisible, #2").toLooseEqual(false);
+    expect(survey.isCompleteButtonVisible, "complete button is visible, #2").toBe(true);
+    expect(survey.isShowNextButton, "next button is invisible, #2").toBe(false);
     survey.prevPage();
-    expect(survey.isCompleteButtonVisible, "complete button is invisible, #3").toLooseEqual(false);
-    expect(survey.isShowNextButton, "next button is visible, #3").toLooseEqual(true);
+    expect(survey.isCompleteButtonVisible, "complete button is invisible, #3").toBe(false);
+    expect(survey.isShowNextButton, "next button is visible, #3").toBe(true);
     survey.nextPage();
-    expect(survey.isCompleteButtonVisible, "complete button is visible, #4").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next button is invisible, #4").toLooseEqual(false);
+    expect(survey.isCompleteButtonVisible, "complete button is visible, #4").toBe(true);
+    expect(survey.isShowNextButton, "next button is invisible, #4").toBe(false);
   });
   test("runexpression trigger and isNextPage", () => {
     let counter = 0;
@@ -731,22 +731,22 @@ describe("Triggers", () => {
         }
       ],
     });
-    expect(counter, "Calculate on loading").toLooseEqual(0);
+    expect(counter, "Calculate on loading").toBe(0);
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
     q1.value = "1";
-    expect(counter, "counter #1").toLooseEqual(1);
-    expect(q2.value, "value #1").toLooseEqual("1_abc");
+    expect(counter, "counter #1").toBe(1);
+    expect(q2.value, "value #1").toBe("1_abc");
     q3.value = "2";
-    expect(counter, "counter #2").toLooseEqual(1);
-    expect(q2.value, "value #2").toLooseEqual("1_abc");
+    expect(counter, "counter #2").toBe(1);
+    expect(q2.value, "value #2").toBe("1_abc");
     survey.nextPage();
-    expect(counter, "counter #3").toLooseEqual(1);
-    expect(q2.value, "value #3").toLooseEqual("1_abc");
+    expect(counter, "counter #3").toBe(1);
+    expect(q2.value, "value #3").toBe("1_abc");
     survey.doComplete();
-    expect(counter, "counter #4").toLooseEqual(1);
-    expect(q2.value, "value #4").toLooseEqual("1_abc");
+    expect(counter, "counter #4").toBe(1);
+    expect(q2.value, "value #4").toBe("1_abc");
 
     FunctionFactory.Instance.unregister("calcCust");
   });
@@ -781,17 +781,17 @@ describe("Triggers", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     const calcVal = survey.calculatedValues[0];
-    expect(calcVal.value, "calcValue.val #1").toLooseEqual(false);
-    expect(q2.value, "q2.value #1").toLooseEqual(20);
+    expect(calcVal.value, "calcValue.val #1").toBe(false);
+    expect(q2.value, "q2.value #1").toBe(20);
     q1.value = "a";
-    expect(calcVal.value, "calcValue.val #2").toLooseEqual(false);
-    expect(q2.value, "q2.value #2").toLooseEqual(20);
+    expect(calcVal.value, "calcValue.val #2").toBe(false);
+    expect(q2.value, "q2.value #2").toBe(20);
     q1.value = "abc";
-    expect(calcVal.value, "calcValue.val #3").toLooseEqual(true);
-    expect(q2.value, "q2.value #3").toLooseEqual(10);
+    expect(calcVal.value, "calcValue.val #3").toBe(true);
+    expect(q2.value, "q2.value #3").toBe(10);
     q1.value = "abcd";
-    expect(calcVal.value, "calcValue.val #4").toLooseEqual(false);
-    expect(q2.value, "q2.value #4").toLooseEqual(20);
+    expect(calcVal.value, "calcValue.val #4").toBe(false);
+    expect(q2.value, "q2.value #4").toBe(20);
   });
   test("runexpression trigger and calculated values, Bug#8273 Case#2", () => {
     const survey = new SurveyModel({
@@ -826,21 +826,21 @@ describe("Triggers", () => {
     const q2 = survey.getQuestionByName("q2");
     const calcVal1 = survey.calculatedValues[0];
     const calcVal2 = survey.calculatedValues[1];
-    expect(calcVal1.value, "calcVal1.val #1").toLooseEqual(false);
-    expect(calcVal2.value, "calcVal2.val #1").toLooseEqual(false);
-    expect(q2.value, "q2.value #1").toLooseEqual(undefined);
+    expect(calcVal1.value, "calcVal1.val #1").toBe(false);
+    expect(calcVal2.value, "calcVal2.val #1").toBe(false);
+    expect(q2.value, "q2.value #1").toBeUndefined();
     q1.value = "a";
-    expect(calcVal1.value, "calcVal1.val #2").toLooseEqual(false);
-    expect(calcVal2.value, "calcVal2.val #2").toLooseEqual(false);
-    expect(q2.value, "q2.value #2").toLooseEqual(undefined);
+    expect(calcVal1.value, "calcVal1.val #2").toBe(false);
+    expect(calcVal2.value, "calcVal2.val #2").toBe(false);
+    expect(q2.value, "q2.value #2").toBeUndefined();
     q1.value = "abc";
-    expect(calcVal1.value, "calcVal1.val #3").toLooseEqual(true);
-    expect(calcVal2.value, "calcVal2.val #3").toLooseEqual(false);
-    expect(q2.value, "q2.value #3").toLooseEqual("10");
+    expect(calcVal1.value, "calcVal1.val #3").toBe(true);
+    expect(calcVal2.value, "calcVal2.val #3").toBe(false);
+    expect(q2.value, "q2.value #3").toBe(10);
     q1.value = "d";
-    expect(calcVal1.value, "calcVal1.val #4").toLooseEqual(false);
-    expect(calcVal2.value, "calcVal2.val #4").toLooseEqual(true);
-    expect(q2.value, "q2.value #4").toLooseEqual("20");
+    expect(calcVal1.value, "calcVal1.val #4").toBe(false);
+    expect(calcVal2.value, "calcVal2.val #4").toBe(true);
+    expect(q2.value, "q2.value #4").toBe(20);
   });
   test("copyvalue & custom function, Bug#10192, #1", () => {
     FunctionFactory.Instance.register("canCopyValue", (params) => {
@@ -865,19 +865,19 @@ describe("Triggers", () => {
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
     q1.value = "A";
-    expect(q3.value, "q3.value #1").toLooseEqual(undefined);
+    expect(q3.value, "q3.value #1").toBeUndefined();
     q2.value = "copy";
-    expect(q3.value, "q3 is not empty").toLooseEqual("A");
+    expect(q3.value, "q3 is not empty").toBe("A");
     q3.value = "B";
-    expect(q3.value, "q3.value #2").toLooseEqual("B");
+    expect(q3.value, "q3.value #2").toBe("B");
     q2.value = "notCopy";
-    expect(q3.value, "q3.value #3").toLooseEqual("B");
+    expect(q3.value, "q3.value #3").toBe("B");
     q1.value = "C";
-    expect(q3.value, "q3.value #4").toLooseEqual("B");
+    expect(q3.value, "q3.value #4").toBe("B");
     q2.value = "copy";
-    expect(q3.value, "q3.value #5").toLooseEqual("C");
+    expect(q3.value, "q3.value #5").toBe("C");
     q1.value = "D";
-    expect(q3.value, "q3.value #6").toLooseEqual("D");
+    expect(q3.value, "q3.value #6").toBe("D");
     FunctionFactory.Instance.unregister("canCopyValue");
   });
   test("copyvalue & custom function, Bug#10192, #2", () => {
@@ -911,19 +911,19 @@ describe("Triggers", () => {
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
     q1.value = "A";
-    expect(q3.value, "q3.value #1").toLooseEqual(undefined);
+    expect(q3.value, "q3.value #1").toBeUndefined();
     q2.value = "copy";
-    expect(q3.value, "q3 is not empty").toLooseEqual("A");
+    expect(q3.value, "q3 is not empty").toBe("A");
     q3.value = "B";
-    expect(q3.value, "q3.value #2").toLooseEqual("B");
+    expect(q3.value, "q3.value #2").toBe("B");
     q2.value = "notCopy";
-    expect(q3.value, "q3.value #3").toLooseEqual("B");
+    expect(q3.value, "q3.value #3").toBe("B");
     q1.value = "C";
-    expect(q3.value, "q3.value #4").toLooseEqual("B");
+    expect(q3.value, "q3.value #4").toBe("B");
     q2.value = "copy";
-    expect(q3.value, "q3.value #5").toLooseEqual("C");
+    expect(q3.value, "q3.value #5").toBe("C");
     q1.value = "D";
-    expect(q3.value, "q3.value #6").toLooseEqual("D");
+    expect(q3.value, "q3.value #6").toBe("D");
     copyClassInfo.creator = () => {
       return new SurveyTriggerCopyValue();
     };
@@ -961,13 +961,13 @@ describe("Triggers", () => {
       }
     });
     survey.setValue("q1", 3);
-    expect(survey.isCompleteButtonVisible, "Survey complete button visibility #1").toLooseEqual(false);
-    expect(counter, "onExpressionRunning event call counter #1").toLooseEqual(1);
+    expect(survey.isCompleteButtonVisible, "Survey complete button visibility #1").toBe(false);
+    expect(counter, "onExpressionRunning event call counter #1").toBe(1);
     allow = true;
     expression = "{q1} = 2";
     survey.setValue("q1", 2);
-    expect(survey.isCompleteButtonVisible, "Survey complete button visibility #2").toLooseEqual(true);
-    expect(counter, "onExpressionRunning event call counter #2").toLooseEqual(2);
+    expect(survey.isCompleteButtonVisible, "Survey complete button visibility #2").toBe(true);
+    expect(counter, "onExpressionRunning event call counter #2").toBe(2);
   });
   test("triggers that depend on each other, Bug#10659", () => {
     const survey = new SurveyModel({

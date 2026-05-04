@@ -48,9 +48,9 @@ test("check rating default items has owner and owner property name", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   const item = q1.visibleRateValues[0];
-  expect(item.locOwner).toLooseEqual(q1);
-  expect(item.ownerPropertyName).toLooseEqual("rateValues");
-  expect(item.getType()).toLooseEqual("ratingitem");
+  expect(item.locOwner).toBe(q1);
+  expect(item.ownerPropertyName).toBe("rateValues");
+  expect(item.getType()).toBe("ratingitem");
 });
 test("check rating processResponsiveness", () => {
   var json = {
@@ -64,9 +64,9 @@ test("check rating processResponsiveness", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1["processResponsiveness"](500, 600);
-  expect(q1.renderAs).toLooseEqual("default");
+  expect(q1.renderAs).toBe("default");
   q1["processResponsiveness"](600, 500);
-  expect(q1.renderAs).toLooseEqual("dropdown");
+  expect(q1.renderAs).toBe("dropdown");
 });
 
 test("check rating initResponsiveness", () => {
@@ -134,25 +134,25 @@ test("check rating resize observer behavior", () => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.afterRender(rootElement);
   expect(q1["resizeObserver"]).toBeTruthy();
-  expect(q1.renderAs).toLooseEqual("default");
+  expect(q1.renderAs).toBe("default");
   currentOffsetWidth = 300;
   currentScrollWidth = 300;
   (<any>q1["resizeObserver"]).call();
-  expect(q1.renderAs).toLooseEqual("default");
+  expect(q1.renderAs).toBe("default");
   currentOffsetWidth = 200;
   (<any>q1["resizeObserver"]).call();
   (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toLooseEqual("dropdown");
+  expect(q1.renderAs).toBe("dropdown");
   currentOffsetWidth = 400;
   (<any>q1["resizeObserver"]).call();
   (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toLooseEqual("default");
+  expect(q1.renderAs).toBe("default");
   currentOffsetWidth = 200;
   (<any>q1["resizeObserver"]).call();
   (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toLooseEqual("dropdown");
+  expect(q1.renderAs).toBe("dropdown");
   q1["destroyResizeObserver"]();
-  expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toLooseEqual("default");
+  expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toBe("default");
   window.getComputedStyle = getComputedStyle;
   window.ResizeObserver = ResizeObserver;
 
@@ -202,15 +202,15 @@ test("check rating displayMode", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1["processResponsiveness"](500, 600);
-  expect(q1.renderAs, "displayMode=buttons, big size, default").toLooseEqual("default");
+  expect(q1.renderAs, "displayMode=buttons, big size, default").toBe("default");
   q1["processResponsiveness"](600, 500);
-  expect(q1.renderAs, "displayMode=buttons, small size, default").toLooseEqual("default");
+  expect(q1.renderAs, "displayMode=buttons, small size, default").toBe("default");
 
   q1.displayMode = "dropdown";
   q1["processResponsiveness"](500, 600);
-  expect(q1.renderAs, "displayMode=dropdown, big size, dropdown").toLooseEqual("dropdown");
+  expect(q1.renderAs, "displayMode=dropdown, big size, dropdown").toBe("dropdown");
   q1["processResponsiveness"](600, 500);
-  expect(q1.renderAs, "displayMode=dropdown, big size, dropdown").toLooseEqual("dropdown");
+  expect(q1.renderAs, "displayMode=dropdown, big size, dropdown").toBe("dropdown");
 });
 test("do not process reponsiveness when required width differs from avalailable less then 2px: #4554", () => {
   var json = {
@@ -223,15 +223,15 @@ test("do not process reponsiveness when required width differs from avalailable 
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1["processResponsiveness"](502, 500)).toLooseEqual(false);
-  expect(q1.renderAs, "difference too small: not processed").toLooseEqual("default");
-  expect(q1["processResponsiveness"](503, 500)).toLooseEqual(true);
-  expect(q1.renderAs, "difference is enough: is processed").toLooseEqual("dropdown");
+  expect(q1["processResponsiveness"](502, 500)).toBe(false);
+  expect(q1.renderAs, "difference too small: not processed").toBe("default");
+  expect(q1["processResponsiveness"](503, 500)).toBe(true);
+  expect(q1.renderAs, "difference is enough: is processed").toBe("dropdown");
   q1["processResponsiveness"](503, 500); // dummy: to reset isProcessed flag
-  expect(q1["processResponsiveness"](500, 502)).toLooseEqual(false);
-  expect(q1.renderAs, "difference too small: not processed").toLooseEqual("dropdown");
-  expect(q1["processResponsiveness"](500, 503)).toLooseEqual(true);
-  expect(q1.renderAs, "difference is enough: processed").toLooseEqual("default");
+  expect(q1["processResponsiveness"](500, 502)).toBe(false);
+  expect(q1.renderAs, "difference too small: not processed").toBe("dropdown");
+  expect(q1["processResponsiveness"](500, 503)).toBe(true);
+  expect(q1.renderAs, "difference is enough: processed").toBe("default");
 });
 test("Do not process responsiveness if displayMode: 'dropdown' and set renderAs 'dropdown'", () => {
   RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
@@ -246,19 +246,19 @@ test("Do not process responsiveness if displayMode: 'dropdown' and set renderAs 
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.renderAs).toLooseEqual("dropdown");
-  expect(q1.isDefaultRendering()).toLooseEqual(false);
+  expect(q1.renderAs).toBe("dropdown");
+  expect(q1.isDefaultRendering()).toBe(false);
   const container = document.createElement("div");
   container.innerHTML = "<div class='sd-scrollable-container'></div>";
   q1["initResponsiveness"](container);
-  expect(q1["resizeObserver"]).toLooseEqual(undefined);
+  expect(q1["resizeObserver"]).toBeUndefined();
 
   survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.setJsonObject(json);
   q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.renderAs).toLooseEqual("default");
-  expect(q1.isDefaultRendering()).toLooseEqual(true);
+  expect(q1.renderAs).toBe("default");
+  expect(q1.isDefaultRendering()).toBe(true);
   RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
 
   container.remove();
@@ -290,13 +290,13 @@ test("Check numeric item values recalculation", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.visibleRateValues.length).toLooseEqual(5);
+  expect(q1.visibleRateValues.length).toBe(5);
   q1.rateMax = 6;
-  expect(q1.visibleRateValues.length).toLooseEqual(6);
+  expect(q1.visibleRateValues.length).toBe(6);
   q1.rateStep = 2;
-  expect(q1.visibleRateValues.length).toLooseEqual(3);
+  expect(q1.visibleRateValues.length).toBe(3);
   q1.rateMin = 0;
-  expect(q1.visibleRateValues.length).toLooseEqual(3);
+  expect(q1.visibleRateValues.length).toBe(3);
 });
 
 test("Check rateValues on text change", () => {
@@ -310,13 +310,13 @@ test("Check rateValues on text change", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateValues.length).toLooseEqual(0);
+  expect(q1.rateValues.length).toBe(0);
   const firstItemId = q1.visibleChoices[0].uniqueId;
   q1.visibleRateValues[0].text = "abc";
-  expect(q1.rateValues.length).toLooseEqual(5);
-  expect(q1.visibleChoices[0].uniqueId, "renderedRateItems is cloned").toLooseEqual(firstItemId);
+  expect(q1.rateValues.length).toBe(5);
+  expect(q1.visibleChoices[0].uniqueId, "renderedRateItems is cloned").toBe(firstItemId);
   q1.visibleRateValues[1].text = "abc";
-  expect(q1.visibleChoices[0].uniqueId, "renderedRateItems is not cloned").toLooseEqual(firstItemId);
+  expect(q1.visibleChoices[0].uniqueId, "renderedRateItems is not cloned").toBe(firstItemId);
 });
 test("Check cssClasses update when dropdownListModel is set", () => {
   var json = {
@@ -351,12 +351,12 @@ test("Check cssClasses update when dropdownListModel is set", () => {
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   q1.dropdownListModel = dropdownListModel;
   expect(dropdownListModel.popupModel.cssClass.includes("custom-popup-class")).toBeTruthy();
-  expect(list.cssClasses.item).toLooseEqual("original-class custom-class");
-  expect(list.cssClasses.itemSelected).toLooseEqual("original-class-selected custom-class-selected");
+  expect(list.cssClasses.item).toBe("original-class custom-class");
+  expect(list.cssClasses.itemSelected).toBe("original-class-selected custom-class-selected");
 });
 test("Rating question, renderedRateItems", () => {
   var rate = new QuestionRatingModel("q1");
-  expect(rate.visibleRateValues.length, "There are 5 items by default").toLooseEqual(5);
+  expect(rate.visibleRateValues.length, "There are 5 items by default").toBe(5);
 
   expect(rate.hasMinLabel, "Rating has no min label by default").toBeFalsy();
   expect(rate.hasMaxLabel, "Rating has no max label by default").toBeFalsy();
@@ -432,51 +432,51 @@ test("check stars highlighting", () => {
   q1.cssClasses.itemStarSelected = "";
   q1.value = 2;
 
-  expect(q1.visibleChoices.length, "Items by deafault").toLooseEqual(5);
-  expect(q1.rateType, "Rate type is stars").toLooseEqual("stars");
+  expect(q1.visibleChoices.length, "Items by deafault").toBe(5);
+  expect(q1.rateType, "Rate type is stars").toBe("stars");
 
-  expect(q1.getItemClass(q1.visibleChoices[0]), "value=2 index=0").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1]), "value=2 index=1").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "value=2 index=2").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "value=2 index=3").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "value=2 index=4").toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0]), "value=2 index=0").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1]), "value=2 index=1").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "value=2 index=2").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "value=2 index=3").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "value=2 index=4").toBe("");
   q1.onItemMouseIn(q1.visibleChoices[3]);
 
-  expect(q1.visibleChoices[0].highlight, "check highlight property #0 index=0").toLooseEqual("none");
-  expect(q1.visibleChoices[1].highlight, "check highlight property #0 index=1").toLooseEqual("none");
-  expect(q1.visibleChoices[2].highlight, "check highlight property #0 index=2").toLooseEqual("highlighted");
-  expect(q1.visibleChoices[3].highlight, "check highlight property #0 index=3").toLooseEqual("highlighted");
-  expect(q1.visibleChoices[4].highlight, "check highlight property #0 index=4").toLooseEqual("none");
+  expect(q1.visibleChoices[0].highlight, "check highlight property #0 index=0").toBe("none");
+  expect(q1.visibleChoices[1].highlight, "check highlight property #0 index=1").toBe("none");
+  expect(q1.visibleChoices[2].highlight, "check highlight property #0 index=2").toBe("highlighted");
+  expect(q1.visibleChoices[3].highlight, "check highlight property #0 index=3").toBe("highlighted");
+  expect(q1.visibleChoices[4].highlight, "check highlight property #0 index=4").toBe("none");
 
-  expect(q1.getItemClass(q1.visibleChoices[0]), "mouseIn #1 index=0").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1]), "mouseIn #1 index=1").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "mouseIn #1 index=2").toLooseEqual("sv_q_high");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "mouseIn #1 index=3").toLooseEqual("sv_q_high");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "mouseIn #1 index=4").toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0]), "mouseIn #1 index=0").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1]), "mouseIn #1 index=1").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "mouseIn #1 index=2").toBe("sv_q_high");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "mouseIn #1 index=3").toBe("sv_q_high");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "mouseIn #1 index=4").toBe("");
 
   q1.onItemMouseOut(q1.visibleChoices[3]);
-  expect(q1.getItemClass(q1.visibleChoices[0]), "onItemMouseOut #1 index=0").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1]), "onItemMouseOut #1 index=1").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "onItemMouseOut #1 index=2").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "onItemMouseOut #1 index=3").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "onItemMouseOut #1 index=4").toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0]), "onItemMouseOut #1 index=0").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1]), "onItemMouseOut #1 index=1").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "onItemMouseOut #1 index=2").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "onItemMouseOut #1 index=3").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "onItemMouseOut #1 index=4").toBe("");
 
   q1.value = 4;
   q1.onItemMouseIn(q1.visibleChoices[1]);
-  expect(q1.getItemClass(q1.visibleChoices[0]), "mouseIn #2 index=0").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1]), "mouseIn #2 index=1").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "mouseIn #2 index=2").toLooseEqual("sv_q_unhigh");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "mouseIn #2 index=3").toLooseEqual("sv_q_unhigh");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "mouseIn #2 index=4").toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0]), "mouseIn #2 index=0").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1]), "mouseIn #2 index=1").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "mouseIn #2 index=2").toBe("sv_q_unhigh");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "mouseIn #2 index=3").toBe("sv_q_unhigh");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "mouseIn #2 index=4").toBe("");
 
   q1.onItemMouseOut(q1.visibleChoices[1]);
   survey.readOnly = true;
   q1.onItemMouseIn(q1.visibleChoices[1]);
-  expect(q1.getItemClass(q1.visibleChoices[0]), "survey.mode=display index=0").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1]), "survey.mode=display index=1").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "survey.mode=display index=2").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "survey.mode=display index=3").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "survey.mode=display index=4").toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0]), "survey.mode=display index=0").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1]), "survey.mode=display index=1").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "survey.mode=display index=2").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "survey.mode=display index=3").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "survey.mode=display index=4").toBe("");
 });
 
 test("check stars highlighting design mode", () => {
@@ -496,18 +496,18 @@ test("check stars highlighting design mode", () => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
 
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
 
   q1.onItemMouseIn(q1.visibleChoices[3]);
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
 });
 
 test("check stars highlighting on touch device", () => {
@@ -528,17 +528,17 @@ test("check stars highlighting on touch device", () => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
 
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
   q1.onItemMouseIn(q1.visibleChoices[3]);
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
   _setIsTouch(false);
 });
 
@@ -562,17 +562,17 @@ test("check stars styles", () => {
   q1.cssClasses.itemStarDisabled = "";
   q1.cssClasses.itemStarReadOnly = "sv_q_readonly";
   q1.value = 2;
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_selected");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_selected");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
   survey.readOnly = true;
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_selected sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_selected sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("sv_q_readonly");
 });
 
 test("check smiley styles", () => {
@@ -600,25 +600,25 @@ test("check smiley styles", () => {
   q1.value = 2;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_sc");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected sv_q_sc sv_q_rc");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("sv_q_sc");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("sv_q_sc");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("sv_q_sc");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_sc");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected sv_q_sc sv_q_rc");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("sv_q_sc");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("sv_q_sc");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("sv_q_sc");
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "scale";
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected sv_q_rc");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected sv_q_rc");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "default";
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("");
 });
 
 test("check stars for rateValues", () => {
@@ -647,17 +647,17 @@ test("check stars for rateValues", () => {
   q1.cssClasses.itemStarDisabled = "";
   q1.cssClasses.itemStarReadOnly = "sv_q_readonly";
   q1.value = "a_little_bit";
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_selected");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "item[2] is empty").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "item[3] is empty").toLooseEqual("");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "item[4] is empty").toLooseEqual("");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_selected");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "item[2] is empty").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "item[3] is empty").toBe("");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "item[4] is empty").toBe("");
   survey.readOnly = true;
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_selected sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[2]), "item[2] is disabled not selected").toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[3]), "item[3] is disabled not selected").toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[4]), "item[4] is disabled not selected").toLooseEqual("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_selected sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[2]), "item[2] is disabled not selected").toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[3]), "item[3] is disabled not selected").toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[4]), "item[4] is disabled not selected").toBe("sv_q_readonly");
 });
 
 test("check smileys for rateValues", () => {
@@ -681,11 +681,11 @@ test("check smileys for rateValues", () => {
 
   q1.rateMin = 200;
   q1.rateMax = 300;
-  expect(q1.getItemSmiley(q1.visibleChoices[0])).toLooseEqual("not-good");
-  expect(q1.getItemSmiley(q1.visibleChoices[1])).toLooseEqual("average");
-  expect(q1.getItemSmiley(q1.visibleChoices[2])).toLooseEqual("normal");
-  expect(q1.getItemSmiley(q1.visibleChoices[3])).toLooseEqual("good");
-  expect(q1.getItemSmiley(q1.visibleChoices[4])).toLooseEqual("very-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[0])).toBe("not-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[1])).toBe("average");
+  expect(q1.getItemSmiley(q1.visibleChoices[2])).toBe("normal");
+  expect(q1.getItemSmiley(q1.visibleChoices[3])).toBe("good");
+  expect(q1.getItemSmiley(q1.visibleChoices[4])).toBe("very-good");
 });
 
 test("check smileys for min/max", () => {
@@ -702,22 +702,22 @@ test("check smileys for min/max", () => {
 
   q1.rateMin = 2;
   q1.rateMax = 3;
-  expect(q1.getItemSmiley(q1.visibleChoices[0])).toLooseEqual("not-good");
-  expect(q1.getItemSmiley(q1.visibleChoices[1])).toLooseEqual("very-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[0])).toBe("not-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[1])).toBe("very-good");
 
   q1.rateMin = 0;
   q1.rateMax = 2;
-  expect(q1.getItemSmiley(q1.visibleChoices[0])).toLooseEqual("not-good");
-  expect(q1.getItemSmiley(q1.visibleChoices[1])).toLooseEqual("normal");
-  expect(q1.getItemSmiley(q1.visibleChoices[2])).toLooseEqual("very-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[0])).toBe("not-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[1])).toBe("normal");
+  expect(q1.getItemSmiley(q1.visibleChoices[2])).toBe("very-good");
 
   q1.rateMin = 1;
   q1.rateMax = 5;
-  expect(q1.getItemSmiley(q1.visibleChoices[0])).toLooseEqual("not-good");
-  expect(q1.getItemSmiley(q1.visibleChoices[1])).toLooseEqual("average");
-  expect(q1.getItemSmiley(q1.visibleChoices[2])).toLooseEqual("normal");
-  expect(q1.getItemSmiley(q1.visibleChoices[3])).toLooseEqual("good");
-  expect(q1.getItemSmiley(q1.visibleChoices[4])).toLooseEqual("very-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[0])).toBe("not-good");
+  expect(q1.getItemSmiley(q1.visibleChoices[1])).toBe("average");
+  expect(q1.getItemSmiley(q1.visibleChoices[2])).toBe("normal");
+  expect(q1.getItemSmiley(q1.visibleChoices[3])).toBe("good");
+  expect(q1.getItemSmiley(q1.visibleChoices[4])).toBe("very-good");
 });
 
 test("check smileys styles", () => {
@@ -740,18 +740,18 @@ test("check smileys styles", () => {
   q1.cssClasses.itemSmileyReadOnly = "sv_q_readonly";
   q1.cssClasses.itemSmileyHover = "sv_q_allowhover";
   q1.value = 2;
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_allowhover");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("sv_q_allowhover");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("sv_q_allowhover");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("sv_q_allowhover");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_allowhover");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("sv_q_allowhover");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("sv_q_allowhover");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("sv_q_allowhover");
 
   survey.readOnly = true;
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_selected sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("sv_q_readonly");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_selected sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("sv_q_readonly");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("sv_q_readonly");
 });
 
 test("check styles on event", () => {
@@ -768,16 +768,16 @@ test("check styles on event", () => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.item = "sv_q_item";
   q1.cssClasses.itemFixedSize = "";
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_item");
 
   survey.onUpdateChoiceItemCss.add((sender, options) => {
     if (options.item.value == 2) {
       options.css = options.css + " custom";
     }
   });
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_item custom");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_item custom");
 });
 
 test("rating smileys max item count", () => {
@@ -793,18 +793,18 @@ test("rating smileys max item count", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
-  expect(q1.visibleChoices.length).toLooseEqual(5);
+  expect(q1.visibleChoices.length).toBe(5);
   q1.rateMax = 10;
-  expect(q1.visibleChoices.length).toLooseEqual(10);
+  expect(q1.visibleChoices.length).toBe(10);
   q1.rateMax = 15;
-  expect(q1.visibleChoices.length).toLooseEqual(10);
+  expect(q1.visibleChoices.length).toBe(10);
 
   q1.rateType = "labels";
-  expect(q1.visibleChoices.length).toLooseEqual(15);
+  expect(q1.visibleChoices.length).toBe(15);
   q1.visibleChoices[0].value = "a";
 
   q1.rateType = "smileys";
-  expect(q1.visibleChoices.length).toLooseEqual(10);
+  expect(q1.visibleChoices.length).toBe(10);
 });
 
 test("check fixed width styles", () => {
@@ -828,11 +828,11 @@ test("check fixed width styles", () => {
   q1.cssClasses.itemHover = "";
   q1.cssClasses.itemFixedSize = "sv_q_item-fixed";
 
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_item sv_q_item-fixed");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("sv_q_item sv_q_item-fixed");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("sv_q_item sv_q_item-fixed");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_item sv_q_item-fixed");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("sv_q_item sv_q_item-fixed");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("sv_q_item sv_q_item-fixed");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("sv_q_item");
 });
 
 test("check fixed width styles - rate values", () => {
@@ -864,11 +864,11 @@ test("check fixed width styles - rate values", () => {
   q1.cssClasses.itemHover = "";
   q1.cssClasses.itemFixedSize = "sv_q_item-fixed";
 
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item");
-  expect(q1.getItemClass(q1.visibleChoices[1])).toLooseEqual("sv_q_item sv_q_item-fixed");
-  expect(q1.getItemClass(q1.visibleChoices[2])).toLooseEqual("sv_q_item");
-  expect(q1.getItemClass(q1.visibleChoices[3])).toLooseEqual("sv_q_item sv_q_item-fixed");
-  expect(q1.getItemClass(q1.visibleChoices[4])).toLooseEqual("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[1])).toBe("sv_q_item sv_q_item-fixed");
+  expect(q1.getItemClass(q1.visibleChoices[2])).toBe("sv_q_item");
+  expect(q1.getItemClass(q1.visibleChoices[3])).toBe("sv_q_item sv_q_item-fixed");
+  expect(q1.getItemClass(q1.visibleChoices[4])).toBe("sv_q_item");
 });
 
 test("rateCount changing rateMin/rateMax", () => {
@@ -882,13 +882,13 @@ test("rateCount changing rateMin/rateMax", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.rateMax).toLooseEqual(5);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.rateMax).toBe(5);
 
   q1.rateCount = 6;
-  expect(q1.rateMax).toLooseEqual(6);
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.visibleRateValues.length).toLooseEqual(6);
+  expect(q1.rateMax).toBe(6);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.visibleRateValues.length).toBe(6);
 });
 
 test("rateMin/rateMax/rateStep changing rateCount", () => {
@@ -902,27 +902,27 @@ test("rateMin/rateMax/rateStep changing rateCount", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.rateMax).toLooseEqual(5);
-  expect(q1.rateCount).toLooseEqual(5);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.rateMax).toBe(5);
+  expect(q1.rateCount).toBe(5);
 
   q1.rateMax = 6;
-  expect(q1.rateMax, "rateMax #1").toLooseEqual(6);
-  expect(q1.rateMin, "rateMin #1").toLooseEqual(1);
-  expect(q1.visibleRateValues.length, "length #1").toLooseEqual(6);
-  expect(q1.rateCount, "count #1").toLooseEqual(6);
+  expect(q1.rateMax, "rateMax #1").toBe(6);
+  expect(q1.rateMin, "rateMin #1").toBe(1);
+  expect(q1.visibleRateValues.length, "length #1").toBe(6);
+  expect(q1.rateCount, "count #1").toBe(6);
 
   q1.rateMin = 2;
-  expect(q1.rateMax, "rateMax #2").toLooseEqual(6);
-  expect(q1.rateMin, "rateMin #2").toLooseEqual(2);
-  expect(q1.visibleRateValues.length, "length #2").toLooseEqual(5);
-  expect(q1.rateCount, "length #2").toLooseEqual(5);
+  expect(q1.rateMax, "rateMax #2").toBe(6);
+  expect(q1.rateMin, "rateMin #2").toBe(2);
+  expect(q1.visibleRateValues.length, "length #2").toBe(5);
+  expect(q1.rateCount, "length #2").toBe(5);
 
   q1.rateStep = 3;
-  expect(q1.rateMax, "rateMax #3").toLooseEqual(5);
-  expect(q1.rateMin, "rateMin #3").toLooseEqual(2);
-  expect(q1.visibleRateValues.length, "length #3").toLooseEqual(2);
-  expect(q1.rateCount, "length #2").toLooseEqual(2);
+  expect(q1.rateMax, "rateMax #3").toBe(5);
+  expect(q1.rateMin, "rateMin #3").toBe(2);
+  expect(q1.visibleRateValues.length, "length #3").toBe(2);
+  expect(q1.rateCount, "length #2").toBe(2);
 });
 
 test("rateStep changing rateMax", () => {
@@ -936,21 +936,21 @@ test("rateStep changing rateMax", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.rateMax).toLooseEqual(5);
-  expect(q1.rateCount).toLooseEqual(5);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.rateMax).toBe(5);
+  expect(q1.rateCount).toBe(5);
 
   q1.rateMax = 6;
-  expect(q1.rateMax).toLooseEqual(6);
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.visibleRateValues.length).toLooseEqual(6);
-  expect(q1.rateCount).toLooseEqual(6);
+  expect(q1.rateMax).toBe(6);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.visibleRateValues.length).toBe(6);
+  expect(q1.rateCount).toBe(6);
 
   q1.rateStep = 2;
-  expect(q1.rateMax).toLooseEqual(5);
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.visibleRateValues.length).toLooseEqual(3);
-  expect(q1.rateCount).toLooseEqual(3);
+  expect(q1.rateMax).toBe(5);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.visibleRateValues.length).toBe(3);
+  expect(q1.rateCount).toBe(3);
 });
 
 test("rateValues changing rateCount", () => {
@@ -965,10 +965,10 @@ test("rateValues changing rateCount", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateCount).toLooseEqual(3);
+  expect(q1.rateCount).toBe(3);
 
   q1.rateValues.push(new ItemValue("d"));
-  expect(q1.rateCount).toLooseEqual(4);
+  expect(q1.rateCount).toBe(4);
 });
 
 test("rateCount changing rateValues", () => {
@@ -1005,19 +1005,19 @@ test("rateMin/rateMax/rateStep does not change rateValues and rateCount", () => 
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
   expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
-  expect(q1.rateCount).toLooseEqual(3);
+  expect(q1.rateCount).toBe(3);
 
   q1.rateMax = 100;
   expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
-  expect(q1.rateCount).toLooseEqual(3);
+  expect(q1.rateCount).toBe(3);
 
   q1.rateMin = 50;
   expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
-  expect(q1.rateCount).toLooseEqual(3);
+  expect(q1.rateCount).toBe(3);
 
   q1.rateStep = 3;
   expect(q1.rateValues.map(i => i.value)).toEqualValues(["a", "b", "c"]);
-  expect(q1.rateCount).toLooseEqual(3);
+  expect(q1.rateCount).toBe(3);
 });
 
 test("rate params loading from json", () => {
@@ -1034,9 +1034,9 @@ test("rate params loading from json", () => {
     ],
   });
   let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateCount, "rateCount, rateMin -> rateCount").toLooseEqual(6);
-  expect(q1.rateMin, "rateCount, rateMin -> rateMin").toLooseEqual(2);
-  expect(q1.rateMax, "rateCount, rateMin -> rateMax").toLooseEqual(7);
+  expect(q1.rateCount, "rateCount, rateMin -> rateCount").toBe(6);
+  expect(q1.rateMin, "rateCount, rateMin -> rateMin").toBe(2);
+  expect(q1.rateMax, "rateCount, rateMin -> rateMax").toBe(7);
 
   survey.setJsonObject({
     elements: [
@@ -1049,9 +1049,9 @@ test("rate params loading from json", () => {
     ],
   });
   q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateCount, "rateCount, rateMax -> rateCount").toLooseEqual(6);
-  expect(q1.rateMin, "rateCount, rateMax -> rateMin").toLooseEqual(2);
-  expect(q1.rateMax, "rateCount, rateMax -> rateMax").toLooseEqual(7);
+  expect(q1.rateCount, "rateCount, rateMax -> rateCount").toBe(6);
+  expect(q1.rateMin, "rateCount, rateMax -> rateMin").toBe(2);
+  expect(q1.rateMax, "rateCount, rateMax -> rateMax").toBe(7);
 
   survey.setJsonObject({
     elements: [
@@ -1065,9 +1065,9 @@ test("rate params loading from json", () => {
     ],
   });
   q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateCount, "rateCount, rateMax -> rateCount").toLooseEqual(6);
-  expect(q1.rateMin, "rateCount, rateMax -> rateMin").toLooseEqual(2);
-  expect(q1.rateMax, "rateCount, rateMax -> rateMax").toLooseEqual(7);
+  expect(q1.rateCount, "rateCount, rateMax -> rateCount").toBe(6);
+  expect(q1.rateMin, "rateCount, rateMax -> rateMin").toBe(2);
+  expect(q1.rateMax, "rateCount, rateMax -> rateMax").toBe(7);
 
   survey.setJsonObject({
     elements: [
@@ -1082,9 +1082,9 @@ test("rate params loading from json", () => {
     ],
   });
   q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateCount, "rateCount, rateMax -> rateCount").toLooseEqual(3);
-  expect(q1.rateMin, "rateCount, rateMax -> rateMin").toLooseEqual(2);
-  expect(q1.rateMax, "rateCount, rateMax -> rateMax").toLooseEqual(7);
+  expect(q1.rateCount, "rateCount, rateMax -> rateCount").toBe(3);
+  expect(q1.rateMin, "rateCount, rateMax -> rateMin").toBe(2);
+  expect(q1.rateMax, "rateCount, rateMax -> rateMax").toBe(7);
 });
 
 test("autoGenerate change creates rateValues", () => {
@@ -1098,13 +1098,13 @@ test("autoGenerate change creates rateValues", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateMin).toLooseEqual(1);
-  expect(q1.rateMax).toLooseEqual(5);
-  expect(q1.rateValues.length).toLooseEqual(0);
+  expect(q1.rateMin).toBe(1);
+  expect(q1.rateMax).toBe(5);
+  expect(q1.rateValues.length).toBe(0);
 
   q1.autoGenerate = false;
-  expect(q1.rateValues.length).toLooseEqual(5);
-  expect(q1.rateValues[0].uniqueId, "check uniqueId #1").toLooseEqual(q1.visibleChoices[0].uniqueId);
+  expect(q1.rateValues.length).toBe(5);
+  expect(q1.rateValues[0].uniqueId, "check uniqueId #1").toBe(q1.visibleChoices[0].uniqueId);
 });
 
 test("when autoGenerate true rateValues ignored", () => {
@@ -1139,7 +1139,7 @@ test("rate autoGenerate loading from json", () => {
   });
   let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   expect(q1.autoGenerate).toBeTruthy();
-  expect(q1.visibleRateValues.length).toLooseEqual(6);
+  expect(q1.visibleRateValues.length).toBe(6);
 
   survey.setJsonObject({
     elements: [
@@ -1155,7 +1155,7 @@ test("rate autoGenerate loading from json", () => {
   });
   q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   expect(q1.autoGenerate).toBeFalsy();
-  expect(q1.visibleRateValues.length).toLooseEqual(3);
+  expect(q1.visibleRateValues.length).toBe(3);
 
   survey.setJsonObject({
     elements: [
@@ -1172,7 +1172,7 @@ test("rate autoGenerate loading from json", () => {
   });
   q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   expect(q1.autoGenerate).toBeTruthy();
-  expect(q1.visibleRateValues.length).toLooseEqual(6);
+  expect(q1.visibleRateValues.length).toBe(6);
 });
 
 test("check icons for rateValues", () => {
@@ -1188,13 +1188,13 @@ test("check icons for rateValues", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.rateType = "smileys";
-  expect(q1.rateValues[0].icon).toLooseEqual("not-good");
-  expect(q1.rateValues[1].icon).toLooseEqual("very-good");
+  expect(q1.rateValues[0].icon).toBe("not-good");
+  expect(q1.rateValues[1].icon).toBe("very-good");
 
   q1.rateCount = 3;
-  expect(q1.rateValues[0].icon).toLooseEqual("not-good");
-  expect(q1.rateValues[1].icon).toLooseEqual("normal");
-  expect(q1.rateValues[2].icon).toLooseEqual("very-good");
+  expect(q1.rateValues[0].icon).toBe("not-good");
+  expect(q1.rateValues[1].icon).toBe("normal");
+  expect(q1.rateValues[2].icon).toBe("very-good");
 });
 
 test("change rateCount on switch rateType", () => {
@@ -1210,8 +1210,8 @@ test("change rateCount on switch rateType", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.rateType = "smileys";
-  expect(q1.rateCount).toLooseEqual(10);
-  expect(q1.rateValues.length).toLooseEqual(10);
+  expect(q1.rateCount).toBe(10);
+  expect(q1.rateValues.length).toBe(10);
 });
 
 test("reset rateValues on change autoGenerate", () => {
@@ -1226,9 +1226,9 @@ test("reset rateValues on change autoGenerate", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.rateValues.length).toLooseEqual(3);
+  expect(q1.rateValues.length).toBe(3);
   q1.autoGenerate = true;
-  expect(q1.rateValues.length).toLooseEqual(0);
+  expect(q1.rateValues.length).toBe(0);
 });
 
 test("rateCount limitations", () => {
@@ -1243,19 +1243,19 @@ test("rateCount limitations", () => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.rateCount = 1;
-  expect(q1.rateCount).toLooseEqual(2);
+  expect(q1.rateCount).toBe(2);
   q1.rateCount = 21;
-  expect(q1.rateCount).toLooseEqual(20);
+  expect(q1.rateCount).toBe(20);
   q1.rateCount = 15;
-  expect(q1.rateCount).toLooseEqual(15);
+  expect(q1.rateCount).toBe(15);
   q1.rateValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
-  expect(q1.rateCount).toLooseEqual(22);
+  expect(q1.rateCount).toBe(22);
   q1.rateCount = 21;
-  expect(q1.rateCount).toLooseEqual(21);
+  expect(q1.rateCount).toBe(21);
 
   q1.rateType = "smileys";
   q1.rateCount = 15;
-  expect(q1.rateCount).toLooseEqual(10);
+  expect(q1.rateCount).toBe(10);
 });
 
 test("rating colors without css vars", () => {
@@ -1490,29 +1490,29 @@ test("check rating in-matrix mode styles", () => {
   q1.cssClasses.itemSmileySmall = "sv_q_item-smiley--small";
   q1.cssClasses.itemStarSmall = "sv_q_item-star--small";
   q1.cssClasses.rootWrappable = "";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q sv_q--small");
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item-smiley sv_q_item-smiley--small");
+  expect(q1.ratingRootCss).toBe("sv_q sv_q--small");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item-smiley sv_q_item-smiley--small");
 
   q.columns[0].rateType = "stars";
-  expect(q1.itemStarIcon).toLooseEqual("icon-rating-star-small");
-  expect(q1.itemStarIconAlt).toLooseEqual("icon-rating-star-small-2");
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item-star sv_q_item-star--small");
+  expect(q1.itemStarIcon).toBe("icon-rating-star-small");
+  expect(q1.itemStarIconAlt).toBe("icon-rating-star-small-2");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item-star sv_q_item-star--small");
 
   q.columns[0].rateType = "labels";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q");
+  expect(q1.ratingRootCss).toBe("sv_q");
 
   q.columns[0].rateType = "smileys";
   settings.matrix.rateSize = "normal";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q");
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item-smiley");
+  expect(q1.ratingRootCss).toBe("sv_q");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item-smiley");
 
   q.columns[0].rateType = "stars";
-  expect(q1.itemStarIcon).toLooseEqual("icon-rating-star");
-  expect(q1.itemStarIconAlt).toLooseEqual("icon-rating-star-2");
-  expect(q1.getItemClass(q1.visibleChoices[0])).toLooseEqual("sv_q_item-star");
+  expect(q1.itemStarIcon).toBe("icon-rating-star");
+  expect(q1.itemStarIconAlt).toBe("icon-rating-star-2");
+  expect(q1.getItemClass(q1.visibleChoices[0])).toBe("sv_q_item-star");
 
   q.columns[0].rateType = "labels";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q");
+  expect(q1.ratingRootCss).toBe("sv_q");
   settings.matrix.rateSize = "small";
 });
 
@@ -1522,11 +1522,11 @@ test("check rating in-matrix mode styles", () => {
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q";
   q1.cssClasses.rootLabelsTop = "sv_q__top";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q");
+  expect(q1.ratingRootCss).toBe("sv_q");
   q1.rateDescriptionLocation = "top";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q");
+  expect(q1.ratingRootCss).toBe("sv_q");
   q1.maxRateDescription = "Bad";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q sv_q__top");
+  expect(q1.ratingRootCss).toBe("sv_q sv_q__top");
 });
 
 test("check rating display-mode styles", () => {
@@ -1535,9 +1535,9 @@ test("check rating display-mode styles", () => {
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q-root";
   q1.cssClasses.rootWrappable = "sv_q-root__wrap";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q-root");
+  expect(q1.ratingRootCss).toBe("sv_q-root");
   q1.displayMode = "buttons";
-  expect(q1.ratingRootCss).toLooseEqual("sv_q-root sv_q-root__wrap");
+  expect(q1.ratingRootCss).toBe("sv_q-root sv_q-root__wrap");
 });
 test("check rating display dropdown description", () => {
   const survey = new SurveyModel({
@@ -1571,13 +1571,13 @@ test("Rating dropdown should show numeric values, not descriptions, as item text
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.renderAs = "dropdown";
 
-  expect(q1.visibleRateValues[0].text, "First item text should be numeric value").toLooseEqual("1");
-  expect(q1.visibleRateValues[0].title, "First item title should be numeric value").toLooseEqual("1");
-  expect(q1.visibleRateValues[0].description.text, "First item description should be minRateDescription").toLooseEqual("Not satisfied");
-  expect(q1.visibleRateValues[4].text, "Last item text should be numeric value").toLooseEqual("5");
-  expect(q1.visibleRateValues[4].title, "Last item title should be numeric value").toLooseEqual("5");
-  expect(q1.visibleRateValues[4].description.text, "Last item description should be maxRateDescription").toLooseEqual("Extremely satisfied");
-  expect(q1.visibleRateValues[1].text, "Middle item text should be numeric value").toLooseEqual("2");
+  expect(q1.visibleRateValues[0].text, "First item text should be numeric value").toBe("1");
+  expect(q1.visibleRateValues[0].title, "First item title should be numeric value").toBe("1");
+  expect(q1.visibleRateValues[0].description.text, "First item description should be minRateDescription").toBe("Not satisfied");
+  expect(q1.visibleRateValues[4].text, "Last item text should be numeric value").toBe("5");
+  expect(q1.visibleRateValues[4].title, "Last item title should be numeric value").toBe("5");
+  expect(q1.visibleRateValues[4].description.text, "Last item description should be maxRateDescription").toBe("Extremely satisfied");
+  expect(q1.visibleRateValues[1].text, "Middle item text should be numeric value").toBe("2");
   expect(q1.visibleRateValues[1].description, "Middle item should have no description").toBeFalsy();
 });
 test("Rating dropdown with explicit rateValues should show original text, not descriptions", () => {
@@ -1598,12 +1598,12 @@ test("Rating dropdown with explicit rateValues should show original text, not de
   });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
 
-  expect(q1.visibleRateValues[0].text, "First item text should be the original text").toLooseEqual("One");
-  expect(q1.visibleRateValues[0].title, "First item title should be the original text").toLooseEqual("One");
-  expect(q1.visibleRateValues[0].description.text, "First item description should be minRateDescription").toLooseEqual("mimimi");
-  expect(q1.visibleRateValues[3].text, "Last item text should be the original text").toLooseEqual("Four");
-  expect(q1.visibleRateValues[3].title, "Last item title should be the original text").toLooseEqual("Four");
-  expect(q1.visibleRateValues[3].description.text, "Last item description should be maxRateDescription").toLooseEqual("mamama");
+  expect(q1.visibleRateValues[0].text, "First item text should be the original text").toBe("One");
+  expect(q1.visibleRateValues[0].title, "First item title should be the original text").toBe("One");
+  expect(q1.visibleRateValues[0].description.text, "First item description should be minRateDescription").toBe("mimimi");
+  expect(q1.visibleRateValues[3].text, "Last item text should be the original text").toBe("Four");
+  expect(q1.visibleRateValues[3].title, "Last item title should be the original text").toBe("Four");
+  expect(q1.visibleRateValues[3].description.text, "Last item description should be maxRateDescription").toBe("mamama");
 });
 test("Rating displayRateDescriptionsAsExtremeItems should replace text only in button mode, not dropdown", () => {
   const survey = new SurveyModel({
@@ -1618,18 +1618,18 @@ test("Rating displayRateDescriptionsAsExtremeItems should replace text only in b
   });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
 
-  expect(q1.visibleRateValues[0].locText.calculatedText, "In button mode, locText shows description").toLooseEqual("Strongly Disagree");
-  expect(q1.visibleRateValues[4].locText.calculatedText, "In button mode, locText shows description").toLooseEqual("Strongly Agree");
+  expect(q1.visibleRateValues[0].locText.calculatedText, "In button mode, locText shows description").toBe("Strongly Disagree");
+  expect(q1.visibleRateValues[4].locText.calculatedText, "In button mode, locText shows description").toBe("Strongly Agree");
   expect(q1.visibleRateValues[0].description, "In button mode with displayRateDescriptionsAsExtremeItems, description should be undefined to avoid duplication").toBeFalsy();
   expect(q1.visibleRateValues[4].description, "In button mode with displayRateDescriptionsAsExtremeItems, description should be undefined to avoid duplication").toBeFalsy();
   expect(q1.visibleRateValues[2].description, "Middle item should have no description in button mode").toBeFalsy();
 
   q1.displayMode = "dropdown";
 
-  expect(q1.visibleRateValues[0].locText.calculatedText, "In dropdown mode, locText shows original value").toLooseEqual("1");
-  expect(q1.visibleRateValues[4].locText.calculatedText, "In dropdown mode, locText shows original value").toLooseEqual("5");
-  expect(q1.visibleRateValues[0].description.text, "Description available in dropdown mode").toLooseEqual("Strongly Disagree");
-  expect(q1.visibleRateValues[4].description.text, "Description available in dropdown mode").toLooseEqual("Strongly Agree");
+  expect(q1.visibleRateValues[0].locText.calculatedText, "In dropdown mode, locText shows original value").toBe("1");
+  expect(q1.visibleRateValues[4].locText.calculatedText, "In dropdown mode, locText shows original value").toBe("5");
+  expect(q1.visibleRateValues[0].description.text, "Description available in dropdown mode").toBe("Strongly Disagree");
+  expect(q1.visibleRateValues[4].description.text, "Description available in dropdown mode").toBe("Strongly Agree");
   expect(q1.visibleRateValues[2].description, "Middle item should have no description in dropdown mode").toBeFalsy();
 });
 test("Rating displayRateDescriptionsAsExtremeItems with empty descriptions falls back to item text", () => {
@@ -1643,8 +1643,8 @@ test("Rating displayRateDescriptionsAsExtremeItems with empty descriptions falls
   });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
 
-  expect(q1.visibleRateValues[0].locText.calculatedText, "With no descriptions set, text stays as value").toLooseEqual("1");
-  expect(q1.visibleRateValues[4].locText.calculatedText, "With no descriptions set, text stays as value").toLooseEqual("5");
+  expect(q1.visibleRateValues[0].locText.calculatedText, "With no descriptions set, text stays as value").toBe("1");
+  expect(q1.visibleRateValues[4].locText.calculatedText, "With no descriptions set, text stays as value").toBe("5");
   expect(q1.visibleRateValues[0].description, "No description when minRateDescription is empty").toBeFalsy();
   expect(q1.visibleRateValues[4].description, "No description when maxRateDescription is empty").toBeFalsy();
 });
@@ -1666,18 +1666,18 @@ test("Rating displayRateDescriptionsAsExtremeItems with rateValues having custom
   });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
 
-  expect(q1.visibleRateValues[0].locText.calculatedText, "In button mode, first item text replaced by minRateDescription").toLooseEqual("Min desc");
-  expect(q1.visibleRateValues[2].locText.calculatedText, "In button mode, last item text replaced by maxRateDescription").toLooseEqual("Max desc");
-  expect(q1.visibleRateValues[1].locText.calculatedText, "Middle item text unchanged").toLooseEqual("Second");
+  expect(q1.visibleRateValues[0].locText.calculatedText, "In button mode, first item text replaced by minRateDescription").toBe("Min desc");
+  expect(q1.visibleRateValues[2].locText.calculatedText, "In button mode, last item text replaced by maxRateDescription").toBe("Max desc");
+  expect(q1.visibleRateValues[1].locText.calculatedText, "Middle item text unchanged").toBe("Second");
   expect(q1.visibleRateValues[0].description, "Description undefined in button mode for first item").toBeFalsy();
   expect(q1.visibleRateValues[2].description, "Description undefined in button mode for last item").toBeFalsy();
 
   q1.displayMode = "dropdown";
 
-  expect(q1.visibleRateValues[0].locText.calculatedText, "In dropdown mode, first item shows original text").toLooseEqual("First");
-  expect(q1.visibleRateValues[2].locText.calculatedText, "In dropdown mode, last item shows original text").toLooseEqual("Third");
-  expect(q1.visibleRateValues[0].description.text, "In dropdown mode, description shows minRateDescription").toLooseEqual("Min desc");
-  expect(q1.visibleRateValues[2].description.text, "In dropdown mode, description shows maxRateDescription").toLooseEqual("Max desc");
+  expect(q1.visibleRateValues[0].locText.calculatedText, "In dropdown mode, first item shows original text").toBe("First");
+  expect(q1.visibleRateValues[2].locText.calculatedText, "In dropdown mode, last item shows original text").toBe("Third");
+  expect(q1.visibleRateValues[0].description.text, "In dropdown mode, description shows minRateDescription").toBe("Min desc");
+  expect(q1.visibleRateValues[2].description.text, "In dropdown mode, description shows maxRateDescription").toBe("Max desc");
   expect(q1.visibleRateValues[1].description, "Middle item has no description in dropdown mode").toBeFalsy();
 });
 // jsdom does not perform layout, so element scrollWidth is always 0. The
@@ -1743,29 +1743,29 @@ test("check rating triggerResponsiveness method", () => {
     expect(!!q2["triggerResponsivenessCallback"], "q2 triggerResponsivenessCallback").toBeFalsy();
     expect(!!q1["triggerResponsivenessCallback"], "q1 triggerResponsivenessCallback").toBeTruthy();
     expect(q1["resizeObserver"], "q1 resizeObserver").toBeTruthy();
-    expect(q1.renderAs, "q1 renderAs #1").toLooseEqual("default");
+    expect(q1.renderAs, "q1 renderAs #1").toBe("default");
 
     contentElement.style.width = "350px";
 
     survey.triggerResponsiveness(false);
-    expect(q1.renderAs, "q1 renderAs #2").toLooseEqual("dropdown");
+    expect(q1.renderAs, "q1 renderAs #2").toBe("dropdown");
 
     contentElement.style.width = "450px";
     //to reset is processed flag
     survey.triggerResponsiveness(false);
 
     survey.triggerResponsiveness(false);
-    expect(q1.renderAs, "q1 renderAs #3").toLooseEqual("default");
+    expect(q1.renderAs, "q1 renderAs #3").toBe("default");
 
     ratingElement.style.width = "500px";
 
     survey.triggerResponsiveness(false);
-    expect(q1.renderAs, "q1 renderAs #4").toLooseEqual("default");
+    expect(q1.renderAs, "q1 renderAs #4").toBe("default");
 
     survey.triggerResponsiveness(true);
 
     vi.advanceTimersByTime(1);
-    expect(q1.renderAs, "q1 renderAs #5").toLooseEqual("dropdown");
+    expect(q1.renderAs, "q1 renderAs #5").toBe("dropdown");
 
     ratingElement.remove();
     contentElement.remove();
@@ -1826,8 +1826,8 @@ test("check rating in-matrix pre-defined items", () => {
   const survey = new SurveyModel(json);
   const q = survey.getQuestionByName("q") as QuestionMatrixDropdownModel;
   var column = q.columns[0];
-  expect(column.templateQuestion.rateValues.length).toLooseEqual(5);
-  expect(column.templateQuestion.autoGenerate).toLooseEqual(false);
+  expect(column.templateQuestion.rateValues.length).toBe(5);
+  expect(column.templateQuestion.autoGenerate).toBe(false);
   //expect(column.autoGenerate).toBeFalsy();
 });
 
@@ -1853,7 +1853,7 @@ test("show only 10 items when switching to smileys mode", () => {
   q1.rateType = "smileys";
   expect(changed).toBeTruthy();
 
-  expect(q1.rateValues.length).toLooseEqual(10);
+  expect(q1.rateValues.length).toBe(10);
 
 });
 
@@ -1868,10 +1868,10 @@ test("rating items custom component", () => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.itemComponent).toLooseEqual("sv-rating-item");
+  expect(q1.itemComponent).toBe("sv-rating-item");
 
   q1.renderAs = "dropdown";
-  expect(q1.itemComponent).toLooseEqual("sv-rating-dropdown-item");
+  expect(q1.itemComponent).toBe("sv-rating-dropdown-item");
 
   var json2 = {
     elements: [
@@ -1884,7 +1884,7 @@ test("rating items custom component", () => {
   };
   const survey2 = new SurveyModel(json2);
   const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
-  expect(q2.itemComponent).toLooseEqual("custom-item");
+  expect(q2.itemComponent).toBe("custom-item");
 });
 test("displayMode and copying in design-time", () => {
   const json = {
@@ -1900,12 +1900,12 @@ test("displayMode and copying in design-time", () => {
   survey.setDesignMode(true);
   survey.fromJSON(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.renderAs, "q1.renderAs, #1").toLooseEqual("default");
+  expect(q1.renderAs, "q1.renderAs, #1").toBe("default");
   const q2 = new QuestionRatingModel("q1");
   q2.displayMode = "dropdown";
-  expect(q2.renderAs, "q2.renderAs, #2").toLooseEqual("dropdown");
+  expect(q2.renderAs, "q2.renderAs, #2").toBe("dropdown");
   survey.pages[0].addElement(q2);
-  expect(q2.renderAs, "q2.renderAs, #3").toLooseEqual("default");
+  expect(q2.renderAs, "q2.renderAs, #3").toBe("default");
 });
 test("renderAs in design-time", () => {
   const json = {
@@ -1921,8 +1921,8 @@ test("renderAs in design-time", () => {
   survey.setDesignMode(true);
   survey.fromJSON(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.displayMode, "q1.renderAs").toLooseEqual("dropdown");
-  expect(q1.renderAs, "q1.renderAs").toLooseEqual("default");
+  expect(q1.displayMode, "q1.renderAs").toBe("dropdown");
+  expect(q1.renderAs, "q1.renderAs").toBe("default");
 });
 test("renderAs in runtime", () => {
   const survey = new SurveyModel({
@@ -1935,7 +1935,7 @@ test("renderAs in runtime", () => {
     ],
   });
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.renderAs).toLooseEqual("dropdown");
+  expect(q1.renderAs).toBe("dropdown");
 });
 
 test("Generate empty rating", () => {
@@ -1957,19 +1957,19 @@ test("Generate empty rating in column", () => {
       { name: "col1", cellType: "rating" },
       { name: "col2", cellType: "rating", rateType: "stars" }
     ] });
-  expect(col1.itemComponent).toLooseEqual("sv-rating-item");
-  expect(col2.itemComponent).toLooseEqual("sv-rating-item-star");
+  expect(col1.itemComponent).toBe("sv-rating-item");
+  expect(col2.itemComponent).toBe("sv-rating-item-star");
 });
 test("supportAutoAdvance", () => {
   const q1 = new QuestionRatingModel("q1");
   q1.value = 1;
-  expect(q1.supportAutoAdvance(), "#1").toLooseEqual(false);
+  expect(q1.supportAutoAdvance(), "#1").toBe(false);
   q1.onMouseDown();
-  expect(q1.supportAutoAdvance(), "#2").toLooseEqual(true);
+  expect(q1.supportAutoAdvance(), "#2").toBe(true);
   q1.value = 2;
-  expect(q1.supportAutoAdvance(), "#3").toLooseEqual(false);
+  expect(q1.supportAutoAdvance(), "#3").toBe(false);
   q1.displayMode = "dropdown";
-  expect(q1.supportAutoAdvance(), "#4").toLooseEqual(true);
+  expect(q1.supportAutoAdvance(), "#4").toBe(true);
 });
 test("Check hasMin/MaxRateDescription properties on loading", () => {
   const survey = new SurveyModel({
@@ -1982,8 +1982,8 @@ test("Check hasMin/MaxRateDescription properties on loading", () => {
     ],
   });
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  expect(q1.hasMinRateDescription, "hasMinRateDescription").toLooseEqual(true);
-  expect(q1.hasMaxRateDescription, "hasMaxRateDescription").toLooseEqual(true);
+  expect(q1.hasMinRateDescription, "hasMinRateDescription").toBe(true);
+  expect(q1.hasMaxRateDescription, "hasMaxRateDescription").toBe(true);
 });
 test("Check dropdoun rating close on blur, #8862", () => {
   const survey = new SurveyModel({
@@ -2035,30 +2035,30 @@ test("Ranking: items visibleIf and value, Bug#5959", () => {
   });
   const q1 = survey.getQuestionByName("q1");
   const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
-  expect(q2.visibleRateValues.length, "visibleRateValues #1").toLooseEqual(0);
-  expect(q2.visibleChoices.length, "renderedRateItems #1").toLooseEqual(0);
+  expect(q2.visibleRateValues.length, "visibleRateValues #1").toBe(0);
+  expect(q2.visibleChoices.length, "renderedRateItems #1").toBe(0);
   q1.value = [1];
-  expect(q2.visibleRateValues.length, "visibleRateValues #2").toLooseEqual(3);
-  expect(q2.visibleChoices.length, "renderedRateItems #2").toLooseEqual(3);
+  expect(q2.visibleRateValues.length, "visibleRateValues #2").toBe(3);
+  expect(q2.visibleChoices.length, "renderedRateItems #2").toBe(3);
   q1.value = [2];
-  expect(q2.visibleRateValues.length, "visibleRateValues #3").toLooseEqual(2);
-  expect(q2.visibleChoices.length, "renderedRateItems #3").toLooseEqual(2);
+  expect(q2.visibleRateValues.length, "visibleRateValues #3").toBe(2);
+  expect(q2.visibleChoices.length, "renderedRateItems #3").toBe(2);
   q1.value = [1, 2];
-  expect(q2.visibleRateValues.length, "visibleRateValues #4").toLooseEqual(5);
-  expect(q2.visibleChoices.length, "renderedRateItems #4").toLooseEqual(5);
+  expect(q2.visibleRateValues.length, "visibleRateValues #4").toBe(5);
+  expect(q2.visibleChoices.length, "renderedRateItems #4").toBe(5);
   q1.value = [];
-  expect(q2.visibleRateValues.length, "visibleRateValues #5").toLooseEqual(0);
-  expect(q2.visibleChoices.length, "renderedRateItems #5 ").toLooseEqual(0);
+  expect(q2.visibleRateValues.length, "visibleRateValues #5").toBe(0);
+  expect(q2.visibleChoices.length, "renderedRateItems #5 ").toBe(0);
   survey.showInvisibleElements = true;
-  expect(q2.visibleChoices.length, "renderedRateItems #6").toLooseEqual(5);
+  expect(q2.visibleChoices.length, "renderedRateItems #6").toBe(5);
   survey.showInvisibleElements = false;
-  expect(q2.visibleChoices.length, "renderedRateItems #7").toLooseEqual(0);
+  expect(q2.visibleChoices.length, "renderedRateItems #7").toBe(0);
   q1.value = [1];
-  expect(q2.visibleChoices.length, "renderedRateItems #8").toLooseEqual(3);
+  expect(q2.visibleChoices.length, "renderedRateItems #8").toBe(3);
   q2.value = "b";
   expect(q2.value, "value set correctly, #8").toEqualValues("b");
   q1.value = [2];
-  expect(q2.visibleChoices.length, "renderedRateItems #9").toLooseEqual(2);
+  expect(q2.visibleChoices.length, "renderedRateItems #9").toBe(2);
   expect(q2.isEmpty(), "value is reset, #9").toEqualValues(true);
 });
 
@@ -2121,17 +2121,17 @@ test("Rating: minRateDescription and maxRateDescription labels do not appear for
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
-  expect(q1.visibleChoices.length, "There are 5 visibleChoices").toLooseEqual(5);
-  expect(q1.rateValues.length, "There are 5 rateValues").toLooseEqual(5);
-  expect(q1.autoGenerate, "autoGenerate is false").toLooseEqual(false);
+  expect(q1.visibleChoices.length, "There are 5 visibleChoices").toBe(5);
+  expect(q1.rateValues.length, "There are 5 rateValues").toBe(5);
+  expect(q1.autoGenerate, "autoGenerate is false").toBe(false);
 
-  expect(q1.visibleChoices[0].value, "Check first item value").toLooseEqual("A");
-  expect(q1.visibleChoices[0].text, "In dropdown mode, text should be the original rateValue text").toLooseEqual("1");
-  expect(q1.visibleChoices[0].description.text, "description should be minRateDescription").toLooseEqual("Strongly Disagree");
+  expect(q1.visibleChoices[0].value, "Check first item value").toBe("A");
+  expect(q1.visibleChoices[0].text, "In dropdown mode, text should be the original rateValue text").toBe("1");
+  expect(q1.visibleChoices[0].description.text, "description should be minRateDescription").toBe("Strongly Disagree");
 
-  expect(q1.visibleChoices[4].value).toLooseEqual("E");
-  expect(q1.visibleChoices[4].text, "In dropdown mode, text should be the original rateValue text").toLooseEqual("5");
-  expect(q1.visibleChoices[4].description.text, "description should be maxRateDescription").toLooseEqual("Strongly Agree");
+  expect(q1.visibleChoices[4].value).toBe("E");
+  expect(q1.visibleChoices[4].text, "In dropdown mode, text should be the original rateValue text").toBe("5");
+  expect(q1.visibleChoices[4].description.text, "description should be maxRateDescription").toBe("Strongly Agree");
 });
 
 test("check smileys styles after validate", () => {
@@ -2160,7 +2160,7 @@ test("check smileys styles after validate", () => {
   expect(q1.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"), "q1 item className must not include class 'sd-rating__item-smiley--error' before validate").toBeFalsy();
   expect(q2.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"), "q2 item className must not include class 'sd-rating__item-smiley--error' before validate").toBeFalsy();
   survey.validate();
-  expect(q1.hasErrors(), "q1 has errors after validate").toLooseEqual(true);
+  expect(q1.hasErrors(), "q1 has errors after validate").toBe(true);
   expect(q1.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"), "q1 item className must include class 'sd-rating__item-smiley--error' after validate").toBeTruthy();
   expect(q2.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"), "q2 item className must include class 'sd-rating__item-smiley--error' after validate").toBeTruthy();
 });
@@ -2220,12 +2220,12 @@ test("Test rateItem class on changing value, Bug#10737", () => {
   const item1 = q1.visibleRateValues[0];
   const item2 = q1.visibleRateValues[1];
   const containsSelected = (item: RatingItem) => item.className.indexOf("item--selected") > -1;
-  expect(containsSelected(item1), "item1 className initial").toLooseEqual(false);
-  expect(containsSelected(item2), "item2 className initial").toLooseEqual(false);
+  expect(containsSelected(item1), "item1 className initial").toBe(false);
+  expect(containsSelected(item2), "item2 className initial").toBe(false);
   q1.value = 1;
-  expect(containsSelected(item1), "item1 className after select").toLooseEqual(true);
-  expect(containsSelected(item2), "item2 className after select").toLooseEqual(false);
+  expect(containsSelected(item1), "item1 className after select").toBe(true);
+  expect(containsSelected(item2), "item2 className after select").toBe(false);
   q1.value = 2;
-  expect(containsSelected(item1), "item1 className after change select").toLooseEqual(false);
-  expect(containsSelected(item2), "item2 className after change select").toLooseEqual(true);
+  expect(containsSelected(item1), "item1 className after change select").toBe(false);
+  expect(containsSelected(item2), "item2 className after change select").toBe(true);
 });

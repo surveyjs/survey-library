@@ -138,7 +138,7 @@ describe("Survey", () => {
     var survey = new SurveyModel();
     survey.addPage(new PageModel("Page 1"));
     survey.addPage(new PageModel("Page 2"));
-    expect(survey.PageCount, "Two pages").toLooseEqual(2);
+    expect(survey.PageCount, "Two pages").toBe(2);
   });
   test("create page and make it first", () => {
     var survey = new SurveyModel();
@@ -146,61 +146,61 @@ describe("Survey", () => {
     survey.addPage(new PageModel("Page 2"));
     var newPage = survey.createNewPage("new Page");
     survey.addPage(newPage, 0);
-    expect(survey.PageCount, "Three pages").toLooseEqual(3);
-    expect(survey.pages[0].name, "New page is inserted correctly").toLooseEqual("new Page");
+    expect(survey.PageCount, "Three pages").toBe(3);
+    expect(survey.pages[0].name, "New page is inserted correctly").toBe("new Page");
     survey.addNewPage("second Page", 1);
-    expect(survey.PageCount, "Four pages").toLooseEqual(4);
-    expect(survey.pages[1].name, "Second page is inserted correctly").toLooseEqual("second Page");
+    expect(survey.PageCount, "Four pages").toBe(4);
+    expect(survey.pages[1].name, "Second page is inserted correctly").toBe("second Page");
   });
   test("Current Page", () => {
     var survey = new SurveyModel();
     survey.addPage(createPageWithQuestion("Page 1"));
-    expect(survey.currentPageNo, "the first page is  current").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is  current").toBe(0);
     survey.currentPage = null;
-    expect(survey.currentPageNo, "can't set curent page to null").toLooseEqual(0);
+    expect(survey.currentPageNo, "can't set curent page to null").toBe(0);
     var sPage = createPageWithQuestion("new Page");
     survey.addPage(sPage);
     survey.currentPage = sPage;
-    expect(survey.currentPageNo, "second page is current").toLooseEqual(1);
+    expect(survey.currentPageNo, "second page is current").toBe(1);
     survey.pages.pop();
-    expect(survey.currentPageNo, "the first page is current after removing the current one").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is current after removing the current one").toBe(0);
   });
   test("Set number and name into currentPage property", () => {
     var survey = new SurveyModel();
     survey.addPage(createPageWithQuestion("page1"));
     survey.addPage(createPageWithQuestion("page2"));
     survey.addPage(createPageWithQuestion("page3"));
-    expect(survey.currentPage.name, "The current page is page1").toLooseEqual("page1");
+    expect(survey.currentPage.name, "The current page is page1").toBe("page1");
     survey.currentPage = 1;
-    expect(survey.currentPage.name, "The current page is page2, set by number").toLooseEqual("page2");
+    expect(survey.currentPage.name, "The current page is page2, set by number").toBe("page2");
     survey.currentPage = 4;
-    expect(survey.currentPage.name, "The current page is still page2, set by number that doesn't exist").toLooseEqual("page2");
+    expect(survey.currentPage.name, "The current page is still page2, set by number that doesn't exist").toBe("page2");
     survey.currentPage = "page3";
-    expect(survey.currentPage.name, "The current page is page3, set by name").toLooseEqual("page3");
+    expect(survey.currentPage.name, "The current page is page3, set by name").toBe("page3");
     survey.currentPage = "page5";
-    expect(survey.currentPage.name, "The current page is still page3, set by name that doesn't exist").toLooseEqual("page3");
+    expect(survey.currentPage.name, "The current page is still page3, set by name that doesn't exist").toBe("page3");
   });
   test("CurrentPageNo", () => {
     var survey = new SurveyModel();
     survey.addPage(createPageWithQuestion("Page 1"));
-    expect(survey.currentPageNo, "the first page is  current").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is  current").toBe(0);
     survey.currentPageNo = -1;
-    expect(survey.currentPageNo, "can't set curent page to -1").toLooseEqual(0);
+    expect(survey.currentPageNo, "can't set curent page to -1").toBe(0);
     survey.currentPageNo = 1;
-    expect(survey.currentPageNo, "can't set curent page to PageNo + 1").toLooseEqual(0);
+    expect(survey.currentPageNo, "can't set curent page to PageNo + 1").toBe(0);
     var sPage = createPageWithQuestion("new Page");
     survey.addPage(sPage);
     survey.currentPageNo = 1;
-    expect(survey.currentPageNo, "second page is current").toLooseEqual(1);
+    expect(survey.currentPageNo, "second page is current").toBe(1);
     survey.pages.pop();
-    expect(survey.currentPageNo, "the first page is current after removing the current one").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is current after removing the current one").toBe(0);
   });
   test("PageModel navigationTitle and navigationDescription properties", () => {
     var page = new PageModel("Page 1");
     page.navigationTitle = "Title";
-    expect(page.locNavigationTitle.renderedHtml, "The locNavigationTitle property correspond navigationTitle").toLooseEqual("Title");
+    expect(page.locNavigationTitle.renderedHtml, "The locNavigationTitle property correspond navigationTitle").toBe("Title");
     page.navigationDescription = "Description";
-    expect(page.getLocalizableString("navigationDescription").renderedHtml, "The locNavigationDescription property correspond navigationDescription").toLooseEqual("Description");
+    expect(page.getLocalizableString("navigationDescription").renderedHtml, "The locNavigationDescription property correspond navigationDescription").toBe("Description");
   });
   test("PageModel.renderedNavigationTitle", () => {
     const survey = new SurveyModel({
@@ -211,10 +211,10 @@ describe("Survey", () => {
         { name: "page4", navigationTitle: "NavPage 4" },
       ]
     });
-    expect(survey.pages[0].renderedNavigationTitle, "page1").toLooseEqual("page1");
-    expect(survey.pages[1].renderedNavigationTitle, "page2").toLooseEqual("Page 2");
-    expect(survey.pages[2].renderedNavigationTitle, "page3").toLooseEqual("NavPage 3");
-    expect(survey.pages[3].renderedNavigationTitle, "page4").toLooseEqual("NavPage 4");
+    expect(survey.pages[0].renderedNavigationTitle, "page1").toBe("page1");
+    expect(survey.pages[1].renderedNavigationTitle, "page2").toBe("Page 2");
+    expect(survey.pages[2].renderedNavigationTitle, "page3").toBe("NavPage 3");
+    expect(survey.pages[3].renderedNavigationTitle, "page4").toBe("NavPage 4");
   });
 
   test("PageModel.renderedNavigationTitle & piped text", () => {
@@ -226,16 +226,16 @@ describe("Survey", () => {
         { name: "page4", navigationTitle: "NavPage 4, {q2}", elements: [{ type: "text", name: "q4" }] },
       ]
     });
-    expect(survey.pages[0].renderedNavigationTitle, "page1, #1").toLooseEqual("page1");
-    expect(survey.pages[1].renderedNavigationTitle, "page2, #1").toLooseEqual("Page 2");
-    expect(survey.pages[2].renderedNavigationTitle, "page3, #1").toLooseEqual("NavPage 3, ");
-    expect(survey.pages[3].renderedNavigationTitle, "page4, #1").toLooseEqual("NavPage 4, ");
+    expect(survey.pages[0].renderedNavigationTitle, "page1, #1").toBe("page1");
+    expect(survey.pages[1].renderedNavigationTitle, "page2, #1").toBe("Page 2");
+    expect(survey.pages[2].renderedNavigationTitle, "page3, #1").toBe("NavPage 3, ");
+    expect(survey.pages[3].renderedNavigationTitle, "page4, #1").toBe("NavPage 4, ");
     survey.setValue("q1", "val1");
     survey.setValue("q2", "val2");
-    expect(survey.pages[0].renderedNavigationTitle, "page1, #2").toLooseEqual("page1");
-    expect(survey.pages[1].renderedNavigationTitle, "page2, #2").toLooseEqual("Page 2");
-    expect(survey.pages[2].renderedNavigationTitle, "page3, #2").toLooseEqual("NavPage 3, val1");
-    expect(survey.pages[3].renderedNavigationTitle, "page4, #2").toLooseEqual("NavPage 4, val2");
+    expect(survey.pages[0].renderedNavigationTitle, "page1, #2").toBe("page1");
+    expect(survey.pages[1].renderedNavigationTitle, "page2, #2").toBe("Page 2");
+    expect(survey.pages[2].renderedNavigationTitle, "page3, #2").toBe("NavPage 3, val1");
+    expect(survey.pages[3].renderedNavigationTitle, "page4, #2").toBe("NavPage 4, val2");
   });
 
   test("Remove Page in design mode", () => {
@@ -243,12 +243,12 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     survey.addPage(new PageModel("Page 1"));
     survey.addPage(new PageModel("Page 2"));
-    expect(survey.PageCount, "Two pages").toLooseEqual(2);
-    expect(survey.currentPage.name, "the first page is  current").toLooseEqual("Page 1");
+    expect(survey.PageCount, "Two pages").toBe(2);
+    expect(survey.currentPage.name, "the first page is  current").toBe("Page 1");
 
     survey.removePage(survey.pages[0]);
-    expect(survey.PageCount, "One page left").toLooseEqual(1);
-    expect(survey.currentPage.name, "the second page is  current").toLooseEqual("Page 2");
+    expect(survey.PageCount, "One page left").toBe(1);
+    expect(survey.currentPage.name, "the second page is  current").toBe("Page 2");
   });
   test("Do not change currentPage on re-ordering pages in design mode (remove/delete)", () => {
     var survey = new SurveyModel();
@@ -256,18 +256,18 @@ describe("Survey", () => {
     survey.addNewPage("Page1");
     survey.addNewPage("Page2");
     survey.addNewPage("Page3");
-    expect(survey.PageCount, "3 pages").toLooseEqual(3);
-    expect(survey.currentPage.name, "The first page is current").toLooseEqual("Page1");
+    expect(survey.PageCount, "3 pages").toBe(3);
+    expect(survey.currentPage.name, "The first page is current").toBe("Page1");
     survey.onContainsPageCallback = function () {
       return true;
     };
     var page = survey.pages[0];
     survey.pages.splice(0, 1);
-    expect(survey.currentPage.name, "The first page is still current").toLooseEqual("Page1");
+    expect(survey.currentPage.name, "The first page is still current").toBe("Page1");
     survey.pages.splice(2, 0, page);
     survey.onContainsPageCallback = null;
-    expect(survey.currentPage.name, "The first page is still current, # 2").toLooseEqual("Page1");
-    expect(survey.pages[2].name, "The first page is becomes last in list").toLooseEqual("Page1");
+    expect(survey.currentPage.name, "The first page is still current, # 2").toBe("Page1");
+    expect(survey.pages[2].name, "The first page is becomes last in list").toBe("Page1");
   });
 
   test("Survey.onValueChanged event, #352", () => {
@@ -280,13 +280,13 @@ describe("Survey", () => {
     survey.onValueChanged.add(function (survey, options) {
       valueChangedCallCounter++;
     });
-    expect(valueChangedCallCounter, "Nothing happens").toLooseEqual(0);
+    expect(valueChangedCallCounter, "Nothing happens").toBe(0);
     q1.value = 1;
-    expect(valueChangedCallCounter, "Set one value").toLooseEqual(1);
+    expect(valueChangedCallCounter, "Set one value").toBe(1);
     q1.value = q1.otherItem.value;
-    expect(valueChangedCallCounter, "Set other value").toLooseEqual(2);
+    expect(valueChangedCallCounter, "Set other value").toBe(2);
     q1.otherValue = "new comment";
-    expect(valueChangedCallCounter, "Set comment to other value").toLooseEqual(3);
+    expect(valueChangedCallCounter, "Set comment to other value").toBe(3);
   });
   test("Do not show errors in display mode", () => {
     var survey = new SurveyModel({
@@ -298,20 +298,20 @@ describe("Survey", () => {
       firstPageIsStartPage: true
     });
     survey.readOnly = true;
-    expect(survey.activePage.name, "active page page is p2").toLooseEqual("p2");
-    expect(survey.currentPage.name, "current page page is p2").toLooseEqual("p2");
-    expect(survey.isShowPrevButton, "prev, first page").toLooseEqual(false);
-    expect(survey.isShowNextButton, "next, first page").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "complete, display mode").toLooseEqual(false);
+    expect(survey.activePage.name, "active page page is p2").toBe("p2");
+    expect(survey.currentPage.name, "current page page is p2").toBe("p2");
+    expect(survey.isShowPrevButton, "prev, first page").toBe(false);
+    expect(survey.isShowNextButton, "next, first page").toBe(true);
+    expect(survey.isCompleteButtonVisible, "complete, display mode").toBe(false);
     survey.nextPage();
-    expect(survey.activePage.name, "active page page is p3").toLooseEqual("p3");
-    expect(survey.currentPage.name, "current page page is p3").toLooseEqual("p3");
-    expect(survey.isShowPrevButton, "prev, second page").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next, second page").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "complete, display mode").toLooseEqual(false);
+    expect(survey.activePage.name, "active page page is p3").toBe("p3");
+    expect(survey.currentPage.name, "current page page is p3").toBe("p3");
+    expect(survey.isShowPrevButton, "prev, second page").toBe(true);
+    expect(survey.isShowNextButton, "next, second page").toBe(false);
+    expect(survey.isCompleteButtonVisible, "complete, display mode").toBe(false);
     survey.prevPage();
-    expect(survey.activePage.name, "active page page is p2, #2").toLooseEqual("p2");
-    expect(survey.currentPage.name, "current page page is p2, #2").toLooseEqual("p2");
+    expect(survey.activePage.name, "active page page is p2, #2").toBe("p2");
+    expect(survey.currentPage.name, "current page page is p2, #2").toBe("p2");
   });
   test("firstPageIsStartPage & questionsOnPageMode, Bug#9510", () => {
     var survey = new SurveyModel({
@@ -323,34 +323,34 @@ describe("Survey", () => {
       firstPageIsStartPage: true,
       questionsOnPageMode: "questionPerPage"
     });
-    expect(survey.activePage.name, "active page #1").toLooseEqual("p1");
-    expect(survey.activePage.rows.length, "rows #1").toLooseEqual(2);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toLooseEqual("q1");
+    expect(survey.activePage.name, "active page #1").toBe("p1");
+    expect(survey.activePage.rows.length, "rows #1").toBe(2);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toBe("q1");
     survey.start();
-    expect(survey.activePage.name, "active page #2").toLooseEqual("p2");
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toLooseEqual("q1");
-    expect(survey.activePage.rows.length, "rows #2").toLooseEqual(1);
-    expect(survey.isShowPrevButton, "isShowPrevButton #2").toLooseEqual(false);
+    expect(survey.activePage.name, "active page #2").toBe("p2");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toBe("q1");
+    expect(survey.activePage.rows.length, "rows #2").toBe(1);
+    expect(survey.isShowPrevButton, "isShowPrevButton #2").toBe(false);
     survey.performNext();
-    expect(survey.activePage.name, "active page #3").toLooseEqual("p3");
-    expect(survey.activePage.rows.length, "rows #3").toLooseEqual(1);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #3").toLooseEqual("q2");
-    expect(survey.isShowPrevButton, "isShowPrevButton #3").toLooseEqual(true);
+    expect(survey.activePage.name, "active page #3").toBe("p3");
+    expect(survey.activePage.rows.length, "rows #3").toBe(1);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #3").toBe("q2");
+    expect(survey.isShowPrevButton, "isShowPrevButton #3").toBe(true);
     survey.performNext();
-    expect(survey.activePage.name, "active page #4").toLooseEqual("p3");
-    expect(survey.activePage.rows.length, "rows #4").toLooseEqual(1);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #4").toLooseEqual("q3");
-    expect(survey.isShowPrevButton, "isShowPrevButton #4").toLooseEqual(true);
+    expect(survey.activePage.name, "active page #4").toBe("p3");
+    expect(survey.activePage.rows.length, "rows #4").toBe(1);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #4").toBe("q3");
+    expect(survey.isShowPrevButton, "isShowPrevButton #4").toBe(true);
     survey.performPrevious();
-    expect(survey.activePage.name, "active page #5").toLooseEqual("p3");
-    expect(survey.activePage.rows.length, "rows #5").toLooseEqual(1);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #5").toLooseEqual("q2");
-    expect(survey.isShowPrevButton, "isShowPrevButton #5").toLooseEqual(true);
+    expect(survey.activePage.name, "active page #5").toBe("p3");
+    expect(survey.activePage.rows.length, "rows #5").toBe(1);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #5").toBe("q2");
+    expect(survey.isShowPrevButton, "isShowPrevButton #5").toBe(true);
     survey.performPrevious();
-    expect(survey.activePage.name, "active page #6").toLooseEqual("p2");
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #6").toLooseEqual("q1");
-    expect(survey.activePage.rows.length, "rows #6").toLooseEqual(1);
-    expect(survey.isShowPrevButton, "isShowPrevButton #6").toLooseEqual(false);
+    expect(survey.activePage.name, "active page #6").toBe("p2");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #6").toBe("q1");
+    expect(survey.activePage.rows.length, "rows #6").toBe(1);
+    expect(survey.isShowPrevButton, "isShowPrevButton #6").toBe(false);
   });
   test("Check page num when first page is started", () => {
     var survey = new SurveyModel({
@@ -361,12 +361,12 @@ describe("Survey", () => {
       ],
       firstPageIsStartPage: true
     });
-    expect(survey.pages[0].num).toLooseEqual(-1);
-    expect(survey.pages[0].visibleIndex).toLooseEqual(-1);
-    expect(survey.pages[1].num).toLooseEqual(1);
-    expect(survey.pages[1].visibleIndex).toLooseEqual(0);
-    expect(survey.pages[2].num).toLooseEqual(2);
-    expect(survey.pages[2].visibleIndex).toLooseEqual(1);
+    expect(survey.pages[0].num).toBe(-1);
+    expect(survey.pages[0].visibleIndex).toBe(-1);
+    expect(survey.pages[1].num).toBe(1);
+    expect(survey.pages[1].visibleIndex).toBe(0);
+    expect(survey.pages[2].num).toBe(2);
+    expect(survey.pages[2].visibleIndex).toBe(1);
   });
 
   test("Do not show errors in display mode", () => {
@@ -374,7 +374,7 @@ describe("Survey", () => {
     (<Question>survey.pages[0].questions[0]).isRequired = true;
     survey.readOnly = true;
     survey.nextPage();
-    expect(survey.currentPageNo, "Can move into another page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Can move into another page").toBe(1);
   });
   test("Do not run triggers in display mode", () => {
     const survey = new SurveyModel({
@@ -429,32 +429,32 @@ describe("Survey", () => {
     survey.readOnly = true;
     survey.setValue("question2", 2);
     survey.nextPage();
-    expect(survey.currentPageNo, "Can move into another page").toLooseEqual(1);
-    expect(survey.state, "survey is running").toLooseEqual("running");
-    expect(survey.getValue("question3"), "question3 value is not set").toLooseEqual(undefined);
+    expect(survey.currentPageNo, "Can move into another page").toBe(1);
+    expect(survey.state, "survey is running").toBe("running");
+    expect(survey.getValue("question3"), "question3 value is not set").toBeUndefined();
   });
   test("Do not show errors if ignoreValidation = true", () => {
     const survey = twoPageSimplestSurvey();
     const q1 = survey.pages[0].questions[0];
     q1.isRequired = true;
     survey.pages[1].questions[0].isRequired = true;
-    expect(survey.validationEnabled, "validationEnabled #1").toLooseEqual(true);
-    expect(survey.ignoreValidation, "ignoreValidation #1").toLooseEqual(false);
+    expect(survey.validationEnabled, "validationEnabled #1").toBe(true);
+    expect(survey.ignoreValidation, "ignoreValidation #1").toBe(false);
     survey.ignoreValidation = true;
-    expect(survey.validationEnabled, "validationEnabled #2").toLooseEqual(false);
-    expect(survey.ignoreValidation, "ignoreValidation #2").toLooseEqual(true);
+    expect(survey.validationEnabled, "validationEnabled #2").toBe(false);
+    expect(survey.ignoreValidation, "ignoreValidation #2").toBe(true);
     survey.validationEnabled = true;
-    expect(survey.validationEnabled, "validationEnabled #3").toLooseEqual(true);
-    expect(survey.ignoreValidation, "ignoreValidation #3").toLooseEqual(false);
+    expect(survey.validationEnabled, "validationEnabled #3").toBe(true);
+    expect(survey.ignoreValidation, "ignoreValidation #3").toBe(false);
     survey.validationEnabled = false;
-    expect(survey.validationEnabled, "validationEnabled #4").toLooseEqual(false);
-    expect(survey.ignoreValidation, "ignoreValidation #4").toLooseEqual(true);
+    expect(survey.validationEnabled, "validationEnabled #4").toBe(false);
+    expect(survey.ignoreValidation, "ignoreValidation #4").toBe(true);
 
     survey.nextPage();
-    expect(q1.errors.length, "There is a required error").toLooseEqual(0);
-    expect(survey.currentPageNo, "Can move into another page").toLooseEqual(1);
+    expect(q1.errors.length, "There is a required error").toBe(0);
+    expect(survey.currentPageNo, "Can move into another page").toBe(1);
     survey.tryComplete();
-    expect(survey.state, "Can complete survey with erros").toLooseEqual("completed");
+    expect(survey.state, "Can complete survey with erros").toBe("completed");
   });
   test("Show error, but allow to navigate if validationAllowSwitchPages = true and validationAllowComplete=true", () => {
     const survey = new SurveyModel({
@@ -468,11 +468,11 @@ describe("Survey", () => {
     survey.validationAllowComplete = true;
     const q1 = survey.getQuestionByName("q1");
     q1.value = 12;
-    expect(q1.errors.length, "There is an error").toLooseEqual(1);
+    expect(q1.errors.length, "There is an error").toBe(1);
     survey.nextPage();
-    expect(survey.currentPageNo, "Can move into another page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Can move into another page").toBe(1);
     survey.tryComplete();
-    expect(survey.state, "Can complete survey with erros").toLooseEqual("completed");
+    expect(survey.state, "Can complete survey with erros").toBe("completed");
   });
   test("Show error, but allow to navigate if survey.validationAllowSwitchPages = true", () => {
     const survey = new SurveyModel({
@@ -485,11 +485,11 @@ describe("Survey", () => {
     survey.validationAllowSwitchPages = true;
     const q1 = survey.getQuestionByName("q1");
     q1.value = 12;
-    expect(q1.errors.length, "There is an error").toLooseEqual(1);
+    expect(q1.errors.length, "There is an error").toBe(1);
     survey.nextPage();
-    expect(survey.currentPageNo, "Can move into another page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Can move into another page").toBe(1);
     survey.tryComplete();
-    expect(survey.currentPageNo, "Move to the first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Move to the first page").toBe(0);
   });
   test("Check pages state on onValueChanged event", () => {
     var survey = new SurveyModel({
@@ -518,7 +518,7 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.currentPageNo, "Init current page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Init current page").toBe(0);
     survey.onValueChanged.add(() => {
       expect(survey.isLastPage).toBeFalsy();
     });
@@ -530,46 +530,46 @@ describe("Survey", () => {
   test("Question is readOnly", () => {
     var survey = twoPageSimplestSurvey();
     var q1 = <Question>(<Question>survey.pages[0].questions[0]);
-    expect(q1.isReadOnly, "check1. question is not readonly").toLooseEqual(false);
+    expect(q1.isReadOnly, "check1. question is not readonly").toBe(false);
     q1.readOnly = true;
-    expect(q1.isReadOnly, "check2. question is  readonly now").toLooseEqual(true);
+    expect(q1.isReadOnly, "check2. question is  readonly now").toBe(true);
     q1.readOnly = false;
     survey.readOnly = true;
-    expect(q1.isReadOnly, "check2. question is  readonly because survey in the display mode").toLooseEqual(true);
+    expect(q1.isReadOnly, "check2. question is  readonly because survey in the display mode").toBe(true);
   });
   test("Do not show required error for readOnly questions", () => {
     var survey = twoPageSimplestSurvey();
     var page = survey.pages[0];
     var q1 = <Question>(<Question>page.questions[0]);
     q1.isRequired = true;
-    expect(page.validate(), "There is a required error").toLooseEqual(false);
+    expect(page.validate(), "There is a required error").toBe(false);
     q1.readOnly = true;
-    expect(page.validate(), "There is no errors, the question is readOnly").toLooseEqual(true);
+    expect(page.validate(), "There is no errors, the question is readOnly").toBe(true);
   });
   test("DO not change errors array on fireCallback = false", () => {
     var survey = twoPageSimplestSurvey();
     var page = survey.pages[0];
     var q1 = <Question>(<Question>page.questions[0]);
     q1.isRequired = true;
-    expect(page.validate(false), "There is a required error").toLooseEqual(false);
-    expect(q1.errors.length, "The errors array is empty").toLooseEqual(0);
+    expect(page.validate(false), "There is a required error").toBe(false);
+    expect(q1.errors.length, "The errors array is empty").toBe(0);
     page.validate(true);
-    expect(q1.errors.length, "The errors array is not empty now").toLooseEqual(1);
+    expect(q1.errors.length, "The errors array is not empty now").toBe(1);
   });
   test("Do not show required error for value 0 and false, #345", () => {
     var survey = twoPageSimplestSurvey();
     var page = survey.pages[0];
     var q1 = <Question>(<Question>page.questions[0]);
     q1.isRequired = true;
-    expect(page.validate(), "There is a required error").toLooseEqual(false);
+    expect(page.validate(), "There is a required error").toBe(false);
     survey.setValue("question1", 0);
-    expect(q1.value, "question1.value == 0").toLooseEqual(0);
-    expect(page.validate(), "There is no errors, the question value is 0").toLooseEqual(true);
+    expect(q1.value, "question1.value == 0").toBe(0);
+    expect(page.validate(), "There is no errors, the question value is 0").toBe(true);
     survey.setValue("question1", false);
-    expect(q1.value, "question1.value == false").toLooseEqual(false);
-    expect(page.validate(), "There is no errors, the question value is false").toLooseEqual(true);
+    expect(q1.value, "question1.value == false").toBe(false);
+    expect(page.validate(), "There is no errors, the question value is false").toBe(true);
     survey.setValue("question1", null);
-    expect(page.validate(), "There is a required error, the question value is null").toLooseEqual(false);
+    expect(page.validate(), "There is a required error, the question value is null").toBe(false);
   });
   test("isFirstPage/isLastPage", () => {
     var survey = new SurveyModel({
@@ -582,28 +582,28 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.currentPageNo, "Init current page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Init current page").toBe(0);
     //change currentPageNo
-    expect(survey.isFirstPage, "isFirstPage #1").toLooseEqual(true);
-    expect(survey.isLastPage, "isLastPage #1").toLooseEqual(false);
+    expect(survey.isFirstPage, "isFirstPage #1").toBe(true);
+    expect(survey.isLastPage, "isLastPage #1").toBe(false);
     survey.nextPage();
-    expect(survey.isFirstPage, "isFirstPage #2").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #2").toLooseEqual(true);
+    expect(survey.isFirstPage, "isFirstPage #2").toBe(false);
+    expect(survey.isLastPage, "isLastPage #2").toBe(true);
     survey.currentPageNo = 0;
-    expect(survey.isFirstPage, "isFirstPage #3").toLooseEqual(true);
-    expect(survey.isLastPage, "isLastPage #3").toLooseEqual(false);
+    expect(survey.isFirstPage, "isFirstPage #3").toBe(true);
+    expect(survey.isLastPage, "isLastPage #3").toBe(false);
     const page = new PageModel("newPage");
     page.addNewQuestion("text", "q3");
     survey.pages.unshift(page);
-    expect(survey.isFirstPage, "isFirstPage #4").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #4").toLooseEqual(false);
+    expect(survey.isFirstPage, "isFirstPage #4").toBe(false);
+    expect(survey.isLastPage, "isLastPage #4").toBe(false);
     survey.pages.shift();
-    expect(survey.pages.length, "We have two pages").toLooseEqual(2);
-    expect(survey.isFirstPage, "isFirstPage #5").toLooseEqual(true);
-    expect(survey.isLastPage, "isLastPage #5").toLooseEqual(false);
+    expect(survey.pages.length, "We have two pages").toBe(2);
+    expect(survey.isFirstPage, "isFirstPage #5").toBe(true);
+    expect(survey.isLastPage, "isLastPage #5").toBe(false);
     survey.pages[1].visible = false;
-    expect(survey.isFirstPage, "isFirstPage #6").toLooseEqual(true);
-    expect(survey.isLastPage, "isLastPage #6").toLooseEqual(true);
+    expect(survey.isFirstPage, "isFirstPage #6").toBe(true);
+    expect(survey.isLastPage, "isLastPage #6").toBe(true);
   });
   test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: true", () => {
     var survey = new SurveyModel({
@@ -617,23 +617,23 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.currentPageNo, "Init current page").toLooseEqual(0);
-    expect(survey.isLastPage, "isLastPage #1").toLooseEqual(false);
-    expect(survey.isShowNextButton, "isShowNextButton #1").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #1").toLooseEqual(false);
+    expect(survey.currentPageNo, "Init current page").toBe(0);
+    expect(survey.isLastPage, "isLastPage #1").toBe(false);
+    expect(survey.isShowNextButton, "isShowNextButton #1").toBe(true);
+    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #1").toBe(false);
     survey.nextPage();
-    expect(survey.isLastPage, "isLastPage #2").toLooseEqual(true);
-    expect(survey.isShowNextButton, "isShowNextButton #2").toLooseEqual(false);
-    expect(survey.isShowPrevButton, "isShowPrevButton #1").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #2").toLooseEqual(false);
+    expect(survey.isLastPage, "isLastPage #2").toBe(true);
+    expect(survey.isShowNextButton, "isShowNextButton #2").toBe(false);
+    expect(survey.isShowPrevButton, "isShowPrevButton #1").toBe(true);
+    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #2").toBe(false);
     survey.showPreview();
-    expect(survey.isShowPrevButton, "isShowPrevButton #2").toLooseEqual(false);
-    expect(survey.isShowNextButton, "isShowNextButton #3").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #3").toLooseEqual(true);
+    expect(survey.isShowPrevButton, "isShowPrevButton #2").toBe(false);
+    expect(survey.isShowNextButton, "isShowNextButton #3").toBe(false);
+    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible #3").toBe(true);
     survey.readOnly = true;
-    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible, read-only #4").toLooseEqual(false);
+    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible, read-only #4").toBe(false);
     survey.readOnly = false;
-    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible, edit mode #5").toLooseEqual(true);
+    expect(survey.isCompleteButtonVisible, "isCompleteButtonVisible, edit mode #5").toBe(true);
   });
   test("isShowPrevButton/isCompleteButtonVisible & showPrevButton/showCompleteButton", () => {
     const survey = new SurveyModel({
@@ -649,73 +649,73 @@ describe("Survey", () => {
     });
     survey.showCompleteButton = false;
 
-    expect(survey.currentPageNo, "Init current page").toLooseEqual(0);
-    expect(survey.isShowPrevButton, "prev #1").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "complete #1").toLooseEqual(false);
-    expect(survey.navigationBar.getActionById("sv-nav-prev").isVisible, "sv-nav-prev, #1").toLooseEqual(false);
-    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #1").toLooseEqual(false);
+    expect(survey.currentPageNo, "Init current page").toBe(0);
+    expect(survey.isShowPrevButton, "prev #1").toBe(false);
+    expect(survey.isCompleteButtonVisible, "complete #1").toBe(false);
+    expect(survey.navigationBar.getActionById("sv-nav-prev").isVisible, "sv-nav-prev, #1").toBe(false);
+    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #1").toBe(false);
 
     survey.nextPage();
-    expect(survey.currentPageNo, "second page").toLooseEqual(1);
-    expect(survey.isShowPrevButton, "prev #2").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "complete #2").toLooseEqual(false);
-    expect(survey.navigationBar.getActionById("sv-nav-prev").isVisible, "sv-nav-prev, #2").toLooseEqual(false);
-    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #2").toLooseEqual(false);
+    expect(survey.currentPageNo, "second page").toBe(1);
+    expect(survey.isShowPrevButton, "prev #2").toBe(false);
+    expect(survey.isCompleteButtonVisible, "complete #2").toBe(false);
+    expect(survey.navigationBar.getActionById("sv-nav-prev").isVisible, "sv-nav-prev, #2").toBe(false);
+    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #2").toBe(false);
 
     survey.showPrevButton = true;
     survey.showCompleteButton = true;
-    expect(survey.currentPageNo, "second page, #2").toLooseEqual(1);
-    expect(survey.isShowPrevButton, "prev #3").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "complete #3").toLooseEqual(true);
-    expect(survey.navigationBar.getActionById("sv-nav-prev").isVisible, "sv-nav-prev, #3").toLooseEqual(true);
-    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #3").toLooseEqual(true);
+    expect(survey.currentPageNo, "second page, #2").toBe(1);
+    expect(survey.isShowPrevButton, "prev #3").toBe(true);
+    expect(survey.isCompleteButtonVisible, "complete #3").toBe(true);
+    expect(survey.navigationBar.getActionById("sv-nav-prev").isVisible, "sv-nav-prev, #3").toBe(true);
+    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #3").toBe(true);
   });
   test("Next, Prev, IsFirst and IsLast Page and progressText", () => {
     surveyLocalization.defaultLocale = "en";
     surveyLocalization.currentLocale = "";
     var survey = new SurveyModel();
-    expect(survey.progressText, "there is pages").toLooseEqual("");
+    expect(survey.progressText, "there is pages").toBe("");
     survey.addPage(createPageWithQuestion("Page 1"));
     survey.addPage(createPageWithQuestion("Second page", "q2"));
     survey.addPage(createPageWithQuestion("Third page", "q3"));
-    expect(survey.currentPageNo, "Current Page is  First").toLooseEqual(0);
-    expect(survey.isFirstPage, "Current Page is  First").toLooseEqual(true);
-    expect(survey.isLastPage, "Current Page is  First").toLooseEqual(false);
-    expect(survey.progressText, "Current Page is  First").toLooseEqual("Page 1 of 3");
+    expect(survey.currentPageNo, "Current Page is  First").toBe(0);
+    expect(survey.isFirstPage, "Current Page is  First").toBe(true);
+    expect(survey.isLastPage, "Current Page is  First").toBe(false);
+    expect(survey.progressText, "Current Page is  First").toBe("Page 1 of 3");
     survey.nextPage();
-    expect(survey.currentPageNo, "Current Page is  Second").toLooseEqual(1);
-    expect(survey.isFirstPage, "Current Page is  Second").toLooseEqual(false);
-    expect(survey.isLastPage, "Current Page is  Second").toLooseEqual(false);
-    expect(survey.progressText, "Current Page is  First").toLooseEqual("Page 2 of 3");
+    expect(survey.currentPageNo, "Current Page is  Second").toBe(1);
+    expect(survey.isFirstPage, "Current Page is  Second").toBe(false);
+    expect(survey.isLastPage, "Current Page is  Second").toBe(false);
+    expect(survey.progressText, "Current Page is  First").toBe("Page 2 of 3");
     survey.nextPage();
-    expect(survey.currentPageNo, "Current Page is  Third").toLooseEqual(2);
-    expect(survey.isFirstPage, "Current Page is  Third").toLooseEqual(false);
-    expect(survey.isLastPage, "Current Page is  Third").toLooseEqual(true);
-    expect(survey.progressText, "Current Page is  First").toLooseEqual("Page 3 of 3");
+    expect(survey.currentPageNo, "Current Page is  Third").toBe(2);
+    expect(survey.isFirstPage, "Current Page is  Third").toBe(false);
+    expect(survey.isLastPage, "Current Page is  Third").toBe(true);
+    expect(survey.progressText, "Current Page is  First").toBe("Page 3 of 3");
     survey.prevPage();
-    expect(survey.currentPageNo, "Current Page is  Second").toLooseEqual(1);
-    expect(survey.isFirstPage, "Current Page is  Second").toLooseEqual(false);
-    expect(survey.isLastPage, "Current Page is  Second").toLooseEqual(false);
-    expect(survey.progressText, "Current Page is  First").toLooseEqual("Page 2 of 3");
+    expect(survey.currentPageNo, "Current Page is  Second").toBe(1);
+    expect(survey.isFirstPage, "Current Page is  Second").toBe(false);
+    expect(survey.isLastPage, "Current Page is  Second").toBe(false);
+    expect(survey.progressText, "Current Page is  First").toBe("Page 2 of 3");
     survey.prevPage();
-    expect(survey.currentPageNo, "Current Page is  First").toLooseEqual(0);
-    expect(survey.isFirstPage, "Current Page is  First").toLooseEqual(true);
-    expect(survey.isLastPage, "Current Page is  First").toLooseEqual(false);
-    expect(survey.progressText, "Current Page is  First").toLooseEqual("Page 1 of 3");
+    expect(survey.currentPageNo, "Current Page is  First").toBe(0);
+    expect(survey.isFirstPage, "Current Page is  First").toBe(true);
+    expect(survey.isLastPage, "Current Page is  First").toBe(false);
+    expect(survey.progressText, "Current Page is  First").toBe("Page 1 of 3");
     survey.nextPage();
-    expect(survey.progressText, "Current Page is Second").toLooseEqual("Page 2 of 3");
+    expect(survey.progressText, "Current Page is Second").toBe("Page 2 of 3");
     survey.setDesignMode(true);
     survey.nextPage();
-    expect(survey.progressText, "Current Page is last").toLooseEqual("Page 3 of 3");
+    expect(survey.progressText, "Current Page is last").toBe("Page 3 of 3");
 
     survey.setDesignMode(false);
     survey.currentPageNo = 0;
     survey.progressBarType = "questions";
-    expect(survey.progressText, "Questions progress indicator").toLooseEqual("Answered 0/3 questions");
+    expect(survey.progressText, "Questions progress indicator").toBe("Answered 0/3 questions");
     survey.getAllQuestions()[0].value = "Answer 1";
-    expect(survey.progressText, "Answered 1 question from 3").toLooseEqual("Answered 1/3 questions");
+    expect(survey.progressText, "Answered 1 question from 3").toBe("Answered 1/3 questions");
     survey.getAllQuestions()[1].visible = false;
-    expect(survey.progressText, "Make one question invisible").toLooseEqual("Answered 1/2 questions");
+    expect(survey.progressText, "Make one question invisible").toBe("Answered 1/2 questions");
   });
   test("progressText and onGetProgressText event", () => {
     var survey = new SurveyModel();
@@ -735,11 +735,11 @@ describe("Survey", () => {
       (100 * options.answeredQuestionCount) / options.questionCount +
       "%";
     });
-    expect(survey.progressText).toLooseEqual("Answered: 0%");
+    expect(survey.progressText).toBe("Answered: 0%");
     survey.getAllQuestions()[0].value = "Answer 1";
-    expect(survey.progressText).toLooseEqual("Answered: 25%");
-    expect(questionCount, "There are 4 questions").toLooseEqual(4);
-    expect(answeredQuestionCount, "One question is answered").toLooseEqual(1);
+    expect(survey.progressText).toBe("Answered: 25%");
+    expect(questionCount, "There are 4 questions").toBe(4);
+    expect(answeredQuestionCount, "One question is answered").toBe(1);
   });
   test("progressText, 'requiredQuestions' type and onGetProgressText event", () => {
     var survey = new SurveyModel();
@@ -750,11 +750,11 @@ describe("Survey", () => {
     survey.getQuestionByName("q1").isRequired = true;
     survey.getQuestionByName("q3").isRequired = true;
     survey.progressBarType = "requiredQuestions";
-    expect(survey.progressText).toLooseEqual("Answered 0/2 questions");
+    expect(survey.progressText).toBe("Answered 0/2 questions");
     survey.setValue("q1", "1");
-    expect(survey.progressText).toLooseEqual("Answered 1/2 questions");
+    expect(survey.progressText).toBe("Answered 1/2 questions");
     survey.setValue("q2", "1");
-    expect(survey.progressText, "q2 is not required").toLooseEqual("Answered 1/2 questions");
+    expect(survey.progressText, "q2 is not required").toBe("Answered 1/2 questions");
     var questionCount = -1;
     var answeredQuestionCount = -1;
     var requiredQuestionCount = -1;
@@ -771,7 +771,7 @@ describe("Survey", () => {
         options.requiredQuestionCount +
         "%";
     });
-    expect(survey.progressText).toLooseEqual("Answered: 50%");
+    expect(survey.progressText).toBe("Answered: 50%");
   });
   test("onProgressText event and questionOrder in page, Bug#3383", () => {
     var survey = new SurveyModel({
@@ -825,12 +825,12 @@ describe("Survey", () => {
     });
     survey.onGetProgressText.add(() => { var dummy = 1; });
     survey.nextPage();
-    expect(oldCurrentPageName, "First nextPage, old").toLooseEqual("page1");
-    expect(newCurrentPageName, "First nextPage, new").toLooseEqual("page2");
+    expect(oldCurrentPageName, "First nextPage, old").toBe("page1");
+    expect(newCurrentPageName, "First nextPage, new").toBe("page2");
     survey.nextPage();
-    expect(survey.currentPageNo, "We are on the last page").toLooseEqual(2);
-    expect(oldCurrentPageName, "Second nextPage, old").toLooseEqual("page2");
-    expect(newCurrentPageName, "Second nextPage, new").toLooseEqual("page3");
+    expect(survey.currentPageNo, "We are on the last page").toBe(2);
+    expect(oldCurrentPageName, "Second nextPage, old").toBe("page2");
+    expect(newCurrentPageName, "Second nextPage, new").toBe("page3");
   });
 
   test("progressText, 'requiredQuestions' type and design mode", () => {
@@ -843,13 +843,13 @@ describe("Survey", () => {
     survey.getQuestionByName("q1").isRequired = true;
     survey.getQuestionByName("q3").isRequired = true;
 
-    expect(survey.progressText).toLooseEqual("Page 1 of 4");
+    expect(survey.progressText).toBe("Page 1 of 4");
     survey.progressBarType = "questions";
-    expect(survey.progressText).toLooseEqual("Answered 0/4 questions");
-    expect(survey.getProgressTypeComponent(), "questions component").toLooseEqual("sv-progress-questions");
+    expect(survey.progressText).toBe("Answered 0/4 questions");
+    expect(survey.getProgressTypeComponent(), "questions component").toBe("sv-progress-questions");
     survey.progressBarType = "requiredQuestions";
-    expect(survey.getProgressTypeComponent(), "requiredQuestions component").toLooseEqual("sv-progress-requiredquestions");
-    expect(survey.progressText).toLooseEqual("Answered 0/2 questions");
+    expect(survey.getProgressTypeComponent(), "requiredQuestions component").toBe("sv-progress-requiredquestions");
+    expect(survey.progressText).toBe("Answered 0/2 questions");
   });
   test("progressText, 'questions' type, invisible cells and data", () => {
     var survey = new SurveyModel({
@@ -865,13 +865,13 @@ describe("Survey", () => {
       ]
     });
     survey.data = { matrix: [{ col1: "abc1", col2: true, col3: "edf1" }, { col1: "abc1", col2: false }] };
-    expect(survey.progressText, "#1").toLooseEqual("Answered 5/5 questions");
+    expect(survey.progressText, "#1").toBe("Answered 5/5 questions");
     const matrix = survey.getQuestionByName("matrix");
     const rows = matrix.visibleRows;
     rows[1].getQuestionByName("col2").value = true;
-    expect(survey.progressText, "#2").toLooseEqual("Answered 5/6 questions");
+    expect(survey.progressText, "#2").toBe("Answered 5/6 questions");
     rows[1].getQuestionByName("col3").value = "abc";
-    expect(survey.progressText, "#3").toLooseEqual("Answered 6/6 questions");
+    expect(survey.progressText, "#3").toBe("Answered 6/6 questions");
   });
   test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", () => {
     const survey = new SurveyModel({
@@ -884,12 +884,12 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.progressText).toLooseEqual("Answered 0/2 questions");
+    expect(survey.progressText).toBe("Answered 0/2 questions");
     survey.setValue("q1", "1");
-    expect(survey.progressText).toLooseEqual("Answered 1/2 questions");
+    expect(survey.progressText).toBe("Answered 1/2 questions");
     const rows = survey.getQuestionByName("q2").visibleRows;
     rows[0].cells[0].question.value = "2";
-    expect(survey.progressText).toLooseEqual("Answered 2/2 questions");
+    expect(survey.progressText).toBe("Answered 2/2 questions");
   });
   test("survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460", () => {
     var survey = new SurveyModel({
@@ -914,24 +914,24 @@ describe("Survey", () => {
       ],
     });
     survey.progressBarType = "questions";
-    expect(survey.getProgress(), "The progress is 0").toLooseEqual(0);
-    expect(survey.progressValue, "The progress is 0, progressValue").toLooseEqual(0);
-    expect(survey.progressText, "Questions progress indicator").toLooseEqual("Answered 0/2 questions");
+    expect(survey.getProgress(), "The progress is 0").toBe(0);
+    expect(survey.progressValue, "The progress is 0, progressValue").toBe(0);
+    expect(survey.progressText, "Questions progress indicator").toBe("Answered 0/2 questions");
     survey.getQuestionByName("q1").value = "Answer 1";
-    expect(survey.getProgress(), "The progress is 50%").toLooseEqual(50);
-    expect(survey.progressValue, "The progress is 50%, progressValue").toLooseEqual(50);
-    expect(survey.progressText).toLooseEqual("Answered 1/2 questions");
+    expect(survey.getProgress(), "The progress is 50%").toBe(50);
+    expect(survey.progressValue, "The progress is 50%, progressValue").toBe(50);
+    expect(survey.progressText).toBe("Answered 1/2 questions");
     survey.getQuestionByName("q3").value = "Answer 3";
-    expect(survey.getProgress(), "The progress is 100%").toLooseEqual(100);
-    expect(survey.progressValue, "The progress is 100%, progressValue").toLooseEqual(100);
-    expect(survey.progressText).toLooseEqual("Answered 2/2 questions");
+    expect(survey.getProgress(), "The progress is 100%").toBe(100);
+    expect(survey.progressValue, "The progress is 100%, progressValue").toBe(100);
+    expect(survey.progressText).toBe("Answered 2/2 questions");
     //Add test cases for Bug#2460
     survey.getQuestionByName("q3").clearValue();
-    expect(survey.getProgress(), "The progress is 50% again").toLooseEqual(50);
-    expect(survey.progressValue, "The progress is 50% again, progressValue").toLooseEqual(50);
+    expect(survey.getProgress(), "The progress is 50% again").toBe(50);
+    expect(survey.progressValue, "The progress is 50% again, progressValue").toBe(50);
     survey.getQuestionByName("q3").visible = false;
-    expect(survey.getProgress(), "The progress is 100%, the second answer is invisible").toLooseEqual(100);
-    expect(survey.progressValue, "The progress is 100%, the second answer is invisible, progressValue").toLooseEqual(100);
+    expect(survey.getProgress(), "The progress is 100%, the second answer is invisible").toBe(100);
+    expect(survey.progressValue, "The progress is 100%, the second answer is invisible, progressValue").toBe(100);
   });
   test("survey.progressBarType = 'pages', Bug #6563", () => {
     var survey = new SurveyModel({
@@ -943,21 +943,21 @@ describe("Survey", () => {
         { elements: [{ type: "text", name: "q1" }] },
       ]
     });
-    expect(survey.getProgress(), "page1 #1").toLooseEqual(0);
-    expect(survey.progressValue, "page1 #2").toLooseEqual(0);
-    expect(survey.progressText, "page1, #3").toLooseEqual("Page 1 of 4");
+    expect(survey.getProgress(), "page1 #1").toBe(0);
+    expect(survey.progressValue, "page1 #2").toBe(0);
+    expect(survey.progressText, "page1, #3").toBe("Page 1 of 4");
     survey.nextPage();
-    expect(survey.getProgress(), "page2 #1").toLooseEqual(25);
-    expect(survey.progressValue, "page2 #2").toLooseEqual(25);
-    expect(survey.progressText, "page2, #3").toLooseEqual("Page 2 of 4");
+    expect(survey.getProgress(), "page2 #1").toBe(25);
+    expect(survey.progressValue, "page2 #2").toBe(25);
+    expect(survey.progressText, "page2, #3").toBe("Page 2 of 4");
     survey.nextPage();
-    expect(survey.getProgress(), "page3 #1").toLooseEqual(50);
-    expect(survey.progressValue, "page3 #2").toLooseEqual(50);
-    expect(survey.progressText, "page3, #3").toLooseEqual("Page 3 of 4");
+    expect(survey.getProgress(), "page3 #1").toBe(50);
+    expect(survey.progressValue, "page3 #2").toBe(50);
+    expect(survey.progressText, "page3, #3").toBe("Page 3 of 4");
     survey.nextPage();
-    expect(survey.getProgress(), "page4 #1").toLooseEqual(75);
-    expect(survey.progressValue, "page4 #2").toLooseEqual(75);
-    expect(survey.progressText, "page4, #3").toLooseEqual("Page 4 of 4");
+    expect(survey.getProgress(), "page4 #1").toBe(75);
+    expect(survey.progressValue, "page4 #2").toBe(75);
+    expect(survey.progressText, "page4, #3").toBe("Page 4 of 4");
   });
   test("survey.progressBarType = 'value', Bug #9532", () => {
     const survey = new SurveyModel({
@@ -965,38 +965,38 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }],
     });
     let progressValue = 0;
-    expect(survey.progressValue, "progressValue #1").toLooseEqual(0);
+    expect(survey.progressValue, "progressValue #1").toBe(0);
     survey.onValueChanged.add((sender, options) => {
       progressValue = sender.progressValue;
     });
     survey.getQuestionByName("q1").value = "1";
-    expect(progressValue, "progressValue #2").toLooseEqual(50);
+    expect(progressValue, "progressValue #2").toBe(50);
     survey.getQuestionByName("q2").value = "2";
-    expect(progressValue, "progressValue #3").toLooseEqual(100);
+    expect(progressValue, "progressValue #3").toBe(100);
   });
   test("Next, Prev, Next", () => {
     var survey = new SurveyModel();
     survey.addPage(createPageWithQuestion("Page 1"));
     survey.addPage(createPageWithQuestion("Page 2"));
     survey.addPage(createPageWithQuestion("Page 3"));
-    expect(survey.currentPageNo, "Initial page is  first").toLooseEqual(0);
+    expect(survey.currentPageNo, "Initial page is  first").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "After next the current page is  second").toLooseEqual(1);
+    expect(survey.currentPageNo, "After next the current page is  second").toBe(1);
     survey.prevPage();
-    expect(survey.currentPageNo, "After the prev the current page is again first").toLooseEqual(0);
+    expect(survey.currentPageNo, "After the prev the current page is again first").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "After second next the current page is  second").toLooseEqual(1);
+    expect(survey.currentPageNo, "After second next the current page is  second").toBe(1);
   });
   test("Survey state", () => {
     var survey = new SurveyModel();
-    expect(survey.state, "There is no a visible page").toLooseEqual("empty");
+    expect(survey.state, "There is no a visible page").toBe("empty");
     survey.addPage(createPageWithQuestion("Page 1"));
     survey.addPage(createPageWithQuestion("Page 2"));
-    expect(survey.state, "Survey is in run mode").toLooseEqual("running");
+    expect(survey.state, "Survey is in run mode").toBe("running");
     survey.nextPage();
-    expect(survey.state, "Survey is in run mode").toLooseEqual("running");
+    expect(survey.state, "Survey is in run mode").toBe("running");
     survey.tryComplete();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
   });
   test("Question Creator", () => {
     var inst = QuestionFactory.Instance;
@@ -1006,9 +1006,9 @@ describe("Survey", () => {
     inst.registerQuestion("question2", (name: string) => {
       return new Question(name);
     });
-    expect(inst.createQuestion("question1", "Q1").name, "Create first type of question").toLooseEqual("Q1");
-    expect(inst.createQuestion("question2", "Q2").name, "Create second type of question").toLooseEqual("Q2");
-    expect(inst.createQuestion("question3", "Q3"), "Create unexisting type of question").toLooseEqual(null);
+    expect(inst.createQuestion("question1", "Q1").name, "Create first type of question").toBe("Q1");
+    expect(inst.createQuestion("question2", "Q2").name, "Create second type of question").toBe("Q2");
+    expect(inst.createQuestion("question3", "Q3"), "Create unexisting type of question").toBeNull();
   });
   test("Question Creator getAllQuestions", () => {
     var inst = QuestionFactory.Instance;
@@ -1025,9 +1025,9 @@ describe("Survey", () => {
     var page = new PageModel("Page 1");
     page.addNewQuestion("text", "Q1");
     page.addNewQuestion("checkbox", "Q2");
-    expect(page.questions.length, "Two questions").toLooseEqual(2);
-    expect(page.questions[0].getType(), "Text question").toLooseEqual("text");
-    expect(page.questions[1].getType(), "Checkbox question").toLooseEqual("checkbox");
+    expect(page.questions.length, "Two questions").toBe(2);
+    expect(page.questions[0].getType(), "Text question").toBe("text");
+    expect(page.questions[1].getType(), "Checkbox question").toBe("checkbox");
   });
   test("Survey.getQuestionByName", () => {
     var survey = new SurveyModel();
@@ -1038,9 +1038,9 @@ describe("Survey", () => {
     page.addNewQuestion("text", "Q3");
     page.addNewQuestion("checkbox", "Q4");
 
-    expect(survey.getQuestionByName("Q2").name, "find question on the first page").toLooseEqual("Q2");
-    expect(survey.getQuestionByName("Q3").name, "find question on the second page").toLooseEqual("Q3");
-    expect(survey.getQuestionByName("Q0"), "return null").toLooseEqual(null);
+    expect(survey.getQuestionByName("Q2").name, "find question on the first page").toBe("Q2");
+    expect(survey.getQuestionByName("Q3").name, "find question on the second page").toBe("Q3");
+    expect(survey.getQuestionByName("Q0"), "return null").toBeNull();
   });
   test("Survey.getPanelByName", () => {
     var survey = new SurveyModel();
@@ -1053,11 +1053,11 @@ describe("Survey", () => {
     page.addNewPanel("Panel4");
     panel3.addNewPanel("Panel3_1");
 
-    expect(survey.getPanelByName("Panel2").name, "find panel on the first page").toLooseEqual("Panel2");
-    expect(survey.getPanelByName("panel3", true).name, "find question on the second page").toLooseEqual("Panel3");
-    expect(survey.getPanelByName("Panel1_1").name, "find child panel on the first page").toLooseEqual("Panel1_1");
-    expect(survey.getPanelByName("panel3_1", true).name, "find child question on the second page").toLooseEqual("Panel3_1");
-    expect(survey.getPanelByName("NoPanel"), "return null").toLooseEqual(null);
+    expect(survey.getPanelByName("Panel2").name, "find panel on the first page").toBe("Panel2");
+    expect(survey.getPanelByName("panel3", true).name, "find question on the second page").toBe("Panel3");
+    expect(survey.getPanelByName("Panel1_1").name, "find child panel on the first page").toBe("Panel1_1");
+    expect(survey.getPanelByName("panel3_1", true).name, "find child question on the second page").toBe("Panel3_1");
+    expect(survey.getPanelByName("NoPanel"), "return null").toBeNull();
   });
   test("Survey.getPageByQuestion/getPageByElement", () => {
     var survey = new SurveyModel();
@@ -1069,11 +1069,11 @@ describe("Survey", () => {
     var panel2 = panel1.addNewPanel("panel2");
     var q3 = panel1.addNewQuestion("text", "q3");
     var q4 = page2.addNewQuestion("text", "q4");
-    expect(survey.getPageByQuestion(q2).name, "q1 - page1").toLooseEqual("page1");
-    expect(survey.getPageByQuestion(q3).name, "q3 - page1").toLooseEqual("page1");
-    expect(survey.getPageByQuestion(q4).name, "q4 - page2").toLooseEqual("page2");
-    expect(survey.getPageByElement(panel1).name, "panel1 - page1").toLooseEqual("page1");
-    expect(survey.getPageByElement(panel2).name, "panel2 - page1").toLooseEqual("page1");
+    expect(survey.getPageByQuestion(q2).name, "q1 - page1").toBe("page1");
+    expect(survey.getPageByQuestion(q3).name, "q3 - page1").toBe("page1");
+    expect(survey.getPageByQuestion(q4).name, "q4 - page2").toBe("page2");
+    expect(survey.getPageByElement(panel1).name, "panel1 - page1").toBe("page1");
+    expect(survey.getPageByElement(panel2).name, "panel2 - page1").toBe("page1");
   });
   test("Add/remove panel", () => {
     var survey = new SurveyModel();
@@ -1082,18 +1082,18 @@ describe("Survey", () => {
     var q1 = panel1.addNewQuestion("text", "q1");
     var panel2 = panel1.addNewPanel("panel2");
     var q2 = panel2.addNewQuestion("text", "q2");
-    expect(page1.elements.length, "There is one element").toLooseEqual(1);
+    expect(page1.elements.length, "There is one element").toBe(1);
     page1.removeElement(panel1);
-    expect(page1.elements.length, "There is no elements").toLooseEqual(0);
+    expect(page1.elements.length, "There is no elements").toBe(0);
   });
   test("Remove element from nested panel, #321", () => {
     var survey = new SurveyModel();
     var page1 = survey.addNewPage("page1");
     var panel1 = page1.addNewPanel("panel1");
     var q1 = panel1.addNewQuestion("text", "q1");
-    expect(panel1.elements.length, "There is one question in the panel").toLooseEqual(1);
+    expect(panel1.elements.length, "There is one question in the panel").toBe(1);
     page1.removeElement(q1);
-    expect(panel1.elements.length, "There no questions in the panel").toLooseEqual(0);
+    expect(panel1.elements.length, "There no questions in the panel").toBe(0);
   });
   test("Add panel with questions", () => {
     var survey = new SurveyModel();
@@ -1103,75 +1103,75 @@ describe("Survey", () => {
     var panel2 = panel1.addNewPanel("panel2");
     var q2 = panel2.addNewQuestion("text", "q2");
     page1.addElement(panel1);
-    expect(panel1.data, "The data is set correctly in the root panel").toLooseEqual(survey);
-    expect(q2.survey, "The survey is set correctly in the question of the nested root").toLooseEqual(survey);
+    expect(panel1.data, "The data is set correctly in the root panel").toBe(survey);
+    expect(q2.survey, "The survey is set correctly in the question of the nested root").toBe(survey);
   });
   test("SurveyData interface implementation", () => {
     var surveyData: ISurveyData;
     surveyData = new SurveyModel();
-    expect(surveyData.getValue("test1"), "No data").toLooseEqual(null);
-    expect(surveyData.getValue("test2"), "No data").toLooseEqual(null);
+    expect(surveyData.getValue("test1"), "No data").toBeUndefined();
+    expect(surveyData.getValue("test2"), "No data").toBeUndefined();
     surveyData.setValue("test1", 1, false);
     surveyData.setValue("test2", "1", false);
-    expect(surveyData.getValue("test1"), "Has value 1").toLooseEqual(1);
-    expect(surveyData.getValue("test2"), "Has value '1'").toLooseEqual("1");
+    expect(surveyData.getValue("test1"), "Has value 1").toBe(1);
+    expect(surveyData.getValue("test2"), "Has value '1'").toBe("1");
   });
   test("Store question value in the survey", () => {
     var survey = new SurveyModel();
     survey.addPage(new PageModel("Page 1"));
     var question = <Question>survey.pages[0].addNewQuestion("text", "question");
-    expect(survey.getValue("question"), "No value").toLooseEqual(null);
-    expect(question.value, "No value").toLooseEqual(null);
+    expect(survey.getValue("question"), "No value").toBeUndefined();
+    expect(question.value, "No value").toBeUndefined();
 
     question.value = "mytext";
-    expect(survey.getValue("question"), "set value from question").toLooseEqual("mytext");
-    expect(question.value, "set value from question").toLooseEqual("mytext");
+    expect(survey.getValue("question"), "set value from question").toBe("mytext");
+    expect(question.value, "set value from question").toBe("mytext");
 
     survey.setValue("question", "myNewtext");
-    expect(survey.getValue("question"), "set value from survey").toLooseEqual("myNewtext");
-    expect(question.value, "set value from survey").toLooseEqual("myNewtext");
+    expect(survey.getValue("question"), "set value from survey").toBe("myNewtext");
+    expect(question.value, "set value from survey").toBe("myNewtext");
   });
   test("Store comments in the survey", () => {
     var survey = new SurveyModel();
     survey.addPage(new PageModel("Page 1"));
     var question = <Question>survey.pages[0].addNewQuestion("text", "question");
     question.showCommentArea = true;
-    expect(survey.getComment("question"), "Comment is empty").toLooseEqual("");
-    expect(question.comment, "Comment is empty").toLooseEqual("");
+    expect(survey.getComment("question"), "Comment is empty").toBe("");
+    expect(question.comment, "Comment is empty").toBe("");
 
     question.comment = "myComment";
-    expect(survey.getComment("question"), "set comment from question").toLooseEqual("myComment");
-    expect(question.comment, "set comment from question").toLooseEqual("myComment");
+    expect(survey.getComment("question"), "set comment from question").toBe("myComment");
+    expect(question.comment, "set comment from question").toBe("myComment");
 
     survey.setComment("question", "myNewComment");
-    expect(survey.getComment("question"), "set comment from survey").toLooseEqual("myNewComment");
-    expect(question.comment, "set comment from survey").toLooseEqual("myNewComment");
+    expect(survey.getComment("question"), "set comment from survey").toBe("myNewComment");
+    expect(question.comment, "set comment from survey").toBe("myNewComment");
   });
   test("Should set required questions before go on the  next page or finish", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey, "Survey is not  null").not.toLooseEqual(null);
+    expect(survey, "Survey is not  null").not.toBeNull();
     (<Question>survey.pages[0].questions[0]).isRequired = true;
 
-    expect(survey.nextPage(), "Can not go to the next page").toLooseEqual(false);
-    expect(survey.pages[0].questions[0].validate(), "The question is not filled out.").toLooseEqual(false);
-    expect(survey.pages[0].validate(), "The page is not filled out.").toLooseEqual(false);
+    expect(survey.nextPage(), "Can not go to the next page").toBe(false);
+    expect(survey.pages[0].questions[0].validate(), "The question is not filled out.").toBe(false);
+    expect(survey.pages[0].validate(), "The page is not filled out.").toBe(false);
     (<Question>survey.pages[0].questions[0]).value = "Test";
 
-    expect(survey.nextPage(), "Can go to the next page").toLooseEqual(true);
-    expect(survey.pages[0].questions[0].validate(), "The question is filled out.").toLooseEqual(true);
-    expect(survey.pages[0].validate(), "The page is filled out.").toLooseEqual(true);
+    expect(survey.nextPage(), "Can go to the next page").toBe(true);
+    expect(survey.pages[0].questions[0].validate(), "The question is filled out.").toBe(true);
+    expect(survey.pages[0].validate(), "The page is filled out.").toBe(true);
   });
   test("survey.checkErrorsMode = 'onValueChanged'", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey, "Survey is not  null").not.toLooseEqual(null);
+    expect(survey, "Survey is not  null").not.toBeNull();
     var question = <Question>survey.pages[0].questions[0];
     question.validators.push(new EmailValidator());
     survey.checkErrorsMode = "onValueChanged";
-    expect(question.errors.length, "there is no errrors yet").toLooseEqual(0);
+    expect(question.errors.length, "there is no errrors yet").toBe(0);
     survey.setValue(question.name, "it is not e-mail");
-    expect(question.errors.length, "The error about invalid e-mail is generated").toLooseEqual(1);
+    expect(question.errors.length, "The error about invalid e-mail is generated").toBe(1);
     survey.setValue(question.name, "a@a.co");
-    expect(question.errors.length, "The is not errors again").toLooseEqual(0);
+    expect(question.errors.length, "The is not errors again").toBe(0);
   });
   test("survey.checkErrorsMode = 'onValueChanging'", () => {
     var survey = twoPageSimplestSurvey();
@@ -1182,23 +1182,23 @@ describe("Survey", () => {
       if (options.name !== "question2") return;
       options.error = options.value.length != 3 ? "Require3Symbols" : null;
     });
-    expect(question.errors.length, "there is no errors yet").toLooseEqual(0);
+    expect(question.errors.length, "there is no errors yet").toBe(0);
     question.value = "it is not e-mail";
-    expect(question.errors.length, "The error about invalid e-mail is generated").toLooseEqual(1);
-    expect(question.value, "the value keeps in question").toLooseEqual("it is not e-mail");
+    expect(question.errors.length, "The error about invalid e-mail is generated").toBe(1);
+    expect(question.value, "the value keeps in question").toBe("it is not e-mail");
     expect(survey.getValue(question.name), "We do not assign it to survey.data").toBeFalsy();
     survey.setValue(question.name, "a@a.co");
-    expect(question.errors.length, "The is not errors again").toLooseEqual(0);
-    expect(survey.getValue(question.name), "set value to survey.data").toLooseEqual("a@a.co");
+    expect(question.errors.length, "The is not errors again").toBe(0);
+    expect(survey.getValue(question.name), "set value to survey.data").toBe("a@a.co");
     question = survey.getQuestionByName("question2");
     survey.setValue("question2", "val1");
-    expect(question.value, "incorrect value set to question").toLooseEqual("val1");
-    expect(question.errors.length, "error is generated").toLooseEqual(1);
+    expect(question.value, "incorrect value set to question").toBe("val1");
+    expect(question.errors.length, "error is generated").toBe(1);
     expect(survey.getValue("question2"), "survey do not have this value").toBeFalsy();
     survey.setValue("question2", "val");
-    expect(question.value, "correct value set to question").toLooseEqual("val");
-    expect(question.errors.length, "there is no errors").toLooseEqual(0);
-    expect(survey.getValue("question2"), "set correct value into survey").toLooseEqual("val");
+    expect(question.value, "correct value set to question").toBe("val");
+    expect(question.errors.length, "there is no errors").toBe(0);
+    expect(survey.getValue("question2"), "set correct value into survey").toBe("val");
   });
   test("survey.checkErrorsMode = 'onValueChanging' and isRequired, Bug#2627", () => {
     var survey = twoPageSimplestSurvey();
@@ -1206,21 +1206,21 @@ describe("Survey", () => {
     question.isRequired = true;
     question.value = "val1";
     survey.checkErrorsMode = "onValueChanging";
-    expect(question.errors.length, "there is no errors yet").toLooseEqual(0);
+    expect(question.errors.length, "there is no errors yet").toBe(0);
     question.value = "";
-    expect(question.errors.length, "The error is required").toLooseEqual(1);
-    expect(question.value, "the value keeps in question").toLooseEqual("");
-    expect(survey.getValue(question.name), "We do not assign it to survey.data").toLooseEqual("val1");
+    expect(question.errors.length, "The error is required").toBe(1);
+    expect(question.value, "the value keeps in question").toBe("");
+    expect(survey.getValue(question.name), "We do not assign it to survey.data").toBe("val1");
     survey.setValue(question.name, "val2");
-    expect(question.errors.length, "The is not errors again").toLooseEqual(0);
-    expect(survey.getValue(question.name), "set value to survey.data").toLooseEqual("val2");
-    expect(question.value, "set value to survey.data").toLooseEqual("val2");
+    expect(question.errors.length, "The is not errors again").toBe(0);
+    expect(survey.getValue(question.name), "set value to survey.data").toBe("val2");
+    expect(question.value, "set value to survey.data").toBe("val2");
     question.value = "";
-    expect(question.errors.length, "Show error again").toLooseEqual(1);
-    expect(survey.getValue(question.name), "keep old value in survey.data").toLooseEqual("val2");
+    expect(question.errors.length, "Show error again").toBe(1);
+    expect(survey.getValue(question.name), "keep old value in survey.data").toBe("val2");
     question.value = "val3";
-    expect(question.errors.length, "Error is gone").toLooseEqual(0);
-    expect(survey.getValue(question.name), "set new value in survey.data").toLooseEqual("val3");
+    expect(question.errors.length, "Error is gone").toBe(0);
+    expect(survey.getValue(question.name), "set new value in survey.data").toBe("val3");
   });
   test("survey.checkErrorsMode = 'onValueChanged', load from json + defaultValue", () => {
     var json = {
@@ -1245,7 +1245,7 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     var question = <Question>survey.getQuestionByName("q1");
-    expect(question.errors.length, "The error about invalid e-mail is generated").toLooseEqual(1);
+    expect(question.errors.length, "The error about invalid e-mail is generated").toBe(1);
   });
   test("survey.checkErrorsMode = 'onValueChanged' & isRequired: true & changing value to empty, #6692", () => {
     const json = {
@@ -1254,11 +1254,11 @@ describe("Survey", () => {
     };
     const survey = new SurveyModel(json);
     const question = <Question>survey.getQuestionByName("q1");
-    expect(question.errors.length, "No error initially").toLooseEqual(0);
+    expect(question.errors.length, "No error initially").toBe(0);
     question.value = "abc";
-    expect(question.errors.length, "No error, it has value").toLooseEqual(0);
+    expect(question.errors.length, "No error, it has value").toBe(0);
     question.value = "";
-    expect(question.errors.length, "There is an error").toLooseEqual(1);
+    expect(question.errors.length, "There is an error").toBe(1);
   });
   test("survey.checkErrorsMode = 'onValueChanged' & , isRequired: true & do not generate error on setting the value, #6692", () => {
     const json = {
@@ -1267,9 +1267,9 @@ describe("Survey", () => {
     };
     const survey = new SurveyModel(json);
     const question = <Question>survey.getQuestionByName("q1");
-    expect(question.errors.length, "No error initially").toLooseEqual(0);
+    expect(question.errors.length, "No error initially").toBe(0);
     survey.data = { q1: "", q2: "abc" };
-    expect(question.errors.length, "No error on setting value to data").toLooseEqual(0);
+    expect(question.errors.length, "No error on setting value to data").toBe(0);
   });
   test("survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612", () => {
     var json = {
@@ -1314,13 +1314,13 @@ describe("Survey", () => {
 
     //survey.data = {"question2":[{"question1":{"Row1":{"Column1":30}}}]}
 
-    expect(question.errors.length, "No errors at the start").toLooseEqual(0);
+    expect(question.errors.length, "No errors at the start").toBe(0);
 
     question.value = { Row1: { Column1: 2 } };
-    expect(question.errors.length, "The error about invalid value").toLooseEqual(1);
+    expect(question.errors.length, "The error about invalid value").toBe(1);
 
     question.value = { Row1: { Column1: 30 } };
-    expect(question.errors.length, "No errors - chosen right value").toLooseEqual(0);
+    expect(question.errors.length, "No errors - chosen right value").toBe(0);
   });
   test("survey.checkErrorsMode = 'onComplete'", () => {
     var json = {
@@ -1354,25 +1354,25 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     survey.nextPage();
-    expect(survey.currentPageNo, "Ignore error on the first page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Ignore error on the first page").toBe(1);
     survey.tryComplete();
-    expect(survey.currentPageNo, "Move to first page with the error").toLooseEqual(0);
+    expect(survey.currentPageNo, "Move to first page with the error").toBe(0);
     survey.afterRenderPage(<HTMLElement>{});
 
     survey.nextPage();
-    expect(survey.currentPageNo, "Ignore error on the first page, #2").toLooseEqual(1);
+    expect(survey.currentPageNo, "Ignore error on the first page, #2").toBe(1);
     survey.tryComplete();
-    expect(survey.currentPageNo, "Move to first page with the error, #2").toLooseEqual(0);
+    expect(survey.currentPageNo, "Move to first page with the error, #2").toBe(0);
     survey.afterRenderPage(<HTMLElement>{});
 
     survey.setValue("q1", "john.snow@nightwatch.org");
     survey.nextPage();
     survey.tryComplete();
-    expect(survey.currentPageNo, "Stay on second page").toLooseEqual(1);
-    expect(survey.state, "There is an error on the second page").toLooseEqual("running");
+    expect(survey.currentPageNo, "Stay on second page").toBe(1);
+    expect(survey.state, "There is an error on the second page").toBe("running");
     survey.setValue("q2", "a");
     survey.tryComplete();
-    expect(survey.state, "No errors, completed").toLooseEqual("completed");
+    expect(survey.state, "No errors, completed").toBe("completed");
   });
 
   test("Should not be errors after prevPage bug#151", () => {
@@ -1386,12 +1386,12 @@ describe("Survey", () => {
     page.addNewQuestion("text", "q2");
 
     survey.nextPage();
-    expect(question.errors.length, "The question is not filled out.").toLooseEqual(1);
+    expect(question.errors.length, "The question is not filled out.").toBe(1);
     question.value = 1;
-    expect(question.errors.length, "The question has not errors").toLooseEqual(0);
-    expect(survey.currentPage.name, "Go to the next page").toLooseEqual(survey.pages[1].name);
+    expect(question.errors.length, "The question has not errors").toBe(0);
+    expect(survey.currentPage.name, "Go to the next page").toBe(survey.pages[1].name);
     survey.prevPage();
-    expect(question.errors.length, "The question has not errors").toLooseEqual(0);
+    expect(question.errors.length, "The question has not errors").toBe(0);
   });
   test("Should not show errors with others bug #2014", () => {
     var survey = new SurveyModel();
@@ -1404,14 +1404,14 @@ describe("Survey", () => {
     page = survey.addNewPage("page2");
     page.addNewQuestion("text", "q2");
 
-    expect(survey.currentPageNo, "The first page is shown").toLooseEqual(0);
+    expect(survey.currentPageNo, "The first page is shown").toBe(0);
     question.value = question.otherItem.value;
-    expect(survey.currentPageNo, "The page is still first").toLooseEqual(0);
-    expect(question.errors.length, "Do not show any error").toLooseEqual(0);
+    expect(survey.currentPageNo, "The page is still first").toBe(0);
+    expect(question.errors.length, "Do not show any error").toBe(0);
     question.otherValue = "Some text";
-    expect(survey.currentPageNo, "The page is still first, #2").toLooseEqual(0);
+    expect(survey.currentPageNo, "The page is still first, #2").toBe(0);
     question.value = 2;
-    expect(survey.currentPageNo, "The second page is shown").toLooseEqual(1);
+    expect(survey.currentPageNo, "The second page is shown").toBe(1);
   });
   test("Show error on question value changed if can't go to the next page", () => {
     var survey = new SurveyModel({
@@ -1436,36 +1436,36 @@ describe("Survey", () => {
         new ExpressionValidator("{q3} >= '" + new Date().toString() + "'")
       );
     survey.setValue("q2", 3);
-    expect(survey.currentPageNo, "q1 is empty").toLooseEqual(0);
-    expect(survey.getQuestionByName("q1").errors.length, "We do not show errors for q1").toLooseEqual(0);
-    expect(survey.getQuestionByName("q2").errors.length, "We do not show errors for q2, q1 is empty").toLooseEqual(0);
+    expect(survey.currentPageNo, "q1 is empty").toBe(0);
+    expect(survey.getQuestionByName("q1").errors.length, "We do not show errors for q1").toBe(0);
+    expect(survey.getQuestionByName("q2").errors.length, "We do not show errors for q2, q1 is empty").toBe(0);
     survey.setValue("q1", 1);
-    expect(survey.currentPageNo, "q2 has error, do not move").toLooseEqual(0);
-    expect(survey.getQuestionByName("q1").errors.length, "there is no error").toLooseEqual(0);
-    expect(survey.getQuestionByName("q2").errors.length, "There is an error in q2, we can't move further").toLooseEqual(1);
+    expect(survey.currentPageNo, "q2 has error, do not move").toBe(0);
+    expect(survey.getQuestionByName("q1").errors.length, "there is no error").toBe(0);
+    expect(survey.getQuestionByName("q2").errors.length, "There is an error in q2, we can't move further").toBe(1);
     survey.getQuestionByName("q2").errors.splice(0, 1);
     survey.clear(true, true);
     survey.setValue("q1", 1);
-    expect(survey.currentPageNo, "q2 is empty").toLooseEqual(0);
-    expect(survey.getQuestionByName("q2").errors.length, "We do not touch q2 yet").toLooseEqual(0);
+    expect(survey.currentPageNo, "q2 is empty").toBe(0);
+    expect(survey.getQuestionByName("q2").errors.length, "We do not touch q2 yet").toBe(0);
     survey.setValue("q2", 5);
-    expect(survey.currentPageNo, "q2 has error, do not move").toLooseEqual(0);
-    expect(survey.getQuestionByName("q2").errors.length, "Show errors q2 is changed.").toLooseEqual(1);
+    expect(survey.currentPageNo, "q2 has error, do not move").toBe(0);
+    expect(survey.getQuestionByName("q2").errors.length, "Show errors q2 is changed.").toBe(1);
     survey.setValue("q2", 11);
-    expect(survey.currentPageNo, "q2 has no errors").toLooseEqual(1);
+    expect(survey.currentPageNo, "q2 has no errors").toBe(1);
     var d = new Date();
     d.setDate(d.getDate() - 5);
     survey.setValue("q3", d);
-    expect(survey.getQuestionByName("q3").errors.length, "Do not show errors, because input type is date").toLooseEqual(0);
+    expect(survey.getQuestionByName("q3").errors.length, "Do not show errors, because input type is date").toBe(0);
   });
 
   test("Invisible required questions should not be take into account", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey, "Survey is not  null").not.toLooseEqual(null);
+    expect(survey, "Survey is not  null").not.toBeNull();
     (<Question>survey.pages[0].questions[0]).isRequired = true;
-    expect(survey.nextPage(), "Can not go to the next page").toLooseEqual(false);
+    expect(survey.nextPage(), "Can not go to the next page").toBe(false);
     survey.pages[0].questions[0].visible = false;
-    expect(survey.nextPage(), "You can go to the next page now.").toLooseEqual(true);
+    expect(survey.nextPage(), "You can go to the next page now.").toBe(true);
   });
   test("onValueChanged event", () => {
     var survey = twoPageSimplestSurvey();
@@ -1478,11 +1478,11 @@ describe("Survey", () => {
       counter++;
     });
     survey.setValue("question1", "value1");
-    expect(name, "onValueChanged event, property name is correct").toLooseEqual("question1");
-    expect(newValue, "onValueChanged event, property newValue is correct").toLooseEqual("value1");
-    expect(counter, "onValueChanged event is called one time").toLooseEqual(1);
+    expect(name, "onValueChanged event, property name is correct").toBe("question1");
+    expect(newValue, "onValueChanged event, property newValue is correct").toBe("value1");
+    expect(counter, "onValueChanged event is called one time").toBe(1);
     (<Question>survey.pages[0].questions[0]).value = "val";
-    expect(counter, "onValueChanged event is called one time").toLooseEqual(2);
+    expect(counter, "onValueChanged event is called one time").toBe(2);
   });
   test("onValueChanged event - do not call on equal value", () => {
     var survey = new SurveyModel();
@@ -1491,21 +1491,21 @@ describe("Survey", () => {
       counter++;
     });
     survey.setValue("name", 1);
-    expect(counter, "onValueChanged event is called one time").toLooseEqual(1);
+    expect(counter, "onValueChanged event is called one time").toBe(1);
     survey.setValue("name", 1);
-    expect(counter, "1 is the same value").toLooseEqual(1);
+    expect(counter, "1 is the same value").toBe(1);
     survey.setValue("name", { col1: [1, { cel2: "2" }] });
-    expect(counter, "onValueChanged event is called two times").toLooseEqual(2);
+    expect(counter, "onValueChanged event is called two times").toBe(2);
     survey.setValue("name", { col1: [1, { cel2: "2" }] });
-    expect(counter, "2, the value is the same").toLooseEqual(2);
+    expect(counter, "2, the value is the same").toBe(2);
     survey.setValue("name", { col1: [1, { cel2: "2" }, 3] });
-    expect(counter, "onValueChanged event is called three times").toLooseEqual(3);
+    expect(counter, "onValueChanged event is called three times").toBe(3);
     survey.setValue("name", { col1: [1, { cel2: "2" }, 3] });
-    expect(counter, "3, the value is the same").toLooseEqual(3);
+    expect(counter, "3, the value is the same").toBe(3);
     var value = survey.getValue("name");
     value.col1.push(4);
     survey.setValue("name", value);
-    expect(counter, "onValueChanged event is called fourth times").toLooseEqual(4);
+    expect(counter, "onValueChanged event is called fourth times").toBe(4);
   });
   test("onValueChanged event is not called on changing matrix value", () => {
     var survey = twoPageSimplestSurvey();
@@ -1522,8 +1522,8 @@ describe("Survey", () => {
       counter++;
     });
     matrixQuestion.visibleRows[0].value = "col2";
-    expect(counter, "onValueChanged event is called one time").toLooseEqual(1);
-    expect(name, "onValueChanged event, property name is correct").toLooseEqual("matrix");
+    expect(counter, "onValueChanged event is called one time").toBe(1);
+    expect(name, "onValueChanged event, property name is correct").toBe("matrix");
     expect(newValue, "onValueChanged event, property newValue is correct").toEqualValues({ row1: "col2" });
   });
   test("onValueChanged event is not called on changing multi text value", () => {
@@ -1541,8 +1541,8 @@ describe("Survey", () => {
       counter++;
     });
     multiTextQuestion.items[1].value = "text1";
-    expect(counter, "onValueChanged event is called one time").toLooseEqual(1);
-    expect(name, "onValueChanged event, property name is correct").toLooseEqual("multitext");
+    expect(counter, "onValueChanged event is called one time").toBe(1);
+    expect(name, "onValueChanged event, property name is correct").toBe("multitext");
     expect(newValue, "onValueChanged event, property newValue is correct").toEqualValues({ item2: "text1" });
   });
   test("onValueChanging event", () => {
@@ -1559,16 +1559,16 @@ describe("Survey", () => {
       counter++;
     });
     survey.setValue("question1", "value1");
-    expect(name, "onValueChanging event, property name is correct").toLooseEqual("question1");
-    expect(questionName, "onValueChanging event, property question is correct").toLooseEqual("question1");
-    expect(newValue, "onValueChanging event, property newValue is correct").toLooseEqual("value1");
-    expect(counter, "onValueChanging event is called one time").toLooseEqual(1);
+    expect(name, "onValueChanging event, property name is correct").toBe("question1");
+    expect(questionName, "onValueChanging event, property question is correct").toBe("question1");
+    expect(newValue, "onValueChanging event, property newValue is correct").toBe("value1");
+    expect(counter, "onValueChanging event is called one time").toBe(1);
     (<Question>survey.pages[0].questions[0]).value = "val";
-    expect(counter, "onValueChanging event is called two time").toLooseEqual(2);
+    expect(counter, "onValueChanging event is called two time").toBe(2);
     survey.setValue("q1", "val");
-    expect(counter, "onValueChanging event is called three time").toLooseEqual(3);
+    expect(counter, "onValueChanging event is called three time").toBe(3);
     survey.setValue("q1", "value0");
-    expect(survey.getValue("q1"), "onValueChanging event allows to change value").toLooseEqual("value");
+    expect(survey.getValue("q1"), "onValueChanging event allows to change value").toBe("value");
   });
   test("onValueChanging event for comment, #8292", () => {
     const survey = new SurveyModel();
@@ -1584,13 +1584,13 @@ describe("Survey", () => {
       }
     });
     q1.comment = "abc";
-    expect(questionName, "question name #1").toLooseEqual("q1");
-    expect(q1.comment, "comment value #1").toLooseEqual("abc");
-    expect(newComment, "newComment #1").toLooseEqual("abc");
+    expect(questionName, "question name #1").toBe("q1");
+    expect(q1.comment, "comment value #1").toBe("abc");
+    expect(newComment, "newComment #1").toBe("abc");
     q1.comment = "abcd";
-    expect(q1.comment, "comment value #2").toLooseEqual("abcd");
-    expect(newComment, "newComment #2").toLooseEqual("abcd");
-    expect(oldComment, "newComment #2").toLooseEqual("abc");
+    expect(q1.comment, "comment value #2").toBe("abcd");
+    expect(newComment, "newComment #2").toBe("abcd");
+    expect(oldComment, "newComment #2").toBe("abc");
   });
 
   test("onValueChanging event - do not allow clear value, #8292", () => {
@@ -1618,16 +1618,16 @@ describe("Survey", () => {
       }
     });
     q1.comment = "abc";
-    expect(counter, "counter #1").toLooseEqual(1);
-    expect(q1.comment, "comment value #1").toLooseEqual("abc");
+    expect(counter, "counter #1").toBe(1);
+    expect(q1.comment, "comment value #1").toBe("abc");
     q1.comment = "";
-    expect(questionName, "question.name #2").toLooseEqual("q1");
-    expect(oldComment, "oldComment #2").toLooseEqual("abc");
-    expect(newComment, "newComment #2").toLooseEqual("abc");
-    expect(counter, "counter #2").toLooseEqual(2);
-    expect(q1.comment, "comment value #2").toLooseEqual("abc");
-    expect(survey.getComment("q1"), "survey.getComment value #2").toLooseEqual("abc");
-    expect(onValueChangedValue, "onValueChanged options.value").toLooseEqual("abc");
+    expect(questionName, "question.name #2").toBe("q1");
+    expect(oldComment, "oldComment #2").toBe("abc");
+    expect(newComment, "newComment #2").toBe("abc");
+    expect(counter, "counter #2").toBe(2);
+    expect(q1.comment, "comment value #2").toBe("abc");
+    expect(survey.getComment("q1"), "survey.getComment value #2").toBe("abc");
+    expect(onValueChangedValue, "onValueChanged options.value").toBe("abc");
   });
   test("onValueChanging event - do not allow clear value in comment, #1542", () => {
     var survey = new SurveyModel();
@@ -1639,9 +1639,9 @@ describe("Survey", () => {
       }
     });
     q1.value = 1;
-    expect(q1.value, "The value is 1").toLooseEqual(1);
+    expect(q1.value, "The value is 1").toBe(1);
     q1.clearValue();
-    expect(q1.value, "The value is still 1, onValueChanging does not allow to change the value").toLooseEqual(1);
+    expect(q1.value, "The value is still 1, onValueChanging does not allow to change the value").toBe(1);
   });
   test("adding, inserting Multiple Text Item correctly", () => {
     var survey = twoPageSimplestSurvey();
@@ -1652,16 +1652,16 @@ describe("Survey", () => {
     multiTextQuestion.items.push(item1);
     multiTextQuestion.items.splice(0, 0, item2);
     item1.value = "1";
-    expect(item1.value, "Check1. data was set correctly").toLooseEqual("1");
+    expect(item1.value, "Check1. data was set correctly").toBe("1");
     item2.value = "2";
-    expect(item2.value, "Check2. data was set correctly").toLooseEqual("2");
+    expect(item2.value, "Check2. data was set correctly").toBe("2");
     multiTextQuestion.items = [];
     item1 = multiTextQuestion.addItem("item1");
     item1.value = "3";
-    expect(item1.value, "Check3. data was set correctly").toLooseEqual("3");
+    expect(item1.value, "Check3. data was set correctly").toBe("3");
     multiTextQuestion.items.splice(0, 0, item2);
     item2.value = "4";
-    expect(item2.value, "Check4. data was set correctly").toLooseEqual("4");
+    expect(item2.value, "Check4. data was set correctly").toBe("4");
   });
   test("Multiple Text required items", () => {
     var survey = twoPageSimplestSurvey();
@@ -1670,11 +1670,11 @@ describe("Survey", () => {
     var item1 = multiTextQuestion.addItem("item1");
     var item2 = multiTextQuestion.addItem("item2");
     item1.isRequired = true;
-    expect(item1.fullTitle, "Add isRequired Text").toLooseEqual("item1");
-    expect(item2.fullTitle, "there is no isRequired Text").toLooseEqual("item2");
-    expect(multiTextQuestion.validate(), "item1 is required and it is empty").toLooseEqual(false);
+    expect(item1.fullTitle, "Add isRequired Text").toBe("item1");
+    expect(item2.fullTitle, "there is no isRequired Text").toBe("item2");
+    expect(multiTextQuestion.validate(), "item1 is required and it is empty").toBe(false);
     item1.value = 1;
-    expect(multiTextQuestion.validate(), "item1 is required and it has a value").toLooseEqual(true);
+    expect(multiTextQuestion.validate(), "item1 is required and it has a value").toBe(true);
   });
   test("onComplete event", () => {
     var survey = twoPageSimplestSurvey();
@@ -1685,8 +1685,8 @@ describe("Survey", () => {
     survey.nextPage();
     survey.nextPage();
     survey.tryComplete();
-    expect(survey.state, "The survey is completed").toLooseEqual("completed");
-    expect(counter, "onComplete calls one time").toLooseEqual(1);
+    expect(survey.state, "The survey is completed").toBe("completed");
+    expect(counter, "onComplete calls one time").toBe(1);
   });
   test("onVisibleChanged event", () => {
     var survey = twoPageSimplestSurvey();
@@ -1700,40 +1700,40 @@ describe("Survey", () => {
     });
     survey.getQuestionByName("question1").visible = false;
 
-    expect(name, "onVisibleChanged event, property name is correct").toLooseEqual("question1");
-    expect(visibility, "onVisibleChanged event, property visibility is correct").toLooseEqual(false);
-    expect(counter, "onVisibleChanged event is called one time").toLooseEqual(1);
+    expect(name, "onVisibleChanged event, property name is correct").toBe("question1");
+    expect(visibility, "onVisibleChanged event, property visibility is correct").toBe(false);
+    expect(counter, "onVisibleChanged event is called one time").toBe(1);
 
     survey.getQuestionByName("question1").visible = true;
-    expect(name, "onVisibleChanged event, property name is correct").toLooseEqual("question1");
-    expect(visibility, "onVisibleChanged event, property visibility is correct").toLooseEqual(true);
-    expect(counter, "onVisibleChanged event is called two time").toLooseEqual(2);
+    expect(name, "onVisibleChanged event, property name is correct").toBe("question1");
+    expect(visibility, "onVisibleChanged event, property visibility is correct").toBe(true);
+    expect(counter, "onVisibleChanged event is called two time").toBe(2);
 
     survey.getQuestionByName("question1").visible = true;
-    expect(counter, "onVisibleChanged event is called two time").toLooseEqual(2);
+    expect(counter, "onVisibleChanged event is called two time").toBe(2);
   });
   test("Question visibleIndex", () => {
     var survey = twoPageSimplestSurvey();
     survey.showQuestionNumbers = "on";
-    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "the first question").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question").toLooseEqual(2);
+    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "the first question").toBe(0);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question").toBe(2);
     survey.getQuestionByName("question1").visible = false;
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question is now visible as second").toLooseEqual(1);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question is now visible as second").toBe(1);
     survey.getQuestionByName("question1").visible = true;
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question is third again").toLooseEqual(2);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question is third again").toBe(2);
     survey.getQuestionByName("question1").showNumber = false;
-    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "Hide the number").toLooseEqual(-1);
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the first question number is hidden").toLooseEqual(1);
+    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "Hide the number").toBe(-1);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the first question number is hidden").toBe(1);
     survey.getQuestionByName("question1").showNumber = true;
     survey.getQuestionByName("question1").visible = false;
     survey.showQuestionNumbers = "off";
-    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "off:the first question").toLooseEqual(-1);
-    expect((<Question>survey.getQuestionByName("question2")).visibleIndex, "off:the second question").toLooseEqual(-1);
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "off:the third question").toLooseEqual(-1);
+    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "off:the first question").toBe(-1);
+    expect((<Question>survey.getQuestionByName("question2")).visibleIndex, "off:the second question").toBe(-1);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "off:the third question").toBe(-1);
     survey.showQuestionNumbers = "onPage";
-    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "onPage:the first question").toLooseEqual(-1);
-    expect((<Question>survey.getQuestionByName("question2")).visibleIndex, "onPage:the second question").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "onPage:the third question").toLooseEqual(0);
+    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "onPage:the first question").toBe(-1);
+    expect((<Question>survey.getQuestionByName("question2")).visibleIndex, "onPage:the second question").toBe(0);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "onPage:the third question").toBe(0);
   });
   test("Question visibleIndex, add-remove questions", () => {
     var survey = new SurveyModel();
@@ -1742,12 +1742,12 @@ describe("Survey", () => {
     var q1 = new QuestionTextModel("q1");
     page.elements.push(q1);
     page.elements.push(new QuestionTextModel("q2"));
-    expect((<Question>survey.getQuestionByName("q1")).visibleIndex, "the first question").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("q2")).visibleIndex, "the second question").toLooseEqual(1);
+    expect((<Question>survey.getQuestionByName("q1")).visibleIndex, "the first question").toBe(0);
+    expect((<Question>survey.getQuestionByName("q2")).visibleIndex, "the second question").toBe(1);
     var q3 = new QuestionTextModel("q3");
     page.elements.splice(0, 1, q3);
-    expect((<Question>survey.getQuestionByName("q3")).visibleIndex, "the first question").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("q2")).visibleIndex, "the second question").toLooseEqual(1);
+    expect((<Question>survey.getQuestionByName("q3")).visibleIndex, "the first question").toBe(0);
+    expect((<Question>survey.getQuestionByName("q2")).visibleIndex, "the second question").toBe(1);
   });
   test("Question visibleIndex in onVisibleChanged event, containers", () => {
     var survey = new SurveyModel();
@@ -1763,7 +1763,7 @@ describe("Survey", () => {
     });
     survey.setValue("state", 1);
     //question.visible = true;
-    expect(visibleIndex, "visible index should be 0").toLooseEqual(0);
+    expect(visibleIndex, "visible index should be 0").toBe(0);
   });
 
   test("Question/Panel visibleIndex", () => {
@@ -1775,27 +1775,27 @@ describe("Survey", () => {
     var q2 = panel.addNewQuestion("text", "q2");
     var q3 = panel.addNewQuestion("text", "q3");
     var q4 = page.addNewQuestion("text", "q4");
-    expect(q2.visibleIndex, "second quesiton").toLooseEqual(1);
-    expect(q4.visibleIndex, "fourth quesiton").toLooseEqual(3);
+    expect(q2.visibleIndex, "second quesiton").toBe(1);
+    expect(q4.visibleIndex, "fourth quesiton").toBe(3);
     panel.title = "Some text";
-    expect(panel.visibleIndex, "Panel title is empty").toLooseEqual(-1);
-    expect(panel.no, "Panel no property,  title is empty").toLooseEqual("");
+    expect(panel.visibleIndex, "Panel title is empty").toBe(-1);
+    expect(panel.no, "Panel no property,  title is empty").toBe("");
     panel.showNumber = true;
-    expect(panel.visibleIndex, "Panel has visibleIndex").toLooseEqual(1);
-    expect(panel.no, "Panel no property").toLooseEqual("2.");
-    expect(q2.visibleIndex, "second quesiton + panel has index").toLooseEqual(2);
-    expect(q4.visibleIndex, "fourth quesiton + panel has index").toLooseEqual(4);
+    expect(panel.visibleIndex, "Panel has visibleIndex").toBe(1);
+    expect(panel.no, "Panel no property").toBe("2.");
+    expect(q2.visibleIndex, "second quesiton + panel has index").toBe(2);
+    expect(q4.visibleIndex, "fourth quesiton + panel has index").toBe(4);
     panel.showQuestionNumbers = "off";
-    expect(q2.visibleIndex, "second quesiton + panel has index, questions inside panel have not numbering").toLooseEqual(-1);
-    expect(q3.visibleIndex, "third quesiton + panel has index, questions inside panel have not numbering").toLooseEqual(-1);
-    expect(q4.visibleIndex, "fourth quesiton + panel has index, questions inside panel have not numbering").toLooseEqual(2);
+    expect(q2.visibleIndex, "second quesiton + panel has index, questions inside panel have not numbering").toBe(-1);
+    expect(q3.visibleIndex, "third quesiton + panel has index, questions inside panel have not numbering").toBe(-1);
+    expect(q4.visibleIndex, "fourth quesiton + panel has index, questions inside panel have not numbering").toBe(2);
     panel.showQuestionNumbers = "onpanel";
-    expect(q2.visibleIndex, "second quesiton + panel has index, questions inside panel have its own numbering").toLooseEqual(0);
-    expect(q3.visibleIndex, "third quesiton + panel has index, questions  inside panel have its own numbering").toLooseEqual(1);
-    expect(q4.visibleIndex, "fourth quesiton + panel has index, questions  inside panel have its own numbering").toLooseEqual(2);
+    expect(q2.visibleIndex, "second quesiton + panel has index, questions inside panel have its own numbering").toBe(0);
+    expect(q3.visibleIndex, "third quesiton + panel has index, questions  inside panel have its own numbering").toBe(1);
+    expect(q4.visibleIndex, "fourth quesiton + panel has index, questions  inside panel have its own numbering").toBe(2);
     panel.showNumber = false;
-    expect(panel.visibleIndex, "Panel showNumber is false").toLooseEqual(-1);
-    expect(panel.no, "Panel no property,  showNumber is false").toLooseEqual("");
+    expect(panel.visibleIndex, "Panel showNumber is false").toBe(-1);
+    expect(panel.no, "Panel no property,  showNumber is false").toBe("");
   });
 
   test("Question/Panel visibleIndex, the panel is first with showNumber false and showQuestionNumbering onpanel", () => {
@@ -1807,9 +1807,9 @@ describe("Survey", () => {
     var q3 = panel.addNewQuestion("text", "q3");
     var q4 = page.addNewQuestion("text", "q4");
     panel.showQuestionNumbers = "onpanel";
-    expect(q2.visibleIndex, "second quesiton + panel has index, questions inside panel have its own numbering").toLooseEqual(0);
-    expect(q3.visibleIndex, "third quesiton + panel has index, questions  inside panel have its own numbering").toLooseEqual(1);
-    expect(q4.visibleIndex, "fourth quesiton + panel has index, questions  inside panel have its own numbering").toLooseEqual(0);
+    expect(q2.visibleIndex, "second quesiton + panel has index, questions inside panel have its own numbering").toBe(0);
+    expect(q3.visibleIndex, "third quesiton + panel has index, questions  inside panel have its own numbering").toBe(1);
+    expect(q4.visibleIndex, "fourth quesiton + panel has index, questions  inside panel have its own numbering").toBe(0);
   });
   test("Panel.questionStartIndex", () => {
     var survey = new SurveyModel();
@@ -1822,14 +1822,14 @@ describe("Survey", () => {
     var q4 = page.addNewQuestion("text", "q4");
     survey.questionStartIndex = "1)";
     panel.questionStartIndex = "A.";
-    expect(q1.no, "the first question").toLooseEqual("1)");
-    expect(q2.no, "second quesiton").toLooseEqual("B.");
-    expect(q3.no, "the thrid question").toLooseEqual("C.");
-    expect(q4.no, "the fourth question").toLooseEqual("4)");
+    expect(q1.no, "the first question").toBe("1)");
+    expect(q2.no, "second quesiton").toBe("B.");
+    expect(q3.no, "the thrid question").toBe("C.");
+    expect(q4.no, "the fourth question").toBe("4)");
     panel.showQuestionNumbers = "onpanel";
-    expect(q2.no, "second quesiton, onpanel").toLooseEqual("A.");
-    expect(q3.no, "the thrid question, onpanel").toLooseEqual("B.");
-    expect(q4.no, "the fourth question, onpanel").toLooseEqual("2)");
+    expect(q2.no, "second quesiton, onpanel").toBe("A.");
+    expect(q3.no, "the thrid question, onpanel").toBe("B.");
+    expect(q4.no, "the fourth question, onpanel").toBe("2)");
   });
 
   test("Panel.questionStartIndex, nested Panel", () => {
@@ -1844,76 +1844,76 @@ describe("Survey", () => {
     survey.questionStartIndex = "1)";
     panel.questionStartIndex = "A.";
     nestedPanel.showNumber = true;
-    expect(nestedPanel.no, "use panel questionStartIndex").toLooseEqual("A.");
+    expect(nestedPanel.no, "use panel questionStartIndex").toBe("A.");
   });
   test("showQuestionNumbers - accept bool values", () => {
     var survey = twoPageSimplestSurvey();
     survey.showQuestionNumbers = "on";
-    expect(survey.showQuestionNumbers).toLooseEqual("on");
+    expect(survey.showQuestionNumbers).toBe("on");
     survey.showQuestionNumbers = false as any;
-    expect(survey.showQuestionNumbers).toLooseEqual("off");
+    expect(survey.showQuestionNumbers).toBe("off");
     survey.showQuestionNumbers = true as any;
-    expect(survey.showQuestionNumbers).toLooseEqual("on");
+    expect(survey.showQuestionNumbers).toBe("on");
   });
   test("showQuestionNumbers - question fullTitle", () => {
     var survey = twoPageSimplestSurvey();
     survey.showQuestionNumbers = "on";
-    expect((<Question>survey.getQuestionByName("question1"))["no"]).toLooseEqual(1);
-    expect((<Question>survey.getQuestionByName("question1")).fullTitle, "the first question showQuestionNumbers=on").toLooseEqual("question1");
-    expect((<Question>survey.getQuestionByName("question3"))["no"]).toLooseEqual(3);
-    expect((<Question>survey.getQuestionByName("question3")).fullTitle, "the thrid question showQuestionNumbers=on").toLooseEqual("question3");
+    expect((<Question>survey.getQuestionByName("question1"))["no"]).toBe("1.");
+    expect((<Question>survey.getQuestionByName("question1")).fullTitle, "the first question showQuestionNumbers=on").toBe("question1");
+    expect((<Question>survey.getQuestionByName("question3"))["no"]).toBe("3.");
+    expect((<Question>survey.getQuestionByName("question3")).fullTitle, "the thrid question showQuestionNumbers=on").toBe("question3");
     survey.showQuestionNumbers = "onPage";
-    expect((<Question>survey.getQuestionByName("question1"))["no"]).toLooseEqual(1);
-    expect((<Question>survey.getQuestionByName("question1")).fullTitle, "the first question showQuestionNumbers=onPage").toLooseEqual("question1");
-    expect((<Question>survey.getQuestionByName("question3"))["no"]).toLooseEqual(1);
-    expect((<Question>survey.getQuestionByName("question3")).fullTitle, "the thrid question showQuestionNumbers=onPage").toLooseEqual("question3");
+    expect((<Question>survey.getQuestionByName("question1"))["no"]).toBe("1.");
+    expect((<Question>survey.getQuestionByName("question1")).fullTitle, "the first question showQuestionNumbers=onPage").toBe("question1");
+    expect((<Question>survey.getQuestionByName("question3"))["no"]).toBe("1.");
+    expect((<Question>survey.getQuestionByName("question3")).fullTitle, "the thrid question showQuestionNumbers=onPage").toBe("question3");
     survey.showQuestionNumbers = "off";
-    expect((<Question>survey.getQuestionByName("question1"))["no"]).toLooseEqual("");
-    expect((<Question>survey.getQuestionByName("question1")).fullTitle, "the first question showQuestionNumbers=onPage").toLooseEqual("question1");
-    expect((<Question>survey.getQuestionByName("question3"))["no"]).toLooseEqual("");
-    expect((<Question>survey.getQuestionByName("question3")).fullTitle, "the thrid question showQuestionNumbers=onPage").toLooseEqual("question3");
+    expect((<Question>survey.getQuestionByName("question1"))["no"]).toBe("");
+    expect((<Question>survey.getQuestionByName("question1")).fullTitle, "the first question showQuestionNumbers=onPage").toBe("question1");
+    expect((<Question>survey.getQuestionByName("question3"))["no"]).toBe("");
+    expect((<Question>survey.getQuestionByName("question3")).fullTitle, "the thrid question showQuestionNumbers=onPage").toBe("question3");
   });
   test("Question visibleIndex and no title question", () => {
     var survey = twoPageSimplestSurvey();
     survey.showQuestionNumbers = "on";
-    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "the first question").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question").toLooseEqual(2);
+    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "the first question").toBe(0);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question").toBe(2);
     var question = new QuestionHtmlModel("html1");
     survey.pages[0].addQuestion(question, 0);
-    expect((<Question>survey.getQuestionByName("html1")).visibleIndex, "html question").toLooseEqual(-1);
-    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "the first question + html question").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question + html question").toLooseEqual(2);
+    expect((<Question>survey.getQuestionByName("html1")).visibleIndex, "html question").toBe(-1);
+    expect((<Question>survey.getQuestionByName("question1")).visibleIndex, "the first question + html question").toBe(0);
+    expect((<Question>survey.getQuestionByName("question3")).visibleIndex, "the third question + html question").toBe(2);
   });
   test("Pages visibleIndex and num", () => {
     var survey = twoPageSimplestSurvey();
     survey.addNewPage("page 3").addNewQuestion("text", "q4");
-    expect(survey.pages[0].visibleIndex, "start:page 1").toLooseEqual(0);
-    expect(survey.pages[1].visibleIndex, "start:page 2").toLooseEqual(1);
-    expect(survey.pages[2].visibleIndex, "start:page 3").toLooseEqual(2);
-    expect(survey.pages[0].num, "start:page 1, num").toLooseEqual(1);
-    expect(survey.pages[1].num, "start:page 2, num").toLooseEqual(2);
-    expect(survey.pages[2].num, "start:page 3, num").toLooseEqual(3);
+    expect(survey.pages[0].visibleIndex, "start:page 1").toBe(0);
+    expect(survey.pages[1].visibleIndex, "start:page 2").toBe(1);
+    expect(survey.pages[2].visibleIndex, "start:page 3").toBe(2);
+    expect(survey.pages[0].num, "start:page 1, num").toBe(1);
+    expect(survey.pages[1].num, "start:page 2, num").toBe(2);
+    expect(survey.pages[2].num, "start:page 3, num").toBe(3);
 
     survey.pages[0].visible = false;
-    expect(survey.pages[0].visibleIndex, "page[0].visible=false:page 1").toLooseEqual(-1);
-    expect(survey.pages[1].visibleIndex, "page[0].visible=false:page 2").toLooseEqual(0);
-    expect(survey.pages[2].visibleIndex, "page[0].visible=false:page 3").toLooseEqual(1);
-    expect(survey.pages[0].num, "page[0].visible=false:page 1, num").toLooseEqual(-1);
-    expect(survey.pages[1].num, "page[0].visible=false:page 2, num").toLooseEqual(1);
-    expect(survey.pages[2].num, "page[0].visible=false:page 3, num").toLooseEqual(2);
+    expect(survey.pages[0].visibleIndex, "page[0].visible=false:page 1").toBe(-1);
+    expect(survey.pages[1].visibleIndex, "page[0].visible=false:page 2").toBe(0);
+    expect(survey.pages[2].visibleIndex, "page[0].visible=false:page 3").toBe(1);
+    expect(survey.pages[0].num, "page[0].visible=false:page 1, num").toBe(-1);
+    expect(survey.pages[1].num, "page[0].visible=false:page 2, num").toBe(1);
+    expect(survey.pages[2].num, "page[0].visible=false:page 3, num").toBe(2);
   });
   test("Pages num", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey.pages[0]["canShowPageNumber"](), "false:the first page: can't show page number").toLooseEqual(false);
-    expect(survey.pages[0].num, "the first page").toLooseEqual(1);
-    expect(survey.pages[1]["canShowPageNumber"](), "false:the first page: can't show page number").toLooseEqual(false);
-    expect(survey.pages[1].num, "the second page").toLooseEqual(2);
+    expect(survey.pages[0]["canShowPageNumber"](), "false:the first page: can't show page number").toBe(false);
+    expect(survey.pages[0].num, "the first page").toBe(1);
+    expect(survey.pages[1]["canShowPageNumber"](), "false:the first page: can't show page number").toBe(false);
+    expect(survey.pages[1].num, "the second page").toBe(2);
 
     survey.showPageNumbers = true;
-    expect(survey.pages[0]["canShowPageNumber"](), "true:the first page: can show page number").toLooseEqual(true);
-    expect(survey.pages[0].num, "the first page").toLooseEqual(1);
-    expect(survey.pages[1]["canShowPageNumber"](), "true:the first page: can show page number").toLooseEqual(true);
-    expect(survey.pages[1].num, "the second page").toLooseEqual(2);
+    expect(survey.pages[0]["canShowPageNumber"](), "true:the first page: can show page number").toBe(true);
+    expect(survey.pages[0].num, "the first page").toBe(1);
+    expect(survey.pages[1]["canShowPageNumber"](), "true:the first page: can show page number").toBe(true);
+    expect(survey.pages[1].num, "the second page").toBe(2);
   });
   test("Server validation", () => {
     var survey = twoPageSimplestSurvey();
@@ -1928,10 +1928,10 @@ describe("Survey", () => {
     });
     survey.setValue("question1", 101);
     survey.nextPage();
-    expect(survey.currentPage.visibleIndex, "Get server error").toLooseEqual(0);
+    expect(survey.currentPage.visibleIndex, "Get server error").toBe(0);
     survey.setValue("question1", 10);
     survey.nextPage();
-    expect(survey.currentPage.visibleIndex, "No errors server error").toLooseEqual(1);
+    expect(survey.currentPage.visibleIndex, "No errors server error").toBe(1);
   });
   test("Server validation (old api version)", () => {
     var survey = twoPageSimplestSurvey();
@@ -1946,10 +1946,10 @@ describe("Survey", () => {
     });
     survey.setValue("question1", 101);
     survey.nextPage();
-    expect(survey.currentPage.visibleIndex, "Get server error").toLooseEqual(0);
+    expect(survey.currentPage.visibleIndex, "Get server error").toBe(0);
     survey.setValue("question1", 10);
     survey.nextPage();
-    expect(survey.currentPage.visibleIndex, "No errors server error").toLooseEqual(1);
+    expect(survey.currentPage.visibleIndex, "No errors server error").toBe(1);
   });
 
   test("Server validation - do not allow to validate multiple times, Bug#2497", () => {
@@ -1963,16 +1963,16 @@ describe("Survey", () => {
     survey.setValue("question1", 101);
     survey.nextPage();
     survey.nextPage();
-    expect(survey.currentPage.visibleIndex, "The validation is not finished yet").toLooseEqual(0);
+    expect(survey.currentPage.visibleIndex, "The validation is not finished yet").toBe(0);
     opt.complete();
-    expect(counter, "server validation should be called one time").toLooseEqual(1);
-    expect(survey.currentPage.visibleIndex, "Validation on next page is completed").toLooseEqual(1);
+    expect(counter, "server validation should be called one time").toBe(1);
+    expect(survey.currentPage.visibleIndex, "Validation on next page is completed").toBe(1);
     survey.tryComplete();
     survey.tryComplete();
-    expect(survey.currentPage.visibleIndex, "The validation on complete is not finished yet").toLooseEqual(1);
+    expect(survey.currentPage.visibleIndex, "The validation on complete is not finished yet").toBe(1);
     opt.complete();
-    expect(counter, "server validation should be called two times").toLooseEqual(2);
-    expect(survey.state, "Validation is completed").toLooseEqual("completed");
+    expect(counter, "server validation should be called two times").toBe(2);
+    expect(survey.state, "Validation is completed").toBe("completed");
   });
 
   test("Server validation - fire onValidatePage  event, Bug#2566", () => {
@@ -1987,10 +1987,10 @@ describe("Survey", () => {
     });
     survey.setValue("question1", 101);
     survey.nextPage();
-    expect(errorCount, "There is no errors yet").toLooseEqual(0);
+    expect(errorCount, "There is no errors yet").toBe(0);
     opt.errors["question1"] = "Server error";
     opt.complete();
-    expect(errorCount, "There is one error").toLooseEqual(1);
+    expect(errorCount, "There is one error").toBe(1);
   });
 
   test("onVisibleChanged call validation", () => {
@@ -2001,11 +2001,11 @@ describe("Survey", () => {
       }
     });
 
-    expect(survey.isCurrentPageHasErrors, "There is no error if the value is empty").toLooseEqual(false);
+    expect(survey.isCurrentPageHasErrors, "There is no error if the value is empty").toBe(false);
     survey.setValue("question1", 1);
-    expect(survey.isCurrentPageHasErrors, "the value is less than 100").toLooseEqual(false);
+    expect(survey.isCurrentPageHasErrors, "the value is less than 100").toBe(false);
     survey.setValue("question1", 101);
-    expect(survey.isCurrentPageHasErrors, "the value is more than 100, has errors").toLooseEqual(true);
+    expect(survey.isCurrentPageHasErrors, "the value is more than 100, has errors").toBe(true);
   });
   test("onValidatePanel test", () => {
     var survey = new SurveyModel();
@@ -2025,16 +2025,16 @@ describe("Survey", () => {
       if (sum >= 100) options.error = "q1+q2 should be less than 100";
     });
 
-    expect(survey.isCurrentPageHasErrors, "failed, values are undefined : 10 < q1.value + q2.value < 100").toLooseEqual(true);
-    expect(counter, "onValidatePanel calls one time").toLooseEqual(1);
+    expect(survey.isCurrentPageHasErrors, "failed, values are undefined : 10 < q1.value + q2.value < 100").toBe(true);
+    expect(counter, "onValidatePanel calls one time").toBe(1);
     q1.value = 5;
     q2.value = 50;
-    expect(survey.isCurrentPageHasErrors, "passed: 5 + 50, 10 < q1.value + q2.value < 100").toLooseEqual(false);
-    expect(counter, "onValidatePanel calls two time").toLooseEqual(2);
+    expect(survey.isCurrentPageHasErrors, "passed: 5 + 50, 10 < q1.value + q2.value < 100").toBe(false);
+    expect(counter, "onValidatePanel calls two time").toBe(2);
     q1.value = 55;
 
-    expect(survey.isCurrentPageHasErrors, "failed: 55 + 50, 10 < q1.value + q2.value < 100").toLooseEqual(true);
-    expect(counter, "onValidatePanel calls three time").toLooseEqual(3);
+    expect(survey.isCurrentPageHasErrors, "failed: 55 + 50, 10 < q1.value + q2.value < 100").toBe(true);
+    expect(counter, "onValidatePanel calls three time").toBe(3);
   });
   test("survey.onValidatePanel & options.errors", () => {
     const survey = new SurveyModel();
@@ -2055,15 +2055,15 @@ describe("Survey", () => {
       }
     });
 
-    expect(survey.isCurrentPageHasErrors, "failed, values are undefined : 10 < q1.value + q2.value < 100").toLooseEqual(true);
-    expect(panel.errors.length, "panel.errors, #1").toLooseEqual(1);
+    expect(survey.isCurrentPageHasErrors, "failed, values are undefined : 10 < q1.value + q2.value < 100").toBe(true);
+    expect(panel.errors.length, "panel.errors, #1").toBe(1);
     q1.value = 5;
     q2.value = 50;
-    expect(survey.isCurrentPageHasErrors, "passed: 5 + 50, 10 < q1.value + q2.value < 100").toLooseEqual(false);
-    expect(panel.errors.length, "panel.errors, #2").toLooseEqual(0);
+    expect(survey.isCurrentPageHasErrors, "passed: 5 + 50, 10 < q1.value + q2.value < 100").toBe(false);
+    expect(panel.errors.length, "panel.errors, #2").toBe(0);
     q1.value = 55;
-    expect(survey.isCurrentPageHasErrors, "failed: 55 + 50, 10 < q1.value + q2.value < 100").toLooseEqual(true);
-    expect(panel.errors.length, "panel.errors, #3").toLooseEqual(1);
+    expect(survey.isCurrentPageHasErrors, "failed: 55 + 50, 10 < q1.value + q2.value < 100").toBe(true);
+    expect(panel.errors.length, "panel.errors, #3").toBe(1);
   });
   test("isCurrentPageHasErrors, required question in the invisible panel, #325", () => {
     var survey = twoPageSimplestSurvey();
@@ -2073,32 +2073,32 @@ describe("Survey", () => {
     );
     requiredQuestion.isRequired = true;
 
-    expect(survey.isCurrentPageHasErrors, "requiredQuestion value is empty").toLooseEqual(true);
+    expect(survey.isCurrentPageHasErrors, "requiredQuestion value is empty").toBe(true);
     panel.visible = false;
-    expect(survey.isCurrentPageHasErrors, "requiredQuestion value is empty, but the parent panel is invisible").toLooseEqual(false);
+    expect(survey.isCurrentPageHasErrors, "requiredQuestion value is empty, but the parent panel is invisible").toBe(false);
   });
 
   test("Page visibility", () => {
     var page = new PageModel("page");
-    expect(page.isVisible, "page is invisible if there is no questions in it").toLooseEqual(false);
+    expect(page.isVisible, "page is invisible if there is no questions in it").toBe(false);
     page.addNewQuestion("text", "q1");
-    expect(page.isVisible, "there is one question").toLooseEqual(true);
+    expect(page.isVisible, "there is one question").toBe(true);
     page.visible = false;
-    expect(page.isVisible, "we made the page invisible").toLooseEqual(false);
+    expect(page.isVisible, "we made the page invisible").toBe(false);
     page.visible = true;
-    expect(page.isVisible, "we made the page visible").toLooseEqual(true);
+    expect(page.isVisible, "we made the page visible").toBe(true);
     page.questions[0].visible = false;
-    expect(page.isVisible, "there is no visible questions on the page").toLooseEqual(false);
+    expect(page.isVisible, "there is no visible questions on the page").toBe(false);
     page.questions[0].visible = true;
-    expect(page.isVisible, "we have made the question visible again").toLooseEqual(true);
+    expect(page.isVisible, "we have made the question visible again").toBe(true);
   });
   test("Survey visiblePages and start using them", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey.visiblePages.length, "All pages are visible").toLooseEqual(2);
-    expect(survey.currentPage.name, "the first page is current").toLooseEqual("Page 1");
+    expect(survey.visiblePages.length, "All pages are visible").toBe(2);
+    expect(survey.currentPage.name, "the first page is current").toBe("Page 1");
     survey.pages[0].visible = false;
-    expect(survey.visiblePages.length, "The first page becomes invisible").toLooseEqual(1);
-    expect(survey.currentPage.name, "the second page is current, because the first is invisible").toLooseEqual("Page 2");
+    expect(survey.visiblePages.length, "The first page becomes invisible").toBe(1);
+    expect(survey.currentPage.name, "the second page is current, because the first is invisible").toBe("Page 2");
   });
   test("Survey visiblePages, make second and third invisbile and go the last page on next", () => {
     var survey = twoPageSimplestSurvey();
@@ -2108,7 +2108,7 @@ describe("Survey", () => {
     survey.pages[1].visible = false;
     survey.pages[2].questions[0].visible = false;
     survey.nextPage();
-    expect(survey.currentPage.name, "Bypass two invisible pages").toLooseEqual("Page 4");
+    expect(survey.currentPage.name, "Bypass two invisible pages").toBe("Page 4");
   });
   test("Visible trigger test", () => {
     var survey = twoPageSimplestSurvey();
@@ -2120,16 +2120,16 @@ describe("Survey", () => {
     trigger.questions = ["question2"];
 
     survey.setValue("question1", "H");
-    expect(survey.getQuestionByName("question2").visible, "It is invisible now").toLooseEqual(false);
-    expect(survey.pages[1].visible, "It is invisible now").toLooseEqual(false);
+    expect(survey.getQuestionByName("question2").visible, "It is invisible now").toBe(false);
+    expect(survey.pages[1].visible, "It is invisible now").toBe(false);
 
     survey.setValue("question1", "Hello");
-    expect(survey.getQuestionByName("question2").visible, "trigger makes it visible").toLooseEqual(true);
-    expect(survey.pages[1].visible, "trigger makes it visible").toLooseEqual(true);
+    expect(survey.getQuestionByName("question2").visible, "trigger makes it visible").toBe(true);
+    expect(survey.pages[1].visible, "trigger makes it visible").toBe(true);
 
     survey.setValue("question2", "He");
-    expect(survey.getQuestionByName("question2").visible, "trigger should not be called").toLooseEqual(true);
-    expect(survey.pages[1].visible, "trigger should not be called").toLooseEqual(true);
+    expect(survey.getQuestionByName("question2").visible, "trigger should not be called").toBe(true);
+    expect(survey.pages[1].visible, "trigger should not be called").toBe(true);
   });
   test("Complete trigger test", () => {
     var survey = twoPageSimplestSurvey();
@@ -2139,12 +2139,12 @@ describe("Survey", () => {
     trigger.value = "Hello";
 
     survey.setValue("question1", "H");
-    expect(survey.state).toLooseEqual("running");
+    expect(survey.state).toBe("running");
 
     survey.setValue("question1", "Hello");
-    expect(survey.state).toLooseEqual("running");
+    expect(survey.state).toBe("running");
     survey.nextPage();
-    expect(survey.state).toLooseEqual("completed");
+    expect(survey.state).toBe("completed");
   });
   test("Complete trigger test, check isCompleteOnTrigger property", () => {
     var survey = twoPageSimplestSurvey();
@@ -2162,18 +2162,18 @@ describe("Survey", () => {
     });
 
     survey.setValue("question1", "Hello");
-    expect(survey.state).toLooseEqual("running");
-    expect(survey.isCompleteButtonVisible, "complete button is visible").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next button is invisible").toLooseEqual(false);
+    expect(survey.state).toBe("running");
+    expect(survey.isCompleteButtonVisible, "complete button is visible").toBe(true);
+    expect(survey.isShowNextButton, "next button is invisible").toBe(false);
     survey.tryComplete();
-    expect(survey.state).toLooseEqual("completed");
-    expect(isCompleteOnTrigger_Completing, "isCompleteOnTrigger property works for onCompleting event").toLooseEqual(true);
-    expect(isCompleteOnTrigger_Complete, "isCompleteOnTrigger property works for onCompleted event").toLooseEqual(true);
+    expect(survey.state).toBe("completed");
+    expect(isCompleteOnTrigger_Completing, "isCompleteOnTrigger property works for onCompleting event").toBe(true);
+    expect(isCompleteOnTrigger_Complete, "isCompleteOnTrigger property works for onCompleted event").toBe(true);
     survey.clear();
     survey.nextPage();
     survey.tryComplete();
-    expect(isCompleteOnTrigger_Completing, "isCompleteOnTrigger property works for onCompleting event, #2").toLooseEqual(false);
-    expect(isCompleteOnTrigger_Complete, "isCompleteOnTrigger property works for onCompleted event, #2").toLooseEqual(false);
+    expect(isCompleteOnTrigger_Completing, "isCompleteOnTrigger property works for onCompleting event, #2").toBe(false);
+    expect(isCompleteOnTrigger_Complete, "isCompleteOnTrigger property works for onCompleted event, #2").toBe(false);
   });
   test("Complete trigger test, settings.executeCompleteTriggerOnValueChanged", () => {
     settings.executeCompleteTriggerOnValueChanged = true;
@@ -2184,17 +2184,17 @@ describe("Survey", () => {
     trigger.value = "Hello";
 
     survey.setValue("question1", "H");
-    expect(survey.state).toLooseEqual("running");
+    expect(survey.state).toBe("running");
 
     survey.setValue("question1", "Hello");
-    expect(survey.state).toLooseEqual("completed");
+    expect(survey.state).toBe("completed");
     settings.executeCompleteTriggerOnValueChanged = false;
   });
   test("CompleteTrigger.toString()", () => {
     var trigger = new SurveyTriggerComplete();
     trigger.name = "question1";
     trigger.value = "Hello";
-    expect(trigger.toString(), "toString function returns correct value").toLooseEqual("complete, {question1} equal 'Hello'");
+    expect(trigger.toString(), "toString function returns correct value").toBe("complete, {question1} equal 'Hello'");
   });
   test("Complete trigger + matrix test", () => {
     var survey = twoPageSimplestSurvey();
@@ -2209,12 +2209,12 @@ describe("Survey", () => {
     trigger.value = "column 2";
 
     survey.setValue("matrix", { "row 1": "column 1" });
-    expect(survey.state).toLooseEqual("running");
+    expect(survey.state).toBe("running");
 
     survey.setValue("matrix", { "row 1": "column 2" });
-    expect(survey.state).toLooseEqual("running");
+    expect(survey.state).toBe("running");
     survey.nextPage();
-    expect(survey.state).toLooseEqual("completed");
+    expect(survey.state).toBe("completed");
   });
   test("survey.onCurrentPageChanging + isNextPage/isPrevPage", () => {
     var survey = twoPageSimplestSurvey();
@@ -2235,15 +2235,15 @@ describe("Survey", () => {
       }
     });
     survey.nextPage();
-    expect(changingOldPage.name, "first nextPage: oldCurrentPage").toLooseEqual("Page 1");
-    expect(changingNewPage.name, "first nextPage: newCurrentPage").toLooseEqual("Page 2");
-    expect(changingCounter, "first nextPage: called one time").toLooseEqual(1);
-    expect(changingBeforeChanged, "first nextPage: called before changed").toLooseEqual(2);
+    expect(changingOldPage.name, "first nextPage: oldCurrentPage").toBe("Page 1");
+    expect(changingNewPage.name, "first nextPage: newCurrentPage").toBe("Page 2");
+    expect(changingCounter, "first nextPage: called one time").toBe(1);
+    expect(changingBeforeChanged, "first nextPage: called before changed").toBe(2);
     survey.prevPage();
-    expect(changingOldPage.name, "first prevPage: oldCurrentPage").toLooseEqual("Page 2");
-    expect(changingNewPage.name, "first prevPage: newCurrentPage").toLooseEqual("Page 1");
-    expect(changingCounter, "first prevPage: called two time").toLooseEqual(2);
-    expect(changingBeforeChanged, "first prevPage: called before changed").toLooseEqual(2);
+    expect(changingOldPage.name, "first prevPage: oldCurrentPage").toBe("Page 2");
+    expect(changingNewPage.name, "first prevPage: newCurrentPage").toBe("Page 1");
+    expect(changingCounter, "first prevPage: called two time").toBe(2);
+    expect(changingBeforeChanged, "first prevPage: called before changed").toBe(2);
   });
 
   test("survey.onCurrentPageChanging/Changed + isNextPage/isPrevPage/isGoingForward/isGoingBackward", () => {
@@ -2252,7 +2252,7 @@ describe("Survey", () => {
     survey.pages[2].addNewQuestion("text", "q5");
     survey.addNewPage("page4");
     survey.pages[3].addNewQuestion("text", "q6");
-    expect(survey.visiblePageCount, "There are 4 pages").toLooseEqual(4);
+    expect(survey.visiblePageCount, "There are 4 pages").toBe(4);
     var isNextPageChangedCounter = 0;
     var isNextPageChangingCounter = 0;
     var isGoingForwardPageChangingCounter = 0;
@@ -2274,51 +2274,51 @@ describe("Survey", () => {
       if (options.isGoingForward) isGoingForwardPageChangedCounter++;
     });
     survey.nextPage();
-    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage").toLooseEqual(1);
-    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage").toLooseEqual(0);
-    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage").toLooseEqual(1);
-    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage").toLooseEqual(0);
-    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage").toLooseEqual(1);
-    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage").toLooseEqual(0);
-    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage").toLooseEqual(1);
-    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage").toLooseEqual(0);
+    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage").toBe(1);
+    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage").toBe(0);
+    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage").toBe(1);
+    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage").toBe(0);
+    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage").toBe(1);
+    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage").toBe(0);
+    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage").toBe(1);
+    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage").toBe(0);
     survey.prevPage();
-    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage").toLooseEqual(1);
-    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage").toLooseEqual(1);
+    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage").toBe(1);
+    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage").toBe(1);
+    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage").toBe(1);
+    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage").toBe(1);
+    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage").toBe(1);
+    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage").toBe(1);
+    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage").toBe(1);
+    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage").toBe(1);
     survey.currentPageNo = 3;
-    expect(survey.currentPage.name, "goes to have 3").toLooseEqual("page4");
-    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(1);
-    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(1);
-    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(1);
-    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(1);
-    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(2);
-    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(1);
-    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(2);
-    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3").toLooseEqual(1);
+    expect(survey.currentPage.name, "goes to have 3").toBe("page4");
+    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3").toBe(1);
+    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3").toBe(1);
+    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3").toBe(1);
+    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3").toBe(1);
+    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3").toBe(2);
+    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3").toBe(1);
+    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3").toBe(2);
+    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3").toBe(1);
     survey.currentPageNo = 1;
-    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(1);
-    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(1);
-    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(1);
-    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(1);
-    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(2);
-    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(2);
-    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(2);
-    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toLooseEqual(2);
+    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(1);
+    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(1);
+    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(1);
+    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(1);
+    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(2);
+    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(2);
+    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(2);
+    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1").toBe(2);
     survey.currentPageNo = 0;
-    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(1);
-    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(2);
-    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(1);
-    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(2);
-    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(2);
-    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(3);
-    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(2);
-    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toLooseEqual(3);
+    expect(isNextPageChangedCounter, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(1);
+    expect(isPrevPageChangedCounter, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(2);
+    expect(isNextPageChangingCounter, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(1);
+    expect(isPrevPageChangingCounter, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(2);
+    expect(isGoingForwardPageChangingCounter, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(2);
+    expect(isGoingBackwardPageChangingCounter, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(3);
+    expect(isGoingForwardPageChangedCounter, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(2);
+    expect(isGoingBackwardPageChangedCounter, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0").toBe(3);
   });
 
   test("survey.onCurrentPageChanging, allowChanging option", () => {
@@ -2329,18 +2329,18 @@ describe("Survey", () => {
     survey.onCurrentPageChanging.add(function (survey, options) {
       options.allowChanging = allowChanging;
     });
-    expect(survey.currentPageNo, "The first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "The first page").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "Still the first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Still the first page").toBe(0);
     allowChanging = true;
     survey.nextPage();
-    expect(survey.currentPageNo, "The second page").toLooseEqual(1);
+    expect(survey.currentPageNo, "The second page").toBe(1);
     allowChanging = false;
     survey.prevPage();
-    expect(survey.currentPageNo, "Still the second page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Still the second page").toBe(1);
     allowChanging = true;
     survey.prevPage();
-    expect(survey.currentPageNo, "The second page again").toLooseEqual(0);
+    expect(survey.currentPageNo, "The second page again").toBe(0);
   });
   test("survey.onCurrentPageChanging async calls, Issue#10645", async () => {
     vi.useFakeTimers();
@@ -2352,7 +2352,7 @@ describe("Survey", () => {
           { name: "page3", elements: [{ type: "text", name: "q3" }] }
         ],
       });
-      expect(survey.currentPageNo, "The first page").toLooseEqual(0);
+      expect(survey.currentPageNo, "The first page").toBe(0);
       const messages: Array<any> = [];
       survey.notify = (message: string, type: string) => {
         messages.push({ message, type });
@@ -2370,25 +2370,25 @@ describe("Survey", () => {
       });
       allowChanging = true;
       survey.nextPage();
-      expect(survey.currentPageNo, "Still the first page, we are waiting for a callback").toLooseEqual(0);
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #1").toLooseEqual(true);
-      expect(nextAction.enabled, "next action is disabled during navigation, #1").toLooseEqual(false);
+      expect(survey.currentPageNo, "Still the first page, we are waiting for a callback").toBe(0);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #1").toBe(true);
+      expect(nextAction.enabled, "next action is disabled during navigation, #1").toBe(false);
       await vi.advanceTimersByTimeAsync(0);
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toLooseEqual(false);
-      expect(survey.currentPageNo, "The second page").toLooseEqual(1);
-      expect(nextAction.enabled, "next action is enabled after navigation, #1").toLooseEqual(true);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toBe(false);
+      expect(survey.currentPageNo, "The second page").toBe(1);
+      expect(nextAction.enabled, "next action is enabled after navigation, #1").toBe(true);
 
       allowChanging = false;
       survey.nextPage();
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toLooseEqual(true);
-      expect(nextAction.enabled, "next action is disabled during navigation, #2").toLooseEqual(false);
-      expect(prevAction.enabled, "prev action is disabled during navigation, #2").toLooseEqual(false);
-      expect(survey.currentPageNo, "Still the second page, we are waiting for a callback").toLooseEqual(1);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toBe(true);
+      expect(nextAction.enabled, "next action is disabled during navigation, #2").toBe(false);
+      expect(prevAction.enabled, "prev action is disabled during navigation, #2").toBe(false);
+      expect(survey.currentPageNo, "Still the second page, we are waiting for a callback").toBe(1);
       await vi.advanceTimersByTimeAsync(0);
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toLooseEqual(false);
-      expect(nextAction.enabled, "next action is enabled after navigation, #2").toLooseEqual(true);
-      expect(prevAction.enabled, "prev action is enabled after navigation, #2").toLooseEqual(true);
-      expect(survey.currentPageNo, "We do not move from the second page").toLooseEqual(1);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toBe(false);
+      expect(nextAction.enabled, "next action is enabled after navigation, #2").toBe(true);
+      expect(prevAction.enabled, "prev action is enabled after navigation, #2").toBe(true);
+      expect(survey.currentPageNo, "We do not move from the second page").toBe(1);
 
       expect(messages, "There is no messages yet").toEqualValues([]);
       messageToShow = "Test error";
@@ -2403,7 +2403,7 @@ describe("Survey", () => {
         { message: "Test error", type: "error" },
         { message: "Saving text", type: "success" }
       ]);
-      expect(survey.currentPageNo, "We are on the last page now").toLooseEqual(2);
+      expect(survey.currentPageNo, "We are on the last page now").toBe(2);
     } finally {
       vi.useRealTimers();
     }
@@ -2435,24 +2435,24 @@ describe("Survey", () => {
 
       messageToShow = "Test error on complete";
       survey.tryComplete();
-      expect(survey.state, "Survey is not completed yet, we are waiting for a callback").toLooseEqual("running");
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #1").toLooseEqual(true);
-      expect(completeAction.enabled, "next action is disabled during navigation, #1").toLooseEqual(false);
+      expect(survey.state, "Survey is not completed yet, we are waiting for a callback").toBe("running");
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #1").toBe(true);
+      expect(completeAction.enabled, "next action is disabled during navigation, #1").toBe(false);
       await vi.advanceTimersByTimeAsync(0);
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toLooseEqual(false);
-      expect(survey.state, "Do not allow complete").toLooseEqual("running");
-      expect(completeAction.enabled, "next action is enabled after navigation, #1").toLooseEqual(true);
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #1").toBe(false);
+      expect(survey.state, "Do not allow complete").toBe("running");
+      expect(completeAction.enabled, "next action is enabled after navigation, #1").toBe(true);
 
       allowComplete = true;
       messageToShow = "Test success on complete";
       survey.tryComplete();
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toLooseEqual(true);
-      expect(completeAction.enabled, "next action is disabled during navigation, #2").toLooseEqual(false);
-      expect(survey.state, "Do not allow complete #2").toLooseEqual("running");
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = true, #2").toBe(true);
+      expect(completeAction.enabled, "next action is disabled during navigation, #2").toBe(false);
+      expect(survey.state, "Do not allow complete #2").toBe("running");
       await vi.advanceTimersByTimeAsync(0);
-      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toLooseEqual(false);
-      expect(completeAction.enabled, "next action is enabled after navigation, #2").toLooseEqual(true);
-      expect(survey.state, "Survey is completed now").toLooseEqual("completed");
+      expect(survey.getPropertyValue("isNavigationBlocked"), "isCurrentPageChanging = false, #2").toBe(false);
+      expect(completeAction.enabled, "next action is enabled after navigation, #2").toBe(true);
+      expect(survey.state, "Survey is completed now").toBe("completed");
       expect(messages).toEqualValues([
         { message: "Test error on complete", type: "error" },
         { message: "Test success on complete", type: "success" }
@@ -2470,18 +2470,18 @@ describe("Survey", () => {
     survey.onCurrentPageChanging.add(function (survey, options) {
       options.allow = allowChanging;
     });
-    expect(survey.currentPageNo, "The first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "The first page").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "Still the first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Still the first page").toBe(0);
     allowChanging = true;
     survey.nextPage();
-    expect(survey.currentPageNo, "The second page").toLooseEqual(1);
+    expect(survey.currentPageNo, "The second page").toBe(1);
     allowChanging = false;
     survey.prevPage();
-    expect(survey.currentPageNo, "Still the second page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Still the second page").toBe(1);
     allowChanging = true;
     survey.prevPage();
-    expect(survey.currentPageNo, "The second page again").toLooseEqual(0);
+    expect(survey.currentPageNo, "The second page again").toBe(0);
   });
 
   test("survey.onCompleting, allow option", () => {
@@ -2490,12 +2490,12 @@ describe("Survey", () => {
     survey.onCompleting.add(function (survey, options) {
       options.allow = allowComplete;
     });
-    expect(survey.state, "It is running").toLooseEqual("running");
+    expect(survey.state, "It is running").toBe("running");
     survey.doComplete();
-    expect(survey.state, "It is still running").toLooseEqual("running");
+    expect(survey.state, "It is still running").toBe("running");
     allowComplete = true;
     survey.doComplete();
-    expect(survey.state, "It is completed now").toLooseEqual("completed");
+    expect(survey.state, "It is completed now").toBe("completed");
   });
 
   test("survey.onCompleting, allow option (use it instead of allowComplete)", () => {
@@ -2504,12 +2504,12 @@ describe("Survey", () => {
     survey.onCompleting.add(function (survey, options) {
       options.allow = allowComplete;
     });
-    expect(survey.state, "It is running").toLooseEqual("running");
+    expect(survey.state, "It is running").toBe("running");
     survey.doComplete();
-    expect(survey.state, "It is still running").toLooseEqual("running");
+    expect(survey.state, "It is still running").toBe("running");
     allowComplete = true;
     survey.doComplete();
-    expect(survey.state, "It is completed now").toLooseEqual("completed");
+    expect(survey.state, "It is completed now").toBe("completed");
   });
 
   test("Complete trigger, onCurrentPageChange calls after onComplete, Bug#963", () => {
@@ -2534,9 +2534,9 @@ describe("Survey", () => {
     });
 
     survey.nextPage();
-    expect(onCompleteCounter, "onComplete fired one time").toLooseEqual(1);
-    expect(onCurrentPageChangedCounter, "onCurrentPageChanged fired one time").toLooseEqual(0);
-    expect(firstFiredEvent, "should be called first").toLooseEqual("onComplete");
+    expect(onCompleteCounter, "onComplete fired one time").toBe(1);
+    expect(onCurrentPageChangedCounter, "onCurrentPageChanged fired one time").toBe(0);
+    expect(firstFiredEvent, "should be called first").toBe("onComplete");
   });
   test("Value trigger test", () => {
     const survey = twoPageSimplestSurvey();
@@ -2546,9 +2546,9 @@ describe("Survey", () => {
     trigger.value = "Hello";
     trigger.setToName = "name1";
     trigger.setValue = "val1";
-    expect(survey.getValue("name1"), "value is not set").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set").toBeUndefined();
     survey.setValue("question1", "Hello");
-    expect(survey.getValue("name1"), "value is set").toLooseEqual("val1");
+    expect(survey.getValue("name1"), "value is set").toBe("val1");
   });
   test("Triggers shouldn't fire on data assignment", () => {
     var survey = twoPageSimplestSurvey();
@@ -2558,9 +2558,9 @@ describe("Survey", () => {
     trigger.value = "Hello";
     trigger.setToName = "name1";
     trigger.setValue = "val1";
-    expect(survey.getValue("name1"), "value is not set").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set").toBeUndefined();
     survey.data = { question1: "Hello" };
-    expect(survey.getValue("name1"), "value still is not set").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value still is not set").toBeUndefined();
   });
   test("Value trigger test, setValue is empty, clear the data", () => {
     var survey = twoPageSimplestSurvey();
@@ -2569,7 +2569,7 @@ describe("Survey", () => {
     trigger.expression = "{question1}='Hello'";
     trigger.setToName = "question2";
     survey.setValue("question2", "abc");
-    expect(survey.getValue("question2"), "value is set").toLooseEqual("abc");
+    expect(survey.getValue("question2"), "value is set").toBe("abc");
     survey.setValue("question1", "Hello");
     expect(survey.getValue("question2"), "value is cleard because setValue is empty").toBeFalsy();
   });
@@ -2582,15 +2582,15 @@ describe("Survey", () => {
     trigger.expression = "{question1} = 'Hello'";
     trigger.setToName = "name1";
     trigger.runExpression = "{val1} + {val2}";
-    expect(survey.getValue("name1"), "value is not set").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set").toBeUndefined();
     survey.setValue("question1", "Hello");
-    expect(survey.getValue("name1"), "value is set as expression").toLooseEqual(5);
+    expect(survey.getValue("name1"), "value is set as expression").toBe(5);
     survey.setValue("question1", "Hello1");
     trigger.runExpression = "{val2}";
     survey.clearValue("val2");
     trigger.setToName = "";
     survey.setValue("question1", "Hello");
-    expect(survey.getValue("name1"), "value is still 5").toLooseEqual(5);
+    expect(survey.getValue("name1"), "value is still 5").toBe(5);
   });
   test("Skip trigger test", () => {
     var survey = twoPageSimplestSurvey();
@@ -2598,9 +2598,9 @@ describe("Survey", () => {
     survey.triggers.push(trigger);
     trigger.expression = "{question1} = 'Hello'";
     trigger.gotoName = "question4";
-    expect(survey.currentPageNo, "the first page is active").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is active").toBe(0);
     survey.setValue("question1", "Hello");
-    expect(survey.currentPageNo, "the second page is active now").toLooseEqual(1);
+    expect(survey.currentPageNo, "the second page is active now").toBe(1);
   });
   test("Skip trigger test", () => {
     settings.executeSkipTriggerOnValueChanged = false;
@@ -2610,11 +2610,11 @@ describe("Survey", () => {
     survey.triggers.push(trigger);
     trigger.expression = "{question1} = 'Hello'";
     trigger.gotoName = "q10";
-    expect(survey.currentPageNo, "the first page is active").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is active").toBe(0);
     survey.setValue("question1", "Hello");
-    expect(survey.currentPageNo, "the first page is still active").toLooseEqual(0);
+    expect(survey.currentPageNo, "the first page is still active").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "the third page is active").toLooseEqual(2);
+    expect(survey.currentPageNo, "the third page is active").toBe(2);
     settings.executeSkipTriggerOnValueChanged = true;
   });
   test("RunExpression trigger test with custom function, bug#T1734", () => {
@@ -2653,7 +2653,7 @@ describe("Survey", () => {
     });
     survey.setValue("q1", true);
     survey.nextPage();
-    expect(survey.state, "The survey is completed").toLooseEqual("completed");
+    expect(survey.state, "The survey is completed").toBe("completed");
     FunctionFactory.Instance.unregister("getQuestionValueByTitle");
     FunctionFactory.Instance.unregister("abort");
   });
@@ -2675,10 +2675,10 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.isVisible, "visibleIf works").toLooseEqual(true);
-    expect(q1.isReadOnly, "enableIf works").toLooseEqual(false);
-    expect(q1.value, "defaultValueExpression works").toLooseEqual(30);
-    expect(q2.value, "expression works").toLooseEqual(25);
+    expect(q1.isVisible, "visibleIf works").toBe(true);
+    expect(q1.isReadOnly, "enableIf works").toBe(false);
+    expect(q1.value, "defaultValueExpression works").toBe(30);
+    expect(q2.value, "expression works").toBe(25);
 
     FunctionFactory.Instance.unregister("getValueByProperty");
   });
@@ -2694,13 +2694,13 @@ describe("Survey", () => {
     trigger.fromName = "question3";
     survey.setValue("question3", "CopiedValue");
 
-    expect(survey.getValue("question2"), "value is not set").toLooseEqual(null);
+    expect(survey.getValue("question2"), "value is not set").toBeUndefined();
     survey.setValue("question1", "Hello");
-    expect(survey.getValue("question2"), "value is set").toLooseEqual("CopiedValue");
+    expect(survey.getValue("question2"), "value is set").toBe("CopiedValue");
   });
   test("String format", () => {
     var strResult = surveyLocalization.getString("textMinLength")["format"](10);
-    expect(strResult, "The format string is working").toLooseEqual("Please enter at least 10 character(s).");
+    expect(strResult, "The format string is working").toBe("Please enter at least 10 character(s).");
   });
   test("Copy value trigger in dynamic panel, Bug# 1574", () => {
     var survey = new SurveyModel({
@@ -2765,11 +2765,11 @@ describe("Survey", () => {
     trigger.expression = "asyncFunc1({question1}) = 'Hello'";
     trigger.setToName = "name1";
     trigger.setValue = "val1";
-    expect(survey.getValue("name1"), "value is not set").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set").toBeUndefined();
     survey.setValue("question1", "Hello");
-    expect(survey.getValue("name1"), "value is not set, waiting for callback").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set, waiting for callback").toBeUndefined();
     returnResult1(survey.getValue("question1"));
-    expect(survey.getValue("name1"), "value is set").toLooseEqual("val1");
+    expect(survey.getValue("name1"), "value is set").toBe("val1");
     FunctionFactory.Instance.unregister("asyncFunc1");
   });
 
@@ -2795,13 +2795,13 @@ describe("Survey", () => {
     trigger.setToName = "name1";
     trigger.runExpression = "asyncFunc2({val1} + {val2})";
 
-    expect(survey.getValue("name1"), "value is not set").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set").toBeUndefined();
     survey.setValue("question1", "Hello");
-    expect(survey.getValue("name1"), "value is not set, expression is not completed").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set, expression is not completed").toBeUndefined();
     returnResult1(survey.getValue("question1"));
-    expect(survey.getValue("name1"), "value is not set, runExpression is not completed").toLooseEqual(null);
+    expect(survey.getValue("name1"), "value is not set, runExpression is not completed").toBeUndefined();
     returnResult2(survey.getValue("val1") + survey.getValue("val2"));
-    expect(survey.getValue("name1"), "value is set as expression").toLooseEqual(5);
+    expect(survey.getValue("name1"), "value is set as expression").toBe(5);
 
     FunctionFactory.Instance.unregister("asyncFunc1");
     FunctionFactory.Instance.unregister("asyncFunc2");
@@ -2817,9 +2817,9 @@ describe("Survey", () => {
   });
   test("Email validator - https://github.com/surveyjs/survey-library/issues/1807", () => {
     var validator = new EmailValidator();
-    expect(validator.validate("test=1@email.com", ""), "valid email").toLooseEqual(null);
-    expect(validator.validate("test=1@ema=il.com", ""), "invalid email - = in domain name").not.toLooseEqual(null);
-    expect(validator.validate("test=1@email.c=om", ""), "invalid email - = in domain suffix").not.toLooseEqual(null);
+    expect(validator.validate("test=1@email.com", ""), "valid email").toBeNull();
+    expect(validator.validate("test=1@ema=il.com", ""), "invalid email - = in domain name").not.toBeNull();
+    expect(validator.validate("test=1@email.c=om", ""), "invalid email - = in domain suffix").not.toBeNull();
   });
   test("survey.getAllVariables()", () => {
     var survey = twoPageSimplestSurvey();
@@ -2831,36 +2831,36 @@ describe("Survey", () => {
     var survey = twoPageSimplestSurvey();
     survey.data = { name: "John" };
     survey.title = "Hello {name}";
-    expect(survey.processedTitle, "process survey title correctly").toLooseEqual("Hello John");
+    expect(survey.processedTitle, "process survey title correctly").toBe("Hello John");
     survey.pages[0].title = "Page {PageNo} from {PageCount}.";
-    expect(survey.pages[0].processedTitle).toLooseEqual("Page 1 from 2.");
+    expect(survey.pages[0].processedTitle).toBe("Page 1 from 2.");
     survey.pages[0].addNewQuestion("text", "email");
     survey.setValue("email", "andrew.telnov@gmail.com");
     survey.setVariable("var1", "[it is var1]");
     survey.setValue("val1", "[it is val1]");
     survey.completedHtml = "<div>Your e-mail: <b>{email}</b>{var1}{val1}</div>";
-    expect(survey.processedCompletedHtml).toLooseEqual("<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>");
+    expect(survey.processedCompletedHtml).toBe("<div>Your e-mail: <b>andrew.telnov@gmail.com</b>[it is var1][it is val1]</div>");
   });
   test("pre process title where name with dot", () => {
     var survey = twoPageSimplestSurvey();
     survey.data = { "name.dot": "John" };
     survey.title = "Hello {name.dot}";
-    expect(survey.processedTitle, "process survey title correctly").toLooseEqual("Hello John");
+    expect(survey.processedTitle, "process survey title correctly").toBe("Hello John");
   });
 
   test("pre process title, 'locale' variable", () => {
     var survey = twoPageSimplestSurvey();
     survey.title = "The current locale is: '{locale}'";
-    expect(survey.processedTitle, "process the locale correctly").toLooseEqual("The current locale is: 'en'");
+    expect(survey.processedTitle, "process the locale correctly").toBe("The current locale is: 'en'");
     survey.locale = "fr";
-    expect(survey.processedTitle, "process the locale correctly again").toLooseEqual("The current locale is: 'fr'");
+    expect(survey.processedTitle, "process the locale correctly again").toBe("The current locale is: 'fr'");
   });
 
   test("pre process title with variables in Capital letters, bug#1099", () => {
     var survey = new SurveyModel();
     survey.setVariable("Var1", "[My variable]");
     survey.completedHtml = "Your Var1 is: {VaR1}";
-    expect(survey.processedCompletedHtml).toLooseEqual("Your Var1 is: [My variable]");
+    expect(survey.processedCompletedHtml).toBe("Your Var1 is: [My variable]");
   });
 
   test("pre process completedHtml nested properties and arrays", () => {
@@ -2882,7 +2882,7 @@ describe("Survey", () => {
     dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
 
     survey.completedHtml = "{mt.t2}:{matrix[1].col2}";
-    expect(survey.processedCompletedHtml).toLooseEqual("Year:2017");
+    expect(survey.processedCompletedHtml).toBe("Year:2017");
   });
 
   test("pre process completedHtml nested properties and arrays + name with dot", () => {
@@ -2904,7 +2904,7 @@ describe("Survey", () => {
     dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
 
     survey.completedHtml = "{m.t.t2}:{matri.x[1].col2}";
-    expect(survey.processedCompletedHtml).toLooseEqual("Year:2017");
+    expect(survey.processedCompletedHtml).toBe("Year:2017");
   });
 
   test("question fullTitle", () => {
@@ -2912,49 +2912,49 @@ describe("Survey", () => {
     survey.showQuestionNumbers = "on";
     var question = <Question>survey.pages[0].questions[1];
     question.title = "My Title";
-    expect(question.fullTitle).toLooseEqual("My Title");
+    expect(question.fullTitle).toBe("My Title");
     question.isRequired = true;
-    expect(question.requiredMark).toLooseEqual("*");
+    expect(question.requiredMark).toBe("*");
     survey.questionStartIndex = "100";
-    expect(question.no).toLooseEqual("101");
+    expect(question.no).toBe("101");
     survey.questionStartIndex = "100.";
-    expect(question.no).toLooseEqual("101.");
+    expect(question.no).toBe("101.");
     survey.questionStartIndex = "A";
-    expect(question.no).toLooseEqual("B");
+    expect(question.no).toBe("B");
     survey.questionStartIndex = "A.";
-    expect(question.no).toLooseEqual("B.");
+    expect(question.no).toBe("B.");
     survey.questionStartIndex = "A";
     survey.questionTitleTemplate = "{no}) {title} ({require})";
-    expect(question.no).toLooseEqual("B)");
-    expect(question.requiredMark).toLooseEqual("(*)");
+    expect(question.no).toBe("B)");
+    expect(question.requiredMark).toBe("(*)");
   });
   test("question.no and survey.questionStartIndex", () => {
     var survey = twoPageSimplestSurvey();
     survey.showQuestionNumbers = "on";
     var question = <Question>survey.pages[0].questions[1];
-    expect(question.no).toLooseEqual("2.");
+    expect(question.no).toBe("2.");
     survey.questionStartIndex = "100";
-    expect(question.no).toLooseEqual("101");
+    expect(question.no).toBe("101");
     survey.questionStartIndex = "100.";
-    expect(question.no).toLooseEqual("101.");
+    expect(question.no).toBe("101.");
     survey.questionStartIndex = "A";
-    expect(question.no).toLooseEqual("B");
+    expect(question.no).toBe("B");
     survey.questionStartIndex = "A.";
-    expect(question.no).toLooseEqual("B.");
+    expect(question.no).toBe("B.");
     survey.questionStartIndex = "10)";
-    expect(question.no).toLooseEqual("11)");
+    expect(question.no).toBe("11)");
     survey.questionStartIndex = "(10)";
-    expect(question.no).toLooseEqual("(11)");
+    expect(question.no).toBe("(11)");
     survey.questionStartIndex = "# 1";
-    expect(question.no).toLooseEqual("# 2");
+    expect(question.no).toBe("# 2");
     survey.questionStartIndex = "1.2";
-    expect(question.no).toLooseEqual("1.3");
+    expect(question.no).toBe("1.3");
     survey.questionStartIndex = "1.01";
-    expect(question.no).toLooseEqual("1.02");
+    expect(question.no).toBe("1.02");
     survey.onGetQuestionNumber.add(function (sender, options) {
       options.number = "a.b." + (options.question.visibleIndex + 1) + ")";
     });
-    expect(question.no, "use event").toLooseEqual("a.b.2)");
+    expect(question.no, "use event").toBe("a.b.2)");
   });
   test("question.no and survey.questionStartIndex and showQuestionNumbers 'recursive' vs design-time, Bug#10476", () => {
     const survey = new SurveyModel();
@@ -2986,12 +2986,12 @@ describe("Survey", () => {
     const q4 = survey.getQuestionByName("q4");
     const q5 = survey.getQuestionByName("q5");
     const panel = survey.getPanelByName("p1");
-    expect(q1.no, "q1, #1").toLooseEqual("1.1");
-    expect(q2.no, "q2, #1").toLooseEqual("1.2");
-    expect(q3.no, "q3, #1").toLooseEqual("2.1");
-    expect(q4.no, "q4, #1").toLooseEqual("2.2");
-    expect(panel.no, "panel, #1").toLooseEqual("2.3");
-    expect(q5.no, "q5, #1").toLooseEqual("2.3.1");
+    expect(q1.no, "q1, #1").toBe("1.1");
+    expect(q2.no, "q2, #1").toBe("1.2");
+    expect(q3.no, "q3, #1").toBe("2.1");
+    expect(q4.no, "q4, #1").toBe("2.2");
+    expect(panel.no, "panel, #1").toBe("2.3");
+    expect(q5.no, "q5, #1").toBe("2.3.1");
   });
   test("question.no and survey.questionStartIndex and showQuestionNumbers 'recursive' & pages titles, Bug#10476", () => {
     const survey = new SurveyModel({
@@ -3023,12 +3023,12 @@ describe("Survey", () => {
     const q4 = survey.getQuestionByName("q4");
     const q5 = survey.getQuestionByName("q5");
     const panel = survey.getPanelByName("p1");
-    expect(q1.no, "q1, #1").toLooseEqual("1.1");
-    expect(q2.no, "q2, #1").toLooseEqual("1.2");
-    expect(q3.no, "q3, #1").toLooseEqual("2.1");
-    expect(q4.no, "q4, #1").toLooseEqual("2.2");
-    expect(panel.no, "panel, #1").toLooseEqual("2.3");
-    expect(q5.no, "q5, #1").toLooseEqual("2.3.1");
+    expect(q1.no, "q1, #1").toBe("1.1");
+    expect(q2.no, "q2, #1").toBe("1.2");
+    expect(q3.no, "q3, #1").toBe("2.1");
+    expect(q4.no, "q4, #1").toBe("2.2");
+    expect(panel.no, "panel, #1").toBe("2.3");
+    expect(q5.no, "q5, #1").toBe("2.3.1");
   });
   test("question.no and survey.questionStartIndex and showQuestionNumbers 'recursive' & panel recursive startIndex = ' a', Bug#10517", () => {
     const survey = new SurveyModel({
@@ -3078,17 +3078,17 @@ describe("Survey", () => {
     const p2 = survey.getPanelByName("p2");
     const p3 = survey.getPanelByName("p3");
 
-    expect(q1.no, "q1, #1").toLooseEqual("1.1");
-    expect(q2.no, "q2, #1").toLooseEqual("1.2");
-    expect(p1.no, "panel, #1").toLooseEqual("1.3");
-    expect(q3.no, "q3, #1").toLooseEqual("1.3 a");
-    expect(q4.no, "q4, #1").toLooseEqual("1.3 b");
-    expect(p2.no, "panel, #2").toLooseEqual("1.4");
-    expect(q5.no, "q5, #1").toLooseEqual("1.4_a");
-    expect(q6.no, "q6, #2").toLooseEqual("1.4_b");
-    expect(p3.no, "panel, #3").toLooseEqual("1.5");
-    expect(q7.no, "q7, #1").toLooseEqual("1.5#a");
-    expect(q8.no, "q8, #2").toLooseEqual("1.5#b");
+    expect(q1.no, "q1, #1").toBe("1.1");
+    expect(q2.no, "q2, #1").toBe("1.2");
+    expect(p1.no, "panel, #1").toBe("1.3");
+    expect(q3.no, "q3, #1").toBe("1.3 a");
+    expect(q4.no, "q4, #1").toBe("1.3 b");
+    expect(p2.no, "panel, #2").toBe("1.4");
+    expect(q5.no, "q5, #1").toBe("1.4_a");
+    expect(q6.no, "q6, #2").toBe("1.4_b");
+    expect(p3.no, "panel, #3").toBe("1.5");
+    expect(q7.no, "q7, #1").toBe("1.5#a");
+    expect(q8.no, "q8, #2").toBe("1.5#b");
   });
   test("question.no and survey.questionStartIndex = 'A.1' and showQuestionNumbers 'recursive'", () => {
     const survey = new SurveyModel({
@@ -3133,15 +3133,15 @@ describe("Survey", () => {
     const p1 = survey.getPanelByName("p1");
     const p2 = survey.getPanelByName("p2");
 
-    expect(q1.no, "q1, #1").toLooseEqual("A.1");
-    expect(q2.no, "q2, #1").toLooseEqual("A.2");
-    expect(p1.no, "panel1, #1").toLooseEqual("A.3");
-    expect(q3.no, "q3, #1").toLooseEqual("A.3.1");
-    expect(q4.no, "q4, #1").toLooseEqual("A.3.2");
-    expect(q5.no, "q5, #1").toLooseEqual("B.1");
-    expect(p2.no, "panel2, #1").toLooseEqual("B.2");
-    expect(q6.no, "q6, #1").toLooseEqual("B.2.1");
-    expect(q7.no, "q7, #1").toLooseEqual("B.2.2");
+    expect(q1.no, "q1, #1").toBe("A.1");
+    expect(q2.no, "q2, #1").toBe("A.2");
+    expect(p1.no, "panel1, #1").toBe("A.3");
+    expect(q3.no, "q3, #1").toBe("A.3.1");
+    expect(q4.no, "q4, #1").toBe("A.3.2");
+    expect(q5.no, "q5, #1").toBe("B.1");
+    expect(p2.no, "panel2, #1").toBe("B.2");
+    expect(q6.no, "q6, #1").toBe("B.2.1");
+    expect(q7.no, "q7, #1").toBe("B.2.2");
   });
   test("survey.onGetPageNumber event", () => {
     const survey = new SurveyModel();
@@ -3164,15 +3164,15 @@ describe("Survey", () => {
       ]
     });
     survey.start();
-    expect(survey.pages[0].no, "pages[0], #1").toLooseEqual("");
-    expect(survey.pages[1].no, "pages[1], #1").toLooseEqual("2-");
-    expect(survey.pages[2].no, "pages[2], #1").toLooseEqual("3-");
-    expect(survey.pages[3].no, "pages[3], #1").toLooseEqual("4-");
+    expect(survey.pages[0].no, "pages[0], #1").toBe("");
+    expect(survey.pages[1].no, "pages[1], #1").toBe("2-");
+    expect(survey.pages[2].no, "pages[2], #1").toBe("3-");
+    expect(survey.pages[3].no, "pages[3], #1").toBe("4-");
     survey.pages[1].visible = false;
-    expect(survey.pages[0].no, "pages[0], #2").toLooseEqual("");
-    expect(survey.pages[1].no, "pages[1], #2").toLooseEqual("2-");
-    expect(survey.pages[2].no, "pages[2], #2").toLooseEqual("3-");
-    expect(survey.pages[3].no, "pages[3], #2").toLooseEqual("4-");
+    expect(survey.pages[0].no, "pages[0], #2").toBe("");
+    expect(survey.pages[1].no, "pages[1], #2").toBe("2-");
+    expect(survey.pages[2].no, "pages[2], #2").toBe("3-");
+    expect(survey.pages[3].no, "pages[3], #2").toBe("4-");
   });
   test("question.no/queston.visibleIndex and hideNo/hideTitle options", () => {
     var survey = new SurveyModel({
@@ -3187,47 +3187,47 @@ describe("Survey", () => {
     var q2 = survey.pages[0].questions[1];
     var q3 = survey.pages[0].questions[2];
     q2.titleLocation = "hidden";
-    expect(q2.visibleIndex, "titleLocation = 'hidden', default behavior").toLooseEqual(-1);
-    expect(q2.no, "titleLocation = 'hidden'").toLooseEqual("");
-    expect(q3.visibleIndex, "previous question titleLocation = 'hidden', default behavior").toLooseEqual(1);
-    expect(q3.no, "previous question titleLocation = 'hidden'").toLooseEqual("2.");
+    expect(q2.visibleIndex, "titleLocation = 'hidden', default behavior").toBe(-1);
+    expect(q2.no, "titleLocation = 'hidden'").toBe("");
+    expect(q3.visibleIndex, "previous question titleLocation = 'hidden', default behavior").toBe(1);
+    expect(q3.no, "previous question titleLocation = 'hidden'").toBe("2.");
     q1.visible = false;
     settings.setQuestionVisibleIndexForHiddenTitle = true;
     q1.visible = true;
-    expect(q2.visibleIndex, "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle").toLooseEqual(1);
-    expect(q2.no, "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle").toLooseEqual("");
-    expect(q3.visibleIndex, "previous question titleLocation = 'hidden', default behavior, setQuestionVisibleIndexForHiddenTitle").toLooseEqual(2);
-    expect(q3.no, "previous question titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle").toLooseEqual("3.");
+    expect(q2.visibleIndex, "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle").toBe(1);
+    expect(q2.no, "titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle").toBe("");
+    expect(q3.visibleIndex, "previous question titleLocation = 'hidden', default behavior, setQuestionVisibleIndexForHiddenTitle").toBe(2);
+    expect(q3.no, "previous question titleLocation = 'hidden', setQuestionVisibleIndexForHiddenTitle").toBe("3.");
     settings.setQuestionVisibleIndexForHiddenTitle = false;
 
     q2.titleLocation = "default";
     q2.showNumber = false;
-    expect(q2.visibleIndex, "showNumber = false, default behavior").toLooseEqual(-1);
-    expect(q2.no, "titleLocation = 'hidden'").toLooseEqual("");
-    expect(q3.visibleIndex, "previous question showNumber = false, default behavior").toLooseEqual(1);
-    expect(q3.no, "previous question showNumber = false").toLooseEqual("2.");
+    expect(q2.visibleIndex, "showNumber = false, default behavior").toBe(-1);
+    expect(q2.no, "titleLocation = 'hidden'").toBe("");
+    expect(q3.visibleIndex, "previous question showNumber = false, default behavior").toBe(1);
+    expect(q3.no, "previous question showNumber = false").toBe("2.");
     q1.visible = false;
     settings.setQuestionVisibleIndexForHiddenNumber = true;
     q1.visible = true;
-    expect(q2.visibleIndex, "showNumber = false, setQuestionVisibleIndexForHiddenNumber").toLooseEqual(1);
-    expect(q2.no, "showNumber = false, setQuestionVisibleIndexForHiddenNumber").toLooseEqual("");
-    expect(q3.visibleIndex, "previous question showNumber = false, default behavior, setQuestionVisibleIndexForHiddenNumber").toLooseEqual(2);
-    expect(q3.no, "previous question showNumber = false, setQuestionVisibleIndexForHiddenNumber").toLooseEqual("3.");
+    expect(q2.visibleIndex, "showNumber = false, setQuestionVisibleIndexForHiddenNumber").toBe(1);
+    expect(q2.no, "showNumber = false, setQuestionVisibleIndexForHiddenNumber").toBe("");
+    expect(q3.visibleIndex, "previous question showNumber = false, default behavior, setQuestionVisibleIndexForHiddenNumber").toBe(2);
+    expect(q3.no, "previous question showNumber = false, setQuestionVisibleIndexForHiddenNumber").toBe("3.");
     settings.setQuestionVisibleIndexForHiddenNumber = false;
   });
 
   test("update survey.questionStartIndex and survey.requiredMark based on survey.questionTitleTemplate", () => {
     var survey = new SurveyModel();
     survey.questionTitleTemplate = "{no}) {title} {require}";
-    expect(survey.questionStartIndex, "{no})").toLooseEqual("1)");
+    expect(survey.questionStartIndex, "{no})").toBe("1)");
     survey.questionStartIndex = "a";
     survey.questionTitleTemplate = "{no}) {title} {require}";
-    expect(survey.questionStartIndex, "{no}) + startIndex = 'a'").toLooseEqual("a)");
+    expect(survey.questionStartIndex, "{no}) + startIndex = 'a'").toBe("a)");
     survey.questionTitleTemplate = "{title} ({require})";
-    expect(survey.requiredMark, "({require})").toLooseEqual("(*)");
+    expect(survey.requiredMark, "({require})").toBe("(*)");
     survey.requiredMark = "!!";
     survey.questionTitleTemplate = "{no}) {title} ({require})";
-    expect(survey.requiredMark, "({require}) + !!").toLooseEqual("(!!)");
+    expect(survey.requiredMark, "({require}) + !!").toBe("(!!)");
   });
   test("clearInvisibleValues", () => {
     var survey = twoPageSimplestSurvey();
@@ -3238,8 +3238,8 @@ describe("Survey", () => {
     question2.value = "myValue";
     question1.visible = false;
     survey.doComplete();
-    expect(question1.value, "Clear value of an invisible question").toLooseEqual(null);
-    expect(question2.value, "Keep value of a visible question").toLooseEqual("myValue");
+    expect(question1.value, "Clear value of an invisible question").toBeUndefined();
+    expect(question2.value, "Keep value of a visible question").toBe("myValue");
   });
   test("clearInvisibleValues is onComplete (default value), visible and invisible questions with the same valueName, #898", () => {
     var survey = new SurveyModel();
@@ -3323,7 +3323,7 @@ describe("Survey", () => {
     expect({ val: 1, val2: { val1: "str", val2: 2 } }).toEqualValues(dest);
     var a = "test";
     survey.doMergeValues({ val: 1 }, a);
-    expect(a, "Do nothing if dest is string").toLooseEqual("test");
+    expect(a, "Do nothing if dest is string").toBe("test");
   });
   function percentageToNum(width: string): number {
     width = width.replace("%", "");
@@ -3337,11 +3337,11 @@ describe("Survey", () => {
     page.addNewQuestion("text", "q1");
     const q2 = page.addNewQuestion("text", "q2");
     q2.startWithNewLine = false;
-    expect(page.rows.length, "only one row").toLooseEqual(1);
-    expect(page.rows[0].elements.length, "two elements in row").toLooseEqual(2);
+    expect(page.rows.length, "only one row").toBe(1);
+    expect(page.rows[0].elements.length, "two elements in row").toBe(2);
 
-    expect(page.rows[0].elements[0].rightIndent, "the first indent is 0").toLooseEqual(0);
-    expect(page.rows[0].elements[1].rightIndent, "the second indent is 0").toLooseEqual(0);
+    expect(page.rows[0].elements[0].rightIndent, "the first indent is 0").toBe(0);
+    expect(page.rows[0].elements[1].rightIndent, "the second indent is 0").toBe(0);
   });
 
   test("Several questions in complex questions row - defaultV2", () => {
@@ -3371,7 +3371,7 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.getAllQuestions()[0].templateElements[0].rightIndent, "the first indent is 0").toLooseEqual(0);
+    expect(survey.getAllQuestions()[0].templateElements[0].rightIndent, "the first indent is 0").toBe(0);
 
   });
 
@@ -3381,17 +3381,17 @@ describe("Survey", () => {
       page.addNewQuestion("text", "q" + (i + 1));
       page.questions[i].startWithNewLine = false;
     }
-    expect(page.questions[1].renderWidth, "the width is 20%").toLooseEqual("20%");
+    expect(page.questions[1].renderWidth, "the width is 20%").toBe("20%");
     page.questions[1].width = "100";
-    expect(page.questions[1].renderWidth, "the width in px").toLooseEqual("100px");
+    expect(page.questions[1].renderWidth, "the width in px").toBe("100px");
     page.questions[1].width = "120 px";
-    expect(page.questions[1].renderWidth, "the width is not changed").toLooseEqual("120 px");
+    expect(page.questions[1].renderWidth, "the width is not changed").toBe("120 px");
     page.questions[1].width = "10%";
     page.questions[2].width = "120";
-    expect(page.questions[0].renderWidth, "Use calc() function").toLooseEqual("calc((100% - 10% - 120px)/3)");
+    expect(page.questions[0].renderWidth, "Use calc() function").toBe("calc((100% - 10% - 120px)/3)");
     page.questions[3].visible = false;
     page.questions[4].visible = false;
-    expect(page.questions[0].renderWidth, "Do not calc on 1").toLooseEqual("calc(100% - 10% - 120px)");
+    expect(page.questions[0].renderWidth, "Do not calc on 1").toBe("calc(100% - 10% - 120px)");
   });
   test("Rendered width when all widths for questions are set", () => {
     var page = new PageModel();
@@ -3400,10 +3400,10 @@ describe("Survey", () => {
     panel.startWithNewLine = false;
     panel.addNewQuestion("text", "q2");
     page.elements[0].width = "20em";
-    expect(page.elements[0].renderWidth, "q1.renderedWidth").toLooseEqual("20em");
-    expect(panel.renderWidth, "panel1.renderedWidth, calculated").toLooseEqual("calc(100% - 20em)");
+    expect(page.elements[0].renderWidth, "q1.renderedWidth").toBe("20em");
+    expect(panel.renderWidth, "panel1.renderedWidth, calculated").toBe("calc(100% - 20em)");
     panel.width = "calc(100% - 40px)";
-    expect(panel.renderWidth, "panel1.renderedWidth, from width").toLooseEqual("calc(100% - 40px)");
+    expect(panel.renderWidth, "panel1.renderedWidth, from width").toBe("calc(100% - 40px)");
   });
   test("panel.rederWidth, load from JSON", () => {
     var survey = new SurveyModel({
@@ -3429,16 +3429,16 @@ describe("Survey", () => {
     });
     var q1 = survey.getQuestionByName("q1");
     var panel1 = <PanelModel>survey.getPanelByName("panel1");
-    expect(q1.renderWidth, "question.renderWidth is fine").toLooseEqual("120px");
-    expect(panel1.width, "panel1.width loaded correctly").toLooseEqual("calc(90% - 130px)");
-    expect(panel1.renderWidth, "panel.renderWidth is fine").toLooseEqual("calc(90% - 130px)");
+    expect(q1.renderWidth, "question.renderWidth is fine").toBe("120px");
+    expect(panel1.width, "panel1.width loaded correctly").toBe("calc(90% - 130px)");
+    expect(panel1.renderWidth, "panel.renderWidth is fine").toBe("calc(90% - 130px)");
   });
   test("Render width should work for strings only - https://surveyjs.answerdesk.io/ticket/details/T2273", () => {
     var page = new PageModel();
     var question = <any>page.addNewQuestion("text", "q1");
     question.width = 300;
 
-    expect(question.renderWidth, "the render width is 100%").toLooseEqual("100%");
+    expect(question.renderWidth, "the render width is 100%").toBe("100%");
   });
   test("test autoAdvanceEnabled property", () => {
     var survey = twoPageSimplestSurvey();
@@ -3449,19 +3449,19 @@ describe("Survey", () => {
     dropDownQ.choices = [1, 2, 3];
     dropDownQ.showOtherItem = true;
     survey.autoAdvanceEnabled = true;
-    expect(survey.currentPage.name, "the first page is default page").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "the first page is default page").toBe(survey.pages[0].name);
     survey.setValue("question1", 1);
     survey.setValue("question2", 2);
-    expect(survey.currentPage.name, "go to the second page automatically").toLooseEqual(survey.pages[1].name);
+    expect(survey.currentPage.name, "go to the second page automatically").toBe(survey.pages[1].name);
     (<Question>survey.currentPage.questions[0]).value = "3";
     (<Question>survey.currentPage.questions[1]).value = "4";
     dropDownQ.value = dropDownQ.otherItem.value;
-    expect(survey.currentPage.name, "stay on the second page").toLooseEqual(survey.pages[1].name);
-    expect(survey.state, "survey is still running").not.toLooseEqual("completed");
+    expect(survey.currentPage.name, "stay on the second page").toBe(survey.pages[1].name);
+    expect(survey.state, "survey is still running").not.toBe("completed");
     dropDownQ.otherValue = "other value";
-    expect(survey.state, "survey is still running #2").not.toLooseEqual("completed");
+    expect(survey.state, "survey is still running #2").not.toBe("completed");
     dropDownQ.value = 1;
-    expect(survey.state, "complete the survey").toLooseEqual("completed");
+    expect(survey.state, "complete the survey").toBe("completed");
   });
   test("test autoAdvanceEnabled property for boolean/switch", () => {
     var survey = new SurveyModel({
@@ -3482,14 +3482,14 @@ describe("Survey", () => {
     });
 
     survey.autoAdvanceEnabled = true;
-    expect(survey.currentPage.name, "the first page is default page").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "the first page is default page").toBe(survey.pages[0].name);
     survey.setValue("q1", true);
-    expect(survey.currentPage.name, "go to the second page automatically").toLooseEqual(survey.pages[1].name);
+    expect(survey.currentPage.name, "go to the second page automatically").toBe(survey.pages[1].name);
     survey.clear();
     survey.getQuestionByName("q1").renderAs = "checkbox";
-    expect(survey.currentPage.name, "the first page is default page, #2").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "the first page is default page, #2").toBe(survey.pages[0].name);
     survey.setValue("q1", true);
-    expect(survey.currentPage.name, "we do not go to the second page automatically, #2").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "we do not go to the second page automatically, #2").toBe(survey.pages[0].name);
   });
   test("test autoAdvanceEnabled property - 'autogonext' - go next page automatically but do not submit", () => {
     var survey = twoPageSimplestSurvey();
@@ -3500,17 +3500,17 @@ describe("Survey", () => {
     dropDownQ.choices = [1, 2, 3];
     dropDownQ.showOtherItem = true;
     survey.autoAdvanceEnabled = true;
-    expect(survey.currentPage.name, "the first page is default page").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "the first page is default page").toBe(survey.pages[0].name);
     survey.setValue("question1", 1);
     survey.setValue("question2", 2);
-    expect(survey.currentPage.name, "go to the second page automatically").toLooseEqual(survey.pages[1].name);
+    expect(survey.currentPage.name, "go to the second page automatically").toBe(survey.pages[1].name);
     (<Question>survey.currentPage.questions[0]).value = "3";
     (<Question>survey.currentPage.questions[1]).value = "4";
     dropDownQ.value = dropDownQ.otherItem.value;
-    expect(survey.currentPage.name, "stay on the second page").toLooseEqual(survey.pages[1].name);
-    expect(survey.state, "survey is still running").not.toLooseEqual("completed");
+    expect(survey.currentPage.name, "stay on the second page").toBe(survey.pages[1].name);
+    expect(survey.state, "survey is still running").not.toBe("completed");
     dropDownQ.otherValue = "other value";
-    expect(survey.state, "survey is still running").not.toLooseEqual("completed");
+    expect(survey.state, "survey is still running").not.toBe("completed");
   });
   test("test autoAdvanceEnabled property - 'autogonext' - load from survey", () => {
     const survey = new SurveyModel({
@@ -3519,19 +3519,19 @@ describe("Survey", () => {
         { type: "text", name: "q1" }
       ]
     });
-    expect(survey.autoAdvanceEnabled, "autoAdvanceEnabled set to autogonext on loading correctly").toLooseEqual(true);
+    expect(survey.autoAdvanceEnabled, "autoAdvanceEnabled set to autogonext on loading correctly").toBe(true);
   });
   test("test autoAdvanceEnabled after errors", () => {
     var survey = twoPageSimplestSurvey();
 
     survey.autoAdvanceEnabled = true;
     (<Question>survey.getQuestionByName("question2")).isRequired = true;
-    expect(survey.currentPage.name, "the first page is default page").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "the first page is default page").toBe(survey.pages[0].name);
     survey.setValue("question1", 1);
     survey.nextPage();
-    expect(survey.currentPage.name, "we are still on the first page. There are errors.").toLooseEqual(survey.pages[0].name);
+    expect(survey.currentPage.name, "we are still on the first page. There are errors.").toBe(survey.pages[0].name);
     survey.setValue("question2", 2);
-    expect(survey.currentPage.name, "go to the second page automatically").toLooseEqual(survey.pages[1].name);
+    expect(survey.currentPage.name, "go to the second page automatically").toBe(survey.pages[1].name);
   });
   test("autoAdvanceEnabled: should not work for complex questions like matrix, checkbox, multiple text", () => {
     var questions = new Array<any>();
@@ -3645,7 +3645,7 @@ describe("Survey", () => {
         q.question.value = q.value;
       }
       var state = q.auto ? "completed" : "running";
-      expect(survey.state, "autoAdvanceEnabled is incorrect for question: " + q.question.name).toLooseEqual(state);
+      expect(survey.state, "autoAdvanceEnabled is incorrect for question: " + q.question.name).toBe(state);
     }
   });
   test("autoAdvanceEnabled bug #200: https://github.com/surveyjs/surveyjs/issues/200", () => {
@@ -3658,7 +3658,7 @@ describe("Survey", () => {
     page.addNewQuestion("text", "q3");
     survey.autoAdvanceEnabled = true;
     (<Question>survey.getQuestionByName("q2")).value = 1;
-    expect(survey.currentPage.name, "go to the next page").toLooseEqual(survey.pages[1].name);
+    expect(survey.currentPage.name, "go to the next page").toBe(survey.pages[1].name);
   });
 
   test("autoAdvanceEnabled and clearInvisibleValues bug #252: https://github.com/surveyjs/surveyjs/issues/252", () => {
@@ -3672,11 +3672,11 @@ describe("Survey", () => {
     survey.autoAdvanceEnabled = true;
     survey.clearInvisibleValues = true;
     (<Question>survey.getQuestionByName("q1")).value = 1;
-    expect(survey.state).toLooseEqual("completed");
+    expect(survey.state).toBe("completed");
   });
   test("autoAdvanceEnabled and autoAdvanceAllowComplete=false", () => {
     const emptySurvey = new SurveyModel();
-    expect(emptySurvey.autoAdvanceAllowComplete, "autoAdvanceAllowComplete value # 1").toLooseEqual(true);
+    expect(emptySurvey.autoAdvanceAllowComplete, "autoAdvanceAllowComplete value # 1").toBe(true);
     const survey = new SurveyModel({
       pages: [
         { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] },
@@ -3685,14 +3685,14 @@ describe("Survey", () => {
       autoAdvanceEnabled: true,
       autoAdvanceAllowComplete: false
     });
-    expect(survey.autoAdvanceAllowComplete, "autoAdvanceAllowComplete value # 2").toLooseEqual(false);
+    expect(survey.autoAdvanceAllowComplete, "autoAdvanceAllowComplete value # 2").toBe(false);
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(survey.currentPageNo, "curPage #1").toLooseEqual(0);
+    expect(survey.currentPageNo, "curPage #1").toBe(0);
     q1.value = 1;
-    expect(survey.currentPageNo, "curPage #2").toLooseEqual(1);
+    expect(survey.currentPageNo, "curPage #2").toBe(1);
     q2.value = 1;
-    expect(survey.currentPageNo, "curPage #2").toLooseEqual(1);
+    expect(survey.currentPageNo, "curPage #2").toBe(1);
   });
 
   test("autoAdvanceEnabled and checkbox wiht valueName bug #70", () => {
@@ -3703,57 +3703,57 @@ describe("Survey", () => {
     q1.choices = [1, 2, 3];
     survey.autoAdvanceEnabled = true;
     (<Question>survey.getQuestionByName("q1")).value = [1];
-    expect(survey.state, "it should not be completed").not.toLooseEqual("completed");
+    expect(survey.state, "it should not be completed").not.toBe("completed");
   });
   test("Compatibility  showNavigationButtons: 'both'", () => {
     const survey = new SurveyModel({
       showNavigationButtons: "both"
     });
-    expect(survey.showNavigationButtons, "showNavigationButtons is true").toLooseEqual(true);
-    expect(survey.navigationButtonsLocation, "navigationButtonsLocation is topBottom").toLooseEqual("topBottom");
+    expect(survey.showNavigationButtons, "showNavigationButtons is true").toBe(true);
+    expect(survey.navigationButtonsLocation, "navigationButtonsLocation is topBottom").toBe("topBottom");
   });
   test("isNavigationButtonsShowing", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey.isNavigationButtonsShowing, "by default buttons are shown").toLooseEqual("bottom");
-    expect(survey.isNavigationButtonsShowingOnBottom, "by default buttons are shown, #bottom").toLooseEqual(true);
-    expect(survey.isNavigationButtonsShowingOnTop, "by default buttons are shown, #top").toLooseEqual(false);
+    expect(survey.isNavigationButtonsShowing, "by default buttons are shown").toBe("bottom");
+    expect(survey.isNavigationButtonsShowingOnBottom, "by default buttons are shown, #bottom").toBe(true);
+    expect(survey.isNavigationButtonsShowingOnTop, "by default buttons are shown, #top").toBe(false);
     survey.setDesignMode(true);
-    expect(survey.isNavigationButtonsShowing, "do not show buttons at design time").toLooseEqual("none");
-    expect(survey.isNavigationButtonsShowingOnBottom, "do not show buttons at design time, #bottom").toLooseEqual(false);
-    expect(survey.isNavigationButtonsShowingOnTop, "do not show buttons at design time, #top").toLooseEqual(false);
+    expect(survey.isNavigationButtonsShowing, "do not show buttons at design time").toBe("none");
+    expect(survey.isNavigationButtonsShowingOnBottom, "do not show buttons at design time, #bottom").toBe(false);
+    expect(survey.isNavigationButtonsShowingOnTop, "do not show buttons at design time, #top").toBe(false);
     survey.setDesignMode(false);
-    expect(survey.isNavigationButtonsShowing, "by default buttons are shown").toLooseEqual("bottom");
-    expect(survey.isNavigationButtonsShowingOnBottom, "by default buttons are shown, #bottom").toLooseEqual(true);
-    expect(survey.isNavigationButtonsShowingOnTop, "by default buttons are shown, #top").toLooseEqual(false);
+    expect(survey.isNavigationButtonsShowing, "by default buttons are shown").toBe("bottom");
+    expect(survey.isNavigationButtonsShowingOnBottom, "by default buttons are shown, #bottom").toBe(true);
+    expect(survey.isNavigationButtonsShowingOnTop, "by default buttons are shown, #top").toBe(false);
     survey.showNavigationButtons = false;
-    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = none").toLooseEqual("none");
-    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = none, #bottom").toLooseEqual(false);
-    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = none, #top").toLooseEqual(false);
+    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = none").toBe("none");
+    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = none, #bottom").toBe(false);
+    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = none, #top").toBe(false);
     survey.pages[0].showNavigationButtons = true;
-    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = true && showNavigationButtons = false").toLooseEqual("bottom");
-    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = true && showNavigationButtons = false, #bottom").toLooseEqual(true);
-    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = true && showNavigationButtons = false, #top").toLooseEqual(false);
+    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = true && showNavigationButtons = false").toBe("bottom");
+    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = true && showNavigationButtons = false, #bottom").toBe(true);
+    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = true && showNavigationButtons = false, #top").toBe(false);
     survey.showNavigationButtons = false;
     survey.pages[0].showNavigationButtons = false;
-    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = false && showNavigationButtons = false").toLooseEqual("none");
-    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = false && showNavigationButtons = false, #bottom").toLooseEqual(false);
+    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = false && showNavigationButtons = false").toBe("none");
+    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = false && showNavigationButtons = false, #bottom").toBe(false);
     survey.showNavigationButtons = true;
     survey.pages[0].showNavigationButtons = "inherit";
-    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = 'inherit' && showNavigationButtons = true").toLooseEqual("bottom");
-    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = 'inherit' && showNavigationButtons = true, #bottom").toLooseEqual(true);
+    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = 'inherit' && showNavigationButtons = true").toBe("bottom");
+    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = 'inherit' && showNavigationButtons = true, #bottom").toBe(true);
 
     survey.showNavigationButtons = "both";
-    expect(survey.showNavigationButtons, "showNavigationButtons is true showNavigationButtons = both").toLooseEqual(true);
-    expect(survey.navigationButtonsLocation, "navigationButtonsLocation is topBottom showNavigationButtons = both").toLooseEqual("topBottom");
-    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = undefined && showNavigationButtons = both").toLooseEqual("topBottom");
-    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = 'inherit' && showNavigationButtons = both, #bottom").toLooseEqual(true);
-    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = undefined && showNavigationButtons = both, #top").toLooseEqual(true);
+    expect(survey.showNavigationButtons, "showNavigationButtons is true showNavigationButtons = both").toBe(true);
+    expect(survey.navigationButtonsLocation, "navigationButtonsLocation is topBottom showNavigationButtons = both").toBe("topBottom");
+    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = undefined && showNavigationButtons = both").toBe("topBottom");
+    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = 'inherit' && showNavigationButtons = both, #bottom").toBe(true);
+    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = undefined && showNavigationButtons = both, #top").toBe(true);
 
     survey.showNavigationButtons = true;
     survey.navigationButtonsLocation = "top";
-    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = undefined && showNavigationButtons = top").toLooseEqual("top");
-    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = undefined && showNavigationButtons = top, #bottom").toLooseEqual(false);
-    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = undefined && showNavigationButtons = top, #top").toLooseEqual(true);
+    expect(survey.isNavigationButtonsShowing, "showNavigationButtons = undefined && showNavigationButtons = top").toBe("top");
+    expect(survey.isNavigationButtonsShowingOnBottom, "showNavigationButtons = undefined && showNavigationButtons = top, #bottom").toBe(false);
+    expect(survey.isNavigationButtonsShowingOnTop, "showNavigationButtons = undefined && showNavigationButtons = top, #top").toBe(true);
   });
 
   test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop, navigationButtonsLocation is `topBottom`, Bug#9812", () => {
@@ -3761,8 +3761,8 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "question1" }],
       navigationButtonsLocation: "topBottom",
     });
-    expect(survey.isNavigationButtonsShowingOnBottom, "isNavigationButtonsShowingOnBottom is true").toLooseEqual(true);
-    expect(survey.isNavigationButtonsShowingOnTop, "isNavigationButtonsShowingOnTop is true").toLooseEqual(true);
+    expect(survey.isNavigationButtonsShowingOnBottom, "isNavigationButtonsShowingOnBottom is true").toBe(true);
+    expect(survey.isNavigationButtonsShowingOnTop, "isNavigationButtonsShowingOnTop is true").toBe(true);
     const getContainerContent = getContainerContentFunction(survey);
     expect(getContainerContent("contentTop"), "nav both contentTop").toEqualValues([{
       "component": "sv-action-bar",
@@ -3799,20 +3799,20 @@ describe("Survey", () => {
       ],
     });
     const q3 = survey.getQuestionByName("q3");
-    expect(survey.pages[1].visible, "initially the page becomes invisible").toLooseEqual(false);
-    expect(q3.visible, "initially q3 becomes invisible").toLooseEqual(false);
+    expect(survey.pages[1].visible, "initially the page becomes invisible").toBe(false);
+    expect(q3.visible, "initially q3 becomes invisible").toBe(false);
     survey.setValue("q1", "yes");
     survey.setValue("q2", "no");
-    expect(survey.getQuestionByName("q1").value, "q1 = 'yes'").toLooseEqual("yes");
-    expect(survey.getQuestionByName("q2").value, "q2 = 'no'").toLooseEqual("no");
-    expect(survey.pages[1].visible, "the page becomes visible, q1 = 'yes'").toLooseEqual(true);
-    expect(q3.visible, "q3 becomes visible, q1 = 'yes' and q2 = 'no'").toLooseEqual(true);
+    expect(survey.getQuestionByName("q1").value, "q1 = 'yes'").toBe("yes");
+    expect(survey.getQuestionByName("q2").value, "q2 = 'no'").toBe("no");
+    expect(survey.pages[1].visible, "the page becomes visible, q1 = 'yes'").toBe(true);
+    expect(q3.visible, "q3 becomes visible, q1 = 'yes' and q2 = 'no'").toBe(true);
     survey.setValue("q2", "yes");
-    expect(survey.pages[1].visible, "the page becomes visible, q1 = 'yes'").toLooseEqual(true);
-    expect(q3.visible, "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'").toLooseEqual(false);
+    expect(survey.pages[1].visible, "the page becomes visible, q1 = 'yes'").toBe(true);
+    expect(q3.visible, "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'").toBe(false);
     survey.setValue("q1", "no");
-    expect(survey.pages[1].visible, "the page becomes invisible, q1 = 'no'").toLooseEqual(false);
-    expect(q3.visible, "q3 becomes invisible, q1 = 'no' and q2 = 'yes'").toLooseEqual(false);
+    expect(survey.pages[1].visible, "the page becomes invisible, q1 = 'no'").toBe(false);
+    expect(q3.visible, "q3 becomes invisible, q1 = 'no' and q2 = 'yes'").toBe(false);
   });
 
   test("simple condition test, page visibility", () => {
@@ -3830,9 +3830,9 @@ describe("Survey", () => {
       ],
     });
     var page2 = survey.getPageByName("page2");
-    expect(page2.visible, "the initial page2 is invisible").toLooseEqual(false);
+    expect(page2.visible, "the initial page2 is invisible").toBe(false);
     survey.setValue("q1", ["yes"]);
-    expect(page2.visible, "the page becomes visible, q1 = 'yes'").toLooseEqual(true);
+    expect(page2.visible, "the page becomes visible, q1 = 'yes'").toBe(true);
   });
   test("Re-run condition on changing the variable", () => {
     var survey = new SurveyModel({
@@ -3844,11 +3844,11 @@ describe("Survey", () => {
       ],
     });
     var q1 = survey.getQuestionByName("q1");
-    expect(q1.isVisible, "var1 is not exists, question is invisible").toLooseEqual(false);
+    expect(q1.isVisible, "var1 is not exists, question is invisible").toBe(false);
     survey.setVariable("var1", 1);
-    expect(q1.isVisible, "var1 equals 1, question is visible").toLooseEqual(true);
+    expect(q1.isVisible, "var1 equals 1, question is visible").toBe(true);
     survey.setVariable("var1", 2);
-    expect(q1.isVisible, "var1 equals 2, question is not visible now").toLooseEqual(false);
+    expect(q1.isVisible, "var1 equals 2, question is not visible now").toBe(false);
   });
 
   test("visibleIf for question, call onPageVisibleChanged", () => {
@@ -3870,15 +3870,15 @@ describe("Survey", () => {
     survey.onPageVisibleChanged.add(function () {
       counter++;
     });
-    expect(survey.pages[0].isVisible, "first page visible by children").toLooseEqual(true);
-    expect(survey.pages[1].isVisible, "second page is not visible by children").toLooseEqual(false);
-    expect(counter, "nothing happens").toLooseEqual(0);
+    expect(survey.pages[0].isVisible, "first page visible by children").toBe(true);
+    expect(survey.pages[1].isVisible, "second page is not visible by children").toBe(false);
+    expect(counter, "nothing happens").toBe(0);
     survey.setValue("q1", ["yes"]);
-    expect(counter, "calls one time").toLooseEqual(1);
+    expect(counter, "calls one time").toBe(1);
     survey.setValue("q1", ["no"]);
-    expect(counter, "calls second time").toLooseEqual(2);
+    expect(counter, "calls second time").toBe(2);
     survey.setValue("q1", []);
-    expect(counter, "nothing happens").toLooseEqual(2);
+    expect(counter, "nothing happens").toBe(2);
   });
   test("visibleIf, expression custom function has property this.survey", () => {
     function isAllChecksSet(params: any[]): any {
@@ -3897,11 +3897,11 @@ describe("Survey", () => {
       ],
     });
     var q = survey.getQuestionByName("q2");
-    expect(q.isVisible, "all checks are unset").toLooseEqual(false);
+    expect(q.isVisible, "all checks are unset").toBe(false);
     survey.setValue("q1", ["yes", "no"]);
-    expect(q.isVisible, "all checks are set").toLooseEqual(true);
+    expect(q.isVisible, "all checks are set").toBe(true);
     survey.setValue("q1", ["yes"]);
-    expect(q.isVisible, "not all checks are set").toLooseEqual(false);
+    expect(q.isVisible, "not all checks are set").toBe(false);
     FunctionFactory.Instance.unregister("isAllChecksSet");
   });
   test("visibleIf, bug#729", () => {
@@ -3920,11 +3920,11 @@ describe("Survey", () => {
     });
     var q1 = <Question>survey.getQuestionByName("q1");
     var q2 = survey.getQuestionByName("q2");
-    expect(q2.visible, "q2 is not visible by default").toLooseEqual(false);
+    expect(q2.visible, "q2 is not visible by default").toBe(false);
     q1.value = "true";
-    expect(q2.visible, "q2 should be visible now").toLooseEqual(true);
+    expect(q2.visible, "q2 should be visible now").toBe(true);
     q1.value = "false";
-    expect(q2.visible, "q2 should be invisible again").toLooseEqual(false);
+    expect(q2.visible, "q2 should be invisible again").toBe(false);
   });
   test("visibleIf, Does not work with 0, bug#1792", () => {
     var survey = new SurveyModel({
@@ -3954,8 +3954,8 @@ describe("Survey", () => {
     var q3 = <Question>survey.getQuestionByName("q3");
     var q4 = <Question>survey.getQuestionByName("q4");
     survey.data = { q1: "0", q2: 0 };
-    expect(q3.isVisible, "'0' is not empty").toLooseEqual(true);
-    expect(q4.isVisible, "0 is not empty").toLooseEqual(true);
+    expect(q3.isVisible, "'0' is not empty").toBe(true);
+    expect(q4.isVisible, "0 is not empty").toBe(true);
   });
   test("visibleIf, allow dot in question name", () => {
     var survey = new SurveyModel({
@@ -3973,11 +3973,11 @@ describe("Survey", () => {
     });
     var q1 = <Question>survey.getQuestionByName("q1.a");
     var q2 = survey.getQuestionByName("q2");
-    expect(q2.visible, "q2 is not visible by default").toLooseEqual(false);
+    expect(q2.visible, "q2 is not visible by default").toBe(false);
     q1.value = "true";
-    expect(q2.visible, "q2 should be visible now").toLooseEqual(true);
+    expect(q2.visible, "q2 should be visible now").toBe(true);
     q1.value = "false";
-    expect(q2.visible, "q2 should be invisible again").toLooseEqual(false);
+    expect(q2.visible, "q2 should be invisible again").toBe(false);
   });
   test("visibleIf, Does not work with many dots", () => {
     var survey = new SurveyModel({
@@ -3996,9 +3996,9 @@ describe("Survey", () => {
     });
     var q1 = <Question>survey.getQuestionByName("a.b.c.d");
     var q2 = <Question>survey.getQuestionByName("q2");
-    expect(q2.isVisible, "q2 is invisible by default").toLooseEqual(false);
+    expect(q2.isVisible, "q2 is invisible by default").toBe(false);
     q1.value = 1;
-    expect(q2.isVisible, "q2 is visible now").toLooseEqual(true);
+    expect(q2.isVisible, "q2 is visible now").toBe(true);
   });
   test("visibleIf, Does not work with many dots (2)", () => {
     var survey = new SurveyModel({
@@ -4022,9 +4022,9 @@ describe("Survey", () => {
     });
     var q1 = <Question>survey.getQuestionByName("a.b.c.d");
     var q2 = <Question>survey.getQuestionByName("q2");
-    expect(q2.isVisible, "q2 is invisible by default").toLooseEqual(false);
+    expect(q2.isVisible, "q2 is invisible by default").toBe(false);
     q1.value = 1;
-    expect(q2.isVisible, "q2 is visible now").toLooseEqual(true);
+    expect(q2.isVisible, "q2 is visible now").toBe(true);
   });
   test("visibleIf, Does not work with many dots (3)", () => {
     var survey = new SurveyModel({
@@ -4049,10 +4049,10 @@ describe("Survey", () => {
     survey.getQuestionByName("application.contactMethod.Notification.Number")
   );
     var q3 = <Question>survey.getQuestionByName("q3");
-    expect(q3.isVisible, "q3 is invisible by default").toLooseEqual(false);
+    expect(q3.isVisible, "q3 is invisible by default").toBe(false);
     q1.value = 1;
     q2.value = 3;
-    expect(q3.isVisible, "q3 is visible now").toLooseEqual(true);
+    expect(q3.isVisible, "q3 is visible now").toBe(true);
   });
 
   test("enableIf for question", () => {
@@ -4068,9 +4068,9 @@ describe("Survey", () => {
       ],
     });
     var q2 = <Question>survey.getQuestionByName("q2");
-    expect(q2.isReadOnly, "It is readonly initially").toLooseEqual(true);
+    expect(q2.isReadOnly, "It is readonly initially").toBe(true);
     survey.setValue("q1", ["yes"]);
-    expect(q2.isReadOnly, "It is not readonly now").toLooseEqual(false);
+    expect(q2.isReadOnly, "It is not readonly now").toBe(false);
   });
 
   test("enableIf for matrix questions, Bug#736", () => {
@@ -4112,11 +4112,11 @@ describe("Survey", () => {
     var rows2 = q2.visibleRows;
     expect(qVisible, "visibleIf is set").toBeTruthy();
     expect(qEnable, "enableIf is set").toBeTruthy();
-    expect(qVisible.visible, "The question is invisible on start").toLooseEqual(false);
-    expect(qEnable.readOnly, "The question is readOnly on start").toLooseEqual(true);
+    expect(qVisible.visible, "The question is invisible on start").toBe(false);
+    expect(qEnable.readOnly, "The question is readOnly on start").toBe(true);
     rows1[0].cells[0].question.value = "Yes";
-    expect(qVisible.visible, "The question is visible now").toLooseEqual(true);
-    expect(qEnable.readOnly, "The question is enabled now").toLooseEqual(false);
+    expect(qVisible.visible, "The question is visible now").toBe(true);
+    expect(qEnable.readOnly, "The question is enabled now").toBe(false);
   });
 
   test("isRequired test, empty array https://github.com/surveyjs/surveyjs/issues/362", () => {
@@ -4139,9 +4139,9 @@ describe("Survey", () => {
     var page1 = survey.getPageByName("page1");
     var q1 = <Question>(<Question>page1.questions[0]);
     q1.value = [];
-    expect(page1.validate(), "There is a required error").toLooseEqual(false);
+    expect(page1.validate(), "There is a required error").toBe(false);
     q1.value = ["yes"];
-    expect(page1.validate(), "There is no required error").toLooseEqual(true);
+    expect(page1.validate(), "There is no required error").toBe(true);
   });
 
   test("multiple triger on checkbox stop working.", () => {
@@ -4181,10 +4181,10 @@ describe("Survey", () => {
     var check = <QuestionCheckboxModel>survey.getQuestionByName("question1");
     var value = ["one"];
     check.value = value;
-    expect(survey.getQuestionByName("question2").visible, "The second question is visible").toLooseEqual(true);
+    expect(survey.getQuestionByName("question2").visible, "The second question is visible").toBe(true);
     value.push("two");
     check.value = value;
-    expect(survey.getQuestionByName("question3").visible, "The third question is visible").toLooseEqual(true);
+    expect(survey.getQuestionByName("question3").visible, "The third question is visible").toBe(true);
   });
 
   test("QuestionCheckbox if single value set then convert it to array, #334", () => {
@@ -4255,19 +4255,19 @@ describe("Survey", () => {
       showQuestionNumbers: false,
     });
     var page = survey.currentPage;
-    expect(page.rows.length).toLooseEqual(5);
+    expect(page.rows.length).toBe(5);
 
     survey.setValue("component", "app");
-    expect(page.rows[1].visible).toLooseEqual(true);
-    expect(page.rows[4].visible).toLooseEqual(false);
+    expect(page.rows[1].visible).toBe(true);
+    expect(page.rows[4].visible).toBe(false);
 
     survey.setValue("component", "database");
-    expect(page.rows[1].visible).toLooseEqual(false);
-    expect(page.rows[4].visible).toLooseEqual(true);
+    expect(page.rows[1].visible).toBe(false);
+    expect(page.rows[4].visible).toBe(true);
 
     survey.setValue("component", "app");
-    expect(page.rows[1].visible).toLooseEqual(true);
-    expect(page.rows[4].visible).toLooseEqual(false);
+    expect(page.rows[1].visible).toBe(true);
+    expect(page.rows[4].visible).toBe(false);
   });
   test("assign customWidgets to questions", () => {
     CustomWidgetCollection.Instance.clear();
@@ -4285,10 +4285,10 @@ describe("Survey", () => {
     });
     var survey = twoPageSimplestSurvey();
     survey.pages[0].addNewQuestion("checkbox", "question5");
-    expect(survey.currentPageNo, "the first page is chosen").toLooseEqual(0);
-    expect((<Question>survey.getQuestionByName("question1")).customWidget, "there is no custom widget for this question").toLooseEqual(null);
-    expect((<Question>survey.getQuestionByName("question2")).customWidget.name, "has the first custom widget").toLooseEqual("first");
-    expect((<Question>survey.getQuestionByName("question5")).customWidget.name, "has the second custom widget").toLooseEqual("second");
+    expect(survey.currentPageNo, "the first page is chosen").toBe(0);
+    expect((<Question>survey.getQuestionByName("question1")).customWidget, "there is no custom widget for this question").toBeNull();
+    expect((<Question>survey.getQuestionByName("question2")).customWidget.name, "has the first custom widget").toBe("first");
+    expect((<Question>survey.getQuestionByName("question5")).customWidget.name, "has the second custom widget").toBe("second");
     CustomWidgetCollection.Instance.clear();
   });
   test("customWidgets activation types changed", () => {
@@ -4304,11 +4304,11 @@ describe("Survey", () => {
       },
     };
     CustomWidgetCollection.Instance.addCustomWidget(customWidgetJSON);
-    expect(lastActivatedBy, "activatedBy set to 'property' by default").toLooseEqual("property");
+    expect(lastActivatedBy, "activatedBy set to 'property' by default").toBe("property");
     CustomWidgetCollection.Instance.setActivatedBy("widget1", "type");
-    expect(lastActivatedBy, "activatedBy set to 'type'").toLooseEqual("type");
+    expect(lastActivatedBy, "activatedBy set to 'type'").toBe("type");
     CustomWidgetCollection.Instance.setActivatedBy("widget1", "customtype");
-    expect(lastActivatedBy, "activatedBy set to 'customtype'").toLooseEqual("customtype");
+    expect(lastActivatedBy, "activatedBy set to 'customtype'").toBe("customtype");
     CustomWidgetCollection.Instance.clear();
   });
 
@@ -4344,8 +4344,8 @@ describe("Survey", () => {
     });
     var q = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
     var rows = q.visibleRows;
-    expect(rows[0].cells[0].question.customWidget.name, "the first cell has custom widget").toLooseEqual("first");
-    expect(rows[0].cells[1].question.customWidget, "the second cell has no custom widget").toLooseEqual(null);
+    expect(rows[0].cells[0].question.customWidget.name, "the first cell has custom widget").toBe("first");
+    expect(rows[0].cells[1].question.customWidget, "the second cell has no custom widget").toBeNull();
 
     Serializer.addProperty("matrixdropdowncolumn", oldMartixDropdownRenderAsProperty);
     Serializer.addProperty("dropdown", oldDropdownRenderAsProperty);
@@ -4367,10 +4367,10 @@ describe("Survey", () => {
     });
     var survey = twoPageSimplestSurvey();
     var question = survey.pages[0].addNewQuestion("text", "text");
-    expect(survey.currentPageNo, "the first page is chosen").toLooseEqual(0);
-    expect(question.customWidget.name, "has the first custom widget").toLooseEqual("first");
+    expect(survey.currentPageNo, "the first page is chosen").toBe(0);
+    expect(question.customWidget.name, "has the first custom widget").toBe("first");
     question.value = 1;
-    expect(question.displayValue, "Use display value of custom widget").toLooseEqual("one");
+    expect(question.displayValue, "Use display value of custom widget").toBe("one");
     CustomWidgetCollection.Instance.clear();
   });
 
@@ -4395,7 +4395,7 @@ describe("Survey", () => {
       ],
     });
     var question = <Question>survey.getQuestionByName("q1");
-    expect(question.customWidget.name, "the custom custom widget is set").toLooseEqual("camelName");
+    expect(question.customWidget.name, "the custom custom widget is set").toBe("camelName");
     CustomWidgetCollection.Instance.clear();
   });
   test("Create custom widget from addQuestion", () => {
@@ -4414,8 +4414,8 @@ describe("Survey", () => {
     const survey = new SurveyModel();
     const page = survey.addNewPage("p1");
     const question = page.addNewQuestion(cType, "q1");
-    expect(question.name, "name is correct").toLooseEqual("q1");
-    expect(question.getType(), "type is correct").toLooseEqual(cType);
+    expect(question.name, "name is correct").toBe("q1");
+    expect(question.getType(), "type is correct").toBe(cType);
     CustomWidgetCollection.Instance.clear();
     Serializer.removeClass(cType);
     QuestionFactory.Instance.unregisterElement(cType);
@@ -4428,7 +4428,7 @@ describe("Survey", () => {
     ElementFactory.Instance.registerElement(type, (name: string): IElement => { return new PanelModel(name); }, false);
     defaultToolboxNames = ElementFactory.Instance.getAllToolboxTypes();
     defaultNames = ElementFactory.Instance.getAllTypes();
-    expect(defaultToolboxNames.length + 1, "We do use the new type for toolbox").toLooseEqual(defaultNames.length);
+    expect(defaultToolboxNames.length + 1, "We do use the new type for toolbox").toBe(defaultNames.length);
     ElementFactory.Instance.unregisterElement(type);
   });
   test("readOnlyCallback, bug #1818", () => {
@@ -4458,23 +4458,23 @@ describe("Survey", () => {
     });
     var panel = survey.getPanelByName("panel1");
     var question = survey.getQuestionByName("question1");
-    expect(question.customWidget.name, "Custom widget is here").toLooseEqual("first");
-    expect(readOnlyCounter, "Not called yet").toLooseEqual(0);
+    expect(question.customWidget.name, "Custom widget is here").toBe("first");
+    expect(readOnlyCounter, "Not called yet").toBe(0);
     question.readOnly = true;
-    expect(readOnlyCounter, "question.readOnly = true").toLooseEqual(1);
+    expect(readOnlyCounter, "question.readOnly = true").toBe(1);
     question.readOnly = false;
-    expect(readOnlyCounter, "question.readOnly = false").toLooseEqual(2);
-    expect(panel.isReadOnly, "Panel is not readOnly").toLooseEqual(false);
+    expect(readOnlyCounter, "question.readOnly = false").toBe(2);
+    expect(panel.isReadOnly, "Panel is not readOnly").toBe(false);
     question.value = 1;
-    expect(panel.isReadOnly, "Panel is readOnly").toLooseEqual(true);
-    expect(readOnlyCounter, "Panel is readOnly").toLooseEqual(3);
+    expect(panel.isReadOnly, "Panel is readOnly").toBe(true);
+    expect(readOnlyCounter, "Panel is readOnly").toBe(3);
     question.value = 2;
-    expect(panel.isReadOnly, "Panel is not readOnly").toLooseEqual(false);
-    expect(readOnlyCounter, "Panel is not readOnly").toLooseEqual(4);
+    expect(panel.isReadOnly, "Panel is not readOnly").toBe(false);
+    expect(readOnlyCounter, "Panel is not readOnly").toBe(4);
     survey.readOnly = true;
-    expect(readOnlyCounter, "survey.mode = 'display'").toLooseEqual(5);
+    expect(readOnlyCounter, "survey.mode = 'display'").toBe(5);
     survey.readOnly = false;
-    expect(readOnlyCounter, "survey.mode = 'edit'").toLooseEqual(6);
+    expect(readOnlyCounter, "survey.mode = 'edit'").toBe(6);
 
     CustomWidgetCollection.Instance.clear();
   });
@@ -4497,31 +4497,31 @@ describe("Survey", () => {
     survey.locale = "de";
     q1.title = "de-val1";
     survey.locale = "fr";
-    expect(q1.title, "Use the default title").toLooseEqual("val1");
+    expect(q1.title, "Use the default title").toBe("val1");
     survey.locale = "de";
-    expect(q1.title, "Use 'de' title").toLooseEqual("de-val1");
+    expect(q1.title, "Use 'de' title").toBe("de-val1");
   });
 
   test("Survey Localization - check page/panel.title and processedTitle", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page1");
     var panel = page.addNewPanel("panel1");
-    expect(page.processedTitle, "page title is empty").toLooseEqual("");
-    expect(panel.processedTitle, "panel title is empty").toLooseEqual("");
+    expect(page.processedTitle, "page title is empty").toBe("");
+    expect(panel.processedTitle, "panel title is empty").toBe("");
     survey.setDesignMode(true);
-    expect(page.processedTitle, "page title is empty at design-time").toLooseEqual("");
-    expect(panel.processedTitle, "panel title uses name").toLooseEqual("[panel1]");
+    expect(page.processedTitle, "page title is empty at design-time").toBe("");
+    expect(panel.processedTitle, "panel title uses name").toBe("[panel1]");
     page.title = "pageText";
     panel.title = "panelText";
     survey.locale = "de";
     page.title = "de-pageText";
     panel.title = "de-panelText";
     survey.locale = "fr";
-    expect(page.title, "Use the default page title").toLooseEqual("pageText");
-    expect(panel.title, "Use the default panel title").toLooseEqual("panelText");
+    expect(page.title, "Use the default page title").toBe("pageText");
+    expect(panel.title, "Use the default panel title").toBe("panelText");
     survey.locale = "de";
-    expect(page.title, "Use the 'de' page title").toLooseEqual("de-pageText");
-    expect(panel.title, "Use the 'de' panel title").toLooseEqual("de-panelText");
+    expect(page.title, "Use the 'de' page title").toBe("de-pageText");
+    expect(panel.title, "Use the 'de' panel title").toBe("de-panelText");
   });
 
   test("Survey Localization - dropdown.choices", () => {
@@ -4532,9 +4532,9 @@ describe("Survey", () => {
     q1.choices[0].text = "text1";
     survey.locale = "de";
     q1.choices[0].text = "de-text1";
-    expect(q1.choices[0].text, "Use 'de' text").toLooseEqual("de-text1");
+    expect(q1.choices[0].text, "Use 'de' text").toBe("de-text1");
     survey.locale = "fr";
-    expect(q1.choices[0].text, "Use the default text").toLooseEqual("text1");
+    expect(q1.choices[0].text, "Use the default text").toBe("text1");
   });
 
   test("Survey Localization - radiogroup.otheItem", () => {
@@ -4556,13 +4556,13 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
 
-    expect(q1.visibleChoices[2].locText.textOrHtml, "By default it is Other").toLooseEqual("Other");
+    expect(q1.visibleChoices[2].locText.textOrHtml, "By default it is Other").toBe("Other");
     survey.locale = "es";
-    expect(q1.visibleChoices[2].locText.textOrHtml, "Otro for Spanish").toLooseEqual("Otro");
+    expect(q1.visibleChoices[2].locText.textOrHtml, "Otro for Spanish").toBe("Otro");
     survey.locale = "";
-    expect(q1.visibleChoices[2].locText.textOrHtml, "It is default again").toLooseEqual("Other");
+    expect(q1.visibleChoices[2].locText.textOrHtml, "It is default again").toBe("Other");
     survey.locale = "es";
-    expect(q1.visibleChoices[2].locText.textOrHtml, "It is Spanish again").toLooseEqual("Otro");
+    expect(q1.visibleChoices[2].locText.textOrHtml, "It is Spanish again").toBe("Otro");
     survey.locale = "";
   });
 
@@ -4576,9 +4576,9 @@ describe("Survey", () => {
     q1.columns[0].text = "text1";
     survey.locale = "de";
     q1.columns[0].text = "de-text1";
-    expect(q1.columns[0].text, "Use 'de' text").toLooseEqual("de-text1");
+    expect(q1.columns[0].text, "Use 'de' text").toBe("de-text1");
     survey.locale = "fr";
-    expect(q1.columns[0].text, "Use the default text").toLooseEqual("text1");
+    expect(q1.columns[0].text, "Use the default text").toBe("text1");
   });
 
   test("Survey Localization - dropdownmatrix.columns", () => {
@@ -4597,13 +4597,13 @@ describe("Survey", () => {
     col1.title = "de-title1";
     col1["placeholder"] = "de-caption1";
     col1["choices"][0].text = "de-text1";
-    expect(col1.title, "Use 'de' text, title").toLooseEqual("de-title1");
-    expect(col1["placeholder"], "Use 'de' text, placeholder").toLooseEqual("de-caption1");
-    expect(col1["choices"][0].text, "Use 'de' text, choices").toLooseEqual("de-text1");
+    expect(col1.title, "Use 'de' text, title").toBe("de-title1");
+    expect(col1["placeholder"], "Use 'de' text, placeholder").toBe("de-caption1");
+    expect(col1["choices"][0].text, "Use 'de' text, choices").toBe("de-text1");
     survey.locale = "fr";
-    expect(col1.title, "Use default text, title").toLooseEqual("title1");
-    expect(col1["placeholder"], "Use default text, placeholder").toLooseEqual("caption1");
-    expect(col1["choices"][0].text, "Use the default text").toLooseEqual("text1");
+    expect(col1.title, "Use default text, title").toBe("title1");
+    expect(col1["placeholder"], "Use default text, placeholder").toBe("caption1");
+    expect(col1["choices"][0].text, "Use the default text").toBe("text1");
   });
 
   test("Survey Localization - multipletext.items", () => {
@@ -4617,11 +4617,11 @@ describe("Survey", () => {
     survey.locale = "de";
     item.title = "de-title1";
     item.placeHolder = "de-caption1";
-    expect(item.title, "Use 'de' text, title").toLooseEqual("de-title1");
-    expect(item.placeHolder, "Use 'de' text, placeHolder").toLooseEqual("de-caption1");
+    expect(item.title, "Use 'de' text, title").toBe("de-title1");
+    expect(item.placeHolder, "Use 'de' text, placeHolder").toBe("de-caption1");
     survey.locale = "fr";
-    expect(item.title, "Use default text, title").toLooseEqual("title1");
-    expect(item.placeHolder, "Use default text, placeHolder").toLooseEqual("caption1");
+    expect(item.title, "Use default text, title").toBe("title1");
+    expect(item.placeHolder, "Use default text, placeHolder").toBe("caption1");
   });
 
   test("Survey Localization - question.validators[].text, Bug#966", () => {
@@ -4634,9 +4634,9 @@ describe("Survey", () => {
     validator.text = "default-text";
     survey.locale = "de";
     validator.text = "de-text";
-    expect(validator.text, "Use 'de' text").toLooseEqual("de-text");
+    expect(validator.text, "Use 'de' text").toBe("de-text");
     survey.locale = "fr";
-    expect(validator.text, "Use default text").toLooseEqual("default-text");
+    expect(validator.text, "Use default text").toBe("default-text");
     survey.locale = "";
   });
 
@@ -4692,10 +4692,10 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(surveyLocalization.defaultLocale, "En is default locale").toLooseEqual("en");
+    expect(surveyLocalization.defaultLocale, "En is default locale").toBe("en");
     var locales = survey.getUsedLocales();
     const checkLocales = ["en", "fr", "es", "ru", "gr", "pt", "it"];
-    expect(locales.length, "Get all locales").toLooseEqual(checkLocales.length);
+    expect(locales.length, "Get all locales").toBe(checkLocales.length);
     for (var i = 0; i < checkLocales.length; i++) {
       expect(locales.indexOf(checkLocales[i]) > -1, "Locale: " + checkLocales[i] + " not found").toBeTruthy();
     }
@@ -4716,11 +4716,11 @@ describe("Survey", () => {
     ];
     var q3 = <Question>page.addNewQuestion("text", "q3");
     q3.title = "{q1}-{q2}";
-    expect(q3.locTitle.renderedHtml, "There is no values").toLooseEqual("-");
+    expect(q3.locTitle.renderedHtml, "There is no values").toBe("-");
     q1.value = 1;
-    expect(q3.locTitle.renderedHtml, "Drop down value is set").toLooseEqual("Item 1-");
+    expect(q3.locTitle.renderedHtml, "Drop down value is set").toBe("Item 1-");
     q2.value = [3, 4];
-    expect(q3.locTitle.renderedHtml, "Drop down value is set").toLooseEqual("Item 1-Item 3, Item 4");
+    expect(q3.locTitle.renderedHtml, "Drop down value is set").toBe("Item 1-Item 3, Item 4");
   });
 
   test("Survey text preprocessing, zero value, issue https://surveyjs.answerdesk.io/ticket/details/t2493", () => {
@@ -4733,8 +4733,8 @@ describe("Survey", () => {
     var q1 = <Question>survey.getQuestionByName("q1");
     var q2 = <Question>survey.getQuestionByName("q2");
     q1.value = 0;
-    expect(q1.getDisplayValue(false), "Return correct display value").toLooseEqual("0");
-    expect(q2.locTitle.renderedHtml, "Not is not a null").toLooseEqual("q1=0");
+    expect(q1.getDisplayValue(false), "Return correct display value").toBe(0);
+    expect(q2.locTitle.renderedHtml, "Not is not a null").toBe("q1=0");
   });
 
   test("Survey text preprocessing, matrix, issue #499", () => {
@@ -4752,7 +4752,7 @@ describe("Survey", () => {
     var q2 = <Question>page.addNewQuestion("text", "q2");
     q2.title = "{q1.row1}";
     q1.value = { row1: 1, row2: 2 };
-    expect(q2.locTitle.renderedHtml, "Matrix use text").toLooseEqual("Col 1");
+    expect(q2.locTitle.renderedHtml, "Matrix use text").toBe("Col 1");
   });
 
   test("Survey text preprocessing, dropdown matrix, issue #499", () => {
@@ -4774,7 +4774,7 @@ describe("Survey", () => {
     const q2 = <Question>page.addNewQuestion("text", "q2");
     q2.title = "{q1.row1.col1}";
     q1.value = { row1: { col1: 1 } };
-    expect(q2.locTitle.renderedHtml, "Dropdown Matrix Column use text").toLooseEqual("Item 1");
+    expect(q2.locTitle.renderedHtml, "Dropdown Matrix Column use text").toBe("Item 1");
   });
 
   test("Survey text preprocessing, dynamic matrix, issue #499", () => {
@@ -4793,7 +4793,7 @@ describe("Survey", () => {
     const q2 = <Question>page.addNewQuestion("text", "q2");
     q2.title = "{q1[0].col1}";
     q1.value = [{ col1: 1 }, {}];
-    expect(q2.locTitle.renderedHtml, "Dynamic Matrix Column use text").toLooseEqual("Item 1");
+    expect(q2.locTitle.renderedHtml, "Dynamic Matrix Column use text").toBe("Item 1");
   });
   test("Survey text preprocessing with camella case, issue #913", () => {
     var survey = new SurveyModel({
@@ -4813,7 +4813,7 @@ describe("Survey", () => {
     var question = <QuestionTextModel>survey.getQuestionByName("emailAddress");
     question.value = "john.snow@nightwatch.com";
     var question1 = <QuestionTextModel>survey.getQuestionByName("question1");
-    expect(question1.fullTitle, "The value is preprocessed correctly").toLooseEqual("john.snow@nightwatch.com");
+    expect(question1.fullTitle, "The value is preprocessed correctly").toBe("john.snow@nightwatch.com");
   });
   test("Survey text preprocessing complex data without question, issue #4434", () => {
     const survey = new SurveyModel({
@@ -4827,7 +4827,7 @@ describe("Survey", () => {
     });
     survey.data = { complex: { value1: "complexText" } };
     const question = <QuestionTextModel>survey.getQuestionByName("q1");
-    expect(question.fullTitle, "The complex value is preprocessed correctly").toLooseEqual("complexText");
+    expect(question.fullTitle, "The complex value is preprocessed correctly").toBe("complexText");
   });
 
   test("Survey text preprocessing: survey.onGetQuestionDisplayValue", () => {
@@ -4846,11 +4846,11 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.displayValue, "Empty value").toLooseEqual("{Q1}");
-    expect(q2.locTitle.renderedHtml, "title for empty value").toLooseEqual("q1: {Q1}");
+    expect(q1.displayValue, "Empty value").toBe("{Q1}");
+    expect(q2.locTitle.renderedHtml, "title for empty value").toBe("q1: {Q1}");
     q1.value = "val1";
-    expect(q1.displayValue, "value=val1").toLooseEqual("[val1]");
-    expect(q2.locTitle.renderedHtml, "title for value=val1").toLooseEqual("q1: [val1]");
+    expect(q1.displayValue, "value=val1").toBe("[val1]");
+    expect(q2.locTitle.renderedHtml, "title for value=val1").toBe("q1: [val1]");
   });
 
   test("Survey Markdown - dropdown.choices", () => {
@@ -4868,8 +4868,8 @@ describe("Survey", () => {
     });
     var loc1 = (<ItemValue>q1.choices[0]).locText;
     var loc2 = (<ItemValue>q1.choices[1]).locText;
-    expect(loc1.renderedHtml, "render standard text").toLooseEqual("text1");
-    expect(loc2.renderedHtml, "render markdown text").toLooseEqual("text2!");
+    expect(loc1.renderedHtml, "render standard text").toBe("text1");
+    expect(loc2.renderedHtml, "render markdown text").toBe("text2!");
   });
 
   test("Survey Markdown - question title", () => {
@@ -4879,17 +4879,17 @@ describe("Survey", () => {
     var q2 = <Question>page.addNewQuestion("text", "q2");
     survey.onTextMarkdown.add(function (survey, options) {
       if (options.name == "commentText") return;
-      expect(options.name, "question title markdown preprocessing").toLooseEqual("title");
+      expect(options.name, "question title markdown preprocessing").toBe("title");
       if (options.text.indexOf("markdown") > -1)
         options.html = options.text.replace("markdown", "!");
     });
     q2.value = "value2";
     var loc = q1.locTitle;
     q1.title = "title1, q2.value is {q2}markdown";
-    expect(q1.fullTitle, "question.title, use markdown and text preprocessing").toLooseEqual("title1, q2.value is value2!");
-    expect(loc.renderedHtml, "question.locTitle.renderedHtml, use markdown and text preprocessing").toLooseEqual("title1, q2.value is value2!");
+    expect(q1.fullTitle, "question.title, use markdown and text preprocessing").toBe("title1, q2.value is value2!");
+    expect(loc.renderedHtml, "question.locTitle.renderedHtml, use markdown and text preprocessing").toBe("title1, q2.value is value2!");
     q1.isRequired = true;
-    expect(q1.requiredMark, "question.title requiredMark is not empty").toLooseEqual("*");
+    expect(q1.requiredMark, "question.title requiredMark is not empty").toBe("*");
   });
 
   test("Survey Markdown - question title, if title is empty and question is required", () => {
@@ -4900,7 +4900,7 @@ describe("Survey", () => {
     var q2 = <Question>page.addNewQuestion("text", "q2");
     var q3 = <Question>page.addNewQuestion("text", "q3");
     survey.onTextMarkdown.add((survey, options) => {
-      expect(options.name, "question title markdown preprocessing").toLooseEqual("title");
+      expect(options.name, "question title markdown preprocessing").toBe("title");
       options.html = options.text + "!";
     });
     q1.isRequired = true;
@@ -4909,12 +4909,12 @@ describe("Survey", () => {
     q3.isRequired = true;
     q3.title = "*Q3 {q1}";
 
-    expect(q1.locTitle.renderedHtml, "q1.title, use markdown for requried text, title is empty").toLooseEqual("q1!");
-    expect(q1.locTitle.hasHtml, "q1.title, use markdown for requried text - hasHtml, title is empty").toLooseEqual(true);
-    expect(q2.locTitle.renderedHtml, "q2.title, use markdown for requried text, has title").toLooseEqual("Q2!");
-    expect(q2.locTitle.hasHtml, "q2.title, use markdown for requried text - hasHtml, has title").toLooseEqual(true);
-    expect(q3.locTitle.renderedHtml, "q3.title, use markdown for requried text and inside title and process text").toLooseEqual("*Q3 q1-Value!");
-    expect(q3.locTitle.hasHtml, "q3.title, use markdown for requried text and inside title and process text, hasHtml").toLooseEqual(true);
+    expect(q1.locTitle.renderedHtml, "q1.title, use markdown for requried text, title is empty").toBe("q1!");
+    expect(q1.locTitle.hasHtml, "q1.title, use markdown for requried text - hasHtml, title is empty").toBe(true);
+    expect(q2.locTitle.renderedHtml, "q2.title, use markdown for requried text, has title").toBe("Q2!");
+    expect(q2.locTitle.hasHtml, "q2.title, use markdown for requried text - hasHtml, has title").toBe(true);
+    expect(q3.locTitle.renderedHtml, "q3.title, use markdown for requried text and inside title and process text").toBe("*Q3 q1-Value!");
+    expect(q3.locTitle.hasHtml, "q3.title, use markdown for requried text and inside title and process text, hasHtml").toBe(true);
   });
   test("Survey Markdown - question title calls count", () => {
     const survey = new SurveyModel();
@@ -4929,12 +4929,12 @@ describe("Survey", () => {
       }
     });
     for (var i = 0; i < 10; i++) {
-      expect(q1.title).toLooseEqual("q1");
-      expect(q1.locTitle.renderedHtml).toLooseEqual("q1!");
-      expect(q2.title).toLooseEqual("q2");
-      expect(q2.locTitle.renderedHtml).toLooseEqual("q2");
+      expect(q1.title).toBe("q1");
+      expect(q1.locTitle.renderedHtml).toBe("q1!");
+      expect(q2.title).toBe("q2");
+      expect(q2.locTitle.renderedHtml).toBe("q2");
     }
-    expect(counter, "onTextMarkdown is called two times").toLooseEqual(2);
+    expect(counter, "onTextMarkdown is called two times").toBe(2);
   });
   test("Survey Markdown + processed text", () => {
     const survey = new SurveyModel();
@@ -4945,9 +4945,9 @@ describe("Survey", () => {
     survey.onTextMarkdown.add((survey, options) => {
       options.html = options.text + "!";
     });
-    expect(q1.locTitle.renderedHtml, "Initial value").toLooseEqual("Q1 test1!");
+    expect(q1.locTitle.renderedHtml, "Initial value").toBe("Q1 test1!");
     survey.setValue("val", "test2");
-    expect(q1.locTitle.renderedHtml, "Change the value").toLooseEqual("Q1 test2!");
+    expect(q1.locTitle.renderedHtml, "Change the value").toBe("Q1 test2!");
   });
   test("Survey Markdown + design model", () => {
     const survey = new SurveyModel({
@@ -4962,8 +4962,8 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.locTitle.renderedHtml, "page1").toLooseEqual("Q1!");
-    expect(q2.locTitle.renderedHtml, "page2").toLooseEqual("Q2!");
+    expect(q1.locTitle.renderedHtml, "page1").toBe("Q1!");
+    expect(q2.locTitle.renderedHtml, "page2").toBe("Q2!");
   });
 
   test("required question title test", () => {
@@ -4971,11 +4971,11 @@ describe("Survey", () => {
     var page = survey.addNewPage("Page 1");
     var q1 = <Question>page.addNewQuestion("text", "q1");
     q1.title = "title1";
-    expect(q1.locTitle.renderedHtml, "Just title").toLooseEqual("title1");
+    expect(q1.locTitle.renderedHtml, "Just title").toBe("title1");
     q1.isRequired = true;
-    expect(q1.locTitle.renderedHtml, "title + required").toLooseEqual("title1");
-    expect(q1.requiredMark, "title + required").toLooseEqual("*");
-    expect(q1.title, "We do no have required").toLooseEqual("title1");
+    expect(q1.locTitle.renderedHtml, "title + required").toBe("title1");
+    expect(q1.requiredMark, "title + required").toBe("*");
+    expect(q1.title, "We do no have required").toBe("title1");
   });
 
   test("Survey Markdown - page title", () => {
@@ -4989,8 +4989,8 @@ describe("Survey", () => {
     q1.value = "value1";
     var loc = page.locTitle;
     page.title = "Page 1markdown, q1 is {q1}";
-    expect(page.processedTitle, "page.processedTitle, use markdown and text preprocessing").toLooseEqual("Page 1!, q1 is value1");
-    expect(loc.renderedHtml, "page.locTitle.renderedHtml, use markdown and text preprocessing").toLooseEqual("Page 1!, q1 is value1");
+    expect(page.processedTitle, "page.processedTitle, use markdown and text preprocessing").toBe("Page 1!, q1 is value1");
+    expect(loc.renderedHtml, "page.locTitle.renderedHtml, use markdown and text preprocessing").toBe("Page 1!, q1 is value1");
   });
 
   test("Survey Markdown - page title + showPageNumbers = true", () => {
@@ -5000,14 +5000,14 @@ describe("Survey", () => {
     var q1 = <Question>page.addNewQuestion("text", "q1");
     survey.onTextMarkdown.add(function (survey, options) {
       if (options.name == "commentText") return;
-      expect(options.name, "page title markdown preprocessing").toLooseEqual("title");
+      expect(options.name, "page title markdown preprocessing").toBe("title");
       if (options.text.indexOf("markdown") > -1)
         options.html = options.text.replace("markdown", "!");
     });
     q1.value = "value1";
     var loc = page.locTitle;
     page.title = "Page 1markdown, q1 is {q1}";
-    expect(loc.renderedHtml, "page.locTitle.renderedHtml, use markdown and text preprocessing").toLooseEqual("Page 1!, q1 is value1");
+    expect(loc.renderedHtml, "page.locTitle.renderedHtml, use markdown and text preprocessing").toBe("Page 1!, q1 is value1");
   });
 
   test("Survey Markdown and text processing - dropdownmatrix.columns", () => {
@@ -5028,9 +5028,9 @@ describe("Survey", () => {
     var loc1 = col1.locTitle;
     var loc2 = col2.locTitle;
     var loc3 = col3.locTitle;
-    expect(loc1.renderedHtml, "render column name").toLooseEqual("col1");
-    expect(loc2.renderedHtml, "render column text").toLooseEqual("colText2-newvalue-");
-    expect(loc3.renderedHtml, "render column text as markdown").toLooseEqual("colText3-newvalue-!");
+    expect(loc1.renderedHtml, "render column name").toBe("col1");
+    expect(loc2.renderedHtml, "render column text").toBe("colText2-newvalue-");
+    expect(loc3.renderedHtml, "render column text as markdown").toBe("colText3-newvalue-!");
   });
 
   test("Survey Markdown and text processing - nmatrix.rows", () => {
@@ -5050,9 +5050,9 @@ describe("Survey", () => {
     var loc2 = q1.visibleRows[1].locText;
     var loc3 = q1.visibleRows[2].locText;
     survey.setValue("val1", "-newvalue-");
-    expect(loc1.renderedHtml, "render column name").toLooseEqual("row1");
-    expect(loc2.renderedHtml, "render column text + text processing").toLooseEqual("rowText2-newvalue-");
-    expect(loc3.renderedHtml, "render column text as markdown + text processing").toLooseEqual("rowText3-newvalue-!");
+    expect(loc1.renderedHtml, "render column name").toBe("row1");
+    expect(loc2.renderedHtml, "render column text + text processing").toBe("rowText2-newvalue-");
+    expect(loc3.renderedHtml, "render column text as markdown + text processing").toBe("rowText3-newvalue-!");
   });
 
   test("html.html property, text preprocessing", () => {
@@ -5061,9 +5061,9 @@ describe("Survey", () => {
     var html = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
     survey.setVariable("var1", 5);
     html.html = "val: {var1}";
-    expect(html.locHtml.renderedHtml, "initial value is set").toLooseEqual("val: 5");
+    expect(html.locHtml.renderedHtml, "initial value is set").toBe("val: 5");
     survey.setVariable("var1", 10);
-    expect(html.locHtml.renderedHtml, "value is changed").toLooseEqual("val: 10");
+    expect(html.locHtml.renderedHtml, "value is changed").toBe("val: 10");
   });
 
   test("Kebab-case variable in expressions - https://surveyjs.answerdesk.io/ticket/details/T2211", () => {
@@ -5075,15 +5075,15 @@ describe("Survey", () => {
   test("Survey Markdown - survey title", () => {
     var survey = new SurveyModel();
     survey.onTextMarkdown.add(function (survey, options) {
-      expect(options.name, "survey title markdown preprocessing").toLooseEqual("title");
+      expect(options.name, "survey title markdown preprocessing").toBe("title");
       if (options.text.indexOf("markdown") > -1)
         options.html = options.text.replace("markdown", "!");
     });
     survey.setValue("q1", "value1");
     var loc = survey.locTitle;
     survey.title = "Surveymarkdown, q1 is {q1}";
-    expect(survey.processedTitle, "survey.processedTitle, use markdown and text preprocessing").toLooseEqual("Survey!, q1 is value1");
-    expect(loc.renderedHtml, "survey.locTitle.renderedHtml, use markdown and text preprocessing").toLooseEqual("Survey!, q1 is value1");
+    expect(survey.processedTitle, "survey.processedTitle, use markdown and text preprocessing").toBe("Survey!, q1 is value1");
+    expect(loc.renderedHtml, "survey.locTitle.renderedHtml, use markdown and text preprocessing").toBe("Survey!, q1 is value1");
   });
 
   test("Survey Markdown - question.validators", () => {
@@ -5103,9 +5103,9 @@ describe("Survey", () => {
     question1.validators.push(validator);
     survey.setValue("q1", "val");
     page.validate(true);
-    expect(validator.locText.renderedHtml, "Markdown is working").toLooseEqual("error!");
-    expect(question1.errors[0].locText.renderedHtml, "Markdown in validators is working").toLooseEqual("error!");
-    expect(question2.errors[0].locText.renderedHtml, "Markdown for event is working").toLooseEqual("!");
+    expect(validator.locText.renderedHtml, "Markdown is working").toBe("error!");
+    expect(question1.errors[0].locText.renderedHtml, "Markdown in validators is working").toBe("error!");
+    expect(question2.errors[0].locText.renderedHtml, "Markdown for event is working").toBe("!");
   });
 
   test("QuestionRadiogroupModel clears comment - issue #390", () => {
@@ -5113,7 +5113,7 @@ describe("Survey", () => {
     question.showCommentArea = true;
     question.comment = "comment text";
     question.clearUnusedValues();
-    expect(question.comment).toLooseEqual("comment text");
+    expect(question.comment).toBe("comment text");
   });
 
   test("survey.clearIncorrectValues", () => {
@@ -5176,9 +5176,9 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.pages.length).toLooseEqual(1);
-    expect(survey.pages[0].questions.length).toLooseEqual(1);
-    expect(survey.pages[0].questions[0].name).toLooseEqual("suggestions");
+    expect(survey.pages.length).toBe(1);
+    expect(survey.pages[0].questions.length).toBe(1);
+    expect(survey.pages[0].questions[0].name).toBe("suggestions");
   });
 
   test("onMatrixRowAdded", () => {
@@ -5207,8 +5207,8 @@ describe("Survey", () => {
       { col1: 2, col2: "2" },
     ];
     q1.addRow();
-    expect(q1.rowCount, "there are 3 rows").toLooseEqual(3);
-    expect(q1.value[2]["col1"], "get value from previous").toLooseEqual(2);
+    expect(q1.rowCount, "there are 3 rows").toBe(3);
+    expect(q1.value[2]["col1"], "get value from previous").toBe(2);
   });
   test("onMatrixRowAdded + copyDefaultValueFromLastEntry", () => {
     var survey = new SurveyModel();
@@ -5230,9 +5230,9 @@ describe("Survey", () => {
       { col1: 2, col2: "2" },
     ];
     q1.addRow();
-    expect(visibleRowsCount, "There are 3 visibleRows in event").toLooseEqual(3);
-    expect(q1.rowCount, "there are 3 rows").toLooseEqual(3);
-    expect(q1.value[2]["col2"], "get value from previous").toLooseEqual("2");
+    expect(visibleRowsCount, "There are 3 visibleRows in event").toBe(3);
+    expect(q1.rowCount, "there are 3 rows").toBe(3);
+    expect(q1.value[2]["col2"], "get value from previous").toBe("2");
     expect(q1.value[2]["col1"], "clear value for this column").toBeFalsy();
   });
 
@@ -5249,9 +5249,9 @@ describe("Survey", () => {
     q1.rowCount = 0;
 
     q1.addRow();
-    expect(q1.rowCount, "there is one row").toLooseEqual(1);
+    expect(q1.rowCount, "there is one row").toBe(1);
     q1.addRow();
-    expect(q1.rowCount, "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'").toLooseEqual(1);
+    expect(q1.rowCount, "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'").toBe(1);
   });
   test("onMatrixRowAdding -> replace onMatrixBeforeRowAdded", () => {
     var survey = new SurveyModel();
@@ -5266,9 +5266,9 @@ describe("Survey", () => {
     q1.rowCount = 0;
 
     q1.addRow();
-    expect(q1.rowCount, "there is one row").toLooseEqual(1);
+    expect(q1.rowCount, "there is one row").toBe(1);
     q1.addRow();
-    expect(q1.rowCount, "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'").toLooseEqual(1);
+    expect(q1.rowCount, "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'").toBe(1);
   });
   test("onMatrixRowAdding, support options.canAddRow & options.allow", () => {
     const survey = new SurveyModel();
@@ -5285,35 +5285,35 @@ describe("Survey", () => {
     matrix.rowCount = 0;
     matrix.allowAddRows = false;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=0, #1").toLooseEqual(0);
+    expect(matrix.rowCount, "rowCount=0, #1").toBe(0);
     allow = true;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=1, #2").toLooseEqual(1);
+    expect(matrix.rowCount, "rowCount=1, #2").toBe(1);
     allow = undefined;
     canAddRow = true;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=2, #3").toLooseEqual(2);
+    expect(matrix.rowCount, "rowCount=2, #3").toBe(2);
     canAddRow = undefined;
 
     matrix.allowAddRows = true;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=3, #4").toLooseEqual(3);
+    expect(matrix.rowCount, "rowCount=3, #4").toBe(3);
     allow = undefined;
     canAddRow = true;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=4, #5").toLooseEqual(4);
+    expect(matrix.rowCount, "rowCount=4, #5").toBe(4);
     canAddRow = undefined;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=5, #6").toLooseEqual(5);
+    expect(matrix.rowCount, "rowCount=5, #6").toBe(5);
 
     allow = undefined;
     canAddRow = false;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=5, #7").toLooseEqual(5);
+    expect(matrix.rowCount, "rowCount=5, #7").toBe(5);
     canAddRow = undefined;
     allow = false;
     matrix.addRow();
-    expect(matrix.rowCount, "rowCount=5, #8").toLooseEqual(5);
+    expect(matrix.rowCount, "rowCount=5, #8").toBe(5);
   });
 
   test("onMatrixRowRemoved. Added a case for Bug#2557", () => {
@@ -5330,9 +5330,9 @@ describe("Survey", () => {
     q1.addColumn("col1");
     q1.rowCount = 3;
     q1.removeRow(1);
-    expect(q1.rowCount, "there are two rows").toLooseEqual(2);
-    expect(removedRowIndex, "onMatrixRowRemoved event has been fired correctly").toLooseEqual(1);
-    expect(visibleRowsCount, "There should be two visible rows in event").toLooseEqual(2);
+    expect(q1.rowCount, "there are two rows").toBe(2);
+    expect(removedRowIndex, "onMatrixRowRemoved event has been fired correctly").toBe(1);
+    expect(visibleRowsCount, "There should be two visible rows in event").toBe(2);
   });
 
   test("onUpdatePanelCssClasses keeps original css - https://github.com/surveyjs/surveyjs/issues/1333", () => {
@@ -5350,16 +5350,16 @@ describe("Survey", () => {
     page.addElement(panel1);
     page.addElement(panel2);
     var css1 = panel1.cssClasses;
-    expect(css1.panel.container, "panel1 custom class").toLooseEqual("hereIam");
+    expect(css1.panel.container, "panel1 custom class").toBe("hereIam");
     var css2 = panel2.cssClasses;
-    expect(css2.panel.container, "keep original panel class").toLooseEqual("sv_p_container");
-    expect(css.panel.container, "keep original main css class").toLooseEqual("sv_p_container");
+    expect(css2.panel.container, "keep original panel class").toBe("sv_p_container");
+    expect(css.panel.container, "keep original main css class").toBe("sv_p_container");
   });
 
   test("css sets correctly if src key is object and dest key is string", () => {
     var survey = new SurveyModel();
     survey.css = { text: { root: "custom_class" } };
-    expect(survey.css["text"].root).toLooseEqual("custom_class");
+    expect(survey.css["text"].root).toBe("custom_class");
   });
 
   test("check setCss method without merge", () => {
@@ -5368,7 +5368,7 @@ describe("Survey", () => {
       navigation: {}
     };
     survey.setCss(newFullCss, false);
-    expect(survey.css).toLooseEqual(newFullCss);
+    expect(survey.css).toBe(newFullCss);
   });
 
   test("Apply css for questions on start page", () => {
@@ -5383,8 +5383,8 @@ describe("Survey", () => {
     survey.css = { text: { mainRoot: "custom_class" } };
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.cssRoot, "Appy css for the first page").toLooseEqual("custom_class");
-    expect(q1.cssRoot, "Appy css for the start page").toLooseEqual("custom_class");
+    expect(q2.cssRoot, "Appy css for the first page").toBe("custom_class");
+    expect(q1.cssRoot, "Appy css for the start page").toBe("custom_class");
   });
 
   test("onUpdatePageCssClasses is raised", () => {
@@ -5414,14 +5414,14 @@ describe("Survey", () => {
   );
     let textCss = textQuestion.cssClasses;
     const checkCss = checkQuestion.cssClasses;
-    expect(textCss.root, "text question root class").toLooseEqual("sv_q_text_root");
-    expect(textCss.title, "text question title class").toLooseEqual("sv_q_title");
-    expect(checkCss.root, "checkbox question root class").toLooseEqual("sv_qcbc sv_qcbx");
-    expect(checkCss.item, "checkbox question title class").toLooseEqual("sv_q_checkbox");
-    expect(checkCss.newItem, "checkbox question onUpdateQuestionCssClasses event called correctly").toLooseEqual("hereIam");
+    expect(textCss.root, "text question root class").toBe("sv_q_text_root");
+    expect(textCss.title, "text question title class").toBe("sv_q_title");
+    expect(checkCss.root, "checkbox question root class").toBe("sv_qcbc sv_qcbx");
+    expect(checkCss.item, "checkbox question title class").toBe("sv_q_checkbox");
+    expect(checkCss.newItem, "checkbox question onUpdateQuestionCssClasses event called correctly").toBe("hereIam");
     textQuestion.isRequired = true;
     textCss = textQuestion.cssClasses;
-    expect(textCss.title, "text question title class").toLooseEqual("sv_q_title required");
+    expect(textCss.title, "text question title class").toBe("sv_q_title required");
     css.question.titleRequired = "";
   });
 
@@ -5434,8 +5434,8 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     setOldTheme(survey);
-    expect(survey.getQuestionByName("q1").cssRoot, "text question root class - original").toLooseEqual("sv_q sv_qstn");
-    expect(survey.getQuestionByName("q2").cssRoot, "checkbox question root class - original").toLooseEqual("sv_q sv_qstn");
+    expect(survey.getQuestionByName("q1").cssRoot, "text question root class - original").toBe("sv_q sv_qstn");
+    expect(survey.getQuestionByName("q2").cssRoot, "checkbox question root class - original").toBe("sv_q sv_qstn");
 
     survey = new SurveyModel(json);
     setOldTheme(survey);
@@ -5446,8 +5446,8 @@ describe("Survey", () => {
       }
     });
 
-    expect(survey.getQuestionByName("q1").cssRoot, "text question root class").toLooseEqual("sv_q sv_qstn");
-    expect(survey.getQuestionByName("q2").cssRoot, "checkbox question root class").toLooseEqual("testMainRoot");
+    expect(survey.getQuestionByName("q1").cssRoot, "text question root class").toBe("sv_q sv_qstn");
+    expect(survey.getQuestionByName("q2").cssRoot, "checkbox question root class").toBe("testMainRoot");
   });
   test("Question onUpdateQuestionCssClasses, modify question props", () => {
     const survey = new SurveyModel();
@@ -5461,7 +5461,7 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     expect(q1.cssClasses, "cssClasses is created").toBeTruthy();
-    expect(q1.titleLocation, "titleLocation is changed").toLooseEqual("left");
+    expect(q1.titleLocation, "titleLocation is changed").toBe("left");
   });
 
   test("Use send data to custom server", () => {
@@ -5472,13 +5472,13 @@ describe("Survey", () => {
       options.showSaveInProgress();
     });
     survey.data = { question1: "sss" };
-    expect(survey.completedState, "The complete state is empty").toLooseEqual("");
+    expect(survey.completedState, "The complete state is empty").toBe("");
     survey.doComplete();
-    expect(survey.completedState, "The complete state is saving").toLooseEqual("saving");
+    expect(survey.completedState, "The complete state is saving").toBe("saving");
     onCompleteOptions.showSaveError();
-    expect(survey.completedState, "The complete state is error").toLooseEqual("error");
+    expect(survey.completedState, "The complete state is error").toBe("error");
     onCompleteOptions.showSaveSuccess();
-    expect(survey.completedState, "The complete state is success").toLooseEqual("success");
+    expect(survey.completedState, "The complete state is success").toBe("success");
   });
 
   test("Notify the user about the status of sending data to custom server", () => {
@@ -5497,23 +5497,23 @@ describe("Survey", () => {
       options.showSaveInProgress();
     });
     survey.data = { question1: "sss" };
-    expect(survey.completedState, "The complete state is empty").toLooseEqual("");
-    expect(notifierLog).toLooseEqual("");
+    expect(survey.completedState, "The complete state is empty").toBe("");
+    expect(notifierLog).toBe("");
     notifierLog = "";
 
     survey.doComplete();
-    expect(survey.completedState, "The complete state is saving").toLooseEqual("saving");
-    expect(notifierLog).toLooseEqual("The results are being saved on the server... - saving");
+    expect(survey.completedState, "The complete state is saving").toBe("saving");
+    expect(notifierLog).toBe("The results are being saved on the server... - saving");
     notifierLog = "";
 
     onCompleteOptions?.showDataSavingError();
-    expect(survey.completedState, "The complete state is error").toLooseEqual("error");
-    expect(notifierLog).toLooseEqual("An error occurred and we could not save the results. - error");
+    expect(survey.completedState, "The complete state is error").toBe("error");
+    expect(notifierLog).toBe("An error occurred and we could not save the results. - error");
     notifierLog = "";
 
     onCompleteOptions?.showDataSavingSuccess();
-    expect(survey.completedState, "The complete state is success").toLooseEqual("success");
-    expect(notifierLog).toLooseEqual("The results were saved successfully! - success");
+    expect(survey.completedState, "The complete state is success").toBe("success");
+    expect(notifierLog).toBe("The results were saved successfully! - success");
     notifierLog = "";
   });
 
@@ -5533,23 +5533,23 @@ describe("Survey", () => {
       options.showSaveInProgress();
     });
     survey.data = { question1: "sss" };
-    expect(survey.completedState, "The complete state is empty").toLooseEqual("");
-    expect(notifierLog).toLooseEqual("");
+    expect(survey.completedState, "The complete state is empty").toBe("");
+    expect(notifierLog).toBe("");
     notifierLog = "";
 
     survey.doComplete();
-    expect(survey.completedState, "The complete state is saving").toLooseEqual("saving");
-    expect(notifierLog).toLooseEqual("The results are being saved on the server... - saving");
+    expect(survey.completedState, "The complete state is saving").toBe("saving");
+    expect(notifierLog).toBe("The results are being saved on the server... - saving");
     notifierLog = "";
 
     onCompleteOptions?.showSaveError();
-    expect(survey.completedState, "The complete state is error").toLooseEqual("error");
-    expect(notifierLog).toLooseEqual("An error occurred and we could not save the results. - error");
+    expect(survey.completedState, "The complete state is error").toBe("error");
+    expect(notifierLog).toBe("An error occurred and we could not save the results. - error");
     notifierLog = "";
 
     onCompleteOptions?.showSaveSuccess();
-    expect(survey.completedState, "The complete state is success").toLooseEqual("success");
-    expect(notifierLog).toLooseEqual("The results were saved successfully! - success");
+    expect(survey.completedState, "The complete state is success").toBe("success");
+    expect(notifierLog).toBe("The results were saved successfully! - success");
     notifierLog = "";
   });
 
@@ -5590,7 +5590,7 @@ describe("Survey", () => {
     survey.getQuestionByName("teachersRate")
   );
     q1.addRow();
-    expect(q1.visibleRows[0].cells[0].question["renderAs"], "custom property should be passed to the question").toLooseEqual("select2tagbox");
+    expect(q1.visibleRows[0].cells[0].question["renderAs"], "custom property should be passed to the question").toBe("select2tagbox");
   });
 
   test("Pass text as survey json", () => {
@@ -5598,7 +5598,7 @@ describe("Survey", () => {
       '{ "elements": [ {"type": "text", "name": "q1"}]}'
     );
     var q1 = survey.getQuestionByName("q1");
-    expect(q1.name, "The survey created from the string").toLooseEqual("q1");
+    expect(q1.name, "The survey created from the string").toBe("q1");
   });
 
   test("Clear value if empty array is set, Bug #608", () => {
@@ -5616,24 +5616,24 @@ describe("Survey", () => {
     question.title = "{var1}";
     question.description = "{var1}";
     survey.setVariable("var1", "It is var1");
-    expect(question.locTitle.renderedHtml, "Title: Variable is applied").toLooseEqual("It is var1");
-    expect(question.locDescription.renderedHtml, "Decription: Variable is applied").toLooseEqual("It is var1");
+    expect(question.locTitle.renderedHtml, "Title: Variable is applied").toBe("It is var1");
+    expect(question.locDescription.renderedHtml, "Decription: Variable is applied").toBe("It is var1");
   });
 
   test("Set defaultValue on loading from JSON, on adding into survey and on setting defaultValue property", () => {
     var survey = new SurveyModel({
       elements: [{ type: "text", name: "q1", defaultValue: "your_name" }],
     });
-    expect(survey.getValue("q1"), "on loading from JSON").toLooseEqual("your_name");
+    expect(survey.getValue("q1"), "on loading from JSON").toBe("your_name");
     var q2 = new QuestionTextModel("q2");
     q2.defaultValue = "my_name";
     survey.pages[0].addElement(q2);
-    expect(survey.getValue("q2"), "on adding question into suvey").toLooseEqual("my_name");
+    expect(survey.getValue("q2"), "on adding question into suvey").toBe("my_name");
     var q3 = <Question>survey.pages[0].addNewQuestion("text", "q3");
     q3.defaultValue = "her_name";
-    expect(survey.getValue("q3"), "on setting the default value").toLooseEqual("her_name");
+    expect(survey.getValue("q3"), "on setting the default value").toBe("her_name");
     q3.defaultValue = "his_name";
-    expect(survey.getValue("q3"), "the value doesn't changed, since it was not empty").toLooseEqual("her_name");
+    expect(survey.getValue("q3"), "the value doesn't changed, since it was not empty").toBe("her_name");
   });
   test("Set defaultValue in design-time", () => {
     var survey = new SurveyModel();
@@ -5643,7 +5643,7 @@ describe("Survey", () => {
     survey.pages[0].addElement(q1);
     expect(q1.defaultValue, "There is no default value").toBeFalsy();
     q1.defaultValue = "my_name";
-    expect(survey.getValue("q1"), "the value is set").toLooseEqual("my_name");
+    expect(survey.getValue("q1"), "the value is set").toBe("my_name");
     q1.defaultValue = null;
     expect(survey.getValue("q1"), "the value is reset").toBeFalsy();
   });
@@ -5653,10 +5653,10 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "q1", defaultValue: "defValue" }],
     };
     var survey = new SurveyModel(json);
-    expect(survey.getValue("q1"), "the value is set").toLooseEqual("defValue");
+    expect(survey.getValue("q1"), "the value is set").toBe("defValue");
     survey.doComplete();
     survey.clear(true);
-    expect(survey.getValue("q1"), "the value is set after clear, #1163").toLooseEqual("defValue");
+    expect(survey.getValue("q1"), "the value is set after clear, #1163").toBe("defValue");
   });
 
   test("defaultValue + survey.clear() + 'other'", () => {
@@ -5682,9 +5682,9 @@ describe("Survey", () => {
     expect(survey.data, "check initial state").toEqualValues({ q1: "other", q2: ["other"] });
     survey.getQuestionByName("q1").otherValue = "comment1";
     survey.getQuestionByName("q2").otherValue = "comment2";
-    expect(survey.getQuestionByName("q1").getPropertyValue("comment")).toLooseEqual("comment1");
+    expect(survey.getQuestionByName("q1").getPropertyValue("comment")).toBe("comment1");
     survey.clear();
-    expect(survey.getQuestionByName("q1").getPropertyValue("comment")).toLooseEqual("");
+    expect(survey.getQuestionByName("q1").getPropertyValue("comment")).toBe("");
     expect(survey.data, "clear comments").toEqualValues({ q1: "other", q2: ["other"] });
   });
 
@@ -5698,50 +5698,50 @@ describe("Survey", () => {
       valueChangedCounter++;
       options.question.validate(true);
     });
-    expect(q.errors.length, "There is no errors so far").toLooseEqual(0);
+    expect(q.errors.length, "There is no errors so far").toBe(0);
     q.value = "26";
-    expect(q.errors.length, "There should be one error").toLooseEqual(1);
-    expect(valueChangedCounter, "on value changed called one time").toLooseEqual(1);
-    expect(q.value, "the value is 26").toLooseEqual(26);
+    expect(q.errors.length, "There should be one error").toBe(1);
+    expect(valueChangedCounter, "on value changed called one time").toBe(1);
+    expect(q.value, "the value is 26").toBe("26");
   });
 
   test("Auto generate names for question/panel/page", () => {
     var survey = new SurveyModel();
     var page1 = survey.addNewPage();
-    expect(survey.pages[0].name, "the first name is page1").toLooseEqual("page1");
+    expect(survey.pages[0].name, "the first name is page1").toBe("page1");
     var page2 = survey.addNewPage();
-    expect(survey.pages[1].name, "the second name is page2").toLooseEqual("page2");
+    expect(survey.pages[1].name, "the second name is page2").toBe("page2");
     survey.pages[0].name = "newpage";
     var page3 = survey.addNewPage();
-    expect(survey.pages[2].name, "the third name is page1 again").toLooseEqual("page1");
+    expect(survey.pages[2].name, "the third name is page1 again").toBe("page1");
 
     page1.addNewQuestion("text");
     page1.addNewQuestion("text");
     page3.addNewQuestion("text");
-    expect(survey.getAllQuestions()[0].name, "the first name is question1").toLooseEqual("question1");
-    expect(survey.getAllQuestions()[1].name, "the second name is question2").toLooseEqual("question2");
-    expect(survey.getAllQuestions()[2].name, "the third name is question3").toLooseEqual("question3");
+    expect(survey.getAllQuestions()[0].name, "the first name is question1").toBe("question1");
+    expect(survey.getAllQuestions()[1].name, "the second name is question2").toBe("question2");
+    expect(survey.getAllQuestions()[2].name, "the third name is question3").toBe("question3");
 
     var panel1 = page1.addNewPanel();
     var panel2 = panel1.addNewPanel();
     var panel3 = page2.addNewPanel();
-    expect(panel1.name, "the first name is panel1").toLooseEqual("panel1");
-    expect(panel2.name, "the second name is panel2").toLooseEqual("panel2");
-    expect(panel3.name, "the third name is panel3").toLooseEqual("panel3");
+    expect(panel1.name, "the first name is panel1").toBe("panel1");
+    expect(panel2.name, "the second name is panel2").toBe("panel2");
+    expect(panel3.name, "the third name is panel3").toBe("panel3");
   });
 
   test("clearInvisibleValues", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage();
     var question = <Question>page.addNewQuestion("text");
-    expect(survey.clearInvisibleValues, "the default value").toLooseEqual("onComplete");
+    expect(survey.clearInvisibleValues, "the default value").toBe("onComplete");
     survey.clearInvisibleValues = true;
-    expect(survey.clearInvisibleValues, "true is onComplete").toLooseEqual("onComplete");
+    expect(survey.clearInvisibleValues, "true is onComplete").toBe("onComplete");
     survey.clearInvisibleValues = false;
-    expect(survey.clearInvisibleValues, "false is none").toLooseEqual("none");
+    expect(survey.clearInvisibleValues, "false is none").toBe("none");
     question.value = "val";
     question.visible = false;
-    expect(question.value, "none - nothing happened").toLooseEqual("val");
+    expect(question.value, "none - nothing happened").toBe("val");
     question.visible = true;
     survey.clearInvisibleValues = "onHidden";
     question.visible = false;
@@ -5750,7 +5750,7 @@ describe("Survey", () => {
     question.value = "val";
     survey.clearInvisibleValues = "onComplete";
     question.visible = false;
-    expect(question.value, "onComplete - nothing happened").toLooseEqual("val");
+    expect(question.value, "onComplete - nothing happened").toBe("val");
     survey.doComplete();
     expect(question.value, "onComplete - clear on complete").toBeFalsy();
   });
@@ -5769,18 +5769,18 @@ describe("Survey", () => {
   });
   test("required text can be empty: Bug #693", () => {
     var survey = new SurveyModel();
-    expect(survey.requiredMark, "The default value is '*'").toLooseEqual("*");
+    expect(survey.requiredMark, "The default value is '*'").toBe("*");
     survey.requiredMark = "";
-    expect(survey.requiredMark, "The value is empty string").toLooseEqual("");
+    expect(survey.requiredMark, "The value is empty string").toBe("");
     survey.requiredMark = null;
-    expect(survey.requiredMark, "The value is again default").toLooseEqual("*");
+    expect(survey.requiredMark, "The value is again default").toBe("*");
   });
   test("Set 0 value into survey.data", () => {
     var survey = new SurveyModel();
     var p = survey.addNewPage();
     var q = <QuestionTextModel>p.addNewQuestion("text", "q1");
     survey.data = { q1: 0 };
-    expect(q.value, "0 value is set").toLooseEqual(0);
+    expect(q.value, "0 value is set").toBe(0);
   });
   test("Parent property in question", () => {
     var survey = new SurveyModel();
@@ -5788,11 +5788,11 @@ describe("Survey", () => {
     var panel = page.addNewPanel("panel");
     var panel2 = panel.addNewPanel("panel2");
     var q = panel2.addNewQuestion("text");
-    expect(q.parent.name).toLooseEqual("panel2");
+    expect(q.parent.name).toBe("panel2");
     panel2.removeElement(q);
     expect(q.parent).toBeFalsy();
     panel.addElement(q);
-    expect(q.parent.name).toLooseEqual("panel");
+    expect(q.parent.name).toBe("panel");
   });
   test("Remove question from it's previous container before adding to a new one", () => {
     var survey = new SurveyModel();
@@ -5800,12 +5800,12 @@ describe("Survey", () => {
     var panel1 = page.addNewPanel("panel1");
     var panel2 = page.addNewPanel("panel2");
     var q = panel1.addNewQuestion("text");
-    expect(q.parent.name).toLooseEqual("panel1");
-    expect(panel1.elements.length, "There is one element").toLooseEqual(1);
+    expect(q.parent.name).toBe("panel1");
+    expect(panel1.elements.length, "There is one element").toBe(1);
     panel2.addElement(q);
-    expect(q.parent.name).toLooseEqual("panel2");
-    expect(panel2.elements.length, "There is one element in panel2").toLooseEqual(1);
-    expect(panel1.elements.length, "There is no elements in panel1").toLooseEqual(0);
+    expect(q.parent.name).toBe("panel2");
+    expect(panel2.elements.length, "There is one element in panel2").toBe(1);
+    expect(panel1.elements.length, "There is no elements in panel1").toBe(0);
   });
   test("Page property in question", () => {
     var survey = new SurveyModel();
@@ -5815,11 +5815,11 @@ describe("Survey", () => {
     var panel2 = panel.addNewPanel("panel2");
     var q = panel2.addNewQuestion("text");
     expect(page1.questions.indexOf(q) > -1, "The question is in the first page").toBeTruthy();
-    expect(q.page.name, "The page is set correctly").toLooseEqual(page1.name);
+    expect(q.page.name, "The page is set correctly").toBe(page1.name);
     q.page = page2;
     expect(page2.questions.indexOf(q) > -1, "The question is in the second page").toBeTruthy();
     expect(page1.questions.indexOf(q) > -1, "The question is not in the first page").toBeFalsy();
-    expect(q.page.name, "The page was changed").toLooseEqual(page2.name);
+    expect(q.page.name, "The page was changed").toBe(page2.name);
   });
 
   test("Define questionTitleLocation on Panel/Page level", () => {
@@ -5828,23 +5828,23 @@ describe("Survey", () => {
     var panel = page.addNewPanel("panel");
     var panel2 = panel.addNewPanel("panel2");
     var q = <Question>panel2.addNewQuestion("text");
-    expect(q.getTitleLocation(), "get from survey").toLooseEqual("top");
+    expect(q.getTitleLocation(), "get from survey").toBe("top");
     panel2.questionTitleLocation = "bottom";
-    expect(q.getTitleLocation(), "get from panel 2").toLooseEqual("bottom");
+    expect(q.getTitleLocation(), "get from panel 2").toBe("bottom");
     panel2.questionTitleLocation = "default";
-    expect(q.getTitleLocation(), "get from survey").toLooseEqual("top");
+    expect(q.getTitleLocation(), "get from survey").toBe("top");
     panel.questionTitleLocation = "bottom";
-    expect(q.getTitleLocation(), "get from panel").toLooseEqual("bottom");
+    expect(q.getTitleLocation(), "get from panel").toBe("bottom");
     panel.questionTitleLocation = "default";
-    expect(q.getTitleLocation(), "get from survey").toLooseEqual("top");
+    expect(q.getTitleLocation(), "get from survey").toBe("top");
     page.questionTitleLocation = "bottom";
-    expect(q.getTitleLocation(), "get from page").toLooseEqual("bottom");
+    expect(q.getTitleLocation(), "get from page").toBe("bottom");
     page.questionTitleLocation = "default";
-    expect(q.getTitleLocation(), "get from survey").toLooseEqual("top");
+    expect(q.getTitleLocation(), "get from survey").toBe("top");
     q.titleLocation = "bottom";
-    expect(q.getTitleLocation(), "get from question").toLooseEqual("bottom");
+    expect(q.getTitleLocation(), "get from question").toBe("bottom");
     q.titleLocation = "default";
-    expect(q.getTitleLocation(), "get from survey again").toLooseEqual("top");
+    expect(q.getTitleLocation(), "get from survey again").toBe("top");
   });
 
   test("Define questionTitleWidth on Panel/Page level", () => {
@@ -5855,21 +5855,21 @@ describe("Survey", () => {
     const q = <Question>panel2.addNewQuestion("text");
     page.questionTitleLocation = "left";
 
-    expect(q.titleWidth, "init").toLooseEqual(undefined);
+    expect(q.titleWidth, "init").toBeUndefined();
     page.questionTitleWidth = "500px";
-    expect(q.titleWidth, "get from page").toLooseEqual("500px");
+    expect(q.titleWidth, "get from page").toBe("500px");
 
     panel.questionTitleWidth = "50%";
-    expect(q.titleWidth, "get from panel").toLooseEqual("50%");
+    expect(q.titleWidth, "get from panel").toBe("50%");
 
     panel2.questionTitleWidth = "200px";
-    expect(q.titleWidth, "get from panel2").toLooseEqual("200px");
+    expect(q.titleWidth, "get from panel2").toBe("200px");
 
     panel2.questionTitleWidth = "300";
-    expect(q.titleWidth, "titleWidth with px").toLooseEqual("300px");
+    expect(q.titleWidth, "titleWidth with px").toBe("300px");
 
     q.titleLocation = "top";
-    expect(q.titleWidth, "titleWidth available if titleLocation is left").toLooseEqual(undefined);
+    expect(q.titleWidth, "titleWidth available if titleLocation is left").toBeUndefined();
   });
 
   test("availableQuestionTitleWidth on Panel/Page", () => {
@@ -5879,20 +5879,20 @@ describe("Survey", () => {
     const panel2 = panel.addNewPanel("panel2");
     const q = <Question>panel.addNewQuestion("text");
 
-    expect(page.availableQuestionTitleWidth(), "page").toLooseEqual(false);
-    expect(panel.availableQuestionTitleWidth(), "panel1").toLooseEqual(false);
-    expect(panel2.availableQuestionTitleWidth(), "panel2").toLooseEqual(false);
+    expect(page.availableQuestionTitleWidth(), "page").toBe(false);
+    expect(panel.availableQuestionTitleWidth(), "panel1").toBe(false);
+    expect(panel2.availableQuestionTitleWidth(), "panel2").toBe(false);
 
     q.titleLocation = "left";
-    expect(page.availableQuestionTitleWidth(), "page").toLooseEqual(true);
-    expect(panel.availableQuestionTitleWidth(), "panel1").toLooseEqual(true);
-    expect(panel2.availableQuestionTitleWidth(), "panel2").toLooseEqual(false);
+    expect(page.availableQuestionTitleWidth(), "page").toBe(true);
+    expect(panel.availableQuestionTitleWidth(), "panel1").toBe(true);
+    expect(panel2.availableQuestionTitleWidth(), "panel2").toBe(false);
 
     q.titleLocation = "top";
     page.questionTitleLocation = "left";
-    expect(page.availableQuestionTitleWidth(), "page").toLooseEqual(true);
-    expect(panel.availableQuestionTitleWidth(), "panel1").toLooseEqual(true);
-    expect(panel2.availableQuestionTitleWidth(), "panel2").toLooseEqual(true);
+    expect(page.availableQuestionTitleWidth(), "page").toBe(true);
+    expect(panel.availableQuestionTitleWidth(), "panel1").toBe(true);
+    expect(panel2.availableQuestionTitleWidth(), "panel2").toBe(true);
   });
 
   test("Question property.page getChoices", () => {
@@ -5903,7 +5903,7 @@ describe("Survey", () => {
     survey.addNewPage("p2");
     survey.addNewPage("p3");
     var q = survey.pages[0].addNewQuestion("text", "q1");
-    expect(property.getChoices(q).length, "There are 3 pages").toLooseEqual(3);
+    expect(property.getChoices(q).length, "There are 3 pages").toBe(3);
   });
 
   test("firstPageIsStartPage = true", () => {
@@ -5912,18 +5912,18 @@ describe("Survey", () => {
       let page = survey.addNewPage("p" + i + 1);
       page.addNewQuestion("text");
     }
-    expect(survey.visiblePages.length, "There are 3 visible pages").toLooseEqual(3);
-    expect(survey.pages[0].isVisible, "The first page is visible").toLooseEqual(true);
-    expect(survey.state, "Survey is running").toLooseEqual("running");
+    expect(survey.visiblePages.length, "There are 3 visible pages").toBe(3);
+    expect(survey.pages[0].isVisible, "The first page is visible").toBe(true);
+    expect(survey.state, "Survey is running").toBe("running");
     survey.firstPageIsStartPage = true;
-    expect(survey.pages[0].isVisible, "The first page is visible").toLooseEqual(true);
-    expect(survey.pages[0].isStarted, "The first page is started").toLooseEqual(true);
-    expect(survey.visiblePages.length, "There are 2 visible pages").toLooseEqual(2);
-    expect(survey.state, "Survey is showing the start page").toLooseEqual("starting");
+    expect(survey.pages[0].isVisible, "The first page is visible").toBe(true);
+    expect(survey.pages[0].isStarted, "The first page is started").toBe(true);
+    expect(survey.visiblePages.length, "There are 2 visible pages").toBe(2);
+    expect(survey.state, "Survey is showing the start page").toBe("starting");
     survey.firstPageIsStartPage = false;
-    expect(survey.visiblePages.length, "There are 3 visible pages").toLooseEqual(3);
-    expect(survey.pages[0].isVisible, "The first page is visible").toLooseEqual(true);
-    expect(survey.state, "Survey is running").toLooseEqual("running");
+    expect(survey.visiblePages.length, "There are 3 visible pages").toBe(3);
+    expect(survey.pages[0].isVisible, "The first page is visible").toBe(true);
+    expect(survey.state, "Survey is running").toBe("running");
     survey.firstPageIsStartPage = true;
   });
 
@@ -5940,22 +5940,22 @@ describe("Survey", () => {
     survey.onStarted.add(function (sender) {
       startCounter++;
     });
-    expect(survey.pages[0].isVisible, "The first page is visible").toLooseEqual(true);
-    expect(survey.pages[0].isStarted, "The first page is visible").toLooseEqual(true);
-    expect(survey.visiblePages.length, "There is one visible page").toLooseEqual(1);
-    expect(survey.state, "Survey is showing the start page").toLooseEqual("starting");
-    expect(startCounter, "onStarted event was not called yet").toLooseEqual(0);
+    expect(survey.pages[0].isVisible, "The first page is visible").toBe(true);
+    expect(survey.pages[0].isStarted, "The first page is visible").toBe(true);
+    expect(survey.visiblePages.length, "There is one visible page").toBe(1);
+    expect(survey.state, "Survey is showing the start page").toBe("starting");
+    expect(startCounter, "onStarted event was not called yet").toBe(0);
     survey.start();
-    expect(startCounter, "onStarted event was called one time").toLooseEqual(1);
-    expect(survey.state, "Survey is running").toLooseEqual("running");
-    expect(survey.currentPage.name, "The page1 is current").toLooseEqual("page1");
+    expect(startCounter, "onStarted event was called one time").toBe(1);
+    expect(survey.state, "Survey is running").toBe("running");
+    expect(survey.currentPage.name, "The page1 is current").toBe("page1");
     survey.prevPage();
-    expect(survey.currentPage.name, "Could not come back to the start page").toLooseEqual("page1");
-    expect(survey.state, "Survey is running").toLooseEqual("running");
+    expect(survey.currentPage.name, "Could not come back to the start page").toBe("page1");
+    expect(survey.state, "Survey is running").toBe("running");
     survey.doComplete();
     survey.clear();
-    expect(survey.state, "Survey is showing the start page").toLooseEqual("starting");
-    expect(startCounter, "onStarted event was called one time total").toLooseEqual(1);
+    expect(survey.state, "Survey is showing the start page").toBe("starting");
+    expect(startCounter, "onStarted event was called one time total").toBe(1);
   });
 
   test("question.valueName property", () => {
@@ -5964,7 +5964,7 @@ describe("Survey", () => {
     var page = survey.addNewPage("p1");
     var question = <Question>page.addNewQuestion("text", "q1");
     question.valueName = "val";
-    expect(question.value, "The value is taken by using valueName").toLooseEqual("val1");
+    expect(question.value, "The value is taken by using valueName").toBe("val1");
   });
   test("pre process title, with question.valueName", () => {
     var survey = new SurveyModel();
@@ -5973,7 +5973,7 @@ describe("Survey", () => {
     question.valueName = "name";
     survey.data = { name: "John" };
     survey.title = "Hello {name}";
-    expect(survey.processedTitle, "process survey title correctly").toLooseEqual("Hello John");
+    expect(survey.processedTitle, "process survey title correctly").toBe("Hello John");
   });
 
   test("Survey text preprocessing, dropdown/checkbox/radiogroup, with question.valueName", () => {
@@ -5993,33 +5993,33 @@ describe("Survey", () => {
     ];
     var q3 = <Question>page.addNewQuestion("text", "q3");
     q3.title = "{name1}-{name2}";
-    expect(q3.locTitle.renderedHtml, "There is no values").toLooseEqual("-");
+    expect(q3.locTitle.renderedHtml, "There is no values").toBe("-");
     q1.value = 1;
-    expect(q3.locTitle.renderedHtml, "Drop down value is set").toLooseEqual("Item 1-");
+    expect(q3.locTitle.renderedHtml, "Drop down value is set").toBe("Item 1-");
     q2.value = [3, 4];
-    expect(q3.locTitle.renderedHtml, "Drop down value is set").toLooseEqual("Item 1-Item 3, Item 4");
+    expect(q3.locTitle.renderedHtml, "Drop down value is set").toBe("Item 1-Item 3, Item 4");
   });
 
   test("Survey show several pages as one", () => {
     var survey = twoPageSimplestSurvey();
     survey.isSinglePage = true;
-    expect(survey.visiblePages.length, "You have one page").toLooseEqual(1);
+    expect(survey.visiblePages.length, "You have one page").toBe(1);
     var page = survey.visiblePages[0];
-    expect(page.elements.length, "two pages has converted into two panels").toLooseEqual(2);
-    expect(page.questions.length, "there are 4 questions on the page").toLooseEqual(4);
+    expect(page.elements.length, "two pages has converted into two panels").toBe(2);
+    expect(page.questions.length, "there are 4 questions on the page").toBe(4);
   });
 
   test("Survey show several pages as one, set and reset", () => {
     var survey = twoPageSimplestSurvey();
     survey.isSinglePage = true;
     survey.isSinglePage = false;
-    expect(survey.visiblePages.length, "We have still two pages").toLooseEqual(2);
+    expect(survey.visiblePages.length, "We have still two pages").toBe(2);
     var page = survey.visiblePages[0];
-    expect(page.questions.length, "there are 2 questions on the page").toLooseEqual(2);
+    expect(page.questions.length, "there are 2 questions on the page").toBe(2);
     survey.isSinglePage = true;
-    expect(survey.visiblePages.length, "Single page").toLooseEqual(1);
+    expect(survey.visiblePages.length, "Single page").toBe(1);
     survey.setDesignMode(true);
-    expect(survey.visiblePages.length, "We have still two pages again").toLooseEqual(2);
+    expect(survey.visiblePages.length, "We have still two pages again").toBe(2);
   });
 
   test("Survey show several pages as one + firstPageIsStartPage", () => {
@@ -6030,11 +6030,11 @@ describe("Survey", () => {
     survey.pages.push(thirdPage);
     survey.firstPageIsStartPage = true;
     survey.isSinglePage = true;
-    expect(survey.pages.length, "We have two pages here").toLooseEqual(3);
-    expect(survey.visiblePages.length, "You have one page").toLooseEqual(1);
+    expect(survey.pages.length, "We have two pages here").toBe(3);
+    expect(survey.visiblePages.length, "You have one page").toBe(1);
     var page = survey.visiblePages[0];
-    expect(page.elements.length, "two pages has converted into two panels").toLooseEqual(2);
-    expect(page.questions.length, "there are 4 questions on the page").toLooseEqual(4);
+    expect(page.elements.length, "two pages has converted into two panels").toBe(2);
+    expect(page.questions.length, "there are 4 questions on the page").toBe(4);
   });
 
   test("Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925", () => {
@@ -6096,12 +6096,12 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     survey.isSinglePage = true;
-    expect((<Question>survey.getQuestionByName("InvestorType")).visibleIndex, "The first question").toLooseEqual(0);
+    expect((<Question>survey.getQuestionByName("InvestorType")).visibleIndex, "The first question").toBe(0);
     survey.setValue("InvestorType", "entity");
     var q3 = survey.getQuestionByName("q3");
-    expect((<Question>survey.getQuestionByName("q1")).visibleIndex, "The second question").toLooseEqual(1);
-    expect((<Question>survey.getQuestionByName("q2")).visibleIndex, "The third question is invisible because of panel").toLooseEqual(-1);
-    expect((<Question>survey.getQuestionByName("q3")).visibleIndex, "The forth question").toLooseEqual(2);
+    expect((<Question>survey.getQuestionByName("q1")).visibleIndex, "The second question").toBe(1);
+    expect((<Question>survey.getQuestionByName("q2")).visibleIndex, "The third question is invisible because of panel").toBe(-1);
+    expect((<Question>survey.getQuestionByName("q3")).visibleIndex, "The forth question").toBe(2);
   });
 
   test("Survey.isSinglePage = true, the last page doesn't added, bug#1009", () => {
@@ -6138,9 +6138,9 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     survey.isSinglePage = true;
-    expect(survey.currentPage.questions.length, "There are 3 elements on the single page").toLooseEqual(3);
-    expect(survey.currentPage.rows.length, "There are 3 rows on the page").toLooseEqual(3);
-    expect(survey.currentPage.rows[2].visible, "The last row is visible").toLooseEqual(true);
+    expect(survey.currentPage.questions.length, "There are 3 elements on the single page").toBe(3);
+    expect(survey.currentPage.rows.length, "There are 3 rows on the page").toBe(3);
+    expect(survey.currentPage.rows[2].visible, "The last row is visible").toBe(true);
   });
 
   test("isSinglePage = true and survey.showPageTitles = false, Bug#1914", () => {
@@ -6150,29 +6150,29 @@ describe("Survey", () => {
     survey.showPageTitles = false;
     survey.isSinglePage = true;
     var panels = survey.currentPage.elements;
-    expect(panels.length, "There are two panels").toLooseEqual(2);
-    expect((<PanelModel>panels[0]).hasTitle, "Panel1 title is hidden").toLooseEqual(false);
-    expect((<PanelModel>panels[1]).hasTitle, "Panel2 title is hidden").toLooseEqual(false);
+    expect(panels.length, "There are two panels").toBe(2);
+    expect((<PanelModel>panels[0]).hasTitle, "Panel1 title is hidden").toBe(false);
+    expect((<PanelModel>panels[1]).hasTitle, "Panel2 title is hidden").toBe(false);
   });
   test("check synhronization properties isSinglePage and questionsOnPageMode", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey.isSinglePage, "isSinglePage is false by default").toLooseEqual(false);
-    expect(survey.questionsOnPageMode, "questionsOnPageMode is 'standard' by default").toLooseEqual("standard");
+    expect(survey.isSinglePage, "isSinglePage is false by default").toBe(false);
+    expect(survey.questionsOnPageMode, "questionsOnPageMode is 'standard' by default").toBe("standard");
     survey.isSinglePage = true;
-    expect(survey.isSinglePage, "set isSinglePage to true").toLooseEqual(true);
-    expect(survey.questionsOnPageMode, "questionsOnPageMode is 'singlePage' on setting isSinglePage to true").toLooseEqual("singlePage");
+    expect(survey.isSinglePage, "set isSinglePage to true").toBe(true);
+    expect(survey.questionsOnPageMode, "questionsOnPageMode is 'singlePage' on setting isSinglePage to true").toBe("singlePage");
     survey.isSinglePage = false;
-    expect(survey.isSinglePage, "set isSinglePage to false").toLooseEqual(false);
-    expect(survey.questionsOnPageMode, "questionsOnPageMode is 'standard' on setting isSinglePage to false").toLooseEqual("standard");
+    expect(survey.isSinglePage, "set isSinglePage to false").toBe(false);
+    expect(survey.questionsOnPageMode, "questionsOnPageMode is 'standard' on setting isSinglePage to false").toBe("standard");
     survey.questionsOnPageMode = "singlePage";
-    expect(survey.questionsOnPageMode, "set questionsOnPageMode to 'singlePage'").toLooseEqual("singlePage");
-    expect(survey.isSinglePage, "isSinglePage is true on setting questionsOnPageMode to 'singlePage'").toLooseEqual(true);
+    expect(survey.questionsOnPageMode, "set questionsOnPageMode to 'singlePage'").toBe("singlePage");
+    expect(survey.isSinglePage, "isSinglePage is true on setting questionsOnPageMode to 'singlePage'").toBe(true);
     survey.questionsOnPageMode = "questionPerPage";
-    expect(survey.questionsOnPageMode, "set questionsOnPageMode to 'questionPerPage'").toLooseEqual("questionPerPage");
-    expect(survey.isSinglePage, "isSinglePage is false on setting questionsOnPageMode to 'questionPerPage'").toLooseEqual(false);
+    expect(survey.questionsOnPageMode, "set questionsOnPageMode to 'questionPerPage'").toBe("questionPerPage");
+    expect(survey.isSinglePage, "isSinglePage is false on setting questionsOnPageMode to 'questionPerPage'").toBe(false);
     survey.questionsOnPageMode = "standard";
-    expect(survey.questionsOnPageMode, "set questionsOnPageMode to 'standard'").toLooseEqual("standard");
-    expect(survey.isSinglePage, "isSinglePage is false on setting questionsOnPageMode to 'standard'").toLooseEqual(false);
+    expect(survey.questionsOnPageMode, "set questionsOnPageMode to 'standard'").toBe("standard");
+    expect(survey.isSinglePage, "isSinglePage is false on setting questionsOnPageMode to 'standard'").toBe(false);
   });
 
   test("survey.isSinglePage revert and other value", () => {
@@ -6191,8 +6191,8 @@ describe("Survey", () => {
     question.value = "other";
     question.otherValue = "other2";
     survey.isSinglePage = true;
-    expect(survey.storeOthersAsComment, "Keep storeOthersAsComment false").toLooseEqual(false);
-    expect(survey.getValue("q1")).toLooseEqual("other2");
+    expect(survey.storeOthersAsComment, "Keep storeOthersAsComment false").toBe(false);
+    expect(survey.getValue("q1")).toEqualValues(["other2"]);
     question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
     expect(question.value, "question value").toEqualValues(["other2"]);
     expect(question.renderedValue, "question renderedValue").toEqualValues(["other"]);
@@ -6221,73 +6221,73 @@ describe("Survey", () => {
     const survey = twoPageSimplestSurvey();
     const questions = survey.getAllQuestions(true);
     survey.questionsOnPageMode = "questionOnPage";
-    expect(survey.pages.length, "We have the same number of pages").toLooseEqual(2);
-    expect(survey.isSingleVisibleQuestion, "it is single visible question mode").toLooseEqual(true);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toLooseEqual(questions[0].name);
-    expect(survey.pages[0].rows.length, "rows.length, #1").toLooseEqual(1);
-    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #1").toLooseEqual(questions[0].name);
-    expect(survey.isShowPrevButton, "prev buttton, #1").toLooseEqual(false);
-    expect(survey.isShowNextButton, "next buttton, #1").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "next buttton, #1").toLooseEqual(false);
+    expect(survey.pages.length, "We have the same number of pages").toBe(2);
+    expect(survey.isSingleVisibleQuestion, "it is single visible question mode").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toBe(questions[0].name);
+    expect(survey.pages[0].rows.length, "rows.length, #1").toBe(1);
+    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #1").toBe(questions[0].name);
+    expect(survey.isShowPrevButton, "prev buttton, #1").toBe(false);
+    expect(survey.isShowNextButton, "next buttton, #1").toBe(true);
+    expect(survey.isCompleteButtonVisible, "next buttton, #1").toBe(false);
     survey.performNext();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #2").toLooseEqual(questions[1].name);
-    expect(survey.pages[0].rows.length, "rows.length, #2").toLooseEqual(1);
-    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #2").toLooseEqual(questions[1].name);
-    expect(survey.isShowPrevButton, "prev buttton, #2").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next buttton, #2").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "next buttton, #2").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #2").toBe(questions[1].name);
+    expect(survey.pages[0].rows.length, "rows.length, #2").toBe(1);
+    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #2").toBe(questions[1].name);
+    expect(survey.isShowPrevButton, "prev buttton, #2").toBe(true);
+    expect(survey.isShowNextButton, "next buttton, #2").toBe(true);
+    expect(survey.isCompleteButtonVisible, "next buttton, #2").toBe(false);
     survey.performNext();
-    expect(survey.currentPage.name, "currentSingleQuestion, #3").toLooseEqual("Page 2");
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #3").toLooseEqual(questions[2].name);
-    expect(survey.pages[1].rows.length, "rows.length, #3").toLooseEqual(1);
-    expect(survey.pages[1].rows[0].elements[0].name, "rows element, #3").toLooseEqual(questions[2].name);
-    expect(survey.isShowPrevButton, "prev buttton, #3").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next buttton, #3").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "next buttton, #3").toLooseEqual(false);
+    expect(survey.currentPage.name, "currentSingleQuestion, #3").toBe("Page 2");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #3").toBe(questions[2].name);
+    expect(survey.pages[1].rows.length, "rows.length, #3").toBe(1);
+    expect(survey.pages[1].rows[0].elements[0].name, "rows element, #3").toBe(questions[2].name);
+    expect(survey.isShowPrevButton, "prev buttton, #3").toBe(true);
+    expect(survey.isShowNextButton, "next buttton, #3").toBe(true);
+    expect(survey.isCompleteButtonVisible, "next buttton, #3").toBe(false);
     survey.performNext();
-    expect(survey.currentPage.name, "currentSingleQuestion, #4").toLooseEqual("Page 2");
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #4").toLooseEqual(questions[3].name);
-    expect(survey.pages[1].rows.length, "rows.length, #4").toLooseEqual(1);
-    expect(survey.pages[1].rows[0].elements[0].name, "rows element, #4").toLooseEqual(questions[3].name);
-    expect(survey.isShowPrevButton, "prev buttton, #4").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next buttton, #4").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "next buttton, #4").toLooseEqual(true);
+    expect(survey.currentPage.name, "currentSingleQuestion, #4").toBe("Page 2");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #4").toBe(questions[3].name);
+    expect(survey.pages[1].rows.length, "rows.length, #4").toBe(1);
+    expect(survey.pages[1].rows[0].elements[0].name, "rows element, #4").toBe(questions[3].name);
+    expect(survey.isShowPrevButton, "prev buttton, #4").toBe(true);
+    expect(survey.isShowNextButton, "next buttton, #4").toBe(false);
+    expect(survey.isCompleteButtonVisible, "next buttton, #4").toBe(true);
     survey.performPrevious();
-    expect(survey.currentPage.name, "currentSingleQuestion, #5").toLooseEqual("Page 2");
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #5").toLooseEqual(questions[2].name);
-    expect(survey.pages[1].rows.length, "rows.length, #5").toLooseEqual(1);
-    expect(survey.pages[1].rows[0].elements[0].name, "rows element, #5").toLooseEqual(questions[2].name);
-    expect(survey.isShowPrevButton, "prev buttton, #5").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next buttton, #5").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "next buttton, #5").toLooseEqual(false);
+    expect(survey.currentPage.name, "currentSingleQuestion, #5").toBe("Page 2");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #5").toBe(questions[2].name);
+    expect(survey.pages[1].rows.length, "rows.length, #5").toBe(1);
+    expect(survey.pages[1].rows[0].elements[0].name, "rows element, #5").toBe(questions[2].name);
+    expect(survey.isShowPrevButton, "prev buttton, #5").toBe(true);
+    expect(survey.isShowNextButton, "next buttton, #5").toBe(true);
+    expect(survey.isCompleteButtonVisible, "next buttton, #5").toBe(false);
     survey.performPrevious();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #6").toLooseEqual(questions[1].name);
-    expect(survey.pages[0].rows.length, "rows.length, #6").toLooseEqual(1);
-    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #6").toLooseEqual(questions[1].name);
-    expect(survey.isShowPrevButton, "prev buttton, #6").toLooseEqual(true);
-    expect(survey.isShowNextButton, "next buttton, #6").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "next buttton, #6").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #6").toBe(questions[1].name);
+    expect(survey.pages[0].rows.length, "rows.length, #6").toBe(1);
+    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #6").toBe(questions[1].name);
+    expect(survey.isShowPrevButton, "prev buttton, #6").toBe(true);
+    expect(survey.isShowNextButton, "next buttton, #6").toBe(true);
+    expect(survey.isCompleteButtonVisible, "next buttton, #6").toBe(false);
 
     survey.questionsOnPageMode = "standard";
-    expect(survey.pages[1].rows.length, "page1 standard rows.length").toLooseEqual(2);
-    expect(survey.pages[1].rows.length, "page2 standard rows.length").toLooseEqual(2);
+    expect(survey.pages[1].rows.length, "page1 standard rows.length").toBe(2);
+    expect(survey.pages[1].rows.length, "page2 standard rows.length").toBe(2);
     expect(survey.currentSingleQuestion, "No current question in standard mode").toBeFalsy();
-    expect(questions[0].page.name, "question1.page #1").toLooseEqual("Page 1");
+    expect(questions[0].page.name, "question1.page #1").toBe("Page 1");
 
     survey.questionsOnPageMode = "questionOnPage";
-    expect(survey.pages.length, "We have the same number of pages").toLooseEqual(2);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #6").toLooseEqual(questions[0].name);
-    expect(questions[0].page.name, "question1.page #2").toLooseEqual("Page 1");
+    expect(survey.pages.length, "We have the same number of pages").toBe(2);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #6").toBe(questions[0].name);
+    expect(questions[0].page.name, "question1.page #2").toBe("Page 1");
 
     survey.questionsOnPageMode = "singlePage";
-    expect(survey.visiblePages.length, "one visible page").toLooseEqual(1);
+    expect(survey.visiblePages.length, "one visible page").toBe(1);
     expect(survey.currentSingleQuestion, "No current question in single page").toBeFalsy();
-    expect(questions[0].page.name, "question1.page #3").toLooseEqual("single-page");
+    expect(questions[0].page.name, "question1.page #3").toBe("single-page");
 
     survey.questionsOnPageMode = "questionOnPage";
-    expect(survey.pages.length, "We have the same number of pages").toLooseEqual(2);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #7").toLooseEqual(questions[0].name);
-    expect(questions[0].page.name, "question1.page #4").toLooseEqual("Page 1");
+    expect(survey.pages.length, "We have the same number of pages").toBe(2);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #7").toBe(questions[0].name);
+    expect(questions[0].page.name, "question1.page #4").toBe("Page 1");
   });
   test("survey.questionsOnPageMode = 'questionOnPage' & survey.clear", () => {
     const survey = twoPageSimplestSurvey();
@@ -6295,33 +6295,33 @@ describe("Survey", () => {
     survey.questionsOnPageMode = "questionOnPage";
     survey.performNext();
     survey.performNext();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toLooseEqual(questions[2].name);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toBe(questions[2].name);
     survey.clear();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #2").toLooseEqual(questions[0].name);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #2").toBe(questions[0].name);
   });
 
   test("survey.questionsOnPageMode, property test", () => {
     var survey = twoPageSimplestSurvey();
     var questions = survey.getAllQuestions();
     survey.questionsOnPageMode = "questionOnPage";
-    expect(survey.pages.length, "We have the same number of pages").toLooseEqual(2);
-    expect(survey.isSingleVisibleQuestion, "it is single visible question mode").toLooseEqual(true);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toLooseEqual(questions[0].name);
-    expect(survey.pages[0].rows.length, "rows.length, #1").toLooseEqual(1);
-    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #1").toLooseEqual(questions[0].name);
-    expect(survey.isShowPrevButton, "prev buttton, #1").toLooseEqual(false);
-    expect(survey.isShowNextButton, "next buttton, #1").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "next buttton, #1").toLooseEqual(false);
+    expect(survey.pages.length, "We have the same number of pages").toBe(2);
+    expect(survey.isSingleVisibleQuestion, "it is single visible question mode").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion, #1").toBe(questions[0].name);
+    expect(survey.pages[0].rows.length, "rows.length, #1").toBe(1);
+    expect(survey.pages[0].rows[0].elements[0].name, "rows element, #1").toBe(questions[0].name);
+    expect(survey.isShowPrevButton, "prev buttton, #1").toBe(false);
+    expect(survey.isShowNextButton, "next buttton, #1").toBe(true);
+    expect(survey.isCompleteButtonVisible, "next buttton, #1").toBe(false);
 
     survey.questionsOnPageMode = "singlePage";
-    expect(survey.visiblePages.length, "We have one page").toLooseEqual(1);
-    expect(survey.currentPage.questions.length, "All questions on single page").toLooseEqual(questions.length);
-    expect(questions[0].page.name, "question1.page #1").toLooseEqual("single-page");
+    expect(survey.visiblePages.length, "We have one page").toBe(1);
+    expect(survey.currentPage.questions.length, "All questions on single page").toBe(questions.length);
+    expect(questions[0].page.name, "question1.page #1").toBe("single-page");
 
     survey.questionsOnPageMode = "standard";
-    expect(survey.visiblePages.length, "Origional pages, #2").toLooseEqual(2);
-    expect(survey.visiblePages[0].questions.length, "There are two questions on the origional first page, #2").toLooseEqual(2);
-    expect(questions[0].page.name, "question1.page #2").toLooseEqual("Page 1");
+    expect(survey.visiblePages.length, "Origional pages, #2").toBe(2);
+    expect(survey.visiblePages[0].questions.length, "There are two questions on the origional first page, #2").toBe(2);
+    expect(questions[0].page.name, "question1.page #2").toBe("Page 1");
   });
 
   test("survey.questionsOnPageMode=singlePage, defualt value and visibleIf", () => {
@@ -6366,31 +6366,31 @@ describe("Survey", () => {
     expect(q2.renderedValue, "Set default value into rendered value").toEqualValues(["item1"]);
     survey.data = {};
     q1.isRequired = true;
-    expect(survey.tryComplete(), "You can't complete the last page").toLooseEqual(false);
+    expect(survey.tryComplete(), "You can't complete the last page").toBe(false);
   });
 
   test("Survey page hasShown", () => {
     var survey = twoPageSimplestSurvey();
-    expect(survey.pages[0].hasShown, "The first page was shown").toLooseEqual(true);
-    expect(survey.pages[1].hasShown, "The second page was not shown").toLooseEqual(false);
-    expect(survey.pages[1].hasShown, "The second page was not shown").toLooseEqual(false);
+    expect(survey.pages[0].hasShown, "The first page was shown").toBe(true);
+    expect(survey.pages[1].hasShown, "The second page was not shown").toBe(false);
+    expect(survey.pages[1].hasShown, "The second page was not shown").toBe(false);
     survey.nextPage();
-    expect(survey.pages[1].hasShown, "The second page was shown").toLooseEqual(true);
+    expect(survey.pages[1].hasShown, "The second page was shown").toBe(true);
     survey.clear();
-    expect(survey.pages[1].hasShown, "The second page hasShown is false again").toLooseEqual(false);
+    expect(survey.pages[1].hasShown, "The second page hasShown is false again").toBe(false);
   });
   test("Questions are randomized", () => {
     var survey = twoPageSimplestSurvey();
     var page = survey.pages[0];
-    expect(page.areQuestionsRandomized, "By default questions are not randomized").toLooseEqual(false);
+    expect(page.areQuestionsRandomized, "By default questions are not randomized").toBe(false);
     page.questionOrder = "random";
-    expect(page.areQuestionsRandomized, "page.questionOrder = 'random'").toLooseEqual(true);
+    expect(page.areQuestionsRandomized, "page.questionOrder = 'random'").toBe(true);
     page.questionOrder = "default";
-    expect(page.areQuestionsRandomized, "page.questionOrder = 'default'").toLooseEqual(false);
+    expect(page.areQuestionsRandomized, "page.questionOrder = 'default'").toBe(false);
     survey.questionOrder = "random";
-    expect(page.areQuestionsRandomized, "survey.questionOrder = 'random' && page.questionOrder = 'default'").toLooseEqual(true);
+    expect(page.areQuestionsRandomized, "survey.questionOrder = 'random' && page.questionOrder = 'default'").toBe(true);
     page.questionOrder = "initial";
-    expect(page.areQuestionsRandomized, "page.questionOrder = 'initial'").toLooseEqual(false);
+    expect(page.areQuestionsRandomized, "page.questionOrder = 'initial'").toBe(false);
   });
 
   class HelpTest {
@@ -6426,14 +6426,14 @@ describe("Survey", () => {
     var p3 = survey.getPanelByName("p3");
     var page = survey.pages[0];
     page.onFirstRendering();
-    expect(page.elements[0].name).toLooseEqual("p3");
-    expect(page.elements[3].name).toLooseEqual("q1");
-    expect(p1.elements[0].name).toLooseEqual("p1q2");
-    expect(p1.elements[1].name).toLooseEqual("p1q1");
-    expect(p2.elements[0].name).toLooseEqual("p2q1");
-    expect(p2.elements[1].name).toLooseEqual("p2q2");
-    expect(p3.elements[0].name).toLooseEqual("p3q2");
-    expect(p3.elements[1].name).toLooseEqual("p3q1");
+    expect(page.elements[0].name).toBe("p3");
+    expect(page.elements[3].name).toBe("q1");
+    expect(p1.elements[0].name).toBe("p1q2");
+    expect(p1.elements[1].name).toBe("p1q1");
+    expect(p2.elements[0].name).toBe("p2q1");
+    expect(p2.elements[1].name).toBe("p2q2");
+    expect(p3.elements[0].name).toBe("p3q2");
+    expect(p3.elements[1].name).toBe("p3q1");
 
     delete json.pages[0].questionOrder;
     survey = new SurveyModel(json);
@@ -6442,14 +6442,14 @@ describe("Survey", () => {
     p2 = survey.getPanelByName("p2");
     p3 = survey.getPanelByName("p3");
     page.onFirstRendering();
-    expect(page.elements[0].name).toLooseEqual("q1");
-    expect(page.elements[3].name).toLooseEqual("p3");
-    expect(p1.elements[0].name).toLooseEqual("p1q1");
-    expect(p1.elements[1].name).toLooseEqual("p1q2");
-    expect(p2.elements[0].name).toLooseEqual("p2q1");
-    expect(p2.elements[1].name).toLooseEqual("p2q2");
-    expect(p3.elements[0].name).toLooseEqual("p3q2");
-    expect(p3.elements[1].name).toLooseEqual("p3q1");
+    expect(page.elements[0].name).toBe("q1");
+    expect(page.elements[3].name).toBe("p3");
+    expect(p1.elements[0].name).toBe("p1q1");
+    expect(p1.elements[1].name).toBe("p1q2");
+    expect(p2.elements[0].name).toBe("p2q1");
+    expect(p2.elements[1].name).toBe("p2q2");
+    expect(p3.elements[0].name).toBe("p3q2");
+    expect(p3.elements[1].name).toBe("p3q1");
 
     Helpers.randomizeArray = oldFunc;
   });
@@ -6466,13 +6466,13 @@ describe("Survey", () => {
       ]
     });
     const page = survey.pages[0];
-    expect(page.elements[0].name).toLooseEqual("q3");
-    expect(page.elements[2].name).toLooseEqual("q1");
-    expect(survey.currentSingleQuestion.name, "The first question is q3").toLooseEqual("q3");
+    expect(page.elements[0].name).toBe("q3");
+    expect(page.elements[2].name).toBe("q1");
+    expect(survey.currentSingleQuestion.name, "The first question is q3").toBe("q3");
     survey.performNext();
     survey.performNext();
     survey.performNext();
-    expect(survey.currentSingleQuestion.name, "The current question is q6").toLooseEqual("q6");
+    expect(survey.currentSingleQuestion.name, "The current question is q6").toBe("q6");
 
     Helpers.randomizeArray = oldFunc;
   });
@@ -6484,33 +6484,33 @@ describe("Survey", () => {
         { elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] },
       ]
     });
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toLooseEqual("q1");
-    expect(survey.isFirstPage, "isFirstPage #1").toLooseEqual(true);
-    expect(survey.isLastPage, "isLastPage #1").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toBe("q1");
+    expect(survey.isFirstPage, "isFirstPage #1").toBe(true);
+    expect(survey.isLastPage, "isLastPage #1").toBe(false);
     survey.nextPage();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toLooseEqual("q2");
-    expect(survey.isFirstPage, "isFirstPage #2").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #2").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toBe("q2");
+    expect(survey.isFirstPage, "isFirstPage #2").toBe(false);
+    expect(survey.isLastPage, "isLastPage #2").toBe(false);
     survey.nextPage();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #3").toLooseEqual("q3");
-    expect(survey.isFirstPage, "isFirstPage #3").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #3").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #3").toBe("q3");
+    expect(survey.isFirstPage, "isFirstPage #3").toBe(false);
+    expect(survey.isLastPage, "isLastPage #3").toBe(false);
     survey.nextPage();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #4").toLooseEqual("q4");
-    expect(survey.isFirstPage, "isFirstPage #4").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #4").toLooseEqual(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #4").toBe("q4");
+    expect(survey.isFirstPage, "isFirstPage #4").toBe(false);
+    expect(survey.isLastPage, "isLastPage #4").toBe(true);
     survey.prevPage();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #5").toLooseEqual("q3");
-    expect(survey.isFirstPage, "isFirstPage #5").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #5").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #5").toBe("q3");
+    expect(survey.isFirstPage, "isFirstPage #5").toBe(false);
+    expect(survey.isLastPage, "isLastPage #5").toBe(false);
     survey.prevPage();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #6").toLooseEqual("q2");
-    expect(survey.isFirstPage, "isFirstPage #6").toLooseEqual(false);
-    expect(survey.isLastPage, "isLastPage #6").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #6").toBe("q2");
+    expect(survey.isFirstPage, "isFirstPage #6").toBe(false);
+    expect(survey.isLastPage, "isLastPage #6").toBe(false);
     survey.prevPage();
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #7").toLooseEqual("q1");
-    expect(survey.isFirstPage, "isFirstPage #7").toLooseEqual(true);
-    expect(survey.isLastPage, "isLastPage #7").toLooseEqual(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #7").toBe("q1");
+    expect(survey.isFirstPage, "isFirstPage #7").toBe(true);
+    expect(survey.isLastPage, "isLastPage #7").toBe(false);
   });
 
   test("Quiz, correct, incorrect answers", () => {
@@ -6530,7 +6530,7 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getAllQuestions().length, "There are 4 questions in total").toLooseEqual(4);
+    expect(survey.getAllQuestions().length, "There are 4 questions in total").toBe(4);
     for (var i = 1; i <= 4; i++) {
       (<Question>survey.getQuestionByName("q" + i)).correctAnswer = "q" + i;
     }
@@ -6542,23 +6542,23 @@ describe("Survey", () => {
     survey.completedHtml =
     "{correctedAnswers}, {inCorrectedAnswers}, {questionCount}";
     survey.start();
-    expect(survey.getAllQuestions().length, "There are 6 questions in total").toLooseEqual(6);
-    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 0").toLooseEqual(0);
-    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 4").toLooseEqual(4);
+    expect(survey.getAllQuestions().length, "There are 6 questions in total").toBe(6);
+    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 0").toBe(0);
+    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 4").toBe(4);
     survey.getQuestionByName("q1").visible = false;
-    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 3").toLooseEqual(3);
+    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 3").toBe(3);
     (<Question>survey.getQuestionByName("q2")).value = "q2";
-    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 1").toLooseEqual(1);
-    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 2").toLooseEqual(2);
+    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 1").toBe(1);
+    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 2").toBe(2);
     (<Question>survey.getQuestionByName("q3")).value = "q10";
     (<Question>survey.getQuestionByName("q4")).value = "q4";
-    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 2").toLooseEqual(2);
-    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 1").toLooseEqual(1);
+    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 2").toBe(2);
+    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 1").toBe(1);
     (<Question>survey.getQuestionByName("q4")).visible = false;
-    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 1").toLooseEqual(1);
-    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 1").toLooseEqual(1);
+    expect(survey.getCorrectedAnswers(), "The number of corrected answers is 1").toBe(1);
+    expect(survey.getInCorrectedAnswers(), "The number of incorrected answers is 1").toBe(1);
     (<Question>survey.getQuestionByName("q4")).visible = true;
-    expect(survey.processedCompletedHtml, "competed html is correct").toLooseEqual("2, 1, 3");
+    expect(survey.processedCompletedHtml, "competed html is correct").toBe("2, 1, 3");
   });
   test("Quiz, correct, incorrect answers - caseinsensitive", () => {
     settings.comparator.caseSensitive = false;
@@ -6569,11 +6569,11 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getCorrectedAnswers(), "No correct answer").toLooseEqual(0);
+    expect(survey.getCorrectedAnswers(), "No correct answer").toBe(0);
     survey.setValue("q1", "answer");
-    expect(survey.getCorrectedAnswers(), "Still no correct answer").toLooseEqual(0);
+    expect(survey.getCorrectedAnswers(), "Still no correct answer").toBe(0);
     survey.setValue("q1", "myanswer");
-    expect(survey.getCorrectedAnswers(), "the answer is correct").toLooseEqual(1);
+    expect(survey.getCorrectedAnswers(), "the answer is correct").toBe(1);
   });
   test("Quiz, correct, multiple text", () => {
     const survey = new SurveyModel({
@@ -6593,12 +6593,12 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.getCorrectedAnswers(), "No correct answer").toLooseEqual(0);
+    expect(survey.getCorrectedAnswers(), "No correct answer").toBe(0);
     survey.setValue("root", {
       "text1": "text1",
       "text2": "text2"
     });
-    expect(survey.getCorrectedAnswers(), "Check as case insensitive").toLooseEqual(1);
+    expect(survey.getCorrectedAnswers(), "Check as case insensitive").toBe(1);
   });
   test("Quiz, correct, incorrect answers, questionCount in expressions", () => {
     var survey = new SurveyModel({
@@ -6615,13 +6615,13 @@ describe("Survey", () => {
     });
     survey.setValue("q1", "val1");
     survey.setValue("q3", "val_incorrect");
-    expect(survey.calculatedValues[0].value, "correctedAnswers").toLooseEqual(1);
-    expect(survey.calculatedValues[1].value, "inCorrectedAnswers").toLooseEqual(2);
-    expect(survey.calculatedValues[2].value, "questionCount").toLooseEqual(3);
+    expect(survey.calculatedValues[0].value, "correctedAnswers").toBe(1);
+    expect(survey.calculatedValues[1].value, "inCorrectedAnswers").toBe(2);
+    expect(survey.calculatedValues[2].value, "questionCount").toBe(3);
     survey.setValue("q2", "val2");
-    expect(survey.calculatedValues[0].value, "correctedAnswers #2").toLooseEqual(2);
-    expect(survey.calculatedValues[1].value, "inCorrectedAnswers #2").toLooseEqual(1);
-    expect(survey.calculatedValues[2].value, "questionCount #2").toLooseEqual(3);
+    expect(survey.calculatedValues[0].value, "correctedAnswers #2").toBe(2);
+    expect(survey.calculatedValues[1].value, "inCorrectedAnswers #2").toBe(1);
+    expect(survey.calculatedValues[2].value, "questionCount #2").toBe(3);
   });
   test("Store data on the first page, firstPageIsStartPage = true, Bug #1580", () => {
     var survey = twoPageSimplestSurvey();
@@ -6630,10 +6630,10 @@ describe("Survey", () => {
     page.addNewQuestion("text", "name");
     page.addNewQuestion("text", "email");
     survey.pages.unshift(page);
-    expect(questionCount + 2, "Two questions have been added").toLooseEqual(survey.getAllQuestions().length);
+    expect(questionCount + 2, "Two questions have been added").toBe(survey.getAllQuestions().length);
     survey.firstPageIsStartPage = true;
-    expect(questionCount + 2, "Two questions on the first page are still here").toLooseEqual(survey.getAllQuestions().length);
-    expect(survey.getQuestionByName("name").name, "Question is here").toLooseEqual("name");
+    expect(questionCount + 2, "Two questions on the first page are still here").toBe(survey.getAllQuestions().length);
+    expect(survey.getQuestionByName("name").name, "Question is here").toBe("name");
     survey.getQuestionByName("name").value = "John";
     survey.getQuestionByName("email").value = "john@gmail.com";
     survey.start();
@@ -6671,16 +6671,16 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.state, "We are starting").toLooseEqual("starting");
+    expect(survey.state, "We are starting").toBe("starting");
     var res = survey.start();
-    expect(res, "We could not start").toLooseEqual(false);
-    expect(survey.state, "We are still starting").toLooseEqual("starting");
-    expect(survey.state, "We are not starting yet").not.toLooseEqual("running");
+    expect(res, "We could not start").toBe(false);
+    expect(survey.state, "We are still starting").toBe("starting");
+    expect(survey.state, "We are not starting yet").not.toBe("running");
     survey.setValue("name", "some name");
     res = survey.start();
-    expect(res, "We could start").toLooseEqual(true);
-    expect(survey.state, "We are running").toLooseEqual("running");
-    expect(survey.currentPage.name).toLooseEqual("First Page");
+    expect(res, "We could start").toBe(true);
+    expect(survey.state, "We are running").toBe("running");
+    expect(survey.currentPage.name).toBe("First Page");
   });
 
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
@@ -6690,24 +6690,24 @@ describe("Survey", () => {
     q1.choices = [1, 2, 3, 4];
     q1.correctAnswer = [2, 3];
     q1.value = [1];
-    expect(survey.getQuizQuestions().length, "survey.getQuizQuestions().length").toLooseEqual(1);
-    expect(survey.getCorrectAnswerCount(), "The answer is incorrect, #1").toLooseEqual(0);
+    expect(survey.getQuizQuestions().length, "survey.getQuizQuestions().length").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "The answer is incorrect, #1").toBe(0);
     q1.value = [3, 2];
-    expect(q1.correctAnswerCount, "q1.correctAnswerCount, #1").toLooseEqual(1);
-    expect(survey.getCorrectAnswerCount(), "The answer is correct now, #2").toLooseEqual(1);
+    expect(q1.correctAnswerCount, "q1.correctAnswerCount, #1").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "The answer is correct now, #2").toBe(1);
     let counter = 0;
     survey.onCheckAnswerCorrect.add(function (survey, options) {
       counter++;
       const q = options.question;
       options.result = Helpers.isTwoValueEquals(q.value, q.correctAnswer, false);
     });
-    expect(q1.correctAnswerCount, "q1.correctAnswerCount, #2").toLooseEqual(0);
-    expect(counter, "counter #1").toLooseEqual(1);
-    expect(survey.getCorrectedAnswerCount(), "The order is important now, #3").toLooseEqual(0);
-    expect(counter, "counter #2").toLooseEqual(2);
+    expect(q1.correctAnswerCount, "q1.correctAnswerCount, #2").toBe(0);
+    expect(counter, "counter #1").toBe(1);
+    expect(survey.getCorrectedAnswerCount(), "The order is important now, #3").toBe(0);
+    expect(counter, "counter #2").toBe(2);
     q1.value = [2, 3];
-    expect(survey.getCorrectedAnswerCount(), "The order is correct, #4").toLooseEqual(1);
-    expect(counter, "counter #3").toLooseEqual(3);
+    expect(survey.getCorrectedAnswerCount(), "The order is correct, #4").toBe(1);
+    expect(counter, "counter #3").toBe(3);
   });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
@@ -6721,9 +6721,9 @@ describe("Survey", () => {
     });
     settings.comparator.caseSensitive = true;
     survey.setValue("q1", "HI");
-    expect(survey.getCorrectedAnswerCount(), "It is case sensitive").toLooseEqual(0);
+    expect(survey.getCorrectedAnswerCount(), "It is case sensitive").toBe(0);
     survey.setValue("q1", "hi");
-    expect(survey.getCorrectedAnswerCount(), "It is correct").toLooseEqual(1);
+    expect(survey.getCorrectedAnswerCount(), "It is correct").toBe(1);
     settings.comparator.caseSensitive = false;
   });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606", () => {
@@ -6739,12 +6739,12 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getCorrectedAnswers(), "There is no correct answers yet").toLooseEqual(0);
-    expect(survey.getQuizQuestionCount(), "one text + 3 matrix").toLooseEqual(4);
+    expect(survey.getCorrectedAnswers(), "There is no correct answers yet").toBe(0);
+    expect(survey.getQuizQuestionCount(), "one text + 3 matrix").toBe(4);
     survey.setValue("q1", "val1");
     survey.setValue("q2", { row1: "col1", row2: "col1", row3: "col1" });
-    expect(survey.getCorrectedAnswers(), "1 in text question + 2 in matrix").toLooseEqual(3);
-    expect(survey.getInCorrectedAnswers(), "1 in matrix").toLooseEqual(1);
+    expect(survey.getCorrectedAnswers(), "1 in text question + 2 in matrix").toBe(3);
+    expect(survey.getInCorrectedAnswers(), "1 in matrix").toBe(1);
   });
   test("question.isCorrectAnswer() and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
@@ -6761,23 +6761,23 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(counter, "counter #1").toLooseEqual(0);
-    expect(q1.isAnswerCorrect(), "Value is empty").toLooseEqual(false);
-    expect(counter, "counter #2").toLooseEqual(0);
+    expect(counter, "counter #1").toBe(0);
+    expect(q1.isAnswerCorrect(), "Value is empty").toBe(false);
+    expect(counter, "counter #2").toBe(0);
     q1.value = 1;
-    expect(q1.isAnswerCorrect(), "q1.value = 1").toLooseEqual(true);
-    expect(counter, "counter #3").toLooseEqual(1);
+    expect(q1.isAnswerCorrect(), "q1.value = 1").toBe(true);
+    expect(counter, "counter #3").toBe(1);
     q1.value = 5;
-    expect(q1.isAnswerCorrect(), "q1.value = 5").toLooseEqual(false);
-    expect(counter, "counter #4").toLooseEqual(2);
+    expect(q1.isAnswerCorrect(), "q1.value = 5").toBe(false);
+    expect(counter, "counter #4").toBe(2);
     q1.value = 2;
-    expect(q1.isAnswerCorrect(), "q1.value = 2").toLooseEqual(true);
-    expect(counter, "counter #5").toLooseEqual(3);
+    expect(q1.isAnswerCorrect(), "q1.value = 2").toBe(true);
+    expect(counter, "counter #5").toBe(3);
     q2.value = 3;
-    expect(q2.isAnswerCorrect(), "q2.value = 3").toLooseEqual(true);
-    expect(counter, "counter #6").toLooseEqual(4);
-    expect(q2.isAnswerCorrect(), "q2.value = 3").toLooseEqual(true);
-    expect(counter, "counter #7").toLooseEqual(5);
+    expect(q2.isAnswerCorrect(), "q2.value = 3").toBe(true);
+    expect(counter, "counter #6").toBe(4);
+    expect(q2.isAnswerCorrect(), "q2.value = 3").toBe(true);
+    expect(counter, "counter #7").toBe(5);
   });
   test("Quiz, correct, trim value on checking correct answers, https://surveyjs.answerdesk.io/ticket/details/T6569", () => {
     var survey = new SurveyModel({
@@ -6787,25 +6787,25 @@ describe("Survey", () => {
         { type: "text", name: "q3", correctAnswer: "val3" },
       ],
     });
-    expect(survey.getCorrectedAnswers(), "There is no correct answers yet").toLooseEqual(0);
+    expect(survey.getCorrectedAnswers(), "There is no correct answers yet").toBe(0);
     survey.setValue("q1", "val1");
     survey.setValue("q2", "val2 ");
     survey.setValue("q3", " val3 ");
-    expect(survey.getCorrectedAnswers(), "trim values").toLooseEqual(3);
+    expect(survey.getCorrectedAnswers(), "trim values").toBe(3);
   });
   test("survey.onGetQuestionTitle event. Update unit test for bug: #2298", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page");
     var question = <Question>page.addNewQuestion("text", "question1");
-    expect(question.fullTitle, "by default it is question name if title is empty").toLooseEqual("question1");
+    expect(question.fullTitle, "by default it is question name if title is empty").toBe("question1");
     var questionName = "";
     survey.onGetQuestionTitle.add(function (survey, options) {
       questionName = options.question.name;
       if (options.question.title == options.question.name) options.title = "";
     });
-    expect(question.fullTitle, "it is empty now").toLooseEqual("");
+    expect(question.fullTitle, "it is empty now").toBe("");
     //check bug: #2298
-    expect(questionName, "options.question is corrrect").toLooseEqual("question1");
+    expect(questionName, "options.question is corrrect").toBe("question1");
   });
 
   test("Do not run conditions (enableIf/visibleIf) at design-time/Editor, Bug #999", () => {
@@ -6820,9 +6820,9 @@ describe("Survey", () => {
     panel.visibleIf = "{q1} = 1";
     question.enableIf = "{q1} = 1";
     survey.setValue("q1", 2);
-    expect(page2.visible, "Page object doesn't run condition at design").toLooseEqual(true);
-    expect(panel.visible, "Panel object doesn't run condition at design").toLooseEqual(true);
-    expect(question.readOnly, "Question object doesn't run condition at design").toLooseEqual(false);
+    expect(page2.visible, "Page object doesn't run condition at design").toBe(true);
+    expect(panel.visible, "Panel object doesn't run condition at design").toBe(true);
+    expect(question.readOnly, "Question object doesn't run condition at design").toBe(false);
   });
 
   test("condition function isContainerReady", () => {
@@ -6836,13 +6836,13 @@ describe("Survey", () => {
     var qTest = <QuestionTextModel>panel.addNewQuestion("text", "qTest");
     qTest.visible = false;
     qTest.visibleIf = "isContainerReady('panel1') = true";
-    expect(qTest.isVisible, "It is invisible by default").toLooseEqual(false);
+    expect(qTest.isVisible, "It is invisible by default").toBe(false);
     q1.value = "1";
-    expect(qTest.isVisible, "q2 is empty").toLooseEqual(false);
+    expect(qTest.isVisible, "q2 is empty").toBe(false);
     q2.value = "2";
-    expect(qTest.isVisible, "q2 is not e-mail").toLooseEqual(false);
+    expect(qTest.isVisible, "q2 is not e-mail").toBe(false);
     q2.value = "email@mail.com";
-    expect(qTest.isVisible, "isContainerReady returns true").toLooseEqual(true);
+    expect(qTest.isVisible, "isContainerReady returns true").toBe(true);
   });
 
   test("Use 'question' in function context", () => {
@@ -6863,11 +6863,11 @@ describe("Survey", () => {
     var question = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
     question.choices = [1, 2, 3, 4, 5];
     question.visibleIf = "isFirstLastChoiceSelected() == true";
-    expect(question.isVisible, "first and last is not selected").toLooseEqual(false);
+    expect(question.isVisible, "first and last is not selected").toBe(false);
     question.value = [1, 2];
-    expect(question.isVisible, "first and last is not selected yet").toLooseEqual(false);
+    expect(question.isVisible, "first and last is not selected yet").toBe(false);
     question.value = [1, 3, 5];
-    expect(question.isVisible, "first and last is selected").toLooseEqual(true);
+    expect(question.isVisible, "first and last is selected").toBe(true);
     FunctionFactory.Instance.unregister("isFirstLastChoiceSelected");
   });
 
@@ -6903,31 +6903,31 @@ describe("Survey", () => {
       }
     });
 
-    expect(q2.isVisible, "Initially q2 is invisible").toLooseEqual(false);
-    expect(q3.isVisible, "Initially q3 is invisible").toLooseEqual(false);
+    expect(q2.isVisible, "Initially q2 is invisible").toBe(false);
+    expect(q3.isVisible, "Initially q3 is invisible").toBe(false);
     survey.setValue("q1", 2);
-    expect(q2.isVisible, "q1=2, q2 is visible").toLooseEqual(true);
-    expect(q3.isVisible, "q1=2, q3 is invisible").toLooseEqual(false);
+    expect(q2.isVisible, "q1=2, q2 is visible").toBe(true);
+    expect(q3.isVisible, "q1=2, q3 is invisible").toBe(false);
     survey.setValue("q1", 3);
-    expect(q2.isVisible, "q1=3, q2 is invisible").toLooseEqual(false);
-    expect(q3.isVisible, "q1=3, q3 is visible").toLooseEqual(true);
+    expect(q2.isVisible, "q1=3, q2 is invisible").toBe(false);
+    expect(q3.isVisible, "q1=3, q3 is visible").toBe(true);
   });
   test("survey.onVisibleChanged & survey.onQuestionVisibleChanged are same events", () => {
     const survey = new SurveyModel();
-    expect(survey.onVisibleChanged.length, "#1 onVisibleChanged.length").toLooseEqual(0);
-    expect(survey.onQuestionVisibleChanged.length, "#1 onQuestionVisibleChanged.length").toLooseEqual(0);
+    expect(survey.onVisibleChanged.length, "#1 onVisibleChanged.length").toBe(0);
+    expect(survey.onQuestionVisibleChanged.length, "#1 onQuestionVisibleChanged.length").toBe(0);
     survey.onQuestionVisibleChanged.add((sender, options) => { });
-    expect(survey.onVisibleChanged.length, "#2 onVisibleChanged.length").toLooseEqual(1);
-    expect(survey.onQuestionVisibleChanged.length, "#2 onQuestionVisibleChanged.length").toLooseEqual(1);
+    expect(survey.onVisibleChanged.length, "#2 onVisibleChanged.length").toBe(1);
+    expect(survey.onQuestionVisibleChanged.length, "#2 onQuestionVisibleChanged.length").toBe(1);
     survey.onQuestionVisibleChanged.clear();
-    expect(survey.onVisibleChanged.length, "#3 onVisibleChanged.length").toLooseEqual(0);
-    expect(survey.onQuestionVisibleChanged.length, "#3 onQuestionVisibleChanged.length").toLooseEqual(0);
+    expect(survey.onVisibleChanged.length, "#3 onVisibleChanged.length").toBe(0);
+    expect(survey.onQuestionVisibleChanged.length, "#3 onQuestionVisibleChanged.length").toBe(0);
     survey.onVisibleChanged.add((sender, options) => { });
-    expect(survey.onVisibleChanged.length, "#4 onVisibleChanged.length").toLooseEqual(1);
-    expect(survey.onQuestionVisibleChanged.length, "#4 onQuestionVisibleChanged.length").toLooseEqual(1);
+    expect(survey.onVisibleChanged.length, "#4 onVisibleChanged.length").toBe(1);
+    expect(survey.onQuestionVisibleChanged.length, "#4 onQuestionVisibleChanged.length").toBe(1);
     survey.onVisibleChanged.clear();
-    expect(survey.onVisibleChanged.length, "#5 onVisibleChanged.length").toLooseEqual(0);
-    expect(survey.onQuestionVisibleChanged.length, "#5 onQuestionVisibleChanged.length").toLooseEqual(0);
+    expect(survey.onVisibleChanged.length, "#5 onVisibleChanged.length").toBe(0);
+    expect(survey.onQuestionVisibleChanged.length, "#5 onQuestionVisibleChanged.length").toBe(0);
   });
 
   test("Process text with question name containing '-' and '+', Bug #1080", () => {
@@ -6944,10 +6944,10 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     var qAge = <Question>survey.getQuestionByName("age");
-    expect(qAge.isVisible, "It is hidden by default").toLooseEqual(false);
+    expect(qAge.isVisible, "It is hidden by default").toBe(false);
     survey.setValue("1-2+3", "John");
-    expect(qAge.isVisible, "It is visible now").toLooseEqual(true);
-    expect(qAge.locTitle.renderedHtml, "title processed correctly").toLooseEqual("Hi, John");
+    expect(qAge.isVisible, "It is visible now").toBe(true);
+    expect(qAge.locTitle.renderedHtml, "title processed correctly").toBe("Hi, John");
   });
 
   test("clearInvisibleValues: 'onHidden' doesn't work. The fix was created by introducing conditionVersion, Bug ##1172. NOTE conditionVersion was removed due refactoring and using different approach", () => {
@@ -7008,18 +7008,18 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     var qchoosePlatform = <Question>survey.getQuestionByName("choosePlatform");
     var qinstallLinux = <Question>survey.getQuestionByName("installLinux");
-    expect(qchoosePlatform.isVisible, "choosePlatform is not visible initial").toLooseEqual(false);
-    expect(qinstallLinux.isVisible, "installLinux is not visible initial").toLooseEqual(false);
+    expect(qchoosePlatform.isVisible, "choosePlatform is not visible initial").toBe(false);
+    expect(qinstallLinux.isVisible, "installLinux is not visible initial").toBe(false);
     survey.setValue("issueType", "installJaxx");
-    expect(qchoosePlatform.isVisible, "choosePlatform is visible step 1").toLooseEqual(true);
-    expect(qinstallLinux.isVisible, "installLinux is not visible step 1").toLooseEqual(false);
+    expect(qchoosePlatform.isVisible, "choosePlatform is visible step 1").toBe(true);
+    expect(qinstallLinux.isVisible, "installLinux is not visible step 1").toBe(false);
     survey.setValue("choosePlatform", "linux");
-    expect(qchoosePlatform.isVisible, "choosePlatform is visible step 2").toLooseEqual(true);
-    expect(qinstallLinux.isVisible, "installLinux is visible step 2").toLooseEqual(true);
+    expect(qchoosePlatform.isVisible, "choosePlatform is visible step 2").toBe(true);
+    expect(qinstallLinux.isVisible, "installLinux is visible step 2").toBe(true);
     survey.setValue("issueType", "backupPhrase");
-    expect(qchoosePlatform.isVisible, "choosePlatform is visible step 3").toLooseEqual(false);
-    expect(qchoosePlatform.isEmpty(), "choosePlatform is empty step 3").toLooseEqual(true);
-    expect(qinstallLinux.isVisible, "installLinux is not visible step 3").toLooseEqual(false);
+    expect(qchoosePlatform.isVisible, "choosePlatform is visible step 3").toBe(false);
+    expect(qchoosePlatform.isEmpty(), "choosePlatform is empty step 3").toBe(true);
+    expect(qinstallLinux.isVisible, "installLinux is not visible step 3").toBe(false);
   });
 
   test("readOnly, enabledIf for Panels and Pages", () => {
@@ -7031,22 +7031,22 @@ describe("Survey", () => {
     panel1.enableIf = "{val1} == 1";
     var question1 = <Question>panel1.addNewQuestion("text", "question1");
     var question2 = <Question>panel2.addNewQuestion("text", "question2");
-    expect(question2.isReadOnly, "It is not readOnly by default").toLooseEqual(false);
+    expect(question2.isReadOnly, "It is not readOnly by default").toBe(false);
     survey.setValue("val1", 2);
-    expect(question1.isReadOnly, "question1 is readOnly").toLooseEqual(true);
-    expect(question2.isReadOnly, "question2 is readOnly").toLooseEqual(true);
-    expect(panel1.isReadOnly, "panel1 is readOnly").toLooseEqual(true);
-    expect(panel2.isReadOnly, "panel2 is readOnly").toLooseEqual(true);
+    expect(question1.isReadOnly, "question1 is readOnly").toBe(true);
+    expect(question2.isReadOnly, "question2 is readOnly").toBe(true);
+    expect(panel1.isReadOnly, "panel1 is readOnly").toBe(true);
+    expect(panel2.isReadOnly, "panel2 is readOnly").toBe(true);
 
     var question3 = <Question>panel2.addNewQuestion("text", "question3");
-    expect(question3.isReadOnly, "question3 is readOnly").toLooseEqual(true);
+    expect(question3.isReadOnly, "question3 is readOnly").toBe(true);
 
     survey.setValue("val1", 1);
-    expect(question2.isReadOnly, "question2 is editable").toLooseEqual(false);
+    expect(question2.isReadOnly, "question2 is editable").toBe(false);
 
     panel2.readOnly = true;
-    expect(question1.isReadOnly, "question1 is not readOnly, panel2 is ReadOnly").toLooseEqual(false);
-    expect(question2.isReadOnly, "question2 is readOnly, panel2 is ReadOnly").toLooseEqual(true);
+    expect(question1.isReadOnly, "question1 is not readOnly, panel2 is ReadOnly").toBe(false);
+    expect(question2.isReadOnly, "question2 is readOnly, panel2 is ReadOnly").toBe(true);
   });
 
   test("Hide question numbers on particular page", () => {
@@ -7058,9 +7058,9 @@ describe("Survey", () => {
     survey.pages[1].addNewQuestion("text", "q2");
     survey.pages[2].addNewQuestion("text", "q3");
     var question = <Question>survey.getQuestionByName("q3");
-    expect(question.fullTitle, "It has number 3").toLooseEqual("q3");
+    expect(question.fullTitle, "It has number 3").toBe("q3");
     survey.pages[1].questionTitleLocation = "hidden";
-    expect(question.fullTitle, "It has number 2 now").toLooseEqual("q3");
+    expect(question.fullTitle, "It has number 2 now").toBe("q3");
   });
 
   test("Could not assign value into mutlipletext question, #1229", () => {
@@ -7071,8 +7071,8 @@ describe("Survey", () => {
     question.addItem("item2");
     page.addQuestion(question);
     survey.data = { q1: { item1: "val1", item2: "val2" } };
-    expect(question.items[0].editor.value, "val1 is set to the question item").toLooseEqual("val1");
-    expect(question.items[1].editor.value, "val1 is set to the question item").toLooseEqual("val2");
+    expect(question.items[0].editor.value, "val1 is set to the question item").toBe("val1");
+    expect(question.items[1].editor.value, "val1 is set to the question item").toBe("val2");
   });
 
   test("ProcessTextEx returnedDisplayValue is false, Bug#1243", () => {
@@ -7089,23 +7089,23 @@ describe("Survey", () => {
   test("ProcessTextEx & nessted obj, Bug#9390", () => {
     const survey = new SurveyModel();
     survey.setVariable("a1", { b2: "abc" });
-    expect(survey.processTextEx({ text: "test: {a1.b2}" }).text, "#1").toLooseEqual("test: abc");
-    expect(survey.processTextEx({ text: "test: {c: {a1.b2}}" }).text, "#2").toLooseEqual("test: {c: abc}");
-    expect(survey.processTextEx({ text: "test: { c: {a1.b2} }" }).text, "#3").toLooseEqual("test: { c: abc }");
-    expect(survey.processTextEx({ text: "test: {c: \"{a1.b2}\"}" }).text, "#4").toLooseEqual("test: {c: \"abc\"}");
-    expect(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).text, "#5.1").toLooseEqual("test: { c: \"abc\" }");
-    expect(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).hasAllValuesOnLastRun, "#5.2").toLooseEqual(true);
-    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).text, "#6.1").toLooseEqual("inputs={\"car_make\": \"abc\"}");
-    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).hasAllValuesOnLastRun, "#6.2").toLooseEqual(true);
-    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).text, "#7.1").toLooseEqual("inputs={\"car_make\": \"abc\"}");
-    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).hasAllValuesOnLastRun, "#7.2").toLooseEqual(true);
+    expect(survey.processTextEx({ text: "test: {a1.b2}" }).text, "#1").toBe("test: abc");
+    expect(survey.processTextEx({ text: "test: {c: {a1.b2}}" }).text, "#2").toBe("test: {c: abc}");
+    expect(survey.processTextEx({ text: "test: { c: {a1.b2} }" }).text, "#3").toBe("test: { c: abc }");
+    expect(survey.processTextEx({ text: "test: {c: \"{a1.b2}\"}" }).text, "#4").toBe("test: {c: \"abc\"}");
+    expect(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).text, "#5.1").toBe("test: { c: \"abc\" }");
+    expect(survey.processTextEx({ text: "test: { c: \"{a1.b2}\" }" }).hasAllValuesOnLastRun, "#5.2").toBe(true);
+    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).text, "#6.1").toBe("inputs={\"car_make\": \"abc\"}");
+    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"{a1.b2}\"}" }).hasAllValuesOnLastRun, "#6.2").toBe(true);
+    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).text, "#7.1").toBe("inputs={\"car_make\": \"abc\"}");
+    expect(survey.processTextEx({ text: "inputs={\"car_make\": \"abc\"}" }).hasAllValuesOnLastRun, "#7.2").toBe(true);
   });
   test("ProcessTextEx replaceUndefinedValues is true, Bug#9417", () => {
     const survey = new SurveyModel();
     survey.setVariable("a1", "abc");
-    expect(survey.processTextEx({ text: "test: {a1},{a2}" }).text, "#1").toLooseEqual("test: abc,{a2}");
-    expect(survey.processTextEx({ text: "test: {a1},{a2}", replaceUndefinedValues: true }).text, "#2").toLooseEqual("test: abc,");
-    expect(survey.processText("test: {a1},{a2}", false), "#3").toLooseEqual("test: abc,{a2}");
+    expect(survey.processTextEx({ text: "test: {a1},{a2}" }).text, "#1").toBe("test: abc,{a2}");
+    expect(survey.processTextEx({ text: "test: {a1},{a2}", replaceUndefinedValues: true }).text, "#2").toBe("test: abc,");
+    expect(survey.processText("test: {a1},{a2}", false), "#3").toBe("test: abc,{a2}");
   });
   test("Empty question value in text processing, Bug#9417", () => {
     const survey = new SurveyModel({
@@ -7116,16 +7116,16 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("first-name");
     const q2 = survey.getQuestionByName("last-name");
-    expect(q1.locTitle.renderedHtml, "q1.title #1").toLooseEqual("Hi ");
-    expect(q2.locTitle.renderedHtml, "q2.title #1").toLooseEqual("");
+    expect(q1.locTitle.renderedHtml, "q1.title #1").toBe("Hi ");
+    expect(q2.locTitle.renderedHtml, "q2.title #1").toBe("");
     q1.value = "John";
     q2.value = "Doe";
-    expect(q1.locTitle.renderedHtml, "q1.title #2").toLooseEqual("Hi John");
-    expect(q2.locTitle.renderedHtml, "q2.title #3").toLooseEqual("Doe");
+    expect(q1.locTitle.renderedHtml, "q1.title #2").toBe("Hi John");
+    expect(q2.locTitle.renderedHtml, "q2.title #3").toBe("Doe");
     q1.clearValue();
     q2.clearValue();
-    expect(q1.locTitle.renderedHtml, "q1.title #3").toLooseEqual("Hi ");
-    expect(q2.locTitle.renderedHtml, "q2.title #3").toLooseEqual("");
+    expect(q1.locTitle.renderedHtml, "q1.title #3").toBe("Hi ");
+    expect(q2.locTitle.renderedHtml, "q2.title #3").toBe("");
   });
   test("Undefined variables in text processing, Bug#9417", () => {
     const survey = new SurveyModel({
@@ -7136,16 +7136,16 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.locTitle.renderedHtml, "q1.title #1").toLooseEqual("Hi {var1}");
-    expect(q2.locTitle.renderedHtml, "q2.title #1").toLooseEqual("{var2}");
+    expect(q1.locTitle.renderedHtml, "q1.title #1").toBe("Hi {var1}");
+    expect(q2.locTitle.renderedHtml, "q2.title #1").toBe("{var2}");
     survey.setVariable("var1", "John");
     survey.setVariable("var2", "Doe");
-    expect(q1.locTitle.renderedHtml, "q1.title #2").toLooseEqual("Hi John");
-    expect(q2.locTitle.renderedHtml, "q2.title #3").toLooseEqual("Doe");
+    expect(q1.locTitle.renderedHtml, "q1.title #2").toBe("Hi John");
+    expect(q2.locTitle.renderedHtml, "q2.title #3").toBe("Doe");
     survey.setVariable("var1", "");
     survey.setVariable("var2", "");
-    expect(q1.locTitle.renderedHtml, "q1.title #3").toLooseEqual("Hi ");
-    expect(q2.locTitle.renderedHtml, "q2.title #3").toLooseEqual("");
+    expect(q1.locTitle.renderedHtml, "q1.title #3").toBe("Hi ");
+    expect(q2.locTitle.renderedHtml, "q2.title #3").toBe("");
   });
   test("Question name is one symbol in text processing, Bug#10164", () => {
     const survey = new SurveyModel({
@@ -7156,9 +7156,9 @@ describe("Survey", () => {
     });
     const qa = survey.getQuestionByName("a");
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.locTitle.renderedHtml, "q1.title #1").toLooseEqual("test:");
+    expect(q1.locTitle.renderedHtml, "q1.title #1").toBe("test:");
     qa.value = 1;
-    expect(q1.locTitle.renderedHtml, "q1.title #2").toLooseEqual("test:Item1");
+    expect(q1.locTitle.renderedHtml, "q1.title #2").toBe("test:Item1");
   });
 
   test("Do not add invisible Panel Dynamic to the data, Bug#1258", () => {
@@ -7176,7 +7176,7 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     survey.getQuestionByName("q1").visible = false;
     survey.doComplete();
-    expect(JSON.stringify(survey.data), "Panel Dynamic is invisible").toLooseEqual("{}");
+    expect(JSON.stringify(survey.data), "Panel Dynamic is invisible").toBe("{}");
   });
 
   test("Compete trigger and autoAdvanceEnabled option", () => {
@@ -7222,7 +7222,7 @@ describe("Survey", () => {
     });
     survey.setValue("q2", "b");
     survey.setValue("q1", "a");
-    expect(completedCounter, "The survey is completed one time").toLooseEqual(1);
+    expect(completedCounter, "The survey is completed one time").toBe(1);
   });
 
   test("Compete trigger with invisible question, Bug #2098", () => {
@@ -7275,7 +7275,7 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     survey.getQuestionByName("age").value = 30;
     survey.nextPage();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
   });
 
   test("Compete trigger with invisible question, #2, Bug #2098", () => {
@@ -7322,7 +7322,7 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     survey.getQuestionByName("status").value = "screenout";
     survey.nextPage();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
   });
   test("Compete trigger and allowComplete false, Bug #3184", () => {
     var json = {
@@ -7365,10 +7365,10 @@ describe("Survey", () => {
       options.allow = false;
     });
     survey.getQuestionByName("age").value = 10;
-    expect(survey.currentPageNo).toLooseEqual(0);
+    expect(survey.currentPageNo).toBe(0);
     survey.nextPage();
-    expect(survey.state, "Survey is not completed").toLooseEqual("running");
-    expect(survey.currentPageNo, "go next page").toLooseEqual(1);
+    expect(survey.state, "Survey is not completed").toBe("running");
+    expect(survey.currentPageNo, "go next page").toBe(1);
   });
 
   test("textUpdateMode=onTyping and autoAdvanceEnabled option", () => {
@@ -7397,11 +7397,11 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
     question.value = "a";
-    expect(survey.currentPageNo, "Stay on the first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Stay on the first page").toBe(0);
     question.clearValue();
     question.inputType = "email";
     question.value = "a@a.com";
-    expect(survey.currentPageNo, "Stay on the first page").toLooseEqual(0);
+    expect(survey.currentPageNo, "Stay on the first page").toBe(0);
   });
   test("textUpdateMode=onTyping and visibleIf", () => {
     var json = {
@@ -7428,9 +7428,9 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     var q1 = survey.getQuestionByName("q1");
     var q2 = survey.getQuestionByName("q2");
-    expect(q2.isVisible, "It is invisible by default").toLooseEqual(false);
+    expect(q2.isVisible, "It is invisible by default").toBe(false);
     q1.value = "a";
-    expect(q2.isVisible, "It is visible now").toLooseEqual(true);
+    expect(q2.isVisible, "It is visible now").toBe(true);
   });
 
   test("Page with numeric name, bug #1293", () => {
@@ -7457,7 +7457,7 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.currentPage.name, "the current page is correct").toLooseEqual("0608");
+    expect(survey.currentPage.name, "the current page is correct").toBe("0608");
   });
 
   test("visiblePages and invisible panel, bug #395 (in Editor)", () => {
@@ -7492,12 +7492,12 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.visiblePageCount, "Only one page is visible").toLooseEqual(1);
-    expect(survey.pages[1].isVisible, "The second page is invisible").toLooseEqual(false);
+    expect(survey.visiblePageCount, "Only one page is visible").toBe(1);
+    expect(survey.pages[1].isVisible, "The second page is invisible").toBe(false);
     survey.setValue("question2", "item1");
-    expect(survey.visiblePageCount, "Two pages are visible").toLooseEqual(2);
+    expect(survey.visiblePageCount, "Two pages are visible").toBe(2);
     survey.setValue("question2", "item2");
-    expect(survey.visiblePageCount, "One page is visible again").toLooseEqual(1);
+    expect(survey.visiblePageCount, "One page is visible again").toBe(1);
   });
 
   test("Do not process html in design time, bug #396 (in Editor)", () => {
@@ -7518,7 +7518,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     survey.fromJSON(json);
     const question = <Question>survey.getQuestionByName("question2");
-    expect(question.locTitle.renderedHtml, "Do not process anything at design time").toLooseEqual("{question1} test");
+    expect(question.locTitle.renderedHtml, "Do not process anything at design time").toBe("{question1} test");
   });
 
   test("survey.showInvisibleElements property", () => {
@@ -7556,15 +7556,15 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.visiblePages.length, "There is one visible page").toLooseEqual(1);
-    expect(survey.getQuestionByName("question2").isVisible, "question2 is invisible").toLooseEqual(false);
-    expect(survey.getQuestionByName("question2").getPropertyValue("isVisible"), "question2 is invisible, property value").toLooseEqual(false);
-    expect(survey.getQuestionByName("question4").visibleChoices.length, "There is zero visible choices").toLooseEqual(0);
+    expect(survey.visiblePages.length, "There is one visible page").toBe(1);
+    expect(survey.getQuestionByName("question2").isVisible, "question2 is invisible").toBe(false);
+    expect(survey.getQuestionByName("question2").getPropertyValue("isVisible"), "question2 is invisible, property value").toBe(false);
+    expect(survey.getQuestionByName("question4").visibleChoices.length, "There is zero visible choices").toBe(0);
     survey.showInvisibleElements = true;
-    expect(survey.visiblePages.length, "There are two visible pages").toLooseEqual(2);
-    expect(survey.getQuestionByName("question2").isVisible, "question2 is visible").toLooseEqual(true);
-    expect(survey.getQuestionByName("question2").getPropertyValue("isVisible"), "question2 is visible, propertyValue").toLooseEqual(true);
-    expect(survey.getQuestionByName("question4").visibleChoices.length, "There are two visible choices").toLooseEqual(2);
+    expect(survey.visiblePages.length, "There are two visible pages").toBe(2);
+    expect(survey.getQuestionByName("question2").isVisible, "question2 is visible").toBe(true);
+    expect(survey.getQuestionByName("question2").getPropertyValue("isVisible"), "question2 is visible, propertyValue").toBe(true);
+    expect(survey.getQuestionByName("question4").visibleChoices.length, "There are two visible choices").toBe(2);
   });
 
   test("survey.showInvisibleElements property, Bug#2423", () => {
@@ -7588,15 +7588,15 @@ describe("Survey", () => {
     };
     var survey = new SurveyModel(json);
     survey.showInvisibleElements = true;
-    expect(survey.getQuestionByName("q1").visibleChoices.length, "There are two visible choices").toLooseEqual(2);
-    expect(survey.getQuestionByName("q2").visibleColumns.length, "There are two visible columns").toLooseEqual(2);
-    expect(survey.getQuestionByName("q2").visibleRows.length, "There are two visible rows").toLooseEqual(2);
+    expect(survey.getQuestionByName("q1").visibleChoices.length, "There are two visible choices").toBe(2);
+    expect(survey.getQuestionByName("q2").visibleColumns.length, "There are two visible columns").toBe(2);
+    expect(survey.getQuestionByName("q2").visibleRows.length, "There are two visible rows").toBe(2);
   });
 
   test("survey.showInvisibleElements property & question invisible css style, Bug#9002", () => {
     const survey = new SurveyModel();
     survey.css = { question: { invisible: "sd-element--invisible" } };
-    expect(survey.css.question.invisible, "survey css is updated").toLooseEqual("sd-element--invisible");
+    expect(survey.css.question.invisible, "survey css is updated").toBe("sd-element--invisible");
     survey.fromJSON({
       "elements": [
         {
@@ -7614,21 +7614,21 @@ describe("Survey", () => {
     survey.showInvisibleElements = true;
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.visible, "visible is false, #1").toLooseEqual(false);
-    expect(q2.isVisible, "isVisible is true, #1").toLooseEqual(true);
-    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#1").toLooseEqual(true);
+    expect(q2.visible, "visible is false, #1").toBe(false);
+    expect(q2.isVisible, "isVisible is true, #1").toBe(true);
+    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#1").toBe(true);
     q1.value = true;
-    expect(q2.visible, "visible is false, #2").toLooseEqual(true);
-    expect(q2.isVisible, "isVisible is true, #2").toLooseEqual(true);
-    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#2").toLooseEqual(false);
+    expect(q2.visible, "visible is false, #2").toBe(true);
+    expect(q2.isVisible, "isVisible is true, #2").toBe(true);
+    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#2").toBe(false);
     q1.value = false;
-    expect(q2.visible, "visible is false, #3").toLooseEqual(false);
-    expect(q2.isVisible, "isVisible is true, #3").toLooseEqual(true);
-    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#3").toLooseEqual(true);
+    expect(q2.visible, "visible is false, #3").toBe(false);
+    expect(q2.isVisible, "isVisible is true, #3").toBe(true);
+    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#3").toBe(true);
     survey.showInvisibleElements = false;
-    expect(q2.visible, "visible is false, #4").toLooseEqual(false);
-    expect(q2.isVisible, "isVisible is true, #4").toLooseEqual(false);
-    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#4").toLooseEqual(false);
+    expect(q2.visible, "visible is false, #4").toBe(false);
+    expect(q2.isVisible, "isVisible is true, #4").toBe(false);
+    expect(q2.getRootCss().indexOf("sd-element--invisible") > -1, "#4").toBe(false);
   });
   test("survey.showInvisibleElements property & multiple pages", () => {
     const survey = new SurveyModel({
@@ -7649,14 +7649,14 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #1").toLooseEqual(true);
-    expect(survey.navigationBar.getActionById("sv-nav-next").isVisible, "sv-nav-next, #1").toLooseEqual(false);
+    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #1").toBe(true);
+    expect(survey.navigationBar.getActionById("sv-nav-next").isVisible, "sv-nav-next, #1").toBe(false);
     survey.showInvisibleElements = true;
-    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #2").toLooseEqual(false);
-    expect(survey.navigationBar.getActionById("sv-nav-next").isVisible, "sv-nav-next, #2").toLooseEqual(true);
+    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #2").toBe(false);
+    expect(survey.navigationBar.getActionById("sv-nav-next").isVisible, "sv-nav-next, #2").toBe(true);
     survey.showInvisibleElements = false;
-    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #3").toLooseEqual(true);
-    expect(survey.navigationBar.getActionById("sv-nav-next").isVisible, "sv-nav-next, #3").toLooseEqual(false);
+    expect(survey.navigationBar.getActionById("sv-nav-complete").isVisible, "sv-nav-complete, #3").toBe(true);
+    expect(survey.navigationBar.getActionById("sv-nav-next").isVisible, "sv-nav-next, #3").toBe(false);
   });
 
   test("panel.visibleIf doesn't work if it is a single panel on the page, #1329", () => {
@@ -7696,14 +7696,14 @@ describe("Survey", () => {
     survey.onPageVisibleChanged.add(function (sender, options) {
       counter++;
     });
-    expect(survey.visiblePageCount, "There is one visible page").toLooseEqual(1);
-    expect(counter, "counter is 0").toLooseEqual(0);
+    expect(survey.visiblePageCount, "There is one visible page").toBe(1);
+    expect(counter, "counter is 0").toBe(0);
     survey.setValue("question1", "item1");
-    expect(survey.visiblePageCount, "There are two visible pages").toLooseEqual(2);
-    expect(counter, "counter is 1").toLooseEqual(1);
+    expect(survey.visiblePageCount, "There are two visible pages").toBe(2);
+    expect(counter, "counter is 1").toBe(1);
     survey.setValue("question1", "item2");
-    expect(survey.visiblePageCount, "There is one visible page again").toLooseEqual(1);
-    expect(counter, "counter is 2").toLooseEqual(2);
+    expect(survey.visiblePageCount, "There is one visible page again").toBe(1);
+    expect(counter, "counter is 2").toBe(2);
   });
 
   test("Change renderWidth on width change, Editor Bug #422", () => {
@@ -7714,8 +7714,8 @@ describe("Survey", () => {
     var question = page.addNewQuestion("text", "q2");
     question.width = "100px";
     panel.width = "200px";
-    expect(question.renderWidth, "row set question.renderWidth to it's width").toLooseEqual("100px");
-    expect(panel.renderWidth, "row set panel.renderWidth to it's width").toLooseEqual("200px");
+    expect(question.renderWidth, "row set question.renderWidth to it's width").toBe("100px");
+    expect(panel.renderWidth, "row set panel.renderWidth to it's width").toBe("200px");
   });
   function twoPageSimplestSurvey() {
     var survey = new SurveyModel();
@@ -7755,7 +7755,7 @@ describe("Survey", () => {
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     q1.value = 1;
 
-    expect(q1.getProcessedText("{q1}"), "Get question value").toLooseEqual(1);
+    expect(q1.getProcessedText("{q1}"), "Get question value").toBe("1");
   });
 
   test("Survey get full title with values, bug#5383", () => {
@@ -7776,13 +7776,13 @@ describe("Survey", () => {
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     q1.value = 1;
 
-    expect(survey.getProcessedText("{q1}"), "Get question value").toLooseEqual(1);
+    expect(survey.getProcessedText("{q1}"), "Get question value").toBe("1");
   });
   test("Process text for question with value, no value and non existing", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "q1", defaultValue: "val" }, { type: "text", name: "q2" }]
     });
-    expect(survey.getProcessedText("{q1}+{q2}+{q3}"), "show value, show empty string, show as it is").toLooseEqual("val++{q3}");
+    expect(survey.getProcessedText("{q1}+{q2}+{q3}"), "show value, show empty string, show as it is").toBe("val++{q3}");
   });
 
   test("Survey radioGroup remove data on visible items change even if there are other visible questions here, Bug# T1239", () => {
@@ -7869,7 +7869,7 @@ describe("Survey", () => {
       counter++;
     });
     survey.doComplete();
-    expect(counter, "onValueChanged called still two times").toLooseEqual(1);
+    expect(counter, "onValueChanged called still two times").toBe(1);
   });
 
   test("getPlainData", () => {
@@ -8077,27 +8077,27 @@ describe("Survey", () => {
     };
 
     var plainData = survey.getPlainData();
-    expect(plainData.length, "all questions are present").toLooseEqual(survey.getAllQuestions().length);
-    expect(plainData[0].name).toLooseEqual("question1");
-    expect(plainData[0].title).toLooseEqual("text");
-    expect(plainData[0].value).toLooseEqual("Answer 1");
-    expect(plainData[0].displayValue).toLooseEqual("Answer 1");
+    expect(plainData.length, "all questions are present").toBe(survey.getAllQuestions().length);
+    expect(plainData[0].name).toBe("question1");
+    expect(plainData[0].title).toBe("text");
+    expect(plainData[0].value).toBe("Answer 1");
+    expect(plainData[0].displayValue).toBe("Answer 1");
     expect(plainData[0].isNode).toBeFalsy();
 
-    expect(plainData[1].name).toLooseEqual("question3");
-    expect(plainData[1].title).toLooseEqual("checkbox");
+    expect(plainData[1].name).toBe("question3");
+    expect(plainData[1].title).toBe("checkbox");
     expect(plainData[1].value).toEqualValues(["item1", "item2"]);
     expect(plainData[1].displayValue).toEqualValues("item1, item2");
     expect(plainData[1].isNode).toBeTruthy();
-    expect(plainData[1].data.length).toLooseEqual(2);
-    expect(plainData[1].data[0].value).toLooseEqual("item1");
-    expect(plainData[1].data[0].displayValue).toLooseEqual("item1");
-    expect(plainData[1].data[1].value).toLooseEqual("item2");
-    expect(plainData[1].data[1].displayValue).toLooseEqual("item2");
+    expect(plainData[1].data.length).toBe(2);
+    expect(plainData[1].data[0].value).toBe("item1");
+    expect(plainData[1].data[0].displayValue).toBe("item1");
+    expect(plainData[1].data[1].value).toBe("item2");
+    expect(plainData[1].data[1].displayValue).toBe("item2");
 
-    expect(plainData[2].name).toLooseEqual("question4");
-    expect(plainData[2].title).toLooseEqual("radiogroup");
-    expect(plainData[2].value).toLooseEqual("item3");
+    expect(plainData[2].name).toBe("question4");
+    expect(plainData[2].title).toBe("radiogroup");
+    expect(plainData[2].value).toBe("item3");
     expect(plainData[2].isNode).toBeTruthy();
   });
 
@@ -8369,24 +8369,24 @@ describe("Survey", () => {
     var plainData = survey.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.length, "all questions are present").toLooseEqual(12);
+    expect(plainData.length, "all questions are present").toBe(12);
     expect(plainData[0].value).toEqualValues(3);
-    expect(plainData[0].score).toLooseEqual(11);
-    expect(plainData[0].isNode).toLooseEqual(false);
+    expect(plainData[0].score).toBe(11);
+    expect(plainData[0].isNode).toBe(false);
     expect(plainData[1].value).toEqualValues("item2");
-    expect(plainData[1].score).toLooseEqual(12);
-    expect(plainData[1].isNode).toLooseEqual(true);
-    expect(plainData[1].data[0].score).toLooseEqual(2);
+    expect(plainData[1].score).toBe(12);
+    expect(plainData[1].isNode).toBe(true);
+    expect(plainData[1].data[0].score).toBe(2);
     expect(plainData[2].value).toEqualValues("some text 13");
-    expect(plainData[2].score).toLooseEqual(13);
+    expect(plainData[2].score).toBe(13);
     expect(plainData[3].value).toEqualValues(["item2", "item3"]);
-    expect(plainData[3].score).toLooseEqual(14);
+    expect(plainData[3].score).toBe(14);
     expect(plainData[4].value).toEqualValues("item1");
-    expect(plainData[4].score).toLooseEqual(1);
+    expect(plainData[4].score).toBe(1);
     expect(plainData[5].value).toEqualValues("comment2");
-    expect(plainData[5].score).toLooseEqual(2);
+    expect(plainData[5].score).toBe(2);
     expect(plainData[6].value).toEqualValues("giraffe");
-    expect(plainData[6].score).toLooseEqual(3);
+    expect(plainData[6].score).toBe(3);
     expect(plainData[7].value).toEqualValues([
       {
         content: "data:image/x-icon;base64,A=",
@@ -8394,35 +8394,35 @@ describe("Survey", () => {
         type: "image/x-icon",
       },
     ]);
-    expect(plainData[7].score).toLooseEqual(4);
+    expect(plainData[7].score).toBe(4);
     expect(plainData[8].value).toEqualValues({ text1: "a", text2: "b" });
-    expect(plainData[8].score).toLooseEqual(5);
+    expect(plainData[8].score).toBe(5);
     expect(plainData[9].value).toEqualValues({
       "Row 1": { "Column 1": 1, "Column 2": 2, "Column 3": 3 },
       "Row 2": { "Column 1": 4, "Column 2": 5, "Column 3": 4 },
     });
-    expect(plainData[9].score).toLooseEqual(9);
+    expect(plainData[9].score).toBe(9);
 
     expect(plainData[10].value).toEqualValues({
       "Row 1": "Column 1",
       "Row 2": "Column 2",
     });
-    expect(plainData[10].score).toLooseEqual(10);
-    expect(plainData[10].data[0].score).toLooseEqual(1);
-    expect(plainData[10].data[1].score).toLooseEqual(2);
+    expect(plainData[10].score).toBe(10);
+    expect(plainData[10].data[0].score).toBe(1);
+    expect(plainData[10].data[1].score).toBe(2);
 
     expect(plainData[11].value).toEqualValues([
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" },
     ]);
-    expect(plainData[11].score).toLooseEqual(8);
+    expect(plainData[11].score).toBe(8);
 
     expect(plainData[3].isNode).toBeTruthy();
-    expect(plainData[3].data.length).toLooseEqual(2);
-    expect(plainData[3].data[0].value).toLooseEqual("item2");
-    expect(plainData[3].data[0].displayValue).toLooseEqual("item2");
-    expect(plainData[3].data[1].value).toLooseEqual("item3");
-    expect(plainData[3].data[1].displayValue).toLooseEqual("item3");
+    expect(plainData[3].data.length).toBe(2);
+    expect(plainData[3].data[0].value).toBe("item2");
+    expect(plainData[3].data[0].displayValue).toBe("item2");
+    expect(plainData[3].data[1].value).toBe("item3");
+    expect(plainData[3].data[1].displayValue).toBe("item3");
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -8479,10 +8479,10 @@ describe("Survey", () => {
     var plainData = question.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.score).toLooseEqual(3);
+    expect(plainData.score).toBe(3);
     expect(plainData.value).toEqualValues("giraffe");
-    expect(plainData.isNode).toLooseEqual(true);
-    expect(plainData.data[0].score).toLooseEqual(2);
+    expect(plainData.isNode).toBe(true);
+    expect(plainData.data[0].score).toBe(2);
     expect(plainData.data[0].value).toEqualValues("giraffe");
 
     Serializer.removeProperty("question", "score");
@@ -8541,14 +8541,14 @@ describe("Survey", () => {
     var plainData = question.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.score).toLooseEqual(3);
+    expect(plainData.score).toBe(3);
     expect(plainData.value).toEqualValues(["giraffe", "panda"]);
     expect(plainData.displayValue).toEqualValues("giraffe22, panda");
-    expect(plainData.isNode).toLooseEqual(true);
-    expect(plainData.data[0].score).toLooseEqual(2);
+    expect(plainData.isNode).toBe(true);
+    expect(plainData.data[0].score).toBe(2);
     expect(plainData.data[0].value).toEqualValues("giraffe");
     expect(plainData.data[0].displayValue).toEqualValues("giraffe22");
-    expect(plainData.data[1].score).toLooseEqual(3);
+    expect(plainData.data[1].score).toBe(3);
     expect(plainData.data[1].value).toEqualValues("panda");
 
     Serializer.removeProperty("question", "score");
@@ -8574,7 +8574,7 @@ describe("Survey", () => {
     var plainData = question.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.score).toLooseEqual(4);
+    expect(plainData.score).toBe(4);
     expect(plainData.value).toEqualValues([
       {
         name: "favicon.ico",
@@ -8589,7 +8589,7 @@ describe("Survey", () => {
         content: "data:image/x-icon;base64,A=",
       },
     ]);
-    expect(plainData.isNode).toLooseEqual(false);
+    expect(plainData.isNode).toBe(false);
     expect(plainData.data[0].value).toEqualValues("data:image/x-icon;base64,A=");
     expect(plainData.data[0].displayValue).toEqualValues("favicon.ico");
 
@@ -8632,7 +8632,7 @@ describe("Survey", () => {
     var plainData = question.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.score).toLooseEqual(10);
+    expect(plainData.score).toBe(10);
     expect(plainData.value).toEqualValues({
       "Row 1": "Column 1",
       "Row 2": "Column 2",
@@ -8641,7 +8641,7 @@ describe("Survey", () => {
       "Row 1 title": "Column 1",
       "Row 2": "Column 2",
     });
-    expect(plainData.isNode).toLooseEqual(true);
+    expect(plainData.isNode).toBe(true);
     expect(plainData.data[0].name).toEqualValues("Row 1");
     expect(plainData.data[0].title).toEqualValues("Row 1 title");
     expect(plainData.data[0].value).toEqualValues("Column 1");
@@ -8714,7 +8714,7 @@ describe("Survey", () => {
     var plainData = question.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.score).toLooseEqual(9);
+    expect(plainData.score).toBe(9);
     expect(plainData.value).toEqualValues({
       "Row 1": { "Column 1": 1, "Column 2": "2", "Column 3": 3 },
       "Row 2": { "Column 1": 4, "Column 2": "5", "Column 3": 4 },
@@ -8731,8 +8731,8 @@ describe("Survey", () => {
         "Column 3": "4",
       },
     });
-    expect(plainData.isNode).toLooseEqual(true);
-    expect(plainData.data.length, "Two rows in matrix").toLooseEqual(2);
+    expect(plainData.isNode).toBe(true);
+    expect(plainData.data.length, "Two rows in matrix").toBe(2);
     expect(plainData.data[0].name).toEqualValues("Row 1");
     expect(plainData.data[0].title).toEqualValues("Row 1 Title");
     expect(plainData.data[0].value).toEqualValues({
@@ -8757,34 +8757,34 @@ describe("Survey", () => {
       "Column 3": "4",
     });
 
-    expect(plainData.data[0].isNode).toLooseEqual(true);
-    expect(plainData.data[0].data.length, "Three columns (questions) in matrix row").toLooseEqual(3);
+    expect(plainData.data[0].isNode).toBe(true);
+    expect(plainData.data[0].data.length, "Three columns (questions) in matrix row").toBe(3);
 
-    expect(plainData.data[0].data[0].name, "column1 name").toLooseEqual("Column 1");
-    expect(plainData.data[0].data[0].title, "column1 title").toLooseEqual("Column 1");
-    expect(plainData.data[0].data[0].value).toLooseEqual(1);
-    expect(plainData.data[0].data[0].displayValue).toLooseEqual("1");
-    expect(plainData.data[0].data[0].score).toLooseEqual(undefined);
-    expect(plainData.data[0].data[0].isNode).toLooseEqual(true);
+    expect(plainData.data[0].data[0].name, "column1 name").toBe("Column 1");
+    expect(plainData.data[0].data[0].title, "column1 title").toBe("Column 1");
+    expect(plainData.data[0].data[0].value).toBe(1);
+    expect(plainData.data[0].data[0].displayValue).toBe("1");
+    expect(plainData.data[0].data[0].score).toBeUndefined();
+    expect(plainData.data[0].data[0].isNode).toBe(true);
 
-    expect(plainData.data[0].data[0].data[0].score).toLooseEqual(1);
-    expect(plainData.data[0].data[0].data[0].name).toLooseEqual(0);
-    expect(plainData.data[0].data[0].data[0].title).toLooseEqual("Choice option");
-    expect(plainData.data[0].data[0].data[0].value).toLooseEqual(1);
-    expect(plainData.data[0].data[0].data[0].displayValue).toLooseEqual("1");
+    expect(plainData.data[0].data[0].data[0].score).toBe(1);
+    expect(plainData.data[0].data[0].data[0].name).toBe(0);
+    expect(plainData.data[0].data[0].data[0].title).toBe("Choice option");
+    expect(plainData.data[0].data[0].data[0].value).toBe(1);
+    expect(plainData.data[0].data[0].data[0].displayValue).toBe("1");
 
-    expect(plainData.data[0].data[1].name, "column2 name").toLooseEqual("Column 2");
-    expect(plainData.data[0].data[1].title, "column2 title").toLooseEqual("Column 2");
-    expect(plainData.data[0].data[1].value).toLooseEqual(2);
-    expect(plainData.data[0].data[1].displayValue).toLooseEqual("2");
-    expect(plainData.data[0].data[1].score).toLooseEqual(undefined);
-    expect(plainData.data[0].data[1].isNode).toLooseEqual(true);
+    expect(plainData.data[0].data[1].name, "column2 name").toBe("Column 2");
+    expect(plainData.data[0].data[1].title, "column2 title").toBe("Column 2");
+    expect(plainData.data[0].data[1].value).toBe(2);
+    expect(plainData.data[0].data[1].displayValue).toBe("2");
+    expect(plainData.data[0].data[1].score).toBeUndefined();
+    expect(plainData.data[0].data[1].isNode).toBe(true);
 
-    expect(plainData.data[0].data[1].data[0].score).toLooseEqual(2);
-    expect(plainData.data[0].data[1].data[0].name).toLooseEqual(0);
-    expect(plainData.data[0].data[1].data[0].title).toLooseEqual("Choice option");
-    expect(plainData.data[0].data[1].data[0].value).toLooseEqual(2);
-    expect(plainData.data[0].data[1].data[0].displayValue).toLooseEqual("2");
+    expect(plainData.data[0].data[1].data[0].score).toBe(2);
+    expect(plainData.data[0].data[1].data[0].name).toBe(0);
+    expect(plainData.data[0].data[1].data[0].title).toBe("Choice option");
+    expect(plainData.data[0].data[1].data[0].value).toBe(2);
+    expect(plainData.data[0].data[1].data[0].displayValue).toBe("2");
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -8823,7 +8823,7 @@ describe("Survey", () => {
     var plainData = question.getPlainData({
       calculations: [{ propertyName: "score" }],
     });
-    expect(plainData.score).toLooseEqual(8);
+    expect(plainData.score).toBe(8);
     expect(plainData.value).toEqualValues([
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" },
@@ -8832,7 +8832,7 @@ describe("Survey", () => {
       { question21: "Panel dynamic content 1" },
       { question21: "Panel dynamic content 2" },
     ]);
-    expect(plainData.isNode).toLooseEqual(true);
+    expect(plainData.isNode).toBe(true);
     expect(plainData.data[0].name).toEqualValues(0);
     expect(plainData.data[0].title).toEqualValues("Panel");
     expect(plainData.data[0].value).toEqualValues({
@@ -8849,13 +8849,13 @@ describe("Survey", () => {
       question21: "Panel dynamic content 2",
     });
 
-    expect(plainData.data[0].isNode).toLooseEqual(true);
+    expect(plainData.data[0].isNode).toBe(true);
 
-    expect(plainData.data[0].data[0].name).toLooseEqual("question21");
-    expect(plainData.data[0].data[0].title).toLooseEqual("question21");
-    expect(plainData.data[0].data[0].value).toLooseEqual("Panel dynamic content 1");
-    expect(plainData.data[0].data[0].displayValue).toLooseEqual("Panel dynamic content 1");
-    expect(plainData.data[0].data[0].score).toLooseEqual(21);
+    expect(plainData.data[0].data[0].name).toBe("question21");
+    expect(plainData.data[0].data[0].title).toBe("question21");
+    expect(plainData.data[0].data[0].value).toBe("Panel dynamic content 1");
+    expect(plainData.data[0].data[0].displayValue).toBe("Panel dynamic content 1");
+    expect(plainData.data[0].data[0].score).toBe(21);
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -9150,7 +9150,7 @@ describe("Survey", () => {
 
     var surveyScore = calculate(plainData);
 
-    expect(surveyScore, "overall survey score for answered questions").toLooseEqual(75);
+    expect(surveyScore, "overall survey score for answered questions").toBe(75);
 
     Serializer.removeProperty("question", "score");
     Serializer.removeProperty("itemvalue", "score");
@@ -9210,9 +9210,9 @@ describe("Survey", () => {
     };
     const q1 = survey.getQuestionByName("q1");
     const q1PlainData = q1.getPlainData({ calculations: [{ propertyName: "score" }] });
-    expect(q1PlainData.displayValue, "display value is correct").toLooseEqual("Score 4");
-    expect(q1PlainData.isNode, "it is not a node").toLooseEqual(false);
-    expect((<any>q1PlainData).score, "score is correct").toLooseEqual(4);
+    expect(q1PlainData.displayValue, "display value is correct").toBe("Score 4");
+    expect(q1PlainData.isNode, "it is not a node").toBe(false);
+    expect((<any>q1PlainData).score, "score is correct").toBe(4);
 
     const plainData = survey.getPlainData({
       includeEmpty: false,
@@ -9238,7 +9238,7 @@ describe("Survey", () => {
     };
 
     const surveyScore = calculate(plainData);
-    expect(surveyScore, "overall survey score for answered questions").toLooseEqual(11);
+    expect(surveyScore, "overall survey score for answered questions").toBe(11);
 
     Serializer.removeProperty("itemvalue", "score");
   });
@@ -9273,7 +9273,7 @@ describe("Survey", () => {
 
     const plainData = question.getPlainData();
     expect(plainData.value).toEqualValues(["other", "giraffe"]);
-    expect(plainData.isNode).toLooseEqual(true);
+    expect(plainData.isNode).toBe(true);
     expect(plainData.data.length).toEqualValues(2);
     expect(plainData.data[0].isNode).toEqualValues(false);
     expect(plainData.data[0].isOther).toEqualValues(true);
@@ -9315,7 +9315,7 @@ describe("Survey", () => {
 
     var plainData = question.getPlainData();
     expect(plainData.value).toEqualValues(["giraffe"]);
-    expect(plainData.isNode).toLooseEqual(true);
+    expect(plainData.isNode).toBe(true);
     expect(plainData.data.length).toEqualValues(2);
     expect(plainData.data[0].isNode).toEqualValues(false);
     expect(plainData.data[0].isComment).toEqualValues(true);
@@ -9356,7 +9356,7 @@ describe("Survey", () => {
 
     var plainData = question.getPlainData();
     expect(plainData.value).toEqualValues(["other"]);
-    expect(plainData.isNode).toLooseEqual(true);
+    expect(plainData.isNode).toBe(true);
     expect(plainData.data.length).toEqualValues(1);
     expect(plainData.data[0].isNode).toEqualValues(false);
     expect(plainData.data[0].isOther).toEqualValues(true);
@@ -9395,7 +9395,7 @@ describe("Survey", () => {
 
     var plainData = question.getPlainData();
     expect(plainData.value).toEqualValues(["giraffe"]);
-    expect(plainData.isNode).toLooseEqual(true);
+    expect(plainData.isNode).toBe(true);
     expect(plainData.data.length).toEqualValues(2);
     expect(plainData.data[0].isNode).toEqualValues(false);
     expect(plainData.data[0].isComment).toEqualValues(true);
@@ -9534,18 +9534,18 @@ describe("Survey", () => {
     question.value = { "Row 1": "Column 1" };
 
     var plainData = question.getPlainData({ includeEmpty: true });
-    expect(plainData.isNode).toLooseEqual(true);
-    expect(plainData.data.length, "All 3 rows are included with includeEmpty: true").toLooseEqual(3);
-    expect(plainData.data[0].name).toLooseEqual("Row 1");
-    expect(plainData.data[0].title).toLooseEqual("Row 1 title");
-    expect(plainData.data[0].value).toLooseEqual("Column 1");
-    expect(plainData.data[0].displayValue).toLooseEqual("Column 1");
-    expect(plainData.data[1].name).toLooseEqual("Row 2");
-    expect(plainData.data[1].title).toLooseEqual("Row 2");
-    expect(plainData.data[1].value, "Empty row value is undefined").toLooseEqual(undefined);
-    expect(plainData.data[2].name).toLooseEqual("Row 3");
-    expect(plainData.data[2].title).toLooseEqual("Row 3");
-    expect(plainData.data[2].value, "Empty row value is undefined").toLooseEqual(undefined);
+    expect(plainData.isNode).toBe(true);
+    expect(plainData.data.length, "All 3 rows are included with includeEmpty: true").toBe(3);
+    expect(plainData.data[0].name).toBe("Row 1");
+    expect(plainData.data[0].title).toBe("Row 1 title");
+    expect(plainData.data[0].value).toBe("Column 1");
+    expect(plainData.data[0].displayValue).toBe("Column 1");
+    expect(plainData.data[1].name).toBe("Row 2");
+    expect(plainData.data[1].title).toBe("Row 2");
+    expect(plainData.data[1].value, "Empty row value is undefined").toBeUndefined();
+    expect(plainData.data[2].name).toBe("Row 3");
+    expect(plainData.data[2].title).toBe("Row 3");
+    expect(plainData.data[2].value, "Empty row value is undefined").toBeUndefined();
   });
 
   test("question.getPlainData - matrixdropdown includeEmpty, #11052", () => {
@@ -9567,25 +9567,25 @@ describe("Survey", () => {
     };
 
     var plainData = question.getPlainData({ includeEmpty: true });
-    expect(plainData.isNode).toLooseEqual(true);
-    expect(plainData.data.length, "Both rows are included").toLooseEqual(2);
-    expect(plainData.data[0].name).toLooseEqual("Row 1");
-    expect(plainData.data[0].title).toLooseEqual("Row 1 Title");
-    expect(plainData.data[0].data.length, "All 3 columns in Row 1 with includeEmpty").toLooseEqual(3);
-    expect(plainData.data[0].data[0].name).toLooseEqual("Column 1");
-    expect(plainData.data[0].data[0].value, "Column 1 has value").toLooseEqual(1);
-    expect(plainData.data[0].data[1].name).toLooseEqual("Column 2");
-    expect(plainData.data[0].data[1].value, "Column 2 is empty").toLooseEqual(undefined);
-    expect(plainData.data[0].data[2].name).toLooseEqual("Column 3");
-    expect(plainData.data[0].data[2].value, "Column 3 is empty").toLooseEqual(undefined);
-    expect(plainData.data[1].name).toLooseEqual("Row 2");
-    expect(plainData.data[1].data.length, "All 3 columns in Row 2 with includeEmpty").toLooseEqual(3);
-    expect(plainData.data[1].data[0].name).toLooseEqual("Column 1");
-    expect(plainData.data[1].data[0].value, "Row 2 Column 1 is empty").toLooseEqual(undefined);
-    expect(plainData.data[1].data[1].name).toLooseEqual("Column 2");
-    expect(plainData.data[1].data[1].value, "Row 2 Column 2 is empty").toLooseEqual(undefined);
-    expect(plainData.data[1].data[2].name).toLooseEqual("Column 3");
-    expect(plainData.data[1].data[2].value, "Row 2 Column 3 is empty").toLooseEqual(undefined);
+    expect(plainData.isNode).toBe(true);
+    expect(plainData.data.length, "Both rows are included").toBe(2);
+    expect(plainData.data[0].name).toBe("Row 1");
+    expect(plainData.data[0].title).toBe("Row 1 Title");
+    expect(plainData.data[0].data.length, "All 3 columns in Row 1 with includeEmpty").toBe(3);
+    expect(plainData.data[0].data[0].name).toBe("Column 1");
+    expect(plainData.data[0].data[0].value, "Column 1 has value").toBe(1);
+    expect(plainData.data[0].data[1].name).toBe("Column 2");
+    expect(plainData.data[0].data[1].value, "Column 2 is empty").toBeUndefined();
+    expect(plainData.data[0].data[2].name).toBe("Column 3");
+    expect(plainData.data[0].data[2].value, "Column 3 is empty").toBeUndefined();
+    expect(plainData.data[1].name).toBe("Row 2");
+    expect(plainData.data[1].data.length, "All 3 columns in Row 2 with includeEmpty").toBe(3);
+    expect(plainData.data[1].data[0].name).toBe("Column 1");
+    expect(plainData.data[1].data[0].value, "Row 2 Column 1 is empty").toBeUndefined();
+    expect(plainData.data[1].data[1].name).toBe("Column 2");
+    expect(plainData.data[1].data[1].value, "Row 2 Column 2 is empty").toBeUndefined();
+    expect(plainData.data[1].data[2].name).toBe("Column 3");
+    expect(plainData.data[1].data[2].value, "Row 2 Column 3 is empty").toBeUndefined();
   });
 
   test("question.getPlainData - matrixdropdown includeEmpty false, #11052", () => {
@@ -9607,15 +9607,15 @@ describe("Survey", () => {
     };
 
     var plainData = question.getPlainData({ includeEmpty: false });
-    expect(plainData.isNode).toLooseEqual(true);
-    expect(plainData.data.length, "Both rows are included").toLooseEqual(2);
-    expect(plainData.data[0].name).toLooseEqual("Row 1");
-    expect(plainData.data[0].title).toLooseEqual("Row 1 Title");
-    expect(plainData.data[0].data.length, "Only 1 column with value in Row 1").toLooseEqual(1);
-    expect(plainData.data[0].data[0].name).toLooseEqual("Column 1");
-    expect(plainData.data[0].data[0].value, "Column 1 has value").toLooseEqual(1);
-    expect(plainData.data[1].name).toLooseEqual("Row 2");
-    expect(plainData.data[1].data.length, "No columns with values in Row 2").toLooseEqual(0);
+    expect(plainData.isNode).toBe(true);
+    expect(plainData.data.length, "Both rows are included").toBe(2);
+    expect(plainData.data[0].name).toBe("Row 1");
+    expect(plainData.data[0].title).toBe("Row 1 Title");
+    expect(plainData.data[0].data.length, "Only 1 column with value in Row 1").toBe(1);
+    expect(plainData.data[0].data[0].name).toBe("Column 1");
+    expect(plainData.data[0].data[0].value, "Column 1 has value").toBe(1);
+    expect(plainData.data[1].name).toBe("Row 2");
+    expect(plainData.data[1].data.length, "No columns with values in Row 2").toBe(0);
   });
 
   test("question.valueName is numeric, Bug# 1432", () => {
@@ -9629,7 +9629,7 @@ describe("Survey", () => {
       ],
     });
     var question = survey.getQuestionByValueName("10");
-    expect(question.name, "The question has been found").toLooseEqual("name");
+    expect(question.name, "The question has been found").toBe("name");
   });
 
   test("Show several errors based on validation", () => {
@@ -9705,7 +9705,7 @@ describe("Survey", () => {
     var question = <Question>survey.getQuestionByValueName("q1");
     question.value = { Field1: 51, Field2: 60 };
     question.validate(true);
-    expect(question.errors.length, "There are 4 errors should be shown").toLooseEqual(4);
+    expect(question.errors.length, "There are 4 errors should be shown").toBe(4);
   });
 
   test("getCustomErrorText for error", () => {
@@ -9726,7 +9726,7 @@ describe("Survey", () => {
     });
     var question = survey.currentPage.questions[0];
     survey.pages[0].validate(true);
-    expect(question.errors[0].getText(), "survey.onErrorCustomText works").toLooseEqual("!!!Question Name");
+    expect(question.errors[0].getText(), "survey.onErrorCustomText works").toBe("!!!Question Name");
   });
   test("Value changing/changed call count for empty values, #1564", () => {
     var survey = new SurveyModel();
@@ -9741,11 +9741,11 @@ describe("Survey", () => {
       valueChangedCount++;
     });
     survey.setValue("q1", null);
-    expect(valueChangingCount, "value changing call count should be 1").toLooseEqual(1);
-    expect(valueChangedCount, "value changed call count should be 0").toLooseEqual(0);
+    expect(valueChangingCount, "value changing call count should be 1").toBe(1);
+    expect(valueChangedCount, "value changed call count should be 0").toBe(0);
     survey.setValue("q1", "");
-    expect(valueChangingCount, "value changing call count should be 2").toLooseEqual(2);
-    expect(valueChangedCount, "value changed call count should be 0").toLooseEqual(0);
+    expect(valueChangingCount, "value changing call count should be 2").toBe(2);
+    expect(valueChangedCount, "value changed call count should be 0").toBe(0);
   });
 
   test("Values from invisible rows should be removed, #1644", () => {
@@ -9815,16 +9815,16 @@ describe("Survey", () => {
     var boolQ = survey.getQuestionByName("bool");
     var html1Q = survey.getQuestionByName("html1");
     var html2Q = survey.getQuestionByName("html2");
-    expect(html1Q.isVisible, "html1 is not visible by default").toLooseEqual(false);
-    expect(html2Q.isVisible, "html2 is not visible by default").toLooseEqual(false);
+    expect(html1Q.isVisible, "html1 is not visible by default").toBe(false);
+    expect(html2Q.isVisible, "html2 is not visible by default").toBe(false);
     boolQ.value = "True";
-    expect(html1Q.isVisible, "True, html1 is visible").toLooseEqual(true);
-    expect(html2Q.isVisible, "True, html2 is invisible").toLooseEqual(false);
+    expect(html1Q.isVisible, "True, html1 is visible").toBe(true);
+    expect(html2Q.isVisible, "True, html2 is invisible").toBe(false);
     boolQ.value = "False";
-    expect(boolQ.value, "Value set correctly").toLooseEqual("False");
-    expect(survey.getValue("bool"), "Value set correctly in survey").toLooseEqual("False");
-    expect(html1Q.isVisible, "False, html1 is invisible").toLooseEqual(false);
-    expect(html2Q.isVisible, "False, html2 is visible").toLooseEqual(true);
+    expect(boolQ.value, "Value set correctly").toBe("False");
+    expect(survey.getValue("bool"), "Value set correctly in survey").toBe("False");
+    expect(html1Q.isVisible, "False, html1 is invisible").toBe(false);
+    expect(html2Q.isVisible, "False, html2 is visible").toBe(true);
   });
 
   test("Test onValidatePage event", () => {
@@ -9858,64 +9858,64 @@ describe("Survey", () => {
       errors = options.errors;
       questions = options.questions;
     });
-    expect(counter, "Nothing yet heppend").toLooseEqual(0);
+    expect(counter, "Nothing yet heppend").toBe(0);
     survey.nextPage();
-    expect(counter, "called one time").toLooseEqual(1);
-    expect(errors.length, "there are two errors").toLooseEqual(2);
-    expect(questions.length, "there are two questions have errors").toLooseEqual(2);
+    expect(counter, "called one time").toBe(1);
+    expect(errors.length, "there are two errors").toBe(2);
+    expect(questions.length, "there are two questions have errors").toBe(2);
 
     survey.setValue("q1", "val1");
     survey.nextPage();
-    expect(counter, "called 2 times").toLooseEqual(2);
-    expect(errors.length, "there is one error, #1").toLooseEqual(1);
-    expect(questions.length, "there is one error, #2").toLooseEqual(1);
+    expect(counter, "called 2 times").toBe(2);
+    expect(errors.length, "there is one error, #1").toBe(1);
+    expect(questions.length, "there is one error, #2").toBe(1);
 
     survey.setValue("q2", "val2");
     survey.nextPage();
-    expect(counter, "called three times").toLooseEqual(3);
-    expect(errors.length, "there is no errors").toLooseEqual(0);
-    expect(questions.length, "there is no errors").toLooseEqual(0);
+    expect(counter, "called three times").toBe(3);
+    expect(errors.length, "there is no errors").toBe(0);
+    expect(questions.length, "there is no errors").toBe(0);
 
     survey.checkErrorsMode = "onValueChanged";
 
     survey.setValue("q3", "val3");
-    expect(counter, "called four times").toLooseEqual(4);
-    expect(errors.length, "there is one error, #3").toLooseEqual(1);
-    expect(questions.length, "there is one error, #4").toLooseEqual(1);
+    expect(counter, "called four times").toBe(4);
+    expect(errors.length, "there is one error, #3").toBe(1);
+    expect(questions.length, "there is one error, #4").toBe(1);
 
     survey.setValue("q3", "a@b.com");
-    expect(counter, "called five times").toLooseEqual(5);
-    expect(errors.length, "there is no errors").toLooseEqual(0);
-    expect(questions.length, "there is no errors").toLooseEqual(0);
+    expect(counter, "called five times").toBe(5);
+    expect(errors.length, "there is no errors").toBe(0);
+    expect(questions.length, "there is no errors").toBe(0);
 
     survey.setValue("q3", "a@c.com");
-    expect(counter, "called five times - it doesn't called this time").toLooseEqual(5);
-    expect(errors.length, "there is no errors").toLooseEqual(0);
-    expect(questions.length, "there is no errors").toLooseEqual(0);
+    expect(counter, "called five times - it doesn't called this time").toBe(5);
+    expect(errors.length, "there is no errors").toBe(0);
+    expect(questions.length, "there is no errors").toBe(0);
 
     survey.clearValue("q3");
-    expect(counter, "Do not call errors validation on clearing value").toLooseEqual(5);
-    expect(errors.length, "there is no errors on clearing value").toLooseEqual(0);
+    expect(counter, "Do not call errors validation on clearing value").toBe(5);
+    expect(errors.length, "there is no errors on clearing value").toBe(0);
     survey.tryComplete();
-    expect(counter, "called six times").toLooseEqual(6);
-    expect(errors.length, "there are two errors onComplete, #5").toLooseEqual(2);
-    expect(questions.length, "there are two question onComplete, #6").toLooseEqual(2);
+    expect(counter, "called six times").toBe(6);
+    expect(errors.length, "there are two errors onComplete, #5").toBe(2);
+    expect(questions.length, "there are two question onComplete, #6").toBe(2);
   });
   test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on changing question value, Bug#5194", () => {
     const survey = new SurveyModel({ "elements": [{ name: "name", type: "text", isRequired: true }] });
     let counter = 0;
-    expect(survey.onValidatePage.length, "onValidate page is emtpy").toLooseEqual(0);
+    expect(survey.onValidatePage.length, "onValidate page is emtpy").toBe(0);
     survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
       counter++;
     });
-    expect(survey.onValidatePage.length, "onValidate page is set").toLooseEqual(1);
+    expect(survey.onValidatePage.length, "onValidate page is set").toBe(1);
     survey.tryComplete();
-    expect(survey.state).toLooseEqual("running");
-    expect(counter, "On complete").toLooseEqual(1);
+    expect(survey.state).toBe("running");
+    expect(counter, "On complete").toBe(1);
     survey.setValue("name", "Jon");
-    expect(counter, "We do not make complete").toLooseEqual(1);
+    expect(counter, "We do not make complete").toBe(1);
     survey.tryComplete();
-    expect(counter, "Do complete again").toLooseEqual(2);
+    expect(counter, "Do complete again").toBe(2);
   });
   test("onValidatePage doesn't include internal question errors, Bug#9331", () => {
     const survey = new SurveyModel({ "elements": [{ name: "name", type: "matrixdynamic", columns: [{ name: "col1", cellType: "text", isRequired: true }], rowCount: 2 }] });
@@ -9928,10 +9928,10 @@ describe("Survey", () => {
       counter++;
     });
     survey.tryComplete();
-    expect(survey.state).toLooseEqual("running");
-    expect(counter, "On complete").toLooseEqual(1);
-    expect(errorCount, "options.errors.length").toLooseEqual(2);
-    expect(questionCount, "options.questions.length").toLooseEqual(2);
+    expect(survey.state).toBe("running");
+    expect(counter, "On complete").toBe(1);
+    expect(errorCount, "options.errors.length").toBe(2);
+    expect(questionCount, "options.questions.length").toBe(2);
   });
   test("onValidatePage doesn't include internal question errors, Bug#9565", () => {
     const survey = new SurveyModel({ "elements": [{
@@ -9948,13 +9948,13 @@ describe("Survey", () => {
       counter++;
     });
     survey.tryComplete();
-    expect(survey.state).toLooseEqual("running");
-    expect(counter, "On complete").toLooseEqual(1);
-    expect(errorCount, "options.errors.length").toLooseEqual(3);
-    expect(questions.length, "options.questions.length").toLooseEqual(3);
-    expect(questions[0].name, "questions[0].name").toLooseEqual("q1");
-    expect(questions[1].name, "questions[1].name").toLooseEqual("minvalue");
-    expect(questions[2].name, "questions[2].name").toLooseEqual("maxvalue");
+    expect(survey.state).toBe("running");
+    expect(counter, "On complete").toBe(1);
+    expect(errorCount, "options.errors.length").toBe(3);
+    expect(questions.length, "options.questions.length").toBe(3);
+    expect(questions[0].name, "questions[0].name").toBe("q1");
+    expect(questions[1].name, "questions[1].name").toBe("minvalue");
+    expect(questions[2].name, "questions[2].name").toBe("maxvalue");
   });
   test("Adding errors in onValidatePage handler should prevent navigation, Bug#11171", () => {
     const survey = new SurveyModel({
@@ -9984,28 +9984,28 @@ describe("Survey", () => {
     });
     survey.setValue("q1", 60);
     survey.setValue("q2", 50);
-    expect(survey.currentPageNo, "Start on page 0").toLooseEqual(0);
+    expect(survey.currentPageNo, "Start on page 0").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "Should stay on page 0 because onValidatePage added errors").toLooseEqual(0);
+    expect(survey.currentPageNo, "Should stay on page 0 because onValidatePage added errors").toBe(0);
     survey.setValue("q2", 30);
     survey.nextPage();
-    expect(survey.currentPageNo, "Should move to page 1 when total <= 100").toLooseEqual(1);
+    expect(survey.currentPageNo, "Should move to page 1 when total <= 100").toBe(1);
   });
 
   test("survey.completedHtmlOnCondition", () => {
     var survey = new SurveyModel();
     survey.completedHtml = "1";
-    expect(survey.renderedCompletedHtml, "get from completed html").toLooseEqual("1");
+    expect(survey.renderedCompletedHtml, "get from completed html").toBe("1");
     survey.completedHtmlOnCondition.push(new HtmlConditionItem("{q1} = 2", "2"));
     survey.completedHtmlOnCondition.push(new HtmlConditionItem("{q1} = 3", "3"));
     expect(survey.completedHtmlOnCondition[0].getSurvey(), "There is survey in completedHtmlOnCondition").toBeTruthy();
-    expect(survey.renderedCompletedHtml, "still get from completed html").toLooseEqual("1");
+    expect(survey.renderedCompletedHtml, "still get from completed html").toBe("1");
     survey.setValue("q1", 2);
-    expect(survey.renderedCompletedHtml, "get from first on Condition").toLooseEqual("2");
+    expect(survey.renderedCompletedHtml, "get from first on Condition").toBe("2");
     survey.setValue("q1", 3);
-    expect(survey.renderedCompletedHtml, "get from second on Condition").toLooseEqual("3");
+    expect(survey.renderedCompletedHtml, "get from second on Condition").toBe("3");
     survey.setValue("q1", 5);
-    expect(survey.renderedCompletedHtml, "get from completed html again").toLooseEqual("1");
+    expect(survey.renderedCompletedHtml, "get from completed html again").toBe("1");
   });
 
   test("survey.completedHtmlOnCondition + localization", () => {
@@ -10022,28 +10022,28 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.completedHtmlOnCondition.length, "OnCondition restored correctly").toLooseEqual(1);
+    expect(survey.completedHtmlOnCondition.length, "OnCondition restored correctly").toBe(1);
     survey.setValue("q1", 2);
-    expect(survey.renderedCompletedHtml, "get on condition en").toLooseEqual("en-condition");
+    expect(survey.renderedCompletedHtml, "get on condition en").toBe("en-condition");
     var prevLocale = survey.locale;
     survey.locale = "fr";
-    expect(survey.renderedCompletedHtml, "get on condition fr").toLooseEqual("fr-condition");
+    expect(survey.renderedCompletedHtml, "get on condition fr").toBe("fr-condition");
     survey.locale = prevLocale;
   });
 
   test("survey.navigateToUrlOnCondition", () => {
     var survey = new SurveyModel();
     survey.navigateToUrl = "1";
-    expect(survey.getNavigateToUrl(), "get from navigateToUrl").toLooseEqual("1");
+    expect(survey.getNavigateToUrl(), "get from navigateToUrl").toBe("1");
     survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 2", "2"));
     survey.navigateToUrlOnCondition.push(new UrlConditionItem("{q1} = 3", "3"));
-    expect(survey.getNavigateToUrl(), "still get from navigateToUrl").toLooseEqual("1");
+    expect(survey.getNavigateToUrl(), "still get from navigateToUrl").toBe("1");
     survey.setValue("q1", 2);
-    expect(survey.getNavigateToUrl(), "get from first on Condition").toLooseEqual("2");
+    expect(survey.getNavigateToUrl(), "get from first on Condition").toBe("2");
     survey.setValue("q1", 3);
-    expect(survey.getNavigateToUrl(), "get from second on Condition").toLooseEqual("3");
+    expect(survey.getNavigateToUrl(), "get from second on Condition").toBe("3");
     survey.setValue("q1", 5);
-    expect(survey.getNavigateToUrl(), "get from navigateToUrl again").toLooseEqual("1");
+    expect(survey.getNavigateToUrl(), "get from navigateToUrl again").toBe("1");
   });
 
   test("survey.navigateToUrlOnCondition + processValue", () => {
@@ -10057,11 +10057,11 @@ describe("Survey", () => {
     survey.navigateToUrlOnCondition.push(
       new UrlConditionItem("{q1} = 2", "url-{q2}-url")
     );
-    expect(survey.getNavigateToUrl(), "data is empty").toLooseEqual("url--url");
+    expect(survey.getNavigateToUrl(), "data is empty").toBe("url--url");
     survey.data = { q1: "value1", q2: "value2" };
-    expect(survey.getNavigateToUrl(), "use value in navigateToUrl prop").toLooseEqual("url-value1-url");
+    expect(survey.getNavigateToUrl(), "use value in navigateToUrl prop").toBe("url-value1-url");
     survey.setValue("q1", 2);
-    expect(survey.getNavigateToUrl(), "use value in condition url prop").toLooseEqual("url-value2-url");
+    expect(survey.getNavigateToUrl(), "use value in condition url prop").toBe("url-value2-url");
   });
   test("survey.navigateToUrlOnCondition + processValue + displayvalue", () => {
     var survey = new SurveyModel({
@@ -10074,11 +10074,11 @@ describe("Survey", () => {
     survey.navigateToUrlOnCondition.push(
       new UrlConditionItem("{q2} = 1", "url-{q1}-url")
     );
-    expect(survey.getNavigateToUrl(), "data is empty").toLooseEqual("url--url");
+    expect(survey.getNavigateToUrl(), "data is empty").toBe("url--url");
     survey.data = { q1: 1, q2: 1 };
-    expect(survey.getNavigateToUrl(), "use value in navigateToUrl prop, #1").toLooseEqual("url-1-url");
+    expect(survey.getNavigateToUrl(), "use value in navigateToUrl prop, #1").toBe("url-1-url");
     survey.setValue("q1", 2);
-    expect(survey.getNavigateToUrl(), "use value in condition url prop, #2").toLooseEqual("url-2-url");
+    expect(survey.getNavigateToUrl(), "use value in condition url prop, #2").toBe("url-2-url");
   });
   test("survey.navigateToUrlOnCondition + localization", () => {
     var json = {
@@ -10094,12 +10094,12 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.navigateToUrlOnCondition.length, "OnCondition restored correctly").toLooseEqual(1);
+    expect(survey.navigateToUrlOnCondition.length, "OnCondition restored correctly").toBe(1);
     survey.setValue("q1", 2);
-    expect(survey.getNavigateToUrl(), "get on condition en").toLooseEqual("en-condition");
+    expect(survey.getNavigateToUrl(), "get on condition en").toBe("en-condition");
     var prevLocale = survey.locale;
     survey.locale = "fr";
-    expect(survey.getNavigateToUrl(), "get on condition fr").toLooseEqual("fr-condition");
+    expect(survey.getNavigateToUrl(), "get on condition fr").toBe("fr-condition");
     survey.locale = prevLocale;
   });
 
@@ -10115,7 +10115,7 @@ describe("Survey", () => {
       counter++;
     });
     survey.doComplete();
-    expect(counter, "onNavigate has been called one time").toLooseEqual(1);
+    expect(counter, "onNavigate has been called one time").toBe(1);
     survey.clear();
     var completeOptions = null;
     survey.onComplete.add(function (sender, options) {
@@ -10123,9 +10123,9 @@ describe("Survey", () => {
       completeOptions = options;
     });
     survey.doComplete();
-    expect(counter, "onNavigate has been called one time only - wait for showDataSavingSuccess").toLooseEqual(1);
+    expect(counter, "onNavigate has been called one time only - wait for showDataSavingSuccess").toBe(1);
     completeOptions.showSaveSuccess();
-    expect(counter, "onNavigate has been called two times").toLooseEqual(2);
+    expect(counter, "onNavigate has been called two times").toBe(2);
   });
 
   test("page.clearErrors function", () => {
@@ -10146,15 +10146,15 @@ describe("Survey", () => {
     col.isRequired = true;
     dMatrix.rowCount = 2;
     var rows = dMatrix.visibleRows;
-    expect(rows[0].cells[0].question.isRequired, "The matrix cell question is required.").toLooseEqual(true);
+    expect(rows[0].cells[0].question.isRequired, "The matrix cell question is required.").toBe(true);
     page.validate();
-    expect(question.errors.length, "There is one error in text question").toLooseEqual(1);
-    expect(dPanel.panels[0].questions[0].errors.length, "There is one error in question in dynamic panel").toLooseEqual(1);
-    expect(rows[0].cells[0].question.errors.length, "There is one error in question cell").toLooseEqual(1);
+    expect(question.errors.length, "There is one error in text question").toBe(1);
+    expect(dPanel.panels[0].questions[0].errors.length, "There is one error in question in dynamic panel").toBe(1);
+    expect(rows[0].cells[0].question.errors.length, "There is one error in question cell").toBe(1);
     page.clearErrors();
-    expect(question.errors.length, "Error is cleared in text question").toLooseEqual(0);
-    expect(dPanel.panels[0].questions[0].errors.length, "Error is cleared in question in dynamic panel").toLooseEqual(0);
-    expect(rows[0].cells[0].question.errors.length, "Error is cleared in question cell").toLooseEqual(0);
+    expect(question.errors.length, "Error is cleared in text question").toBe(0);
+    expect(dPanel.panels[0].questions[0].errors.length, "Error is cleared in question in dynamic panel").toBe(0);
+    expect(rows[0].cells[0].question.errors.length, "Error is cleared in question cell").toBe(0);
   });
   test("multipletext - question is empty for empty string, bug# https://surveyjs.answerdesk.io/ticket/details/T2000", () => {
     var survey = new SurveyModel();
@@ -10168,7 +10168,7 @@ describe("Survey", () => {
     expect(survey.data, "The data is here").toEqualValues({ q1: { text1: "val1" } });
     question.items[0].value = "";
     expect(survey.data, "survey is empty").toEqualValues({});
-    expect(question.isEmpty(), "question is empty").toLooseEqual(true);
+    expect(question.isEmpty(), "question is empty").toBe(true);
   });
 
   test("valueName for matrix dynamic and panel dynamic with different question set, bug# https://surveyjs.answerdesk.io/ticket/details/T2059", () => {
@@ -10320,7 +10320,7 @@ describe("Survey", () => {
     panel1.panels[0].getQuestionByName("ed1").value = 1;
     expect(matrix1.getDisplayValue(false)).toEqualValues([{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
     expect(panel1.getDisplayValue(false)).toEqualValues([{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
-    expect(panel1.panels[0].locTitle.renderedHtml, "Get the display text").toLooseEqual("Item 1");
+    expect(panel1.panels[0].locTitle.renderedHtml, "Get the display text").toBe("Item 1");
   });
 
   test("Test element.moveTo function", () => {
@@ -10378,22 +10378,22 @@ describe("Survey", () => {
     var page2 = survey.pages[1];
     var panel2 = <PanelModel>survey.getPanelByName("p2");
     var q1 = <Question>survey.getQuestionByName("q1");
-    expect(q1.parent.name, "q1.parent = page1").toLooseEqual("page1");
+    expect(q1.parent.name, "q1.parent = page1").toBe("page1");
     q1.moveTo(page2);
-    expect(q1.parent.name, "q1.parent = page1").toLooseEqual("page2");
-    expect(page2.indexOf(q1), "The last element on the page").toLooseEqual(3);
+    expect(q1.parent.name, "q1.parent = page1").toBe("page2");
+    expect(page2.indexOf(q1), "The last element on the page").toBe(3);
     q1.moveTo(page2, survey.getQuestionByName("q5"));
-    expect(page2.indexOf(q1), "The first element on the page").toLooseEqual(0);
+    expect(page2.indexOf(q1), "The first element on the page").toBe(0);
     q1.moveTo(page2, -1);
-    expect(page2.indexOf(q1), "The last element on the page again").toLooseEqual(3);
+    expect(page2.indexOf(q1), "The last element on the page again").toBe(3);
     q1.moveTo(page2, 1);
-    expect(page2.indexOf(q1), "The second element on the page").toLooseEqual(1);
+    expect(page2.indexOf(q1), "The second element on the page").toBe(1);
     q1.moveTo(panel2, survey.getQuestionByName("q2"));
-    expect(q1.parent.name, "q1.parent = p1").toLooseEqual("p2");
-    expect(panel2.indexOf(q1), "The first element on panel: p2").toLooseEqual(0);
+    expect(q1.parent.name, "q1.parent = p1").toBe("p2");
+    expect(panel2.indexOf(q1), "The first element on panel: p2").toBe(0);
     panel2.moveTo(page2, survey.getPanelByName("p3"));
-    expect(panel2.parent.name, "q1.parent = p1").toLooseEqual("page2");
-    expect(page2.indexOf(panel2), "The second element on page2").toLooseEqual(1);
+    expect(panel2.parent.name, "q1.parent = p1").toBe("page2");
+    expect(page2.indexOf(panel2), "The second element on page2").toBe(1);
   });
 
   test("Test question/panel/page delete function", () => {
@@ -10421,18 +10421,18 @@ describe("Survey", () => {
       ],
     });
     var panel = <PanelModel>survey.getPanelByName("panel1");
-    expect(panel.elements.length, "two questions in panel in the beginning").toLooseEqual(2);
+    expect(panel.elements.length, "two questions in panel in the beginning").toBe(2);
     panel.questions[0].delete();
-    expect(panel.elements.length, "one question in panel now").toLooseEqual(1);
-    expect(survey.pages[0].elements.length, "There are two elements in page1").toLooseEqual(2);
+    expect(panel.elements.length, "one question in panel now").toBe(1);
+    expect(survey.pages[0].elements.length, "There are two elements in page1").toBe(2);
     panel.delete();
-    expect(survey.pages[0].elements.length, "There is one element in page1").toLooseEqual(1);
-    expect(survey.pages[1].elements.length, "There are two elements in page2").toLooseEqual(2);
+    expect(survey.pages[0].elements.length, "There is one element in page1").toBe(1);
+    expect(survey.pages[1].elements.length, "There are two elements in page2").toBe(2);
     survey.pages[1].questions[0].delete();
-    expect(survey.pages[1].elements.length, "There is one element in page2").toLooseEqual(1);
-    expect(survey.pages.length, "There are two pages in survey").toLooseEqual(2);
+    expect(survey.pages[1].elements.length, "There is one element in page2").toBe(1);
+    expect(survey.pages.length, "There are two pages in survey").toBe(2);
     survey.pages[0].delete();
-    expect(survey.pages.length, "There is one page in survey").toLooseEqual(1);
+    expect(survey.pages.length, "There is one page in survey").toBe(1);
   });
 
   test("Expression validators with async functions", () => {
@@ -10459,16 +10459,16 @@ describe("Survey", () => {
     q2.validators.push(validator2);
 
     survey.nextPage();
-    expect(survey.currentPageNo, "First page, 1").toLooseEqual(0);
+    expect(survey.currentPageNo, "First page, 1").toBe(0);
     returnResult1(0);
     returnResult2(0);
-    expect(survey.currentPageNo, "First page, 2").toLooseEqual(0);
+    expect(survey.currentPageNo, "First page, 2").toBe(0);
     survey.nextPage();
-    expect(survey.currentPageNo, "First page, 3").toLooseEqual(0);
+    expect(survey.currentPageNo, "First page, 3").toBe(0);
     returnResult1(1);
-    expect(survey.currentPageNo, "First page, 4").toLooseEqual(0);
+    expect(survey.currentPageNo, "First page, 4").toBe(0);
     returnResult2(2);
-    expect(survey.currentPageNo, "Second page, async validation is over").toLooseEqual(1);
+    expect(survey.currentPageNo, "Second page, async validation is over").toBe(1);
 
     FunctionFactory.Instance.unregister("asyncFunc1");
     FunctionFactory.Instance.unregister("asyncFunc2");
@@ -10501,17 +10501,17 @@ describe("Survey", () => {
     var func = (hasErrors: boolean) => {
       asyncHasErrors = hasErrors;
     };
-    expect(survey.hasCurrentPageErrors(func), "We don't know, we return undefined").toLooseEqual(undefined);
-    expect(asyncHasErrors, "It is not executed yet").toLooseEqual(undefined);
+    expect(survey.hasCurrentPageErrors(func), "We don't know, we return undefined").toBeUndefined();
+    expect(asyncHasErrors, "It is not executed yet").toBeUndefined();
     returnResult1(0);
-    expect(asyncHasErrors, "Has errors").toLooseEqual(true);
+    expect(asyncHasErrors, "Has errors").toBe(true);
     asyncHasErrors = undefined;
     survey.hasCurrentPageErrors(func);
-    expect(asyncHasErrors, "It is not executed yet, #2").toLooseEqual(undefined);
+    expect(asyncHasErrors, "It is not executed yet, #2").toBeUndefined();
     returnResult1(1);
-    expect(asyncHasErrors, "Not all executed, #2").toLooseEqual(undefined);
+    expect(asyncHasErrors, "Not all executed, #2").toBeUndefined();
     returnResult2(2);
-    expect(asyncHasErrors, "Has no errors").toLooseEqual(false);
+    expect(asyncHasErrors, "Has no errors").toBe(false);
 
     FunctionFactory.Instance.unregister("asyncFunc1");
     FunctionFactory.Instance.unregister("asyncFunc2");
@@ -10543,17 +10543,17 @@ describe("Survey", () => {
     var func = (hasErrors: boolean) => {
       asyncHasErrors = hasErrors;
     };
-    expect(survey.validate(false, false, func), "We don't know, we return undefined").toLooseEqual(undefined);
-    expect(asyncHasErrors, "It is not executed yet").toLooseEqual(undefined);
+    expect(survey.validate(false, false, func), "We don't know, we return undefined").toBeUndefined();
+    expect(asyncHasErrors, "It is not executed yet").toBeUndefined();
     returnResult1(0);
-    expect(asyncHasErrors, "Has errors").toLooseEqual(true);
+    expect(asyncHasErrors, "Has errors").toBe(true);
     asyncHasErrors = undefined;
     survey.validate(false, false, func);
-    expect(asyncHasErrors, "It is not executed yet, #2").toLooseEqual(undefined);
+    expect(asyncHasErrors, "It is not executed yet, #2").toBeUndefined();
     returnResult1(1);
-    expect(asyncHasErrors, "Not all executed, #2").toLooseEqual(undefined);
+    expect(asyncHasErrors, "Not all executed, #2").toBeUndefined();
     returnResult2(2);
-    expect(asyncHasErrors, "Has no errors").toLooseEqual(false);
+    expect(asyncHasErrors, "Has no errors").toBe(false);
 
     FunctionFactory.Instance.unregister("asyncFunc1");
     FunctionFactory.Instance.unregister("asyncFunc2");
@@ -10580,18 +10580,18 @@ describe("Survey", () => {
     q2.visibleIf = "asyncFunc2() = 2";
     returnResult1(-1);
     returnResult2(-1);
-    expect(q1.isVisible, "Hide initially, q1").toLooseEqual(false);
-    expect(q2.isVisible, "Hide initially, q2").toLooseEqual(false);
+    expect(q1.isVisible, "Hide initially, q1").toBe(false);
+    expect(q2.isVisible, "Hide initially, q2").toBe(false);
     returnResult1(0);
     returnResult2(0);
-    expect(q1.isVisible, "Hide, q1 = 0").toLooseEqual(false);
-    expect(q2.isVisible, "Hide, q2 = 0").toLooseEqual(false);
+    expect(q1.isVisible, "Hide, q1 = 0").toBe(false);
+    expect(q2.isVisible, "Hide, q2 = 0").toBe(false);
     returnResult1(1);
-    expect(q1.isVisible, "Show, q1 = 1").toLooseEqual(true);
-    expect(q2.isVisible, "Hide, q2 = 0").toLooseEqual(false);
+    expect(q1.isVisible, "Show, q1 = 1").toBe(true);
+    expect(q2.isVisible, "Hide, q2 = 0").toBe(false);
     returnResult2(2);
-    expect(q1.isVisible, "Show, q1 = 1").toLooseEqual(true);
-    expect(q2.isVisible, "Hide, q2 = 2").toLooseEqual(true);
+    expect(q1.isVisible, "Show, q1 = 1").toBe(true);
+    expect(q2.isVisible, "Hide, q2 = 2").toBe(true);
     FunctionFactory.Instance.unregister("asyncFunc1");
     FunctionFactory.Instance.unregister("asyncFunc2");
   });
@@ -10607,13 +10607,13 @@ describe("Survey", () => {
     survey.calculatedValues.push(calcValue);
     var q1 = survey.getQuestionByName("question1");
     q1.visibleIf = "{calc1} = 1";
-    expect(q1.isVisible, "Hide initially, q1").toLooseEqual(false);
+    expect(q1.isVisible, "Hide initially, q1").toBe(false);
     returnResult1(0);
-    expect(q1.isVisible, "Hide, calc1 = 0").toLooseEqual(false);
+    expect(q1.isVisible, "Hide, calc1 = 0").toBe(false);
     returnResult1(1);
-    expect(q1.isVisible, "Show, calc1 = 1").toLooseEqual(true);
+    expect(q1.isVisible, "Show, calc1 = 1").toBe(true);
     returnResult1(2);
-    expect(q1.isVisible, "Hide, calc1 = 2").toLooseEqual(false);
+    expect(q1.isVisible, "Hide, calc1 = 2").toBe(false);
     FunctionFactory.Instance.unregister("asyncFunc1");
   });
 
@@ -10622,15 +10622,15 @@ describe("Survey", () => {
     var q1 = survey.getQuestionByName("question1");
     q1.isRequired = true;
     survey.nextPage();
-    expect(q1.errors.length, "There is one error").toLooseEqual(1);
-    expect(q1.errors[0].visible, "It is visible").toLooseEqual(true);
-    expect(q1.hasVisibleErrors, "There is a visible error").toLooseEqual(true);
+    expect(q1.errors.length, "There is one error").toBe(1);
+    expect(q1.errors[0].visible, "It is visible").toBe(true);
+    expect(q1.hasVisibleErrors, "There is a visible error").toBe(true);
     survey.clear(true, true);
     survey.hideRequiredErrors = true;
     survey.nextPage();
-    expect(q1.errors.length, "There is one error").toLooseEqual(1);
-    expect(q1.errors[0].visible, "It is invisible").toLooseEqual(false);
-    expect(q1.hasVisibleErrors, "There is no visible Errors").toLooseEqual(false);
+    expect(q1.errors.length, "There is one error").toBe(1);
+    expect(q1.errors[0].visible, "It is invisible").toBe(false);
+    expect(q1.hasVisibleErrors, "There is no visible Errors").toBe(false);
   });
   test("survey.onSettingQuestionErrors", () => {
     var survey = twoPageSimplestSurvey();
@@ -10646,9 +10646,9 @@ describe("Survey", () => {
       }
     });
     survey.nextPage();
-    expect(q1.errors.length, "There is one error").toLooseEqual(1);
-    expect(q1.errors[0].visible, "It is invisible").toLooseEqual(false);
-    expect(q2.errors.length, "Add one error into second question").toLooseEqual(1);
+    expect(q1.errors.length, "There is one error").toBe(1);
+    expect(q1.errors[0].visible, "It is invisible").toBe(false);
+    expect(q2.errors.length, "Add one error into second question").toBe(1);
   });
   test("survey.onValidateQuestion wors as survey.onSettingQuestionErrors", () => {
     var survey = twoPageSimplestSurvey();
@@ -10664,9 +10664,9 @@ describe("Survey", () => {
       }
     });
     survey.nextPage();
-    expect(q1.errors.length, "There is one error").toLooseEqual(1);
-    expect(q1.errors[0].visible, "It is invisible").toLooseEqual(false);
-    expect(q2.errors.length, "Add one error into second question").toLooseEqual(1);
+    expect(q1.errors.length, "There is one error").toBe(1);
+    expect(q1.errors[0].visible, "It is invisible").toBe(false);
+    expect(q2.errors.length, "Add one error into second question").toBe(1);
   });
 
   test("Check containsError property", () => {
@@ -10728,14 +10728,14 @@ describe("Survey", () => {
     var questionMultiple = survey.getQuestionByName("question4");
     var questionMatrixDropdown = survey.getQuestionByName("question5");
     var rows = questionMatrixDropdown.visibleRows;
-    expect(panelDynamic.containsErrors, "It doesn't contain errors by default").toLooseEqual(false);
-    expect(survey.isCurrentPageHasErrors, "The page has Errors").toLooseEqual(true);
-    expect(panelDynamic.containsErrors, "Dynamic panel contains errros").toLooseEqual(true);
-    expect(panel.containsErrors, "panel contains errors").toLooseEqual(true);
-    expect(question.containsErrors, "question contains errors").toLooseEqual(true);
-    expect(questionMultiple.items[0].editor.containsErrors, "question multiple item contains errors").toLooseEqual(true);
-    expect(questionMultiple.containsErrors, "question multiple contains errors").toLooseEqual(true);
-    expect(questionMatrixDropdown.containsErrors, "MatrixDropdown contains errors").toLooseEqual(true);
+    expect(panelDynamic.containsErrors, "It doesn't contain errors by default").toBe(false);
+    expect(survey.isCurrentPageHasErrors, "The page has Errors").toBe(true);
+    expect(panelDynamic.containsErrors, "Dynamic panel contains errros").toBe(true);
+    expect(panel.containsErrors, "panel contains errors").toBe(true);
+    expect(question.containsErrors, "question contains errors").toBe(true);
+    expect(questionMultiple.items[0].editor.containsErrors, "question multiple item contains errors").toBe(true);
+    expect(questionMultiple.containsErrors, "question multiple contains errors").toBe(true);
+    expect(questionMatrixDropdown.containsErrors, "MatrixDropdown contains errors").toBe(true);
     survey.data = {
       panel1: [{ question1: 1 }, { question1: 1 }],
       question2: 2,
@@ -10743,13 +10743,13 @@ describe("Survey", () => {
       question4: { q1_m1: 1 },
       question5: { row1: { col1: 1 } },
     };
-    expect(panelDynamic.containsErrors, "contains errros is not updated yet").toLooseEqual(true);
-    expect(survey.isCurrentPageHasErrors, "The page has no errors").toLooseEqual(false);
-    expect(panelDynamic.containsErrors, "Dynamic panel contains no errros").toLooseEqual(false);
-    expect(panel.containsErrors, "panel contains no errors").toLooseEqual(false);
-    expect(question.containsErrors, "question contains no errors").toLooseEqual(false);
-    expect(questionMultiple.containsErrors, "question multiple contains no errors").toLooseEqual(false);
-    expect(questionMatrixDropdown.containsErrors, "MatrixDropdown contains no errors").toLooseEqual(false);
+    expect(panelDynamic.containsErrors, "contains errros is not updated yet").toBe(true);
+    expect(survey.isCurrentPageHasErrors, "The page has no errors").toBe(false);
+    expect(panelDynamic.containsErrors, "Dynamic panel contains no errros").toBe(false);
+    expect(panel.containsErrors, "panel contains no errors").toBe(false);
+    expect(question.containsErrors, "question contains no errors").toBe(false);
+    expect(questionMultiple.containsErrors, "question multiple contains no errors").toBe(false);
+    expect(questionMatrixDropdown.containsErrors, "MatrixDropdown contains no errors").toBe(false);
   });
   test("Check containsError property for panel dynamic with checkErrorsMode: 'onValueChanged'", () => {
     var survey = new SurveyModel({
@@ -10773,18 +10773,18 @@ describe("Survey", () => {
       survey.getQuestionByName("panel1")
     );
     var question = panelDynamic.panels[0].questions[0];
-    expect(panelDynamic.containsErrors, "It doesn't contain errors by default").toLooseEqual(false);
+    expect(panelDynamic.containsErrors, "It doesn't contain errors by default").toBe(false);
     question.value = "1";
-    expect(panelDynamic.containsErrors, "The panel has no errors").toLooseEqual(false);
+    expect(panelDynamic.containsErrors, "The panel has no errors").toBe(false);
     question.value = "";
-    expect(panelDynamic.containsErrors, "We show errors").toLooseEqual(true);
+    expect(panelDynamic.containsErrors, "We show errors").toBe(true);
     question.value = "1";
-    expect(panelDynamic.containsErrors, "The panel has no errors again").toLooseEqual(false);
+    expect(panelDynamic.containsErrors, "The panel has no errors again").toBe(false);
     panelDynamic.value = [{}];
-    expect(question.isEmpty(), "Question is empty").toLooseEqual(true);
-    expect(panelDynamic.containsErrors, "We do not show error on value change in panel itself").toLooseEqual(false);
+    expect(question.isEmpty(), "Question is empty").toBe(true);
+    expect(panelDynamic.containsErrors, "We do not show error on value change in panel itself").toBe(false);
     survey.tryComplete();
-    expect(panelDynamic.containsErrors, "The panel has errors after value changed to empty. Show it on next page event").toLooseEqual(true);
+    expect(panelDynamic.containsErrors, "The panel has errors after value changed to empty. Show it on next page event").toBe(true);
   });
   test("Check isAnswered property", () => {
     var survey = new SurveyModel({
@@ -10834,28 +10834,28 @@ describe("Survey", () => {
     var questionMultiple = survey.getQuestionByName("question3");
     var questionMatrixDropdown = survey.getQuestionByName("question4");
     var rows = questionMatrixDropdown.visibleRows;
-    expect(panelDynamic.isAnswered, "Paneldynamic is not answered").toLooseEqual(false);
-    expect(questionMultiple.isAnswered, "Multiple text is not answered").toLooseEqual(false);
-    expect(question.isAnswered, "Question is not  answered").toLooseEqual(false);
-    expect(questionMatrixDropdown.isAnswered, "Paneldynamic is not answered").toLooseEqual(false);
+    expect(panelDynamic.isAnswered, "Paneldynamic is not answered").toBe(false);
+    expect(questionMultiple.isAnswered, "Multiple text is not answered").toBe(false);
+    expect(question.isAnswered, "Question is not  answered").toBe(false);
+    expect(questionMatrixDropdown.isAnswered, "Paneldynamic is not answered").toBe(false);
     survey.data = {
       panel1: [{ question1: 1 }, {}],
       question2: 3,
       question3: { q1_m1: 1 },
       question4: { row1: { col1: 1 } },
     };
-    expect(panelDynamic.isAnswered, "Paneldynamic is not fully answered").toLooseEqual(false);
-    expect(questionMultiple.isAnswered, "Multiple text is not fully answered").toLooseEqual(false);
-    expect(question.isAnswered, "Question is answered").toLooseEqual(true);
-    expect(questionMatrixDropdown.isAnswered, "Paneldynamic is not fully answered").toLooseEqual(false);
+    expect(panelDynamic.isAnswered, "Paneldynamic is not fully answered").toBe(false);
+    expect(questionMultiple.isAnswered, "Multiple text is not fully answered").toBe(false);
+    expect(question.isAnswered, "Question is answered").toBe(true);
+    expect(questionMatrixDropdown.isAnswered, "Paneldynamic is not fully answered").toBe(false);
     survey.data = {
       panel1: [{ question1: 1 }, { question1: 2 }],
       question3: { q1_m1: 1, q2_m1: 2 },
       question4: { row1: { col1: 1, col2: 2 } },
     };
-    expect(panelDynamic.isAnswered, "Paneldynamic is fully answered").toLooseEqual(true);
-    expect(questionMultiple.isAnswered, "Multiple text is fully answered").toLooseEqual(true);
-    expect(questionMatrixDropdown.isAnswered, "Paneldynamic is fully answered").toLooseEqual(true);
+    expect(panelDynamic.isAnswered, "Paneldynamic is fully answered").toBe(true);
+    expect(questionMultiple.isAnswered, "Multiple text is fully answered").toBe(true);
+    expect(questionMatrixDropdown.isAnswered, "Paneldynamic is fully answered").toBe(true);
   });
 
   test("Two matrix with same valueName, clear values for invisible rows only, Bug# https://surveyjs.answerdesk.io/ticket/details/T2713", () => {
@@ -10998,15 +10998,15 @@ describe("Survey", () => {
     });
     var expressionToDisplay = new ExpressionToDisplayText(survey);
     var str = expressionToDisplay.toDisplayText("{q1} + 1");
-    expect(str).toLooseEqual("({Question 1} + 1)");
+    expect(str).toBe("({Question 1} + 1)");
     str = expressionToDisplay.toDisplayText("{q1} = 1");
-    expect(str).toLooseEqual("({Question 1} == one)");
+    expect(str).toBe("({Question 1} == one)");
     str = expressionToDisplay.toDisplayText("{q1} = [1, 2]");
-    expect(str).toLooseEqual("({Question 1} == [one, two])");
+    expect(str).toBe("({Question 1} == [one, two])");
     str = expressionToDisplay.toDisplayText(
       "{q1} = 2 or (1 != {q1} and {q2} contains [1, 2]) or {q3} = 1"
     );
-    expect(str, "Use question title and display text").toLooseEqual("((({Question 1} == two) or ((one != {Question 1}) and ({Question 2} contains [one, two]))) or ({q3} == 1))");
+    expect(str, "Use question title and display text").toBe("((({Question 1} == two) or ((one != {Question 1}) and ({Question 2} contains [one, two]))) or ({q3} == 1))");
   });
 
   test("Expression doesn't work correctly with iif function, Bug#1942", () => {
@@ -11045,11 +11045,11 @@ describe("Survey", () => {
     var survey = new SurveyModel(json);
     survey.setValue("question3", "a");
     survey.setValue("question1", "item2");
-    expect(survey.getValue("question2"), "iif true").toLooseEqual("a[a]");
+    expect(survey.getValue("question2"), "iif true").toBe("a[a]");
     survey.setValue("question1", "item1");
-    expect(survey.getValue("question2"), "iif false").toLooseEqual("ax");
+    expect(survey.getValue("question2"), "iif false").toBe("ax");
     survey.clearValue("question3");
-    expect(survey.getValue("question2"), "iif false where question3 is empty").toLooseEqual("x");
+    expect(survey.getValue("question2"), "iif false where question3 is empty").toBe("x");
   });
 
   test("Different css for different surveys", () => {
@@ -11063,12 +11063,12 @@ describe("Survey", () => {
     survey2.css.question.mainRoot += " class2";
     survey1.fromJSON(json);
     survey2.fromJSON(json);
-    expect(survey1.css.question.mainRoot, "Correct css name for survey1").toLooseEqual(defaultQuestionRoot + " class1");
-    expect(survey2.css.question.mainRoot, "Correct css name for survey2").toLooseEqual(defaultQuestionRoot + " class2");
+    expect(survey1.css.question.mainRoot, "Correct css name for survey1").toBe(defaultQuestionRoot + " class1");
+    expect(survey2.css.question.mainRoot, "Correct css name for survey2").toBe(defaultQuestionRoot + " class2");
     var question1 = survey1.getQuestionByName("q");
     var question2 = survey2.getQuestionByName("q");
-    expect(question1.cssRoot, "Correct css name for question1").toLooseEqual(defaultQuestionRoot + " class1");
-    expect(question2.cssRoot, "Correct css name for question2").toLooseEqual(defaultQuestionRoot + " class2");
+    expect(question1.cssRoot, "Correct css name for question1").toBe(defaultQuestionRoot + " class1");
+    expect(question2.cssRoot, "Correct css name for question2").toBe(defaultQuestionRoot + " class2");
   });
 
   test("Question css classes", () => {
@@ -11083,31 +11083,31 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "q1", isRequired: true }],
     });
     var q1 = survey.getQuestionByName("q1");
-    expect(q1.errors.length, "There is not errors").toLooseEqual(0);
+    expect(q1.errors.length, "There is not errors").toBe(0);
     var defaultQuestionRoot = survey.css.question.mainRoot;
-    expect(q1.cssRoot, "Default question root").toLooseEqual(defaultQuestionRoot + " small");
-    expect(q1.cssTitle, "Default question title").toLooseEqual("title");
+    expect(q1.cssRoot, "Default question root").toBe(defaultQuestionRoot + " small");
+    expect(q1.cssTitle, "Default question title").toBe("title");
     q1.titleLocation = "left";
     var addLeft = " " + survey.css.question.titleLeftRoot;
-    expect(q1.cssRoot, "titleLocation = left").toLooseEqual(defaultQuestionRoot + addLeft + " small");
+    expect(q1.cssRoot, "titleLocation = left").toBe(defaultQuestionRoot + addLeft + " small");
     q1.width = "40%";
-    expect(q1.cssRoot, "titleLocation = left and remove small").toLooseEqual(defaultQuestionRoot + addLeft);
+    expect(q1.cssRoot, "titleLocation = left and remove small").toBe(defaultQuestionRoot + addLeft);
     q1.titleLocation = "default";
-    expect(q1.cssRoot, "titleLocation = default and remove small").toLooseEqual(defaultQuestionRoot);
+    expect(q1.cssRoot, "titleLocation = default and remove small").toBe(defaultQuestionRoot);
     survey.validate();
     var addError = " " + survey.css.question.hasError;
-    expect(q1.cssRoot, "has error").toLooseEqual(defaultQuestionRoot + addError);
-    expect(q1.cssTitle, "question title, on error").toLooseEqual("title onError");
+    expect(q1.cssRoot, "has error").toBe(defaultQuestionRoot + addError);
+    expect(q1.cssTitle, "question title, on error").toBe("title onError");
     q1.value = "somevalue";
     survey.validate();
-    expect(q1.cssRoot, "no errors").toLooseEqual(defaultQuestionRoot);
-    expect(q1.cssTitle, "question title, on answer").toLooseEqual("title onAnswer");
+    expect(q1.cssRoot, "no errors").toBe(defaultQuestionRoot);
+    expect(q1.cssTitle, "question title, on answer").toBe("title onAnswer");
     q1.clearValue();
-    expect(q1.cssTitle, "question title clear").toLooseEqual("title");
+    expect(q1.cssTitle, "question title clear").toBe("title");
     q1.value = "somevalue";
-    expect(q1.cssTitle, "question title on answer 2").toLooseEqual("title onAnswer");
+    expect(q1.cssTitle, "question title on answer 2").toBe("title onAnswer");
     survey.questionTitleLocation = "left";
-    expect(q1.cssRoot, "survey.questionTitleLocation = left").toLooseEqual(defaultQuestionRoot + addLeft);
+    expect(q1.cssRoot, "survey.questionTitleLocation = left").toBe(defaultQuestionRoot + addLeft);
   });
 
   test("Survey<=Base propertyValueChanged", () => {
@@ -11127,11 +11127,11 @@ describe("Survey", () => {
       log += "->" + name;
     };
 
-    expect(counter, "initial").toLooseEqual(0);
+    expect(counter, "initial").toBe(0);
 
     survey.title = "new";
-    expect(counter, "callback called").toLooseEqual(1);
-    expect(log, "callback called for title").toLooseEqual("->title");
+    expect(counter, "callback called").toBe(1);
+    expect(log, "callback called for title").toBe("->title");
   });
 
   test("Survey.onPropertyValueChangedCallback for validators and triggers", () => {
@@ -11175,36 +11175,36 @@ describe("Survey", () => {
       senderType = sender.getType();
     };
 
-    expect(counter, "initial").toLooseEqual(0);
+    expect(counter, "initial").toBe(0);
 
     (<SurveyTriggerSetValue>survey.triggers[0]).setValue = "3";
 
-    expect(counter, "trigger: callback called").toLooseEqual(1);
-    expect(propName, "trigger: property name is correct").toLooseEqual("setValue");
-    expect(testOldValue, "trigger: oldValue is correct").toLooseEqual("2");
-    expect(testNewValue, "trigger: newValue is correct").toLooseEqual("3");
-    expect(senderType, "trigger: sender is correct").toLooseEqual("setvaluetrigger");
+    expect(counter, "trigger: callback called").toBe(1);
+    expect(propName, "trigger: property name is correct").toBe("setValue");
+    expect(testOldValue, "trigger: oldValue is correct").toBe("2");
+    expect(testNewValue, "trigger: newValue is correct").toBe("3");
+    expect(senderType, "trigger: sender is correct").toBe("setvaluetrigger");
     (<TextValidator>survey.getQuestionByName("q1").validators[0]).maxLength = 5;
-    expect(counter, "validator: callback called").toLooseEqual(2);
-    expect(propName, "validator: property name is correct").toLooseEqual("maxLength");
-    expect(testOldValue, "validator: oldValue is correct").toLooseEqual(3);
-    expect(testNewValue, "validator: newValue is correct").toLooseEqual(5);
-    expect(senderType, "validator: sender is correct").toLooseEqual("textvalidator");
+    expect(counter, "validator: callback called").toBe(2);
+    expect(propName, "validator: property name is correct").toBe("maxLength");
+    expect(testOldValue, "validator: oldValue is correct").toBe(3);
+    expect(testNewValue, "validator: newValue is correct").toBe(5);
+    expect(senderType, "validator: sender is correct").toBe("textvalidator");
   });
 
   test("Survey questionTitleTemplate -> questionTitlePattern", () => {
     var survey = new SurveyModel();
-    expect(survey.questionTitlePattern, "default value").toLooseEqual("numTitleRequire");
+    expect(survey.questionTitlePattern, "default value").toBe("numTitleRequire");
     survey.questionTitleTemplate = "{require} {no}{title}";
-    expect(survey.questionTitlePattern, "{require} {no}{title}").toLooseEqual("requireNumTitle");
+    expect(survey.questionTitlePattern, "{require} {no}{title}").toBe("requireNumTitle");
     survey.questionTitleTemplate = "{no}{require} {title}";
-    expect(survey.questionTitlePattern, "{no}{require} {title}").toLooseEqual("numRequireTitle");
+    expect(survey.questionTitlePattern, "{no}{require} {title}").toBe("numRequireTitle");
     survey.questionTitleTemplate = "{title}";
-    expect(survey.questionTitlePattern, "{title}").toLooseEqual("numTitle");
+    expect(survey.questionTitlePattern, "{title}").toBe("numTitle");
     survey.questionTitleTemplate = "{no}{title}{require}";
-    expect(survey.questionTitlePattern, "{no}{title}{require}").toLooseEqual("numTitleRequire");
+    expect(survey.questionTitlePattern, "{no}{title}{require}").toBe("numTitleRequire");
     survey.questionTitleTemplate = "{no}{title}";
-    expect(survey.questionTitlePattern, "{no}{title}").toLooseEqual("numTitle");
+    expect(survey.questionTitlePattern, "{no}{title}").toBe("numTitle");
   });
 
   test("Survey.getQuestionTitlePatternOptions()", () => {
@@ -11248,7 +11248,7 @@ describe("Survey", () => {
   test("Survey hasLogo", () => {
     var survey = new SurveyModel({});
     expect(survey.hasLogo).toBeFalsy();
-    expect(survey.logoPosition).toLooseEqual("left");
+    expect(survey.logoPosition).toBe("left");
     expect(!!survey.locLogo.renderedHtml).toBeFalsy();
     survey.logo = "some url";
     expect(survey.hasLogo).toBeTruthy();
@@ -11266,7 +11266,7 @@ describe("Survey", () => {
   test("Survey isLogoBefore/isLogoAfter", () => {
     var survey = new SurveyModel({});
     expect(!!survey.locLogo.renderedHtml).toBeFalsy();
-    expect(survey.logoPosition).toLooseEqual("left");
+    expect(survey.logoPosition).toBe("left");
 
     expect(survey.isLogoBefore).toBeFalsy();
     expect(survey.isLogoAfter).toBeFalsy();
@@ -11296,21 +11296,21 @@ describe("Survey", () => {
 
     var survey = new SurveyModel({});
     setOldTheme(survey);
-    expect(survey.logoPosition).toLooseEqual("left");
+    expect(survey.logoPosition).toBe("left");
 
-    expect(survey.logoClassNames).toLooseEqual("sv_logo sv-logo--left");
+    expect(survey.logoClassNames).toBe("sv_logo sv-logo--left");
 
     survey.logoPosition = "top";
-    expect(survey.logoClassNames).toLooseEqual("sv_logo sv-logo--top");
+    expect(survey.logoClassNames).toBe("sv_logo sv-logo--top");
 
     survey.logoPosition = "right";
-    expect(survey.logoClassNames).toLooseEqual("sv_logo sv-logo--right");
+    expect(survey.logoClassNames).toBe("sv_logo sv-logo--right");
 
     survey.logoPosition = "bottom";
-    expect(survey.logoClassNames).toLooseEqual("sv_logo sv-logo--bottom");
+    expect(survey.logoClassNames).toBe("sv_logo sv-logo--bottom");
 
     survey.logoPosition = "none";
-    expect(survey.logoClassNames).toLooseEqual("sv_logo");
+    expect(survey.logoClassNames).toBe("sv_logo");
   });
   test("Survey.onQuestionCreated", () => {
     var survey = new SurveyModel();
@@ -11354,10 +11354,10 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getQuestionByName("q1").tag, "onQuestionCreated calls for a standard question").toLooseEqual("was here");
-    expect(survey.getQuestionByName("q2").visibleRows[0].cells[0].question.tag, "onQuestionCreated calls for a matrix cell question").toLooseEqual("was here");
-    expect(survey.getQuestionByName("q3").items[0].editor.tag, "onQuestionCreated calls for a multiple text question").toLooseEqual("was here");
-    expect(survey.getQuestionByName("q4").panels[0].questions[0].tag, "onQuestionCreated calls for a multiple text question").toLooseEqual("was here");
+    expect(survey.getQuestionByName("q1").tag, "onQuestionCreated calls for a standard question").toBe("was here");
+    expect(survey.getQuestionByName("q2").visibleRows[0].cells[0].question.tag, "onQuestionCreated calls for a matrix cell question").toBe("was here");
+    expect(survey.getQuestionByName("q3").items[0].editor.tag, "onQuestionCreated calls for a multiple text question").toBe("was here");
+    expect(survey.getQuestionByName("q4").panels[0].questions[0].tag, "onQuestionCreated calls for a multiple text question").toBe("was here");
   });
   test("Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only, matrix", () => {
     var survey = new SurveyModel({
@@ -11374,13 +11374,13 @@ describe("Survey", () => {
     });
     var question1 = survey.getQuestionByName("question1");
     question1.value = { "Row 1": "Column 2" };
-    expect(question1.errors.length, "There is no errors yet").toLooseEqual(0);
+    expect(question1.errors.length, "There is no errors yet").toBe(0);
     survey.tryComplete();
-    expect(question1.errors.length, "There is one error, isAllRowRequried").toLooseEqual(1);
+    expect(question1.errors.length, "There is one error, isAllRowRequried").toBe(1);
     question1.value = { "Row 1": "Column 3" };
-    expect(question1.errors.length, "The error was not fixed").toLooseEqual(1);
+    expect(question1.errors.length, "The error was not fixed").toBe(1);
     question1.value = { "Row 1": "Column 3", "Row 2": "Column 3" };
-    expect(question1.errors.length, "The error is gone").toLooseEqual(0);
+    expect(question1.errors.length, "The error is gone").toBe(0);
   });
   test("Survey.checkErrorsMode=onValueChanged, some errors should be shown onNextPage only, multipletext", () => {
     var survey = new SurveyModel({
@@ -11401,15 +11401,15 @@ describe("Survey", () => {
     );
     question1.items[0].editor.value = "value1";
     expect(survey.data, "Data set correctly").toEqualValues({ question1: { item1: "value1" } });
-    expect(question1.errors.length, "There is no errors yet").toLooseEqual(0);
-    expect(question1.items[1].editor.errors.length, "There is no errors in item2").toLooseEqual(0);
+    expect(question1.errors.length, "There is no errors yet").toBe(0);
+    expect(question1.items[1].editor.errors.length, "There is no errors in item2").toBe(0);
     survey.tryComplete();
-    expect(question1.items[1].editor.errors.length, "There is one error, isRequired").toLooseEqual(1);
+    expect(question1.items[1].editor.errors.length, "There is one error, isRequired").toBe(1);
     question1.items[0].editor.value = "value1_1";
-    expect(question1.items[0].editor.errors.length, "There is no errors in the first editor").toLooseEqual(0);
-    expect(question1.items[1].editor.errors.length, "The error is not fixed").toLooseEqual(1);
+    expect(question1.items[0].editor.errors.length, "There is no errors in the first editor").toBe(0);
+    expect(question1.items[1].editor.errors.length, "The error is not fixed").toBe(1);
     question1.items[1].editor.value = "value2";
-    expect(question1.items[1].editor.errors.length, "The error is gone").toLooseEqual(0);
+    expect(question1.items[1].editor.errors.length, "The error is gone").toBe(0);
   });
   test("Remove errors on settings correct values, multipletext", () => {
     var survey = new SurveyModel({
@@ -11428,13 +11428,13 @@ describe("Survey", () => {
     survey.getQuestionByName("question1")
   );
     survey.tryComplete();
-    expect(question1.items[0].editor.errors.length, "There is required error in item1").toLooseEqual(1);
-    expect(question1.items[1].editor.errors.length, "There is required error in item2").toLooseEqual(1);
+    expect(question1.items[0].editor.errors.length, "There is required error in item1").toBe(1);
+    expect(question1.items[1].editor.errors.length, "There is required error in item2").toBe(1);
     question1.items[0].editor.value = "val1";
-    expect(question1.items[0].editor.errors.length, "There is no errors in item1").toLooseEqual(0);
-    expect(question1.items[1].editor.errors.length, "There is still required error in item2").toLooseEqual(1);
+    expect(question1.items[0].editor.errors.length, "There is no errors in item1").toBe(0);
+    expect(question1.items[1].editor.errors.length, "There is still required error in item2").toBe(1);
     question1.items[1].editor.value = "val2";
-    expect(question1.items[1].editor.errors.length, "There is no errors in item2").toLooseEqual(0);
+    expect(question1.items[1].editor.errors.length, "There is no errors in item2").toBe(0);
   });
   test("Remove errors on settings correct values, paneldynamic", () => {
     var survey = new SurveyModel({
@@ -11455,9 +11455,9 @@ describe("Survey", () => {
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     survey.tryComplete();
-    expect(panel.panels[0].questions[0].errors.length, "There is required error in question").toLooseEqual(1);
+    expect(panel.panels[0].questions[0].errors.length, "There is required error in question").toBe(1);
     panel.panels[0].questions[0].value = "val1";
-    expect(panel.panels[0].questions[0].errors.length, "There is no errors in question").toLooseEqual(0);
+    expect(panel.panels[0].questions[0].errors.length, "There is no errors in question").toBe(0);
   });
   test("Remove errors on settings correct values, matrtixdynamic", () => {
     var survey = new SurveyModel({
@@ -11473,9 +11473,9 @@ describe("Survey", () => {
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     var question = matrix.visibleRows[0].cells[0].question;
     survey.tryComplete();
-    expect(question.errors.length, "There is required error in question").toLooseEqual(1);
+    expect(question.errors.length, "There is required error in question").toBe(1);
     question.value = "val1";
-    expect(question.errors.length, "There is no errors in question").toLooseEqual(0);
+    expect(question.errors.length, "There is no errors in question").toBe(0);
   });
   test("Survey.checkErrorsMode=onValueChanged, do not set incorrect value #8928, Revert #2141", () => {
     const survey = new SurveyModel({
@@ -11492,10 +11492,10 @@ describe("Survey", () => {
     });
     var question1 = survey.getQuestionByName("birthdate");
     question1.value = "2020-01-02";
-    expect(question1.errors.length, "There is one error").toLooseEqual(1);
+    expect(question1.errors.length, "There is one error").toBe(1);
     expect(survey.getValue("birthdate"), "There is no incorrect value in survey data").toBeFalsy();
     question1.value = "2000-01-02";
-    expect(question1.errors.length, "There is no errors").toLooseEqual(0);
+    expect(question1.errors.length, "There is no errors").toBe(0);
     expect(survey.getValue("birthdate"), "The value is correct").toBeTruthy();
   });
   test("Update question errors on value change if question has error already regardless survey.checkErrorsMode property. #2265", () => {
@@ -11521,16 +11521,16 @@ describe("Survey", () => {
     var q1 = survey.getQuestionByName("q1");
     var q2 = survey.getQuestionByName("q2");
     survey.tryComplete();
-    expect(q1.errors.length, "q1 is required").toLooseEqual(1);
-    expect(q2.errors.length, "q2 is required").toLooseEqual(1);
-    expect(q2.errors[0].getErrorType(), "q2 error is require").toLooseEqual("required");
+    expect(q1.errors.length, "q1 is required").toBe(1);
+    expect(q2.errors.length, "q2 is required").toBe(1);
+    expect(q2.errors[0].getErrorType(), "q2 error is require").toBe("required");
     q1.value = "some value";
     q2.value = "some value";
-    expect(q1.errors.length, "q1 has value and we remove error").toLooseEqual(0);
-    expect(q2.errors.length, "q2 has value and we remove error required error, but there is e-mail error").toLooseEqual(1);
-    expect(q2.errors[0].getErrorType(), "q2 error - wrong e-mail format").not.toLooseEqual("required");
+    expect(q1.errors.length, "q1 has value and we remove error").toBe(0);
+    expect(q2.errors.length, "q2 has value and we remove error required error, but there is e-mail error").toBe(1);
+    expect(q2.errors[0].getErrorType(), "q2 error - wrong e-mail format").not.toBe("required");
     q2.value = "jon_snow@nightwatch.org";
-    expect(q2.errors.length, "q2 has no errors").toLooseEqual(0);
+    expect(q2.errors.length, "q2 has no errors").toBe(0);
   });
   test("Update question errors on other text change if survey.checkErrorsMode property is 'onValueChanged'. Bug#1854", () => {
     const survey = new SurveyModel({
@@ -11546,17 +11546,17 @@ describe("Survey", () => {
     });
     const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q1.value = q1.otherItem.value;
-    expect(q1.errors.length, "There is no error yet, #1").toLooseEqual(0);
+    expect(q1.errors.length, "There is no error yet, #1").toBe(0);
     q1.otherValue = "some value1";
-    expect(q1.errors.length, "There is no error - there is a value, #2").toLooseEqual(0);
+    expect(q1.errors.length, "There is no error - there is a value, #2").toBe(0);
     q1.otherValue = "";
-    expect(q1.errors.length, "There is an error right now, #3").toLooseEqual(1);
+    expect(q1.errors.length, "There is an error right now, #3").toBe(1);
     q1.otherValue = "some value2";
-    expect(q1.errors.length, "There is no error again, #4").toLooseEqual(0);
+    expect(q1.errors.length, "There is no error again, #4").toBe(0);
     q1.value = 1;
     q1.value = q1.otherItem.value;
-    expect(q1.otherValue, "Comment is empty").toLooseEqual("");
-    expect(q1.errors.length, "There is no error - comment was cleaned, #5").toLooseEqual(0);
+    expect(q1.otherValue, "Comment is empty").toBe("");
+    expect(q1.errors.length, "There is no error - comment was cleaned, #5").toBe(0);
   });
   test("Update question errors on other text change if question has error already. Bug #1854", () => {
     var survey = new SurveyModel({
@@ -11572,9 +11572,9 @@ describe("Survey", () => {
     var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
     q1.value = q1.otherItem.value;
     survey.tryComplete();
-    expect(q1.errors.length, "There is an error right now").toLooseEqual(1);
+    expect(q1.errors.length, "There is an error right now").toBe(1);
     q1.otherValue = "some value";
-    expect(q1.errors.length, "There is no error now").toLooseEqual(0);
+    expect(q1.errors.length, "There is no error now").toBe(0);
   });
   test("dispose survey - https://github.com/surveyjs/survey-library/issues/2131", () => {
     var survey = new SurveyModel({
@@ -11587,11 +11587,11 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.pages.length, "One page").toLooseEqual(1);
-    expect(survey.pages[0].elements.length, "One element").toLooseEqual(1);
+    expect(survey.pages.length, "One page").toBe(1);
+    expect(survey.pages[0].elements.length, "One element").toBe(1);
     survey.dispose();
     if (!!survey.pages) {
-      expect(survey.pages.length, "No pages").toLooseEqual(0);
+      expect(survey.pages.length, "No pages").toBe(0);
     }
   });
 
@@ -11606,7 +11606,7 @@ describe("Survey", () => {
       ],
     });
     var question = survey.getQuestionByName("q1");
-    expect(question.isVisible, "question should be invisible").toLooseEqual(false);
+    expect(question.isVisible, "question should be invisible").toBe(false);
   });
 
   test("Avoid stack overrflow in triggers, Bug #2202", () => {
@@ -11633,8 +11633,8 @@ describe("Survey", () => {
     });
     survey.setValue("q1", 1);
     survey.setValue("q2", 2);
-    expect(survey.getValue("q1"), "q1 is set, no stackoverflow").toLooseEqual(1);
-    expect(survey.getValue("q2"), "q2 is set, no stackoverflow").toLooseEqual(2);
+    expect(survey.getValue("q1"), "q1 is set, no stackoverflow").toBe(1);
+    expect(survey.getValue("q2"), "q2 is set, no stackoverflow").toBe(2);
   });
 
   test("Question showNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form", () => {
@@ -11690,7 +11690,7 @@ describe("Survey", () => {
     setOldTheme(survey);
     var q1 = survey.getQuestionByName("q1");
     survey.pages[0].questionTitleLocation = "left";
-    expect(q1.getPropertyValue("cssHeader", "").trim()).toLooseEqual("title-left");
+    expect(q1.getPropertyValue("cssHeader", "").trim()).toBe("title-left");
   });
 
   test("Pages visibleIndex doesn't set correctly, https://surveyjs.answerdesk.io/ticket/details/T4506, Bug#2248", () => {
@@ -11821,10 +11821,10 @@ describe("Survey", () => {
       ],
     });
     survey.setValue("CCOP Outage?", "item2");
-    expect(survey.pages[1].isVisible, "The second page is invisible").toLooseEqual(false);
-    expect(survey.pages[1].visibleIndex, "The second page visible index is -1").toLooseEqual(-1);
-    expect(survey.pages[4].isVisible, "The 5th page is visible").toLooseEqual(true);
-    expect(survey.pages[4].visibleIndex, "The fourth page visible index is 1").toLooseEqual(1);
+    expect(survey.pages[1].isVisible, "The second page is invisible").toBe(false);
+    expect(survey.pages[1].visibleIndex, "The second page visible index is -1").toBe(-1);
+    expect(survey.pages[4].isVisible, "The 5th page is visible").toBe(true);
+    expect(survey.pages[4].visibleIndex, "The fourth page visible index is 1").toBe(1);
   });
   test("Change pages visibleIndex on page visibilityChange, https://surveyjs.answerdesk.io/ticket/details/T4506, Bug#2248", () => {
     var survey = new SurveyModel({
@@ -11860,26 +11860,26 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.pages[1].isVisible, "The second page is invisible initially").toLooseEqual(false);
-    expect(survey.pages[1].visibleIndex, "The second page visible index is -1 initially").toLooseEqual(-1);
-    expect(survey.pages[2].isVisible, "The third page is invisible initially").toLooseEqual(false);
-    expect(survey.pages[2].visibleIndex, "The third page visible index is -1 initially").toLooseEqual(-1);
+    expect(survey.pages[1].isVisible, "The second page is invisible initially").toBe(false);
+    expect(survey.pages[1].visibleIndex, "The second page visible index is -1 initially").toBe(-1);
+    expect(survey.pages[2].isVisible, "The third page is invisible initially").toBe(false);
+    expect(survey.pages[2].visibleIndex, "The third page visible index is -1 initially").toBe(-1);
     survey.setValue("question1", "item2");
-    expect(survey.pages[1].isVisible, "The second page is invisible").toLooseEqual(false);
-    expect(survey.pages[1].visibleIndex, "The second page visible index is -1").toLooseEqual(-1);
-    expect(survey.pages[2].isVisible, "The third page is visible").toLooseEqual(true);
-    expect(survey.pages[2].visibleIndex, "The third page visible index is 1").toLooseEqual(1);
+    expect(survey.pages[1].isVisible, "The second page is invisible").toBe(false);
+    expect(survey.pages[1].visibleIndex, "The second page visible index is -1").toBe(-1);
+    expect(survey.pages[2].isVisible, "The third page is visible").toBe(true);
+    expect(survey.pages[2].visibleIndex, "The third page visible index is 1").toBe(1);
   });
   test("Do allow to set incrorect name", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");
     var panel = page.addNewPanel(" panel1");
     var question = page.addNewQuestion("text", "{q1");
-    expect(page.name, "Remove trailing space from page").toLooseEqual("p1");
-    expect(panel.name, "Remove trailing space from panel").toLooseEqual("panel1");
-    expect(question.name, "Remove trailing space and { from question").toLooseEqual("q1");
+    expect(page.name, "Remove trailing space from page").toBe("p1");
+    expect(panel.name, "Remove trailing space from panel").toBe("panel1");
+    expect(question.name, "Remove trailing space and { from question").toBe("q1");
     question.name = " {q2} s ";
-    expect(question.name, "Remove trailing space and { } from question").toLooseEqual("q2 s");
+    expect(question.name, "Remove trailing space and { } from question").toBe("q2 s");
   });
   test("comment doesn't set when storeOthersAsComment equals false, Bug#2353", () => {
     var survey = new SurveyModel({
@@ -11899,7 +11899,7 @@ describe("Survey", () => {
       "test-Comment": "ABC",
     };
     var question = survey.getQuestionByName("test");
-    expect(question.comment, "Comment text set correctly").toLooseEqual("ABC");
+    expect(question.comment, "Comment text set correctly").toBe("ABC");
   });
   test("question.clickTitleFunction, Bug#2312", () => {
     var survey = new SurveyModel({
@@ -11999,15 +11999,15 @@ describe("Survey", () => {
       ],
     });
     var q1 = survey.getQuestionByName("q1");
-    expect(q1.isEmpty(), "Question is invisible").toLooseEqual(true);
+    expect(q1.isEmpty(), "Question is invisible").toBe(true);
     q1.visible = true;
-    expect(q1.isEmpty(), "Question is visible").toLooseEqual(false);
-    expect(q1.value, "get value from defaultValue").toLooseEqual(1);
+    expect(q1.isEmpty(), "Question is visible").toBe(false);
+    expect(q1.value, "get value from defaultValue").toBe(1);
     q1.visible = false;
-    expect(q1.isEmpty(), "Question is invisible #2").toLooseEqual(true);
+    expect(q1.isEmpty(), "Question is invisible #2").toBe(true);
     q1.visible = true;
-    expect(q1.isEmpty(), "Question is visible #2").toLooseEqual(false);
-    expect(q1.value, "get value from defaultValue #2").toLooseEqual(1);
+    expect(q1.isEmpty(), "Question is visible #2").toBe(false);
+    expect(q1.value, "get value from defaultValue #2").toBe(1);
   });
   test("defaultValue and survey.clearInvisibleValues='onHiddenContainer'", () => {
     var survey = new SurveyModel({
@@ -12073,12 +12073,12 @@ describe("Survey", () => {
     });
     var q1 = survey.getQuestionByName("q1");
     q1.value = 3;
-    expect(q1.validate(), "value < 5").toLooseEqual(false);
-    expect(hasQuestion, "this.question is not undefined").toLooseEqual(true);
+    expect(q1.validate(), "value < 5").toBe(false);
+    expect(hasQuestion, "this.question is not undefined").toBe(true);
     q1.value = 10;
-    expect(q1.validate(), "value > 5").toLooseEqual(true);
+    expect(q1.validate(), "value > 5").toBe(true);
     FunctionFactory.Instance.unregister("getCustValue");
-    expect(hasQuestion, "this.question is not undefined#2").toLooseEqual(true);
+    expect(hasQuestion, "this.question is not undefined#2").toBe(true);
   });
   test("Peform triggers on value changed manually", () => {
     var survey = new SurveyModel({
@@ -12149,17 +12149,17 @@ describe("Survey", () => {
     });
     const val = Helpers.convertDateToString(new Date());
     survey.setValue("q1", 1);
-    expect(survey.getValue("q2"), "Set correct date on trigger").toLooseEqual(val);
+    expect(survey.getValue("q2"), "Set correct date on trigger").toBe(val);
   });
 
   test("Update progressText on changing locale, Bug#2453", () => {
     var survey = new SurveyModel();
     survey.addPage(createPageWithQuestion("Page 1"));
     survey.addPage(createPageWithQuestion("Second page", "q2"));
-    expect(survey.progressText, "in en").toLooseEqual("Page 1 of 2");
+    expect(survey.progressText, "in en").toBe("Page 1 of 2");
     var oldLocale = survey.locale;
     survey.locale = "de";
-    expect(survey.progressText, "in de").toLooseEqual("Seite 1 von 2");
+    expect(survey.progressText, "in de").toBe("Seite 1 von 2");
     survey.locale = oldLocale;
   });
   test("Update preview edit button on changing locale, Bug#6523", () => {
@@ -12170,12 +12170,12 @@ describe("Survey", () => {
     });
     survey.showPreview();
     const panel = <PanelModel>survey.currentPage.elements[0];
-    expect(survey.locEditText.textOrHtml, "Edit - en").toLooseEqual("Edit");
+    expect(survey.locEditText.textOrHtml, "Edit - en").toBe("Edit");
     const editAction = panel.getFooterToolbar().getActionById("cancel-preview");
-    expect(editAction.locTitle.textOrHtml, "Action - en").toLooseEqual("Edit");
+    expect(editAction.locTitle.textOrHtml, "Action - en").toBe("Edit");
     survey.locale = "de";
-    expect(survey.locEditText.textOrHtml, "Edit - de").toLooseEqual("Bearbeiten");
-    expect(editAction.locTitle.textOrHtml, "Action - de").toLooseEqual("Bearbeiten");
+    expect(survey.locEditText.textOrHtml, "Edit - de").toBe("Bearbeiten");
+    expect(editAction.locTitle.textOrHtml, "Action - de").toBe("Bearbeiten");
     survey.locale = "";
   });
   test("Focus question on Survey onServerValidateQuestions event, Bug#2464", () => {
@@ -12197,11 +12197,11 @@ describe("Survey", () => {
       options.complete();
     });
     survey.tryComplete();
-    expect(survey.getQuestionByName("q1").inputId, "q1 is required").toLooseEqual(focusedQuestionId);
+    expect(survey.getQuestionByName("q1").inputId, "q1 is required").toBe(focusedQuestionId);
     survey.setValue("q1", "val1");
     focusedQuestionId = "";
     survey.tryComplete();
-    expect(survey.getQuestionByName("q2").inputId, "q2 has error").toLooseEqual(focusedQuestionId);
+    expect(survey.getQuestionByName("q2").inputId, "q2 has error").toBe(focusedQuestionId);
     SurveyElement.FocusElement = oldFunc;
   });
   test("Focus question on Survey onServerValidateQuestions event, Bug#3343", () => {
@@ -12234,12 +12234,12 @@ describe("Survey", () => {
     });
     survey.tryComplete();
     returnResult(0);
-    expect(survey.getQuestionByName("q1").inputId, "q1 is required").toLooseEqual(focusedQuestionId);
+    expect(survey.getQuestionByName("q1").inputId, "q1 is required").toBe(focusedQuestionId);
     survey.setValue("q1", "val1");
     focusedQuestionId = "";
     survey.tryComplete();
     returnResult(0);
-    expect(survey.getQuestionByName("q2").inputId, "q2 has error").toLooseEqual(focusedQuestionId);
+    expect(survey.getQuestionByName("q2").inputId, "q2 has error").toBe(focusedQuestionId);
     SurveyElement.FocusElement = oldFunc;
   });
   test("Async function with negative result, Bug#7268", () => {
@@ -12262,10 +12262,10 @@ describe("Survey", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     returnResult(true);
-    expect(q2.isVisible, "visible #1").toLooseEqual(false);
+    expect(q2.isVisible, "visible #1").toBe(false);
     q1.value = 1;
     returnResult(false);
-    expect(q2.isVisible, "visible #2").toLooseEqual(true);
+    expect(q2.isVisible, "visible #2").toBe(true);
     FunctionFactory.Instance.unregister("asyncFunc");
   });
 
@@ -12298,8 +12298,8 @@ describe("Survey", () => {
     survey.nextPage();
     survey.tryComplete();
     survey.afterRenderPage(<HTMLElement>{});
-    expect(survey.currentPageNo, "The first page is active").toLooseEqual(0);
-    expect(survey.getQuestionByName("q1").inputId, "q1 is required and q0 is not").toLooseEqual(focusedQuestionId);
+    expect(survey.currentPageNo, "The first page is active").toBe(0);
+    expect(survey.getQuestionByName("q1").inputId, "q1 is required and q0 is not").toBe(focusedQuestionId);
     SurveyElement.FocusElement = oldFunc;
   });
   test("Focus errored question when checkErrorsMode: `onComplete` + , Bug#2478", () => {
@@ -12336,13 +12336,13 @@ describe("Survey", () => {
 
     survey.setValue("q1", "val1");
     survey.nextPage();
-    expect(survey.currentPageNo, "Allow to go the second page").toLooseEqual(1);
+    expect(survey.currentPageNo, "Allow to go the second page").toBe(1);
     survey.nextPage();
-    expect(survey.currentPageNo, "Allow to go the third page").toLooseEqual(2);
+    expect(survey.currentPageNo, "Allow to go the third page").toBe(2);
     survey.tryComplete();
-    expect(survey.currentPageNo, "The first page is active").toLooseEqual(0);
-    expect(q1Value, "options.data set correctly").toLooseEqual("val1");
-    expect(survey.getQuestionByName("q1").inputId, "q1 is required and q0 is not").toLooseEqual(focusedQuestionId);
+    expect(survey.currentPageNo, "The first page is active").toBe(0);
+    expect(q1Value, "options.data set correctly").toBe("val1");
+    expect(survey.getQuestionByName("q1").inputId, "q1 is required and q0 is not").toBe(focusedQuestionId);
     SurveyElement.FocusElement = oldFunc;
   });
   test("Focus errored question when checkErrorsMode: `onComplete` & panel required", () => {
@@ -12378,10 +12378,10 @@ describe("Survey", () => {
     survey.nextPage();
     survey.nextPage();
     survey.tryComplete();
-    expect(survey.currentPageNo, "comeback to the first page").toLooseEqual(0);
-    expect(survey.getQuestionByName("q1").name, "panel is required").toLooseEqual(focusedQuestionName);
-    expect(counter, "focusQuestion called one time").toLooseEqual(1);
-    expect(isOnError, "focusQuestion called with onError = true").toLooseEqual(true);
+    expect(survey.currentPageNo, "comeback to the first page").toBe(0);
+    expect(survey.getQuestionByName("q1").name, "panel is required").toBe(focusedQuestionName);
+    expect(counter, "focusQuestion called one time").toBe(1);
+    expect(isOnError, "focusQuestion called with onError = true").toBe(true);
   });
   test("Do not focus errored question when checkErrorsMode: `onComplete` + autoFocusFirstError = false, Bug#8322", () => {
     var focusedQuestionId = "";
@@ -12410,13 +12410,13 @@ describe("Survey", () => {
       ],
     });
     survey.nextPage();
-    expect(survey.currentPageNo, "survey.currentPageNo = 1").toLooseEqual(1);
+    expect(survey.currentPageNo, "survey.currentPageNo = 1").toBe(1);
     survey.nextPage();
-    expect(survey.currentPageNo, "survey.currentPageNo = 2").toLooseEqual(2);
+    expect(survey.currentPageNo, "survey.currentPageNo = 2").toBe(2);
     focusedQuestionId = "";
     survey.tryComplete();
     survey.afterRenderPage(<HTMLElement>{});
-    expect(survey.currentPageNo, "The first page is active").toLooseEqual(0);
+    expect(survey.currentPageNo, "The first page is active").toBe(0);
     expect(focusedQuestionId, "do not focus any question").toBeFalsy();
     SurveyElement.FocusElement = oldFunc;
   });
@@ -12465,15 +12465,15 @@ describe("Survey", () => {
 
     survey.nextPage();
     survey.nextPage();
-    expect(counter, "Counter calls 2 times").toLooseEqual(2);
+    expect(counter, "Counter calls 2 times").toBe(2);
     survey.showPreview();
-    expect(counter, "Counter calls 3 times").toLooseEqual(3);
-    expect(survey.state, "We are in preview state").toLooseEqual("preview");
+    expect(counter, "Counter calls 3 times").toBe(3);
+    expect(survey.state, "We are in preview state").toBe("preview");
     survey.cancelPreview();
     generateError = true;
     survey.showPreview();
-    expect(counter, "Counter calls 4 times").toLooseEqual(4);
-    expect(survey.state, "We have an error").toLooseEqual("running");
+    expect(counter, "Counter calls 4 times").toBe(4);
+    expect(survey.state, "We have an error").toBe("running");
   });
   test("Several onServerValidateQuestions event, bug#4531", () => {
     var survey = new SurveyModel({
@@ -12490,8 +12490,8 @@ describe("Survey", () => {
       options.complete();
     });
     survey.tryComplete();
-    expect(survey.state, "Survey is not completed").toLooseEqual("running");
-    expect(survey.getQuestionByName("q2").errors.length, "There is an error in the question").toLooseEqual(1);
+    expect(survey.state, "Survey is not completed").toBe("running");
+    expect(survey.getQuestionByName("q2").errors.length, "There is an error in the question").toBe(1);
   });
   test("Several onServerValidateQuestions event without errors, bug#4531 part2", () => {
     var survey = new SurveyModel({
@@ -12507,7 +12507,7 @@ describe("Survey", () => {
       options.complete();
     });
     survey.tryComplete();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
   });
   test("showPreviewBeforeComplete and showProgressBar, Bug#2552", () => {
     var survey = new SurveyModel({
@@ -12546,11 +12546,11 @@ describe("Survey", () => {
     });
     survey.nextPage();
     survey.nextPage();
-    expect(survey.isShowProgressBarOnBottom, "We need to show progress bar").toLooseEqual(true);
+    expect(survey.isShowProgressBarOnBottom, "We need to show progress bar").toBe(true);
     survey.showPreview();
-    expect(survey.isShowProgressBarOnBottom, "We don't need to show progress bar").toLooseEqual(false);
+    expect(survey.isShowProgressBarOnBottom, "We don't need to show progress bar").toBe(false);
     survey.cancelPreview();
-    expect(survey.isShowProgressBarOnBottom, "We need to show progress bar again").toLooseEqual(true);
+    expect(survey.isShowProgressBarOnBottom, "We need to show progress bar again").toBe(true);
   });
   test("Update currentPage on showing the only page, Bug#2496", () => {
     var survey = new SurveyModel({
@@ -12584,10 +12584,10 @@ describe("Survey", () => {
     var q1 = page.addNewQuestion("text", "q1");
     q1.isRequired = true;
     q1.collapse();
-    expect(q1.isCollapsed, "Question1 is collapsed").toLooseEqual(true);
+    expect(q1.isCollapsed, "Question1 is collapsed").toBe(true);
     q1.validate(true);
-    expect(q1.isCollapsed, "Question1 is not collapsed").toLooseEqual(false);
-    expect(q1.isExpanded, "Question1 is expanded").toLooseEqual(true);
+    expect(q1.isCollapsed, "Question1 is not collapsed").toBe(false);
+    expect(q1.isExpanded, "Question1 is expanded").toBe(true);
   });
 
   test("Do not show empty required text", () => {
@@ -12595,17 +12595,17 @@ describe("Survey", () => {
     var page = survey.addNewPage("page1");
     var q1 = page.addNewQuestion("text", "q1");
     q1.isRequired = true;
-    expect(q1.isRequireTextBeforeTitle, "numTitleRequire - No required text before").toLooseEqual(false);
-    expect(q1.isRequireTextAfterTitle, "numTitleRequire - Required text after").toLooseEqual(true);
+    expect(q1.isRequireTextBeforeTitle, "numTitleRequire - No required text before").toBe(false);
+    expect(q1.isRequireTextAfterTitle, "numTitleRequire - Required text after").toBe(true);
     survey.questionTitlePattern = "numRequireTitle";
-    expect(q1.isRequireTextBeforeTitle, "numRequireTitle - Required text before").toLooseEqual(true);
-    expect(q1.isRequireTextAfterTitle, "numRequireTitle - No required text after").toLooseEqual(false);
+    expect(q1.isRequireTextBeforeTitle, "numRequireTitle - Required text before").toBe(true);
+    expect(q1.isRequireTextAfterTitle, "numRequireTitle - No required text after").toBe(false);
     survey.requiredMark = "";
-    expect(q1.isRequireTextBeforeTitle, "numRequireTitle - No required text before ''").toLooseEqual(false);
-    expect(q1.isRequireTextAfterTitle, "numRequireTitle - No required text after ''").toLooseEqual(false);
+    expect(q1.isRequireTextBeforeTitle, "numRequireTitle - No required text before ''").toBe(false);
+    expect(q1.isRequireTextAfterTitle, "numRequireTitle - No required text after ''").toBe(false);
     survey.questionTitlePattern = "numTitleRequire";
-    expect(q1.isRequireTextBeforeTitle, "numTitleRequire - No required text before ''").toLooseEqual(false);
-    expect(q1.isRequireTextAfterTitle, "numTitleRequire - No required text after ''").toLooseEqual(false);
+    expect(q1.isRequireTextBeforeTitle, "numTitleRequire - No required text before ''").toBe(false);
+    expect(q1.isRequireTextAfterTitle, "numTitleRequire - No required text after ''").toBe(false);
   });
 
   test("Check onGetPanelTitleActions event", () => {
@@ -12689,11 +12689,11 @@ describe("Survey", () => {
       ],
     });
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
-    expect(q1.visibleChoices.length, "There are 4 items").toLooseEqual(4);
+    expect(q1.visibleChoices.length, "There are 4 items").toBe(4);
     var json = q1.toJSON();
     var q2 = new QuestionImagePickerModel("q2");
     q2.fromJSON(json);
-    expect(q2.visibleChoices.length, "There are 3 items").toLooseEqual(3);
+    expect(q2.visibleChoices.length, "There are 3 items").toBe(3);
   });
 
   test("onTextRenderAs event", () => {
@@ -12702,18 +12702,18 @@ describe("Survey", () => {
     var locString = new LocalizableString(survey, false, "name");
 
     var renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(LocalizableString.defaultRenderer);
-    expect(renderAs).toLooseEqual(undefined);
+    expect(locString.renderAs).toBe(LocalizableString.defaultRenderer);
+    expect(renderAs).toBeUndefined();
 
     survey.setDesignMode(true);
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(LocalizableString.editableRenderer);
-    expect(renderAs).toLooseEqual(LocalizableString.editableRenderer);
+    expect(locString.renderAs).toBe(LocalizableString.editableRenderer);
+    expect(renderAs).toBe(LocalizableString.editableRenderer);
 
     survey.setDesignMode(false);
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(LocalizableString.defaultRenderer);
-    expect(renderAs).toLooseEqual(undefined);
+    expect(locString.renderAs).toBe(LocalizableString.defaultRenderer);
+    expect(renderAs).toBeUndefined();
 
     const customRendererView = "my-custom-renderer-view";
     const customRendererEdit = "my-custom-renderer-edit";
@@ -12723,18 +12723,18 @@ describe("Survey", () => {
     });
 
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(customRendererView);
-    expect(renderAs).toLooseEqual(customRendererView);
+    expect(locString.renderAs).toBe(customRendererView);
+    expect(renderAs).toBe(customRendererView);
 
     survey.setDesignMode(true);
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(customRendererEdit);
-    expect(renderAs).toLooseEqual(customRendererEdit);
+    expect(locString.renderAs).toBe(customRendererEdit);
+    expect(renderAs).toBe(customRendererEdit);
 
     survey.setDesignMode(false);
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(customRendererView);
-    expect(renderAs).toLooseEqual(customRendererView);
+    expect(locString.renderAs).toBe(customRendererView);
+    expect(renderAs).toBe(customRendererView);
   });
   test("onElementWrapperComponentName event vs string getRenderer", () => {
     const survey = new SurveyModel();
@@ -12752,18 +12752,18 @@ describe("Survey", () => {
     });
 
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(customRendererView);
-    expect(renderAs).toLooseEqual(customRendererView);
+    expect(locString.renderAs).toBe(customRendererView);
+    expect(renderAs).toBe(customRendererView);
 
     survey.setDesignMode(true);
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(customRendererEdit);
-    expect(renderAs).toLooseEqual(customRendererEdit);
+    expect(locString.renderAs).toBe(customRendererEdit);
+    expect(renderAs).toBe(customRendererEdit);
 
     survey.setDesignMode(false);
     renderAs = survey.getRenderer(questionName);
-    expect(locString.renderAs).toLooseEqual(customRendererView);
-    expect(renderAs).toLooseEqual(customRendererView);
+    expect(locString.renderAs).toBe(customRendererView);
+    expect(renderAs).toBe(customRendererView);
   });
   test("onElementWrapperComponentData event vs getRendererContextForString", () => {
     const survey = new SurveyModel();
@@ -12775,8 +12775,8 @@ describe("Survey", () => {
       e.data = { str: e.data, el: e.element };
     });
     const res = survey.getRendererContextForString(survey.pages[0], locString);
-    expect(res.str.name, "string is correct").toLooseEqual("name");
-    expect(res.el.name, "element is correct").toLooseEqual("page1");
+    expect(res.str.name, "string is correct").toBe("name");
+    expect(res.el.name, "element is correct").toBe("page1");
   });
 
   test("Make inputs read-only in design-mode for V2", () => {
@@ -12792,8 +12792,8 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getQuestionByName("q1").isInputReadOnly, "q1").toLooseEqual(true);
-    expect(survey.getQuestionByName("q2").isInputReadOnly, "q2").toLooseEqual(true);
+    expect(survey.getQuestionByName("q1").isInputReadOnly, "q1").toBe(true);
+    expect(survey.getQuestionByName("q2").isInputReadOnly, "q2").toBe(true);
   });
 
   test("forceIsInputReadOnly", () => {
@@ -12809,12 +12809,12 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getQuestionByName("q1").isInputReadOnly, "q1").toLooseEqual(true);
-    expect(survey.getQuestionByName("q2").isInputReadOnly, "q2").toLooseEqual(true);
+    expect(survey.getQuestionByName("q1").isInputReadOnly, "q1").toBe(true);
+    expect(survey.getQuestionByName("q2").isInputReadOnly, "q2").toBe(true);
 
     survey.getQuestionByName("q2").forceIsInputReadOnly = false;
-    expect(survey.getQuestionByName("q1").isInputReadOnly, "q1").toLooseEqual(true);
-    expect(survey.getQuestionByName("q2").isInputReadOnly, "q2 with forceIsInputReadOnly").toLooseEqual(false);
+    expect(survey.getQuestionByName("q1").isInputReadOnly, "q1").toBe(true);
+    expect(survey.getQuestionByName("q2").isInputReadOnly, "q2 with forceIsInputReadOnly").toBe(false);
   });
 
   test("onElementContentVisibilityChanged event", () => {
@@ -12839,23 +12839,23 @@ describe("Survey", () => {
     survey.onElementContentVisibilityChanged.add((s, e) => {
       stateChangedCounter++;
     });
-    expect(stateChangedCounter).toLooseEqual(0);
+    expect(stateChangedCounter).toBe(0);
 
     var panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
     panel.expand();
-    expect(stateChangedCounter).toLooseEqual(1);
+    expect(stateChangedCounter).toBe(1);
     panel.expand();
-    expect(stateChangedCounter).toLooseEqual(1);
+    expect(stateChangedCounter).toBe(1);
     panel.collapse();
-    expect(stateChangedCounter).toLooseEqual(2);
+    expect(stateChangedCounter).toBe(2);
     panel.collapse();
-    expect(stateChangedCounter).toLooseEqual(2);
+    expect(stateChangedCounter).toBe(2);
     panel.toggleState();
-    expect(stateChangedCounter).toLooseEqual(3);
+    expect(stateChangedCounter).toBe(3);
     panel.toggleState();
-    expect(stateChangedCounter).toLooseEqual(4);
+    expect(stateChangedCounter).toBe(4);
     panel.state = "expanded";
-    expect(stateChangedCounter).toLooseEqual(5);
+    expect(stateChangedCounter).toBe(5);
   });
 
   test("base.survey property", () => {
@@ -12883,20 +12883,20 @@ describe("Survey", () => {
     var dropdown = new QuestionDropdownModel("dropdown1");
     page.addElement(dropdown);
 
-    expect(page.survey.state).toLooseEqual("running");
-    expect(panel.survey.state).toLooseEqual("running");
-    expect(question.survey.state).toLooseEqual("running");
-    expect(survey.calculatedValues[0].getSurvey().state).toLooseEqual("running");
-    expect(survey.triggers[0].getSurvey().state).toLooseEqual("running");
-    expect(question.validators[0].getSurvey().state).toLooseEqual("running");
-    expect(matrixDynamic.columns[0].getSurvey().state).toLooseEqual("running");
-    expect(matrix.rows[0].getSurvey().state).toLooseEqual("running");
-    expect(matrix.columns[0].getSurvey().state).toLooseEqual("running");
-    expect(matrixDropdown.rows[0].getSurvey().state).toLooseEqual("running");
-    expect(matrixDynamic.columns[0].templateQuestion.survey.state).toLooseEqual("running");
-    expect(matrixDynamic.columns[0].choices[0].getSurvey().state).toLooseEqual("running");
-    expect(mutlipleText.items[0].getSurvey().state).toLooseEqual("running");
-    expect(dropdown.choicesByUrl.getSurvey().state).toLooseEqual("running");
+    expect(page.survey.state).toBe("running");
+    expect(panel.survey.state).toBe("running");
+    expect(question.survey.state).toBe("running");
+    expect(survey.calculatedValues[0].getSurvey().state).toBe("running");
+    expect(survey.triggers[0].getSurvey().state).toBe("running");
+    expect(question.validators[0].getSurvey().state).toBe("running");
+    expect(matrixDynamic.columns[0].getSurvey().state).toBe("running");
+    expect(matrix.rows[0].getSurvey().state).toBe("running");
+    expect(matrix.columns[0].getSurvey().state).toBe("running");
+    expect(matrixDropdown.rows[0].getSurvey().state).toBe("running");
+    expect(matrixDynamic.columns[0].templateQuestion.survey.state).toBe("running");
+    expect(matrixDynamic.columns[0].choices[0].getSurvey().state).toBe("running");
+    expect(mutlipleText.items[0].getSurvey().state).toBe("running");
+    expect(dropdown.choicesByUrl.getSurvey().state).toBe("running");
   });
 
   test("base.getSurvey(live) on removing/adding", () => {
@@ -12977,41 +12977,41 @@ describe("Survey", () => {
       a = 2;
     });
     survey.setValue("b", 1);
-    expect(a, "Do not call an event that is after diposing").toLooseEqual(1);
+    expect(a, "Do not call an event that is after diposing").toBe(1);
   });
   test("survey.isLazyRendering", () => {
     var survey = new SurveyModel();
-    expect(survey.isLazyRendering, "Not set").toLooseEqual(false);
+    expect(survey.isLazyRendering, "Not set").toBe(false);
     settings.lazyRowsRendering = true;
-    expect(survey.isLazyRendering, "set in settings").toLooseEqual(true);
+    expect(survey.isLazyRendering, "set in settings").toBe(true);
     settings.lazyRowsRendering = false;
-    expect(survey.isLazyRendering, "Not set 2").toLooseEqual(false);
+    expect(survey.isLazyRendering, "Not set 2").toBe(false);
     survey.lazyRenderEnabled = true;
-    expect(survey.isLazyRendering, "set in survey").toLooseEqual(true);
+    expect(survey.isLazyRendering, "set in survey").toBe(true);
   });
   test("getSize", () => {
-    expect(getRenderedSize("300px"), "300px").toLooseEqual(300);
-    expect(getRenderedStyleSize("300px"), "300px").toLooseEqual(undefined);
-    expect(getRenderedSize("100%"), "100%").toLooseEqual(undefined);
-    expect(getRenderedStyleSize("100%"), "300px").toLooseEqual("100%");
-    expect(getRenderedSize(100), "100px").toLooseEqual(100);
-    expect(getRenderedStyleSize(100), "100").toLooseEqual(undefined);
+    expect(getRenderedSize("300px"), "300px").toBe(300);
+    expect(getRenderedStyleSize("300px"), "300px").toBeUndefined();
+    expect(getRenderedSize("100%"), "100%").toBeUndefined();
+    expect(getRenderedStyleSize("100%"), "300px").toBe("100%");
+    expect(getRenderedSize(100), "100px").toBe(100);
+    expect(getRenderedStyleSize(100), "100").toBeUndefined();
   });
   test("survey logo size", () => {
     var survey = new SurveyModel();
-    expect(survey.logoWidth, "auto").toLooseEqual("auto");
-    expect(survey.logoHeight, "40px").toLooseEqual("40px");
-    expect(survey.renderedLogoWidth).toLooseEqual(undefined);
-    expect(survey.renderedLogoHeight).toLooseEqual(40);
-    expect(survey.renderedStyleLogoWidth).toLooseEqual("auto");
-    expect(survey.renderedStyleLogoHeight).toLooseEqual(undefined);
+    expect(survey.logoWidth, "auto").toBe("auto");
+    expect(survey.logoHeight, "40px").toBe("40px");
+    expect(survey.renderedLogoWidth).toBeUndefined();
+    expect(survey.renderedLogoHeight).toBe(40);
+    expect(survey.renderedStyleLogoWidth).toBe("auto");
+    expect(survey.renderedStyleLogoHeight).toBeUndefined();
     survey.logoWidth = "100%";
     survey.logoHeight = "auto";
-    expect(survey.logoWidth, "100%").toLooseEqual("100%");
-    expect(survey.renderedLogoWidth).toLooseEqual(undefined);
-    expect(survey.renderedLogoHeight).toLooseEqual(undefined);
-    expect(survey.renderedStyleLogoWidth).toLooseEqual("100%");
-    expect(survey.renderedStyleLogoHeight).toLooseEqual("auto");
+    expect(survey.logoWidth, "100%").toBe("100%");
+    expect(survey.renderedLogoWidth).toBeUndefined();
+    expect(survey.renderedLogoHeight).toBeUndefined();
+    expect(survey.renderedStyleLogoWidth).toBe("100%");
+    expect(survey.renderedStyleLogoHeight).toBe("auto");
   });
   test("element.searchText()", () => {
     var survey = new SurveyModel({
@@ -13056,16 +13056,16 @@ describe("Survey", () => {
       ],
     });
     var findRes = survey.searchText("ques");
-    expect(findRes.length, "Find by question title/name").toLooseEqual(3);
+    expect(findRes.length, "Find by question title/name").toBe(3);
     findRes = survey.searchText("My");
-    expect(findRes.length, "Find by element title").toLooseEqual(3);
+    expect(findRes.length, "Find by element title").toBe(3);
     findRes = survey.searchText("");
-    expect(findRes.length, "Empty string returns nothing").toLooseEqual(0);
+    expect(findRes.length, "Empty string returns nothing").toBe(0);
     findRes = survey.searchText("my");
-    expect(findRes.length, "Find by element title, we ignore cases").toLooseEqual(3);
+    expect(findRes.length, "Find by element title, we ignore cases").toBe(3);
     findRes = survey.searchText("item");
-    expect(findRes.length, "Find choices").toLooseEqual(2);
-    expect(findRes[1].element["name"], "Find choices").toLooseEqual("question2");
+    expect(findRes.length, "Find choices").toBe(2);
+    expect(findRes[1].element["name"], "Find choices").toBe("question2");
   });
   test("send notification on setLocale change for survey.title", () => {
     var survey = new SurveyModel();
@@ -13074,8 +13074,8 @@ describe("Survey", () => {
       newValue = options.newValue;
     });
     survey.locTitle.setLocaleText("", "new title");
-    expect(survey.title, "survey title is correct").toLooseEqual("new title");
-    expect(newValue, "we send notification").toLooseEqual("new title");
+    expect(survey.title, "survey title is correct").toBe("new title");
+    expect(newValue, "we send notification").toBe("new title");
   });
   test("send notification on setLocale change for survey.dataList", () => {
     var survey = new SurveyModel({
@@ -13125,10 +13125,10 @@ describe("Survey", () => {
       pageName = options.page.name;
     });
     survey.afterRenderPage(undefined);
-    expect(pageName, "We render the started page").toLooseEqual("Start Page");
+    expect(pageName, "We render the started page").toBe("Start Page");
     survey.start();
     survey.afterRenderPage(undefined);
-    expect(pageName, "We render the first page").toLooseEqual("First Page");
+    expect(pageName, "We render the first page").toBe("First Page");
   });
   test("Custom widget, test canShowInToolbox read-only property", () => {
     CustomWidgetCollection.Instance.clear();
@@ -13137,25 +13137,25 @@ describe("Survey", () => {
     var widget = CustomWidgetCollection.Instance.addCustomWidget({
       name: "first",
     });
-    expect(widget.canShowInToolbox, "widget is activated by property").toLooseEqual(false);
+    expect(widget.canShowInToolbox, "widget is activated by property").toBe(false);
     widget = CustomWidgetCollection.Instance.addCustomWidget(
       {
         name: "second",
       },
       "customtype"
     );
-    expect(widget.canShowInToolbox, "widget is activated by customtype").toLooseEqual(true);
+    expect(widget.canShowInToolbox, "widget is activated by customtype").toBe(true);
     var isLoaded = false;
     widget.widgetJson.widgetIsLoaded = (): boolean => {
       return isLoaded;
     };
-    expect(widget.canShowInToolbox, "widget is not loaded").toLooseEqual(false);
+    expect(widget.canShowInToolbox, "widget is not loaded").toBe(false);
     isLoaded = true;
-    expect(widget.canShowInToolbox, "widget is loaded").toLooseEqual(true);
+    expect(widget.canShowInToolbox, "widget is loaded").toBe(true);
     widget.showInToolbox = false;
-    expect(widget.canShowInToolbox, "widget is not show in toolbox").toLooseEqual(false);
+    expect(widget.canShowInToolbox, "widget is not show in toolbox").toBe(false);
     widget.showInToolbox = true;
-    expect(widget.canShowInToolbox, "widget is show in toolbox").toLooseEqual(true);
+    expect(widget.canShowInToolbox, "widget is show in toolbox").toBe(true);
 
     CustomWidgetCollection.Instance.clear();
   });
@@ -13188,10 +13188,10 @@ describe("Survey", () => {
         options.componentName += "#4";
       }
     });
-    expect(survey.getElementWrapperComponentName(q1, "test1"), "#1").toLooseEqual("sv-template-renderer#1");
-    expect(survey.getQuestionContentWrapperComponentName(q1), "#2").toLooseEqual("sv-template-renderer#2");
-    expect(survey.getRowWrapperComponentName(new QuestionRowModel(survey.pages[0])), "#3").toLooseEqual("sv-template-renderer#3");
-    expect(survey.getItemValueWrapperComponentName(q2.choices[0], q2), "#4").toLooseEqual("sv-template-renderer#4");
+    expect(survey.getElementWrapperComponentName(q1, "test1"), "#1").toBe("sv-template-renderer#1");
+    expect(survey.getQuestionContentWrapperComponentName(q1), "#2").toBe("sv-template-renderer#2");
+    expect(survey.getRowWrapperComponentName(new QuestionRowModel(survey.pages[0])), "#3").toBe("sv-template-renderer#3");
+    expect(survey.getItemValueWrapperComponentName(q2.choices[0], q2), "#4").toBe("sv-template-renderer#4");
   });
   test("onElementWrapperComponentName event", () => {
     const survey = new SurveyModel({
@@ -13216,10 +13216,10 @@ describe("Survey", () => {
         options.data = "#4";
       }
     });
-    expect(survey.getElementWrapperComponentData(q1, "test1"), "#1").toLooseEqual("#1");
-    expect(survey.getRowWrapperComponentData(new QuestionRowModel(survey.pages[0])), "#2").toLooseEqual("#2");
-    expect(survey.getItemValueWrapperComponentData(q2.choices[0], q2), "#3").toLooseEqual("#3");
-    expect(survey.getMatrixCellTemplateData(q3.visibleRows[0].cells[0]), "#4").toLooseEqual("#4");
+    expect(survey.getElementWrapperComponentData(q1, "test1"), "#1").toBe("#1");
+    expect(survey.getRowWrapperComponentData(new QuestionRowModel(survey.pages[0])), "#2").toBe("#2");
+    expect(survey.getItemValueWrapperComponentData(q2.choices[0], q2), "#3").toBe("#3");
+    expect(survey.getMatrixCellTemplateData(q3.visibleRows[0].cells[0]), "#4").toBe("#4");
   });
   test("Skip trigger test and auto focus first question on the page", () => {
     var focusedQuestions = [];
@@ -13266,9 +13266,9 @@ describe("Survey", () => {
       survey.afterRenderPage(undefined as any);
     });
     survey.getQuestionByName("q1").value = "item2";
-    expect(survey.currentPage.name, "We moved to another page").toLooseEqual("page2");
-    expect(focusedQuestions.length, "Only one question was focused").toLooseEqual(1);
-    expect(focusedQuestions[0], "The third question is focused").toLooseEqual(survey.getQuestionByName("q3").inputId);
+    expect(survey.currentPage.name, "We moved to another page").toBe("page2");
+    expect(focusedQuestions.length, "Only one question was focused").toBe(1);
+    expect(focusedQuestions[0], "The third question is focused").toBe(survey.getQuestionByName("q3").inputId);
     SurveyElement.FocusElement = oldFunc;
   });
 
@@ -13313,16 +13313,16 @@ describe("Survey", () => {
       ],
     });
     survey.getQuestionByName("q1").value = "item2";
-    expect(survey.currentPage.name, "We moved to another page").toLooseEqual("page3");
+    expect(survey.currentPage.name, "We moved to another page").toBe("page3");
     survey.prevPage();
-    expect(survey.currentPage.name, "We returned to first page skipping second").toLooseEqual("page1");
+    expect(survey.currentPage.name, "We returned to first page skipping second").toBe("page1");
     survey.getQuestionByName("q1").value = "item1";
     survey.nextPage();
-    expect(survey.currentPage.name, "We moved to second page").toLooseEqual("page2");
+    expect(survey.currentPage.name, "We moved to second page").toBe("page2");
     survey.nextPage();
-    expect(survey.currentPage.name, "We moved to third page").toLooseEqual("page3");
+    expect(survey.currentPage.name, "We moved to third page").toBe("page3");
     survey.prevPage();
-    expect(survey.currentPage.name, "We returned to second page").toLooseEqual("page2");
+    expect(survey.currentPage.name, "We returned to second page").toBe("page2");
   });
   test("Skip trigger test and navigate back & questionPerPage, Bug#9886", () => {
     const survey = new SurveyModel({
@@ -13351,16 +13351,16 @@ describe("Survey", () => {
       ],
     });
     survey.getQuestionByName("q1").value = "item2";
-    expect(survey.currentSingleQuestion.name, "We moved to another page").toLooseEqual("q3");
+    expect(survey.currentSingleQuestion.name, "We moved to another page").toBe("q3");
     survey.prevPage();
-    expect(survey.currentSingleQuestion.name, "We returned to first page skipping second").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "We returned to first page skipping second").toBe("q1");
     survey.getQuestionByName("q1").value = "item1";
     survey.nextPage();
-    expect(survey.currentSingleQuestion.name, "We moved to second page").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion.name, "We moved to second page").toBe("q2");
     survey.nextPage();
-    expect(survey.currentSingleQuestion.name, "We moved to third page").toLooseEqual("q3");
+    expect(survey.currentSingleQuestion.name, "We moved to third page").toBe("q3");
     survey.prevPage();
-    expect(survey.currentSingleQuestion.name, "We returned to second page").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion.name, "We returned to second page").toBe("q2");
   });
 
   test("Two skip triggers test", () => {
@@ -13401,11 +13401,11 @@ describe("Survey", () => {
       ],
     });
     survey.getQuestionByName("q1").value = "item2";
-    expect(focusedQuestions.length, "First skip").toLooseEqual(1);
-    expect(focusedQuestions[0], "The second question is focused").toLooseEqual(survey.getQuestionByName("q2").inputId);
+    expect(focusedQuestions.length, "First skip").toBe(1);
+    expect(focusedQuestions[0], "The second question is focused").toBe(survey.getQuestionByName("q2").inputId);
     survey.getQuestionByName("q1").value = "item3";
-    expect(focusedQuestions.length, "Second skip").toLooseEqual(2);
-    expect(focusedQuestions[1], "The third question is focused").toLooseEqual(survey.getQuestionByName("q3").inputId);
+    expect(focusedQuestions.length, "Second skip").toBe(2);
+    expect(focusedQuestions[1], "The third question is focused").toBe(survey.getQuestionByName("q3").inputId);
     SurveyElement.FocusElement = oldFunc;
   });
   test("Skip trigger and 'other' value", () => {
@@ -13450,9 +13450,9 @@ describe("Survey", () => {
       ],
     });
     survey.getQuestionByName("q1").value = "other";
-    expect(survey.currentPage.name, "We are still on the first page").toLooseEqual("page1");
+    expect(survey.currentPage.name, "We are still on the first page").toBe("page1");
     survey.getQuestionByName("q1").otherValue = "abc";
-    expect(survey.currentPage.name, "We moved to another page").toLooseEqual("page3");
+    expect(survey.currentPage.name, "We moved to another page").toBe("page3");
   });
   test("Skip trigger and calculated values, Bug#10376", () => {
     const survey = new SurveyModel({
@@ -13478,19 +13478,19 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.currentPage.visibleIndex, "We are on the first page").toLooseEqual(0);
+    expect(survey.currentPage.visibleIndex, "We are on the first page").toBe(0);
     let counter = 0;
     survey.onCurrentPageChanged.add((sender, options) => {
       counter++;
     });
     survey.getQuestionByName("q1").value = "a";
     survey.getQuestionByName("q2").value = "b";
-    expect(survey.getVariable("var1"), "var1 value").toLooseEqual(1);
-    expect(survey.getVariable("var2"), "var2 value").toLooseEqual(1);
-    expect(survey.getVariable("var3"), "var3 value").toLooseEqual(2);
-    expect(survey.getVariable("var4"), "var4 value").toLooseEqual(true);
-    expect(survey.currentPage.visibleIndex, "We are on the last page").toLooseEqual(2);
-    expect(counter, "We changed the page only one time").toLooseEqual(1);
+    expect(survey.getVariable("var1"), "var1 value").toBe(1);
+    expect(survey.getVariable("var2"), "var2 value").toBe(1);
+    expect(survey.getVariable("var3"), "var3 value").toBe(2);
+    expect(survey.getVariable("var4"), "var4 value").toBe(true);
+    expect(survey.currentPage.visibleIndex, "We are on the last page").toBe(2);
+    expect(counter, "We changed the page only one time").toBe(1);
   });
   test("Test SurveyElement isPage, isPanel and isQuestion properties", () => {
     var survey = new SurveyModel({
@@ -13510,60 +13510,60 @@ describe("Survey", () => {
     var page = survey.currentPage;
     var panel = <PanelModel>survey.getPanelByName("panel");
     var question = survey.getQuestionByName("question");
-    expect(page.isPage, "Page is page").toLooseEqual(true);
-    expect(page.isPanel, "Page is not panel").toLooseEqual(false);
-    expect(page.isQuestion, "Page is not question").toLooseEqual(false);
-    expect(panel.isPage, "Panel is not page").toLooseEqual(false);
-    expect(panel.isPanel, "Panel is panel").toLooseEqual(true);
-    expect(panel.isQuestion, "Panel is not question").toLooseEqual(false);
-    expect(question.isPage, "Question is not page").toLooseEqual(false);
-    expect(question.isPanel, "Question is not panel").toLooseEqual(false);
-    expect(question.isQuestion, "Question is question").toLooseEqual(true);
+    expect(page.isPage, "Page is page").toBe(true);
+    expect(page.isPanel, "Page is not panel").toBe(false);
+    expect(page.isQuestion, "Page is not question").toBe(false);
+    expect(panel.isPage, "Panel is not page").toBe(false);
+    expect(panel.isPanel, "Panel is panel").toBe(true);
+    expect(panel.isQuestion, "Panel is not question").toBe(false);
+    expect(question.isPage, "Question is not page").toBe(false);
+    expect(question.isPanel, "Question is not panel").toBe(false);
+    expect(question.isQuestion, "Question is question").toBe(true);
   });
   test("Test survey renderedHasTitle/renderedHasLogo properties", () => {
     var survey = new SurveyModel();
-    expect(survey["titleIsEmpty"], "titleIsEmpty due to no title").toLooseEqual(true);
-    expect(survey.renderedHasHeader, "hasHeader, title and logo are invisible").toLooseEqual(false);
-    expect(survey.renderedHasTitle, "There is not title").toLooseEqual(false);
+    expect(survey["titleIsEmpty"], "titleIsEmpty due to no title").toBe(true);
+    expect(survey.renderedHasHeader, "hasHeader, title and logo are invisible").toBe(false);
+    expect(survey.renderedHasTitle, "There is not title").toBe(false);
     survey.title = "title";
-    expect(survey["titleIsEmpty"], "titleIs not Empty due to title has been set").toLooseEqual(false);
-    expect(survey.renderedHasTitle, "There is title").toLooseEqual(true);
-    expect(survey.renderedHasHeader, "hasHeader, title is visible").toLooseEqual(true);
+    expect(survey["titleIsEmpty"], "titleIs not Empty due to title has been set").toBe(false);
+    expect(survey.renderedHasTitle, "There is title").toBe(true);
+    expect(survey.renderedHasHeader, "hasHeader, title is visible").toBe(true);
     survey.showTitle = false;
-    expect(survey.renderedHasTitle, "hasTitle is false").toLooseEqual(false);
+    expect(survey.renderedHasTitle, "hasTitle is false").toBe(false);
 
-    expect(survey.renderedHasLogo, "There is not logo").toLooseEqual(false);
+    expect(survey.renderedHasLogo, "There is not logo").toBe(false);
     survey.logo = "logo";
-    expect(survey.renderedHasLogo, "There is logo").toLooseEqual(true);
+    expect(survey.renderedHasLogo, "There is logo").toBe(true);
     survey.logoPosition = "none";
-    expect(survey.renderedHasTitle, "logo position is 'none'").toLooseEqual(false);
+    expect(survey.renderedHasTitle, "logo position is 'none'").toBe(false);
 
     survey.setDesignMode(true);
-    expect(survey.renderedHasTitle, "There is title, design").toLooseEqual(true);
-    expect(survey.renderedHasLogo, "There is logo, design").toLooseEqual(true);
-    expect(survey.isLogoBefore, "We do not render logo before at design, design").toLooseEqual(false);
-    expect(survey.isLogoAfter, "We do render logo after at design, design").toLooseEqual(true);
-    expect(survey.renderedHasHeader, "hasHeader, properties are visible").toLooseEqual(true);
+    expect(survey.renderedHasTitle, "There is title, design").toBe(true);
+    expect(survey.renderedHasLogo, "There is logo, design").toBe(true);
+    expect(survey.isLogoBefore, "We do not render logo before at design, design").toBe(false);
+    expect(survey.isLogoAfter, "We do render logo after at design, design").toBe(true);
+    expect(survey.renderedHasHeader, "hasHeader, properties are visible").toBe(true);
 
     Serializer.findProperty("survey", "title").visible = false;
     Serializer.findProperty("survey", "logo").visible = false;
-    expect(survey.renderedHasTitle, "There is no title, design, property invisible").toLooseEqual(false);
-    expect(survey.renderedHasLogo, "There is no logo, design, property invisible").toLooseEqual(false);
-    expect(survey.isLogoAfter, "We do not render logo after since the property is hidden, design").toLooseEqual(false);
-    expect(survey.renderedHasHeader, "hasHeader, properties are invisible").toLooseEqual(false);
+    expect(survey.renderedHasTitle, "There is no title, design, property invisible").toBe(false);
+    expect(survey.renderedHasLogo, "There is no logo, design, property invisible").toBe(false);
+    expect(survey.isLogoAfter, "We do not render logo after since the property is hidden, design").toBe(false);
+    expect(survey.renderedHasHeader, "hasHeader, properties are invisible").toBe(false);
     Serializer.findProperty("survey", "title").visible = true;
     Serializer.findProperty("survey", "logo").visible = true;
   });
   test("Test survey renderedHasDescription property", () => {
     var survey = new SurveyModel();
-    expect(survey.renderedHasDescription, "hasDescription, decription is invisible").toLooseEqual(false);
+    expect(survey.renderedHasDescription, "hasDescription, decription is invisible").toBe(false);
 
     survey.setDesignMode(true);
-    expect(survey.renderedHasDescription, "description is visible in design mode").toLooseEqual(true);
+    expect(survey.renderedHasDescription, "description is visible in design mode").toBe(true);
 
     survey.setDesignMode(false);
     survey.description = "description";
-    expect(survey.renderedHasDescription, "There is description").toLooseEqual(true);
+    expect(survey.renderedHasDescription, "There is description").toBe(true);
   });
 
   test("Test survey renderedHasTitle/renderedHasLogo properties", () => {
@@ -13592,8 +13592,8 @@ describe("Survey", () => {
       triggerPropertyName = name;
     };
     trigger.setValue = "test";
-    expect(surveyPropertyName, "get notification from survey").toLooseEqual("setValue");
-    expect(triggerPropertyName, "get notification from trigger").toLooseEqual("setValue");
+    expect(surveyPropertyName, "get notification from survey").toBe("setValue");
+    expect(triggerPropertyName, "get notification from trigger").toBe("setValue");
   });
   test("other and survey.clear", () => {
     const survey = new SurveyModel({
@@ -13629,7 +13629,7 @@ describe("Survey", () => {
   test("survey.fromJSON with existing model", () => {
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
     survey.fromJSON({ elements: [{ type: "text", name: "q2" }] });
-    expect(survey.pages.length).toLooseEqual(1);
+    expect(survey.pages.length).toBe(1);
     expect(survey.getQuestionByName("q1")).toBeFalsy();
     expect(survey.getQuestionByName("q2")).toBeTruthy();
   });
@@ -13656,13 +13656,13 @@ describe("Survey", () => {
     let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
     let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
 
-    expect(survey.autoGrowComment, "#1").toLooseEqual(true);
-    expect(comment1.renderedAutoGrow, "#2").toLooseEqual(true);
-    expect(comment2.renderedAutoGrow, "#3").toLooseEqual(true);
+    expect(survey.autoGrowComment, "#1").toBe(true);
+    expect(comment1.renderedAutoGrow, "#2").toBe(true);
+    expect(comment2.renderedAutoGrow, "#3").toBe(true);
 
     survey.autoGrowComment = false;
-    expect(comment1.renderedAutoGrow, "#4").toLooseEqual(false);
-    expect(comment2.renderedAutoGrow, "#5").toLooseEqual(true);
+    expect(comment1.renderedAutoGrow, "#4").toBe(false);
+    expect(comment2.renderedAutoGrow, "#5").toBe(true);
   });
   test("save comment autoGrow && autoResize", () => {
     let json = {
@@ -13711,17 +13711,17 @@ describe("Survey", () => {
     let comment1 = survey.getQuestionByName("comment1") as QuestionCommentModel;
     let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
 
-    expect(survey.allowResizeComment).toLooseEqual(false);
-    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = false, #1").toLooseEqual(false);
-    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = false, #2").toLooseEqual(false);
+    expect(survey.allowResizeComment).toBe(false);
+    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = false, #1").toBe(false);
+    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = false, #2").toBe(false);
 
     survey.allowResizeComment = true;
-    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = true, #3").toLooseEqual(true);
-    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = true, #4").toLooseEqual(false);
+    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = true, #3").toBe(true);
+    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = true, #4").toBe(false);
 
     survey.showPreview();
     let comment1Preview = survey.getQuestionByName("comment1");
-    expect(comment1Preview.renderedAllowResize, "#5").toLooseEqual(true);
+    expect(comment1Preview.renderedAllowResize, "#5").toBe(true);
   });
 
   test("survey.allowResizeComment & survey.autoGrowComment override this properties for individual properties", () => {
@@ -13755,19 +13755,19 @@ describe("Survey", () => {
     let comment2 = survey.getQuestionByName("comment2") as QuestionCommentModel;
     let comment3 = survey.getQuestionByName("comment3") as QuestionCommentModel;
 
-    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = false, #1").toLooseEqual(true);
-    expect(comment1.renderedAutoGrow, "comment1 survey.autoGrowComment = false, #2").toLooseEqual(true);
-    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = false, #3").toLooseEqual(false);
-    expect(comment2.renderedAutoGrow, "comment2 survey.autoGrowComment = false, #4").toLooseEqual(false);
-    expect(comment3.renderedAutoGrow, "comment2 survey.autoGrowComment = false, #5").toLooseEqual(false);
+    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = false, #1").toBe(true);
+    expect(comment1.renderedAutoGrow, "comment1 survey.autoGrowComment = false, #2").toBe(true);
+    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = false, #3").toBe(false);
+    expect(comment2.renderedAutoGrow, "comment2 survey.autoGrowComment = false, #4").toBe(false);
+    expect(comment3.renderedAutoGrow, "comment2 survey.autoGrowComment = false, #5").toBe(false);
 
     survey.allowResizeComment = true;
     survey.autoGrowComment = true;
-    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = true, #6").toLooseEqual(true);
-    expect(comment1.renderedAutoGrow, "comment1 survey.autoGrowComment = true, #7").toLooseEqual(true);
-    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = true, #8").toLooseEqual(true);
-    expect(comment2.renderedAutoGrow, "comment2 survey.autoGrowComment = true, #9").toLooseEqual(true);
-    expect(comment3.renderedAutoGrow, "comment2 survey.autoGrowComment = true, #10").toLooseEqual(false);
+    expect(comment1.renderedAllowResize, "comment1 survey.allowResizeComment = true, #6").toBe(true);
+    expect(comment1.renderedAutoGrow, "comment1 survey.autoGrowComment = true, #7").toBe(true);
+    expect(comment2.renderedAllowResize, "comment2 survey.allowResizeComment = true, #8").toBe(true);
+    expect(comment2.renderedAutoGrow, "comment2 survey.autoGrowComment = true, #9").toBe(true);
+    expect(comment3.renderedAutoGrow, "comment2 survey.autoGrowComment = true, #10").toBe(false);
   });
 
   test("getDefaultPropertyValue for comment properties autoGrow & allowResize", () => {
@@ -13797,7 +13797,7 @@ describe("Survey", () => {
       };
     };
     increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-    expect(element.style.height).toLooseEqual("103px");
+    expect(element.style.height).toBe("103px");
 
     element = {
       getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
@@ -13811,7 +13811,7 @@ describe("Survey", () => {
       getAttribute: (attr: string) => "2"
     };
     increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-    expect(element.style.height).toLooseEqual("79px");
+    expect(element.style.height).toBe("79px");
 
     element = {
       getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
@@ -13826,7 +13826,7 @@ describe("Survey", () => {
       getAttribute: (attr: string) => "2"
     };
     increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-    expect(element.style.height).toLooseEqual("103px");
+    expect(element.style.height).toBe("103px");
 
   });
   test("test titleTagName, survey.cssTitle properties and getTitleOwner", () => {
@@ -13839,12 +13839,12 @@ describe("Survey", () => {
       ]
     });
     setOldTheme(survey);
-    expect(survey.getQuestionByName("q1").titleTagName).toLooseEqual("div");
-    expect((<PanelModel>survey.getPanelByName("p1")).titleTagName).toLooseEqual("div");
-    expect(survey.pages[0].titleTagName).toLooseEqual("div");
-    expect(survey.titleTagName).toLooseEqual("div");
-    expect(survey.cssTitle, "survey css").toLooseEqual(survey.css.title);
-    expect(survey.pages[0].cssTitle, "page css").toLooseEqual("sv_page_title");
+    expect(survey.getQuestionByName("q1").titleTagName).toBe("div");
+    expect((<PanelModel>survey.getPanelByName("p1")).titleTagName).toBe("div");
+    expect(survey.pages[0].titleTagName).toBe("div");
+    expect(survey.titleTagName).toBe("div");
+    expect(survey.cssTitle, "survey css").toBe(survey.css.title);
+    expect(survey.pages[0].cssTitle, "page css").toBe("sv_page_title");
     expect(survey.getQuestionByName("q1").getTitleOwner()).toBeTruthy();
     expect((<PanelModel>survey.getPanelByName("p1")).getTitleOwner()).toBeTruthy();
     expect(survey.pages[0].getTitleOwner()).toBeTruthy();
@@ -13864,17 +13864,17 @@ describe("Survey", () => {
     settings.titleTags.page = "h2";
     settings.titleTags.panel = "h3";
     settings.titleTags.question = "h4";
-    expect(survey.getQuestionByName("q1").titleTagName).toLooseEqual("h4");
-    expect((<PanelModel>survey.getPanelByName("p1")).titleTagName).toLooseEqual("h3");
-    expect(survey.pages[0].titleTagName).toLooseEqual("h2");
-    expect(survey.titleTagName).toLooseEqual("h1");
+    expect(survey.getQuestionByName("q1").titleTagName).toBe("h4");
+    expect((<PanelModel>survey.getPanelByName("p1")).titleTagName).toBe("h3");
+    expect(survey.pages[0].titleTagName).toBe("h2");
+    expect(survey.titleTagName).toBe("h1");
     survey.onGetTitleTagName.add((sender, options) => {
       options.tagName = options.tagName + options.element.getType()[0];
     });
-    expect(survey.getQuestionByName("q1").titleTagName).toLooseEqual("h4t");
-    expect((<PanelModel>survey.getPanelByName("p1")).titleTagName).toLooseEqual("h3p");
-    expect(survey.pages[0].titleTagName).toLooseEqual("h2p");
-    expect(survey.titleTagName).toLooseEqual("h1s");
+    expect(survey.getQuestionByName("q1").titleTagName).toBe("h4t");
+    expect((<PanelModel>survey.getPanelByName("p1")).titleTagName).toBe("h3p");
+    expect(survey.pages[0].titleTagName).toBe("h2p");
+    expect(survey.titleTagName).toBe("h1s");
     settings.titleTags = savedTitleTags;
   });
   test("hasTitle + designTime", () => {
@@ -13902,9 +13902,9 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "q1" }]
     });
     const question = survey.getQuestionByName("q1");
-    expect(question.titleTabIndex, "We do not have tabIndex").toLooseEqual(undefined);
+    expect(question.titleTabIndex, "We do not have tabIndex").toBeUndefined();
     question.state = "collapsed";
-    expect(question.titleTabIndex, "We need tabIndex now").toLooseEqual(0);
+    expect(question.titleTabIndex, "We need tabIndex now").toBe(0);
   });
   test("show panel title if survey.showPageTitles is false", () => {
     const survey = new SurveyModel({
@@ -13919,11 +13919,11 @@ describe("Survey", () => {
     });
     const panel = <PanelModel>survey.getPanelByName("panel");
     const page = survey.pages[0];
-    expect(panel.hasTitle, "We show title for panels").toLooseEqual(true);
-    expect(page.hasTitle, "We hide title for page").toLooseEqual(false);
+    expect(panel.hasTitle, "We show title for panels").toBe(true);
+    expect(page.hasTitle, "We hide title for page").toBe(false);
     survey.setDesignMode(true);
-    expect(panel.hasTitle, "We show title for panels in design").toLooseEqual(true);
-    expect(page.hasTitle, "We show title for page in design").toLooseEqual(true);
+    expect(panel.hasTitle, "We show title for panels in design").toBe(true);
+    expect(page.hasTitle, "We show title for page in design").toBe(true);
   });
   test("Do panel click without actions, but if it has state", () => {
     const survey = new SurveyModel({
@@ -13940,10 +13940,10 @@ describe("Survey", () => {
       options.actions = [];
     });
     const panel = <PanelModel>survey.getPanelByName("panel");
-    expect(panel.hasTitleActions, "Delete all actions").toLooseEqual(false);
-    expect(panel.hasTitleEvents, "It has non defult state").toLooseEqual(true);
+    expect(panel.hasTitleActions, "Delete all actions").toBe(false);
+    expect(panel.hasTitleEvents, "It has non defult state").toBe(true);
     panel.state = "default";
-    expect(panel.hasTitleEvents, "It has defult state").toLooseEqual(false);
+    expect(panel.hasTitleEvents, "It has defult state").toBe(false);
   });
 
   test("Do not panel click with actions, but width 'default' state", () => {
@@ -13961,7 +13961,7 @@ describe("Survey", () => {
       options.actions = [{ id: "action" }];
     });
     const panel = <PanelModel>survey.getPanelByName("panel");
-    expect(panel.hasTitleEvents, "hasTitleEvents should return false if question has 'default' state").toLooseEqual(false);
+    expect(panel.hasTitleEvents, "hasTitleEvents should return false if question has 'default' state").toBe(false);
   });
 
   test("Set values with trimming and caseSensitive", () => {
@@ -13976,11 +13976,11 @@ describe("Survey", () => {
       }
     });
     question.name = "Q1";
-    expect(question.name).toLooseEqual("Q1");
-    expect(hash["name"]).toLooseEqual(1);
+    expect(question.name).toBe("Q1");
+    expect(hash["name"]).toBe(1);
     question.title = " hello  ";
-    expect(question.title).toLooseEqual(" hello  ");
-    expect(hash["title"]).toLooseEqual(1);
+    expect(question.title).toBe(" hello  ");
+    expect(hash["title"]).toBe(1);
   });
 
   test("Modify question value, call onValueChanged by ignoring trimming and ", () => {
@@ -13993,12 +13993,12 @@ describe("Survey", () => {
       counter++;
     });
     question.value = "q";
-    expect(counter).toLooseEqual(1);
+    expect(counter).toBe(1);
     question.value = "Q";
-    expect(counter).toLooseEqual(2);
+    expect(counter).toBe(2);
     question.value = " Q ";
-    expect(counter).toLooseEqual(3);
-    expect(survey.getValue("q1")).toLooseEqual(" Q ");
+    expect(counter).toBe(3);
+    expect(survey.getValue("q1")).toBe(" Q ");
   });
   test("Modify question array value, call onValueChanged by ignoring trimming and ", () => {
     const survey = new SurveyModel({
@@ -14013,9 +14013,9 @@ describe("Survey", () => {
       counter++;
     });
     rows[1].cells[0].value = "Val2";
-    expect(counter).toLooseEqual(1);
+    expect(counter).toBe(1);
     rows[1].cells[0].value = " Val2 ";
-    expect(counter).toLooseEqual(2);
+    expect(counter).toBe(2);
     expect(question.value).toEqualValues([{ col1: "val1" }, { col1: " Val2 " }]);
   });
   test("page.fromJSON() doesn't work correctly, Bug#3331", () => {
@@ -14027,7 +14027,7 @@ describe("Survey", () => {
     const pg = survey.addNewPage();
     pg.fromJSON(pageJSON);
     const question = <QuestionCheckboxModel>survey.getAllQuestions()[0];
-    expect(question.visibleChoices.length, "Visible choices are set").toLooseEqual(3);
+    expect(question.visibleChoices.length, "Visible choices are set").toBe(3);
   });
   test("start page is invisible", () => {
     const survey = new SurveyModel({
@@ -14053,7 +14053,7 @@ describe("Survey", () => {
     });
     const startPage = survey.startPage;
     expect(startPage).toBeTruthy();
-    expect(startPage.isVisible, "started page is visible").toLooseEqual(true);
+    expect(startPage.isVisible, "started page is visible").toBe(true);
   });
   test("firstPageIsStartPage = true and prevPage()", () => {
     var survey = new SurveyModel();
@@ -14062,12 +14062,12 @@ describe("Survey", () => {
       page.addNewQuestion("text");
     }
     survey.firstPageIsStartPage = true;
-    expect(survey.prevPage()).toLooseEqual(false);
+    expect(survey.prevPage()).toBe(false);
     survey.start();
-    expect(survey.prevPage()).toLooseEqual(false);
+    expect(survey.prevPage()).toBe(false);
     survey.nextPage();
-    expect(survey.prevPage()).toLooseEqual(true);
-    expect(survey.currentPageNo).toLooseEqual(0);
+    expect(survey.prevPage()).toBe(true);
+    expect(survey.currentPageNo).toBe(0);
   });
   test("firstPageIsStartPage = true and invisible questions and clear", () => {
     var survey = new SurveyModel({
@@ -14087,13 +14087,13 @@ describe("Survey", () => {
       ]
     });
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.isVisible, "initially invisible").toLooseEqual(false);
+    expect(q2.isVisible, "initially invisible").toBe(false);
     survey.setValue("q1", 1);
-    expect(q2.isVisible, "visible now").toLooseEqual(true);
+    expect(q2.isVisible, "visible now").toBe(true);
     survey.nextPage();
     survey.doComplete();
     survey.clear(true, true);
-    expect(q2.isVisible, "invisible again").toLooseEqual(false);
+    expect(q2.isVisible, "invisible again").toBe(false);
   });
   test("firstPageIsStartPage = true and clear&state='starting'", () => {
     const survey = new SurveyModel({
@@ -14118,22 +14118,22 @@ describe("Survey", () => {
       ]
     });
     const startButton = survey.navigationBar.getActionById("sv-nav-start");
-    expect(survey.state, "starting state #1").toLooseEqual("starting");
-    expect(survey.getPropertyValue("isStartedState"), "isStartedState #1").toLooseEqual(true);
-    expect(startButton.isVisible, "startButton is visible, #1").toLooseEqual(true);
-    expect(survey.showNavigationButtons, "Show navigation on bottom - true").toLooseEqual(true);
-    expect(survey.navigationButtonsLocation, "Show navigation on bottom").toLooseEqual("bottom");
+    expect(survey.state, "starting state #1").toBe("starting");
+    expect(survey.getPropertyValue("isStartedState"), "isStartedState #1").toBe(true);
+    expect(startButton.isVisible, "startButton is visible, #1").toBe(true);
+    expect(survey.showNavigationButtons, "Show navigation on bottom - true").toBe(true);
+    expect(survey.navigationButtonsLocation, "Show navigation on bottom").toBe("bottom");
     survey.start();
-    expect(survey.state, "run survey").toLooseEqual("running");
-    expect(survey.getPropertyValue("isStartedState"), "isStartedState #2").toLooseEqual(false);
+    expect(survey.state, "run survey").toBe("running");
+    expect(survey.getPropertyValue("isStartedState"), "isStartedState #2").toBe(false);
     survey.doComplete();
-    expect(survey.state, "survey is completed").toLooseEqual("completed");
-    expect(survey.getPropertyValue("isStartedState"), "isStartedState #3").toLooseEqual(false);
+    expect(survey.state, "survey is completed").toBe("completed");
+    expect(survey.getPropertyValue("isStartedState"), "isStartedState #3").toBe(false);
     survey.clear();
-    expect(survey.state, "starting state #2").toLooseEqual("starting");
-    expect(survey.getPropertyValue("isStartedState"), "isStartedState #4").toLooseEqual(true);
-    expect(startButton.isVisible, "startButton is visible, #2").toLooseEqual(true);
-    expect(survey.isNavigationButtonsShowing, "Show navigation buttons on start").toLooseEqual("bottom");
+    expect(survey.state, "starting state #2").toBe("starting");
+    expect(survey.getPropertyValue("isStartedState"), "isStartedState #4").toBe(true);
+    expect(startButton.isVisible, "startButton is visible, #2").toBe(true);
+    expect(survey.isNavigationButtonsShowing, "Show navigation buttons on start").toBe("bottom");
   });
   test("skeleton component name", () => {
     var survey = new SurveyModel({
@@ -14149,46 +14149,46 @@ describe("Survey", () => {
       ]
     });
     const question = survey.getAllQuestions()[0];
-    expect(survey.skeletonComponentName).toLooseEqual("sv-skeleton");
-    expect(question.skeletonComponentName).toLooseEqual("sv-skeleton");
+    expect(survey.skeletonComponentName).toBe("sv-skeleton");
+    expect(question.skeletonComponentName).toBe("sv-skeleton");
     survey.skeletonComponentName = "";
-    expect(survey.skeletonComponentName).toLooseEqual("");
-    expect(question.skeletonComponentName).toLooseEqual("");
+    expect(survey.skeletonComponentName).toBe("");
+    expect(question.skeletonComponentName).toBe("");
   });
   test("Make sure to have currentPage on adding new question/page/visibility in code", () => {
     const survey = new SurveyModel();
-    expect(survey.getPropertyValue("currentPage"), "There is no pages").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "There is no pages").toBeUndefined();
     const newPage = new PageModel("page1");
     newPage.addNewQuestion("text", "q1");
     survey.pages.push(newPage);
-    expect(survey.getPropertyValue("currentPage").name, "We have added a new current page").toLooseEqual(survey.pages[0].name);
+    expect(survey.getPropertyValue("currentPage").name, "We have added a new current page").toBe(survey.pages[0].name);
     survey.pages.shift();
-    expect(survey.getPropertyValue("currentPage"), "There is no new pages again").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "There is no new pages again").toBeNull();
     survey.addNewPage("page1");
-    expect(survey.getPropertyValue("currentPage"), "There is no visible pages").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "There is no visible pages").toBeNull();
     survey.pages[0].addNewQuestion("text", "q1");
-    expect(survey.getPropertyValue("currentPage").name, "There is current page").toLooseEqual(survey.pages[0].name);
+    expect(survey.getPropertyValue("currentPage").name, "There is current page").toBe(survey.pages[0].name);
     survey.pages[0].visible = false;
-    expect(survey.getPropertyValue("currentPage"), "We make page invisible").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "We make page invisible").toBeNull();
     survey.pages[0].visible = true;
-    expect(survey.getPropertyValue("currentPage").name, "We make the page visible").toLooseEqual(survey.pages[0].name);
+    expect(survey.getPropertyValue("currentPage").name, "We make the page visible").toBe(survey.pages[0].name);
   });
   test("Make invisible question visible in the only page", () => {
     const survey = new SurveyModel();
-    expect(survey.getPropertyValue("currentPage"), "There is no pages").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "There is no pages").toBeUndefined();
     const newPage = new PageModel("page1");
     newPage.addNewQuestion("text", "q1");
     newPage.addNewQuestion("text", "q2");
     newPage.questions[0].visible = false;
     newPage.questions[1].visible = false;
     survey.pages.push(newPage);
-    expect(survey.getPropertyValue("currentPage"), "There is no visible pages").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "There is no visible pages").toBeUndefined();
     newPage.questions[0].visible = true;
-    expect(survey.getPropertyValue("currentPage").name, "New page is visible now").toLooseEqual(survey.pages[0].name);
+    expect(survey.getPropertyValue("currentPage").name, "New page is visible now").toBe(survey.pages[0].name);
     newPage.questions[0].visible = false;
-    expect(survey.getPropertyValue("currentPage"), "There is no visible pages, #2").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("currentPage"), "There is no visible pages, #2").toBeNull();
     newPage.questions[1].visible = true;
-    expect(survey.getPropertyValue("currentPage").name, "New page is visible now, #2").toLooseEqual(survey.pages[0].name);
+    expect(survey.getPropertyValue("currentPage").name, "New page is visible now, #2").toBe(survey.pages[0].name);
   });
   test("clear value for question in invisible panel with non-empty valueName property", () => {
     const survey = new SurveyModel({
@@ -14224,7 +14224,7 @@ describe("Survey", () => {
       counter++;
     });
     survey.currentPageNo = 1;
-    expect(counter, "onQuestionAdded is not fired").toLooseEqual(0);
+    expect(counter, "onQuestionAdded is not fired").toBe(0);
   });
   test("onQuestionAdded & changing parent", () => {
     const survey = new SurveyModel({
@@ -14244,16 +14244,16 @@ describe("Survey", () => {
     survey.onQuestionRemoved.add((sender, options) => {
       removedCounter++;
     });
-    expect(addedCounter, "onQuestionAdded is not fired, #1").toLooseEqual(0);
+    expect(addedCounter, "onQuestionAdded is not fired, #1").toBe(0);
     survey.getQuestionByName("q1").page = survey.pages[1];
     survey.getQuestionByName("q3").page = survey.pages[0];
-    expect(addedCounter, "onQuestionAdded is not fired, #2").toLooseEqual(0);
+    expect(addedCounter, "onQuestionAdded is not fired, #2").toBe(0);
     const q = new QuestionTextModel("q5");
     q.page = survey.pages[1];
-    expect(addedCounter, "onQuestionAdded is fired for q5, #3").toLooseEqual(1);
-    expect(removedCounter, "onQuestionRemoved #1").toLooseEqual(0);
+    expect(addedCounter, "onQuestionAdded is fired for q5, #3").toBe(1);
+    expect(removedCounter, "onQuestionRemoved #1").toBe(0);
     q.delete();
-    expect(removedCounter, "onQuestionRemoved #2").toLooseEqual(1);
+    expect(removedCounter, "onQuestionRemoved #2").toBe(1);
   });
   test("Set values into radiogroup and checkbox questions before creating them", () => {
     const survey = new SurveyModel();
@@ -14267,9 +14267,9 @@ describe("Survey", () => {
     expect(survey.data, "Survey data is correct").toEqualValues({ q1: 1, q2: [1, 2] });
     const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
-    expect(q1.value, "radiogroup value").toLooseEqual(1);
+    expect(q1.value, "radiogroup value").toBe(1);
     expect(q2.value, "checkbox value").toEqualValues([1, 2]);
-    expect(q1.renderedValue, "radiogroup rendered value").toLooseEqual(1);
+    expect(q1.renderedValue, "radiogroup rendered value").toBe(1);
     expect(q2.renderedValue, "checkbox rendered value").toEqualValues([1, 2]);
   });
   test("Checkbox, invsible item with default Value", () => {
@@ -14286,11 +14286,11 @@ describe("Survey", () => {
       ]
     });
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.isEmpty(), "question is empty").toLooseEqual(true);
+    expect(q2.isEmpty(), "question is empty").toBe(true);
     survey.setValue("q1", 2);
     expect(q2.value, "Respect default value").toEqualValues([1]);
     survey.setValue("q1", 1);
-    expect(q2.isEmpty(), "question is empty again").toLooseEqual(true);
+    expect(q2.isEmpty(), "question is empty again").toBe(true);
     survey.setValue("q1", 2);
     expect(q2.value, "Respect default value again").toEqualValues([1]);
     q2.value = [2];
@@ -14332,7 +14332,7 @@ describe("Survey", () => {
       "clearInvisibleValues": "none"
     });
     survey.setValue("question1", "item2");
-    expect(survey.getValue("question2"), "Trigger is working").toLooseEqual("item2");
+    expect(survey.getValue("question2"), "Trigger is working").toBe("item2");
     expect(survey.data, "Data is correct").toEqualValues({ question1: "item2", question2: "item2" });
     survey.doComplete();
     expect(survey.data, "Data is correct after completed").toEqualValues({ question1: "item2", question2: "item2" });
@@ -14355,14 +14355,14 @@ describe("Survey", () => {
       delete valuesHash[key];
     };
     survey.setValue("a", "abc");
-    expect(survey.getValue("a")).toLooseEqual("abc");
+    expect(survey.getValue("a")).toBe("abc");
     survey.clearValue("a");
-    expect(getCounter > 0, "getCounter").toLooseEqual(true);
-    expect(setCounter, "setCounter").toLooseEqual(1);
-    expect(deleteCounter, "deleteCounter").toLooseEqual(1);
+    expect(getCounter > 0, "getCounter").toBe(true);
+    expect(setCounter, "setCounter").toBe(1);
+    expect(deleteCounter, "deleteCounter").toBe(1);
     const oldGetCount = getCounter;
-    expect(survey.getValue("a")).toLooseEqual(undefined);
-    expect(getCounter, "getCounter #2").toLooseEqual(oldGetCount + 1);
+    expect(survey.getValue("a")).toBeUndefined();
+    expect(getCounter, "getCounter #2").toBe(oldGetCount + 1);
   });
   test("Run expressions on changing comments", () => {
     const survey = new SurveyModel({
@@ -14385,12 +14385,12 @@ describe("Survey", () => {
       ]
     });
     const question2 = survey.getQuestionByName("question2");
-    expect(question2.isVisible, "Invisible by default").toLooseEqual(false);
+    expect(question2.isVisible, "Invisible by default").toBe(false);
     survey.setComment("question1", "abcd");
     expect(survey.data, "Check comment value").toEqualValues({ "question1-Comment": "abcd" });
-    expect(question2.isVisible, "visible").toLooseEqual(true);
+    expect(question2.isVisible, "visible").toBe(true);
     survey.setComment("question1", "abc");
-    expect(question2.isVisible, "Invisible again").toLooseEqual(false);
+    expect(question2.isVisible, "Invisible again").toBe(false);
   });
 
   test("Check survey resize observer", () => {
@@ -14467,11 +14467,11 @@ describe("Survey", () => {
       return true;
     };
     survey.afterRenderSurvey(rootEl);
-    expect(trace).toLooseEqual("->processed");
+    expect(trace).toBe("->processed");
     (<any>survey["resizeObserver"]).call();
-    expect(trace, "prevent double process").toLooseEqual("->processed");
+    expect(trace, "prevent double process").toBe("->processed");
     (<any>survey["resizeObserver"]).call();
-    expect(trace).toLooseEqual("->processed->processed");
+    expect(trace).toBe("->processed->processed");
     window.ResizeObserver = ResizeObserver;
     window.getComputedStyle = getComputedStyle;
     rootEl.remove();
@@ -14507,11 +14507,11 @@ describe("Survey", () => {
     Object.defineProperty(rootEl, "offsetWidth", { configurable: true, get: () => __visible ? 800 : 0 });
     Object.defineProperty(rootEl, "offsetHeight", { configurable: true, get: () => __visible ? 600 : 0 });
     survey.afterRenderSurvey(rootEl);
-    expect(trace, "do not process responsivness on invisible container").toLooseEqual("");
+    expect(trace, "do not process responsivness on invisible container").toBe("");
     rootEl.style.display = "block";
     __visible = true;
     (<any>survey["resizeObserver"]).call();
-    expect(trace, "process responsivness on visible container").toLooseEqual("->processed");
+    expect(trace, "process responsivness on visible container").toBe("->processed");
     window.ResizeObserver = ResizeObserver;
     window.getComputedStyle = getComputedStyle;
     rootEl.remove();
@@ -14531,18 +14531,18 @@ describe("Survey", () => {
       log += `->width: ${width}; height: ${height}`;
     });
     let isProcessed = survey["processResponsiveness"](500, 600, 800);
-    expect(log).toLooseEqual("->width: 500; height: 800");
+    expect(log).toBe("->width: 500; height: 800");
     expect(survey._isMobile).toBeTruthy();
     expect(isProcessed).toBeTruthy();
 
     log = "";
     isProcessed = survey["processResponsiveness"](600, 500, 400);
-    expect(log).toLooseEqual("->width: 600; height: 400");
+    expect(log).toBe("->width: 600; height: 400");
     expect(isProcessed).toBeTruthy();
 
     log = "";
     isProcessed = survey["processResponsiveness"](800, 500, 300);
-    expect(log).toLooseEqual("->width: 800; height: 300");
+    expect(log).toBe("->width: 800; height: 300");
     expect(survey._isMobile).toBeFalsy();
     expect(isProcessed).toBeFalsy();
   });
@@ -14559,20 +14559,20 @@ describe("Survey", () => {
     setOldTheme(survey);
     const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
     expect(action1 === survey.navigationBar.actions[0]).toBeTruthy();
-    expect(action1.id).toLooseEqual("custom-btn");
-    expect(action1.innerCss).toLooseEqual("sv_nav_btn");
-    expect(action1.component).toLooseEqual("sv-nav-btn");
+    expect(action1.id).toBe("custom-btn");
+    expect(action1.innerCss).toBe("sv_nav_btn");
+    expect(action1.component).toBe("sv-nav-btn");
 
     const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
     expect(action2 === survey.navigationBar.actions[2]).toBeTruthy();
-    expect(action2.id).toLooseEqual("custom-btn-2");
-    expect(action2.innerCss).toLooseEqual("custom-css");
-    expect(action2.component).toLooseEqual("sv-nav-btn");
+    expect(action2.id).toBe("custom-btn-2");
+    expect(action2.innerCss).toBe("custom-css");
+    expect(action2.component).toBe("sv-nav-btn");
 
     const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
     expect(action3 === survey.navigationBar.actions[4]).toBeTruthy();
-    expect(action3.id).toLooseEqual("custom-btn-3");
-    expect(action3.component).toLooseEqual("custom-component");
+    expect(action3.id).toBe("custom-btn-3");
+    expect(action3.component).toBe("custom-component");
   });
 
   test("Check addNavigationItem with taskManager.waitAndExecute", () => {
@@ -14599,9 +14599,9 @@ describe("Survey", () => {
         }
       });
       expect(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar").toBeTruthy();
-      expect(action.id, "Action should have correct id").toLooseEqual("test-btn");
-      expect(action.component, "Action should have default component").toLooseEqual("sv-nav-btn");
-      expect(action.innerCss, "Action should have default innerCss").toLooseEqual("sv_nav_btn");
+      expect(action.id, "Action should have correct id").toBe("test-btn");
+      expect(action.component, "Action should have default component").toBe("sv-nav-btn");
+      expect(action.innerCss, "Action should have default innerCss").toBe("sv_nav_btn");
 
       survey["taskManager"].runTask("test-task", (completed) => {
         actionExecutionOrder.push("task-started");
@@ -14612,17 +14612,17 @@ describe("Survey", () => {
       });
 
       expect(actionExecuted, "Action should not be executed immediately when there are active tasks").toBeFalsy();
-      expect(actionExecutionOrder.length, "Only task-started should be in execution order").toLooseEqual(1);
-      expect(actionExecutionOrder[0], "First should be task-started").toLooseEqual("task-started");
+      expect(actionExecutionOrder.length, "Only task-started should be in execution order").toBe(1);
+      expect(actionExecutionOrder[0], "First should be task-started").toBe("task-started");
 
       action.action();
 
       vi.advanceTimersByTime(50);
       expect(actionExecuted, "Action should be executed after task completion").toBeTruthy();
-      expect(actionExecutionOrder.length, "Should have 3 execution steps").toLooseEqual(3);
-      expect(actionExecutionOrder[0], "First should be task-started").toLooseEqual("task-started");
-      expect(actionExecutionOrder[1], "Second should be task-completed").toLooseEqual("task-completed");
-      expect(actionExecutionOrder[2], "Third should be action-executed").toLooseEqual("action-executed");
+      expect(actionExecutionOrder.length, "Should have 3 execution steps").toBe(3);
+      expect(actionExecutionOrder[0], "First should be task-started").toBe("task-started");
+      expect(actionExecutionOrder[1], "Second should be task-completed").toBe("task-completed");
+      expect(actionExecutionOrder[2], "Third should be action-executed").toBe("action-executed");
     } finally {
       vi.useRealTimers();
     }
@@ -14650,13 +14650,13 @@ describe("Survey", () => {
       }
     });
     expect(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar").toBeTruthy();
-    expect(action.id, "Action should have correct id").toLooseEqual("test-btn-2");
+    expect(action.id, "Action should have correct id").toBe("test-btn-2");
 
     action.action();
 
     expect(actionExecuted, "Action should be executed immediately when there are no active tasks").toBeTruthy();
-    expect(actionExecutionOrder.length, "Should have 1 execution step").toLooseEqual(1);
-    expect(actionExecutionOrder[0], "Should be action-executed").toLooseEqual("action-executed");
+    expect(actionExecutionOrder.length, "Should have 1 execution step").toBe(1);
+    expect(actionExecutionOrder[0], "Should be action-executed").toBe("action-executed");
 
   });
 
@@ -14682,13 +14682,13 @@ describe("Survey", () => {
       }
     }));
     expect(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar").toBeTruthy();
-    expect(action.id, "Action should have correct id").toLooseEqual("test-btn-2");
+    expect(action.id, "Action should have correct id").toBe("test-btn-2");
 
     action.action();
 
     expect(actionExecuted, "Action should be executed immediately when there are no active tasks").toBeTruthy();
-    expect(actionExecutionOrder.length, "Should have 1 execution step").toLooseEqual(1);
-    expect(actionExecutionOrder[0], "Should be action-executed").toLooseEqual("action-executed");
+    expect(actionExecutionOrder.length, "Should have 1 execution step").toBe(1);
+    expect(actionExecutionOrder[0], "Should be action-executed").toBe("action-executed");
 
   });
 
@@ -14704,13 +14704,13 @@ describe("Survey", () => {
     setOldTheme(survey);
     survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
     const action = survey.navigationBar.actions[0];
-    expect(action.getActionBarItemCss()).toLooseEqual("custom-action custom-css custom-start");
+    expect(action.getActionBarItemCss()).toBe("custom-action custom-css custom-start");
     survey.locale = "ru";
-    expect(action.title).toLooseEqual("Начать"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(action.title).toBe("Начать"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     survey.locale = "en";
-    expect(action.title).toLooseEqual("Start");
+    expect(action.title).toBe("Start");
     survey.startSurveyText = "custom-text";
-    expect(action.title).toLooseEqual("custom-text");
+    expect(action.title).toBe("custom-text");
   });
   test("Check rootCss property", () => {
     const survey = new SurveyModel({
@@ -14723,7 +14723,7 @@ describe("Survey", () => {
     });
     setOldTheme(survey);
     survey.css = { root: "test-root-class" };
-    expect(survey.rootCss).toLooseEqual("test-root-class sv_progress--pages");
+    expect(survey.rootCss).toBe("test-root-class sv_progress--pages");
   });
 
   test("Check navigation bar css update", () => {
@@ -14737,7 +14737,7 @@ describe("Survey", () => {
     });
     survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
     survey.navigationBar.flushUpdates();
-    expect(survey.navigationBar.getRootCss()).toLooseEqual("custom-navigation custom-footer");
+    expect(survey.navigationBar.getRootCss()).toBe("custom-navigation custom-footer");
   });
   test("Check survey getRootCss function - defaultCss", () => {
     settings.animationEnabled = true;
@@ -14750,32 +14750,32 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages");
 
     survey.setIsMobile(true);
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--mobile");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile");
 
     survey.readOnly = true;
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
     survey.readOnly = false;
     survey.setIsMobile(false);
     survey["isCompact"] = true;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root--compact");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root--compact");
 
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root--compact sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -14876,11 +14876,11 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.activePage.id, "Initially active page is correct").toLooseEqual(survey.pages[0].id);
-    expect(survey.navigationBar.getActionById("sv-nav-prev").visible, "PrevButton is not shown").toLooseEqual(false);
+    expect(survey.activePage.id, "Initially active page is correct").toBe(survey.pages[0].id);
+    expect(survey.navigationBar.getActionById("sv-nav-prev").visible, "PrevButton is not shown").toBe(false);
     survey.fromJSON(survey.toJSON());
-    expect(survey.activePage.id, "Initially active page is correct").toLooseEqual(survey.pages[0].id);
-    expect(survey.navigationBar.getActionById("sv-nav-prev").visible, "PrevButton is not shown #2").toLooseEqual(false);
+    expect(survey.activePage.id, "Initially active page is correct").toBe(survey.pages[0].id);
+    expect(survey.navigationBar.getActionById("sv-nav-prev").visible, "PrevButton is not shown #2").toBe(false);
   });
   test("Navigation buttons text from JSON", () => {
     const survey = new SurveyModel({
@@ -14892,8 +14892,8 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.completeText, "text is correct").toLooseEqual("Submit");
-    expect(survey.navigationBar.getActionById("sv-nav-complete").title, "Text in bar is correct").toLooseEqual("Submit");
+    expect(survey.completeText, "text is correct").toBe("Submit");
+    expect(survey.navigationBar.getActionById("sv-nav-complete").title, "Text in bar is correct").toBe("Submit");
   });
 
   test("Do not execute visibleIf in design mode", () => {
@@ -14911,26 +14911,26 @@ describe("Survey", () => {
       ]
     });
     const question = survey.getQuestionByName("q1");
-    expect(question.visible, "It is visible initially").toLooseEqual(true);
+    expect(question.visible, "It is visible initially").toBe(true);
     question.visibleIf = "{q2} = 1";
-    expect(question.visible, "It is still visible").toLooseEqual(true);
+    expect(question.visible, "It is still visible").toBe(true);
     const panel = <PanelModel>survey.getPanelByName("panel");
     const panel2 = <PanelModel>panel.clone();
     const question2 = panel2.questions[0];
-    expect(question2.visibleIf, "It is visible").toLooseEqual("{q2} = 1");
-    expect(question2.visible, "It is visible").toLooseEqual(true);
+    expect(question2.visibleIf, "It is visible").toBe("{q2} = 1");
+    expect(question2.visible, "It is visible").toBe(true);
     survey.pages[0].addElement(panel2);
-    expect(question2.visible, "It is visible, #2").toLooseEqual(true);
+    expect(question2.visible, "It is visible, #2").toBe(true);
     const newPanel = new PanelModel("newPanel");
     newPanel.addNewQuestion("text", "q3_1");
     newPanel.questions[0].visibleIf = "{q2} = 1";
-    expect(newPanel.questions[0].visible, "new Panel question visible").toLooseEqual(true);
+    expect(newPanel.questions[0].visible, "new Panel question visible").toBe(true);
     const newPanel2 = <PanelModel>newPanel.clone();
     const newQuestion2 = newPanel2.questions[0];
-    expect(newQuestion2.visibleIf, "It is visible").toLooseEqual("{q2} = 1");
-    expect(newQuestion2.visible, "It is visible").toLooseEqual(true);
+    expect(newQuestion2.visibleIf, "It is visible").toBe("{q2} = 1");
+    expect(newQuestion2.visible, "It is visible").toBe(true);
     survey.pages[0].addElement(newPanel2);
-    expect(newQuestion2.visible, "It is visible, #2").toLooseEqual(true);
+    expect(newQuestion2.visible, "It is visible, #2").toBe(true);
   });
   test("Ignore firstStartPage if there is only one page", () => {
     var survey = new SurveyModel({
@@ -14940,8 +14940,8 @@ describe("Survey", () => {
         { type: "text", name: "q2" }
       ]
     });
-    expect(survey.state, "There is only one page").toLooseEqual("running");
-    expect(survey.isCompleteButtonVisible, "Complete button is visible").toLooseEqual(true);
+    expect(survey.state, "There is only one page").toBe("running");
+    expect(survey.isCompleteButtonVisible, "Complete button is visible").toBe(true);
   });
   test("Check survey calculated width mode observability", () => {
     const json = {
@@ -14971,23 +14971,23 @@ describe("Survey", () => {
     const model = new SurveyModel(json);
     model.css.body = "css-body";
 
-    expect(model.calculatedWidthMode).toLooseEqual("static");
-    expect(model.bodyCss).toLooseEqual("css-body css-body--static");
+    expect(model.calculatedWidthMode).toBe("static");
+    expect(model.bodyCss).toBe("css-body css-body--static");
     model.widthMode = "responsive";
-    expect(model.calculatedWidthMode).toLooseEqual("responsive");
-    expect(model.bodyCss).toLooseEqual("css-body css-body--responsive");
+    expect(model.calculatedWidthMode).toBe("responsive");
+    expect(model.bodyCss).toBe("css-body css-body--responsive");
 
     model.widthMode = "auto";
-    expect(model.calculatedWidthMode).toLooseEqual("static");
+    expect(model.calculatedWidthMode).toBe("static");
 
     model.getAllQuestions()[1].startWithNewLine = false;
-    expect(model.calculatedWidthMode).toLooseEqual("responsive");
+    expect(model.calculatedWidthMode).toBe("responsive");
 
     model.getAllQuestions()[1].startWithNewLine = true;
-    expect(model.calculatedWidthMode).toLooseEqual("static");
+    expect(model.calculatedWidthMode).toBe("static");
 
     model.pages[0].addNewQuestion("matrix", "qm");
-    expect(model.calculatedWidthMode).toLooseEqual("responsive");
+    expect(model.calculatedWidthMode).toBe("responsive");
   });
 
   test("Check survey calculated width mode observability with survey changing", () => {
@@ -15008,19 +15008,19 @@ describe("Survey", () => {
       ]
     };
     const model = new SurveyModel({});
-    expect(model.calculatedWidthMode).toLooseEqual("static");
+    expect(model.calculatedWidthMode).toBe("static");
     model.fromJSON(json);
-    expect(model.calculatedWidthMode).toLooseEqual("static");
+    expect(model.calculatedWidthMode).toBe("static");
     model.getAllQuestions()[1].startWithNewLine = false;
-    expect(model.calculatedWidthMode).toLooseEqual("responsive");
+    expect(model.calculatedWidthMode).toBe("responsive");
   });
 
   test("Check survey calculated width mode observability on question added", () => {
     const model = new SurveyModel({});
-    expect(model.calculatedWidthMode).toLooseEqual("static");
+    expect(model.calculatedWidthMode).toBe("static");
     model.addNewPage();
     model.pages[0].addNewQuestion("matrix", "q1");
-    expect(model.calculatedWidthMode).toLooseEqual("responsive");
+    expect(model.calculatedWidthMode).toBe("responsive");
   });
 
   test("Check survey width for different width modes", () => {
@@ -15050,35 +15050,35 @@ describe("Survey", () => {
     };
     const model = new SurveyModel(json);
 
-    expect(model.widthMode).toLooseEqual("auto");
-    expect(model.calculatedWidthMode).toLooseEqual("static");
-    expect(model.renderedWidth, "auto static width undefined").toLooseEqual(undefined);
+    expect(model.widthMode).toBe("auto");
+    expect(model.calculatedWidthMode).toBe("static");
+    expect(model.renderedWidth, "auto static width undefined").toBeUndefined();
 
     model.width = "700px";
-    expect(model.calculatedWidthMode).toLooseEqual("static");
-    expect(model.renderedWidth, "auto static width 700px").toLooseEqual("700px");
+    expect(model.calculatedWidthMode).toBe("static");
+    expect(model.renderedWidth, "auto static width 700px").toBe("700px");
 
     model.getAllQuestions()[1].startWithNewLine = false;
-    expect(model.calculatedWidthMode).toLooseEqual("responsive");
-    expect(model.renderedWidth, "auto responsive width undefined").toLooseEqual(undefined);
+    expect(model.calculatedWidthMode).toBe("responsive");
+    expect(model.renderedWidth, "auto responsive width undefined").toBeUndefined();
 
     model.widthMode = "static";
-    expect(model.renderedWidth, "static width 700px").toLooseEqual("700px");
+    expect(model.renderedWidth, "static width 700px").toBe("700px");
 
     model.widthMode = "responsive";
-    expect(model.renderedWidth, "responsive width undefined").toLooseEqual(undefined);
+    expect(model.renderedWidth, "responsive width undefined").toBeUndefined();
   });
 
   test("Add px to numeric survey width", () => {
     const model = new SurveyModel();
 
-    expect(model.widthMode).toLooseEqual("auto");
-    expect(model.calculatedWidthMode).toLooseEqual("static");
-    expect(model.renderedWidth, "auto static width undefined").toLooseEqual(undefined);
+    expect(model.widthMode).toBe("auto");
+    expect(model.calculatedWidthMode).toBe("static");
+    expect(model.renderedWidth, "auto static width undefined").toBeUndefined();
 
     model.width = "700";
-    expect(model.calculatedWidthMode).toLooseEqual("static");
-    expect(model.renderedWidth, "auto add px 700px").toLooseEqual("700px");
+    expect(model.calculatedWidthMode).toBe("static");
+    expect(model.renderedWidth, "auto add px 700px").toBe("700px");
   });
 
   test("Survey Localization - check errors update after locale changed", () => {
@@ -15156,43 +15156,43 @@ describe("Survey", () => {
     q6.value = "other";
 
     survey.tryComplete();
-    expect(q1.errors.length).toLooseEqual(1);
-    expect(q1.errors[0].locText.renderedHtml).toLooseEqual("Response required.");
+    expect(q1.errors.length).toBe(1);
+    expect(q1.errors[0].locText.renderedHtml).toBe("Response required.");
 
-    expect(q2.errors.length).toLooseEqual(1);
-    expect(q2.errors[0].locText.renderedHtml).toLooseEqual("custom_error_text");
+    expect(q2.errors.length).toBe(1);
+    expect(q2.errors[0].locText.renderedHtml).toBe("custom_error_text");
 
-    expect(q3.errors.length).toLooseEqual(1);
-    expect(q3.errors[0].locText.renderedHtml).toLooseEqual("custom_max_error_text 10");
+    expect(q3.errors.length).toBe(1);
+    expect(q3.errors[0].locText.renderedHtml).toBe("custom_max_error_text 10");
 
-    expect(q4.errors.length).toLooseEqual(1);
-    expect(q4.errors[0].locText.renderedHtml).toLooseEqual("custom_min_error_text 10");
+    expect(q4.errors.length).toBe(1);
+    expect(q4.errors[0].locText.renderedHtml).toBe("custom_min_error_text 10");
 
-    expect(q5.errors.length).toLooseEqual(1);
-    expect(q5.errors[0].locText.renderedHtml).toLooseEqual("custom_min_error_text");
+    expect(q5.errors.length).toBe(1);
+    expect(q5.errors[0].locText.renderedHtml).toBe("custom_min_error_text");
 
-    expect(q6.errors.length).toLooseEqual(1);
-    expect(q6.errors[0].locText.renderedHtml).toLooseEqual("custom_other_error_text");
+    expect(q6.errors.length).toBe(1);
+    expect(q6.errors[0].locText.renderedHtml).toBe("custom_other_error_text");
 
     survey.locale = "de";
 
-    expect(q1.errors.length).toLooseEqual(1);
-    expect(q1.errors[0].locText.renderedHtml).toLooseEqual("Bitte beantworten Sie diese Frage.");
+    expect(q1.errors.length).toBe(1);
+    expect(q1.errors[0].locText.renderedHtml).toBe("Bitte beantworten Sie diese Frage.");
 
-    expect(q2.errors.length).toLooseEqual(1);
-    expect(q2.errors[0].locText.renderedHtml).toLooseEqual("custom_error_text_deutch");
+    expect(q2.errors.length).toBe(1);
+    expect(q2.errors[0].locText.renderedHtml).toBe("custom_error_text_deutch");
 
-    expect(q3.errors.length).toLooseEqual(1);
-    expect(q3.errors[0].locText.renderedHtml).toLooseEqual("custom_max_error_text_deutch 10");
+    expect(q3.errors.length).toBe(1);
+    expect(q3.errors[0].locText.renderedHtml).toBe("custom_max_error_text_deutch 10");
 
-    expect(q4.errors.length).toLooseEqual(1);
-    expect(q4.errors[0].locText.renderedHtml).toLooseEqual("custom_min_error_text_deutch 10");
+    expect(q4.errors.length).toBe(1);
+    expect(q4.errors[0].locText.renderedHtml).toBe("custom_min_error_text_deutch 10");
 
-    expect(q5.errors.length).toLooseEqual(1);
-    expect(q5.errors[0].locText.renderedHtml).toLooseEqual("custom_min_error_text_deutch");
+    expect(q5.errors.length).toBe(1);
+    expect(q5.errors[0].locText.renderedHtml).toBe("custom_min_error_text_deutch");
 
-    expect(q6.errors.length).toLooseEqual(1);
-    expect(q6.errors[0].locText.renderedHtml).toLooseEqual("custom_other_error_text_deutch");
+    expect(q6.errors.length).toBe(1);
+    expect(q6.errors[0].locText.renderedHtml).toBe("custom_other_error_text_deutch");
 
     //check that when return to default locale onChange isCalled
     let onChangedCalled = 0;
@@ -15201,9 +15201,9 @@ describe("Survey", () => {
     };
     survey.locale = "en";
 
-    expect(q1.errors.length).toLooseEqual(1);
-    expect(onChangedCalled).toLooseEqual(1);
-    expect(q1.errors[0].locText.renderedHtml).toLooseEqual("Response required.");
+    expect(q1.errors.length).toBe(1);
+    expect(onChangedCalled).toBe(1);
+    expect(q1.errors[0].locText.renderedHtml).toBe("Response required.");
   });
   test("First page with conditions. Make the second only page visible/invisible", () => {
     const survey = new SurveyModel({
@@ -15225,10 +15225,10 @@ describe("Survey", () => {
       }],
       firstPageIsStartPage: true
     });
-    expect(survey.getPropertyValue("isStartedState"), "the state is started").toLooseEqual(true);
-    expect(survey.startPage.name, "The started page").toLooseEqual("page1");
-    expect(survey.isShowingPage, "show the first page").toLooseEqual(true);
-    expect(survey.state, "The state is starting").toLooseEqual("starting");
+    expect(survey.getPropertyValue("isStartedState"), "the state is started").toBe(true);
+    expect(survey.startPage.name, "The started page").toBe("page1");
+    expect(survey.isShowingPage, "show the first page").toBe(true);
+    expect(survey.state, "The state is starting").toBe("starting");
   });
   test("hasDescription is not updated on changing locale", () => {
     const survey = new SurveyModel({
@@ -15252,8 +15252,8 @@ describe("Survey", () => {
     expect(page.hasDescription, "Page description is not shown for 'en'").toBeFalsy();
     expect(question.hasDescription, "Question description is not shown for 'en'").toBeFalsy();
     survey.locale = "de";
-    expect(page.hasDescription, "Page description is shown for 'de'").toLooseEqual(true);
-    expect(question.hasDescription, "Question description is shown for 'de'").toLooseEqual(true);
+    expect(page.hasDescription, "Page description is shown for 'de'").toBe(true);
+    expect(question.hasDescription, "Question description is shown for 'de'").toBe(true);
     survey.locale = "";
   });
   test("hasDescription is isDesignMode", () => {
@@ -15315,7 +15315,7 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.getAllQuestions().length).toLooseEqual(1);
+    expect(survey.getAllQuestions().length).toBe(1);
   });
   test("progress is not changed on the start page", () => {
     const survey = new SurveyModel({
@@ -15370,9 +15370,9 @@ describe("Survey", () => {
         progressChangeCount++;
       }
     });
-    expect(progressChangeCount, "Initial progress call count").toLooseEqual(0);
+    expect(progressChangeCount, "Initial progress call count").toBe(0);
     question.value = ["1"];
-    expect(progressChangeCount, "Progress hasn't been called").toLooseEqual(0);
+    expect(progressChangeCount, "Progress hasn't been called").toBe(0);
   });
   test("Make sure that panel is not collapsed on focusing the question, #2", () => {
     const survey = new SurveyModel({
@@ -15398,8 +15398,8 @@ describe("Survey", () => {
     p1.collapse();
     p2.collapse();
     question.focus();
-    expect(p2.isExpanded, "Expand panel, p2").toLooseEqual(true);
-    expect(p1.isExpanded, "Expand panel, p1").toLooseEqual(true);
+    expect(p2.isExpanded, "Expand panel, p2").toBe(true);
+    expect(p1.isExpanded, "Expand panel, p1").toBe(true);
   });
   test("Set question choices for disposed survey", () => {
     const survey = new SurveyModel({
@@ -15414,7 +15414,7 @@ describe("Survey", () => {
     const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
     survey.dispose();
     question.choices = [1, 2, 3];
-    expect(question.choices.length, "There is not errors, choices still the same").toLooseEqual(2);
+    expect(question.choices.length, "There is not errors, choices still the same").toBe(2);
     expect(question.survey, "Survey is not set").toBeFalsy();
     expect(question.data, "data is not set").toBeFalsy();
   });
@@ -15433,18 +15433,18 @@ describe("Survey", () => {
     const question1_1_3_3 = survey.getQuestionByName("q1.1.2.3");
     const question1_1_2_3_4 = survey.getQuestionByName("q1.1.2.3.4");
     const question1_1_2_3_4_5 = survey.getQuestionByName("q1.1.2.3.4.5");
-    expect(question1_1_2.visible, "question1_1_2 false").toLooseEqual(false);
+    expect(question1_1_2.visible, "question1_1_2 false").toBe(false);
     question1_1.value = "a";
-    expect(question1_1_2.visible, "question1_1_2 true").toLooseEqual(true);
-    expect(question1_1_3_3.visible, "question1_1_2_3 false").toLooseEqual(false);
+    expect(question1_1_2.visible, "question1_1_2 true").toBe(true);
+    expect(question1_1_3_3.visible, "question1_1_2_3 false").toBe(false);
     question1_1_2.value = "a";
-    expect(question1_1_3_3.visible, "question1_1_2_3 true").toLooseEqual(true);
-    expect(question1_1_2_3_4.visible, "question1_1_2_3_4 false").toLooseEqual(false);
+    expect(question1_1_3_3.visible, "question1_1_2_3 true").toBe(true);
+    expect(question1_1_2_3_4.visible, "question1_1_2_3_4 false").toBe(false);
     question1_1_3_3.value = "a";
-    expect(question1_1_2_3_4.visible, "question1_1_2_3_4 true").toLooseEqual(true);
-    expect(question1_1_2_3_4_5.visible, "question1_1_2_3_4_5 false").toLooseEqual(false);
+    expect(question1_1_2_3_4.visible, "question1_1_2_3_4 true").toBe(true);
+    expect(question1_1_2_3_4_5.visible, "question1_1_2_3_4_5 false").toBe(false);
     question1_1_2_3_4.value = "a";
-    expect(question1_1_2_3_4_5.visible, "question1_1_2_3_4_5 true").toLooseEqual(true);
+    expect(question1_1_2_3_4_5.visible, "question1_1_2_3_4_5 true").toBe(true);
   });
   test("Expression for questions with a lot of dots #2", () => {
     const survey = new SurveyModel({
@@ -15485,17 +15485,17 @@ describe("Survey", () => {
     const questionWF4_4_1 = survey.getQuestionByName("WF4.4.1");
     const questionWF4_4_1_1 = survey.getQuestionByName("WF4.4.1.1");
 
-    expect(questionWF4_4.visible, "questionWF4_4 false").toLooseEqual(false);
+    expect(questionWF4_4.visible, "questionWF4_4 false").toBe(false);
     questionWF4_1.value = "Public";
-    expect(questionWF4_4.visible, "questionWF4_4 true").toLooseEqual(true);
+    expect(questionWF4_4.visible, "questionWF4_4 true").toBe(true);
 
-    expect(questionWF4_4_1.visible, "questionWF4_4_1 false").toLooseEqual(false);
+    expect(questionWF4_4_1.visible, "questionWF4_4_1 false").toBe(false);
     questionWF4_4.value = "Yes";
-    expect(questionWF4_4_1.visible, "questionWF4_4_1 true").toLooseEqual(true);
+    expect(questionWF4_4_1.visible, "questionWF4_4_1 true").toBe(true);
 
-    expect(questionWF4_4_1_1.visible, "questionWF4_4_1_1 false").toLooseEqual(false);
+    expect(questionWF4_4_1_1.visible, "questionWF4_4_1_1 false").toBe(false);
     questionWF4_4_1.value = "Yes";
-    expect(questionWF4_4_1_1.visible, "questionWF4_4_1_1 true").toLooseEqual(true);
+    expect(questionWF4_4_1_1.visible, "questionWF4_4_1_1 true").toBe(true);
   });
 
   test("selectbase.keepIncorrectValues & survey.keepIncorrectValues", () => {
@@ -15511,25 +15511,25 @@ describe("Survey", () => {
     const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     question.value = "item3";
     survey.clearIncorrectValues();
-    expect(true, "clear incorrect value, #1").toLooseEqual(question.isEmpty());
+    expect(true, "clear incorrect value, #1").toBe(question.isEmpty());
     question.keepIncorrectValues = true;
     question.value = "item3";
     survey.clearIncorrectValues();
-    expect("item3", "keep incorrect value, #2").toLooseEqual(question.value);
+    expect("item3", "keep incorrect value, #2").toBe(question.value);
 
     question.keepIncorrectValues = false;
     survey.clearIncorrectValues();
-    expect(true, "clear incorrect value, #3").toLooseEqual(question.isEmpty());
+    expect(true, "clear incorrect value, #3").toBe(question.isEmpty());
 
     survey.keepIncorrectValues = true;
     question.value = "item3";
     survey.clearIncorrectValues();
-    expect("item3", "keep incorrect value, #4").toLooseEqual(question.value);
+    expect("item3", "keep incorrect value, #4").toBe(question.value);
 
     survey.keepIncorrectValues = false;
     question.value = "item3";
     survey.clearIncorrectValues();
-    expect(true, "clear incorrect value, #5").toLooseEqual(question.isEmpty());
+    expect(true, "clear incorrect value, #5").toBe(question.isEmpty());
   });
 
   test("no scrolling to page top after focus a question on another page - https://github.com/surveyjs/survey-library/issues/5346", () => {
@@ -15572,10 +15572,10 @@ describe("Survey", () => {
       survey.onCurrentPageChanged.add((s, o) => {
         setTimeout(() => survey.afterRenderPage(undefined as any), 1);
       });
-      expect(log, "initially no scrolling").toLooseEqual("");
+      expect(log, "initially no scrolling").toBe("");
       survey.focusQuestion(qName);
       vi.advanceTimersByTime(2);
-      expect(log, "no scrolling after page changed and focused a question, scroll to the question only").toLooseEqual("->" + qName);
+      expect(log, "no scrolling after page changed and focused a question, scroll to the question only").toBe("->" + qName);
     } finally {
       vi.useRealTimers();
     }
@@ -15615,34 +15615,34 @@ describe("Survey", () => {
         scrollCount++;
       });
 
-      expect(survey["isCurrentPageRendered"] === undefined, "load survey").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === undefined, "load survey").toBe(true);
 
       survey.afterRenderPage(<HTMLElement>{});
-      expect(survey["isCurrentPageRendered"] === true, "render first page #1").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === true, "render first page #1").toBe(true);
 
       survey.afterRenderPage(<HTMLElement>{});
-      expect(survey["isCurrentPageRendered"] === true, "render first page #2").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === true, "render first page #2").toBe(true);
 
       vi.advanceTimersByTime(timeOut);
-      expect(scrollCount).toLooseEqual(0);
+      expect(scrollCount).toBe(0);
 
       survey.nextPage();
-      expect(survey["isCurrentPageRendered"] === false, "go to second page").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === false, "go to second page").toBe(true);
 
       survey.afterRenderPage(<HTMLElement>{});
-      expect(survey["isCurrentPageRendered"] === true, "render second page").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === true, "render second page").toBe(true);
 
       vi.advanceTimersByTime(timeOut);
-      expect(scrollCount, "scrolling after going to second page").toLooseEqual(1);
+      expect(scrollCount, "scrolling after going to second page").toBe(1);
 
       survey.prevPage();
-      expect(survey["isCurrentPageRendered"] === false, "go to first page").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === false, "go to first page").toBe(true);
 
       survey.afterRenderPage(<HTMLElement>{});
-      expect(survey["isCurrentPageRendered"] === true, "render first page #3").toLooseEqual(true);
+      expect(survey["isCurrentPageRendered"] === true, "render first page #3").toBe(true);
 
       vi.advanceTimersByTime(timeOut);
-      expect(scrollCount, "scrolling after back to first page").toLooseEqual(2);
+      expect(scrollCount, "scrolling after back to first page").toBe(2);
     } finally {
       vi.useRealTimers();
     }
@@ -15671,11 +15671,11 @@ describe("Survey", () => {
       }
     };
     const question = survey.getAllQuestions()[0];
-    expect(question.cssDescription).toLooseEqual("description_default");
+    expect(question.cssDescription).toBe("description_default");
     question.descriptionLocation = "underTitle";
-    expect(question.cssDescription).toLooseEqual("description_default");
+    expect(question.cssDescription).toBe("description_default");
     question.descriptionLocation = "underInput";
-    expect(question.cssDescription).toLooseEqual("description_default description_under_input");
+    expect(question.cssDescription).toBe("description_default description_under_input");
   });
   test("Get first focused question on collapsed question", () => {
     const survey = new SurveyModel({
@@ -15685,10 +15685,10 @@ describe("Survey", () => {
       ],
     });
     const page = survey.pages[0];
-    expect(page.getFirstQuestionToFocus().name, "q1 is in collapsed panel").toLooseEqual("q2");
-    expect(page.getFirstQuestionToFocus(false, true).name, "ignore collapsed state").toLooseEqual("q1");
+    expect(page.getFirstQuestionToFocus().name, "q1 is in collapsed panel").toBe("q2");
+    expect(page.getFirstQuestionToFocus(false, true).name, "ignore collapsed state").toBe("q1");
     page.validate(true);
-    expect(page.getFirstQuestionToFocus(true).name, "q1 has error").toLooseEqual("q1");
+    expect(page.getFirstQuestionToFocus(true).name, "q1 has error").toBe("q1");
   });
   test("Check getProgressCssClasses method", () => {
     const survey = new SurveyModel({
@@ -15704,9 +15704,9 @@ describe("Survey", () => {
       progressTop: "test_progress_top",
       progressBottom: "test_progress_bottom"
     };
-    expect(survey.getProgressCssClasses()).toLooseEqual("test_progress test_progress_top");
+    expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_top");
     survey.showProgressBar = "bottom";
-    expect(survey.getProgressCssClasses()).toLooseEqual("test_progress test_progress_bottom");
+    expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_bottom");
   });
   test("settings.minWidth/maxWidth", () => {
     const oldMinWidth = settings.minWidth;
@@ -15727,13 +15727,13 @@ describe("Survey", () => {
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
     const q4 = survey.getQuestionByName("q4");
-    expect(q1.minWidth, "q1 minWidth").toLooseEqual("0px");
-    expect(q1.maxWidth, "q1 maxWidth").toLooseEqual("500px");
-    expect(q2.minWidth, "q2 minWidth").toLooseEqual("50px");
-    expect(q2.maxWidth, "q2 maxWidth").toLooseEqual("500px");
-    expect(q3.minWidth, "q3 minWidth").toLooseEqual("0px");
-    expect(q3.maxWidth, "q3 maxWidth").toLooseEqual("90%");
-    expect(q4.minWidth, "q4 (paneldynamic) minWidth").toLooseEqual("auto");
+    expect(q1.minWidth, "q1 minWidth").toBe("0px");
+    expect(q1.maxWidth, "q1 maxWidth").toBe("500px");
+    expect(q2.minWidth, "q2 minWidth").toBe("50px");
+    expect(q2.maxWidth, "q2 maxWidth").toBe("500px");
+    expect(q3.minWidth, "q3 minWidth").toBe("0px");
+    expect(q3.maxWidth, "q3 maxWidth").toBe("90%");
+    expect(q4.minWidth, "q4 (paneldynamic) minWidth").toBe("auto");
     settings.minWidth = oldMinWidth;
     settings.maxWidth = oldMaxWidth;
   });
@@ -15774,10 +15774,10 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(survey.showNavigationButtons).toLooseEqual(true);
-    expect(survey.navigationButtonsLocation).toLooseEqual("bottom");
-    expect(survey.progressBarType).toLooseEqual("pages");
-    expect(survey.showProgressBar).toLooseEqual(false);
+    expect(survey.showNavigationButtons).toBe(true);
+    expect(survey.navigationButtonsLocation).toBe("bottom");
+    expect(survey.progressBarType).toBe("pages");
+    expect(survey.showProgressBar).toBe(false);
 
     expect(getContainerContent("header"), "default header").toEqualValues([]);
     expect(getContainerContent("footer"), "default footer").toEqualValues([]);
@@ -15901,9 +15901,9 @@ describe("Survey", () => {
       survey.headerView = "basic";
       const getContainerContent = getContainerContentFunction(survey);
 
-      expect(survey.showNavigationButtons).toLooseEqual(false);
-      expect(survey.progressBarType).toLooseEqual("pages");
-      expect(survey.showProgressBar).toLooseEqual(false);
+      expect(survey.showNavigationButtons).toBe(false);
+      expect(survey.progressBarType).toBe("pages");
+      expect(survey.showProgressBar).toBe(false);
 
       expect(getContainerContent("header"), "default header").toEqualValues([]);
       expect(getContainerContent("footer"), "default footer").toEqualValues([]);
@@ -16057,9 +16057,9 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(survey.showNavigationButtons).toLooseEqual(false);
-    expect(survey.progressBarType).toLooseEqual("pages");
-    expect(survey.showProgressBar).toLooseEqual(false);
+    expect(survey.showNavigationButtons).toBe(false);
+    expect(survey.progressBarType).toBe("pages");
+    expect(survey.showProgressBar).toBe(false);
 
     expect(getContainerContent("header"), "default header").toEqualValues([]);
     expect(getContainerContent("footer"), "default footer").toEqualValues([]);
@@ -16430,7 +16430,7 @@ describe("Survey", () => {
       return result;
     }
 
-    expect(survey.showHeaderOnCompletePage).toLooseEqual("auto");
+    expect(survey.showHeaderOnCompletePage).toBe("auto");
     survey.showHeaderOnCompletePage = true;
 
     expect(getContainerContent("header"), "header for running survey").toEqualValues([{
@@ -16664,13 +16664,13 @@ describe("Survey", () => {
   test("Survey setDesignMode should not trigger pages regeneration if not changed", () => {
     var survey = twoPageSimplestSurvey();
     survey.isSinglePage = true;
-    expect(survey.visiblePages.length, "We should have 1 page, #1").toLooseEqual(1);
-    expect(survey.currentPage.elements.length, "We should have 2 panels, #1").toLooseEqual(2);
+    expect(survey.visiblePages.length, "We should have 1 page, #1").toBe(1);
+    expect(survey.currentPage.elements.length, "We should have 2 panels, #1").toBe(2);
     survey.setDesignMode(false);
-    expect(survey.visiblePages.length, "We should have 1 page, #2").toLooseEqual(1);
-    expect(survey.currentPage.elements.length, "We should have 2 panels, #2").toLooseEqual(2);
+    expect(survey.visiblePages.length, "We should have 1 page, #2").toBe(1);
+    expect(survey.currentPage.elements.length, "We should have 2 panels, #2").toBe(2);
     survey.setDesignMode(true);
-    expect(survey.visiblePages.length, "We should have 2 pages, #3").toLooseEqual(2);
+    expect(survey.visiblePages.length, "We should have 2 pages, #3").toBe(2);
   });
   test("Try again button should call onComplete", () => {
     class SurveyModelTester extends SurveyModel {
@@ -16688,8 +16688,8 @@ describe("Survey", () => {
       }
     });
     survey.doComplete();
-    expect(survey.state, "the survey is completed").toLooseEqual("completed");
-    expect(attempts, "There were 3 attempts").toLooseEqual(3);
+    expect(survey.state, "the survey is completed").toBe("completed");
+    expect(attempts, "There were 3 attempts").toBe(3);
   });
   test("Use variables as default values in expression", () => {
     const survey = new SurveyModel({
@@ -16720,9 +16720,9 @@ describe("Survey", () => {
     survey.setValue("myA", "AAA");
     survey.setValue("myB", "BBB");
     survey.setValue("myC", "CCC");
-    expect(q1.value, "q1.value").toLooseEqual("AAA");
-    expect(q2.value, "q2.value").toLooseEqual("BBB");
-    expect(q3.value, "q3.value").toLooseEqual("CCC");
+    expect(q1.value, "q1.value").toBe("AAA");
+    expect(q2.value, "q2.value").toBe("BBB");
+    expect(q3.value, "q3.value").toBe("CCC");
   });
 
   test("backgroundImage", () => {
@@ -16730,8 +16730,8 @@ describe("Survey", () => {
     const survey = new SurveyModel({
       "backgroundImage": imageUrl,
     });
-    expect(survey.backgroundImage, "backgroundImage").toLooseEqual(imageUrl);
-    expect(survey.renderBackgroundImage, "renderBackgroundImage").toLooseEqual(wrapUrlForBackgroundImage(imageUrl));
+    expect(survey.backgroundImage, "backgroundImage").toBe(imageUrl);
+    expect(survey.renderBackgroundImage, "renderBackgroundImage").toBe(wrapUrlForBackgroundImage(imageUrl));
   });
 
   test("If localizable string has isLocalizable set to false then it should have only one value", () => {
@@ -16743,7 +16743,7 @@ describe("Survey", () => {
     survey.title = "val2";
     survey.locale = "fr";
     survey.title = "val3";
-    expect(survey.locTitle.getJson(), "It supports only one locale").toLooseEqual("val3");
+    expect(survey.locTitle.getJson(), "It supports only one locale").toBe("val3");
     titleProp.isLocalizable = true;
   });
 
@@ -16792,8 +16792,8 @@ describe("Survey", () => {
       return result;
     }
 
-    expect(survey.showNavigationButtons).toLooseEqual(true);
-    expect(survey.navigationButtonsLocation).toLooseEqual("bottom");
+    expect(survey.showNavigationButtons).toBe(true);
+    expect(survey.navigationButtonsLocation).toBe("bottom");
 
     expect(getContainerContent("header"), "nav none header").toEqualValues([]);
     expect(getContainerContent("footer"), "nav none footer").toEqualValues([]);
@@ -16841,11 +16841,11 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.state, "The first page is started").toLooseEqual("starting");
-    expect(survey.isNavigationButtonsShowing, "The first page is started").toLooseEqual("bottom");
+    expect(survey.state, "The first page is started").toBe("starting");
+    expect(survey.isNavigationButtonsShowing, "The first page is started").toBe("bottom");
     survey.start();
-    expect(survey.state, "The start button is cliced").toLooseEqual("running");
-    expect(survey.isNavigationButtonsShowing, "Hide navigation buttons").toLooseEqual("none");
+    expect(survey.state, "The start button is cliced").toBe("running");
+    expect(survey.isNavigationButtonsShowing, "Hide navigation buttons").toBe("none");
   });
 
   test("getContainerContent - header elements order", () => {
@@ -16927,8 +16927,8 @@ describe("Survey", () => {
     expect(el.data, "data is not set").toBeFalsy();
     survey.showTOC = true;
     const els: Array<any> = survey.getContainerContent("left");
-    expect(els.length, "There is one element").toLooseEqual(1);
-    expect(els[0].id, "This element is toc").toLooseEqual("toc-navigation");
+    expect(els.length, "There is one element").toBe(1);
+    expect(els[0].id, "This element is toc").toBe("toc-navigation");
     expect(els[0].data, "data is set").toBeTruthy();
   });
 
@@ -16941,7 +16941,7 @@ describe("Survey", () => {
     survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
 
     const cover = survey.findLayoutElement("advanced-header").data as Cover;
-    expect(cover.headerClasses).toLooseEqual("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    expect(cover.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
   });
 
   test("check title classes when readOnly changed", () => {
@@ -16989,7 +16989,7 @@ describe("Survey", () => {
     });
     survey.setValue("question1", 1);
     survey.tryComplete();
-    expect(counter, "onComplete called one time").toLooseEqual(1);
+    expect(counter, "onComplete called one time").toBe(1);
   });
 
   test("Check readOnly flag", () => {
@@ -17002,7 +17002,7 @@ describe("Survey", () => {
         },
       ],
     });
-    expect(survey.mode).toLooseEqual("display");
+    expect(survey.mode).toBe("display");
     expect(survey.readOnly).toBeTruthy();
     survey.readOnly = false;
     expect(survey.readOnly).toBeFalsy();
@@ -17064,7 +17064,7 @@ describe("Survey", () => {
       for (var i = 0; i < res.length; i++) {
         const name = "check" + (i + 1).toString();
         const val = survey.getValue(name);
-        expect(val, "check no: " + no + ", value name: " + name).toLooseEqual(res[i]);
+        expect(val, "check no: " + no + ", value name: " + name).toBe(res[i]);
       }
     };
     checkFunc([true, false, true, false, false], 1);
@@ -17093,24 +17093,24 @@ describe("Survey", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const popup = question.dropdownListModel.popupModel;
     survey.onPopupVisibleChanged.add((_, options) => {
-      expect(options.question).toLooseEqual(question);
-      expect(options.popup).toLooseEqual(popup);
+      expect(options.question).toBe(question);
+      expect(options.popup).toBe(popup);
       log += `->${options.visible}`;
     });
     popup.toggleVisibility();
-    expect(log).toLooseEqual("->true");
+    expect(log).toBe("->true");
     popup.toggleVisibility();
-    expect(log).toLooseEqual("->true->false");
+    expect(log).toBe("->true->false");
   });
   test("Check onPopupVisibleChanged events #2", () => {
-    expect(settings.comparator.caseSensitive, "comparator.caseSensitive is false").toLooseEqual(false);
+    expect(settings.comparator.caseSensitive, "comparator.caseSensitive is false").toBe(false);
     const survey = new SurveyModel({ elements: [{ "type": "text", "name": "q1" }] });
     const q = survey.getQuestionByName("q1");
     survey.onValueChanging.add((sender, options) => {
       options.value = options.value.toUpperCase();
     });
     q.value = "abc";
-    expect(q.value, "Convert to upper case").toLooseEqual("ABC");
+    expect(q.value, "Convert to upper case").toBe("ABC");
   });
   test("survey onValueChaging & trigger, Bug#10219", () => {
     const survey = new SurveyModel({ elements: [
@@ -17128,12 +17128,12 @@ describe("Survey", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     q1.value = "a";
-    expect(q1.value, "q1.value is #1").toLooseEqual("a");
-    expect(q2.value, "q2.value is #1").toLooseEqual("b");
+    expect(q1.value, "q1.value is #1").toBe("a");
+    expect(q2.value, "q2.value is #1").toBe("b");
     q2.value = "";
     q1.value = "c";
-    expect(q1.value, "q1.value is #2").toLooseEqual("a");
-    expect(q2.value, "q2.value #2").toLooseEqual("");
+    expect(q1.value, "q1.value is #2").toBe("a");
+    expect(q2.value, "q2.value #2").toBe("");
   });
 
   test("Check onOpenDropdownMenu events", () => {
@@ -17149,18 +17149,18 @@ describe("Survey", () => {
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const popup = question.dropdownListModel.popupModel;
     survey.onOpenDropdownMenu.add((_, options) => {
-      expect(options.question).toLooseEqual(question);
-      expect(options.menuType, "options.menuType").toLooseEqual("dropdown");
+      expect(options.question).toBe(question);
+      expect(options.menuType, "options.menuType").toBe("dropdown");
 
       options.menuType = "overlay";
     });
 
-    expect(popup.displayMode, "displayMode #0").toLooseEqual("popup");
-    expect(popup.overlayDisplayMode, "overlayDisplayMode #0").toLooseEqual("auto");
+    expect(popup.displayMode, "displayMode #0").toBe("popup");
+    expect(popup.overlayDisplayMode, "overlayDisplayMode #0").toBe("auto");
 
     popup.toggleVisibility();
-    expect(popup.displayMode, "displayMode #1").toLooseEqual("overlay");
-    expect(popup.overlayDisplayMode, "overlayDisplayMode #1").toLooseEqual("dropdown-overlay");
+    expect(popup.displayMode, "displayMode #1").toBe("overlay");
+    expect(popup.overlayDisplayMode, "overlayDisplayMode #1").toBe("dropdown-overlay");
   });
 
   test("Search disabled & onOpenDropdownMenu events", () => {
@@ -17183,16 +17183,16 @@ describe("Survey", () => {
       options.menuType = "dropdown";
     });
 
-    expect(popup.displayMode, "#1").toLooseEqual("overlay");
-    expect(popup.setWidthByTarget, "#2").toLooseEqual(false);
-    expect(list.showFilter, "#3").toLooseEqual(false);
-    expect(list.searchEnabled, "#4").toLooseEqual(false);
+    expect(popup.displayMode, "#1").toBe("overlay");
+    expect(popup.setWidthByTarget, "#2").toBe(false);
+    expect(list.showFilter, "#3").toBe(false);
+    expect(list.searchEnabled, "#4").toBe(false);
 
     popup.show();
-    expect(popup.displayMode, "#1.1").toLooseEqual("popup");
-    expect(popup.setWidthByTarget, "#2.1").toLooseEqual(true);
-    expect(list.showFilter, "#3.1").toLooseEqual(false);
-    expect(list.searchEnabled, "#4.1").toLooseEqual(false);
+    expect(popup.displayMode, "#1.1").toBe("popup");
+    expect(popup.setWidthByTarget, "#2.1").toBe(true);
+    expect(list.showFilter, "#3.1").toBe(false);
+    expect(list.searchEnabled, "#4.1").toBe(false);
 
     _setIsTouch(false);
   });
@@ -17218,22 +17218,22 @@ describe("Survey", () => {
 
     list.flushUpdates();
 
-    expect(popup.displayMode, "#1").toLooseEqual("overlay");
-    expect(popup.setWidthByTarget, "#2").toLooseEqual(false);
-    expect(list.showFilter, "#3").toLooseEqual(false);
-    expect(list.searchEnabled, "#4").toLooseEqual(true);
+    expect(popup.displayMode, "#1").toBe("overlay");
+    expect(popup.setWidthByTarget, "#2").toBe(false);
+    expect(list.showFilter, "#3").toBe(false);
+    expect(list.searchEnabled, "#4").toBe(true);
 
     question.choices.push(new ItemValue("Renault"));
     popup.show();
-    expect(list.showFilter, "#5").toLooseEqual(true);
+    expect(list.showFilter, "#5").toBe(true);
     popup.hide();
 
     menuType = "dropdown";
     popup.show();
-    expect(popup.displayMode, "#1.1").toLooseEqual("popup");
-    expect(popup.setWidthByTarget, "#2.1").toLooseEqual(true);
-    expect(list.showFilter, "#3.1").toLooseEqual(false);
-    expect(list.searchEnabled, "#4.1").toLooseEqual(false);
+    expect(popup.displayMode, "#1.1").toBe("popup");
+    expect(popup.setWidthByTarget, "#2.1").toBe(true);
+    expect(list.showFilter, "#3.1").toBe(false);
+    expect(list.searchEnabled, "#4.1").toBe(false);
 
     _setIsTouch(false);
   });
@@ -17255,16 +17255,16 @@ describe("Survey", () => {
       options.menuType = "dropdown";
     });
 
-    expect(popup.displayMode, "#1").toLooseEqual("overlay");
-    expect(popup.setWidthByTarget, "#2").toLooseEqual(false);
-    expect(popup.isFocusedContent, "#3").toLooseEqual(true);
-    expect(popup.isFocusedContainer, "#4").toLooseEqual(false);
+    expect(popup.displayMode, "#1").toBe("overlay");
+    expect(popup.setWidthByTarget, "#2").toBe(false);
+    expect(popup.isFocusedContent, "#3").toBe(true);
+    expect(popup.isFocusedContainer, "#4").toBe(false);
 
     popup.show();
-    expect(popup.displayMode, "#1.1").toLooseEqual("popup");
-    expect(popup.setWidthByTarget, "#2.1").toLooseEqual(true);
-    expect(popup.isFocusedContent, "#3.1").toLooseEqual(false);
-    expect(popup.isFocusedContainer, "#4.1").toLooseEqual(false);
+    expect(popup.displayMode, "#1.1").toBe("popup");
+    expect(popup.setWidthByTarget, "#2.1").toBe(true);
+    expect(popup.isFocusedContent, "#3.1").toBe(false);
+    expect(popup.isFocusedContainer, "#4.1").toBe(false);
 
     _setIsTouch(false);
   });
@@ -17329,13 +17329,13 @@ describe("Survey", () => {
     const matrix = <QuestionMatrixDynamicModel>p2.panels[0].questions[0];
     expect(matrix.value, "panel2[0].matrix1.data").toEqualValues([{ b_eil_nr: 1, b_name: "1 name" }]);
     const table = matrix.renderedTable;
-    expect(table.rows.length, "One row in rendered table").toLooseEqual(2);
-    expect(table.rows[1].cells[0].question.value).toLooseEqual(1);
-    expect(table.rows[1].cells[1].question.value).toLooseEqual("1 name");
+    expect(table.rows.length, "One row in rendered table").toBe(2);
+    expect(table.rows[1].cells[0].question.value).toBe(1);
+    expect(table.rows[1].cells[1].question.value).toBe("1 name");
     const rows = matrix.visibleRows;
-    expect(rows.length, "one row is added, rowCount: 1").toLooseEqual(1);
-    expect(rows[0].cells[0].question.value, "cell [0,0]").toLooseEqual(1);
-    expect(rows[0].cells[1].question.value, "cell [0,1]").toLooseEqual("1 name");
+    expect(rows.length, "one row is added, rowCount: 1").toBe(1);
+    expect(rows[0].cells[0].question.value, "cell [0,0]").toBe(1);
+    expect(rows[0].cells[1].question.value, "cell [0,1]").toBe("1 name");
   });
   test("survey.getNestedQuestions", () => {
     const survey = new SurveyModel({
@@ -17345,11 +17345,11 @@ describe("Survey", () => {
       ]
     });
     const questions = survey.getAllQuestions(false, false, true);
-    expect(questions.length, "3 questions").toLooseEqual(4);
-    expect(questions[0].name, "#1").toLooseEqual("q1");
-    expect(questions[1].name, "#2").toLooseEqual("q2");
-    expect(questions[2].name, "#3").toLooseEqual("q2_item1");
-    expect(questions[3].name, "#4").toLooseEqual("q2_item2");
+    expect(questions.length, "3 questions").toBe(4);
+    expect(questions[0].name, "#1").toBe("q1");
+    expect(questions[1].name, "#2").toBe("q2");
+    expect(questions[2].name, "#3").toBe("q2_item1");
+    expect(questions[3].name, "#4").toBe("q2_item2");
   });
   test("survey.applyTheme", () => {
     const survey = new SurveyModel({
@@ -17359,13 +17359,13 @@ describe("Survey", () => {
       ]
     });
 
-    expect(Object.keys(survey.themeVariables).length, "before applyTheme").toLooseEqual(0);
-    expect(!!survey.backgroundImage, "before applyTheme").toLooseEqual(false);
-    expect(survey.backgroundImageFit, "before applyTheme").toLooseEqual("cover");
-    expect(survey.backgroundImageAttachment, "before applyTheme").toLooseEqual("scroll");
-    expect(survey.backgroundOpacity, "before applyTheme").toLooseEqual(1);
-    expect(survey["isCompact"], "before applyTheme").toLooseEqual(false);
-    expect(survey.headerView, "before applyTheme").toLooseEqual("basic");
+    expect(Object.keys(survey.themeVariables).length, "before applyTheme").toBe(0);
+    expect(!!survey.backgroundImage, "before applyTheme").toBe(false);
+    expect(survey.backgroundImageFit, "before applyTheme").toBe("cover");
+    expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
+    expect(survey.backgroundOpacity, "before applyTheme").toBe(1);
+    expect(survey["isCompact"], "before applyTheme").toBe(false);
+    expect(survey.headerView, "before applyTheme").toBe("basic");
 
     survey.applyTheme({
       "cssVariables": {
@@ -17382,13 +17382,13 @@ describe("Survey", () => {
       "isPanelless": true
     });
 
-    expect(Object.keys(survey.themeVariables).length).toLooseEqual(5);
-    expect(!!survey.backgroundImage).toLooseEqual(true);
-    expect(survey.backgroundImageFit).toLooseEqual("cover");
-    expect(survey.backgroundImageAttachment).toLooseEqual("fixed");
-    expect(survey.backgroundOpacity).toLooseEqual(0.6);
-    expect(survey["isCompact"]).toLooseEqual(true);
-    expect(survey.headerView, "after applyTheme").toLooseEqual("basic");
+    expect(Object.keys(survey.themeVariables).length).toBe(5);
+    expect(!!survey.backgroundImage).toBe(true);
+    expect(survey.backgroundImageFit).toBe("cover");
+    expect(survey.backgroundImageAttachment).toBe("fixed");
+    expect(survey.backgroundOpacity).toBe(0.6);
+    expect(survey["isCompact"]).toBe(true);
+    expect(survey.headerView, "after applyTheme").toBe("basic");
   });
   test("survey.applyTheme respects headerView", () => {
     const survey = new SurveyModel({
@@ -17398,23 +17398,23 @@ describe("Survey", () => {
       ]
     });
 
-    expect(survey.headerView, "before applyTheme").toLooseEqual("basic");
+    expect(survey.headerView, "before applyTheme").toBe("basic");
 
     survey.applyTheme({
       "headerView": "advanced"
     });
-    expect(survey.headerView, "apply advanced header").toLooseEqual("advanced");
+    expect(survey.headerView, "apply advanced header").toBe("advanced");
 
     survey.applyTheme({
       "headerView": "basic"
     });
-    expect(survey.headerView, "apply basic header").toLooseEqual("basic");
+    expect(survey.headerView, "apply basic header").toBe("basic");
 
     survey.applyTheme({});
-    expect(survey.headerView, "apply empty theme").toLooseEqual("basic");
+    expect(survey.headerView, "apply empty theme").toBe("basic");
 
     survey.applyTheme({ header: {} });
-    expect(survey.headerView, "apply theme with header").toLooseEqual("advanced");
+    expect(survey.headerView, "apply theme with header").toBe("advanced");
   });
   test("page/panel delete do it recursively", () => {
     const survey = new SurveyModel({
@@ -17437,11 +17437,11 @@ describe("Survey", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     p2.delete();
-    expect(p2.isDisposed, "p2.isDisposed").toLooseEqual(true);
-    expect(q2.isDisposed, "q2.isDisposed").toLooseEqual(true);
+    expect(p2.isDisposed, "p2.isDisposed").toBe(true);
+    expect(q2.isDisposed, "q2.isDisposed").toBe(true);
     survey.currentPage.delete();
-    expect(p1.isDisposed, "p1.isDisposed").toLooseEqual(true);
-    expect(q1.isDisposed, "q1.isDisposed").toLooseEqual(true);
+    expect(p1.isDisposed, "p1.isDisposed").toBe(true);
+    expect(q1.isDisposed, "q1.isDisposed").toBe(true);
   });
   test("SurveyModel: Check that popups inside survey are closed when scrolling container", (assert): any => {
     const model = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
@@ -17470,7 +17470,7 @@ describe("Survey", () => {
     expect(q1.dropdownListModel, "dropdownListModel dropdown q1").toBeFalsy();
     expect(q2.dropdownListModel, "dropdownListModel rating q2").toBeFalsy();
     expect(q3.dropdownListModel, "dropdownListModel tagbox q3").toBeFalsy();
-    expect(q4.getType(), "buttongroup q4").toLooseEqual("buttongroup");
+    expect(q4.getType(), "buttongroup q4").toBe("buttongroup");
     expect(q4.dropdownListModel, "dropdownListModel buttongroup q4").toBeFalsy();
   });
   test("Copy panel with invisible questions at design-time", (assert): any => {
@@ -17496,12 +17496,12 @@ describe("Survey", () => {
     survey.pages[0].addElement(panel2);
     const q1 = survey.getQuestionByName("q1");
     const q3 = survey.getQuestionByName("q3");
-    expect(q1.visible, "q1.visible = false").toLooseEqual(false);
-    expect(q1.isVisible, "q1.isVisible = true").toLooseEqual(true);
-    expect(q1.getPropertyValue("isVisible"), "q1.isVisible via getPropertyValue").toLooseEqual(true);
-    expect(q3.visible, "q3.visible = false").toLooseEqual(false);
-    expect(q3.isVisible, "q3.isVisible = true").toLooseEqual(true);
-    expect(q3.getPropertyValue("isVisible"), "q3.isVisible via getPropertyValue").toLooseEqual(true);
+    expect(q1.visible, "q1.visible = false").toBe(false);
+    expect(q1.isVisible, "q1.isVisible = true").toBe(true);
+    expect(q1.getPropertyValue("isVisible"), "q1.isVisible via getPropertyValue").toBe(true);
+    expect(q3.visible, "q3.visible = false").toBe(false);
+    expect(q3.isVisible, "q3.isVisible = true").toBe(true);
+    expect(q3.getPropertyValue("isVisible"), "q3.isVisible via getPropertyValue").toBe(true);
   });
   test("Use variables as default values in expression", () => {
     const survey = new SurveyModel({
@@ -17514,7 +17514,7 @@ describe("Survey", () => {
     });
     survey.data = { q1: 2 };
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.value, "Get data from survey").toLooseEqual(2);
+    expect(q1.value, "Get data from survey").toBe(2);
   });
   test("Test displayValue() function", () => {
     const survey = new SurveyModel({
@@ -17573,7 +17573,7 @@ describe("Survey", () => {
     });
     survey.data = { q1: [1, 2], q2: [{ q2_q1: [2, 3] }] };
     const panel = survey.getQuestionByName("q2");
-    expect(panel.panels[0].questions[0].isReady, "Check box is ready").toLooseEqual(true);
+    expect(panel.panels[0].questions[0].isReady, "Check box is ready").toBe(true);
     const matrix = survey.getQuestionByName("q3");
     matrix.addRow();
     const row = matrix.visibleRows[0];
@@ -17616,12 +17616,12 @@ describe("Survey", () => {
     rows[0].cells[0].value = 2;
     rows[1].cells[0].value = 3;
     rows[2].cells[0].value = 1;
-    expect(rows[0].cells[1].value, "cells[0,1].value").toLooseEqual("Item check 2");
-    expect(rows[0].cells[2].value, "cells[0,2].value").toLooseEqual("Item 2");
-    expect(rows[1].cells[1].value, "cells[1,1].value").toLooseEqual("Item check 3");
-    expect(rows[1].cells[2].value, "cells[1,2].value").toLooseEqual("Item 3");
-    expect(rows[2].cells[1].value, "cells[2,1].value").toLooseEqual("Item check 1");
-    expect(rows[2].cells[2].value, "cells[2,2].value").toLooseEqual("Item 1");
+    expect(rows[0].cells[1].value, "cells[0,1].value").toBe("Item check 2");
+    expect(rows[0].cells[2].value, "cells[0,2].value").toBe("Item 2");
+    expect(rows[1].cells[1].value, "cells[1,1].value").toBe("Item check 3");
+    expect(rows[1].cells[2].value, "cells[1,2].value").toBe("Item 3");
+    expect(rows[2].cells[1].value, "cells[2,1].value").toBe("Item check 1");
+    expect(rows[2].cells[2].value, "cells[2,2].value").toBe("Item 1");
   });
   test("Test displayValue() function with value parameter & 0 value, Bug#8603", () => {
     const survey = new SurveyModel({
@@ -17648,9 +17648,9 @@ describe("Survey", () => {
     rows[0].cells[0].value = 0;
     rows[1].cells[0].value = 1;
     rows[2].cells[0].value = 2;
-    expect(rows[0].cells[1].value, "cells[0,1].value").toLooseEqual("Item check 0");
-    expect(rows[1].cells[1].value, "cells[1,1].value").toLooseEqual("Item check 1");
-    expect(rows[2].cells[1].value, "cells[2,1].value").toLooseEqual("Item check 2");
+    expect(rows[0].cells[1].value, "cells[0,1].value").toBe("Item check 0");
+    expect(rows[1].cells[1].value, "cells[1,1].value").toBe("Item check 1");
+    expect(rows[2].cells[1].value, "cells[2,1].value").toBe("Item check 2");
   });
   test("Test displayValue() function with 'non-ready' question , Bug#8763", () => {
     const survey = new SurveyModel({
@@ -17673,10 +17673,10 @@ describe("Survey", () => {
     q1["getIsQuestionReady"] = (): boolean => { return isQ1Ready; };
     q1["updateIsReady"]();
     survey.mergeData({ q1: 1, q2: "abc" });
-    expect(q2.value, "#1").toLooseEqual("abc");
+    expect(q2.value, "#1").toBe("abc");
     isQ1Ready = true;
     q1["updateIsReady"]();
-    expect(q2.value, "#1").toLooseEqual("Item check 1");
+    expect(q2.value, "#1").toBe("Item check 1");
   });
   test("Test displayValue() function in survey.runExpression, Bug#8858", () => {
     const survey = new SurveyModel({
@@ -17689,11 +17689,11 @@ describe("Survey", () => {
       ]
     });
     survey.setValue("q1", 2);
-    expect(survey.runExpression("displayValue('q1')"), "#1").toLooseEqual("Item 2");
+    expect(survey.runExpression("displayValue('q1')"), "#1").toBe("Item 2");
     let funcRes = undefined;
     survey.setValue("q1", 1);
     survey.runExpression("displayValue('q1')", (res: any): void => funcRes = res);
-    expect(funcRes, "#2").toLooseEqual("Item 1");
+    expect(funcRes, "#2").toBe("Item 1");
   });
   test("Test propertyValue() function", () => {
     const survey = new SurveyModel({
@@ -17758,7 +17758,7 @@ describe("Survey", () => {
         }]
     });
     survey.data = { q1: 2 };
-    expect(survey.locCompleteText.renderedHtml, "Preprocess correctly").toLooseEqual("2");
+    expect(survey.locCompleteText.renderedHtml, "Preprocess correctly").toBe("2");
     surveyLocalization.locales.en.completeText = prevVal;
   });
   test("clearInvisibleValues onHiddenContainer breaks defaultValueExpression for text input #7010", () => {
@@ -17789,11 +17789,11 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.isEmpty(), "initial value on loading and clear on becoming invisible").toLooseEqual(true);
+    expect(q2.isEmpty(), "initial value on loading and clear on becoming invisible").toBe(true);
     q1.value = "A";
-    expect(q2.value, "q1.value = A").toLooseEqual(42);
+    expect(q2.value, "q1.value = A").toBe(42);
     q1.value = "B";
-    expect(q2.value, "q1.value = B").toLooseEqual(24);
+    expect(q2.value, "q1.value = B").toBe(24);
   });
 
   test("survey.toJSON() doesn't work correctly if questionsOnPageMode=singlePage is used #7359, #1", () => {
@@ -17824,8 +17824,8 @@ describe("Survey", () => {
     const survey = new SurveyModel(surveyJson);
     const prepareJSON = survey.toJSON();
 
-    expect(surveyJson.pages[0].elements.length, "surveyJson elements count").toLooseEqual(3);
-    expect(prepareJSON.pages[0].elements.length, "prepareJSON elements count").toLooseEqual(3);
+    expect(surveyJson.pages[0].elements.length, "surveyJson elements count").toBe(3);
+    expect(prepareJSON.pages[0].elements.length, "prepareJSON elements count").toBe(3);
 
     expect(surveyJson).toEqualValues(prepareJSON);
   });
@@ -17857,10 +17857,10 @@ describe("Survey", () => {
     const survey = new SurveyModel(surveyJson);
     const prepareJSON = survey.toJSON();
 
-    expect(surveyJson.pages.length, "surveyJson pages count").toLooseEqual(1);
-    expect(prepareJSON.pages.length, "prepareJSON pages count").toLooseEqual(1);
-    expect(surveyJson.pages[0].elements.length, "surveyJson elements count").toLooseEqual(3);
-    expect(prepareJSON.pages[0].elements.length, "prepareJSON elements count").toLooseEqual(3);
+    expect(surveyJson.pages.length, "surveyJson pages count").toBe(1);
+    expect(prepareJSON.pages.length, "prepareJSON pages count").toBe(1);
+    expect(surveyJson.pages[0].elements.length, "surveyJson elements count").toBe(3);
+    expect(prepareJSON.pages[0].elements.length, "prepareJSON elements count").toBe(3);
 
     expect(surveyJson).toEqualValues(prepareJSON);
   });
@@ -17890,9 +17890,9 @@ describe("Survey", () => {
     };
 
     const survey = new SurveyModel(surveyJson);
-    expect(survey.currentSingleQuestion.name, "#1").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "#1").toBe("q1");
     survey.currentSingleQuestion.value = "a";
-    expect(survey.currentSingleQuestion.name, "#2").toLooseEqual("q4");
+    expect(survey.currentSingleQuestion.name, "#2").toBe("q4");
   });
   test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, Bug #9826", () => {
     const surveyJson = {
@@ -17912,9 +17912,9 @@ describe("Survey", () => {
     };
 
     const survey = new SurveyModel(surveyJson);
-    expect(survey.currentSingleQuestion.name, "#1").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "#1").toBe("q1");
     survey.currentSingleQuestion.value = "a";
-    expect(survey.currentSingleQuestion.name, "#2").toLooseEqual("q4");
+    expect(survey.currentSingleQuestion.name, "#2").toBe("q4");
   });
   test("questionsOnPageMode=questionPerPage & skip doesn't work correctly if executeSkipOnValueChanged = false, Bug #9903", () => {
     settings.triggers.executeSkipOnValueChanged = false;
@@ -17935,11 +17935,11 @@ describe("Survey", () => {
     };
 
     const survey = new SurveyModel(surveyJson);
-    expect(survey.currentSingleQuestion.name, "#1").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "#1").toBe("q1");
     survey.currentSingleQuestion.value = "a";
-    expect(survey.currentSingleQuestion.name, "#2").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "#2").toBe("q1");
     survey.performNext();
-    expect(survey.currentSingleQuestion.name, "#3").toLooseEqual("q4");
+    expect(survey.currentSingleQuestion.name, "#3").toBe("q4");
     settings.triggers.executeSkipOnValueChanged = true;
   });
   test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", () => {
@@ -17993,10 +17993,10 @@ describe("Survey", () => {
     const q1_2 = survey.getQuestionByName("q1_2");
     const q2_2 = survey.getQuestionByName("q2_2");
 
-    expect(q1_1.value, "q1_1.value").toLooseEqual("A");
-    expect(q2_1.value, "q2_1.value").toLooseEqual("A");
-    expect(q1_2.visible, "q1_2.visible").toLooseEqual(true);
-    expect(q2_2.visible, "q2_2.visible").toLooseEqual(true);
+    expect(q1_1.value, "q1_1.value").toBe("A");
+    expect(q2_1.value, "q2_1.value").toBe("A");
+    expect(q1_2.visible, "q1_2.visible").toBe(true);
+    expect(q2_2.visible, "q2_2.visible").toBe(true);
   });
 
   test("autoAdvanceEnabled & questionsOnPageMode=questionPerPage is used #9315", () => {
@@ -18009,13 +18009,13 @@ describe("Survey", () => {
       questionsOnPageMode: "questionPerPage",
       autoAdvanceEnabled: true,
     });
-    expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #1").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #1").toBe("q1");
     survey.setValue("q1", "A");
-    expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #2").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #2").toBe("q2");
     survey.setValue("q2", "A");
-    expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #3").toLooseEqual("q3");
+    expect(survey.currentSingleQuestion.name, "survey.currentSingleQuestion.name #3").toBe("q3");
     survey.setValue("q3", "A");
-    expect(survey.state, "survey.state #4").toLooseEqual("completed");
+    expect(survey.state, "survey.state #4").toBe("completed");
   });
 
   test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", () => {
@@ -18045,10 +18045,10 @@ describe("Survey", () => {
     });
     const question = survey.getQuestionByName("q1");
     const panel = survey.getPanelByName("panel1");
-    expect(question.name, "Loaded correctly").toLooseEqual("q1");
-    expect(panel.isCollapsed, "panel is collapsed").toLooseEqual(true);
+    expect(question.name, "Loaded correctly").toBe("q1");
+    expect(panel.isCollapsed, "panel is collapsed").toBe(true);
     panel.expand();
-    expect(panel.isCollapsed, "panel is not collapsed").toLooseEqual(false);
+    expect(panel.isCollapsed, "panel is not collapsed").toBe(false);
   });
   test("Expression bug with complex path, #7396", () => {
     const survey = new SurveyModel({
@@ -18075,11 +18075,11 @@ describe("Survey", () => {
     const q1 = survey.getQuestionByName("Q1.1");
     const q2 = survey.getQuestionByName("Q1.1.16");
     const q3 = survey.getQuestionByName("Q1.1.16.A");
-    expect(q3.isVisible, "visible #1").toLooseEqual(false);
+    expect(q3.isVisible, "visible #1").toBe(false);
     q1.value = { "1": 1, "2": 2 };
-    expect(q3.isVisible, "visible #2").toLooseEqual(false);
+    expect(q3.isVisible, "visible #2").toBe(false);
     q2.value = { "16": 2 };
-    expect(q3.isVisible, "visible #3").toLooseEqual(true);
+    expect(q3.isVisible, "visible #3").toBe(true);
   });
   test("Do not run defaultValueExpression on survey.data, #7423", () => {
     const survey = new SurveyModel({
@@ -18112,26 +18112,26 @@ describe("Survey", () => {
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
     const q4 = survey.getQuestionByName("q4");
-    expect(q1.value, "q1.value #1").toLooseEqual("value1");
-    expect(q2.value, "q2.value #1").toLooseEqual("value2");
+    expect(q1.value, "q1.value #1").toBe("value1");
+    expect(q2.value, "q2.value #1").toBe("value2");
     expect(q3.value, "q3.value #1").toEqualValues(["item1", "item3"]);
-    expect(q4.value, "q4.value #1").toLooseEqual("item2");
+    expect(q4.value, "q4.value #1").toBe("item2");
     survey.data = { q1: "val1" };
-    expect(q1.value, "q1.value #2").toLooseEqual("val1");
+    expect(q1.value, "q1.value #2").toBe("val1");
     expect(q2.value, "q2.value #2").toBeFalsy();
     expect(q3.value, "q3.value #2").toEqualValues([]);
     expect(q4.value, "q4.value #2").toBeFalsy();
     q2.value = "val2";
-    expect(q1.value, "q1.value #3").toLooseEqual("val1");
-    expect(q2.value, "q2.value #3").toLooseEqual("val2");
+    expect(q1.value, "q1.value #3").toBe("val1");
+    expect(q2.value, "q2.value #3").toBe("val2");
     expect(q3.value, "q3.value #3").toEqualValues([]);
     expect(q4.value, "q4.value #3").toBeFalsy();
   });
   test("theme assignment affects headerView", () => {
     let survey = new SurveyModel({});
-    expect(survey.headerView, "default value").toLooseEqual("basic");
+    expect(survey.headerView, "default value").toBe("basic");
     survey.applyTheme({ header: {} } as any);
-    expect(survey.headerView, "changed to advanced").toLooseEqual("advanced");
+    expect(survey.headerView, "changed to advanced").toBe("advanced");
   });
   test("defaultValueExpression expression stops working after survey.clear(), #7448", () => {
     const survey = new SurveyModel({
@@ -18143,24 +18143,24 @@ describe("Survey", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     q1.value = 1;
-    expect(q2.value, "defaultValueExpression is working").toLooseEqual(1);
+    expect(q2.value, "defaultValueExpression is working").toBe(1);
     survey.clear();
     q1.value = 2;
-    expect(q2.value, "defaultValueExpression is still working").toLooseEqual(2);
+    expect(q2.value, "defaultValueExpression is still working").toBe(2);
     q2.value = 3;
-    expect(q2.value, "set value directly").toLooseEqual(3);
+    expect(q2.value, "set value directly").toBe(3);
     survey.clear();
     q1.value = 4;
-    expect(q2.value, "defaultValueExpression is working after set value directly & clear").toLooseEqual(4);
+    expect(q2.value, "defaultValueExpression is working after set value directly & clear").toBe(4);
   });
   test("emptySurveyText, make it writable, #7456", () => {
     const survey = new SurveyModel();
     const defaultText = "The survey doesn't contain any visible elements.";
-    expect(survey.emptySurveyText, "#1").toLooseEqual(defaultText);
+    expect(survey.emptySurveyText, "#1").toBe(defaultText);
     survey.emptySurveyText = "Empty";
-    expect(survey.emptySurveyText, "#2").toLooseEqual("Empty");
+    expect(survey.emptySurveyText, "#2").toBe("Empty");
     survey.resetPropertyValue("emptySurveyText");
-    expect(survey.emptySurveyText, "#3").toLooseEqual(defaultText);
+    expect(survey.emptySurveyText, "#3").toBe(defaultText);
   });
 
   test("getContainerContent - progress + advanced header (legacyProgressBarView)", () => {
@@ -18210,9 +18210,9 @@ describe("Survey", () => {
         }
       } as any);
 
-      expect(survey.showNavigationButtons).toLooseEqual(false);
-      expect(survey.progressBarType).toLooseEqual("pages");
-      expect(survey.showProgressBar).toLooseEqual(false);
+      expect(survey.showNavigationButtons).toBe(false);
+      expect(survey.progressBarType).toBe("pages");
+      expect(survey.showProgressBar).toBe(false);
 
       expect(getContainerContent("header"), "default header").toEqualValues([{
         "component": "sv-header",
@@ -18332,9 +18332,9 @@ describe("Survey", () => {
       }
     } as any);
 
-    expect(survey.showNavigationButtons).toLooseEqual(false);
-    expect(survey.progressBarType).toLooseEqual("pages");
-    expect(survey.showProgressBar).toLooseEqual(false);
+    expect(survey.showNavigationButtons).toBe(false);
+    expect(survey.progressBarType).toBe("pages");
+    expect(survey.showProgressBar).toBe(false);
 
     expect(getContainerContent("header"), "default header").toEqualValues([{
       "component": "sv-header",
@@ -18479,10 +18479,10 @@ describe("Survey", () => {
       };
     });
     survey["isCompact"] = true;
-    expect(log).toLooseEqual("->q1:true->q2:true");
+    expect(log).toBe("->q1:true->q2:true");
     log = "";
     survey["isCompact"] = false;
-    expect(log).toLooseEqual("->q1:true->q2:true");
+    expect(log).toBe("->q1:true->q2:true");
   });
   test("element.wasREndered", () => {
     const json = {
@@ -18506,30 +18506,30 @@ describe("Survey", () => {
       ]
     };
     const survey = new SurveyModel(json);
-    expect(survey.pages[0].wasRendered, "page1 wasRendered").toLooseEqual(true);
-    expect(survey.getQuestionByName("q1").wasRendered, "q1 wasRendered").toLooseEqual(true);
+    expect(survey.pages[0].wasRendered, "page1 wasRendered").toBe(true);
+    expect(survey.getQuestionByName("q1").wasRendered, "q1 wasRendered").toBe(true);
     const q3 = survey.pages[0].addNewQuestion("text", "q3");
-    expect(q3.wasRendered, "q3 wasRendered").toLooseEqual(true);
+    expect(q3.wasRendered, "q3 wasRendered").toBe(true);
     const panel1 = survey.pages[0].addNewPanel("panel1");
-    expect(panel1.wasRendered, "panel1 wasRendered").toLooseEqual(true);
+    expect(panel1.wasRendered, "panel1 wasRendered").toBe(true);
     const q4 = panel1.addNewQuestion("text", "q4");
-    expect(q4.wasRendered, "q4 wasRendered").toLooseEqual(true);
+    expect(q4.wasRendered, "q4 wasRendered").toBe(true);
 
-    expect(survey.pages[1].wasRendered, "page2 wasRendered, #1").toLooseEqual(false);
-    expect(survey.getQuestionByName("q2").wasRendered, "q2 wasRendered, #1").toLooseEqual(false);
+    expect(survey.pages[1].wasRendered, "page2 wasRendered, #1").toBe(false);
+    expect(survey.getQuestionByName("q2").wasRendered, "q2 wasRendered, #1").toBe(false);
     const q5 = survey.pages[1].addNewQuestion("text", "q5");
-    expect(q5.wasRendered, "q5 wasRendered, #1").toLooseEqual(false);
+    expect(q5.wasRendered, "q5 wasRendered, #1").toBe(false);
     const panel2 = survey.pages[1].addNewPanel("panel1");
-    expect(panel2.wasRendered, "panel2 wasRendered, #1").toLooseEqual(false);
+    expect(panel2.wasRendered, "panel2 wasRendered, #1").toBe(false);
     const q6 = panel2.addNewQuestion("text", "q6");
-    expect(q6.wasRendered, "q6 wasRendered, #1").toLooseEqual(false);
+    expect(q6.wasRendered, "q6 wasRendered, #1").toBe(false);
 
     survey.nextPage();
-    expect(survey.pages[1].wasRendered, "page2 wasRendered, #2").toLooseEqual(true);
-    expect(survey.getQuestionByName("q2").wasRendered, "q2 wasRendered, #2").toLooseEqual(true);
-    expect(q5.wasRendered, "q5 wasRendered, #2").toLooseEqual(true);
-    expect(panel2.wasRendered, "panel2 wasRendered, #2").toLooseEqual(true);
-    expect(q6.wasRendered, "q6 wasRendered, #2").toLooseEqual(true);
+    expect(survey.pages[1].wasRendered, "page2 wasRendered, #2").toBe(true);
+    expect(survey.getQuestionByName("q2").wasRendered, "q2 wasRendered, #2").toBe(true);
+    expect(q5.wasRendered, "q5 wasRendered, #2").toBe(true);
+    expect(panel2.wasRendered, "panel2 wasRendered, #2").toBe(true);
+    expect(q6.wasRendered, "q6 wasRendered, #2").toBe(true);
   });
 
   test("getContainerContent - progress settings", () => {
@@ -18570,11 +18570,11 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(settings.legacyProgressBarView, "show buttons progress for pages by default").toLooseEqual(false);
-    expect(survey.showProgressBar, "default show progress bar").toLooseEqual(false);
-    expect(survey.progressBarType, "default progress bar type").toLooseEqual("pages");
-    expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toLooseEqual(false);
-    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toLooseEqual(false);
+    expect(settings.legacyProgressBarView, "show buttons progress for pages by default").toBe(false);
+    expect(survey.showProgressBar, "default show progress bar").toBe(false);
+    expect(survey.progressBarType, "default progress bar type").toBe("pages");
+    expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
+    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
 
     expect(getContainerContent("header"), "empty header").toEqualValues([]);
     expect(getContainerContent("footer"), "empty footer").toEqualValues([]);
@@ -18598,7 +18598,7 @@ describe("Survey", () => {
 
     survey.progressBarType = "buttons";
 
-    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toLooseEqual(true);
+    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
 
     expect(getContainerContent("header"), "auto buttons header").toEqualValues([]);
     expect(getContainerContent("footer"), "auto buttons footer").toEqualValues([]);
@@ -18729,13 +18729,13 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q1.value, "q1.value #1").toLooseEqual(undefined);
-    expect(q2.isVisible, "q2.isVisible #1").toLooseEqual(false);
+    expect(q1.value, "q1.value #1").toBeUndefined();
+    expect(q2.isVisible, "q2.isVisible #1").toBe(false);
 
     FunctionFactory.Instance.register("func1", func1);
     survey.runExpressions();
-    expect(q1.value, "q1.value #2").toLooseEqual(1);
-    expect(q2.isVisible, "q2.isVisible #2").toLooseEqual(true);
+    expect(q1.value, "q1.value #2").toBe(1);
+    expect(q2.isVisible, "q2.isVisible #2").toBe(true);
 
     FunctionFactory.Instance.unregister("func1");
   });
@@ -18763,7 +18763,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     survey.fromJSON(json);
     const q1 = survey.getQuestionByName("q1");
-    expect(q1.hasDescription, "Description loaded correctly").toLooseEqual(true);
+    expect(q1.hasDescription, "Description loaded correctly").toBe(true);
     surveyLocalization.defaultLocale = defautlLocale;
   });
   test("onOpenFileChooser fires", () => {
@@ -18779,12 +18779,12 @@ describe("Survey", () => {
       lastContext = (o as any).context;
       o.callback([]);
     });
-    expect(log).toLooseEqual("");
+    expect(log).toBe("");
     survey.chooseFiles(document.createElement("input"), () => { }, { element: { a: 1 }, propertyName: "a" } as any);
-    expect(log).toLooseEqual("->onOpenFileChooser");
+    expect(log).toBe("->onOpenFileChooser");
     expect(lastContext).toEqualValues({ element: { a: 1 }, propertyName: "a" });
     expect(lastContextElement).toEqualValues({ a: 1 });
-    expect(lastContextPropertyName).toLooseEqual("a");
+    expect(lastContextPropertyName).toBe("a");
   });
   test("Advanced header title/description color", () => {
     const survey = new SurveyModel();
@@ -18793,63 +18793,63 @@ describe("Survey", () => {
     survey.applyTheme(accHeaderBackTheme);
     let headerLayoutElement = survey.findLayoutElement("advanced-header");
     let headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
     headerModel.height = 256;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header__without-background sv-header__background-color--none");
-    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toLooseEqual(undefined);
-    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toLooseEqual(undefined);
-    // expect(survey.themeVariables["--sjs-font-headerdescription-color"]).toLooseEqual(undefined);
-    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"]).toLooseEqual(undefined);
-    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"]).toLooseEqual(undefined);
+    expect(headerModel.headerClasses).toBe("sv-header sv-header__without-background sv-header__background-color--none");
+    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+    // expect(survey.themeVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
+    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
 
     const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
     survey.applyTheme(noneHeaderBackTheme);
     headerLayoutElement = survey.findLayoutElement("advanced-header");
     headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
     const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
     survey.applyTheme(customNotSetHeaderBackTheme);
     headerLayoutElement = survey.findLayoutElement("advanced-header");
     headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
     const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
     survey.applyTheme(customHeaderBackTheme);
     headerLayoutElement = survey.findLayoutElement("advanced-header");
     headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header--height-auto sv-header__background-color--custom");
+    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__background-color--custom");
 
     const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
     survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
     headerLayoutElement = survey.findLayoutElement("advanced-header");
     headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header--height-auto sv-header__without-background");
+    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background");
 
     const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
     survey.applyTheme(customHeaderBackAndTitleTheme);
     headerLayoutElement = survey.findLayoutElement("advanced-header");
     headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toLooseEqual("sv-header sv-header--height-auto");
+    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto");
   });
   test("Display mode in design time", () => {
     const survey = new SurveyModel();
     settings.animationEnabled = true;
-    expect(survey.css.rootReadOnly).toLooseEqual("sd-root--readonly");
-    expect(survey.mode).toLooseEqual("edit");
-    expect(survey.isDisplayMode).toLooseEqual(false);
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--full-container");
+    expect(survey.css.rootReadOnly).toBe("sd-root--readonly");
+    expect(survey.mode).toBe("edit");
+    expect(survey.isDisplayMode).toBe(false);
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
     survey.readOnly = true;
-    expect(survey.mode).toLooseEqual("display");
-    expect(survey.isDisplayMode).toLooseEqual(true);
+    expect(survey.mode).toBe("display");
+    expect(survey.isDisplayMode).toBe(true);
     expect(survey.getRootCss().indexOf(survey.css.rootReadOnly) !== -1).toBeTruthy();
 
     survey.setDesignMode(true);
-    expect(survey.mode).toLooseEqual("display");
-    expect(survey.isDisplayMode).toLooseEqual(false);
-    expect(survey.getRootCss()).toLooseEqual("sd-root-modern sd-progress--pages sd-root-modern--full-container");
+    expect(survey.mode).toBe("display");
+    expect(survey.isDisplayMode).toBe(false);
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-progress--pages sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -18886,30 +18886,30 @@ describe("Survey", () => {
       ],
     };
     var survey = new SurveyModel(json);
-    expect(survey.pages[0].passed, "1) Page 1 isn't passed").toLooseEqual(false);
-    expect(survey.pages[1].passed, "1) Page 2 isn't passed").toLooseEqual(false);
-    expect(survey.pages[2].passed, "1) Page 3 isn't passed").toLooseEqual(false);
+    expect(survey.pages[0].passed, "1) Page 1 isn't passed").toBe(false);
+    expect(survey.pages[1].passed, "1) Page 2 isn't passed").toBe(false);
+    expect(survey.pages[2].passed, "1) Page 3 isn't passed").toBe(false);
 
     survey.nextPage();
-    expect(survey.pages[0].passed, "2) Page 1 is passed").toLooseEqual(true);
-    expect(survey.pages[1].passed, "2) Page 2 isn't passed").toLooseEqual(false);
-    expect(survey.pages[2].passed, "2) Page 3 isn't passed").toLooseEqual(false);
+    expect(survey.pages[0].passed, "2) Page 1 is passed").toBe(true);
+    expect(survey.pages[1].passed, "2) Page 2 isn't passed").toBe(false);
+    expect(survey.pages[2].passed, "2) Page 3 isn't passed").toBe(false);
 
     survey.nextPage();
-    expect(survey.pages[0].passed, "3) Page 1 is passed").toLooseEqual(true);
-    expect(survey.pages[1].passed, "3) Page 2 is passed").toLooseEqual(true);
-    expect(survey.pages[2].passed, "3) Page 3 isn't passed").toLooseEqual(false);
+    expect(survey.pages[0].passed, "3) Page 1 is passed").toBe(true);
+    expect(survey.pages[1].passed, "3) Page 2 is passed").toBe(true);
+    expect(survey.pages[2].passed, "3) Page 3 isn't passed").toBe(false);
 
     survey.prevPage();
-    expect(survey.pages[0].passed, "4) Page 1 is passed").toLooseEqual(true);
-    expect(survey.pages[1].passed, "4) Page 2 is passed").toLooseEqual(true);
-    expect(survey.pages[2].passed, "4) Page 3 is passed").toLooseEqual(true);
+    expect(survey.pages[0].passed, "4) Page 1 is passed").toBe(true);
+    expect(survey.pages[1].passed, "4) Page 2 is passed").toBe(true);
+    expect(survey.pages[2].passed, "4) Page 3 is passed").toBe(true);
 
     survey.nextPage();
     survey.tryComplete();
-    expect(survey.pages[0].passed, "5) Page 1 is passed").toLooseEqual(true);
-    expect(survey.pages[1].passed, "5) Page 2 is passed").toLooseEqual(true);
-    expect(survey.pages[2].passed, "5) Page 3 is passed").toLooseEqual(true);
+    expect(survey.pages[0].passed, "5) Page 1 is passed").toBe(true);
+    expect(survey.pages[1].passed, "5) Page 2 is passed").toBe(true);
+    expect(survey.pages[2].passed, "5) Page 3 is passed").toBe(true);
   });
 
   test("page passed", () => {
@@ -18987,9 +18987,9 @@ describe("Survey", () => {
       visibleChangedCounter++;
     });
     survey.showPreview();
-    expect(survey.progressText, "progressText").toLooseEqual("Page 1 of 1");
-    expect(progressCounter, "progressCounter").toLooseEqual(1);
-    expect(visibleChangedCounter, "visibleChangedCounter").toLooseEqual(0);
+    expect(survey.progressText, "progressText").toBe("Page 1 of 1");
+    expect(progressCounter, "progressCounter").toBe(1);
+    expect(visibleChangedCounter, "visibleChangedCounter").toBe(0);
   });
 
   test("showPreview & dynamic panel? single page", () => {
@@ -19049,8 +19049,8 @@ describe("Survey", () => {
       "questionsOnPageMode": "questionPerPage"
     });
     const panel = survey.getPanelByName("nps-panel");
-    expect(panel.visibleRows.length).toLooseEqual(1);
-    expect(panel.visibleRows[0].visibleElements[0].name).toLooseEqual("nps-score");
+    expect(panel.visibleRows.length).toBe(1);
+    expect(panel.visibleRows[0].visibleElements[0].name).toBe("nps-score");
     settings.animationEnabled = false;
   });
 
@@ -19075,10 +19075,10 @@ describe("Survey", () => {
     survey.headerView = "basic";
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(survey.progressBarType).toLooseEqual("pages");
-    expect(survey.questionsOnPageMode).toLooseEqual("standard");
-    expect(survey.showProgressBar).toLooseEqual(true);
-    expect(survey.progressBarLocation).toLooseEqual("auto");
+    expect(survey.progressBarType).toBe("pages");
+    expect(survey.questionsOnPageMode).toBe("standard");
+    expect(survey.showProgressBar).toBe(true);
+    expect(survey.progressBarLocation).toBe("auto");
     expect(getContainerContent("header"), "").toEqualValues([]);
     expect(getContainerContent("center"), "Progress is shown").toEqualValues([{
       "component": "sv-progress-buttons",
@@ -19141,10 +19141,10 @@ describe("Survey", () => {
     let survey = new SurveyModel(json);
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(survey.progressBarType).toLooseEqual("pages");
-    expect(survey.questionsOnPageMode).toLooseEqual("standard");
-    expect(survey.showProgressBar).toLooseEqual(false);
-    expect(survey.progressBarLocation).toLooseEqual("auto");
+    expect(survey.progressBarType).toBe("pages");
+    expect(survey.questionsOnPageMode).toBe("standard");
+    expect(survey.showProgressBar).toBe(false);
+    expect(survey.progressBarLocation).toBe("auto");
     expect(getContainerContent("header"), "header").toEqualValues([]);
     expect(getContainerContent("center"), "center").toEqualValues([]);
     expect(getContainerContent("footer"), "footer").toEqualValues([]);
@@ -19180,10 +19180,10 @@ describe("Survey", () => {
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" } });
     const getContainerContent = getContainerContentFunction(survey);
 
-    expect(survey.progressBarType).toLooseEqual("pages");
-    expect(survey.questionsOnPageMode).toLooseEqual("standard");
-    expect(survey.showProgressBar).toLooseEqual(false);
-    expect(survey.progressBarLocation).toLooseEqual("auto");
+    expect(survey.progressBarType).toBe("pages");
+    expect(survey.questionsOnPageMode).toBe("standard");
+    expect(survey.showProgressBar).toBe(false);
+    expect(survey.progressBarLocation).toBe("auto");
     expect(getContainerContent("header"), "header in header").toEqualValues([{
       "component": "sv-header",
       "container": "header",
@@ -19206,13 +19206,13 @@ describe("Survey", () => {
 
   test("Display mode in design time 2", () => {
     const survey = new SurveyModel();
-    expect(survey.wrapperFormCss).toLooseEqual("sd-root-modern__wrapper");
+    expect(survey.wrapperFormCss).toBe("sd-root-modern__wrapper");
 
     survey.backgroundImage = "abc";
-    expect(survey.wrapperFormCss).toLooseEqual("sd-root-modern__wrapper sd-root-modern__wrapper--has-image");
+    expect(survey.wrapperFormCss).toBe("sd-root-modern__wrapper sd-root-modern__wrapper--has-image");
 
     survey.backgroundImageAttachment = "fixed";
-    expect(survey.wrapperFormCss).toLooseEqual("sd-root-modern__wrapper sd-root-modern__wrapper--has-image sd-root-modern__wrapper--fixed");
+    expect(survey.wrapperFormCss).toBe("sd-root-modern__wrapper sd-root-modern__wrapper--has-image sd-root-modern__wrapper--fixed");
   });
   test("Delete panel with questions", () => {
     const survey = new SurveyModel({
@@ -19279,7 +19279,7 @@ describe("Survey", () => {
     DomWindowHelper.getLocation = <any>(() => location);
 
     survey.doComplete();
-    expect(location.href, "encoded URL").toLooseEqual("javascript%3Aalert(2)");
+    expect(location.href, "encoded URL").toBe("javascript%3Aalert(2)");
   });
   test("Question is not in the hash with it is on the first page & questionsOnPageMode is 'questionPerPage', Bug#8583", () => {
     const survey = new SurveyModel({
@@ -19300,7 +19300,7 @@ describe("Survey", () => {
     });
 
     const q = survey.getQuestionByName("q1");
-    expect(q.name, "q1 name is here").toLooseEqual("q1");
+    expect(q.name, "q1 name is here").toBe("q1");
   });
   test("questionsOnPageMode: `questionPerPage` & complete trigger & required questions on the same page, Bug#9289", () => {
     const survey = new SurveyModel({
@@ -19317,13 +19317,13 @@ describe("Survey", () => {
       ]
     });
     const btnComplete = survey.navigationBar.getActionById("sv-nav-complete");
-    expect(btnComplete.visible, "Complete button is visible, #1").toLooseEqual(false);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toLooseEqual("q1");
+    expect(btnComplete.visible, "Complete button is visible, #1").toBe(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q1");
     survey.currentSingleQuestion.value = "a";
-    expect(btnComplete.visible, "Complete button is visible, #2").toLooseEqual(true);
-    expect(survey.state, "Survey is running").toLooseEqual("running");
+    expect(btnComplete.visible, "Complete button is visible, #2").toBe(true);
+    expect(survey.state, "Survey is running").toBe("running");
     btnComplete.action();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
   });
   test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #9376", () => {
     class ScreenoutTrigger extends SurveyTriggerComplete {
@@ -19353,13 +19353,13 @@ describe("Survey", () => {
       ]
     });
     const btnComplete = survey.navigationBar.getActionById("sv-nav-complete");
-    expect(btnComplete.visible, "Complete button is visible, #1").toLooseEqual(false);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toLooseEqual("q1");
+    expect(btnComplete.visible, "Complete button is visible, #1").toBe(false);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q1");
     survey.currentSingleQuestion.value = "a";
-    expect(btnComplete.visible, "Complete button is visible, #2").toLooseEqual(true);
-    expect(survey.state, "Survey is running").toLooseEqual("running");
+    expect(btnComplete.visible, "Complete button is visible, #2").toBe(true);
+    expect(survey.state, "Survey is running").toBe("running");
     btnComplete.action();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
 
     Serializer.removeClass("screenouttrigger");
   });
@@ -19390,10 +19390,10 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion").toBe("q1");
     survey.currentSingleQuestion.value = "a";
     survey.performNext();
-    expect(survey.state, "Survey is completed").toLooseEqual("completed");
+    expect(survey.state, "Survey is completed").toBe("completed");
 
     settings.triggers.changeNavigationButtonsOnComplete = true;
     Serializer.removeClass("screenouttrigger");
@@ -19409,18 +19409,18 @@ describe("Survey", () => {
     const survey = new SurveyModel(json);
     const question = survey.currentSingleQuestion;
     const q2 = survey.getQuestionByName("q2");
-    expect(question.name, "currentSingleQuestion").toLooseEqual("q1");
-    expect(q2.isVisible, "q2.isVisible, #1").toLooseEqual(false);
-    expect(survey.isShowNextButton, "Next button is hidden, #1").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "Complete button is shown, #1").toLooseEqual(true);
+    expect(question.name, "currentSingleQuestion").toBe("q1");
+    expect(q2.isVisible, "q2.isVisible, #1").toBe(false);
+    expect(survey.isShowNextButton, "Next button is hidden, #1").toBe(false);
+    expect(survey.isCompleteButtonVisible, "Complete button is shown, #1").toBe(true);
     question.value = 1;
-    expect(q2.isVisible, "q2.isVisible, #2").toLooseEqual(true);
-    expect(survey.isShowNextButton, "Next button is shown, #2").toLooseEqual(true);
-    expect(survey.isCompleteButtonVisible, "Complete button is hidden, #2").toLooseEqual(false);
+    expect(q2.isVisible, "q2.isVisible, #2").toBe(true);
+    expect(survey.isShowNextButton, "Next button is shown, #2").toBe(true);
+    expect(survey.isCompleteButtonVisible, "Complete button is hidden, #2").toBe(false);
     question.value = 2;
-    expect(q2.isVisible, "q2.isVisible, #3").toLooseEqual(false);
-    expect(survey.isShowNextButton, "Next button is hidden, #3").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "Complete button is shown, #3").toLooseEqual(true);
+    expect(q2.isVisible, "q2.isVisible, #3").toBe(false);
+    expect(survey.isShowNextButton, "Next button is hidden, #3").toBe(false);
+    expect(survey.isCompleteButtonVisible, "Complete button is shown, #3").toBe(true);
   });
   test("Do not use questionsOnPageMode in design-mode, Bug#9274", () => {
     const json = {
@@ -19441,8 +19441,8 @@ describe("Survey", () => {
     const survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
-    expect(survey.questionsOnPageMode, "the property set correctly").toLooseEqual("questionPerPage");
-    expect(survey.currentSingleQuestion?.name, "It is the design mode").toLooseEqual(undefined);
+    expect(survey.questionsOnPageMode, "the property set correctly").toBe("questionPerPage");
+    expect(survey.currentSingleQuestion?.name, "It is the design mode").toBeUndefined();
   });
   test("questionsOnPageMode - panel should be displayed as a question", () => {
     const json = {
@@ -19454,15 +19454,15 @@ describe("Survey", () => {
       "questionsOnPageMode": "questionPerPage",
     };
     const survey = new SurveyModel(json);
-    expect(survey.currentSingleElement.name, "currentSingleQuestion #1").toLooseEqual("panel1");
+    expect(survey.currentSingleElement.name, "currentSingleQuestion #1").toBe("panel1");
     survey.performNext();
-    expect(survey.currentSingleElement.name, "currentSingleQuestion #2").toLooseEqual("q3");
+    expect(survey.currentSingleElement.name, "currentSingleQuestion #2").toBe("q3");
     survey.performNext();
-    expect(survey.currentSingleElement.name, "currentSingleQuestion #3").toLooseEqual("panel2");
+    expect(survey.currentSingleElement.name, "currentSingleQuestion #3").toBe("panel2");
     survey.performPrevious();
-    expect(survey.currentSingleElement.name, "currentSingleQuestion #4").toLooseEqual("q3");
+    expect(survey.currentSingleElement.name, "currentSingleQuestion #4").toBe("q3");
     survey.performPrevious();
-    expect(survey.currentSingleElement.name, "currentSingleQuestion #5").toLooseEqual("panel1");
+    expect(survey.currentSingleElement.name, "currentSingleQuestion #5").toBe("panel1");
   });
   test("question.canHaveFrameStyles should return true for questionsOnPageMode", () => {
     const json = {
@@ -19471,9 +19471,9 @@ describe("Survey", () => {
     };
     const survey = new SurveyModel(json);
     const question = survey.getQuestionByName("q1");
-    expect(survey.currentSingleElement.name, "currentSingleQuestion").toLooseEqual("panel1");
-    expect(survey.currentSingleElement["canHaveFrameStyles"](), "canHaveFrameStyles - panel").toLooseEqual(true);
-    expect(question["canHaveFrameStyles"](), "canHaveFrameStyles - question").toLooseEqual(false);
+    expect(survey.currentSingleElement.name, "currentSingleQuestion").toBe("panel1");
+    expect(survey.currentSingleElement["canHaveFrameStyles"](), "canHaveFrameStyles - panel").toBe(true);
+    expect(question["canHaveFrameStyles"](), "canHaveFrameStyles - question").toBe(false);
   });
   test("question.canHaveFrameStyles should return false for questionsOnPageMode for question in dynamic panel, Bug#9572", () => {
     const json = {
@@ -19482,10 +19482,10 @@ describe("Survey", () => {
     };
     const survey = new SurveyModel(json);
     const question = survey.currentSingleQuestion;
-    expect(question.name, "currentSingleQuestion").toLooseEqual("panel1");
-    expect(question["canHaveFrameStyles"](), "canHaveFrameStyles").toLooseEqual(true);
+    expect(question.name, "currentSingleQuestion").toBe("panel1");
+    expect(question["canHaveFrameStyles"](), "canHaveFrameStyles").toBe(true);
     const q1 = question.panels[0].getQuestionByName("q1");
-    expect(q1["canHaveFrameStyles"](), "canHaveFrameStyles").toLooseEqual(false);
+    expect(q1["canHaveFrameStyles"](), "canHaveFrameStyles").toBe(false);
   });
   test("questionsOnPageMode & validationEnabled , Bug#9558", () => {
     const json = {
@@ -19497,10 +19497,10 @@ describe("Survey", () => {
     };
     const survey = new SurveyModel(json);
     survey.validationEnabled = false;
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toLooseEqual("q1");
-    expect(survey.performNext(), "Can go futher").toLooseEqual(true);
-    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toLooseEqual("q2");
-    expect(survey.tryComplete(), "Survey is completed").toLooseEqual(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #1").toBe("q1");
+    expect(survey.performNext(), "Can go futher").toBe(true);
+    expect(survey.currentSingleQuestion.name, "currentSingleQuestion #2").toBe("q2");
+    expect(survey.tryComplete(), "Survey is completed").toBe(true);
   });
   test("questionsOnPageMode & visibility questions, Bug#9641", () => {
     const json = {
@@ -19512,9 +19512,9 @@ describe("Survey", () => {
       questionsOnPageMode: "questionPerPage"
     };
     const survey = new SurveyModel(json);
-    expect(survey.currentSingleQuestion.name, "the first question is invisible").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion.name, "the first question is invisible").toBe("q2");
     survey.getQuestionByName("q2").visible = false;
-    expect(survey.currentSingleQuestion.name, "the second question is invisible").toLooseEqual("q3");
+    expect(survey.currentSingleQuestion.name, "the second question is invisible").toBe("q3");
   });
   test("questionsOnPageMode & visibility panels, Bug#9641", () => {
     const json = {
@@ -19527,11 +19527,11 @@ describe("Survey", () => {
       questionsOnPageMode: "questionPerPage"
     };
     const survey = new SurveyModel(json);
-    expect(survey.currentSingleElement.name, "the first panel is invisible").toLooseEqual("p2");
+    expect(survey.currentSingleElement.name, "the first panel is invisible").toBe("p2");
     survey.getPanelByName("p2").visible = false;
-    expect(survey.currentSingleElement.name, "the second panel is invisible").toLooseEqual("p3");
+    expect(survey.currentSingleElement.name, "the second panel is invisible").toBe("p3");
     survey.getQuestionByName("q3").visible = false;
-    expect(survey.currentSingleElement.name, "the third panel is invisible").toLooseEqual("q4");
+    expect(survey.currentSingleElement.name, "the third panel is invisible").toBe("q4");
   });
   test("questionsOnPageMode & visibility pages, Bug#9641", () => {
     const json = {
@@ -19543,8 +19543,8 @@ describe("Survey", () => {
       questionsOnPageMode: "questionPerPage"
     };
     const survey = new SurveyModel(json);
-    expect(survey.currentSingleElement.name, "the second question is viaible").toLooseEqual("q2");
-    expect(survey.currentPage.name, "the second page is visible").toLooseEqual("page2");
+    expect(survey.currentSingleElement.name, "the second question is viaible").toBe("q2");
+    expect(survey.currentPage.name, "the second page is visible").toBe("page2");
   });
   test("survey.currentSingleQuestion & Page events, Bug#9381", () => {
     const json = {
@@ -19578,19 +19578,19 @@ describe("Survey", () => {
       options.allow = doAllow;
       addToOnPages(onPageChanging, options);
     });
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #1").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #1").toBe("q1");
     survey.performNext();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #2").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #2").toBe("q2");
     survey.performNext();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #3").toLooseEqual("q3");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #3").toBe("q3");
     survey.performNext();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #4").toLooseEqual("q4");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #4").toBe("q4");
     survey.performPrevious();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #5").toLooseEqual("q3");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #5").toBe("q3");
     survey.performPrevious();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #6").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #6").toBe("q2");
     survey.performPrevious();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #7").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #7").toBe("q1");
     const result = [{ newPage: "page1", oldPage: "page1", newQuestion: "q2", oldQuestion: "q1", forward: true, backward: false },
       { newPage: "page2", oldPage: "page1", newQuestion: "q3", oldQuestion: "q2", forward: true, backward: false },
       { newPage: "page2", oldPage: "page2", newQuestion: "q4", oldQuestion: "q3", forward: true, backward: false },
@@ -19604,7 +19604,7 @@ describe("Survey", () => {
     onPageChanged.splice(0, onPageChanged.length);
     doAllow = false;
     survey.performNext();
-    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #8").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion?.name, "currentSingleQuestion #8").toBe("q1");
     expect(onPageChanged, "onChanged #2").toEqualValues([]);
     expect(onPageChanging, "onChanging #2").toEqualValues([{ newPage: "page1", oldPage: "page1", newQuestion: "q2", oldQuestion: "q1", forward: true, backward: false }]);
   });
@@ -19628,7 +19628,7 @@ describe("Survey", () => {
     });
 
     const q = survey.getQuestionByName("q1");
-    expect(q.name, "q1 name is here").toLooseEqual("q1");
+    expect(q.name, "q1 name is here").toBe("q1");
   });
   test("Check showPageTitles & questionsOnPageMode is 'singlePage' on switching locales, Bug#9048", () => {
     const survey = new SurveyModel({
@@ -19656,15 +19656,15 @@ describe("Survey", () => {
       "questionsOnPageMode": "singlePage",
     });
     const panels = survey.currentPage.elements;
-    expect(panels.length, "There are two panels").toLooseEqual(2);
-    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale en").toLooseEqual(false);
-    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale en").toLooseEqual(false);
+    expect(panels.length, "There are two panels").toBe(2);
+    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale en").toBe(false);
+    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale en").toBe(false);
     survey.locale = "de";
-    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale de").toLooseEqual(false);
-    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale de").toLooseEqual(false);
+    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale de").toBe(false);
+    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale de").toBe(false);
     survey.locale = "";
-    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale ''").toLooseEqual(false);
-    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale ''").toLooseEqual(false);
+    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale ''").toBe(false);
+    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale ''").toBe(false);
   });
   test("Check questionsOnPageMode is 'singlePage' on switching locales, Bug#9048", () => {
     const survey = new SurveyModel({
@@ -19691,15 +19691,15 @@ describe("Survey", () => {
       "questionsOnPageMode": "singlePage",
     });
     const panels = survey.currentPage.elements;
-    expect(panels.length, "There are two panels").toLooseEqual(2);
-    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale en").toLooseEqual(true);
-    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale en").toLooseEqual(true);
+    expect(panels.length, "There are two panels").toBe(2);
+    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale en").toBe(true);
+    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale en").toBe(true);
     survey.locale = "de";
-    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale de").toLooseEqual(true);
-    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale de").toLooseEqual(true);
+    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale de").toBe(true);
+    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale de").toBe(true);
     survey.locale = "";
-    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale ''").toLooseEqual(true);
-    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale ''").toLooseEqual(true);
+    expect((<PanelModel>panels[0]).hasTitle, "panels[0], locale ''").toBe(true);
+    expect((<PanelModel>panels[1]).hasTitle, "panels[1], locale ''").toBe(true);
   });
   test("Check questionsOnPageMode is 'singlePage' & buttons visibility", () => {
     const survey = new SurveyModel({
@@ -19717,9 +19717,9 @@ describe("Survey", () => {
         }] }],
       "questionsOnPageMode": "singlePage",
     });
-    expect(survey.isShowNextButton, "Next button is hidden").toLooseEqual(false);
-    expect(survey.isShowPrevButton, "Prev button is hidden").toLooseEqual(false);
-    expect(survey.isCompleteButtonVisible, "Complete button is visible").toLooseEqual(true);
+    expect(survey.isShowNextButton, "Next button is hidden").toBe(false);
+    expect(survey.isShowPrevButton, "Prev button is hidden").toBe(false);
+    expect(survey.isCompleteButtonVisible, "Complete button is visible").toBe(true);
   });
 
   test("Check questionsOnPageMode is 'singlePage' & showPreview", () => {
@@ -19738,29 +19738,29 @@ describe("Survey", () => {
       "questionsOnPageMode": "singlePage",
       "showPreviewBeforeComplete": true
     });
-    expect(survey.visiblePageCount, "There is one visible page, #1").toLooseEqual(1);
-    expect(survey.visiblePages[0].name, "The name is single-page, #1").toLooseEqual("single-page");
+    expect(survey.visiblePageCount, "There is one visible page, #1").toBe(1);
+    expect(survey.visiblePages[0].name, "The name is single-page, #1").toBe("single-page");
     survey.showPreview();
-    expect(survey.visiblePageCount, "There is one visible page").toLooseEqual(1);
-    expect(survey.visiblePages[0].name, "The name is preview-page").toLooseEqual("preview-page");
-    expect(survey.visiblePages[0].elements.length, "It has only one element").toLooseEqual(1);
+    expect(survey.visiblePageCount, "There is one visible page").toBe(1);
+    expect(survey.visiblePages[0].name, "The name is preview-page").toBe("preview-page");
+    expect(survey.visiblePages[0].elements.length, "It has only one element").toBe(1);
     let singlePage = <PageModel>survey.visiblePages[0].elements[0];
     const singlePageId = singlePage.id;
-    expect(singlePage.getType(), "It is a page").toLooseEqual("page");
-    expect(singlePage.name, "It is a single page in the preview, page name").toLooseEqual("single-page");
-    expect(singlePage.isPage, "Single page in not a page in the preview").toLooseEqual(false);
-    expect(singlePage.isPanel, "Single page in not a panel in the preview").toLooseEqual(true);
-    expect(singlePage.elements.length, "Two pages in the single page").toLooseEqual(2);
-    expect(singlePage.elements[0].getType(), "Panel is page").toLooseEqual("page");
-    expect(singlePage.hasEditButton, "Single page has the cancel preview button").toLooseEqual(true);
+    expect(singlePage.getType(), "It is a page").toBe("page");
+    expect(singlePage.name, "It is a single page in the preview, page name").toBe("single-page");
+    expect(singlePage.isPage, "Single page in not a page in the preview").toBe(false);
+    expect(singlePage.isPanel, "Single page in not a panel in the preview").toBe(true);
+    expect(singlePage.elements.length, "Two pages in the single page").toBe(2);
+    expect(singlePage.elements[0].getType(), "Panel is page").toBe("page");
+    expect(singlePage.hasEditButton, "Single page has the cancel preview button").toBe(true);
     expect(singlePage.getFooterToolbar().getActionById("cancel-preview"), "single page has Cancel preview button").toBeTruthy();
-    expect((<PageModel>singlePage.elements[0]).getFooterToolbar().actions.length, "original pages don't have Cancel preview button").toLooseEqual(0);
-    expect((<PageModel>singlePage.elements[0]).hasEditButton, "original page doesn't have the cancel preview button").toLooseEqual(false);
+    expect((<PageModel>singlePage.elements[0]).getFooterToolbar().actions.length, "original pages don't have Cancel preview button").toBe(0);
+    expect((<PageModel>singlePage.elements[0]).hasEditButton, "original page doesn't have the cancel preview button").toBe(false);
 
     singlePage.cancelPreview();
-    expect(survey.visiblePageCount, "There is one visible page, #2").toLooseEqual(1);
-    expect(survey.visiblePages[0].name, "The name is single-page, #2").toLooseEqual("single-page");
-    expect(survey.visiblePages[0].id, "We do not re-create the single-page, #2").toLooseEqual(singlePageId);
+    expect(survey.visiblePageCount, "There is one visible page, #2").toBe(1);
+    expect(survey.visiblePages[0].name, "The name is single-page, #2").toBe("single-page");
+    expect(survey.visiblePages[0].id, "We do not re-create the single-page, #2").toBe(singlePageId);
   });
   test("The Start Page & changing the question visibility, Bug#9520", () => {
     const survey = new SurveyModel({
@@ -19771,10 +19771,10 @@ describe("Survey", () => {
       ],
       firstPageIsStartPage: true,
     });
-    expect(survey.visiblePages.length, "visiblePages #1").toLooseEqual(1);
+    expect(survey.visiblePages.length, "visiblePages #1").toBe(1);
     survey.setValue("q1", "a");
     survey.start();
-    expect(survey.currentPage.name, "p1 is the current page").toLooseEqual("p1");
+    expect(survey.currentPage.name, "p1 is the current page").toBe("p1");
   });
   test("The Start Page has -1 index when enabling auto-numeration for survey pages, Bug#8983", () => {
     const survey = new SurveyModel({
@@ -19793,11 +19793,11 @@ describe("Survey", () => {
       "showPageNumbers": true,
       "firstPageIsStartPage": true,
     });
-    expect(survey.pages[0].no, "start page should be empty, #1").toLooseEqual("");
-    expect(survey.pages[1].no, "pages[1], #1").toLooseEqual("1. ");
+    expect(survey.pages[0].no, "start page should be empty, #1").toBe("");
+    expect(survey.pages[1].no, "pages[1], #1").toBe("1. ");
     survey.firstPageIsStartPage = false;
-    expect(survey.pages[0].no, "pages[0], #2").toLooseEqual("1. ");
-    expect(survey.pages[1].no, "pages[1], #2").toLooseEqual("2. ");
+    expect(survey.pages[0].no, "pages[0], #2").toBe("1. ");
+    expect(survey.pages[1].no, "pages[1], #2").toBe("2. ");
   });
   test("Trim key in setting the data, Bug#8586", () => {
     const survey = new SurveyModel({
@@ -19809,10 +19809,10 @@ describe("Survey", () => {
       ]
     });
     survey.data = { "q1\n": "a", "\nq2 ": "b", " q3\n\n": "c", q4: "d" };
-    expect(survey.getQuestionByName("q1").value, "q1.value").toLooseEqual("a");
-    expect(survey.getQuestionByName("q2").value, "q2.value").toLooseEqual("b");
-    expect(survey.getQuestionByName("q3").value, "q3.value").toLooseEqual("c");
-    expect(survey.getQuestionByName("q4").value, "q3.value").toLooseEqual("d");
+    expect(survey.getQuestionByName("q1").value, "q1.value").toBe("a");
+    expect(survey.getQuestionByName("q2").value, "q2.value").toBe("b");
+    expect(survey.getQuestionByName("q3").value, "q3.value").toBe("c");
+    expect(survey.getQuestionByName("q4").value, "q3.value").toBe("d");
   });
 
   test("Check that focusInput works correctly with shadow dom", () => {
@@ -19834,10 +19834,10 @@ describe("Survey", () => {
     root.shadowRoot?.appendChild(survey.rootElement);
     document.body.appendChild(root);
     document.body.focus();
-    expect(document.activeElement).toLooseEqual(document.body);
+    expect(document.activeElement).toBe(document.body);
     question.focusInputElement(false);
-    expect(document.activeElement).toLooseEqual(root);
-    expect(root.shadowRoot?.activeElement).toLooseEqual(input);
+    expect(document.activeElement).toBe(root);
+    expect(root.shadowRoot?.activeElement).toBe(input);
     root.remove();
   });
   test("Check page is cleared only after unmount", () => {
@@ -19930,10 +19930,10 @@ describe("Survey", () => {
         ]
       }]
     });
-    expect(survey.progressText, "progressText").toLooseEqual("Page 1 of 2");
-    expect(counter, "On loading").toLooseEqual(1);
+    expect(survey.progressText, "progressText").toBe("Page 1 of 2");
+    expect(counter, "On loading").toBe(1);
     survey.pages[1].onFirstRendering();
-    expect(counter, "page[1].onFirstRendering(), do nothing").toLooseEqual(1);
+    expect(counter, "page[1].onFirstRendering(), do nothing").toBe(1);
   });
   test("Do not include questions.values into survey.getFilteredValue in design time", () => {
     const survey = new SurveyModel({
@@ -20028,7 +20028,7 @@ describe("Survey", () => {
     survey.scrollElementToTop({ element: quesiton, question: quesiton, id: "text_question_id", scrollIfVisible: false, onScolledCallback: () => {
       log += "->focused text question";
     } });
-    expect(log).toLooseEqual("->text_question_id->focused text question");
+    expect(log).toBe("->text_question_id->focused text question");
     SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
     SurveyElement.ScrollElementToTop = oldScrollElementToTop;
     rootElement.remove();
@@ -20046,7 +20046,7 @@ describe("Survey", () => {
       new SurveyModel({
         sjsVersion: jsonVer
       });
-      expect(!!reportText, "jsonVersion: " + jsonVer + ", sjsVer: " + sjsVer).toLooseEqual(showWarn);
+      expect(!!reportText, "jsonVersion: " + jsonVer + ", sjsVer: " + sjsVer).toBe(showWarn);
     };
     checkFunc("1.12.19", "2.0.2", false);
     checkFunc("2.0.2", "1.12.19", true);
@@ -20061,19 +20061,19 @@ describe("Survey", () => {
     const basicHeaderTheme: any = { "cssVariables": {}, "header": {}, "headerView": "basic" };
     const advancedHeaderThemeWithoutHeaderView: any = { "cssVariables": {}, "header": {} };
 
-    expect(survey.headerView, "By default headerView is basic").toLooseEqual("basic");
+    expect(survey.headerView, "By default headerView is basic").toBe("basic");
     expect(survey.findLayoutElement("advanced-header") == undefined, "By default header is absent").toBeTruthy();
 
     survey.applyTheme(advancedHeaderTheme);
-    expect(survey.headerView, "After apply advanced headerView is advanced").toLooseEqual("advanced");
+    expect(survey.headerView, "After apply advanced headerView is advanced").toBe("advanced");
     expect(survey.findLayoutElement("advanced-header") != undefined, "After apply advanced header is present").toBeTruthy();
 
     survey.applyTheme(basicHeaderTheme);
-    expect(survey.headerView, "After apply basic headerView is advanced").toLooseEqual("basic");
+    expect(survey.headerView, "After apply basic headerView is advanced").toBe("basic");
     expect(survey.findLayoutElement("advanced-header") == undefined, "After apply basic header is absent").toBeTruthy();
 
     survey.applyTheme(advancedHeaderThemeWithoutHeaderView);
-    expect(survey.headerView, "After apply empty headerView is advanced").toLooseEqual("advanced");
+    expect(survey.headerView, "After apply empty headerView is advanced").toBe("advanced");
     expect(survey.findLayoutElement("advanced-header") != undefined, "After apply empty headerView advanced header is present").toBeTruthy();
   });
 
@@ -20084,15 +20084,15 @@ describe("Survey", () => {
     const advancedHeaderThemeWithoutOverlapEnabled: any = { headerView: "advanced", "cssVariables": {} };
 
     survey.applyTheme(advancedHeaderThemeWithAccentBackgroundColor);
-    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toLooseEqual("var(--sjs-primary-backcolor)");
+    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs-primary-backcolor)");
     expect(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#1 overlapEnabled false").toBeTruthy();
 
     survey.applyTheme(advancedHeaderThemeWithOverlapEnabled);
-    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#2 backgroundColor transparent").toLooseEqual("transparent");
+    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#2 backgroundColor transparent").toBe("transparent");
     expect(survey.findLayoutElement("advanced-header").data.overlapEnabled === true, "#2 overlapEnabled true").toBeTruthy();
 
     survey.applyTheme(advancedHeaderThemeWithoutOverlapEnabled);
-    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#3 backgroundColor transparent").toLooseEqual("transparent");
+    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#3 backgroundColor transparent").toBe("transparent");
     expect(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#3 overlapEnabled false").toBeTruthy();
   });
 
@@ -20104,25 +20104,25 @@ describe("Survey", () => {
     survey.onPageAdded.add((sender, options) => {
       pageAddedRaisedCount++;
     });
-    expect(pageAddedRaisedCount, "onPageAdded is not raised").toLooseEqual(0);
-    expect(survey.pages[0].name, "page1 is the first page").toLooseEqual("page1");
+    expect(pageAddedRaisedCount, "onPageAdded is not raised").toBe(0);
+    expect(survey.pages[0].name, "page1 is the first page").toBe("page1");
     survey.startMovingPage();
     const page = survey.pages[1];
     survey.pages.splice(1, 1);
     survey.pages.splice(0, 0, page);
     survey.stopMovingPage();
-    expect(pageAddedRaisedCount, "onPageAdded is not raised").toLooseEqual(0);
-    expect(survey.pages[0].name, "page2 is the first page").toLooseEqual("page2");
+    expect(pageAddedRaisedCount, "onPageAdded is not raised").toBe(0);
+    expect(survey.pages[0].name, "page2 is the first page").toBe("page2");
   });
 
   test("Update hasTitle on load from JSON", () => {
     const survey = new SurveyModel();
-    expect(survey.hasTitle, "no title in empty survey").toLooseEqual(false);
+    expect(survey.hasTitle, "no title in empty survey").toBe(false);
     survey.fromJSON({
       title: "title",
       elements: [{ name: "q1", type: "text" }]
     });
-    expect(survey.hasTitle, "title presents").toLooseEqual(true);
+    expect(survey.hasTitle, "title presents").toBe(true);
   });
   test("survey.onPartialSend for regular survey, Bug#9737", () => {
     const survey = new SurveyModel({
@@ -20138,10 +20138,10 @@ describe("Survey", () => {
     });
     survey.setValue("q1", "val1");
     survey.nextPage();
-    expect(counter, "onPartialSend is raised").toLooseEqual(1);
+    expect(counter, "onPartialSend is raised").toBe(1);
     survey.setValue("q3", "val3");
     survey.tryComplete();
-    expect(counter, "onPartialSend is not raised").toLooseEqual(1);
+    expect(counter, "onPartialSend is not raised").toBe(1);
   });
   test("survey.onPartialSend for regular survey, Bug#9737", () => {
     const survey = new SurveyModel({
@@ -20158,13 +20158,13 @@ describe("Survey", () => {
     });
     survey.setValue("q1", "val1");
     survey.performNext();
-    expect(counter, "onPartialSend is raised").toLooseEqual(1);
+    expect(counter, "onPartialSend is raised").toBe(1);
     survey.setValue("q2", "val2");
     survey.performNext();
-    expect(counter, "onPartialSend is raised").toLooseEqual(2);
+    expect(counter, "onPartialSend is raised").toBe(2);
     survey.setValue("q3", "val3");
     survey.performNext();
-    expect(counter, "onPartialSend is raised").toLooseEqual(3);
+    expect(counter, "onPartialSend is raised").toBe(3);
   });
   test("Move into another page by code in questionPerPage mode, Bug#9917", () => {
     const survey = new SurveyModel({
@@ -20175,17 +20175,17 @@ describe("Survey", () => {
         { name: "p3", elements: [{ type: "text", name: "q3" }] }
       ]
     });
-    expect(survey.currentPage.name, "current page #1").toLooseEqual("p1");
-    expect(survey.currentSingleElement.name, "current question #1").toLooseEqual("q1");
+    expect(survey.currentPage.name, "current page #1").toBe("p1");
+    expect(survey.currentSingleElement.name, "current question #1").toBe("q1");
     survey.nextPage();
-    expect(survey.currentPage.name, "current page #2").toLooseEqual("p2");
-    expect(survey.currentSingleElement.name, "current question #2").toLooseEqual("q2");
+    expect(survey.currentPage.name, "current page #2").toBe("p2");
+    expect(survey.currentSingleElement.name, "current question #2").toBe("q2");
     survey.currentPageNo = 2;
-    expect(survey.currentPage.name, "current page #3").toLooseEqual("p3");
-    expect(survey.currentSingleElement.name, "current question #3").toLooseEqual("q3");
+    expect(survey.currentPage.name, "current page #3").toBe("p3");
+    expect(survey.currentSingleElement.name, "current question #3").toBe("q3");
     survey.currentPageNo = 0;
-    expect(survey.currentPage.name, "current page #4").toLooseEqual("p1");
-    expect(survey.currentSingleElement.name, "current question #4").toLooseEqual("q1");
+    expect(survey.currentPage.name, "current page #4").toBe("p1");
+    expect(survey.currentSingleElement.name, "current question #4").toBe("q1");
   });
   test("survey.currentElementName", () => {
     const survey = new SurveyModel({
@@ -20195,36 +20195,36 @@ describe("Survey", () => {
         { name: "p3", elements: [{ type: "text", name: "q3_1" }, { type: "text", name: "q3_2" }] }
       ]
     });
-    expect(survey.currentElementName, "current element name #1").toLooseEqual("p1");
-    expect(survey.currentElement.name, "current element #1").toLooseEqual("p1");
+    expect(survey.currentElementName, "current element name #1").toBe("p1");
+    expect(survey.currentElement.name, "current element #1").toBe("p1");
     survey.currentElementName = "p3";
-    expect(survey.currentElementName, "current element name #2").toLooseEqual("p3");
-    expect(survey.currentElement.name, "current element #2").toLooseEqual("p3");
+    expect(survey.currentElementName, "current element name #2").toBe("p3");
+    expect(survey.currentElement.name, "current element #2").toBe("p3");
     survey.currentElementName = "q2_1";
-    expect(survey.currentElementName, "current element name #3").toLooseEqual("p2");
-    expect(survey.currentElement.name, "current element #3").toLooseEqual("p2");
+    expect(survey.currentElementName, "current element name #3").toBe("p2");
+    expect(survey.currentElement.name, "current element #3").toBe("p2");
     survey.currentElementName = "nothing";
-    expect(survey.currentElementName, "current element name #3_2").toLooseEqual("p2");
-    expect(survey.currentElement.name, "current element #3_2").toLooseEqual("p2");
+    expect(survey.currentElementName, "current element name #3_2").toBe("p2");
+    expect(survey.currentElement.name, "current element #3_2").toBe("p2");
     survey.questionsOnPageMode = "questionPerPage";
-    expect(survey.currentElementName, "current element name #4").toLooseEqual("q1_1");
-    expect(survey.currentElement.name, "current element #4").toLooseEqual("q1_1");
+    expect(survey.currentElementName, "current element name #4").toBe("q1_1");
+    expect(survey.currentElement.name, "current element #4").toBe("q1_1");
     survey.currentElementName = "q3_2";
-    expect(survey.currentElementName, "current element name #5").toLooseEqual("q3_2");
-    expect(survey.currentElement.name, "current element #5").toLooseEqual("q3_2");
+    expect(survey.currentElementName, "current element name #5").toBe("q3_2");
+    expect(survey.currentElement.name, "current element #5").toBe("q3_2");
     survey.currentElementName = "p1";
-    expect(survey.currentElementName, "current element name #6").toLooseEqual("q1_1");
-    expect(survey.currentElement.name, "current element #6").toLooseEqual("q1_1");
+    expect(survey.currentElementName, "current element name #6").toBe("q1_1");
+    expect(survey.currentElement.name, "current element #6").toBe("q1_1");
     survey.questionsOnPageMode = "inputPerPage";
     survey.currentElementName = "q2_1";
-    expect(survey.currentElementName, "current element name #7").toLooseEqual("q2_1");
-    expect(survey.currentElement.name, "current element #7").toLooseEqual("q2_1");
+    expect(survey.currentElementName, "current element name #7").toBe("q2_1");
+    expect(survey.currentElement.name, "current element #7").toBe("q2_1");
     survey.currentElementName = "p3";
-    expect(survey.currentElementName, "current element name #8").toLooseEqual("q3_1");
-    expect(survey.currentElement.name, "current element #8").toLooseEqual("q3_1");
+    expect(survey.currentElementName, "current element name #8").toBe("q3_1");
+    expect(survey.currentElement.name, "current element #8").toBe("q3_1");
     survey.currentElementName = "nothing";
-    expect(survey.currentElementName, "current element name #9").toLooseEqual("q3_1");
-    expect(survey.currentElement.name, "current element #9").toLooseEqual("q3_1");
+    expect(survey.currentElementName, "current element name #9").toBe("q3_1");
+    expect(survey.currentElement.name, "current element #9").toBe("q3_1");
   });
   test("questionPerPage & questionOrder = 'random', Bug#9817", () => {
     const oldFunc = Helpers.randomizeArray;
@@ -20269,11 +20269,11 @@ describe("Survey", () => {
     survey.setValue("V001", [2]);
     survey.performNext();
     const page = survey.currentPage;
-    expect(page.name, "page2 is the current page").toLooseEqual("page2");
-    expect(survey.currentSingleQuestion.name, "question2 is the current question").toLooseEqual("question2");
-    expect(page.rows.length, "one row").toLooseEqual(1);
-    expect(page.rows[0].elements.length, "one element in the row").toLooseEqual(1);
-    expect(page.rows[0].elements[0].name, "question2 is the current question in the row").toLooseEqual("question2");
+    expect(page.name, "page2 is the current page").toBe("page2");
+    expect(survey.currentSingleQuestion.name, "question2 is the current question").toBe("question2");
+    expect(page.rows.length, "one row").toBe(1);
+    expect(page.rows[0].elements.length, "one element in the row").toBe(1);
+    expect(page.rows[0].elements[0].name, "question2 is the current question in the row").toBe("question2");
     Helpers.randomizeArray = oldFunc;
   });
   test("questionPerPage & focusing question inside the panel, Bug#10113", () => {
@@ -20341,8 +20341,8 @@ describe("Survey", () => {
       "questionsOnPageMode": "questionPerPage"
     });
     survey.setValue("question1", 1);
-    expect(survey.currentPage.name, "page2 is the current page").toLooseEqual("page3");
-    expect(survey.currentSingleElement.name, "panel1 is the current element").toLooseEqual("panel1");
+    expect(survey.currentPage.name, "page2 is the current page").toBe("page3");
+    expect(survey.currentSingleElement.name, "panel1 is the current element").toBe("panel1");
   });
   test("questionPerPage &  panel validation, Bug#10426", () => {
     const survey = new SurveyModel({
@@ -20362,18 +20362,18 @@ describe("Survey", () => {
       ],
       "questionsOnPageMode": "questionPerPage"
     });
-    expect(survey.currentPage.name, "page1 is the current page, #1").toLooseEqual("page1");
-    expect(survey.currentSingleElement.name, "panel1 is the current element, #1").toLooseEqual("panel1");
+    expect(survey.currentPage.name, "page1 is the current page, #1").toBe("page1");
+    expect(survey.currentSingleElement.name, "panel1 is the current element, #1").toBe("panel1");
     survey.performNext();
-    expect(survey.currentPage.name, "page1 is the current page, #2").toLooseEqual("page1");
-    expect(survey.currentSingleElement.name, "panel1 is the current element, #2").toLooseEqual("panel1");
+    expect(survey.currentPage.name, "page1 is the current page, #2").toBe("page1");
+    expect(survey.currentSingleElement.name, "panel1 is the current element, #2").toBe("panel1");
     const panel = survey.getPanelByName("panel1");
-    expect(panel.errors.length, "panel has one error").toLooseEqual(1);
+    expect(panel.errors.length, "panel has one error").toBe(1);
     panel.getQuestionByName("q1").value = "val1";
     survey.performNext();
-    expect(panel.errors.length, "panel has no errors").toLooseEqual(0);
-    expect(survey.currentPage.name, "page2 is the current page, #3").toLooseEqual("page2");
-    expect(survey.currentSingleElement.name, "q3 is the current element").toLooseEqual("q3");
+    expect(panel.errors.length, "panel has no errors").toBe(0);
+    expect(survey.currentPage.name, "page2 is the current page, #3").toBe("page2");
+    expect(survey.currentSingleElement.name, "q3 is the current element").toBe("q3");
   });
   test("questionPerPage & asyc validation, Bug#10163", () => {
     let returnResultFunc = undefined;
@@ -20404,17 +20404,17 @@ describe("Survey", () => {
       questionsOnPageMode: "questionPerPage",
     });
     const q1 = survey.getQuestionByName("q1");
-    expect(survey.currentSingleQuestion.name, "current question, #1").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "current question, #1").toBe("q1");
     q1.value = "abcd";
     survey.performNext();
-    expect(survey.currentSingleQuestion.name, "current question, #2").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "current question, #2").toBe("q1");
     returnResultFunc(false);
-    expect(survey.currentSingleQuestion.name, "current question, #3").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "current question, #3").toBe("q1");
     q1.value = "abc";
     survey.performNext();
-    expect(survey.currentSingleQuestion.name, "current question, #4").toLooseEqual("q1");
+    expect(survey.currentSingleQuestion.name, "current question, #4").toBe("q1");
     returnResultFunc(true);
-    expect(survey.currentSingleQuestion.name, "current question, #5").toLooseEqual("q2");
+    expect(survey.currentSingleQuestion.name, "current question, #5").toBe("q2");
 
     FunctionFactory.Instance.unregister("isItCorrect");
   });
@@ -20447,17 +20447,17 @@ describe("Survey", () => {
       questionsOnPageMode: "questionPerPage",
     });
     const q1 = survey.getQuestionByName("q1");
-    expect(survey.currentSingleElement.name, "current question, #1").toLooseEqual("panel1");
+    expect(survey.currentSingleElement.name, "current question, #1").toBe("panel1");
     q1.value = "abcd";
     survey.performNext();
-    expect(survey.currentSingleElement.name, "current question, #2").toLooseEqual("panel1");
+    expect(survey.currentSingleElement.name, "current question, #2").toBe("panel1");
     returnResultFunc(false);
-    expect(survey.currentSingleElement.name, "current question, #3").toLooseEqual("panel1");
+    expect(survey.currentSingleElement.name, "current question, #3").toBe("panel1");
     q1.value = "abc";
     survey.performNext();
-    expect(survey.currentSingleElement.name, "current question, #4").toLooseEqual("panel1");
+    expect(survey.currentSingleElement.name, "current question, #4").toBe("panel1");
     returnResultFunc(true);
-    expect(survey.currentSingleElement.name, "current question, #5").toLooseEqual("q2");
+    expect(survey.currentSingleElement.name, "current question, #5").toBe("q2");
 
     FunctionFactory.Instance.unregister("isItCorrect");
   });
@@ -20480,10 +20480,10 @@ describe("Survey", () => {
         }
       ]
     });
-    expect(survey.getAllQuestions().length, "2 root questions in the survey").toLooseEqual(2);
+    expect(survey.getAllQuestions().length, "2 root questions in the survey").toBe(2);
     const questions = survey.getAllQuestions(true, false, true);
-    expect(questions.length, "3 questions in the survey").toLooseEqual(3);
-    expect(questions[2].name, "the last question is nested").toLooseEqual("q3");
+    expect(questions.length, "3 questions in the survey").toBe(3);
+    expect(questions[2].name, "the last question is nested").toBe("q3");
   });
 
   test("getContainerContent - TOC + title + progress above", () => {
@@ -20577,23 +20577,23 @@ describe("Survey", () => {
       elements: [{ type: "text", name: "q1", defaultValueExpression: "{a} ++" }]
     });
 
-    expect(reportText, "show warnings with the quesiton info").toLooseEqual("Invalid expression: '{a} ++'. It is used in the question: 'q1'.");
+    expect(reportText, "show warnings with the quesiton info").toBe("Invalid expression: '{a} ++'. It is used in the question: 'q1'.");
     ConsoleWarnings.warn = prev;
   });
   test("Do not serialize mode:display property, #10281", () => {
     const survey1 = new SurveyModel({ readOnly: true });
-    expect(survey1.mode, "mode #1").toLooseEqual("display");
-    expect(survey1.readOnly, "readOnly #1").toLooseEqual(true);
+    expect(survey1.mode, "mode #1").toBe("display");
+    expect(survey1.readOnly, "readOnly #1").toBe(true);
     const survey2 = new SurveyModel({ mode: "display" });
-    expect(survey2.mode, "mode #2").toLooseEqual("display");
-    expect(survey2.readOnly, "readOnly #2").toLooseEqual(true);
+    expect(survey2.mode, "mode #2").toBe("display");
+    expect(survey2.readOnly, "readOnly #2").toBe(true);
     const survey3 = new SurveyModel();
     survey3.readOnly = true;
-    expect(survey3.mode, "mode #3").toLooseEqual("display");
-    expect(survey3.readOnly, "readOnly #3").toLooseEqual(true);
+    expect(survey3.mode, "mode #3").toBe("display");
+    expect(survey3.readOnly, "readOnly #3").toBe(true);
     survey3.readOnly = false;
-    expect(survey3.mode, "mode #4").toLooseEqual("edit");
-    expect(survey3.readOnly, "readOnly #4").toLooseEqual(false);
+    expect(survey3.mode, "mode #4").toBe("edit");
+    expect(survey3.readOnly, "readOnly #4").toBe(false);
     survey3.readOnly = true;
     expect(survey3.toJSON(), "survey3 is serialized correctly").toEqualValues({
       readOnly: true
@@ -20601,17 +20601,17 @@ describe("Survey", () => {
   });
   test("Do not allow to set name vs |, #10424", () => {
     const page = new PageModel("p1|mode");
-    expect(page.name, "the | is removed, #1").toLooseEqual("p1mode");
+    expect(page.name, "the | is removed, #1").toBe("p1mode");
     page.name = "p2|mode";
-    expect(page.name, "the | is removed, #2").toLooseEqual("p2mode");
+    expect(page.name, "the | is removed, #2").toBe("p2mode");
     const panel = new PanelModel("p1|mode");
-    expect(panel.name, "the | is removed, #3").toLooseEqual("p1mode");
+    expect(panel.name, "the | is removed, #3").toBe("p1mode");
     panel.name = "p2|mode";
-    expect(panel.name, "the | is removed, #4").toLooseEqual("p2mode");
+    expect(panel.name, "the | is removed, #4").toBe("p2mode");
     const question = new QuestionTextModel("q1|mode");
-    expect(question.name, "the | is removed, #5").toLooseEqual("q1mode");
+    expect(question.name, "the | is removed, #5").toBe("q1mode");
     question.name = "q2|mode";
-    expect(question.name, "the | is removed, #6").toLooseEqual("q2mode");
+    expect(question.name, "the | is removed, #6").toBe("q2mode");
   });
   test("Create custom NavigationBar", () => {
     class CustomNavigationBar extends ActionContainer {
@@ -20627,8 +20627,8 @@ describe("Survey", () => {
     });
     survey.createNavigationBarCallback = () => new CustomNavigationBar();
     expect(survey.navigationBar instanceof CustomNavigationBar, "navigationBar is CustomNavigationBar").toBeTruthy();
-    expect((survey.navigationBar as CustomNavigationBar).customProp1, "customProp1 is set correctly").toLooseEqual("checkThisProp");
-    expect(survey.navigationBar.locOwner, "locOwner is set correctly").toLooseEqual(survey);
+    expect((survey.navigationBar as CustomNavigationBar).customProp1, "customProp1 is set correctly").toBe("checkThisProp");
+    expect(survey.navigationBar.locOwner, "locOwner is set correctly").toBe(survey);
   });
   test("Do not create layoutElements in creator", () => {
     const survey = new SurveyModel({
@@ -20637,35 +20637,35 @@ describe("Survey", () => {
       ]
     });
     let le = survey.getPropertyValue("layoutElements");
-    expect(le?.length, "There is no layout elements in survey").toLooseEqual(undefined);
+    expect(le?.length, "There is no layout elements in survey").toBeUndefined();
     const progressElement = survey.findLayoutElement("progress-questions");
-    expect(progressElement.id, "There is no progress-questions layout element in survey").toLooseEqual("progress-questions");
+    expect(progressElement.id, "There is no progress-questions layout element in survey").toBe("progress-questions");
     le = survey.getPropertyValue("layoutElements");
-    expect(le.length > 3, "There is  layout elements in survey after finding layout element").toLooseEqual(true);
+    expect(le.length > 3, "There is  layout elements in survey after finding layout element").toBe(true);
   });
   test("Do not create timerValue in contructor", () => {
     const survey: any = new SurveyModel();
-    expect(survey.timerModelValue, "timerValue is undefined").toLooseEqual(undefined);
-    expect(survey.timerModel.isRunning, "timerModel is not started").toLooseEqual(false);
+    expect(survey.timerModelValue, "timerValue is undefined").toBeUndefined();
+    expect(survey.timerModel.isRunning, "timerModel is not started").toBe(false);
     expect(survey.timerModelValue, "timerValue is not undefined").toBeTruthy();
   });
   test("Do not create notifierValue in contructor", () => {
     const survey: any = new SurveyModel();
-    expect(survey.notifierValue, "notifierValue is undefined").toLooseEqual(undefined);
+    expect(survey.notifierValue, "notifierValue is undefined").toBeUndefined();
     survey.notify("abc");
     expect(survey.notifierValue, "notifierValue is not undefined").toBeTruthy();
   });
   test("Make array properties on demand", () => {
     const survey: any = new SurveyModel();
-    expect(survey.getPropertyValue("triggers"), "triggers is undefined on loading").toLooseEqual(undefined);
-    expect(survey.getPropertyValue("calculatedValues"), "calculatedValues is undefined on loading").toLooseEqual(undefined);
-    expect(survey.getPropertyValue("completedHtmlOnCondition"), "completedHtmlOnCondition is undefined on loading").toLooseEqual(undefined);
-    expect(survey.getPropertyValue("navigateToUrlOnCondition"), "navigateToUrlOnCondition is undefined on loading").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("triggers"), "triggers is undefined on loading").toBeUndefined();
+    expect(survey.getPropertyValue("calculatedValues"), "calculatedValues is undefined on loading").toBeUndefined();
+    expect(survey.getPropertyValue("completedHtmlOnCondition"), "completedHtmlOnCondition is undefined on loading").toBeUndefined();
+    expect(survey.getPropertyValue("navigateToUrlOnCondition"), "navigateToUrlOnCondition is undefined on loading").toBeUndefined();
     survey.toJSON();
-    expect(survey.getPropertyValue("triggers"), "triggers is undefined after serialization").toLooseEqual(undefined);
-    expect(survey.getPropertyValue("calculatedValues"), "calculatedValues is undefined after serialization").toLooseEqual(undefined);
-    expect(survey.getPropertyValue("completedHtmlOnCondition"), "completedHtmlOnCondition is undefined after serialization").toLooseEqual(undefined);
-    expect(survey.getPropertyValue("navigateToUrlOnCondition"), "navigateToUrlOnCondition is undefined after serialization").toLooseEqual(undefined);
+    expect(survey.getPropertyValue("triggers"), "triggers is undefined after serialization").toBeUndefined();
+    expect(survey.getPropertyValue("calculatedValues"), "calculatedValues is undefined after serialization").toBeUndefined();
+    expect(survey.getPropertyValue("completedHtmlOnCondition"), "completedHtmlOnCondition is undefined after serialization").toBeUndefined();
+    expect(survey.getPropertyValue("navigateToUrlOnCondition"), "navigateToUrlOnCondition is undefined after serialization").toBeUndefined();
   });
   test("Re-run expressions on changing the related object properties, Bug#10776", () => {
     const survey = new SurveyModel({
@@ -20681,25 +20681,25 @@ describe("Survey", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.getQuestionByName("q3");
-    expect(q1.visible, "q1 is invisible by default").toLooseEqual(false);
-    expect(q2.visible, "q2 is visible by default").toLooseEqual(true);
-    expect(q3.visibleChoices.length, "q3 has two visible choices by default").toLooseEqual(2);
+    expect(q1.visible, "q1 is invisible by default").toBe(false);
+    expect(q2.visible, "q2 is visible by default").toBe(true);
+    expect(q3.visibleChoices.length, "q3 has two visible choices by default").toBe(2);
     survey.locale = "de";
-    expect(q1.visible, "q1 is visible after locale change to 'de'").toLooseEqual(true);
-    expect(q2.visible, "q2 is visible after locale change to 'de'").toLooseEqual(true);
-    expect(q3.visibleChoices.length, "q3 has three visible choices after locale change to 'de'").toLooseEqual(3);
+    expect(q1.visible, "q1 is visible after locale change to 'de'").toBe(true);
+    expect(q2.visible, "q2 is visible after locale change to 'de'").toBe(true);
+    expect(q3.visibleChoices.length, "q3 has three visible choices after locale change to 'de'").toBe(3);
     survey.readOnly = true;
-    expect(q1.visible, "q1 is visible after making survey readOnly").toLooseEqual(true);
-    expect(q2.visible, "q2 is invisible after making survey readOnly").toLooseEqual(false);
-    expect(q3.visibleChoices.length, "q3 has two visible choices after making survey readOnly").toLooseEqual(2);
+    expect(q1.visible, "q1 is visible after making survey readOnly").toBe(true);
+    expect(q2.visible, "q2 is invisible after making survey readOnly").toBe(false);
+    expect(q3.visibleChoices.length, "q3 has two visible choices after making survey readOnly").toBe(2);
     survey.readOnly = false;
-    expect(q1.visible, "q1 is visible after making survey readOnly").toLooseEqual(true);
-    expect(q2.visible, "q2 is visible after making survey readOnly").toLooseEqual(true);
-    expect(q3.visibleChoices.length, "q3 has three visible choices after making survey readOnly").toLooseEqual(3);
+    expect(q1.visible, "q1 is visible after making survey readOnly").toBe(true);
+    expect(q2.visible, "q2 is visible after making survey readOnly").toBe(true);
+    expect(q3.visibleChoices.length, "q3 has three visible choices after making survey readOnly").toBe(3);
     survey.locale = "";
-    expect(q1.visible, "q1 is invisible after locale change to ''").toLooseEqual(false);
-    expect(q2.visible, "q2 is visible after locale change to ''").toLooseEqual(true);
-    expect(q3.visibleChoices.length, "q3 has two visible choices after locale change to ''").toLooseEqual(2);
+    expect(q1.visible, "q1 is invisible after locale change to ''").toBe(false);
+    expect(q2.visible, "q2 is visible after locale change to ''").toBe(true);
+    expect(q3.visibleChoices.length, "q3 has two visible choices after locale change to ''").toBe(2);
   });
   test("visibleIf with $q.containsErrors and checkErrorsMode=onValueChanged", () => {
     const survey = new SurveyModel({
@@ -20720,13 +20720,13 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
-    expect(q2.isVisible, "q2 is invisible initially, q1 is empty").toLooseEqual(false);
+    expect(q2.isVisible, "q2 is invisible initially, q1 is empty").toBe(false);
     q1.value = 20;
-    expect(q1.errors.length, "q1 has no errors, value=20 >= min=10").toLooseEqual(0);
-    expect(q2.isVisible, "q2 is visible, q1=20 and no errors").toLooseEqual(true);
+    expect(q1.errors.length, "q1 has no errors, value=20 >= min=10").toBe(0);
+    expect(q2.isVisible, "q2 is visible, q1=20 and no errors").toBe(true);
     q1.value = 5;
-    expect(q1.errors.length, "q1 has error, value=5 < min=10").toLooseEqual(1);
-    expect(q2.isVisible, "q2 is invisible, q1=5 contains errors").toLooseEqual(false);
+    expect(q1.errors.length, "q1 has error, value=5 < min=10").toBe(1);
+    expect(q2.isVisible, "q2 is invisible, q1=5 contains errors").toBe(false);
   }); test("Panel visibleIf with $q.containsErrors and checkErrorsMode=onValueChanged", () => {
     const survey = new SurveyModel({
       checkErrorsMode: "onValueChanged",
@@ -20747,12 +20747,12 @@ describe("Survey", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     const panel1 = survey.getPanelByName("panel1");
-    expect(panel1.isVisible, "panel1 is invisible initially, q1 is empty").toLooseEqual(false);
+    expect(panel1.isVisible, "panel1 is invisible initially, q1 is empty").toBe(false);
     q1.value = 20;
-    expect(q1.errors.length, "q1 has no errors, value=20 >= min=10").toLooseEqual(0);
-    expect(panel1.isVisible, "panel1 is visible, q1=20 and no errors").toLooseEqual(true);
+    expect(q1.errors.length, "q1 has no errors, value=20 >= min=10").toBe(0);
+    expect(panel1.isVisible, "panel1 is visible, q1=20 and no errors").toBe(true);
     q1.value = 5;
-    expect(q1.errors.length, "q1 has error, value=5 < min=10").toLooseEqual(1);
-    expect(panel1.isVisible, "panel1 is invisible, q1=5 contains errors").toLooseEqual(false);
+    expect(q1.errors.length, "q1 has error, value=5 < min=10").toBe(1);
+    expect(panel1.isVisible, "panel1 is invisible, q1=5 contains errors").toBe(false);
   });
 });

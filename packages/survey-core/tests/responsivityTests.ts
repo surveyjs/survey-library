@@ -46,17 +46,17 @@ test("ActionContainer: renderedActions & visibleActions", () => {
 
   actionContainer.flushUpdates();
 
-  expect(actionContainer.visibleActions.length, "actionContainer visibleActions").toLooseEqual(2);
-  expect(actionContainer.renderedActions.length, "actionContainer renderedActions").toLooseEqual(2);
+  expect(actionContainer.visibleActions.length, "actionContainer visibleActions").toBe(2);
+  expect(actionContainer.renderedActions.length, "actionContainer renderedActions").toBe(2);
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
 
   adaptiveContainer.flushUpdates();
 
-  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleActions").toLooseEqual(2);
-  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions").toLooseEqual(3);
-  expect(adaptiveContainer.renderedActions[2].id.indexOf("dotsItem-id"), "dotsItem-id exists").toLooseEqual(0);
+  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleActions").toBe(2);
+  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions").toBe(3);
+  expect(adaptiveContainer.renderedActions[2].id.indexOf("dotsItem-id"), "dotsItem-id exists").toBe(0);
 });
 
 test("ActionContainer: renderedActions & visibleActions if only one element", () => {
@@ -67,20 +67,20 @@ test("ActionContainer: renderedActions & visibleActions if only one element", ()
 
   actionContainer.flushUpdates();
 
-  expect(actionContainer.visibleActions.length, "actionContainer visibleActions").toLooseEqual(1);
-  expect(actionContainer.renderedActions.length, "actionContainer renderedActions").toLooseEqual(1);
+  expect(actionContainer.visibleActions.length, "actionContainer visibleActions").toBe(1);
+  expect(actionContainer.renderedActions.length, "actionContainer renderedActions").toBe(1);
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
 
   adaptiveContainer.flushUpdates();
 
-  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleAction without icon").toLooseEqual(1);
-  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions contains the dots item").toLooseEqual(2);
+  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleAction without icon").toBe(1);
+  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions contains the dots item").toBe(2);
 
   actions[0].iconName = "icon-name";
-  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleActions with icon").toLooseEqual(1);
-  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions doesn't contain dots item").toLooseEqual(1);
+  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleActions with icon").toBe(1);
+  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions doesn't contain dots item").toBe(1);
 });
 
 test("Fit items", () => {
@@ -103,61 +103,61 @@ test("Fit items", () => {
 
   model.flushUpdates();
 
-  expect(model.actions.length).toLooseEqual(3);
-  expect(model.visibleActions.length).toLooseEqual(2);
-  expect(model.renderedActions.length).toLooseEqual(3);
+  expect(model.actions.length).toBe(3);
+  expect(model.visibleActions.length).toBe(2);
+  expect(model.renderedActions.length).toBe(3);
 
   model.fit({ availableSpace: 300 });
-  expect(model.renderedActions.length, "dimension 300").toLooseEqual(3);
-  expect(model.renderedActions[0].isVisible, "visible 1").toLooseEqual(true);
-  expect(model.renderedActions[1].isVisible, "visible 2").toLooseEqual(true);
-  expect(model.renderedActions[2].isVisible, "dots hidden").toLooseEqual(false);
-  expect(model.actions[2].isVisible, "invisible 3").toLooseEqual(false);
-  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toLooseEqual(-1);
-  expect(item1.mode, "dimension 300").toLooseEqual("large");
-  expect(item2.mode, "dimension 300").toLooseEqual("large");
+  expect(model.renderedActions.length, "dimension 300").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 300").toBe("large");
+  expect(item2.mode, "dimension 300").toBe("large");
 
   model.fit({ availableSpace: 200 });
-  expect(model.renderedActions.length, "dimension 200").toLooseEqual(3);
-  expect(model.renderedActions[0].isVisible, "visible 1").toLooseEqual(true);
-  expect(model.renderedActions[1].isVisible, "visible 2").toLooseEqual(true);
-  expect(model.renderedActions[2].isVisible, "dots hidden").toLooseEqual(false);
-  expect(model.actions[2].isVisible, "invisible 3").toLooseEqual(false);
-  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toLooseEqual(-1);
-  expect(item1.mode, "dimension 200").toLooseEqual("large");
-  expect(item2.mode, "dimension 200").toLooseEqual("small");
+  expect(model.renderedActions.length, "dimension 200").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 200").toBe("large");
+  expect(item2.mode, "dimension 200").toBe("small");
 
   model.fit({ availableSpace: 100 });
-  expect(model.renderedActions.length, "dimension 100").toLooseEqual(3);
-  expect(model.renderedActions[0].isVisible, "visible 1").toLooseEqual(true);
-  expect(model.renderedActions[1].isVisible, "visible 2").toLooseEqual(true);
-  expect(model.renderedActions[2].isVisible, "dots hidden").toLooseEqual(false);
-  expect(model.actions[2].isVisible, "invisible 3").toLooseEqual(false);
-  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toLooseEqual(-1);
-  expect(item1.mode, "dimension 100").toLooseEqual("large");
-  expect(item2.mode, "dimension 100").toLooseEqual("small");
+  expect(model.renderedActions.length, "dimension 100").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 100").toBe("large");
+  expect(item2.mode, "dimension 100").toBe("small");
 
   model.fit({ availableSpace: 50 });
-  expect(model.renderedActions.length, "dimension 50").toLooseEqual(3);
-  expect(model.renderedActions[0].isVisible, "hidden 1").toLooseEqual(false);
-  expect(model.renderedActions[1].isVisible, "hidden 2").toLooseEqual(false);
-  expect(model.renderedActions[2].isVisible, "dots visible").toLooseEqual(true);
-  expect(model.renderedActions[2].iconName, "dimension 50").toLooseEqual("icon-more");
-  expect(model.actions[2].isVisible, "invisible 3").toLooseEqual(false);
-  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toLooseEqual(-1);
-  expect(item1.mode, "dimension 50").toLooseEqual("popup");
-  expect(item2.mode, "dimension 50").toLooseEqual("popup");
+  expect(model.renderedActions.length, "dimension 50").toBe(3);
+  expect(model.renderedActions[0].isVisible, "hidden 1").toBe(false);
+  expect(model.renderedActions[1].isVisible, "hidden 2").toBe(false);
+  expect(model.renderedActions[2].isVisible, "dots visible").toBe(true);
+  expect(model.renderedActions[2].iconName, "dimension 50").toBe("icon-more");
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 50").toBe("popup");
+  expect(item2.mode, "dimension 50").toBe("popup");
 
   item2.disableShrink = true;
   model.fit({ availableSpace: 248 });
-  expect(model.renderedActions.length, "dimension 100").toLooseEqual(3);
-  expect(model.renderedActions[0].isVisible, "visible 1").toLooseEqual(true);
-  expect(model.renderedActions[1].isVisible, "visible 2").toLooseEqual(true);
-  expect(model.renderedActions[2].isVisible, "dots hidden").toLooseEqual(false);
-  expect(model.actions[2].isVisible, "invisible 3").toLooseEqual(false);
-  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toLooseEqual(-1);
-  expect(item1.mode, "dimension 248").toLooseEqual("small");
-  expect(item2.mode, "dimension 248 unshrinkable").toLooseEqual("large");
+  expect(model.renderedActions.length, "dimension 100").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 248").toBe("small");
+  expect(item2.mode, "dimension 248 unshrinkable").toBe("large");
 
 });
 
@@ -187,29 +187,29 @@ test("Fit items - hide items with priority", () => {
 
   model.flushUpdates();
 
-  expect(model.actions.length).toLooseEqual(3);
-  expect(model.visibleActions.length).toLooseEqual(3);
+  expect(model.actions.length).toBe(3);
+  expect(model.visibleActions.length).toBe(3);
 
   model.fit({ availableSpace: 300 });
-  expect(model.visibleActions.length, "dimension 300").toLooseEqual(3);
-  expect(model.visibleActions[0].isVisible, "300 - visible 1").toLooseEqual(true);
-  expect(model.visibleActions[1].isVisible, "300 - visible 2").toLooseEqual(true);
-  expect(model.visibleActions[2].isVisible, "300 - visible 3").toLooseEqual(true);
-  expect(model.renderedActions[3].isVisible, "300 - dots hidden").toLooseEqual(false);
+  expect(model.visibleActions.length, "dimension 300").toBe(3);
+  expect(model.visibleActions[0].isVisible, "300 - visible 1").toBe(true);
+  expect(model.visibleActions[1].isVisible, "300 - visible 2").toBe(true);
+  expect(model.visibleActions[2].isVisible, "300 - visible 3").toBe(true);
+  expect(model.renderedActions[3].isVisible, "300 - dots hidden").toBe(false);
 
   model.fit({ availableSpace: 78 });
-  expect(model.visibleActions.length, "dimension 78").toLooseEqual(3);
-  expect(model.visibleActions[0].isVisible, "78 - visible 1").toLooseEqual(true);
-  expect(model.visibleActions[1].isVisible, "78 - invisible 2").toLooseEqual(true);
-  expect(model.visibleActions[2].isVisible, "78 - visible 3").toLooseEqual(false);
-  expect(model.renderedActions[3].isVisible, "78 - dots hidden").toLooseEqual(true);
+  expect(model.visibleActions.length, "dimension 78").toBe(3);
+  expect(model.visibleActions[0].isVisible, "78 - visible 1").toBe(true);
+  expect(model.visibleActions[1].isVisible, "78 - invisible 2").toBe(true);
+  expect(model.visibleActions[2].isVisible, "78 - visible 3").toBe(false);
+  expect(model.renderedActions[3].isVisible, "78 - dots hidden").toBe(true);
 
   model.fit({ availableSpace: 29 });
-  expect(model.visibleActions.length, "dimension 29").toLooseEqual(3);
-  expect(model.visibleActions[0].isVisible, "29 - visible 1").toLooseEqual(true);
-  expect(model.visibleActions[1].isVisible, "29 - invisible 2").toLooseEqual(false);
-  expect(model.visibleActions[2].isVisible, "29 - visible 3").toLooseEqual(false);
-  expect(model.dotsItem.isVisible, "29 - dots visible").toLooseEqual(true);
+  expect(model.visibleActions.length, "dimension 29").toBe(3);
+  expect(model.visibleActions[0].isVisible, "29 - visible 1").toBe(true);
+  expect(model.visibleActions[1].isVisible, "29 - invisible 2").toBe(false);
+  expect(model.visibleActions[2].isVisible, "29 - visible 3").toBe(false);
+  expect(model.dotsItem.isVisible, "29 - dots visible").toBe(true);
 });
 
 test("getAvailableSpace with content-box test", () => {
@@ -227,7 +227,7 @@ test("getAvailableSpace with content-box test", () => {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
-  expect(manager["getAvailableSpace"]()).toLooseEqual(40);
+  expect(manager["getAvailableSpace"]()).toBe(40);
 });
 
 test("getAvailableSpace with border-box test", () => {
@@ -245,7 +245,7 @@ test("getAvailableSpace with border-box test", () => {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "border-box", paddingLeft: 5, paddingRight: 5 };
   };
-  expect(manager["getAvailableSpace"]()).toLooseEqual(30);
+  expect(manager["getAvailableSpace"]()).toBe(30);
 });
 test("Ignore space for invisible items", () => {
   const itemSmallWidth = 48;
@@ -259,7 +259,7 @@ test("Ignore space for invisible items", () => {
   model.actions.push(item1);
   model.actions.push(item2);
   model.fit({ availableSpace: 50 });
-  expect(item1.mode).toLooseEqual("large");
+  expect(item1.mode).toBe("large");
 });
 
 export class TestAdaptiveActionContainer extends AdaptiveActionContainer {
@@ -280,29 +280,29 @@ test("Action container: updateCallback test", () => {
     isRaised = true;
   };
 
-  expect(isRaised).toLooseEqual(false);
+  expect(isRaised).toBe(false);
   model.actions = [new Action({ id: "first" })];
   model.flushUpdates();
-  expect(isRaised, "container OnSet").toLooseEqual(true);
-  expect(currentIsInitialized, "container OnSet").toLooseEqual(true);
+  expect(isRaised, "container OnSet").toBe(true);
+  expect(currentIsInitialized, "container OnSet").toBe(true);
 
   isRaised = false;
   model.actions.push(new Action({ id: "second" }));
   model.flushUpdates();
-  expect(isRaised, "container OnPush").toLooseEqual(true);
-  expect(currentIsInitialized, "container OnPush").toLooseEqual(true);
+  expect(isRaised, "container OnPush").toBe(true);
+  expect(currentIsInitialized, "container OnPush").toBe(true);
 
   isRaised = false;
   model.actions.splice(1, 1);
   model.flushUpdates();
-  expect(isRaised, "container OnRemove").toLooseEqual(true);
-  expect(currentIsInitialized, "container OnRemove").toLooseEqual(true);
+  expect(isRaised, "container OnRemove").toBe(true);
+  expect(currentIsInitialized, "container OnRemove").toBe(true);
 
   isRaised = false;
   model.actions[0].visible = !model.actions[0].visible;
   model.flushUpdates();
-  expect(isRaised, "action visible changed").toLooseEqual(true);
-  expect(currentIsInitialized, "action visible changed").toLooseEqual(false);
+  expect(isRaised, "action visible changed").toBe(true);
+  expect(currentIsInitialized, "action visible changed").toBe(false);
 });
 
 test("ResponsivityManager process test", () => {
@@ -329,30 +329,30 @@ test("ResponsivityManager process test", () => {
   expect(manager["isInitialized"], "before start").toBeFalsy();
   expect(manager["isResizeObserverStarted"]).toBeFalsy();
   let newAction = new Action({ id: "first" });
-  expect(newAction.minDimension).toLooseEqual(undefined);
-  expect(newAction.maxDimension).toLooseEqual(undefined);
+  expect(newAction.minDimension).toBeUndefined();
+  expect(newAction.maxDimension).toBeUndefined();
   model.actions.push(newAction);
   model.flushUpdates();
   updateActions();
   expect(manager["isInitialized"], "process is not called after push when ResizeObserver has not started").toBeFalsy();
   expect(manager["isResizeObserverStarted"]).toBeFalsy();
-  expect(newAction.minDimension).toLooseEqual(undefined);
-  expect(newAction.maxDimension).toLooseEqual(undefined);
+  expect(newAction.minDimension).toBeUndefined();
+  expect(newAction.maxDimension).toBeUndefined();
   (manager["resizeObserver"] as any).run();
   expect(manager["isInitialized"], "resize observer is started").toBeTruthy();
   expect(manager["isResizeObserverStarted"]).toBeTruthy();
-  expect(newAction.minDimension).toLooseEqual(20);
-  expect(newAction.maxDimension).toLooseEqual(100);
+  expect(newAction.minDimension).toBe(20);
+  expect(newAction.maxDimension).toBe(100);
   newAction = new Action({ id: "second" });
   model.actions.push(newAction);
   model.flushUpdates();
   expect(manager["isInitialized"], "isInitialized should be reset before when item is being pushed").toBeFalsy();
-  expect(newAction.minDimension).toLooseEqual(undefined);
-  expect(newAction.maxDimension).toLooseEqual(undefined);
+  expect(newAction.minDimension).toBeUndefined();
+  expect(newAction.maxDimension).toBeUndefined();
   updateActions();
   expect(manager["isInitialized"], "process is called after push when ResizeObserver has already started").toBeTruthy();
-  expect(newAction.minDimension).toLooseEqual(20);
-  expect(newAction.maxDimension).toLooseEqual(100);
+  expect(newAction.minDimension).toBe(20);
+  expect(newAction.maxDimension).toBe(100);
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
@@ -366,9 +366,9 @@ test("ResponsivityManager process test: stop when container is invisible", () =>
   container.offsetHeight = 0;
   container.offsetWidth = 0;
   container.clientRects = [];
-  expect(manager["isInitialized"]).toLooseEqual(false);
+  expect(manager["isInitialized"]).toBe(false);
   manager["process"]();
-  expect(manager["isInitialized"]).toLooseEqual(false);
+  expect(manager["isInitialized"]).toBe(false);
 });
 
 test("ResponsivityManager - vertical process", () => {
@@ -400,7 +400,7 @@ test("ResponsivityManager - vertical process", () => {
       };
     });
     manager["process"]();
-    expect(model.hiddenItemsListModel.actions.length).toLooseEqual(7);
+    expect(model.hiddenItemsListModel.actions.length).toBe(7);
   } finally {
     (window as any).getComputedStyle = originalGetComputedStyle;
   }
@@ -433,32 +433,32 @@ test("isResponsivenessDisabled", () => {
 
   model.flushUpdates();
 
-  expect(model.actions.length).toLooseEqual(3);
-  expect(model.renderedActions.length).toLooseEqual(4);
-  expect(model.isResponsivenessDisabled).toLooseEqual(false);
+  expect(model.actions.length).toBe(3);
+  expect(model.renderedActions.length).toBe(4);
+  expect(model.isResponsivenessDisabled).toBe(false);
 
   manager["isInitialized"] = true;
   manager["process"]();
-  expect(model.renderedActions.length, "dimension 300").toLooseEqual(4);
-  expect(model.renderedActions[0].isVisible, "visible 1").toLooseEqual(true);
-  expect(model.renderedActions[1].isVisible, "invisible 2").toLooseEqual(false);
-  expect(model.renderedActions[2].isVisible, "invisible 3").toLooseEqual(false);
-  expect(model.renderedActions[3].isVisible, "dots button").toLooseEqual(true);
-  expect(item1.mode, "dimension 300").toLooseEqual("small");
-  expect(item2.mode, "dimension 300").toLooseEqual("popup");
-  expect(item3.mode, "dimension 300").toLooseEqual("popup");
+  expect(model.renderedActions.length, "dimension 300").toBe(4);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "invisible 2").toBe(false);
+  expect(model.renderedActions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions[3].isVisible, "dots button").toBe(true);
+  expect(item1.mode, "dimension 300").toBe("small");
+  expect(item2.mode, "dimension 300").toBe("popup");
+  expect(item3.mode, "dimension 300").toBe("popup");
 
   model.setActionsMode("large");
   model.isResponsivenessDisabled = true;
   manager["process"]();
-  expect(model.renderedActions.length, "dimension 300").toLooseEqual(4);
-  expect(model.renderedActions[0].isVisible, "visible 1").toLooseEqual(true);
-  expect(model.renderedActions[1].isVisible, "visible 2").toLooseEqual(true);
-  expect(model.renderedActions[2].isVisible, "visible 3").toLooseEqual(true);
+  expect(model.renderedActions.length, "dimension 300").toBe(4);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "visible 3").toBe(true);
 
-  expect(item1.mode, "dimension 300").toLooseEqual("large");
-  expect(item2.mode, "dimension 300").toLooseEqual("large");
-  expect(item3.mode, "dimension 300").toLooseEqual("large");
+  expect(item1.mode, "dimension 300").toBe("large");
+  expect(item2.mode, "dimension 300").toBe("large");
+  expect(item3.mode, "dimension 300").toBe("large");
 });
 
 test("check disableHide property", () => {
@@ -550,15 +550,15 @@ test("check title change calls raise update", () => {
   item1.maxDimension = itemSmallWidth;
   model.actions.push(item1);
   model.flushUpdates();
-  expect(log, "called from push").toLooseEqual("->called: true");
+  expect(log, "called from push").toBe("->called: true");
   expect(item1.needUpdateMaxDimension, "needUpdateMaxDimension is false by default").toBeFalsy();
   item1.title = "Test";
   model.flushUpdates();
-  expect(log, "called from title change").toLooseEqual("->called: true->called: false");
+  expect(log, "called from title change").toBe("->called: true->called: false");
   expect(item1.needUpdateMaxDimension, "needUpdateMaxDimension is true when changing title").toBeTruthy();
   item1.title = "Test";
   model.flushUpdates();
-  expect(log).toLooseEqual("->called: true->called: false");
+  expect(log).toBe("->called: true->called: false");
 });
 
 test("check actions mode is set correctly when disableShrink is set", () => {
@@ -567,15 +567,15 @@ test("check actions mode is set correctly when disableShrink is set", () => {
     disableShrink: true,
     title: "test"
   });
-  expect(action.mode).toLooseEqual("large");
+  expect(action.mode).toBe("large");
   model.setActionsMode("removed");
-  expect(action.mode).toLooseEqual("removed");
+  expect(action.mode).toBe("removed");
   model.setActionsMode("large");
-  expect(action.mode).toLooseEqual("large");
+  expect(action.mode).toBe("large");
   model.setActionsMode("popup");
-  expect(action.mode).toLooseEqual("popup");
+  expect(action.mode).toBe("popup");
   model.setActionsMode("small");
-  expect(action.mode).toLooseEqual("large");
+  expect(action.mode).toBe("large");
 });
 
 test("Check fit with gap", () => {
@@ -600,63 +600,63 @@ test("Check fit with gap", () => {
   model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 0 });
-  expect(item1.mode, "300 - 0 item1 large").toLooseEqual("large");
-  expect(item2.mode, "300 - 0 item2 large").toLooseEqual("large");
-  expect(item3.mode, "300 - 0 item3 large").toLooseEqual("large");
+  expect(item1.mode, "300 - 0 item1 large").toBe("large");
+  expect(item2.mode, "300 - 0 item2 large").toBe("large");
+  expect(item3.mode, "300 - 0 item3 large").toBe("large");
   expect(model.dotsItem.isVisible, "300 - 0 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 1 });
-  expect(item1.mode, "300 - 1 item1 large").toLooseEqual("large");
-  expect(item2.mode, "300 - 1 item2 large").toLooseEqual("large");
-  expect(item3.mode, "300 - 1 item3 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 1 item1 large").toBe("large");
+  expect(item2.mode, "300 - 1 item2 large").toBe("large");
+  expect(item3.mode, "300 - 1 item3 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 1 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 25 });
-  expect(item1.mode, "300 - 25 item1 large").toLooseEqual("large");
-  expect(item2.mode, "300 - 25 item2 large").toLooseEqual("large");
-  expect(item3.mode, "300 - 25 item3 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 25 item1 large").toBe("large");
+  expect(item2.mode, "300 - 25 item2 large").toBe("large");
+  expect(item3.mode, "300 - 25 item3 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 25 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 26 });
-  expect(item1.mode, "300 - 26 item1 large").toLooseEqual("large");
-  expect(item2.mode, "300 - 26 item2 small").toLooseEqual("small");
-  expect(item3.mode, "300 - 26 item3 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 26 item1 large").toBe("large");
+  expect(item2.mode, "300 - 26 item2 small").toBe("small");
+  expect(item3.mode, "300 - 26 item3 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 26 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 50 });
-  expect(item1.mode, "300 - 50 item1 large").toLooseEqual("large");
-  expect(item2.mode, "300 - 50 item2 small").toLooseEqual("small");
-  expect(item3.mode, "300 - 50 item3 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 50 item1 large").toBe("large");
+  expect(item2.mode, "300 - 50 item2 small").toBe("small");
+  expect(item3.mode, "300 - 50 item3 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 50 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 51 });
-  expect(item1.mode, "300 - 51 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 51 item2 small").toLooseEqual("small");
-  expect(item3.mode, "300 - 51 item3 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 51 item1 small").toBe("small");
+  expect(item2.mode, "300 - 51 item2 small").toBe("small");
+  expect(item3.mode, "300 - 51 item3 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 51 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 75 });
-  expect(item1.mode, "300 - 75 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 75 item2 small").toLooseEqual("small");
-  expect(item3.mode, "300 - 75 item3 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 75 item1 small").toBe("small");
+  expect(item2.mode, "300 - 75 item2 small").toBe("small");
+  expect(item3.mode, "300 - 75 item3 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 75 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 76 });
-  expect(item1.mode, "300 - 76 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 76 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 76 item3 popup").toLooseEqual("popup");
+  expect(item1.mode, "300 - 76 item1 small").toBe("small");
+  expect(item2.mode, "300 - 76 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 76 item3 popup").toBe("popup");
   expect(model.dotsItem.isVisible, "300 - 76 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 200 });
-  expect(item1.mode, "300 - 200 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 200 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 200 item3 popup").toLooseEqual("popup");
+  expect(item1.mode, "300 - 200 item1 small").toBe("small");
+  expect(item2.mode, "300 - 200 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 200 item3 popup").toBe("popup");
   expect(model.dotsItem.isVisible, "300 - 200 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 201 });
-  expect(item1.mode, "300 - 201 item1 small").toLooseEqual("popup");
-  expect(item2.mode, "300 - 201 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 201 item3 popup").toLooseEqual("popup");
+  expect(item1.mode, "300 - 201 item1 small").toBe("popup");
+  expect(item2.mode, "300 - 201 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 201 item3 popup").toBe("popup");
   expect(model.dotsItem.isVisible, "300 - 201 dotsItem visible").toBeTruthy();
 });
 
@@ -688,24 +688,24 @@ test("Check fit with gap with disable hide on first action", () => {
   model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 34 });
-  expect(item1.mode, "300 - 34 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 34 item2 small").toLooseEqual("small");
-  expect(item3.mode, "300 - 34 item3 popup").toLooseEqual("popup");
-  expect(item4.mode, "300 - 34 item4 popup").toLooseEqual("popup");
+  expect(item1.mode, "300 - 34 item1 small").toBe("small");
+  expect(item2.mode, "300 - 34 item2 small").toBe("small");
+  expect(item3.mode, "300 - 34 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 34 item4 popup").toBe("popup");
   expect(model.dotsItem.isVisible, "300 - 34 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 75 });
-  expect(item1.mode, "300 - 75 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 75 item2 popup").toLooseEqual("small");
-  expect(item3.mode, "300 - 75 item3 popup").toLooseEqual("popup");
-  expect(item4.mode, "300 - 75 item4 popup").toLooseEqual("popup");
+  expect(item1.mode, "300 - 75 item1 small").toBe("small");
+  expect(item2.mode, "300 - 75 item2 popup").toBe("small");
+  expect(item3.mode, "300 - 75 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 75 item4 popup").toBe("popup");
   expect(model.dotsItem.isVisible, "300 - 75 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 76 });
-  expect(item1.mode, "300 - 76 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 76 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 76 item3 popup").toLooseEqual("popup");
-  expect(item4.mode, "300 - 76 item4 popup").toLooseEqual("popup");
+  expect(item1.mode, "300 - 76 item1 small").toBe("small");
+  expect(item2.mode, "300 - 76 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 76 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 76 item4 popup").toBe("popup");
   expect(model.dotsItem.isVisible, "300 - 76 dotsItem visible").toBeTruthy();
 });
 
@@ -736,24 +736,24 @@ test("Check fit with gap with disable hide on non-first action", () => {
   model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 34 });
-  expect(item1.mode, "300 - 34 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 34 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 34 item3 popup").toLooseEqual("popup");
-  expect(item4.mode, "300 - 34 item4 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 34 item1 small").toBe("small");
+  expect(item2.mode, "300 - 34 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 34 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 34 item4 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 34 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 75 });
-  expect(item1.mode, "300 - 75 item1 small").toLooseEqual("small");
-  expect(item2.mode, "300 - 75 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 75 item3 popup").toLooseEqual("popup");
-  expect(item4.mode, "300 - 75 item4 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 75 item1 small").toBe("small");
+  expect(item2.mode, "300 - 75 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 75 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 75 item4 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 75 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 76 });
-  expect(item1.mode, "300 - 76 item1 small").toLooseEqual("popup");
-  expect(item2.mode, "300 - 76 item2 popup").toLooseEqual("popup");
-  expect(item3.mode, "300 - 76 item3 popup").toLooseEqual("popup");
-  expect(item4.mode, "300 - 76 item4 small").toLooseEqual("small");
+  expect(item1.mode, "300 - 76 item1 small").toBe("popup");
+  expect(item2.mode, "300 - 76 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 76 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 76 item4 small").toBe("small");
   expect(model.dotsItem.isVisible, "300 - 76 dotsItem visible").toBeTruthy();
 });
 
@@ -775,22 +775,22 @@ test("Check fit for two actions: action with disableHide and action with icon", 
   model.flushUpdates();
 
   model.fit({ availableSpace: 300 });
-  expect(item1.mode, "300 item1 large").toLooseEqual("large");
-  expect(item2.mode, "300 item2 large").toLooseEqual("large");
+  expect(item1.mode, "300 item1 large").toBe("large");
+  expect(item2.mode, "300 item2 large").toBe("large");
   expect(!model.dotsItem.isVisible, "300 dotsItem hidden").toBeTruthy();
 
   model.fit({ availableSpace: 150 });
-  expect(item1.mode, "150 item1 large").toLooseEqual("large");
-  expect(item2.mode, "150 item2 small").toLooseEqual("small");
+  expect(item1.mode, "150 item1 large").toBe("large");
+  expect(item2.mode, "150 item2 small").toBe("small");
   expect(!model.dotsItem.isVisible, "150 dotsItem hidden").toBeTruthy();
 
   model.fit({ availableSpace: 100 });
-  expect(item1.mode, "100 item1 small").toLooseEqual("small");
-  expect(item2.mode, "100 item2 small").toLooseEqual("small");
+  expect(item1.mode, "100 item1 small").toBe("small");
+  expect(item2.mode, "100 item2 small").toBe("small");
   expect(!model.dotsItem.isVisible, "100 dotsItem hidden").toBeTruthy();
 
   model.fit({ availableSpace: 50 });
-  expect(item1.mode, "100 item1 small").toLooseEqual("small");
-  expect(item2.mode, "100 item2 small").toLooseEqual("small");
+  expect(item1.mode, "100 item1 small").toBe("small");
+  expect(item2.mode, "100 item2 small").toBe("small");
   expect(!model.dotsItem.isVisible, "100 dotsItem hidden").toBeTruthy();
 });

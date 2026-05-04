@@ -140,7 +140,7 @@ describe("a11y", () => {
     expect(question.a11y_input_ariaRole, "aria-role is radiogroup").toBe("radiogroup");
     expect(question.a11y_input_ariaRequired, "aria-required is true").toBe("true");
     expect(question.a11y_input_ariaInvalid, "aria-invalid is false").toBe("false");
-    expect(question.a11y_input_ariaExpanded, "aria-expanded is null").toLooseEqual(null);
+    expect(question.a11y_input_ariaExpanded, "aria-expanded is null").toBeUndefined();
     expect(question.a11y_input_ariaErrormessage, "aria-errormessage is null").toBe(null);
   });
 

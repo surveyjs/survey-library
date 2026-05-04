@@ -6,12 +6,12 @@ import { describe, test, expect, vi } from "vitest";
 describe("question signaturepad", () => {
   test("QuestionSignaturePadModel dataFormat default value", () => {
     var question = new QuestionSignaturePadModel("q");
-    expect(question.dataFormat, "default value").toLooseEqual("png");
+    expect(question.dataFormat, "default value").toBe("png");
   });
 
   test("QuestionSignaturePadModel dataFormat values", () => {
     var question = new QuestionSignaturePadModel("q");
-    expect(question.dataFormat, "defaultValue").toLooseEqual("png");
+    expect(question.dataFormat, "defaultValue").toBe("png");
 
     var el = document.createElement("div");
     el.appendChild(document.createElement("canvas"));
@@ -19,53 +19,53 @@ describe("question signaturepad", () => {
     question.initSignaturePad(el);
 
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "png").toLooseEqual("data:image/png;");
+    expect(question.value.substring(0, 15), "png").toBe("data:image/png;");
 
     question.dataFormat = "image/jpeg";
-    expect(question.dataFormat, "jpeg format").toLooseEqual("jpeg");
+    expect(question.dataFormat, "jpeg format").toBe("jpeg");
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "jpeg").toLooseEqual("data:image/jpeg");
+    expect(question.value.substring(0, 15), "jpeg").toBe("data:image/jpeg");
 
     question.dataFormat = "image/svg+xml";
-    expect(question.dataFormat, "svg format").toLooseEqual("svg");
+    expect(question.dataFormat, "svg format").toBe("svg");
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "svg").toLooseEqual("data:image/svg+");
+    expect(question.value.substring(0, 15), "svg").toBe("data:image/svg+");
 
     question.dataFormat = "jpeg";
-    expect(question.dataFormat, "jpeg format").toLooseEqual("jpeg");
+    expect(question.dataFormat, "jpeg format").toBe("jpeg");
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "jpeg#2").toLooseEqual("data:image/jpeg");
+    expect(question.value.substring(0, 15), "jpeg#2").toBe("data:image/jpeg");
 
     question.dataFormat = "svg";
-    expect(question.dataFormat, "svg format").toLooseEqual("svg");
+    expect(question.dataFormat, "svg format").toBe("svg");
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "svg#2").toLooseEqual("data:image/svg+");
+    expect(question.value.substring(0, 15), "svg#2").toBe("data:image/svg+");
 
     question.dataFormat = "png";
-    expect(question.dataFormat, "png format").toLooseEqual("png");
+    expect(question.dataFormat, "png format").toBe("png");
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "png#2").toLooseEqual("data:image/png;");
+    expect(question.value.substring(0, 15), "png#2").toBe("data:image/png;");
 
     question.dataFormat = "";
-    expect(question.dataFormat, "png format").toLooseEqual("png");
+    expect(question.dataFormat, "png format").toBe("png");
     question["updateValue"]();
-    expect(question.value.substring(0, 15), "png#3").toLooseEqual("data:image/png;");
+    expect(question.value.substring(0, 15), "png#3").toBe("data:image/png;");
 
     el.remove();
   });
   test("QuestionSignaturePadModel dataFormat converters", () => {
     var question = new QuestionSignaturePadModel("q");
-    expect(question.dataFormat, "#1").toLooseEqual("png");
+    expect(question.dataFormat, "#1").toBe("png");
     question.fromJSON({ name: "q", dataFormat: "jpeg" });
-    expect(question.dataFormat, "#2").toLooseEqual("jpeg");
+    expect(question.dataFormat, "#2").toBe("jpeg");
     question.fromJSON({ name: "q", dataFormat: "svg" });
-    expect(question.dataFormat, "#3").toLooseEqual("svg");
+    expect(question.dataFormat, "#3").toBe("svg");
     question.fromJSON({ name: "q", dataFormat: "dffd" });
-    expect(question.dataFormat, "#4").toLooseEqual("png");
+    expect(question.dataFormat, "#4").toBe("png");
     question.fromJSON({ name: "q", dataFormat: "image/jpeg" });
-    expect(question.dataFormat, "#5").toLooseEqual("jpeg");
+    expect(question.dataFormat, "#5").toBe("jpeg");
     question.fromJSON({ name: "q", dataFormat: "image/svg+xml" });
-    expect(question.dataFormat, "#6").toLooseEqual("svg");
+    expect(question.dataFormat, "#6").toBe("svg");
   });
   test("check allowClear", () => {
     var json = {
@@ -78,22 +78,22 @@ describe("question signaturepad", () => {
     };
     const survey = new SurveyModel(json);
     const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
-    expect(signaturepad.allowClear, "allowClear").toLooseEqual(true);
-    expect(signaturepad.readOnly, "readOnly").toLooseEqual(false);
-    expect(signaturepad.canShowClearButton, "canShowClearButton").toLooseEqual(false);
+    expect(signaturepad.allowClear, "allowClear").toBe(true);
+    expect(signaturepad.readOnly, "readOnly").toBe(false);
+    expect(signaturepad.canShowClearButton, "canShowClearButton").toBe(false);
 
     signaturepad.valueWasChangedFromLastUpload = true;
-    expect(signaturepad.canShowClearButton, "canShowClearButton").toLooseEqual(true);
+    expect(signaturepad.canShowClearButton, "canShowClearButton").toBe(true);
     signaturepad.valueWasChangedFromLastUpload = false;
-    expect(signaturepad.canShowClearButton, "canShowClearButton").toLooseEqual(false);
+    expect(signaturepad.canShowClearButton, "canShowClearButton").toBe(false);
 
     signaturepad.value = "data:image/svg+xml,%3C xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
-    expect(signaturepad.canShowClearButton, "canShowClearButton").toLooseEqual(true);
+    expect(signaturepad.canShowClearButton, "canShowClearButton").toBe(true);
 
     signaturepad.allowClear = false;
-    expect(signaturepad.allowClear, "allowClear").toLooseEqual(false);
-    expect(signaturepad.readOnly, "readOnly").toLooseEqual(false);
-    expect(signaturepad.canShowClearButton, "canShowClearButton").toLooseEqual(false);
+    expect(signaturepad.allowClear, "allowClear").toBe(false);
+    expect(signaturepad.readOnly, "readOnly").toBe(false);
+    expect(signaturepad.canShowClearButton, "canShowClearButton").toBe(false);
   });
 
   test("Check signaturepad signauteWidth/Height properties", () => {
@@ -112,14 +112,14 @@ describe("question signaturepad", () => {
     const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     const ratio = 1;
     signaturepad.initSignaturePad(containerEl);
-    expect(signaturepad.signatureWidth).toLooseEqual(300);
-    expect(signaturepad.signatureHeight).toLooseEqual(200);
-    expect(canvas.width).toLooseEqual(300 * ratio);
-    expect(canvas.height).toLooseEqual(200 * ratio);
+    expect(signaturepad.signatureWidth).toBe(300);
+    expect(signaturepad.signatureHeight).toBe(200);
+    expect(canvas.width).toBe(300 * ratio);
+    expect(canvas.height).toBe(200 * ratio);
     signaturepad.signatureWidth = 400;
     signaturepad.signatureHeight = 300;
-    expect(canvas.width).toLooseEqual(400 * ratio);
-    expect(canvas.height).toLooseEqual(300 * ratio);
+    expect(canvas.width).toBe(400 * ratio);
+    expect(canvas.height).toBe(300 * ratio);
 
     canvas.remove();
     containerEl.remove();
@@ -142,10 +142,10 @@ describe("question signaturepad", () => {
     let survey = new SurveyModel(json);
     let signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepad.initSignaturePad(containerEl);
-    expect(signaturepad.signatureWidth).toLooseEqual(400);
-    expect(signaturepad.signatureHeight).toLooseEqual(300);
-    expect(canvas.width).toLooseEqual(400);
-    expect(canvas.height).toLooseEqual(300);
+    expect(signaturepad.signatureWidth).toBe(400);
+    expect(signaturepad.signatureHeight).toBe(300);
+    expect(canvas.width).toBe(400);
+    expect(canvas.height).toBe(300);
 
     json = {
       elements: [
@@ -159,8 +159,8 @@ describe("question signaturepad", () => {
     survey = new SurveyModel(json);
     signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepad.initSignaturePad(containerEl);
-    expect(signaturepad.signatureWidth).toLooseEqual(300);
-    expect(canvas.width).toLooseEqual(300);
+    expect(signaturepad.signatureWidth).toBe(300);
+    expect(canvas.width).toBe(300);
 
     json = {
       elements: [
@@ -177,10 +177,10 @@ describe("question signaturepad", () => {
     survey = new SurveyModel(json);
     signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepad.initSignaturePad(containerEl);
-    expect(signaturepad.signatureWidth).toLooseEqual(400);
-    expect(canvas.width).toLooseEqual(400);
-    expect(signaturepad.signatureHeight).toLooseEqual(300);
-    expect(canvas.height).toLooseEqual(300);
+    expect(signaturepad.signatureWidth).toBe(400);
+    expect(canvas.width).toBe(400);
+    expect(signaturepad.signatureHeight).toBe(300);
+    expect(canvas.height).toBe(300);
 
     canvas.remove();
     containerEl.remove();
@@ -204,22 +204,22 @@ describe("question signaturepad", () => {
     let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepadQuestion.initSignaturePad(containerEl);
 
-    expect(signaturepadQuestion.penColor, "penColor init").toLooseEqual("#e92525");
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor init").toLooseEqual("#dde6db");
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor init").toLooseEqual("#e92525");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor init").toLooseEqual("#dde6db");
+    expect(signaturepadQuestion.penColor, "penColor init").toBe("#e92525");
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor init").toBe("#dde6db");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor init").toBe("#e92525");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor init").toBe("#dde6db");
 
     survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
-    expect(signaturepadQuestion.penColor, "penColor init").toLooseEqual("#e92525");
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor init").toLooseEqual("#dde6db");
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor init").toLooseEqual("#e92525");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor init").toLooseEqual("#dde6db");
+    expect(signaturepadQuestion.penColor, "penColor init").toBe("#e92525");
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor init").toBe("#dde6db");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor init").toBe("#e92525");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor init").toBe("#dde6db");
 
     survey.applyTheme({ "cssVariables": {} });
-    expect(signaturepadQuestion.penColor, "penColor init").toLooseEqual("#e92525");
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor init").toLooseEqual("#dde6db");
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor init").toLooseEqual("#e92525");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor init").toLooseEqual("#dde6db");
+    expect(signaturepadQuestion.penColor, "penColor init").toBe("#e92525");
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor init").toBe("#dde6db");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor init").toBe("#e92525");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor init").toBe("#dde6db");
   });
 
   test("check penColor & background color from theme", () => {
@@ -238,22 +238,22 @@ describe("question signaturepad", () => {
     let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepadQuestion.initSignaturePad(containerEl);
 
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toLooseEqual("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toLooseEqual("#ffffff");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toBe("#ffffff");
 
     survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toLooseEqual("rgba(103, 58, 176, 1)");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toLooseEqual("transparent");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toBe("rgba(103, 58, 176, 1)");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe("transparent");
 
     survey.applyTheme({ "cssVariables": {} });
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toLooseEqual("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toLooseEqual("#ffffff");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toBe("#ffffff");
   });
 
   test("check penColor & background color if background image", () => {
@@ -273,28 +273,28 @@ describe("question signaturepad", () => {
     let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepadQuestion.initSignaturePad(containerEl);
 
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toLooseEqual("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toLooseEqual("transparent");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
 
     survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toLooseEqual("rgba(103, 58, 176, 1)");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toLooseEqual("transparent");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toBe("rgba(103, 58, 176, 1)");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe("transparent");
 
     survey.applyTheme({ "cssVariables": {} });
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toLooseEqual("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toLooseEqual("transparent");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
 
     signaturepadQuestion.backgroundColor = "#dde6db";
-    expect(signaturepadQuestion.penColor, "penColor undefined").toLooseEqual(undefined);
-    expect(signaturepadQuestion.backgroundColor, "backgroundColor #dde6db").toLooseEqual("#dde6db");
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toLooseEqual("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toLooseEqual("transparent");
+    expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
+    expect(signaturepadQuestion.backgroundColor, "backgroundColor #dde6db").toBe("#dde6db");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
   });
 
   test("check showPlaceholder & placeholder properties", () => {
@@ -310,27 +310,27 @@ describe("question signaturepad", () => {
     let survey = new SurveyModel(json);
     let question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
     expect(question.needShowPlaceholder(), "#0").toBeTruthy();
-    expect(question.locPlaceholder.renderedHtml).toLooseEqual("Sign here");
-    expect(question.locRenderedPlaceholder.renderedHtml).toLooseEqual("Sign here");
+    expect(question.locPlaceholder.renderedHtml).toBe("Sign here");
+    expect(question.locRenderedPlaceholder.renderedHtml).toBe("Sign here");
 
     question.valueWasChangedFromLastUpload = true;
-    expect(question.needShowPlaceholder(), "#1").toLooseEqual(false);
+    expect(question.needShowPlaceholder(), "#1").toBe(false);
     question.valueWasChangedFromLastUpload = false;
-    expect(question.needShowPlaceholder()).toLooseEqual(true), "#2";
+    expect(question.needShowPlaceholder()).toBe(true), "#2";
 
     question.value = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
-    expect(question.needShowPlaceholder(), "#3").toLooseEqual(false);
+    expect(question.needShowPlaceholder(), "#3").toBe(false);
 
     question.showPlaceholder = false;
     expect(question.needShowPlaceholder(), "#4").toBeFalsy();
     question.placeholder = "test sign";
-    expect(question.locPlaceholder.renderedHtml).toLooseEqual("test sign");
+    expect(question.locPlaceholder.renderedHtml).toBe("test sign");
 
-    expect(question.locRenderedPlaceholder.renderedHtml).toLooseEqual("test sign");
+    expect(question.locRenderedPlaceholder.renderedHtml).toBe("test sign");
     question.readOnly = true;
-    expect(question.locRenderedPlaceholder.renderedHtml).toLooseEqual("No signature");
+    expect(question.locRenderedPlaceholder.renderedHtml).toBe("No signature");
     question.placeholderReadOnly = "empty sign";
-    expect(question.locRenderedPlaceholder.renderedHtml).toLooseEqual("empty sign");
+    expect(question.locRenderedPlaceholder.renderedHtml).toBe("empty sign");
 
     json = {
       elements: [
@@ -347,7 +347,7 @@ describe("question signaturepad", () => {
     question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
     expect(question.needShowPlaceholder()).toBeFalsy();
     question.placeholder = "test sign";
-    expect(question.locPlaceholder.renderedHtml).toLooseEqual("test sign");
+    expect(question.locPlaceholder.renderedHtml).toBe("test sign");
   });
 
   test("check placeholder property visibility", () => {
@@ -356,9 +356,9 @@ describe("question signaturepad", () => {
     expect(Serializer.getProperty("signaturepad", "showPlaceholder").getDependedProperties()).toEqualValues([prop1.name, prop2.name]);
     const q1 = new QuestionSignaturePadModel("q1");
     q1.showPlaceholder = true;
-    expect(prop1.isVisible(undefined, q1)).toLooseEqual(true);
+    expect(prop1.isVisible(undefined, q1)).toBe(true);
     q1.showPlaceholder = false;
-    expect(prop1.isVisible(undefined, q1)).toLooseEqual(false);
+    expect(prop1.isVisible(undefined, q1)).toBe(false);
   });
 
   test("check rendered size properties", () => {
@@ -378,14 +378,14 @@ describe("question signaturepad", () => {
     let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
     signaturepadQuestion.initSignaturePad(containerEl);
 
-    expect(signaturepadQuestion.renderedCanvasWidth).toLooseEqual("300px");
+    expect(signaturepadQuestion.renderedCanvasWidth).toBe("300px");
 
     signaturepadQuestion.signatureWidth = 500;
 
-    expect(signaturepadQuestion.renderedCanvasWidth).toLooseEqual("500px");
+    expect(signaturepadQuestion.renderedCanvasWidth).toBe("500px");
 
     signaturepadQuestion.signatureAutoScaleEnabled = true;
-    expect(signaturepadQuestion.renderedCanvasWidth).toLooseEqual("100%");
+    expect(signaturepadQuestion.renderedCanvasWidth).toBe("100%");
   });
 
   test("Question Signature upload files", async () => {
@@ -446,16 +446,16 @@ describe("question signaturepad", () => {
       let valueChanged = false;
       survey.onValueChanged.add((survey, options) => {
         valueChanged = true;
-        expect(q1.value).toLooseEqual("signature.svg_url");
+        expect(q1.value).toBe("signature.svg_url");
         expect(eventFired).toBeTruthy();
         expect(fileLoaded).toBeTruthy();
 
-        expect(fileType).toLooseEqual("image/svg+xml");
-        expect(fileName).toLooseEqual("signature.svg");
-        expect(fileContent).toLooseEqual("data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + width + " " + height + '" width="' + width + '" height="' + height + '"><circle r="1.5" cx="9" cy="11" fill="rgba(25, 179, 148, 1)"></circle><circle r="1.5" cx="15" cy="18" fill="rgba(25, 179, 148, 1)"></circle></svg>'));
+        expect(fileType).toBe("image/svg+xml");
+        expect(fileName).toBe("signature.svg");
+        expect(fileContent).toBe("data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ' + width + " " + height + '" width="' + width + '" height="' + height + '"><circle r="1.5" cx="9" cy="11" fill="rgba(25, 179, 148, 1)"></circle><circle r="1.5" cx="15" cy="18" fill="rgba(25, 179, 148, 1)"></circle></svg>'));
       });
       await vi.advanceTimersByTimeAsync(100);
-      expect(valueChanged, "onValueChanged fired").toLooseEqual(true);
+      expect(valueChanged, "onValueChanged fired").toBe(true);
     } finally {
       vi.useRealTimers();
     }
@@ -536,7 +536,7 @@ describe("question signaturepad", () => {
       q1.onBlur({ target: null } as any);
       survey.navigationBar.getActionById("sv-nav-complete").action();
       await vi.advanceTimersByTimeAsync(2);
-      expect(completed, "survey completed").toLooseEqual(true);
+      expect(completed, "survey completed").toBe(true);
     } finally {
       vi.useRealTimers();
     }
@@ -590,12 +590,12 @@ describe("question signaturepad", () => {
       );
     });
 
-    expect(q.currentState, "Initial state is empty").toLooseEqual("empty");
+    expect(q.currentState, "Initial state is empty").toBe("empty");
     survey.data = {
       "signature": "file1.png"
     };
-    expect(log, "file should be loaded only once").toLooseEqual("->file1.png");
-    expect(q.currentState, "The loaded state after data assigned").toLooseEqual("loaded");
+    expect(log, "file should be loaded only once").toBe("->file1.png");
+    expect(q.currentState, "The loaded state after data assigned").toBe("loaded");
 
     canv.remove();
     el.remove();
@@ -615,14 +615,14 @@ describe("question signaturepad", () => {
       ],
     });
     const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
-    expect(question.isReady, "question is ready before init").toLooseEqual(true);
+    expect(question.isReady, "question is ready before init").toBe(true);
     question.initSignaturePad(el);
-    expect(question.isReady, "question is ready after init").toLooseEqual(true);
+    expect(question.isReady, "question is ready after init").toBe(true);
     let log = "";
     const callbacks = new Array<any>();
     const contents = new Array<string>();
     survey.onDownloadFile.add((survey, options) => {
-      expect(options.question.isReady).toLooseEqual(false);
+      expect(options.question.isReady).toBe(false);
       contents.push("data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>'));
       callbacks.push(options.callback);
       log += "->" + options.fileValue;
@@ -631,20 +631,20 @@ describe("question signaturepad", () => {
     question.onReadyChanged.add(() => {
       readyLogs.push(question.isReady);
     });
-    expect(question.isReady, "question is ready before data assignment").toLooseEqual(true);
+    expect(question.isReady, "question is ready before data assignment").toBe(true);
     survey.data = {
       "signature": "file1.svg"
     };
-    expect(question.isReady, "question is not ready").toLooseEqual(false);
-    expect(log).toLooseEqual("->file1.svg");
-    expect(callbacks.length, "One callback").toLooseEqual(1);
+    expect(question.isReady, "question is not ready").toBe(false);
+    expect(log).toBe("->file1.svg");
+    expect(callbacks.length, "One callback").toBe(1);
     for (let i = 0; i < callbacks.length; i++) {
       callbacks[i]("success", contents[i]);
     }
-    expect(question.isReady, "question is ready").toLooseEqual(true);
-    expect(readyLogs.length, "readyLogs.length").toLooseEqual(2);
-    expect(readyLogs[0], "readyLogs[0]").toLooseEqual(false);
-    expect(readyLogs[1], "readyLogs[1]").toLooseEqual(true);
+    expect(question.isReady, "question is ready").toBe(true);
+    expect(readyLogs.length, "readyLogs.length").toBe(2);
+    expect(readyLogs[0], "readyLogs[0]").toBe(false);
+    expect(readyLogs[1], "readyLogs[1]").toBe(true);
 
     canv.remove();
     el.remove();
@@ -661,7 +661,7 @@ describe("question signaturepad", () => {
       ],
     });
     const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
-    expect(question.isReady, "question is ready before data").toLooseEqual(true);
+    expect(question.isReady, "question is ready before data").toBe(true);
     let log = "";
     question.onReadyChanged.add((_, opt) => {
       log += `->${opt.isReady}`;
@@ -670,8 +670,8 @@ describe("question signaturepad", () => {
     survey.data = {
       signature: base64Url
     };
-    expect(question.loadedData).toLooseEqual(base64Url);
-    expect(log, "isReady changed only one time").toLooseEqual("->false->true");
+    expect(question.loadedData).toBe(base64Url);
+    expect(log, "isReady changed only one time").toBe("->false->true");
   });
 
   // jsdom's HTMLImageElement does not fire `onerror` for unreachable URLs the
@@ -708,7 +708,7 @@ describe("question signaturepad", () => {
         ],
       });
       const question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
-      expect(question.isReady, "question is ready before data").toLooseEqual(true);
+      expect(question.isReady, "question is ready before data").toBe(true);
       let log = "";
       question.onReadyChanged.add((_, opt) => {
         log += `->${opt.isReady}`;
@@ -718,9 +718,9 @@ describe("question signaturepad", () => {
         signature: url
       };
       await vi.advanceTimersByTimeAsync(50);
-      expect(question.loadedData).toLooseEqual(undefined);
-      expect(question.value).toLooseEqual(url);
-      expect(log, "isReady changed only one time").toLooseEqual("->false->true");
+      expect(question.loadedData).toBeUndefined();
+      expect(question.value).toBe(url);
+      expect(log, "isReady changed only one time").toBe("->false->true");
     } finally {
       Object.defineProperty(window, "Image", { configurable: true, writable: true, value: OriginalImage });
       vi.useRealTimers();
@@ -750,26 +750,26 @@ describe("question signaturepad", () => {
     const callbacks = new Array<any>();
     const contents = new Array<string>();
     survey.onDownloadFile.add((survey, options) => {
-      expect(options.question.isReady).toLooseEqual(false);
+      expect(options.question.isReady).toBe(false);
       contents.push(loadedData[options.question.value]);
       callbacks.push(options.callback);
       log += "->" + options.fileValue;
     });
 
-    expect(log).toLooseEqual("");
-    expect(callbacks.length, "No callbacks").toLooseEqual(0);
-    expect(question.value).toLooseEqual(undefined);
-    expect(question.loadedData).toLooseEqual(undefined);
-    expect(question.isReady, "question is ready before data assignment").toLooseEqual(true);
+    expect(log).toBe("");
+    expect(callbacks.length, "No callbacks").toBe(0);
+    expect(question.value).toBeUndefined();
+    expect(question.loadedData).toBeUndefined();
+    expect(question.isReady, "question is ready before data assignment").toBe(true);
 
     survey.data = {
       "signature": "file1.svg"
     };
-    expect(log).toLooseEqual("->file1.svg");
-    expect(callbacks.length, "One callback").toLooseEqual(1);
-    expect(question.value).toLooseEqual("file1.svg");
-    expect(question.loadedData).toLooseEqual(undefined);
-    expect(question.isReady, "question is not ready after data assignment").toLooseEqual(false);
+    expect(log).toBe("->file1.svg");
+    expect(callbacks.length, "One callback").toBe(1);
+    expect(question.value).toBe("file1.svg");
+    expect(question.loadedData).toBeUndefined();
+    expect(question.isReady, "question is not ready after data assignment").toBe(false);
     for (let i = 0; i < callbacks.length; i++) {
       callbacks[i]("success", contents[i]);
     }
@@ -784,44 +784,44 @@ describe("question signaturepad", () => {
     question["canvas"] = canv;
     question["loadPreview"](question.value);
 
-    expect(log).toLooseEqual("->file1.svg");
-    expect(callbacks.length, "No callbacks").toLooseEqual(0);
-    expect(question.value).toLooseEqual("file1.svg");
-    expect(question.loadedData, "loadedData after widget initialized").toLooseEqual(loadedData["file1.svg"]);
-    expect(dataFromUrlLog, "signaturepad.fromDataURL after widget initialized").toLooseEqual("->" + loadedData["file1.svg"]);
-    expect(question.isReady, "question ready after widget initialized").toLooseEqual(true);
+    expect(log).toBe("->file1.svg");
+    expect(callbacks.length, "No callbacks").toBe(0);
+    expect(question.value).toBe("file1.svg");
+    expect(question.loadedData, "loadedData after widget initialized").toBe(loadedData["file1.svg"]);
+    expect(dataFromUrlLog, "signaturepad.fromDataURL after widget initialized").toBe("->" + loadedData["file1.svg"]);
+    expect(question.isReady, "question ready after widget initialized").toBe(true);
 
     question.signatureWidth = 1000;
 
-    expect(log).toLooseEqual("->file1.svg");
-    expect(callbacks.length, "No callbacks").toLooseEqual(0);
-    expect(question.value).toLooseEqual("file1.svg");
-    expect(question.loadedData, "loadedData after resize").toLooseEqual(loadedData["file1.svg"]);
-    expect(dataFromUrlLog, "signaturepad.fromDataURL after resize").toLooseEqual("->" + loadedData["file1.svg"]);
-    expect(question.isReady, "question ready after resize").toLooseEqual(true);
+    expect(log).toBe("->file1.svg");
+    expect(callbacks.length, "No callbacks").toBe(0);
+    expect(question.value).toBe("file1.svg");
+    expect(question.loadedData, "loadedData after resize").toBe(loadedData["file1.svg"]);
+    expect(dataFromUrlLog, "signaturepad.fromDataURL after resize").toBe("->" + loadedData["file1.svg"]);
+    expect(question.isReady, "question ready after resize").toBe(true);
 
     question.value = "file2.svg";
     // survey.data = {
     //   "signature": "file2.svg"
     // };
 
-    expect(log).toLooseEqual("->file1.svg->file2.svg");
-    expect(callbacks.length, "One callback").toLooseEqual(1);
-    expect(question.value).toLooseEqual("file2.svg");
-    expect(question.loadedData, "No data available for a while after value changed").toLooseEqual(undefined);
-    expect(dataFromUrlLog, "signaturepad.fromDataURL after resize").toLooseEqual("->" + loadedData["file1.svg"]);
-    expect(question.isReady, "question is not ready after data assignment").toLooseEqual(false);
+    expect(log).toBe("->file1.svg->file2.svg");
+    expect(callbacks.length, "One callback").toBe(1);
+    expect(question.value).toBe("file2.svg");
+    expect(question.loadedData, "No data available for a while after value changed").toBeUndefined();
+    expect(dataFromUrlLog, "signaturepad.fromDataURL after resize").toBe("->" + loadedData["file1.svg"]);
+    expect(question.isReady, "question is not ready after data assignment").toBe(false);
     for (let i = 0; i < callbacks.length; i++) {
       callbacks[i]("success", contents[i]);
     }
     callbacks.length = 0;
 
-    expect(log).toLooseEqual("->file1.svg->file2.svg");
-    expect(callbacks.length, "No callbacks").toLooseEqual(0);
-    expect(question.value).toLooseEqual("file2.svg");
-    expect(question.loadedData, "Another data loaded").toLooseEqual(loadedData["file2.svg"]);
-    expect(dataFromUrlLog, "signaturepad.fromDataURL after value changed").toLooseEqual("->" + loadedData["file1.svg"] + "->" + loadedData["file2.svg"]);
-    expect(question.isReady, "question ready after loading data after value changedt").toLooseEqual(true);
+    expect(log).toBe("->file1.svg->file2.svg");
+    expect(callbacks.length, "No callbacks").toBe(0);
+    expect(question.value).toBe("file2.svg");
+    expect(question.loadedData, "Another data loaded").toBe(loadedData["file2.svg"]);
+    expect(dataFromUrlLog, "signaturepad.fromDataURL after value changed").toBe("->" + loadedData["file1.svg"] + "->" + loadedData["file2.svg"]);
+    expect(question.isReady, "question ready after loading data after value changedt").toBe(true);
 
     canv.remove();
     el.remove();
@@ -869,7 +869,7 @@ describe("question signaturepad", () => {
     el.append(document.createElement("canvas"));
     q1.afterRenderQuestionElement(el);
 
-    expect(!!q1.nothingIsDrawn()).toLooseEqual(true);
+    expect(!!q1.nothingIsDrawn()).toBe(true);
 
     const event = new CustomEvent("beginStroke", { bubbles: true, cancelable: true, detail: {} });
     q1.signaturePad.dispatchEvent(event);
@@ -877,19 +877,19 @@ describe("question signaturepad", () => {
     const event2 = new CustomEvent("endStroke", { bubbles: true, cancelable: true, detail: {} });
     q1.signaturePad.dispatchEvent(event2);
 
-    expect(q1.nothingIsDrawn()).toLooseEqual(false);
+    expect(q1.nothingIsDrawn()).toBe(false);
 
     expect(q1.errors.map(e => e.text)).toEqualValues([]);
 
     q1.valueWasChangedFromLastUpload = true;
     q1.onBlur({ target: null } as any);
     expect(q1.hasDrawnStroke).toBeTruthy();
-    expect(q1.nothingIsDrawn()).toLooseEqual(false);
+    expect(q1.nothingIsDrawn()).toBe(false);
     expect(q1.value).toBeFalsy();
     expect(q1.errors.map(e => e.text)).toEqualValues(["Error 1"]);
 
     q1.clearValue(true, true);
     expect(q1.value).toBeFalsy();
-    expect(q1.nothingIsDrawn()).toLooseEqual(true);
+    expect(q1.nothingIsDrawn()).toBe(true);
   });
 });

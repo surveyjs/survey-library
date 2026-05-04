@@ -33,17 +33,17 @@ describe("custom questions", () => {
     var survey = new SurveyModel({
       elements: [{ type: "newquestion", name: "q1", title: "my title" }],
     });
-    expect(survey.getAllQuestions().length, "Question is created").toLooseEqual(1);
+    expect(survey.getAllQuestions().length, "Question is created").toBe(1);
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.getType(), "type is correct").toLooseEqual("newquestion");
-    expect(q.name, "name is correct").toLooseEqual("q1");
+    expect(q.getType(), "type is correct").toBe("newquestion");
+    expect(q.name, "name is correct").toBe("q1");
     const propName = Serializer.findProperty("newquestion", "name");
-    expect(propName.getValue(q), "prop.name is correct").toLooseEqual("q1");
-    expect(q.getPropertyValue("name"), "getPropertyValue is correct").toLooseEqual("q1");
-    expect(Serializer.getObjPropertyValue(q, "name"), "getObjPropertyValue is correct, #name").toLooseEqual("q1");
-    expect(Serializer.getObjPropertyValue(q, "title"), "getObjPropertyValue is correct, #title").toLooseEqual("my title");
-    expect(q.contentQuestion.getType(), "Type for question is correct").toLooseEqual("dropdown");
-    expect(q.contentQuestion.choices.length, "There are five choices").toLooseEqual(5);
+    expect(propName.getValue(q), "prop.name is correct").toBe("q1");
+    expect(q.getPropertyValue("name"), "getPropertyValue is correct").toBe("q1");
+    expect(Serializer.getObjPropertyValue(q, "name"), "getObjPropertyValue is correct, #name").toBe("q1");
+    expect(Serializer.getObjPropertyValue(q, "title"), "getObjPropertyValue is correct, #title").toBe("my title");
+    expect(q.contentQuestion.getType(), "Type for question is correct").toBe("dropdown");
+    expect(q.contentQuestion.choices.length, "There are five choices").toBe(5);
     expect(survey.toJSON(), "Seralized correctly").toEqualValues({
       pages: [
         { name: "page1", elements: [{ type: "newquestion", name: "q1", title: "my title" }] },
@@ -63,11 +63,11 @@ describe("custom questions", () => {
     var survey = new SurveyModel({
       elements: [{ type: "customerinfo", name: "q1" }],
     });
-    expect(survey.getAllQuestions().length, "Question is created").toLooseEqual(1);
+    expect(survey.getAllQuestions().length, "Question is created").toBe(1);
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.getType(), "type is correct").toLooseEqual("customerinfo");
-    expect(q.name, "name is correct").toLooseEqual("q1");
-    expect(q.contentPanel.elements.length, "There are two elements in panel").toLooseEqual(2);
+    expect(q.getType(), "type is correct").toBe("customerinfo");
+    expect(q.name, "name is correct").toBe("q1");
+    expect(q.contentPanel.elements.length, "There are two elements in panel").toBe(2);
   });
 
   test("Single: Create the wrapper question and sync the value", () => {
@@ -80,11 +80,11 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.contentQuestion.getType(), "Question the type was created").toLooseEqual("dropdown");
+    expect(q.contentQuestion.getType(), "Question the type was created").toBe("dropdown");
     q.value = 1;
-    expect(q.contentQuestion.value, "Set value to wrapper value").toLooseEqual(1);
+    expect(q.contentQuestion.value, "Set value to wrapper value").toBe(1);
     q.contentQuestion.value = 2;
-    expect(q.value, "Set value to custom question").toLooseEqual(2);
+    expect(q.value, "Set value to custom question").toBe(2);
   });
 
   test("Composite: sync values", () => {
@@ -105,8 +105,8 @@ describe("custom questions", () => {
     firstName.value = "John";
     expect(survey.data).toEqualValues({ q1: { firstName: "John" } });
     q.value = { firstName: "Andrew", lastName: "Telnov" };
-    expect(firstName.value, "question value is replaced").toLooseEqual("Andrew");
-    expect(lastName.value, "question value is set").toLooseEqual("Telnov");
+    expect(firstName.value, "question value is replaced").toBe("Andrew");
+    expect(lastName.value, "question value is set").toBe("Telnov");
   });
   test("Single: read-only", () => {
     var json = {
@@ -118,12 +118,12 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1", readOnly: true }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.isReadOnly, "root is readOnly").toLooseEqual(true);
-    expect(q.contentQuestion.isReadOnly, "contentQuestion is read Only").toLooseEqual(true);
+    expect(q.isReadOnly, "root is readOnly").toBe(true);
+    expect(q.contentQuestion.isReadOnly, "contentQuestion is read Only").toBe(true);
     q.readOnly = false;
-    expect(q.contentQuestion.isReadOnly, "contentQuestion is not read only").toLooseEqual(false);
+    expect(q.contentQuestion.isReadOnly, "contentQuestion is not read only").toBe(false);
     q.readOnly = true;
-    expect(q.contentQuestion.isReadOnly, "contentQuestion is read only again").toLooseEqual(true);
+    expect(q.contentQuestion.isReadOnly, "contentQuestion is read only again").toBe(true);
   });
   test("Composite: read only", () => {
     var json = {
@@ -139,15 +139,15 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
-    expect(q.isReadOnly, "root is readOnly").toLooseEqual(true);
-    expect(q.contentPanel.isReadOnly, "contentPanel is read Only").toLooseEqual(true);
-    expect(firstName.isReadOnly, "firstName is read Only").toLooseEqual(true);
+    expect(q.isReadOnly, "root is readOnly").toBe(true);
+    expect(q.contentPanel.isReadOnly, "contentPanel is read Only").toBe(true);
+    expect(firstName.isReadOnly, "firstName is read Only").toBe(true);
     q.readOnly = false;
-    expect(q.contentPanel.isReadOnly, "contentQuestion is not read only").toLooseEqual(false);
-    expect(firstName.isReadOnly, "firstName is not read Only").toLooseEqual(false);
+    expect(q.contentPanel.isReadOnly, "contentQuestion is not read only").toBe(false);
+    expect(firstName.isReadOnly, "firstName is not read Only").toBe(false);
     q.readOnly = true;
-    expect(q.contentPanel.isReadOnly, "contentPanel is read only again").toLooseEqual(true);
-    expect(firstName.isReadOnly, "firstName is read Only again").toLooseEqual(true);
+    expect(q.contentPanel.isReadOnly, "contentPanel is read only again").toBe(true);
+    expect(firstName.isReadOnly, "firstName is read Only again").toBe(true);
   });
   test("Single: hasError", () => {
     var json = {
@@ -163,10 +163,10 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.validate(), "contentQuestion is required").toLooseEqual(false);
-    expect(q.errors.length, "There is one error").toLooseEqual(1);
+    expect(q.validate(), "contentQuestion is required").toBe(false);
+    expect(q.errors.length, "There is one error").toBe(1);
     q.contentQuestion.value = 1;
-    expect(q.validate(), "contentQuestion has value").toLooseEqual(true);
+    expect(q.validate(), "contentQuestion has value").toBe(true);
   });
   test("Single: hasError/isRequired", () => {
     var json = {
@@ -181,10 +181,10 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1", isRequired: true }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.validate(), "contentQuestion is required").toLooseEqual(false);
-    expect(q.errors.length, "There is one error").toLooseEqual(1);
+    expect(q.validate(), "contentQuestion is required").toBe(false);
+    expect(q.errors.length, "There is one error").toBe(1);
     q.contentQuestion.value = 1;
-    expect(q.validate(), "contentQuestion has value").toLooseEqual(true);
+    expect(q.validate(), "contentQuestion has value").toBe(true);
   });
   test("Composite: validate", () => {
     var json = {
@@ -200,9 +200,9 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
-    expect(q.validate(), "firstName is required").toLooseEqual(false);
+    expect(q.validate(), "firstName is required").toBe(false);
     firstName.value = "abc";
-    expect(q.validate(), "firstName has value").toLooseEqual(true);
+    expect(q.validate(), "firstName has value").toBe(true);
   });
   test("Composite: validate/errors/isRequired", () => {
     var json = {
@@ -218,9 +218,9 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
-    expect(q.validate(), "question is empty").toLooseEqual(false);
+    expect(q.validate(), "question is empty").toBe(false);
     firstName.value = "abc";
-    expect(q.validate(), "question is not empty").toLooseEqual(true);
+    expect(q.validate(), "question is not empty").toBe(true);
   });
 
   test("Composite: onPropertyChanged", () => {
@@ -248,11 +248,11 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var lastName = q.contentPanel.getQuestionByName("lastName");
-    expect(lastName.visible, "It is visible by default").toLooseEqual(true);
+    expect(lastName.visible, "It is visible by default").toBe(true);
     q.showLastName = false;
-    expect(lastName.visible, "showLastName is false").toLooseEqual(false);
+    expect(lastName.visible, "showLastName is false").toBe(false);
     q.showLastName = true;
-    expect(lastName.visible, "showLastName is true").toLooseEqual(true);
+    expect(lastName.visible, "showLastName is true").toBe(true);
   });
   test("Single: create from code", () => {
     var json = {
@@ -268,8 +268,8 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.contentQuestion.getType(), "content question created correctly").toLooseEqual("dropdown");
-    expect(q.contentQuestion.choices.length, "content question choices are here").toLooseEqual(5);
+    expect(q.contentQuestion.getType(), "content question created correctly").toBe("dropdown");
+    expect(q.contentQuestion.choices.length, "content question choices are here").toBe(5);
   });
   test("Composite: create from code", () => {
     var json = {
@@ -287,9 +287,9 @@ describe("custom questions", () => {
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
     var lastName = q.contentPanel.getQuestionByName("lastName");
-    expect(firstName.getType(), "first name is creted").toLooseEqual("text");
-    expect(lastName.getType(), "last name is creted").toLooseEqual("text");
-    expect(firstName.isRequired, "first name is required").toLooseEqual(true);
+    expect(firstName.getType(), "first name is creted").toBe("text");
+    expect(lastName.getType(), "last name is creted").toBe("text");
+    expect(firstName.isRequired, "first name is required").toBe(true);
   });
   test("Composite: content questions numbering", () => {
     var json = {
@@ -317,9 +317,9 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[1];
     var lastName = q.contentPanel.getQuestionByName("lastName");
-    expect(lastName.startWithNewLine, "onCreated function is called").toLooseEqual(false);
-    expect(lastName.visibleIndex, "second question").toLooseEqual(1);
-    expect(lastName.no, "second question, no is 'b.'").toLooseEqual("b.");
+    expect(lastName.startWithNewLine, "onCreated function is called").toBe(false);
+    expect(lastName.visibleIndex, "second question").toBe(1);
+    expect(lastName.no, "second question, no is 'b.'").toBe("b.");
   });
   test("Composite: content questions numbering, continues, Bug#10324", () => {
     var json = {
@@ -345,10 +345,10 @@ describe("custom questions", () => {
     const firstName = q.contentPanel.getQuestionByName("firstName");
     const lastName = q.contentPanel.getQuestionByName("lastName");
     const q3 = survey.getQuestionByName("q3");
-    expect(q.no, "q no is '2.'").toLooseEqual("2.");
-    expect(firstName.no, "first question, no is '3.'").toLooseEqual("3.");
-    expect(lastName.no, "second question, no is '4.'").toLooseEqual("4.");
-    expect(q3.no, "q3 no is '5.'").toLooseEqual("5.");
+    expect(q.no, "q no is '2.'").toBe("2.");
+    expect(firstName.no, "first question, no is '3.'").toBe("3.");
+    expect(lastName.no, "second question, no is '4.'").toBe("4.");
+    expect(q3.no, "q3 no is '5.'").toBe("5.");
   });
   test("Composite: content questions recursive numbering, Bug#10218", () => {
     ComponentCollection.Instance.add({
@@ -375,11 +375,11 @@ describe("custom questions", () => {
     const q = <QuestionCompositeModel>survey.getAllQuestions()[1];
     const firstName = q.contentPanel.getQuestionByName("firstName");
     const lastName = q.contentPanel.getQuestionByName("lastName");
-    expect(q.visibleIndex, "q visibleIndex").toLooseEqual(1);
-    expect(q.no, "q no is '2.'").toLooseEqual("2.");
-    expect(q.contentPanel.no, "q contentPanel no is '2.'").toLooseEqual("2.");
-    expect(firstName.no, "first question, no is '2a.'").toLooseEqual("2.a.");
-    expect(lastName.no, "second question, no is '2b.'").toLooseEqual("2.b.");
+    expect(q.visibleIndex, "q visibleIndex").toBe(1);
+    expect(q.no, "q no is '2.'").toBe("2.");
+    expect(q.contentPanel.no, "q contentPanel no is '2.'").toBe("2.");
+    expect(firstName.no, "first question, no is '2a.'").toBe("2.a.");
+    expect(lastName.no, "second question, no is '2b.'").toBe("2.b.");
   });
   test("Composite: content questions recursive numbering at design-time, Bug#10389 & Bug#10418", () => {
     ComponentCollection.Instance.add({
@@ -409,12 +409,12 @@ describe("custom questions", () => {
     const firstName = q.contentPanel.getQuestionByName("firstName");
     const lastName = q.contentPanel.getQuestionByName("lastName");
     const q3 = survey.getQuestionByName("q3");
-    expect(q.visibleIndex, "q visibleIndex").toLooseEqual(1);
-    expect(q.no, "q no is '2.'").toLooseEqual("2.");
-    expect(q.contentPanel.no, "q contentPanel no is '2.'").toLooseEqual("2.");
-    expect(firstName.no, "first question, no is '2a.'").toLooseEqual("2.a");
-    expect(lastName.no, "second question, no is '2b.'").toLooseEqual("2.b");
-    expect(q3.no, "q3 no is '3.'").toLooseEqual("3.");
+    expect(q.visibleIndex, "q visibleIndex").toBe(1);
+    expect(q.no, "q no is '2.'").toBe("2.");
+    expect(q.contentPanel.no, "q contentPanel no is '2.'").toBe("2.");
+    expect(firstName.no, "first question, no is '2a.'").toBe("2.a");
+    expect(lastName.no, "second question, no is '2b.'").toBe("2.b");
+    expect(q3.no, "q3 no is '3.'").toBe("3.");
   });
   test("Composite: content questions recursive numbering in run-time, Bug#10389 & Bug#10418", () => {
     ComponentCollection.Instance.add({
@@ -442,12 +442,12 @@ describe("custom questions", () => {
     const firstName = q.contentPanel.getQuestionByName("firstName");
     const lastName = q.contentPanel.getQuestionByName("lastName");
     const q3 = survey.getQuestionByName("q3");
-    expect(q.visibleIndex, "q visibleIndex").toLooseEqual(1);
-    expect(q.no, "q no is '2.'").toLooseEqual("2.");
-    expect(q.contentPanel.no, "q contentPanel no is '2.'").toLooseEqual("2.");
-    expect(firstName.no, "first question, no is '2a.'").toLooseEqual("2.a.");
-    expect(lastName.no, "second question, no is '2b.'").toLooseEqual("2.b.");
-    expect(q3.no, "q3 no is '3.'").toLooseEqual("3.");
+    expect(q.visibleIndex, "q visibleIndex").toBe(1);
+    expect(q.no, "q no is '2.'").toBe("2.");
+    expect(q.contentPanel.no, "q contentPanel no is '2.'").toBe("2.");
+    expect(firstName.no, "first question, no is '2a.'").toBe("2.a.");
+    expect(lastName.no, "second question, no is '2b.'").toBe("2.b.");
+    expect(q3.no, "q3 no is '3.'").toBe("3.");
   });
   test("Custom, get css from contentQuestion", () => {
     var survey = new SurveyModel();
@@ -469,20 +469,20 @@ describe("custom questions", () => {
     });
     var q1 = survey.getQuestionByName("q1");
     var defaultQuestionRoot = survey.css.question.mainRoot;
-    expect(q1.cssRoot, "Default question root, take small from dropdown").toLooseEqual(defaultQuestionRoot + " small");
-    expect(q1.cssTitle, "Default question title").toLooseEqual("title");
+    expect(q1.cssRoot, "Default question root, take small from dropdown").toBe(defaultQuestionRoot + " small");
+    expect(q1.cssTitle, "Default question title").toBe("title");
     q1.titleLocation = "left";
     var addLeft = " " + survey.css.question.titleLeftRoot;
-    expect(q1.cssRoot, "titleLocation = left, take small from dropdown").toLooseEqual(defaultQuestionRoot + addLeft + " small");
+    expect(q1.cssRoot, "titleLocation = left, take small from dropdown").toBe(defaultQuestionRoot + addLeft + " small");
     q1.titleLocation = "default";
     q1.value = 1;
-    expect(q1.isEmpty(), "q1 is not empty").toLooseEqual(false);
-    expect(q1.cssTitle, "q1 is not empty, show in title").toLooseEqual("title onAnswer");
+    expect(q1.isEmpty(), "q1 is not empty").toBe(false);
+    expect(q1.cssTitle, "q1 is not empty, show in title").toBe("title onAnswer");
     q1.clearValue();
-    expect(q1.isEmpty(), "q1 is empty").toLooseEqual(true);
-    expect(q1.cssTitle).toLooseEqual("title");
+    expect(q1.isEmpty(), "q1 is empty").toBe(true);
+    expect(q1.cssTitle).toBe("title");
     q1.contentQuestion.value = 1;
-    expect(q1.cssTitle, "q1 is not empty, show in title, via contentQuestion").toLooseEqual("title onAnswer");
+    expect(q1.cssTitle, "q1 is not empty, show in title, via contentQuestion").toBe("title onAnswer");
   });
   test("Composite, update panel css", () => {
     var survey = new SurveyModel();
@@ -508,18 +508,18 @@ describe("custom questions", () => {
       elements: [{ type: "customerinfo", name: "q1" }],
     });
     var q1 = survey.getQuestionByName("q1");
-    expect(q1.cssRoot, "apply style from customer info").toLooseEqual("customercss small");
+    expect(q1.cssRoot, "apply style from customer info").toBe("customercss small");
     var lastName = q1.contentPanel.getQuestionByName("lastName");
     var defaultQuestionRoot = survey.css.question.mainRoot;
-    expect(lastName.cssRoot, "Update content question css").toLooseEqual(defaultQuestionRoot + " small");
+    expect(lastName.cssRoot, "Update content question css").toBe(defaultQuestionRoot + " small");
     lastName.value = "val";
-    expect(q1.isEmpty(), "q1 is not empty").toLooseEqual(false);
-    expect(q1.cssTitle, "q1 is not empty, show in title").toLooseEqual("title onAnswer");
+    expect(q1.isEmpty(), "q1 is not empty").toBe(false);
+    expect(q1.cssTitle, "q1 is not empty, show in title").toBe("title onAnswer");
     lastName.clearValue();
-    expect(q1.isEmpty(), "q1 is empty").toLooseEqual(true);
-    expect(q1.cssTitle, "q1 is clear").toLooseEqual("title");
+    expect(q1.isEmpty(), "q1 is empty").toBe(true);
+    expect(q1.cssTitle, "q1 is clear").toBe("title");
     q1.value = { lastName: "val" };
-    expect(q1.cssTitle, "q1 is not empty, show in title, via lastName").toLooseEqual("title onAnswer");
+    expect(q1.cssTitle, "q1 is not empty, show in title, via lastName").toBe("title onAnswer");
   });
   test("Single: defaultValue", () => {
     var json = {
@@ -535,8 +535,8 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1", isRequired: true }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.value, "defaultValue is set").toLooseEqual(2);
-    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion").toLooseEqual(2);
+    expect(q.value, "defaultValue is set").toBe(2);
+    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion").toBe(2);
     expect(survey.data, "set data into survey").toEqualValues({ q1: 2 });
   });
   test("Single: defaultValue + valueName", () => {
@@ -553,8 +553,8 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1", isRequired: true, valueName: "QQQ1" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.value, "defaultValue is set").toLooseEqual(2);
-    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion").toLooseEqual(2);
+    expect(q.value, "defaultValue is set").toBe(2);
+    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion").toBe(2);
     expect(survey.data, "set data into survey").toEqualValues({ QQQ1: 2 });
   });
   test("Composite: defaultValue", () => {
@@ -571,7 +571,7 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
-    expect(firstName.value, "firstName defaultValue").toLooseEqual("Jon");
+    expect(firstName.value, "firstName defaultValue").toBe("Jon");
     expect(q.value, "question defaultValue").toEqualValues({ firstName: "Jon" });
     expect(survey.data, "survey.data").toEqualValues({ q1: { firstName: "Jon" } });
   });
@@ -590,7 +590,7 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
-    expect(firstName.value, "firstName defaultValue").toLooseEqual("Jon");
+    expect(firstName.value, "firstName defaultValue").toBe("Jon");
     expect(q.value, "question defaultValue").toEqualValues({ firstName: "Jon", lastName: "Snow" });
   });
 
@@ -692,19 +692,19 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1", defaultValueExpression: "2" }, { type: "text", name: "q2" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.value, "defaultValue is set").toLooseEqual(2);
-    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion").toLooseEqual(2);
+    expect(q.value, "defaultValue is set").toBe(2);
+    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion").toBe(2);
     q.contentQuestion.value = 3;
-    expect(q.value, "defaultValue is set, #2").toLooseEqual(3);
-    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion, #2").toLooseEqual(3);
+    expect(q.value, "defaultValue is set, #2").toBe(3);
+    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion, #2").toBe(3);
     survey.setValue("q2", 4);
-    expect(q.value, "defaultValue is set, #3").toLooseEqual(3);
-    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion, #3").toLooseEqual(3);
+    expect(q.value, "defaultValue is set, #3").toBe(3);
+    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion, #3").toBe(3);
     expect(survey.data, "set data into survey").toEqualValues({ q1: 3, q2: 4 });
     q.clearValue();
     survey.setValue("q2", 5);
-    expect(q.value, "defaultValue is set, #4").toLooseEqual(2);
-    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion, #4").toLooseEqual(2);
+    expect(q.value, "defaultValue is set, #4").toBe(2);
+    expect(q.contentQuestion.value, "defaultValue is set for contentQuestion, #4").toBe(2);
     expect(survey.data, "set data into survey, #2").toEqualValues({ q1: 2, q2: 5 });
   });
   test("Single: defaultValueExpession & operations, bug#7280", () => {
@@ -726,22 +726,22 @@ describe("custom questions", () => {
     const q3 = <QuestionCustomModel>survey.getQuestionByName("q3");
     q1.contentQuestion.value = 1;
     q2.contentQuestion.value = 2;
-    expect(q3.contentQuestion.value, "q3.contentQuestion.value").toLooseEqual(3);
-    expect(q3.value, "q3.value").toLooseEqual(3);
+    expect(q3.contentQuestion.value, "q3.contentQuestion.value").toBe(3);
+    expect(q3.value, "q3.value").toBe(3);
     expect(survey.data, "Survey data").toEqualValues({ q1: 1, q2: 2, q3: 3 });
     q1.value = 3;
     q2.value = 4;
-    expect(q3.contentQuestion.value, "q3.contentQuestion.value, #2").toLooseEqual(7);
-    expect(q3.value, "q3.value, #2").toLooseEqual(7);
+    expect(q3.contentQuestion.value, "q3.contentQuestion.value, #2").toBe(7);
+    expect(q3.value, "q3.value, #2").toBe(7);
     expect(survey.data, "Survey data, #2").toEqualValues({ q1: 3, q2: 4, q3: 7 });
     q3.contentQuestion.value = 9;
-    expect(q3.contentQuestion.value, "q3.contentQuestion.value, #3").toLooseEqual(9);
-    expect(q3.value, "q3.value, #3").toLooseEqual(9);
+    expect(q3.contentQuestion.value, "q3.contentQuestion.value, #3").toBe(9);
+    expect(q3.value, "q3.value, #3").toBe(9);
     expect(survey.data, "Survey data, #3").toEqualValues({ q1: 3, q2: 4, q3: 9 });
     q1.value = 5;
     q2.value = 7;
-    expect(q3.contentQuestion.value, "q3.contentQuestion.value, #4").toLooseEqual(9);
-    expect(q3.value, "q3.value, #4").toLooseEqual(9);
+    expect(q3.contentQuestion.value, "q3.contentQuestion.value, #4").toBe(9);
+    expect(q3.value, "q3.value, #4").toBe(9);
     expect(survey.data, "Survey data, #4").toEqualValues({ q1: 5, q2: 7, q3: 9 });
   });
   test("Single: matrixdropdown expressions", () => {
@@ -789,9 +789,9 @@ describe("custom questions", () => {
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var firstName = q.contentPanel.getQuestionByName("firstName");
     var lastName = q.contentPanel.getQuestionByName("lastName");
-    expect(lastName.isVisible, "lastName is hidden by default").toLooseEqual(false);
+    expect(lastName.isVisible, "lastName is hidden by default").toBe(false);
     firstName.value = "Jon";
-    expect(lastName.isVisible, "lastName is showing now").toLooseEqual(true);
+    expect(lastName.isVisible, "lastName is showing now").toBe(true);
   });
   test("Composite: expression, visibleIf without {composite} prefix, Bug#10257", () => {
     var json = {
@@ -812,17 +812,17 @@ describe("custom questions", () => {
     var q = <QuestionCompositeModel>survey.getAllQuestions()[1];
     var firstName = q.contentPanel.getQuestionByName("firstName");
     var lastName = q.contentPanel.getQuestionByName("lastName");
-    expect(lastName.isVisible, "lastName is hidden by default").toLooseEqual(false);
+    expect(lastName.isVisible, "lastName is hidden by default").toBe(false);
     firstName.value = "Jon";
-    expect(lastName.isVisible, "lastName is showing now").toLooseEqual(true);
-    expect(q.isVisible, "Composite question visibilty, #1").toLooseEqual(false);
+    expect(lastName.isVisible, "lastName is showing now").toBe(true);
+    expect(q.isVisible, "Composite question visibilty, #1").toBe(false);
     survey.setValue("firstName", "Jon");
-    expect(q.isVisible, "Composite question visibilty, #2").toLooseEqual(true);
+    expect(q.isVisible, "Composite question visibilty, #2").toBe(true);
     firstName.value = "Not Jon";
-    expect(lastName.isVisible, "lastName is not showing now").toLooseEqual(false);
-    expect(q.isVisible, "Composite question visibilty, #3").toLooseEqual(true);
+    expect(lastName.isVisible, "lastName is not showing now").toBe(false);
+    expect(q.isVisible, "Composite question visibilty, #3").toBe(true);
     survey.setValue("firstName", "Not Jon");
-    expect(q.isVisible, "Composite question visibilty, #4").toLooseEqual(false);
+    expect(q.isVisible, "Composite question visibilty, #4").toBe(false);
   });
   test("Composite: remove invisible values", () => {
     var json = {
@@ -845,7 +845,7 @@ describe("custom questions", () => {
     var lastName = q.contentPanel.getQuestionByName("lastName");
     firstName.value = "first";
     lastName.value = "last";
-    expect(lastName.value, "value set correctly").toLooseEqual("last");
+    expect(lastName.value, "value set correctly").toBe("last");
     firstName.value = "Jon";
     survey.tryComplete();
     expect(survey.data, "remove lastName").toEqualValues({ q1: { firstName: "Jon" } });
@@ -946,7 +946,7 @@ describe("custom questions", () => {
       Salmon: { price: 22, total: 0 },
     };
     var matrix = <QuestionMatrixDropdownModel>q.contentQuestion;
-    expect(matrix.rows.length, "There are two rows").toLooseEqual(2);
+    expect(matrix.rows.length, "There are two rows").toBe(2);
     expect(matrix.defaultValue, "Default value set correctly").toEqualValues({ Steak: { price: 25 }, Salmon: { price: 22 } });
     Serializer.removeClass("itemorder");
   });
@@ -1001,12 +1001,12 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var middleName = q.contentPanel.getQuestionByName("middleName");
-    expect(middleName.isVisible, "It is invisible by default").toLooseEqual(false);
-    expect(middleName.areInvisibleElementsShowing, "All invisible content elements are stay invisible").toLooseEqual(false);
+    expect(middleName.isVisible, "It is invisible by default").toBe(false);
+    expect(middleName.areInvisibleElementsShowing, "All invisible content elements are stay invisible").toBe(false);
     q.showMiddleName = true;
-    expect(middleName.isVisible, "showMiddleName is true").toLooseEqual(true);
+    expect(middleName.isVisible, "showMiddleName is true").toBe(true);
     q.showMiddleName = false;
-    expect(middleName.isVisible, "showMiddleName is false").toLooseEqual(false);
+    expect(middleName.isVisible, "showMiddleName is false").toBe(false);
   });
   test("Complex: hide content question in designMode inside dynamic panel, Bug#10421", () => {
     ComponentCollection.Instance.add(<any>{
@@ -1045,10 +1045,10 @@ describe("custom questions", () => {
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const panel = <QuestionPanelDynamicModel>q.contentPanel.getQuestionByName("panel");
     const middleName = panel.template.getQuestionByName("middleName");
-    expect(middleName.isVisible, "It is invisible by default").toLooseEqual(false);
-    expect(middleName.areInvisibleElementsShowing, "All invisible content elements are stay invisible").toLooseEqual(false);
-    expect(middleName.parentQuestion?.name, "The parent question is correct").toLooseEqual("panel");
-    expect(panel.areInvisibleElementsShowing, "All invisible content elements are stay invisible, #2").toLooseEqual(false);
+    expect(middleName.isVisible, "It is invisible by default").toBe(false);
+    expect(middleName.areInvisibleElementsShowing, "All invisible content elements are stay invisible").toBe(false);
+    expect(middleName.parentQuestion?.name, "The parent question is correct").toBe("panel");
+    expect(panel.areInvisibleElementsShowing, "All invisible content elements are stay invisible, #2").toBe(false);
   });
   test("Single: onAfterRender and onAfterRenderContentElement", () => {
     var afterRenderQuestion = null;
@@ -1079,12 +1079,12 @@ describe("custom questions", () => {
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
     const el: HTMLElement = <any>({ a: 5, querySelector: () => {} });
     q.afterRender(el);
-    expect(afterRenderQuestion.name, "onAfterRender, question parameter is correct").toLooseEqual("q1");
-    expect((<any>afterRenderHtmlElement).a, "onAfterRender, htmlElement parameter is correct").toLooseEqual(5);
+    expect(afterRenderQuestion.name, "onAfterRender, question parameter is correct").toBe("q1");
+    expect((<any>afterRenderHtmlElement).a, "onAfterRender, htmlElement parameter is correct").toBe(5);
     q.contentQuestion.afterRender({ b: 7, querySelector: () => {} } as any);
-    expect(afterRenderContentElementQuestion.name, "afterRenderContentElement, question parameter is correct").toLooseEqual("q1");
-    expect(afterRenderContentElement.getType(), "afterRenderContentElement, element parameter is correct").toLooseEqual("dropdown");
-    expect((afterRenderContentElementHtml as any).b, "afterRenderContentElement, htmlElement parameter is correct").toLooseEqual(7);
+    expect(afterRenderContentElementQuestion.name, "afterRenderContentElement, question parameter is correct").toBe("q1");
+    expect(afterRenderContentElement.getType(), "afterRenderContentElement, element parameter is correct").toBe("dropdown");
+    expect((afterRenderContentElementHtml as any).b, "afterRenderContentElement, htmlElement parameter is correct").toBe(7);
   });
 
   test("Composite: onAfterRender and onAfterRenderContentElement", () => {
@@ -1122,12 +1122,12 @@ describe("custom questions", () => {
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const el: HTMLElement = <any>({ a: 5 });
     q.afterRender(el);
-    expect(afterRenderQuestion.name, "onAfterRender, question parameter is correct").toLooseEqual("q1");
-    expect((<any>afterRenderHtmlElement).a, "onAfterRender, htmlElement parameter is correct").toLooseEqual(5);
+    expect(afterRenderQuestion.name, "onAfterRender, question parameter is correct").toBe("q1");
+    expect((<any>afterRenderHtmlElement).a, "onAfterRender, htmlElement parameter is correct").toBe(5);
     (<Question>q.contentPanel.elements[0]).afterRender(<any>7);
-    expect(afterRenderContentElementQuestion.name, "afterRenderContentElement, question parameter is correct").toLooseEqual("q1");
-    expect(afterRenderContentElement.name, "afterRenderContentElement, element parameter is correct").toLooseEqual("firstName");
-    expect(afterRenderContentElementHtml, "afterRenderContentElement, htmlElement parameter is correct").toLooseEqual(7);
+    expect(afterRenderContentElementQuestion.name, "afterRenderContentElement, question parameter is correct").toBe("q1");
+    expect(afterRenderContentElement.name, "afterRenderContentElement, element parameter is correct").toBe("firstName");
+    expect(afterRenderContentElementHtml, "afterRenderContentElement, htmlElement parameter is correct").toBe(7);
   });
   test("Composite: update url, {composite} prefix", () => {
     var json = {
@@ -1155,7 +1155,7 @@ describe("custom questions", () => {
       processedUrl = url;
     };
     name.value = "newValue";
-    expect(processedUrl, "Url proccessed correctly").toLooseEqual("an_url/newValue");
+    expect(processedUrl, "Url proccessed correctly").toBe("an_url/newValue");
   });
   test("Composite: update url, {composite} prefix on loaded", () => {
     var processedUrl = "";
@@ -1184,7 +1184,7 @@ describe("custom questions", () => {
     var survey = new SurveyModel({
       elements: [{ type: "urltest", name: "q1", isRequired: true }],
     });
-    expect(processedUrl, "Url proccessed correctly on load").toLooseEqual("an_url/newValue");
+    expect(processedUrl, "Url proccessed correctly on load").toBe("an_url/newValue");
   });
   test("Composite: onValueChanged function", () => {
     var json = {
@@ -1209,7 +1209,7 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     q.contentPanel.getQuestionByName("q2").value = "A";
-    expect(q.contentPanel.getQuestionByName("q1").value, "onValueChanged works").toLooseEqual("AA");
+    expect(q.contentPanel.getQuestionByName("q1").value, "onValueChanged works").toBe("AA");
   });
   test("Single: onValueChanged function, value is array", () => {
     var json = {
@@ -1232,11 +1232,11 @@ describe("custom questions", () => {
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
     q.value = ["A", "B"];
-    expect(q.contentQuestion.html, "onValueChanged works #1").toLooseEqual("AB");
+    expect(q.contentQuestion.html, "onValueChanged works #1").toBe("AB");
     q.value = ["A", "B", "C"];
-    expect(q.contentQuestion.html, "onValueChanged works #2").toLooseEqual("ABC");
+    expect(q.contentQuestion.html, "onValueChanged works #2").toBe("ABC");
     q.value = undefined;
-    expect(q.contentQuestion.html, "onValueChanged works #3").toLooseEqual("");
+    expect(q.contentQuestion.html, "onValueChanged works #3").toBe("");
   });
   test("Composite: onValueChanging function", () => {
     var json = {
@@ -1262,7 +1262,7 @@ describe("custom questions", () => {
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     q.contentPanel.getQuestionByName("q2").value = 1;
-    expect(q.contentPanel.getQuestionByName("q2").value, "onValueChanging works").toLooseEqual(2);
+    expect(q.contentPanel.getQuestionByName("q2").value, "onValueChanging works").toBe(2);
     expect(q.value, "onValueChanging works, composite value").toEqualValues({ q2: 2 });
   });
   test("Composite: onMatrixCellValueChanging function", () => {
@@ -1293,7 +1293,7 @@ describe("custom questions", () => {
     const matrix = q.contentPanel.getQuestionByName("q2");
     const rows = matrix.visibleRows;
     rows[0].cells[0].question.value = 1;
-    expect(rows[0].cells[0].question.value, "change value in matrix cell").toLooseEqual(2);
+    expect(rows[0].cells[0].question.value, "change value in matrix cell").toBe(2);
     expect(q.value, "onValueChanging works, composite value").toEqualValues({ q2: [{ col1: 2 }] });
     expect(survey.data, "survey.data has correct values").toEqualValues({ q1: { q2: [{ col1: 2 }] } });
   });
@@ -1316,8 +1316,8 @@ describe("custom questions", () => {
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
     q.value = 1;
-    expect(q.contentQuestion.value, "onValueChanged works #1").toLooseEqual(2);
-    expect(q.value, "onValueChanged works #2").toLooseEqual(2);
+    expect(q.contentQuestion.value, "onValueChanged works #1").toBe(2);
+    expect(q.value, "onValueChanged works #2").toBe(2);
   });
   test("Composite: checkErrorsMode=onValueChanging", () => {
     var json = {
@@ -1339,12 +1339,12 @@ describe("custom questions", () => {
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     var q1 = q.contentPanel.getQuestionByName("q1");
     q1.value = "a";
-    expect(q1.value, "keep the value").toLooseEqual("a");
-    expect(q1.errors.length, "question has error").toLooseEqual(1);
+    expect(q1.value, "keep the value").toBe("a");
+    expect(q1.errors.length, "question has error").toBe(1);
     expect(q.value, "keep the value in composite question").toEqualValues({ q1: "a" });
     expect(survey.data, "survey data is empty").toEqualValues({});
     q1.value = "a@a.com";
-    expect(q1.errors.length, "question has no errors").toLooseEqual(0);
+    expect(q1.errors.length, "question has no errors").toBe(0);
     expect(survey.data, "survey data is empty").toEqualValues({ q1: { q1: "a@a.com" } });
   });
   test("Composite: set value from survey.data", () => {
@@ -1365,8 +1365,8 @@ describe("custom questions", () => {
     });
     survey.data = { q1: { q1: "BB", q2: "B" } };
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("q1").value, "set value into the first question in composite").toLooseEqual("BB");
-    expect(q.contentPanel.getQuestionByName("q2").value, "set value into the second question in composite").toLooseEqual("B");
+    expect(q.contentPanel.getQuestionByName("q1").value, "set value into the first question in composite").toBe("BB");
+    expect(q.contentPanel.getQuestionByName("q2").value, "set value into the second question in composite").toBe("B");
   });
   test("Use components in dynamic panel", () => {
     ComponentCollection.Instance.add({
@@ -1458,9 +1458,9 @@ describe("custom questions", () => {
     });
     const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const questions = q.getNestedQuestions();
-    expect(questions.length, "#1").toLooseEqual(2);
-    expect(questions[0].name, "#2").toLooseEqual("q1");
-    expect(questions[1].name, "#3").toLooseEqual("q2");
+    expect(questions.length, "#1").toBe(2);
+    expect(questions[0].name, "#2").toBe("q1");
+    expect(questions[1].name, "#3").toBe("q2");
   });
   test("Composite: visibleIf and showPreview, Bug#2674", () => {
     ComponentCollection.Instance.add(<any>{
@@ -1485,16 +1485,16 @@ describe("custom questions", () => {
       elements: [{ type: "fullname", name: "name" }],
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is invisible").toLooseEqual(false);
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is invisible").toBe(false);
     q.contentPanel.getQuestionByName("firstName").value = "Jon";
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is visible").toLooseEqual(true);
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is visible").toBe(true);
     q.contentPanel.getQuestionByName("lastName").value = "Snow";
     survey.showPreview();
     q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is still visible").toLooseEqual(true);
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is still visible").toBe(true);
     survey.cancelPreview();
     q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is still visible").toLooseEqual(true);
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is still visible").toBe(true);
   });
   test("Composite: visibleIf and showPreview and clearInvisibleValues = 'onHiddenContainer', Bug#2718", () => {
     ComponentCollection.Instance.add(<any>{
@@ -1520,18 +1520,18 @@ describe("custom questions", () => {
       elements: [{ type: "fullname", name: "name" }],
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is invisible").toLooseEqual(false);
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is invisible").toBe(false);
     q.contentPanel.getQuestionByName("firstName").value = "Jon";
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is visible").toLooseEqual(true);
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is visible").toBe(true);
     q.contentPanel.getQuestionByName("lastName").value = "Snow";
     survey.showPreview();
     q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is still visible").toLooseEqual(true);
-    expect(q.contentPanel.getQuestionByName("lastName").value, "The value is still the same").toLooseEqual("Snow");
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is still visible").toBe(true);
+    expect(q.contentPanel.getQuestionByName("lastName").value, "The value is still the same").toBe("Snow");
     survey.cancelPreview();
     q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is visible after canceling Preview").toLooseEqual(true);
-    expect(q.contentPanel.getQuestionByName("lastName").value, "The value is still the same after canceling Preview").toLooseEqual("Snow");
+    expect(q.contentPanel.getQuestionByName("lastName").isVisible, "The second question is visible after canceling Preview").toBe(true);
+    expect(q.contentPanel.getQuestionByName("lastName").value, "The value is still the same after canceling Preview").toBe("Snow");
 
   });
 
@@ -1553,7 +1553,7 @@ describe("custom questions", () => {
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
     q.value = [1, 3];
-    expect(q.displayValue).toLooseEqual("text 1, text 3");
+    expect(q.displayValue).toBe("text 1, text 3");
   });
   test("Composite: displayValue function, Bug#2678", () => {
     ComponentCollection.Instance.add({
@@ -1612,10 +1612,10 @@ describe("custom questions", () => {
     });
     var matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
     var rows = matrix.visibleRows;
-    expect(rows[0].cells[0].question.getType(), "cell question has correct type").toLooseEqual("newquestion");
+    expect(rows[0].cells[0].question.getType(), "cell question has correct type").toBe("newquestion");
     rows[0].cells[0].question.contentQuestion.value = "b";
-    expect(rows[0].cells[0].question.value, "set value into cell question").toLooseEqual("b");
-    expect(rows[0].cells[0].value, "set value into cell").toLooseEqual("b");
+    expect(rows[0].cells[0].question.value, "set value into cell question").toBe("b");
+    expect(rows[0].cells[0].value, "set value into cell").toBe("b");
     expect(matrix.value, "set value into matrix").toEqualValues([{ col1: "b" }]);
   });
   test("Single: change locale, Bug#2730", () => {
@@ -1637,14 +1637,14 @@ describe("custom questions", () => {
     survey.currentPageNo = 0;
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
     var locText = <LocalizableString>q.contentQuestion.choices[0].locText;
-    expect(locText.renderedHtml, "en locale").toLooseEqual("item en");
+    expect(locText.renderedHtml, "en locale").toBe("item en");
     var hasChanged = false;
     locText.onChanged = () => {
       hasChanged = true;
     };
     survey.locale = "de";
-    expect(hasChanged, "Call notification about changing locale").toLooseEqual(true);
-    expect(locText.renderedHtml, "de locale").toLooseEqual("item de");
+    expect(hasChanged, "Call notification about changing locale").toBe(true);
+    expect(locText.renderedHtml, "de locale").toBe("item de");
     survey.locale = "";
   });
   test("Composite: change locale, Bug#2730", () => {
@@ -1666,14 +1666,14 @@ describe("custom questions", () => {
     var dropdown = <QuestionDropdownModel>q.contentPanel.questions[0];
     expect(dropdown, "Question is here").toBeTruthy();
     var locText = <LocalizableString>dropdown.choices[0].locText;
-    expect(locText.renderedHtml, "en locale").toLooseEqual("item en");
+    expect(locText.renderedHtml, "en locale").toBe("item en");
     var hasChanged = false;
     locText.onChanged = () => {
       hasChanged = true;
     };
     survey.locale = "de";
-    expect(hasChanged, "Call notification about changing locale").toLooseEqual(true);
-    expect(locText.renderedHtml, "de locale").toLooseEqual("item de");
+    expect(hasChanged, "Call notification about changing locale").toBe(true);
+    expect(locText.renderedHtml, "de locale").toBe("item de");
     survey.locale = "";
   });
   test("getUsedLocale, Bug#7510", () => {
@@ -1731,7 +1731,7 @@ describe("custom questions", () => {
     const value = { "firstName": "First", "lastName": "Last" };
     q.value = value;
     expect(q.value, "Value should be assigned").toEqualValues(value);
-    expect(q.displayValue, "Obtain passed getDisplayValue function result").toLooseEqual("First Last");
+    expect(q.displayValue, "Obtain passed getDisplayValue function result").toBe("First Last");
   });
   test("Complex: panel dynamic should duplicate rows in designMode", () => {
     ComponentCollection.Instance.add({
@@ -1763,8 +1763,8 @@ describe("custom questions", () => {
     panel.panels[0].getQuestionByName("q1").value = "val";
     expect(q.value, "Set value correctly").toEqualValues({ panel: [{ q1: "val" }] });
     q.defaultValue = { panel: [{ q1: "val1" }, { q2: "val2" }] };
-    expect(panel.panelCount, "We have two panels in default value").toLooseEqual(2);
-    expect(panel.panels.length, "We have two panels").toLooseEqual(2);
+    expect(panel.panelCount, "We have two panels in default value").toBe(2);
+    expect(panel.panels.length, "We have two panels").toBe(2);
   });
   test("Check updateElementCss for custom question", () => {
     var json = {
@@ -1803,13 +1803,13 @@ describe("custom questions", () => {
     });
     const question = <QuestionCustomModel>survey.getAllQuestions()[0];
     question.contentQuestion.value = "a";
-    expect(question.value, "component value is changed").toLooseEqual("a");
-    expect(counterChanging, "counterChanging = 1").toLooseEqual(1);
-    expect(counterChanged, "counterChanged = 1").toLooseEqual(1);
+    expect(question.value, "component value is changed").toBe("a");
+    expect(counterChanging, "counterChanging = 1").toBe(1);
+    expect(counterChanged, "counterChanged = 1").toBe(1);
     question.value = "b";
-    expect(question.contentQuestion.value, "contentQuestion value is changed").toLooseEqual("b");
-    expect(counterChanging, "counterChanging = 2").toLooseEqual(2);
-    expect(counterChanged, "counterChanged = 2").toLooseEqual(2);
+    expect(question.contentQuestion.value, "contentQuestion value is changed").toBe("b");
+    expect(counterChanging, "counterChanging = 2").toBe(2);
+    expect(counterChanged, "counterChanged = 2").toBe(2);
   });
   test("Single: survey.questionsOnPageMode = `singlePage`", () => {
     const json = {
@@ -1823,10 +1823,10 @@ describe("custom questions", () => {
     survey.data = { q1: 3 };
     survey.questionsOnPageMode = "singlePage";
     const q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.getType(), "type is correct").toLooseEqual("newquestion");
-    expect(q.name, "name is correct").toLooseEqual("q1");
-    expect(q.value, "value is correct").toLooseEqual(3);
-    expect(q.contentQuestion.value, "content question value is correct").toLooseEqual(3);
+    expect(q.getType(), "type is correct").toBe("newquestion");
+    expect(q.name, "name is correct").toBe("q1");
+    expect(q.value, "value is correct").toBe(3);
+    expect(q.contentQuestion.value, "content question value is correct").toBe(3);
   });
   test("Composite: in matrices cells", () => {
     var json = {
@@ -1850,8 +1850,8 @@ describe("custom questions", () => {
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     let row = matrix.visibleRows[0];
     let q = row.cells[0].question;
-    expect(q.getType(), "The correct type is created").toLooseEqual("customerinfo");
-    expect(q.contentPanel.elements.length, "There are two elements in panel").toLooseEqual(2);
+    expect(q.getType(), "The correct type is created").toBe("customerinfo");
+    expect(q.contentPanel.elements.length, "There are two elements in panel").toBe(2);
     q.contentPanel.getQuestionByName("firstName").value = "Jon";
     q.contentPanel.getQuestionByName("lastName").value = "Snow";
     expect(q.value, "Set value to composite question correctly").toEqualValues({ firstName: "Jon", lastName: "Snow" });
@@ -1865,12 +1865,12 @@ describe("custom questions", () => {
 
     row = matrix.visibleRows[0];
     q = row.cells[0].question;
-    expect(q.contentPanel.getQuestionByName("firstName").value, "row 0, firstName").toLooseEqual("Jaime");
-    expect(q.contentPanel.getQuestionByName("lastName").value, "row 0, lastname").toLooseEqual("Lannister");
+    expect(q.contentPanel.getQuestionByName("firstName").value, "row 0, firstName").toBe("Jaime");
+    expect(q.contentPanel.getQuestionByName("lastName").value, "row 0, lastname").toBe("Lannister");
     row = matrix.visibleRows[1];
     q = row.cells[0].question;
-    expect(q.contentPanel.getQuestionByName("firstName").value, "row 1, firstName").toLooseEqual("Jon");
-    expect(q.contentPanel.getQuestionByName("lastName").value, "row 1, lastname").toLooseEqual("Snow");
+    expect(q.contentPanel.getQuestionByName("firstName").value, "row 1, firstName").toBe("Jon");
+    expect(q.contentPanel.getQuestionByName("lastName").value, "row 1, lastname").toBe("Snow");
   });
 
   test("Single: isContentElement property", () => {
@@ -1883,13 +1883,13 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.isContentElement, "Design is available for root").toLooseEqual(false);
-    expect(q.contentQuestion.isContentElement, "Design is disabled for contentQuestion").toLooseEqual(true);
+    expect(q.isContentElement, "Design is available for root").toBe(false);
+    expect(q.contentQuestion.isContentElement, "Design is disabled for contentQuestion").toBe(true);
 
     const page2 = survey.addNewPage("newPage2");
     const q2 = page2.addNewQuestion("newquestion", "q2");
-    expect(q2.isContentElement, "Design is available for root q2").toLooseEqual(false);
-    expect(q2.contentQuestion.isContentElement, "Design is disabled for contentQuestion q2").toLooseEqual(true);
+    expect(q2.isContentElement, "Design is available for root q2").toBe(false);
+    expect(q2.contentQuestion.isContentElement, "Design is disabled for contentQuestion q2").toBe(true);
 
   });
 
@@ -2015,12 +2015,12 @@ describe("custom questions", () => {
     const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const q1 = q.contentPanel.getQuestionByName("q1");
     const q2 = q.contentPanel.getQuestionByName("q2");
-    expect(q2.choicesFromQuestion, "choicesFromQuestion is loaded").toLooseEqual("q1");
-    expect(q2.choicesFromQuestionMode, "choicesFromQuestionMode is loaded").toLooseEqual("selected");
-    expect(q2.visibleChoices.length, "There is no visible choices").toLooseEqual(0);
+    expect(q2.choicesFromQuestion, "choicesFromQuestion is loaded").toBe("q1");
+    expect(q2.choicesFromQuestionMode, "choicesFromQuestionMode is loaded").toBe("selected");
+    expect(q2.visibleChoices.length, "There is no visible choices").toBe(0);
     q1.value = [1, 3, 5];
-    expect(q2.visibleChoices.length, "Choices are here").toLooseEqual(3);
-    expect(q2.visibleChoices[1].value, "A choice value is correct").toLooseEqual(3);
+    expect(q2.visibleChoices.length, "Choices are here").toBe(3);
+    expect(q2.visibleChoices[1].value, "A choice value is correct").toBe(3);
   });
   test("Composite: isContentElement property", () => {
     var json = {
@@ -2035,13 +2035,13 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "qu1" }],
     });
     var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.isContentElement, "Design is available for root").toLooseEqual(false);
-    expect(q.contentPanel.isContentElement, "Design is disabled for contentQuestion").toLooseEqual(true);
+    expect(q.isContentElement, "Design is available for root").toBe(false);
+    expect(q.contentPanel.isContentElement, "Design is disabled for contentQuestion").toBe(true);
 
     const page2 = survey.addNewPage("newPage2");
     const q2 = page2.addNewQuestion("newquestion", "qu2");
-    expect(q2.isContentElement, "Design is available for root qu2").toLooseEqual(false);
-    expect(q2.contentPanel.isContentElement, "Design is disabled for contentQuestion qu2").toLooseEqual(true);
+    expect(q2.isContentElement, "Design is available for root qu2").toBe(false);
+    expect(q2.contentPanel.isContentElement, "Design is disabled for contentQuestion qu2").toBe(true);
 
   });
   test("Composite: merge data, Bug#5583", () => {
@@ -2079,7 +2079,7 @@ describe("custom questions", () => {
       elements: [{ type: "test", name: "q1" }]
     });
     const q = <QuestionCustomModel>survey.getAllQuestions()[0];
-    expect(q.contentQuestion.cssClasses.root, "Set the css correctly").toLooseEqual("css_question");
+    expect(q.contentQuestion.cssClasses.root, "Set the css correctly").toBe("css_question");
   });
   test("Composite: Change css rules for content questions", () => {
     const json = {
@@ -2106,8 +2106,8 @@ describe("custom questions", () => {
       elements: [{ type: "fullname", name: "q1" }],
     });
     var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-    expect(q.contentPanel.questions[0].cssClasses.root, "Set the css correctly, #1").toLooseEqual("css_question1");
-    expect(q.contentPanel.questions[1].cssClasses.root, "Set the css correctly, #2").toLooseEqual("css_question2");
+    expect(q.contentPanel.questions[0].cssClasses.root, "Set the css correctly, #1").toBe("css_question1");
+    expect(q.contentPanel.questions[1].cssClasses.root, "Set the css correctly, #2").toBe("css_question2");
   });
   test("Composite: with expression", () => {
     const json = {
@@ -2137,12 +2137,12 @@ describe("custom questions", () => {
     });
     const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
 
-    expect(_data.length, "#1").toLooseEqual(0);
-    expect(onValueChangedCounter, "#2").toLooseEqual(0);
+    expect(_data.length, "#1").toBe(0);
+    expect(onValueChangedCounter, "#2").toBe(0);
     expect(q.value, "#3").toEqualValues({ corner: 0, cornerRadius: "0px" });
 
     q.contentPanel.getQuestionByName("corner").value = 5;
-    expect(onValueChangedCounter, "#4").toLooseEqual(2);
+    expect(onValueChangedCounter, "#4").toBe(2);
     expect(q.value, "#5").toEqualValues({ corner: 5, cornerRadius: "5px" });
     expect(_data[0], "#6").toEqualValues({ corner: 5, cornerRadius: "0px" });
     expect(_data[1], "#7").toEqualValues({ corner: 5, cornerRadius: "5px" });
@@ -2173,13 +2173,13 @@ describe("custom questions", () => {
     const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const q1 = q.contentPanel.getQuestionByName("q1");
     const q2 = q.contentPanel.getQuestionByName("q2");
-    expect(q2.isEmpty(), "#1").toLooseEqual(true);
+    expect(q2.isEmpty(), "#1").toBe(true);
     q1.value = 1;
-    expect(q2.value, "#2").toLooseEqual(2);
+    expect(q2.value, "#2").toBe(2);
     q1.value = 3;
-    expect(q2.value, "#3").toLooseEqual(6);
+    expect(q2.value, "#3").toBe(6);
     q1.clearValue();
-    expect(q2.value, "#4").toLooseEqual(6);
+    expect(q2.value, "#4").toBe(6);
 
   });
   test("Composite: with enableIf", () => {
@@ -2202,11 +2202,11 @@ describe("custom questions", () => {
     const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const q1 = q.contentPanel.getQuestionByName("q1");
     const q2 = q.contentPanel.getQuestionByName("q2");
-    expect(q2.isReadOnly, "readOnly - #1").toLooseEqual(true);
+    expect(q2.isReadOnly, "readOnly - #1").toBe(true);
     q1.value = 1;
-    expect(q2.isReadOnly, "readOnly - #2").toLooseEqual(false);
+    expect(q2.isReadOnly, "readOnly - #2").toBe(false);
     q1.clearValue();
-    expect(q2.isReadOnly, "readOnly - #3").toLooseEqual(true);
+    expect(q2.isReadOnly, "readOnly - #3").toBe(true);
 
   });
   test("Composite: with enableIf & survey editing object", () => {
@@ -2244,11 +2244,11 @@ describe("custom questions", () => {
     const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
     const q1 = q.contentPanel.getQuestionByName("prop1");
     const q2 = q.contentPanel.getQuestionByName("prop2");
-    expect(q2.isReadOnly, "readOnly - #1").toLooseEqual(true);
+    expect(q2.isReadOnly, "readOnly - #1").toBe(true);
     q1.value = 1;
-    expect(q2.isReadOnly, "readOnly - #2").toLooseEqual(false);
+    expect(q2.isReadOnly, "readOnly - #2").toBe(false);
     q1.clearValue();
-    expect(q2.isReadOnly, "readOnly - #3").toLooseEqual(true);
+    expect(q2.isReadOnly, "readOnly - #3").toBe(true);
 
   });
   test("Composite: check valueToData and valueFromData callbacks", () => {
@@ -2271,7 +2271,7 @@ describe("custom questions", () => {
       return !!newValue ? newValue.join(" ") : "";
     };
     survey.data = { "q1": ["a", "b", "c"] };
-    expect(q.value).toLooseEqual("a b c");
+    expect(q.value).toBe("a b c");
     q.value = "a b c d";
     expect(survey.data["q1"]).toEqualValues(["a", "b", "c", "d"]);
   });
@@ -2320,7 +2320,7 @@ describe("custom questions", () => {
       onValueChangedCounter++;
     });
     q.value = { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, border: "0 1 2 rgba(0, 0, 0, 0.15)" };
-    expect(onValueChangedCounter).toLooseEqual(1);
+    expect(onValueChangedCounter).toBe(1);
     expect(survey.data).toEqualValues({ q1: { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, cornerRadius: "4px", border: "0 1 2 rgba(0, 0, 0, 0.15)" } });
 
   });
@@ -2372,14 +2372,14 @@ describe("custom questions", () => {
     const qItem2 = q1.contentPanel.getQuestionByName("item2");
     qItem1.value = "val1";
     qItem2.value = "val2";
-    expect(qItem1.value, "item1 question value is correct, #1").toLooseEqual("val1");
-    expect(qItem2.value, "item2 question value is correct, #1").toLooseEqual("val2");
-    expect(q1.value, "composite question value is correct, #1").toLooseEqual("val1,val2");
+    expect(qItem1.value, "item1 question value is correct, #1").toBe("val1");
+    expect(qItem2.value, "item2 question value is correct, #1").toBe("val2");
+    expect(q1.value, "composite question value is correct, #1").toBe("val1,val2");
     expect(survey.data, "survey data is correct, #1").toEqualValues({ q1: "val1,val2" });
     q1.value = "val3,val4";
-    expect(qItem1.value, "item1 question value is correct, #2").toLooseEqual("val3");
-    expect(qItem2.value, "item2 question value is correct, #2").toLooseEqual("val4");
-    expect(q1.value, "composite question value is correct, #2").toLooseEqual("val3,val4");
+    expect(qItem1.value, "item1 question value is correct, #2").toBe("val3");
+    expect(qItem2.value, "item2 question value is correct, #2").toBe("val4");
+    expect(q1.value, "composite question value is correct, #2").toBe("val3,val4");
     expect(survey.data, "survey data is correct, #2").toEqualValues({ q1: "val3,val4" });
 
     const q2 = <QuestionCompositeModel>survey.getQuestionByName("q2");
@@ -2388,21 +2388,21 @@ describe("custom questions", () => {
     const q2SettingsItem2 = q2Settings.contentPanel.getQuestionByName("item2");
     q2SettingsItem1.value = "val5";
     q2SettingsItem2.value = "val6";
-    expect(q2SettingsItem1.value, "item1 question value is correct, #3").toLooseEqual("val5");
-    expect(q2SettingsItem2.value, "item2 question value is correct, #3").toLooseEqual("val6");
-    expect(q2Settings.value, "composite question value is correct, #3").toLooseEqual("val5,val6");
+    expect(q2SettingsItem1.value, "item1 question value is correct, #3").toBe("val5");
+    expect(q2SettingsItem2.value, "item2 question value is correct, #3").toBe("val6");
+    expect(q2Settings.value, "composite question value is correct, #3").toBe("val5,val6");
     expect(q2.value, "composite root question value is correct, #3").toEqualValues({ settings: "val5,val6" });
     expect(survey.data, "survey data is correct, #3").toEqualValues({ q1: "val3,val4", q2: { settings: "val5,val6" } });
     q2Settings.value = "val7,val8";
-    expect(q2SettingsItem1.value, "item1 question value is correct, #4").toLooseEqual("val7");
-    expect(q2SettingsItem2.value, "item2 question value is correct, #4").toLooseEqual("val8");
-    expect(q2Settings.value, "composite question value is correct, #4").toLooseEqual("val7,val8");
+    expect(q2SettingsItem1.value, "item1 question value is correct, #4").toBe("val7");
+    expect(q2SettingsItem2.value, "item2 question value is correct, #4").toBe("val8");
+    expect(q2Settings.value, "composite question value is correct, #4").toBe("val7,val8");
     expect(q2.value, "composite root question value is correct, #4").toEqualValues({ settings: "val7,val8" });
     expect(survey.data, "survey data is correct, #4").toEqualValues({ q1: "val3,val4", q2: { settings: "val7,val8" } });
     q2.value = { settings: "val9,val10" };
-    expect(q2SettingsItem1.value, "item1 question value is correct, #5").toLooseEqual("val9");
-    expect(q2SettingsItem2.value, "item2 question value is correct, #5").toLooseEqual("val10");
-    expect(q2Settings.value, "composite question value is correct, #5").toLooseEqual("val9,val10");
+    expect(q2SettingsItem1.value, "item1 question value is correct, #5").toBe("val9");
+    expect(q2SettingsItem2.value, "item2 question value is correct, #5").toBe("val10");
+    expect(q2Settings.value, "composite question value is correct, #5").toBe("val9,val10");
     expect(q2.value, "composite root question value is correct, #5").toEqualValues({ settings: "val9,val10" });
     expect(survey.data, "survey data is correct, #5").toEqualValues({ q1: "val3,val4", q2: { settings: "val9,val10" } });
 
@@ -2433,10 +2433,10 @@ describe("custom questions", () => {
         { type: "comp4", name: "q4" }
       ]
     });
-    expect(survey.getQuestionByName("q1").needResponsiveWidth(), "single - matrix").toLooseEqual(true);
-    expect(survey.getQuestionByName("q2").needResponsiveWidth(), "single - text").toLooseEqual(false);
-    expect(survey.getQuestionByName("q3").needResponsiveWidth(), "complex - text").toLooseEqual(false);
-    expect(survey.getQuestionByName("q4").needResponsiveWidth(), "single - matrix").toLooseEqual(true);
+    expect(survey.getQuestionByName("q1").needResponsiveWidth(), "single - matrix").toBe(true);
+    expect(survey.getQuestionByName("q2").needResponsiveWidth(), "single - text").toBe(false);
+    expect(survey.getQuestionByName("q3").needResponsiveWidth(), "complex - text").toBe(false);
+    expect(survey.getQuestionByName("q4").needResponsiveWidth(), "single - matrix").toBe(true);
   });
   test("Single & getValue/setValue, #6475", () => {
     ComponentCollection.Instance.add({
@@ -2459,9 +2459,9 @@ describe("custom questions", () => {
       ] });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     q1.contentQuestion.value = 2;
-    expect(q1.value, "#1").toLooseEqual("val:2");
+    expect(q1.value, "#1").toBe("val:2");
     q1.value = "val:4";
-    expect(q1.contentQuestion.value, "#2").toLooseEqual(4);
+    expect(q1.contentQuestion.value, "#2").toBe(4);
   });
   test("Single: onHidingContent", () => {
     let counter = 0;
@@ -2475,9 +2475,9 @@ describe("custom questions", () => {
     const survey = new SurveyModel({
       elements: [{ type: "test", name: "q1" }],
     });
-    expect(counter, "Initial").toLooseEqual(0);
+    expect(counter, "Initial").toBe(0);
     survey.doComplete();
-    expect(counter, "onComplete").toLooseEqual(1);
+    expect(counter, "onComplete").toBe(1);
   });
   test("Complex: onHidingContent", () => {
     let counter = 0;
@@ -2502,9 +2502,9 @@ describe("custom questions", () => {
     const survey = new SurveyModel({
       elements: [{ type: "test", name: "q1" }],
     });
-    expect(counter, "Initial").toLooseEqual(0);
+    expect(counter, "Initial").toBe(0);
     survey.doComplete();
-    expect(counter, "onComplete").toLooseEqual(2);
+    expect(counter, "onComplete").toBe(2);
   });
   test("Single: Apply error css", () => {
     const json = {
@@ -2520,19 +2520,19 @@ describe("custom questions", () => {
     });
     const q = <QuestionCustomModel>survey.getAllQuestions()[0];
     const qText = <QuestionTextModel>q.contentQuestion;
-    expect(qText.cssClasses.onError, "error css is correct").toLooseEqual(errorCss);
-    expect(qText.getControlClass().indexOf(errorCss) < 0, "errors is not here").toLooseEqual(true);
+    expect(qText.cssClasses.onError, "error css is correct").toBe(errorCss);
+    expect(qText.getControlClass().indexOf(errorCss) < 0, "errors is not here").toBe(true);
     q.validate(true);
-    expect(qText.getControlClass().indexOf(errorCss) > -1, "errors is here").toLooseEqual(true);
+    expect(qText.getControlClass().indexOf(errorCss) > -1, "errors is here").toBe(true);
   });
   test("ComponentCollection.Instance.remove", () => {
     ComponentCollection.Instance.add({
       name: "newquestion",
       questionJSON: { type: "text" },
     });
-    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion").name, "it exists").toLooseEqual("newquestion");
-    expect(ComponentCollection.Instance.remove("aaa"), "aaa is not exists").toLooseEqual(false);
-    expect(ComponentCollection.Instance.remove("newquestion"), "newquestion is removed").toLooseEqual(true);
+    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion").name, "it exists").toBe("newquestion");
+    expect(ComponentCollection.Instance.remove("aaa"), "aaa is not exists").toBe(false);
+    expect(ComponentCollection.Instance.remove("newquestion"), "newquestion is removed").toBe(true);
     expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion"), "newquestion is not here").toBeFalsy();
   });
   test("internal boolean flag", () => {
@@ -2545,10 +2545,10 @@ describe("custom questions", () => {
       name: "newquestion2",
       questionJSON: { type: "text" },
     });
-    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1 is here").toLooseEqual("newquestion1");
-    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion2").name, "newquestion2 is here").toLooseEqual("newquestion2");
+    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1 is here").toBe("newquestion1");
+    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion2").name, "newquestion2 is here").toBe("newquestion2");
     ComponentCollection.Instance.clear();
-    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1 is here").toLooseEqual("newquestion1");
+    expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1 is here").toBe("newquestion1");
     expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion2"), "newquestion2 is not here, #1").toBeFalsy();
     ComponentCollection.Instance.clear(true);
     expect(ComponentCollection.Instance.getCustomQuestionByName("newquestion1"), "newquestion1 is not here, #2").toBeFalsy();
@@ -2568,10 +2568,10 @@ describe("custom questions", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     const q3 = survey.pages[0].addNewQuestion("newquestion", "q3");
-    expect(q1.locTitle.renderedHtml, "q1 title").toLooseEqual("Title from Component");
-    expect(q2.locTitle.renderedHtml, "q2 title").toLooseEqual("Q2 title");
-    expect(q3.name, "q3 name").toLooseEqual("q3");
-    expect(q3.locTitle.renderedHtml, "q3 title").toLooseEqual("Title from Component");
+    expect(q1.locTitle.renderedHtml, "q1 title").toBe("Title from Component");
+    expect(q2.locTitle.renderedHtml, "q2 title").toBe("Q2 title");
+    expect(q3.name, "q3 name").toBe("q3");
+    expect(q3.locTitle.renderedHtml, "q3 title").toBe("Title from Component");
     expect(q1.toJSON(), "Do not serialize title").toEqualValues({ name: "q1" });
   });
   test("Allow to add question via addNewQuestion for component, but not for abstract classes", () => {
@@ -2604,9 +2604,9 @@ describe("custom questions", () => {
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const contentQuestion = <QuestionTextModel>q1.contentQuestion;
-    expect(contentQuestion.renderedPlaceholder, "en placeholder").toLooseEqual("en-TextPH");
+    expect(contentQuestion.renderedPlaceholder, "en placeholder").toBe("en-TextPH");
     survey.locale = "de";
-    expect(contentQuestion.renderedPlaceholder, "de placeholder").toLooseEqual("de-TextPH");
+    expect(contentQuestion.renderedPlaceholder, "de placeholder").toBe("de-TextPH");
   });
   test("showPreview & default value, #7508", () => {
     ComponentCollection.Instance.add({
@@ -2623,21 +2623,21 @@ describe("custom questions", () => {
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const contentQuestion = <QuestionTextModel>q1.contentQuestion;
-    expect(q1.value, "q1.value #1").toLooseEqual("abc");
-    expect(contentQuestion.value, "contentQuestion.value #1").toLooseEqual("abc");
+    expect(q1.value, "q1.value #1").toBe("abc");
+    expect(contentQuestion.value, "contentQuestion.value #1").toBe("abc");
     contentQuestion.value = "edf";
-    expect(q1.value, "q1.value #2").toLooseEqual("edf");
-    expect(contentQuestion.value, "contentQuestion.value #2").toLooseEqual("edf");
+    expect(q1.value, "q1.value #2").toBe("edf");
+    expect(contentQuestion.value, "contentQuestion.value #2").toBe("edf");
     survey.showPreview();
-    expect(q1.value, "q1.value #3").toLooseEqual("edf");
-    expect(contentQuestion.value, "contentQuestion.value #3").toLooseEqual("edf");
+    expect(q1.value, "q1.value #3").toBe("edf");
+    expect(contentQuestion.value, "contentQuestion.value #3").toBe("edf");
     const q1Preview = <QuestionCustomModel>survey.getQuestionByName("q1");
     const contentQuestionPreview = <QuestionTextModel>q1.contentQuestion;
-    expect(q1Preview.value, "q1Preview.value #3").toLooseEqual("edf");
-    expect(contentQuestionPreview.value, "contentQuestionPreview.value #3").toLooseEqual("edf");
+    expect(q1Preview.value, "q1Preview.value #3").toBe("edf");
+    expect(contentQuestionPreview.value, "contentQuestionPreview.value #3").toBe("edf");
     survey.cancelPreview();
-    expect(q1.value, "q1.value #4").toLooseEqual("edf");
-    expect(contentQuestion.value, "contentQuestion.value #4").toLooseEqual("edf");
+    expect(q1.value, "q1.value #4").toBe("edf");
+    expect(contentQuestion.value, "contentQuestion.value #4").toBe("edf");
   });
   test("showPreview & default value, #7640", () => {
     ComponentCollection.Instance.add({
@@ -2656,8 +2656,8 @@ describe("custom questions", () => {
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const contentQuestion = <QuestionTextModel>q1.contentQuestion;
     survey.setVariable("abc", 123);
-    expect(contentQuestion.locTitle.renderedHtml, "contentQuestion.title").toLooseEqual("abc=123");
-    expect(q1.locTitle.renderedHtml, "q1.title").toLooseEqual("abc=123");
+    expect(contentQuestion.locTitle.renderedHtml, "contentQuestion.title").toBe("abc=123");
+    expect(q1.locTitle.renderedHtml, "q1.title").toBe("abc=123");
 
   });
   test("single component: defaultQuestionTitle", () => {
@@ -2679,9 +2679,9 @@ describe("custom questions", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     survey.setVariable("abc", 123);
-    expect(q1.locTitle.renderedHtml, "q1.title en").toLooseEqual("abc=123 en");
+    expect(q1.locTitle.renderedHtml, "q1.title en").toBe("abc=123 en");
     survey.locale = "de";
-    expect(q1.locTitle.renderedHtml, "q1.title de").toLooseEqual("abc=123 de");
+    expect(q1.locTitle.renderedHtml, "q1.title de").toBe("abc=123 de");
 
   });
   test("single component: defaultQuestionTitle & editor placeholder", () => {
@@ -2705,9 +2705,9 @@ describe("custom questions", () => {
     const q3 = survey.getQuestionByName("q3");
     const prop = Serializer.findProperty("text", "title");
     prop.onPropertyEditorUpdate(q1, q3);
-    expect(q3.placeholder, "#1").toLooseEqual("abc");
+    expect(q3.placeholder, "#1").toBe("abc");
     prop.onPropertyEditorUpdate(q2, q3);
-    expect(q3.placeholder, "#2").toLooseEqual("q2");
+    expect(q3.placeholder, "#2").toBe("q2");
   });
   test("composite component: defaultQuestionTitle", () => {
     ComponentCollection.Instance.add({
@@ -2728,9 +2728,9 @@ describe("custom questions", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     survey.setVariable("abc", 123);
-    expect(q1.locTitle.renderedHtml, "q1.title en").toLooseEqual("abc=123 en");
+    expect(q1.locTitle.renderedHtml, "q1.title en").toBe("abc=123 en");
     survey.locale = "de";
-    expect(q1.locTitle.renderedHtml, "q1.title de").toLooseEqual("abc=123 de");
+    expect(q1.locTitle.renderedHtml, "q1.title de").toBe("abc=123 de");
 
   });
   test("single component: inheritBaseProps: array<string>", () => {
@@ -2750,26 +2750,26 @@ describe("custom questions", () => {
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const content = <QuestionDropdownModel>q1.contentQuestion;
-    expect(q1.allowClear, "q1.allowClear #1").toLooseEqual(false);
-    expect(content.allowClear, "content.allowClear #1").toLooseEqual(false);
+    expect(q1.allowClear, "q1.allowClear #1").toBe(false);
+    expect(content.allowClear, "content.allowClear #1").toBe(false);
     q1.allowClear = true;
-    expect(q1.allowClear, "q1.allowClear #2").toLooseEqual(true);
-    expect(content.allowClear, "content.allowClear #2").toLooseEqual(true);
+    expect(q1.allowClear, "q1.allowClear #2").toBe(true);
+    expect(content.allowClear, "content.allowClear #2").toBe(true);
     content.allowClear = false;
-    expect(q1.allowClear, "q1.allowClear #3").toLooseEqual(false);
-    expect(content.allowClear, "content.allowClear #3").toLooseEqual(false);
+    expect(q1.allowClear, "q1.allowClear #3").toBe(false);
+    expect(content.allowClear, "content.allowClear #3").toBe(false);
 
-    expect(q1.showOtherItem, "q1.showOtherItem #1").toLooseEqual(true);
-    expect(content.showOtherItem, "content.showOtherItem #1").toLooseEqual(true);
+    expect(q1.showOtherItem, "q1.showOtherItem #1").toBe(true);
+    expect(content.showOtherItem, "content.showOtherItem #1").toBe(true);
     q1.showOtherItem = false;
-    expect(q1.showOtherItem, "q1.showOtherItem #2").toLooseEqual(false);
-    expect(content.showOtherItem, "content.showOtherItem #2").toLooseEqual(false);
+    expect(q1.showOtherItem, "q1.showOtherItem #2").toBe(false);
+    expect(content.showOtherItem, "content.showOtherItem #2").toBe(false);
     content.showOtherItem = true;
-    expect(q1.showOtherItem, "q1.showOtherItem #3").toLooseEqual(true);
-    expect(content.showOtherItem, "content.showOtherItem #3").toLooseEqual(true);
+    expect(q1.showOtherItem, "q1.showOtherItem #3").toBe(true);
+    expect(content.showOtherItem, "content.showOtherItem #3").toBe(true);
     const json = q1.toJSON();
-    expect(json.allowClear, "json.allowClear").toLooseEqual(false);
-    expect(json.showOtherItem, "json.showOtherItem").toLooseEqual(true);
+    expect(json.allowClear, "json.allowClear").toBe(false);
+    expect(json.showOtherItem, "json.showOtherItem").toBe(true);
 
   });
   test("single component: inheritBaseProps: array<string> #2 + check property change notification #", () => {
@@ -2791,24 +2791,24 @@ describe("custom questions", () => {
     let counter = 0;
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const content = <QuestionTextModel>q1.contentQuestion;
-    expect(q1.placeholder, "q1.placeholder #1").toLooseEqual("abc");
-    expect(content.placeholder, "content.placeholder #1").toLooseEqual("abc");
+    expect(q1.placeholder, "q1.placeholder #1").toBe("abc");
+    expect(content.placeholder, "content.placeholder #1").toBe("abc");
     survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
       propertyName = name;
       counter ++;
     };
     q1.placeholder = "bcd";
-    expect(propertyName, "send notification, propertyname").toLooseEqual("placeholder");
-    expect(counter, "send notification, counter").toLooseEqual(1);
-    expect(q1.placeholder, "q1.placeholder #2").toLooseEqual("bcd");
-    expect(content.placeholder, "content.placeholder #2").toLooseEqual("bcd");
+    expect(propertyName, "send notification, propertyname").toBe("placeholder");
+    expect(counter, "send notification, counter").toBe(1);
+    expect(q1.placeholder, "q1.placeholder #2").toBe("bcd");
+    expect(content.placeholder, "content.placeholder #2").toBe("bcd");
     content.placeholder = "cde";
-    expect(q1.placeholder, "q1.placeholder #3").toLooseEqual("cde");
-    expect(content.placeholder, "content.placeholder #3").toLooseEqual("cde");
+    expect(q1.placeholder, "q1.placeholder #3").toBe("cde");
+    expect(content.placeholder, "content.placeholder #3").toBe("cde");
 
     const prop = Serializer.getOriginalProperty(q1, "placeholder");
-    expect(prop.name, "prop.className is correct").toLooseEqual("placeholder");
-    expect(prop.isVisible("form", q1), "it is visible").toLooseEqual(true);
+    expect(prop.name, "prop.className is correct").toBe("placeholder");
+    expect(prop.isVisible("form", q1), "it is visible").toBe(true);
   });
   test("single component: inheritBaseProps: true, Issue#10060 & Bug#10460", () => {
     ComponentCollection.Instance.add({
@@ -2827,41 +2827,41 @@ describe("custom questions", () => {
     });
     const dropdownChoicesProp = Serializer.findProperty("dropdown", "choices");
     expect(dropdownChoicesProp, "dropdown.choices prop is here").toBeTruthy();
-    expect(dropdownChoicesProp.visible, "dropdown.choices.visible is true").toLooseEqual(true);
+    expect(dropdownChoicesProp.visible, "dropdown.choices.visible is true").toBe(true);
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const props = Serializer.getDynamicPropertiesByObj(q1);
     const propChoices = props.find((prop) => prop.name === "choices");
     expect(propChoices, "propChoices is here").toBeTruthy();
-    expect(propChoices?.visible, "propChoices.visible is false").toLooseEqual(false);
-    expect(propChoices?.isSerializable, "propChoices.isSerializable is false").toLooseEqual(false);
+    expect(propChoices?.visible, "propChoices.visible is false").toBe(false);
+    expect(propChoices?.isSerializable, "propChoices.isSerializable is false").toBe(false);
 
-    expect(Serializer.getObjPropertyValue(q1, "name"), "getObjPropertyValue is correct, #name").toLooseEqual("q1");
-    expect(Serializer.getObjPropertyValue(q1, "title"), "getObjPropertyValue is correct, #title").toLooseEqual("my title");
-    expect(Serializer.getObjPropertyValue(q1, "showOtherItem"), "getObjPropertyValue is correct, #showOtherItem").toLooseEqual(true);
+    expect(Serializer.getObjPropertyValue(q1, "name"), "getObjPropertyValue is correct, #name").toBe("q1");
+    expect(Serializer.getObjPropertyValue(q1, "title"), "getObjPropertyValue is correct, #title").toBe("my title");
+    expect(Serializer.getObjPropertyValue(q1, "showOtherItem"), "getObjPropertyValue is correct, #showOtherItem").toBe(true);
     const content = <QuestionDropdownModel>q1.contentQuestion;
-    expect(q1.getDynamicType(), "q1.getDynamicType()").toLooseEqual("dropdown");
-    expect(content.choices.length, "content.choices").toLooseEqual(3);
+    expect(q1.getDynamicType(), "q1.getDynamicType()").toBe("dropdown");
+    expect(content.choices.length, "content.choices").toBe(3);
     expect(q1.choices, "q1.choices").toBeTruthy();
-    expect(q1.allowClear, "q1.allowClear #1").toLooseEqual(false);
-    expect(content.allowClear, "content.allowClear #1").toLooseEqual(false);
+    expect(q1.allowClear, "q1.allowClear #1").toBe(false);
+    expect(content.allowClear, "content.allowClear #1").toBe(false);
     q1.allowClear = true;
-    expect(q1.allowClear, "q1.allowClear #2").toLooseEqual(true);
-    expect(content.allowClear, "content.allowClear #2").toLooseEqual(true);
+    expect(q1.allowClear, "q1.allowClear #2").toBe(true);
+    expect(content.allowClear, "content.allowClear #2").toBe(true);
     content.allowClear = false;
-    expect(q1.allowClear, "q1.allowClear #3").toLooseEqual(false);
-    expect(content.allowClear, "content.allowClear #3").toLooseEqual(false);
+    expect(q1.allowClear, "q1.allowClear #3").toBe(false);
+    expect(content.allowClear, "content.allowClear #3").toBe(false);
 
-    expect(q1.showOtherItem, "q1.showOtherItem #1").toLooseEqual(true);
-    expect(content.showOtherItem, "content.showOtherItem #1").toLooseEqual(true);
+    expect(q1.showOtherItem, "q1.showOtherItem #1").toBe(true);
+    expect(content.showOtherItem, "content.showOtherItem #1").toBe(true);
     q1.showOtherItem = false;
-    expect(q1.showOtherItem, "q1.showOtherItem #2").toLooseEqual(false);
-    expect(content.showOtherItem, "content.showOtherItem #2").toLooseEqual(false);
+    expect(q1.showOtherItem, "q1.showOtherItem #2").toBe(false);
+    expect(content.showOtherItem, "content.showOtherItem #2").toBe(false);
     content.showOtherItem = true;
-    expect(q1.showOtherItem, "q1.showOtherItem #3").toLooseEqual(true);
-    expect(content.showOtherItem, "content.showOtherItem #3").toLooseEqual(true);
+    expect(q1.showOtherItem, "q1.showOtherItem #3").toBe(true);
+    expect(content.showOtherItem, "content.showOtherItem #3").toBe(true);
     const json = q1.toJSON();
-    expect(json.allowClear, "json.allowClear").toLooseEqual(false);
-    expect(json.showOtherItem, "json.showOtherItem").toLooseEqual(true);
+    expect(json.allowClear, "json.allowClear").toBe(false);
+    expect(json.showOtherItem, "json.showOtherItem").toBe(true);
 
   });
   test("single component, file: inheritBaseProps: true, Bug #8757", () => {
@@ -2879,8 +2879,8 @@ describe("custom questions", () => {
       ]
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
-    expect(Serializer.getObjPropertyValue(q1, "name"), "getObjPropertyValue is correct, #name").toLooseEqual("q1");
-    expect(Serializer.getObjPropertyValue(q1, "showCommentArea"), "getObjPropertyValue is correct, #showCommentArea").toLooseEqual(true);
+    expect(Serializer.getObjPropertyValue(q1, "name"), "getObjPropertyValue is correct, #name").toBe("q1");
+    expect(Serializer.getObjPropertyValue(q1, "showCommentArea"), "getObjPropertyValue is correct, #showCommentArea").toBe(true);
 
   });
   test("Bug with visibleIf with composite.question and panel dynamic. Bug#7771", () => {
@@ -2914,11 +2914,11 @@ describe("custom questions", () => {
     const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
     const q1 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q1");
     const q2 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q2");
-    expect(q2.isVisible, "isVisible #1").toLooseEqual(false);
+    expect(q2.isVisible, "isVisible #1").toBe(false);
     q1.value = true;
-    expect(q2.isVisible, "isVisible #2").toLooseEqual(true);
+    expect(q2.isVisible, "isVisible #2").toBe(true);
     q2.addPanel();
-    expect(q2.isVisible, "isVisible #3").toLooseEqual(true);
+    expect(q2.isVisible, "isVisible #3").toBe(true);
   });
   test("file question in composite component doesn't show preview in preview mode. Bug#7826", () => {
     ComponentCollection.Instance.add({
@@ -2953,21 +2953,21 @@ describe("custom questions", () => {
     const file_q2 = <QuestionFileModel>survey.getQuestionByName("q2");
     file_q1.loadFiles([{ name: "f1", type: "t1" } as any]);
     file_q2.loadFiles([{ name: "f1", type: "t1" } as any]);
-    expect(file_q1.showPreviewContainer, "file_q1 #1").toLooseEqual(true);
-    expect(file_q2.showPreviewContainer, "file_q2 #1").toLooseEqual(true);
+    expect(file_q1.showPreviewContainer, "file_q1 #1").toBe(true);
+    expect(file_q2.showPreviewContainer, "file_q2 #1").toBe(true);
 
     survey.showPreview();
-    expect(survey.state, "state #1").toLooseEqual("preview");
+    expect(survey.state, "state #1").toBe("preview");
     const compQuestion_preview = <QuestionCompositeModel>survey.getQuestionByName("q1");
     const file_q1_preview = <QuestionFileModel>compQuestion_preview.contentPanel.getQuestionByName("file_q");
     const file_q2_preview = <QuestionFileModel>survey.getQuestionByName("q2");
-    expect(file_q1_preview.showPreviewContainer, "file_q1_preview #1").toLooseEqual(true);
-    expect(file_q2_preview.showPreviewContainer, "file_q2_preview #1").toLooseEqual(true);
+    expect(file_q1_preview.showPreviewContainer, "file_q1_preview #1").toBe(true);
+    expect(file_q2_preview.showPreviewContainer, "file_q2_preview #1").toBe(true);
 
     survey.cancelPreview();
-    expect(survey.state, "state #2").toLooseEqual("running");
-    expect(file_q1.showPreviewContainer, "file_q1 #1").toLooseEqual(true);
-    expect(file_q2.showPreviewContainer, "file_q2 #1").toLooseEqual(true);
+    expect(survey.state, "state #2").toBe("running");
+    expect(file_q1.showPreviewContainer, "file_q1 #1").toBe(true);
+    expect(file_q2.showPreviewContainer, "file_q2 #1").toBe(true);
 
   });
 
@@ -2998,8 +2998,8 @@ describe("custom questions", () => {
     q_ranking.choices = ["a", "b", "c", "d", "e"];
     q_ranking.value = ["a", "b", "c"];
 
-    expect(q_ranking.unRankingChoices.length, "ranking value is correct (unrank list length) ['d', 'e']").toLooseEqual(2);
-    expect(q_ranking.rankingChoices.length, "ranking value is correct (rank list length) ['a', 'b', 'c'").toLooseEqual(3);
+    expect(q_ranking.unRankingChoices.length, "ranking value is correct (unrank list length) ['d', 'e']").toBe(2);
+    expect(q_ranking.rankingChoices.length, "ranking value is correct (rank list length) ['a', 'b', 'c'").toBe(3);
 
   });
   test("Single: showPreviewBeforeComplete Bug#8005", () => {
@@ -3037,11 +3037,11 @@ describe("custom questions", () => {
     const q = survey.getQuestionByName("question1");
     q.value = 2;
     survey.validate();
-    expect(errorText, "errorText").toLooseEqual("val");
-    expect(q.errors.length, "Errors length #1").toLooseEqual(1);
-    expect(q.errors[0].text, "Error text").toLooseEqual("value should be 1");
+    expect(errorText, "errorText").toBe("val");
+    expect(q.errors.length, "Errors length #1").toBe(1);
+    expect(q.errors[0].text, "Error text").toBe("value should be 1");
     q.value = 1;
-    expect(q.errors.length, "Errors length #2").toLooseEqual(0);
+    expect(q.errors.length, "Errors length #2").toBe(0);
   });
   test("Composite: validate", () => {
     ComponentCollection.Instance.add({
@@ -3075,22 +3075,22 @@ describe("custom questions", () => {
     const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCompositeModel>survey.getQuestionByName("q2");
     survey.validate();
-    expect(q1.errors.length, "q1 errors #1").toLooseEqual(0);
-    expect(q2.errors.length, "q2 errors #1").toLooseEqual(1);
+    expect(q1.errors.length, "q1 errors #1").toBe(0);
+    expect(q2.errors.length, "q2 errors #1").toBe(1);
     q1.contentPanel.getQuestionByName("q1").value = "val";
     q2.contentPanel.getQuestionByName("q1").value = "val";
     survey.validate();
-    expect(q1.errors.length, "q1 errors #2").toLooseEqual(1);
-    expect(q1.errors[0].text, "q1 errors text #2").toLooseEqual("Select q2");
-    expect(q2.errors.length, "q2 errors #2").toLooseEqual(1);
-    expect(q2.errors[0].text, "q2 errors text #2").toLooseEqual("Select q2");
+    expect(q1.errors.length, "q1 errors #2").toBe(1);
+    expect(q1.errors[0].text, "q1 errors text #2").toBe("Select q2");
+    expect(q2.errors.length, "q2 errors #2").toBe(1);
+    expect(q2.errors[0].text, "q2 errors text #2").toBe("Select q2");
     q1.contentPanel.getQuestionByName("q2").value = 1;
     q2.contentPanel.getQuestionByName("q2").value = 2;
-    expect(q1.contentPanel.getQuestionByName("q3").value, "q1.q3 value").toLooseEqual(1);
-    expect(q2.contentPanel.getQuestionByName("q3").value, "q2.q3 value").toLooseEqual(2);
+    expect(q1.contentPanel.getQuestionByName("q3").value, "q1.q3 value").toBe(1);
+    expect(q2.contentPanel.getQuestionByName("q3").value, "q2.q3 value").toBe(2);
     survey.validate();
-    expect(q1.errors.length, "q1 errors #3").toLooseEqual(0);
-    expect(q2.errors.length, "q2 errors #3").toLooseEqual(0);
+    expect(q1.errors.length, "q1 errors #3").toBe(0);
+    expect(q2.errors.length, "q2 errors #3").toBe(0);
   });
   test("Composite: update questions on a value change", () => {
     ComponentCollection.Instance.add({
@@ -3114,11 +3114,11 @@ describe("custom questions", () => {
     const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
     const internalQ2 = q1.contentPanel.getQuestionByName("q2");
     survey.data = { q1: { q1: 1, q3: 2 } };
-    expect(internalQ2.choices.length, "choices.length #1").toLooseEqual(1);
-    expect(internalQ2.choices[0].value, "choices[0].value #1").toLooseEqual(2);
+    expect(internalQ2.choices.length, "choices.length #1").toBe(1);
+    expect(internalQ2.choices[0].value, "choices[0].value #1").toBe(2);
     q1.value = { q1: 1, q3: 3 };
-    expect(internalQ2.choices.length, "choices.length #2").toLooseEqual(1);
-    expect(internalQ2.choices[0].value, "choices[0].value #2").toLooseEqual(3);
+    expect(internalQ2.choices.length, "choices.length #2").toBe(1);
+    expect(internalQ2.choices[0].value, "choices[0].value #2").toBe(3);
   });
   test("Composite: onValueChanging and survey.onValueChanging", () => {
     ComponentCollection.Instance.add({
@@ -3208,8 +3208,8 @@ describe("custom questions", () => {
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
     const q2 = <QuestionCustomModel>survey.getQuestionByName("q2");
 
-    expect(q1.contentQuestion.getType(), "q1 content type").toLooseEqual("dropdown");
-    expect(q2.contentQuestion.getType(), "q2 content type").toLooseEqual("text");
+    expect(q1.contentQuestion.getType(), "q1 content type").toBe("dropdown");
+    expect(q2.contentQuestion.getType(), "q2 content type").toBe("text");
     expect(reportTexts, "check console errors").toEqualValues(["Could not create component: 'test1'. questionJSON should be a question.",
       "Could not create component: 'test2'. questionJSON should be a question."]);
 
@@ -3236,9 +3236,9 @@ describe("custom questions", () => {
       ]
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
-    expect(q1.description, "Get description from internal description").toLooseEqual("Custom Question");
+    expect(q1.description, "Get description from internal description").toBe("Custom Question");
     survey.locale = "de";
-    expect(q1.description, "Get description from internal description for 'de'").toLooseEqual("Aangepaste vraag");
+    expect(q1.description, "Get description from internal description for 'de'").toBe("Aangepaste vraag");
     const props = Serializer.getPropertiesByObj(q1);
     let descriptionCounter = 0;
     props.forEach(prop => {
@@ -3246,7 +3246,7 @@ describe("custom questions", () => {
         descriptionCounter ++;
       }
     });
-    expect(descriptionCounter, "We have one description property").toLooseEqual(1);
+    expect(descriptionCounter, "We have one description property").toBe(1);
   });
   test("composite component: do not reset dynamic panels/dynamic rows, Bug#8612", () => {
     ComponentCollection.Instance.add({
@@ -3296,8 +3296,8 @@ describe("custom questions", () => {
     matrix.addRow();
     matrix.addRow();
     text.value = "abc";
-    expect(matrix.rowCount, "There are 3 rows").toLooseEqual(3);
-    expect(panel.panelCount, "There are 3 panels").toLooseEqual(3);
+    expect(matrix.rowCount, "There are 3 rows").toBe(3);
+    expect(panel.panelCount, "There are 3 panels").toBe(3);
 
   });
 
@@ -3317,7 +3317,7 @@ describe("custom questions", () => {
       ]
     });
     const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
-    expect(q1.ariaRole, "check role attribute").toLooseEqual("group");
+    expect(q1.ariaRole, "check role attribute").toBe("group");
 
   });
   test("Dynamic serializable properties, bug#8852", () => {
@@ -3336,10 +3336,10 @@ describe("custom questions", () => {
       ]
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
-    expect(q1.contentQuestion.locMinRateDescription.text, "minRateDescription").toLooseEqual("val1");
-    expect(q1.contentQuestion.maxRateDescription, "maxRateDescription").toLooseEqual("val2");
-    expect(q1.contentQuestion.hasMinRateDescription, "hasMinRateDescription").toLooseEqual(true);
-    expect(q1.contentQuestion.hasMaxRateDescription, "hasMaxRateDescription").toLooseEqual(true);
+    expect(q1.contentQuestion.locMinRateDescription.text, "minRateDescription").toBe("val1");
+    expect(q1.contentQuestion.maxRateDescription, "maxRateDescription").toBe("val2");
+    expect(q1.contentQuestion.hasMinRateDescription, "hasMinRateDescription").toBe(true);
+    expect(q1.contentQuestion.hasMaxRateDescription, "hasMaxRateDescription").toBe(true);
 
   });
   test("Dynamic serializable properties, bug#8852", () => {
@@ -3448,12 +3448,12 @@ describe("custom questions", () => {
     });
     const question1 = <QuestionCompositeModel>survey.getQuestionByName("question1");
     const q1 = question1.contentPanel.getQuestionByName("q1");
-    expect(q1.parentQuestion?.name, "q1.parentQuestion").toLooseEqual("question1");
-    expect(q1.page?.name, "q1.page").toLooseEqual("page1");
+    expect(q1.parentQuestion?.name, "q1.parentQuestion").toBe("question1");
+    expect(q1.page?.name, "q1.page").toBe("page1");
     survey.nextPage();
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(1);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(1);
     survey.tryComplete();
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(0);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(0);
 
   });
   test("Composite: survey.onPanelVisibleChanged, Bug#9698", () => {
@@ -3485,8 +3485,8 @@ describe("custom questions", () => {
     const maxQuestionNumberCounter = questionNumberCounter;
     q1.value = "a";
     q1.value = "b";
-    expect(questionNumberCounter, "questionNumberCounter #2").toLooseEqual(maxQuestionNumberCounter);
-    expect(logs.length, "logs.length").toLooseEqual(4);
+    expect(questionNumberCounter, "questionNumberCounter #2").toBe(maxQuestionNumberCounter);
+    expect(logs.length, "logs.length").toBe(4);
     expect(logs, "logs").toEqualValues([
       { panel: "panel2", visible: false },
       { panel: "panel2", visible: true },
@@ -3527,7 +3527,7 @@ describe("custom questions", () => {
       }
     };
     const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
-    expect(q1.contentPanel.getQuestionByName("item3").value, "item3 value").toLooseEqual("val3");
+    expect(q1.contentPanel.getQuestionByName("item3").value, "item3 value").toBe("val3");
 
   });
 
@@ -3543,13 +3543,13 @@ describe("custom questions", () => {
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
 
-    expect(q1.contentQuestion.isMobile).toLooseEqual(false);
+    expect(q1.contentQuestion.isMobile).toBe(false);
 
     survey.setIsMobile(true);
-    expect(q1.contentQuestion.isMobile).toLooseEqual(true);
+    expect(q1.contentQuestion.isMobile).toBe(true);
 
     survey.setIsMobile(false);
-    expect(q1.contentQuestion.isMobile).toLooseEqual(false);
+    expect(q1.contentQuestion.isMobile).toBe(false);
   });
 
   test("Composite: isMobile flag, Bug#9927", () => {
@@ -3571,16 +3571,16 @@ describe("custom questions", () => {
     });
     const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
 
-    expect(q1.contentPanel.getQuestionByName("item1").isMobile).toLooseEqual(false);
-    expect(q1.contentPanel.getQuestionByName("item2").isMobile).toLooseEqual(false);
+    expect(q1.contentPanel.getQuestionByName("item1").isMobile).toBe(false);
+    expect(q1.contentPanel.getQuestionByName("item2").isMobile).toBe(false);
 
     survey.setIsMobile(true);
-    expect(q1.contentPanel.getQuestionByName("item1").isMobile).toLooseEqual(true);
-    expect(q1.contentPanel.getQuestionByName("item2").isMobile).toLooseEqual(true);
+    expect(q1.contentPanel.getQuestionByName("item1").isMobile).toBe(true);
+    expect(q1.contentPanel.getQuestionByName("item2").isMobile).toBe(true);
 
     survey.setIsMobile(false);
-    expect(q1.contentPanel.getQuestionByName("item1").isMobile).toLooseEqual(false);
-    expect(q1.contentPanel.getQuestionByName("item2").isMobile).toLooseEqual(false);
+    expect(q1.contentPanel.getQuestionByName("item1").isMobile).toBe(false);
+    expect(q1.contentPanel.getQuestionByName("item2").isMobile).toBe(false);
   });
   test("Single: Do not focus element on setting defaultValue & on setting value to survey.data, Bug#10016", () => {
     const oldFunc = SurveyElement.FocusElement;
@@ -3613,14 +3613,14 @@ describe("custom questions", () => {
       ],
     };
 
-    expect(counter, "Do not focus element on setting value from survey.data").toLooseEqual(0);
+    expect(counter, "Do not focus element on setting value from survey.data").toBe(0);
     const q1 = survey.getQuestionByName("q1");
     const question = <QuestionCheckboxModel>q1.contentQuestion;
     question.clearValue();
     question.clickItemHandler(question.choices[0], true);
-    expect(counter, "It is not other item").toLooseEqual(0);
+    expect(counter, "It is not other item").toBe(0);
     question.clickItemHandler(question.otherItem, true);
-    expect(counter, "Focus on setting the question value").toLooseEqual(1);
+    expect(counter, "Focus on setting the question value").toBe(1);
     expect(question.renderedValue, "check question initial value").toEqualValues(["Item 1", "other"]);
 
     ComponentCollection.Instance.clear();
@@ -3660,16 +3660,16 @@ describe("custom questions", () => {
       ],
     } };
 
-    expect(counter, "Do not focus element on setting value from survey.data").toLooseEqual(0);
+    expect(counter, "Do not focus element on setting value from survey.data").toBe(0);
     const q1 = survey.getQuestionByName("q1");
     const question = <QuestionCheckboxModel>(q1.contentPanel.getQuestionByName("check"));
     expect(question.renderedValue, "check question initial value").toEqualValues(["Item 2", "Item 3", "other"]);
-    expect(question.comment, "check question comment").toLooseEqual("3");
+    expect(question.comment, "check question comment").toBe("3");
     question.clearValue();
     question.clickItemHandler(question.choices[0], true);
-    expect(counter, "It is not other item").toLooseEqual(0);
+    expect(counter, "It is not other item").toBe(0);
     question.clickItemHandler(question.otherItem, true);
-    expect(counter, "Focus on setting the question value").toLooseEqual(1);
+    expect(counter, "Focus on setting the question value").toBe(1);
     expect(question.renderedValue, "check question initial value").toEqualValues(["Item 1", "other"]);
 
     ComponentCollection.Instance.clear();
@@ -3719,15 +3719,15 @@ describe("custom questions", () => {
     const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
     const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
     q2.value = "test2";
-    expect(q2.locTitle.renderedHtml, "q2 title is correct before piping").toLooseEqual("item: ");
+    expect(q2.locTitle.renderedHtml, "q2 title is correct before piping").toBe("item: ");
     q1.contentPanel.getQuestionByName("item1").value = "test1";
-    expect(q2.locTitle.renderedHtml, "q2 title is correct after piping").toLooseEqual("item: test1");
+    expect(q2.locTitle.renderedHtml, "q2 title is correct after piping").toBe("item: test1");
 
     const getter = new ValueGetter();
     const context = q1.getValueGetterContext();
-    expect(getter.getValue("q2", context), "valueGetter #1").toLooseEqual("test2");
-    expect(getter.getValue("composite.item1", context), "valueGetter #2").toLooseEqual("test1");
-    expect(getter.getValue("q1.item1", context), "valueGetter #3").toLooseEqual("test1");
+    expect(getter.getValue("q2", context), "valueGetter #1").toBe("test2");
+    expect(getter.getValue("composite.item1", context), "valueGetter #2").toBe("test1");
+    expect(getter.getValue("q1.item1", context), "valueGetter #3").toBe("test1");
 
   });
   test("Single: supportAutoAdvance, bug#10149", () => {
@@ -3739,11 +3739,11 @@ describe("custom questions", () => {
       elements: [{ type: "newquestion", name: "q1" }],
     });
     const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
-    expect(q1.supportAutoAdvance(), "supportAutoAdvance #1").toLooseEqual(false);
+    expect(q1.supportAutoAdvance(), "supportAutoAdvance #1").toBe(false);
     q1.contentQuestion.onMouseDown();
-    expect(q1.supportAutoAdvance(), "supportAutoAdvance #2").toLooseEqual(true);
+    expect(q1.supportAutoAdvance(), "supportAutoAdvance #2").toBe(true);
     q1.contentQuestion.value = "other";
-    expect(q1.supportAutoAdvance(), "supportAutoAdvance #3").toLooseEqual(false);
+    expect(q1.supportAutoAdvance(), "supportAutoAdvance #3").toBe(false);
   });
   test("Composite: survey instance in onLoad method", () => {
     let surveyInstance;
@@ -3762,10 +3762,10 @@ describe("custom questions", () => {
     const json = { type: "ordertabledynamic" };
     const question = Serializer.createClass(json["type"]);
     new JsonObject().toObject(json, question);
-    expect(onLoadCallCount).toLooseEqual(0);
+    expect(onLoadCallCount).toBe(0);
     expect(!surveyInstance).toBeTruthy();
     survey.pages[0].addQuestion(question);
-    expect(onLoadCallCount).toLooseEqual(1);
+    expect(onLoadCallCount).toBe(1);
     expect(!!surveyInstance).toBeTruthy();
   });
   test("Composite: panel dynamic & changing panel count, Bug#10403", () => {
@@ -3781,9 +3781,9 @@ describe("custom questions", () => {
     const survey = new SurveyModel({ elements: [{ "name": "question1", type: "newquestion" }] });
     const question1 = <QuestionCompositeModel>survey.getQuestionByName("question1");
     const pd = <QuestionPanelDynamicModel>question1.contentPanel.getQuestionByName("panel");
-    expect(pd.panelCount, "panel count #1").toLooseEqual(3);
+    expect(pd.panelCount, "panel count #1").toBe(3);
     pd.panels[0].getQuestionByName("q1").value = "val1";
-    expect(pd.panelCount, "panel count #2").toLooseEqual(3);
+    expect(pd.panelCount, "panel count #2").toBe(3);
     expect(question1.value, "question. value #1").toEqualValues({ panel: [{ q1: "val1" }, {}, {}] });
 
   });
@@ -3815,24 +3815,24 @@ describe("custom questions", () => {
       questionStartIndex: "1.1"
     });
     const singleQuestion = <QuestionCustomModel>survey.getQuestionByName("panel");
-    expect(singleQuestion.wasRendered, "single question was rendered").toLooseEqual(true);
+    expect(singleQuestion.wasRendered, "single question was rendered").toBe(true);
     const panel = singleQuestion.contentQuestion;
-    expect(panel.showQuestionNumbers, "content question showQuestionNumbers").toLooseEqual("recursive");
-    expect(panel.wasRendered, "panel was rendered").toLooseEqual(true);
+    expect(panel.showQuestionNumbers, "content question showQuestionNumbers").toBe("recursive");
+    expect(panel.wasRendered, "panel was rendered").toBe(true);
     const panel1 = panel.panels[0];
     const panel2 = panel.panels[1];
     const q1 = survey.getQuestionByName("q1");
     const q4 = survey.getQuestionByName("q4");
-    expect(q1.no, "q1 number").toLooseEqual("1.1");
-    expect(panel.no, "panel number").toLooseEqual("1.2");
-    expect(singleQuestion.no, "single question number").toLooseEqual("1.2");
-    expect(panel1.locTitle.textOrHtml, "panel1 title").toLooseEqual("Panel Title #1");
-    expect(panel2.locTitle.textOrHtml, "panel2 title").toLooseEqual("Panel Title #2");
-    expect(panel1.getQuestionByName("q2").no, "panel1.q2 number").toLooseEqual("1.2 a");
-    expect(panel1.getQuestionByName("q3").no, "panel1.q3 number").toLooseEqual("1.2 b");
-    expect(panel2.getQuestionByName("q2").no, "panel2.q2 number").toLooseEqual("1.2 a");
-    expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toLooseEqual("1.2 b");
-    expect(q4.no, "q4 number").toLooseEqual("1.3");
+    expect(q1.no, "q1 number").toBe("1.1");
+    expect(panel.no, "panel number").toBe("1.2");
+    expect(singleQuestion.no, "single question number").toBe("1.2");
+    expect(panel1.locTitle.textOrHtml, "panel1 title").toBe("Panel Title #1");
+    expect(panel2.locTitle.textOrHtml, "panel2 title").toBe("Panel Title #2");
+    expect(panel1.getQuestionByName("q2").no, "panel1.q2 number").toBe("1.2 a");
+    expect(panel1.getQuestionByName("q3").no, "panel1.q3 number").toBe("1.2 b");
+    expect(panel2.getQuestionByName("q2").no, "panel2.q2 number").toBe("1.2 a");
+    expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toBe("1.2 b");
+    expect(q4.no, "q4 number").toBe("1.3");
   });
   test("Composite: allow to make the custom number rendering", () => {
     ComponentCollection.Instance.add({
@@ -3859,17 +3859,17 @@ describe("custom questions", () => {
     const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("question1");
     const cq1 = compQuestion.contentPanel.getQuestionByName("q1");
     const cq2 = compQuestion.contentPanel.getQuestionByName("q2");
-    expect(q1.no, "q1 number").toLooseEqual("1.");
-    expect(q2.no, "q2 number").toLooseEqual("3.");
-    expect(compQuestion.no, "composite question number").toLooseEqual("2.");
-    expect(cq1.no, "cq1 number").toLooseEqual("2.");
-    expect(cq2.no, "cq2 number").toLooseEqual("2.2.");
-    expect(compQuestion.visibleIndex, "q2 visibleIndex").toLooseEqual(1);
-    expect(cq1.visibleIndex, "cq1 visibleIndex").toLooseEqual(0);
-    expect(cq2.visibleIndex, "cq2 visibleIndex").toLooseEqual(1);
+    expect(q1.no, "q1 number").toBe("1.");
+    expect(q2.no, "q2 number").toBe("3.");
+    expect(compQuestion.no, "composite question number").toBe("2.");
+    expect(cq1.no, "cq1 number").toBe("2.");
+    expect(cq2.no, "cq2 number").toBe("2.2.");
+    expect(compQuestion.visibleIndex, "q2 visibleIndex").toBe(1);
+    expect(cq1.visibleIndex, "cq1 visibleIndex").toBe(0);
+    expect(cq2.visibleIndex, "cq2 visibleIndex").toBe(1);
 
-    expect(cq1.locTitle.textOrHtml, "cq1 title").toLooseEqual("Question 1. 2.");
-    expect(cq2.locTitle.textOrHtml, "cq2 title").toLooseEqual("Question 2. 2.2.");
+    expect(cq1.locTitle.textOrHtml, "cq1 title").toBe("Question 1. 2.");
+    expect(cq2.locTitle.textOrHtml, "cq2 title").toBe("Question 2. 2.2.");
 
   });
   test("Single: Merge with separate locale strings, Bug#10771", () => {

@@ -37,22 +37,22 @@ describe("ProgressButtons", () => {
     };
     const survey: SurveyModel = new SurveyModel(json);
     const progress: ProgressButtons = new ProgressButtons(survey);
-    expect(progress.getListElementCss(0), "1) Page 1 style is current").toLooseEqual(survey.css.progressButtonsListElementCurrent);
-    expect(progress.getListElementCss(1), "1) Page 2 style is empty").toLooseEqual("");
-    expect(progress.getListElementCss(2), "1) Page 3 style is empty").toLooseEqual("");
+    expect(progress.getListElementCss(0), "1) Page 1 style is current").toBe(survey.css.progressButtonsListElementCurrent);
+    expect(progress.getListElementCss(1), "1) Page 2 style is empty").toBe("");
+    expect(progress.getListElementCss(2), "1) Page 3 style is empty").toBe("");
 
     progress.clickListElement(2);
-    expect(survey.currentPageNo, "currentPageNo #1").toLooseEqual(2);
-    expect(progress.getListElementCss(0), "2) Page 1 style is passed").toLooseEqual(survey.css.progressButtonsListElementPassed);
-    expect(progress.getListElementCss(1), "2) Page 2 style is passed").toLooseEqual(survey.css.progressButtonsListElementPassed);
-    expect(progress.getListElementCss(2), "2) Page 3 style is current").toLooseEqual(survey.css.progressButtonsListElementCurrent);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(2);
+    expect(progress.getListElementCss(0), "2) Page 1 style is passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(1), "2) Page 2 style is passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(2), "2) Page 3 style is current").toBe(survey.css.progressButtonsListElementCurrent);
 
     progress.clickListElement(0);
-    expect(survey.currentPageNo, "currentPageNo #2").toLooseEqual(0);
-    expect(progress.getListElementCss(0), "3) Page 1 style is passed and current").toLooseEqual(survey.css.progressButtonsListElementPassed + " " +
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(0);
+    expect(progress.getListElementCss(0), "3) Page 1 style is passed and current").toBe(survey.css.progressButtonsListElementPassed + " " +
     survey.css.progressButtonsListElementCurrent);
-    expect(progress.getListElementCss(1), "3) Page 2 style is passed").toLooseEqual(survey.css.progressButtonsListElementPassed);
-    expect(progress.getListElementCss(2), "3) Page 3 style is passed").toLooseEqual(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(1), "3) Page 2 style is passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(2), "3) Page 3 style is passed").toBe(survey.css.progressButtonsListElementPassed);
   });
   test("ProgressButtons list elements non clickable", () => {
     let json: any = {
@@ -89,8 +89,8 @@ describe("ProgressButtons", () => {
     let survey: SurveyModel = new SurveyModel(json);
     survey.onServerValidateQuestions.add((_: any, options: any) => options.complete());
     let progress: ProgressButtons = new ProgressButtons(survey);
-    expect(progress.getListElementCss(0), "1) Page 1 style is current").toLooseEqual(survey.css.progressButtonsListElementCurrent);
-    expect(progress.getListElementCss(1), "1) Page 2 style is empty").toLooseEqual("");
-    expect(progress.getListElementCss(2), "1) Page 3 style is non clickable").toLooseEqual(survey.css.progressButtonsListElementNonClickable);
+    expect(progress.getListElementCss(0), "1) Page 1 style is current").toBe(survey.css.progressButtonsListElementCurrent);
+    expect(progress.getListElementCss(1), "1) Page 2 style is empty").toBe("");
+    expect(progress.getListElementCss(2), "1) Page 3 style is non clickable").toBe(survey.css.progressButtonsListElementNonClickable);
   });
 });

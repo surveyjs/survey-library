@@ -79,7 +79,10 @@ stages:
   ###############
   - stage: LibraryCoreBuild
     displayName: "Library Core Build"
-    dependsOn: []
+    dependsOn: 
+      - Options
+    variables:
+      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
     jobs:
       - job:
         steps:
@@ -89,7 +92,10 @@ stages:
 
   - stage: LibraryReactBuild
     displayName: "Library React Build"
-    dependsOn: []
+    dependsOn: 
+      - Options
+    variables:
+      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
     jobs:
       - job:
         steps:
@@ -99,7 +105,10 @@ stages:
 
   - stage: LibraryAngularBuild
     displayName: "Library Angular Build"
-    dependsOn: []
+    dependsOn: 
+      - Options
+    variables:
+      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
     jobs:
       - job:
         steps:
@@ -109,7 +118,10 @@ stages:
 
   - stage: LibraryVueBuild
     displayName: "Library Vue Build"
-    dependsOn: []
+    dependsOn: 
+      - Options
+    variables:
+      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
     jobs:
       - job:
         steps:
@@ -119,7 +131,10 @@ stages:
 
   - stage: LibraryJSBuild
     displayName: "Library JS (Preact ShadowDOM BoxSizing) Build"
-    dependsOn: []
+    dependsOn: 
+      - Options
+    variables:
+      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
     jobs:
       - job:
         steps:
@@ -134,6 +149,7 @@ stages:
   #     - LibraryCoreBuild
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   jobs:
   #   - job:
   #     displayName: "Build"
@@ -151,6 +167,7 @@ stages:
   #     - LibraryReactBuild
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   jobs:
   #     - job:
   #       steps:
@@ -163,6 +180,7 @@ stages:
   #   displayName: "Creator Angular Build"
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   dependsOn:
   #     - Options
   #     - LibraryCoreBuild
@@ -179,6 +197,7 @@ stages:
   #   displayName: "Creator Vue Build"
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   dependsOn:
   #     - Options
   #     - LibraryCoreBuild
@@ -195,6 +214,7 @@ stages:
   #   displayName: "Creator JS (Preact ShadowDOM BoxSizing) Build"
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   dependsOn:
   #     - Options
   #     - LibraryCoreBuild
@@ -214,6 +234,7 @@ stages:
   #     - LibraryCoreBuild
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.ANALYTICS'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   jobs:
   #     - job:
   #       steps:
@@ -229,6 +250,7 @@ stages:
   #     - LibraryCoreBuild
   #   variables:
   #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.PDF'] ]
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
   #   jobs:
   #     - job:
   #       steps:

@@ -5,6 +5,6 @@ steps:
   - powershell: |
       $version = Get-Content $(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/version.txt
       Write-Host "version: $version"
-      Write-Host "##vso[task.setvariable variable=version;isOutput=true]$version"
+      Write-Host "##vso[task.setvariable variable=VERSION;isOutput=true]$version"
     name: data
     displayName: "version variable from version file"

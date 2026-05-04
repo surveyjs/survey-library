@@ -15,6 +15,11 @@ steps:
     condition: ne(variables['PR'], '')
     displayName: "Switch to PR $(PR)"
 
+  - ${{ if eq(parameters.store, true) }}:
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)
+      displayName: "npm run release"
+
   - template: ../../utils/npm.yml
     parameters:
       directories: 

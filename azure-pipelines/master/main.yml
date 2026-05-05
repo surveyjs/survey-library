@@ -191,6 +191,15 @@ jobs:
           npm run doc_gen
         displayName: "generate docs"
 
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
+          Contents: surveyjs_definition.json
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+          OverWrite: true
+          CleanTargetFolder: false
+        displayName: "put surveyjs_definition.json into build"
+
       - powershell: |
           $branch = "$(CurrentBranch)"
           cd $(Build.SourcesDirectory)/service
@@ -226,9 +235,6 @@ jobs:
               git push origin $branch
           }
         displayName: "Git surveyjs/service push updated docs for $(CurrentBranch)"
-
-
-
 
       - powershell: |
           $branch = "V2"
@@ -277,18 +283,10 @@ jobs:
 
 
       - script: |
-          cd $(Build.SourcesDirectory)/survey-utils
           npm install
-        displayName: "NPM install survey-utils"
-    
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-utils
           npm run build
-        displayName: "survey-utils build"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-utils
           node ./dist/translateLibrary.js
+        workingDirectory: $(Build.SourcesDirectory)/survey-utils
         displayName: "survey-utils translate library"
 
       - powershell: |
@@ -308,19 +306,14 @@ jobs:
           }
         displayName: "Library - push updated translation to github for $(CurrentBranch)"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
-          Contents: |
-            surveyjs_definition.json
-          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
-          OverWrite: true
-          CleanTargetFolder: false
-        displayName: "put surveyjs_definition.json into build"
+
+
+
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
+
 
       #trigger next build via the artifact file 'version.txt'
       - task: CopyFiles@2

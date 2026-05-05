@@ -31,6 +31,12 @@ steps:
     displayName: "Build"
 
   - ${{ if eq(parameters.store, true) }}:
+    - script: |
+        npm run doc_gen
+        cp docs/surveyjs_definition.json build/surveyjs_definition.json
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "Generate Docs"
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-core/build"

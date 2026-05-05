@@ -2,23 +2,18 @@ import { Question } from "../src/question";
 import { ComponentCollection } from "../src/question_custom";
 import { SurveyModel } from "../src/survey";
 
-export default QUnit.module("a11y");
-
-QUnit.test(
-  "a11y: aria-required",
-  function(assert) {
+import { describe, test, expect } from "vitest";
+describe("a11y", () => {
+  test("a11y: aria-required", () => {
     var question = new Question("q1");
     question.isRequired = true;
-    assert.equal(question.ariaRequired, "true", "aria-required is true");
+    expect(question.ariaRequired, "aria-required is true").toBe("true");
 
     question.isRequired = false;
-    assert.equal(question.ariaRequired, "false", "aria-required is false");
-  }
-);
+    expect(question.ariaRequired, "aria-required is false").toBe("false");
+  });
 
-QUnit.test(
-  "a11y: aria-label",
-  function(assert) {
+  test("a11y: aria-label", () => {
     var json = {
       elements: [
         {
@@ -31,13 +26,10 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
-    assert.equal(question.a11y_input_ariaLabel, "Title", "aria-label is correct");
-  }
-);
+    expect(question.a11y_input_ariaLabel, "aria-label is correct").toBe("Title");
+  });
 
-QUnit.test(
-  "a11y: aria-labelledby",
-  function(assert) {
+  test("a11y: aria-labelledby", () => {
     var json = {
       elements: [
         {
@@ -49,14 +41,11 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
-    assert.equal(question.a11y_input_ariaLabel, null, "aria-label does not exist");
-    assert.equal(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, true, "aria-labelledby is correct");
-  }
-);
+    expect(question.a11y_input_ariaLabel, "aria-label does not exist").toBe(null);
+    expect(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, "aria-labelledby is correct").toBe(true);
+  });
 
-QUnit.test(
-  "a11y: aria-describedbby",
-  function(assert) {
+  test("a11y: aria-describedbby", () => {
     var json = {
       elements: [
         {
@@ -69,13 +58,10 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
-    assert.equal(question.a11y_input_ariaDescribedBy.indexOf("_ariaDescription") !== -1, true, "aria-describedbby is correct");
-  }
-);
+    expect(question.a11y_input_ariaDescribedBy.indexOf("_ariaDescription") !== -1, "aria-describedbby is correct").toBe(true);
+  });
 
-QUnit.test(
-  "a11y: aria-describedbby: empty and hidden description",
-  function(assert) {
+  test("a11y: aria-describedbby: empty and hidden description", () => {
     var json = {
       elements: [
         {
@@ -93,47 +79,38 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var question1 = survey.getQuestionByName("q1");
-    assert.equal(question1.a11y_input_ariaDescribedBy, null, "aria-describedby is null");
+    expect(question1.a11y_input_ariaDescribedBy, "aria-describedby is null").toBe(null);
     var question2 = survey.getQuestionByName("q2");
-    assert.equal(question2.a11y_input_ariaDescribedBy, question2.id + "_ariaDescription", "aria-describedby is not empty");
+    expect(question2.a11y_input_ariaDescribedBy, "aria-describedby is not empty").toBe(question2.id + "_ariaDescription");
     question2.descriptionLocation = "hidden";
-    assert.equal(question2.a11y_input_ariaDescribedBy, null, "aria-describedby is null");
-  }
-);
+    expect(question2.a11y_input_ariaDescribedBy, "aria-describedby is null").toBe(null);
+  });
 
-QUnit.test(
-  "a11y: aria-invalid",
-  function(assert) {
+  test("a11y: aria-invalid", () => {
     var question = new Question("q1");
     question.isRequired = true;
 
     question.validate();
-    assert.equal(question.ariaInvalid, "true", "aria-invalid is TRUE because we have errors");
+    expect(question.ariaInvalid, "aria-invalid is TRUE because we have errors").toBe("true");
 
     question.value = "test";
     question.validate();
-    assert.equal(question.ariaInvalid, "false", "aria-invalid is FALSE because we don't have any errors");
-  }
-);
+    expect(question.ariaInvalid, "aria-invalid is FALSE because we don't have any errors").toBe("false");
+  });
 
-QUnit.test(
-  "a11y: aria-errormessage",
-  function(assert) {
+  test("a11y: aria-errormessage", () => {
     var question = new Question("q1");
     question.isRequired = true;
 
     question.validate();
-    assert.equal(question.ariaErrormessage, question.id + "_errors", "aria-errormessage is NOT NULL because we have errors");
+    expect(question.ariaErrormessage, "aria-errormessage is NOT NULL because we have errors").toBe(question.id + "_errors");
 
     question.value = "test";
     question.validate();
-    assert.equal(question.ariaErrormessage, null, "aria-errormessage is NULL because we don't have any errors");
-  }
-);
+    expect(question.ariaErrormessage, "aria-errormessage is NULL because we don't have any errors").toBe(null);
+  });
 
-QUnit.test(
-  "a11y: aria-labelledby",
-  function(assert) {
+  test("a11y: aria-labelledby", () => {
     var json = {
       elements: [
         {
@@ -148,50 +125,50 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
 
-    assert.equal(question.isNewA11yStructure, true, "new a11y structure");
+    expect(question.isNewA11yStructure, "new a11y structure").toBe(true);
 
-    assert.equal(question.ariaLabel, null, "old aria-label is null");
-    assert.equal(question.ariaRole, null, "old aria-role is null");
-    assert.equal(question.ariaRequired, null, "old aria-required is null");
-    assert.equal(question.ariaInvalid, null, "old aria-invalid is null");
-    assert.equal(question.ariaLabelledBy, null, "old aria-labelledby is null");
-    assert.equal(question.ariaExpanded, null, "old aria-expanded is null");
-    assert.equal(question.ariaErrormessage, null, "old aria-errormessage is null");
+    expect(question.ariaLabel, "old aria-label is null").toBe(null);
+    expect(question.ariaRole, "old aria-role is null").toBe(null);
+    expect(question.ariaRequired, "old aria-required is null").toBe(null);
+    expect(question.ariaInvalid, "old aria-invalid is null").toBe(null);
+    expect(question.ariaLabelledBy, "old aria-labelledby is null").toBe(null);
+    expect(question.ariaExpanded, "old aria-expanded is null").toBe(null);
+    expect(question.ariaErrormessage, "old aria-errormessage is null").toBe(null);
 
-    assert.equal(question.a11y_input_ariaLabel, null, "aria-label does not exist because we have a title");
-    assert.equal(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, true, "aria-labelledby is correct");
-    assert.equal(question.a11y_input_ariaRole, "radiogroup", "aria-role is radiogroup");
-    assert.equal(question.a11y_input_ariaRequired, "true", "aria-required is true");
-    assert.equal(question.a11y_input_ariaInvalid, "false", "aria-invalid is false");
-    assert.equal(question.a11y_input_ariaExpanded, null, "aria-expanded is null");
-    assert.equal(question.a11y_input_ariaErrormessage, null, "aria-errormessage is null");
-  }
-);
-
-QUnit.test("a11y: aria-labelledby customquestion Bug#11049", (assert) => {
-
-  ComponentCollection.Instance.add({
-    name: "text2",
-    defaultQuestionTitle: "Currency",
-    questionJSON: {
-      "type": "text",
-    }
+    expect(question.a11y_input_ariaLabel, "aria-label does not exist because we have a title").toBe(null);
+    expect(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, "aria-labelledby is correct").toBe(true);
+    expect(question.a11y_input_ariaRole, "aria-role is radiogroup").toBe("radiogroup");
+    expect(question.a11y_input_ariaRequired, "aria-required is true").toBe("true");
+    expect(question.a11y_input_ariaInvalid, "aria-invalid is false").toBe("false");
+    expect(question.a11y_input_ariaExpanded, "aria-expanded is null").toBeUndefined();
+    expect(question.a11y_input_ariaErrormessage, "aria-errormessage is null").toBe(null);
   });
 
-  const config = {
-    elements: [
-      {
-        type: "text2",
-        name: "q1",
-        title: "Currency (specialized)",
+  test("a11y: aria-labelledby customquestion Bug#11049", () => {
+
+    ComponentCollection.Instance.add({
+      name: "text2",
+      defaultQuestionTitle: "Currency",
+      questionJSON: {
+        "type": "text",
       }
-    ]
-  };
+    });
 
-  var survey = new SurveyModel(config);
-  var q1 = survey.getQuestionByName("q1");
+    const config = {
+      elements: [
+        {
+          type: "text2",
+          name: "q1",
+          title: "Currency (specialized)",
+        }
+      ]
+    };
 
-  assert.equal(q1.ariaTitleId, q1.contentQuestion.ariaTitleId);
-  assert.equal(q1.ariaDescriptionId, q1.contentQuestion.ariaDescriptionId);
-  assert.equal(q1.commentId, q1.contentQuestion.commentId);
+    var survey = new SurveyModel(config);
+    var q1 = survey.getQuestionByName("q1");
+
+    expect(q1.ariaTitleId).toBe(q1.contentQuestion.ariaTitleId);
+    expect(q1.ariaDescriptionId).toBe(q1.contentQuestion.ariaDescriptionId);
+    expect(q1.commentId).toBe(q1.contentQuestion.commentId);
+  });
 });

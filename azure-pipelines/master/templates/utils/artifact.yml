@@ -1,0 +1,124 @@
+parameters:
+  - name: artifacts
+    type: object
+    default: []
+  - name: pipeline
+    type: string
+    default: ""
+  - name: pr
+    type: string
+    default: ""
+
+steps:
+  - bash: |
+      set -euo pipefail
+
+      ARTIFACTS_JSON='${{ convertToJson(parameters.artifacts) }}'
+
+      ORG_URL="$(System.TeamFoundationCollectionUri)"
+      PROJECT=$(echo "$(System.TeamProject)" | sed 's/ /%20/g')
+      TOKEN="$(System.AccessToken)"
+
+      PIPELINE="${{ parameters.pipeline }}"
+      PR="${{ parameters.pr }}"
+      echo "PIPELINE: $PIPELINE PR: $PR"
+
+      if [ -n "$PIPELINE" ]; then
+        # Find latest successful build from pipeline
+        CURL_ARGS=(-s -f -G -H "Authorization: Bearer $TOKEN"
+          --data-urlencode "definitions=$PIPELINE"
+          --data-urlencode "statusFilter=completed"
+          --data-urlencode "resultFilter=succeeded"
+          --data-urlencode "\$top=1"
+          --data-urlencode "api-version=7.0"
+        )
+
+        if [ -n "$PR" ]; then
+          CURL_ARGS+=(--data-urlencode "branchName=refs/pull/$PR/merge")
+        fi
+
+        BUILD_ID=$(curl "${CURL_ARGS[@]}" \
+          "${ORG_URL}${PROJECT}/_apis/build/builds" \
+          | jq -r '.value[0].id // empty')
+
+        if [ -z "$BUILD_ID" ]; then
+          if [ -n "$PR" ]; then
+            echo "##vso[task.logissue type=error]No successful build found for PR #$PR in pipeline $PIPELINE"
+          else
+            echo "##vso[task.logissue type=error]No successful build found in pipeline $PIPELINE"
+          fi
+          exit 1
+        fi
+
+        if [ -n "$PR" ]; then
+          echo "Found build $BUILD_ID for PR #$PR"
+        else
+          echo "Found build $BUILD_ID from pipeline $PIPELINE"
+        fi
+      else
+        BUILD_ID="$(Build.BuildId)"
+      fi
+
+      PIDS=()
+      NAMES=()
+
+      for ARTIFACT_NAME in $(echo "$ARTIFACTS_JSON" | jq -r '.[]'); do
+        DEST="$(Agent.TempDirectory)/$ARTIFACT_NAME"
+        (
+          DOWNLOAD_DIR="$(System.ArtifactsDirectory)/$ARTIFACT_NAME"
+
+          # Get artifact download URL
+          API_URL="${ORG_URL}${PROJECT}/_apis/build/builds/${BUILD_ID}/artifacts"
+          echo "[$ARTIFACT_NAME] Requesting artifact info: $API_URL"
+
+          RESPONSE=$(curl -s -f -G -H "Authorization: Bearer $TOKEN" \
+            --data-urlencode "artifactName=$ARTIFACT_NAME" \
+            --data-urlencode "api-version=7.0" \
+            "$API_URL")
+          DOWNLOAD_URL=$(echo "$RESPONSE" | jq -r '.resource.downloadUrl')
+
+          if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
+            echo "##vso[task.logissue type=error]Failed to get download URL for artifact '$ARTIFACT_NAME'"
+            exit 1
+          fi
+
+          # Download and extract artifact zip
+          mkdir -p "$DOWNLOAD_DIR"
+          echo "[$ARTIFACT_NAME] Downloading from: $DOWNLOAD_URL"
+          curl -s -f -L -H "Authorization: Bearer $TOKEN" -o "$DOWNLOAD_DIR/$ARTIFACT_NAME.zip" "$DOWNLOAD_URL"
+          python3 -c "import zipfile,sys; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" "$DOWNLOAD_DIR/$ARTIFACT_NAME.zip" "$DOWNLOAD_DIR"
+          rm -f "$DOWNLOAD_DIR/$ARTIFACT_NAME.zip"
+
+          # Extract to destination
+          ARTIFACT_DIR="$DOWNLOAD_DIR/$ARTIFACT_NAME"
+          if [ ! -d "$ARTIFACT_DIR" ]; then
+            ARTIFACT_DIR="$DOWNLOAD_DIR"
+          fi
+
+          TAR_FILE="$ARTIFACT_DIR/$ARTIFACT_NAME.tar"
+          rm -rf "$DEST"
+          mkdir -p "$DEST"
+          if [ -f "$TAR_FILE" ]; then
+            echo "[$ARTIFACT_NAME] Found tar archive: $TAR_FILE"
+            tar -xf "$TAR_FILE" -C "$DEST"
+          else
+            echo "[$ARTIFACT_NAME] No tar archive found, copying files from $ARTIFACT_DIR"
+            cp -r "$ARTIFACT_DIR"/* "$DEST/"
+          fi
+
+          echo "[$ARTIFACT_NAME] Extracted to $DEST"
+        ) &
+        PIDS+=($!)
+        NAMES+=("$ARTIFACT_NAME")
+      done
+
+      FAILED=0
+      for i in "${!PIDS[@]}"; do
+        if ! wait "${PIDS[$i]}"; then
+          echo "FAILED: ${NAMES[$i]}"
+          FAILED=1
+        fi
+      done
+      exit $FAILED
+    displayName: "Download artifacts"
+

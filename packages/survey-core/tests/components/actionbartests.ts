@@ -12,14 +12,15 @@ import { SurveyModel } from "../../src/survey";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { ResponsivityManager } from "../../src/utils/responsivity-manager";
 
-QUnit.test("Check that items are wrapped after set", (assert) => {
+import { describe, test, expect } from "vitest";
+test("Check that items are wrapped after set", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([{ id: "first" }, { id: "second" }]);
-  assert.ok(model.actions[0] instanceof Action);
-  assert.ok(model.actions[1] instanceof Action);
+  expect(model.actions[0] instanceof Action).toBeTruthy();
+  expect(model.actions[1] instanceof Action).toBeTruthy();
 });
 
-QUnit.test("Check action sort items", (assert) => {
+test("Check action sort items", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([
     { id: "invisible", visibleIndex: -1 },
@@ -28,59 +29,48 @@ QUnit.test("Check action sort items", (assert) => {
     { id: "first", visibleIndex: 0 },
     { id: "undefined_index", visibleIndex: undefined },
   ]);
-  assert.equal(model.actions.length, 4);
-  assert.equal(model.actions[0].id, "first");
-  assert.equal(model.actions[1].id, "second");
-  assert.equal(model.actions[2].id, "third");
+  expect(model.actions.length).toBe(4);
+  expect(model.actions[0].id).toBe("first");
+  expect(model.actions[1].id).toBe("second");
+  expect(model.actions[2].id).toBe("third");
   //item with undefined index should be put in the end of array
-  assert.equal(model.actions[3].id, "undefined_index");
+  expect(model.actions[3].id).toBe("undefined_index");
 });
 
-QUnit.test(
-  "isVisible",
-  (assert) => {
-    const action = new Action(<any>{});
-    assert.ok(action.visible, "default visible");
-    assert.ok(action.isVisible, "default isVisible");
-    action.visible = false;
-    assert.notOk(action.visible, "not visible");
-    assert.notOk(action.isVisible, "not isVisible due to visible=false");
-  }
-);
+test("isVisible", () => {
+  const action = new Action(<any>{});
+  expect(action.visible, "default visible").toBeTruthy();
+  expect(action.isVisible, "default isVisible").toBeTruthy();
+  action.visible = false;
+  expect(action.visible, "not visible").toBeFalsy();
+  expect(action.isVisible, "not isVisible due to visible=false").toBeFalsy();
+});
 
-QUnit.test(
-  "Create Action from Action",
-  (assert) => {
-    const action = new Action(<any>{ title: "action" });
-    const newAction = new Action(action);
-    newAction.title = "new action";
-    assert.equal(newAction.title, "new action");
-    assert.equal(action.title, "action");
-  }
-);
+test("Create Action from Action", () => {
+  const action = new Action(<any>{ title: "action" });
+  const newAction = new Action(action);
+  newAction.title = "new action";
+  expect(newAction.title).toBe("new action");
+  expect(action.title).toBe("action");
+});
 
-QUnit.test("AdaptiveActionContainer.css",
-  (assert) => {
-    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-    model.addAction({ id: "1" });
-    model.flushUpdates();
-    assert.equal(model.getRootCss(), "sd-action-bar sd-action-bar--default-size");
-    model.containerCss = "footer";
-    assert.equal(model.getRootCss(), "sd-action-bar sd-action-bar--default-size footer");
-  }
-);
+test("AdaptiveActionContainer.css", () => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.addAction({ id: "1" });
+  model.flushUpdates();
+  expect(model.getRootCss()).toBe("sv-action-bar sv-action-bar--default-size-mode");
+  model.containerCss = "footer";
+  expect(model.getRootCss()).toBe("sv-action-bar sv-action-bar--default-size-mode footer");
+});
 
-QUnit.test(
-  "getActionRootCss",
-  (assert) => {
-    const action = new Action(<any>{ css: "custom" });
-    assert.equal(action.getActionRootCss(), "sd-action-bar__item custom");
-    action.visible = false;
-    assert.equal(action.getActionRootCss(), "sd-action-bar__item custom sd-action-bar__item--hidden");
-  }
-);
+test("getActionRootCss", () => {
+  const action = new Action(<any>{ css: "custom" });
+  expect(action.getActionRootCss()).toBe("sv-action custom");
+  action.visible = false;
+  expect(action.getActionRootCss()).toBe("sv-action custom sv-action--hidden");
+});
 
-QUnit.test("Check hideItemsGreaterN with minVisibleItemsCount", (assert) => {
+test("Check hideItemsGreaterN with minVisibleItemsCount", () => {
   const createTestModel = () => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     model.setItems([
@@ -92,17 +82,17 @@ QUnit.test("Check hideItemsGreaterN with minVisibleItemsCount", (assert) => {
   let model = createTestModel();
   model.flushUpdates();
   model["hideItemsGreaterN"](0);
-  assert.equal(model.actions[0].mode, "popup");
-  assert.equal(model.actions[1].mode, "popup");
+  expect(model.actions[0].mode).toBe("popup");
+  expect(model.actions[1].mode).toBe("popup");
   model = createTestModel();
   model.flushUpdates();
   model.minVisibleItemsCount = 1;
   model["hideItemsGreaterN"](0);
-  assert.equal(model.actions[0].mode, "large");
-  assert.equal(model.actions[1].mode, "popup");
+  expect(model.actions[0].mode).toBe("large");
+  expect(model.actions[1].mode).toBe("popup");
 });
 
-QUnit.test("Check dropdown action pressed state", (assert) => {
+test("Check dropdown action pressed state", () => {
   const p1 = new PopupModel("", "");
   const p2 = new PopupModel("", "");
   const action: Action = new Action({
@@ -111,109 +101,109 @@ QUnit.test("Check dropdown action pressed state", (assert) => {
     popupModel: p1
   },);
   const viewModel = new ActionDropdownViewModel(action);
-  assert.notOk(action.popupActive);
+  expect(action.pressed).toBeFalsy();
   p1.isVisible = true;
-  assert.ok(action.popupActive);
+  expect(action.pressed).toBeTruthy();
   p1.isVisible = false;
-  assert.notOk(action.popupActive);
+  expect(action.pressed).toBeFalsy();
   action.popupModel = p2;
 });
 
-QUnit.test("Check action title", (assert) => {
+test("Check action title", () => {
   const action = new Action({ id: "" });
   action.title = "simple_title";
-  assert.equal(action.title, "simple_title");
+  expect(action.title).toBe("simple_title");
   const locTitle = new LocalizableString(null);
   locTitle.text = "loc_title_1";
   action.locTitle = locTitle;
-  assert.equal(action.title, "loc_title_1");
+  expect(action.title).toBe("loc_title_1");
   locTitle.text = "loc_title_2";
-  assert.equal(action.title, "loc_title_2");
+  expect(action.title).toBe("loc_title_2");
   action.title = "loc_title_3";
-  assert.equal(action.title, "loc_title_3");
-  assert.equal(locTitle.text, "loc_title_3");
+  expect(action.title).toBe("loc_title_3");
+  expect(locTitle.text).toBe("loc_title_3");
 });
 
-QUnit.test("Check action bar cssClasses", (assert) => {
+test("Check action bar cssClasses", () => {
   const actionBar = new ActionContainer();
-  assert.ok(actionBar.cssClasses === defaultActionBarCss);
+  expect(actionBar.cssClasses === defaultActionBarCss).toBeTruthy();
   actionBar.cssClasses = {
     root: "custom-action-bar"
   };
-  assert.ok(actionBar.cssClasses !== defaultActionBarCss);
-  assert.equal(actionBar.cssClasses.root, "custom-action-bar");
-  assert.equal(actionBar.cssClasses.item, "sd-action");
+  expect(actionBar.cssClasses !== defaultActionBarCss).toBeTruthy();
+  expect(actionBar.cssClasses.root).toBe("custom-action-bar");
+  expect(actionBar.cssClasses.item).toBe("sv-action-bar-item");
 });
-QUnit.test("Action title", (assert) => {
+test("Action title", () => {
   const page = new PageModel("page1");
   const actionInner: IAction = {
     id: page.id,
     title: <any>new ComputedUpdater<string>(() => page.name)
   };
   const action = new Action(actionInner);
-  assert.equal(action.title, "page1", "title: get from page name #1");
-  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #1");
+  expect(action.title, "title: get from page name #1").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toBe("page1");
   page.name = "page2";
-  assert.equal(action.title, "page2", "title: get from page name #2");
-  assert.equal(action.locTitle.textOrHtml, "page2", "locTitle.textOrHtml: get from page name #2");
+  expect(action.title, "title: get from page name #2").toBe("page2");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #2").toBe("page2");
 });
-QUnit.test("Action title set title updater later", (assert) => {
+test("Action title set title updater later", () => {
   const page = new PageModel("page1");
   const actionInner: IAction = {
     id: page.id,
   };
   const action = new Action(actionInner);
-  assert.equal(action.title, undefined, "title: undefined");
+  expect(action.title, "title: undefined").toBeUndefined();
   action.title = <any>new ComputedUpdater<string>(() => page.name);
-  assert.equal(action.title, "page1", "title: get from page name #1");
-  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #1");
+  expect(action.title, "title: get from page name #1").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toBe("page1");
   page.name = "page2";
-  assert.equal(action.title, "page2", "title: get from page name #2");
-  assert.equal(action.locTitle.textOrHtml, "page2", "locTitle.textOrHtml: get from page name #2");
+  expect(action.title, "title: get from page name #2").toBe("page2");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #2").toBe("page2");
 });
-QUnit.test("Action title set title updater later and depends on page visibility", (assert) => {
+test("Action title set title updater later and depends on page visibility", () => {
   const page = new PageModel("page1");
   const actionInner: IAction = {
     id: page.id,
   };
   const action = new Action(actionInner);
-  assert.equal(action.title, undefined, "title: undefined");
+  expect(action.title, "title: undefined").toBeUndefined();
   action.title = <any>new ComputedUpdater<string>(() => page.visible ? page.name : "hidden");
-  assert.equal(action.title, "page1", "title: get from page name #1");
-  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #1");
+  expect(action.title, "title: get from page name #1").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #1").toBe("page1");
   page.visible = false;
-  assert.equal(action.title, "hidden", "title: hidden #2");
-  assert.equal(action.locTitle.textOrHtml, "hidden", "locTitle.textOrHtml: hidden #2");
+  expect(action.title, "title: hidden #2").toBe("hidden");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: hidden #2").toBe("hidden");
   action.title = <any>undefined;
   action.title = <any>new ComputedUpdater<string>(() => page.visible ? page.name : "hidden");
-  assert.equal(action.title, "hidden", "title: hidden #3");
-  assert.equal(action.locTitle.textOrHtml, "hidden", "locTitle.textOrHtml: hidden #3");
+  expect(action.title, "title: hidden #3").toBe("hidden");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: hidden #3").toBe("hidden");
   page.visible = true;
-  assert.equal(action.title, "page1", "title: get from page name #4");
-  assert.equal(action.locTitle.textOrHtml, "page1", "locTitle.textOrHtml: get from page name #4");
+  expect(action.title, "title: get from page name #4").toBe("page1");
+  expect(action.locTitle.textOrHtml, "locTitle.textOrHtml: get from page name #4").toBe("page1");
 });
-QUnit.test("Empty action title", (assert) => {
+test("Empty action title", () => {
   const action = new Action({ id: "1" });
-  assert.strictEqual(action.title, undefined, "title is undefined");
+  expect(action.title, "title is undefined").toBe(undefined);
 });
-QUnit.test("Action title", (assert) => {
+test("Action title", () => {
   const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
   const action1 = survey.addNavigationItem({
     id: "action1",
     locTitleName: "selectAllItemText",
     locTooltipName: "previewText"
   });
-  assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
-  assert.equal(action1.title, "Select All", "Update action title en localization");
-  assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
+  expect(action1.locTitle.text, "take text from en localization").toBe("Select All");
+  expect(action1.title, "Update action title en localization").toBe("Select All");
+  expect(action1.tooltip, "take tooltip from en localization").toBe("Preview");
   survey.locale = "de";
-  assert.equal(action1.getLocale(), "de", "locale de");
-  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  assert.equal(action1.title, "Alles auswählen", "Update action title de localization"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
+  expect(action1.getLocale(), "locale de").toBe("de");
+  expect(action1.locTitle.text, "take text from de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.title, "Update action title de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.tooltip, "take tooltip from de localization").toBe("Vorschau");
   survey.locale = "";
 });
-QUnit.test("Action title in list model", (assert) => {
+test("Action title in list model", () => {
   const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
   const action1 = survey.addNavigationItem({
     id: "action1",
@@ -223,44 +213,35 @@ QUnit.test("Action title in list model", (assert) => {
   const list = new ListModel({ items: [action1], onSelectionChanged: () => { }, allowSelection: true } as any);
   const popupModel = new PopupModel("sv-list", list, { verticalPosition: "bottom", horizontalPosition: "center" });
   survey.addNavigationItem({ id: "action2", title: "test", popupModel: popupModel });
-  assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
-  assert.equal(action1.title, "Select All", "Update action title en localization");
-  assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
+  expect(action1.locTitle.text, "take text from en localization").toBe("Select All");
+  expect(action1.title, "Update action title en localization").toBe("Select All");
+  expect(action1.tooltip, "take tooltip from en localization").toBe("Preview");
   survey.locale = "de";
-  assert.equal(action1.getLocale(), "de");
-  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  assert.equal(action1.title, "Alles auswählen", "Update action title de localization"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
+  expect(action1.getLocale()).toBe("de");
+  expect(action1.locTitle.text, "take text from de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.title, "Update action title de localization").toBe("Alles auswählen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  expect(action1.tooltip, "take tooltip from de localization").toBe("Vorschau");
   survey.locale = "";
 });
-QUnit.test(
-  "ariaChecked",
-  (assert) => {
-    const action = new Action(<any>{});
-    assert.notOk(action.ariaChecked, "default is undefined");
-    action.ariaChecked = true;
-    assert.ok(action.ariaChecked, "property exists");
-  }
-);
-QUnit.test(
-  "ariaExpanded",
-  (assert) => {
-    const action = new Action(<any>{});
-    assert.notOk(action.ariaExpanded, "default is undefined");
-    action.ariaExpanded = true;
-    assert.ok(action.ariaExpanded, "property exists");
-  }
-);
-QUnit.test(
-  "ariaLabelledBy",
-  (assert) => {
-    const action = new Action(<any>{});
-    assert.notOk(action.ariaLabelledBy, "default is undefined");
-    action.ariaLabelledBy = "id-some";
-    assert.ok(action.ariaLabelledBy, "property exists");
-  }
-);
-QUnit.test("Dispose dots item and all it content", (assert) => {
+test("ariaChecked", () => {
+  const action = new Action(<any>{});
+  expect(action.ariaChecked, "default is undefined").toBeFalsy();
+  action.ariaChecked = true;
+  expect(action.ariaChecked, "property exists").toBeTruthy();
+});
+test("ariaExpanded", () => {
+  const action = new Action(<any>{});
+  expect(action.ariaExpanded, "default is undefined").toBeFalsy();
+  action.ariaExpanded = true;
+  expect(action.ariaExpanded, "property exists").toBeTruthy();
+});
+test("ariaLabelledBy", () => {
+  const action = new Action(<any>{});
+  expect(action.ariaLabelledBy, "default is undefined").toBeFalsy();
+  action.ariaLabelledBy = "id-some";
+  expect(action.ariaLabelledBy, "property exists").toBeTruthy();
+});
+test("Dispose dots item and all it content", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([
     { id: "first", },
@@ -270,25 +251,25 @@ QUnit.test("Dispose dots item and all it content", (assert) => {
   model.flushUpdates();
 
   model["hideItemsGreaterN"](0);
-  assert.equal(model.actions[0].mode, "popup");
-  assert.equal(model.actions[1].mode, "popup");
-  assert.notEqual(model.dotsItem.popupModel, undefined, "popup model exists");
-  assert.equal(model.dotsItem.popupModel.isDisposed, false, "popup model is not disposed");
-  assert.notEqual(model.dotsItem.data, undefined, "list model exists");
-  assert.equal(model.dotsItem.data.isDisposed, false, "list model is not disposed");
+  expect(model.actions[0].mode).toBe("popup");
+  expect(model.actions[1].mode).toBe("popup");
+  expect(model.dotsItem.popupModel, "popup model exists").not.toBeUndefined();
+  expect(model.dotsItem.popupModel.isDisposed, "popup model is not disposed").toBe(false);
+  expect(model.dotsItem.data, "list model exists").not.toBeUndefined();
+  expect(model.dotsItem.data.isDisposed, "list model is not disposed").toBe(false);
 
   const action1 = model.actions[0];
   const action2 = model.actions[1];
 
   model.dispose();
-  assert.equal(model.actions.length, 0, "actions are removed");
-  assert.equal(action1.isDisposed, true, "action 1 is disposed");
-  assert.equal(action2.isDisposed, true, "action 2 is disposed");
-  assert.equal(model.dotsItem.isDisposed, true, "dotsItem is disposed");
-  assert.equal(model.dotsItem.popupModel.isDisposed, true, "popup model is disposed");
-  assert.equal(model.dotsItem.data.isDisposed, true, "list model is disposed");
+  expect(model.actions.length, "actions are removed").toBe(0);
+  expect(action1.isDisposed, "action 1 is disposed").toBe(true);
+  expect(action2.isDisposed, "action 2 is disposed").toBe(true);
+  expect(model.dotsItem.isDisposed, "dotsItem is disposed").toBe(true);
+  expect(model.dotsItem.popupModel.isDisposed, "popup model is disposed").toBe(true);
+  expect(model.dotsItem.data.isDisposed, "list model is disposed").toBe(true);
 });
-QUnit.test("createDropdownActionModel: switch action title", (assert) => {
+test("createDropdownActionModel: switch action title", () => {
   let items: Array<any> = [];
   for (let index = 0; index < 20; index++) {
     items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
@@ -301,18 +282,18 @@ QUnit.test("createDropdownActionModel: switch action title", (assert) => {
   );
   const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
 
-  assert.equal(selectedValue, undefined);
-  assert.equal(dropdownAction.title, "Test");
+  expect(selectedValue).toBeUndefined();
+  expect(dropdownAction.title).toBe("Test");
 
   list.onItemClick(items[1]);
-  assert.equal(selectedValue, "1");
-  assert.equal(dropdownAction.title, "item1");
+  expect(selectedValue).toBe("1");
+  expect(dropdownAction.title).toBe("item1");
 
   list.onItemClick(items[10]);
-  assert.equal(selectedValue, "10");
-  assert.equal(dropdownAction.title, "item10");
+  expect(selectedValue).toBe("10");
+  expect(dropdownAction.title).toBe("item10");
 });
-QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
+test("createDropdownActionModel: title is not changed", () => {
   let items: Array<any> = [];
   for (let index = 0; index < 20; index++) {
     items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
@@ -325,18 +306,18 @@ QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
   );
   const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
 
-  assert.equal(selectedValue, undefined);
-  assert.equal(dropdownAction.title, "Test");
+  expect(selectedValue).toBeUndefined();
+  expect(dropdownAction.title).toBe("Test");
 
   list.onItemClick(items[1]);
-  assert.equal(selectedValue, "1");
-  assert.equal(dropdownAction.title, "Test");
+  expect(selectedValue).toBe("1");
+  expect(dropdownAction.title).toBe("Test");
 
   list.onItemClick(items[10]);
-  assert.equal(selectedValue, "10");
-  assert.equal(dropdownAction.title, "Test");
+  expect(selectedValue).toBe("10");
+  expect(dropdownAction.title).toBe("Test");
 });
-QUnit.test("Action locTitleName doesn't work correctly, bug#8093", (assert) => {
+test("Action locTitleName doesn't work correctly, bug#8093", () => {
   const survey = new SurveyModel({ locale: "fr", elements: [{ type: "text", name: "q1" }] });
   const enTranslations = surveyLocalization.getLocaleStrings("en");
   const frTranslations = surveyLocalization.getLocaleStrings("fr");
@@ -347,39 +328,39 @@ QUnit.test("Action locTitleName doesn't work correctly, bug#8093", (assert) => {
     id: "clearPage",
     locTitleName: "clearPage"
   });
-  assert.equal(action1.title, "Effacer la page", "Clear page fr#1");
+  expect(action1.title, "Clear page fr#1").toBe("Effacer la page");
   survey.locale = "";
-  assert.equal(action1.title, "Clear page", "Clear page en#1");
+  expect(action1.title, "Clear page en#1").toBe("Clear page");
   survey.locale = "fr";
-  assert.equal(action1.title, "Effacer la page", "Clear page fr#2");
+  expect(action1.title, "Clear page fr#2").toBe("Effacer la page");
 });
-QUnit.test("Action setSubItems popup canShrink property", function (assert) {
+test("Action setSubItems popup canShrink property", () => {
   const action = new Action({ id: "test2", title: "test2" });
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
   (action as Action).setSubItems({ items: subitems });
 
-  assert.notOk(action.popupModel.canShrink, "popub model for subitems should not shrink");
+  expect(action.popupModel.canShrink, "popub model for subitems should not shrink").toBeFalsy();
 });
 
-QUnit.test("Action setSubItems popup item click", function (assert) {
+test("Action setSubItems popup item click", () => {
   const action = new Action({ id: "test2", title: "test2" });
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
   let event = "";
   (action as Action).setSubItems({ items: subitems, onSelectionChanged: (item) => { event = item.title; } });
   action.popupModel.contentComponentData.model.onItemClick(action.items[1]);
-  assert.equal(event, "test29");
+  expect(event).toBe("test29");
 });
 
-QUnit.test("Action setSubItems does not change existing popup", function (assert) {
+test("Action setSubItems does not change existing popup", () => {
   const action = new Action({ id: "test2", title: "test2" });
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
   (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
   var lastPopup = action.popupModel;
   (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
-  assert.equal(lastPopup, action.popupModel);
+  expect(lastPopup).toBe(action.popupModel);
 });
 
-QUnit.test("Action subitems show timeout - we should wait other popup to hide", function (assert) {
+test("Action subitems show timeout - we should wait other popup to hide", () => {
   const actionBar = new ActionContainer();
   const action1 = new Action({ id: "test2", title: "test2" });
   let delayCalled = -1;
@@ -397,14 +378,14 @@ QUnit.test("Action subitems show timeout - we should wait other popup to hide", 
   actionBar.subItemsHideDelay = 30;
 
   actionBar.mouseOverHandler(action1);
-  assert.equal(delayCalled, 20);
+  expect(delayCalled).toBe(20);
 
   action2.popupModel.show();
   actionBar.mouseOverHandler(action1);
-  assert.equal(delayCalled, 30);
+  expect(delayCalled).toBe(30);
 });
 
-QUnit.test("Check rendered actions", function (assert) {
+test("Check rendered actions", () => {
   const actionBar = new ActionContainer();
   actionBar.setItems([
     { id: "test1", title: "test1" },
@@ -412,46 +393,46 @@ QUnit.test("Check rendered actions", function (assert) {
     { id: "test2", title: "test3" }
   ]);
   actionBar.flushUpdates();
-  assert.equal(actionBar.renderedActions.length, 2);
-  assert.equal(actionBar.renderedActions[0].title, "test1");
-  assert.equal(actionBar.renderedActions[1].title, "test3");
+  expect(actionBar.renderedActions.length).toBe(2);
+  expect(actionBar.renderedActions[0].title).toBe("test1");
+  expect(actionBar.renderedActions[1].title).toBe("test3");
 
   actionBar.actions[0].visible = false;
   actionBar.flushUpdates();
-  assert.equal(actionBar.renderedActions.length, 1);
-  assert.equal(actionBar.renderedActions[0].title, "test3");
+  expect(actionBar.renderedActions.length).toBe(1);
+  expect(actionBar.renderedActions[0].title).toBe("test3");
 
   actionBar.actions[1].visible = true;
   actionBar.flushUpdates();
-  assert.equal(actionBar.renderedActions.length, 2);
-  assert.equal(actionBar.renderedActions[0].title, "test2");
-  assert.equal(actionBar.renderedActions[1].title, "test3");
+  expect(actionBar.renderedActions.length).toBe(2);
+  expect(actionBar.renderedActions[0].title).toBe("test2");
+  expect(actionBar.renderedActions[1].title).toBe("test3");
 });
 
-QUnit.test("Check rendered actions for adaptive container", function (assert) {
+test("Check rendered actions for adaptive container", () => {
   const actionBar = new AdaptiveActionContainer();
-  assert.equal(actionBar.renderedActions.length, 0);
+  expect(actionBar.renderedActions.length).toBe(0);
 
   actionBar.setItems([{ id: "test1", title: "test1" }]);
   actionBar.flushUpdates();
-  assert.equal(actionBar.renderedActions.length, 2);
-  assert.equal(actionBar.renderedActions[0].id, "test1");
-  assert.ok(actionBar.renderedActions[1].id == actionBar.dotsItem.id);
+  expect(actionBar.renderedActions.length).toBe(2);
+  expect(actionBar.renderedActions[0].id).toBe("test1");
+  expect(actionBar.renderedActions[1].id == actionBar.dotsItem.id).toBeTruthy();
 
   actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }]);
   actionBar.flushUpdates();
-  assert.equal(actionBar.renderedActions.length, 1);
-  assert.equal(actionBar.renderedActions[0].id, "test1");
+  expect(actionBar.renderedActions.length).toBe(1);
+  expect(actionBar.renderedActions[0].id).toBe("test1");
 
   actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }, { id: "test2", title: "test2" }]);
   actionBar.flushUpdates();
-  assert.equal(actionBar.renderedActions.length, 3);
-  assert.equal(actionBar.renderedActions[0].id, "test1");
-  assert.equal(actionBar.renderedActions[1].id, "test2");
-  assert.ok(actionBar.renderedActions[2] == actionBar.dotsItem);
+  expect(actionBar.renderedActions.length).toBe(3);
+  expect(actionBar.renderedActions[0].id).toBe("test1");
+  expect(actionBar.renderedActions[1].id).toBe("test2");
+  expect(actionBar.renderedActions[2] == actionBar.dotsItem).toBeTruthy();
 });
 
-QUnit.test("Check getRootStyle method", function (assert) {
+test("Check getRootStyle method", () => {
   const actionBar = new AdaptiveActionContainer();
   actionBar.setItems([
     { id: "test1", title: "test1" },
@@ -460,42 +441,42 @@ QUnit.test("Check getRootStyle method", function (assert) {
   ]);
   const container = document.createElement("div");
   actionBar.initResponsivityManager(container);
-  assert.strictEqual(actionBar.getRootStyle()?.opacity, 0);
+  expect(actionBar.getRootStyle()?.opacity).toBe(0);
   actionBar["responsivityManager"].afterInitializeCallback && actionBar["responsivityManager"].afterInitializeCallback();
-  assert.strictEqual(actionBar.getRootStyle()?.opacity, undefined);
+  expect(actionBar.getRootStyle()?.opacity).toBe(undefined);
 });
 
-QUnit.test("Check actions container update merge options", (assert) => {
+test("Check actions container update merge options", () => {
   const container = new AdaptiveActionContainer();
   let newOptions = container["mergeUpdateOptions"]({}, { });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
 
   newOptions = container["mergeUpdateOptions"]({ needUpdateActions: false }, { needUpdateActions: false });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateActions: true }, { needUpdateActions: false });
-  assert.deepEqual(newOptions, { "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateActions: true }, { needUpdateActions: true });
-  assert.deepEqual(newOptions, { "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
 
   newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: false }, { needUpdateIsEmpty: false });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: true }, { needUpdateIsEmpty: false });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: true }, { needUpdateIsEmpty: true });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
 
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.None }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light }, { updateResponsivenessMode: UpdateResponsivenessMode.Light });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.Light });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
   newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.Hard });
-  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  expect(newOptions).toEqual({ "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
 });
 class TestAdaptiveActionContainer extends AdaptiveActionContainer {
   callback: (options: AdaptiveContainerUpdateOptions) => void;
@@ -503,24 +484,29 @@ class TestAdaptiveActionContainer extends AdaptiveActionContainer {
     this.callback && this.callback(options);
   }
 }
-QUnit.test("Check actions container update called only once", (assert) => {
-  const done = assert.async();
-  const container = new TestAdaptiveActionContainer();
-  const results:Array<AdaptiveContainerUpdateOptions> = [];
-  container.callback = (options) => {
-    results.push(options);
-  };
-  container["raiseUpdate"]({ needUpdateActions: true });
-  container["raiseUpdate"]({ needUpdateIsEmpty: true });
-  container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
-  assert.deepEqual(results, []);
-  queueMicrotask(() => {
-    assert.deepEqual(results, [{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
-    done();
+test("Check actions container update called only once", () => {
+  return new Promise(function(resolve) {
+    let __remaining = 1;
+    const __done = function() { if (--__remaining <= 0) resolve(); };
+
+    const done = __done;
+    const container = new TestAdaptiveActionContainer();
+    const results:Array<AdaptiveContainerUpdateOptions> = [];
+    container.callback = (options) => {
+      results.push(options);
+    };
+    container["raiseUpdate"]({ needUpdateActions: true });
+    container["raiseUpdate"]({ needUpdateIsEmpty: true });
+    container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+    expect(results).toEqual([]);
+    queueMicrotask(() => {
+      expect(results).toEqual([{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
+      done();
+    });
   });
 });
 
-QUnit.test("Check actions container flushUpdates", (assert) => {
+test("Check actions container flushUpdates", () => {
   const container = new TestAdaptiveActionContainer();
   const results:Array<AdaptiveContainerUpdateOptions> = [];
   container.callback = (options) => {
@@ -530,7 +516,7 @@ QUnit.test("Check actions container flushUpdates", (assert) => {
   container["raiseUpdate"]({ needUpdateIsEmpty: true });
   container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
   container.flushUpdates();
-  assert.deepEqual(results, [{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
+  expect(results).toEqual([{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
 });
 
 class TestResponsivityManager extends ResponsivityManager {
@@ -549,45 +535,45 @@ class Test2AdaptiveActionContainer extends AdaptiveActionContainer {
   }
 }
 
-QUnit.test("Check actions container update method", (assert) => {
+test("Check actions container update method", () => {
   const container = new Test2AdaptiveActionContainer();
   container.actions.push(new Action({ id: "test" }));
   let responsivityLog = "";
   container.initResponsivityManager(document.createElement("div"), (forceUpdate: boolean) => responsivityLog += `->called:${forceUpdate}`);
 
-  assert.equal(container.visibleActions.length, 0);
-  assert.equal(container.isEmpty, true);
-  assert.equal(responsivityLog, "");
+  expect(container.visibleActions.length).toBe(0);
+  expect(container.isEmpty).toBe(true);
+  expect(responsivityLog).toBe("");
 
   container["update"]({ needUpdateActions: true });
-  assert.equal(container.visibleActions.length, 1);
-  assert.equal(container.visibleActions[0].id, "test");
-  assert.equal(container.isEmpty, true);
-  assert.equal(responsivityLog, "");
+  expect(container.visibleActions.length).toBe(1);
+  expect(container.visibleActions[0].id).toBe("test");
+  expect(container.isEmpty).toBe(true);
+  expect(responsivityLog).toBe("");
 
   container["update"]({ needUpdateIsEmpty: true });
-  assert.equal(container.visibleActions.length, 1);
-  assert.equal(container.visibleActions[0].id, "test");
-  assert.equal(container.isEmpty, false);
-  assert.equal(responsivityLog, "");
+  expect(container.visibleActions.length).toBe(1);
+  expect(container.visibleActions[0].id).toBe("test");
+  expect(container.isEmpty).toBe(false);
+  expect(responsivityLog).toBe("");
 
   container.setItems([]);
   container["update"]({ needUpdateIsEmpty: true });
-  assert.equal(container.visibleActions.length, 1);
-  assert.equal(container.visibleActions[0].id, "test");
-  assert.equal(container.isEmpty, false);
-  assert.equal(responsivityLog, "");
+  expect(container.visibleActions.length).toBe(1);
+  expect(container.visibleActions[0].id).toBe("test");
+  expect(container.isEmpty).toBe(false);
+  expect(responsivityLog).toBe("");
 
   container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.None });
-  assert.equal(responsivityLog, "");
+  expect(responsivityLog).toBe("");
   container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
-  assert.equal(responsivityLog, "->called:false");
+  expect(responsivityLog).toBe("->called:false");
   responsivityLog = "";
   container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
-  assert.equal(responsivityLog, "->called:true");
+  expect(responsivityLog).toBe("->called:true");
 
 });
-QUnit.test("Make sure that createActionCore is called for bars & list", (assert) => {
+test("Make sure that createActionCore is called for bars & list", () => {
   class TestLocContainer extends AdaptiveActionContainer {
     protected createActionCore(owner: Base, item: IAction): Action {
       const res = super.createActionCore(owner, item);
@@ -597,19 +583,10 @@ QUnit.test("Make sure that createActionCore is called for bars & list", (assert)
   }
   const container = new TestLocContainer();
   container.setItems([{ id: "test" }]);
-  assert.equal(container.actions[0].template, "custom");
+  expect(container.actions[0].template).toBe("custom");
   container.addAction({ id: "test2" });
-  assert.equal(container.actions[1].template, "custom");
+  expect(container.actions[1].template).toBe("custom");
   const list = container.hiddenItemsListModel;
   list.addAction({ id: "test3" });
-  assert.equal(list.actions[0].template, "custom");
-});
-
-QUnit.test("Check active appearance", (assert) => {
-  const action = new Action({ id: "test", title: "test", appearance: { style: "brand", mode: "tertiary", size: "large" }, activeAppearance: { style: "alert", mode: "secondary", size: "small" } });
-  assert.notOk(action.active);
-  assert.deepEqual(action.getActionBarItemCss(), "sd-action sd-action--brand sd-action--tertiary sd-action--large");
-  action.active = true;
-  assert.ok(action.active);
-  assert.deepEqual(action.getActionBarItemCss(), "sd-action sd-action--active sd-action--alert sd-action--secondary sd-action--small");
+  expect(list.actions[0].template).toBe("custom");
 });

@@ -2,215 +2,193 @@ import { IExpressionValidationResult } from "../../src/base";
 import { ExpressionErrorType } from "../../src/expressions/expressionError";
 import { SurveyModel } from "../../src/survey";
 
-export default QUnit.module("Expression Validation");
+import { describe, test, expect } from "vitest";
+describe("Expression Validation", () => {
+  function convertIExpressionErrors(errors: IExpressionValidationResult[]): (IExpressionValidationResult & { name: string })[] {
+    return errors.map(error => ({ ...error, name: (<any>error.obj).name }));
+  }
 
-function convertIExpressionErrors(errors: IExpressionValidationResult[]): (IExpressionValidationResult & { name: string })[] {
-  return errors.map(error => ({ ...error, name: (<any>error.obj).name }));
-}
+  test("Test validateExpression in Object", () => {
 
-QUnit.test("Test validateExpression in Object", (assert) => {
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          visibleIf: "asyncFunc1({q2}) = 2",
+          enableIf: "{q1} = 1",
+          requiredIf: "bd+{",
+          resetValueIf: "foo",
+        },
+      ],
+    });
 
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        visibleIf: "asyncFunc1({q2}) = 2",
-        enableIf: "{q1} = 1",
-        requiredIf: "bd+{",
-        resetValueIf: "foo",
-      },
-    ],
+    const q1 = survey.getQuestionByName("q1");
+
+    let result = q1.validateExpression("enableIf", q1.enableIf, { functions: false, variables: false, semantics: false });
+    expect(result, "There is no error - valid expression").toBeUndefined();
+
+    result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: false, semantics: false });
+    expect(result, "There is no error due to disabled checks").toBeUndefined();
+
+    result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: false, semantics: false });
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors.length, "There is 1 error").toBe(1);
+    expect(result.errors[0].errorType, "Error type is 'UnknownFunction'").toBe(ExpressionErrorType.UnknownFunction);
+
+    result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: true, semantics: false });
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors.length, "There is 1 error").toBe(1);
+    expect(result.errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
+
+    result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: true, semantics: false });
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors.length, "There is 2 errors").toBe(2);
+
+    result = q1.validateExpression("requiredIf", q1.requiredIf, { functions: true, variables: true, semantics: false });
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors[0].errorType, "Error type is 'SyntaxError'").toBe(ExpressionErrorType.SyntaxError);
+
+    result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: false });
+    expect(result, "There is no error - due to disabled semantics check").toBeUndefined();
+
+    result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: true });
+    expect(result, "There is an error").not.toBeUndefined();
+    expect(result.errors[0].errorType, "Error type is 'SemanticError'").toBe(ExpressionErrorType.SemanticError);
   });
 
-  const q1 = survey.getQuestionByName("q1");
+  test("Test validateExpressions in Object", () => {
 
-  let result = q1.validateExpression("enableIf", q1.enableIf, { functions: false, variables: false, semantics: false });
-  assert.equal(result, undefined, "There is no error - valid expression");
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          visibleIf: "asyncFunc1({q2}) = 2",
+          enableIf: "{q1} = 1",
+          requiredIf: "bd+{",
+          resetValueIf: "foo"
+        },
+      ],
+    });
 
-  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: false, semantics: false });
-  assert.equal(result, undefined, "There is no error due to disabled checks");
+    const q1 = survey.getQuestionByName("q1");
+    let result = convertIExpressionErrors(q1.validateExpressions({ functions: true, variables: true, semantics: true }));
 
-  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: false, semantics: false });
-  assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors.length, 1, "There is 1 error");
-  assert.equal(result.errors[0].errorType, ExpressionErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
-
-  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: true, semantics: false });
-  assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors.length, 1, "There is 1 error");
-  assert.equal(result.errors[0].errorType, ExpressionErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
-
-  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: true, semantics: false });
-  assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors.length, 2, "There is 2 errors");
-
-  result = q1.validateExpression("requiredIf", q1.requiredIf, { functions: true, variables: true, semantics: false });
-  assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors[0].errorType, ExpressionErrorType.SyntaxError, "Error type is 'SyntaxError'");
-
-  result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: false });
-  assert.equal(result, undefined, "There is no error - due to disabled semantics check");
-
-  result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: true });
-  assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors[0].errorType, ExpressionErrorType.SemanticError, "Error type is 'SemanticError'");
-});
-
-QUnit.test("Test validateExpressions in Object", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        visibleIf: "asyncFunc1({q2}) = 2",
-        enableIf: "{q1} = 1",
-        requiredIf: "bd+{",
-        resetValueIf: "foo"
-      },
-    ],
-  });
-
-  const q1 = survey.getQuestionByName("q1");
-  let result = convertIExpressionErrors(q1.validateExpressions({ functions: true, variables: true, semantics: true }));
-
-  assert.equal(result.length, 3, "There are 3 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [
+    expect(result.length, "There are 3 invalid expressions").toBe(3);
+    expect(result.map(e => [
       e.propertyName,
       e.errors.length,
       e.errors.map(er => er.errorType)
-    ]),
-    [
+    ]), "property + count + [...types]").toEqual([
       ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
       ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
       ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
-    ],
-    "property + count + [...types]"
-  );
+    ]);
 
-  result = convertIExpressionErrors(q1.validateExpressions());
-  assert.equal(result.length, 3, "There are 3 invalid expressions with default options");
-  assert.deepEqual(
-    result.map(e => [
+    result = convertIExpressionErrors(q1.validateExpressions());
+    expect(result.length, "There are 3 invalid expressions with default options").toBe(3);
+    expect(result.map(e => [
       e.propertyName,
       e.errors.length,
       e.errors.map(er => er.errorType)
-    ]),
-    [
+    ]), "property + count + [...types]").toEqual([
       ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
       ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
       ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
-    ],
-    "property + count + [...types]"
-  );
+    ]);
 
-  result = convertIExpressionErrors(q1.validateExpressions({ functions: false, variables: false, semantics: false }));
-  assert.equal(result.length, 1, "There are 1 invalid expressions - only syntax errors are checked");
-  assert.equal(result[0].errors[0].errorType, ExpressionErrorType.SyntaxError, "Only syntax error is checked");
-});
-
-QUnit.test("Test validateExpressions in Object including children", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        visibleIf: "asyncFunc1({q2}) = 2",
-        enableIf: "{q1} = 1",
-        requiredIf: "bd+{",
-      },
-    ],
+    result = convertIExpressionErrors(q1.validateExpressions({ functions: false, variables: false, semantics: false }));
+    expect(result.length, "There are 1 invalid expressions - only syntax errors are checked").toBe(1);
+    expect(result[0].errors[0].errorType, "Only syntax error is checked").toBe(ExpressionErrorType.SyntaxError);
   });
 
-  let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+  test("Test validateExpressions in Object including children", () => {
 
-  assert.equal(result.length, 2, "There are 2 invalid expressions");
-  assert.equal(result[0].propertyName, "visibleIf", "First error is for 'visibleIf'");
-  assert.equal(result[0].name, "q1", "First filed name for error is 'q1'");
-  assert.equal(result[0].errors.length, 2, "There is 2 errors for 'visibleIf'");
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          visibleIf: "asyncFunc1({q2}) = 2",
+          enableIf: "{q1} = 1",
+          requiredIf: "bd+{",
+        },
+      ],
+    });
 
-  assert.equal(result[1].propertyName, "requiredIf", "Second error is for 'requiredIf'");
-  assert.equal(result[1].name, "q1", "Second filed name for error is 'q1'");
-  assert.equal(result[1].errors.length, 1, "There is 1 error for 'requiredIf'");
-});
+    let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
 
-QUnit.test("Test validateExpressions with Survey + expressions", (assert) => {
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
+    expect(result[0].propertyName, "First error is for 'visibleIf'").toBe("visibleIf");
+    expect(result[0].name, "First filed name for error is 'q1'").toBe("q1");
+    expect(result[0].errors.length, "There is 2 errors for 'visibleIf'").toBe(2);
 
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        validators: [
-          { type: "expression", expression: "bs+{" },
-        ]
-      },
-    ],
-    calculatedValues: [
-      { name: "calc1", expression: "bs+{" },
-    ],
-    triggers: [
-      { type: "runexpression", expression: "bs+{", runExpression: "bs+{" }
-    ],
-    navigateToUrlOnCondition: [
-      { expression: "bs+{" }
-    ],
+    expect(result[1].propertyName, "Second error is for 'requiredIf'").toBe("requiredIf");
+    expect(result[1].name, "Second filed name for error is 'q1'").toBe("q1");
+    expect(result[1].errors.length, "There is 1 error for 'requiredIf'").toBe(1);
   });
 
-  let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
-  assert.equal(result.length, 5, "There are 5 invalid expressions");
+  test("Test validateExpressions with Survey + expressions", () => {
 
-  assert.deepEqual(
-    result.map(e => e.obj.getType()),
-    ["expressionvalidator", "calculatedvalue", "runexpressiontrigger", "runexpressiontrigger", "urlconditionitem"],
-    "object types"
-  );
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          validators: [
+            { type: "expression", expression: "bs+{" },
+          ]
+        },
+      ],
+      calculatedValues: [
+        { name: "calc1", expression: "bs+{" },
+      ],
+      triggers: [
+        { type: "runexpression", expression: "bs+{", runExpression: "bs+{" }
+      ],
+      navigateToUrlOnCondition: [
+        { expression: "bs+{" }
+      ],
+    });
 
-  assert.deepEqual(
-    result.map(e => e.propertyName),
-    ["expression", "expression", "expression", "runExpression", "expression"],
-    "propertyNames"
-  );
+    let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
+    expect(result.length, "There are 5 invalid expressions").toBe(5);
 
-  assert.deepEqual(
-    result.map(e => e.errors.length),
-    [1, 1, 1, 1, 1],
-    "Number of errors"
-  );
-});
+    expect(result.map(e => e.obj.getType()), "object types").toEqual(["expressionvalidator", "calculatedvalue", "runexpressiontrigger", "runexpressiontrigger", "urlconditionitem"]);
 
-QUnit.test("Test validateExpressions selectbase", (assert) => {
+    expect(result.map(e => e.propertyName), "propertyNames").toEqual(["expression", "expression", "expression", "runExpression", "expression"]);
 
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "dropdown",
-        name: "question1",
-        visibleIf: "bs+{",
-        enableIf: "bs+{",
-        resetValueIf: "bs+{",
-        setValueIf: "bs+{",
-        setValueExpression: "bs+{",
-        defaultValueExpression: "bs+{",
-        requiredIf: "bs+{",
-        choices: [
-          { value: "Item 1", visibleIf: "bs+{", enableIf: "bs+{" },
-        ],
-        choicesVisibleIf: "bs+{",
-        choicesEnableIf: "bs+{"
-      }
-    ],
+    expect(result.map(e => e.errors.length), "Number of errors").toEqual([1, 1, 1, 1, 1]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions selectbase", () => {
 
-  assert.equal(result.length, 11, "There are 11 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "dropdown",
+          name: "question1",
+          visibleIf: "bs+{",
+          enableIf: "bs+{",
+          resetValueIf: "bs+{",
+          setValueIf: "bs+{",
+          setValueExpression: "bs+{",
+          defaultValueExpression: "bs+{",
+          requiredIf: "bs+{",
+          choices: [
+            { value: "Item 1", visibleIf: "bs+{", enableIf: "bs+{" },
+          ],
+          choicesVisibleIf: "bs+{",
+          choicesEnableIf: "bs+{"
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 11 invalid expressions").toBe(11);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["dropdown", "visibleIf", 1],
       ["dropdown", "enableIf", 1],
       ["dropdown", "resetValueIf", 1],
@@ -222,115 +200,107 @@ QUnit.test("Test validateExpressions selectbase", (assert) => {
       ["dropdown", "choicesEnableIf", 1],
       ["choiceitem", "visibleIf", 1],
       ["choiceitem", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
+    ]);
 
-});
-
-QUnit.test("Test validateExpressions matrix", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrix",
-        name: "question1",
-        validators: [
-          {
-            type: "expression",
-            expression: "bs+{"
-          }
-        ],
-        columns: [
-          {
-            value: "Column 1",
-            visibleIf: "bs+{",
-            enableIf: "bs+{"
-          },
-        ],
-        rows: [
-          {
-            value: "Row 1",
-            visibleIf: "bs+{",
-            enableIf: "bs+{"
-          },
-        ]
-      }
-    ],
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions matrix", () => {
 
-  assert.equal(result.length, 5, "There are 5 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrix",
+          name: "question1",
+          validators: [
+            {
+              type: "expression",
+              expression: "bs+{"
+            }
+          ],
+          columns: [
+            {
+              value: "Column 1",
+              visibleIf: "bs+{",
+              enableIf: "bs+{"
+            },
+          ],
+          rows: [
+            {
+              value: "Row 1",
+              visibleIf: "bs+{",
+              enableIf: "bs+{"
+            },
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 5 invalid expressions").toBe(5);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["expressionvalidator", "expression", 1],
       ["matrixcolumn", "visibleIf", 1],
       ["matrixcolumn", "enableIf", 1],
       ["itemvalue", "visibleIf", 1],
       ["itemvalue", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions matrixdropdown", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdropdown",
-        name: "question2",
-        columns: [
-          {
-            name: "Column 1",
-            visibleIf: "1col-bs+{",
-            enableIf: "2col-bs+{",
-            requiredIf: "3col-bs+{",
-            resetValueIf: "4col-bs+{",
-            setValueIf: "5col-bs+{",
-            setValueExpression: "6col-bs+{",
-            totalExpression: "7col-bs+{",
-            defaultValueExpression: "8col-bs+{",
-            validators: [
-              {
-                type: "expression",
-                expression: "11val-bs+{"
-              }
-            ],
-          }
-        ],
-        detailElements: [
-          {
-            type: "text",
-            name: "question2",
-            visibleIf: "bs+{",
-            enableIf: "bs+{",
-            resetValueIf: "bs+{",
-            setValueIf: "bs+{",
-            setValueExpression: "bs+{",
-            defaultValueExpression: "bs+{",
-            requiredIf: "bs+{"
-          }
-        ],
-        rows: [
-          {
-            value: "Row 1",
-            visibleIf: "9row-bs+{",
-            enableIf: "10row-bs+{"
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions matrixdropdown", () => {
 
-  assert.equal(result.length, 18, "There are 18 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "question2",
+          columns: [
+            {
+              name: "Column 1",
+              visibleIf: "1col-bs+{",
+              enableIf: "2col-bs+{",
+              requiredIf: "3col-bs+{",
+              resetValueIf: "4col-bs+{",
+              setValueIf: "5col-bs+{",
+              setValueExpression: "6col-bs+{",
+              totalExpression: "7col-bs+{",
+              defaultValueExpression: "8col-bs+{",
+              validators: [
+                {
+                  type: "expression",
+                  expression: "11val-bs+{"
+                }
+              ],
+            }
+          ],
+          detailElements: [
+            {
+              type: "text",
+              name: "question2",
+              visibleIf: "bs+{",
+              enableIf: "bs+{",
+              resetValueIf: "bs+{",
+              setValueIf: "bs+{",
+              setValueExpression: "bs+{",
+              defaultValueExpression: "bs+{",
+              requiredIf: "bs+{"
+            }
+          ],
+          rows: [
+            {
+              value: "Row 1",
+              visibleIf: "9row-bs+{",
+              enableIf: "10row-bs+{"
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 18 invalid expressions").toBe(18);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
       ["text", "resetValueIf", 1],
@@ -349,48 +319,44 @@ QUnit.test("Test validateExpressions matrixdropdown", (assert) => {
       ["expressionvalidator", "expression", 1],
       ["itemvalue", "visibleIf", 1],
       ["itemvalue", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions matrixdynamic", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdynamic",
-        name: "question1",
-        columns: [
-          {
-            name: "Column 1",
-            visibleIf: "bs+{",
-            enableIf: "bs+{",
-            requiredIf: "bs+{",
-            resetValueIf: "bs+{",
-            setValueIf: "bs+{",
-            setValueExpression: "bs+{",
-            totalExpression: "bs+{",
-            defaultValueExpression: "bs+{"
-          }
-        ],
-        choices: [
-          {
-            value: 1,
-            visibleIf: "bs+{",
-            enableIf: "bs+{"
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions matrixdynamic", () => {
 
-  assert.equal(result.length, 10, "There are 10 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "question1",
+          columns: [
+            {
+              name: "Column 1",
+              visibleIf: "bs+{",
+              enableIf: "bs+{",
+              requiredIf: "bs+{",
+              resetValueIf: "bs+{",
+              setValueIf: "bs+{",
+              setValueExpression: "bs+{",
+              totalExpression: "bs+{",
+              defaultValueExpression: "bs+{"
+            }
+          ],
+          choices: [
+            {
+              value: 1,
+              visibleIf: "bs+{",
+              enableIf: "bs+{"
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 10 invalid expressions").toBe(10);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["matrixdropdowncolumn", "visibleIf", 1],
       ["matrixdropdowncolumn", "enableIf", 1],
       ["matrixdropdowncolumn", "requiredIf", 1],
@@ -401,41 +367,37 @@ QUnit.test("Test validateExpressions matrixdynamic", (assert) => {
       ["matrixdropdowncolumn", "defaultValueExpression", 1],
       ["itemvalue", "visibleIf", 1],
       ["itemvalue", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions paneldynamic", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "question1",
-        templateElements: [
-          {
-            type: "text",
-            name: "question2",
-            visibleIf: "bs+{",
-            enableIf: "bs+{",
-            resetValueIf: "bs+{",
-            setValueIf: "bs+{",
-            setValueExpression: "bs+{",
-            defaultValueExpression: "bs+{",
-            requiredIf: "bs+{"
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions paneldynamic", () => {
 
-  assert.equal(result.length, 7, "There are 7 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            {
+              type: "text",
+              name: "question2",
+              visibleIf: "bs+{",
+              enableIf: "bs+{",
+              resetValueIf: "bs+{",
+              setValueIf: "bs+{",
+              setValueExpression: "bs+{",
+              defaultValueExpression: "bs+{",
+              requiredIf: "bs+{"
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 7 invalid expressions").toBe(7);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
       ["text", "resetValueIf", 1],
@@ -443,72 +405,64 @@ QUnit.test("Test validateExpressions paneldynamic", (assert) => {
       ["text", "setValueExpression", 1],
       ["text", "defaultValueExpression", 1],
       ["text", "requiredIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions rating", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "rating",
-        name: "question1",
-        autoGenerate: false,
-        rateCount: 1,
-        rateValues: [
-          {
-            value: 1,
-            visibleIf: "bs+{"
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions rating", () => {
 
-  assert.equal(result.length, 1, "There are 1 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "rating",
+          name: "question1",
+          autoGenerate: false,
+          rateCount: 1,
+          rateValues: [
+            {
+              value: 1,
+              visibleIf: "bs+{"
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 1 invalid expressions").toBe(1);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["ratingitem", "visibleIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions panel", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "panel",
-        name: "panel1",
-        elements: [
-          {
-            type: "text",
-            name: "question1",
-            visibleIf: "bs+{",
-            enableIf: "bs+{",
-            resetValueIf: "bs+{",
-            setValueIf: "bs+{",
-            setValueExpression: "bs+{",
-            defaultValueExpression: "bs+{",
-            requiredIf: "bs+{"
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions panel", () => {
 
-  assert.equal(result.length, 7, "There are 7 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "panel1",
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              visibleIf: "bs+{",
+              enableIf: "bs+{",
+              resetValueIf: "bs+{",
+              setValueIf: "bs+{",
+              setValueExpression: "bs+{",
+              defaultValueExpression: "bs+{",
+              requiredIf: "bs+{"
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 7 invalid expressions").toBe(7);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "visibleIf", 1],
       ["text", "enableIf", 1],
       ["text", "resetValueIf", 1],
@@ -516,390 +470,369 @@ QUnit.test("Test validateExpressions panel", (assert) => {
       ["text", "setValueExpression", 1],
       ["text", "defaultValueExpression", 1],
       ["text", "requiredIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions tagbox", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "tagbox",
-        name: "question1",
-        choices: [
-          {
-            value: "Item 1",
-            visibleIf: "bs+{",
-            enableIf: "bs+{"
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions tagbox", () => {
 
-  assert.equal(result.length, 2, "There are 2 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "tagbox",
+          name: "question1",
+          choices: [
+            {
+              value: "Item 1",
+              visibleIf: "bs+{",
+              enableIf: "bs+{"
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["checkboxitem", "visibleIf", 1],
       ["checkboxitem", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions multipletext", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "multipletext",
-        name: "question2",
-        items: [
-          {
-            name: "text1",
-            inputSize: 0,
-            validators: [
-              {
-                type: "expression",
-                expression: "bs+{"
-              }
-            ]
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions multipletext", () => {
 
-  assert.equal(result.length, 1, "There are 1 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "multipletext",
+          name: "question2",
+          items: [
+            {
+              name: "text1",
+              inputSize: 0,
+              validators: [
+                {
+                  type: "expression",
+                  expression: "bs+{"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 1 invalid expressions").toBe(1);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["expressionvalidator", "expression", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions imagemap", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "imagemap",
-        name: "question2",
-        areas: [
-          {
-            name: "text1",
-            visibleIf: "bs+{",
-            enableIf: "bs+{",
-          }
-        ]
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions imagemap", () => {
 
-  assert.equal(result.length, 2, "There are 2 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        {
+          type: "imagemap",
+          name: "question2",
+          areas: [
+            {
+              name: "text1",
+              visibleIf: "bs+{",
+              enableIf: "bs+{",
+            }
+          ]
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["imagemaparea", "visibleIf", 1],
       ["imagemaparea", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
-});
-
-QUnit.test("Test validateExpressions check constant in condition error", (assert) => {
-
-  var survey = new SurveyModel({
-    elements: [
-      { type: "boolean", name: "q1" },
-      {
-        type: "text",
-        name: "q2",
-        visibleIf: "{q1} = true",
-        enableIf: "foo",
-        requiredIf: "true"
-      },
-      {
-        type: "text",
-        name: "q2",
-        visibleIf: "{q1} = TrUe",
-        enableIf: "12345",
-        requiredIf: "tRuE"
-      }
-    ],
+    ]);
   });
 
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("Test validateExpressions check constant in condition error", () => {
 
-  assert.equal(result.length, 2, "There are 2 invalid expressions");
-  assert.deepEqual(
-    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
-    [
+    var survey = new SurveyModel({
+      elements: [
+        { type: "boolean", name: "q1" },
+        {
+          type: "text",
+          name: "q2",
+          visibleIf: "{q1} = true",
+          enableIf: "foo",
+          requiredIf: "true"
+        },
+        {
+          type: "text",
+          name: "q2",
+          visibleIf: "{q1} = TrUe",
+          enableIf: "12345",
+          requiredIf: "tRuE"
+        }
+      ],
+    });
+
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 2 invalid expressions").toBe(2);
+    expect(result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]), "obj + property + count").toEqual([
       ["text", "enableIf", 1],
       ["text", "enableIf", 1]
-    ],
-    "obj + property + count"
-  );
+    ]);
 
-  assert.equal(result[0].errors[0].errorType, ExpressionErrorType.SemanticError, "error type is SemanticError");
-  assert.equal(result[1].errors[0].errorType, ExpressionErrorType.SemanticError, "error type is SemanticError #2");
-});
+    expect(result[0].errors[0].errorType, "error type is SemanticError").toBe(ExpressionErrorType.SemanticError);
+    expect(result[1].errors[0].errorType, "error type is SemanticError #2").toBe(ExpressionErrorType.SemanticError);
+  });
 
-QUnit.test("Direct - reports unknown variable inside paneldynamic ref outer questions #10841", (assert) => {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-      },
-      {
-        type: "paneldynamic",
-        name: "q2",
-        templateElements: [{
+  test("Direct - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
           type: "text",
-          name: "q3",
-          visibleIf: "{q1} notempty",
-        }],
-      },
-      {
-        type: "matrixdynamic",
-        name: "q3",
-        columns: [{
-          name: "c1",
-          visibleIf: "{q1} notempty"
-        }]
-      },
-    ],
-  });
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-  assert.equal(result.length, 0, "There are 0 invalid expressions");
-});
-QUnit.test("fromJSON - reports unknown variable inside paneldynamic ref outer questions #10841", (assert) => {
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-      },
-      {
-        type: "paneldynamic",
-        name: "q2",
-        templateElements: [{
-          type: "text",
-          name: "q3",
-          visibleIf: "{q1} notempty",
-        }],
-      },
-      {
-        type: "matrixdynamic",
-        name: "q3",
-        columns: [{
-          name: "c1",
-          visibleIf: "{q1} notempty"
-        }]
-      },
-    ],
-  });
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-  assert.equal(result.length, 0, "There are 0 invalid expressions");
-});
-QUnit.test("fromJSON & design mode - reports unknown variable inside paneldynamic ref outer questions #10841", (assert) => {
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-      },
-      {
-        type: "paneldynamic",
-        name: "q2",
-        templateElements: [{
-          type: "text",
-          name: "q3",
-          visibleIf: "{q1} notempty",
-        }],
-      },
-      {
-        type: "matrixdynamic",
-        name: "q3",
-        columns: [{
-          name: "c1",
-          visibleIf: "{q1} notempty"
-        }]
-      },
-    ],
-  });
-  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-  assert.equal(result.length, 0, "There are 0 invalid expressions");
-});
-QUnit.test("validate expressions in empty paneldynamic by arrays, but with set panelCount property, Bug#10841", (assert) => {
-  const survey = new SurveyModel();
-  survey.fromJSON({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q1",
-        panelCount: 1,
-        templateElements: [
-          {
+          name: "q1",
+        },
+        {
+          type: "paneldynamic",
+          name: "q2",
+          templateElements: [{
             type: "text",
-            name: "q2",
-            inputType: "number",
-          },
-        ],
-      },
-      {
-        type: "expression",
-        name: "q3",
-        expression: "{q1[0].q2} notempty",
-      }
-    ],
+            name: "q3",
+            visibleIf: "{q1} notempty",
+          }],
+        },
+        {
+          type: "matrixdynamic",
+          name: "q3",
+          columns: [{
+            name: "c1",
+            visibleIf: "{q1} notempty"
+          }]
+        },
+      ],
+    });
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(result.length, "There are 0 invalid expressions").toBe(0);
   });
-  const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
-  assert.equal(result, undefined, "There is no error in expression with paneldynamic array item");
-  let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-  assert.equal(results.length, 0, "There are 0 invalid expressions");
-});
-QUnit.test("validate expressions in empty matrixdynamic by arrays, but with set rowCount property, Bug#10841", (assert) => {
-  const survey = new SurveyModel();
-  survey.fromJSON({
-    elements: [
-      {
-        type: "matrixdynamic",
-        name: "q1",
-        rowCount: 1,
-        columns: [
-          {
-            cellType: "text",
-            name: "q2",
-            inputType: "number",
-          },
-        ],
-      },
-      {
-        type: "expression",
-        name: "q3",
-        expression: "{q1[0].q2} notempty",
-      }
-    ],
-  });
-  const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
-  assert.equal(result, undefined, "There is no error in expression with paneldynamic array item");
-  let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-  assert.equal(results.length, 0, "There are 0 invalid expressions");
-});
-QUnit.test("validateExpressions() creates extra panel instances when defaultValue set on question inside templateElements[], Bug#10881", (assert) => {
-  const survey = new SurveyModel();
-  survey.fromJSON({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "q1",
-        panelCount: 1,
-        templateElements: [
-          {
+  test("fromJSON - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "paneldynamic",
+          name: "q2",
+          templateElements: [{
             type: "text",
-            name: "q2",
-            inputType: "number",
-            defaultValue: 1
-          },
-        ],
-      }
-    ],
+            name: "q3",
+            visibleIf: "{q1} notempty",
+          }],
+        },
+        {
+          type: "matrixdynamic",
+          name: "q3",
+          columns: [{
+            name: "c1",
+            visibleIf: "{q1} notempty"
+          }]
+        },
+      ],
+    });
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(result.length, "There are 0 invalid expressions").toBe(0);
   });
-  const q1 = survey.getQuestionByName("q1");
-  assert.equal(q1.panelCount, 1, "panelCount is 1 before validateExpressions");
-  const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
-  assert.equal(results.length, 0, "There are 0 invalid expressions");
-  assert.equal(q1.panelCount, 1, "panelCount is 1 after validateExpressions");
-});
-
-QUnit.test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", (assert) => {
-
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "paneldynamic",
-        name: "paneldynamic",
-        templateElements: [{
-          type: "slider",
-          name: "quantity",
-        }],
-      },
-      {
-        type: "text",
-        name: "q1",
-        setValueExpression: "sumInArray({paneldynamic}, 'quantity', {quantity} > 0)",
-      },
-      {
-        type: "text",
-        name: "q2",
-        setValueExpression: "minInArray({paneldynamic}, 'quantity', {quantity} > 0)",
-      },
-      {
-        type: "text",
-        name: "q3",
-        setValueExpression: "maxInArray({paneldynamic}, 'quantity', {quantity} > 0)",
-      },
-      {
-        type: "text",
-        name: "q4",
-        setValueExpression: "countInArray({paneldynamic}, 'quantity', {quantity} > 0)",
-      },
-      {
-        type: "text",
-        name: "q5",
-        setValueExpression: "avgInArray({paneldynamic}, 'quantity', {quantity} > 0)",
-      },
-      {
-        type: "text",
-        name: "q11",
-        setValueExpression: "sumInArray({paneldynamic}, 'quantity', {foo} > 0)",
-      },
-      {
-        type: "text",
-        name: "q12",
-        setValueExpression: "minInArray({paneldynamic}, 'quantity', {foo} > 0)",
-      },
-      {
-        type: "text",
-        name: "q13",
-        setValueExpression: "maxInArray({paneldynamic}, 'quantity', {foo} > 0)",
-      },
-      {
-        type: "text",
-        name: "q14",
-        setValueExpression: "countInArray({paneldynamic}, 'quantity', {foo} > 0)",
-      },
-      {
-        type: "text",
-        name: "q15",
-        setValueExpression: "avgInArray({paneldynamic}, 'quantity', {foo} > 0)",
-      }
-    ],
+  test("fromJSON & design mode - reports unknown variable inside paneldynamic ref outer questions #10841", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    survey.fromJSON({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+        },
+        {
+          type: "paneldynamic",
+          name: "q2",
+          templateElements: [{
+            type: "text",
+            name: "q3",
+            visibleIf: "{q1} notempty",
+          }],
+        },
+        {
+          type: "matrixdynamic",
+          name: "q3",
+          columns: [{
+            name: "c1",
+            visibleIf: "{q1} notempty"
+          }]
+        },
+      ],
+    });
+    let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(result.length, "There are 0 invalid expressions").toBe(0);
+  });
+  test("validate expressions in empty paneldynamic by arrays, but with set panelCount property, Bug#10841", () => {
+    const survey = new SurveyModel();
+    survey.fromJSON({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "q2",
+              inputType: "number",
+            },
+          ],
+        },
+        {
+          type: "expression",
+          name: "q3",
+          expression: "{q1[0].q2} notempty",
+        }
+      ],
+    });
+    const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
+    expect(result, "There is no error in expression with paneldynamic array item").toBeUndefined();
+    let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(results.length, "There are 0 invalid expressions").toBe(0);
+  });
+  test("validate expressions in empty matrixdynamic by arrays, but with set rowCount property, Bug#10841", () => {
+    const survey = new SurveyModel();
+    survey.fromJSON({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "q1",
+          rowCount: 1,
+          columns: [
+            {
+              cellType: "text",
+              name: "q2",
+              inputType: "number",
+            },
+          ],
+        },
+        {
+          type: "expression",
+          name: "q3",
+          expression: "{q1[0].q2} notempty",
+        }
+      ],
+    });
+    const result = survey.validateExpression("expression", "{q1[0].q2} notempty", { functions: true, variables: true, semantics: true });
+    expect(result, "There is no error in expression with paneldynamic array item").toBeUndefined();
+    let results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(results.length, "There are 0 invalid expressions").toBe(0);
+  });
+  test("validateExpressions() creates extra panel instances when defaultValue set on question inside templateElements[], Bug#10881", () => {
+    const survey = new SurveyModel();
+    survey.fromJSON({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "q1",
+          panelCount: 1,
+          templateElements: [
+            {
+              type: "text",
+              name: "q2",
+              inputType: "number",
+              defaultValue: 1
+            },
+          ],
+        }
+      ],
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.panelCount, "panelCount is 1 before validateExpressions").toBe(1);
+    const results = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(results.length, "There are 0 invalid expressions").toBe(0);
+    expect(q1.panelCount, "panelCount is 1 after validateExpressions").toBe(1);
   });
 
-  const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  test("validateExpressions() incorrectly reports UnknownVariable in array functions #11082", () => {
 
-  assert.equal(result.length, 5, "There are 5 invalid expressions");
-  assert.equal(
-    result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(),
-    "q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo",
-    "Errors are correct"
-  );
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "paneldynamic",
+          templateElements: [{
+            type: "slider",
+            name: "quantity",
+          }],
+        },
+        {
+          type: "text",
+          name: "q1",
+          setValueExpression: "sumInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+        },
+        {
+          type: "text",
+          name: "q2",
+          setValueExpression: "minInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+        },
+        {
+          type: "text",
+          name: "q3",
+          setValueExpression: "maxInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+        },
+        {
+          type: "text",
+          name: "q4",
+          setValueExpression: "countInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+        },
+        {
+          type: "text",
+          name: "q5",
+          setValueExpression: "avgInArray({paneldynamic}, 'quantity', {quantity} > 0)",
+        },
+        {
+          type: "text",
+          name: "q11",
+          setValueExpression: "sumInArray({paneldynamic}, 'quantity', {foo} > 0)",
+        },
+        {
+          type: "text",
+          name: "q12",
+          setValueExpression: "minInArray({paneldynamic}, 'quantity', {foo} > 0)",
+        },
+        {
+          type: "text",
+          name: "q13",
+          setValueExpression: "maxInArray({paneldynamic}, 'quantity', {foo} > 0)",
+        },
+        {
+          type: "text",
+          name: "q14",
+          setValueExpression: "countInArray({paneldynamic}, 'quantity', {foo} > 0)",
+        },
+        {
+          type: "text",
+          name: "q15",
+          setValueExpression: "avgInArray({paneldynamic}, 'quantity', {foo} > 0)",
+        }
+      ],
+    });
+
+    const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+
+    expect(result.length, "There are 5 invalid expressions").toBe(5);
+    expect(result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(), "Errors are correct").toBe("q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo");
+  });
 });

@@ -1,0 +1,56 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "Unit"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)
+        displayName: "Test"
+
+      # - task: PublishCodeCoverageResults@1
+      #   inputs:
+      #     codeCoverageTool: Cobertura # or JaCoCo
+      #     summaryFileLocation: "$(System.DefaultWorkingDirectory)/**/*coverage.xml"
+      #     reportDirectory: "$(System.DefaultWorkingDirectory)/**/coverage"
+
+  - job:
+    displayName: "E2E"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run pwinst
+        displayName: "Playwright install"      
+        
+      - script: npm run e2e:ci
+        displayName: "Test"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/test-results"
+          ArtifactName: "Analytics_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish e2e test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Publish E2E test results"
+        condition: succeededOrFailed()
+
+

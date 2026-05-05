@@ -1,0 +1,17 @@
+parameters:
+  - name: items
+    type: object
+    default: []
+
+steps:
+  - bash: |
+      set -e
+      COPIES_JSON='${{ convertToJson(parameters.items) }}'
+      echo "$COPIES_JSON" | jq -c '.[]' | while read -r item; do
+        SRC=$(echo "$item" | jq -r '.source')
+        DST=$(echo "$item" | jq -r '.destination')
+        echo "Copying $SRC -> $DST"
+        rm -rf "$DST"
+        cp -r "$SRC" "$DST"
+      done
+    displayName: "Copy"

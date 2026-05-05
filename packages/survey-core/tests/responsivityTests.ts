@@ -3,8 +3,7 @@ import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsi
 import { ActionContainer } from "../src/actions/container";
 import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
 
-export default QUnit.module("ResponsivityManager");
-
+import { describe, test, expect } from "vitest";
 class SimpleContainer {
   clientRects = [{ x: 0, y: 0, height: 20, width: 20 }];
   parentElement: any;
@@ -39,7 +38,7 @@ class ResizeObserver {
 }
 window.ResizeObserver = <any>ResizeObserver;
 
-QUnit.test("ActionContainer: renderedActions & visibleActions", assert => {
+test("ActionContainer: renderedActions & visibleActions", () => {
   const actions = [new Action({ id: "first" }), new Action({ id: "second", visible: false }), new Action({ id: "third" })];
 
   const actionContainer: ActionContainer = new ActionContainer();
@@ -47,20 +46,20 @@ QUnit.test("ActionContainer: renderedActions & visibleActions", assert => {
 
   actionContainer.flushUpdates();
 
-  assert.equal(actionContainer.visibleActions.length, 2, "actionContainer visibleActions");
-  assert.equal(actionContainer.renderedActions.length, 2, "actionContainer renderedActions");
+  expect(actionContainer.visibleActions.length, "actionContainer visibleActions").toBe(2);
+  expect(actionContainer.renderedActions.length, "actionContainer renderedActions").toBe(2);
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
 
   adaptiveContainer.flushUpdates();
 
-  assert.equal(adaptiveContainer.visibleActions.length, 2, "adaptiveContainer visibleActions");
-  assert.equal(adaptiveContainer.renderedActions.length, 3, "adaptiveContainer renderedActions");
-  assert.equal(adaptiveContainer.renderedActions[2].id.indexOf("dotsItem-id"), 0, "dotsItem-id exists");
+  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleActions").toBe(2);
+  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions").toBe(3);
+  expect(adaptiveContainer.renderedActions[2].id.indexOf("dotsItem-id"), "dotsItem-id exists").toBe(0);
 });
 
-QUnit.test("ActionContainer: renderedActions & visibleActions if only one element", assert => {
+test("ActionContainer: renderedActions & visibleActions if only one element", () => {
   const actions = [new Action({ id: "first" })];
 
   const actionContainer: ActionContainer = new ActionContainer();
@@ -68,23 +67,23 @@ QUnit.test("ActionContainer: renderedActions & visibleActions if only one elemen
 
   actionContainer.flushUpdates();
 
-  assert.equal(actionContainer.visibleActions.length, 1, "actionContainer visibleActions");
-  assert.equal(actionContainer.renderedActions.length, 1, "actionContainer renderedActions");
+  expect(actionContainer.visibleActions.length, "actionContainer visibleActions").toBe(1);
+  expect(actionContainer.renderedActions.length, "actionContainer renderedActions").toBe(1);
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
 
   adaptiveContainer.flushUpdates();
 
-  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleAction without icon");
-  assert.equal(adaptiveContainer.renderedActions.length, 2, "adaptiveContainer renderedActions contains the dots item");
+  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleAction without icon").toBe(1);
+  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions contains the dots item").toBe(2);
 
   actions[0].iconName = "icon-name";
-  assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleActions with icon");
-  assert.equal(adaptiveContainer.renderedActions.length, 1, "adaptiveContainer renderedActions doesn't contain dots item");
+  expect(adaptiveContainer.visibleActions.length, "adaptiveContainer visibleActions with icon").toBe(1);
+  expect(adaptiveContainer.renderedActions.length, "adaptiveContainer renderedActions doesn't contain dots item").toBe(1);
 });
 
-QUnit.test("Fit items", function (assert) {
+test("Fit items", () => {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.maxDimension = itemSmallWidth;
@@ -104,65 +103,65 @@ QUnit.test("Fit items", function (assert) {
 
   model.flushUpdates();
 
-  assert.equal(model.actions.length, 3);
-  assert.equal(model.visibleActions.length, 2);
-  assert.equal(model.renderedActions.length, 3);
+  expect(model.actions.length).toBe(3);
+  expect(model.visibleActions.length).toBe(2);
+  expect(model.renderedActions.length).toBe(3);
 
   model.fit({ availableSpace: 300 });
-  assert.equal(model.renderedActions.length, 3, "dimension 300");
-  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
-  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
-  assert.equal(model.actions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
-  assert.equal(item1.mode, "large", "dimension 300");
-  assert.equal(item2.mode, "large", "dimension 300");
+  expect(model.renderedActions.length, "dimension 300").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 300").toBe("large");
+  expect(item2.mode, "dimension 300").toBe("large");
 
   model.fit({ availableSpace: 200 });
-  assert.equal(model.renderedActions.length, 3, "dimension 200");
-  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
-  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
-  assert.equal(model.actions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
-  assert.equal(item1.mode, "large", "dimension 200");
-  assert.equal(item2.mode, "small", "dimension 200");
+  expect(model.renderedActions.length, "dimension 200").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 200").toBe("large");
+  expect(item2.mode, "dimension 200").toBe("small");
 
   model.fit({ availableSpace: 100 });
-  assert.equal(model.renderedActions.length, 3, "dimension 100");
-  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
-  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
-  assert.equal(model.actions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
-  assert.equal(item1.mode, "large", "dimension 100");
-  assert.equal(item2.mode, "small", "dimension 100");
+  expect(model.renderedActions.length, "dimension 100").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 100").toBe("large");
+  expect(item2.mode, "dimension 100").toBe("small");
 
   model.fit({ availableSpace: 50 });
-  assert.equal(model.renderedActions.length, 3, "dimension 50");
-  assert.equal(model.renderedActions[0].isVisible, false, "hidden 1");
-  assert.equal(model.renderedActions[1].isVisible, false, "hidden 2");
-  assert.equal(model.renderedActions[2].isVisible, true, "dots visible");
-  assert.equal(model.renderedActions[2].iconName, "icon-more", "dimension 50");
-  assert.equal(model.actions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
-  assert.equal(item1.mode, "popup", "dimension 50");
-  assert.equal(item2.mode, "popup", "dimension 50");
+  expect(model.renderedActions.length, "dimension 50").toBe(3);
+  expect(model.renderedActions[0].isVisible, "hidden 1").toBe(false);
+  expect(model.renderedActions[1].isVisible, "hidden 2").toBe(false);
+  expect(model.renderedActions[2].isVisible, "dots visible").toBe(true);
+  expect(model.renderedActions[2].iconName, "dimension 50").toBe("icon-more");
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 50").toBe("popup");
+  expect(item2.mode, "dimension 50").toBe("popup");
 
   item2.disableShrink = true;
   model.fit({ availableSpace: 248 });
-  assert.equal(model.renderedActions.length, 3, "dimension 100");
-  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
-  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
-  assert.equal(model.actions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
-  assert.equal(item1.mode, "small", "dimension 248");
-  assert.equal(item2.mode, "large", "dimension 248 unshrinkable");
+  expect(model.renderedActions.length, "dimension 100").toBe(3);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "dots hidden").toBe(false);
+  expect(model.actions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions.indexOf(model.actions[2]), "visible = false action is not in rendered actions").toBe(-1);
+  expect(item1.mode, "dimension 248").toBe("small");
+  expect(item2.mode, "dimension 248 unshrinkable").toBe("large");
 
 });
 
-QUnit.test("Fit items - hide items with priority", function (assert) {
+test("Fit items - hide items with priority", () => {
   const itemSmallWidth = 15;
   const itemLargeWidth = 50;
   const dotsItemSize = 10;
@@ -188,32 +187,32 @@ QUnit.test("Fit items - hide items with priority", function (assert) {
 
   model.flushUpdates();
 
-  assert.equal(model.actions.length, 3);
-  assert.equal(model.visibleActions.length, 3);
+  expect(model.actions.length).toBe(3);
+  expect(model.visibleActions.length).toBe(3);
 
   model.fit({ availableSpace: 300 });
-  assert.equal(model.visibleActions.length, 3, "dimension 300");
-  assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
-  assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
-  assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
-  assert.equal(model.renderedActions[3].isVisible, false, "300 - dots hidden");
+  expect(model.visibleActions.length, "dimension 300").toBe(3);
+  expect(model.visibleActions[0].isVisible, "300 - visible 1").toBe(true);
+  expect(model.visibleActions[1].isVisible, "300 - visible 2").toBe(true);
+  expect(model.visibleActions[2].isVisible, "300 - visible 3").toBe(true);
+  expect(model.renderedActions[3].isVisible, "300 - dots hidden").toBe(false);
 
   model.fit({ availableSpace: 78 });
-  assert.equal(model.visibleActions.length, 3, "dimension 78");
-  assert.equal(model.visibleActions[0].isVisible, true, "78 - visible 1");
-  assert.equal(model.visibleActions[1].isVisible, true, "78 - invisible 2");
-  assert.equal(model.visibleActions[2].isVisible, false, "78 - visible 3");
-  assert.equal(model.renderedActions[3].isVisible, true, "78 - dots hidden");
+  expect(model.visibleActions.length, "dimension 78").toBe(3);
+  expect(model.visibleActions[0].isVisible, "78 - visible 1").toBe(true);
+  expect(model.visibleActions[1].isVisible, "78 - invisible 2").toBe(true);
+  expect(model.visibleActions[2].isVisible, "78 - visible 3").toBe(false);
+  expect(model.renderedActions[3].isVisible, "78 - dots hidden").toBe(true);
 
   model.fit({ availableSpace: 29 });
-  assert.equal(model.visibleActions.length, 3, "dimension 29");
-  assert.equal(model.visibleActions[0].isVisible, true, "29 - visible 1");
-  assert.equal(model.visibleActions[1].isVisible, false, "29 - invisible 2");
-  assert.equal(model.visibleActions[2].isVisible, false, "29 - visible 3");
-  assert.equal(model.dotsItem.isVisible, true, "29 - dots visible");
+  expect(model.visibleActions.length, "dimension 29").toBe(3);
+  expect(model.visibleActions[0].isVisible, "29 - visible 1").toBe(true);
+  expect(model.visibleActions[1].isVisible, "29 - invisible 2").toBe(false);
+  expect(model.visibleActions[2].isVisible, "29 - visible 3").toBe(false);
+  expect(model.dotsItem.isVisible, "29 - dots visible").toBe(true);
 });
 
-QUnit.test("getAvailableSpace with content-box test", function (assert) {
+test("getAvailableSpace with content-box test", () => {
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({
     offsetWidth: 40,
@@ -228,10 +227,10 @@ QUnit.test("getAvailableSpace with content-box test", function (assert) {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
-  assert.equal(manager["getAvailableSpace"](), 40);
+  expect(manager["getAvailableSpace"]()).toBe(40);
 });
 
-QUnit.test("getAvailableSpace with border-box test", function (assert) {
+test("getAvailableSpace with border-box test", () => {
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({
     offsetWidth: 40,
@@ -246,9 +245,9 @@ QUnit.test("getAvailableSpace with border-box test", function (assert) {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "border-box", paddingLeft: 5, paddingRight: 5 };
   };
-  assert.equal(manager["getAvailableSpace"](), 30);
+  expect(manager["getAvailableSpace"]()).toBe(30);
 });
-QUnit.test("Ignore space for invisible items", function (assert) {
+test("Ignore space for invisible items", () => {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const item1 = new Action({ id: "item1" });
@@ -260,7 +259,7 @@ QUnit.test("Ignore space for invisible items", function (assert) {
   model.actions.push(item1);
   model.actions.push(item2);
   model.fit({ availableSpace: 50 });
-  assert.equal(item1.mode, "large");
+  expect(item1.mode).toBe("large");
 });
 
 export class TestAdaptiveActionContainer extends AdaptiveActionContainer {
@@ -272,7 +271,7 @@ export class TestAdaptiveActionContainer extends AdaptiveActionContainer {
   }
 }
 
-QUnit.test("Action container: updateCallback test", assert => {
+test("Action container: updateCallback test", () => {
   let isRaised = false;
   let currentIsInitialized = false;
   const model: TestAdaptiveActionContainer = new TestAdaptiveActionContainer();
@@ -281,32 +280,32 @@ QUnit.test("Action container: updateCallback test", assert => {
     isRaised = true;
   };
 
-  assert.equal(isRaised, false);
+  expect(isRaised).toBe(false);
   model.actions = [new Action({ id: "first" })];
   model.flushUpdates();
-  assert.equal(isRaised, true, "container OnSet");
-  assert.equal(currentIsInitialized, true, "container OnSet");
+  expect(isRaised, "container OnSet").toBe(true);
+  expect(currentIsInitialized, "container OnSet").toBe(true);
 
   isRaised = false;
   model.actions.push(new Action({ id: "second" }));
   model.flushUpdates();
-  assert.equal(isRaised, true, "container OnPush");
-  assert.equal(currentIsInitialized, true, "container OnPush");
+  expect(isRaised, "container OnPush").toBe(true);
+  expect(currentIsInitialized, "container OnPush").toBe(true);
 
   isRaised = false;
   model.actions.splice(1, 1);
   model.flushUpdates();
-  assert.equal(isRaised, true, "container OnRemove");
-  assert.equal(currentIsInitialized, true, "container OnRemove");
+  expect(isRaised, "container OnRemove").toBe(true);
+  expect(currentIsInitialized, "container OnRemove").toBe(true);
 
   isRaised = false;
   model.actions[0].visible = !model.actions[0].visible;
   model.flushUpdates();
-  assert.equal(isRaised, true, "action visible changed");
-  assert.equal(currentIsInitialized, false, "action visible changed");
+  expect(isRaised, "action visible changed").toBe(true);
+  expect(currentIsInitialized, "action visible changed").toBe(false);
 });
 
-QUnit.test("ResponsivityManager process test", function (assert) {
+test("ResponsivityManager process test", () => {
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const oldRequestAnimationFrame = window.requestAnimationFrame;
@@ -327,55 +326,52 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
-  assert.notOk(manager["isInitialized"], "before start");
-  assert.notOk(manager["isResizeObserverStarted"]);
+  expect(manager["isInitialized"], "before start").toBeFalsy();
+  expect(manager["isResizeObserverStarted"]).toBeFalsy();
   let newAction = new Action({ id: "first" });
-  assert.equal(newAction.minDimension, undefined);
-  assert.equal(newAction.maxDimension, undefined);
+  expect(newAction.minDimension).toBeUndefined();
+  expect(newAction.maxDimension).toBeUndefined();
   model.actions.push(newAction);
   model.flushUpdates();
   updateActions();
-  assert.notOk(manager["isInitialized"], "process is not called after push when ResizeObserver has not started");
-  assert.notOk(manager["isResizeObserverStarted"]);
-  assert.equal(newAction.minDimension, undefined);
-  assert.equal(newAction.maxDimension, undefined);
+  expect(manager["isInitialized"], "process is not called after push when ResizeObserver has not started").toBeFalsy();
+  expect(manager["isResizeObserverStarted"]).toBeFalsy();
+  expect(newAction.minDimension).toBeUndefined();
+  expect(newAction.maxDimension).toBeUndefined();
   (manager["resizeObserver"] as any).run();
-  assert.ok(manager["isInitialized"], "resize observer is started");
-  assert.ok(manager["isResizeObserverStarted"]);
-  assert.equal(newAction.minDimension, 20);
-  assert.equal(newAction.maxDimension, 100);
+  expect(manager["isInitialized"], "resize observer is started").toBeTruthy();
+  expect(manager["isResizeObserverStarted"]).toBeTruthy();
+  expect(newAction.minDimension).toBe(20);
+  expect(newAction.maxDimension).toBe(100);
   newAction = new Action({ id: "second" });
   model.actions.push(newAction);
   model.flushUpdates();
-  assert.notOk(manager["isInitialized"], "isInitialized should be reset before when item is being pushed");
-  assert.equal(newAction.minDimension, undefined);
-  assert.equal(newAction.maxDimension, undefined);
+  expect(manager["isInitialized"], "isInitialized should be reset before when item is being pushed").toBeFalsy();
+  expect(newAction.minDimension).toBeUndefined();
+  expect(newAction.maxDimension).toBeUndefined();
   updateActions();
-  assert.ok(manager["isInitialized"], "process is called after push when ResizeObserver has already started");
-  assert.equal(newAction.minDimension, 20);
-  assert.equal(newAction.maxDimension, 100);
+  expect(manager["isInitialized"], "process is called after push when ResizeObserver has already started").toBeTruthy();
+  expect(newAction.minDimension).toBe(20);
+  expect(newAction.maxDimension).toBe(100);
   window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
-QUnit.test(
-  "ResponsivityManager process test: stop when container is invisible",
-  function (assert) {
-    const container: SimpleContainer = new SimpleContainer({});
-    const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-    const manager: ResponsivityManager = new ResponsivityManager(
+test("ResponsivityManager process test: stop when container is invisible", () => {
+  const container: SimpleContainer = new SimpleContainer({});
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const manager: ResponsivityManager = new ResponsivityManager(
       <any>container,
       <any>model
-    );
-    container.offsetHeight = 0;
-    container.offsetWidth = 0;
-    container.clientRects = [];
-    assert.equal(manager["isInitialized"], false);
-    manager["process"]();
-    assert.equal(manager["isInitialized"], false);
-  }
-);
+  );
+  container.offsetHeight = 0;
+  container.offsetWidth = 0;
+  container.clientRects = [];
+  expect(manager["isInitialized"]).toBe(false);
+  manager["process"]();
+  expect(manager["isInitialized"]).toBe(false);
+});
 
-QUnit.test("ResponsivityManager - vertical process", function (assert) {
+test("ResponsivityManager - vertical process", () => {
   const container: SimpleContainer = new SimpleContainer({
     offsetHeight: 100,
   });
@@ -387,25 +383,30 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
     <any>container,
     <any>model
   );
+  const originalGetComputedStyle = (window as any).getComputedStyle;
   (window as any).getComputedStyle = () => {
     return { boxSizing: "border-box", paddingTop: 5, paddingBottom: 5 };
   };
 
-  model.flushUpdates();
+  try {
+    model.flushUpdates();
 
-  model.renderedActions.forEach(action => {
-    action.updateModeCallback = (mode, callback) => {
-      action.mode = mode;
-      const offsetHeight = action == model.dotsItem ? 30 : 20;
-      const content = new SimpleContainer({ offsetWidth: 20, offsetHeight });
-      callback(mode, content as any);
-    };
-  });
-  manager["process"]();
-  assert.equal(model.hiddenItemsListModel.actions.length, 7);
+    model.renderedActions.forEach(action => {
+      action.updateModeCallback = (mode, callback) => {
+        action.mode = mode;
+        const offsetHeight = action == model.dotsItem ? 30 : 20;
+        const content = new SimpleContainer({ offsetWidth: 20, offsetHeight });
+        callback(mode, content as any);
+      };
+    });
+    manager["process"]();
+    expect(model.hiddenItemsListModel.actions.length).toBe(7);
+  } finally {
+    (window as any).getComputedStyle = originalGetComputedStyle;
+  }
 });
 
-QUnit.test("isResponsivenessDisabled", function (assert) {
+test("isResponsivenessDisabled", () => {
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -432,35 +433,35 @@ QUnit.test("isResponsivenessDisabled", function (assert) {
 
   model.flushUpdates();
 
-  assert.equal(model.actions.length, 3);
-  assert.equal(model.renderedActions.length, 4);
-  assert.equal(model.isResponsivenessDisabled, false);
+  expect(model.actions.length).toBe(3);
+  expect(model.renderedActions.length).toBe(4);
+  expect(model.isResponsivenessDisabled).toBe(false);
 
   manager["isInitialized"] = true;
   manager["process"]();
-  assert.equal(model.renderedActions.length, 4, "dimension 300");
-  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
-  assert.equal(model.renderedActions[1].isVisible, false, "invisible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions[3].isVisible, true, "dots button");
-  assert.equal(item1.mode, "small", "dimension 300");
-  assert.equal(item2.mode, "popup", "dimension 300");
-  assert.equal(item3.mode, "popup", "dimension 300");
+  expect(model.renderedActions.length, "dimension 300").toBe(4);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "invisible 2").toBe(false);
+  expect(model.renderedActions[2].isVisible, "invisible 3").toBe(false);
+  expect(model.renderedActions[3].isVisible, "dots button").toBe(true);
+  expect(item1.mode, "dimension 300").toBe("small");
+  expect(item2.mode, "dimension 300").toBe("popup");
+  expect(item3.mode, "dimension 300").toBe("popup");
 
   model.setActionsMode("large");
   model.isResponsivenessDisabled = true;
   manager["process"]();
-  assert.equal(model.renderedActions.length, 4, "dimension 300");
-  assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
-  assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, true, "visible 3");
+  expect(model.renderedActions.length, "dimension 300").toBe(4);
+  expect(model.renderedActions[0].isVisible, "visible 1").toBe(true);
+  expect(model.renderedActions[1].isVisible, "visible 2").toBe(true);
+  expect(model.renderedActions[2].isVisible, "visible 3").toBe(true);
 
-  assert.equal(item1.mode, "large", "dimension 300");
-  assert.equal(item2.mode, "large", "dimension 300");
-  assert.equal(item3.mode, "large", "dimension 300");
+  expect(item1.mode, "dimension 300").toBe("large");
+  expect(item2.mode, "dimension 300").toBe("large");
+  expect(item3.mode, "dimension 300").toBe("large");
 });
 
-QUnit.test("check disableHide property", function (assert) {
+test("check disableHide property", () => {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.minDimension = 0;
@@ -484,22 +485,22 @@ QUnit.test("check disableHide property", function (assert) {
   model.flushUpdates();
 
   model.fit({ availableSpace: 50 });
-  assert.notOk(item1.isVisible);
-  assert.notOk(item2.isVisible);
-  assert.ok(item3.isVisible);
+  expect(item1.isVisible).toBeFalsy();
+  expect(item2.isVisible).toBeFalsy();
+  expect(item3.isVisible).toBeTruthy();
 
   model.fit({ availableSpace: 120 });
-  assert.ok(item1.isVisible);
-  assert.notOk(item2.isVisible);
-  assert.ok(item3.isVisible);
+  expect(item1.isVisible).toBeTruthy();
+  expect(item2.isVisible).toBeFalsy();
+  expect(item3.isVisible).toBeTruthy();
 
   model.fit({ availableSpace: 160 });
-  assert.ok(item1.isVisible);
-  assert.ok(item2.isVisible);
-  assert.ok(item3.isVisible);
+  expect(item1.isVisible).toBeTruthy();
+  expect(item2.isVisible).toBeTruthy();
+  expect(item3.isVisible).toBeTruthy();
 });
 
-QUnit.test("check disableHide property in case of different widths", function (assert) {
+test("check disableHide property in case of different widths", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.minDimension = 0;
   model.dotsItem.maxDimension = 0;
@@ -522,22 +523,22 @@ QUnit.test("check disableHide property in case of different widths", function (a
   model.flushUpdates();
 
   model.fit({ availableSpace: 125 });
-  assert.notOk(item1.isVisible);
-  assert.notOk(item2.isVisible);
-  assert.ok(item3.isVisible);
+  expect(item1.isVisible).toBeFalsy();
+  expect(item2.isVisible).toBeFalsy();
+  expect(item3.isVisible).toBeTruthy();
 
   model.fit({ availableSpace: 150 });
-  assert.ok(item1.isVisible);
-  assert.notOk(item2.isVisible);
-  assert.ok(item3.isVisible);
+  expect(item1.isVisible).toBeTruthy();
+  expect(item2.isVisible).toBeFalsy();
+  expect(item3.isVisible).toBeTruthy();
 
   model.fit({ availableSpace: 225 });
-  assert.ok(item1.isVisible);
-  assert.ok(item2.isVisible);
-  assert.ok(item3.isVisible);
+  expect(item1.isVisible).toBeTruthy();
+  expect(item2.isVisible).toBeTruthy();
+  expect(item3.isVisible).toBeTruthy();
 });
 
-QUnit.test("check title change calls raise update", function (assert) {
+test("check title change calls raise update", () => {
   const itemSmallWidth = 48;
   const model: TestAdaptiveActionContainer = new TestAdaptiveActionContainer();
   let log = "";
@@ -549,35 +550,35 @@ QUnit.test("check title change calls raise update", function (assert) {
   item1.maxDimension = itemSmallWidth;
   model.actions.push(item1);
   model.flushUpdates();
-  assert.equal(log, "->called: true", "called from push");
-  assert.notOk(item1.needUpdateMaxDimension, "needUpdateMaxDimension is false by default");
+  expect(log, "called from push").toBe("->called: true");
+  expect(item1.needUpdateMaxDimension, "needUpdateMaxDimension is false by default").toBeFalsy();
   item1.title = "Test";
   model.flushUpdates();
-  assert.equal(log, "->called: true->called: false", "called from title change");
-  assert.ok(item1.needUpdateMaxDimension, "needUpdateMaxDimension is true when changing title");
+  expect(log, "called from title change").toBe("->called: true->called: false");
+  expect(item1.needUpdateMaxDimension, "needUpdateMaxDimension is true when changing title").toBeTruthy();
   item1.title = "Test";
   model.flushUpdates();
-  assert.equal(log, "->called: true->called: false");
+  expect(log).toBe("->called: true->called: false");
 });
 
-QUnit.test("check actions mode is set correctly when disableShrink is set", function (assert) {
+test("check actions mode is set correctly when disableShrink is set", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const action = model.addAction({
     disableShrink: true,
     title: "test"
   });
-  assert.equal(action.mode, "large");
+  expect(action.mode).toBe("large");
   model.setActionsMode("removed");
-  assert.equal(action.mode, "removed");
+  expect(action.mode).toBe("removed");
   model.setActionsMode("large");
-  assert.equal(action.mode, "large");
+  expect(action.mode).toBe("large");
   model.setActionsMode("popup");
-  assert.equal(action.mode, "popup");
+  expect(action.mode).toBe("popup");
   model.setActionsMode("small");
-  assert.equal(action.mode, "large");
+  expect(action.mode).toBe("large");
 });
 
-QUnit.test("Check fit with gap", function (assert) {
+test("Check fit with gap", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.minDimension = 50;
   model.dotsItem.maxDimension = 50;
@@ -599,67 +600,67 @@ QUnit.test("Check fit with gap", function (assert) {
   model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 0 });
-  assert.equal(item1.mode, "large", "300 - 0 item1 large");
-  assert.equal(item2.mode, "large", "300 - 0 item2 large");
-  assert.equal(item3.mode, "large", "300 - 0 item3 large");
-  assert.notOk(model.dotsItem.isVisible, "300 - 0 dotsItem not visible");
+  expect(item1.mode, "300 - 0 item1 large").toBe("large");
+  expect(item2.mode, "300 - 0 item2 large").toBe("large");
+  expect(item3.mode, "300 - 0 item3 large").toBe("large");
+  expect(model.dotsItem.isVisible, "300 - 0 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 1 });
-  assert.equal(item1.mode, "large", "300 - 1 item1 large");
-  assert.equal(item2.mode, "large", "300 - 1 item2 large");
-  assert.equal(item3.mode, "small", "300 - 1 item3 small");
-  assert.notOk(model.dotsItem.isVisible, "300 - 1 dotsItem not visible");
+  expect(item1.mode, "300 - 1 item1 large").toBe("large");
+  expect(item2.mode, "300 - 1 item2 large").toBe("large");
+  expect(item3.mode, "300 - 1 item3 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 1 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 25 });
-  assert.equal(item1.mode, "large", "300 - 25 item1 large");
-  assert.equal(item2.mode, "large", "300 - 25 item2 large");
-  assert.equal(item3.mode, "small", "300 - 25 item3 small");
-  assert.notOk(model.dotsItem.isVisible, "300 - 25 dotsItem not visible");
+  expect(item1.mode, "300 - 25 item1 large").toBe("large");
+  expect(item2.mode, "300 - 25 item2 large").toBe("large");
+  expect(item3.mode, "300 - 25 item3 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 25 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 26 });
-  assert.equal(item1.mode, "large", "300 - 26 item1 large");
-  assert.equal(item2.mode, "small", "300 - 26 item2 small");
-  assert.equal(item3.mode, "small", "300 - 26 item3 small");
-  assert.notOk(model.dotsItem.isVisible, "300 - 26 dotsItem not visible");
+  expect(item1.mode, "300 - 26 item1 large").toBe("large");
+  expect(item2.mode, "300 - 26 item2 small").toBe("small");
+  expect(item3.mode, "300 - 26 item3 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 26 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 50 });
-  assert.equal(item1.mode, "large", "300 - 50 item1 large");
-  assert.equal(item2.mode, "small", "300 - 50 item2 small");
-  assert.equal(item3.mode, "small", "300 - 50 item3 small");
-  assert.notOk(model.dotsItem.isVisible, "300 - 50 dotsItem not visible");
+  expect(item1.mode, "300 - 50 item1 large").toBe("large");
+  expect(item2.mode, "300 - 50 item2 small").toBe("small");
+  expect(item3.mode, "300 - 50 item3 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 50 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 51 });
-  assert.equal(item1.mode, "small", "300 - 51 item1 small");
-  assert.equal(item2.mode, "small", "300 - 51 item2 small");
-  assert.equal(item3.mode, "small", "300 - 51 item3 small");
-  assert.notOk(model.dotsItem.isVisible, "300 - 51 dotsItem not visible");
+  expect(item1.mode, "300 - 51 item1 small").toBe("small");
+  expect(item2.mode, "300 - 51 item2 small").toBe("small");
+  expect(item3.mode, "300 - 51 item3 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 51 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 75 });
-  assert.equal(item1.mode, "small", "300 - 75 item1 small");
-  assert.equal(item2.mode, "small", "300 - 75 item2 small");
-  assert.equal(item3.mode, "small", "300 - 75 item3 small");
-  assert.notOk(model.dotsItem.isVisible, "300 - 75 dotsItem not visible");
+  expect(item1.mode, "300 - 75 item1 small").toBe("small");
+  expect(item2.mode, "300 - 75 item2 small").toBe("small");
+  expect(item3.mode, "300 - 75 item3 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 75 dotsItem not visible").toBeFalsy();
 
   model.fit({ availableSpace: 300, gap: 76 });
-  assert.equal(item1.mode, "small", "300 - 76 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 76 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
-  assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+  expect(item1.mode, "300 - 76 item1 small").toBe("small");
+  expect(item2.mode, "300 - 76 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 76 item3 popup").toBe("popup");
+  expect(model.dotsItem.isVisible, "300 - 76 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 200 });
-  assert.equal(item1.mode, "small", "300 - 200 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 200 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 200 item3 popup");
-  assert.ok(model.dotsItem.isVisible, "300 - 200 dotsItem visible");
+  expect(item1.mode, "300 - 200 item1 small").toBe("small");
+  expect(item2.mode, "300 - 200 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 200 item3 popup").toBe("popup");
+  expect(model.dotsItem.isVisible, "300 - 200 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 201 });
-  assert.equal(item1.mode, "popup", "300 - 201 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 201 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 201 item3 popup");
-  assert.ok(model.dotsItem.isVisible, "300 - 201 dotsItem visible");
+  expect(item1.mode, "300 - 201 item1 small").toBe("popup");
+  expect(item2.mode, "300 - 201 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 201 item3 popup").toBe("popup");
+  expect(model.dotsItem.isVisible, "300 - 201 dotsItem visible").toBeTruthy();
 });
 
-QUnit.test("Check fit with gap with disable hide on first action", function (assert) {
+test("Check fit with gap with disable hide on first action", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.minDimension = 50;
   model.dotsItem.maxDimension = 50;
@@ -687,28 +688,28 @@ QUnit.test("Check fit with gap with disable hide on first action", function (ass
   model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 34 });
-  assert.equal(item1.mode, "small", "300 - 34 item1 small");
-  assert.equal(item2.mode, "small", "300 - 34 item2 small");
-  assert.equal(item3.mode, "popup", "300 - 34 item3 popup");
-  assert.equal(item4.mode, "popup", "300 - 34 item4 popup");
-  assert.ok(model.dotsItem.isVisible, "300 - 34 dotsItem visible");
+  expect(item1.mode, "300 - 34 item1 small").toBe("small");
+  expect(item2.mode, "300 - 34 item2 small").toBe("small");
+  expect(item3.mode, "300 - 34 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 34 item4 popup").toBe("popup");
+  expect(model.dotsItem.isVisible, "300 - 34 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 75 });
-  assert.equal(item1.mode, "small", "300 - 75 item1 small");
-  assert.equal(item2.mode, "small", "300 - 75 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 75 item3 popup");
-  assert.equal(item4.mode, "popup", "300 - 75 item4 popup");
-  assert.ok(model.dotsItem.isVisible, "300 - 75 dotsItem visible");
+  expect(item1.mode, "300 - 75 item1 small").toBe("small");
+  expect(item2.mode, "300 - 75 item2 popup").toBe("small");
+  expect(item3.mode, "300 - 75 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 75 item4 popup").toBe("popup");
+  expect(model.dotsItem.isVisible, "300 - 75 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 76 });
-  assert.equal(item1.mode, "small", "300 - 76 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 76 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
-  assert.equal(item4.mode, "popup", "300 - 76 item4 popup");
-  assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+  expect(item1.mode, "300 - 76 item1 small").toBe("small");
+  expect(item2.mode, "300 - 76 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 76 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 76 item4 popup").toBe("popup");
+  expect(model.dotsItem.isVisible, "300 - 76 dotsItem visible").toBeTruthy();
 });
 
-QUnit.test("Check fit with gap with disable hide on non-first action", function (assert) {
+test("Check fit with gap with disable hide on non-first action", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.minDimension = 50;
   model.dotsItem.maxDimension = 50;
@@ -735,28 +736,28 @@ QUnit.test("Check fit with gap with disable hide on non-first action", function 
   model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 34 });
-  assert.equal(item1.mode, "small", "300 - 34 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 34 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 34 item3 popup");
-  assert.equal(item4.mode, "small", "300 - 34 item4 small");
-  assert.ok(model.dotsItem.isVisible, "300 - 34 dotsItem visible");
+  expect(item1.mode, "300 - 34 item1 small").toBe("small");
+  expect(item2.mode, "300 - 34 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 34 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 34 item4 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 34 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 75 });
-  assert.equal(item1.mode, "small", "300 - 75 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 75 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 75 item3 popup");
-  assert.equal(item4.mode, "small", "300 - 75 item4 small");
-  assert.ok(model.dotsItem.isVisible, "300 - 75 dotsItem visible");
+  expect(item1.mode, "300 - 75 item1 small").toBe("small");
+  expect(item2.mode, "300 - 75 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 75 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 75 item4 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 75 dotsItem visible").toBeTruthy();
 
   model.fit({ availableSpace: 300, gap: 76 });
-  assert.equal(item1.mode, "popup", "300 - 76 item1 small");
-  assert.equal(item2.mode, "popup", "300 - 76 item2 popup");
-  assert.equal(item3.mode, "popup", "300 - 76 item3 popup");
-  assert.equal(item4.mode, "small", "300 - 76 item4 small");
-  assert.ok(model.dotsItem.isVisible, "300 - 76 dotsItem visible");
+  expect(item1.mode, "300 - 76 item1 small").toBe("popup");
+  expect(item2.mode, "300 - 76 item2 popup").toBe("popup");
+  expect(item3.mode, "300 - 76 item3 popup").toBe("popup");
+  expect(item4.mode, "300 - 76 item4 small").toBe("small");
+  expect(model.dotsItem.isVisible, "300 - 76 dotsItem visible").toBeTruthy();
 });
 
-QUnit.test("Check fit for two actions: action with disableHide and action with icon", function (assert) {
+test("Check fit for two actions: action with disableHide and action with icon", () => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.dotsItem.minDimension = 50;
   model.dotsItem.maxDimension = 50;
@@ -774,22 +775,22 @@ QUnit.test("Check fit for two actions: action with disableHide and action with i
   model.flushUpdates();
 
   model.fit({ availableSpace: 300 });
-  assert.equal(item1.mode, "large", "300 item1 large");
-  assert.equal(item2.mode, "large", "300 item2 large");
-  assert.ok(!model.dotsItem.isVisible, "300 dotsItem hidden");
+  expect(item1.mode, "300 item1 large").toBe("large");
+  expect(item2.mode, "300 item2 large").toBe("large");
+  expect(!model.dotsItem.isVisible, "300 dotsItem hidden").toBeTruthy();
 
   model.fit({ availableSpace: 150 });
-  assert.equal(item1.mode, "large", "150 item1 large");
-  assert.equal(item2.mode, "small", "150 item2 small");
-  assert.ok(!model.dotsItem.isVisible, "150 dotsItem hidden");
+  expect(item1.mode, "150 item1 large").toBe("large");
+  expect(item2.mode, "150 item2 small").toBe("small");
+  expect(!model.dotsItem.isVisible, "150 dotsItem hidden").toBeTruthy();
 
   model.fit({ availableSpace: 100 });
-  assert.equal(item1.mode, "small", "100 item1 small");
-  assert.equal(item2.mode, "small", "100 item2 small");
-  assert.ok(!model.dotsItem.isVisible, "100 dotsItem hidden");
+  expect(item1.mode, "100 item1 small").toBe("small");
+  expect(item2.mode, "100 item2 small").toBe("small");
+  expect(!model.dotsItem.isVisible, "100 dotsItem hidden").toBeTruthy();
 
   model.fit({ availableSpace: 50 });
-  assert.equal(item1.mode, "small", "100 item1 small");
-  assert.equal(item2.mode, "small", "100 item2 small");
-  assert.ok(!model.dotsItem.isVisible, "100 dotsItem hidden");
+  expect(item1.mode, "100 item1 small").toBe("small");
+  expect(item2.mode, "100 item2 small").toBe("small");
+  expect(!model.dotsItem.isVisible, "100 dotsItem hidden").toBeTruthy();
 });

@@ -6,7 +6,7 @@
 variables:
   - template: templates/utils/variables.yml
   - name: repoRef
-    value: $[coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranch'])]
+    value: $[coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranchName'])]
 
 resources:
   repositories:

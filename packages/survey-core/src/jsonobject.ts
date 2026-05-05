@@ -576,7 +576,7 @@ export class CustomPropertiesCollection {
     }
     if (prop.type === "condition" || prop.type === "expression") {
       if (!!prop.onExecuteExpression) {
-        obj.addExpressionProperty(prop.name, prop.onExecuteExpression);
+        obj.addExpressionProperty(prop.name, prop.onExecuteExpression, undefined, prop.type === "expression");
       }
     }
   }
@@ -969,7 +969,11 @@ export class JsonMetadata {
     parentName: string = null
   ): JsonMetadataClass {
     name = name.toLowerCase();
-    var metaDataClass = new JsonMetadataClass(
+    const existing = this.classes[name];
+    if (existing) {
+      this.removeFromParentClass(existing);
+    }
+    const metaDataClass = new JsonMetadataClass(
       name,
       properties,
       creator,
@@ -990,11 +994,17 @@ export class JsonMetadata {
     var metaClass = this.findClass(name);
     if (!metaClass) return;
     delete this.classes[metaClass.name];
-    if (!!metaClass.parentName) {
-      var index = this.childrenClasses[metaClass.parentName].indexOf(metaClass);
-      if (index > -1) {
-        this.childrenClasses[metaClass.parentName].splice(index, 1);
-      }
+    this.removeFromParentClass(metaClass);
+  }
+  private removeFromParentClass(metaClass: JsonMetadataClass) {
+    if (!metaClass.parentName) return;
+    const parentClass = this.findClass(metaClass.parentName);
+    if (!parentClass) return;
+    const children = this.childrenClasses[metaClass.parentName];
+    if (!children) return;
+    const index = children.indexOf(metaClass);
+    if (index > -1) {
+      children.splice(index, 1);
     }
   }
   public overrideClassCreatore(name: string, creator: () => any) {

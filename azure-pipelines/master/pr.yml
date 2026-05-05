@@ -144,57 +144,57 @@ stages:
             parameters:
               store: true
 
-  - stage: LibraryReactBuild
-    displayName: "Library React Build"
-    dependsOn: 
-      - Options
-    variables:
-      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
-    jobs:
-      - job:
-        steps:
-          - template: templates/library/react/build.yml
-            parameters:
-                store: true
+  # - stage: LibraryReactBuild
+  #   displayName: "Library React Build"
+  #   dependsOn: 
+  #     - Options
+  #   variables:
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/library/react/build.yml
+  #           parameters:
+  #               store: true
 
-  - stage: LibraryAngularBuild
-    displayName: "Library Angular Build"
-    dependsOn: 
-      - Options
-    variables:
-      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
-    jobs:
-      - job:
-        steps:
-          - template: templates/library/angular/build.yml
-            parameters:
-                store: true
+  # - stage: LibraryAngularBuild
+  #   displayName: "Library Angular Build"
+  #   dependsOn: 
+  #     - Options
+  #   variables:
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/library/angular/build.yml
+  #           parameters:
+  #               store: true
 
-  - stage: LibraryVueBuild
-    displayName: "Library Vue Build"
-    dependsOn: 
-      - Options
-    variables:
-      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
-    jobs:
-      - job:
-        steps:
-          - template: templates/library/vue/build.yml
-            parameters:
-                store: true
+  # - stage: LibraryVueBuild
+  #   displayName: "Library Vue Build"
+  #   dependsOn: 
+  #     - Options
+  #   variables:
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/library/vue/build.yml
+  #           parameters:
+  #               store: true
 
-  - stage: LibraryJSBuild
-    displayName: "Library JS (Preact ShadowDOM BoxSizing) Build"
-    dependsOn: 
-      - Options
-    variables:
-      VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
-    jobs:
-      - job:
-        steps:
-          - template: templates/library/js/build.yml
-            parameters:
-                store: true
+  # - stage: LibraryJSBuild
+  #   displayName: "Library JS (Preact ShadowDOM BoxSizing) Build"
+  #   dependsOn: 
+  #     - Options
+  #   variables:
+  #     VERSION: $[ stageDependencies.Options.Version.outputs['data.VERSION'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/library/js/build.yml
+  #           parameters:
+  #               store: true
 
   # - stage: CreatorCoreBuild
   #   displayName: "Creator Core Build"
@@ -318,120 +318,120 @@ stages:
   ##############
   # Test Phase #
   ##############
-  - stage: LibraryCoreTest
-    displayName: "Library Core Test"
-    dependsOn: []
-    jobs:
-      - template: templates/library/core/test.yml
+  # - stage: LibraryCoreTest
+  #   displayName: "Library Core Test"
+  #   dependsOn: []
+  #   jobs:
+  #     - template: templates/library/core/test.yml
 
-  - stage: LibraryReactTest
-    displayName: "Library React Test"
-    dependsOn: []
-    jobs:
-      - template: templates/library/react/test.yml
+  # - stage: LibraryReactTest
+  #   displayName: "Library React Test"
+  #   dependsOn: []
+  #   jobs:
+  #     - template: templates/library/react/test.yml
 
-  - stage: LibraryAngularTest
-    displayName: "Library Angular Test"
-    dependsOn: []
-    jobs:
-      - template: templates/library/angular/test.yml
+  # - stage: LibraryAngularTest
+  #   displayName: "Library Angular Test"
+  #   dependsOn: []
+  #   jobs:
+  #     - template: templates/library/angular/test.yml
 
-  - stage: LibraryVueTest
-    displayName: "Library Vue Test"
-    dependsOn: []
-    jobs:
-      - template: templates/library/vue/test.yml
+  # - stage: LibraryVueTest
+  #   displayName: "Library Vue Test"
+  #   dependsOn: []
+  #   jobs:
+  #     - template: templates/library/vue/test.yml
 
-  - stage: LibraryJSTest
-    displayName: "Library JS (Preact ShadowDOM BoxSizing) Test"
-    dependsOn: []
-    jobs:
-      - template: templates/library/js/test.yml
+  # - stage: LibraryJSTest
+  #   displayName: "Library JS (Preact ShadowDOM BoxSizing) Test"
+  #   dependsOn: []
+  #   jobs:
+  #     - template: templates/library/js/test.yml
 
-  - stage: CreatorCoreTest
-    displayName: "Creator Core Test"
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    jobs:
-      - template: templates/creator/core/test.yml
-        parameters:
-          checkout: Creator
+  # - stage: CreatorCoreTest
+  #   displayName: "Creator Core Test"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   jobs:
+  #     - template: templates/creator/core/test.yml
+  #       parameters:
+  #         checkout: Creator
 
-  - stage: CreatorReactTest
-    displayName: "Creator React Test"
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryReactBuild
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    jobs:
-      - template: templates/creator/react/test.yml
-        parameters:
-          checkout: Creator
+  # - stage: CreatorReactTest
+  #   displayName: "Creator React Test"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryReactBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   jobs:
+  #     - template: templates/creator/react/test.yml
+  #       parameters:
+  #         checkout: Creator
 
-  - stage: CreatorAngularTest
-    displayName: "Creator Angular Test"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryAngularBuild
-    jobs:
-      - template: templates/creator/angular/test.yml
-        parameters:
-          checkout: Creator
+  # - stage: CreatorAngularTest
+  #   displayName: "Creator Angular Test"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryAngularBuild
+  #   jobs:
+  #     - template: templates/creator/angular/test.yml
+  #       parameters:
+  #         checkout: Creator
 
-  - stage: CreatorVueTest
-    displayName: "Creator Vue Test"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryVueBuild
-    jobs:
-      - template: templates/creator/vue/test.yml
-        parameters:
-          checkout: Creator
+  # - stage: CreatorVueTest
+  #   displayName: "Creator Vue Test"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryVueBuild
+  #   jobs:
+  #     - template: templates/creator/vue/test.yml
+  #       parameters:
+  #         checkout: Creator
 
-  - stage: CreatorJSTest
-    displayName: "Creator JS (Preact ShadowDOM BoxSizing) Test"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-      - LibraryJSBuild
-    jobs:
-      - template: templates/creator/js/test.yml
-        parameters:
-          checkout: Creator
+  # - stage: CreatorJSTest
+  #   displayName: "Creator JS (Preact ShadowDOM BoxSizing) Test"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryJSBuild
+  #   jobs:
+  #     - template: templates/creator/js/test.yml
+  #       parameters:
+  #         checkout: Creator
 
-  - stage: AnalyticsTest
-    displayName: "Analytics Test"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.ANALYTICS'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-    jobs:
-      - template: templates/analytics/test.yml
-        parameters:
-          checkout: Analytics
+  # - stage: AnalyticsTest
+  #   displayName: "Analytics Test"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.ANALYTICS'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   jobs:
+  #     - template: templates/analytics/test.yml
+  #       parameters:
+  #         checkout: Analytics
 
-  - stage: PDFTest
-    displayName: "PDF Test"
-    variables:
-      PR: $[ stageDependencies.Options.PRTitle.outputs['data.PDF'] ]
-    dependsOn:
-      - Options
-      - LibraryCoreBuild
-    jobs:
-      - template: templates/pdf/test.yml
-        parameters:
-          checkout: PDF
+  # - stage: PDFTest
+  #   displayName: "PDF Test"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.PDF'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   jobs:
+  #     - template: templates/pdf/test.yml
+  #       parameters:
+  #         checkout: PDF

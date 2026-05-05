@@ -67,6 +67,7 @@ stages:
           - script: npm run lint
             workingDirectory: $(Build.SourcesDirectory)
 
+            
   - stage: Options
     dependsOn: []
     jobs:

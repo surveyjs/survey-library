@@ -14,7 +14,7 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-library
-      # ref: $(repoRef)
+      ref: $(repoRef)
     - repository: Creator
       type: github
       endpoint: github.com_surveyjsdeveloper

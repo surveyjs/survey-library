@@ -1661,54 +1661,54 @@ describe("Survey_QuestionMatrixDynamic", () => {
   });
   test("Matrixdynamic addRowButtonLocation", () => {
     var question = new QuestionMatrixDynamicModel("matrix");
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=false, addRowButtonLocation='default', #1").toBe(false);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=false, addRowButtonLocation='default', #2").toBe(true);
+    expect(question.getShowToolbar("top"), "transposeData=false, addRowButtonLocation='default', #1").toBe(false);
+    expect(question.getShowToolbar("bottom"), "transposeData=false, addRowButtonLocation='default', #2").toBe(true);
     question.addRowButtonLocation = "top";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=false, addRowButtonLocation='top', #1").toBe(true);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=false, addRowButtonLocation='top', #2").toBe(false);
+    expect(question.getShowToolbar("top"), "transposeData=false, addRowButtonLocation='top', #1").toBe(true);
+    expect(question.getShowToolbar("bottom"), "transposeData=false, addRowButtonLocation='top', #2").toBe(false);
     question.addRowButtonLocation = "bottom";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=false, addRowButtonLocation='bottom', #1").toBe(false);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=false, addRowButtonLocation='bottom', #2").toBe(true);
+    expect(question.getShowToolbar("top"), "transposeData=false, addRowButtonLocation='bottom', #1").toBe(false);
+    expect(question.getShowToolbar("bottom"), "transposeData=false, addRowButtonLocation='bottom', #2").toBe(true);
     question.addRowButtonLocation = "topBottom";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=false, addRowButtonLocation='topBottom', #1").toBe(true);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=false, addRowButtonLocation='topBottom', #2").toBe(true);
+    expect(question.getShowToolbar("top"), "transposeData=false, addRowButtonLocation='topBottom', #1").toBe(true);
+    expect(question.getShowToolbar("bottom"), "transposeData=false, addRowButtonLocation='topBottom', #2").toBe(true);
     question.transposeData = true;
     question.addRowButtonLocation = "default";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=true, addRowButtonLocation='default', #1").toBe(true);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=true, addRowButtonLocation='default', #2").toBe(false);
+    expect(question.getShowToolbar("top"), "transposeData=true, addRowButtonLocation='default', #1").toBe(true);
+    expect(question.getShowToolbar("bottom"), "transposeData=true, addRowButtonLocation='default', #2").toBe(false);
     question.addRowButtonLocation = "top";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=true, addRowButtonLocation='top', #1").toBe(true);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=true, addRowButtonLocation='top', #2").toBe(false);
+    expect(question.getShowToolbar("top"), "transposeData=true, addRowButtonLocation='top', #1").toBe(true);
+    expect(question.getShowToolbar("bottom"), "transposeData=true, addRowButtonLocation='top', #2").toBe(false);
     question.addRowButtonLocation = "bottom";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=true, addRowButtonLocation='bottom', #1").toBe(false);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=true, addRowButtonLocation='bottom', #2").toBe(true);
+    expect(question.getShowToolbar("top"), "transposeData=true, addRowButtonLocation='bottom', #1").toBe(false);
+    expect(question.getShowToolbar("bottom"), "transposeData=true, addRowButtonLocation='bottom', #2").toBe(true);
     question.addRowButtonLocation = "topBottom";
-    expect(question.renderedTable.showAddRowOnTop, "transposeData=true, addRowButtonLocation='topBottom', #1").toBe(true);
-    expect(question.renderedTable.showAddRowOnBottom, "transposeData=true, addRowButtonLocation='topBottom', #2").toBe(true);
+    expect(question.getShowToolbar("top"), "transposeData=true, addRowButtonLocation='topBottom', #1").toBe(true);
+    expect(question.getShowToolbar("bottom"), "transposeData=true, addRowButtonLocation='topBottom', #2").toBe(true);
   });
 
   test("Matrixdynamic showAddRow", () => {
     var question = new QuestionMatrixDynamicModel("matrix");
-    expect(question.renderedTable.showAddRow, "#1").toBe(true);
+    expect(question.getShowToolbar(), "#1").toBe(true);
     question.readOnly = true;
-    expect(question.renderedTable.showAddRow, "#2").toBe(false);
+    expect(question.getShowToolbar(), "#2").toBe(false);
     question.readOnly = false;
-    expect(question.renderedTable.showAddRow, "#3").toBe(true);
+    expect(question.getShowToolbar(), "#3").toBe(true);
     question.rowCount = 0;
     question.allowAddRows = false;
     expect(question.canAddRow, "question.canAddRow").toBe(false);
-    expect(question.renderedTable.showAddRowOnTop, "showAddRowOnTop").toBe(false);
-    expect(question.renderedTable.showAddRowOnBottom, "showAddRowOnBottom").toBe(false);
-    expect(question.renderedTable.showAddRow, "#4").toBe(false);
+    expect(question.getShowToolbar("top"), "showAddRowOnTop").toBe(false);
+    expect(question.getShowToolbar("bottom"), "showAddRowOnBottom").toBe(false);
+    expect(question.getShowToolbar(), "#4").toBe(false);
     question.hideColumnsIfEmpty = true;
     expect(question.canAddRow, "question.canAddRow, #5").toBe(false);
-    expect(question.renderedTable.showAddRowOnTop, "showAddRowOnTop, #5").toBe(false);
-    expect(question.renderedTable.showAddRowOnBottom, "showAddRowOnBottom, #5").toBe(false);
-    expect(question.renderedTable.showAddRow, "#5").toBe(false);
+    expect(question.getShowToolbar("top"), "showAddRowOnTop, #5").toBe(false);
+    expect(question.getShowToolbar("bottom"), "showAddRowOnBottom, #5").toBe(false);
+    expect(question.getShowToolbar(), "#5").toBe(false);
     expect(question.renderedTable.showTable, "#5").toBe(false);
     question.allowAddRows = true;
     expect(question.canAddRow, "question.canAddRow, #6").toBe(true);
-    expect(question.renderedTable.showAddRow, "showAddRow #6").toBe(true);
+    expect(question.getShowToolbar(), "showAddRow #6").toBe(true);
     expect(question.renderedTable.showTable, "showTable #6").toBe(false);
   });
 
@@ -3698,12 +3698,14 @@ describe("Survey_QuestionMatrixDynamic", () => {
     var table = matrix.renderedTable;
     expect(table.rows[1].cells[2].isActionsCell, "The first row can be removed (in actions cell)").toBe(true);
     expect(survey.css.root, "Survey css root set correctly").toBe("sd-root-modern");
-    expect(table.rows[1].cells[2].item.value.actions[0].component, "Render as icon").toBe("sv-action-bar-item");
+    expect(table.rows[1].cells[2].item.value.actions[0].iconName).toBe("icon-delete-24x24");
+    expect(table.rows[1].cells[2].item.value.actions[0].showTitle, "Render as icon").toBe(false);
     settings.matrixRenderRemoveAsIcon = false;
     //Reset table
     matrix.showHeader = false;
     table = matrix.renderedTable;
-    expect(table.rows[1].cells[2].item.value.actions[0].component, "Render as button").toBe("sv-matrix-remove-button");
+    expect(table.rows[1].cells[2].item.value.actions[0].showTitle).toBe(true);
+    expect(!!table.rows[1].cells[2].item.value.actions[0].iconName, "Render as button").toBe(false);
     settings.matrixRenderRemoveAsIcon = true;
     survey.css.root = undefined;
   });
@@ -5186,8 +5188,11 @@ describe("Survey_QuestionMatrixDynamic", () => {
   test("Detail panel, get/set values", () => {
     var survey = new SurveyModel({});
     survey.css = {
-      matrixdynamic: { detailIcon: "icon1", detailIconExpanded: "icon2", detailIconId: "#icon1", detailIconExpandedId: "#icon2" },
+      matrixdynamic: { detailIconId: "#icon1", detailIconExpandedId: "#icon2" },
     };
+    function getShowDetailActionIconNameByRow(row: MatrixDropdownRowModelBase): Action {
+      return matrix.renderedTable.rows.filter(renderedRow => renderedRow.id == row.id)[0].cells[0].item.value.getActionById("show-detail").iconName;
+    }
     survey.addNewPage("p1");
     var matrix = new QuestionMatrixDynamicModel("q1");
     survey.pages[0].addQuestion(matrix);
@@ -5205,13 +5210,11 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows[0].hasPanel, "The panel has been created").toBe(true);
     expect(matrix.visibleRows[0].isDetailPanelShowing, "detail panel is not showing").toBe(false);
     expect(matrix.visibleRows[0].detailPanel, "Panel is not created, it is hidden").toBeNull();
-    expect(matrix.getDetailPanelIconCss(matrix.visibleRows[0]), "detail button is closed").toBe("icon1");
-    expect(matrix.getDetailPanelIconId(matrix.visibleRows[0]), "detail button has collapsed icon").toBe("#icon1");
+    expect(getShowDetailActionIconNameByRow(matrix.visibleRows[0]), "detail button has collapsed icon").toBe("#icon1");
     matrix.visibleRows[0].showDetailPanel();
     expect(matrix.visibleRows[0].isDetailPanelShowing, "detail panel is showing").toBe(true);
     expect(matrix.visibleRows[0].detailPanel, "Detail Panel is created").toBeTruthy();
-    expect(matrix.getDetailPanelIconCss(matrix.visibleRows[0]), "detail button is opened").toBe("icon1 icon2");
-    expect(matrix.getDetailPanelIconId(matrix.visibleRows[0]), "detail button has expanded icon").toBe("#icon2");
+    expect(getShowDetailActionIconNameByRow(matrix.visibleRows[0]), "detail button has expanded icon").toBe("#icon2");
     expect(matrix.visibleRows[0].detailPanel.questions.length, "There is one question here").toBe(1);
     expect(matrix.visibleRows[0].detailPanel.questions[0].value, "The value is set correctly").toBe("r1v2");
     matrix.visibleRows[0].detailPanel.questions[0].value = "r1v2_changed";
@@ -5226,8 +5229,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(matrix.visibleRows[0].detailPanel.questions[0].value, "The value in detail panel changed correctly from outside").toBe("r1v2_changed_2");
     matrix.visibleRows[0].hideDetailPanel();
     expect(matrix.visibleRows[0].isDetailPanelShowing, "detail panel is closed").toBe(false);
-    expect(matrix.getDetailPanelIconCss(matrix.visibleRows[0]), "detail button is closed again").toBe("icon1");
-    expect(matrix.getDetailPanelIconId(matrix.visibleRows[0]), "detail button has collapsed icon again").toBe("#icon1");
+    expect(getShowDetailActionIconNameByRow(matrix.visibleRows[0]), "detail button has collapsed icon again").toBe("#icon1");
   });
   test("Detail panel in matrix dropdown, get/set values", () => {
     var survey = new SurveyModel({
@@ -5485,7 +5487,7 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     expect(rows[2].cells[rows[2].cells.length - 1].isActionsCell, "the last cell in detail panel is actions cell").toBe(true);
 
-    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqual(["show-detail-mobile", "remove-row"]);
+    expect(rows[2].cells[6].item.value.actions.map(a => a.id)).toEqual(["show-detail", "remove-row"]);
   });
 
   test("Detail panel, rendered table mobile - expand collapse", () => {
@@ -5920,13 +5922,13 @@ describe("Survey_QuestionMatrixDynamic", () => {
     });
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
     expect(matrix.renderedTable.showTable, "There is no rows").toBe(false);
-    expect(matrix.renderedTable.showAddRowOnBottom, "Do not show add button").toBe(false);
+    expect(matrix.getShowToolbar("bottom"), "Do not show add button").toBe(false);
     matrix.addRow();
     expect(matrix.renderedTable.showTable, "There is a row").toBe(true);
-    expect(matrix.renderedTable.showAddRowOnBottom, "Show add button").toBe(true);
+    expect(matrix.getShowToolbar("bottom"), "Show add button").toBe(true);
     matrix.removeRow(0);
     expect(matrix.renderedTable.showTable, "Matrix is empty again").toBe(false);
-    expect(matrix.renderedTable.showAddRowOnBottom, "Do not show add button again").toBe(false);
+    expect(matrix.getShowToolbar("bottom"), "Do not show add button again").toBe(false);
     matrix.hideColumnsIfEmpty = false;
     expect(matrix.renderedTable.showTable, "hideColumnsIfEmpty is false").toBe(true);
     survey.setDesignMode(true);
@@ -5947,15 +5949,15 @@ describe("Survey_QuestionMatrixDynamic", () => {
       ],
     });
     var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    expect(matrix.renderedTable.showAddRowOnBottom, "We have a row here").toBe(true);
+    expect(matrix.getShowToolbar("bottom"), "We have a row here").toBe(true);
     matrix.allowAddRows = false;
-    expect(matrix.renderedTable.showAddRowOnBottom, "We do not allow add rows").toBe(false);
+    expect(matrix.getShowToolbar("bottom"), "We do not allow add rows").toBe(false);
     matrix.allowAddRows = true;
-    expect(matrix.renderedTable.showAddRowOnBottom, "We have a row here again").toBe(true);
+    expect(matrix.getShowToolbar("bottom"), "We have a row here again").toBe(true);
     matrix.addRow();
-    expect(matrix.renderedTable.showAddRowOnBottom, "max row count is 3").toBe(false);
+    expect(matrix.getShowToolbar("bottom"), "max row count is 3").toBe(false);
     matrix.rowCount = 1;
-    expect(matrix.renderedTable.showAddRowOnBottom, "row count is 1").toBe(true);
+    expect(matrix.getShowToolbar("bottom"), "row count is 1").toBe(true);
   });
 
   test("Matrixdynamic change column.readOnly property", () => {
@@ -8979,12 +8981,12 @@ describe("Survey_QuestionMatrixDynamic", () => {
       ],
     });
     const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-    expect(matrix.renderedTable.showAddRow).toBeTruthy();
-    expect(matrix.renderedTable.showAddRowOnBottom).toBeTruthy();
+    expect(matrix.getShowToolbar()).toBeTruthy();
+    expect(matrix.getShowToolbar("bottom")).toBeTruthy();
     survey.setDesignMode(true);
     matrix.resetRenderedTable();
-    expect(matrix.renderedTable.showAddRow).toBeFalsy();
-    expect(matrix.renderedTable.showAddRowOnBottom).toBeFalsy();
+    expect(matrix.getShowToolbar()).toBeFalsy();
+    expect(matrix.getShowToolbar("bottom")).toBeFalsy();
   });
   test("matrixdynamic.getValueGetterContext()", () => {
     const survey = new SurveyModel({

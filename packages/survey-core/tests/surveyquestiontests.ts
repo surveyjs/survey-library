@@ -6886,7 +6886,7 @@ describe("Survey_Questions", () => {
     const q1Id = q1.id;
     const q2Id = q2.id;
     expect(otherOptions.id, "otherOptions id").toBe(q1Id + "_" + q1.otherItem.uniqueId);
-    expect(otherOptions.className, "otherOptions className").toBe("sd-input sd-comment");
+    expect(otherOptions.getCssClasses().root, "otherOptions className").toBe("sd-formbox sd-comment");
     expect(otherOptions.isDisabledAttr, "otherOptions isDisabledAttr").toBe(false);
     expect(otherOptions.isReadOnlyAttr, "otherOptions isReadOnlyAttr").toBeUndefined();
     expect(otherOptions.placeholder, "otherOptions placeholder").toBe("Other placeholder");
@@ -6895,7 +6895,7 @@ describe("Survey_Questions", () => {
     expect(otherOptions.rows, "otherOptions rows").toBeUndefined();
 
     expect(commentOptions.id, "commentOptions id").toBe(q1Id + "_comment");
-    expect(commentOptions.className, "commentOptions className").toBe("sd-input sd-comment");
+    expect(commentOptions.getCssClasses().root, "commentOptions className").toBe("sd-formbox sd-comment");
     expect(commentOptions.isDisabledAttr, "commentOptions isDisabledAttr").toBe(false);
     expect(commentOptions.isReadOnlyAttr, "commentOptions isReadOnlyAttr").toBeUndefined();
     expect(commentOptions.placeholder, "commentOptions placeholder").toBe("Comment placeholder");
@@ -6904,7 +6904,7 @@ describe("Survey_Questions", () => {
     expect(commentOptions.rows, "commentOptions rows").toBeUndefined();
 
     expect(textAreaOptions.id, "textAreaOptions id").toBe(q2Id + "i");
-    expect(textAreaOptions.className, "textAreaOptions className").toBe("sd-input sd-comment");
+    expect(textAreaOptions.getCssClasses().root, "textAreaOptions className").toBe("sd-formbox sd-comment");
     expect(textAreaOptions.isDisabledAttr, "textAreaOptions isDisabledAttr").toBe(false);
     expect(textAreaOptions.isReadOnlyAttr, "textAreaOptions isReadOnlyAttr").toBe(false);
     expect(textAreaOptions.placeholder, "textAreaOptions placeholder").toBe("");

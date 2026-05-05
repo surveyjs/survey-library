@@ -14556,22 +14556,17 @@ describe("Survey", () => {
         }
       ]
     });
-    setOldTheme(survey);
     const action1 = survey.addNavigationItem({ id: "custom-btn", visibleIndex: 3 });
     expect(action1 === survey.navigationBar.actions[0]).toBeTruthy();
     expect(action1.id).toBe("custom-btn");
-    expect(action1.innerCss).toBe("sv_nav_btn");
-    expect(action1.component).toBe("sv-nav-btn");
 
     const action2 = survey.addNavigationItem({ id: "custom-btn-2", innerCss: "custom-css", visibleIndex: 11 });
+    expect(action2.innerCss).toBe("custom-css");
     expect(action2 === survey.navigationBar.actions[2]).toBeTruthy();
     expect(action2.id).toBe("custom-btn-2");
-    expect(action2.innerCss).toBe("custom-css");
-    expect(action2.component).toBe("sv-nav-btn");
 
     const action3 = survey.addNavigationItem({ id: "custom-btn-3", component: "custom-component", visibleIndex: 21 });
     expect(action3 === survey.navigationBar.actions[4]).toBeTruthy();
-    expect(action3.id).toBe("custom-btn-3");
     expect(action3.component).toBe("custom-component");
   });
 
@@ -14586,7 +14581,6 @@ describe("Survey", () => {
           }
         ]
       });
-      setOldTheme(survey);
 
       let actionExecuted = false;
       let actionExecutionOrder: string[] = [];
@@ -14600,8 +14594,6 @@ describe("Survey", () => {
       });
       expect(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar").toBeTruthy();
       expect(action.id, "Action should have correct id").toBe("test-btn");
-      expect(action.component, "Action should have default component").toBe("sv-nav-btn");
-      expect(action.innerCss, "Action should have default innerCss").toBe("sv_nav_btn");
 
       survey["taskManager"].runTask("test-task", (completed) => {
         actionExecutionOrder.push("task-started");
@@ -14702,7 +14694,7 @@ describe("Survey", () => {
       ]
     });
     setOldTheme(survey);
-    survey.css = { actionBar: { item: "custom-action" }, navigationButton: "custom-css", navigation: { start: "custom-start" } };
+    survey.css = { navigationBar: { item: "custom-action custom-css", itemAppearancePrefix: "" }, navigation: { start: "custom-start" } };
     const action = survey.navigationBar.actions[0];
     expect(action.getActionBarItemCss()).toBe("custom-action custom-css custom-start");
     survey.locale = "ru";
@@ -14735,7 +14727,7 @@ describe("Survey", () => {
         }
       ]
     });
-    survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
+    survey.css = { navigationBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
     survey.navigationBar.flushUpdates();
     expect(survey.navigationBar.getRootCss()).toBe("custom-navigation custom-footer");
   });
@@ -16933,15 +16925,21 @@ describe("Survey", () => {
   });
 
   test("restore header css variable if header is default", () => {
-    const json = {
-      title: "Title",
-      elements: [{ "type": "rating", "name": "satisfaction" }]
-    };
-    let survey = new SurveyModel(json);
-    survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
+    const cssVariables = DefaultTheme.cssVariables;
+    try {
+      DefaultTheme.cssVariables = {} as any;
+      const json = {
+        title: "Title",
+        elements: [{ "type": "rating", "name": "satisfaction" }]
+      };
+      let survey = new SurveyModel(json);
+      survey.applyTheme({ "headerView": "advanced", cssVariables: { "--sjs-header-backcolor": "transparent" } } as any);
 
-    const cover = survey.findLayoutElement("advanced-header").data as Cover;
-    expect(cover.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const cover = survey.findLayoutElement("advanced-header").data as Cover;
+      expect(cover.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+    } finally {
+      DefaultTheme.cssVariables = cssVariables;
+    }
   });
 
   test("check title classes when readOnly changed", () => {
@@ -17359,7 +17357,8 @@ describe("Survey", () => {
       ]
     });
 
-    expect(Object.keys(survey.themeVariables).length, "before applyTheme").toBe(0);
+    const lenBeforeApplyTheme = Object.keys(survey.themeVariables).length;
+    expect(lenBeforeApplyTheme > 800, "before applyTheme").toBeTruthy();
     expect(!!survey.backgroundImage, "before applyTheme").toBe(false);
     expect(survey.backgroundImageFit, "before applyTheme").toBe("cover");
     expect(survey.backgroundImageAttachment, "before applyTheme").toBe("scroll");
@@ -17382,13 +17381,40 @@ describe("Survey", () => {
       "isPanelless": true
     });
 
-    expect(Object.keys(survey.themeVariables).length).toBe(5);
+    expect(Object.keys(survey.themeVariables).length).toBe(lenBeforeApplyTheme);
     expect(!!survey.backgroundImage).toBe(true);
     expect(survey.backgroundImageFit).toBe("cover");
     expect(survey.backgroundImageAttachment).toBe("fixed");
     expect(survey.backgroundOpacity).toBe(0.6);
     expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("basic");
+  });
+  test("survey.applyTheme patches legacy CSS variables", () => {
+    const cssVariables = DefaultTheme.cssVariables;
+    try {
+      DefaultTheme.cssVariables = {} as any;
+      const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+      const theme = {
+        cssVariables: {
+          "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
+          "--sjs-font-size": "18px",
+          "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
+          "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
+        }
+      };
+      survey.applyTheme(theme as any);
+      const vars = survey.themeVariables;
+      expect(vars["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 0, 0, 1)");
+      expect(typeof vars["--sjs-general-backcolor"]).toBe("undefined");
+      expect(vars["--sjs2-base-unit-font-size"]).toBe("9px");
+      expect(vars["--sjs2-base-unit-line-height"]).toBe("9px");
+      expect(typeof vars["--sjs-font-size"]).toBe("undefined");
+      expect(vars["--sjs2-border-effect-floating-default"]).toBe("0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)");
+      expect(typeof vars["--sjs-shadow-medium"]).toBe("undefined");
+      expect(typeof vars["--sjs-shadow-large"]).toBe("undefined");
+    } finally {
+      DefaultTheme.cssVariables = cssVariables;
+    }
   });
   test("survey.applyTheme respects headerView", () => {
     const survey = new SurveyModel({
@@ -18787,51 +18813,57 @@ describe("Survey", () => {
     expect(lastContextPropertyName).toBe("a");
   });
   test("Advanced header title/description color", () => {
-    const survey = new SurveyModel();
+    const cssVariables = DefaultTheme.cssVariables;
+    try {
+      DefaultTheme.cssVariables = {} as any;
+      const survey = new SurveyModel();
 
-    const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(accHeaderBackTheme);
-    let headerLayoutElement = survey.findLayoutElement("advanced-header");
-    let headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(accHeaderBackTheme);
+      let headerLayoutElement = survey.findLayoutElement("advanced-header");
+      let headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-    headerModel.height = 256;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header__without-background sv-header__background-color--none");
-    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
-    // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
-    // expect(survey.themeVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
-    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"]).toBeUndefined();
-    // expect(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
+      headerModel.height = 256;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header__without-background sv-header__background-color--none");
+      // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+      // expect(survey.themeVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+      // expect(survey.themeVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
+      // expect(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"]).toBeUndefined();
+      // expect(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"]).toBeUndefined();
 
-    const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(noneHeaderBackTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(noneHeaderBackTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-    const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customNotSetHeaderBackTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
+      const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customNotSetHeaderBackTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background sv-header__background-color--none");
 
-    const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customHeaderBackTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__background-color--custom");
+      const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customHeaderBackTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__background-color--custom");
 
-    const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background");
+      const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto sv-header__without-background");
 
-    const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
-    survey.applyTheme(customHeaderBackAndTitleTheme);
-    headerLayoutElement = survey.findLayoutElement("advanced-header");
-    headerModel = headerLayoutElement.data as Cover;
-    expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto");
+      const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+      survey.applyTheme(customHeaderBackAndTitleTheme);
+      headerLayoutElement = survey.findLayoutElement("advanced-header");
+      headerModel = headerLayoutElement.data as Cover;
+      expect(headerModel.headerClasses).toBe("sv-header sv-header--height-auto");
+    } finally {
+      DefaultTheme.cssVariables = cssVariables;
+    }
   });
   test("Display mode in design time", () => {
     const survey = new SurveyModel();

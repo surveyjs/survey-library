@@ -254,10 +254,10 @@ describe("SurveyShowPreviewTests", () => {
     expect((<PanelModel>survey.currentPage.elements[0]).hasEditButton, "The panel is editable").toBe(true);
     const actionContainer = (<PanelModel>survey.currentPage.elements[1]).getFooterToolbar();
     expect(actionContainer.hasActions, "The panel is editable, footerToolBar is not empty").toBe(true);
-    expect(actionContainer.getRootCss(), "The panel is editable, footerToolBar is not empty").toBe("sv-action-bar sv-action-bar--default-size-mode sv_p_footer");
+    expect(actionContainer.getRootCss(), "The panel is editable, footerToolBar is not empty").toBe("sd-action-bar sd-action-bar--default-size sv_p_footer");
     var action = actionContainer.actions[0];
     expect(action.title).toBe("Edit");
-    expect(action.innerCss).toBe("sv_nav_btn sv_edit_btn");
+    expect(action.innerCss).toBe("sv_edit_btn");
     var panel = <PanelModel>survey.currentPage.elements[1].elements[0];
     expect(panel.hasEditButton, "The standard panel doesn't have edit button").toBe(false);
     action.action();
@@ -723,16 +723,16 @@ describe("SurveyShowPreviewTests", () => {
       ]
     });
     survey.showPreview();
-    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix rendered first time)").toBeFalsy();
+    expect(survey.getAllQuestions()[1].getShowToolbar("bottom"), "do not show AddRow on preview (matrix rendered first time)").toBeFalsy();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview").toBeTruthy();
+    expect(survey.getAllQuestions()[1].getShowToolbar("bottom"), "show AddRow on cancel preview").toBeTruthy();
 
     survey.getAllQuestions()[1].resetRenderedTable();
-    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow").toBeTruthy();
+    expect(survey.getAllQuestions()[1].getShowToolbar("bottom"), "show AddRow").toBeTruthy();
     survey.showPreview();
-    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix has been rendered already)").toBeFalsy();
+    expect(survey.getAllQuestions()[1].getShowToolbar("bottom"), "do not show AddRow on preview (matrix has been rendered already)").toBeFalsy();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
-    expect(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview again").toBeTruthy();
+    expect(survey.getAllQuestions()[1].getShowToolbar("bottom"), "show AddRow on cancel preview again").toBeTruthy();
   });
 
   test("Questions within hidden pages persist in a survey response, Bug#11174", () => {

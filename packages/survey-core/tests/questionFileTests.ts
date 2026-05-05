@@ -1970,11 +1970,12 @@ describe("Survey_QuestionFile", () => {
     });
     survey.css = defaultCss;
     const question = <QuestionFileModel>survey.getAllQuestions()[0];
-    expect(question.getChooseFileCss(), "Disabled").toBe("sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled");
+    const action = question.actionsContainer.getActionById("sv-file-choose-file");
+    expect(action.getActionBarItemCss(), "Disabled").toBe("sd-action sd-file__choose-btn sd-action--disabled sd-action--brand sd-action--tertiary sd-action--small");
     survey.readOnly = false;
-    expect(question.getChooseFileCss(), "Enabled").toBe("sd-file__choose-btn sd-action sd-file__choose-btn--text");
+    expect(action.getActionBarItemCss(), "Enabled").toBe("sd-action sd-file__choose-btn sd-action--brand sd-action--tertiary sd-action--small");
     survey.readOnly = true;
-    expect(question.getChooseFileCss(), "Disabled").toBe("sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled");
+    expect(action.getActionBarItemCss(), "Disabled").toBe("sd-action sd-file__choose-btn sd-action--disabled sd-action--brand sd-action--tertiary sd-action--small");
   });
 
   test("Bug #8242: currentMode is set incorrectly when file question is located inside matrixdynamic", () => {

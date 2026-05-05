@@ -2521,9 +2521,9 @@ describe("custom questions", () => {
     const q = <QuestionCustomModel>survey.getAllQuestions()[0];
     const qText = <QuestionTextModel>q.contentQuestion;
     expect(qText.cssClasses.onError, "error css is correct").toBe(errorCss);
-    expect(qText.getControlClass().indexOf(errorCss) < 0, "errors is not here").toBe(true);
+    expect(qText.getRootClass().indexOf(errorCss) < 0, "errors is not here").toBe(true);
     q.validate(true);
-    expect(qText.getControlClass().indexOf(errorCss) > -1, "errors is here").toBe(true);
+    expect(qText.getRootClass().indexOf(errorCss) > -1, "errors is here").toBe(true);
   });
   test("ComponentCollection.Instance.remove", () => {
     ComponentCollection.Instance.add({

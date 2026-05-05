@@ -20,10 +20,10 @@ describe("question text tests", () => {
     };
     const survey = new SurveyModel(json);
     const question = <QuestionTextModel>survey.getAllQuestions()[0];
-    question.cssClasses.controlReadOnly = "sv_q_text_disabled";
-    expect(question.getControlClass().indexOf("sv_q_text_disabled") == -1).toBeTruthy();
+    question.cssClasses.rootReadOnly = "sv_q_text_disabled";
+    expect(question.getRootClass().indexOf("sv_q_text_disabled") == -1).toBeTruthy();
     question.readOnly = true;
-    expect(question.getControlClass().indexOf("sv_q_text_disabled") != -1).toBeTruthy();
+    expect(question.getRootClass().indexOf("sv_q_text_disabled") != -1).toBeTruthy();
   });
   test("Test renderedPlaceholder", () => {
     var json = {
@@ -379,21 +379,6 @@ describe("question text tests", () => {
     settings.showMaxLengthIndicator = true;
     ch.updateRemainingCharacterCounter("abcd", 7);
     expect(ch.remainingCharacterCounter, "#4").toBe("4/7");
-  });
-  test("getControlClass with characterCounter", () => {
-    const inputClasses = "sd-input sd-text";
-    const constrolWithCharacterCounter = "sd-text__character-counter";
-    const characterCounterBig = "sd-text__character-counter--big";
-
-    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
-    const q = survey.getQuestionByName("q1");
-    expect(q.getControlClass(), "#1").toBe(inputClasses);
-
-    q.maxLength = 99;
-    expect(q.getControlClass(), "#2").toBe(inputClasses + " " + constrolWithCharacterCounter);
-
-    q.maxLength = 100;
-    expect(q.getControlClass(), "#3").toBe(inputClasses + " " + constrolWithCharacterCounter + " " + characterCounterBig);
   });
 
   test("Set empty text", () => {

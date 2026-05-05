@@ -4763,21 +4763,13 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is visible when currentIndex is 4/4").toBe(true);
     expect(panel.footerToolbar.actions[1].visible, "next (text) btn is visible when currentIndex is 4/4").toBe(false);
     expect(panel.canAddPanel, "can add panel when currentIndex less then panelCount").toBe(true);
-    panel["legacyNavigation"] = true;
-    panel.currentIndex = 2;
-    expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is not visible in legacy mode").toBe(false);
-    expect(panel.footerToolbar.actions[1].visible, "next (text) btn is not visible in legacy mode").toBe(false);
-    expect(panel.canAddPanel, "can always add panel in legacy mode").toBe(true);
-    expect(panel.footerToolbar.actions[3].visible, "prev (icon) btn is visible in legacy mode").toBe(true);
-    expect(panel.footerToolbar.actions[5].visible, "next (icon) btn is visible in legacy mode").toBe(true);
-    panel["legacyNavigation"] = false;
     panel.displayMode = "list";
     expect(panel.footerToolbar.actions[0].visible, "prev (text) btn is not visible in list mode").toBe(false);
     expect(panel.footerToolbar.actions[1].visible, "next (text) btn is not visible in list mode").toBe(false);
     expect(panel.canAddPanel, "can always add panel in list mode").toBe(true);
     panel.displayMode = "carousel";
     panel.isMobile = true;
-    expect(panel.footerToolbar.actions[4].visible, "progress text is not visible in mobile mode").toBe(false);
+    expect(panel.footerToolbar.actions[3].visible, "progress text is not visible in mobile mode").toBe(false);
   });
   test("paneldynamic add new button is not visible for progress render mode, bug#5600", () => {
     const survey = new SurveyModel({
@@ -5132,7 +5124,6 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(updatedPanels).toEqual(paneldynamic.panels);
 
     expect(actions.length).toBe(2);
-    expect(actions[0].component).toBe("sv-paneldynamic-remove-btn");
     expect(actions[1].title).toBe("test");
 
     paneldynamic.removePanel(paneldynamic.panels[1]);
@@ -5428,20 +5419,20 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.currentIndex, "currentIndex is 0").toBe(0);
     expect(panelTabToolbar.actions.length, "2 panels").toBe(2);
     expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1").toBe("Panel 1");
-    expect(panelTabToolbar.actions[0].pressed, "Panel 1 pressed true").toBe(true);
+    expect(panelTabToolbar.actions[0].active, "Panel 1 pressed true").toBe(true);
     expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2").toBe("Panel 2");
-    expect(panelTabToolbar.actions[1].pressed, "Panel 2 pressed false").toBe(false);
+    expect(panelTabToolbar.actions[1].active, "Panel 2 pressed false").toBe(false);
 
     panel.currentIndex = 1;
     panel.addPanel();
     expect(panel.currentIndex, "currentIndex is 2").toBe(2);
     expect(panelTabToolbar.actions.length, "3 panels").toBe(3);
     expect(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1").toBe("Panel 1");
-    expect(panelTabToolbar.actions[0].pressed, "Panel 1 pressed false").toBe(false);
+    expect(panelTabToolbar.actions[0].active, "Panel 1 pressed false").toBe(false);
     expect(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2").toBe("Panel 2");
-    expect(panelTabToolbar.actions[1].pressed, "Panel 2 pressed false").toBe(false);
+    expect(panelTabToolbar.actions[1].active, "Panel 2 pressed false").toBe(false);
     expect(panelTabToolbar.actions[2].locTitle.textOrHtml, "Panel 3").toBe("Panel 3");
-    expect(panelTabToolbar.actions[2].pressed, "Panel 3 pressed true").toBe(true);
+    expect(panelTabToolbar.actions[2].active, "Panel 3 pressed true").toBe(true);
 
     panelTabToolbar.actions[1].action();
     expect(panel.currentIndex, "currentIndex is 1").toBe(1);
@@ -7956,7 +7947,7 @@ describe("Survey_QuestionPanelDynamic", () => {
 
     const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     const checkFunc = (): string => {
-      return qPanel["getFirstErrorInputElementId"]();
+      return qPanel["getFirstErrorInputElementId"]() as string;
     };
     const panel1 = <PanelModel>qPanel.panels[0];
     const q1 = panel1.getQuestionByName("q1");

@@ -12,22 +12,22 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-library
-      ref: $(System.PullRequest.TargetBranch)
-    - repository: Creator
-      type: github
-      endpoint: github.com_surveyjsdeveloper
-      name: surveyjs/survey-creator
-      ref: $(System.PullRequest.TargetBranch)
-    - repository: Analytics
-      type: github
-      endpoint: github.com_surveyjsdeveloper
-      name: surveyjs/survey-analytics
-      ref: $(System.PullRequest.TargetBranch)
-    - repository: PDF
-      type: github
-      endpoint: github.com_surveyjsdeveloper
-      name: surveyjs/survey-pdf
-      ref: $(System.PullRequest.TargetBranch)
+      # ref: $(System.PullRequest.TargetBranch)
+    # - repository: Creator
+    #   type: github
+    #   endpoint: github.com_surveyjsdeveloper
+    #   name: surveyjs/survey-creator
+    #   ref: $(System.PullRequest.TargetBranch)
+    # - repository: Analytics
+    #   type: github
+    #   endpoint: github.com_surveyjsdeveloper
+    #   name: surveyjs/survey-analytics
+    #   ref: $(System.PullRequest.TargetBranch)
+    # - repository: PDF
+    #   type: github
+    #   endpoint: github.com_surveyjsdeveloper
+    #   name: surveyjs/survey-pdf
+    #   ref: $(System.PullRequest.TargetBranch)
     - repository: Service
       type: github
       endpoint: github.com_surveyjsdeveloper
@@ -45,13 +45,9 @@ resources:
       source: Release Version
       trigger: none
 
-
 trigger: none
+pr: none
 
-pr:
-  branches:
-    include:
-      - master
 
 pool:
   name: main-selfhosted
@@ -72,8 +68,6 @@ stages:
           - script: npm run lint
             workingDirectory: $(Build.SourcesDirectory)
 
-
-            
   - stage: Options
     dependsOn: []
     jobs:

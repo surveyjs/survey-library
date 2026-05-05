@@ -82,6 +82,7 @@ export default {
     "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-border-effect-component-boolean-invalid": "inset 0 1px 2px 0 rgba(0, 0, 0, 0.15)",
     "--sjs2-color-component-check-true-readonly-icon": "#161616",
-    "--sjs2-color-component-track-default-bg": "#d4d4d4"
+    "--sjs2-color-component-track-default-bg": "#d4d4d4",
+    "--sjs2-color-utility-surface-survey": "#f3f3f3",
   }
 };

@@ -7,7 +7,6 @@ export const legacyCssVariables = {
   ],
   "--sjs-general-backcolor-dark": "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
   "--sjs-general-backcolor-dim": ["--sjs2-color-bg-neutral-tertiary-dim",
-    "--sjs2-color-utility-surface-survey",
     "--sjs2-color-utility-surface-survey-panelless",
     "--sjs2-color-utility-surface-survey"], //rgba(243, 243, 243, 1)",
   "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",

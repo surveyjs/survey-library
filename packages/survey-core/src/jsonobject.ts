@@ -576,7 +576,7 @@ export class CustomPropertiesCollection {
     }
     if (prop.type === "condition" || prop.type === "expression") {
       if (!!prop.onExecuteExpression) {
-        obj.addExpressionProperty(prop.name, prop.onExecuteExpression);
+        obj.addExpressionProperty(prop.name, prop.onExecuteExpression, undefined, prop.type === "expression");
       }
     }
   }

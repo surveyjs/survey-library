@@ -8,8 +8,5 @@ resources:
 trigger: none
 pr: none
 
-pool:
-  name: main-selfhosted
-      
 extends:
   template: library.yml@azurepipelines

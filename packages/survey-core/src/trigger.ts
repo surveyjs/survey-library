@@ -384,7 +384,7 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   protected canSuccessOnEmptyExpression(): boolean { return true; }
   protected getUsedVariables(runner: ExpressionRunner): string[] {
     const res = super.getUsedVariables(runner);
-    if (res.length === 0 && !!this.fromName) {
+    if (!!this.fromName && res.indexOf(this.fromName) < 0) {
       res.push(this.fromName);
     }
     return res;

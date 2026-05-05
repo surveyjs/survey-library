@@ -15,7 +15,7 @@ export interface IExpressionExecutorBase {
   run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
   runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
   getVariables(): Array<string>;
-  hasFunction(): boolean;
+  hasFunction(noParamsOnly?: boolean): boolean;
   isAsync: boolean;
   validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
 }
@@ -51,7 +51,7 @@ export interface IExpressionExecutor {
   /**
    * Returns true if there is a function in the expression
    */
-  hasFunction(): boolean;
+  hasFunction(noParamsOnly?: boolean): boolean;
   /**
    * Returns true if there is an async function in the expression
    */
@@ -170,7 +170,8 @@ export class ExpressionExecutor implements IExpressionExecutor {
     return variables;
   }
 
-  public hasFunction(): boolean {
+  public hasFunction(noParamsOnly?: boolean): boolean {
+    if (noParamsOnly === true) return !!this.operand && this.operand.hasFunction(true);
     return this.hasFunctionValue;
   }
   public get isAsync(): boolean {

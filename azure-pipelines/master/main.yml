@@ -185,7 +185,9 @@ jobs:
 
 
 
-
+      ########
+      # DOCS #
+      ########
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
           npm run doc_gen
@@ -200,41 +202,24 @@ jobs:
           CleanTargetFolder: false
         displayName: "put surveyjs_definition.json into build"
 
-      - powershell: |
-          $branch = "$(CurrentBranch)"
-          cd $(Build.SourcesDirectory)/service
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-          git fetch origin $branch
-          git checkout -B $branch origin/$branch
-          git reset --hard origin/$branch
-        displayName: "Git surveyjs/service push updated docs (prepare)"
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
-          Contents: |
-            classes.json
-            pmes.json
-            surveyjs_definition.json
-          TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
-          OverWrite: true
-          CleanTargetFolder: false
-        displayName: "copy generated docs to the local surveyjs/service repo"
-
-      - powershell: |
-          $branch = "$(CurrentBranch)"
-          cd $(Build.SourcesDirectory)/service
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
-          git add surveyjs.io/App_Data/DocsLibrary
-          if (git status --porcelain) {
-              git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
-              git push origin $branch
-          }
-        displayName: "Git surveyjs/service push updated docs for $(CurrentBranch)"
+      # - powershell: |
+      #     $branch = "$(CurrentBranch)"
+      #     cd $(Build.SourcesDirectory)/service
+      #     $env:GIT_REDIRECT_STDERR = '2>&1'
+      #     git config --global user.email "surveyjs.org@gmail.com"
+      #     git config --global user.name "surveyjsdeveloper"
+      #     git fetch origin $branch
+      #     git checkout -B $branch origin/$branch
+      #     git reset --hard origin/$branch
+      #     Copy-Item -Force "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs/classes.json" "surveyjs.io/App_Data/DocsLibrary/"
+      #     Copy-Item -Force "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs/pmes.json" "surveyjs.io/App_Data/DocsLibrary/"
+      #     Copy-Item -Force "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs/surveyjs_definition.json" "surveyjs.io/App_Data/DocsLibrary/"
+      #     git add surveyjs.io/App_Data/DocsLibrary
+      #     if (git status --porcelain) {
+      #         git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
+      #         git push origin $branch
+      #     }
+      #   displayName: "Git surveyjs/service push updated docs for $(CurrentBranch)"
 
       - powershell: |
           $branch = "V2"
@@ -245,26 +230,9 @@ jobs:
           git fetch origin $branch
           git checkout -B $branch origin/$branch
           git reset --hard origin/$branch
-        displayName: "Git surveyjs-site-data push updated docs (prepare)"
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
-          Contents: |
-            classes.json
-            pmes.json
-            surveyjs_definition.json
-          TargetFolder: "$(Build.SourcesDirectory)/surveyjs-site-data/DocsLibrary"
-          OverWrite: true
-          CleanTargetFolder: false
-        displayName: "Copy generated docs to the local surveyjs-site-data repo"
-
-      - powershell: |
-          $branch = "V2"
-          cd $(Build.SourcesDirectory)/surveyjs-site-data
-          $env:GIT_REDIRECT_STDERR = '2>&1'
-          git config --global user.email "surveyjs.org@gmail.com"
-          git config --global user.name "surveyjsdeveloper"
+          Copy-Item -Force "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs/classes.json" "DocsLibrary/"
+          Copy-Item -Force "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs/pmes.json" "DocsLibrary/"
+          Copy-Item -Force "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs/surveyjs_definition.json" "DocsLibrary/"
           git add DocsLibrary
           if (git status --porcelain) {
               git commit -m "updated survey-library docs for $branch [azurepipelines skip]"
@@ -280,8 +248,9 @@ jobs:
 
 
         
-
-
+      #############
+      # TRANSLATE #
+      #############
       - script: |
           npm install
           npm run build

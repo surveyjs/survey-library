@@ -26,6 +26,9 @@ steps:
       workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
       displayName: "npm run release"
 
+    - script: echo "This runs only on merge"
+      condition: eq(variables['Build.Reason'], 'PullRequest')
+
   - script: npm run build:all
     workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
     displayName: "Build"

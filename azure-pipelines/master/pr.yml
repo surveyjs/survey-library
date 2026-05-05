@@ -19,7 +19,7 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-creator
-      # ref: $(repoRef)
+      ref: $(repoRef)
     - repository: Analytics
       type: github
       endpoint: github.com_surveyjsdeveloper
@@ -315,11 +315,11 @@ stages:
   ##############
   # Test Phase #
   ##############
-  # - stage: LibraryCoreTest
-  #   displayName: "Library Core Test"
-  #   dependsOn: []
-  #   jobs:
-  #     - template: templates/library/core/test.yml
+  - stage: LibraryCoreTest
+    displayName: "Library Core Test"
+    dependsOn: []
+    jobs:
+      - template: templates/library/core/test.yml
 
   # - stage: LibraryReactTest
   #   displayName: "Library React Test"
@@ -345,17 +345,17 @@ stages:
   #   jobs:
   #     - template: templates/library/js/test.yml
 
-  # - stage: CreatorCoreTest
-  #   displayName: "Creator Core Test"
-  #   dependsOn:
-  #     - Options
-  #     - LibraryCoreBuild
-  #   variables:
-  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
-  #   jobs:
-  #     - template: templates/creator/core/test.yml
-  #       parameters:
-  #         checkout: Creator
+  - stage: CreatorCoreTest
+    displayName: "Creator Core Test"
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+    jobs:
+      - template: templates/creator/core/test.yml
+        parameters:
+          checkout: Creator
 
   # - stage: CreatorReactTest
   #   displayName: "Creator React Test"

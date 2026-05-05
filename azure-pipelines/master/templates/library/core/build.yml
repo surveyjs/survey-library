@@ -21,11 +21,25 @@ steps:
         - $(Build.SourcesDirectory)
         - $(Build.SourcesDirectory)/packages/survey-core
 
+  - ${{ if eq(parameters.store, true) }}:
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "npm run release"
+
+    - script: echo "This runs only on merge"
+      condition: eq(variables['Build.Reason'], 'PullRequest')
+
   - script: npm run build:all
     workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
     displayName: "Build"
 
   - ${{ if eq(parameters.store, true) }}:
+    - script: |
+        npm run doc_gen
+        cp docs/surveyjs_definition.json build/surveyjs_definition.json
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "Generate Docs"
+
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-core/build"

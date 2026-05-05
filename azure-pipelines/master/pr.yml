@@ -5,6 +5,8 @@
 
 variables:
   - template: templates/utils/variables.yml
+  - name: repoRef
+    value: $[coalesce(variables['System.PullRequest.TargetBranch'], variables['Build.SourceBranch'])]
 
 resources:
   repositories:
@@ -12,22 +14,22 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-library
-      # ref: $(System.PullRequest.TargetBranch)
-    # - repository: Creator
-    #   type: github
-    #   endpoint: github.com_surveyjsdeveloper
-    #   name: surveyjs/survey-creator
-    #   ref: $(System.PullRequest.TargetBranch)
-    # - repository: Analytics
-    #   type: github
-    #   endpoint: github.com_surveyjsdeveloper
-    #   name: surveyjs/survey-analytics
-    #   ref: $(System.PullRequest.TargetBranch)
-    # - repository: PDF
-    #   type: github
-    #   endpoint: github.com_surveyjsdeveloper
-    #   name: surveyjs/survey-pdf
-    #   ref: $(System.PullRequest.TargetBranch)
+      # ref: $(repoRef)
+    - repository: Creator
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-creator
+      # ref: $(repoRef)
+    - repository: Analytics
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-analytics
+      # ref: $(repoRef)
+    - repository: PDF
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-pdf
+      # ref: $(repoRef)
     - repository: Service
       type: github
       endpoint: github.com_surveyjsdeveloper
@@ -67,7 +69,7 @@ stages:
           - script: npm run lint
             workingDirectory: $(Build.SourcesDirectory)
 
-            
+
   - stage: Options
     dependsOn: []
     jobs:

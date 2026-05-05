@@ -376,24 +376,24 @@ QUnit.test("emptyText & isAllDataLoaded", function (assert) {
 QUnit.test("getItemClass test", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
-  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item");
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--neutral");
 
   list.textWrapEnabled = true;
-  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item-text--wrap");
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--neutral sv-list__item-text--wrap");
 
   list.textWrapEnabled = false;
   list.focusedItem = list.actions[0];
-  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--focused");
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--neutral sv-list__item--focused");
 
   list.selectFocusedItem();
-  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--focused sv-list__item--selected");
-  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item");
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--neutral sv-list__item--focused sv-list__item--selected");
+  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--neutral");
 
   list.actions[1].enabled = false;
-  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled");
+  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--neutral sv-list__item--disabled");
 
   list.actions[1].css = "custom-css";
-  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
+  assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--neutral sv-list__item--disabled custom-css");
 });
 
 QUnit.test("getListClass test", (assert) => {

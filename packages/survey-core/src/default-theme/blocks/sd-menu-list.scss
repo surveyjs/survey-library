@@ -1,0 +1,240 @@
+@use "../typography-mixins.scss" as *;
+
+.sd-menu-list__container {
+    display: flex;
+    padding: var(--sjs2-spacing-x000, 0);
+    flex-direction: column;
+    align-items: flex-start;
+    border-radius: var(--sjs2-radius-component-drop, 16px);
+    border: var(--sjs2-border-width-x100, 1px) solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
+    background: var(--sjs2-color-utility-sheet, #fff);
+    overflow: hidden;
+}
+
+.sd-menu-item {
+    cursor: pointer;
+    text-align: start;
+    color: var(--sjs2-color-fg-basic-primary, #1c1b20);
+    border-radius: var(--sjs2-radius-component-drop-item, 8px);
+    @include sjs2--typography--default;
+
+    &:focus-visible {
+        outline: none;
+    }
+}
+
+.sd-menu-item__body {
+    --thm-list-item-padding-left: calc(var(--sjs-list-item-level) * var(--sjs2-spacing-x150));
+
+    display: flex;
+    padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px)
+        var(--thm-list-item-padding-left, 12px);
+    align-items: center;
+    border-radius: var(--sjs2-radius-component-drop-item, 8px);
+    gap: var(--sjs2-spacing-x100, 8px);
+    width: 100%;
+    box-sizing: border-box;
+
+    .sv-string-viewer {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 1;
+        flex: 1 0 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    sv-ng-string,
+    sv-ng-string-viewer {
+        display: contents;
+    }
+    use {
+        fill: var(--sjs2-color-fg-basic-primary-muted, rgba(28, 27, 32, 0.8));
+    }
+}
+
+.sd-menu-list__loading-indicator {
+}
+
+.sd-menu-item--selected,
+.sd-menu-item--selected.sd-menu-item--hovered {
+    & > .sd-menu-item__body {
+        background: var(--sjs2-color-bg-brand-primary, #19b394);
+        color: var(--sjs2-color-fg-brand-on-primary, #fff);
+        @include sjs2--typography--default-strong;
+    }
+
+    .sd-menu-item__icon use {
+        fill: var(--sjs2-color-fg-brand-on-primary, #fff);
+    }
+}
+
+.sd-menu-item--hovered,
+.sd-menu-item--group-selected {
+    & > .sd-menu-item__body {
+        background: var(--sjs2-color-bg-basic-primary-dim, #f5f5f5);
+    }
+}
+
+.sd-menu-item:focus-visible,
+.sd-menu-item--focused {
+    outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+}
+
+.sd-menu-item--label,
+.sd-menu-item--label.sd-menu-item--hovered {
+    & > .sd-menu-item__body {
+        cursor: default;
+        color: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
+        background-color: transparent;
+        @include sjs2--typography--small;
+    }
+}
+
+.sd-menu-item--brand {
+    color: var(--sjs2-color-fg-brand-primary, #15987e);
+
+    use {
+        fill: var(--sjs2-color-fg-brand-primary, #15987e);
+    }
+
+    &.sd-menu-item--hovered,
+    &.sd-menu-item--group-selected {
+        & > .sd-menu-item__body {
+            background: var(--sjs2-color-bg-brand-tertiary-dim, rgba(25, 179, 148, 0.1));
+        }
+    }
+}
+
+.sd-menu-item--alert {
+    color: var(--sjs2-color-fg-alert-primary, #c30935);
+
+    use {
+        fill: var(--sjs2-color-fg-alert-primary, #c30935);
+    }
+
+    &.sd-menu-item--hovered,
+    &.sd-menu-item--group-selected {
+        & > .sd-menu-item__body {
+            border-radius: var(--sjs2-radius-component-drop-item, 8px);
+            background: var(--sjs2-color-bg-alert-tertiary-dim, rgba(229, 10, 62, 0.1));
+        }
+    }
+}
+
+.sd-menu-item--group {
+}
+
+.sd-menu-item--with-icon {
+}
+
+.sd-menu-item--disabled {
+    cursor: default;
+    color: var(--sjs2-color-fg-basic-primary-disabled);
+
+    use {
+        fill: var(--sjs2-color-fg-basic-primary-disabled);
+    }
+}
+
+.sd-menu-item__text--wrap span.sv-string-viewer {
+    display: inline;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.sd-menu-item__icon {
+    width: var(--sjs2-line-height-x300, 24px);
+    height: var(--sjs2-line-height-x300, 24px);
+}
+
+.sd-menu-item__marker-icon {
+    width: var(--sjs2-line-height-x300, 24px);
+    height: var(--sjs2-line-height-x300, 24px);
+}
+
+.sd-menu-item__marker-icon + * {
+    margin-inline-start: var(--sjs2-spacing-negative-x100, -8px);
+}
+
+.sd-menu-item__separator {
+    width: 100%;
+    height: var(--sjs2-border-width-x100, 1px);
+    margin: var(--sjs2-spacing-x100, 8px) 0;
+    background: var(--sjs2-color-border-basic-secondary, #d4d4d4);
+}
+
+.sd-menu-list {
+    width: 100%;
+    padding: var(--sjs2-spacing-x100, 8px);
+    box-sizing: border-box;
+    margin: 0;
+    overflow-y: auto;
+    list-style-type: none;
+}
+
+.sd-menu-filter {
+    display: flex;
+    padding: var(--sjs2-spacing-x100, 8px);
+    align-items: center;
+    align-self: stretch;
+    background: var(--sjs2-color-utility-sheet, #fff);
+    border-bottom: solid var(--sjs2-border-width-x100, 1px) var(--sjs2-color-border-basic-secondary, #d4d4d4);
+}
+
+.sd-menu-filter__box {
+    display: flex;
+    padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px)
+        var(--sjs2-spacing-x150, 12px);
+    gap: var(--sjs2-spacing-x100, 8px);
+}
+
+.sd-menu-filter__icon {
+    width: var(--sjs2-line-height-x300, 24px);
+    height: var(--sjs2-line-height-x300, 24px);
+
+    .sv-svg-icon {
+        width: var(--sjs2-line-height-x300, 24px);
+        height: var(--sjs2-line-height-x300, 24px);
+
+        use {
+            fill: var(--sjs2-color-component-input-default-icon, rgba(28, 27, 32, 0.4));
+        }
+    }
+}
+
+.sd-menu-filter__input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    background: transparent;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    padding: 0;
+
+    color: var(--sjs2-color-component-input-default-value, #1c1b20);
+    @include sjs2--typography--default;
+}
+
+.sd-selectlist__input::placeholder {
+    color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+}
+
+.sd-menu-list__empty-container {
+    display: flex;
+    padding: var(--sjs2-spacing-x200, 16px);
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sd-menu-list__empty-text {
+    flex: 1 0 0;
+    color: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
+    text-align: center;
+
+    @include sjs2--typography--default;
+}

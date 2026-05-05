@@ -2,6 +2,7 @@ import { ILocalizableOwner } from "../localizablestring";
 import { Action, IAction, setCreatePopupModelWithListModel } from "./action";
 import { IListModel } from "./list-model";
 import { ListModel } from "../list";
+import { menuListCss } from "./menu-list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -18,7 +19,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
       originalSelectionChanged(item, params);
     }
   };
-  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, popupOptions);
+  listOptions.cssClasses = { ...menuListCss };
+  const _popupOptions = popupOptions || {};
+  _popupOptions.showPointer = false;
+  const popupModel: PopupModel = createPopupModelWithListModel(listOptions, _popupOptions);
   popupModel.getTargetCallback = getActionDropdownButtonTarget;
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",

@@ -6,6 +6,7 @@ import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 import { IListModel } from "./list-model";
+import { ListModel } from "../list";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -151,6 +152,7 @@ export interface IAction {
    * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   visibleIndex?: number;
+  isLabel?: boolean;
   needSpace?: boolean;
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
@@ -199,6 +201,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() disableShrink: boolean;
   @property() disableHide: boolean;
   @property({ defaultValue: false }) needSpace: boolean;
+  @property({ defaultValue: false }) isLabel: boolean;
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
   @property() ariaLabelledBy: string;
@@ -286,6 +289,10 @@ export abstract class BaseAction extends Base implements IAction {
   }
   public get hasSubItems(): boolean {
     return !!this.items && this.items.length > 0;
+  }
+  public get innerListModel(): ListModel | undefined {
+    if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
+    return this.popupModel.contentComponentData.model;
   }
   public getActionBarItemTitleCss(): string {
     return new CssClassBuilder()
@@ -421,12 +428,12 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this.createLocalizableString("title", this, true);
   }
   public setSubItems(options: IListModel): void {
-    this.markerIconName = "icon-next_16x16";
+    this.markerIconName = "icon-chevronright-24x24";
     this.items = [...options.items];
     if (!this.popupModel) {
       this.createPopupForSubitems(options);
     } else {
-      const list: any = this.popupModel.contentComponentData.model;
+      const list: any = this.innerListModel;
       list.setItems(this.items);
     }
     this.component = this.getGroupComponentName();
@@ -517,8 +524,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.isMouseDown = false;
   }
   private locStrChangedInPopupModel(): void {
-    if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
-    const model = this.popupModel.contentComponentData.model;
+    if (!this.innerListModel) return;
+    const model = this.innerListModel;
     if (Array.isArray(model.actions)) {
       const actions: Array<any> = model.actions;
       actions.forEach(item => {

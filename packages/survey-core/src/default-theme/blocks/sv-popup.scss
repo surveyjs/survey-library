@@ -39,7 +39,7 @@ sv-popup {
 
 .sv-popup--menu-popup {
   & > .sv-popup__container {
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+    background: var(--sjs2-color-utility-sheet, #FFF);
     border-radius: var(--sjs2-radius-component-drop, 16px);
     box-shadow: $shadow-medium-large;
   }
@@ -361,7 +361,7 @@ sv-popup {
     border: unset;
     box-shadow: unset;
     box-sizing: content-box;
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+    background: var(--sjs2-color-utility-sheet, #FFF);
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
@@ -379,7 +379,7 @@ sv-popup {
     // padding-top: 0;
     border: unset;
     box-sizing: content-box;
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+    background: var(--sjs2-color-utility-sheet, #FFF);
 
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
     --sv-popup-overlay-max-width: calc(100% - #{$base-unit} * 8);

@@ -124,23 +124,25 @@ export class List extends SurveyElementBase<IListProps, any> {
 
       return (
         <div className={this.model.cssClasses.filter}>
-          <div className={this.model.cssClasses.filterIcon}>
-            <SvgIcon
-              iconName={"icon-search"}
-              size={"auto"}
-            >
-            </SvgIcon>
+          <div className={this.model.cssClasses.filterBox}>
+            <div className={this.model.cssClasses.filterIcon}>
+              <SvgIcon
+                iconName={"icon-search"}
+                size={"auto"}
+              >
+              </SvgIcon>
+            </div>
+            <input
+              type="text"
+              className={this.model.cssClasses.filterInput}
+              aria-label={this.model.filterStringPlaceholder}
+              placeholder={this.model.filterStringPlaceholder}
+              value={this.state.filterString}
+              onKeyUp={onKeyUp}
+              onChange={onChange}
+            ></input>
+            {clearButton}
           </div>
-          <input
-            type="text"
-            className={this.model.cssClasses.filterInput}
-            aria-label={this.model.filterStringPlaceholder}
-            placeholder={this.model.filterStringPlaceholder}
-            value={this.state.filterString}
-            onKeyUp={onKeyUp}
-            onChange={onChange}
-          ></input>
-          {clearButton}
         </div>
       );
     }

@@ -1001,7 +1001,18 @@ describe("TOC", () => {
                 { "type": "text", "name": "question3" },
                 { "type": "text", "name": "question4" }
               ]
+            },
+            {
+              "type": "panel",
+              "name": "panel4",
+              "title": "Panel 4",
+              "state": "collapsed",
+              "elements": [
+                { "type": "text", "name": "question7" },
+                { "type": "text", "name": "question8" }
+              ]
             }
+
           ]
         },
         {
@@ -1025,14 +1036,18 @@ describe("TOC", () => {
     const tocListModel = createTOCListModel(survey);
     const page = survey.currentPage;
 
-    expect(tocListModel.visibleItems.length, "3 items in TOC").toBe(3);
     expect(page.name).toBe("single-page");
+    expect(tocListModel.visibleItems.length, "4 items in TOC").toBe(3);
+    expect(tocListModel.visibleItems[1].title, "nav item 2").toBe(page.elements[1].name);
+    expect(tocListModel.visibleItems[2].title, "nav item 3").toBe(page.elements[2].name);
 
     const panel2 = survey.getPanelByName("panel2");
+    const panel4 = survey.getPanelByName("panel4");
     expect(panel2.isCollapsed, "panel2 is collapsed before navigation").toBe(true);
+    expect(panel4.isCollapsed, "panel4 is collapsed before navigation").toBe(true);
 
     tocListModel.visibleItems[1].action();
-
     expect(panel2.isCollapsed, "panel2 is expanded after navigation").toBe(false);
+    expect(panel4.isCollapsed, "panel4 is collapsed after navigation").toBe(true);
   });
 });

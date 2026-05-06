@@ -12,21 +12,23 @@ import { getLocaleString } from "./surveyStrings";
 
 export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolean {
   if (survey.isDesignMode) return true;
-  expandAllPanels(panel);
+  const firstQuestion = panel.getFirstQuestionToFocus(false, true);
+  expandAllParentPanels(firstQuestion);
   panel.focusFirstQuestion();
   return true;
 }
 
-function expandAllPanels(panel: PanelModelBase): void {
-  panel.elements.forEach(el => {
-    if (el.isPanel) {
-      const p = el as PanelModelBase;
-      if (p.isCollapsed) {
-        p.expand(false);
+function expandAllParentPanels(question: Question): void {
+  let parent = question && question.parent;
+  while(parent && parent.getType() !== "page") {
+    if (parent.isPanel) {
+      const panel = parent as PanelModelBase;
+      if (panel.isCollapsed) {
+        panel.expand();
       }
-      expandAllPanels(p);
     }
-  });
+    parent = parent.parent;
+  }
 }
 
 function getPage(question: Question): PageModel {

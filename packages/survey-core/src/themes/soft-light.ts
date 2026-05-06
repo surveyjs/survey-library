@@ -3,6 +3,7 @@ export default {
   "themeName": "soft",
   "colorPalette": "light",
   "cssVariables": {
+    "--sjs2-color-project-brand-400": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 1.2))",
     "--sjs2-color-utility-shadow-trigger-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-trigger-hovered": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-trigger-pressed": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
@@ -38,9 +39,19 @@ export default {
     "--sjs2-border-effect-component-buttongroup-item-true-default": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-component-buttongroup-item-true-default-border)",
     "--sjs2-border-effect-component-buttongroup-item-true-disabled": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-buttongroup-item-true-disabled-border)",
     "--sjs2-border-effect-component-buttongroup-item-true-readonly": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-buttongroup-item-true-readonly-border)",
+    "--sjs2-border-effect-component-boolean-item-false-default": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-false-default-border)",
+    "--sjs2-border-effect-component-boolean-item-false-hovered": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-false-hovered-border)",
+    "--sjs2-border-effect-component-boolean-item-false-disabled": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-false-disabled-border)",
+    "--sjs2-border-effect-component-boolean-item-false-readonly": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-false-readonly-border)",
+    "--sjs2-border-effect-component-boolean-item-true-default": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-true-default-border)",
+    "--sjs2-border-effect-component-boolean-item-true-disabled": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-true-disabled-border)",
+    "--sjs2-border-effect-component-boolean-item-true-readonly": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-boolean-item-true-readonly-border)",
+    "--sjs2-border-effect-component-boolean-default": "inset 0px 1px 2px 0px var(--sjs2-color-component-boolean-default-border)",
+    "--sjs2-border-effect-component-boolean-design": "inset 0px 1px 2px 0px var(--sjs2-color-component-boolean-design-border)",
     "--sjs2-border-effect-trigger-default": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-default)",
     "--sjs2-border-effect-trigger-hovered": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-hovered)",
     "--sjs2-border-effect-trigger-design": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-design)",
-    "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)"
+    "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)",
+    "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)"
   }
 };

@@ -94,6 +94,9 @@ export default {
     "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)",
     "--sjs2-color-component-check-true-readonly-icon": "#161616",
-    "--sjs2-color-component-track-default-bg": "#d4d4d4"
+    "--sjs2-color-component-track-default-bg": "#d4d4d4",
+    "--sjs2-color-project-brand-700": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.85))",
+    "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
+    "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"
   }
 };

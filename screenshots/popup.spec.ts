@@ -377,7 +377,7 @@ frameworks.forEach(framework => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           let subitems: Array<any> = [];
           for (let index = 0; index < 7; index++) {
-            subitems[index] = { id: index, title: "inner item " + index + "     " };
+            subitems[index] = { id: index, title: "inner item long text " + index };
           }
 
           let items: Array<any> = [];

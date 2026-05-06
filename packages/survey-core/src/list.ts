@@ -333,7 +333,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       const currentElement = <HTMLElement>event.target;
       const container = currentElement.closest(classesToSelector(this.cssClasses.root));
       const listElement = container?.querySelector("ul");
-      const firstChild = getFirstVisibleChild(listElement);
+      const firstChild = listElement && getFirstVisibleChild(listElement);
       if (!!listElement && !!firstChild) {
         ElementHelper.focusElement(firstChild);
         event.preventDefault();

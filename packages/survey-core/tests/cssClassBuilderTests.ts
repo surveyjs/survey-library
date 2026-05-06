@@ -1,35 +1,36 @@
 import { CssClassBuilder } from "../src/utils/cssClassBuilder";
 
-export default QUnit.module("cssClassBuilder");
+import { describe, test, expect } from "vitest";
+describe("cssClassBuilder", () => {
+  test("Use calculated value in expression", () => {
+    const builder = new CssClassBuilder();
+    expect(builder.toString(), "Empty builder returns empty string").toBe("");
+    builder.append("");
+    expect(builder.toString(), "Append of empty string doesn't change empty builder state").toBe("");
+    builder.append(null);
+    expect(builder.toString(), "Append of null doesn't change empty builder state").toBe("");
+    builder.append(undefined);
+    expect(builder.toString(), "Append of undefined doesn't change empty builder state").toBe("");
+    builder.append("class1", false);
+    expect(builder.toString(), "Append of string with false condition doesn't change empty builder state").toBe("");
 
-QUnit.test("Use calculated value in expression", function (assert) {
-  const builder = new CssClassBuilder();
-  assert.equal(builder.toString(), "", "Empty builder returns empty string");
-  builder.append("");
-  assert.equal(builder.toString(), "", "Append of empty string doesn't change empty builder state");
-  builder.append(null);
-  assert.equal(builder.toString(), "", "Append of null doesn't change empty builder state");
-  builder.append(undefined);
-  assert.equal(builder.toString(), "", "Append of undefined doesn't change empty builder state");
-  builder.append("class1", false);
-  assert.equal(builder.toString(), "", "Append of string with false condition doesn't change empty builder state");
+    builder.append("class1");
+    expect(builder.toString(), "Append string changes builder state").toBe("class1");
+    builder.append("");
+    expect(builder.toString(), "Append of empty string doesn't change builder state").toBe("class1");
+    builder.append(null);
+    expect(builder.toString(), "Append of null doesn't change builder state").toBe("class1");
+    builder.append(undefined);
+    expect(builder.toString(), "Append of undefined doesn't change builder state").toBe("class1");
+    builder.append("class1", false);
+    expect(builder.toString(), "Append of string with false condition doesn't change builder state").toBe("class1");
 
-  builder.append("class1");
-  assert.equal(builder.toString(), "class1", "Append string changes builder state");
-  builder.append("");
-  assert.equal(builder.toString(), "class1", "Append of empty string doesn't change builder state");
-  builder.append(null);
-  assert.equal(builder.toString(), "class1", "Append of null doesn't change builder state");
-  builder.append(undefined);
-  assert.equal(builder.toString(), "class1", "Append of undefined doesn't change builder state");
-  builder.append("class1", false);
-  assert.equal(builder.toString(), "class1", "Append of string with false condition doesn't change builder state");
+    builder.append("class2", true);
+    expect(builder.toString(), "Append of string with true condition changes builder state").toBe("class1 class2");
+    builder.append("class3 class4");
+    expect(builder.toString(), "Append of string with two clasess changes builder state").toBe("class1 class2 class3 class4");
+    builder.append("class5 ", true);
+    expect(builder.toString(), "Append of space ended class trimmed").toBe("class1 class2 class3 class4 class5");
 
-  builder.append("class2", true);
-  assert.equal(builder.toString(), "class1 class2", "Append of string with true condition changes builder state");
-  builder.append("class3 class4");
-  assert.equal(builder.toString(), "class1 class2 class3 class4", "Append of string with two clasess changes builder state");
-  builder.append("class5 ", true);
-  assert.equal(builder.toString(), "class1 class2 class3 class4 class5", "Append of space ended class trimmed");
-
+  });
 });

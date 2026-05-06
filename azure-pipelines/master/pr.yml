@@ -4,19 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 variables:
-  ArtifactNameLibraryCore: "SurveyJSLibraryBuildCore"
-  ArtifactNameLibraryReact: "SurveyJSLibraryBuildReact"
-  ArtifactNameLibraryAngular: "SurveyJSLibraryBuildAngular"
-  ArtifactNameLibraryVue: "SurveyJSLibraryBuildVue3"
-  ArtifactNameLibraryJS: "SurveyJSLibraryBuildSurveyUI"
-  ArtifactNameCreatorV2Core: "SurveyJSCreatorV2BuildCore"
-  ArtifactNameCreatorV2Angular: "SurveyJSCreatorV2BuildAngular"
-  ArtifactNameCreatorV2React: "SurveyJSCreatorV2BuildReact"
-  ArtifactNameCreatorV2Vue: "SurveyJSCreatorV2BuildVue"
-  ArtifactNameCreatorV2JS: "SurveyJSCreatorV2BuildJS"
-  ArtifactNameAnalytics: "SurveyJSAnalyticsBuild"
-  ArtifactNamePDF: "SurveyjsPDFbuild"
-
+  - template: templates/utils/variables.yml
 
 resources:
   repositories:
@@ -24,18 +12,22 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-library
+      ref: $(System.PullRequest.TargetBranch)
     - repository: Creator
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-creator
+      ref: $(System.PullRequest.TargetBranch)
     - repository: Analytics
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-analytics
+      ref: $(System.PullRequest.TargetBranch)
     - repository: PDF
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-pdf
+      ref: $(System.PullRequest.TargetBranch)
 
 
 trigger: none

@@ -7735,6 +7735,15 @@ describe("Survey_Questions", () => {
     q2.value = 2;
     expect(counter, "custom expression is executed on changing non related value").toBe(2);
     expect(q3.getPropertyValue("customVal"), "#3").toBe(4);
+    survey.clear();
+    expect(counter, "custom expression is executed on survey.clear()").toBe(4);
+    expect(q3.getPropertyValue("customVal"), "#4 - q1 default value re-applied").toBe(5);
+    q1.value = 5;
+    expect(counter, "custom expression is executed on changing q1 after clear").toBe(5);
+    expect(q3.getPropertyValue("customVal"), "#5").toBe(8);
+    survey.data = {};
+    expect(counter, "custom expression is executed on survey.data = {}").toBe(6);
+    expect(q3.getPropertyValue("customVal"), "#6 - q1 cleared").toBe(3);
 
     Serializer.removeProperty("question", "customExp");
   });

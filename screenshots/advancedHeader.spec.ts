@@ -30,6 +30,9 @@ frameworks.forEach(framework => {
         ]
       });
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: "500px",
           inheritWidthFrom: "survey",
@@ -66,7 +69,8 @@ frameworks.forEach(framework => {
           "overlapEnabled": true,
         },
         "cssVariables": {
-          "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
+          "--sjs-header-backcolor": "rgba(25, 179, 148, 1)",
+          "--sjs2-color-component-header-default-title": ""
         } });
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-with-overlap.png");
 
@@ -105,7 +109,8 @@ frameworks.forEach(framework => {
           "overlapEnabled": true,
         },
         "cssVariables": {
-          "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
+          "--sjs-header-backcolor": "rgba(25, 179, 148, 1)",
+          "--sjs2-color-component-header-default-title": ""
         } });
       await compareScreenshot(page, ".sd-root-modern", "survey-toc-advanced-header-with-overlap.png");
 
@@ -131,22 +136,22 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await applyTheme(page, { "cssVariables": {}, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs2-color-component-header-default-title": "" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
 
-      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "", "--sjs2-color-component-header-default-description": "" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-header-default-description": "var(--sjs2-color-fg-brand-on-primary)" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-accent.png");
 
-      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "transparent", "--sjs2-color-component-header-default-title": "" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-none.png");
 
-      await applyTheme(page, { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)", "--sjs2-color-component-header-default-title": "" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-set.png");
@@ -177,7 +182,8 @@ frameworks.forEach(framework => {
       });
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs-header-backcolor": "transparent"
+          "--sjs-header-backcolor": "transparent",
+          "--sjs2-color-component-header-default-title": ""
         },
         "header": {
           "inheritWidthFrom": "survey",
@@ -211,6 +217,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: 300,
           inheritWidthFrom: "survey",
@@ -233,6 +242,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: 300,
           inheritWidthFrom: "survey",
@@ -255,6 +267,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: 300,
           inheritWidthFrom: "survey",
@@ -277,6 +292,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: 300,
           inheritWidthFrom: "survey",
@@ -299,6 +317,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: 300,
           inheritWidthFrom: "survey",
@@ -321,6 +342,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           height: 300,
           inheritWidthFrom: "survey",
@@ -357,6 +381,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "right",
@@ -378,6 +405,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "left",
@@ -399,6 +429,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "right",
@@ -420,6 +453,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "right",
@@ -441,6 +477,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "left",
@@ -462,6 +501,9 @@ frameworks.forEach(framework => {
        +---+---+---+
        */
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "center",
@@ -502,6 +544,9 @@ frameworks.forEach(framework => {
         ],
       });
       await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        },
         "header": {
           inheritWidthFrom: "survey",
           "logoPositionX": "left",

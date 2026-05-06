@@ -75,7 +75,7 @@ const json = {
 const applyHeaderAccentBackgroundColor = async (page: Page) => {
   await applyTheme(page, {
     "header": { "inheritWidthFrom": "container" },
-    "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "", "--sjs2-color-component-header-default-description": "" }
+    "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-header-default-description": "var(--sjs2-color-fg-brand-on-primary)" }
   });
 };
 
@@ -623,7 +623,7 @@ frameworks.forEach(framework => {
     test("Check survey with progress top buttons with numbers and background", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, json);
-      await applyHeaderAccentBackgroundColor(page);
+      //await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageTitles = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
@@ -719,7 +719,7 @@ frameworks.forEach(framework => {
           "--sjs-primary-forecolor-light": "rgba(255, 255, 255, 0.25)",
           "--sjs-special-red": "rgba(229, 10, 62, 1)",
           "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
-          "--sjs-font-headertitle-color": "rgba(255, 255, 255, 0.6)",
+          "--sjs-font-headertitle-color": "rgba(76, 100, 137, 1)",
           "--sjs-header-backcolor": "transparent"
         },
         "header": {

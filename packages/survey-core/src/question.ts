@@ -851,11 +851,9 @@ export class Question extends SurveyElement<Question>
   }
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     if (!runner.expression) return "";
+    if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
-    if ((!Array.isArray(vars) || vars.length === 0)) {
-      if (runner.hasFunction()) return "func";
-      return "const";
-    }
+    if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {

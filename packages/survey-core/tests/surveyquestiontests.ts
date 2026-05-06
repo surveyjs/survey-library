@@ -7735,6 +7735,15 @@ describe("Survey_Questions", () => {
     q2.value = 2;
     expect(counter, "custom expression is executed on changing non related value").toBe(2);
     expect(q3.getPropertyValue("customVal"), "#3").toBe(4);
+    survey.clear();
+    expect(counter, "custom expression is executed on survey.clear()").toBe(4);
+    expect(q3.getPropertyValue("customVal"), "#4 - q1 default value re-applied").toBe(5);
+    q1.value = 5;
+    expect(counter, "custom expression is executed on changing q1 after clear").toBe(5);
+    expect(q3.getPropertyValue("customVal"), "#5").toBe(8);
+    survey.data = {};
+    expect(counter, "custom expression is executed on survey.data = {}").toBe(6);
+    expect(q3.getPropertyValue("customVal"), "#6 - q1 cleared").toBe(3);
 
     Serializer.removeProperty("question", "customExp");
   });
@@ -7773,6 +7782,120 @@ describe("Survey_Questions", () => {
 
     Serializer.removeProperty("question", "customExp");
     FunctionFactory.Instance.unregister("getCustomVal");
+  });
+  test("Run custom expression with a function with parameters only on related value change, Issue#11233", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("testFunction", (params: any[]): any => {
+      return params[0];
+    });
+    Serializer.addProperty("question", {
+      name: "customExp:expression",
+      onExecuteExpression: (obj, res) => {
+        counter ++;
+        obj.setPropertyValue("customVal", res);
+      }
+    });
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          templateElements: [
+            { type: "text", name: "question2" }
+          ],
+          panelCount: 1
+        },
+        { type: "text", name: "question4" },
+        { type: "text", name: "question5", customExp: "testFunction({question4})" }
+      ]
+    });
+    const q4 = survey.getQuestionByName("question4");
+    const q5 = survey.getQuestionByName("question5");
+    expect(counter, "executed on creating").toBe(1);
+    expect(q5.getPropertyValue("customVal"), "#1").toBe(undefined);
+    const dynamicPanel: any = survey.getQuestionByName("question1");
+    dynamicPanel.panels[0].getQuestionByName("question2").value = "abc";
+    expect(counter, "not executed on dynamic panel inner value change").toBe(1);
+    survey.setValue("someUnrelated", "val");
+    expect(counter, "not executed on unrelated setValue").toBe(1);
+    q4.value = "hello";
+    expect(counter, "executed on related value change").toBe(2);
+    expect(q5.getPropertyValue("customVal"), "#2").toBe("hello");
+
+    Serializer.removeProperty("question", "customExp");
+    FunctionFactory.Instance.unregister("testFunction");
+  });
+  test("Run custom expression with two functions with parameters only on related value change, Issue#11233", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("funcA", (params: any[]): any => params[0]);
+    FunctionFactory.Instance.register("funcB", (params: any[]): any => params[0]);
+    Serializer.addProperty("question", {
+      name: "customExp:expression",
+      onExecuteExpression: (obj, res) => {
+        counter ++;
+        obj.setPropertyValue("customVal", res);
+      }
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", defaultValue: 1 },
+        { type: "text", name: "q2", defaultValue: 2 },
+        { type: "text", name: "q3" },
+        { type: "text", name: "q4", customExp: "funcA({q1}) + funcB({q2})" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    const q4 = survey.getQuestionByName("q4");
+    expect(counter, "executed on creating").toBe(1);
+    expect(q4.getPropertyValue("customVal"), "#1").toBe(3);
+    q3.value = "abc";
+    expect(counter, "not executed on unrelated change").toBe(1);
+    q1.value = 10;
+    expect(counter, "executed on q1 change").toBe(2);
+    expect(q4.getPropertyValue("customVal"), "#2").toBe(12);
+    q2.value = 20;
+    expect(counter, "executed on q2 change").toBe(3);
+    expect(q4.getPropertyValue("customVal"), "#3").toBe(30);
+
+    Serializer.removeProperty("question", "customExp");
+    FunctionFactory.Instance.unregister("funcA");
+    FunctionFactory.Instance.unregister("funcB");
+  });
+  test("Run custom expression with one function with parameter and one parameterless function on any value change, Issue#11233", () => {
+    let counter = 0;
+    let funcCounter = 0;
+    FunctionFactory.Instance.register("withParam", (params: any[]): any => params[0]);
+    FunctionFactory.Instance.register("noParam", (): number => {
+      funcCounter++;
+      return funcCounter;
+    });
+    Serializer.addProperty("question", {
+      name: "customExp:expression",
+      onExecuteExpression: (obj, res) => {
+        counter ++;
+        obj.setPropertyValue("customVal", res);
+      }
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", defaultValue: 10 },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3", customExp: "withParam({q1}) + noParam()" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    expect(counter, "executed on creating").toBe(1);
+    q1.value = 20;
+    expect(counter, "executed on q1 change").toBe(2);
+    q2.value = "abc";
+    expect(counter, "executed on q2 change due to parameterless function").toBe(3);
+
+    Serializer.removeProperty("question", "customExp");
+    FunctionFactory.Instance.unregister("withParam");
+    FunctionFactory.Instance.unregister("noParam");
   });
 
 });

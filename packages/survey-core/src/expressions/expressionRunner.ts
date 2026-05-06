@@ -41,7 +41,8 @@ export class ExpressionRunnerBase {
     return this.variables;
   }
 
-  public hasFunction(): boolean {
+  public hasFunction(noParamsOnly?: boolean): boolean {
+    if (noParamsOnly === true) return !!this.expressionExecutor && this.expressionExecutor.hasFunction(true);
     if (this.containsFunc === undefined) {
       this.containsFunc = this.expressionExecutor.hasFunction();
     }

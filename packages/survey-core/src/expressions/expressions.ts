@@ -19,7 +19,7 @@ export abstract class Operand {
   public abstract getType(): string;
   public abstract evaluate(processValue?: ProcessValue): any;
   public abstract setVariables(variables: Array<string>): any;
-  public hasFunction(): boolean {
+  public hasFunction(noParamsOnly?: boolean): boolean {
     return false;
   }
   public hasAsyncFunction(): boolean { return false; }
@@ -128,10 +128,10 @@ export class BinaryOperand extends Operand {
     if (this.left != null)this.left.setVariables(variables);
     if (this.right != null)this.right.setVariables(variables);
   }
-  public hasFunction(): boolean {
+  public hasFunction(noParamsOnly?: boolean): boolean {
     return (
-      (!!this.left && this.left.hasFunction()) ||
-      (!!this.right && this.right.hasFunction())
+      (!!this.left && this.left.hasFunction(noParamsOnly)) ||
+      (!!this.right && this.right.hasFunction(noParamsOnly))
     );
   }
   protected addChildrenToList(list: Array<Operand>): void {
@@ -185,8 +185,8 @@ export class UnaryOperand extends Operand {
     const uOp = <UnaryOperand>op;
     return uOp.operator == this.operator && this.areOperatorsEquals(this.expression, uOp.expression);
   }
-  public hasFunction(): boolean {
-    return this.expression.hasFunction();
+  public hasFunction(noParamsOnly?: boolean): boolean {
+    return this.expression.hasFunction(noParamsOnly);
   }
   protected addChildrenToList(list: Array<Operand>): void {
     this.expression.addOperandsToList(list);
@@ -240,8 +240,8 @@ export class ArrayOperand extends Operand {
     });
   }
 
-  public hasFunction(): boolean {
-    return this.values.some((operand) => operand.hasFunction());
+  public hasFunction(noParamsOnly?: boolean): boolean {
+    return this.values.some((operand) => operand.hasFunction(noParamsOnly));
   }
   protected addChildrenToList(list: Array<Operand>): void {
     this.values.forEach((el) => {
@@ -451,7 +451,10 @@ export class FunctionOperand extends Operand {
   private getAsynValue(proccessValue: ProcessValue): any {
     return proccessValue.asyncValues[this.id];
   }
-  public hasFunction(): boolean { return true; }
+  public hasFunction(noParamsOnly?: boolean): boolean {
+    if (noParamsOnly === true) return this.paramValues.length === 0;
+    return true;
+  }
   public hasAsyncFunction(): boolean {
     return this.isAsyncFunction() || this.parameters.hasAsyncFunction();
   }

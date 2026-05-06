@@ -15,7 +15,7 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 
 export interface IPropertyValueChangedEvent {
@@ -32,6 +32,7 @@ export interface IPropertyArrayValueChangedEvent {
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
+  useStrictDependencies?: boolean;
 }
 
 export interface IExpressionValidationOptions {
@@ -965,11 +966,11 @@ export class Base implements IObjectValueContext {
       fireCallback(this);
     }
   }
-  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean): void {
     if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
-    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies };
   }
   public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
     if (!expression) return;
@@ -1059,9 +1060,20 @@ export class Base implements IObjectValueContext {
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
     if (!!info.canRun && !info.canRun(this)) return;
+    if (info.useStrictDependencies) {
+      const survey: any = this.getSurvey();
+      const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+      if (this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys)) return;
+    }
     this.runExpressionByProperty(propName, properties, (res) => {
       info.onExecute(this, res);
     });
+  }
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
+    if (!keys) return false;
+    if (!!runner && runner.hasFunction()) return false;
+    if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

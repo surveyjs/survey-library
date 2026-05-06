@@ -42,8 +42,7 @@
   margin: 0;
 
   .sd-element__num {
-    font-size: calcFontSize(0.75);
-    line-height: calcLineHeight(1);
+    @include sjs2--typography--small-strong;
     color: $foreground-light;
   }
 
@@ -80,14 +79,13 @@
 }
 
 .sd-element__num {
+  @include sjs2--typography--small-strong;
   float: left;
   padding-top: calc(var(--sjs2-base-unit-spacing) * 0.625);
   padding-bottom: calc(var(--sjs2-base-unit-spacing) * 0.375);
   padding-inline-start: 0;
   padding-inline-end: var(--sjs2-spacing-x100);
   width: var(--sjs2-size-x500);
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
   color: $foreground-light;
   margin-inline-start: var(--sjs2-spacing-negative-x500); // margin-left
   text-align: end;

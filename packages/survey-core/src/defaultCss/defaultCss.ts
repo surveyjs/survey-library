@@ -1,4 +1,4 @@
-import { defaultSelectListCss } from "src/selectlistCss";
+import { defaultSelectListCss } from "../selectlistCss";
 
 export var surveyCss: any = {
   currentType: "default",

@@ -1,0 +1,56 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+  - name: store
+    type: boolean
+    default: false
+
+steps:
+  - checkout: ${{ parameters.checkout }}
+    displayName: "Checkout '${{ parameters.checkout }}'"
+
+  - script: git fetch origin pull/$(PR)/head && git checkout FETCH_HEAD
+    workingDirectory: $(Build.SourcesDirectory)
+    condition: ne(variables['PR'], '')
+    displayName: "Switch to PR $(PR)"
+
+  - template: ../../utils/npm.yml
+    parameters:
+      directories:
+        - $(Build.SourcesDirectory)
+        - $(Build.SourcesDirectory)/packages/survey-creator-core
+        - $(Build.SourcesDirectory)/packages/survey-creator-js
+        - $(Build.SourcesDirectory)/packages/survey-creator-js/example
+
+  - template: ../../utils/artifact.yml
+    parameters:
+      artifacts:
+        - $(ArtifactNameLibraryCore)
+        - $(ArtifactNameLibraryJS)
+
+  - template: ../../utils/copy.yml
+    parameters:
+      items:
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryCore)
+          destination: $(Build.SourcesDirectory)/packages/survey-creator-core/node_modules/survey-core         
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryCore)
+          destination: $(Build.SourcesDirectory)/packages/survey-creator-js/node_modules/survey-core            
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryJS)
+          destination: $(Build.SourcesDirectory)/packages/survey-creator-js/node_modules/survey-js-ui
+
+  - script: npm run build:all
+    workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-core
+    displayName: "Build Core"
+
+  - script: npm run build
+    workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-js
+    displayName: "Build JS"
+  
+  - ${{ if eq(parameters.store, true) }}:
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/packages/survey-creator-js/build/'
+        ArtifactName: $(ArtifactNameCreatorJS)
+        publishLocation: 'Container'
+        StoreAsTar: true

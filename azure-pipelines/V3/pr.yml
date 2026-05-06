@@ -4,9 +4,31 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
 variables:
-  npm_config_cache: $(Pipeline.Workspace)/.npm
-  CurrentBranch: $(Build.SourceBranchName)
-  ProjectId: "2cf848f9-83d5-4ec4-b2e3-ef3321ccc99f"
+  - template: templates/utils/variables.yml
+
+resources:
+  repositories:
+    - repository: Library
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-library
+      ref: $(System.PullRequest.TargetBranch)
+    - repository: Creator
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-creator
+      ref: $(System.PullRequest.TargetBranch)
+    - repository: Analytics
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-analytics
+      ref: $(System.PullRequest.TargetBranch)
+    - repository: PDF
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-pdf
+      ref: $(System.PullRequest.TargetBranch)
+
 
 trigger: none
 
@@ -25,39 +47,307 @@ stages:
       - job:
         steps:
           - checkout: self
-            persistCredentials: true
-            clean: true
-
-          - template: templates/utils/node.yml
-
+          
           - template: templates/utils/npm.yml
             parameters:
-              directory: $(Build.SourcesDirectory)
+              directories:
+                - $(Build.SourcesDirectory)
 
           - script: npm run lint
+            workingDirectory: $(Build.SourcesDirectory)
 
-  - stage: Core
+
+  - stage: Options
     dependsOn: []
     jobs:
-      - template: templates/core.yml
-
-  - stage: React
+      - job: PRTitle
+        displayName: "Parse PR title"
+        steps:
+          - template: templates/utils/pr_title_parser.yml
+ 
+ 
+  ###############
+  # Build Phase #
+  ###############
+  - stage: LibraryCoreBuild
+    displayName: "Library Core Build"
     dependsOn: []
     jobs:
-      - template: templates/react.yml
+      - job:
+        steps:
+          - template: templates/library/core/build.yml
+            parameters:
+              store: true
 
-  - stage: Angular
+  - stage: LibraryReactBuild
+    displayName: "Library React Build"
     dependsOn: []
     jobs:
-      - template: templates/angular.yml
+      - job:
+        steps:
+          - template: templates/library/react/build.yml
+            parameters:
+                store: true
 
-  - stage: Vue
+  - stage: LibraryAngularBuild
+    displayName: "Library Angular Build"
     dependsOn: []
     jobs:
-      - template: templates/vue.yml
+      - job:
+        steps:
+          - template: templates/library/angular/build.yml
+            parameters:
+                store: true
 
-  - stage: Preact
-    displayName: "Preact (ShadowDOM BoxSizing)"
+  - stage: LibraryVueBuild
+    displayName: "Library Vue Build"
     dependsOn: []
     jobs:
-      - template: templates/preact.yml
+      - job:
+        steps:
+          - template: templates/library/vue/build.yml
+            parameters:
+                store: true
+
+  - stage: LibraryJSBuild
+    displayName: "Library JS (Preact ShadowDOM BoxSizing) Build"
+    dependsOn: []
+    jobs:
+      - job:
+        steps:
+          - template: templates/library/js/build.yml
+            parameters:
+                store: true
+
+  # - stage: CreatorCoreBuild
+  #   displayName: "Creator Core Build"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   jobs:
+  #   - job:
+  #     displayName: "Build"
+  #     steps:
+  #       - template: templates/creator/core/build.yml
+  #         parameters:
+  #           checkout: Creator
+  #           store: true
+
+  # - stage: CreatorReactBuild
+  #   displayName: "Creator React Build"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryReactBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/react/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
+
+  # - stage: CreatorAngularBuild
+  #   displayName: "Creator Angular Build"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryAngularBuild
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/angular/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
+
+  # - stage: CreatorVueBuild
+  #   displayName: "Creator Vue Build"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryVueBuild
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/vue/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
+
+  # - stage: CreatorJSBuild
+  #   displayName: "Creator JS (Preact ShadowDOM BoxSizing) Build"
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #     - LibraryJSBuild
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/creator/js/build.yml
+  #           parameters:
+  #             checkout: Creator
+  #             store: true
+
+  # - stage: AnalyticsBuild
+  #   displayName: "Analytics Build"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.ANALYTICS'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/analytics/build.yml
+  #           parameters:
+  #             checkout: Analytics
+  #             store: true
+
+  # - stage: PDFBuild
+  #   displayName: "PDF Build"
+  #   dependsOn:
+  #     - Options
+  #     - LibraryCoreBuild
+  #   variables:
+  #     PR: $[ stageDependencies.Options.PRTitle.outputs['data.PDF'] ]
+  #   jobs:
+  #     - job:
+  #       steps:
+  #         - template: templates/pdf/build.yml
+  #           parameters:
+  #             checkout: PDF
+  #             store: true
+
+
+
+  ##############
+  # Test Phase #
+  ##############
+  - stage: LibraryCoreTest
+    displayName: "Library Core Test"
+    dependsOn: []
+    jobs:
+      - template: templates/library/core/test.yml
+
+  - stage: LibraryReactTest
+    displayName: "Library React Test"
+    dependsOn: []
+    jobs:
+      - template: templates/library/react/test.yml
+
+  - stage: LibraryAngularTest
+    displayName: "Library Angular Test"
+    dependsOn: []
+    jobs:
+      - template: templates/library/angular/test.yml
+
+  - stage: LibraryVueTest
+    displayName: "Library Vue Test"
+    dependsOn: []
+    jobs:
+      - template: templates/library/vue/test.yml
+
+  - stage: LibraryJSTest
+    displayName: "Library JS (Preact ShadowDOM BoxSizing) Test"
+    dependsOn: []
+    jobs:
+      - template: templates/library/js/test.yml
+
+  - stage: CreatorCoreTest
+    displayName: "Creator Core Test"
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+    jobs:
+      - template: templates/creator/core/test.yml
+        parameters:
+          checkout: Creator
+
+  - stage: CreatorReactTest
+    displayName: "Creator React Test"
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+      - LibraryReactBuild
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+    jobs:
+      - template: templates/creator/react/test.yml
+        parameters:
+          checkout: Creator
+
+  - stage: CreatorAngularTest
+    displayName: "Creator Angular Test"
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+      - LibraryAngularBuild
+    jobs:
+      - template: templates/creator/angular/test.yml
+        parameters:
+          checkout: Creator
+
+  - stage: CreatorVueTest
+    displayName: "Creator Vue Test"
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+      - LibraryVueBuild
+    jobs:
+      - template: templates/creator/vue/test.yml
+        parameters:
+          checkout: Creator
+
+  - stage: CreatorJSTest
+    displayName: "Creator JS (Preact ShadowDOM BoxSizing) Test"
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.CREATOR'] ]
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+      - LibraryJSBuild
+    jobs:
+      - template: templates/creator/js/test.yml
+        parameters:
+          checkout: Creator
+
+  - stage: AnalyticsTest
+    displayName: "Analytics Test"
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.ANALYTICS'] ]
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+    jobs:
+      - template: templates/analytics/test.yml
+        parameters:
+          checkout: Analytics
+
+  - stage: PDFTest
+    displayName: "PDF Test"
+    variables:
+      PR: $[ stageDependencies.Options.PRTitle.outputs['data.PDF'] ]
+    dependsOn:
+      - Options
+      - LibraryCoreBuild
+    jobs:
+      - template: templates/pdf/test.yml
+        parameters:
+          checkout: PDF

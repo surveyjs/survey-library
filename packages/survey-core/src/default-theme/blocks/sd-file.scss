@@ -1,9 +1,9 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-file {
   position: relative;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  @include sjs2--typography--default;
   min-height: calc(var(--sjs2-base-unit-size) * 36);
   box-sizing: border-box;
   padding: 0 var(--sjs2-spacing-x600);
@@ -262,8 +262,7 @@
 .sd-file__sign {
   margin-top: var(--sjs2-spacing-x100);
   text-align: center;
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
+  @include sjs2--typography--small;
 
   a {
     display: block;

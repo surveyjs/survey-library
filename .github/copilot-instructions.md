@@ -4,9 +4,11 @@
 
 ### Unit Tests — `packages/survey-core`
 - **Command:** `npm run test`
-- **Framework:** Karma + QUnit
+- **Framework:** Vitest + jsdom
 - **Working directory:** `packages/survey-core`
 - **Watch mode:** `npm run test:watch`
+- **Single file:** `npx vitest run tests/<file>.ts`
+- **Single test:** `npx vitest run -t "test name substring"`
 
 ### Playwright E2E Tests — All UI Packages
 Each UI package uses Playwright with the root `playwright.config.ts`. The `e2e:ci` script sets the correct `env` variable automatically via `cross-env`.
@@ -36,7 +38,7 @@ Each UI package uses Playwright with the root `playwright.config.ts`. The `e2e:c
 - `node_modules/survey-core` in UI packages is a Junction symlink to `packages/survey-core/build`
 
 ### Running a Single Test
-- **Karma (survey-core):** Tests use QUnit; filter by test name in the test runner
+- **Vitest (survey-core):** `npx vitest run -t "TestName"` or `npx vitest run tests/specificfile.ts`
 - **Playwright (UI packages):** `npm run e2e:ci -- --grep "TestName"` or use `--project e2e` with specific test files
 
 ### Playwright Config Structure
@@ -46,6 +48,6 @@ The root `playwright.config.ts` defines three projects:
 - `a11y` → test dir: `./accessibilityTests`
 
 ### Token-Saving Tips for AI Agents
-- **Karma output is extremely verbose** — 4000+ lines of "Executed X of Y SUCCESS". Avoid polling terminal output repeatedly while tests are running. Launch with async mode and wait for completion notification.
+- **Vitest output is concise** — only prints failed assertions and a summary line. Safe to run synchronously.
 - **Playwright output is manageable** — Shows progress like `[X/450]` and only prints full details for failures.
 - **Don't run all packages' tests at once** — Run one package at a time to keep output and context manageable.

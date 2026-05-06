@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-breadcrumbs {
   display: flex;
@@ -13,7 +14,7 @@
 
 .sd-breadcrumbs-item {
   color: var(--lbr-breadcrumbs-item-text-color, $foreground-dim-light);
-  @include mixins.defaultFont;
+  @include sjs2--typography--default;
 }
 
 .sd-breadcrumbs-item__button {

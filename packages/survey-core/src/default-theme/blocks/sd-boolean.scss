@@ -72,7 +72,7 @@
   transition-property: transform, left;
   transition-timing-function: linear;
   color: var(--sjs2-color-component-boolean-item-true-default-value, #19B394);
-  font-weight: 600;
+  @include sjs2--typography--default-strong;
   z-index: 2;
 
   .sv-string-viewer {

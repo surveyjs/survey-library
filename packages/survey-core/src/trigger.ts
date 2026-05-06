@@ -5,7 +5,6 @@ import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { ExpressionRunner } from "./expressions/expressionRunner";
 import { OperandMaker } from "./expressions/expressions";
-import { ValueGetter } from "./conditions/conditionProcessValue";
 import { settings } from "./settings";
 
 /**
@@ -156,8 +155,7 @@ export class Trigger extends Base {
   }
   private isCheckRequired(runner: ExpressionRunner, keys: any): boolean {
     if (!keys) return false;
-    if (runner?.hasFunction() === true) return true;
-    return new ValueGetter().isAnyKeyChanged(keys, this.getUsedVariables(runner));
+    return !this.canSkipExpressionByKeys(runner, keys, this.getUsedVariables(runner));
   }
   protected getUsedVariables(runner: ExpressionRunner): string[] {
     if (!runner) return [];

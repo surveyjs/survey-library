@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-table {
   width: 100%;
@@ -773,8 +774,7 @@
     .sd-expression {
       padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
       border-bottom: 1px solid $border-light;
-      font-size: calcFontSize(1);
-      font-weight: 600;
+      @include sjs2--typography--default-strong;
       line-height: var(--sjs2-line-height-x300);
     }
   }

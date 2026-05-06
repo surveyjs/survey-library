@@ -383,24 +383,24 @@ describe("List Model", () => {
   test("getItemClass test", () => {
     const items = createIActionArray(12);
     const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
-    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item--neutral");
+    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item");
 
     list.textWrapEnabled = true;
-    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item--neutral sv-list__item-text--wrap");
+    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item-text--wrap");
 
     list.textWrapEnabled = false;
     list.focusedItem = list.actions[0];
-    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item--neutral sv-list__item--focused");
+    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item--focused");
 
     list.selectFocusedItem();
-    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item--neutral sv-list__item--focused sv-list__item--selected");
-    expect(list.getItemClass(list.actions[1])).toBe("sv-list__item sv-list__item--neutral");
+    expect(list.getItemClass(list.actions[0])).toBe("sv-list__item sv-list__item--focused sv-list__item--selected");
+    expect(list.getItemClass(list.actions[1])).toBe("sv-list__item");
 
     list.actions[1].enabled = false;
-    expect(list.getItemClass(list.actions[1])).toBe("sv-list__item sv-list__item--neutral sv-list__item--disabled");
+    expect(list.getItemClass(list.actions[1])).toBe("sv-list__item sv-list__item--disabled");
 
     list.actions[1].css = "custom-css";
-    expect(list.getItemClass(list.actions[1])).toBe("sv-list__item sv-list__item--neutral sv-list__item--disabled custom-css");
+    expect(list.getItemClass(list.actions[1])).toBe("sv-list__item sv-list__item--disabled custom-css");
   });
 
   test("getListClass test", () => {

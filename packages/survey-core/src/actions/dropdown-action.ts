@@ -21,7 +21,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   };
   listOptions.cssClasses = { ...menuListCss };
   const _popupOptions = popupOptions || {};
-  _popupOptions.showPointer = false;
+  _popupOptions.showPointer = _popupOptions.showPointer ?? false;
   const popupModel: PopupModel = createPopupModelWithListModel(listOptions, _popupOptions);
   popupModel.getTargetCallback = getActionDropdownButtonTarget;
   const newActionOptions = Object.assign({}, actionOptions, {

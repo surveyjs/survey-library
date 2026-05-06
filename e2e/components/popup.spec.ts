@@ -41,7 +41,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -88,7 +88,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -112,7 +112,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -144,7 +144,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -391,7 +391,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -461,7 +461,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -518,7 +518,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -569,7 +569,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });

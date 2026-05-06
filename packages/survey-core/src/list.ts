@@ -330,8 +330,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public goToItems(event: KeyboardEvent): void {
     if (event.key === "ArrowDown" || event.keyCode === 40) {
-      const currentElement = (<HTMLElement>event.target).parentElement;
-      const listElement = currentElement.parentElement.querySelector("ul");
+      const currentElement = <HTMLElement>event.target;
+      const container = currentElement.closest(classesToSelector(this.cssClasses.root));
+      const listElement = container?.querySelector("ul");
       const firstChild = getFirstVisibleChild(listElement);
       if (!!listElement && !!firstChild) {
         ElementHelper.focusElement(firstChild);

@@ -1167,7 +1167,7 @@ test("Check createBoxShadow and parseBoxShadow functions", () => {
 
   boxShadow = "color(srgb 0.0666667 0.0627451 0.0784314 / 0.1) 0px 0px 0px 1px";
   parsedBoxShadow = parseBoxShadow(boxShadow);
-  assert.deepEqual(parsedBoxShadow, [{
+  expect(parsedBoxShadow).toEqual([{
     blur: 0,
     x: 0,
     y: 0,

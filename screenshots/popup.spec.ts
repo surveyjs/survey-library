@@ -136,7 +136,7 @@ frameworks.forEach(framework => {
           const items = getItems(40);
           const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
             { title: "Long List", showTitle: true },
-            { items: items, showPointer: true, selectedItem: items[39] }
+            { items: items, selectedItem: items[39] }
           );
           opt.titleActions = [dropdownWithSearchAction];
         });
@@ -324,7 +324,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sv-popup .sv-popup__container", "popup-search-width.png");
     });
 
-    test("Popup with subitems", async ({ page }) => {
+    test("Popup with subitems rigth", async ({ page }) => {
       await page.setViewportSize({ width: 1300, height: 650 });
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
@@ -347,7 +347,6 @@ frameworks.forEach(framework => {
             { title: "Subitems", showTitle: true },
             {
               items: items,
-              showPointer: true,
               verticalPosition: "bottom",
               horizontalPosition: "center",
               onSelectionChanged: (item, ...params) => {
@@ -363,17 +362,53 @@ frameworks.forEach(framework => {
       await page.click(".sd-action-bar__item");
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
       await page.waitForTimeout(300);
-      await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-right.png");
+      await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-right.png");
 
       await page.getByRole("menuitem", { name: "inner item0" }).hover();
       await page.waitForTimeout(300);
-      await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-right-hover-sub-item.png");
+      await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-right-hover-sub-item.png");
+    });
 
+    test("Popup with subitems left", async ({ page }) => {
+      await initSurvey(page, framework, {});
       await page.setViewportSize({ width: 1000, height: 650 });
+
+      await page.evaluate((json) => {
+        window["survey"].onGetQuestionTitleActions.add((_, opt) => {
+          let subitems: Array<any> = [];
+          for (let index = 0; index < 7; index++) {
+            subitems[index] = { id: index, title: "inner item " + index + "     " };
+          }
+
+          let items: Array<any> = [];
+          for (let index = 0; index < 10; index++) {
+            items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
+          }
+          items[5].setSubItems({ items: [...subitems] });
+          items[5].title += " has items";
+          items[6].setSubItems({ items: [...subitems] });
+          items[6].title += " has items";
+
+          const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+            { title: "Subitems", showTitle: true },
+            {
+              items: items,
+              verticalPosition: "bottom",
+              horizontalPosition: "center",
+              onSelectionChanged: (item, ...params) => {
+                let value = item.id;
+              }
+            }
+          );
+          opt.titleActions = [dropdownWithSearchAction];
+        });
+        window["survey"].fromJSON(json);
+      }, json);
+      await page.click(".sd-action-bar__item");
       await page.waitForTimeout(300);
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
       await page.waitForTimeout(300);
-      await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-left.png");
+      await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-left.png");
     });
 
     test("Popup with subitems and selected elements", async ({ page }) => {
@@ -399,7 +434,6 @@ frameworks.forEach(framework => {
             { title: "Subitems", showTitle: true },
             {
               items: items,
-              showPointer: true,
               verticalPosition: "bottom",
               horizontalPosition: "center",
               selectedItem: items[5],
@@ -416,7 +450,7 @@ frameworks.forEach(framework => {
       await page.click(".sd-action-bar__item");
       await page.getByRole("menuitem", { name: "item5 has items" }).hover();
       await page.waitForTimeout(300);
-      await compareScreenshot(page, ".sv-popup.sv-popup--show-pointer", "popup-with-subitems-with-selected-elements.png");
+      await compareScreenshot(page, ".sv-popup.sv-popup--menu-popup", "popup-with-subitems-with-selected-elements.png");
     });
     test("Popup modal with close button", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 600 });

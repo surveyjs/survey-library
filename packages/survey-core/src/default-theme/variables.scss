@@ -67,7 +67,7 @@ $font-size: var(--sjs2-font-size-x200, 16px);
 
 $font-surveytitle-family: var(--sjs2-typography-font-family-component-header-title, #{$font-family});
 $font-surveytitle-weight: var(--sjs2-typography-font-weight-component-header-title, 700);
-$font-surveytitle-color: $primary;
+$font-surveytitle-color: var(--sjs2-color-component-header-default-title, #{$primary-foreground});
 
 $font-surveydescription-family: var(--sjs2-typography-font-family-component-header-description, #{$font-family});
 $font-surveydescription-weight: var(--sjs2-typography-font-weight-component-header-description, 400);

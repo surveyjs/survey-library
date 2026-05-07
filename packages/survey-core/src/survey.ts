@@ -5373,6 +5373,7 @@ export class SurveyModel extends SurveyElementCore
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.css.root)
+      .append(this.css.rootTheme)
       .append(this.css.rootProgress + "--" + this.progressBarType)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
@@ -8374,10 +8375,8 @@ export class SurveyModel extends SurveyElementCore
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];
-      } else if (key === "isLight") {
-        this.colorPalette = theme[key] ? "light" : "dark";
       } else if (key === "cssVariables") {
-        this.cssVariables = Object.assign({}, DefaultTheme.cssVariables, theme.cssVariables);
+        this.cssVariables = { ...theme.cssVariables };
       } else {
         (this as any)[key] = theme[key];
       }

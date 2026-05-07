@@ -1165,6 +1165,17 @@ test("Check createBoxShadow and parseBoxShadow functions", () => {
   createdBoxShadow = createBoxShadow(parsedBoxShadow);
   expect(createdBoxShadow).toBe("2px 3px 4px 6px rgba(103, 50, 65, 0.75)");
 
+  boxShadow = "color(srgb 0.0666667 0.0627451 0.0784314 / 0.1) 0px 0px 0px 1px";
+  parsedBoxShadow = parseBoxShadow(boxShadow);
+  expect(parsedBoxShadow).toEqual([{
+    blur: 0,
+    x: 0,
+    y: 0,
+    spread: 1,
+    isInset: false,
+    color: "color(srgb 0.0666667 0.0627451 0.0784314 / 0.1)"
+  }]);
+
   boxShadow = "2px 3px 4px 6px rgba(from #673241 calc(75 * 1%))";
   parsedBoxShadow = parseBoxShadow(boxShadow);
   expect(parsedBoxShadow).toEqual([{

@@ -43,6 +43,7 @@ sv-popup {
     border-radius: var(--sjs2-radius-component-drop, 16px);
     border: var(--sjs2-border-width-x100, 1px) solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
     background: var(--sjs2-color-utility-sheet, #fff);
+    box-sizing: border-box;
 
     /* sjs2/border-effect/floating/default */
     box-shadow:

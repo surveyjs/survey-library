@@ -14,9 +14,10 @@ export interface IVerticalDimensions {
 export function getVerticalDimensions(el: HTMLElement): IVerticalDimensions {
   if (DomDocumentHelper.isAvailable()) {
     const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth, marginTop, marginBottom, boxSizing } = DomDocumentHelper.getComputedStyle(el);
-    let heightTo = el.getBoundingClientRect().height + "px";
+    const { offsetHeight } = el;
+    let heightTo = offsetHeight + "px";
     if (boxSizing == "content-box") {
-      let heightPx = el.getBoundingClientRect().height;
+      let heightPx = offsetHeight;
       [borderBottomWidth, borderTopWidth, paddingBottom, paddingTop].forEach((style) => {
         heightPx -= parseFloat(style);
       });

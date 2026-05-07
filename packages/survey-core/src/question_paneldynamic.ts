@@ -2688,7 +2688,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (!!tabbedMenu) {
       tabbedMenu.containerCss = this.getTabbedMenuCss(classes);
       tabbedMenu.cssClasses = classes.tabs;
-      tabbedMenu.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;
   }

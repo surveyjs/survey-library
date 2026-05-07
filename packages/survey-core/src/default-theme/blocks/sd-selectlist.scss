@@ -5,6 +5,7 @@
     flex-direction: column;
     min-height: 0;
     height: 100%;
+    overflow: hidden;
 }
 .sd-selectlist {
     width: 100%;
@@ -22,9 +23,9 @@
     text-align: start;
     cursor: pointer;
     color: var(--sjs2-color-fg-basic-primary, #1c1b20);
-    @include sjs2--typography--default;
     border-radius: var(--sjs2-radius-component-drop-item, 8px);
     background: var(--sjs2-color-bg-brand-tertiary, rgba(25, 179, 148, 0));
+    @include sjs2--typography--default;
 
     &:focus-visible {
         outline: none;
@@ -125,74 +126,80 @@
     border-bottom: 1px solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
     display: flex;
     padding: var(--sjs2-spacing-x200);
-    gap: var(--sjs2-spacing-x200);
     align-items: center;
     align-self: stretch;
     box-sizing: border-box;
+}
 
-    .sd-selectlist__filter-icon {
+.sd-selectlist-filter__box {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: var(--sjs2-spacing-x200);
+}
+
+.sd-selectlist__filter-icon {
+    width: var(--sjs2-line-height-x300, 24px);
+    height: var(--sjs2-line-height-x300, 24px);
+
+    .sv-svg-icon {
         width: var(--sjs2-line-height-x300, 24px);
         height: var(--sjs2-line-height-x300, 24px);
 
-        .sv-svg-icon {
-            width: var(--sjs2-line-height-x300, 24px);
-            height: var(--sjs2-line-height-x300, 24px);
+        use {
+            fill: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
+        }
+    }
+}
 
-            use {
-                fill: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
-            }
+.sd-selectlist__input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: block;
+    background: transparent;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    padding: 0;
+
+    color: var(--sjs2-color-fg-basic-primary, #1c1b20);
+    @include sjs2--typography--default;
+}
+
+.sd-selectlist__input::placeholder {
+    color: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
+}
+
+.sd-selectlist__filter-clear-button {
+    display: flex;
+    width: var(--sjs2-size-icon-small, 16px);
+    height: var(--sjs2-size-icon-small, 16px);
+    padding: var(--sjs2-layout-control-action-xx-small-icon-vertical, 0)
+        var(--sjs2-layout-control-action-xx-small-icon-horizontal, 0);
+    margin-inline-start: auto;
+    justify-content: center;
+    align-items: center;
+    appearance: none;
+    border: none;
+    border-radius: 100%;
+    background-color: transparent;
+
+    svg {
+        height: var(--sjs2-typography-font-size-component-input-content);
+        width: var(--sjs2-typography-font-size-component-input-content);
+
+        use {
+            fill: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
         }
     }
 
-    .sd-selectlist__input {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        display: block;
-        background: transparent;
-        box-sizing: border-box;
-        outline: none;
-        border: none;
-        padding: 0;
+    &:hover {
+        border-radius: var(--sjs2-radius-semantic-form-item, 4px);
+        background: var(--sjs2-color-bg-alert-tertiary-dim, rgba(229, 10, 62, 0.1));
 
-        color: var(--sjs2-color-fg-basic-primary, #1c1b20);
-        @include sjs2--typography--default;
-    }
-
-    .sd-selectlist__input::placeholder {
-        color: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
-    }
-
-    .sd-selectlist__filter-clear-button {
-        display: flex;
-        width: var(--sjs2-size-icon-small, 16px);
-        height: var(--sjs2-size-icon-small, 16px);
-        padding: var(--sjs2-layout-control-action-xx-small-icon-vertical, 0)
-            var(--sjs2-layout-control-action-xx-small-icon-horizontal, 0);
-        margin-inline-start: auto;
-        justify-content: center;
-        align-items: center;
-        appearance: none;
-        border: none;
-        border-radius: 100%;
-        background-color: transparent;
-
-        svg {
-            height: var(--sjs2-typography-font-size-component-input-content);
-            width: var(--sjs2-typography-font-size-component-input-content);
-
-            use {
-                fill: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
-            }
-        }
-
-        &:hover {
-            border-radius: var(--sjs2-radius-semantic-form-item, 4px);
-            background: var(--sjs2-color-bg-alert-tertiary-dim, rgba(229, 10, 62, 0.1));
-
-            use {
-                fill: var(--sjs2-color-fg-alert-primary, #c30935);
-            }
+        use {
+            fill: var(--sjs2-color-fg-alert-primary, #c30935);
         }
     }
 }

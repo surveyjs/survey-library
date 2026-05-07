@@ -1,5 +1,5 @@
 import { getRGBaColor } from "../src/utils/color";
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, vi } from "vitest";
 
 describe("color utils", () => {
   test("getRGBaColor: null or non-string returns null", () => {
@@ -61,8 +61,28 @@ describe("color utils", () => {
     expect(["rgba(0, 0, 0, 1)", "rgba(0,0,0,1)"]).toContain(black);
   });
 
-  test.skip("getRGBaColor: CSS relative colors (from ...) resolve to rgba", () => {
-    expect(getRGBaColor("hsl(from #19B394 h s calc(l * 1.1))")).toBe("rgba(27, 197, 163, 1)");
-    expect(getRGBaColor("rgba(from #66B4FC r g b / calc(1% * 60))")).toBe("rgba(102, 180, 252, 0.6)");
+  // jsdom's canvas does not implement CSS Color Module Level 5 relative-color
+  // syntax (`from ...`). We mock the canvas 2D context to return what a real
+  // browser produces for `fillStyle` (a `color(srgb ...)` string) so that the
+  // function's own parsing/conversion logic is still exercised meaningfully.
+  test("getRGBaColor: CSS relative colors (from ...) resolve to rgba", () => {
+    const browserResolved: Record<string, string> = {
+      "hsl(from #19B394 h s calc(l * 1.1))": "color(srgb 0.105882 0.772549 0.639216)",
+      "rgba(from #66B4FC r g b / calc(1% * 60))": "color(srgb 0.4 0.705882 0.988235 / 0.6)",
+    };
+    const fakeCtx: any = {
+      _fill: "#000000",
+      get fillStyle() { return this._fill; },
+      set fillStyle(value: string) {
+        this._fill = browserResolved[value] ?? value;
+      },
+    };
+    const spy = vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(fakeCtx);
+    try {
+      expect(getRGBaColor("hsl(from #19B394 h s calc(l * 1.1))")).toBe("rgba(27, 197, 163, 1)");
+      expect(getRGBaColor("rgba(from #66B4FC r g b / calc(1% * 60))")).toBe("rgba(102, 180, 252, 0.6)");
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

@@ -39,13 +39,20 @@ sv-popup {
 
 .sv-popup--menu-popup {
   & > .sv-popup__container {
-    background: var(--sjs2-color-utility-sheet, #FFF);
+    overflow: hidden;
     border-radius: var(--sjs2-radius-component-drop, 16px);
-    box-shadow: $shadow-medium-large;
+    border: var(--sjs2-border-width-x100, 1px) solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
+    background: var(--sjs2-color-utility-sheet, #fff);
+
+    /* sjs2/border-effect/floating/default */
+    box-shadow:
+      var(--sjs2-border-offset-x-floating-default, 0) var(--sjs2-border-offset-y-floating-default, 6px)
+        var(--sjs2-border-blur-floating-default, 20px) var(--sjs2-border-spread-floating-default, 0)
+        var(--sjs2-color-utility-shadow-floating-default, rgba(0, 76, 68, 0.15)),
+      0 0 0 0 rgba(0, 0, 0, 0);
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
-    background-color: var(--lbr-popup-menu-background-color, $background);
     border-radius: var(--sjs2-radius-component-drop, 16px);
     // padding: var(--sjs2-spacing-x100) 0;
     height: 100%;

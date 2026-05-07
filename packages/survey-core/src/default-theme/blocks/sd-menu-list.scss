@@ -1,16 +1,24 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-menu-list__container {
+    --thm-list-padding: var(--sjs2-spacing-x100, 8px);
+
     display: flex;
     padding: var(--sjs2-spacing-x000, 0);
     min-width: 188px;
     flex-direction: column;
     align-items: flex-start;
-    border-radius: var(--sjs2-radius-component-drop, 16px);
-    border: var(--sjs2-border-width-x100, 1px) solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
-    background: var(--sjs2-color-utility-sheet, #fff);
     overflow: hidden;
     box-sizing: content-box;
+}
+
+.sd-menu-list {
+    width: 100%;
+    padding: var(--thm-list-padding);
+    box-sizing: border-box;
+    margin: 0;
+    overflow-y: auto;
+    list-style-type: none;
 }
 
 .sd-menu-item {
@@ -23,6 +31,10 @@
     &:focus-visible {
         outline: none;
     }
+}
+
+.sd-menu-item .sv-popup-inner .sv-popup__container {
+    margin-inline: var(--thm-list-padding);
 }
 
 .sd-menu-item__body {
@@ -164,15 +176,6 @@
     height: var(--sjs2-border-width-x100, 1px);
     margin: var(--sjs2-spacing-x100, 8px) 0;
     background: var(--sjs2-color-border-basic-secondary, #d4d4d4);
-}
-
-.sd-menu-list {
-    width: 100%;
-    padding: var(--sjs2-spacing-x100, 8px);
-    box-sizing: border-box;
-    margin: 0;
-    overflow-y: auto;
-    list-style-type: none;
 }
 
 .sd-menu-filter {

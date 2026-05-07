@@ -3,6 +3,7 @@
 .sd-menu-list__container {
     display: flex;
     padding: var(--sjs2-spacing-x000, 0);
+    min-width: 188px;
     flex-direction: column;
     align-items: flex-start;
     border-radius: var(--sjs2-radius-component-drop, 16px);

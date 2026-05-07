@@ -41,7 +41,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -88,7 +88,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -112,7 +112,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -144,7 +144,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -391,7 +391,7 @@ frameworks.forEach((framework) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: [new window["Survey"].Action({ title: "Item 1" })] }
+            { items: [new window["Survey"].Action({ title: "Item 1" })], showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -461,14 +461,14 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
         window["survey"].fromJSON(json);
       }, json);
 
-      const listItems = page.locator(".sv-list__item").filter({ visible: true });
+      const listItems = page.locator(".sd-menu-item").filter({ visible: true });
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
       const clickButton = page.locator(".sd-action").first();
 
@@ -518,7 +518,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -569,7 +569,7 @@ frameworks.forEach((framework) => {
           }
           const item = window["Survey"].createDropdownActionModel(
             { title: "Click", showTitle: true },
-            { items: items }
+            { items: items, showPointer: true }
           );
           opt.titleActions = [item];
         });
@@ -586,7 +586,7 @@ frameworks.forEach((framework) => {
       let actualPopupHeight = await popupSelector.evaluate(el => el.offsetHeight);
       expect(Math.abs(actualPopupHeight - popupHeight)).toBeLessThanOrEqual(1.0);
 
-      await page.locator(".sv-list__input").fill("2");
+      await page.locator(".sd-menu-filter__input").fill("2");
       actualPopupHeight = await popupSelector.evaluate(el => el.offsetHeight);
       expect(Math.abs(actualPopupHeight - popupHeight)).toBeLessThanOrEqual(1.0);
       // Close popup
@@ -618,10 +618,10 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const listItems = page.locator(".sv-list__item").filter({ visible: true });
+      const listItems = page.locator(".sd-menu-item").filter({ visible: true });
 
       await page.locator(".sd-action").first().click();
-      await expect(page.locator(".sv-list__input")).toBeFocused();
+      await expect(page.locator(".sd-menu-filter__input")).toBeFocused();
       await expect(listItems).toHaveCount(40);
 
       await page.keyboard.press("1");
@@ -671,10 +671,10 @@ frameworks.forEach((framework) => {
       }, json);
 
       const titlePopup = page.locator(".sv-popup.sv-popup--show-pointer .sv-popup__container").first();
-      const item5 = page.locator(".sv-list__item-body").getByText("item5 has items");
-      const item6 = page.locator(".sv-list__item-body").getByText("item6 has items");
-      const item5Subitems = page.locator(".sv-list__item--group .sv-popup .sv-popup__container").first();
-      const item6Subitems = page.locator(".sv-list__item--group .sv-popup .sv-popup__container").nth(1);
+      const item5 = page.locator(".sd-menu-item__body").getByText("item5 has items");
+      const item6 = page.locator(".sd-menu-item__body").getByText("item6 has items");
+      const item5Subitems = page.locator(".sd-menu-item--group .sv-popup .sv-popup__container").first();
+      const item6Subitems = page.locator(".sd-menu-item--group .sv-popup .sv-popup__container").nth(1);
 
       await expect(titlePopup).not.toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
@@ -697,21 +697,21 @@ frameworks.forEach((framework) => {
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).toBeVisible();
 
-      await titlePopup.locator(".sv-list").first().evaluate(el => el.scrollBy(0, 1000));
+      await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, 1000));
       await page.waitForTimeout(300);
       await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).not.toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
-      await titlePopup.locator(".sv-list").first().evaluate(el => el.scrollBy(0, -1000));
+      await titlePopup.locator(".sd-menu-list").first().evaluate(el => el.scrollBy(0, -1000));
       await item5.hover();
       await page.waitForTimeout(300);
       await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).toBeVisible();
       await expect(item6Subitems).not.toBeVisible();
 
-      await expect(page.locator(".sv-list__item").getByText("inner item1")).toHaveCount(2);
-      await page.locator(".sv-list__item").getByText("inner item1").first().click();
+      await expect(page.locator(".sd-menu-item").getByText("inner item1")).toHaveCount(2);
+      await page.locator(".sd-menu-item").getByText("inner item1").first().click();
       await page.waitForTimeout(300);
       await expect(titlePopup).toBeVisible();
       await expect(item5Subitems).not.toBeVisible();

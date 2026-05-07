@@ -71,14 +71,14 @@ frameworks.forEach(framework => {
       await expect(popup__container).toBeVisible();
       await expect(popup__container.locator("ul")).toBeVisible();
       await expect(popup__container.locator("ul")).toHaveCSS("display", "block");
-      await expect(popup__container.locator(".sv-list__empty-container")).not.toBeVisible();
-      await expect(popup__container.locator(".sv-list__empty-container")).toHaveCSS("display", "none");
+      await expect(popup__container.locator(".sd-menu-list__empty-container")).not.toBeVisible();
+      await expect(popup__container.locator(".sd-menu-list__empty-container")).toHaveCSS("display", "none");
 
-      await page.locator(".sv-list__input").press("a");
+      await page.locator(".sd-menu-filter__input").press("a");
       await expect(popup__container.locator("ul")).not.toBeVisible();
       await expect(popup__container.locator("ul")).toHaveCSS("display", "none");
-      await expect(popup__container.locator(".sv-list__empty-container")).toBeVisible();
-      const emptyContainerDisplay = await popup__container.locator(".sv-list__empty-container").evaluate(el => getComputedStyle(el).display);
+      await expect(popup__container.locator(".sd-menu-list__empty-container")).toBeVisible();
+      const emptyContainerDisplay = await popup__container.locator(".sd-menu-list__empty-container").evaluate(el => getComputedStyle(el).display);
       expect(emptyContainerDisplay).not.toBe("none");
     });
 
@@ -124,8 +124,8 @@ frameworks.forEach(framework => {
       }, json);
 
       const popup = page.locator(".sv-popup .sv-popup__container").filter({ visible: true });
-      const listInput = popup.locator(".sv-list__input");
-      const visibleItems = page.locator(".sv-list__item").filter({ visible: true });
+      const listInput = popup.locator(".sd-menu-filter__input");
+      const visibleItems = page.locator(".sd-menu-item").filter({ visible: true });
 
       await expect(popup).not.toBeVisible();
 

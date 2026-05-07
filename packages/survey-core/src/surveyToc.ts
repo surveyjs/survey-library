@@ -57,6 +57,18 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   };
   var listModel = new ListModel(listOptions as any);
   listModel.allowSelection = false;
+  if (survey.tocItemComponent) {
+    listModel.itemComponent = survey.tocItemComponent;
+  }
+  listModel.onGetItemExtraComponentData = (item: Action) => {
+    return { survey: survey, page: item.data?.page };
+  };
+  const updateTocItemComponent = () => {
+    if (survey.tocItemComponent) {
+      listModel.itemComponent = survey.tocItemComponent;
+    }
+  };
+  survey.registerFunctionOnPropertyValueChanged("tocItemComponent", updateTocItemComponent, "toc");
   const updateSelectedItem = (currentPage: PageModel, defaultSelection?: IAction) => {
     listModel.selectedItem = !!currentPage && listModel.actions.filter(i => i.id === currentPage.name)[0] || defaultSelection;
   };
@@ -81,6 +93,7 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
     return new Action({
       id: page.name,
       locTitle: page.locNavigationTitle,
+      data: { page: page, survey: survey },
       action: () => {
         DomDocumentHelper.activeElementBlur();
         !!onAction && onAction();
@@ -170,6 +183,7 @@ export class TOCModel {
   };
   public dispose(): void {
     this.survey.unRegisterFunctionOnPropertyValueChanged("_isMobile", "toc");
+    this.survey.unRegisterFunctionOnPropertyValueChanged("tocItemComponent", "toc");
     const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
     this.survey.onEndLoadingFromJson.remove(handler);
     this.survey.onPageAdded.remove(handler);

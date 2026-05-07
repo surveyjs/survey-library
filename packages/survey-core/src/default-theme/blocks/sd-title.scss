@@ -16,6 +16,8 @@
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
   gap: var(--sjs2-spacing-x400);
   box-shadow: 0px 2px 0px $primary;
+  z-index: 1;
+  position: relative;
 
   .sd-logo.sv-logo--right {
     margin-left: auto;

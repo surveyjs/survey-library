@@ -21,6 +21,7 @@
   padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500) var(--sjs2-spacing-x200) var(--sjs2-spacing-x500);
   display: flex;
   flex-direction: column;
+  background-color: var(--sjs2-color-bg-neutral-tertiary-dim);
 }
 
 .sd-progress-buttons__list-container {
@@ -78,7 +79,7 @@
       z-index: 1;
       @include sjs2--typography--small-strong;
       justify-content: center;
-      color: $background-dim;
+      color: var(--sjs2-color-bg-basic-secondary);
       box-sizing: content-box;
 
       .sd-progress-buttons__button-background {

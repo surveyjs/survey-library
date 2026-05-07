@@ -1,0 +1,69 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "A11Y & E2E"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run accessibility-tests:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-js-ui
+        displayName: "Test A11Y"
+
+      - script: npm run e2e:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-js-ui
+        displayName: "Test E2E"
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish E2E artifacts"
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          ArtifactName: "Library_Preact_E2E"
+          publishLocation: "Container"
+        condition: always()
+
+      - task: PublishTestResults@2
+        displayName: "Publish E2E results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Preact E2E Tests"
+        condition: succeededOrFailed()
+
+  - job:
+    displayName: "SCR"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run scr:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-js-ui
+        displayName: "Test SCR"
+
+      - task: PublishBuildArtifacts@1
+        displayName: "Publish SCR artifacts"
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          ArtifactName: "Library_Preact_SCR"
+          publishLocation: "Container"
+        condition: always()
+
+      - task: PublishTestResults@2
+        displayName: "Publish SCR results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Preact SCR Tests"
+        condition: succeededOrFailed()

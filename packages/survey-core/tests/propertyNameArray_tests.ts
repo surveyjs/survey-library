@@ -1,99 +1,97 @@
 
 import { PropertyNameArray } from "../src/propertyNameArray";
 
-export default QUnit.module("propertyNameArray");
+import { describe, test, expect } from "vitest";
+describe("propertyNameArray", () => {
+  test("Check PropertyNameArray add value with name", () => {
+    const val: any[] = [];
+    const arr = new PropertyNameArray(val, "test");
+    arr.add(1);
+    arr.add(2);
+    arr.add(2);
+    arr.add(3);
+    expect(arr.val, "values are correct after adding").toEqual([{ test: 1 }, { test: 2 }, { test: 3 }]);
+    arr.toggle(2);
+    arr.toggle(5);
+    expect(arr.val, "values are correct after toggling").toEqual([{ test: 1 }, { test: 3 }, { test: 5 }]);
+    val[0].desc = "item 1";
+    expect(arr.val, "values are correct after adding desc").toEqual([{ test: 1, desc: "item 1" }, { test: 3 }, { test: 5 }]);
+    expect(val, "underlying array is correct").toBe(arr.val);
+  });
 
-QUnit.test("Check PropertyNameArray add value with name", function (assert) {
-  const val: any[] = [];
-  const arr = new PropertyNameArray(val, "test");
-  arr.add(1);
-  arr.add(2);
-  arr.add(2);
-  arr.add(3);
-  assert.deepEqual(arr.val, [{ test: 1 }, { test: 2 }, { test: 3 }], "values are correct after adding");
-  arr.toggle(2);
-  arr.toggle(5);
-  assert.deepEqual(arr.val, [{ test: 1 }, { test: 3 }, { test: 5 }], "values are correct after toggling");
-  val[0].desc = "item 1";
-  assert.deepEqual(arr.val, [{ test: 1, desc: "item 1" }, { test: 3 }, { test: 5 }], "values are correct after adding desc");
-  assert.strictEqual(val, arr.val, "underlying array is correct");
-});
+  test("Check PropertyNameArray add value without name", () => {
+    const val: any[] = [];
+    const arr = new PropertyNameArray(val);
+    arr.add(1);
+    arr.add(2);
+    arr.add(2);
+    arr.add(3);
+    expect(arr.val, "values are correct after adding").toEqual([1, 2, 3]);
+    arr.toggle(2);
+    arr.toggle(5);
+    expect(arr.val, "values are correct after toggling").toEqual([1, 3, 5]);
+    arr.toggle(1);
+    arr.toggle(3);
+    arr.toggle(5);
+    expect(arr.val, "values are correct after removing all items").toEqual([]);
+  });
 
-QUnit.test("Check PropertyNameArray add value without name", function (assert) {
-  const val: any[] = [];
-  const arr = new PropertyNameArray(val);
-  arr.add(1);
-  arr.add(2);
-  arr.add(2);
-  arr.add(3);
-  assert.deepEqual(arr.val, [1, 2, 3], "values are correct after adding");
-  arr.toggle(2);
-  arr.toggle(5);
-  assert.deepEqual(arr.val, [1, 3, 5], "values are correct after toggling");
-  arr.toggle(1);
-  arr.toggle(3);
-  arr.toggle(5);
-  assert.deepEqual(arr.val, [], "values are correct after removing all items");
-});
+  test("Check PropertyNameArray emulate image map", () => {
+    const val: any[] = [];
+    new PropertyNameArray(val, "state").toggle("TX");
+    expect(val, "added TX").toEqual([{ state: "TX" }]);
+    val[0].desc = "Texas";
+    expect(val, "added desc to TX").toEqual([{ state: "TX", desc: "Texas" }]);
+    new PropertyNameArray(val, "state").toggle("CA");
+    val[1].desc = "California";
+    expect(val, "added CA").toEqual([{ state: "TX", desc: "Texas" }, { state: "CA", desc: "California" }]);
+    new PropertyNameArray(val, "state").toggle("TX");
+    expect(val, "removed TX").toEqual([{ state: "CA", desc: "California" }]);
+  });
 
-QUnit.test("Check PropertyNameArray emulate image map", function (assert) {
-  const val: any[] = [];
-  new PropertyNameArray(val, "state").toggle("TX");
-  assert.deepEqual(val, [{ state: "TX" }], "added TX");
-  val[0].desc = "Texas";
-  assert.deepEqual(val, [{ state: "TX", desc: "Texas" }], "added desc to TX");
-  new PropertyNameArray(val, "state").toggle("CA");
-  val[1].desc = "California";
-  assert.deepEqual(val, [{ state: "TX", desc: "Texas" }, { state: "CA", desc: "California" }], "added CA");
-  new PropertyNameArray(val, "state").toggle("TX");
-  assert.deepEqual(val, [{ state: "CA", desc: "California" }], "removed TX");
-});
+  test("Check PropertyNameArray add value with name", () => {
+    let val = new PropertyNameArray(undefined, "test").toggle(1);
+    expect(val, "values are correct after adding to undefined").toEqual([{ test: 1 }]);
+    val = new PropertyNameArray(val, "test").toggle(1);
+    expect(val, "values are correct after removing the only item").toEqual([]);
+  });
 
-QUnit.test("Check PropertyNameArray add value with name", function (assert) {
-  let val = new PropertyNameArray(undefined, "test").toggle(1);
-  assert.deepEqual(val, [{ test: 1 }], "values are correct after adding to undefined");
-  val = new PropertyNameArray(val, "test").toggle(1);
-  assert.deepEqual(val, [], "values are correct after removing the only item");
-});
+  test("Check PropertyNameArray convert", () => {
 
-QUnit.test("Check PropertyNameArray convert", function (assert) {
+    let val = new PropertyNameArray(undefined, "test").convert(["TX"]);
+    expect(val, "values are correct after converting array").toEqual([{ test: "TX" }]);
 
-  let val = new PropertyNameArray(undefined, "test").convert(["TX"]);
-  assert.deepEqual(val, [{ test: "TX" }], "values are correct after converting array");
+    val = new PropertyNameArray(undefined, "test").convert("TX");
+    expect(val, "values are correct after converting string").toEqual([{ test: "TX" }]);
 
-  val = new PropertyNameArray(undefined, "test").convert("TX");
-  assert.deepEqual(val, [{ test: "TX" }], "values are correct after converting string");
+    val = new PropertyNameArray(undefined).convert(["TX"]);
+    expect(val, "values are correct after converting array without name").toEqual(["TX"]);
 
-  val = new PropertyNameArray(undefined).convert(["TX"]);
-  assert.deepEqual(val, ["TX"], "values are correct after converting array without name");
+    val = new PropertyNameArray(undefined).convert("TX");
+    expect(val, "values are correct after converting string without name").toEqual(["TX"]);
+  });
 
-  val = new PropertyNameArray(undefined).convert("TX");
-  assert.deepEqual(val, ["TX"], "values are correct after converting string without name");
-});
+  test("Check PropertyNameArray getValues", () => {
 
-QUnit.test("Check PropertyNameArray getValues", function (assert) {
+    const val: any[] = [];
+    const arr = new PropertyNameArray(val, "test");
+    arr.add(1);
+    arr.add(2);
 
-  const val: any[] = [];
-  const arr = new PropertyNameArray(val, "test");
-  arr.add(1);
-  arr.add(2);
+    expect(val, "underlying array is correct").toEqual([{ test: 1 }, { test: 2 }]);
+    expect(new PropertyNameArray(val).getValues(), "values are correct without name").toEqual([{ test: 1 }, { test: 2 }]);
+    expect(new PropertyNameArray(val, "test").getValues(), "values are correct with name").toEqual([1, 2]);
+  });
 
-  assert.deepEqual(val, [{ test: 1 }, { test: 2 }], "underlying array is correct");
-  assert.deepEqual(new PropertyNameArray(val).getValues(), [{ test: 1 }, { test: 2 }], "values are correct without name");
-  assert.deepEqual(new PropertyNameArray(val, "test").getValues(), [1, 2], "values are correct with name");
-});
+  test("Check PropertyNameArray equals", () => {
 
-QUnit.test("Check PropertyNameArray equals", (assert) => {
+    const val1 = [{ test: 1 }, { test: 2 }];
+    const val2 = [1, 2];
+    const val3 = [{ test: 1 }, { test: 3 }];
 
-  const val1 = [{ test: 1 }, { test: 2 }];
-  const val2 = [1, 2];
-  const val3 = [{ test: 1 }, { test: 3 }];
-
-  assert.deepEqual(
-    new PropertyNameArray(val1, "test").getValues(),
-    new PropertyNameArray(val2, "test").getValues()
-  );
-  assert.equal(new PropertyNameArray(val1, "test").equals(val2), true, "they are equal");
-  assert.equal(new PropertyNameArray(val2, "test").equals(val1), true, "they are equal");
-  assert.equal(new PropertyNameArray(val1, "test").equals(val3), false, "they are not equal");
+    expect(new PropertyNameArray(val1, "test").getValues()).toEqual(new PropertyNameArray(val2, "test").getValues());
+    expect(new PropertyNameArray(val1, "test").equals(val2), "they are equal").toBe(true);
+    expect(new PropertyNameArray(val2, "test").equals(val1), "they are equal").toBe(true);
+    expect(new PropertyNameArray(val1, "test").equals(val3), "they are not equal").toBe(false);
+  });
 });

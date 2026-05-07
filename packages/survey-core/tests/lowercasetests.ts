@@ -6,124 +6,100 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 
-export default QUnit.module("SurveyLowercase");
+import { describe, test, expect } from "vitest";
+describe("SurveyLowercase", () => {
+  test("inputType value is always lower-case", () => {
+    var question = new QuestionTextModel("text");
+    question.inputType = "TEXT";
+    expect(question.inputType).toBe("text");
+  });
 
-QUnit.test("inputType value is always lower-case", function (assert) {
-  var question = new QuestionTextModel("text");
-  question.inputType = "TEXT";
-  assert.strictEqual(question.inputType, "text");
-});
+  test("inputType value is always lower-case", () => {
+    var question = new QuestionTextModel("text");
+    question.inputType = "DATETIME_LOCAL";
+    expect(question.inputType).toBe("datetime-local");
+  });
 
-QUnit.test("inputType value is always lower-case", function (assert) {
-  var question = new QuestionTextModel("text");
-  question.inputType = "DATETIME_LOCAL";
-  assert.strictEqual(question.inputType, "datetime-local");
-});
+  test("choicesOrder value is always lower-case", () => {
+    var question = new QuestionSelectBase("base");
+    question.choicesOrder = "RANDOM";
+    expect(question.choicesOrder).toBe("random");
+  });
 
-QUnit.test("choicesOrder value is always lower-case", function (assert) {
-  var question = new QuestionSelectBase("base");
-  question.choicesOrder = "RANDOM";
-  assert.strictEqual(question.choicesOrder, "random");
-});
+  test("navigationButtonsVisibility value is always lower-case", () => {
+    var question = new PageModel("base");
+    expect(question.navigationButtonsVisibility).toBe("inherit");
+    expect(question.showNavigationButtons).toBe(undefined);
+    question.navigationButtonsVisibility = "HIDE";
+    expect(question.navigationButtonsVisibility).toBe("hide");
+    expect(question.showNavigationButtons).toBe(false);
+    question.navigationButtonsVisibility = "Inherit";
+    expect(question.navigationButtonsVisibility).toBe("inherit");
+    expect(question.showNavigationButtons).toBe(undefined);
+  });
 
-QUnit.test("navigationButtonsVisibility value is always lower-case", function (
-  assert
-) {
-  var question = new PageModel("base");
-  assert.strictEqual(question.navigationButtonsVisibility, "inherit");
-  assert.strictEqual(question.showNavigationButtons, undefined);
-  question.navigationButtonsVisibility = "HIDE";
-  assert.strictEqual(question.navigationButtonsVisibility, "hide");
-  assert.strictEqual(question.showNavigationButtons, false);
-  question.navigationButtonsVisibility = "Inherit";
-  assert.strictEqual(question.navigationButtonsVisibility, "inherit");
-  assert.strictEqual(question.showNavigationButtons, undefined);
-});
-
-QUnit.test(
-  "MatrixDropdownColumn inputType value is always lower-case",
-  function (assert) {
+  test("MatrixDropdownColumn inputType value is always lower-case", () => {
     var question = new MatrixDropdownColumn("text");
     question.cellType = "text";
     question["inputType"] = "TEXT";
-    assert.strictEqual(question["inputType"], "text");
-  }
-);
+    expect(question["inputType"]).toBe("text");
+  });
 
-QUnit.test("MatrixDropdownColumn cellType value is always lower-case", function (
-  assert
-) {
-  var question = new MatrixDropdownColumn("base");
-  question.cellType = "CHECKBOX";
-  assert.strictEqual(question.cellType, "checkbox");
-});
+  test("MatrixDropdownColumn cellType value is always lower-case", () => {
+    var question = new MatrixDropdownColumn("base");
+    question.cellType = "CHECKBOX";
+    expect(question.cellType).toBe("checkbox");
+  });
 
-QUnit.test(
-  "MatrixDropdownColumn choicesOrder value is always lower-case",
-  function (assert) {
+  test("MatrixDropdownColumn choicesOrder value is always lower-case", () => {
     var question = new MatrixDropdownColumn("base");
     question["choicesOrder"] = "RANDOM";
-    assert.strictEqual(question["choicesOrder"], "random");
-  }
-);
+    expect(question["choicesOrder"]).toBe("random");
+  });
 
-QUnit.test(
-  "QuestionMatrixDropdownModelBase cellType value is always lower-case",
-  function (assert) {
+  test("QuestionMatrixDropdownModelBase cellType value is always lower-case", () => {
     var question = new QuestionMatrixDropdownModelBase("base");
     question.cellType = "RADIOGROUP";
-    assert.strictEqual(question.cellType, "radiogroup");
-  }
-);
+    expect(question.cellType).toBe("radiogroup");
+  });
 
-QUnit.test(
-  "MultipleTextItemModel inputType value is always lower-case",
-  function (assert) {
+  test("MultipleTextItemModel inputType value is always lower-case", () => {
     var question = new MultipleTextItemModel("text");
     question.inputType = "COLOR";
-    assert.strictEqual(question.inputType, "color");
-  }
-);
+    expect(question.inputType).toBe("color");
+  });
 
-QUnit.test(
-  "SurveyModel showQuestionNumbers value is always lower-case",
-  function (assert) {
+  test("SurveyModel showQuestionNumbers value is always lower-case", () => {
     var survey = new SurveyModel();
     survey.showQuestionNumbers = "OFF";
-    assert.strictEqual(survey.showQuestionNumbers, "off");
-  }
-);
+    expect(survey.showQuestionNumbers).toBe("off");
+  });
 
-QUnit.test(
-  "SurveyModel showQuestionNumbers value handles onPage special case",
-  function (assert) {
+  test("SurveyModel showQuestionNumbers value handles onPage special case", () => {
     var survey = new SurveyModel();
     survey.showQuestionNumbers = "ONPAGE";
-    assert.strictEqual(survey.showQuestionNumbers, "onPage");
-  }
-);
+    expect(survey.showQuestionNumbers).toBe("onPage");
+  });
 
-QUnit.test(
-  "SurveyModel questionTitleLocation value is always lower-case",
-  function (assert) {
+  test("SurveyModel questionTitleLocation value is always lower-case", () => {
     var survey = new SurveyModel();
     survey.questionTitleLocation = "BOTTOM";
-    assert.strictEqual(survey.questionTitleLocation, "bottom");
-  }
-);
+    expect(survey.questionTitleLocation).toBe("bottom");
+  });
 
-QUnit.test("SurveyModel showProgressBar value is always lower-case", function (assert) {
-  var survey = new SurveyModel();
-  assert.equal(survey.showProgressBar, false);
-  assert.strictEqual(survey.progressBarLocation, "auto");
-  assert.equal(survey.isShowProgressBarOnTop, false);
-  survey.showProgressBar = "TOP";
-  assert.strictEqual(survey.progressBarLocation, "top");
-  assert.equal(survey.isShowProgressBarOnTop, true);
-});
+  test("SurveyModel showProgressBar value is always lower-case", () => {
+    var survey = new SurveyModel();
+    expect(survey.showProgressBar).toBe(false);
+    expect(survey.progressBarLocation).toBe("auto");
+    expect(survey.isShowProgressBarOnTop).toBe(false);
+    survey.showProgressBar = "TOP";
+    expect(survey.progressBarLocation).toBe("top");
+    expect(survey.isShowProgressBarOnTop).toBe(true);
+  });
 
-QUnit.test("SurveyModel mode value is always lower-case", function (assert) {
-  var survey = new SurveyModel();
-  survey.mode = "DISPLAY";
-  assert.strictEqual(survey.mode, "display");
+  test("SurveyModel mode value is always lower-case", () => {
+    var survey = new SurveyModel();
+    survey.mode = "DISPLAY";
+    expect(survey.mode).toBe("display");
+  });
 });

@@ -52,12 +52,6 @@ sv-popup {
         var(--sjs2-color-utility-shadow-floating-default, rgba(0, 76, 68, 0.15)),
       0 0 0 0 rgba(0, 0, 0, 0);
   }
-
-  & > .sv-popup__container > .sv-popup__body-content {
-    border-radius: var(--sjs2-radius-component-drop, 16px);
-    // padding: var(--sjs2-spacing-x100) 0;
-    height: 100%;
-  }
 }
 
 .sv-popup__container {

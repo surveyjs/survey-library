@@ -12,7 +12,8 @@
     },
     "include": [
         "./src/themes/index.ts",
-        "./src/themes/test.ts"
+        "./src/themes/test.ts",
+        "./src/themes/test-creator.ts"
     ],
     "exclude": [],
 }

@@ -969,4 +969,85 @@ describe("TOC", () => {
     expect(tocListModel.actions[0].title, "Page 1 is visible in TOC actions").toBe(survey.pages[0].name);
     expect(tocListModel.actions[1].title, "Page 2 is visible in TOC actions").toBe(survey.pages[1].name);
   });
+  test("navigate to page in single page mode with collapsed panels", () => {
+    let json: any = {
+      "questionsOnPageMode": "singlePage",
+      "showTOC": true,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "panel1",
+              "title": "Panel 1",
+              "state": "collapsed",
+              "elements": [
+                { "type": "text", "name": "question1" },
+                { "type": "text", "name": "question2" }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "panel2",
+              "title": "Panel 2",
+              "state": "collapsed",
+              "elements": [
+                { "type": "text", "name": "question3" },
+                { "type": "text", "name": "question4" }
+              ]
+            },
+            {
+              "type": "panel",
+              "name": "panel4",
+              "title": "Panel 4",
+              "state": "collapsed",
+              "elements": [
+                { "type": "text", "name": "question7" },
+                { "type": "text", "name": "question8" }
+              ]
+            }
+
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "panel",
+              "name": "panel3",
+              "title": "Panel 3",
+              "state": "collapsed",
+              "elements": [
+                { "type": "text", "name": "question5" },
+                { "type": "text", "name": "question6" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const tocListModel = createTOCListModel(survey);
+    const page = survey.currentPage;
+
+    expect(page.name).toBe("single-page");
+    expect(tocListModel.visibleItems.length, "4 items in TOC").toBe(3);
+    expect(tocListModel.visibleItems[1].title, "nav item 2").toBe(page.elements[1].name);
+    expect(tocListModel.visibleItems[2].title, "nav item 3").toBe(page.elements[2].name);
+
+    const panel2 = survey.getPanelByName("panel2");
+    const panel4 = survey.getPanelByName("panel4");
+    expect(panel2.isCollapsed, "panel2 is collapsed before navigation").toBe(true);
+    expect(panel4.isCollapsed, "panel4 is collapsed before navigation").toBe(true);
+
+    tocListModel.visibleItems[1].action();
+    expect(panel2.isCollapsed, "panel2 is expanded after navigation").toBe(false);
+    expect(panel4.isCollapsed, "panel4 is collapsed after navigation").toBe(true);
+  });
 });

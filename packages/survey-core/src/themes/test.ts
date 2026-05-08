@@ -771,7 +771,7 @@ export default {
     "--sjs2-color-component-page-default-title-placeholder": "var(--sjs2-color-fg-basic-secondary)",
     "--sjs2-color-component-page-default-description": "var(--sjs2-color-fg-basic-secondary)",
     "--sjs2-color-component-page-default-description-placeholder": "var(--sjs2-color-fg-basic-tertiary)",
-    "--sjs2-color-component-header-default-title": "var(--sjs2-color-fg-basic-primary)",
+    "--sjs2-color-component-header-default-title": "#19b394",
     "--sjs2-color-component-header-default-title-placeholder": "var(--sjs2-color-fg-basic-secondary)",
     "--sjs2-color-component-header-default-description": "var(--sjs2-color-fg-basic-secondary)",
     "--sjs2-color-component-header-default-description-placeholder": "var(--sjs2-color-fg-basic-tertiary)",

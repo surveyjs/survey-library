@@ -13,7 +13,6 @@ export default {
     "--sjs2-color-component-formbox-disabled-bg": "var(--sjs2-color-bg-basic-primary-disabled)",
     "--sjs2-color-component-formbox-invalid-bg": "var(--sjs2-color-bg-alert-secondary)",
     "--sjs2-color-component-formbox-invalid-focused-bg": "var(--sjs2-color-bg-alert-secondary)",
-    "--sjs2-color-component-input-disabled-line": "var(--sjs2-palette-gray-100)",
     "--sjs2-color-component-check-false-invalid-bg": "var(--sjs2-color-bg-alert-secondary)",
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",

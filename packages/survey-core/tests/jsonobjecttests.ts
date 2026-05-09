@@ -882,7 +882,7 @@ describe("JsonSerializationTests", () => {
     expect(error.propertyName, "the property name in the error").toBe("unknownNested");
     expect(error.className, "the class name in the error").toBe("choicesByUrl");
   });
-  test("validatePropertyValues for nested objects (choicesByUrl) with custom property choices", () => {
+  test("validatePropertyValues for nested objects (choicesByUrl) with custom property choices, Bug#11251", () => {
     Serializer.addProperty("choicesByUrl", { name: "customProp", choices: ["a", "b", "c"] });
     const survey1 = new SurveyModel();
     survey1.fromJSON({

@@ -1750,6 +1750,12 @@ export class JsonObject {
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
       property.setValue(obj, value, this);
+      if (!!property.className && !!value && typeof value === "object" && !Array.isArray(value)) {
+        const nestedObj = obj[property.name];
+        if (!!nestedObj && !!nestedObj.getType) {
+          this.toObjectCore(value, nestedObj, options);
+        }
+      }
       return;
     }
     if (property.isArray && !Array.isArray(value) && !!value) {

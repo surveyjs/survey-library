@@ -2468,6 +2468,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     super.expand();
   }
   protected onElementExpanded(elementIsRendered: boolean): void {
+    super.onElementExpanded(elementIsRendered);
     if (!this.forcusFirstQuestionOnExpand) { return; }
     if (this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);

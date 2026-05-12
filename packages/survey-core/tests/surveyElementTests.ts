@@ -490,4 +490,50 @@ describe("SurveyElement", () => {
     expect(q1.survey, "Question is not lined to a survey").toBe(undefined);
     expect(q1.skeletonComponentName, "Question returns valid skeletonComponentName").toBe("sv-skeleton");
   });
+
+  test("renderedIsExpanded collapse without animation notifies content visibility change", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "p1",
+          state: "expanded",
+          elements: [{ type: "text", name: "q1" }]
+        }
+      ]
+    });
+    const panel = survey.getPanelByName("p1") as PanelModel;
+    const onVisibilityChanged = vi.fn();
+    survey.onElementContentVisibilityChanged.add(onVisibilityChanged);
+
+    panel.blockAnimations();
+    panel.renderedIsExpanded = false;
+    panel.releaseAnimations();
+
+    expect(onVisibilityChanged).toHaveBeenCalledTimes(1);
+    expect(onVisibilityChanged.mock.calls[0][1].element).toBe(panel);
+  });
+
+  test("collapse animation completion notifies content visibility change", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "panel",
+          name: "p1",
+          state: "expanded",
+          elements: [{ type: "text", name: "q1" }]
+        }
+      ]
+    });
+    const panel = survey.getPanelByName("p1") as PanelModel;
+    const onVisibilityChanged = vi.fn();
+    survey.onElementContentVisibilityChanged.add(onVisibilityChanged);
+
+    const options = (panel as any).getExpandCollapseAnimationOptions();
+    const leaveOptions = options.getLeaveOptions();
+    leaveOptions.onAfterRunAnimation(document.createElement("div"));
+
+    expect(onVisibilityChanged).toHaveBeenCalledTimes(1);
+    expect(onVisibilityChanged.mock.calls[0][1].element).toBe(panel);
+  });
 });

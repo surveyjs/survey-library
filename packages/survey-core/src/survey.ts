@@ -8291,14 +8291,22 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (this.showTOC && !(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop && !this.isStartPageActive) {
+          if (this.showTOC && !this.isStartPageActive) {
             if (container === "center") {
-              if (!isBelowHeader) {
-                layoutElement.index = -150;
-              } else {
-                delete layoutElement.index;
+              if (!(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop) {
+                if (!isBelowHeader) {
+                  layoutElement.index = -150;
+                } else {
+                  delete layoutElement.index;
+                }
+                containerLayoutElements.push(layoutElement);
               }
-              containerLayoutElements.push(layoutElement);
+            }
+            if (container === "contentBottom") {
+              if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
+                layoutElement.index = 150;
+                containerLayoutElements.push(layoutElement);
+              }
             }
           } else {
             if (container === "header" && !isBelowHeader) {
@@ -8315,10 +8323,10 @@ export class SurveyModel extends SurveyElementCore
                 containerLayoutElements.push(layoutElement);
               }
             }
-          }
-          if (container === "footer") {
-            if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
-              containerLayoutElements.push(layoutElement);
+            if (container === "footer") {
+              if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
           }
         }

@@ -15971,12 +15971,13 @@ describe("Survey", () => {
         "component": "sv-progress-questions",
         "id": "progress-questions"
       }]);
-      expect(getContainerContent("footer"), "progress toc both footer").toEqual([{
-        "component": "sv-progress-questions",
-        "id": "progress-questions"
-      }]);
+      expect(getContainerContent("footer"), "progress toc both footer").toEqual([]);
       expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqual([]);
-      expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([{
+        "component": "sv-progress-questions",
+        "id": "progress-questions",
+        "index": 150
+      }]);
       expect(getContainerContent("left"), "progress toc both left").toEqual([{
         "component": "sv-navigation-toc",
         "id": "toc-navigation"
@@ -16127,12 +16128,13 @@ describe("Survey", () => {
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("footer"), "progress toc both footer").toEqual([{
-      "component": "sv-progress-questions",
-      "id": "progress-questions"
-    }]);
+    expect(getContainerContent("footer"), "progress toc both footer").toEqual([]);
     expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqual([]);
-    expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([{
+      "component": "sv-progress-questions",
+      "id": "progress-questions",
+      "index": 150
+    }]);
     expect(getContainerContent("left"), "progress toc both left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"

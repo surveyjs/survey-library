@@ -148,7 +148,7 @@ export class TOCModel {
         let isBelowHeader = !advHeader || advHeader.hasBackground;
         const titleSelector = this.survey.headerView === "advanced" ? ".sv-header" : ".sv_custom_header+div div." + (this.survey.css.title || "sd-title");
         const titleElement = rootElement.querySelector(titleSelector) as HTMLDivElement;
-        const titleElementHeight = titleElement && isBelowHeader ? titleElement.getBoundingClientRect().height : 0;
+        const titleElementHeight = (this.survey.hasTitle || this.survey.hasLogo) && !!titleElement && isBelowHeader ? titleElement.getBoundingClientRect().height : 0;
         const scrollElement = rootElement.querySelector(".sv-scroll__scroller") as HTMLDivElement || rootElement;
         const scrollCompensationHeight = scrollElement.scrollTop > titleElementHeight ? 0 : titleElementHeight - scrollElement.scrollTop;
         tocRootElement.style.height = (rootHeight - scrollCompensationHeight - 1) + "px";

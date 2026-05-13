@@ -69,6 +69,8 @@ export var ukrainianSurveyStrings = {
   stepError: "Введіть значення, яке відповідає розміру кроку {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Значення не повинно бути більше {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Некоректний вхід",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номери не допускаються.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var ukrainianSurveyStrings = {
   urlGetChoicesError: "Відповідь на запит повернулась порожньою або властивіть 'path' вказано невірно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Розмір файлу не повинен перевищувати {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Байти, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Максимальна кількість файлів, яку ви можете завантажити, становить {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -1,5 +1,6 @@
 @use "../variables.scss" as *;
 @use "../mixins.scss" as mixins;
+@use "../typography-mixins.scss" as *;
 
 .sd-summary {
   border-radius: var(--lbr-data-table-corner-radius, var(--sjs2-radius-x050));
@@ -31,7 +32,7 @@
   flex: 1 0 0;
 
   color: var(--lbr-data-table-row-text-color-title, $foreground);
-  @include mixins.defaultFont;
+  @include sjs2--typography--default;
 }
 
 .sd-summary-row__actions {

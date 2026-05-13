@@ -4,484 +4,484 @@ import { SurveyModel } from "../src/survey";
 import { ServerValidateQuestionsEvent } from "../src/survey-events-api";
 import { TOCModel, createTOCListModel, getTocRootCss } from "../src/surveyToc";
 
-export default QUnit.module("TOC");
+import { describe, test, expect } from "vitest";
+describe("TOC", () => {
+  test("follow nav buttons", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let tocListModel = createTOCListModel(survey);
 
-QUnit.test("follow nav buttons", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      }
-    ]
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
-  assert.equal("page1", tocListModel.selectedItem.id, "Page 1 is current");
-  survey.nextPage();
-  assert.equal("page2", tocListModel.selectedItem.id, "Page 2 is current after navigation");
-});
-
-QUnit.test("root CSS", function (assert) {
-  let survey: SurveyModel = new SurveyModel({});
-
-  let tocRootCss = getTocRootCss(survey);
-  assert.equal("sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky", tocRootCss, "toc left css");
-
-  survey.tocLocation = "right";
-  tocRootCss = getTocRootCss(survey);
-  assert.equal("sv_progress-toc sv_progress-toc--right sv_progress-toc--sticky", tocRootCss, "toc right css");
-
-  TOCModel.StickyPosition = false;
-  survey.tocLocation = "left";
-
-  tocRootCss = getTocRootCss(survey);
-  assert.equal("sv_progress-toc sv_progress-toc--left", tocRootCss, "toc left css");
-
-  survey.tocLocation = "right";
-  tocRootCss = getTocRootCss(survey);
-  assert.equal("sv_progress-toc sv_progress-toc--right", tocRootCss, "toc right css");
-
-  TOCModel.StickyPosition = true;
-});
-
-QUnit.test("pages visibility", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      }
-    ]
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
-  assert.equal(tocListModel.visibleItems.length, 3, "All pages are visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible");
-  survey.pages[0].visible = false;
-  assert.equal(tocListModel.visibleItems.length, 2, "only 2 pages are visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
-});
-
-QUnit.test("pages visibility, do not include start page into TOC, bug #6192", function (assert) {
-  let json: any = {
-    "firstPageIsStartPage": true,
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      }
-    ]
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
-  assert.equal(tocListModel.visibleItems.length, 2, "First page is not visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
-  survey.firstPageIsStartPage = false;
-  assert.equal(tocListModel.visibleItems.length, 3, "First page is visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
-});
-
-QUnit.test("pages navigation with start page, bug #6327", function (assert) {
-  let json: any = {
-    "firstPageIsStartPage": true,
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "html",
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      },
-      {
-        "name": "page4",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question4"
-          }
-        ]
-      }
-    ]
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
-
-  assert.equal(tocListModel.visibleItems.length, 3, "First page is not visible");
-  assert.equal(survey.currentPage.name, "page2", "Current page is 2");
-  tocListModel.visibleItems[1].action();
-  assert.equal(survey.currentPage.name, "page3", "Current page is 3");
-});
-
-QUnit.test("questionsOnPageMode singlePage", function (assert) {
-  let json: any = {
-    "questionsOnPageMode": "singlePage",
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "html",
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      }
-    ]
-  };
-  const survey: SurveyModel = new SurveyModel(json);
-  const tocListModel = createTOCListModel(survey);
-  const page = survey.currentPage;
-  assert.equal(page.elements.length, 3, "There are two elements in the root");
-  assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
-  assert.equal(tocListModel.visibleItems[0].id, page.elements[0].name, "Page 1");
-  assert.equal(tocListModel.visibleItems[1].id, page.elements[1].name, "Page 2");
-  assert.equal(tocListModel.visibleItems[2].id, page.elements[2].name, "Page 3");
-});
-
-QUnit.test("questionsOnPageMode singlePage selectedItem tracks focused question", function (assert) {
-  let json: any = {
-    "questionsOnPageMode": "singlePage",
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "html",
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      }
-    ]
-  };
-  const survey: SurveyModel = new SurveyModel(json);
-  const tocListModel = createTOCListModel(survey);
-  assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
-  assert.equal(tocListModel.selectedItem.id, "page1", "first page is active");
-  survey.getQuestionByName("question3").focusIn();
-  assert.equal(tocListModel.selectedItem.id, "page3", "3rd page is active after question3 focused");
-});
-
-QUnit.test("respects markup", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "title": "Text with <strong>strong text</strong>",
-        "elements": [
-          {
-            "type": "html",
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "navigationTitle": "Text with <em>emphasys text</em>",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "title": "Page 3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3"
-          }
-        ]
-      },
-      {
-        "name": "page4",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question4"
-          }
-        ]
-      }
-    ]
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  survey.onTextMarkdown.add(function (survey, options) {
-    options.html = "markup " + options.text;
+    expect("page1", "Page 1 is current").toBe(tocListModel.selectedItem.id);
+    survey.nextPage();
+    expect("page2", "Page 2 is current after navigation").toBe(tocListModel.selectedItem.id);
   });
-  let tocListModel = createTOCListModel(survey);
 
-  assert.equal(survey.pages[2].locTitle.textOrHtml, "markup Page 3", "survey.pages[2]");
+  test("root CSS", () => {
+    let survey: SurveyModel = new SurveyModel({});
 
-  assert.equal(tocListModel.visibleItems.length, 4, "2 items is TOC");
-  assert.equal(tocListModel.visibleItems[0].locTitle.textOrHtml, "markup Text with <strong>strong text</strong>", "Page 1 = locTitle");
-  assert.equal(tocListModel.visibleItems[1].locTitle.textOrHtml, "markup Text with <em>emphasys text</em>", "Page 2 - nav title");
-  assert.equal(tocListModel.visibleItems[2].locTitle.textOrHtml, "markup Page 3", "Page 3");
-  assert.equal(tocListModel.visibleItems[3].locTitle.textOrHtml, "page4", "Page 4");
-});
+    let tocRootCss = getTocRootCss(survey);
+    expect("sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky", "toc left css").toBe(tocRootCss);
 
-QUnit.test("shouldn't affect page title", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "title": "Page 1 title",
-        "navigationTitle": "Text with <em>emphasys text</em>",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-    ]
-  };
-  const survey: SurveyModel = new SurveyModel(json);
+    survey.tocLocation = "right";
+    tocRootCss = getTocRootCss(survey);
+    expect("sv_progress-toc sv_progress-toc--right sv_progress-toc--sticky", "toc right css").toBe(tocRootCss);
 
-  const page = survey.pages[0];
-  assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
-  assert.equal(page.locNavigationTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title");
+    TOCModel.StickyPosition = false;
+    survey.tocLocation = "left";
 
-  const tocListModel = createTOCListModel(survey);
-  assert.equal(page.locNavigationTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title");
-  assert.equal(tocListModel.visibleItems.length, 1, "2 items is TOC");
-  assert.equal(tocListModel.visibleItems[0].locTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title in TOC");
-  assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
-});
+    tocRootCss = getTocRootCss(survey);
+    expect("sv_progress-toc sv_progress-toc--left", "toc left css").toBe(tocRootCss);
 
-QUnit.test("shouldn't show search", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-    ]
-  };
-  const survey: SurveyModel = new SurveyModel(json);
-  const tocListModel = createTOCListModel(survey);
-  assert.equal(tocListModel.searchEnabled, false, "Search in TOC should be disabled");
-});
+    survey.tocLocation = "right";
+    tocRootCss = getTocRootCss(survey);
+    expect("sv_progress-toc sv_progress-toc--right", "toc right css").toBe(tocRootCss);
 
-QUnit.test("survey.tryNavigateToPage", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page4",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question4"
-          }
-        ]
-      }
-    ]
-  };
-  const survey = new SurveyModel(json);
-  const pages = new Array<string>();
-  survey.onCurrentPageChanged.add((sender, options) => {
-    pages.push(options.newCurrentPage.name);
+    TOCModel.StickyPosition = true;
   });
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
-  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #1");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "navigate #2");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #3");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #3");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #4");
-  survey.setValue("question2", "val2");
-  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #4");
-  assert.equal(survey.currentPageNo, 2, "currentPageNo #4");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #5");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #5");
-  survey.setValue("question3", "val3");
-  assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #6");
-  assert.equal(survey.currentPageNo, 3, "currentPageNo #6");
-  assert.deepEqual(pages, ["page2", "page1", "page3", "page1", "page4"], "Check onCurrentPageChanged");
 
-  survey.clear();
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #7");
-  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #7");
-  survey.checkErrorsMode = "onComplete";
-  assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #8");
-  assert.equal(survey.currentPageNo, 3, "currentPageNo #9");
-});
+  test("pages visibility", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let tocListModel = createTOCListModel(survey);
 
-QUnit.test("should be created for survey with no current page", function (assert) {
-  let json: any = { "logoPosition": "right", "pages": [{ "name": "page1", "elements": [{ "type": "panel", "name": "panel1", "width": "1180px" }] }] };
-  const survey: SurveyModel = new SurveyModel(json);
-  assert.equal(survey.pages.length, 1);
-  assert.equal(survey.currentPageNo, -1);
-  const tocListModel = createTOCListModel(survey);
-  assert.ok(!!tocListModel, "TOC model should be created");
-});
+    expect(tocListModel.visibleItems.length, "All pages are visible").toBe(3);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible").toBe(survey.pages[0].name);
+    survey.pages[0].visible = false;
+    expect(tocListModel.visibleItems.length, "only 2 pages are visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is invisible, page 2 is the first").toBe(survey.pages[1].name);
+  });
 
-QUnit.test("updateStickyTOCSize", function (assert) {
-  TOCModel.StickyPosition = true;
-  const survey: SurveyModel = new SurveyModel({});
-  survey.headerView = "basic";
-  const tocModel = new TOCModel(survey);
-  const rootElementWithTitle = document.createElement("div");
+  test("pages visibility, do not include start page into TOC, bug #6192", () => {
+    let json: any = {
+      "firstPageIsStartPage": true,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let tocListModel = createTOCListModel(survey);
 
-  rootElementWithTitle.innerHTML = `<div class="sv-scroll__scroller">
+    expect(tocListModel.visibleItems.length, "First page is not visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is invisible, page 2 is the first").toBe(survey.pages[1].name);
+    survey.firstPageIsStartPage = false;
+    expect(tocListModel.visibleItems.length, "First page is visible").toBe(3);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible, page 1 is the first").toBe(survey.pages[0].name);
+  });
+
+  test("pages navigation with start page, bug #6327", () => {
+    let json: any = {
+      "firstPageIsStartPage": true,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "html",
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        },
+        {
+          "name": "page4",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question4"
+            }
+          ]
+        }
+      ]
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.visibleItems.length, "First page is not visible").toBe(3);
+    expect(survey.currentPage.name, "Current page is 2").toBe("page2");
+    tocListModel.visibleItems[1].action();
+    expect(survey.currentPage.name, "Current page is 3").toBe("page3");
+  });
+
+  test("questionsOnPageMode singlePage", () => {
+    let json: any = {
+      "questionsOnPageMode": "singlePage",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "html",
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    const tocListModel = createTOCListModel(survey);
+    const page = survey.currentPage;
+    expect(page.elements.length, "There are two elements in the root").toBe(3);
+    expect(tocListModel.visibleItems.length, "3 items is TOC").toBe(3);
+    expect(tocListModel.visibleItems[0].id, "Page 1").toBe(page.elements[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2").toBe(page.elements[1].name);
+    expect(tocListModel.visibleItems[2].id, "Page 3").toBe(page.elements[2].name);
+  });
+
+  test("questionsOnPageMode singlePage selectedItem tracks focused question", () => {
+    let json: any = {
+      "questionsOnPageMode": "singlePage",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "html",
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        }
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    const tocListModel = createTOCListModel(survey);
+    expect(tocListModel.visibleItems.length, "3 items is TOC").toBe(3);
+    expect(tocListModel.selectedItem.id, "first page is active").toBe("page1");
+    survey.getQuestionByName("question3").focusIn();
+    expect(tocListModel.selectedItem.id, "3rd page is active after question3 focused").toBe("page3");
+  });
+
+  test("respects markup", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "title": "Text with <strong>strong text</strong>",
+          "elements": [
+            {
+              "type": "html",
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "navigationTitle": "Text with <em>emphasys text</em>",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "title": "Page 3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3"
+            }
+          ]
+        },
+        {
+          "name": "page4",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question4"
+            }
+          ]
+        }
+      ]
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    survey.onTextMarkdown.add(function (survey, options) {
+      options.html = "markup " + options.text;
+    });
+    let tocListModel = createTOCListModel(survey);
+
+    expect(survey.pages[2].locTitle.textOrHtml, "survey.pages[2]").toBe("markup Page 3");
+
+    expect(tocListModel.visibleItems.length, "2 items is TOC").toBe(4);
+    expect(tocListModel.visibleItems[0].locTitle.textOrHtml, "Page 1 = locTitle").toBe("markup Text with <strong>strong text</strong>");
+    expect(tocListModel.visibleItems[1].locTitle.textOrHtml, "Page 2 - nav title").toBe("markup Text with <em>emphasys text</em>");
+    expect(tocListModel.visibleItems[2].locTitle.textOrHtml, "Page 3").toBe("markup Page 3");
+    expect(tocListModel.visibleItems[3].locTitle.textOrHtml, "Page 4").toBe("page4");
+  });
+
+  test("shouldn't affect page title", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "title": "Page 1 title",
+          "navigationTitle": "Text with <em>emphasys text</em>",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+
+    const page = survey.pages[0];
+    expect(page.locTitle.textOrHtml, "Page 1 title").toBe("Page 1 title");
+    expect(page.locNavigationTitle.textOrHtml, "Page 1 - nav title").toBe("Text with <em>emphasys text</em>");
+
+    const tocListModel = createTOCListModel(survey);
+    expect(page.locNavigationTitle.textOrHtml, "Page 1 - nav title").toBe("Text with <em>emphasys text</em>");
+    expect(tocListModel.visibleItems.length, "2 items is TOC").toBe(1);
+    expect(tocListModel.visibleItems[0].locTitle.textOrHtml, "Page 1 - nav title in TOC").toBe("Text with <em>emphasys text</em>");
+    expect(page.locTitle.textOrHtml, "Page 1 title").toBe("Page 1 title");
+  });
+
+  test("shouldn't show search", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    const tocListModel = createTOCListModel(survey);
+    expect(tocListModel.searchEnabled, "Search in TOC should be disabled").toBe(false);
+  });
+
+  test("survey.tryNavigateToPage", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page4",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question4"
+            }
+          ]
+        }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const pages = new Array<string>();
+    survey.onCurrentPageChanged.add((sender, options) => {
+      pages.push(options.newCurrentPage.name);
+    });
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #1").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #2").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #3").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #3").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(0);
+    survey.setValue("question2", "val2");
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #4").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(2);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #5").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #5").toBe(0);
+    survey.setValue("question3", "val3");
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #6").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #6").toBe(3);
+    expect(pages, "Check onCurrentPageChanged").toEqual(["page2", "page1", "page3", "page1", "page4"]);
+
+    survey.clear();
+    expect(survey.currentPageNo, "currentPageNo #7").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #7").toBe(false);
+    survey.checkErrorsMode = "onComplete";
+    expect(survey.tryNavigateToPage(survey.pages[3]), "navigate #8").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #9").toBe(3);
+  });
+
+  test("should be created for survey with no current page", () => {
+    let json: any = { "logoPosition": "right", "pages": [{ "name": "page1", "elements": [{ "type": "panel", "name": "panel1", "width": "1180px" }] }] };
+    const survey: SurveyModel = new SurveyModel(json);
+    expect(survey.pages.length).toBe(1);
+    expect(survey.currentPageNo).toBe(-1);
+    const tocListModel = createTOCListModel(survey);
+    expect(!!tocListModel, "TOC model should be created").toBeTruthy();
+  });
+
+  test("updateStickyTOCSize", () => {
+    TOCModel.StickyPosition = true;
+    const survey: SurveyModel = new SurveyModel({});
+    survey.headerView = "basic";
+    const tocModel = new TOCModel(survey);
+    const rootElementWithTitle = document.createElement("div");
+
+    rootElementWithTitle.innerHTML = `<div class="sv-scroll__scroller">
                                       <div class="sv_custom_header"></div>
                                       <div class="sd-container-modern">
                                         <div class="sd-title sd-container-modern__title"></div>
@@ -494,478 +494,479 @@ QUnit.test("updateStickyTOCSize", function (assert) {
                                         </div>
                                       </div>
                                     </div>`;
-  const titleElement = rootElementWithTitle.querySelector(".sd-title") as HTMLDivElement;
-  titleElement.getBoundingClientRect = () => ({
-    height: 40,
-  } as any);
-  const tocRootElement = rootElementWithTitle.querySelector(".sv_progress-toc") as HTMLDivElement;
-  assert.equal(tocRootElement.style.height, "", "No height set");
+    const titleElement = rootElementWithTitle.querySelector(".sd-title") as HTMLDivElement;
+    titleElement.getBoundingClientRect = () => ({
+      height: 40,
+    } as any);
+    const tocRootElement = rootElementWithTitle.querySelector(".sv_progress-toc") as HTMLDivElement;
+    expect(tocRootElement.style.height, "No height set").toBe("");
 
-  const scrollElement = rootElementWithTitle.querySelector(".sv-scroll__scroller") as HTMLDivElement;
-  let _scrollTop = 0;
-  Object.defineProperty(scrollElement, "scrollTop", {
-    get: function() {
-      return _scrollTop;
-    },
-    set: function(value) {
-      _scrollTop = value;
-    },
-    configurable: true // to be able to change this word
+    const scrollElement = rootElementWithTitle.querySelector(".sv-scroll__scroller") as HTMLDivElement;
+    let _scrollTop = 0;
+    Object.defineProperty(scrollElement, "scrollTop", {
+      get: function() {
+        return _scrollTop;
+      },
+      set: function(value) {
+        _scrollTop = value;
+      },
+      configurable: true // to be able to change this word
+    });
+
+    const mockRootEl: any = {
+      querySelector: s => rootElementWithTitle.querySelector(s),
+      getBoundingClientRect: () => ({
+        height: 200,
+      }),
+      scrollTop: 0,
+      style: {}
+    };
+
+    tocModel.updateStickyTOCSize(mockRootEl);
+    expect(tocRootElement.style.height, "Height updated").toBe("159px");
+
+    scrollElement.scrollTop = 60;
+    tocModel.updateStickyTOCSize(mockRootEl);
+    expect(tocRootElement.style.height, "Height updated to full container").toBe("199px");
+
+    scrollElement.scrollTop = 20;
+    tocModel.updateStickyTOCSize(mockRootEl);
+    expect(tocRootElement.style.height, "Height updated to half title").toBe("179px");
   });
 
-  const mockRootEl: any = {
-    querySelector: s => rootElementWithTitle.querySelector(s),
-    getBoundingClientRect: () => ({
-      height: 200,
-    }),
-    scrollTop: 0,
-    style: {}
-  };
+  test("update toc list model on add new page and add new question", () => {
+    let json: any = { "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "q1" }] }] };
+    const survey: SurveyModel = new SurveyModel(json);
+    expect(survey.pages.length).toBe(1);
+    expect(survey.currentPageNo).toBe(0);
+    const tocListModel = createTOCListModel(survey);
 
-  tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "159px", "Height updated");
+    expect(tocListModel.actions.length).toBe(1);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[0].title).toBe("page1");
 
-  scrollElement.scrollTop = 60;
-  tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "199px", "Height updated to full container");
+    const newPage = survey.addNewPage("newpage");
 
-  scrollElement.scrollTop = 20;
-  tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "179px", "Height updated to half title");
-});
+    expect(tocListModel.actions.length).toBe(2);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[1].visible).toBe(false);
+    expect(tocListModel.actions[1].title).toBe("newpage");
 
-QUnit.test("update toc list model on add new page and add new question", function (assert) {
-  let json: any = { "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "q1" }] }] };
-  const survey: SurveyModel = new SurveyModel(json);
-  assert.equal(survey.pages.length, 1);
-  assert.equal(survey.currentPageNo, 0);
-  const tocListModel = createTOCListModel(survey);
+    newPage.title = "New Page";
 
-  assert.equal(tocListModel.actions.length, 1);
-  assert.equal(tocListModel.actions[0].visible, true);
-  assert.equal(tocListModel.actions[0].title, "page1");
+    expect(tocListModel.actions.length).toBe(2);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[1].visible).toBe(false);
+    expect(tocListModel.actions[1].title).toBe("New Page");
 
-  const newPage = survey.addNewPage("newpage");
+    newPage.addNewQuestion("text", "q2");
 
-  assert.equal(tocListModel.actions.length, 2);
-  assert.equal(tocListModel.actions[0].visible, true);
-  assert.equal(tocListModel.actions[1].visible, false);
-  assert.equal(tocListModel.actions[1].title, "newpage");
+    expect(tocListModel.actions.length).toBe(2);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[0].title).toBe("page1");
+    expect(tocListModel.actions[1].visible).toBe(true);
+    expect(tocListModel.actions[1].title).toBe("New Page");
+  });
 
-  newPage.title = "New Page";
+  test("TOC navigation shows page numbers", () => {
+    const survey = new SurveyModel({
+      showTOC: true,
+      showPageNumbers: true,
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+        ]
+      }]
+    });
+    const tocListModel = createTOCListModel(survey);
+    expect(tocListModel.actions.length).toBe(1);
+    expect(tocListModel.actions[0].visible).toBe(true);
+    expect(tocListModel.actions[0].title).toBe("1. page1");
+  });
 
-  assert.equal(tocListModel.actions.length, 2);
-  assert.equal(tocListModel.actions[0].visible, true);
-  assert.equal(tocListModel.actions[1].visible, false);
-  assert.equal(tocListModel.actions[1].title, "New Page");
-
-  newPage.addNewQuestion("text", "q2");
-
-  assert.equal(tocListModel.actions.length, 2);
-  assert.equal(tocListModel.actions[0].visible, true);
-  assert.equal(tocListModel.actions[0].title, "page1");
-  assert.equal(tocListModel.actions[1].visible, true);
-  assert.equal(tocListModel.actions[1].title, "New Page");
-});
-
-QUnit.test("TOC navigation shows page numbers", function (assert) {
-  const survey = new SurveyModel({
-    showTOC: true,
-    showPageNumbers: true,
-    pages: [{
-      name: "page1",
-      elements: [
-        { type: "text", name: "q1" },
+  test("survey.tryNavigateToPage respects validationAllowSwitchPages and validationAllowComplete", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "isRequired": true,
+              "requiredErrorText": "You SSN must be a 9-digit number.",
+              "validators": [
+                {
+                  "type": "regex",
+                  "text": "Your SSN must be a 9-digit number",
+                  "regex": "^(?!0{3})(?!6{3})[0-8]\\d{2}-?(?!0{2})\\d{2}-?(?!0{4})\\d{4}$"
+                }
+              ],
+              "maxLength": 9
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+            }
+          ]
+        },
       ]
-    }]
-  });
-  const tocListModel = createTOCListModel(survey);
-  assert.equal(tocListModel.actions.length, 1);
-  assert.equal(tocListModel.actions[0].visible, true);
-  assert.equal(tocListModel.actions[0].title, "1. page1");
-});
+    };
+    const survey = new SurveyModel(json);
+    expect(survey.validationAllowSwitchPages).toBe(false);
+    expect(survey.validationAllowComplete).toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #1").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #2").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #3").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(1);
 
-QUnit.test("survey.tryNavigateToPage respects validationAllowSwitchPages and validationAllowComplete", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2",
-            "isRequired": true,
-            "requiredErrorText": "You SSN must be a 9-digit number.",
-            "validators": [
-              {
-                "type": "regex",
-                "text": "Your SSN must be a 9-digit number",
-                "regex": "^(?!0{3})(?!6{3})[0-8]\\d{2}-?(?!0{2})\\d{2}-?(?!0{4})\\d{4}$"
-              }
-            ],
-            "maxLength": 9
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-          }
-        ]
-      },
-    ]
-  };
-  const survey = new SurveyModel(json);
-  assert.equal(survey.validationAllowSwitchPages, false);
-  assert.equal(survey.validationAllowComplete, false);
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "navigate #1");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #2");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #3");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #1");
+    survey.validationAllowSwitchPages = true;
+    expect(survey.validationAllowSwitchPages).toBe(true);
+    expect(survey.validationAllowComplete).toBe(false);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #4").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #3").toBe(2);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #5").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #6").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
 
-  survey.validationAllowSwitchPages = true;
-  assert.equal(survey.validationAllowSwitchPages, true);
-  assert.equal(survey.validationAllowComplete, false);
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "navigate #4");
-  assert.equal(survey.currentPageNo, 2, "currentPageNo #3");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #5");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #6");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
+    survey.validationAllowComplete = true;
+    expect(survey.validationAllowSwitchPages).toBe(true);
+    expect(survey.validationAllowComplete).toBe(true);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "navigate #7").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #3").toBe(2);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "navigate #8").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "navigate #9").toBe(true);
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(1);
+  });
+  test("survey.tryNavigateToPage & survey.onValidatePage, Bug#9241", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+              "isRequired": true
+            }
+          ]
+        }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const logs = new Array<string>();
+    survey.onValidatePage.add((sender, options) => {
+      logs.push(options.page.name);
+    });
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
+    expect(logs, "logs #1").toEqual(["page1"]);
+    survey.setValue("question1", "val1");
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(true);
+    expect(logs, "logs #2").toEqual(["page1", "page1"]);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "try #3").toBe(true);
+    expect(logs, "logs #3").toEqual(["page1", "page1"]);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "try #4").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(1);
+    expect(logs, "logs #4").toEqual(["page1", "page1", "page1"]);
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #5").toBe(false);
+    expect(logs, "logs #5").toEqual(["page1", "page1", "page1"]);
+    expect(survey.tryNavigateToPage(survey.pages[2]), "try #6").toBe(false);
+    expect(logs, "logs #6").toEqual(["page1", "page1", "page1", "page2"]);
+    survey.setValue("question2", "val2");
+    expect(survey.tryNavigateToPage(survey.pages[2]), "try #7").toBe(true);
+    expect(logs, "logs #7").toEqual(["page1", "page1", "page1", "page2", "page2"]);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "try #8").toBe(true);
+    expect(logs, "logs #8").toEqual(["page1", "page1", "page1", "page2", "page2"]);
+  });
+  test("survey.tryNavigateToPage & survey.validationEnabled = false, Bug#9363", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page3",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+              "isRequired": true
+            }
+          ]
+        }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const logs = new Array<string>();
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
+    survey.validationEnabled = false;
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(true);
+  });
+  test("The survey.onServerValidateQuestions function is not invoked when a user navigates between pages using the progress bar #9332", () => {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1",
+              "isRequired": true
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question2",
+              "isRequired": true
+            }
+          ]
+        }
+      ]
+    });
+    let opt: ServerValidateQuestionsEvent = <any>undefined;
+    let counter = 0;
+    survey.onServerValidateQuestions.add(function (sender, options) {
+      opt = options;
+      counter++;
+    });
 
-  survey.validationAllowComplete = true;
-  assert.equal(survey.validationAllowSwitchPages, true);
-  assert.equal(survey.validationAllowComplete, true);
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "navigate #7");
-  assert.equal(survey.currentPageNo, 2, "currentPageNo #3");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "navigate #8");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #9");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
-});
-QUnit.test("survey.tryNavigateToPage & survey.onValidatePage, Bug#9241", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-            "isRequired": true
-          }
-        ]
-      }
-    ]
-  };
-  const survey = new SurveyModel(json);
-  const logs = new Array<string>();
-  survey.onValidatePage.add((sender, options) => {
-    logs.push(options.page.name);
-  });
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
-  assert.deepEqual(logs, ["page1"], "logs #1");
-  survey.setValue("question1", "val1");
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "try #2");
-  assert.deepEqual(logs, ["page1", "page1"], "logs #2");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #3");
-  assert.deepEqual(logs, ["page1", "page1"], "logs #3");
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "try #4");
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #4");
-  assert.deepEqual(logs, ["page1", "page1", "page1"], "logs #4");
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #5");
-  assert.deepEqual(logs, ["page1", "page1", "page1"], "logs #5");
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), false, "try #6");
-  assert.deepEqual(logs, ["page1", "page1", "page1", "page2"], "logs #6");
-  survey.setValue("question2", "val2");
-  assert.equal(survey.tryNavigateToPage(survey.pages[2]), true, "try #7");
-  assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #7");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #8");
-  assert.deepEqual(logs, ["page1", "page1", "page1", "page2", "page2"], "logs #8");
-});
-QUnit.test("survey.tryNavigateToPage & survey.validationEnabled = false, Bug#9363", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page3",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-            "isRequired": true
-          }
-        ]
-      }
-    ]
-  };
-  const survey = new SurveyModel(json);
-  const logs = new Array<string>();
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
-  survey.validationEnabled = false;
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "try #2");
-});
-QUnit.test("The survey.onServerValidateQuestions function is not invoked when a user navigates between pages using the progress bar #9332", function (assert) {
-  const survey = new SurveyModel({
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1",
-            "isRequired": true
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2",
-            "isRequired": true
-          }
-        ]
-      }
-    ]
-  });
-  let opt: ServerValidateQuestionsEvent = <any>undefined;
-  let counter = 0;
-  survey.onServerValidateQuestions.add(function (sender, options) {
-    opt = options;
-    counter++;
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #1").toBe(false);
+    expect(survey.currentPageNo, "currentPageNo #1").toBe(0);
+    expect(counter, "server validation counter, try #1").toBe(0);
+    survey.setValue("question1", 101);
+
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #2").toBe(false);
+    expect(counter, "server validation counter, try #2").toBe(1);
+    opt.errors["question1"] = "Error";
+    opt.complete();
+    expect(survey.currentPageNo, "currentPageNo #2").toBe(0);
+
+    expect(survey.tryNavigateToPage(survey.pages[1]), "try #3").toBe(false);
+    expect(counter, "server validation counter, try #3").toBe(2);
+    expect(survey.currentPageNo, "currentPageNo #3.1").toBe(0);
+    opt.complete();
+    expect(survey.currentPageNo, "currentPageNo #3.2").toBe(1);
+    expect(survey.tryNavigateToPage(survey.pages[0]), "try #4").toBe(true);
+    expect(counter, "server validation counter, try #4").toBe(2);
+    expect(survey.currentPageNo, "currentPageNo #4").toBe(0);
   });
 
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #1");
-  assert.equal(counter, 0, "server validation counter, try #1");
-  survey.setValue("question1", 101);
+  test("pages visibility from visibleIf", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            },
+          ]
+        },
+        {
+          "name": "page2",
+          "visibleIf": "{question1} notempty",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+            }
+          ]
+        }
+      ],
+      "showTOC": true
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let tocListModel = createTOCListModel(survey);
 
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #2");
-  assert.equal(counter, 1, "server validation counter, try #2");
-  opt.errors["question1"] = "Error";
-  opt.complete();
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #2");
+    expect(tocListModel.visibleItems.length, "One page is visible").toBe(1);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    survey.data = {
+      question1: "val1"
+    };
+    expect(tocListModel.visibleItems.length, "All pages are visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
+  });
+  test("pages visibility on value changed", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            },
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "visibleIf": "{question1} notempty",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+              "visibleIf": "{question2} notempty"
+            }
+          ]
+        }
+      ],
+      "showTOC": true
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let tocListModel = createTOCListModel(survey);
 
-  assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #3");
-  assert.equal(counter, 2, "server validation counter, try #3");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #3.1");
-  opt.complete();
-  assert.equal(survey.currentPageNo, 1, "currentPageNo #3.2");
-  assert.equal(survey.tryNavigateToPage(survey.pages[0]), true, "try #4");
-  assert.equal(counter, 2, "server validation counter, try #4");
-  assert.equal(survey.currentPageNo, 0, "currentPageNo #4");
-});
+    expect(tocListModel.visibleItems.length, "One page is visible").toBe(1);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    survey.data = {
+      question1: "val1",
+    };
+    expect(tocListModel.visibleItems.length, "One page is visible - page2 is empty").toBe(1);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC - page2 is empty").toBe(survey.pages[0].name);
+    survey.data = {
+      question1: "val1",
+      question2: "val2"
+    };
+    expect(tocListModel.visibleItems.length, "All pages are visible").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
+  });
 
-QUnit.test("pages visibility from visibleIf", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          },
-        ]
-      },
-      {
-        "name": "page2",
-        "visibleIf": "{question1} notempty",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-          }
-        ]
-      }
-    ],
-    "showTOC": true
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
+  test("navigate to page in single page mode", () => {
+    let json: any = {
+      "questionsOnPageMode": "singlePage",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [{ "type": "html", }]
+        },
+        {
+          "name": "page2",
+          "elements": [{ "type": "text", "name": "question2" }]
+        },
+        {
+          "name": "page3",
+          "elements": [{ "type": "text", "name": "question3" }
+          ]
+        },
+        {
+          "name": "page4",
+          "elements": [{ "type": "text", "name": "question4" }]
+        }
+      ]
+    };
+    let survey: SurveyModel = new SurveyModel(json);
+    let focus3rdPageCounter = 0;
+    survey.pages[2].focusFirstQuestion = () => focus3rdPageCounter++;
+    let tocListModel = createTOCListModel(survey);
 
-  assert.equal(tocListModel.visibleItems.length, 1, "One page is visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
-  survey.data = {
-    question1: "val1"
-  };
-  assert.equal(tocListModel.visibleItems.length, 2, "All pages are visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
-  assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
-});
-QUnit.test("pages visibility on value changed", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          },
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "visibleIf": "{question1} notempty",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-            "visibleIf": "{question2} notempty"
-          }
-        ]
-      }
-    ],
-    "showTOC": true
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
+    expect(tocListModel.visibleItems.length).toBe(4);
+    expect(survey.currentPage.name).toBe("single-page");
+    expect(focus3rdPageCounter).toBe(0);
+    tocListModel.visibleItems[2].action();
+    expect(survey.currentPage.name).toBe("single-page");
+    expect(focus3rdPageCounter).toBe(1);
+  });
+  test("update TOC pages on survey loaded from JSON", () => {
+    let json: any = {
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            },
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question3",
+            }
+          ]
+        }
+      ],
+      "showTOC": true
+    };
+    let survey: SurveyModel = new SurveyModel({});
+    let tocListModel = createTOCListModel(survey);
 
-  assert.equal(tocListModel.visibleItems.length, 1, "One page is visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
-  survey.data = {
-    question1: "val1",
-  };
-  assert.equal(tocListModel.visibleItems.length, 1, "One page is visible - page2 is empty");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC - page2 is empty");
-  survey.data = {
-    question1: "val1",
-    question2: "val2"
-  };
-  assert.equal(tocListModel.visibleItems.length, 2, "All pages are visible");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
-  assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
-});
-
-QUnit.test("navigate to page in single page mode", function (assert) {
-  let json: any = {
-    "questionsOnPageMode": "singlePage",
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [{ "type": "html", }]
-      },
-      {
-        "name": "page2",
-        "elements": [{ "type": "text", "name": "question2" }]
-      },
-      {
-        "name": "page3",
-        "elements": [{ "type": "text", "name": "question3" }
-        ]
-      },
-      {
-        "name": "page4",
-        "elements": [{ "type": "text", "name": "question4" }]
-      }
-    ]
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let focus3rdPageCounter = 0;
-  survey.pages[2].focusFirstQuestion = () => focus3rdPageCounter++;
-  let tocListModel = createTOCListModel(survey);
-
-  assert.equal(tocListModel.visibleItems.length, 4);
-  assert.equal(survey.currentPage.name, "single-page");
-  assert.equal(focus3rdPageCounter, 0);
-  tocListModel.visibleItems[2].action();
-  assert.equal(survey.currentPage.name, "single-page");
-  assert.equal(focus3rdPageCounter, 1);
-});
-QUnit.test("update TOC pages on survey loaded from JSON", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          },
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question3",
-          }
-        ]
-      }
-    ],
-    "showTOC": true
-  };
-  let survey: SurveyModel = new SurveyModel({});
-  let tocListModel = createTOCListModel(survey);
-
-  assert.equal(tocListModel.visibleItems.length, 0, "No TOC items in empty survey");
-  survey.fromJSON(json);
-  assert.equal(tocListModel.visibleItems.length, 2, "Two pages are visible in TOC");
-  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
-  assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
-  assert.equal(tocListModel.actions.length, 2, "Two pages are visible in TOC actions");
-  assert.equal(tocListModel.actions[0].title, survey.pages[0].name, "Page 1 is visible in TOC actions");
-  assert.equal(tocListModel.actions[1].title, survey.pages[1].name, "Page 2 is visible in TOC actions");
+    expect(tocListModel.visibleItems.length, "No TOC items in empty survey").toBe(0);
+    survey.fromJSON(json);
+    expect(tocListModel.visibleItems.length, "Two pages are visible in TOC").toBe(2);
+    expect(tocListModel.visibleItems[0].id, "Page 1 is visible in TOC").toBe(survey.pages[0].name);
+    expect(tocListModel.visibleItems[1].id, "Page 2 is visible in TOC").toBe(survey.pages[1].name);
+    expect(tocListModel.actions.length, "Two pages are visible in TOC actions").toBe(2);
+    expect(tocListModel.actions[0].title, "Page 1 is visible in TOC actions").toBe(survey.pages[0].name);
+    expect(tocListModel.actions[1].title, "Page 2 is visible in TOC actions").toBe(survey.pages[1].name);
+  });
 });

@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-progress {
   height: 2px;
@@ -19,9 +20,7 @@
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   right: var(--sjs2-spacing-x150);
   color: $foreground-dim-light;
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
-  font-weight: 600;
+  @include sjs2--typography--small-strong;
 
   @media only screen and (min-width: 1000px) {
     margin-left: 5%;

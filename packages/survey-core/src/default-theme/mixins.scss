@@ -1,28 +1,5 @@
 @use "variables.scss" as *;
 
-@mixin smallBold {
-  font-family: $font-family;
-  font-style: normal;
-  font-weight: 600;
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
-}
-
-@mixin defaultBold {
-  font-family: $font-family;
-  font-style: normal;
-  font-weight: 600;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
-}
-
-@mixin defaultFont {
-  font-family: $font-family;
-  font-style: normal;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
-}
-
 @mixin borderLight {
   border: var(--sjs2-border-width-x200) solid $border-light;
 }

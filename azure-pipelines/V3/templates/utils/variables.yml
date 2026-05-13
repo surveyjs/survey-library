@@ -1,0 +1,15 @@
+variables:
+  ArtifactNameLibraryCore: "SurveyJSLibraryBuildCore"
+  ArtifactNameLibraryReact: "SurveyJSLibraryBuildReact"
+  ArtifactNameLibraryAngular: "SurveyJSLibraryBuildAngular"
+  ArtifactNameLibraryVue: "SurveyJSLibraryBuildVue3"
+  ArtifactNameLibraryJS: "SurveyJSLibraryBuildSurveyUI"
+  ArtifactNameCreatorCore: "SurveyJSCreatorBuildCore"
+  ArtifactNameCreatorAngular: "SurveyJSCreatorBuildAngular"
+  ArtifactNameCreatorReact: "SurveyJSCreatorBuildReact"
+  ArtifactNameCreatorVue: "SurveyJSCreatorBuildVue"
+  ArtifactNameCreatorJS: "SurveyJSCreatorBuildJS"
+  ArtifactNameAnalytics: "SurveyJSAnalyticsBuild"
+  ArtifactNamePDF: "SurveyjsPDFbuild"
+  PipelineLibrary: $[ iif(eq(variables['System.PullRequest.TargetBranch'], 'V3'), '138', '130') ]
+  PipelineLibraryPR: $[ iif(eq(variables['System.PullRequest.TargetBranch'], 'V3'), '139', '133') ]

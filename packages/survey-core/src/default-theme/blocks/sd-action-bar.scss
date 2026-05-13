@@ -1,9 +1,48 @@
+@use "../variables.scss" as *;
+
 .sd-action-bar {
   display: flex;
+  box-sizing: content-box;
   align-items: center;
-  .sv-action:not(:last-child) {
-    .sv-action__content {
-      padding-right: 0;
-    }
+  white-space: nowrap;
+  --sd-action-bar-gap: 0px;
+  gap: var(--sd-action-bar-gap);
+}
+
+.sd-action-bar__item--space {
+  margin-left: auto;
+}
+.sd-action-bar__item--hidden {
+  width: 0px;
+  height: 0px;
+  margin: 0 calc(-1 * var(--sd-action-bar-gap) / 2);
+  overflow: hidden;
+  visibility: hidden;
+  .sd-action-bar__item-content {
+    min-width: fit-content;
   }
+}
+.sd-action-bar__item-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  & > * {
+    flex: 0 0 auto;
+  }
+}
+.sd-action-bar__separator {
+  display: inline-block;
+  width: 1px;
+  height: 24px;
+  vertical-align: middle;
+  margin-right: var(--sd-action-bar-gap);
+  background-color: $border;
+}
+
+.sd-action-bar--default-size {
+  --sd-action-bar-gap: var(--sjs2-spacing-x100);
+}
+.sd-action-bar--small-size {
+  --sd-action-bar-gap: var(--sjs2-spacing-x50);
 }

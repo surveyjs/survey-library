@@ -1,7 +1,8 @@
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { IListModel, ListModel } from "./list";
+import { ListModel } from "./list";
+import { IListModel } from "./actions/list-model";
 import { PageModel } from "./page";
 import { PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";

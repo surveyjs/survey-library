@@ -400,7 +400,8 @@
             "type": "string",
             "enum": [
                 "underInput",
-                "underTitle"
+                "underTitle",
+                "hidden"
             ]
         },
         "readOnly": {
@@ -850,7 +851,8 @@
                     "enum": [
                         "default",
                         "underInput",
-                        "underTitle"
+                        "underTitle",
+                        "hidden"
                     ]
                 },
                 "requiredErrorText": {
@@ -950,6 +952,12 @@
                     ]
                 },
                 "renderAs": {
+                    "type": "string"
+                },
+                "randomize": {
+                    "type": "boolean"
+                },
+                "randomizeCategory": {
                     "type": "string"
                 }
             }
@@ -1874,6 +1882,9 @@
                         "allowCustomChoices": {
                             "type": "boolean"
                         },
+                        "createCustomChoiceText": {
+                            "type": "string"
+                        },
                         "allowClear": {
                             "type": "boolean"
                         },
@@ -2135,6 +2146,9 @@
                         },
                         "allowCustomChoices": {
                             "type": "boolean"
+                        },
+                        "createCustomChoiceText": {
+                            "type": "string"
                         },
                         "textWrapEnabled": {
                             "type": "boolean"
@@ -3515,7 +3529,8 @@
                             "enum": [
                                 "default",
                                 "underInput",
-                                "underTitle"
+                                "underTitle",
+                                "hidden"
                             ]
                         },
                         "requiredErrorText": {

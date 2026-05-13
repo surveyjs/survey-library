@@ -398,6 +398,9 @@ export class FunctionOperand extends Operand {
   public get functionName(): string {
     return this.originalValue;
   }
+  public get paramValues(): Array<Operand> {
+    return this.parameters.values;
+  }
   public evaluate(processValue?: ProcessValue): any {
     const asyncVal = this.getAsynValue(processValue);
     if (!!asyncVal) return asyncVal.value;

@@ -1,0 +1,115 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "Example & A11Y"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run build
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-react/example
+        displayName: "Build Example"
+
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-react
+        displayName: "Test"
+
+      - script: npm run test:a11y:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-react
+        displayName: "Test A11Y"
+
+  - job:
+    displayName: "E2E"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+        
+      - script: npm run e2e:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-react
+        displayName: "Test E2E"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-react/test-results"
+          ArtifactName: "Creator_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-react/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator React E2E Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"
+
+  - job:
+    displayName: "SCR"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+        
+      - script: npm run test:scr:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-react
+        displayName: "Test SCR"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-react/test-results"
+          ArtifactName: "Creator_React_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-react/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator React SCR Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"
+
+  - job:
+    displayName: "SCR Legacy"
+    condition: ne(variables['System.PullRequest.TargetBranch'], 'V3')
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+        
+      - script: npm run test:scr:legacy:ci
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-creator-react
+        displayName: "Test SCR Legacy"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-creator-react/test-results"
+          ArtifactName: "Creator_React_SCR_Legacy"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "Publish artifacts"
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-creator-react/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Creator React SCR Legacy Tests"
+        condition: succeededOrFailed()
+        displayName: "Publish results"

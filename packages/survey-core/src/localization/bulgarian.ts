@@ -69,6 +69,8 @@ export var bulgarianStrings = {
   stepError: "Моля, въведете стойност, която съответства на размера на стъпката на {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Стойността не трябва да бъде по-голяма от {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Невалиден вход",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номерата не са позволени.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var bulgarianStrings = {
   urlGetChoicesError: "Заявката не връща данни или частта 'path' (път до търсения ресурс на сървъра) е неправилно зададена",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Размерът на файла следва да не превишава {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Байтове, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Максималният брой файлове, които можете да качите, е {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

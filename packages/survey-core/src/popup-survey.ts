@@ -219,6 +219,14 @@ export class PopupSurveyModel extends Base {
     if (width && !isNaN(width)) width = width + "px";
     return width;
   }
+  public get renderedStyle(): { [index: string]: string } {
+    const style: { [index: string]: string } = this.survey.themeVariables;
+    if (!!this.renderedWidth) {
+      style.width = this.renderedWidth;
+      style.maxWidth = this.renderedWidth;
+    }
+    return style;
+  }
   @property() width: string;
 
   private updateCss() {

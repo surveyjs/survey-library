@@ -69,6 +69,8 @@ export var simplifiedChineseSurveyStrings = {
   stepError: "请输入与{0}步长相匹配的值。",
   // "The value should not be greater than {0}"
   maxError: "该值不能大于 {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "无效输入",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "不允许使用数字。",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var simplifiedChineseSurveyStrings = {
   urlGetChoicesError: "未能载入有效的选项或请求参数路径有误",
   // "The file size should not exceed {0}."
   exceedMaxSize: "文件大小不能超过 {0}",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "字节、KB、MB、GB、TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "你最多能上传的文件数量是{0}。",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -467,7 +467,7 @@ Expressions can include question names, variables, and calculated values (descri
 
 ### Supported Operators
 
-The SurveyJS expression engine is built upon the <a href="https://github.com/pegjs/pegjs" target="_blank">PEG.js</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/master/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
+The SurveyJS expression engine is built upon the <a href="https://github.com/pegjs/pegjs" target="_blank">PEG.js</a> parser generator. The following table gives a brief overview of operators that you can use within expressions. For a detailed look at the grammar rules used by the expression parser, refer to the [`survey-library`](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/expressions/grammar.pegjs) GitHub repository.
 
 | Operator | Description | Expression example |
 | -------- | ----------- | ------------------ |
@@ -548,7 +548,7 @@ Returns the `valueIfTrue` value if the `condition` is truthy or the `valueIfFals
 
 *Example*: `"expression": "iif({question1} + {question2} > 20, 'High', 'Low')"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L205-L209 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L414-L419 (linkStyle))
 
 ---
 
@@ -560,7 +560,7 @@ Returns `true` if all questions in a given panel or page have valid input; other
 
 *Example*: `"expression": "isContainerReady('page1')"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L232-L245 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L496-L518 (linkStyle))
 
 ---
 
@@ -572,7 +572,7 @@ Returns `true` if the survey is in display or preview mode.
 
 *Example*: `"expression": "isDisplayMode()"` 
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L520-L523 (linkStyle))  
 
 ---
 
@@ -584,7 +584,7 @@ Returns age according to a given birthdate. The date argument (which is typicall
 
 *Example*: `"expression": "age({birthdate})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L439-L443 (linkStyle))  
 
 ---
 
@@ -596,7 +596,7 @@ Returns the current date and time.
 
 *Example*: `"expression": "currentDate()"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L252-L255 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L525-L528 (linkStyle))  
 
 ---
 
@@ -611,7 +611,7 @@ Returns the current date or a date shifted from the current by a given number of
 - `"expression": "today()"`
 - `"expression": "today(2)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L530-L542 (linkStyle))
 
 ---
 
@@ -623,7 +623,7 @@ Returns the year of a given date.
 
 *Example*: `"expression": "year({birthdate})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L323-L326 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L574-L578 (linkStyle))
 
 ---
 
@@ -635,7 +635,7 @@ Returns the month of a given date as a value from 1 (January) to 12 (December).
 
 *Example*: `"expression": "month({birthdate})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L329-L332 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L580-L584 (linkStyle))
 
 ---
 
@@ -647,7 +647,7 @@ Returns the day of the month for a given date as a value from 1 to 31.
 
 *Example*: `"expression": "day({birthdate})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L335-L338 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L586-L590 (linkStyle))
 
 ---
 
@@ -659,7 +659,7 @@ Returns the day of the week for a given date as a value from 0 (Sunday) to 6 (Sa
 
 *Example*: `"expression": "weekday({birthdate})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L341-L344 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L592-L596 (linkStyle))
 
 ---
 
@@ -671,7 +671,7 @@ Returns a Date value converted from a given question's value.
 
 *Example*: `"expression": "getDate({birthdate})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L211-L216 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L421-L425 (linkStyle))  
 
 ---
 
@@ -679,11 +679,11 @@ Returns a Date value converted from a given question's value.
 
 *Definition*: `dateAdd(date: any, numberToAdd: number, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): Date`
 
-Adds or subtracts a specified number of full days (default), hours, minutes, seconds, months, or years to or from a date value.
+Adds or subtracts a specified number of days (default), hours, minutes, seconds, months, or years to or from a date value.
 
 *Example*: `"expression": "dateAdd({startDate}, 14, "days")"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/665a7457d79a0b5d7a8f9c0993fab24bce4167a0/packages/survey-core/src/functionsfactory.ts#L269-L286 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L460-L486 (linkStyle))
 
 ---
 
@@ -691,11 +691,11 @@ Adds or subtracts a specified number of full days (default), hours, minutes, sec
 
 *Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): number`
 
-Returns a difference between two given dates in full days (default), hours, minutes, seconds, months, or years.
+Returns a difference between two given dates in days (default), hours, minutes, seconds, months, or years.
 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/fc9516e1f243b62be846d5490965e87e1c626ad6/packages/survey-core/src/functionsfactory.ts#L245-L256 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L445-L458 (linkStyle))
 
 ---
 
@@ -707,7 +707,7 @@ Returns the sum of passed numbers.
 
 *Example*: `"expression": "sum({total1}, {total2})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L73-L82 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L223-L232 (linkStyle))
 
 ---
 
@@ -719,7 +719,7 @@ Returns the maximum of passed numbers.
 
 *Example*: `"expression": "max({total1}, {total2})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L106-L109 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L256-L259 (linkStyle))
 
 ---
 
@@ -731,7 +731,7 @@ Returns the minimum of passed numbers.
 
 *Example*: `"expression": "min({total1}, {total2})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L101-L104 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L251-L254 (linkStyle))
 
 ---
 
@@ -743,7 +743,7 @@ Returns the average of passed numbers.
 
 *Example*: `"expression": "avg({total1}, {total2}, {total3})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L118-L127 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L268-L274 (linkStyle))
 
 ---
 
@@ -765,7 +765,7 @@ Rounds the given number to the specified number of decimal places. If the `preci
 "expression": "round(-2.175, 2)" // -2.18
 ```
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/2c5c9367646847899e773554c021418d8e2b5f05/packages/survey-core/src/functionsfactory.ts#L133-L147 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L276-L290 (linkStyle))
 
 ---
 
@@ -787,7 +787,7 @@ Truncates the given number to the specified number of decimal places. If the `pr
 "expression": "trunc(-2.175, 1)" // -2.1
 ```
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/2c5c9367646847899e773554c021418d8e2b5f05/packages/survey-core/src/functionsfactory.ts#L149-L162 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L292-L305 (linkStyle))
 
 ---
 
@@ -801,63 +801,109 @@ The following code sums up values from a `"total"` matrix column but includes on
 
 *Example*: `"expression": "sumInArray({matrixdynamic}, 'total', {categoryId} = 1)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L367-L375 (linkStyle))
 
 ---
 
 #### `maxInArray`
 
-*Definition*: `maxInArray(question: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `maxInArray(question: expression, valueField: string, returnFieldOrFilter?: string | expression, filter?: expression): number | string`
 
-Returns the maximum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the maximum numeric value from a specified field within an array. The array is typically the response value of a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
 
-The following code finds a maximum value within a `"quantity"` matrix column, but the value should be under 100:
+- `valueField`: The field whose numeric values are evaluated.
+- `filter` (optional): An expression that limits which items are included.
+- `returnFieldOrFilter` (optional):
+  - If a string, specifies a field whose value is returned for the item with the maximum `valueField`.
+  - If an expression, acts as a filter (equivalent to passing it as the `filter` argument).
 
-*Example*: `"expression": "maxInArray({matrixdynamic}, 'quantity', {quantity} < 100)"`
+If `returnFieldOrFilter` is not specified or is a filter, the function returns the maximum numeric value. Otherwise, it returns the corresponding field value from the item that produced the maximum.
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187 (linkStyle))
+**Examples:**
+
+```js
+{
+  matrixdynamic: [
+    { name: "A", price: 10, active: true },
+    { name: "B", price: 20, active: true },
+    { name: "C", price: 30, active: false }
+  ]
+}
+```
+
+```js
+"maxInArray({matrixdynamic}, 'price')" // 30
+"maxInArray({matrixdynamic}, 'price', 'name')" // C
+"maxInArray({matrixdynamic}, 'price', active = true)" // 20
+"maxInArray({matrixdynamic}, 'price', 'name', active = true)" // B
+```
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L386-L393 (linkStyle))
 
 ---
 
 #### `minInArray`
 
-*Definition*: `minInArray(question: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `minInArray(question: expression, valueField: string, returnFieldOrFilter?: string | expression, filter?: expression): number | string`
  
-Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the minimum numeric value from a specified field within an array. The array is typically the response value of a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
 
-The following code finds a minimum value within a `"quantity"` matrix column but searches for it only in the rows where a `"categoryId"` column equals 1 and the values are positive:
+- `valueField`: The field whose numeric values are evaluated.
+- `filter` (optional): An expression that limits which items are included.
+- `returnFieldOrFilter` (optional):
+  - If a string, specifies a field whose value is returned for the item with the minimum `valueField`.
+  - If an expression, acts as a filter (equivalent to passing it as the `filter` argument).
 
-*Example*: `"expression": "minInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
+If `returnFieldOrFilter` is not specified or is a filter, the function returns the minimum numeric value. Otherwise, it returns the corresponding field value from the item that produced the minimum.
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179 (linkStyle))
+**Examples:**
+
+```js
+{
+  matrixdynamic: [
+    { name: "A", price: 10, active: false },
+    { name: "B", price: 20, active: true },
+    { name: "C", price: 30, active: true }
+  ]
+}
+```
+
+```js
+"minInArray({matrixdynamic}, 'price')" // 10
+"minInArray({matrixdynamic}, 'price', 'name')" // A
+"minInArray({matrixdynamic}, 'price', active = true)" // 20
+"minInArray({matrixdynamic}, 'price', 'name', active = true)" // B
+```
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L377-L384 (linkStyle))
 
 ---
 
 #### `avgInArray`
 
-*Definition*: `avgInArray(question: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `avgInArray(question: expression, valueField: string, filter?: expression): number`
 
-Returns the average of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
+Returns the average of numbers taken from a specified value field. This value field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question. The optional `filter` parameter defines a rule according to which values are included in the calculation.
 
 The following code finds an average of values within a `"quantity"` matrix column, excluding zeroes:
 
 *Example*: `"expression": "avgInArray({matrixdynamic}, 'quantity', {quantity} > 0)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L405-L412 (linkStyle))  
 
 ---
 
 #### `countInArray`
 
-*Definition*: `countInArray(question: expression, dataFieldName: string, filter?: expression): number`
+*Definition*: `countInArray(question: expression, valueField: string, filter?: expression): number`
 
-Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
+Returns the total number of array items in which a specified value field has a value other than `null` or `undefined`. This value field is searched in an array that contains a user response to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/multi-select-matrix-question/), [Dynamic Matrix](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/), or [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question.
 
 The following code finds the total number of matrix rows with a `"quantity"` column value greater than zero but includes only the rows where a `"categoryId"` column equals 1.:
 
 *Example*: `"expression": "countInArray({matrixdynamic}, 'quantity', {quantity} > 0 and {categoryId} = 1)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L395-L403 (linkStyle))
 
 ---
 
@@ -871,7 +917,7 @@ The second parameter allows you to get a display text associated with a specific
 
 *Example*: `"expression": "displayValue('my-dropdown-question', 5)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/54b8acc0b19fcad282d5306e3124cf89e9ab4fa9/src/functionsfactory.ts#L390-L396 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L620-L639 (linkStyle))
 
 > When using the `displayValue` function within a [`setValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#setValueExpression), specify the [`setValueIf`](https://surveyjs.io/form-library/documentation/api-reference/question#setValueIf) expression as well. This requirement stems from the fact that the `setValueExpression` is reevaluated only when `setValueIf` is `true` or once the value of a referenced question is changed. Although you do pass a question name to the `displayValue` function, this name is only used to access the question within JavaScript code and doesn't directly reference it. To trigger the reevaluation in this case, define the `setValueIf` expression as follows:
 >
@@ -892,7 +938,7 @@ Returns the value of a property specified for a given question. Supports questio
 
 *Example*: `"expression": "propertyValue('question1', 'visible')"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/f70cd9a367659f475e28e0a317b9583931cdf185/src/functionsfactory.ts#L365-L370 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/70ed9d8cb5a0672cd5d106dabba9b1ef35cc8186/packages/survey-core/src/functionsfactory.ts#L641-L657 (linkStyle))
 
 ### Custom Functions
 
@@ -950,7 +996,6 @@ function age(params: any[]): any {
 registerFunction({ name: "age", func: age });
 ```
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L218-L230 (linkStyle))
 [View Demo](https://surveyjs.io/form-library/examples/condition-customfunctions/ (linkStyle))
 
 #### Access Survey Elements Within a Custom Function

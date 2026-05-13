@@ -69,6 +69,8 @@ export var slovakSurveyStrings = {
   stepError: "Zadajte hodnotu, ktorá zodpovedá veľkosti kroku {0}.",
   // "The value should not be greater than {0}"
   maxError: "Hodnota nemá byť vyššia než {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Neplatný vstup",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Čísla nie sú povolené.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var slovakSurveyStrings = {
   urlGetChoicesError: "Požiadavka vrátila prázdne údaje alebo je vlastnosť „cesta“ nesprávna",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Veľkosť súboru nemá prekročiť {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajty, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maximálny počet súborov, ktoré môžete nahrať, je {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

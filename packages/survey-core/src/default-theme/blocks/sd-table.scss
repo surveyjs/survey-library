@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-table {
   width: 100%;
@@ -166,7 +167,7 @@
           }
 
           &.sd-item--checked .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-default-bg, #19B394);
+            background-color: var(--sjs2-color-component-check-true-default-bg, #19b394);
           }
           &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
             background-color: transparent;
@@ -300,7 +301,7 @@
 
 .sd-table__cell--actions,
 .sd-matrixdynamic__add-btn {
-  .sv-action-bar {
+  .sd-action-bar {
     overflow: visible;
   }
 }
@@ -312,30 +313,6 @@
     padding-left: 0;
     width: var(--sjs2-size-x400);
     min-width: var(--sjs2-size-x400);
-  }
-}
-
-.sd-table__cell--detail-button.sd-action--icon {
-  border: none;
-  background: transparent;
-  border-radius: var(--sjs2-radius-x200);
-  padding: var(--sjs2-spacing-x100);
-  transition: background-color $transition-duration;
-
-  .sd-action__icon {
-    display: block;
-    width: multiply(1, $font-editorfont-size);
-    height: multiply(1, $font-editorfont-size);
-  }
-
-  &:hover,
-  &:focus {
-    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
-    outline: none;
-
-    use {
-      fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19B394);
-    }
   }
 }
 
@@ -718,26 +695,13 @@
     margin-bottom: var(--sjs2-spacing-x100);
 
     .sd-action-bar {
-      margin-right: var(--sjs2-spacing-negative-x300);
-      margin-left: var(--sjs2-spacing-negative-x300);
+      margin-right: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
+      margin-left: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
       background: $background;
     }
 
     .sv-action--show-detail-mobile {
       flex-grow: 1;
-    }
-  }
-
-  .sd-action.sd-action.sd-matrixdynamic__remove-btn {
-    opacity: 1;
-    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
-
-    .sd-action__icon {
-      display: none;
-    }
-
-    &:after {
-      content: attr(title);
     }
   }
 
@@ -810,8 +774,7 @@
     .sd-expression {
       padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
       border-bottom: 1px solid $border-light;
-      font-size: calcFontSize(1);
-      font-weight: 600;
+      @include sjs2--typography--default-strong;
       line-height: var(--sjs2-line-height-x300);
     }
   }

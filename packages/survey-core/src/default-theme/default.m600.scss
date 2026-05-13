@@ -1,5 +1,6 @@
 @use "variables.scss" as *;
 @use "mixins.scss" as mixins;
+@use "typography-mixins.scss" as *;
 
 .sd-root-modern,
 .sd-container-modern {
@@ -87,8 +88,7 @@
 
     .sd-multipletext__item-title {
       padding: 0;
-      font-size: calcFontSize(0.75);
-      line-height: calcLineHeight(1);
+      @include sjs2--typography--small;
     }
 
     .sd-multipletext__item {

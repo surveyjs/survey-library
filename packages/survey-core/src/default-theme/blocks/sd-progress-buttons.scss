@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-progress-buttons__image-button-left {
   display: none;
@@ -75,9 +76,7 @@
       border-radius: 50%;
       align-self: center;
       z-index: 1;
-      font-size: calcFontSize(0.75);
-      font-weight: 600;
-      line-height: calcLineHeight(1);
+      @include sjs2--typography--small-strong;
       justify-content: center;
       color: $background-dim;
       box-sizing: content-box;
@@ -176,9 +175,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: calcFontSize(0.75);
-  font-weight: 600;
-  line-height: calcLineHeight(1);
+  @include sjs2--typography--small-strong;
   flex-grow: 1;
   text-align: center;
   padding: 0 var(--sjs2-spacing-x200);

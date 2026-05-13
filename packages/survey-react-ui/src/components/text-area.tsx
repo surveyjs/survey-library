@@ -3,7 +3,7 @@ import { ResizeManager, TextAreaModel } from "survey-core";
 import { ReactElementFactory } from "../element-factory";
 import { SurveyElementBase } from "../reactquestion_element";
 import { SvgIcon } from "./svg-icon/svg-icon";
-import { SurveyActionBar } from "entries";
+import { SurveyActionBar } from "../components/action-bar/action-bar";
 
 interface ITextAreaProps {
   viewModel: TextAreaModel;

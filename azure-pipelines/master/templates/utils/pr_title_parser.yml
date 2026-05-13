@@ -1,0 +1,23 @@
+steps:
+  - checkout: none
+  - bash: |
+      TARGET_BRANCH="$(System.PullRequest.TargetBranch)"
+      TARGET_BRANCH="${TARGET_BRANCH#refs/heads/}"
+
+      PR_TITLE=$(curl -sf "https://api.github.com/repos/$(Build.Repository.Name)/pulls/$(System.PullRequest.PullRequestNumber)" | jq -r '.title // empty') || {
+        echo "##vso[task.logissue type=warning]Failed to fetch PR title"
+        exit 0
+      }
+      echo "PR Title: $PR_TITLE"
+
+      # Extract all [name: value] pairs from PR title and export as pipeline variables
+      while IFS== read -r NAME VALUE; do
+        NAME="${NAME^^}"
+        if [[ "$NAME" =~ ^[A-Z_]+$ ]]; then
+          echo "Extracted: ${NAME}=${VALUE}"
+          echo "##vso[task.setvariable variable=${NAME};isOutput=true]${VALUE}"
+        else
+          echo "Skipping invalid variable name: ${NAME}"
+        fi
+      done < <(echo "$PR_TITLE" | grep -oE '\[[^]]+:[^]]+\]' | sed -E 's/\[\s*([^:]+?)\s*:\s*(.*?)\s*\]/\1=\2/')
+    name: data

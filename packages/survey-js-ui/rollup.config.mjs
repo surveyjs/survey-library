@@ -111,6 +111,7 @@ export default (options = {}) => {
       },
       dir: resolve(buildPath, "./fesm"),
       version: pkg.version,
+      noEmitOnError: !options.watch,
     }),
     createUmdConfig({
       input: {
@@ -132,6 +133,7 @@ export default (options = {}) => {
         "jquery": "jQuery",
       },
       version: pkg.version,
+      noEmitOnError: !options.watch,
     })
   ];
 };

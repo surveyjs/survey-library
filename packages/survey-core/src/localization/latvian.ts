@@ -69,6 +69,8 @@ export var latvianSurveyStrings = {
   stepError: "Lūdzu, ievadiet vērtību, kas atbilst {0} soļa lielumam.",
   // "The value should not be greater than {0}"
   maxError: "Vērtība nedrīkst būt lielāka par {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Nederīga ievade",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numuri nav atļauti.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var latvianSurveyStrings = {
   urlGetChoicesError: "Pieprasījums atgrieza tukšus datus vai rekvizīts “path” ir nepareizs",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Faila lielums nedrīkst pārsniegt {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Baiti, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksimālais augšupielādējamo failu skaits ir {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

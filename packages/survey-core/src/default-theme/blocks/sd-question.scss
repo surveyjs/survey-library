@@ -140,7 +140,7 @@
 }
 
 .sd-question__comment-area {
-  font-size: calcFontSize(1);
+  @include sjs2--typography--default;
   margin-top: var(--sjs2-spacing-x200);
   display: flex;
   flex-direction: column;

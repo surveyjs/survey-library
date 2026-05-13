@@ -1,10 +1,7 @@
 <template>
   <div
     v-if="surveyWindow.isShowing"
-    :style="{
-      maxWidth: surveyWindow.renderedWidth,
-      width: surveyWindow.renderedWidth,
-    }"
+    :style="(surveyWindow as any).renderedStyle"
     :class="surveyWindow.cssRoot"
     @scroll="doScroll"
   >

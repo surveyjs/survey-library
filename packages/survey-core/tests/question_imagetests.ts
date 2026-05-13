@@ -1,22 +1,23 @@
 import { QuestionImageModel } from "../src/question_image";
 import { SurveyModel } from "../src/survey";
 
-QUnit.test("Check image rendered mode", function (assert) {
+import { describe, test, expect } from "vitest";
+test("Check image rendered mode", () => {
   const question = new QuestionImageModel("q1");
-  assert.equal(question.contentMode, "auto");
-  assert.equal(question.renderedMode, "image");
+  expect(question.contentMode).toBe("auto");
+  expect(question.renderedMode).toBe("image");
   question.contentMode = "video";
-  assert.equal(question.renderedMode, "video");
+  expect(question.renderedMode).toBe("video");
   question.contentMode = "youtube";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
   question.contentMode = "image";
-  assert.equal(question.renderedMode, "image");
+  expect(question.renderedMode).toBe("image");
   question.contentMode = "video";
-  assert.equal(question.renderedMode, "video");
+  expect(question.renderedMode).toBe("video");
   question.contentMode = "auto";
-  assert.equal(question.renderedMode, "image");
+  expect(question.renderedMode).toBe("image");
 });
-QUnit.test("Check video rendered mode onSurveyLoading", function (assert) {
+test("Check video rendered mode onSurveyLoading", () => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -27,58 +28,58 @@ QUnit.test("Check video rendered mode onSurveyLoading", function (assert) {
     ]
   });
   const question = <QuestionImageModel>survey.getAllQuestions()[0];
-  assert.equal(question.renderedMode, "video");
+  expect(question.renderedMode).toBe("video");
 });
-QUnit.test("Check youtube video rendered mode", function (assert) {
+test("Check youtube video rendered mode", () => {
   const question = new QuestionImageModel("q1");
   question.imageLink = "https://www.youtube.com/embed/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
   question.imageLink = "https://youtube.com/embed/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
   question.imageLink = "m.youtube.com/embed/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
   question.imageLink = "youtube.com/embed/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
   question.imageLink = "youtu.be/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
   question.imageLink = "youtu.bee/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "image");
+  expect(question.renderedMode).toBe("image");
   question.imageLink = "javascript:(alert('youtu.be'))";
-  assert.equal(question.renderedMode, "image");
+  expect(question.renderedMode).toBe("image");
   question.imageLink = "abcd";
-  assert.equal(question.renderedMode, "image");
+  expect(question.renderedMode).toBe("image");
   question.imageLink = "https://youtu.be/tgbNymZ7vqY";
-  assert.equal(question.renderedMode, "youtube");
+  expect(question.renderedMode).toBe("youtube");
 });
-QUnit.test("Check NOT youtube video rendered mode", function (assert) {
+test("Check NOT youtube video rendered mode", () => {
   const question = new QuestionImageModel("q1");
   question.imageLink = "videoUrl.mov";
-  assert.equal(question.renderedMode, "video");
+  expect(question.renderedMode).toBe("video");
   question.imageLink = "abcd";
-  assert.equal(question.renderedMode, "image");
+  expect(question.renderedMode).toBe("image");
   question.imageLink = "videoUrl.avi";
-  assert.equal(question.renderedMode, "video");
+  expect(question.renderedMode).toBe("video");
 });
-QUnit.test("Check youtube video imagelink", function (assert) {
+test("Check youtube video imagelink", () => {
   const question = new QuestionImageModel("q1");
   question.contentMode = "youtube";
   question.imageLink = "https://www.youtube.com/embed/tgbNymZ7vqY";
-  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/tgbNymZ7vqY");
+  expect(question.locImageLink.renderedHtml).toBe("https://www.youtube.com/embed/tgbNymZ7vqY");
   question.imageLink = "javascript:alert('a')";
-  assert.equal(question.locImageLink.renderedHtml, "");
+  expect(question.locImageLink.renderedHtml).toBe("");
   question.imageLink = "https://youtu.be/tgbNymZ7vqY";
-  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/tgbNymZ7vqY");
+  expect(question.locImageLink.renderedHtml).toBe("https://www.youtube.com/embed/tgbNymZ7vqY");
   question.imageLink = "javascript:alert('youtube.com')";
-  assert.equal(question.locImageLink.renderedHtml, "");
+  expect(question.locImageLink.renderedHtml).toBe("");
   question.imageLink = "youtube.com.org";
-  assert.equal(question.locImageLink.renderedHtml, "");
+  expect(question.locImageLink.renderedHtml).toBe("");
 
   question.contentMode = "image";
   question.imageLink = "videoUrl.mov";
-  assert.equal(question.locImageLink.renderedHtml, "videoUrl.mov");
+  expect(question.locImageLink.renderedHtml).toBe("videoUrl.mov");
 });
 
-QUnit.test("Image adaptive mode", function (assert) {
+test("Image adaptive mode", () => {
   const json = {
     elements: [
       {
@@ -92,30 +93,30 @@ QUnit.test("Image adaptive mode", function (assert) {
 
   question.cssClasses.image = "css_image";
   question.cssClasses.adaptive = "css_adaptive";
-  assert.equal(question.getImageCss(), "css_image css_adaptive");
+  expect(question.getImageCss()).toBe("css_image css_adaptive");
 
   question.imageWidth = "201";
   question.imageHeight = "150";
-  assert.equal(question.getImageCss(), "css_image");
+  expect(question.getImageCss()).toBe("css_image");
 
   question.imageWidth = "200";
   question.imageHeight = "151";
-  assert.equal(question.getImageCss(), "css_image");
+  expect(question.getImageCss()).toBe("css_image");
 
   question.imageWidth = "201";
   question.imageHeight = "151";
-  assert.equal(question.getImageCss(), "css_image");
+  expect(question.getImageCss()).toBe("css_image");
 
   question.imageWidth = "200";
   question.imageHeight = "150";
-  assert.equal(question.getImageCss(), "css_image css_adaptive");
+  expect(question.getImageCss()).toBe("css_image css_adaptive");
 });
-QUnit.test("Image question correct youtube url", function (assert) {
+test("Image question correct youtube url", () => {
   let question = new QuestionImageModel("q1");
   question.imageLink = "https://youtu.be/-5CdAup0o-I";
-  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I");
+  expect(question.locImageLink.renderedHtml).toBe("https://www.youtube.com/embed/-5CdAup0o-I");
   question.imageLink = "https://www.youtube.com/watch?v=-5CdAup0o-I2";
-  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I2");
+  expect(question.locImageLink.renderedHtml).toBe("https://www.youtube.com/embed/-5CdAup0o-I2");
   const json = {
     elements: [
       {
@@ -127,10 +128,10 @@ QUnit.test("Image question correct youtube url", function (assert) {
   };
   const survey = new SurveyModel(json);
   question = <any>survey.getQuestionByName("q1");
-  assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I3");
+  expect(question.locImageLink.renderedHtml).toBe("https://www.youtube.com/embed/-5CdAup0o-I3");
 });
 
-QUnit.test("Image question: check image size css values", function (assert) {
+test("Image question: check image size css values", () => {
   const json = {
     elements: [
       {
@@ -143,34 +144,34 @@ QUnit.test("Image question: check image size css values", function (assert) {
   };
   const survey = new SurveyModel(json);
   const question = <QuestionImageModel>survey.getAllQuestions()[0];
-  assert.equal(question.renderedHeight, 400);
-  assert.equal(question.renderedWidth, 200);
+  expect(question.renderedHeight).toBe(400);
+  expect(question.renderedWidth).toBe(200);
 
-  assert.equal(question.renderedStyleHeight, undefined);
-  assert.equal(question.renderedStyleWidth, undefined);
+  expect(question.renderedStyleHeight).toBe(undefined);
+  expect(question.renderedStyleWidth).toBe(undefined);
 
   question.imageHeight = "500px";
   question.imageWidth = "300px";
-  assert.equal(question.renderedHeight, 500);
-  assert.equal(question.renderedWidth, 300);
+  expect(question.renderedHeight).toBe(500);
+  expect(question.renderedWidth).toBe(300);
 
-  assert.equal(question.renderedStyleHeight, undefined);
-  assert.equal(question.renderedStyleWidth, undefined);
+  expect(question.renderedStyleHeight).toBe(undefined);
+  expect(question.renderedStyleWidth).toBe(undefined);
 
   question.imageHeight = "50%";
   question.imageWidth = "100%";
-  assert.equal(question.renderedHeight, undefined);
-  assert.equal(question.renderedWidth, undefined);
+  expect(question.renderedHeight).toBe(undefined);
+  expect(question.renderedWidth).toBe(undefined);
 
-  assert.equal(question.renderedStyleHeight, "50%");
-  assert.equal(question.renderedStyleWidth, "100%");
+  expect(question.renderedStyleHeight).toBe("50%");
+  expect(question.renderedStyleWidth).toBe("100%");
 
   question.imageHeight = "250";
   question.imageWidth = "400";
-  assert.equal(question.renderedHeight, 250);
-  assert.equal(question.renderedWidth, 400);
+  expect(question.renderedHeight).toBe(250);
+  expect(question.renderedWidth).toBe(400);
 
-  assert.equal(question.renderedStyleHeight, undefined);
-  assert.equal(question.renderedStyleWidth, undefined);
+  expect(question.renderedStyleHeight).toBe(undefined);
+  expect(question.renderedStyleWidth).toBe(undefined);
 
 });

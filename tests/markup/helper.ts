@@ -432,7 +432,7 @@ function removeActionsIdAttribute(str: string) {
   const div = document.createElement("div");
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
-    if (el.classList.contains("sv-action")) {
+    if (el.classList.contains("sd-action-bar__item")) {
       el.removeAttribute("id");
     }
   });

@@ -45,11 +45,12 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
     cssClass: options.cssClass || "sv-popup--confirm"
   }, options.rootElement);
   const toolbar = popupViewModel.footerToolbar;
+  toolbar.setActionsAppearance({ style: "neutral", mode: "secondary", size: "medium" });
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
   cancelBtn.title = getLocaleString("cancel", options.locale);
   applyBtn.title = options.applyTitle || getLocaleString("ok", options.locale);
-  applyBtn.innerCss = "sd-btn--danger";
+  applyBtn.appearance = { style: "alert" };
   configConfirmDialog(popupViewModel);
   return true;
 }

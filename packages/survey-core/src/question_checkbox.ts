@@ -338,7 +338,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return res;
   }
   public getFilteredValue(isUnwrapped?: boolean): any {
-    if (isUnwrapped && this.hasFilteredValue) return this.renderedValue;
+    if (this.hasFilteredValue && (isUnwrapped || !this.valuePropertyName)) return this.renderedValue;
     return super.getFilteredValue(isUnwrapped);
   }
   protected getMultipleSelectedItems(): Array<ItemValue> {

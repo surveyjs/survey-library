@@ -69,6 +69,8 @@ export var malaySurveyStrings = {
   stepError: "Sila masukkan nilai yang sepadan dengan saiz langkah {0}.",
   // "The value should not be greater than {0}"
   maxError: "Nilai tidak boleh lebih besar daripada {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Input tidak sah",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nombor tidak dibenarkan.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var malaySurveyStrings = {
   urlGetChoicesError: "Permintaan mengembalikan data kosong atau ciri 'laluan' salah",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Saiz fail hendaklah tidak melebihi {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bait, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Bilangan maksimum fail yang boleh anda muat naik ialah {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleListItemByText, test, expect, setData, getData, doDragDrop, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleSelectListItemByText, test, expect, setData, getData, doDragDrop, getButtonByText } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -119,7 +119,7 @@ frameworks.forEach((framework) => {
       let surveyResult = await getSurveyResult(page);
       expect(typeof surveyResult).toBe("undefined");
       await questionDropdownSelect.nth(0).click();
-      await getVisibleListItemByText(page, "Science: Physical Science").click();
+      await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
       await getButtonByText(page, "Complete").click();
       expect(await getRowsCount()).toBe(3);
       await expect(getRequiredElement(1)).toBeVisible();
@@ -134,7 +134,7 @@ frameworks.forEach((framework) => {
 
       const fillTheRow = async function (rowNumber: number) {
         await questionDropdownSelect.nth(rowNumber).click();
-        await getVisibleListItemByText(page, "Science: Physical Science").click();
+        await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
 
         for (let i = 0; i < 11; i++) {
           // answer radios
@@ -201,11 +201,11 @@ frameworks.forEach((framework) => {
       expect(await matrixRowSelector.count()).toBe(2);
       await questionDropdownSelect.nth(0).click();
       await page.waitForTimeout(500);
-      await getVisibleListItemByText(page, "Science: Physical Science").click();
+      await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
 
       await questionDropdownSelect.nth(1).click();
       await page.waitForTimeout(500);
-      await getVisibleListItemByText(page, "Science: Chemistry").click();
+      await getVisibleSelectListItemByText(page, "Science: Chemistry").click();
       await page.locator(".sd-matrixdynamic__btn[title='Remove']").nth(1).click();
       await page.waitForTimeout(500);
       expect(await matrixRowSelector.count()).toBe(1);
@@ -225,13 +225,13 @@ frameworks.forEach((framework) => {
       expect(await matrixRowSelector.count()).toBe(3);
 
       await questionDropdownSelect.nth(0).click();
-      await getVisibleListItemByText(page, "Science: Physical Science").click();
+      await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
 
       await questionDropdownSelect.nth(1).click();
-      await getVisibleListItemByText(page, "Science: Chemistry").click();
+      await getVisibleSelectListItemByText(page, "Science: Chemistry").click();
 
       await questionDropdownSelect.nth(2).click();
-      await getVisibleListItemByText(page, "Math: Algebra").click();
+      await getVisibleSelectListItemByText(page, "Math: Algebra").click();
 
       await getButtonByText(page, "Complete").click();
 
@@ -490,12 +490,12 @@ frameworks.forEach((framework) => {
 
       expect(await matrixRowSelector.count()).toBe(0);
       await questionDropdownSelect.click();
-      await page.locator(".sv-list__item span").filter({ hasText: "3" }).filter({ visible: true }).click();
+      await getVisibleSelectListItemByText(page, "3").click();
       expect(await matrixRowSelector.count()).toBe(3);
       await clearButton.click();
       expect(await matrixRowSelector.count()).toBe(0);
       await questionDropdownSelect.click();
-      await page.locator(".sv-list__item span").filter({ hasText: "5" }).filter({ visible: true }).click();
+      await getVisibleSelectListItemByText(page, "5").click();
       expect(await matrixRowSelector.count()).toBe(5);
     });
 

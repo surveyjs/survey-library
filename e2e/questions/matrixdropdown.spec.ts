@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, visibleInViewport, test, expect, getButtonByText } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, visibleInViewport, test, expect, getButtonByText, getVisibleSelectListItemByText } from "../helper";
 
 const title = "matrixdropdown";
 
@@ -62,27 +62,27 @@ frameworks.forEach((framework) => {
       await page.getByLabel("row angularjs v1.x, column Do").locator("label").filter({ hasText: "Yes" }).locator("span").first().click();
       await page.getByRole("combobox", { name: "row angularjs v1.x, column How long do you use it?" }).first().focus();
       await page.getByRole("combobox", { name: "row angularjs v1.x, column How long do you use it?" }).first().click();
-      await page.locator(".sv-list__item").filter({ hasText: "2", visible: true }).click();
+      await getVisibleSelectListItemByText(page, "1-2 years").click();
       await page.mouse.click(1, 1);
       await page.getByLabel("row angularjs v1.x, column What is main strength?").getByText("Fast").click();
       await page.getByRole("textbox", { name: "row angularjs v1.x, column Please describe your experience" }).fill("why hello world so hard");
       await page.getByRole("combobox", { name: "row angularjs v1.x, column Please rate the framework itself" }).first().focus();
       await page.getByRole("combobox", { name: "row angularjs v1.x, column Please rate the framework itself" }).first().click();
-      await page.locator(".sv-list__item").filter({ hasText: "Excelent" }).click();
+      await getVisibleSelectListItemByText(page, "Excelent").click();
       await page.mouse.click(1, 1);
 
       // answer for row 3
       await page.getByLabel("row knockoutjs, column Do you").locator("label").filter({ hasText: "No" }).locator("span").first().click();
       await page.getByRole("combobox", { name: "row knockoutjs, column How long do you use it?" }).first().focus();
       await page.getByRole("combobox", { name: "row knockoutjs, column How long do you use it?" }).first().click();
-      await page.locator(".sv-list__item").filter({ hasText: "5", visible: true }).click();
+      await getVisibleSelectListItemByText(page, "3-5 years").click();
       await page.mouse.click(1, 1);
       await page.getByLabel("row knockoutjs, column What").getByText("Easy").click();
       await page.getByLabel("row knockoutjs, column What").getByText("Powerfull").click();
       await page.getByRole("textbox", { name: "row knockoutjs, column Please describe your experience" }).fill("it is not 2016");
       await page.getByRole("combobox", { name: "row knockoutjs, column Please rate the framework itself" }).first().focus();
       await page.getByRole("combobox", { name: "row knockoutjs, column Please rate the framework itself" }).first().click();
-      await page.locator(".sv-list__item").filter({ hasText: "Good", visible: true }).click();
+      await getVisibleSelectListItemByText(page, "Good").click();
 
       await getButtonByText(page, "Complete").click();
       const surveyResult = await getSurveyResult(page);
@@ -179,6 +179,43 @@ frameworks.forEach((framework) => {
       const requiredSpan = page.locator("span").filter({ hasText: "Response required." }).first();
       let elementVisisbleInViewPort = await visibleInViewport(page, requiredSpan);
       await expect(elementVisisbleInViewPort).toBeTruthy();
+    });
+
+    test("Remove a row and insert a row before the last row, Bug#11212", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      const json = {
+        elements: [
+          {
+            type: "matrixdropdown",
+            name: "question1",
+            columns: [
+              { name: "col1", cellType: "text" }
+            ],
+            rows: ["Row 1", "Row 2", "Row 3", "Row 4"]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+
+      await expect(page.locator("tbody tr")).toHaveCount(4);
+      await expect(page.getByLabel("row Row 1, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 2, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 3, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 4, column col1")).toBeVisible();
+
+      await page.evaluate(() => {
+        const q = (window as any).survey.getQuestionByName("question1");
+        const rows = q.rows;
+        rows.splice(1, 1);
+        rows.splice(rows.length - 1, 0, new (window as any).Survey.ItemValue("Row 5"));
+      });
+      await page.waitForTimeout(200);
+
+      await expect(page.getByLabel("row Row 1, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 2, column col1")).toHaveCount(0);
+      await expect(page.getByLabel("row Row 3, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 5, column col1")).toBeVisible();
+      await expect(page.getByLabel("row Row 4, column col1")).toBeVisible();
     });
   });
 });

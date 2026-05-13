@@ -104,7 +104,8 @@ If you need to get survey results as an array of JavaScript objects, call the Su
   name: string, // Question name
   title: string, // Question title
   value: any, // Question value
-  displayValue: string, // Question value converted to a string
+  // Display text associated with the question value in choice-based questions
+  displayValue: string,
   isNode: boolean, // `true` if the question contains more than one value
   // Details about the values. Present only if `isNode` is `true`
   data: Array<{ name, title, value, displayValue, isNode, data}>
@@ -126,7 +127,8 @@ The previous section described the default format of survey results. If you want
   name: string, // Question name
   title: string, // Question title
   value: any, // Question value
-  displayValue: string // Question value converted to a string
+  // Display text associated with the question value in choice-based questions
+  displayValue: string
 }
 ```
 

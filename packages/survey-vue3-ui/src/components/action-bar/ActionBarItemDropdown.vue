@@ -4,7 +4,7 @@
     :class="item.getActionBarItemCss()"
     v-on:click="
       (args: any) => {
-        item.action(item, !!args.pointerType);
+        item.doAction(args);
       }
     "
     v-on:keyup="

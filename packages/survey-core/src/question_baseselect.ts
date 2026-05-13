@@ -980,6 +980,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!!val && typeof val === "object" && !Helpers.isValueEmpty(val.value)) return val.value;
     return val;
   }
+  public getFilteredValue(isUnwrapped?: boolean): any {
+    return this.getValueFromValueWithComment(this.value);
+  }
   protected rendredValueToData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
     return this.renderedValueToDataCore(val);

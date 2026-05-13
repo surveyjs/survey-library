@@ -69,6 +69,8 @@ export var romanianSurveyStrings = {
   stepError: "Introduceți o valoare care se potrivește cu dimensiunea pasului {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Valoarea nu trebuie să fie mai mare de {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Intrare invalidă",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numerele nu sunt permise.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var romanianSurveyStrings = {
   urlGetChoicesError: "Request-ul nu a returnat date sau proprietatea 'path' este incorectă",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Dimensiunea fişierului nu trebuie să depăşească {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Octeți, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Numărul maxim de fișiere pe care le poți încărca este {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

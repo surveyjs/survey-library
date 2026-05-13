@@ -23,7 +23,7 @@ frameworks.forEach((framework) => {
       const commentArea = page.locator(".sd-question__comment-area");
       expect(await commentArea.count()).toEqual(0);
       const questionDropdownSelect = page.locator(".sd-dropdown");
-      const itemsSelector = page.locator(".sd-list__item");
+      const itemsSelector = page.locator(".sd-selectlist__item");
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(0).click();
       expect(await commentArea.count()).toEqual(1);

@@ -69,6 +69,8 @@ export var dutchSurveyStrings = {
   stepError: "Voer een waarde in die overeenkomt met de stapgrootte van {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "De waarde mag niet groter zijn dan {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ongeldige invoer",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nummers zijn niet toegestaan.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var dutchSurveyStrings = {
   urlGetChoicesError: "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
   // "The file size should not exceed {0}."
   exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Het maximale aantal bestanden dat je kunt uploaden is {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

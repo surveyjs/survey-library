@@ -69,6 +69,8 @@ export var teluguStrings = {
   stepError: "{0} యొక్క దశ సైజుకు జత అయ్యే విలువను దయచేసి నమోదు చేయండి.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "చెల్లని ఇన్ పుట్",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "అంకెలు అనుమతించబడవు.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var teluguStrings = {
   urlGetChoicesError: "విన్నపము ఖాళీ డేటాని తిరిగిచ్చింది, లేదా path తప్పైన ది",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ఫైల్ పరిమాణం{0} కంటే పెద్దదిగా ఉండకూడదు",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "బైట్ లు, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "మీరు అప్ లోడ్ చేయగల గరిష్ట ఫైళ్ల సంఖ్య {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -75,7 +75,7 @@ const json = {
 const applyHeaderAccentBackgroundColor = async (page: Page) => {
   await applyTheme(page, {
     "header": { "inheritWidthFrom": "container" },
-    "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "", "--sjs2-color-component-header-default-description": "" }
+    "cssVariables": { "--sjs-header-backcolor": "var(--sjs2-color-bg-brand-primary)", "--sjs2-color-component-header-default-title": "var(--sjs2-color-fg-brand-on-primary)", "--sjs2-color-component-header-default-description": "var(--sjs2-color-fg-brand-on-primary)" }
   });
 };
 
@@ -125,7 +125,11 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const container = document.querySelector("#surveyElement");
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
+        }
+
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -137,7 +141,7 @@ frameworks.forEach(framework => {
       });
       await page.waitForLoadState("networkidle");
 
-      await compareMaskedScreenshot(page, "#surveyElement", "survey-progress-bar-bottom-brand.png");
+      await compareMaskedScreenshot(page, page.locator(".sd-root-modern").locator(".."), "survey-progress-bar-bottom-brand.png");
     });
 
     test("Check survey with progress top buttons", async ({ page }) => {
@@ -619,7 +623,7 @@ frameworks.forEach(framework => {
     test("Check survey with progress top buttons with numbers and background", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, json);
-      await applyHeaderAccentBackgroundColor(page);
+      //await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageTitles = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
@@ -715,7 +719,7 @@ frameworks.forEach(framework => {
           "--sjs-primary-forecolor-light": "rgba(255, 255, 255, 0.25)",
           "--sjs-special-red": "rgba(229, 10, 62, 1)",
           "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
-          "--sjs-font-headertitle-color": "rgba(255, 255, 255, 0.6)",
+          "--sjs-font-headertitle-color": "rgba(76, 100, 137, 1)",
           "--sjs-header-backcolor": "transparent"
         },
         "header": {

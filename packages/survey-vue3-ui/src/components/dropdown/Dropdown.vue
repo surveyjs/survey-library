@@ -95,8 +95,21 @@
       :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <div v-if="question.readOnlyText" :class="question.cssClasses.controlValue">
-           <SvComponent :is="'survey-string'" :locString="question.locReadOnlyText" />
+      <div
+        v-if="question.showInputFieldComponent"
+        :class="question.cssClasses.controlValue"
+      >
+        <SvComponent
+          :is="question.inputFieldComponentName"
+          :item="readonlySelectedItem"
+          :question="question"
+        />
+      </div>
+      <div
+        v-else-if="question.readOnlyText"
+        :class="question.cssClasses.controlValue"
+      >
+        <SvComponent :is="'survey-string'" :locString="question.locReadOnlyText" />
       </div>
       <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>
@@ -146,6 +159,12 @@ const showSelectedItemLocText = computed(
   () => props.question.showSelectedItemLocText
 );
 const selectedItemLocText = computed(() => props.question.selectedItemLocText);
+const readonlySelectedItem = computed(() => {
+  const m = model.value;
+  return m && typeof m.getSelectedAction === "function"
+    ? m.getSelectedAction()
+    : props.question.selectedItem;
+});
 
 useBase(() => model.value);
 

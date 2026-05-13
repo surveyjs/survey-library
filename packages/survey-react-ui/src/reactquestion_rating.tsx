@@ -17,6 +17,11 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
     this.setState({ value: this.question.value });
   }
 
+  componentDidMount() {
+    super.componentDidMount();
+    this.setState({ value: this.question.value });
+  }
+
   protected renderItem(
     item: any,
     index: number

@@ -6,20 +6,7 @@
   <img *ngIf="!!model.backgroundImage" [src]="model.backgroundImage" [style.width]="model.renderedCanvasWidth" [class]="model.cssClasses.backgroundImage" role="presentation">
   <canvas tabindex="-1" [class]="model.cssClasses.canvas" (blur)="model.onBlur($event)"></canvas>
 </div>
-<div [class]="model.cssClasses.controls" *ngIf="model.canShowClearButton">
-  <button
-    type="button"
-    [class]="model.cssClasses.clearButton"
-    [title]="model.clearButtonCaption"
-    (click)="model.clearValueFromUI()"
-  >
-    <span *ngIf="!model.cssClasses.clearButtonIconId">✖</span>
-    <svg
-      *ngIf="model.cssClasses.clearButtonIconId"
-      [iconName]="model.cssClasses.clearButtonIconId"
-      [size]="'auto'" sv-ng-svg-icon></svg>
-  </button>
-</div>
+<sv-ng-action-bar [model]="model.toolbar"></sv-ng-action-bar>
 <ng-container *ngIf="model.showLoadingIndicator">
   <div [class]="model.cssClasses.loadingIndicator">
     <sv-ng-loading-indicator></sv-ng-loading-indicator>

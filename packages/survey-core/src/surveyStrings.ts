@@ -9,7 +9,9 @@ export var surveyLocalization = {
   localeDirections: <{ [index: string]: any }>{},
   supportedLocales: <Array<any>>[],
   useEnglishNames: false,
-  //TODO remove on next week
+  /**
+   * @deprecated Use the `useEnglishNames` property instead.
+   */
   get showNamesInEnglish(): boolean { return this.useEnglishNames; },
   set showNamesInEnglish(val: boolean) { this.useEnglishNames = val; },
   setupLocale(localeConfig: { localeCode: string, strings: any, nativeName: string, englishName: string, rtl?: boolean }): void {

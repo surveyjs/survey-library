@@ -69,6 +69,8 @@ export var basqueSurveyStrings = {
   stepError: "Sartu {0} urratsaren tamainarekin bat datorren balioa.",
   // "The value should not be greater than {0}"
   maxError: "Balioa ez da {0} baino handiagoa izan behar",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Sarrera baliogabea",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Ezin da zenbakirik egin.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var basqueSurveyStrings = {
   urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Fitxategiaren tamaina ez da {0} baino handiagoa izan behar.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Byteak, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Igo ditzakezun gehienezko fitxategi kopurua {0} da.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

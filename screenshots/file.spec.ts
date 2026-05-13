@@ -69,14 +69,14 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
       await page.hover(".sd-file .sd-file__preview-item");
-      await page.hover(".sd-file .sd-file__preview-item .sd-context-btn");
+      await page.hover(".sd-file .sd-file__preview-item .sd-action");
       await compareScreenshot(page, questionRoot, "file-question-multiple-remove-hovered.png");
 
       await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
       await page.waitForTimeout(1000);
 
-      const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").filter({ visible: true }).first();
+      const prevButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").filter({ visible: true }).first();
       await prevButton.click({ force: true });
       //await page.click(".sd-file #prevPage");
       await page.waitForTimeout(1000);
@@ -227,9 +227,8 @@ frameworks.forEach(framework => {
         question.fileIndexAction.title = question.getFileIndexCaption();
       });
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile.png");
-
-      const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").first();
-      const nextButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").last();
+      const prevButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").first();
+      const nextButton = page.locator(".sd-file__drag-area > .sd-action-bar").locator(".sd-action-bar__item").last();
 
       await nextButton.click();
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile-next.png");

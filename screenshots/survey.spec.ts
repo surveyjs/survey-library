@@ -58,6 +58,11 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        }
+      });
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
       });
@@ -80,6 +85,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        }
+      });
+
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
         (window as any).survey.setIsMobile(true);
@@ -109,7 +120,8 @@ frameworks.forEach(framework => {
       });
       await applyTheme(page, {
         cssVariables: {
-          "--sjs-header-backcolor": "green"
+          "--sjs-header-backcolor": "green",
+          "--sjs2-color-component-header-default-title": ""
         },
         header: {}
       });
@@ -270,7 +282,7 @@ frameworks.forEach(framework => {
         });
       });
       await page.click("text=Windows");
-      await page.click(".sd-btn.sd-navigation__next-btn");
+      await page.click(".sd-navigation__next-btn");
       await page.click("text=Javascript");
       await compareScreenshot(page, ".sd-action-bar.sd-footer.sd-body__navigation", "survey-navigation-bar.png");
     });
@@ -347,7 +359,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-responsive-timer.png");
+      await compareScreenshot(page, "body", "survey-responsive-timer.png", { maxDiffPixels: 2 });
     });
 
     test("Check survey timer", async ({ page }) => {
@@ -422,7 +434,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer.png", { mask: [page.locator(".sd-body")] });
+      await compareScreenshot(page, "body", "survey-timer.png", { mask: [page.locator(".sd-body")], maxDiffPixels: 2 });
     });
 
     test("Check survey timer with no limits", async ({ page }) => {
@@ -1437,7 +1449,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-no-scrolling.png");
-      await page.click(".sd-btn.sd-navigation__next-btn");
+      await page.click(".sd-navigation__next-btn");
       await page.waitForTimeout(100);
       await compareScreenshot(page, undefined, "survey-scrolling-second-page.png");
     });

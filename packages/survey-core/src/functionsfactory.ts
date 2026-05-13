@@ -304,24 +304,37 @@ function trunc(params: any[]): any {
 }
 FunctionFactory.Instance.register("trunc", trunc);
 
+function isReturnColumnParam(param: string, operand: any): boolean {
+  if (!operand || !operand.getType || operand.getType() !== "const") return false;
+  return typeof param === "string" && !/[{}><=!]/.test(param);
+}
 function getInArrayParams(params: any[], originalParams: any[]): any {
-  if (params.length < 2 || params.length > 3) return null;
+  if (params.length < 2 || params.length > 4) return null;
   const arr = params[0];
   if (!arr) return null;
   if (!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
   const name = params[1];
   if (typeof name !== "string" && !(name instanceof String)) return null;
-  let expression = params.length > 2 ? params[2] : undefined;
+  let returnName: string = name as string;
+  let expressionIndex = 2;
+  if (params.length > 2) {
+    const operand = Array.isArray(originalParams) && originalParams.length > 2 ? originalParams[2] : undefined;
+    if (isReturnColumnParam(params[2], operand)) {
+      returnName = params[2] as string;
+      expressionIndex = 3;
+    }
+  }
+  let expression = params.length > expressionIndex ? params[expressionIndex] : undefined;
   if (typeof expression !== "string" && !(expression instanceof String)) {
     expression = undefined;
   }
   if (!expression) {
-    const operand = Array.isArray(originalParams) && originalParams.length > 2 ? originalParams[2] : undefined;
+    const operand = Array.isArray(originalParams) && originalParams.length > expressionIndex ? originalParams[expressionIndex] : undefined;
     if (operand && !!operand.toString()) {
       expression = operand.toString();
     }
   }
-  return { data: arr, name: name, expression: expression };
+  return { data: arr, name: name, expression: expression, returnName: returnName };
 }
 
 function convertToNumber(val: any): number {
@@ -374,21 +387,41 @@ function sumInArray(params: any[], originalParams: any[]): any {
 }
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
+function calcMinMaxInArray(properties: any, params: any[], originalParams: any[],
+  isMin: boolean
+): any {
+  var v = getInArrayParams(params, originalParams);
+  if (!v) return undefined;
+  let condition = !!v.expression ? new ConditionRunner(v.expression) : undefined;
+  if (condition && condition.isAsync) {
+    condition = undefined;
+  }
+  var bestVal: number = undefined;
+  var bestItem: any = undefined;
+  const items = Array.isArray(v.data) ? v.data : Object.keys(v.data).map(key => v.data[key]);
+  for (var i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (!item || Helpers.isValueEmpty(item[v.name])) continue;
+    if (condition && !condition.runValues(item, properties)) continue;
+    const val = convertToNumber(item[v.name]);
+    if (val == undefined || val == null) continue;
+    if (bestVal == undefined || (isMin ? val < bestVal : val > bestVal)) {
+      bestVal = val;
+      bestItem = item;
+    }
+  }
+  if (!bestItem) return undefined;
+  if (v.returnName !== v.name) return bestItem[v.returnName];
+  return bestVal;
+}
+
 function minInArray(params: any[], originalParams: any[]): any {
-  return calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
-    if (res == undefined) return val;
-    if (val == undefined || val == null) return res;
-    return res < val ? res : val;
-  });
+  return calcMinMaxInArray(getProperties(this), params, originalParams, true);
 }
 FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[], originalParams: any[]): any {
-  return calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
-    if (res == undefined) return val;
-    if (val == undefined || val == null) return res;
-    return res > val ? res : val;
-  });
+  return calcMinMaxInArray(getProperties(this), params, originalParams, false);
 }
 FunctionFactory.Instance.register("maxInArray", maxInArray);
 
@@ -489,7 +522,14 @@ function isContainerReadyCore(container: any): boolean {
   if (!container) return false;
   var questions = container.questions;
   for (var i = 0; i < questions.length; i++) {
-    if (!questions[i].validate(false)) return false;
+    const q = questions[i];
+    if (Array.isArray(q.panels)) {
+      for (let j = 0; j < q.panels.length; j++) {
+        if (!isContainerReadyCore(q.panels[j])) return false;
+      }
+    } else {
+      if (!q.validate(false)) return false;
+    }
   }
   return true;
 }

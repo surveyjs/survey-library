@@ -1,0 +1,21 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)
+        displayName: "Test"
+
+      # - task: PublishCodeCoverageResults@1
+      #   inputs:
+      #     codeCoverageTool: Cobertura # or JaCoCo
+      #     summaryFileLocation: "$(System.DefaultWorkingDirectory)/**/*coverage.xml"
+      #     reportDirectory: "$(System.DefaultWorkingDirectory)/**/coverage"

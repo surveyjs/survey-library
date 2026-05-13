@@ -69,6 +69,8 @@ export var arabicSurveyStrings = {
   stepError: "الرجاء إدخال قيمة تطابق حجم الخطوة {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "يجب ألا تزيد القيمة عن {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "إدخال غير صالح",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "الأرقام غير مسموح بها.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var arabicSurveyStrings = {
   urlGetChoicesError: "عاد طلب البيانات فارغ أو 'المسار' غير صحيح ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ينبغي ألا يتجاوز حجم الملف {0}ا",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "بايت, كيلوبايت, ميب, جيب, تيبرايت",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "الحد الأقصى لعدد الملفات التي يمكنك رفعها هو {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

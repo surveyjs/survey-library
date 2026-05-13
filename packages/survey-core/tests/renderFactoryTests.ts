@@ -2,52 +2,53 @@ import { Question } from "../src/question";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { RendererFactory } from "../src/rendererFactory";
 
-export default QUnit.module("RenderFactoryTests");
+import { describe, test, expect } from "vitest";
+describe("RenderFactoryTests", () => {
+  const inst = RendererFactory.Instance;
 
-const inst = RendererFactory.Instance;
+  test("check register/unregister methods", () => {
+    expect(inst.getRenderer("testType", "testRenderAs")).toBe("default");
+    inst.registerRenderer("testType", "testRenderAs", "custom-component");
 
-QUnit.test("check register/unregister methods", function (assert) {
-  assert.equal(inst.getRenderer("testType", "testRenderAs"), "default");
-  inst.registerRenderer("testType", "testRenderAs", "custom-component");
+    expect(inst.getRenderer("testType", "testRenderAs")).toBe("custom-component");
 
-  assert.equal(inst.getRenderer("testType", "testRenderAs"), "custom-component");
+    inst.unregisterRenderer("testType", "testRenderAs");
 
-  inst.unregisterRenderer("testType", "testRenderAs");
+    expect(inst.getRenderer("testType", "testRenderAs")).toBe("default");
+    inst.clear();
+  });
+  test("check register with default/unregister methods", () => {
+    expect(inst.getRenderer("testType", "testRenderAs1"), "#1").toBe("default");
+    expect(inst.getRenderer("testType", "testRenderAs2"), "2").toBe("default");
 
-  assert.equal(inst.getRenderer("testType", "testRenderAs"), "default");
-  inst.clear();
-});
-QUnit.test("check register with default/unregister methods", function (assert) {
-  assert.equal(inst.getRenderer("testType", "testRenderAs1"), "default", "#1");
-  assert.equal(inst.getRenderer("testType", "testRenderAs2"), "default", "2");
+    inst.registerRenderer("testType", "testRenderAs1", "custom-component1");
+    inst.registerRenderer("testType", "testRenderAs2", "custom-component2", true);
+    expect(inst.getRenderer("testType", "testRenderAs1"), "#3").toBe("custom-component1");
+    expect(inst.getRenderer("testType", "testRenderAs2"), "#4").toBe("custom-component2");
+    expect(inst.getRenderer("testType", ""), "#5").toBe("custom-component2");
+    expect(inst.getRenderer("testType", "default"), "#6").toBe("custom-component2");
 
-  inst.registerRenderer("testType", "testRenderAs1", "custom-component1");
-  inst.registerRenderer("testType", "testRenderAs2", "custom-component2", true);
-  assert.equal(inst.getRenderer("testType", "testRenderAs1"), "custom-component1", "#3");
-  assert.equal(inst.getRenderer("testType", "testRenderAs2"), "custom-component2", "#4");
-  assert.equal(inst.getRenderer("testType", ""), "custom-component2", "#5");
-  assert.equal(inst.getRenderer("testType", "default"), "custom-component2", "#6");
+    inst.unregisterRenderer("testType", "testRenderAs2");
+    expect(inst.getRenderer("testType", "testRenderAs1"), "#7").toBe("custom-component1");
+    expect(inst.getRenderer("testType", "testRenderAs2"), "#8").toBe("default");
 
-  inst.unregisterRenderer("testType", "testRenderAs2");
-  assert.equal(inst.getRenderer("testType", "testRenderAs1"), "custom-component1", "#7");
-  assert.equal(inst.getRenderer("testType", "testRenderAs2"), "default", "#8");
+    inst.unregisterRenderer("testType", "testRenderAs1");
+    expect(inst.getRenderer("testType", "testRenderAs1"), "#9").toBe("default");
+    expect(inst.getRenderer("testType", "testRenderAs2"), "#10").toBe("default");
 
-  inst.unregisterRenderer("testType", "testRenderAs1");
-  assert.equal(inst.getRenderer("testType", "testRenderAs1"), "default", "#9");
-  assert.equal(inst.getRenderer("testType", "testRenderAs2"), "default", "#10");
+    inst.clear();
+  });
+  test("Override the default rendering for a question", () => {
+    const q = new QuestionRadiogroupModel("q1");
+    expect(q.isDefaultRendering(), "the rendering is default").toBe(true);
+    expect(q.getComponentName(), "the default component name").toBe("default");
 
-  inst.clear();
-});
-QUnit.test("Override the default rendering for a question", function (assert) {
-  const q = new QuestionRadiogroupModel("q1");
-  assert.equal(q.isDefaultRendering(), true, "the rendering is default");
-  assert.equal(q.getComponentName(), "default", "the default component name");
+    inst.registerRenderer("radiogroup", "testRenderAs", "custom-component", true);
+    expect(q.isDefaultRendering(), "the rendering is not default").toBe(false);
+    expect(q.getComponentName(), "the default component is custom now").toBe("custom-component");
 
-  inst.registerRenderer("radiogroup", "testRenderAs", "custom-component", true);
-  assert.equal(q.isDefaultRendering(), false, "the rendering is not default");
-  assert.equal(q.getComponentName(), "custom-component", "the default component is custom now");
-
-  inst.clear();
-  assert.equal(q.isDefaultRendering(), true, "the rendering is default again");
-  assert.equal(q.getComponentName(), "default", "the default component name again");
+    inst.clear();
+    expect(q.isDefaultRendering(), "the rendering is default again").toBe(true);
+    expect(q.getComponentName(), "the default component name again").toBe("default");
+  });
 });

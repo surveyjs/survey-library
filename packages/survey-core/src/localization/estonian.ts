@@ -69,6 +69,8 @@ export var estonianSurveyStrings = {
   stepError: "Sisestage väärtus, mis vastab {0} sammu suurusele.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Väärtus ei tohiks olla suurem kui {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Kehtetu sisend",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numbrid ei ole lubatud.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var estonianSurveyStrings = {
   urlGetChoicesError: "Taotlus tagastas tühjad andmed või atribuut 'path' on vale",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Faili suurus ei tohi ületada {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Baitid, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Maksimaalne failide arv, mida saad üles laadida, on {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

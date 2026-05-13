@@ -1,11 +1,11 @@
 import { property } from "./decorators";
 import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
+import { IListModel } from "./actions/list-model";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/dom-utils";
-import { settings } from "./settings";
-import { ILocalizableOwner } from "./localizablestring";
+import { normalizeTextForSearch } from "./helpers";
 import { IsTouch } from "./utils/devices";
 
 export let defaultListCss = {
@@ -22,33 +22,19 @@ export let defaultListCss = {
   itemHovered: "sv-list__item--hovered",
   itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
+  itemCustomValue: "sv-list-item--custom-value",
   itemMarkerIcon: "sv-list-item__marker-icon",
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
   itemsContainer: "sv-list",
   itemsContainerFiltering: "sv-list--filtering",
   filter: "sv-list__filter",
+  filterBox: "sv-list-filter__box",
   filterIcon: "sv-list__filter-icon",
   filterInput: "sv-list__input",
   emptyContainer: "sv-list__empty-container",
   emptyText: "sv-list__empty-text"
 };
-export interface IListModel {
-  items: Array<IAction>;
-  onSelectionChanged?: (item: IAction, ...params: any[]) => void;
-  allowSelection?: boolean;
-  searchEnabled?: boolean;
-  selectedItem?: IAction;
-  elementId?: string;
-  locOwner?: ILocalizableOwner;
-  cssClasses?: any;
-  listRole?: string;
-  listItemRole?: string;
-  listAriaLabel?: string;
-  onFilterStringChangedCallback?: (text: string) => void;
-  onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
-  disableSearch?: boolean;
-}
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
   private loadingIndicatorValue: T;
@@ -92,9 +78,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (!filterStringInLow) return true;
     const text = item.title || "";
     if (this.onTextSearchCallback) return this.onTextSearchCallback(item, filterStringInLow);
-    let textInLow = text.toLocaleLowerCase();
-    textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-    return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
+    const textNormalized = normalizeTextForSearch(text, "filter");
+    const filterNormalized = normalizeTextForSearch(filterStringInLow, "filter");
+    return textNormalized.indexOf(filterNormalized) > -1;
   }
   public isItemVisible(item: T): boolean {
     if (item.id === this.loadingIndicator.id) return item.visible;
@@ -159,9 +145,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       const options = (items as any) as IListModel;
       Object.keys(options).forEach((key: keyof IListModel) => {
         switch(key) {
-          case "items":
-            this.setItems(options.items);
-            break;
+          case "items": break;
           case "onFilterStringChangedCallback":
             this.setOnFilterStringChangedCallback(options.onFilterStringChangedCallback);
             break;
@@ -172,6 +156,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
             (this as any)[key] = options[key];
         }
       });
+      if ("items" in options) {
+        this.setItems(options.items);
+      }
       this.updateActionsIds();
     } else {
       this.setItems(items as Array<IAction>);
@@ -203,6 +190,18 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   protected onSet(): void {
     this.showFilter = this.searchEnabled && (this.forceShowFilter || (this.actions || []).length > ListModel.MINELEMENTCOUNT);
     super.onSet();
+  }
+  protected patchAction(action: T) {
+    super.patchAction(action);
+    this.patchInnerListModelCssClasses(action);
+  }
+  private patchInnerListModelCssClasses(action: BaseAction): void {
+    const innerListModel = action.innerListModel;
+    if (!innerListModel) return;
+    innerListModel.cssClasses = this.cssClasses;
+    (innerListModel.actions || []).forEach((subAction: BaseAction) => {
+      this.patchInnerListModelCssClasses(subAction);
+    });
   }
   protected getDefaultCssClasses() {
     return defaultListCss;
@@ -272,8 +271,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   };
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     const isSelected = this.isItemSelected(itemValue);
+    let itemAppearance = itemValue["appearance"] ?? {};
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      .append(`${this.cssClasses.item}--${itemAppearance.style}`, !!itemAppearance && !!itemAppearance.style)
+      .append(this.cssClasses.itemLabel, !!itemValue.isLabel)
       .append(this.cssClasses.itemWithIcon, !!itemValue.iconName)
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
@@ -328,9 +330,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public goToItems(event: KeyboardEvent): void {
     if (event.key === "ArrowDown" || event.keyCode === 40) {
-      const currentElement = (<HTMLElement>event.target).parentElement;
-      const listElement = currentElement.parentElement.querySelector("ul");
-      const firstChild = getFirstVisibleChild(listElement);
+      const currentElement = <HTMLElement>event.target;
+      const container = currentElement.closest(classesToSelector(this.cssClasses.root));
+      const listElement = container?.querySelector("ul");
+      const firstChild = listElement && getFirstVisibleChild(listElement);
       if (!!listElement && !!firstChild) {
         ElementHelper.focusElement(firstChild);
         event.preventDefault();

@@ -243,6 +243,10 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
           newCssVariable[targetVar] = "";
         }
         newCssVariable[targetVar] += varValue;
+      } else if (Array.isArray(mapping)) {
+        mapping.forEach(key => {
+          newCssVariable[key] = varValue;
+        });
       } else {
         newCssVariable[mapping as string] = varValue;
       }
@@ -254,8 +258,9 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
   if (!!fontSize) {
     const fontSizeValueNumber = parseFloat(fontSize);
     const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
-    const fontSizeBaseUnit = fontSizeValueNumber / 2;
-    newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit.toString() + fontSizeDimension;
+    const fontSizeBaseUnit = (fontSizeValueNumber / 2).toString() + fontSizeDimension;
+    newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
+    newCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
     delete newCssVariable["--sjs-font-size"];
   }
 }

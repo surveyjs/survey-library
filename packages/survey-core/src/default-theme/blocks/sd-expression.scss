@@ -1,8 +1,9 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-expression {
+  @include sjs2--typography--default;
   color: $font-questiontitle-color;
-  font-size: calcFontSize(1);
   white-space: break-spaces;
 }
 

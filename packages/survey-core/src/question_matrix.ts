@@ -836,8 +836,11 @@ export class QuestionMatrixModel
         ? ItemValue.getTextOrHtmlByValue(this.rows, key)
         : key;
       if (!newKey) newKey = key;
-      var newValue = ItemValue.getTextOrHtmlByValue(this.columns, value[key]);
-      if (!newValue) newValue = value[key];
+      const val = value[key];
+      var newValue = Array.isArray(val)
+        ? val.map(v => ItemValue.getTextOrHtmlByValue(this.columns, v) || v)
+        : ItemValue.getTextOrHtmlByValue(this.columns, val);
+      if (!newValue) newValue = val;
       res[newKey] = newValue;
     }
     return res;
@@ -854,14 +857,14 @@ export class QuestionMatrixModel
       const rows = options.includeEmpty ? this.visibleRows : this.visibleRows.filter((r: MatrixRowModel) => r.name in (values || {}));
       questionPlainData.data = rows.map((row: MatrixRowModel) => {
         const rowValue = values ? values[row.name] : undefined;
+        const displayValue = Array.isArray(rowValue)
+          ? rowValue.map(v => ItemValue.getTextOrHtmlByValue(this.visibleColumns, v))
+          : ItemValue.getTextOrHtmlByValue(this.visibleColumns, rowValue);
         var rowDataItem = <any>{
           name: row.name,
           title: row.text,
           value: rowValue,
-          displayValue: ItemValue.getTextOrHtmlByValue(
-            this.visibleColumns,
-            rowValue
-          ),
+          displayValue: displayValue,
           getString: (val: any) => this.getValueAsString(val),
           isNode: false,
         };

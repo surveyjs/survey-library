@@ -69,6 +69,8 @@ export var georgianSurveyStrings = {
   stepError: "გთხოვთ, შეიყვანოთ მნიშვნელობა, რომელიც შეესაბამება ნაბიჯის ზომას {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "ღირებულება არ უნდა იყოს {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "არასწორი შეყვანა",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "ნომრები არ არის დაშვებული.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var georgianSurveyStrings = {
   urlGetChoicesError: "მოთხოვნამ დაუბრუნა ცარიელი მონაცემები ან \"ბილიკის\" ქონება არასწორია",
   // [Auto-translated] "The file size should not exceed {0}."
   exceedMaxSize: "ფაილის ზომა არ უნდა აღემატებოდეს {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "ბაიტი, კბ, მბ, გბ, ტუბერკულოზი",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "ფაილების მაქსიმალური რაოდენობა, რომლის ატვირთვაც შეგიძლიათ, არის {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 $ease-out: cubic-bezier(0, 0, 0.58, 1);
@@ -38,16 +39,18 @@ sv-popup {
 
 .sv-popup--menu-popup {
   & > .sv-popup__container {
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+    overflow: hidden;
     border-radius: var(--sjs2-radius-component-drop, 16px);
-    box-shadow: $shadow-medium-large;
-  }
+    border: var(--sjs2-border-width-x100, 1px) solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
+    background: var(--sjs2-color-utility-sheet, #fff);
+    box-sizing: border-box;
 
-  & > .sv-popup__container > .sv-popup__body-content {
-    background-color: var(--lbr-popup-menu-background-color, $background);
-    border-radius: var(--sjs2-radius-component-drop, 16px);
-    // padding: var(--sjs2-spacing-x100) 0;
-    height: 100%;
+    /* sjs2/border-effect/floating/default */
+    box-shadow:
+      var(--sjs2-border-offset-x-floating-default, 0) var(--sjs2-border-offset-y-floating-default, 6px)
+        var(--sjs2-border-blur-floating-default, 20px) var(--sjs2-border-spread-floating-default, 0)
+        var(--sjs2-color-utility-shadow-floating-default, rgba(0, 76, 68, 0.15)),
+      0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
@@ -106,7 +109,7 @@ sv-popup {
   & > .sv-popup__container {
     position: relative;
     display: flex;
-    background-color: var(--lbr-dialog-background-color, $background-dim-light);
+    background-color: var(--sjs2-color-utility-sheet, #fff);
     border-radius: var(--sjs2-radius-component-modal, 24px);
     box-shadow:
       var(--lbr-dialog-shadow-2-offset-x, 0px) var(--lbr-dialog-shadow-2-offset-y, 2px)
@@ -126,6 +129,8 @@ sv-popup {
 
   .sv-popup__body-footer .sv-modal-footer-action-bar {
     overflow: visible;
+    justify-content: flex-end;
+    width: 100%;
   }
 
   .sv-popup__scrolling-content {
@@ -139,16 +144,16 @@ sv-popup {
 }
 
 .sv-popup--confirm {
-  .sv-popup__body-content .sv-string-viewer{
+  .sv-popup__body-footer .sv-modal-footer-action-bar > .sd-action-bar__item {
+    flex-grow: 1;
+    .sd-action {
+      flex-grow: 1;
+    }
+  }
+  .sv-popup__body-content .sv-string-viewer {
     color: $font-editorfont-color;
     align-self: self-start;
-    /* UI/Default */
-    font-family: $font-family;
-    font-size: calcFontSize(1);
-    font-style: normal;
-    font-weight: 400;
-    line-height: calcLineHeight(1.5);
-    /* 150% */
+    @include sjs2--typography--default;
   }
 }
 
@@ -217,11 +222,7 @@ sv-popup {
 }
 
 .sv-popup__body-header {
-  font-family: Open Sans;
-  font-size: calcFontSize(1.5);
-  line-height: calcLineHeight(2);
-  font-style: normal;
-  font-weight: 700;
+  @include sjs2--typography--medium-strong;
   color: $foreground;
 }
 
@@ -229,8 +230,8 @@ sv-popup {
   display: flex;
 }
 
-.sv-popup__body-footer .sv-action-bar {
-  gap: var(--sjs2-spacing-x150);
+.sv-popup__body-footer .sd-action-bar {
+  --sd-action-bar-gap: var(--sjs2-spacing-x150);
   overflow: visible;
 }
 
@@ -246,19 +247,18 @@ sv-popup {
     width: 100%;
   }
 
-  .sv-popup__body-footer .sv-action-bar {
+  .sv-popup__body-footer .sd-action-bar {
     width: 100%;
     justify-content: flex-start;
-
-    .sv-action {
+    padding: 0 calc(var(--sjs2-spacing-x100) + var(--sjs2-spacing-x025));
+    .sd-action-bar__item {
       flex: 0 0 auto;
     }
   }
 
   .sv-popup__body-footer {
     padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x000);
-    border-top: var(--sjs2-border-width-x100) solid
-      var(--lbr-popup-menu-footer-border-color, $border-light);
+    border-top: var(--sjs2-border-width-x100) solid var(--lbr-popup-menu-footer-border-color, $border-light);
     background: var(--lbr-popup-menu-footer-background-color, $background-dim-light);
   }
 
@@ -305,19 +305,20 @@ sv-popup {
 
     &:hover {
       border-radius: var(--lbr-popup-menu-search-clear-button-corner-radius, 1024px);
-      background: var(--lbr-popup-menu-search-clear-button-background-color-hovered, var(--sjs-special-red-light, rgba(229, 10, 62, 0.1)));
+      background: var(
+        --lbr-popup-menu-search-clear-button-background-color-hovered,
+        var(--sjs-special-red-light, rgba(229, 10, 62, 0.1))
+      );
 
       use {
-        fill: var(--lbr-popup-menu-search-clear-button-icon-color-hovered, var(--sjs-special-red, #E50A3E));
+        fill: var(--lbr-popup-menu-search-clear-button-icon-color-hovered, var(--sjs-special-red, #e50a3e));
       }
     }
   }
 
   .sv-list__input {
     color: $foreground-light;
-    font-size: calcFontSize(1);
-    line-height: calcLineHeight(1.5);
-    font-family: $font-family;
+    @include sjs2--typography--default;
     padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x050) var(--sjs2-spacing-x050) var(--sjs2-spacing-x100);
   }
 
@@ -332,7 +333,7 @@ sv-popup {
       .sv-list__item-body {
         background: $primary;
         color: $primary-foreground;
-        font-weight: 600;
+        @include sjs2--typography--default-strong;
       }
     }
   }
@@ -345,7 +346,7 @@ sv-popup {
         .sv-list__item-body {
           background: $primary-light;
           color: $foreground;
-          font-weight: 400;
+          @include sjs2--typography--default;
         }
       }
     }
@@ -362,7 +363,7 @@ sv-popup {
     border: unset;
     box-shadow: unset;
     box-sizing: content-box;
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+    background: var(--sjs2-color-utility-sheet, #FFF);
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
@@ -380,7 +381,7 @@ sv-popup {
     // padding-top: 0;
     border: unset;
     box-sizing: content-box;
-    background: var(--lbr-popup-menu-background-color-global, $background-dim);
+    background: var(--sjs2-color-utility-sheet, #FFF);
 
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
     --sv-popup-overlay-max-width: calc(100% - #{$base-unit} * 8);

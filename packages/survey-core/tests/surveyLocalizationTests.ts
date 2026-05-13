@@ -16,357 +16,301 @@ import "../src/localization/greek";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
 import { englishStrings } from "../src/localization/english";
 
-export default QUnit.module("LocalizationsTests");
-
-QUnit.test("get default strings", function(assert) {
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "en";
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "unknown";
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "";
-});
-QUnit.test("get default strings for unknown default locale", function(assert) {
-  surveyLocalization.defaultLocale = "unknown";
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "en";
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "unknown";
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "";
-  surveyLocalization.defaultLocale = "en";
-});
-QUnit.test("add new localization", function(assert) {
-  var newLoc = { pageNextText: "Mynext" };
-  surveyLocalization.locales["myen"] = newLoc;
-  assert.equal(surveyLocalization.getString("pageNextText"), "Next");
-  surveyLocalization.currentLocale = "myen";
-  assert.equal(surveyLocalization.getString("pageNextText"), "Mynext");
-  assert.equal(surveyLocalization.getString("pagePrevText"), "Previous");
-  surveyLocalization.currentLocale = "";
-});
-QUnit.test("make german as a default location", function(assert) {
-  assert.equal(
-    surveyLocalization.getString("pagePrevText"),
-    "Previous",
-    "Get English string"
-  );
-  surveyLocalization.defaultLocale = "de";
-  assert.equal(
-    surveyLocalization.getString("pagePrevText"),
-    "Zurück", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-    "Get German string"
-  );
-  surveyLocalization.defaultLocale = "en";
-  assert.equal(
-    surveyLocalization.getString("pagePrevText"),
-    "Previous",
-    "Get English string again"
-  );
-});
-QUnit.test("set german localization", function(assert) {
-  var locales = surveyLocalization.getLocales();
-  assert.ok(locales.indexOf("en") > -1, "has en");
-  assert.ok(locales.indexOf("de") > -1, "has de");
-});
-QUnit.test("set german localization", function(assert) {
-  var survey = new SurveyModel();
-  assert.equal(survey.completeText, "Complete");
-  survey.locale = "de";
-  assert.equal(survey.completeText, "Abschließen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  survey.locale = "";
-  assert.equal(survey.completeText, "Complete");
-});
-QUnit.test("set finnish localization", function(assert) {
-  var locales = surveyLocalization.getLocales();
-  assert.ok(locales.indexOf("en") > -1, "has en");
-  assert.ok(locales.indexOf("fi") > -1, "has fi");
-});
-QUnit.test("set finnish localization", function(assert) {
-  var survey = new SurveyModel();
-  survey.locale = "fi";
-  assert.equal(survey.completeText, "Valmis");
-  surveyLocalization.currentLocale = "";
-});
-QUnit.test("set swedish localization", function(assert) {
-  var locales = surveyLocalization.getLocales();
-  assert.ok(locales.indexOf("en") > -1, "has en");
-  assert.ok(locales.indexOf("sv") > -1, "has sv");
-});
-QUnit.test("set swedish localization", function(assert) {
-  var survey = new SurveyModel();
-  survey.locale = "sv";
-  assert.equal(survey.completeText, "Slutför"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
-  surveyLocalization.currentLocale = "";
-});
-QUnit.test("Supported locales + removeDefaultLoc", function(assert) {
-  var localesCounts = surveyLocalization.getLocales().length;
-  surveyLocalization.supportedLocales = ["en", "de"];
-  assert.equal(
-    surveyLocalization.getLocales().length,
-    2 + 1,
-    "We support only two locales now"
-  );
-  assert.deepEqual(
-    surveyLocalization.getLocales(true),
-    ["", "de"],
-    "We remove 'en' locales"
-  );
-  surveyLocalization.supportedLocales = null;
-  assert.equal(
-    surveyLocalization.getLocales().length,
-    localesCounts,
-    "Support all locales"
-  );
-  assert.equal(
-    surveyLocalization.getLocales(true).length,
-    localesCounts - 1,
-    "Support all locales, but without en"
-  );
-});
-QUnit.test("getLocales & showNamesInEnglish, #8694", function(assert) {
-  assert.equal(surveyLocalization.getLocaleName("de", false), "deutsch", "#1");
-  assert.equal(surveyLocalization.getLocaleName("de", true), "German", "#2");
-  assert.equal(surveyLocalization.getLocaleName("de"), "deutsch", "#3");
-  surveyLocalization.showNamesInEnglish = true;
-  assert.equal(surveyLocalization.getLocaleName("de"), "German", "#4");
-  surveyLocalization.showNamesInEnglish = false;
-  assert.equal(surveyLocalization.getLocaleName("de"), "deutsch", "#5");
-});
-
-QUnit.test("Do not have empty locale", function(assert) {
-  var survey = new SurveyModel();
-  surveyLocalization.defaultLocale = "de";
-  survey.title = "Title_DE";
-  survey.locale = "en";
-  survey.title = "Title_EN";
-  survey.locale = "";
-  assert.deepEqual(survey.toJSON(), {
-    title: { en: "Title_EN", default: "Title_DE" },
+import { describe, test, expect } from "vitest";
+describe("LocalizationsTests", () => {
+  test("get default strings", () => {
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "en";
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "unknown";
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "";
   });
-  surveyLocalization.defaultLocale = "en";
-});
-
-QUnit.test("Do not serialize default locale", function(assert) {
-  var survey = new SurveyModel();
-  surveyLocalization.defaultLocale = "de";
-  survey.locale = "de";
-  assert.deepEqual(survey.toJSON(), {});
-  survey.locale = "";
-  surveyLocalization.defaultLocale = "en";
-});
-
-QUnit.test(
-  "surveyLocalization returns empty on currentLocale if it equals to defaultLocale",
-  function(assert) {
-    assert.equal(
-      surveyLocalization.currentLocale,
-      "",
-      "It is empty by default"
-    );
-    surveyLocalization.currentLocale = "de";
-    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de'");
-    surveyLocalization.defaultLocale = "de";
-    assert.equal(surveyLocalization.currentLocale, "", "It is empty again");
+  test("get default strings for unknown default locale", () => {
+    surveyLocalization.defaultLocale = "unknown";
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "en";
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "unknown";
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "";
     surveyLocalization.defaultLocale = "en";
-    assert.equal(surveyLocalization.currentLocale, "de", "It is 'de' again");
+  });
+  test("add new localization", () => {
+    var newLoc = { pageNextText: "Mynext" };
+    surveyLocalization.locales["myen"] = newLoc;
+    expect(surveyLocalization.getString("pageNextText")).toBe("Next");
+    surveyLocalization.currentLocale = "myen";
+    expect(surveyLocalization.getString("pageNextText")).toBe("Mynext");
+    expect(surveyLocalization.getString("pagePrevText")).toBe("Previous");
+    surveyLocalization.currentLocale = "";
+  });
+  test("make german as a default location", () => {
+    expect(surveyLocalization.getString("pagePrevText"), "Get English string").toBe("Previous");
+    surveyLocalization.defaultLocale = "de";
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(surveyLocalization.getString("pagePrevText"), "Get German string").toBe("Zurück");
+    surveyLocalization.defaultLocale = "en";
+    expect(surveyLocalization.getString("pagePrevText"), "Get English string again").toBe("Previous");
+  });
+  test("set german localization", () => {
+    var locales = surveyLocalization.getLocales();
+    expect(locales.indexOf("en") > -1, "has en").toBeTruthy();
+    expect(locales.indexOf("de") > -1, "has de").toBeTruthy();
+  });
+  test("set german localization", () => {
+    var survey = new SurveyModel();
+    expect(survey.completeText).toBe("Complete");
+    survey.locale = "de";
+    expect(survey.completeText).toBe("Abschließen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    survey.locale = "";
+    expect(survey.completeText).toBe("Complete");
+  });
+  test("set finnish localization", () => {
+    var locales = surveyLocalization.getLocales();
+    expect(locales.indexOf("en") > -1, "has en").toBeTruthy();
+    expect(locales.indexOf("fi") > -1, "has fi").toBeTruthy();
+  });
+  test("set finnish localization", () => {
+    var survey = new SurveyModel();
+    survey.locale = "fi";
+    expect(survey.completeText).toBe("Valmis");
+    surveyLocalization.currentLocale = "";
+  });
+  test("set swedish localization", () => {
+    var locales = surveyLocalization.getLocales();
+    expect(locales.indexOf("en") > -1, "has en").toBeTruthy();
+    expect(locales.indexOf("sv") > -1, "has sv").toBeTruthy();
+  });
+  test("set swedish localization", () => {
+    var survey = new SurveyModel();
+    survey.locale = "sv";
+    expect(survey.completeText).toBe("Slutför"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    surveyLocalization.currentLocale = "";
+  });
+  test("Supported locales + removeDefaultLoc", () => {
+    var localesCounts = surveyLocalization.getLocales().length;
+    surveyLocalization.supportedLocales = ["en", "de"];
+    expect(surveyLocalization.getLocales().length, "We support only two locales now").toBe(2 + 1);
+    expect(surveyLocalization.getLocales(true), "We remove 'en' locales").toEqual(["", "de"]);
+    surveyLocalization.supportedLocales = null;
+    expect(surveyLocalization.getLocales().length, "Support all locales").toBe(localesCounts);
+    expect(surveyLocalization.getLocales(true).length, "Support all locales, but without en").toBe(localesCounts - 1);
+  });
+  test("getLocales & showNamesInEnglish, #8694", () => {
+    expect(surveyLocalization.getLocaleName("de", false), "#1").toBe("deutsch");
+    expect(surveyLocalization.getLocaleName("de", true), "#2").toBe("German");
+    expect(surveyLocalization.getLocaleName("de"), "#3").toBe("deutsch");
+    surveyLocalization.showNamesInEnglish = true;
+    expect(surveyLocalization.getLocaleName("de"), "#4").toBe("German");
+    surveyLocalization.showNamesInEnglish = false;
+    expect(surveyLocalization.getLocaleName("de"), "#5").toBe("deutsch");
+  });
+
+  test("Do not have empty locale", () => {
+    var survey = new SurveyModel();
+    surveyLocalization.defaultLocale = "de";
+    survey.title = "Title_DE";
+    survey.locale = "en";
+    survey.title = "Title_EN";
+    survey.locale = "";
+    expect(survey.toJSON()).toEqual({
+      title: { en: "Title_EN", default: "Title_DE" },
+    });
+    surveyLocalization.defaultLocale = "en";
+  });
+
+  test("Do not serialize default locale", () => {
+    var survey = new SurveyModel();
+    surveyLocalization.defaultLocale = "de";
+    survey.locale = "de";
+    expect(survey.toJSON()).toEqual({});
+    survey.locale = "";
+    surveyLocalization.defaultLocale = "en";
+  });
+
+  test("surveyLocalization returns empty on currentLocale if it equals to defaultLocale", () => {
+    expect(surveyLocalization.currentLocale, "It is empty by default").toBe("");
+    surveyLocalization.currentLocale = "de";
+    expect(surveyLocalization.currentLocale, "It is 'de'").toBe("de");
+    surveyLocalization.defaultLocale = "de";
+    expect(surveyLocalization.currentLocale, "It is empty again").toBe("");
+    surveyLocalization.defaultLocale = "en";
+    expect(surveyLocalization.currentLocale, "It is 'de' again").toBe("de");
     surveyLocalization.currentLocale = "";
     var survey = new SurveyModel();
     survey.locale = "en";
-    assert.equal(survey.locale, "", "Locale is empty, since 'en' is default");
-  }
-);
+    expect(survey.locale, "Locale is empty, since 'en' is default").toBe("");
+  });
 
-QUnit.test("Fix the bug, when the default locale is set as specific", function(
-  assert
-) {
-  var json = {
-    elements: [
-      {
-        type: "text",
-        name: "q1",
-        title: {
-          en: "English 1",
+  test("Fix the bug, when the default locale is set as specific", () => {
+    var json = {
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          title: {
+            en: "English 1",
+          },
         },
-      },
-    ],
-  };
-  var survey = new SurveyModel(json);
-  var question = <Question>survey.getQuestionByName("q1");
-  assert.equal(
-    question.locTitle.renderedHtml,
-    "English 1",
-    "Get the english locale"
-  );
-});
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = <Question>survey.getQuestionByName("q1");
+    expect(question.locTitle.renderedHtml, "Get the english locale").toBe("English 1");
+  });
 
-QUnit.test("Return English localization texts if text not exist", function(
-  assert
-) {
-  surveyLocalization.locales["en"]["custom_test_key"] = "item";
-  var oldDl = surveyLocalization.defaultLocale;
-  var oldCl = surveyLocalization.currentLocale;
-  surveyLocalization.defaultLocale = "de";
-  surveyLocalization.currentLocale = "de";
-  assert.equal(surveyLocalization.getString("custom_test_key"), "item");
-  surveyLocalization.defaultLocale = oldDl;
-  surveyLocalization.currentLocale = oldCl;
-});
+  test("Return English localization texts if text not exist", () => {
+    surveyLocalization.locales["en"]["custom_test_key"] = "item";
+    var oldDl = surveyLocalization.defaultLocale;
+    var oldCl = surveyLocalization.currentLocale;
+    surveyLocalization.defaultLocale = "de";
+    surveyLocalization.currentLocale = "de";
+    expect(surveyLocalization.getString("custom_test_key")).toBe("item");
+    surveyLocalization.defaultLocale = oldDl;
+    surveyLocalization.currentLocale = oldCl;
+  });
 
-QUnit.test(
-  "Czech locale is 'cs', but support the old one 'cz', Bug #2004",
-  function(assert) {
+  test("Czech locale is 'cs', but support the old one 'cz', Bug #2004", () => {
     var oldDl = surveyLocalization.defaultLocale;
     var oldCl = surveyLocalization.currentLocale;
     surveyLocalization.currentLocale = "cz";
-    assert.equal(surveyLocalization.currentLocale, "cs", "sz => sc, current");
+    expect(surveyLocalization.currentLocale, "sz => sc, current").toBe("cs");
     surveyLocalization.defaultLocale = "cz";
-    assert.equal(surveyLocalization.defaultLocale, "cs", "sz => sc, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Předchozí", "Set locale correctly"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(surveyLocalization.defaultLocale, "sz => sc, default").toBe("cs");
+    expect(surveyLocalization.getString("pagePrevText"), "Set locale correctly").toBe("Předchozí"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
-  }
-);
-QUnit.test("Seribian locale is 'sr', but support the old/incorrect one 'rs', Bug #10053",
-  function(assert) {
+  });
+  test("Seribian locale is 'sr', but support the old/incorrect one 'rs', Bug #10053", () => {
     var oldDl = surveyLocalization.defaultLocale;
     var oldCl = surveyLocalization.currentLocale;
     surveyLocalization.currentLocale = "rs";
-    assert.equal(surveyLocalization.currentLocale, "sr", "rs => sr, current");
+    expect(surveyLocalization.currentLocale, "rs => sr, current").toBe("sr");
     surveyLocalization.defaultLocale = "rs";
-    assert.equal(surveyLocalization.defaultLocale, "sr", "rs => sr, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Nazad", "Set locale correctly");
+    expect(surveyLocalization.defaultLocale, "rs => sr, default").toBe("sr");
+    expect(surveyLocalization.getString("pagePrevText"), "Set locale correctly").toBe("Nazad");
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
-  }
-);
-QUnit.test("Ukraine locale is 'uk', but support the old one 'ua', Bug #9908",
-  function(assert) {
+  });
+  test("Ukraine locale is 'uk', but support the old one 'ua', Bug #9908", () => {
     var oldDl = surveyLocalization.defaultLocale;
     var oldCl = surveyLocalization.currentLocale;
     surveyLocalization.currentLocale = "ua";
-    assert.equal(surveyLocalization.currentLocale, "uk", "ua => uk, current");
+    expect(surveyLocalization.currentLocale, "ua => uk, current").toBe("uk");
     surveyLocalization.defaultLocale = "ua";
-    assert.equal(surveyLocalization.defaultLocale, "uk", "ua => uk, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(surveyLocalization.defaultLocale, "ua => uk, default").toBe("uk");
+    expect(surveyLocalization.getString("pagePrevText"), "Set locale correctly").toBe("Назад"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
-  }
-);
-QUnit.test("Greek locale is 'el', but support the old one 'gr', Bug #10156",
-  function(assert) {
+  });
+  test("Greek locale is 'el', but support the old one 'gr', Bug #10156", () => {
     var oldDl = surveyLocalization.defaultLocale;
     var oldCl = surveyLocalization.currentLocale;
     surveyLocalization.currentLocale = "gr";
-    assert.equal(surveyLocalization.currentLocale, "el", "gr => el, current");
+    expect(surveyLocalization.currentLocale, "gr => el, current").toBe("el");
     surveyLocalization.defaultLocale = "gr";
-    assert.equal(surveyLocalization.defaultLocale, "el", "gr => el, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Προηγούμενο", "Set locale correctly"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    expect(surveyLocalization.defaultLocale, "gr => el, default").toBe("el");
+    expect(surveyLocalization.getString("pagePrevText"), "Set locale correctly").toBe("Προηγούμενο"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
-  }
-);
-QUnit.test(
-  "Do not change currentLocale on changing survey.locale",
-  function(assert) {
+  });
+  test("Do not change currentLocale on changing survey.locale", () => {
     const survey1 = new SurveyModel({});
     const survey2 = new SurveyModel({});
-    assert.equal(survey1.locale, "", "Use the default locale, survey1");
-    assert.equal(survey2.locale, "", "Use the default locale, survey2");
+    expect(survey1.locale, "Use the default locale, survey1").toBe("");
+    expect(survey2.locale, "Use the default locale, survey2").toBe("");
     survey1.locale = "de";
-    assert.equal(survey1.locale, "de", "de locale, survey1");
-    assert.equal(survey2.locale, "", "Use the default locale, survey2");
+    expect(survey1.locale, "de locale, survey1").toBe("de");
+    expect(survey2.locale, "Use the default locale, survey2").toBe("");
     survey2.locale = "fr";
-    assert.equal(survey1.locale, "de", "de locale, survey1");
-    assert.equal(survey2.locale, "fr", "fr locale, survey2");
-    assert.equal(surveyLocalization.currentLocale, "", "Do not change the current locale");
-  }
-);
-QUnit.test(
-  "Check object locale on changing survey locale",
-  function(assert) {
+    expect(survey1.locale, "de locale, survey1").toBe("de");
+    expect(survey2.locale, "fr locale, survey2").toBe("fr");
+    expect(surveyLocalization.currentLocale, "Do not change the current locale").toBe("");
+  });
+  test("Check object locale on changing survey locale", () => {
     const survey = new SurveyModel({ elements: [{ type: "checkbox", name: "q1", choices: [1, 2] }] });
     const question = <QuestionCheckboxBase>survey.getQuestionByName("q1");
-    assert.equal(question.getLocale(), "", "question has English locale right now");
+    expect(question.getLocale(), "question has English locale right now").toBe("");
     survey.locale = "de";
-    assert.equal(question.survey.getLocale(), "de", "question survey has Deutsch locale");
-    assert.equal(question.getLocale(), "de", "question has Deutsch locale right now");
-  }
-);
-QUnit.test("Clear localization locale value if it equals to default and it is not empty and default is empty", function(assert) {
-  let survey = new SurveyModel({ title: { de: "Hallo" } });
-  surveyLocalization.defaultLocale = "de";
-  assert.equal(survey.title, "Hallo", "Get the correct value");
-  let counter = 0;
-  survey.locTitle.onChanged = () => { counter++; };
-  survey.title = "";
-  assert.equal(survey.title, "", "Value is cleared");
-  assert.equal(counter, 1, "str changed is fired");
+    expect(question.survey.getLocale(), "question survey has Deutsch locale").toBe("de");
+    expect(question.getLocale(), "question has Deutsch locale right now").toBe("de");
+  });
+  test("Clear localization locale value if it equals to default and it is not empty and default is empty", () => {
+    let survey = new SurveyModel({ title: { de: "Hallo" } });
+    surveyLocalization.defaultLocale = "de";
+    expect(survey.title, "Get the correct value").toBe("Hallo");
+    let counter = 0;
+    survey.locTitle.onChanged = () => { counter++; };
+    survey.title = "";
+    expect(survey.title, "Value is cleared").toBe("");
+    expect(counter, "str changed is fired").toBe(1);
 
-  survey = new SurveyModel({ title: { de: "Hallo" } });
-  surveyLocalization.defaultLocale = "de";
-  assert.equal(survey.title, "Hallo", "Get the correct value, #2");
-  survey.title = "Hello";
-  assert.equal(survey.title, "Hello", "Value set correctly, #3");
+    survey = new SurveyModel({ title: { de: "Hallo" } });
+    surveyLocalization.defaultLocale = "de";
+    expect(survey.title, "Get the correct value, #2").toBe("Hallo");
+    survey.title = "Hello";
+    expect(survey.title, "Value set correctly, #3").toBe("Hello");
 
-  surveyLocalization.defaultLocale = "en";
-});
+    surveyLocalization.defaultLocale = "en";
+  });
 
-QUnit.test("Support language dialect", function(assert) {
-  assert.equal(surveyLocalization.getString("pagePrevText", "pt-br"), "Anterior", "get from pt");
-  assert.equal(surveyLocalization.getString("loadingFile", "pt-br"), "Carregando...", "get from pt-br");
-});
+  test("Support language dialect", () => {
+    expect(surveyLocalization.getString("pagePrevText", "pt-br"), "get from pt").toBe("Anterior");
+    expect(surveyLocalization.getString("loadingFile", "pt-br"), "get from pt-br").toBe("Carregando...");
+  });
 
-QUnit.test("Support language dialect & current locale", function(assert) {
-  const locABABTest = {
-    prop1: "Prop1 ABABTest",
-    prop2: "Prop2 ABABTest",
-  };
-  const locABTest = {
-    prop2: "Prop2 ABTest",
-    prop3: "Prop3 ABTest",
-  };
-  const locCDCDTest = {
-    prop3: "Prop3 CDCDTest",
-    prop4: "Prop4 CDCDTest",
-  };
-  const locCDTest = {
-    prop4: "Prop4 CDTest",
-    prop5: "Prop5 CDTest",
-  };
-  const locEFEFTest = {
-    prop5: "Prop5 EFEFTest",
-    prop6: "Prop6 EFEFTest",
-  };
-  const locEFTest = {
-    prop6: "Prop5 EFTest",
-    prop7: "Prop7 EFTest",
-  };
-  englishStrings["prop7"] = "Prop7 EnTest";
-  englishStrings["prop8"] = "Prop8 EnTest";
-  surveyLocalization.locales["ab-AB"] = locABABTest;
-  surveyLocalization.locales["ab"] = locABTest;
-  surveyLocalization.locales["cd-CD"] = locCDCDTest;
-  surveyLocalization.locales["cd"] = locCDTest;
-  surveyLocalization.locales["ef-EF"] = locEFEFTest;
-  surveyLocalization.locales["ef"] = locEFTest;
-  surveyLocalization.defaultLocale = "ef-EF";
-  surveyLocalization.currentLocale = "cd-CD";
-  assert.equal(surveyLocalization.getString("prop1", "ab-AB"), "Prop1 ABABTest", "prop1");
-  assert.equal(surveyLocalization.getString("prop2", "ab-AB"), "Prop2 ABABTest", "prop2");
-  assert.equal(surveyLocalization.getString("prop3", "ab-AB"), "Prop3 ABTest", "prop3");
-  assert.equal(surveyLocalization.getString("prop4", "ab-AB"), "Prop4 CDCDTest", "prop4");
-  assert.equal(surveyLocalization.getString("prop5", "ab-AB"), "Prop5 CDTest", "prop5");
-  assert.equal(surveyLocalization.getString("prop6", "ab-AB"), "Prop6 EFEFTest", "prop6");
-  assert.equal(surveyLocalization.getString("prop7", "ab-AB"), "Prop7 EFTest", "prop7");
-  assert.equal(surveyLocalization.getString("prop8", "ab-AB"), "Prop8 EnTest", "prop8");
+  test("Support language dialect & current locale", () => {
+    const locABABTest = {
+      prop1: "Prop1 ABABTest",
+      prop2: "Prop2 ABABTest",
+    };
+    const locABTest = {
+      prop2: "Prop2 ABTest",
+      prop3: "Prop3 ABTest",
+    };
+    const locCDCDTest = {
+      prop3: "Prop3 CDCDTest",
+      prop4: "Prop4 CDCDTest",
+    };
+    const locCDTest = {
+      prop4: "Prop4 CDTest",
+      prop5: "Prop5 CDTest",
+    };
+    const locEFEFTest = {
+      prop5: "Prop5 EFEFTest",
+      prop6: "Prop6 EFEFTest",
+    };
+    const locEFTest = {
+      prop6: "Prop5 EFTest",
+      prop7: "Prop7 EFTest",
+    };
+    englishStrings["prop7"] = "Prop7 EnTest";
+    englishStrings["prop8"] = "Prop8 EnTest";
+    surveyLocalization.locales["ab-AB"] = locABABTest;
+    surveyLocalization.locales["ab"] = locABTest;
+    surveyLocalization.locales["cd-CD"] = locCDCDTest;
+    surveyLocalization.locales["cd"] = locCDTest;
+    surveyLocalization.locales["ef-EF"] = locEFEFTest;
+    surveyLocalization.locales["ef"] = locEFTest;
+    surveyLocalization.defaultLocale = "ef-EF";
+    surveyLocalization.currentLocale = "cd-CD";
+    expect(surveyLocalization.getString("prop1", "ab-AB"), "prop1").toBe("Prop1 ABABTest");
+    expect(surveyLocalization.getString("prop2", "ab-AB"), "prop2").toBe("Prop2 ABABTest");
+    expect(surveyLocalization.getString("prop3", "ab-AB"), "prop3").toBe("Prop3 ABTest");
+    expect(surveyLocalization.getString("prop4", "ab-AB"), "prop4").toBe("Prop4 CDCDTest");
+    expect(surveyLocalization.getString("prop5", "ab-AB"), "prop5").toBe("Prop5 CDTest");
+    expect(surveyLocalization.getString("prop6", "ab-AB"), "prop6").toBe("Prop6 EFEFTest");
+    expect(surveyLocalization.getString("prop7", "ab-AB"), "prop7").toBe("Prop7 EFTest");
+    expect(surveyLocalization.getString("prop8", "ab-AB"), "prop8").toBe("Prop8 EnTest");
 
-  surveyLocalization.defaultLocale = "en";
-  surveyLocalization.currentLocale = "";
-  delete surveyLocalization.locales["ab-AB"];
-  delete surveyLocalization.locales["ab"];
-  delete surveyLocalization.locales["cd-CD"];
-  delete surveyLocalization.locales["cd"];
-  delete surveyLocalization.locales["ef-EF"];
-  delete surveyLocalization.locales["ef"];
+    surveyLocalization.defaultLocale = "en";
+    surveyLocalization.currentLocale = "";
+    delete surveyLocalization.locales["ab-AB"];
+    delete surveyLocalization.locales["ab"];
+    delete surveyLocalization.locales["cd-CD"];
+    delete surveyLocalization.locales["cd"];
+    delete surveyLocalization.locales["ef-EF"];
+    delete surveyLocalization.locales["ef"];
+  });
 });

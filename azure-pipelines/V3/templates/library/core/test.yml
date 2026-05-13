@@ -1,0 +1,20 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+
+jobs:
+  - job:
+    displayName: "Unit PostCSS"
+    steps:
+      - template: build.yml
+        parameters:
+          checkout: ${{ parameters.checkout }}
+
+      - script: npm run test
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+        displayName: "Tests Unit"
+
+      - script: npm run test:postcss
+        workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+        displayName: "Tests CSS"

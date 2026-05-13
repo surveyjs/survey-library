@@ -91,7 +91,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       opt.actions.push(<IAction>{
         id: "sv-dropdown-done-button",
         title: this.doneButtonCaption,
-        innerCss: "sv-popup__button--done",
+        innerCss: "sv-popup__button sv-popup__button--done",
         needSpace: true,
         action: () => { this.popupModel.isVisible = false; },
         enabled: <boolean>(<any>new ComputedUpdater(() => !this.isTwoValueEquals(this.question.renderedValue, this.previousValue)))
@@ -185,9 +185,6 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
   }
 
-  protected focusItemOnClickAndPopup() {
-    return;
-  }
   protected onEscape() {
     return;
   }
@@ -195,7 +192,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return;
   }
 
-  protected afterScrollToFocusedItem() {
+  protected afterScrollToItem() {
     if (!this.listModel.focusedItem?.selected) {
       this.applyHintString();
     } else {

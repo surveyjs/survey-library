@@ -69,6 +69,8 @@ export var slovenianStrings = {
   stepError: "Vnesite vrednost, ki se ujema z velikostjo koraka {0}.",
   // "The value should not be greater than {0}"
   maxError: "Vrednost ne sme biti večja od {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Neveljaven vhod",
   // "Numbers are not allowed."
   textNoDigitsAllow: "Številke niso dovoljene.",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var slovenianStrings = {
   urlGetChoicesError: "Zahteva je vrnila prazne podatke ali lastnost 'path' ni pravilna.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Velikost datoteke ne sme presegati {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajti, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Največje število datotek, ki jih lahko naložite, je {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

@@ -69,6 +69,8 @@ export var urduSurveyStrings = {
   stepError: "براہ کرم کوئی قدر درج کریں جو {0} کے مرحلہ کے سائز سے مماثل ہو۔",
   // "The value should not be greater than {0}"
   maxError: "عدد صفر سے زیادہ نہیں ہونی چاہیے",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "غلط ان پٹ",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "نمبروں کی اجازت نہیں ہے۔",
   // [Auto-translated] "Please complete the value to match the required format."
@@ -101,6 +103,8 @@ export var urduSurveyStrings = {
   urlGetChoicesError: "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
   // "The file size should not exceed {0}."
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "بائٹس, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "زیادہ سے زیادہ فائلیں جو آپ اپلوڈ کر سکتے ہیں وہ {0} ہے۔",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."

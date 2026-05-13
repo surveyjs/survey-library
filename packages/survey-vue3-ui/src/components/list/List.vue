@@ -1,38 +1,40 @@
 <template>
   <div v-bind:class="model.cssClasses.root" ref="listContainerElement">
     <div v-bind:class="model.cssClasses.filter" v-if="model.showFilter">
-      <div v-bind:class="model.cssClasses.filterIcon">
-        <SvComponent
-          :is="'sv-svg-icon'"
-          :iconName="'icon-search'"
-          :size="'auto'"
+      <div v-bind:class="model.cssClasses.filterBox">
+        <div v-bind:class="model.cssClasses.filterIcon">
+          <SvComponent
+            :is="'sv-svg-icon'"
+            :iconName="'icon-search'"
+            :size="'auto'"
+          >
+          </SvComponent>
+        </div>
+        <input
+          type="text"
+          v-bind:class="model.cssClasses.filterInput"
+          :aria-label="model.filterStringPlaceholder"
+          :placeholder="model.filterStringPlaceholder"
+          :value="model.filterString"
+          @change="change"
+          @keyup="keyup"
+        />
+        <button
+          v-if="model.showSearchClearButton && !!model.filterString"
+          v-on:click="
+            (event) => {
+              model.onClickSearchClearButton(event);
+            }
+          "
+          v-bind:class="model.cssClasses.searchClearButtonIcon"
         >
-        </SvComponent>
+          <SvComponent
+            :is="'sv-svg-icon'"
+            :iconName="'icon-searchclear'"
+            :size="'auto'"
+          ></SvComponent>
+        </button>
       </div>
-      <input
-        type="text"
-        v-bind:class="model.cssClasses.filterInput"
-        :aria-label="model.filterStringPlaceholder"
-        :placeholder="model.filterStringPlaceholder"
-        :value="model.filterString"
-        @change="change"
-        @keyup="keyup"
-      />
-      <button
-        v-if="model.showSearchClearButton && !!model.filterString"
-        v-on:click="
-          (event) => {
-            model.onClickSearchClearButton(event);
-          }
-        "
-        v-bind:class="model.cssClasses.searchClearButtonIcon"
-      >
-        <SvComponent
-          :is="'sv-svg-icon'"
-          :iconName="'icon-searchclear'"
-          :size="'auto'"
-        ></SvComponent>
-      </button>
     </div>
     <div v-bind:class="model.cssClasses.emptyContainer" v-show="model.isEmpty">
       <div

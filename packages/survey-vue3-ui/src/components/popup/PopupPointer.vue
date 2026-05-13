@@ -1,5 +1,6 @@
 <template>
   <span
+    v-if="model.showHeader"
     class="sv-popup__pointer"
     v-bind:style="{
       left: model.pointerTarget.left,

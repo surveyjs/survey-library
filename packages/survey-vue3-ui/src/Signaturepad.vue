@@ -31,29 +31,7 @@
         @blur="question.onBlur"
       ></canvas>
     </div>
-    <div
-      :class="question.cssClasses.controls"
-      v-if="question.canShowClearButton"
-    >
-      <button
-        type="button"
-        :class="question.cssClasses.clearButton"
-        :title="question.clearButtonCaption"
-        v-on:click="
-          () => {
-            question.clearValueFromUI();
-          }
-        "
-      >
-        <span v-if="!question.cssClasses.clearButtonIconId">✖</span>
-        <SvComponent
-          :is="'sv-svg-icon'"
-          v-if="question.cssClasses.clearButtonIconId"
-          :iconName="question.cssClasses.clearButtonIconId"
-          :size="'auto'"
-        ></SvComponent>
-      </button>
-    </div>
+    <SvComponent :is="'sv-action-bar'" :model="question.toolbar"></SvComponent>
     <div
       :class="question.cssClasses.loadingIndicator"
       v-if="question.showLoadingIndicator"

@@ -1,7 +1,7 @@
 <template>
   <label
     tabindex="0"
-    :class="question.getChooseFileCss()"
+    :class="item.getActionBarItemCss()"
     :for="question.inputId"
     v-bind:aria-label="question.chooseButtonText"
     v-key2click
@@ -9,24 +9,25 @@
   >
     <SvComponent
       :is="'sv-svg-icon'"
-      v-if="question.cssClasses.chooseFileIconId"
+      v-if="item.iconName"
       :title="question.chooseButtonText"
+      :class="item.cssClasses.itemIcon"
       :iconName="question.cssClasses.chooseFileIconId"
       :size="'auto'"
     ></SvComponent>
-    <span>{{ question.chooseButtonText }}</span>
+    <StringViewer v-if="item.hasTitle" :model="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
   </label>
 </template>
 <script setup lang="ts">
 import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import SvComponent from "@/SvComponent.vue";
+import StringViewer from "@/StringViewer.vue";
 import type { QuestionFileModel, Action } from "survey-core";
 import { computed } from "vue";
 const props = defineProps<{
-  data?: { question: QuestionFileModel };
-  item?: Action;
+  item: Action;
 }>();
 const question = computed(
-  () => props.data?.question || props.item?.data.question
+  () => props.item.data?.question as QuestionFileModel
 );
 </script>

@@ -3,9 +3,8 @@ import { ImageItemValue, QuestionImagePickerModel } from "../src/question_imagep
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { setOldTheme } from "./oldTheme";
 
-export default QUnit.module("imagepicker");
-
-QUnit.test("Add choices in runtime", function (assert) {
+import { describe, test, expect } from "vitest";
+test("Add choices in runtime", () => {
   let survey = new SurveyModel({});
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
@@ -22,20 +21,12 @@ QUnit.test("Add choices in runtime", function (assert) {
   ];
   question.choices = choicesJSON;
 
-  assert.equal(question.choices.length, 2, "2 choices");
-  assert.equal(
-    question.choices[0].getType(),
-    "imageitemvalue",
-    "choice type is imageitemvalue"
-  );
-  assert.equal(
-    question.choices[1].imageLink,
-    "link2",
-    "choice imageLink value"
-  );
+  expect(question.choices.length, "2 choices").toBe(2);
+  expect(question.choices[0].getType(), "choice type is imageitemvalue").toBe("imageitemvalue");
+  expect(question.choices[1].imageLink, "choice imageLink value").toBe("link2");
 });
 
-QUnit.test("Localized imageLink", function (assert) {
+test("Localized imageLink", () => {
   let survey = new SurveyModel({});
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
@@ -58,37 +49,24 @@ QUnit.test("Localized imageLink", function (assert) {
   ];
   question.choices = choicesJSON;
 
-  assert.equal(question.choices.length, 2, "2 choices");
-  assert.equal(
-    question.choices[1].imageLink,
-    "link2",
-    "choice imageLink default langiage value"
-  );
+  expect(question.choices.length, "2 choices").toBe(2);
+  expect(question.choices[1].imageLink, "choice imageLink default langiage value").toBe("link2");
 
   survey.locale = "de";
-  assert.equal(
-    question.choices[1].imageLink,
-    "link2de",
-    "choice imageLink DE langiage value"
-  );
+  expect(question.choices[1].imageLink, "choice imageLink DE langiage value").toBe("link2de");
   survey.locale = "";
 });
 
-QUnit.test("check dependency getItemClass method on colCount", function (
-  assert
-) {
+test("check dependency getItemClass method on colCount", () => {
   let survey = new SurveyModel({});
   setOldTheme(survey);
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
   question.choices = [{ value: "item1" }, { value: "item2" }];
   const item = question.visibleChoices[0];
-  assert.equal(
-    question.getItemClass(item),
-    "sv_q_imgsel sv_q_imagepicker_inline"
-  );
+  expect(question.getItemClass(item)).toBe("sv_q_imgsel sv_q_imagepicker_inline");
 });
-QUnit.test("check process responsiveness for imagepicker, colCount == 0", function (assert) {
+test("check process responsiveness for imagepicker, colCount == 0", () => {
   let survey = new SurveyModel({});
   survey.css = defaultCss;
   let page = survey.addNewPage();
@@ -102,20 +80,20 @@ QUnit.test("check process responsiveness for imagepicker, colCount == 0", functi
   question.minImageHeight = 50;
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
-  assert.equal(question.renderedImageWidth, 100);
-  assert.equal(question.renderedImageHeight, 50);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 
   question["processResponsiveness"](0, 548);
-  assert.equal(question.renderedImageWidth, 125);
-  assert.equal(question["responsiveImageHeight"], 62.5);
-  assert.equal(question.renderedImageHeight, 62);
+  expect(question.renderedImageWidth).toBe(125);
+  expect(question["responsiveImageHeight"]).toBe(62.5);
+  expect(question.renderedImageHeight).toBe(62);
 
   question["processResponsiveness"](0, 900);
-  assert.equal(question.renderedImageWidth, 200);
-  assert.equal(question.renderedImageHeight, 100);
+  expect(question.renderedImageWidth).toBe(200);
+  expect(question.renderedImageHeight).toBe(100);
 });
 
-QUnit.test("check process responsiveness for imagepicker, colCount !== 0", function (assert) {
+test("check process responsiveness for imagepicker, colCount !== 0", () => {
   let survey = new SurveyModel({});
   survey.css = defaultCss;
   let page = survey.addNewPage();
@@ -130,40 +108,40 @@ QUnit.test("check process responsiveness for imagepicker, colCount !== 0", funct
   question.minImageHeight = 50;
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
-  assert.equal(question["getCurrentColCount"](), 3);
-  assert.equal(question.renderedImageWidth, "100");
-  assert.equal(question.renderedImageHeight, "50");
+  expect(question["getCurrentColCount"]()).toBe(3);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 
   question["processResponsiveness"](0, 900);
-  assert.equal(question["getCurrentColCount"](), 3);
-  assert.equal(question.renderedImageWidth, "200");
-  assert.equal(question.renderedImageHeight, "100");
+  expect(question["getCurrentColCount"]()).toBe(3);
+  expect(question.renderedImageWidth).toBe(200);
+  expect(question.renderedImageHeight).toBe(100);
 
   question["processResponsiveness"](0, 216);
-  assert.equal(question["getCurrentColCount"](), 2);
-  assert.equal(question.renderedImageWidth, "100");
-  assert.equal(question.renderedImageHeight, "50");
+  expect(question["getCurrentColCount"]()).toBe(2);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 
   question["processResponsiveness"](0, 100);
-  assert.equal(question["getCurrentColCount"](), 1);
-  assert.equal(question.renderedImageWidth, "100");
-  assert.equal(question.renderedImageHeight, "50");
+  expect(question["getCurrentColCount"]()).toBe(1);
+  expect(question.renderedImageWidth).toBe(100);
+  expect(question.renderedImageHeight).toBe(50);
 });
 
-QUnit.test("check isResponsive getter", function (assert) {
+test("check isResponsive getter", () => {
   let survey = new SurveyModel({});
   survey.css = defaultCss;
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
-  assert.ok(question["isResponsive"]);
+  expect(question["isResponsive"]).toBeTruthy();
   question.imageWidth = 200;
-  assert.notOk(question["isResponsive"]);
+  expect(question["isResponsive"]).toBeFalsy();
   question.imageWidth = undefined;
   question.imageHeight = 150;
-  assert.notOk(question["isResponsive"]);
+  expect(question["isResponsive"]).toBeFalsy();
 });
 
-QUnit.test("check isResponsive getter after end of loading json", function (assert) {
+test("check isResponsive getter after end of loading json", () => {
   let survey = new SurveyModel(
     {
       "elements": [
@@ -184,7 +162,7 @@ QUnit.test("check isResponsive getter after end of loading json", function (asse
   );
   survey.css = defaultCss;
   let q = survey.getAllQuestions()[0];
-  assert.notOk(q.isResponsive);
+  expect(q.isResponsive).toBeFalsy();
   survey = new SurveyModel(
     {
       "elements": [
@@ -203,21 +181,12 @@ QUnit.test("check isResponsive getter after end of loading json", function (asse
   );
   survey.css = defaultCss;
   q = survey.getAllQuestions()[0];
-  assert.ok(q.isResponsive);
+  expect(q.isResponsive).toBeTruthy();
 });
 
-export class CustomResizeObserver {
-  constructor(private callback: () => void) { }
-  observe() {
-    this.call();
-  }
-  call() {
-    this.callback();
-  }
-  disconnect() { }
-}
+import { CustomResizeObserver } from "./test-helpers";
 
-QUnit.test("check resizeObserver behavior", function (assert) {
+test("check resizeObserver behavior", () => {
   window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const setTimeout = window.setTimeout;
@@ -229,6 +198,9 @@ QUnit.test("check resizeObserver behavior", function (assert) {
   rootEl.appendChild(contentEl);
 
   window.document.body.appendChild(rootEl);
+  // jsdom does not perform layout, so isContainerVisible() always returns false.
+  // Stub offsetWidth on the element queried by the responsive logic (contentEl).
+  Object.defineProperty(contentEl, "offsetWidth", { configurable: true, value: 100 });
 
   const survey = new SurveyModel(
     {
@@ -254,13 +226,13 @@ QUnit.test("check resizeObserver behavior", function (assert) {
     return true;
   };
   q.afterRender(rootEl);
-  assert.equal(trace, "->processed");
+  expect(trace).toBe("->processed");
   (<any>q["resizeObserver"]).call();
-  assert.equal(trace, "->processed", "prevent from double call");
+  expect(trace, "prevent from double call").toBe("->processed");
   (<any>q["resizeObserver"]).call();
-  assert.equal(trace, "->processed->processed");
+  expect(trace).toBe("->processed->processed");
   survey.setIsMobile(true);
-  assert.equal(trace, "->processed->processed->processed", "always process when isMobile changed");
+  expect(trace, "always process when isMobile changed").toBe("->processed->processed->processed");
   window.ResizeObserver = ResizeObserver;
   window.setTimeout = setTimeout;
 
@@ -268,7 +240,7 @@ QUnit.test("check resizeObserver behavior", function (assert) {
   rootEl.remove();
 });
 
-QUnit.test("check resizeObserver not process if container is not visible", function (assert) {
+test("check resizeObserver not process if container is not visible", () => {
   window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -278,6 +250,12 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
   rootEl.appendChild(contentEl);
 
   window.document.body.appendChild(rootEl);
+  // jsdom does not perform layout. Make contentEl.offsetWidth reflect rootEl's display style
+  // so isContainerVisible() correctly reports visible/invisible based on display:none/block.
+  Object.defineProperty(contentEl, "offsetWidth", {
+    configurable: true,
+    get() { return rootEl.style.display === "none" ? 0 : 100; },
+  });
 
   const survey = new SurveyModel(
     {
@@ -304,17 +282,17 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
   };
   rootEl.style.display = "none";
   q.afterRender(rootEl);
-  assert.equal(trace, "", "do not process responsivness on invisible container");
+  expect(trace, "do not process responsivness on invisible container").toBe("");
   rootEl.style.display = "block";
   (<any>q["resizeObserver"]).call();
-  assert.equal(trace, "->processed", "process responsivness on visible container");
+  expect(trace, "process responsivness on visible container").toBe("->processed");
   window.ResizeObserver = ResizeObserver;
 
   contentEl.remove();
   rootEl.remove();
 });
 
-QUnit.test("check contentNotLoaded and contentMode flags behavior", function (assert) {
+test("check contentNotLoaded and contentMode flags behavior", () => {
   const survey = new SurveyModel(
     {
       "elements": [
@@ -333,19 +311,19 @@ QUnit.test("check contentNotLoaded and contentMode flags behavior", function (as
   );
   const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
   const choice = <ImageItemValue>question.visibleChoices[0];
-  assert.notOk(choice.contentNotLoaded);
+  expect(choice.contentNotLoaded).toBeFalsy();
   question.onContentLoaded(choice, { target: {} });
-  assert.notOk(choice.contentNotLoaded);
+  expect(choice.contentNotLoaded).toBeFalsy();
   question.contentMode = "video";
   choice.onErrorHandler();
-  assert.ok(choice.contentNotLoaded);
+  expect(choice.contentNotLoaded).toBeTruthy();
   question.contentMode = "image";
-  assert.notOk(choice.contentNotLoaded);
+  expect(choice.contentNotLoaded).toBeFalsy();
   question.contentMode = "video";
-  assert.ok(choice.contentNotLoaded);
+  expect(choice.contentNotLoaded).toBeTruthy();
 });
 
-QUnit.test("check reCalcGap", function (assert) {
+test("check reCalcGap", () => {
   const survey = new SurveyModel(
     {
       "elements": [
@@ -369,22 +347,22 @@ QUnit.test("check reCalcGap", function (assert) {
   itemsContainer.className = survey.css.imagepicker.root;
   container.appendChild(itemsContainer);
 
-  assert.notOk(question["reCalcGapBetweenItemsCallback"]);
+  expect(question["reCalcGapBetweenItemsCallback"]).toBeFalsy();
   question.afterRender(container);
-  assert.ok(!!question["reCalcGapBetweenItemsCallback"]);
+  expect(!!question["reCalcGapBetweenItemsCallback"]).toBeTruthy();
 
   question["reCalcGapBetweenItemsCallback"] = undefined as any;
   question.cssClasses.root = "";
   question.afterRender(container);
-  assert.notOk(!!question["reCalcGapBetweenItemsCallback"]);
+  expect(!!question["reCalcGapBetweenItemsCallback"]).toBeFalsy();
 
   container.innerHTML = "";
   survey.cssClasses.root = "some-class";
   question.afterRender(container);
-  assert.notOk(!!question["reCalcGapBetweenItemsCallback"]);
+  expect(!!question["reCalcGapBetweenItemsCallback"]).toBeFalsy();
 });
 
-QUnit.test("supports survey width scale", function (assert) {
+test("supports survey width scale", () => {
   const survey = new SurveyModel(
     {
       "elements": [
@@ -404,51 +382,51 @@ QUnit.test("supports survey width scale", function (assert) {
   survey.css = defaultCss;
   const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
 
-  assert.ok(question["isResponsiveValue"]);
-  assert.ok(question["isResponsive"]);
+  expect(question["isResponsiveValue"]).toBeTruthy();
+  expect(question["isResponsive"]).toBeTruthy();
 
-  assert.equal(survey.widthScale, 100);
-  assert.equal(question.renderedImageWidth, 200);
-  assert.equal(question.renderedImageHeight, 150);
+  expect(survey.widthScale).toBe(100);
+  expect(question.renderedImageWidth).toBe(200);
+  expect(question.renderedImageHeight).toBe(150);
 
   survey.widthScale = 75;
-  assert.equal(survey.widthScale, 75);
-  assert.equal(question.renderedImageWidth, 150);
-  assert.equal(question.renderedImageHeight, 112.5);
+  expect(survey.widthScale).toBe(75);
+  expect(question.renderedImageWidth).toBe(150);
+  expect(question.renderedImageHeight).toBe(112.5);
 
   survey.widthScale = 100;
-  assert.equal(survey.widthScale, 100);
+  expect(survey.widthScale).toBe(100);
   question["processResponsiveness"](0, 600);
-  assert.equal(question.renderedImageWidth, 600);
-  assert.equal(question.renderedImageHeight, 133);
+  expect(question.renderedImageWidth).toBe(600);
+  expect(question.renderedImageHeight).toBe(133);
 
   question["processResponsiveness"](0, 100);
-  assert.equal(question.renderedImageWidth, 3000);
-  assert.equal(question.renderedImageHeight, 133);
+  expect(question.renderedImageWidth).toBe(3000);
+  expect(question.renderedImageHeight).toBe(133);
 
   survey.widthScale = 75;
   question["processResponsiveness"](0, 100);
-  assert.equal(survey.widthScale, 75);
-  assert.equal(question.renderedImageWidth, 2250);
-  assert.equal(question.renderedImageHeight, 99);
+  expect(survey.widthScale).toBe(75);
+  expect(question.renderedImageWidth).toBe(2250);
+  expect(question.renderedImageHeight).toBe(99);
 
   question["processResponsiveness"](0, 600);
-  assert.equal(question.renderedImageWidth, 600);
-  assert.equal(question.renderedImageHeight, 99);
+  expect(question.renderedImageWidth).toBe(600);
+  expect(question.renderedImageHeight).toBe(99);
 
   question.imageWidth = 150;
   question.imageHeight = 100;
-  assert.equal(question.renderedImageWidth, 112.5);
-  assert.equal(question.renderedImageHeight, 75);
+  expect(question.renderedImageWidth).toBe(112.5);
+  expect(question.renderedImageHeight).toBe(75);
 });
 
-QUnit.test("inputRequiredAttribute", function (assert) {
+test("inputRequiredAttribute", () => {
   const q = new QuestionImagePickerModel("q");
-  assert.equal(q.inputRequiredAttribute, null);
+  expect(q.inputRequiredAttribute).toBeNull();
   q.isRequired = true;
-  assert.equal(q.inputRequiredAttribute, null);
+  expect(q.inputRequiredAttribute).toBeNull();
   q.multiSelect = true;
-  assert.equal(q.inputRequiredAttribute, true);
+  expect(q.inputRequiredAttribute).toBe(true);
   q.isRequired = false;
-  assert.equal(q.inputRequiredAttribute, false);
+  expect(q.inputRequiredAttribute).toBe(false);
 });

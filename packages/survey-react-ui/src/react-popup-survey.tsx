@@ -21,13 +21,8 @@ export class PopupSurvey extends Survey {
   protected renderElement(): React.JSX.Element {
     var header = this.renderWindowHeader();
     var body = this.renderBody();
-    let style: React.CSSProperties = {};
-    if (!!this.popup.renderedWidth) {
-      style.width = this.popup.renderedWidth;
-      style.maxWidth = this.popup.renderedWidth;
-    }
     return (
-      <div className={this.popup.cssRoot} style={style} onScroll={() => this.popup.onScroll()}>
+      <div className={this.popup.cssRoot} style={(this.popup as any).renderedStyle as React.CSSProperties} onScroll={() => this.popup.onScroll()}>
         <div className={this.popup.cssRootContent}>
           {header}
           {body}

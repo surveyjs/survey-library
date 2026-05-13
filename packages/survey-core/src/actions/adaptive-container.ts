@@ -1,6 +1,7 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
-import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
+import { Action, actionModeType, IAction } from "./action";
+import { createDropdownActionModelAdvanced } from "./dropdown-action";
 import { ActionContainer, ContainerUpdateOptions } from "./container";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
@@ -91,7 +92,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
     }
   }
-
   protected getRenderedActions(): Array<T> {
     const actions = super.getRenderedActions();
     if (actions.length == 0 || (actions.length === 1 && !!actions[0].iconName))
@@ -196,7 +196,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public getRootStyle() {
     if (!this.isInitialized && !this.isResponsivenessDisabled) {
-      return { opacity: 0 };
+      return { opacity: 0, overflow: "hidden" };
     } else {
       return undefined;
     }

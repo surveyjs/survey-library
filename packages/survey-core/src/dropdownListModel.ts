@@ -1,12 +1,13 @@
 import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Helpers } from "./helpers";
+import { Helpers, normalizeTextForSearch } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property } from "./decorators";
-import { IListModel, ListModel } from "./list";
+import { ListModel } from "./list";
+import { IListModel } from "./actions/list-model";
 import { LocalizableString } from "./localizablestring";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
@@ -34,8 +35,12 @@ export class DropdownListModel extends Base {
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
-  protected readonly selectedItemSelector = ".sv-list__item--selected";
-  protected readonly itemSelector = ".sv-list__item";
+  protected get selectedItemSelector(): string {
+    return classesToSelector(this.listModel.cssClasses.itemSelected);
+  }
+  protected get itemSelector(): string {
+    return classesToSelector(this.listModel.cssClasses.item);
+  }
   protected getFocusFirstInputSelector(): string {
     if (IsTouch) {
       return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
@@ -163,7 +168,8 @@ export class DropdownListModel extends Base {
 
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
-    this.editorButtons.setCssClasses(this.question.survey?.getCss().inputActionBar, false);
+    this.editorButtons.containerCss = this.question.cssClasses?.group;
+    this.editorButtons.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 
     this.chevronButton = new Action({
       id: "chevron",
@@ -173,12 +179,8 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locSelectCaption,
       disableTabStop: true,
-      enabled: new ComputedUpdater(() => {
-        return !this.question.isInputReadOnly;
-      }),
-      visible: new ComputedUpdater(() => {
-        return !this.question.isPreviewStyle;
-      }),
+      enabled: !this.question.isInputReadOnly,
+      visible: !this.question.isPreviewStyle,
       action: (context: any) => {
         this.onClick();
       }
@@ -192,20 +194,28 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locClearCaption,
       disableTabStop: true,
-      enabled: new ComputedUpdater(() => {
-        return !this.question.isInputReadOnly;
-      }),
-      visible: new ComputedUpdater(() => {
-        const isEmpty = this.question.isEmpty();
-        const isReadOnly = this.question.isReadOnly;
-        return this.question.allowClear && !isEmpty && !isReadOnly;
-      }),
+      enabled: !this.question.isInputReadOnly,
+      visible: this.isClearButtonVisible,
       action: (context: any) => {
         this.onClear();
       }
     });
 
     this.editorButtons.setItems([this.clearButton, this.chevronButton]);
+  }
+  private get isClearButtonVisible(): boolean {
+    return this.question.allowClear && !this.question.isEmpty() && !this.question.isReadOnly;
+  }
+
+  protected updateButtonsState(): void {
+    if (this.chevronButton) {
+      this.chevronButton.setEnabled(!this.question.isInputReadOnly);
+      this.chevronButton.setVisible(!this.question.isPreviewStyle);
+    }
+    if (this.clearButton) {
+      this.clearButton.setEnabled(!this.question.isInputReadOnly);
+      this.clearButton.setVisible(this.isClearButtonVisible);
+    }
   }
 
   protected createPopup(): void {
@@ -223,7 +233,7 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       this.popupVisibilityChanged(option.isVisible);
-      this.chevronButton.pressed = option.isVisible;
+      this.chevronButton.popupActive = option.isVisible;
     });
   }
 
@@ -303,9 +313,10 @@ export class DropdownListModel extends Base {
     listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
       if (item.id === this.customItemValue.id) return item.visible;
       if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
-      let textInLow = item.text.toLocaleLowerCase();
-      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+
+      const text = normalizeTextForSearch(item.text, "filter");
+      const search = normalizeTextForSearch(textToSearch, "filter");
+      const index = text.indexOf(search);
       return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
     });
   }
@@ -468,7 +479,7 @@ export class DropdownListModel extends Base {
   public get customItemValue(): ItemValue {
     if (!this._customItemValue) {
       this._customItemValue = new ItemValue("newCustomItem", this.getCustomItemText(this.customValue));
-      this._customItemValue.css = "sv-list-item--custom-value";
+      this._customItemValue.css = this.listModel.cssClasses.itemCustomValue;
     }
     return this._customItemValue;
   }
@@ -598,6 +609,11 @@ export class DropdownListModel extends Base {
   private questionPropertyChangedHandler = (sender: any, options: any) => {
     this.onPropertyChangedHandler(sender, options);
   };
+  private surveyPropertyChangedHandler = (sender: any, options: any) => {
+    if (options.name === "state") {
+      this.updateButtonsState();
+    }
+  };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     this.ariaExpanded = "false";
@@ -605,6 +621,9 @@ export class DropdownListModel extends Base {
     this.createLocalizableString("selectCaption", this.question, false, true);
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
+    if (question.survey) {
+      (<any>question.survey).onPropertyChanged.add(this.surveyPropertyChangedHandler);
+    }
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
@@ -717,7 +736,10 @@ export class DropdownListModel extends Base {
   public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
-    this.focusItemOnClickAndPopup();
+    if (this._popupModel.isVisible && !!this.question.selectedItem) {
+      this.listModel.scrollToSelectedItem();
+      this.afterScrollToItem();
+    }
     this.question.focusInputElement(false);
   }
   public chevronPointerDown(event: any): void {
@@ -729,14 +751,14 @@ export class DropdownListModel extends Base {
   protected onPropertyChangedHandler(sender: any, options: any) {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
+      this.updateButtonsState();
+    }
+    if (options.name === "readOnly" || options.name === "isInputReadOnly" || options.name === "isDesignMode" || options.name === "forceIsInputReadOnly" || options.name === "allowClear") {
+      this.updateButtonsState();
     }
     if (options.name == "textWrapEnabled") {
       this.setTextWrapEnabled(options.newValue);
     }
-  }
-  protected focusItemOnClickAndPopup() {
-    if (this._popupModel.isVisible && this.question.value)
-      this.changeSelectionWithKeyboard(false);
   }
 
   public onClear(event?: any): void {
@@ -768,8 +790,26 @@ export class DropdownListModel extends Base {
 
     this.beforeScrollToFocusedItem(focusedItem);
     this.scrollToFocusedItem();
-    this.afterScrollToFocusedItem();
+    this.afterScrollToItem();
 
+    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
+  }
+
+  private ensureFocusedItemIsSet(): void {
+    if (!this.listModel.focusedItem && this.question.selectedItem && ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
+      this.listModel.focusedItem = this.question.selectedItem;
+    }
+  }
+  private focusSelectedOrFirstOnOpen(): void {
+    if (!this.listModel.focusedItem) {
+      if (this.question.selectedItem && ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
+        this.listModel.focusedItem = this.question.selectedItem;
+      } else {
+        this.listModel.focusNextVisibleItem();
+      }
+    }
+    this.scrollToFocusedItem();
+    this.afterScrollToItem();
     this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
 
@@ -781,7 +821,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  protected afterScrollToFocusedItem() {
+  protected afterScrollToItem() {
     if (this.question.value && !this.listModel.filterString && this.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     } else {
@@ -826,6 +866,7 @@ export class DropdownListModel extends Base {
 
   private handleArrowUp(event: any): { stopPropagation: boolean } {
     if (this.popupModel.isVisible) {
+      this.ensureFocusedItemIsSet();
       this.changeSelectionWithKeyboard(true);
       return { stopPropagation: true };
     }
@@ -834,8 +875,14 @@ export class DropdownListModel extends Base {
   }
 
   private handleArrowDown(): { stopPropagation: boolean } {
+    const wasVisible = this.popupModel.isVisible;
     this.popupModel.show();
-    this.changeSelectionWithKeyboard(false);
+    if (!wasVisible) {
+      this.focusSelectedOrFirstOnOpen();
+    } else {
+      this.ensureFocusedItemIsSet();
+      this.changeSelectionWithKeyboard(false);
+    }
     return { stopPropagation: true };
   }
 
@@ -848,7 +895,7 @@ export class DropdownListModel extends Base {
   private handleSpace(event: any): { stopPropagation: boolean } {
     if (!this.popupModel.isVisible) {
       this.popupModel.show();
-      this.changeSelectionWithKeyboard(false);
+      this.focusSelectedOrFirstOnOpen();
       return { stopPropagation: true };
     }
     if (!this.searchEnabled || !this.inputString) {
@@ -943,7 +990,11 @@ export class DropdownListModel extends Base {
   public dispose(): void {
     super.dispose();
     this.question && this.question.onPropertyChanged.remove(this.questionPropertyChangedHandler);
+    if (this.question && this.question.survey) {
+      (<any>this.question.survey).onPropertyChanged.remove(this.surveyPropertyChangedHandler);
+    }
     this.questionPropertyChangedHandler = undefined;
+    this.surveyPropertyChangedHandler = undefined;
     if (!!this.listModel) {
       this.listModel.dispose();
     }

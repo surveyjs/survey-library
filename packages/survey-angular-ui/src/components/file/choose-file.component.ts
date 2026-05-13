@@ -7,10 +7,9 @@ import { EmbeddedViewContentComponent } from "../../embedded-view-content.compon
   templateUrl: "./choose-file.component.html"
 })
 export class ChooseFileBtn extends EmbeddedViewContentComponent {
-    @Input() data: any;
     @Input() model!: Action;
     public get question(): QuestionFileModel {
-      return (this.model && this.model.data.question) || this.data.question;
+      return (this.model && this.model.data.question) as QuestionFileModel;
     }
 }
 AngularComponentFactory.Instance.registerComponent("sv-file-choose-btn", ChooseFileBtn);

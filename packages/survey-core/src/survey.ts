@@ -6596,9 +6596,13 @@ export class SurveyModel extends SurveyElementCore
         this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
         this.notifyElementsOnAnyValueOrVariableChanged("");
       }
+      if (!this.isRunningConditionOnValueChanged) {
+        this.questionTriggersKeys = undefined;
+      }
     }
   }
   private questionTriggersKeys: any;
+  private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
     return this.questionTriggersKeys;
   }
@@ -6610,7 +6614,9 @@ export class SurveyModel extends SurveyElementCore
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
     } else {
+      this.isRunningConditionOnValueChanged = true;
       this.runConditions();
+      this.isRunningConditionOnValueChanged = false;
       this.runQuestionsTriggers(name, value);
       this.questionTriggersKeys = undefined;
     }

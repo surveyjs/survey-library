@@ -313,6 +313,7 @@ describe("Survey_QuestionFile", () => {
           allowMultiple: true,
           name: "image1",
           showPreview: true,
+          confirmDelete: false
         },
       ],
     };
@@ -934,6 +935,7 @@ describe("Survey_QuestionFile", () => {
           type: "file",
           name: "file1",
           allowMultiple: true,
+          confirmDelete: false
         }
       ],
     });
@@ -1139,6 +1141,7 @@ describe("Survey_QuestionFile", () => {
           allowMultiple: true,
           name: "image1",
           showPreview: true,
+          confirmDelete: false
         },
       ],
     };
@@ -2312,8 +2315,7 @@ describe("Survey_QuestionFile", () => {
           type: "file",
           allowMultiple: true,
           name: "image1",
-          showPreview: true,
-          needConfirmRemoveFile: true
+          showPreview: true
         },
       ],
     };
@@ -2350,6 +2352,7 @@ describe("Survey_QuestionFile", () => {
           allowMultiple: true,
           name: "image1",
           showPreview: true,
+          confirmDelete: false
         },
       ],
     };

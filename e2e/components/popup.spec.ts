@@ -327,7 +327,7 @@ frameworks.forEach((framework) => {
       await clickButton.click();
       await expect(inputInPopup).toBeFocused();
       await page.keyboard.press("Tab");
-      await expect(page.locator(".sv-popup button[title=Complete]")).toBeFocused();
+      await expect(page.locator(".sv-popup").getByRole("button", { name: "Complete" })).toBeFocused();
       await page.keyboard.press("Tab");
       await expect(page.locator(".sv-popup__button--cancel")).toBeFocused();
       await page.keyboard.press("Tab");
@@ -755,10 +755,10 @@ frameworks.forEach((framework) => {
           });
         });
       });
-      const showActionBarLocator = page.locator("button[title='Show Action Bar']");
-      const showMessageLocator = page.locator("button[title='Show Message']");
+      const showActionBarLocator = page.getByRole("button", { name: "Show Action Bar" });
+      const showMessageLocator = page.getByRole("button", { name: "Show Message" });
       const popupModalLocator = page.locator("body > div > .sv-popup--modal-popup, body > div > sv-ng-popup-container > .sv-popup--modal-popup");
-      const cancelLocator = page.locator("button[title='Cancel']");
+      const cancelLocator = page.getByRole("button", { name: "Cancel" });
       const messageLocator = page.locator("span").getByText("message", { exact: true });
       await showActionBarLocator.click();
       expect(await popupModalLocator.count()).toBe(1);

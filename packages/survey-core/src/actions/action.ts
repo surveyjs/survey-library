@@ -320,7 +320,7 @@ export abstract class BaseAction extends Base implements IAction {
       .toString();
   }
   public getTooltip(): string {
-    return this.tooltip || this.title;
+    return this.tooltip || (!this.hasTitle ? this.title : null);
   }
   public getIsTrusted(args: any): boolean {
     if (!!args.originalEvent) {

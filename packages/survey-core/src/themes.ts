@@ -25,7 +25,6 @@ export interface ITheme {
    * - `"dark"`
    */
   colorPalette?: string;
-  isLight?: boolean;
   /**
    * A Boolean value that specifies whether survey questions are displayed within panels (`false`) or without them (`true`).
    */

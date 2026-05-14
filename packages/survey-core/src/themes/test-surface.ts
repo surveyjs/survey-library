@@ -1,6 +1,6 @@
-// Auto-generated theme: test
+// Auto-generated theme: test-surface
 export default {
-  "themeName": "test",
+  "themeName": "test-surface",
   "iconSet": "v2",
   "cssVariables": {
     "--sjs2-base-unit-spacing": "var(--sjs2-base-unit-size)",
@@ -22,7 +22,13 @@ export default {
     "--sjs2-color-utility-shadow-trigger-pressed": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-trigger-disabled": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x005))",
     "--sjs2-color-utility-shadow-trigger-design": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010))",
+    "--sjs2-color-bg-basic-secondary": "#f4f4f4ff",
+    "--sjs2-color-bg-basic-primary-dim": "#f5f5f5",
+    "--sjs2-color-bg-basic-secondary-dim": "#eaeaeaff",
     "--sjs2-color-bg-neutral-tertiary-dim": "#f3f3f3",
+    "--sjs2-color-fg-basic-primary": "#000000e6",
+    "--sjs2-color-fg-basic-secondary": "#00000080",
+    "--sjs2-color-border-basic-secondary": "#dcdcdcff",
     "--sjs2-color-component-action-neutral-tertiary-default-icon": "rgba(from #1c1b20 r g b / calc(1% * 60))",
     "--sjs2-color-component-action-neutral-tertiary-hovered-bg": "#f3f3f3",
     "--sjs2-color-component-action-neutral-tertiary-hovered-icon": "#909090",
@@ -95,6 +101,7 @@ export default {
     "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)",
     "--sjs2-color-component-check-true-readonly-icon": "#161616",
     "--sjs2-color-component-track-default-bg": "#d4d4d4",
+    "--sjs2-color-bg-accent-secondary-dim": "#19b39440",
     "--sjs2-color-project-brand-700": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.85))",
     "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
     "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"

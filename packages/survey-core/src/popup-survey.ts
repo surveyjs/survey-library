@@ -249,7 +249,7 @@ export class PopupSurveyModel extends Base {
   private setCssRoot() {
     const cssWindow = this.css.window;
     if (this.isFullScreen) {
-      this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootFullScreenMode);
+      this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootTheme + " " + cssWindow.rootFullScreenMode);
     } else {
       this.setPropertyValue("cssRoot", cssWindow.root);
     }

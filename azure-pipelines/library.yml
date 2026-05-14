@@ -9,5 +9,6 @@ resources:
 trigger: none
 pr: none
 
+
 extends:
   template: library.yml@azurepipelines

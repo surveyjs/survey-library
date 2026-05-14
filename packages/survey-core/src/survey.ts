@@ -6375,13 +6375,13 @@ export class SurveyModel extends SurveyElementCore
       this.validateQuestionOnValueChangedCore(question);
       return;
     }
-    let parent = question.parent;
+    let parent: PanelModelBase = <PanelModelBase>question.parent;
     while(!!parent) {
       if (parent.errors && parent.errors.length > 0) {
         parent.validateContainerOnly();
         return;
       }
-      parent = (<any>parent).parent;
+      parent = <PanelModelBase>parent.parent;
     }
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {

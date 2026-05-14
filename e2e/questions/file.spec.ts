@@ -16,7 +16,6 @@ frameworks.forEach((framework) => {
             storeDataAsText: true,
             allowMultiple: true,
             showPreview: true,
-            needConfirmRemoveFile: true,
             imageWidth: 150,
             maxSize: 102400
           }
@@ -81,7 +80,7 @@ frameworks.forEach((framework) => {
 
     test("check clean button", async ({ page }) => {
       await page.evaluate(() => {
-        window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
+        window.survey.getAllQuestions()[0].confirmDelete = false;
       });
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg"]);
       await page.locator("input[type=file] + div label").click();

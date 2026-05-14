@@ -3,14 +3,14 @@
 
 .sd-progress {
   height: 2px;
-  background-color: $border-light;
+  background-color: var(--sjs2-color-border-basic-secondary);
   position: relative;
 }
 
 .sd-progress__bar {
   position: relative;
   height: 100%;
-  background-color: $primary;
+  background-color: var(--sjs2-color-bg-brand-primary);
   overflow: hidden;
 }
 
@@ -19,7 +19,7 @@
   margin-top: var(--sjs2-spacing-x100);
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   right: var(--sjs2-spacing-x150);
-  color: $foreground-dim-light;
+  color: var(--sjs2-color-fg-basic-secondary);
   @include sjs2--typography--small-strong;
 
   @media only screen and (min-width: 1000px) {
@@ -45,9 +45,9 @@
 .sv-root--sticky-top {
   .sd-progress__text {
     border-radius: var(--sjs2-radius-x050);
-    color: $foreground-dim;
+    color: var(--sjs2-color-fg-basic-primary);
     opacity: 0.75;
-    background: $background;
+    background: var(--sjs2-color-bg-basic-primary);
     box-shadow: $shadow-medium, $shadow-small;
   }
 }

@@ -4,6 +4,7 @@ resources:
       type: github
       endpoint: surveyjs
       name: surveyjs/azure-pipelines
+      ref: refs/heads/feature/scr_update
 
 trigger: none
 pr: none

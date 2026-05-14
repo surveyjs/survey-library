@@ -12,6 +12,9 @@ export class PaneldynamicAction {
   public get question(): QuestionPanelDynamicModel {
     return (this.model && this.model.data.question) || this.data.question;
   }
+  public get isActionEnabled(): boolean {
+    return !this.model || this.model.enabled !== false;
+  }
 }
 
 @Component({
@@ -20,6 +23,7 @@ export class PaneldynamicAction {
 })
 export class PanelDynamicAddBtn extends PaneldynamicAction {
   addPanelClick() {
+    if (!this.isActionEnabled) return;
     this.question.addPanelUI();
   }
 }

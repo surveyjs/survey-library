@@ -2028,13 +2028,18 @@ describe("Survey", () => {
     expect(survey.isCurrentPageHasErrors, "failed, values are undefined : 10 < q1.value + q2.value < 100").toBe(true);
     expect(counter, "onValidatePanel calls one time").toBe(1);
     q1.value = 5;
+    // panel still has the error -> answering q1 re-runs panel validation
+    expect(counter, "onValidatePanel re-runs after q1 value change while panel has errors").toBe(2);
     q2.value = 50;
+    // panel still has the error -> answering q2 re-runs panel validation; this time error clears
+    expect(counter, "onValidatePanel re-runs after q2 value change while panel has errors").toBe(3);
     expect(survey.isCurrentPageHasErrors, "passed: 5 + 50, 10 < q1.value + q2.value < 100").toBe(false);
-    expect(counter, "onValidatePanel calls two time").toBe(2);
+    expect(counter, "onValidatePanel calls four time").toBe(4);
     q1.value = 55;
-
+    // panel currently has no errors so changing value does not auto re-run panel validation
+    expect(counter, "onValidatePanel is not re-run when panel has no errors").toBe(4);
     expect(survey.isCurrentPageHasErrors, "failed: 55 + 50, 10 < q1.value + q2.value < 100").toBe(true);
-    expect(counter, "onValidatePanel calls three time").toBe(3);
+    expect(counter, "onValidatePanel calls five time").toBe(5);
   });
   test("survey.onValidatePanel & options.errors", () => {
     const survey = new SurveyModel();

@@ -6367,12 +6367,21 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private validateQuestionOnValueChanged(question: Question) {
+    if (this.isNavigationButtonPressed) return;
     if (
-      !this.isNavigationButtonPressed &&
-      (this.isValidateOnValueChanged ||
-        question.getAllErrors().length > 0)
+      this.isValidateOnValueChanged ||
+      question.getAllErrors().length > 0
     ) {
       this.validateQuestionOnValueChangedCore(question);
+      return;
+    }
+    let parent = question.parent;
+    while(!!parent) {
+      if (parent.errors && parent.errors.length > 0) {
+        parent.validateContainerOnly();
+        return;
+      }
+      parent = (<any>parent).parent;
     }
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {

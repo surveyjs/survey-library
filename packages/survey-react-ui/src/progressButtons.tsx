@@ -104,9 +104,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
             {page.navigationDescription}
           </div>
         </> : null}
-        <div className={this.css.progressButtonsButton}>
+        <button className={this.css.progressButtonsButton}>
           {this.model.getItemNumber(page)}
-        </div>
+        </button>
       </li>
     );
   }

@@ -105,7 +105,15 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
           </div>
         </> : null}
         <button className={this.css.progressButtonsButton}>
-          {this.model.getItemNumber(page)}
+          {
+            this.model.showItemNumbers ?
+              this.model.getItemNumber(page) :
+              this.model.isListElementPassed(index) ?
+                <svg className={this.css.progressButtonsCheckIcon}>
+                  <use xlinkHref={`#icon-${this.css.progressButtonsCheckIconId}`}></use>
+                </svg> :
+                <div className={this.css.progressButtonsDot}></div>
+          }
         </button>
       </li>
     );

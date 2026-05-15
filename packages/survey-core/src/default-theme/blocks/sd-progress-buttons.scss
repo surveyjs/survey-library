@@ -5,20 +5,67 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  content: attr(data-page-number);
+  content: attr(data-page-number); //?
   @include sjs2--typography--default-strong;
-  color: var(--sjs2-color-fg-basic-primary);
+  color: var(--sjs2-color-fg-basic-tertiary);
   border-radius: var(--sjs2-radius-component-stepper-item);
   width: var(--sjs2-size-x300);
   height: var(--sjs2-size-x300);
   box-sizing: border-box;
-  padding: 0 2px 1px 2px;
-  border: 2px solid var(--sjs2-color-border-brand-primary);
-  background: var(--sjs2-color-bg-basic-primary);
   cursor: pointer;
+  background: var(--sjs2-color-bg-basic-secondary);
+  border: 1px solid var(--sjs2-color-border-basic-secondary);
 
   &:focus-visible {
     outline: 4px solid var(--sjs2-color-utility-a11y);
+  }
+
+  &:hover {
+    background: var(--sjs2-color-bg-basic-secondary-dim);
+    .sd-progress-buttons__dot {
+      width: var(--sjs2-size-x125);
+      height: var(--sjs2-size-x125);
+      background: var(--sjs2-color-fg-basic-secondary);
+    }
+  }
+}
+
+.sd-progress-buttons__dot {
+  width: var(--sjs2-size-x100);
+  height: var(--sjs2-size-x100);
+  border-radius: var(--sjs2-radius-round);
+  background: var(--sjs2-color-fg-basic-tertiary);
+}
+
+.sd-progress-buttons__check-icon {
+  width: var(--sjs2-line-height-x200);
+  height: var(--sjs2-line-height-x200);
+  display: none;
+
+  use {
+    fill: var(--sjs2-color-fg-brand-primary);
+  }
+}
+
+.sd-progress-buttons--numbered {
+  // .sd-progress-buttons__list-container {
+  //   margin: 0 var(--sjs2-spacing-negative-x100);
+  // }
+
+  // .sd-progress-buttons__list {
+  //   li {
+  //     &:not(:first-child) > .sd-progress-buttons__connector {
+  //       bottom: calc(var(--sjs2-base-unit-spacing) * 2.175);
+  //       right: calc(50% + 18px);
+  //       width: calc(100% - 36px);
+  //     }
+  //   }
+  // }
+  .sd-progress-buttons__button {
+    width: var(--sjs2-size-x400);
+    height: var(--sjs2-size-x400);
+    padding: 0 2px 1px 2px;
+    border: 2px solid var(--sjs2-color-border-brand-primary);
   }
 }
 
@@ -37,6 +84,25 @@
       border-color: var(--sjs2-color-bg-brand-primary-dim);
     }
   }
+}
+
+.sd-progress-buttons__list-element--passed {
+  .sd-progress-buttons__check-icon {
+    display: block;
+  }
+
+  .sd-progress-buttons__dot {
+    display: none;
+  }
+
+  // &:not(:first-child) > .sd-progress-buttons__connector {
+  //   background-color: var(--sjs2-color-bg-brand-primary);
+  //   opacity: 1;
+  // }
+
+  // .sd-progress-buttons__button {
+  //   background-color: var(--sjs2-color-bg-brand-primary);
+  // }
 }
 
 .sd-progress-buttons__image-button-left {
@@ -101,17 +167,6 @@
       pointer-events: none;
     }
   }
-
-  .sd-progress-buttons__list-element--passed {
-    &:not(:first-child) > .sd-progress-buttons__connector {
-      background-color: var(--sjs2-color-bg-brand-primary);
-      opacity: 1;
-    }
-
-    // .sd-progress-buttons__button {
-    //   background-color: var(--sjs2-color-bg-brand-primary);
-    // }
-  }
 }
 
 .sd-progress-buttons__page-title {
@@ -172,27 +227,6 @@
     .sd-progress-buttons__page-title {
       margin-top: 0;
       margin-bottom: var(--sjs2-spacing-x100);
-    }
-  }
-}
-
-.sd-progress-buttons--numbered {
-  .sd-progress-buttons__list-container {
-    margin: 0 var(--sjs2-spacing-negative-x100);
-  }
-
-  .sd-progress-buttons__list {
-    li {
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        bottom: calc(var(--sjs2-base-unit-spacing) * 2.175);
-        right: calc(50% + 18px);
-        width: calc(100% - 36px);
-      }
-
-      .sd-progress-buttons__button {
-        width: var(--sjs2-size-x400);
-        height: var(--sjs2-size-x400);
-      }
     }
   }
 }

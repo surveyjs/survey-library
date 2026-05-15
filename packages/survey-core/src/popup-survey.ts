@@ -249,9 +249,9 @@ export class PopupSurveyModel extends Base {
   private setCssRoot() {
     const cssWindow = this.css.window;
     if (this.isFullScreen) {
-      this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootTheme + " " + cssWindow.rootFullScreenMode);
+      this.setPropertyValue("cssRoot", cssWindow.root + " " + this.css.rootTheme + " " + cssWindow.rootFullScreenMode);
     } else {
-      this.setPropertyValue("cssRoot", cssWindow.root);
+      this.setPropertyValue("cssRoot", cssWindow.root + " " + this.css.rootTheme);
     }
   }
   private updateCssButton() {

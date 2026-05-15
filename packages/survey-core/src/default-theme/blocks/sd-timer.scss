@@ -68,6 +68,6 @@
 
 .sd-timer__text--minor {
   @include sjs2--typography--default-strong;
-  color: var(--lbr-timer-text-color-secondary, $foreground-dim-light);
+  color: var(--sjs2-color-fg-basic-secondary);
   margin-top: var(--sjs2-spacing-negative-x050);
 }

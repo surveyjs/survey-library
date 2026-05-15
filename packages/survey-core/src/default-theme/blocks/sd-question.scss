@@ -33,12 +33,12 @@
 
 .sd-question--description-under-input>.sd-question__erbox--below-question,
 .sd-question--title-bottom>.sd-question__erbox--below-question {
-  margin-top: calc(0.25 * var(--sd-base-vertical-padding) + 0.5 * #{$base-unit});
+  margin-top: calc(0.25 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x050));
 }
 
 .sd-element--with-frame>.sd-element__erbox--above-element {
   margin-bottom: var(--sd-base-padding);
-  border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
+  border-radius: var(--sjs2-radius-x100) var(--sjs2-radius-x100) 0 0;
 }
 
 .sd-question--left>.sd-element__erbox--above-element {
@@ -51,16 +51,16 @@
 
 .sd-element--with-frame>.sd-question__erbox--below-question {
   margin-top: auto;
-  border-radius: 0 0 calcCornerRadius(1) calcCornerRadius(1);
+  border-radius: 0 0 var(--sjs2-radius-x100) var(--sjs2-radius-x100);
 }
 
 .sd-element--with-frame.sd-question--title-top>.sd-question__erbox--above-question {
-  margin-bottom: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
+  margin-bottom: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
 }
 
 .sd-element--with-frame.sd-question--description-under-input>.sd-question__erbox--below-question,
 .sd-element--with-frame.sd-question--title-bottom>.sd-question__erbox--below-question {
-  margin-top: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
+  margin-top: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
 }
 
 .sd-question__header {

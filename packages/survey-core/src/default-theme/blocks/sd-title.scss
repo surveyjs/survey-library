@@ -38,7 +38,7 @@
   }
 
   h3 {
-    line-height: calcLineHeight(2.5);
+    line-height: var(--sjs2-line-height-x500);
   }
 
   h5 {
@@ -85,7 +85,7 @@
   .sv-title-actions__title {
     flex-wrap: wrap;
     flex: 0 1 auto;
-    max-width: calc(100% - 3 * #{$base-unit});
+    max-width: calc(100% - var(--sjs2-spacing-x300));
     white-space: initial;
     min-width: unset;
   }

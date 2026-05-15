@@ -84,7 +84,7 @@
 
 .sd-boolean--checked:not(.sd-boolean--exchanged) .sd-boolean__thumb,
 .sd-boolean--exchanged:not(.sd-boolean--checked) .sd-boolean__thumb {
-  left: calc(100% - calc(0.5 * #{$base-unit}));
+  left: calc(100% - var(--sjs2-size-x050));
   transform: translateX(-100%);
 }
 

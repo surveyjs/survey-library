@@ -23,7 +23,7 @@
     &>.sd-element__header {
       padding-top: var(--sjs2-spacing-x200);
       padding-bottom: var(--sjs2-spacing-x200);
-      border-radius: $panel-corner-radius;
+      border-radius: var(--sjs2-radius-component-panel);
     }
   }
 

@@ -113,7 +113,7 @@
 }
 
 .sv-ranking-item__content.sd-ranking-item__content {
-  line-height: calcLineHeight(1.5);
+  line-height: var(--sjs2-line-height-x300);
 }
 
 .sv-dragdrop-movedown {

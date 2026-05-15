@@ -89,6 +89,10 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   }
   protected abstract getVisibleItem(idx: number): DynamicItemModelBase;
   protected abstract get visibleIndex(): number;
+  public getContextKeys(): { [key: string]: any } {
+    const varName = this.variableName;
+    return varName ? { [varName]: this.item } : {};
+  }
 }
 
 export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, IObjectValueContext {

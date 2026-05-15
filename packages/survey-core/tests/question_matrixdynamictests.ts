@@ -9539,4 +9539,50 @@ describe("Survey_QuestionMatrixDynamic", () => {
     expect(cell2_row0.errors.length, "matrix2 row0 cell 'b' has unique error").toBe(1);
     expect(cell2_row1.errors.length, "matrix2 row1 cell 'b' should have unique error").toBe(1);
   });
+  test("Custom expression property on matrixdynamic column is executed on addRow, bug#11273", () => {
+    Serializer.addProperty("question", {
+      name: "expression:expression",
+      onExecuteExpression: (obj: any, res: any) => {
+        obj.value = res;
+      }
+    });
+    const survey = new SurveyModel({
+      pages: [{
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+            inputType: "number"
+          },
+          {
+            type: "matrixdynamic",
+            name: "question2",
+            rowCount: 0,
+            columns: [
+              { name: "Column1", cellType: "text" },
+              { name: "Column2", cellType: "text" },
+              { name: "Column3", cellType: "text", expression: "{row.Column2}/{question1}" }
+            ]
+          }
+        ]
+      }]
+    });
+
+    survey.setValue("question1", 5);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("question2");
+
+    matrix.addRow();
+    const rows = matrix.visibleRows;
+    expect(rows.length, "one row added").toBe(1);
+
+    rows[0].getQuestionByColumnName("Column2").value = 10;
+    expect(rows[0].getQuestionByColumnName("Column3").value, "expression executes on row added via addRow").toBe(2);
+
+    matrix.addRow();
+    const rows2 = matrix.visibleRows;
+    rows2[1].getQuestionByColumnName("Column2").value = 20;
+    expect(rows2[1].getQuestionByColumnName("Column3").value, "expression executes on second added row").toBe(4);
+
+    Serializer.removeProperty("question", "expression");
+  });
 });

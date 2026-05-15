@@ -314,6 +314,71 @@ describe("Panel", () => {
     q2.value = "abc";
     expect(panel2.errors.length, "There is no errors in panel, #6").toBe(0);
   });
+  test("Panel.isRequired - error should disappear after a panel's question is answered, Bug#11264", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "question1", isRequired: true },
+            {
+              type: "panel",
+              name: "panel1",
+              isRequired: true,
+              elements: [
+                { type: "boolean", name: "question3" },
+                { type: "radiogroup", name: "question2", choices: ["Item 1", "Item 2", "Item 3"] }
+              ]
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "checkbox", name: "question4", isRequired: true, choices: ["Item 1", "Item 2", "Item 3"] }
+          ]
+        }
+      ]
+    });
+    survey.nextPage();
+    const panel1 = survey.getPanelByName("panel1");
+    expect(panel1.errors.length, "panel has required error after nextPage").toBe(1);
+    survey.setValue("question2", "Item 1");
+    expect(panel1.errors.length, "panel error should disappear after answering panel question").toBe(0);
+  });
+  test("Panel.isRequired - error should disappear after a panel's question is answered, checkErrorsMode='onValueChanged', Bug#11264", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "question1", isRequired: true },
+            {
+              type: "panel",
+              name: "panel1",
+              isRequired: true,
+              elements: [
+                { type: "boolean", name: "question3" },
+                { type: "radiogroup", name: "question2", choices: ["Item 1", "Item 2", "Item 3"] }
+              ]
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "checkbox", name: "question4", isRequired: true, choices: ["Item 1", "Item 2", "Item 3"] }
+          ]
+        }
+      ]
+    });
+    survey.nextPage();
+    const panel1 = survey.getPanelByName("panel1");
+    expect(panel1.errors.length, "panel has required error after nextPage, onValueChanged").toBe(1);
+    survey.setValue("question2", "Item 1");
+    expect(panel1.errors.length, "panel error should disappear after answering panel question, onValueChanged").toBe(0);
+  });
   test("Panel with paneldynamic error focus", () => {
     const json = {
       elements: [

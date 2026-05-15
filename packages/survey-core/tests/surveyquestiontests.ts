@@ -7897,5 +7897,56 @@ describe("Survey_Questions", () => {
     FunctionFactory.Instance.unregister("withParam");
     FunctionFactory.Instance.unregister("noParam");
   });
+  test("Custom expression with a function with parameters across pages, only on related value change, Issue#11259", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("testFunction2", (params: any[]): any => {
+      counter++;
+      return params[0];
+    });
+    Serializer.addProperty("question", {
+      name: "customExp:expression",
+      onExecuteExpression: (obj, res) => {
+        obj.value = res;
+      }
+    });
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "question1" },
+            { type: "text", name: "question2" },
+            { type: "text", name: "question3", customExp: "{question1} + {question2}" },
+            { type: "text", name: "question4", customExp: "{question3}" },
+            { type: "text", name: "question6" },
+            { type: "text", name: "question7" }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "text", name: "question5", customExp: "testFunction2({question4})" }
+          ]
+        }
+      ]
+    });
+    const q1 = survey.getQuestionByName("question1");
+    const q4 = survey.getQuestionByName("question4");
+    const q6 = survey.getQuestionByName("question6");
+    const q7 = survey.getQuestionByName("question7");
+    const initial = counter;
+    q6.value = "abc";
+    expect(counter - initial, "not executed on changing unrelated question6").toBe(0);
+    q7.value = "def";
+    expect(counter - initial, "not executed on changing unrelated question7").toBe(0);
+    q4.value = "hello";
+    expect(counter - initial, "executed on changing related question4").toBeGreaterThan(0);
+    const beforeQ1 = counter;
+    q1.value = "world";
+    expect(counter - beforeQ1, "executed on changing related question1").toBeGreaterThan(0);
+
+    Serializer.removeProperty("question", "customExp");
+    FunctionFactory.Instance.unregister("testFunction2");
+  });
 
 });

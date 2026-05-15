@@ -29,7 +29,7 @@
 }
 
 .sd-timer__progress {
-  --sd-timer-stroke-background-color: var(--background-dim, #f3f3f3);
+  --sd-timer-stroke-background-color: var(--sjs2-color-bg-neutral-tertiary-dim);
   --sd-timer-stroke-background-width: 2px;
   stroke-linecap: round;
   height: 100%;

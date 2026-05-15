@@ -185,11 +185,3 @@
 .sd-question__content {
   box-sizing: border-box;
 }
-
-.sd-singleinput__title {
-  @include sjs2--typography--component--page--title;
-  color: $font-pagetitle-color;
-  position: static;
-  line-height: multiply(1.33, var(--page-title-font-size));
-  margin: 0 0 var(--sjs2-spacing-x050) 0px;
-}

@@ -558,6 +558,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
+  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
+    if (!keys) return false;
+    const data = <IObjectValueContext><any>this.data;
+    if (!!data && typeof data.getValueGetterContext === "function") {
+      const dataContext = data.getValueGetterContext();
+      if (typeof dataContext?.getContextKeys === "function") {
+        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys()), vars);
+      }
+    }
+    return super.canSkipExpressionByKeys(runner, keys, vars);
+  }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();
   }

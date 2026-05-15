@@ -31,6 +31,7 @@ export interface IValueGetterContext {
   getObj?(): any;
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
+  getContextKeys?(): { [key: string]: any };
 }
 export interface IValueInfoParams {
   name: string;

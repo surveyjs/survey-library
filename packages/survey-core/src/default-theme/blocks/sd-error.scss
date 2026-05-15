@@ -9,7 +9,7 @@
   border-radius: var(--sjs2-radius-component-message, 8px);
   @include sjs2--typography--small-strong;
   text-align: left;
-  color: var(--sjs2-color-component-message-error-text);
+  color: var(--sjs2-color-fg-alert-primary);
   white-space: normal;
   width: 100%;
   background-color: var(--sjs2-color-component-message-error-bg);

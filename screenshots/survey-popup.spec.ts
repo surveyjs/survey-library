@@ -19,7 +19,6 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
     const popupSurvey = new window["Survey"].PopupSurveyModel(json);
     const model = popupSurvey.survey;
     model.setDesignMode(isDesignMode);
-    model.applyTheme(window["SurveyTheme"].Test);
 
     if (framework === "knockout") {
       popupSurvey.isExpanded = true;

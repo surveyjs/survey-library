@@ -54,16 +54,35 @@
     width: var(--sjs2-size-x400);
     height: var(--sjs2-size-x400);
     padding: 0 2px 1px 2px;
-    border: 2px solid var(--sjs2-color-border-brand-primary);
+    border: 1px solid var(--sjs2-color-border-basic-secondary);
+  }
+
+  .sd-progress-buttons__list-element--current {
+    .sd-progress-buttons__button {
+      border: 2px solid var(--sjs2-color-border-brand-primary);
+      background: var(--sjs2-color-bg-basic-primary);
+      color: var(--sjs2-color-fg-basic-primary);
+    }
+  }
+
+  .sd-progress-buttons__list-element--passed {
+    .sd-progress-buttons__button {
+      border-color: var(--sjs2-color-border-brand-primary);
+      background: var(--sjs2-color-bg-brand-primary);
+      color: var(--sjs2-color-fg-brand-on-primary);
+    }
+  }
+
+  .sd-progress-buttons__list-element--current {
+    &.sd-progress-buttons__list-element--passed {
+      .sd-progress-buttons__button {
+        color: var(--sjs2-color-fg-basic-primary);
+      }
+    }
   }
 }
 
 .sd-progress-buttons__list-element--current {
-  // &:not(:first-child) > .sd-progress-buttons__connector {
-  //   background-color: var(--sjs2-color-bg-brand-primary);
-  //   opacity: 1;
-  // }
-
   .sd-progress-buttons__button {
     border-color: var(--sjs2-color-border-brand-primary);
     background: var(--sjs2-color-bg-basic-primary);

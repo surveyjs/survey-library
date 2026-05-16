@@ -142,6 +142,10 @@
       fill: var(--sjs2-color-fg-brand-on-primary);
     }
   }
+
+  .sd-progress-buttons__connector {
+    background: var(--sjs2-color-border-brand-primary);
+  }
 }
 
 .sd-progress-buttons__list-element--current {

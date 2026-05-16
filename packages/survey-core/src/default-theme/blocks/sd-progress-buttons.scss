@@ -15,6 +15,8 @@
   cursor: pointer;
   background: var(--sjs2-color-bg-basic-secondary);
   border: 1px solid var(--sjs2-color-border-basic-secondary);
+  padding: 0;
+  margin: 0;
 
   &:focus-visible {
     outline: 4px solid var(--sjs2-color-utility-a11y);
@@ -22,6 +24,7 @@
 
   &:hover {
     background: var(--sjs2-color-bg-basic-secondary-dim);
+
     .sd-progress-buttons__dot {
       width: var(--sjs2-size-x125);
       height: var(--sjs2-size-x125);
@@ -40,7 +43,6 @@
 .sd-progress-buttons__check-icon {
   width: var(--sjs2-line-height-x200);
   height: var(--sjs2-line-height-x200);
-  display: none;
 
   use {
     fill: var(--sjs2-color-fg-brand-primary);
@@ -48,19 +50,6 @@
 }
 
 .sd-progress-buttons--numbered {
-  // .sd-progress-buttons__list-container {
-  //   margin: 0 var(--sjs2-spacing-negative-x100);
-  // }
-
-  // .sd-progress-buttons__list {
-  //   li {
-  //     &:not(:first-child) > .sd-progress-buttons__connector {
-  //       bottom: calc(var(--sjs2-base-unit-spacing) * 2.175);
-  //       right: calc(50% + 18px);
-  //       width: calc(100% - 36px);
-  //     }
-  //   }
-  // }
   .sd-progress-buttons__button {
     width: var(--sjs2-size-x400);
     height: var(--sjs2-size-x400);
@@ -70,39 +59,54 @@
 }
 
 .sd-progress-buttons__list-element--current {
-  &:not(:first-child) > .sd-progress-buttons__connector {
-    background-color: var(--sjs2-color-bg-brand-primary);
-    opacity: 1;
-  }
+  // &:not(:first-child) > .sd-progress-buttons__connector {
+  //   background-color: var(--sjs2-color-bg-brand-primary);
+  //   opacity: 1;
+  // }
 
   .sd-progress-buttons__button {
-    color: var(--sjs2-color-fg-brand-on-primary);
+    border-color: var(--sjs2-color-border-brand-primary);
+    background: var(--sjs2-color-bg-basic-primary);
+
+    .sd-progress-buttons__dot {
+      width: var(--sjs2-size-x125);
+      height: var(--sjs2-size-x125);
+      background: var(--sjs2-color-fg-brand-primary);
+    }
+  }
+}
+
+.sd-progress-buttons__list-element--passed {
+  .sd-progress-buttons__button {
     background: var(--sjs2-color-bg-brand-primary);
+    border-color: var(--sjs2-color-border-brand-primary);
 
     &:hover {
       background: var(--sjs2-color-bg-brand-primary-dim);
       border-color: var(--sjs2-color-bg-brand-primary-dim);
     }
   }
+
+  .sd-progress-buttons__check-icon {
+    use {
+      fill: var(--sjs2-color-fg-brand-on-primary);
+    }
+  }
 }
 
-.sd-progress-buttons__list-element--passed {
-  .sd-progress-buttons__check-icon {
-    display: block;
+.sd-progress-buttons__list-element--current {
+  &.sd-progress-buttons__list-element--passed {
+    .sd-progress-buttons__button {
+      background: var(--sjs2-color-bg-basic-primary);
+      border-color: var(--sjs2-color-border-brand-primary);
+    }
+
+    .sd-progress-buttons__check-icon {
+      use {
+        fill: var(--sjs2-color-fg-brand-primary);
+      }
+    }
   }
-
-  .sd-progress-buttons__dot {
-    display: none;
-  }
-
-  // &:not(:first-child) > .sd-progress-buttons__connector {
-  //   background-color: var(--sjs2-color-bg-brand-primary);
-  //   opacity: 1;
-  // }
-
-  // .sd-progress-buttons__button {
-  //   background-color: var(--sjs2-color-bg-brand-primary);
-  // }
 }
 
 .sd-progress-buttons__image-button-left {

@@ -209,5 +209,119 @@ frameworks.forEach((framework) => {
       await expect(cellTextbox).toBeFocused();
       // expect(count).toBe(0);
     });
+    test("Check lazy rendering when no container with restricted height and progress bar: 'bottom'", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.evaluate(() => {
+        window["Survey"].settings.lazyRender.enabled = true;
+      });
+      const json = {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2"
+              },
+              {
+                "type": "text",
+                "name": "question3"
+              },
+              {
+                "type": "text",
+                "name": "question4"
+              },
+              {
+                "type": "text",
+                "name": "question5"
+              },
+              {
+                "type": "text",
+                "name": "question6"
+              },
+              {
+                "type": "text",
+                "name": "question7"
+              },
+              {
+                "type": "text",
+                "name": "question8"
+              },
+              {
+                "type": "text",
+                "name": "question9"
+              },
+              {
+                "type": "text",
+                "name": "question10"
+              },
+              {
+                "type": "text",
+                "name": "question11"
+              },
+              {
+                "type": "text",
+                "name": "question12"
+              },
+              {
+                "type": "text",
+                "name": "question13"
+              },
+              {
+                "type": "text",
+                "name": "question14"
+              },
+              {
+                "type": "text",
+                "name": "question15"
+              },
+              {
+                "type": "text",
+                "name": "question16"
+              },
+              {
+                "type": "text",
+                "name": "question17"
+              },
+              {
+                "type": "text",
+                "name": "question18"
+              },
+              {
+                "type": "text",
+                "name": "question19"
+              },
+              {
+                "type": "text",
+                "name": "question20"
+              }
+            ]
+          },
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question21"
+              }
+            ]
+          }
+        ],
+        "showProgressBar": true,
+        "progressBarLocation": "topbottom",
+        "progressBarType": "questions",
+        "headerView": "advanced"
+      };
+      await initSurvey(page, framework, json);
+      expect(await page.locator(".sv-skeleton-element").count()).toBe(17);
+      for (let i = 0; i < 7; i++) {
+        await page.mouse.wheel(0, 500);
+      }
+      expect(await page.locator(".sv-skeleton-element").count()).toBe(0);
+    });
   });
 });

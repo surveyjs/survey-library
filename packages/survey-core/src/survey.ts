@@ -94,9 +94,10 @@ import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
+import { SurveyProgressTextModel } from "./surveyProgressTextModel";
+import { SurveyNavigationLayoutModel } from "./surveyNavigationLayoutModel";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
-import { SurveyLayoutElementsFactory } from "./survey-layout-elements-factory";
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
@@ -1211,9 +1212,6 @@ export class SurveyModel extends SurveyElementCore
     if (name === "readOnly") {
       this.onReadOnlyChanged();
     }
-    if (name === "progressBarType") {
-      this.updateProgressText();
-    }
     const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
     if (resetVisibleIndexesProps.indexOf(name) > -1) {
       this.resetVisibleIndexes();
@@ -1249,6 +1247,20 @@ export class SurveyModel extends SurveyElementCore
       this.tocModelValue = new TOCModel(this);
     }
     return this.tocModelValue;
+  }
+  private progressTextModelValue: SurveyProgressTextModel;
+  public get progressTextModel(): SurveyProgressTextModel {
+    if (!this.progressTextModelValue) {
+      this.progressTextModelValue = new SurveyProgressTextModel(this);
+    }
+    return this.progressTextModelValue;
+  }
+  private navigationLayoutModelValue: SurveyNavigationLayoutModel;
+  public get navigationLayoutModel(): SurveyNavigationLayoutModel {
+    if (!this.navigationLayoutModelValue) {
+      this.navigationLayoutModelValue = new SurveyNavigationLayoutModel(this);
+    }
+    return this.navigationLayoutModelValue;
   }
   @property() sjsVersion: string;
   @property() $schema: string;
@@ -1437,16 +1449,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }) headerView: "advanced" | "basic";
 
-  private _layoutElementsFactory: SurveyLayoutElementsFactory;
-  private get layoutElementsFactory(): SurveyLayoutElementsFactory {
-    if (!this._layoutElementsFactory) {
-      this._layoutElementsFactory = new SurveyLayoutElementsFactory(this);
-    }
-    return this._layoutElementsFactory;
-  }
-
   protected insertAdvancedHeader(advHeader: Cover): void {
-    this.layoutElements.push(this.layoutElementsFactory.createAdvancedHeaderLayoutElement(advHeader));
+    advHeader.survey = this;
+    this.layoutElements.push(advHeader.createLayoutElements()[0]);
   }
 
   /**
@@ -2104,9 +2109,6 @@ export class SurveyModel extends SurveyElementCore
       for (var i = 0; i < visPages.length; i++) {
         visPages[i].navigationLocStrChanged();
       }
-    }
-    if (!this.isStartPageActive) {
-      this.updateProgressText();
     }
     this.navigationBarValue?.locStrsChanged();
   }
@@ -5338,11 +5340,10 @@ export class SurveyModel extends SurveyElementCore
    * @see onGetProgressText
    */
   public getProgressInfo(): IProgressInfo {
-    var pages = this.isDesignMode ? this.pages : this.visiblePages;
-    return SurveyElement.getProgressInfoByElements(pages, false);
+    return this.progressTextModel.getProgressInfo();
   }
   public get progressBarAriaLabel(): string {
-    return getLocaleString("progressbar", this.getLocale());
+    return this.progressTextModel.progressBarAriaLabel;
   }
   /**
    * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
@@ -5352,7 +5353,7 @@ export class SurveyModel extends SurveyElementCore
    * @see getProgressInfo
    */
   public get progressText(): string {
-    return this.progressBar.progressText;
+    return this.progressTextModel.getProgressText();
   }
   /**
    * Returns a percentage value that indicates user progress in the survey.
@@ -5362,68 +5363,16 @@ export class SurveyModel extends SurveyElementCore
    * @see getProgressInfo
    */
   public get progressValue(): number {
-    return this.getPropertyValue("progressValue", undefined, () => this.getProgress());
+    return this.progressTextModel.getProgressValue();
   }
   public updateProgressText(onValueChanged: boolean = false): void {
-    if (this.isShowingPreview) return;
-    if (onValueChanged && this.progressBarType == "pages" && this.onGetProgressText.isEmpty) return;
     if (this.progressBarValue) {
       this.progressBarValue.resetProgressText();
     }
-    this.resetPropertyValue("progressValue");
+    this.progressTextModel.updateProgressText(onValueChanged);
   }
   public getProgressText(): string {
-    if (!this.isDesignMode && this.currentPage == null) return "";
-    const options: GetProgressTextEvent = {
-      questionCount: 0,
-      answeredQuestionCount: 0,
-      requiredQuestionCount: 0,
-      requiredAnsweredQuestionCount: 0,
-      text: "",
-    };
-    var type = this.progressBarType.toLowerCase();
-    if (
-      type === "questions" ||
-      type === "requiredquestions" ||
-      type === "correctquestions" ||
-      !this.onGetProgressText.isEmpty
-    ) {
-      var info = this.getProgressInfo();
-      options.questionCount = info.questionCount;
-      options.answeredQuestionCount = info.answeredQuestionCount;
-      options.requiredQuestionCount = info.requiredQuestionCount;
-      options.requiredAnsweredQuestionCount =
-        info.requiredAnsweredQuestionCount;
-    }
-
-    options.text = this.getProgressTextCore(options);
-    this.onGetProgressText.fire(this, options);
-    return options.text;
-  }
-  private getProgressTextCore(info: IProgressInfo): string {
-    var type = this.progressBarType.toLowerCase();
-    if (type === "questions") {
-      return this.getLocalizationFormatString("questionsProgressText",
-        info.answeredQuestionCount,
-        info.questionCount
-      );
-    }
-    if (type === "requiredquestions") {
-      return this.getLocalizationFormatString("questionsProgressText",
-        info.requiredAnsweredQuestionCount,
-        info.requiredQuestionCount
-      );
-    }
-    if (type === "correctquestions") {
-      var correctAnswersCount = this.getCorrectedAnswerCount();
-      return this.getLocalizationFormatString("questionsProgressText",
-        correctAnswersCount,
-        info.questionCount
-      );
-    }
-    var vPages = this.isDesignMode ? this.pages : this.visiblePages;
-    var index = vPages.indexOf(this.currentPage) + 1;
-    return this.getLocalizationFormatString("progressText", index, vPages.length);
+    return this.progressTextModel.getProgressText();
   }
   @property() rootCss: string;
   public getRootCss(): string {
@@ -7099,7 +7048,6 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     if (!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
-      this.updateProgressText();
       this.updateCurrentPage();
     }
     if (this.canFireAddPage()) {
@@ -7117,7 +7065,6 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    this.updateProgressText();
     this.updateLazyRenderingRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
@@ -8191,7 +8138,21 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
   }
   private createLayoutElements(): Array<ISurveyLayoutElement> {
-    return this.layoutElementsFactory.createLayoutElements();
+    const res = new Array<ISurveyLayoutElement>();
+    res.push(...this.timerModel.createLayoutElements());
+    res.push(...this.progressTextModel.createLayoutElements());
+    res.push(...this.tocModel.createLayoutElements());
+    res.push(...this.navigationLayoutModel.createLayoutElements());
+    return res;
+  }
+  private isElementInContainerByContainerProperty(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
+    return Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container;
+  }
+  private isLayoutElementInContainer(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
+    if (!!layoutElement.isInContainer) {
+      return layoutElement.isInContainer(container);
+    }
+    return this.isElementInContainerByContainerProperty(layoutElement, container);
   }
 
   /**
@@ -8236,7 +8197,7 @@ export class SurveyModel extends SurveyElementCore
   public getContainerContent(container: LayoutElementContainer): Array<ISurveyLayoutElement> {
     const containerLayoutElements = new Array<ISurveyLayoutElement>();
     for (const layoutElement of this.layoutElements) {
-      if (this.layoutElementsFactory.isLayoutElementInContainer(layoutElement, container)) {
+      if (this.isLayoutElementInContainer(layoutElement, container)) {
         containerLayoutElements.push(layoutElement);
       }
     }

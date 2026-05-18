@@ -527,6 +527,10 @@ export interface ISurveyLayoutElement {
   getData?: () => any;
   processResponsiveness?: (width: number) => void;
 }
+
+export interface ILayoutElementModel {
+  createLayoutElements(): Array<ISurveyLayoutElement>;
+}
 export interface IPlainDataOptions {
   includeEmpty?: boolean;
   includeQuestionTypes?: boolean;

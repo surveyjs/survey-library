@@ -1,4 +1,4 @@
-import { ISurvey } from "./base-interfaces";
+import { ILayoutElementModel, ISurvey, LayoutElementContainer, ISurveyLayoutElement } from "./base-interfaces";
 import { Base } from "./base";
 import { EventBase } from "./event";
 import { SurveyTimer, SurveyTimerEvent } from "./surveytimer";
@@ -12,12 +12,14 @@ export interface ISurveyTimerText {
   timerInfo: { spent: number, limit?: number };
   timerClock: { majorText: string, minorText?: string };
   getCss(): any;
+  mode: string;
+  isStartPageActive: boolean;
   isTimerPanelShowingOnBottom: boolean;
   isTimerPanelShowingOnTop: boolean;
   onCurrentPageChanged: EventBase<SurveyModel>;
 }
 
-export class SurveyTimerModel extends Base {
+export class SurveyTimerModel extends Base implements ILayoutElementModel {
   public onTimerTick: (page: PageModel) => void;
   private surveyValue: ISurvey;
   constructor(survey: ISurvey) {
@@ -125,5 +127,23 @@ export class SurveyTimerModel extends Base {
 
   public get majorTextCss(): string {
     return this.survey.getCss().clockTimerMajorText;
+  }
+
+  public createLayoutElements(): Array<ISurveyLayoutElement> {
+    const layoutElement: ISurveyLayoutElement = {
+      id: "timerpanel",
+      template: "survey-timerpanel",
+      component: "sv-timerpanel",
+      getData: () => this,
+      isInContainer: (container: LayoutElementContainer) => this.isTimerPanelInContainer(container)
+    };
+    return [layoutElement];
+  }
+
+  private isTimerPanelInContainer(container: LayoutElementContainer): boolean {
+    if (this.survey.mode === "display" || this.survey.isStartPageActive) return false;
+    if (container === "header") return this.survey.isTimerPanelShowingOnTop;
+    if (container === "footer") return this.survey.isTimerPanelShowingOnBottom;
+    return false;
   }
 }

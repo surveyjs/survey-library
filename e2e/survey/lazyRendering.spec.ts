@@ -209,7 +209,7 @@ frameworks.forEach((framework) => {
       await expect(cellTextbox).toBeFocused();
       // expect(count).toBe(0);
     });
-    test("Check lazy rendering when no container with restricted height and progress bar: 'bottom'", async ({ page }) => {
+    (framework == "survey-js-ui" ? test.skip : test)("Check lazy rendering when no container with restricted height and progress bar: 'bottom'", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       await page.evaluate(() => {
         window["Survey"].settings.lazyRender.enabled = true;

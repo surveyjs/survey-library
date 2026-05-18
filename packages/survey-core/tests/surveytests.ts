@@ -18392,6 +18392,93 @@ describe("Survey", () => {
     expect(getContainerContent("right"), "progress top right").toEqual([]);
   });
 
+  test("getContainerContent - header + toc + progress with applied header theme", () => {
+    const json = {
+      showQuestionNumbers: true,
+      autoFocusFirstQuestion: true,
+      showTOC: true,
+      title: "Minimum data reporting form - for suspected and probable cases of COVID-19",
+      pages: [{
+        name: "page1",
+        navigationTitle: "Sign In",
+        navigationDescription: "... to continue purchasing.",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, {
+        name: "page2",
+        navigationTitle: "Shipping information",
+        title: "Shipping",
+        navigationDescription: "Enter shipping information.",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            title: "Select a shipping method.",
+            choices: ["FedEx", "DHL", "USP", "In-Store Pickup"]
+          },
+        ]
+      }, {
+        name: "page3",
+        navigationTitle: "Payment method",
+        navigationDescription: "Select a payment method.",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, {
+        name: "page4",
+        navigationTitle: "Gift Options",
+        navigationDescription: "Choose your gift.",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, {
+        name: "page5",
+        navigationTitle: "Place Order",
+        navigationDescription: "Finish your purchasing.",
+        elements: [{
+          name: "q1",
+          type: "text"
+        }]
+      }],
+      showProgressBar: true
+    };
+
+    const survey = new SurveyModel(json);
+    const getContainerContent = getContainerContentFunction(survey);
+
+    survey.applyTheme({
+      header: { inheritWidthFrom: "container" },
+      cssVariables: { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }
+    } as any);
+
+    const headerContent = getContainerContent("header");
+    const leftContent = getContainerContent("left");
+    const centerContent = getContainerContent("center");
+    const contentTop = getContainerContent("contentTop");
+    const contentBottom = getContainerContent("contentBottom");
+    const footerContent = getContainerContent("footer");
+
+    expect(headerContent.some(el => el.id === "advanced-header"), "header is rendered").toBeTruthy();
+    expect(leftContent.some(el => el.id === "toc-navigation"), "toc is rendered on the left").toBeTruthy();
+
+    const contentWithProgress = headerContent
+      .concat(centerContent)
+      .concat(contentTop)
+      .concat(contentBottom)
+      .concat(footerContent);
+    expect(contentWithProgress.some(el => el.id && el.id.indexOf("progress-") === 0), "progress is rendered").toBeTruthy();
+  });
+
   test("getContainerContent - do not show timer panel in display mode", () => {
     const json = {
       "pages": [

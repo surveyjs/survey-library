@@ -8291,22 +8291,18 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (this.showTOC && !this.isStartPageActive) {
-            if (container === "center") {
-              if (!(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop) {
-                if (!isBelowHeader) {
-                  layoutElement.index = -150;
-                } else {
-                  delete layoutElement.index;
-                }
-                containerLayoutElements.push(layoutElement);
+          if (this.showTOC && !(advHeader && advHeader.hasBackground) && !this.isStartPageActive) {
+            if (container === "center" && this.isShowProgressBarOnTop) {
+              if (!isBelowHeader) {
+                layoutElement.index = -150;
+              } else {
+                delete layoutElement.index;
               }
+              containerLayoutElements.push(layoutElement);
             }
-            if (container === "contentBottom") {
-              if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
-                layoutElement.index = 150;
-                containerLayoutElements.push(layoutElement);
-              }
+            if (container === "contentBottom" && this.isShowProgressBarOnBottom) {
+              layoutElement.index = 150;
+              containerLayoutElements.push(layoutElement);
             }
           } else {
             if (container === "header" && !isBelowHeader) {

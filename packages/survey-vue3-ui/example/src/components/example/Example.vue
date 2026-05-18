@@ -2,7 +2,6 @@
   import { Model } from "survey-core";
   import("survey-core/survey-core.css");
   import { SurveyComponent } from "survey-vue3-ui";
-  import TestTheme from "survey-core/themes/test";
   let survey = new Model({
         elements: [
           {
@@ -20,7 +19,6 @@
           }
         ]
       })
-  survey.applyTheme(TestTheme);
 </script>
 
 <template>

@@ -198,7 +198,7 @@
 }
 
 .sd-slider__tooltip-value {
-  @include sjs2--typography--component--input--content;
+  @include sjs2--typography--small;
   color: var(--sjs2-color-fg-neutral-on-primary);
 }
 
@@ -252,7 +252,7 @@
 }
 
 .sd-slider__label-text {
-  @include sjs2--typography--component--input--content;
+  @include sjs2--typography--default;
   color: var(--sjs2-color-fg-basic-primary);
   text-align: center;
 }

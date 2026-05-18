@@ -80,7 +80,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     const text = SurveyElementBase.renderLocString(page.locNavigationTitle);
     return (
       <li
-        key={"listelement" + index}
+        key={"listelement" + page.uniqueId}
         className={this.model.getListElementCss(index)}
         onClick={
           this.model.isListElementClickable(index)

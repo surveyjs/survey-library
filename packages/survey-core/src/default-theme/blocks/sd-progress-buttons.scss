@@ -78,7 +78,7 @@
       z-index: 1;
       @include sjs2--typography--small-strong;
       justify-content: center;
-      color: $background-dim;
+      color: var(--sjs2-color-fg-brand-on-primary);
       box-sizing: content-box;
 
       .sd-progress-buttons__button-background {

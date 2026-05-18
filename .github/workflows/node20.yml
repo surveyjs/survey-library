@@ -20,11 +20,13 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    - name: Install shared dependencies
+      run: npm install --ignore-scripts
+
     - name: Build Core
       run: |
         cd ./packages/survey-core
         npm install
-        ln -sf "$(pwd)/node_modules" ../../node_modules
         npm run build:all
 
     - name: Build React UI

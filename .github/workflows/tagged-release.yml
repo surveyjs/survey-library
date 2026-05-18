@@ -27,6 +27,7 @@ jobs:
         run: |
           cd ./packages/survey-core
           npm install
+          ln -sf "$(pwd)/node_modules" ../../node_modules
           npm run build:all
 
       - name: Zip Core Build

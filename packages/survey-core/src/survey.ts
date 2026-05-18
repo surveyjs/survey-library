@@ -96,6 +96,7 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
+import { SurveyLayoutElementsFactory } from "./survey-layout-elements-factory";
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
@@ -1243,7 +1244,7 @@ export class SurveyModel extends SurveyElementCore
     this.currentPage && this.currentPage.updateElementCss();
   }
   private tocModelValue: TOCModel;
-  private get tocModel(): TOCModel {
+  public get tocModel(): TOCModel {
     if (!this.tocModelValue) {
       this.tocModelValue = new TOCModel(this);
     }
@@ -1436,16 +1437,16 @@ export class SurveyModel extends SurveyElementCore
     }
   }) headerView: "advanced" | "basic";
 
+  private _layoutElementsFactory: SurveyLayoutElementsFactory;
+  private get layoutElementsFactory(): SurveyLayoutElementsFactory {
+    if (!this._layoutElementsFactory) {
+      this._layoutElementsFactory = new SurveyLayoutElementsFactory(this);
+    }
+    return this._layoutElementsFactory;
+  }
+
   protected insertAdvancedHeader(advHeader: Cover): void {
-    advHeader.survey = this;
-    this.layoutElements.push({
-      id: "advanced-header",
-      container: "header",
-      component: "sv-header",
-      index: -100,
-      data: advHeader,
-      processResponsiveness: width => advHeader.processResponsiveness()
-    });
+    this.layoutElements.push(this.layoutElementsFactory.createAdvancedHeaderLayoutElement(advHeader));
   }
 
   /**
@@ -8190,56 +8191,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
   }
   private createLayoutElements(): Array<ISurveyLayoutElement> {
-    const res = new Array<ISurveyLayoutElement>();
-    res.push({
-      id: "timerpanel",
-      template: "survey-timerpanel",
-      component: "sv-timerpanel",
-      getData: () => this.timerModel
-    });
-    res.push({
-      id: "progress-buttons",
-      component: "sv-progress-buttons",
-      getData: () => this.progressBar,
-      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
-    });
-    res.push({
-      id: "progress-questions",
-      component: "sv-progress-questions",
-      data: this
-    });
-    res.push({
-      id: "progress-pages",
-      component: "sv-progress-pages",
-      data: this
-    });
-    res.push({
-      id: "progress-correctquestions",
-      component: "sv-progress-correctquestions",
-      data: this
-    });
-    res.push({
-      id: "progress-requiredquestions",
-      component: "sv-progress-requiredquestions",
-      data: this
-    });
-    res.push({
-      id: "toc-navigation",
-      component: "sv-navigation-toc",
-      getData: () => this.tocModel,
-      processResponsiveness: width => this.tocModel.updateStickyTOCSize(this.rootElement)
-    });
-    res.push({
-      id: "buttons-navigation",
-      component: "sv-action-bar",
-      getData: () => this.navigationBar
-    });
-    res.push({
-      id: "buttons-navigation-top",
-      component: "sv-action-bar",
-      getData: () => this.navigationBar
-    });
-    return res;
+    return this.layoutElementsFactory.createLayoutElements();
   }
 
   /**
@@ -8283,104 +8235,9 @@ export class SurveyModel extends SurveyElementCore
 
   public getContainerContent(container: LayoutElementContainer): Array<ISurveyLayoutElement> {
     const containerLayoutElements = new Array<ISurveyLayoutElement>();
-    for (let layoutElement of this.layoutElements) {
-      if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
-        if (container === "header") {
-          if (this.isTimerPanelShowingOnTop && !this.isStartPageActive) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-        if (container === "footer") {
-          if (this.isTimerPanelShowingOnBottom && !this.isStartPageActive) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
-        if (this.questionsOnPageMode != "singlePage" || this.progressBarType == "questions") {
-          const headerLayoutElement = this.findLayoutElement("advanced-header");
-          const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
-          let isBelowHeader = !advHeader || advHeader.hasBackground;
-          if (isStrCiEqual(this.progressBarLocation, "aboveHeader")) {
-            isBelowHeader = false;
-          }
-          if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
-            isBelowHeader = true;
-          }
-          if (this.showTOC && !(advHeader && advHeader.hasBackground) && !this.isStartPageActive) {
-            if (container === "center" && this.isShowProgressBarOnTop) {
-              if (!isBelowHeader) {
-                layoutElement.index = -150;
-              } else {
-                delete layoutElement.index;
-              }
-              containerLayoutElements.push(layoutElement);
-            }
-            if (container === "contentBottom" && this.isShowProgressBarOnBottom) {
-              layoutElement.index = 150;
-              containerLayoutElements.push(layoutElement);
-            }
-          } else {
-            if (container === "header" && !isBelowHeader) {
-              layoutElement.index = -150;
-              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
-                containerLayoutElements.push(layoutElement);
-              }
-            }
-            if (container === "center" && isBelowHeader) {
-              if (!!layoutElement.index) {
-                delete layoutElement.index;
-              }
-              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
-                containerLayoutElements.push(layoutElement);
-              }
-            }
-            if (container === "footer") {
-              if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
-                containerLayoutElements.push(layoutElement);
-              }
-            }
-          }
-        }
-      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation-top")) {
-        if (container === "contentTop") {
-          if (this.isNavigationButtonsShowingOnTop) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
-        if (container === "contentBottom") {
-          if (this.isNavigationButtonsShowingOnBottom) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
-        if (container === "left") {
-          if (["left", "both"].indexOf(this.tocLocation) !== -1) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-        if (container === "right") {
-          if (["right", "both"].indexOf(this.tocLocation) !== -1) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-      } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
-          const advHeader = layoutElement && layoutElement.data as Cover;
-          if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
-            if (container === "contentTop") {
-              containerLayoutElements.push(layoutElement);
-            }
-          } else {
-            if (layoutElement.container === container) {
-              containerLayoutElements.push(layoutElement);
-            }
-          }
-        }
-      } else {
-        if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
-          containerLayoutElements.push(layoutElement);
-        }
+    for (const layoutElement of this.layoutElements) {
+      if (this.layoutElementsFactory.isLayoutElementInContainer(layoutElement, container)) {
+        containerLayoutElements.push(layoutElement);
       }
     }
     containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));

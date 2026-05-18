@@ -519,6 +519,7 @@ export type VerticalAlignment = "top" | "middle" | "bottom";
 export interface ISurveyLayoutElement {
   id: string;
   container?: LayoutElementContainer | Array<LayoutElementContainer>;
+  isInContainer?: (container: LayoutElementContainer) => boolean;
   component?: string;
   template?: string;
   data?: any;

@@ -119,7 +119,7 @@
     }
 }
 .sd-formbox__label {
-    height: calc(100% - #{$base-unit} * 3);
+    height: calc(100% - var(--sjs2-spacing-x300));
     padding: var(--sjs2-spacing-x100, 8px) calc(var(--sjs2-spacing-x150, 12px) + var(--sjs2-spacing-x050, 4px))
         var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x150, 12px);
     max-width: 30%;
@@ -150,7 +150,7 @@
     margin-top: var(--sjs2-spacing-negative-x075);
     border-radius: 100%;
     border: 2px solid $primary;
-    box-shadow: inset 0 0 0 2px var(--background, #fff);
+    box-shadow: inset 0 0 0 2px var(--sjs2-color-bg-basic-primary);
     background-color: $primary;
     height: var(--sjs2-size-x300);
     width: var(--sjs2-size-x300);

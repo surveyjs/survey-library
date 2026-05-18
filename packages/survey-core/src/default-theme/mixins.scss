@@ -108,7 +108,7 @@
     text-align: center;
     background-color: $background;
     border: none;
-    border-radius: calcCornerRadius(1);
+    border-radius: var(--sjs2-radius-x100);
     cursor: pointer;
     user-select: none;
     outline: solid var(--sjs2-border-width-x200) transparent;

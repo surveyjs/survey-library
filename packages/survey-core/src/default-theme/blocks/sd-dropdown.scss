@@ -9,8 +9,7 @@
   justify-content: end;
   select.sd-dropdown__input {
     position: absolute;
-    padding: calc(var(--sjs2-spacing-x100, 8px) + var(--sjs2-spacing-x050, 4px))
-      calc(var(--sjs2-spacing-x150, 12px) + var(--sjs2-spacing-x050, 4px));
+    padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
     top: 0;
     left: 0;
     right: 0;

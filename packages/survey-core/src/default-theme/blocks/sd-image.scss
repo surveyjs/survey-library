@@ -3,7 +3,7 @@
 .sd-image__image {
   display: block;
   max-width: 100%;
-  border-radius: calcCornerRadius(1);
+  border-radius: var(--sjs2-radius-x100);
 }
 
 .sd-image__image--adaptive {

@@ -8,7 +8,7 @@
 .sd-panel.sd-panel--as-page {
   & > .sd-panel__header.sd-panel__header {
     padding-top: 0;
-    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
 
     &:after {
       content: none;
@@ -18,7 +18,7 @@
       @include sjs2--typography--component--page--title;
       color: $font-pagetitle-color;
       position: static;
-      margin: 0 0 calcSize(0.5) 0px;
+      margin: 0 0 var(--sjs2-spacing-x050) 0px;
 
       span {
         font-family: inherit;
@@ -40,7 +40,7 @@
       @include sjs2--typography--component--page--description;
       color: $font-pagedescription-color;
       position: static;
-      margin: 0 0 calcSize(0.5) 0;
+      margin: 0 0 var(--sjs2-spacing-x050) 0;
     }
 
     .sd-panel__required-text {
@@ -50,7 +50,7 @@
 
   & > .sd-panel__errbox {
     margin: 0 0 var(--sjs2-spacing-x200) 0;
-    padding: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit}) var(--sd-base-padding);
+    padding: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100)) var(--sd-base-padding);
   }
 
   & > .sd-panel__content {

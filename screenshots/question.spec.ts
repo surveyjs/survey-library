@@ -873,6 +873,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         document.body.focus();
         window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-spacing", "4px");
       });
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "question-baseunit.png");
@@ -894,6 +895,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         document.body.focus();
         window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-spacing", "4px");
       });
 
       const questionRoot = page.locator(".sd-question");

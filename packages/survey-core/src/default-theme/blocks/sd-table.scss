@@ -128,7 +128,7 @@
   .sd-table--alternate-rows {
     margin-left: var(--sjs2-spacing-x100);
     margin-right: var(--sjs2-spacing-x100);
-    width: calc(100% - 2 * #{$base-unit});
+    width: calc(100% - var(--sjs2-spacing-x200));
 
     .sd-table__cell:not(.sd-table__cell--header):first-of-type {
       padding-left: var(--sjs2-spacing-x200);
@@ -163,7 +163,7 @@
 
         .sd-item:not(.sd-item--error) {
           .sd-item__decorator {
-            background-color: var(--sjs-general-backcolor, var(--background, #fff));
+            background-color: var(--sjs2-color-bg-basic-primary);
           }
 
           &.sd-item--checked .sd-item__decorator {
@@ -389,7 +389,7 @@
     display: block;
     position: sticky;
     min-height: 100%;
-    width: calc(var(--sd-base-padding) - #{$base-unit});
+    width: calc(var(--sd-base-padding) - var(--sjs2-spacing-x100));
     flex-shrink: 0;
     background: var(--sjs2-color-component-panel-default-bg, #fff);
     z-index: 11;
@@ -513,7 +513,7 @@
   }
   .sd-table {
     display: block;
-    width: calc(100% - 2 * var(--sd-base-padding) + 2 * #{$base-unit});
+    width: calc(100% - 2 * var(--sd-base-padding) + var(--sjs2-spacing-x200));
 
     & > tbody {
       display: block;
@@ -597,7 +597,7 @@
       height: 1px;
       background-color: $border-light;
       left: var(--sjs2-spacing-negative-x200);
-      width: calc(100% + 4 * #{$base-unit});
+      width: calc(100% + var(--sjs2-spacing-x400));
       z-index: 12;
     }
 

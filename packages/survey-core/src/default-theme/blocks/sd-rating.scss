@@ -151,7 +151,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--disabled {
   color: $primary-foreground;
   fill: $foreground;
-  background-color: $background-semitransparent;
+  background-color: var(--sjs2-color-bg-basic-primary-disabled);
   border: none;
 }
 

@@ -183,6 +183,12 @@ export {
   JsonUnknownPropertyError,
   Serializer,
 } from "../../src/jsonobject";
+export {
+  JsonPatchError,
+  JsonPatchErrorReason,
+  JsonPatchOp,
+  JsonPatchOperation,
+} from "../../src/jsonpatch";
 export { property, propertyArray } from "../../src/decorators";
 export {
   IMatrixDropdownData,

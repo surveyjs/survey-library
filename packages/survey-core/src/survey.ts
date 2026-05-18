@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
+import { applyPatchToModel, JsonPatchOperation } from "./jsonpatch";
 import { property } from "./decorators";
 import { Base, ComputedUpdater, EventAsync } from "./base";
 import { EventBase } from "./event";
@@ -6712,6 +6713,33 @@ export class SurveyModel extends SurveyElementCore
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
       }
     }
+  }
+  /**
+   * Applies a sequence of [JSON Patch](https://datatracker.ietf.org/doc/html/rfc6902)
+   * operations to this survey in place, without rebuilding the model.
+   *
+   * Each operation targets a property reachable via an RFC 6901 JSON Pointer
+   * over the survey schema, for example `/pages/0/elements/2/title` or
+   * `/pages/0/elements/-` to append a new question.
+   *
+   * Properties are mutated through the standard setters, tracked arrays and
+   * localizable strings, so subscribers (UI bindings, `onPropertyChanged`,
+   * `onQuestionAdded`, etc.) receive change notifications only for the values
+   * that actually changed. Existing question and page instances are preserved.
+   *
+   * Localizable string properties can be patched as a whole (a string or a
+   * `{ default, de, ... }` dictionary) or per locale by adding one extra
+   * pointer segment, e.g. `/pages/0/title/de` or `/pages/0/title/default`.
+   *
+   * @param patches An array of JSON Patch operations.
+   * @param validateFirst When `true`, the batch is first dry-run against a
+   * JSON snapshot of the model and applied only if every operation would
+   * succeed. When `false` (the default), operations are applied in order and
+   * a failure leaves earlier successful operations applied.
+   * @throws JsonPatchError when an operation cannot be applied.
+   */
+  public patchJSON(patches: JsonPatchOperation[], validateFirst?: boolean): void {
+    applyPatchToModel(this, patches, validateFirst);
   }
   public toJSON(options?: ISaveToJSONOptions): any {
     const res = super.toJSON(options);

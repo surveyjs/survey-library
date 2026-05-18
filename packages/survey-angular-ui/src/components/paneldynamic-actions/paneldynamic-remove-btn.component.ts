@@ -10,6 +10,10 @@ export class PaneldynamicRemoveButtonComponent extends PaneldynamicAction {
   get panel() {
     return (this.data ? this.data : this.model.data).panel;
   }
+  removePanelClick() {
+    if (!this.isActionEnabled) return;
+    this.question.removePanelUI(this.panel);
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-paneldynamic-remove-btn", PaneldynamicRemoveButtonComponent);

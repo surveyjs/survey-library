@@ -9,3 +9,8 @@ export function usePanelDynamicAction(props: IPanelDynamicActionProps) {
     () => (props.item && props.item.data.question) || props.data.question
   );
 }
+export function useIsActionEnabled(props: IPanelDynamicActionProps) {
+  return computed<boolean>(
+    () => !props.item || props.item.enabled !== false
+  );
+}

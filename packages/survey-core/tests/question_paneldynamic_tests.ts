@@ -8773,4 +8773,66 @@ describe("Survey_QuestionPanelDynamic", () => {
     const slider1 = panelDynamic.panels[1].getQuestionByName("q2");
     expect(slider1.errors.length, "No errors in the new panel's slider after adding a panel").toBe(0);
   });
+  test("enableAddPanel/enableRemovePanel - non-serializable, default true, drive action.enabled", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 2, templateElements: [{ type: "text", name: "q1" }] }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+
+    expect(panel.enableAddPanel, "enableAddPanel default").toBe(true);
+    expect(panel.enableRemovePanel, "enableRemovePanel default").toBe(true);
+
+    const json: any = panel.toJSON();
+    expect(json.enableAddPanel, "enableAddPanel is not serialized").toBeUndefined();
+    expect(json.enableRemovePanel, "enableRemovePanel is not serialized").toBeUndefined();
+
+    const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+    expect(addBtn.enabled, "addBtn enabled #1").toBe(true);
+
+    const getRemoveAction = (i: number) => panel.panels[i].getFooterToolbar().getActionById(`remove-panel-${panel.panels[i].id}`);
+    expect(getRemoveAction(0).enabled, "remove[0] enabled #1").toBe(true);
+    expect(getRemoveAction(1).enabled, "remove[1] enabled #1").toBe(true);
+
+    panel.enableAddPanel = false;
+    expect(addBtn.enabled, "addBtn enabled after enableAddPanel=false").toBe(false);
+    expect(getRemoveAction(0).enabled, "remove[0] enabled after enableAddPanel=false").toBe(true);
+
+    panel.enableAddPanel = true;
+    expect(addBtn.enabled, "addBtn enabled after enableAddPanel=true").toBe(true);
+
+    panel.enableRemovePanel = false;
+    expect(getRemoveAction(0).enabled, "remove[0] enabled after enableRemovePanel=false").toBe(false);
+    expect(getRemoveAction(1).enabled, "remove[1] enabled after enableRemovePanel=false").toBe(false);
+    expect(addBtn.enabled, "addBtn still enabled when enableRemovePanel=false").toBe(true);
+
+    panel.enableRemovePanel = true;
+    expect(getRemoveAction(0).enabled, "remove[0] enabled after enableRemovePanel=true").toBe(true);
+  });
+  test("enableRemovePanel - newly added panel respects current value", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [{ type: "text", name: "q1" }] }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const getRemoveAction = (i: number) => panel.panels[i].getFooterToolbar().getActionById(`remove-panel-${panel.panels[i].id}`);
+
+    expect(getRemoveAction(0).enabled, "initial remove enabled").toBe(true);
+
+    panel.enableRemovePanel = false;
+    panel.addPanelUI();
+    expect(panel.panels.length, "panel count after add #1").toBe(2);
+    expect(getRemoveAction(0).enabled, "remove[0] disabled after add when enableRemovePanel=false").toBe(false);
+    expect(getRemoveAction(1).enabled, "remove[1] disabled on newly added panel when enableRemovePanel=false").toBe(false);
+
+    panel.enableRemovePanel = true;
+    expect(getRemoveAction(0).enabled, "remove[0] enabled after re-enable").toBe(true);
+    expect(getRemoveAction(1).enabled, "remove[1] enabled after re-enable").toBe(true);
+
+    panel.addPanelUI();
+    expect(panel.panels.length, "panel count after add #2").toBe(3);
+    expect(getRemoveAction(2).enabled, "remove[2] enabled on newly added panel when enableRemovePanel=true").toBe(true);
+  });
 });

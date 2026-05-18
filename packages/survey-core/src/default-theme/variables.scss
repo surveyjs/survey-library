@@ -1,8 +1,6 @@
 $primary: var(--sjs2-color-bg-brand-primary, var(--primary, #19b394));
 $primary-light: var(--sjs2-color-bg-brand-secondary, var(--primary-light, rgba(25, 179, 148, 0.1)));
-$primary-background-dark: var(--sjs2-color-bg-brand-primary-dim, rgb(20, 164, 139));
 $primary-foreground: var(--sjs2-color-fg-brand-on-primary, var(--primary-foreground, #fff));
-$primary-foreground-disabled: var(--sjs2-color-fg-brand-primary-disabled, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
 
 $secondary: var(--sjs2-color-bg-accent-primary, var(--secondary, #ff9814));
 $secondary-light: var(--sjs2-color-bg-accent-secondary, var(--secondary-light, rgba(255, 152, 20, 0.25)));
@@ -23,7 +21,6 @@ $background: var(--sjs2-color-bg-basic-primary, var(--background, #fff));
 $background-dim: var(--sjs2-color-bg-neutral-tertiary-dim, var(--background-dim, #f3f3f3));
 $background-dim-light: var(--sjs2-color-bg-basic-secondary, var(--background-dim-light, #f9f9f9));
 $background-dark: var(--sjs2-color-unknown-variable-001, var(--sjs2-color-bg-basic-primary-dim, rgb(248, 248, 248)));
-$background-dim-dark: var(--sjs2-color-bg-basic-secondary-dim, var(--sjs2-color-bg-basic-secondary-dim, rgb(243, 243, 243)));
 
 $foreground: var(--sjs2-color-fg-basic-primary, var(--foreground, #161616));
 $foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090));

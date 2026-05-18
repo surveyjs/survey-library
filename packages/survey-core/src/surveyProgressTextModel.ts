@@ -11,8 +11,6 @@ import type { SurveyModel } from "./survey";
 
 export class SurveyProgressTextModel extends Base implements ILayoutElementModel {
   private readonly key = "progressTextModel";
-  private isTextDirty: boolean = true;
-  private isValueDirty: boolean = true;
   public constructor(private survey: SurveyModel) {
     super();
     this.subscribeSurvey();
@@ -30,9 +28,6 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     ];
   }
 
-  @property() progressText: string;
-  @property() progressValue: number;
-
   public get progressBarAriaLabel(): string {
     return getLocaleString("progressbar", this.survey.getLocale());
   }
@@ -48,26 +43,26 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     return SurveyElement.getProgressInfoByElements(pages, false);
   }
 
+  public get progressText(): string {
+    return this.getPropertyValue("progressText", undefined, () => this.calculateProgressText());
+  }
+
+  public get progressValue(): number {
+    return this.getPropertyValue("progressValue", undefined, () => this.survey.getProgress());
+  }
+
   public updateProgressText(onValueChanged: boolean = false): void {
     if ((this.survey as any).isShowingPreview) return;
     if (onValueChanged && this.survey.progressBarType == "pages" && this.survey.onGetProgressText.isEmpty) return;
-    this.isTextDirty = true;
-    this.isValueDirty = true;
+    this.resetPropertyValue("progressText");
+    this.resetPropertyValue("progressValue");
   }
 
   public getProgressText(): string {
-    if (this.isTextDirty) {
-      this.progressText = this.calculateProgressText();
-      this.isTextDirty = false;
-    }
     return this.progressText;
   }
 
   public getProgressValue(): number {
-    if (this.isValueDirty) {
-      this.progressValue = this.survey.getProgress();
-      this.isValueDirty = false;
-    }
     return this.progressValue;
   }
 

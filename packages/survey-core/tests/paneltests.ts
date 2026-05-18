@@ -3768,4 +3768,33 @@ describe("Panel", () => {
     expect(survey.validate(), "Survey is valid when panel is read-only and required").toBe(true);
     expect(panel.errors.length, "There should be no errors on the panel").toBe(0);
   });
+  test("Page.requiredIf - required error should disappear after the condition becomes false, Bug#11285", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "radiogroup", name: "question1", choices: ["Item 1", "Item 2", "Item 3"] }
+          ]
+        },
+        {
+          name: "page2",
+          requiredIf: "{question1} = 'Item 1'",
+          elements: [
+            { type: "text", name: "question2" }
+          ]
+        }
+      ]
+    });
+    survey.setValue("question1", "Item 1");
+    survey.nextPage();
+    const page2 = survey.pages[1];
+    expect(page2.isRequired, "page2 should be required when question1 = 'Item 1'").toBe(true);
+    survey.tryComplete();
+    expect(page2.errors.length, "page2 should have a required error").toBe(1);
+    survey.prevPage();
+    survey.setValue("question1", "Item 2");
+    expect(page2.isRequired, "page2 should not be required when question1 = 'Item 2'").toBe(false);
+    expect(page2.errors.length, "page2 error should disappear after condition becomes false, Bug#11285").toBe(0);
+  });
 });

@@ -120,7 +120,8 @@
 }
 .sd-formbox__label {
     height: calc(100% - var(--sjs2-spacing-x300));
-    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200) var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+    padding: var(--sjs2-spacing-x100, 8px) calc(var(--sjs2-spacing-x150, 12px) + var(--sjs2-spacing-x050, 4px))
+        var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x150, 12px);
     max-width: 30%;
     border-right: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-input-default-line, #d4d4d4);
     box-sizing: content-box;

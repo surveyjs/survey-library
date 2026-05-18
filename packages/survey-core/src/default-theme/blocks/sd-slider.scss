@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 @mixin outrangePath {
   position: absolute;
@@ -197,10 +198,7 @@
 }
 
 .sd-slider__tooltip-value {
-  font-family: var(--sjs2-typography-font-family-component-input-content);
-  font-size: var(--sjs2-font-size-x150);
-  font-weight: 600;
-  line-height: var(--sjs2-line-height-x200);
+  @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-fg-neutral-on-primary);
 }
 
@@ -254,13 +252,9 @@
 }
 
 .sd-slider__label-text {
+  @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-fg-basic-primary);
   text-align: center;
-  font-family: var(--sjs2-typography-font-family-component-input-content);
-  font-size: var(--sjs2-font-size-x200);
-  font-style: normal;
-  font-weight: 400;
-  line-height: var(--sjs2-line-height-x300);
 }
 
 .sd-slider__label-text--secondary {

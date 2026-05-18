@@ -16,12 +16,6 @@
   box-sizing: border-box;
 }
 
-.sd-slider__tooltip-value {
-  font-weight: 600;
-  line-height: var(--sjs2-line-height-x200);
-  color: var(--sjs2-color-bg-brand-primary);
-}
-
 .sd-error--warning {
   background: var(--sjs2-color-bg-warning-secondary);
 
@@ -33,7 +27,7 @@
 .sd-error--info {
   background: var(--sjs2-color-component-message-info-bg);
   .sd-error__item {
-    color: var(--sjs2-color-component-message-info-text);
+    color: var(--sjs2-color-fg-note-primary);
   }
 }
 

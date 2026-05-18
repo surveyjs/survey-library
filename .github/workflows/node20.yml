@@ -1,4 +1,4 @@
-name: NodeJS 18.x
+name: NodeJS 20.x
 
 on:
   push:
@@ -10,13 +10,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
-    
+        node-version: [20.x]
+
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
 
@@ -24,28 +24,28 @@ jobs:
       run: |
         cd ./packages/survey-core
         npm install
-        export NODE_OPTIONS=--openssl-legacy-provider && npm run build:all
+        npm run build:all
 
     - name: Build React UI
       run: |
         cd ./packages/survey-react-ui
         npm install
-        export NODE_OPTIONS=--openssl-legacy-provider && npm run build
+        npm run build
 
     - name: Build Angular UI
       run: |
         cd ./packages/survey-angular-ui
         npm install
-        export NODE_OPTIONS=--openssl-legacy-provider && npm run build
+        npm run build
 
     - name: Build Vue3 UI
       run: |
         cd ./packages/survey-vue3-ui
         npm install
-        export NODE_OPTIONS=--openssl-legacy-provider && npm run build
+        npm run build
 
     - name: Build JS UI
       run: |
         cd ./packages/survey-js-ui
         npm install
-        export NODE_OPTIONS=--openssl-legacy-provider && npm run build
+        npm run build

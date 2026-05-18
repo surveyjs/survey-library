@@ -523,7 +523,7 @@ describe("TOC", () => {
     };
 
     tocModel.updateStickyTOCSize(mockRootEl);
-    expect(tocRootElement.style.height, "Height updated").toBe("159px");
+    expect(tocRootElement.style.height, "Height updated").toBe("199px");
 
     scrollElement.scrollTop = 60;
     tocModel.updateStickyTOCSize(mockRootEl);
@@ -531,7 +531,118 @@ describe("TOC", () => {
 
     scrollElement.scrollTop = 20;
     tocModel.updateStickyTOCSize(mockRootEl);
-    expect(tocRootElement.style.height, "Height updated to half title").toBe("179px");
+    expect(tocRootElement.style.height, "Height updated to half title").toBe("199px");
+  });
+
+  test("updateStickyTOCSize applies title compensation", () => {
+    TOCModel.StickyPosition = true;
+    const survey: SurveyModel = new SurveyModel({});
+    survey.headerView = "basic";
+    survey.title = "Survey title";
+    const tocModel = new TOCModel(survey);
+    const rootElement = document.createElement("div");
+    rootElement.innerHTML = `<div class="sv-scroll__scroller">
+                              <div class="sv_custom_header"></div>
+                              <div class="sd-container-modern">
+                                <div class="sd-title sd-container-modern__title"></div>
+                                <div class="sv-components-row">
+                                  <div class="sv-components-column">
+                                    <div class="sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky"></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>`;
+    rootElement.getBoundingClientRect = () => ({
+      height: 200,
+    } as any);
+    const titleElement = rootElement.querySelector(".sd-title") as HTMLDivElement;
+    titleElement.getBoundingClientRect = () => ({
+      height: 40,
+    } as any);
+    const scrollElement = rootElement.querySelector(".sv-scroll__scroller") as HTMLDivElement;
+    let currentScrollTop = 0;
+    Object.defineProperty(scrollElement, "scrollTop", {
+      get: function() {
+        return currentScrollTop;
+      },
+      set: function(value) {
+        currentScrollTop = value;
+      },
+      configurable: true
+    });
+    const tocRootElement = rootElement.querySelector(".sv_progress-toc") as HTMLDivElement;
+
+    scrollElement.scrollTop = 0;
+    tocModel.updateStickyTOCSize(rootElement);
+    expect(tocRootElement.style.height, "Height compensates full title").toBe("159px");
+
+    scrollElement.scrollTop = 20;
+    tocModel.updateStickyTOCSize(rootElement);
+    expect(tocRootElement.style.height, "Height compensates visible title part").toBe("179px");
+
+    scrollElement.scrollTop = 60;
+    tocModel.updateStickyTOCSize(rootElement);
+    expect(tocRootElement.style.height, "Height uses full container when title is scrolled out").toBe("199px");
+  });
+
+  test("updateStickyTOCSize skips title compensation for transparent advanced header", () => {
+    TOCModel.StickyPosition = true;
+    const survey: SurveyModel = new SurveyModel({});
+    survey.headerView = "advanced";
+    survey.title = "Survey title";
+    (survey as any).findLayoutElement = () => ({ data: { hasBackground: false } });
+    const tocModel = new TOCModel(survey);
+    const rootElement = document.createElement("div");
+    rootElement.innerHTML = `<div class="sv-scroll__scroller">
+                              <div class="sv-header"></div>
+                              <div class="sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky"></div>
+                            </div>`;
+    rootElement.getBoundingClientRect = () => ({
+      height: 200,
+    } as any);
+    const headerElement = rootElement.querySelector(".sv-header") as HTMLDivElement;
+    headerElement.getBoundingClientRect = () => ({
+      height: 40,
+    } as any);
+
+    const tocRootElement = rootElement.querySelector(".sv_progress-toc") as HTMLDivElement;
+    tocModel.updateStickyTOCSize(rootElement);
+    expect(tocRootElement.style.height, "Height ignores title/header compensation").toBe("199px");
+  });
+
+  test("updateStickyTOCSize resets height on mobile and when sticky is disabled", () => {
+    TOCModel.StickyPosition = true;
+    const survey: SurveyModel = new SurveyModel({});
+    const tocModel = new TOCModel(survey);
+    const rootElement = document.createElement("div");
+    rootElement.innerHTML = "<div class=\"sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky\" style=\"height: 55px\"></div>";
+    rootElement.getBoundingClientRect = () => ({
+      height: 200,
+    } as any);
+    const tocRootElement = rootElement.querySelector(".sv_progress-toc") as HTMLDivElement;
+
+    (survey as any)._isMobile = true;
+    tocModel.updateStickyTOCSize(rootElement);
+    expect(tocRootElement.style.height, "Height is cleared on mobile").toBe("");
+
+    (survey as any)._isMobile = false;
+    TOCModel.StickyPosition = false;
+    tocRootElement.style.height = "55px";
+    tocModel.updateStickyTOCSize(rootElement);
+    expect(tocRootElement.style.height, "Height is cleared when sticky is disabled").toBe("");
+
+    TOCModel.StickyPosition = true;
+  });
+
+  test("updateStickyTOCSize safely handles missing root and missing toc root", () => {
+    TOCModel.StickyPosition = true;
+    const survey: SurveyModel = new SurveyModel({});
+    const tocModel = new TOCModel(survey);
+    const rootElement = document.createElement("div");
+    rootElement.innerHTML = "<div class=\"sv-scroll__scroller\"></div>";
+
+    expect(() => tocModel.updateStickyTOCSize(null as any)).not.toThrow();
+    expect(() => tocModel.updateStickyTOCSize(rootElement)).not.toThrow();
   });
 
   test("update toc list model on add new page and add new question", () => {

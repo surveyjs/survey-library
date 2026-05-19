@@ -1723,6 +1723,133 @@ describe("Survey_Questions", () => {
     expect(q.isVisible, "It should be invisible").toBe(false);
   });
 
+  test("resets visibleIf", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    });
+
+    const q1: any = survey.getQuestionByName("q1");
+    const q2: any = survey.getQuestionByName("q2");
+    expect(q2.isVisible).toBe(true);
+
+    // condition not satisfied -hidden
+    q2.visibleIf = "{q1} = 'never'";
+    expect(q2.isVisible).toBe(false);
+
+    // satisfy the condition -visible
+    q1.value = "never";
+    expect(q2.isVisible).toBe(true);
+
+    // unsatisfy the condition -hidden again
+    q1.value = "other";
+    expect(q2.isVisible).toBe(false);
+
+    // clearing visibleIf (undefined) resets to visible
+    q2.visibleIf = undefined;
+    expect(q2.isVisible).toBe(true);
+
+    // different visibleIf: notempty; q1 still has a value
+    q2.visibleIf = "{q1} notempty";
+    expect(q2.isVisible).toBe(true);
+
+    // clear q1 -hidden
+    q1.value = undefined;
+    expect(q2.isVisible).toBe(false);
+
+    // clearing visibleIf with empty string also resets to visible
+    q2.visibleIf = "";
+    expect(q2.isVisible).toBe(true);
+  });
+
+  test("resets enableIf", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    });
+
+    const q1: any = survey.getQuestionByName("q1");
+    const q2: any = survey.getQuestionByName("q2");
+    expect(q2.isReadOnly).toBe(false);
+
+    // condition not satisfied -disabled (readOnly)
+    q2.enableIf = "{q1} = 'yes'";
+    expect(q2.isReadOnly).toBe(true);
+
+    // satisfy the condition -enabled
+    q1.value = "yes";
+    expect(q2.isReadOnly).toBe(false);
+
+    // unsatisfy the condition -disabled again
+    q1.value = "no";
+    expect(q2.isReadOnly).toBe(true);
+
+    // clearing enableIf (undefined) resets to enabled
+    q2.enableIf = undefined;
+    expect(q2.isReadOnly).toBe(false);
+
+    // different enableIf: notempty; q1 still has a value
+    q2.enableIf = "{q1} notempty";
+    expect(q2.isReadOnly).toBe(false);
+
+    // clear q1 -disabled
+    q1.value = undefined;
+    expect(q2.isReadOnly).toBe(true);
+
+    // clearing enableIf with empty string also resets to enabled
+    q2.enableIf = "";
+    expect(q2.isReadOnly).toBe(false);
+  });
+
+  test("resets requiredIf", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+    });
+
+    const q1: any = survey.getQuestionByName("q1");
+    const q2: any = survey.getQuestionByName("q2");
+    expect(q2.isRequired).toBe(false);
+
+    // condition not satisfied -not required
+    q2.requiredIf = "{q1} = 'yes'";
+    expect(q2.isRequired).toBe(false);
+
+    // satisfy the condition -required
+    q1.value = "yes";
+    expect(q2.isRequired).toBe(true);
+
+    // unsatisfy the condition -not required again
+    q1.value = "no";
+    expect(q2.isRequired).toBe(false);
+
+    // satisfy again, then clear requiredIf (undefined) -resets to not required
+    q1.value = "yes";
+    expect(q2.isRequired).toBe(true);
+    q2.requiredIf = undefined;
+    expect(q2.isRequired).toBe(false);
+
+    // different requiredIf: notempty; q1 still has a value
+    q2.requiredIf = "{q1} notempty";
+    expect(q2.isRequired).toBe(true);
+
+    // clear q1 -not required
+    q1.value = undefined;
+    expect(q2.isRequired).toBe(false);
+
+    // clearing requiredIf with empty string also resets to not required
+    q1.value = "yes";
+    expect(q2.isRequired).toBe(true);
+    q2.requiredIf = "";
+    expect(q2.isRequired).toBe(false);
+  });
+
   test("questionselectbase.choicesVisibleIf", () => {
     var survey = new SurveyModel();
     var page = survey.addNewPage("p1");

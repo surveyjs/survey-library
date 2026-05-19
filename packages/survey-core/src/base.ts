@@ -33,6 +33,7 @@ interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
   useStrictDependencies?: boolean;
+  onReset?: (obj: Base) => void;
 }
 
 export interface IExpressionValidationOptions {
@@ -968,11 +969,11 @@ export class Base implements IObjectValueContext {
       fireCallback(this);
     }
   }
-  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean): void {
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean, onReset?: (obj: Base) => void): void {
     if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
-    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies };
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies, onReset: onReset };
   }
   public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
     if (!expression) return;
@@ -1055,6 +1056,11 @@ export class Base implements IObjectValueContext {
   private checkConditionPropertyChanged(propName: string): void {
     if (!this.expressionInfo || !this.expressionInfo[propName]) return;
     if (!this.canRunConditions()) return;
+    const info = this.expressionInfo[propName];
+    if (!this.getPropertyValue(propName)) {
+      if (info.onReset) info.onReset(this);
+      return;
+    }
     this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, properties: HashTable<any>): void {

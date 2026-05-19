@@ -19,9 +19,7 @@ export { Operation as JsonPatchOperation } from "fast-json-patch";
  * The reason a [[JsonPatchError]] was thrown.
  */
 export type JsonPatchErrorReason =
-  | "INVALID_OP"
-  | "INVALID_POINTER"
-  | "INVALID_PATH"
+  | "INVALID_OPERATION"
   | "INVALID_TARGET"
   | "PATH_NOT_FOUND";
 
@@ -53,12 +51,12 @@ export class JsonPatchError extends Error {
 
 function parsePointer(pointer: string): string[] {
   if (pointer === undefined || pointer === null) {
-    throw new OpError("INVALID_POINTER", "pointer is null");
+    throw new OpError("PATH_NOT_FOUND", "pointer is null");
   }
   if (pointer === "") return [];
   if (pointer.charAt(0) !== "/") {
     throw new OpError(
-      "INVALID_POINTER",
+      "PATH_NOT_FOUND",
       `pointer must be empty or start with "/": ${JSON.stringify(pointer)}`
     );
   }
@@ -89,7 +87,7 @@ function runDryRun(snapshot: any, patches: Operation[]): void {
   } catch(e: any) {
     const idx = typeof e?.index === "number" ? e.index : -1;
     const op = idx >= 0 ? patches[idx] : (null as any);
-    throw new JsonPatchError("INVALID_OP", idx, op, e?.message || "patch validation failed");
+    throw new JsonPatchError("INVALID_OPERATION", idx, op, e?.message || "patch validation failed");
   }
 }
 
@@ -135,7 +133,7 @@ function findPropertyOn(base: Base, token: string): JsonObjectProperty | null {
 function resolvePath(root: Base, pointer: string, allowAppend: boolean): ResolvedPath {
   const tokens = parsePointer(pointer);
   if (tokens.length === 0) {
-    throw new OpError("INVALID_PATH", "root pointer is not supported on a model");
+    throw new OpError("PATH_NOT_FOUND", "root pointer is not supported on a model");
   }
   let cur: any = root;
   let parentBase: Base = root;
@@ -155,7 +153,7 @@ function resolvePath(root: Base, pointer: string, allowAppend: boolean): Resolve
         // Exactly one extra token = locale.
         if (i + 1 !== tokens.length - 1) {
           throw new OpError(
-            "INVALID_PATH",
+            "PATH_NOT_FOUND",
             `localizable string "${token}" can only be addressed by one locale segment`
           );
         }
@@ -177,12 +175,12 @@ function resolvePath(root: Base, pointer: string, allowAppend: boolean): Resolve
 
     if (Array.isArray(cur)) {
       if (!prop) {
-        throw new OpError("INVALID_TARGET", "array reached without an owning property");
+        throw new OpError("PATH_NOT_FOUND", "array reached without an owning property");
       }
       const idx = parseArrayIndex(token, cur.length, isLast && allowAppend);
       if (idx === -1) {
         throw new OpError(
-          isLast ? "PATH_NOT_FOUND" : "INVALID_TARGET",
+          "PATH_NOT_FOUND",
           `invalid array index "${token}" for property "${prop.name}"`
         );
       }
@@ -204,12 +202,12 @@ function resolvePath(root: Base, pointer: string, allowAppend: boolean): Resolve
     // cur is a plain JSON value held inside a property without className.
     // Resolve the rest of the path as plain JSON and commit by reassigning the subtree.
     if (!prop) {
-      throw new OpError("INVALID_TARGET", "cannot descend into a value without an owning property");
+      throw new OpError("PATH_NOT_FOUND", "cannot descend into a value without an owning property");
     }
     return { parentBase, prop, kind: "plain", plainTokens: tokens.slice(i) };
   }
   // Loop always returns on the last iteration above; this is provably unreachable.
-  throw new OpError("INVALID_PATH", "unreachable");
+  throw new OpError("PATH_NOT_FOUND", "unreachable");
 }
 
 function getCurrentValueAt(root: Base, pointer: string): any {
@@ -349,22 +347,22 @@ function replaceArrayContents(arr: any[], items: any[]): void {
 }
 
 function requireValue(op: Operation): any {
-  if (!("value" in op)) throw new OpError("INVALID_OP", "missing \"value\" field");
+  if (!("value" in op)) throw new OpError("INVALID_OPERATION", "missing \"value\" field");
   return (op as any).value;
 }
 
 function requireFrom(op: Operation): string {
   const from = (op as any).from;
-  if (typeof from !== "string") throw new OpError("INVALID_OP", "missing from field");
+  if (typeof from !== "string") throw new OpError("INVALID_OPERATION", "missing from field");
   return from;
 }
 
 function applyOpToModel(root: Base, op: Operation): void {
   if (!op || typeof op !== "object") {
-    throw new OpError("INVALID_OP", "operation is not an object");
+    throw new OpError("INVALID_OPERATION", "operation is not an object");
   }
   if (typeof op.path !== "string") {
-    throw new OpError("INVALID_OP", "missing path field");
+    throw new OpError("INVALID_OPERATION", "missing path field");
   }
   switch(op.op) {
     case "add":
@@ -380,7 +378,7 @@ function applyOpToModel(root: Base, op: Operation): void {
       const from = requireFrom(op);
       if (op.path === from) return;
       if (isAncestorPath(from, op.path)) {
-        throw new OpError("INVALID_OP", "move: from must not be a prefix of path");
+        throw new OpError("INVALID_OPERATION", "move: from must not be a prefix of path");
       }
       const value = getCurrentValueAt(root, from);
       applyRemove(root, from);
@@ -394,7 +392,7 @@ function applyOpToModel(root: Base, op: Operation): void {
       return;
     }
     default:
-      throw new OpError("INVALID_OP", `unknown op: ${(op as any).op}`);
+      throw new OpError("INVALID_OPERATION", `unknown op: ${(op as any).op}`);
   }
 }
 
@@ -404,7 +402,48 @@ function isAncestorPath(parent: string, child: string): boolean {
   return child.charAt(parent.length) === "/";
 }
 
+function tryRetypeBaseElement(root: Base, pointer: string, value: any): boolean {
+
+  // Handle "replace /type" on a polymorphic Base item by recreating it
+  // with the new class, preserving all other fields. "type" is not a real
+  // serializable property, so the regular resolver would reject the path.
+  const suffix = "/type";
+  if (!pointer.endsWith(suffix)) return false;
+  const parentPointer = pointer.substring(0, pointer.length - suffix.length);
+  if (parentPointer === "") return false;
+  let r: ResolvedPath;
+  try {
+    r = resolvePath(root, parentPointer, /*allowAppend*/ false);
+  } catch{
+    return false;
+  }
+
+  if (r.kind === "arrayIndex") {
+    const arr = readProp(r.parentBase, r.prop) as any[];
+    const item = arr[r.arrayIndex];
+    if (!(item instanceof Base) || findPropertyOn(item, "type")) return false;
+    const snap: any = snapshotBase(item, r.prop);
+    snap.type = value;
+    const fresh = materializeBase(r.prop, snap, /*polymorphic*/ true);
+    arr.splice(r.arrayIndex, 1, fresh);
+    return true;
+  }
+
+  if (r.kind === "property") {
+    const cur = readProp(r.parentBase, r.prop);
+    if (!(cur instanceof Base) || findPropertyOn(cur, "type")) return false;
+    const snap: any = snapshotBase(cur, r.prop);
+    snap.type = value;
+    const fresh = materializeBase(r.prop, snap, /*polymorphic*/ true);
+    r.prop.setValue(r.parentBase, fresh, undefined as any);
+    return true;
+  }
+
+  return false;
+}
+
 function applyAddOrReplace(root: Base, pointer: string, value: any, requireExisting: boolean): void {
+  if (requireExisting && tryRetypeBaseElement(root, pointer, value)) return;
   const resolved = resolvePath(root, pointer, /*allowAppend*/ !requireExisting);
   const { parentBase, prop } = resolved;
   switch(resolved.kind) {
@@ -506,7 +545,7 @@ function applySubtreeOp(doc: any, op: { op: string, path: string, value?: any },
   try {
     return fjpApplyOperation(doc, op as any, true, true).newDocument;
   } catch(e: any) {
-    throw new OpError("INVALID_OP", e?.message || `subtree ${kind} failed`);
+    throw new OpError("INVALID_OPERATION", e?.message || `subtree ${kind} failed`);
   }
 }
 
@@ -527,7 +566,7 @@ export function applyPatchToModel(
 ): void {
   if (!root) throw new JsonPatchError("INVALID_TARGET", -1, null as any, "root is null");
   if (!Array.isArray(patches)) {
-    throw new JsonPatchError("INVALID_OP", -1, null as any, "patches must be an array");
+    throw new JsonPatchError("INVALID_OPERATION", -1, null as any, "patches must be an array");
   }
   if (patches.length === 0) return;
 
@@ -547,3 +586,4 @@ export function applyPatchToModel(
     }
   }
 }
+

@@ -367,7 +367,16 @@ export class ChoicesRestful extends Base {
   public setData(json: any): void {
     if (!json) json = {};
     this.getAllPropertiesNames().forEach(name => {
-      (<any>this)[name] = json[name];
+      let val = json[name];
+      const prop = Serializer.findProperty(this.getType(), name);
+      if (prop && prop.isArray && prop.className && Serializer.isDescendantOf(prop.className, "itemvalue") && Array.isArray(val)) {
+        val = val.map((item: any) => {
+          const instance = <ItemValue>Serializer.createClass(prop.className);
+          instance.setData(item);
+          return instance;
+        });
+      }
+      (<any>this)[name] = val;
     });
     const attach = json.attachData || json.attachOriginalItems;
     if (attach !== undefined) {
@@ -378,8 +387,11 @@ export class ChoicesRestful extends Base {
     const res: any = {};
     let hasValue = false;
     this.getAllPropertiesNames().forEach(name => {
-      const val = (<any>this)[name];
+      let val = (<any>this)[name];
       if (!this.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
+        if (Array.isArray(val)) {
+          val = val.map(item => typeof item.getData === "function" ? item.getData() : item);
+        }
         res[name] = val;
         hasValue = true;
       }

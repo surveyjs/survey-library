@@ -10,21 +10,24 @@ export class SurveyProgress extends SurveyNavigationBase {
   protected get isTop(): boolean {
     return this.props.isTop;
   }
+  protected get model(): any {
+    return this.props.model;
+  }
   protected get progress(): number {
-    return this.survey.progressValue;
+    return this.model.progressValue;
   }
   protected get progressText(): string {
-    return this.survey.progressText;
+    return this.model.progressText;
   }
   protected get progressBarAriaLabel(): string {
-    return this.survey.progressBarAriaLabel;
+    return this.model.progressBarAriaLabel;
   }
   render(): React.JSX.Element {
     var progressStyle = {
       width: this.progress + "%",
     };
     return (
-      <div className={this.survey.getProgressCssClasses(this.props.container)}>
+      <div className={this.model.getProgressCssClasses(this.props.container)}>
         <div
           style={progressStyle}
           className={this.css.progressBar}

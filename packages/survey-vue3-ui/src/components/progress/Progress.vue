@@ -1,33 +1,33 @@
 <template>
-  <div :class="survey.getProgressCssClasses(container)">
+  <div :class="model.getProgressCssClasses(container)">
     <div
-      :class="survey.css.progressBar"
+      :class="model.css.progressBar"
       :style="{ width: progress }"
       role="progressbar"
       aria-valuemin="0"
       aria-valuemax="100"
-      :aria-label="survey.progressBarAriaLabel"
+      :aria-label="model.progressBarAriaLabel"
     >
-      <span :class="getProgressTextInBarCss(survey.css)">{{
-        survey.progressText
+      <span :class="getProgressTextInBarCss(model.css)">{{
+        model.progressText
       }}</span>
     </div>
-    <span :class="getProgressTextUnderBarCss(survey.css)">{{
-      survey.progressText
+    <span :class="getProgressTextUnderBarCss(model.css)">{{
+      model.progressText
     }}</span>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { SurveyModel, SurveyProgressModel } from "survey-core";
+import { SurveyProgressModel } from "survey-core";
 
 const props = defineProps<{
-  survey: SurveyModel;
+  model: any;
   container?: string;
   css?: any;
 }>();
-const progress = computed(() => props.survey.progressValue + "%");
+const progress = computed(() => props.model.progressValue + "%");
 
 const getProgressTextInBarCss = (css: any) =>
   SurveyProgressModel.getProgressTextInBarCss(css);

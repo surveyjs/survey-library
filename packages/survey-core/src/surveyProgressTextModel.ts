@@ -21,10 +21,10 @@ export class SurveyProgressTextModel extends Base implements ILayoutElementModel
     return [
       this.createLayoutElement("progress-buttons", "sv-progress-buttons", () => this.survey.progressBar,
         width => this.survey.progressBar.processResponsiveness && this.survey.progressBar.processResponsiveness(width)),
-      this.createLayoutElement("progress-questions", "sv-progress-questions", () => this.survey),
-      this.createLayoutElement("progress-pages", "sv-progress-pages", () => this.survey),
-      this.createLayoutElement("progress-correctquestions", "sv-progress-correctquestions", () => this.survey),
-      this.createLayoutElement("progress-requiredquestions", "sv-progress-requiredquestions", () => this.survey)
+      this.createLayoutElement("progress-questions", "sv-progress-questions", () => this),
+      this.createLayoutElement("progress-pages", "sv-progress-pages", () => this),
+      this.createLayoutElement("progress-correctquestions", "sv-progress-correctquestions", () => this),
+      this.createLayoutElement("progress-requiredquestions", "sv-progress-requiredquestions", () => this)
     ];
   }
 

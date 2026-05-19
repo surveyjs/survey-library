@@ -7,7 +7,7 @@
     "main": "survey-react-ui.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/surveyjs/surveyjs.git"
+        "url": "https://github.com/surveyjs/survey-library.git"
     },
     "scripts": {
         "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
@@ -28,6 +28,9 @@
         "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
     },
     "typings": "./typings/src/entries/react-ui.d.ts",
+    "peerDependencies": {
+        "survey-core": "^2.0.0"
+    },
     "devDependencies": {
         "@types/node": "7.0.4",
         "@types/react": "^17.0.83",

@@ -10,6 +10,9 @@
   "version": "1.12.17",
   "name": "survey-library",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@babel/plugin-transform-runtime": "7.23.3",
     "@commitlint/cli": "^19.8.0",

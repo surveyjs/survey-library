@@ -409,6 +409,11 @@ export class PanelModelBase extends SurveyElement<Question>
     if (name === "visible") {
       this.onVisibleChanged();
     }
+    if (name === "isRequired") {
+      if (!this.isRequired && this.errors.length > 0) {
+        this.validateContainerOnly();
+      }
+    }
   }
   public getType(): string {
     return "panelbase";

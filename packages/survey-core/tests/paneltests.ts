@@ -314,6 +314,71 @@ describe("Panel", () => {
     q2.value = "abc";
     expect(panel2.errors.length, "There is no errors in panel, #6").toBe(0);
   });
+  test("Panel.isRequired - error should disappear after a panel's question is answered, Bug#11264", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "question1", isRequired: true },
+            {
+              type: "panel",
+              name: "panel1",
+              isRequired: true,
+              elements: [
+                { type: "boolean", name: "question3" },
+                { type: "radiogroup", name: "question2", choices: ["Item 1", "Item 2", "Item 3"] }
+              ]
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "checkbox", name: "question4", isRequired: true, choices: ["Item 1", "Item 2", "Item 3"] }
+          ]
+        }
+      ]
+    });
+    survey.nextPage();
+    const panel1 = survey.getPanelByName("panel1");
+    expect(panel1.errors.length, "panel has required error after nextPage").toBe(1);
+    survey.setValue("question2", "Item 1");
+    expect(panel1.errors.length, "panel error should disappear after answering panel question").toBe(0);
+  });
+  test("Panel.isRequired - error should disappear after a panel's question is answered, checkErrorsMode='onValueChanged', Bug#11264", () => {
+    const survey = new SurveyModel({
+      checkErrorsMode: "onValueChanged",
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "text", name: "question1", isRequired: true },
+            {
+              type: "panel",
+              name: "panel1",
+              isRequired: true,
+              elements: [
+                { type: "boolean", name: "question3" },
+                { type: "radiogroup", name: "question2", choices: ["Item 1", "Item 2", "Item 3"] }
+              ]
+            }
+          ]
+        },
+        {
+          name: "page2",
+          elements: [
+            { type: "checkbox", name: "question4", isRequired: true, choices: ["Item 1", "Item 2", "Item 3"] }
+          ]
+        }
+      ]
+    });
+    survey.nextPage();
+    const panel1 = survey.getPanelByName("panel1");
+    expect(panel1.errors.length, "panel has required error after nextPage, onValueChanged").toBe(1);
+    survey.setValue("question2", "Item 1");
+    expect(panel1.errors.length, "panel error should disappear after answering panel question, onValueChanged").toBe(0);
+  });
   test("Panel with paneldynamic error focus", () => {
     const json = {
       elements: [
@@ -3702,5 +3767,34 @@ describe("Panel", () => {
     const panel = survey.getPanelByName("panel1");
     expect(survey.validate(), "Survey is valid when panel is read-only and required").toBe(true);
     expect(panel.errors.length, "There should be no errors on the panel").toBe(0);
+  });
+  test("Page.requiredIf - required error should disappear after the condition becomes false, Bug#11285", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            { type: "radiogroup", name: "question1", choices: ["Item 1", "Item 2", "Item 3"] }
+          ]
+        },
+        {
+          name: "page2",
+          requiredIf: "{question1} = 'Item 1'",
+          elements: [
+            { type: "text", name: "question2" }
+          ]
+        }
+      ]
+    });
+    survey.setValue("question1", "Item 1");
+    survey.nextPage();
+    const page2 = survey.pages[1];
+    expect(page2.isRequired, "page2 should be required when question1 = 'Item 1'").toBe(true);
+    survey.tryComplete();
+    expect(page2.errors.length, "page2 should have a required error").toBe(1);
+    survey.prevPage();
+    survey.setValue("question1", "Item 2");
+    expect(page2.isRequired, "page2 should not be required when question1 = 'Item 2'").toBe(false);
+    expect(page2.errors.length, "page2 error should disappear after condition becomes false, Bug#11285").toBe(0);
   });
 });

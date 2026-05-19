@@ -297,6 +297,57 @@ frameworks.forEach((framework) => {
       expect(surveyResult.panel).toEqual([{ q1: "1" }, { q1: "2" }, { q1: "3" }, { q1: "4" }, { q1: "5" }]);
     });
 
+    test("enableAddPanel/enableRemovePanel disable add and remove buttons", async ({ page }) => {
+      const jsonEnable = {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            displayMode: "list",
+            panelCount: 2,
+            templateElements: [{ type: "text", name: "q1" }],
+          },
+        ],
+      };
+      await initSurvey(page, framework, jsonEnable);
+
+      const addBtn = page.locator(".sd-paneldynamic__add-btn");
+      const removeBtns = page.locator(".sd-paneldynamic__remove-btn");
+
+      await expect(addBtn).toBeEnabled();
+      await expect(removeBtns).toHaveCount(2);
+      await expect(removeBtns.nth(0)).toBeEnabled();
+      await expect(removeBtns.nth(1)).toBeEnabled();
+
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("panel").enableAddPanel = false;
+      });
+      await expect(addBtn).toBeDisabled();
+      await expect(removeBtns.nth(0)).toBeEnabled();
+      await expect(removeBtns.nth(1)).toBeEnabled();
+
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("panel").enableAddPanel = true;
+        (window as any).survey.getQuestionByName("panel").enableRemovePanel = false;
+      });
+      await expect(addBtn).toBeEnabled();
+      await expect(removeBtns.nth(0)).toBeDisabled();
+      await expect(removeBtns.nth(1)).toBeDisabled();
+
+      // Add a new panel while enableRemovePanel = false: the new panel's remove button should also be disabled
+      await addBtn.click();
+      await expect(removeBtns).toHaveCount(3);
+      await expect(removeBtns.nth(2)).toBeDisabled();
+
+      // Re-enable: all remove buttons (including newly added) should become enabled
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("panel").enableRemovePanel = true;
+      });
+      await expect(removeBtns.nth(0)).toBeEnabled();
+      await expect(removeBtns.nth(1)).toBeEnabled();
+      await expect(removeBtns.nth(2)).toBeEnabled();
+    });
+
     test("templateVisibleIf", async ({ page }) => {
       await initSurvey(page, framework, json3);
       const addNewSelector = page.getByRole("button", { name: "Add new" });

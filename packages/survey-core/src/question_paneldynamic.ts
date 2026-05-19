@@ -388,6 +388,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "templateElements" && super.isPropertyStoredInHash(name);
   }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
+    if (srcTemplate) {
+      (<any>this.template).mergeLocalizationObj(srcTemplate, locales);
+    }
+  }
   /**
    * A template for panel titles.
    *

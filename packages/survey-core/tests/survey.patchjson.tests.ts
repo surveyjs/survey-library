@@ -1,9 +1,7 @@
 import { SurveyModel } from "../src/survey";
-import { Serializer } from "../src/jsonobject";
 import { applyPatch, Operation, compare } from "fast-json-patch";
 import { JsonPatchError } from "../src/jsonpatch";
 import { describe, test, expect, vi } from "vitest";
-import { title } from "node:process";
 
 function patchModel(model: SurveyModel, dst: any) {
 

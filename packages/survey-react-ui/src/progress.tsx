@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyProgressModel } from "survey-core";
+import { SurveyProgressModel, Base } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 
@@ -12,6 +12,9 @@ export class SurveyProgress extends SurveyNavigationBase {
   }
   protected get model(): any {
     return this.props.model;
+  }
+  protected getStateElement(): Base | null {
+    return this.model;
   }
   protected get progress(): number {
     return this.model.progressValue;

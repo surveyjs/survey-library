@@ -30,20 +30,20 @@ export class SurveyProgress extends SurveyNavigationBase {
       <div className={this.model.getProgressCssClasses(this.props.container)}>
         <div
           style={progressStyle}
-          className={this.css.progressBar}
+          className={this.model.css.progressBar}
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label={this.progressBarAriaLabel}
         >
           <span
-            className={SurveyProgressModel.getProgressTextInBarCss(this.css)}
+            className={SurveyProgressModel.getProgressTextInBarCss(this.model.css)}
           >
             {this.progressText}
           </span>
         </div>
         <span
-          className={SurveyProgressModel.getProgressTextUnderBarCss(this.css)}
+          className={SurveyProgressModel.getProgressTextUnderBarCss(this.model.css)}
         >
           {this.progressText}
         </span>

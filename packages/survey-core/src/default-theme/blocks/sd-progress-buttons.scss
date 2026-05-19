@@ -78,7 +78,7 @@
       z-index: 1;
       @include sjs2--typography--small-strong;
       justify-content: center;
-      color: $background-dim;
+      color: var(--sjs2-color-fg-brand-on-primary);
       box-sizing: content-box;
 
       .sd-progress-buttons__button-background {
@@ -180,7 +180,7 @@
   text-align: center;
   padding: 0 var(--sjs2-spacing-x200);
   margin-bottom: var(--sjs2-spacing-x200);
-  color: var(--lbr-step-progress-bar-step-title-text-color, $font-pagetitle-color);
+  color: $font-pagetitle-color;
 }
 
 .sd-progress-buttons__header {
@@ -195,7 +195,7 @@
     margin-bottom: 0;
     justify-content: flex-end;
     padding: 0;
-    color: $foreground-dim-light;
+    color: var(--sjs2-color-fg-basic-secondary);
   }
 }
 

@@ -16,7 +16,7 @@
   background-color: $border-light;
   left: var(--sjs2-spacing-negative-x300);
   top: var(--sjs2-spacing-negative-x100);
-  width: calc(100% + 6 * #{$base-unit});
+  width: calc(100% + var(--sjs2-spacing-x600));
   z-index: 12;
 }
 

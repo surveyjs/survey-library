@@ -40,7 +40,7 @@
     }
 
     &.sd-body--with-timer {
-      max-width: calc(100% + var(--sd-timer-size) * (-1 - 64 / 144) + 6 * #{$base-unit});
+      max-width: calc(100% + var(--sd-timer-size) * (-1 - 64 / 144) + var(--sjs2-size-x600));
       margin-left: auto;
       margin-right: auto;
     }

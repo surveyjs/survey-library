@@ -196,6 +196,9 @@ frameworks.forEach(framework => {
       await page.getByLabel("file_question").getByRole("button", { name: "Clear" })
         .click();
 
+      await page.getByRole("button", { name: "OK" })
+        .click();
+
       await page.getByRole("radiogroup", { name: "matrix_question" }).locator("label span")
         .click();
 

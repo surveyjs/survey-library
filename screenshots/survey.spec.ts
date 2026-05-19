@@ -58,6 +58,11 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        }
+      });
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
       });
@@ -80,6 +85,12 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await applyTheme(page, {
+        "cssVariables": {
+          "--sjs2-color-component-header-default-title": ""
+        }
+      });
+
       await page.evaluate(() => {
         (window as any).survey.headerView = "advanced";
         (window as any).survey.setIsMobile(true);
@@ -109,7 +120,8 @@ frameworks.forEach(framework => {
       });
       await applyTheme(page, {
         cssVariables: {
-          "--sjs-header-backcolor": "green"
+          "--sjs-header-backcolor": "green",
+          "--sjs2-color-component-header-default-title": ""
         },
         header: {}
       });

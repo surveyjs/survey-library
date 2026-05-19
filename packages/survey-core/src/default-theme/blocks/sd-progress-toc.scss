@@ -2,7 +2,7 @@
 
 .sv_progress-toc {
   padding: var(--sjs2-spacing-x100);
-  background: var(--lbr-toc-background-color, $background);
+  background: var(--sjs2-color-bg-basic-primary);
 
   min-width: calc(var(--sjs2-base-unit-size) * 32);
   max-width: calc(var(--sjs2-base-unit-size) * 42);
@@ -26,7 +26,7 @@
   .sv-list__item-body {
     padding-inline-start: var(--sjs2-spacing-x200);
     padding-inline-end: var(--sjs2-spacing-x200);
-    border-radius: calcCornerRadius(1);
+    border-radius: var(--sjs2-radius-x100);
     padding-top: var(--sjs2-spacing-x150);
     padding-bottom: var(--sjs2-spacing-x150);
   }

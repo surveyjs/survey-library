@@ -14,6 +14,7 @@ export var surveyCss: any = {
 
 export var defaultCss = {
   root: "sd-root-modern",
+  rootTheme: "sd-theme-root",
   rootProgress: "sd-progress",
   rootMobile: "sd-root-modern--mobile",
   rootAnimationDisabled: "sd-root-modern--animation-disabled",

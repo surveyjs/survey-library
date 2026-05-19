@@ -1119,6 +1119,24 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    */
   @property() allowRemovePanel: boolean;
   /**
+   * Indicates whether the add panel button is enabled. When set to `false`, the button is disabled but remains visible.
+   *
+   * Default value: `true`
+   *
+   * This property is not serialized.
+   * @see allowAddPanel
+   */
+  @property({ defaultValue: true }) enableAddPanel: boolean;
+  /**
+   * Indicates whether the remove panel button is enabled. When set to `false`, the button is disabled but remains visible.
+   *
+   * Default value: `true`
+   *
+   * This property is not serialized.
+   * @see allowRemovePanel
+   */
+  @property({ defaultValue: true }) enableRemovePanel: boolean;
+  /**
    * Gets or sets the location of question titles relative to their input fields.
    *
    * - `"default"` (default) - Inherits the setting from the Dynamic Panel's `titleLocation` property, which in turn inherits the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitleLocation) property value specified for the Dynamic Panel's container (page or survey).
@@ -2164,6 +2182,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
           }
         },
         visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
+        enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       });
       action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
@@ -2574,6 +2593,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     });
     const addBtn = new Action({
       id: "sv-pd-add-btn",
+      enabled: <any>new ComputedUpdater(() => this.enableAddPanel !== false),
       action: () => {
         this.addPanelUI();
       },

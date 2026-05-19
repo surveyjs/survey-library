@@ -1071,8 +1071,9 @@ export class Base implements IObjectValueContext {
   }
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
     if (!keys) return false;
-    if (!!runner && runner.hasFunction()) return false;
+    if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    if ((!Array.isArray(vars) || vars.length === 0) && !!runner && runner.hasFunction()) return false;
     return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;

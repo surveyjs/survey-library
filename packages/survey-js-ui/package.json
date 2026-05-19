@@ -9,8 +9,8 @@
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "watch:dev": "rollup -c -w",
-    "test": "rollup -c rollup.tests.config.mjs && karma start ./karma.conf.js --single-run",
-    "test:watch": "node ./test-watch.mjs",
+    "test": "vitest --no-watch --no-threads",
+    "test:watch": "vitest --no-threads",
     "start": "http-server . -o -c-1",
     "accessibility-tests": "cross-env env=survey-js-ui playwright test --project a11y --ui",
     "accessibility-tests:ci": "cross-env env=survey-js-ui playwright test --project a11y --reporter dot --quiet",
@@ -22,8 +22,7 @@
   },
   "devDependencies": {
     "@types/jquery": "3.3.29",
-    "@types/node": "7.0.4",
-    "@types/qunit": "2.0.31",
+    "@types/node": "^16.11.68",
     "@types/react": "^17.0.83",
     "@types/react-dom": "^17.0.0",
     "commit-and-tag-version": "^11.0.0",
@@ -31,14 +30,14 @@
     "eslint": "^7.32.0",
     "http-server": "^14.1.1",
     "jquery": "^3.5.1",
-    "karma": "^6.1.1",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-junit-reporter": "2.0.1",
-    "karma-qunit": "4.1.2",
+    "jsdom": "16.7.0",
     "preact": "10.27.2",
     "replace-in-file": "^6.1.0",
     "rimraf": "2.5.4",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vite": "^4.5.9",
+    "vitest": "~0.32.4",
+    "vitest-canvas-mock": "^0.3.3"
   },
   "dependencies": {
     "survey-core": "../survey-core/build"

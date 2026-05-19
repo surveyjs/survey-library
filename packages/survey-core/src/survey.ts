@@ -6313,12 +6313,21 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private validateQuestionOnValueChanged(question: Question) {
+    if (this.isNavigationButtonPressed) return;
     if (
-      !this.isNavigationButtonPressed &&
-      (this.isValidateOnValueChanged ||
-        question.getAllErrors().length > 0)
+      this.isValidateOnValueChanged ||
+      question.getAllErrors().length > 0
     ) {
       this.validateQuestionOnValueChangedCore(question);
+      return;
+    }
+    let parent: PanelModelBase = <PanelModelBase>question.parent;
+    while(!!parent) {
+      if (parent.errors && parent.errors.length > 0) {
+        parent.validateContainerOnly();
+        return;
+      }
+      parent = <PanelModelBase>parent.parent;
     }
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {
@@ -6542,9 +6551,13 @@ export class SurveyModel extends SurveyElementCore
         this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
         this.notifyElementsOnAnyValueOrVariableChanged("");
       }
+      if (!this.isRunningConditionOnValueChanged) {
+        this.questionTriggersKeys = undefined;
+      }
     }
   }
   private questionTriggersKeys: any;
+  private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
     return this.questionTriggersKeys;
   }
@@ -6556,7 +6569,9 @@ export class SurveyModel extends SurveyElementCore
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
     } else {
+      this.isRunningConditionOnValueChanged = true;
       this.runConditions();
+      this.isRunningConditionOnValueChanged = false;
       this.runQuestionsTriggers(name, value);
       this.questionTriggersKeys = undefined;
     }
@@ -8237,13 +8252,17 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (this.showTOC && !(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop && !this.isStartPageActive) {
-            if (container === "center") {
+          if (this.showTOC && !(advHeader && advHeader.hasBackground) && !this.isStartPageActive) {
+            if (container === "center" && this.isShowProgressBarOnTop) {
               if (!isBelowHeader) {
                 layoutElement.index = -150;
               } else {
                 delete layoutElement.index;
               }
+              containerLayoutElements.push(layoutElement);
+            }
+            if (container === "contentBottom" && this.isShowProgressBarOnBottom) {
+              layoutElement.index = 150;
               containerLayoutElements.push(layoutElement);
             }
           } else {
@@ -8261,10 +8280,10 @@ export class SurveyModel extends SurveyElementCore
                 containerLayoutElements.push(layoutElement);
               }
             }
-          }
-          if (container === "footer") {
-            if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
-              containerLayoutElements.push(layoutElement);
+            if (container === "footer") {
+              if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
           }
         }

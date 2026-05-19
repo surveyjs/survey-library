@@ -193,7 +193,7 @@ Using element properties in dynamic texts and expressions is helpful when you ne
 
 | Operator | Description | Example |
 | -------- | ----------- | ------- |
-| `{$elname.propname}` | Returns the value of a property on another survey element. | `{$question1.visible}` |
+| `{$elname.propname}` | Returns the value of a property on another survey element. Use the element's `name` to reference questions, panels, and pages, or use the `survey` keyword to access survey-level properties. | `{$question1.visible}`<br>`{$page1.visible}`<br>`{$survey.visible}` |
 | `{$self.propname}` | Returns the value of a property on the current element. | `{$self.choices[0].text}` |
 | `{$item.propname}` | Returns the value of a property on a choice item or a matrix row/column within a [`choicesVisibleIf`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choicesVisibleIf), [`rowsVisibleIf`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowsVisibleIf), or [`columnsVisibleIf`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#columnsVisibleIf) expression. | `{$item.score}` |
 

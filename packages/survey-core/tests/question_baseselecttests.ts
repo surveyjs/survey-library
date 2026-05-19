@@ -2619,9 +2619,11 @@ describe("baseselect", () => {
   });
   test("ItemValue tooltip, #9269", () => {
     const item = new ItemValue(1);
-    expect(item.getTooltip(), "#1").toBe("1");
+    expect(item.title, "#1").toBe("1");
+    expect(item.getTooltip(), "#1").toBe(null);
     item.text = "abc";
-    expect(item.getTooltip(), "#2").toBe("abc");
+    expect(item.title, "#2").toBe("abc");
+    expect(item.getTooltip(), "#2").toBe(null);
     item.tooltip = "edf";
     expect(item.getTooltip(), "#3").toBe("edf");
   });

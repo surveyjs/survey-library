@@ -507,7 +507,7 @@ frameworks.forEach(framework => {
       await page.locator(".sd-dropdown__filter-string-input").focus();
       await page.keyboard.type("test");
       await page.waitForTimeout(500);
-      await compareScreenshot(page, page.getByTitle('Create "test" item...'), "dropdown-custom-list-item.png");
+      await compareScreenshot(page, page.getByRole("option", { name: 'Create "test" item...' }).locator("div"), "dropdown-custom-list-item.png");
     });
   });
 });

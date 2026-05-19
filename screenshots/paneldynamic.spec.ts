@@ -383,7 +383,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sv-popup--confirm .sv-popup__body-content"), "paneldynamic-confirm-dialog.png");
 
       await page.evaluate(async () => {
-        const applyButton = (window as any).survey.rootElement.getRootNode().querySelector("button[title='OK']");
+        const applyButton = (window as any).survey.rootElement.getRootNode().querySelector(".sv-popup__button--apply");
         const spanText = applyButton?.querySelector("span");
         if (spanText) spanText.innerText = "A very long long long long long text";
       });
@@ -415,7 +415,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.click("button[title='Panel 1']");
+      await page.getByRole("button", { name: "Panel 1" }).click();
       await page.keyboard.press("Tab");
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-focused-tab.png");

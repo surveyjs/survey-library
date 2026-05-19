@@ -1,16 +1,49 @@
 paths-ignore:
+  # Dependencies
   - '**/node_modules/**'
+
+  # Build outputs
   - '**/dist/**'
   - '**/build/**'
   - '**/*.min.js'
-  - '**/tests/bundle/**'
+
+  # Playwright E2E tests
+  - 'e2e/**'
+  - 'accessibilityTests/**'
+
+  # Screenshot / visual-regression tests and their snapshot images
+  - 'screenshots/**'
+  - 'visualRegressionTests/**'
+  - '**/*.spec.ts-snapshots/**'
+  - '**/__snapshots__/**'
+  - '**/*.snap'
+
+  # Unit-test suites (not production code)
+  - 'packages/*/tests/**'
+  - 'packages/survey-angular-ui/test/**'
+
+  # Example / demo apps
+  - 'packages/*/example/**'
+
+  # Documentation and images
+  - 'docs/**'
+  - '**/*.png'
+  - '**/*.jpg'
+  - '**/*.jpeg'
+  - '**/*.svg'
+  - '**/*.pdf'
+  - '**/*.ico'
+
+  # CI test artefacts
   - '**/playwright-report/**'
   - '**/test-results/**'
-  - 'visualRegressionTests/**'
+  - '**/tests/bundle/**'
+  - 'blob-report/**'
 
 # XssThroughDom is a server-side DOM-sink query that generates an explosive
 # number of taint paths in front-end component libraries, causing OOM during
-# SARIF generation. Exclude it; rely on the other XSS queries instead.
+# SARIF generation. The other five XSS queries still run and cover the
+# relevant attack surface.
 query-filters:
   - exclude:
       id: js/xss-through-dom

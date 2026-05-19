@@ -63,6 +63,12 @@ export class ChoiceItem extends ItemValue {
     if (name === "elements") return !this.hasElements;
     return super.isPropertyStoredInHash(name);
   }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcPanel = (<ChoiceItem><unknown>src).panelValue;
+    if (srcPanel) {
+      (<any>this.panel).mergeLocalizationObj(srcPanel, locales);
+    }
+  }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "commentPlaceholder") return !!this.getLocalizableString("commentPlaceholder");
     return super.canAddPpropertyToJSON(prop);

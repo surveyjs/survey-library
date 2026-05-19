@@ -538,7 +538,9 @@ export class Base implements IObjectValueContext {
     if (orgObj !== obj && org !== this) {
       org.mergeLocalizationObj(orgObj, locales);
     }
+    this.mergeLocalizationWithInnerObjects(obj, locales);
   }
+  protected mergeLocalizationWithInnerObjects(_src: Base, _locales?: Array<string>): void {}
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
     const locStrs = obj.localizableStrings;

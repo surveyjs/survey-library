@@ -1190,6 +1190,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (name === "detailElements") return !this.detailPanelValue;
     return super.isPropertyStoredInHash(name);
   }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcPanel = (<QuestionMatrixDropdownModelBase><unknown>src).detailPanelValue;
+    if (srcPanel) {
+      (<any>this.detailPanel).mergeLocalizationObj(srcPanel, locales);
+    }
+  }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");
   }

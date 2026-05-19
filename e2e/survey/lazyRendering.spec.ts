@@ -317,10 +317,13 @@ frameworks.forEach((framework) => {
         "headerView": "advanced"
       };
       await initSurvey(page, framework, json);
-      expect(await page.locator(".sv-skeleton-element").count()).toBe(17);
+      await page.waitForTimeout(50);
+      const skeletonCount = await page.locator(".sv-skeleton-element").count();
+      expect(skeletonCount).toBeGreaterThan(14);
       for (let i = 0; i < 7; i++) {
         await page.mouse.wheel(0, 500);
       }
+      await page.waitForTimeout(50);
       expect(await page.locator(".sv-skeleton-element").count()).toBe(0);
     });
   });

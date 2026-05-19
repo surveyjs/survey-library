@@ -7,3 +7,10 @@ paths-ignore:
   - '**/playwright-report/**'
   - '**/test-results/**'
   - 'visualRegressionTests/**'
+
+# XssThroughDom is a server-side DOM-sink query that generates an explosive
+# number of taint paths in front-end component libraries, causing OOM during
+# SARIF generation. Exclude it; rely on the other XSS queries instead.
+query-filters:
+  - exclude:
+      id: js/xss-through-dom

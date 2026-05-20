@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.0-beta.4](https://github.com/surveyjs/survey-library/compare/v2.5.25...v3.0.0-beta.4) (2026-05-20)
+
+
+### Bug Fixes
+
+* clearing visibleIf/enableIf/requiredIf resets question state to default ([#11291](https://github.com/surveyjs/survey-library/issues/11291)) ([075bfce](https://github.com/surveyjs/survey-library/commit/075bfce2709ce1a8235ecd213d9acedab7617c61))
+
+## [2.5.22](https://github.com/surveyjs/survey-library/compare/v2.5.21...v2.5.22) (2026-04-28)
+
+## [2.5.21](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.3...v2.5.21) (2026-04-22)
+
+## [3.0.0-beta.3](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.1...v3.0.0-beta.3) (2026-04-09)
+
+## [3.0.0-beta.1](https://github.com/surveyjs/survey-library/compare/v2.5.16...v3.0.0-beta.1) (2026-03-23)
+
+## 2.5.16 (2026-03-18)
+
 ## [3.0.0-beta.3](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.1...v3.0.0-beta.3) (2026-04-09)
 
 ## 2.5.16 (2026-03-18)

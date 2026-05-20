@@ -195,7 +195,7 @@ export class SurveyQuestionSelectBaseItem extends ReactSurveyElement {
     return null;//{ marginRight: "3px" };
   }
   protected renderComment(): React.JSX.Element | null {
-    if (!this.item.isCommentShowing) return null;
+    if (!this.item.renderedIsCommentShowing) return null;
     return <div className={this.question.getCommentAreaCss(true)}>
       <SurveyQuestionCommentValueItem
         question={this.question}
@@ -205,7 +205,7 @@ export class SurveyQuestionSelectBaseItem extends ReactSurveyElement {
     </div>;
   }
   protected renderPanel(): React.JSX.Element | null {
-    if (this.item.isPanelShowing) {
+    if (this.item.renderedIsPanelShowing) {
       const panel = this.item.panel;
       return (
         <SurveyPanel

@@ -697,10 +697,9 @@ export class QuestionMatrixModel
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "cells" && super.isPropertyStoredInHash(name);
   }
-  protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
-    super.mergeLocalizationObj(obj, locales);
-    if (obj instanceof QuestionMatrixModel) {
-      this.cells.mergeWith(obj.cells, locales);
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    if (src instanceof QuestionMatrixModel) {
+      (<any>this.cells).mergeWith(src.cells, locales);
     }
   }
   public get hasCellText(): boolean {

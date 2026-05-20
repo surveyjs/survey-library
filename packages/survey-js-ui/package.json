@@ -3,7 +3,7 @@
   "version": "3.0.0-beta.3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/surveyjs/survey-creator.git"
+    "url": "https://github.com/surveyjs/survey-library.git"
   },
   "typings": "survey-js-ui.d.ts",
   "scripts": {
@@ -37,10 +37,11 @@
     "typescript": "^5.7.0",
     "vite": "^4.5.9",
     "vitest": "~0.32.4",
-    "vitest-canvas-mock": "^0.3.3"
-  },
-  "dependencies": {
+    "vitest-canvas-mock": "^0.3.3",
     "survey-core": "../survey-core/build"
+  },
+  "peerDependencies": {
+    "survey-core": "^2.0.0"
   },
   "commit-and-tag-version": {
     "bumpFiles": [

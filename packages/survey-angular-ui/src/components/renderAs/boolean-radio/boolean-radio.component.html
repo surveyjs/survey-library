@@ -1,4 +1,4 @@
-<div [class]="model.cssClasses.rootRadio">
+<div [class]="model.cssClasses.rootRadio" (keydown)="model.onKeyDownCore($event)">
   <fieldset role="presentation" [class]="model.cssClasses.radioFieldset">
     <sv-ng-boolean-radio-item *ngIf="model.swapOrder" [value]="model.getValueTrue()" [locText]="model.locLabelTrue" [question]="model" ></sv-ng-boolean-radio-item>
     <sv-ng-boolean-radio-item  [value]="model.getValueFalse()" [locText]="model.locLabelFalse" [question]="model" ></sv-ng-boolean-radio-item>

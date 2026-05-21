@@ -1,4 +1,4 @@
-import { Base } from "./base";
+import { ArrayChanges, Base } from "./base";
 import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import {
   applyOperation,
@@ -336,8 +336,32 @@ function mutatePlainSubtree(
   prop.setValue(parent, next, undefined as any);
 }
 
+function disposeBaseItem(item: any): void {
+  // Tear down a Base instance being removed by a patch so it cascades cleanup
+  // through its subtree. For panel-like containers (pages / panels) we must
+  // splice `elements` while the item is still healthy `Base.createNewArray`
+  // suppresses `onRemove` callbacks once `isDisposedValue` is true, and those
+  // callbacks are the only path that fires `questionRemoved`/`panelRemoved`
+  // and drops entries from the survey's internal hashes. We descend
+  // depth-first so leaf notifications fire from the deepest container
+  // outward, then dispose the item itself for resource cleanup.
+  if (!(item instanceof Base) || item.isDisposed) return;
+  detachBaseChildren(item);
+  item.dispose();
+}
+
+function detachBaseChildren(item: any): void {
+  const elements = item && item.elements;
+  if (!Array.isArray(elements) || elements.length === 0) return;
+  for (let i = 0; i < elements.length; i++) {
+    detachBaseChildren(elements[i]);
+  }
+  elements.splice(0, elements.length);
+}
+
 function replaceArrayContents(arr: any[], items: any[]): void {
   // Empty in-place then push new items so onPush/onRemove fire per element.
+  for (let i = 0; i < arr.length; i++) disposeBaseItem(arr[i]);
   if (arr.length > 0) {
     arr.splice(0, arr.length);
   }
@@ -473,6 +497,7 @@ function applyAddOrReplace(root: Base, pointer: string, value: any, requireExist
       const arr = readProp(parentBase, prop) as any[];
       const item = materializeBase(prop, value, /*polymorphic*/ true);
       // replace: drop one element at idx; add: insert before idx.
+      if (requireExisting) disposeBaseItem(arr[resolved.arrayIndex]);
       arr.splice(resolved.arrayIndex, requireExisting ? 1 : 0, item);
       return;
     }
@@ -508,6 +533,7 @@ function applyRemove(root: Base, pointer: string): void {
       if (prop.isArray) {
         const currentArr = readProp(parentBase, prop);
         if (Array.isArray(currentArr) && currentArr.length > 0) {
+          for (let i = 0; i < currentArr.length; i++) disposeBaseItem(currentArr[i]);
           currentArr.splice(0, currentArr.length);
         }
         return;
@@ -517,6 +543,7 @@ function applyRemove(root: Base, pointer: string): void {
     }
     case "arrayIndex": {
       const arr = readProp(parentBase, prop) as any[];
+      disposeBaseItem(arr[resolved.arrayIndex]);
       arr.splice(resolved.arrayIndex, 1);
       return;
     }
@@ -587,3 +614,141 @@ export function applyPatchToModel(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Reverse direction: build patches FROM live model changes
+// ---------------------------------------------------------------------------
+
+function escapePointerSegment(s: string): string {
+  return s.replace(/~/g, "~0").replace(/\//g, "~1");
+}
+
+function findOwningPropertyOnOwner(owner: Base, child: any): { prop: JsonObjectProperty, index: number } | null {
+  const props = Serializer.getPropertiesByObj(owner) as JsonObjectProperty[];
+  for (let i = 0; i < props.length; i++) {
+    const prop = props[i];
+    let v: any;
+    try { v = (owner as any)[prop.name]; } catch{ continue; }
+    if (v === undefined || v === null) continue;
+    if (v === child) return { prop, index: -1 };
+    if (Array.isArray(v)) {
+      const idx = v.indexOf(child);
+      if (idx >= 0) return { prop, index: idx };
+    }
+  }
+  return null;
+}
+
+/**
+ * Returns an RFC 6901 JSON Pointer that locates `obj` inside the survey tree it
+ * belongs to. The pointer is rooted at the topmost ancestor reachable via
+ * `getOwner()` (typically the `SurveyModel`) and uses numeric array indices,
+ * symmetric with the resolver used by [[applyPatchToModel]].
+ *
+ * Returns an empty string when `obj` is the root itself, or when the chain to
+ * the root cannot be reconstructed (e.g. the object is detached or held by a
+ * property that does not expose it through serializable metadata). In the
+ * latter case [[JsonPatchBuild]] returns an empty patch.
+ */
+export function JsonPatchGetPointer(obj: Base): string {
+  if (!obj) return "";
+  const segments: string[] = [];
+  let cur: any = obj;
+  while(cur instanceof Base) {
+    const owner: any = typeof cur.getOwner === "function" ? cur.getOwner() : undefined;
+    if (!(owner instanceof Base)) break;
+    const found = findOwningPropertyOnOwner(owner, cur);
+    if (!found) return "";
+    if (found.index >= 0) segments.unshift(String(found.index));
+    segments.unshift(escapePointerSegment(found.prop.name));
+    cur = owner;
+  }
+  return segments.length === 0 ? "" : "/" + segments.join("/");
+}
+
+function serializeValueForPatch(v: any): any {
+  if (v === undefined || v === null) return v;
+  if (v instanceof Base) {
+    const json = (v as any).toJSON();
+    // Include the `type` discriminator so that `applyPatchToModel` can
+    // instantiate the correct class when adding to a polymorphic array
+    // (e.g. `pages`, `elements`, `triggers`). `Base.toJSON()` omits `type`
+    // because the parent normally injects it during whole-tree serialization;
+    // for a stand-alone patch value we need it explicitly.
+    if (json && typeof json === "object" && !Array.isArray(json) && json.type === undefined && typeof (v as any).getType === "function") {
+      const t = (v as any).getType();
+      if (t) json.type = t;
+    }
+    return json;
+  }
+  if (Array.isArray(v)) return v.map(serializeValueForPatch);
+  return v;
+}
+
+function isNullishForPatch(v: any): boolean {
+  return v === undefined || v === null;
+}
+
+/**
+ * Translates a single property-value change reported by
+ * `Base.onPropertyValueChangedCallback` into a sequence of RFC 6902 JSON Patch
+ * operations that, when fed to [[SurveyModel.patchJSON]] on a structurally
+ * equivalent survey, reproduce the same change.
+ *
+ * Behavior:
+ *   - Scalar change one `replace` (or `add` when the old value was nullish,
+ *     `remove` when the new value is nullish).
+ *   - Array change with `arrayChanges` a sequence of `remove` ops (in
+ *     reverse) for `deletedItems`, followed by `add` ops for `itemsToAdd`,
+ *     all anchored at `arrayChanges.index`.
+ *   - LocalizableString property whole-string `replace` (mirrors how the
+ *     change is reported and what the applier expects).
+ *
+ * Returns an empty array when `sender` is detached from any survey tree (i.e.
+ * [[JsonPatchGetPointer]] cannot resolve a pointer to it).
+ */
+export function JsonPatchBuild(
+  sender: Base,
+  propertyName: string,
+  oldValue: any,
+  newValue: any,
+  arrayChanges?: ArrayChanges
+): Operation[] {
+  if (!sender || !propertyName) return [];
+  // Only emit patches for serializable properties of known types. This filters
+  // out internal/computed properties (e.g. "_renderedChoices") that still fire
+  // onPropertyValueChangedCallback but are not part of the JSON schema.
+  const prop = Serializer.findProperty(sender.getType(), propertyName);
+  if (!prop || prop.isSerializable === false) return [];
+  // Reachability: a non-root sender must resolve to a non-empty pointer.
+  // Orphaned objects (e.g. an ItemValue whose locOwner was just cleared) would
+  // otherwise emit bogus root-level patches as they fire cleanup events.
+  const ownerPointer = JsonPatchGetPointer(sender);
+  if (!(sender as any).isSurvey && ownerPointer === "") return [];
+  const propPath = ownerPointer + "/" + escapePointerSegment(propertyName);
+
+  if (arrayChanges) {
+    const ops: Operation[] = [];
+    const idx = arrayChanges.index;
+    const deleted = arrayChanges.deletedItems || [];
+    const added = arrayChanges.itemsToAdd || [];
+    for (let i = deleted.length - 1; i >= 0; i--) {
+      ops.push({ op: "remove", path: propPath + "/" + (idx + i) } as Operation);
+    }
+    for (let i = 0; i < added.length; i++) {
+      ops.push({
+        op: "add",
+        path: propPath + "/" + (idx + i),
+        value: serializeValueForPatch(added[i]),
+      } as Operation);
+    }
+    return ops;
+  }
+
+  if (isNullishForPatch(oldValue) && !isNullishForPatch(newValue)) {
+    return [{ op: "add", path: propPath, value: serializeValueForPatch(newValue) } as Operation];
+  }
+  if (!isNullishForPatch(oldValue) && isNullishForPatch(newValue)) {
+    return [{ op: "remove", path: propPath } as Operation];
+  }
+  return [{ op: "replace", path: propPath, value: serializeValueForPatch(newValue) } as Operation];
+}

@@ -1,7 +1,11 @@
 import { SurveyModel } from "../src/survey";
 import { applyPatch, Operation, compare } from "fast-json-patch";
 import { JsonPatchError } from "../src/jsonpatch";
+import { JsonPatchBuild, JsonPatchGetPointer } from "../src/jsonpatch";
+import { Base, ArrayChanges } from "../src/base";
+import { ItemValue } from "../src/itemvalue";
 import { describe, test, expect, vi } from "vitest";
+import { title } from "node:process";
 
 function patchModel(model: SurveyModel, dst: any) {
 
@@ -874,5 +878,341 @@ describe("SurveyModel.patchJSON", () => {
     expect(pd.panelCount).toBe(1);
     expect(pd.panels.length).toBe(1);
     expect(pd.panels[0].elements.map((e: any) => e.name)).toEqual(["tq1", "tq3"]);
+  });
+
+  test("appends a new page without rebuilding the model", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+      ],
+    });
+    const p1 = survey.getPageByName("p1");
+    const q1 = survey.getQuestionByName("q1");
+    const spy = vi.spyOn(survey, "fromJSON");
+
+    patchModel(survey, {
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(survey.pages.length).toBe(2);
+    expect(survey.getPageByName("p1")).toBe(p1);
+    expect(survey.getQuestionByName("q1")).toBe(q1);
+    expect(survey.pages[1].name).toBe("p2");
+    expect(survey.getQuestionByName("q2")).toBeTruthy();
+    expect(survey.getQuestionByName("q2").getType()).toBe("text");
+  });
+
+  // test("inserts a page at the beginning", () => {
+  //   const survey = new SurveyModel({
+  //     pages: [
+  //       { name: "p1", elements: [{ type: "text", name: "q1" }] },
+  //     ],
+  //   });
+  //   const p1 = survey.getPageByName("p1");
+
+  //   patchModel(survey, {
+  //     pages: [
+  //       { name: "p0", elements: [{ type: "text", name: "q0" }] },
+  //       { name: "p1", elements: [{ type: "text", name: "q1" }] },
+  //     ],
+  //   });
+
+  //   expect(survey.pages.length).toBe(2);
+  //   expect(survey.pages.map(p => p.name)).toEqual(["p0", "p1"]);
+  //   expect(survey.getPageByName("p1")).toBe(p1);
+  //   expect(survey.getQuestionByName("q0")).toBeTruthy();
+  // });
+
+  // test("removes a page", () => {
+  //   const survey = new SurveyModel({
+  //     pages: [
+  //       { name: "p1", elements: [{ type: "text", name: "q1" }] },
+  //       { name: "p2", elements: [{ type: "text", name: "q2" }] },
+  //       { name: "p3", elements: [{ type: "text", name: "q3" }] },
+  //     ],
+  //   });
+  //   const p1 = survey.getPageByName("p1");
+  //   const p3 = survey.getPageByName("p3");
+
+  //   patchModel(survey, {
+  //     pages: [
+  //       { name: "p1", elements: [{ type: "text", name: "q1" }] },
+  //       { name: "p3", elements: [{ type: "text", name: "q3" }] },
+  //     ],
+  //   });
+
+  //   expect(survey.pages.length).toBe(2);
+  //   expect(survey.pages.map(p => p.name)).toEqual(["p1", "p3"]);
+  //   expect(survey.getPageByName("p1")).toBe(p1);
+  //   expect(survey.getPageByName("p3")).toBe(p3);
+  //   expect(survey.getPageByName("p2")).toBeFalsy();
+  //   expect(survey.getQuestionByName("q2")).toBeFalsy();
+  // });
+
+  // test("reorders pages", () => {
+  //   const survey = new SurveyModel({
+  //     pages: [
+  //       { name: "p1", elements: [{ type: "text", name: "q1", title: "Title1" }] },
+  //       { name: "p2", elements: [{ type: "text", name: "q2", title: "Title2" }] },
+  //       { name: "p3", elements: [{ type: "text", name: "q3", title: "Title3" }] },
+  //     ],
+  //   });
+
+  //   const p1 = survey.getPageByName("p1");
+  //   const p2 = survey.getPageByName("p2");
+  //   const p3 = survey.getPageByName("p3");
+
+  //   patchModel(survey, {
+  //     pages: [
+  //       { name: "p3", elements: [{ type: "text", name: "q3", title: "Title3" }] },
+  //       { name: "p1", elements: [{ type: "text", name: "q1", title: "Title1" }] },
+  //       { name: "p2", elements: [{ type: "text", name: "q2", title: "Title2" }] },
+  //     ],
+  //   });
+
+  //   expect(survey.pages.map(p => p.name)).toEqual(["p3", "p1", "p2"]);
+  //   expect(survey.getPageByName("p1")).toBe(p1);
+  //   expect(survey.getPageByName("p2")).toBe(p2);
+  //   expect(survey.getPageByName("p3")).toBe(p3);
+  // });
+
+  test("modifies page properties without rebuilding", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", title: "Title", elements: [{ type: "text", name: "q1" }] },
+      ],
+    });
+    const p1: any = survey.getPageByName("p1");
+    const q1 = survey.getQuestionByName("q1");
+    const spy = vi.spyOn(survey, "fromJSON");
+
+    patchModel(survey, {
+      pages: [
+        { name: "p1", title: "New Title", description: "Desc", elements: [{ type: "text", name: "q1" }] },
+      ],
+    });
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(survey.getPageByName("p1")).toBe(p1);
+    expect(survey.getQuestionByName("q1")).toBe(q1);
+    expect(p1.title).toBe("New Title");
+    expect(p1.description).toBe("Desc");
+  });
+
+  test("adds a question to an existing page", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+    const p2 = survey.getPageByName("p2");
+    const q2 = survey.getQuestionByName("q2");
+
+    patchModel(survey, {
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [
+          { type: "text", name: "q2" },
+          { type: "dropdown", name: "q3", choices: ["a", "b"] },
+        ] },
+      ],
+    });
+
+    expect(survey.getPageByName("p2")).toBe(p2);
+    expect(survey.getQuestionByName("q2")).toBe(q2);
+    expect(p2.elements.length).toBe(2);
+    expect(p2.elements.map((e: any) => e.name)).toEqual(["q2", "q3"]);
+    expect(survey.getQuestionByName("q3").getType()).toBe("dropdown");
+  });
+
+  test("moves a question from one page to another", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+        { name: "p2", elements: [{ type: "text", name: "q3" }] },
+      ],
+    });
+
+    patchModel(survey, {
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] },
+      ],
+    });
+
+    const p1 = survey.getPageByName("p1");
+    const p2 = survey.getPageByName("p2");
+
+    expect(p1.elements.map((e: any) => e.name)).toEqual(["q1"]);
+    expect(p2.elements.map((e: any) => e.name)).toEqual(["q2", "q3"]);
+  });
+
+  test("removes all pages then adds a new one", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+
+    patchModel(survey, {
+      pages: [
+        { name: "pNew", elements: [{ type: "text", name: "qNew" }] },
+      ],
+    });
+
+    expect(survey.pages.length).toBe(1);
+    expect(survey.pages[0].name).toBe("pNew");
+    expect(survey.getQuestionByName("qNew")).toBeTruthy();
+    expect(survey.getQuestionByName("q1")).toBeFalsy();
+    expect(survey.getQuestionByName("q2")).toBeFalsy();
+  });
+
+  test("page add via direct patch op", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+      ],
+    });
+
+    survey.patchJSON([
+      { op: "add", path: "/pages/-", value: { name: "p2", elements: [{ type: "text", name: "q2" }] } },
+    ]);
+
+    expect(survey.pages.length).toBe(2);
+    expect(survey.pages[1].name).toBe("p2");
+    expect(survey.getQuestionByName("q2").getType()).toBe("text");
+  });
+
+  test("page remove via direct patch op", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "p1", elements: [{ type: "text", name: "q1" }] },
+        { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      ],
+    });
+
+    survey.patchJSON([
+      { op: "remove", path: "/pages/0" },
+    ]);
+
+    expect(survey.pages.length).toBe(1);
+    expect(survey.pages[0].name).toBe("p2");
+    expect(survey.getQuestionByName("q1")).toBeFalsy();
+  });
+
+});
+
+describe("JsonPatchGetPointer", () => {
+  test("returns '' for the survey root", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    expect(JsonPatchGetPointer(survey)).toBe("");
+  });
+
+  test("locates a page", () => {
+    const survey = new SurveyModel({ pages: [{ name: "p1", elements: [] }] });
+    const page = survey.getPageByName("p1");
+    expect(JsonPatchGetPointer(page as any)).toBe("/pages/0");
+  });
+
+  test("locates a question on a page", () => {
+    const survey = new SurveyModel({
+      pages: [{ name: "p1", elements: [{ type: "text", name: "q1" }] }],
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(JsonPatchGetPointer(q1 as any)).toBe("/pages/0/elements/0");
+  });
+
+  test("locates an item value inside choices", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "checkbox", name: "q1", choices: ["a", "b", "c"] }],
+    });
+    const q1: any = survey.getQuestionByName("q1");
+    const item = q1.choices[1];
+    expect(JsonPatchGetPointer(item)).toBe("/pages/0/elements/0/choices/1");
+  });
+});
+
+describe("JsonPatchBuild", () => {
+  function emit(survey: SurveyModel): { patches: any[][], all: any[] } {
+    const patches: any[][] = [];
+    const all: any[] = [];
+    (survey as any).onPropertyValueChangedCallback = (
+      name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges
+    ) => {
+      const ops = JsonPatchBuild(sender, name, oldValue, newValue, arrayChanges);
+      if (ops.length > 0) { patches.push(ops); all.push(...ops); }
+    };
+    return { patches, all };
+  }
+
+  test("scalar replace on a question", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", title: "Old" }] });
+    const sink = emit(survey);
+    (survey.getQuestionByName("q1") as any).title = "New";
+    expect(sink.all).toEqual([
+      { op: "replace", path: "/pages/0/elements/0/title", value: "New" },
+    ]);
+  });
+
+  test("scalar change emits a single op at the right path", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const sink = emit(survey);
+    (survey.getQuestionByName("q1") as any).description = "Hello";
+    const descOps = sink.all.filter(o => o.path === "/pages/0/elements/0/description");
+    expect(descOps.length).toBe(1);
+    expect(["add", "replace"]).toContain(descOps[0].op);
+    expect(descOps[0].value).toBe("Hello");
+  });
+
+  test("array splice: insert one choice at end", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "checkbox", name: "q1", choices: ["a", "b"] }],
+    });
+    const sink = emit(survey);
+    const q1: any = survey.getQuestionByName("q1");
+    q1.choices.push(new ItemValue("c"));
+    const addOps = sink.all.filter(o => o.op === "add" && o.path.startsWith("/pages/0/elements/0/choices/"));
+    expect(addOps.length).toBe(1);
+    expect(addOps[0].path).toBe("/pages/0/elements/0/choices/2");
+  });
+
+  test("array splice: remove middle choice", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "checkbox", name: "q1", choices: ["a", "b", "c"] }],
+    });
+    const sink = emit(survey);
+    const q1: any = survey.getQuestionByName("q1");
+    q1.choices.splice(1, 1);
+    const removeOps = sink.all.filter(o => o.op === "remove" && o.path.startsWith("/pages/0/elements/0/choices/"));
+    expect(removeOps.length).toBe(1);
+    expect(removeOps[0].path).toBe("/pages/0/elements/0/choices/1");
+  });
+
+  test("round-trip: patches applied to another survey yield equal JSON", () => {
+    const json: any = {
+      elements: [
+        { type: "text", name: "q1", title: "T1" },
+        { type: "checkbox", name: "q2", choices: ["a", "b"] },
+      ],
+    };
+    const source = new SurveyModel(json);
+    const target = new SurveyModel(json);
+    const sink = emit(source);
+
+    (source.getQuestionByName("q1") as any).title = "T1-edited";
+    (source.getQuestionByName("q2") as any).choices.push(new ItemValue("c"));
+    (source.getQuestionByName("q2") as any).choices.splice(0, 1);
+
+    expect(sink.patches.length).toBeGreaterThan(0);
+    for (const ops of sink.patches) {
+      target.patchJSON(ops as any);
+    }
+    expect(target.toJSON()).toEqual(source.toJSON());
   });
 });

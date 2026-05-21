@@ -187,6 +187,8 @@ export {
   JsonPatchError,
   JsonPatchErrorReason,
   JsonPatchOperation,
+  JsonPatchBuild,
+  JsonPatchGetPointer,
 } from "../../src/jsonpatch";
 export { property, propertyArray } from "../../src/decorators";
 export {

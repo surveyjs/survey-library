@@ -56,7 +56,7 @@
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;
-  background: $primary-light;
+  background: var(--sjs2-color-bg-brand-secondary);
   box-shadow: inset 0 0 0 1px $primary;
 }
 

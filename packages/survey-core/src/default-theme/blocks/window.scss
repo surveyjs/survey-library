@@ -85,8 +85,8 @@
 
 .sv_window_buttons_container {
     position: fixed;
-    margin-top: var(--sjs2-spacing-x100, 8px);;
-    margin-right: var(--sjs2-spacing-x100, 8px);;
+    margin-top: var(--sjs2-spacing-x100, 8px);
+    margin-right: var(--sjs2-spacing-x100, 8px);
     display: flex;
     gap: var(--sjs2-spacing-x100, 8px);
     z-index: 10000;
@@ -102,10 +102,9 @@
 
     &:hover,
     &:active {
-        background-color: $primary-light;
+        background-color: var(--sjs2-color-bg-brand-secondary);
 
         svg {
-
             use,
             path {
                 fill: $primary;
@@ -118,7 +117,6 @@
     }
 
     svg {
-
         use,
         path {
             fill: $foreground-dim-light;

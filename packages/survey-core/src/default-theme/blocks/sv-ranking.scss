@@ -92,7 +92,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  background-color: $primary-light;
+  background-color: var(--sjs2-color-bg-brand-secondary);
   color: $font-questiontitle-color;
   font-size: $font-editorfont-size;
   border-radius: 100%;

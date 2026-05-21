@@ -18,7 +18,7 @@ export default {
     "--sjs2-color-utility-surface-designer": "#161519",
     "--sjs2-color-utility-surface-json-editor": "var(--sjs2-color-utility-surface-designer)",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-basic-secondary)",
-    "--sjs2-color-utility-shadow-surface-dragging": "rgba(from #893ced r g b / var(--sjs2-opacity-x010))",
+    "--sjs2-color-utility-shadow-surface-dragging": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-floating-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x060))",
     "--sjs2-color-bg-basic-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-bg-basic-secondary": "var(--sjs2-palette-gray-850)",

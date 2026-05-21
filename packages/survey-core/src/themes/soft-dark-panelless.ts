@@ -22,7 +22,7 @@ export default {
     "--sjs2-color-utility-shadow-trigger-design": "var(--sjs2-color-border-neutral-primary)",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-neutral-primary)",
     "--sjs2-color-utility-shadow-surface-hovered": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x025))",
-    "--sjs2-color-utility-shadow-surface-dragging": "rgba(from #004C44 r g b / var(--sjs2-opacity-x010))",
+    "--sjs2-color-utility-shadow-surface-dragging": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-floating-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x075))",
     "--sjs2-color-bg-basic-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-bg-basic-secondary": "var(--sjs2-palette-gray-850)",

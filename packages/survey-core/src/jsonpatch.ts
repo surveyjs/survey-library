@@ -1,11 +1,11 @@
 import { Base } from "./base";
 import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
 import {
-  applyOperation as fjpApplyOperation,
-  applyPatch as fjpApplyPatch,
-  deepClone as fjpDeepClone,
-  getValueByPointer as fjpGetValueByPointer,
-  unescapePathComponent as fjpUnescapePathComponent,
+  applyOperation,
+  applyPatch,
+  deepClone,
+  getValueByPointer,
+  unescapePathComponent,
   Operation,
 } from "fast-json-patch";
 
@@ -62,7 +62,7 @@ function parsePointer(pointer: string): string[] {
   }
   const parts = pointer.substring(1).split("/");
   for (let i = 0; i < parts.length; i++) {
-    parts[i] = fjpUnescapePathComponent(parts[i]);
+    parts[i] = unescapePathComponent(parts[i]);
   }
   return parts;
 }
@@ -83,7 +83,7 @@ function runDryRun(snapshot: any, patches: Operation[]): void {
   // applyPatch validates ops, throws on the first failure. Mutates the
   // snapshot in place; we don't care about the result.
   try {
-    fjpApplyPatch(snapshot, patches as any, true, true);
+    applyPatch(snapshot, patches as any, true, true);
   } catch(e: any) {
     const idx = typeof e?.index === "number" ? e.index : -1;
     const op = idx >= 0 ? patches[idx] : (null as any);
@@ -227,7 +227,7 @@ function readResolved(r: ResolvedPath): any {
       return value;
     case "arrayIndex": {
       const item = (value as any[])[r.arrayIndex];
-      return item instanceof Base ? snapshotBase(item, r.prop) : fjpDeepClone(item);
+      return item instanceof Base ? snapshotBase(item, r.prop) : deepClone(item);
     }
     case "arrayAppend":
       return undefined;
@@ -236,8 +236,8 @@ function readResolved(r: ResolvedPath): any {
       return ls ? (ls.getLocaleText(r.locale as any) || undefined) : undefined;
     }
     case "plain": {
-      const v = fjpGetValueByPointer(value, tokensToPointer(r.plainTokens));
-      return v === undefined ? undefined : fjpDeepClone(v);
+      const v = getValueByPointer(value, tokensToPointer(r.plainTokens));
+      return v === undefined ? undefined : deepClone(v);
     }
   }
 }
@@ -249,7 +249,7 @@ function snapshotBase(item: Base, prop: JsonObjectProperty): any {
 }
 
 function baseAwareSnapshot(arr: any[], prop: JsonObjectProperty): any[] {
-  return arr.map(item => (item instanceof Base ? snapshotBase(item, prop) : fjpDeepClone(item)));
+  return arr.map(item => (item instanceof Base ? snapshotBase(item, prop) : deepClone(item)));
 }
 
 /**
@@ -264,7 +264,7 @@ function materializeBase(prop: JsonObjectProperty, value: any, polymorphic: bool
   if (polymorphic && typeof value === "object" && value.type) {
     className = value.type;
   }
-  if (!className) return fjpDeepClone(value);
+  if (!className) return deepClone(value);
   className = className.toLowerCase();
   if (polymorphic) {
     const classNamePart = (prop as any).classNamePart as string | undefined;
@@ -273,7 +273,7 @@ function materializeBase(prop: JsonObjectProperty, value: any, polymorphic: bool
     }
   }
   const instance = Serializer.createClass(className, value);
-  if (!instance) return fjpDeepClone(value);
+  if (!instance) return deepClone(value);
   if (typeof value === "object") {
     new JsonObject().toObjectCore(value, instance);
   }
@@ -329,7 +329,7 @@ function mutatePlainSubtree(
   if (op === "remove" && (current === undefined || current === null)) {
     throw new OpError("PATH_NOT_FOUND", "cannot remove from undefined subtree");
   }
-  const clone = current === undefined || current === null ? {} : fjpDeepClone(current);
+  const clone = current === undefined || current === null ? {} : deepClone(current);
   const subOp: any = { op, path: tokensToPointer(plainTokens) };
   if (op !== "remove") subOp.value = value;
   const next = applySubtreeOp(clone, subOp, op);
@@ -543,7 +543,7 @@ function applySubtreeOp(doc: any, op: { op: string, path: string, value?: any },
   // Delegates to fast-json-patch's applyOperation for the heavy lifting
   // (RFC 6901 walking, RFC 6902 semantics, validation, error reporting).
   try {
-    return fjpApplyOperation(doc, op as any, true, true).newDocument;
+    return applyOperation(doc, op as any, true, true).newDocument;
   } catch(e: any) {
     throw new OpError("INVALID_OPERATION", e?.message || `subtree ${kind} failed`);
   }

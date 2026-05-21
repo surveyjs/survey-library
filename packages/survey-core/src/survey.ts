@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer } from "./jsonobject";
-import { applyPatchToModel, Operation } from "./jsonpatch";
+import { applyPatchToModel, JsonPatchOperation } from "./jsonpatch";
 import { property } from "./decorators";
 import { Base, ComputedUpdater, EventAsync } from "./base";
 import { EventBase } from "./event";
@@ -6738,7 +6738,7 @@ export class SurveyModel extends SurveyElementCore
    * a failure leaves earlier successful operations applied.
    * @throws JsonPatchError when an operation cannot be applied.
    */
-  public patchJSON(patches: Operation[], validateFirst?: boolean): void {
+  public patchJSON(patches: JsonPatchOperation[], validateFirst?: boolean): void {
     applyPatchToModel(this, patches, validateFirst);
   }
   public toJSON(options?: ISaveToJSONOptions): any {

@@ -8386,6 +8386,15 @@ export class SurveyModel extends SurveyElementCore
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
+    const themeClone = {} as ITheme;
+    Object.keys(theme).forEach((key: string) => {
+      const themeKey = key as keyof ITheme;
+      const value = theme[themeKey];
+      (themeClone as any)[themeKey] = typeof value === "object" && value !== null ? { ...value } : value;
+    });
+    this._applyTheme(themeClone);
+  }
+  private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables);
     this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {

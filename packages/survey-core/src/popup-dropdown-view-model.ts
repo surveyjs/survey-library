@@ -8,10 +8,11 @@ import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
 import { defaultActionBarCss } from "./actions/actionBarCss";
-import { getRootNode } from "./utils/dom-utils";
+import { findScrollableParent, getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
+  private scrollableParent: Element = undefined;
   private scrollEventCallBack = (event: any) => {
     if (this.isOverlay && IsTouch) {
       event.stopPropagation();
@@ -69,16 +70,43 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     return new Rect(0, 0, DomWindowHelper.getInnerWidth(), DomWindowHelper.getInnerHeight());
   }
-  protected getTargetElementRect(areaRect: Rect): Rect {
+  protected getTargetElement(): HTMLElement {
     const componentRoot = this.container;
     let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
 
     if (!!componentRoot && !!componentRoot.parentElement && !this.isModal && !targetElement) {
       targetElement = componentRoot.parentElement;
     }
+    return targetElement;
+  }
+  protected getTargetElementRect(areaRect: Rect): Rect {
+    const targetElement = this.getTargetElement();
     if (!targetElement) return null;
     const rect = targetElement.getBoundingClientRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
+  }
+
+  private attachScrollableParentScrollListener(): void {
+    const targetElement = this.getTargetElement();
+    if (!targetElement) return;
+
+    const scrollableParent = findScrollableParent(targetElement);
+    if (
+      !scrollableParent ||
+      scrollableParent === DomDocumentHelper.getDocumentElement() ||
+      !scrollableParent.addEventListener
+    ) {
+      return;
+    }
+
+    this.scrollableParent = scrollableParent;
+    this.scrollableParent.addEventListener("scroll", this.scrollEventCallBack);
+  }
+  private detachScrollableParentScrollListener(): void {
+    if (!!this.scrollableParent && !!this.scrollableParent.removeEventListener) {
+      this.scrollableParent.removeEventListener("scroll", this.scrollEventCallBack);
+    }
+    this.scrollableParent = undefined;
   }
 
   private _updatePosition() {
@@ -258,6 +286,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.resizeEventCallback();
     }
     DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);
+    this.attachScrollableParentScrollListener();
     this._isPositionSetValue = true;
   }
   private get shouldCreateResizeCallback(): boolean {
@@ -289,6 +318,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
     }
     DomWindowHelper.removeEventListener("scroll", this.scrollEventCallBack);
+    this.detachScrollableParentScrollListener();
 
     if (!this.isDisposed) {
       this.top = undefined;

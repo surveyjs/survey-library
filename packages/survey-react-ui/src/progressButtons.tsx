@@ -71,13 +71,25 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         className={this.model.getListElementCss(index)}
         data-page-number={this.model.getItemNumber(page)}
       >
-        <div
-          className={this.css.progressButtonsPageTitle}
-          title={page.renderedNavigationTitle}
-          onClick={onClickHandler}
-        >
-          {text}
-        </div>
+        {
+          this.model.showItemTitles ? <div
+            className={this.css.progressButtonsPageTitle}
+            title={page.renderedNavigationTitle}
+            onClick={onClickHandler}
+          >
+            {text}
+          </div> : null
+        }
+        {
+          this.model.showItemDescriptions ? <div
+            className={this.css.progressButtonsPageDescription}
+            title={page.navigationDescription}
+            onClick={onClickHandler}
+          >
+            {page.navigationDescription}
+          </div> : null
+        }
+
         <button className={this.css.progressButtonsButton}
           onClick={onClickHandler}
         >
@@ -91,13 +103,6 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
                 <div className={this.css.progressButtonsDot}></div>
           }
         </button>
-        <div
-          className={this.css.progressButtonsPageDescription}
-          title={page.navigationDescription}
-          onClick={onClickHandler}
-        >
-          {page.navigationDescription}
-        </div>
       </li>
     );
   }

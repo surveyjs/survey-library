@@ -65,6 +65,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   text-align: center;
   min-width: var(--sjs2-size-x800);
 
@@ -99,6 +100,17 @@
   }
 }
 
+.sd-progress-buttons--with-descriptions {
+  .sd-progress-buttons__list li {
+    &::after {
+      top: calc(
+        var(--sjs2-typography-line-height-small) * 2 + var(--sjs2-spacing-x050) + var(--sjs2-spacing-x150) +
+          var(--sjs2-size-x300) / 2
+      );
+    }
+  }
+}
+
 .sd-progress-buttons__list li {
   &.sd-progress-buttons__list-element--passed {
     &::after {
@@ -122,6 +134,7 @@
   border: 1px solid var(--sjs2-color-border-basic-secondary);
   padding: 0;
   margin: 0;
+  margin-top: var(--sjs2-spacing-x150);
   cursor: pointer;
   transition:
     background-color var(--sjs-transition-duration, 100ms),
@@ -144,7 +157,6 @@
 .sd-progress-buttons__page-title,
 .sd-progress-buttons__page-description {
   cursor: pointer;
-  @include sjs2--typography--small;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,12 +171,12 @@
 }
 
 .sd-progress-buttons__page-title {
-  margin-bottom: var(--sjs2-spacing-x150);
+  @include sjs2--typography--small-strong;
 }
 
 .sd-progress-buttons__page-description {
-  display: none;
-  margin-top: var(--sjs2-spacing-x150);
+  @include sjs2--typography--small;
+  margin-top: var(--sjs2-spacing-x050);
 }
 
 .sd-progress-buttons__dot {
@@ -317,6 +329,17 @@
           border-color: var(--sjs2-color-border-brand-primary);
           color: var(--sjs2-color-fg-basic-primary);
         }
+      }
+    }
+  }
+
+  &.sd-progress-buttons--with-descriptions {
+    .sd-progress-buttons__list li {
+      &::after {
+        top: calc(
+          var(--sjs2-typography-line-height-small) * 2 + var(--sjs2-spacing-x050) + var(--sjs2-spacing-x150) +
+            var(--sjs2-size-x400) / 2
+        );
       }
     }
   }

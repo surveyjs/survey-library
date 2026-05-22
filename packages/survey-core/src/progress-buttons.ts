@@ -42,6 +42,9 @@ export class ProgressButtons extends Base {
     if (this.isFitToSurveyWidth) {
       result += " " + this.survey.css.progressButtonsFitSurveyWidth;
     }
+    if (this.showItemDescriptions) {
+      result += " " + this.survey.css.progressButtonsWithDescriptions;
+    }
     return result;
   }
   public getListElementCss(index: number | any): string {
@@ -50,13 +53,6 @@ export class ProgressButtons extends Base {
       .append(this.survey.css.progressButtonsListElementPassed, this.isListElementPassed(index))
       .append(this.survey.css.progressButtonsListElementCurrent, this.survey.currentPageNo === index)
       .append(this.survey.css.progressButtonsListElementNonClickable, !this.isListElementClickable(index))
-      .toString();
-  }
-  public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): string {
-    return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsImageButtonLeft, isLeftScroll)
-      .append(this.survey.css.progressButtonsImageButtonRight, !isLeftScroll)
-      .append(this.survey.css.progressButtonsImageButtonHidden, !hasScroller)
       .toString();
   }
   public clickListElement(element: number | PageModel): void {
@@ -106,6 +102,12 @@ export class ProgressButtons extends Base {
       return true;
     }
     return this.survey.progressBarShowPageTitles;
+  }
+  public get showItemDescriptions(): boolean {
+    if (surveyCss.currentType !== "default") {
+      return true;
+    }
+    return this.survey.progressBarShowPageDescriptions;
   }
   public getItemNumber(page: PageModel): string {
     let result = "";

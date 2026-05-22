@@ -146,7 +146,6 @@ export var defaultCss = {
   progressButtonsFitSurveyWidth: "sd-progress-buttons--fit-survey-width",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",
   progressButtonsContainer: "sd-progress-buttons__container",
-  progressButtonsConnector: "sd-progress-buttons__connector",
   progressButtonsButton: "sd-progress-buttons__button",
   progressButtonsCheckIcon: "sd-progress-buttons__check-icon",
   progressButtonsCheckIconId: "check-16x16",

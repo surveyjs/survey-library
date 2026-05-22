@@ -78,33 +78,25 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   }
   protected renderListElement(page: PageModel, index: number): React.JSX.Element {
     const text = SurveyElementBase.renderLocString(page.locNavigationTitle);
+    const onClickHandler = this.model.isListElementClickable(index) ? () => this.model.clickListElement(page) : undefined;
     return (
       <li
         key={"listelement" + page.uniqueId}
         className={this.model.getListElementCss(index)}
-        onClick={
-          this.model.isListElementClickable(index)
-            ? () => this.model.clickListElement(page)
-            : undefined
-        }
         data-page-number={this.model.getItemNumber(page)}
       >
-        <div className={this.css.progressButtonsConnector}></div>
         {this.state.canShowItemTitles ? <>
           <div
             className={this.css.progressButtonsPageTitle}
             title={page.renderedNavigationTitle}
+            onClick={onClickHandler}
           >
             {text}
           </div>
-          <div
-            className={this.css.progressButtonsPageDescription}
-            title={page.navigationDescription}
-          >
-            {page.navigationDescription}
-          </div>
         </> : null}
-        <button className={this.css.progressButtonsButton}>
+        <button className={this.css.progressButtonsButton}
+          onClick={onClickHandler}
+        >
           {
             this.model.showItemNumbers ?
               this.model.getItemNumber(page) :
@@ -115,6 +107,15 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
                 <div className={this.css.progressButtonsDot}></div>
           }
         </button>
+        {this.state.canShowItemTitles ? <>
+          <div
+            className={this.css.progressButtonsPageDescription}
+            title={page.navigationDescription}
+            onClick={onClickHandler}
+          >
+            {page.navigationDescription}
+          </div>
+        </> : null}
       </li>
     );
   }

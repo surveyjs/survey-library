@@ -1,66 +1,126 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-.sd-progress-buttons__list {
-  display: flex;
-  gap: var(--sjs2-spacing-x100);
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0;
-  margin: 0;
+@mixin button-hover {
+  background-color: var(--sjs2-color-bg-basic-secondary-dim);
 
-  li {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    gap: var(--sjs2-spacing-x100);
+  .sd-progress-buttons__dot {
+    width: var(--sjs2-size-x125);
+    height: var(--sjs2-size-x125);
+    background-color: var(--sjs2-color-fg-basic-secondary);
+  }
+}
 
-    &:first-child {
-      flex: 0;
-      .sd-progress-buttons__connector {
-        display: none;
-      }
+@mixin button-current {
+  border-color: var(--sjs2-color-border-brand-primary);
+  background-color: var(--sjs2-color-bg-basic-primary);
+
+  .sd-progress-buttons__dot {
+    width: var(--sjs2-size-x125);
+    height: var(--sjs2-size-x125);
+    background-color: var(--sjs2-color-fg-brand-primary);
+  }
+}
+
+@mixin button-hover-passed {
+  background-color: var(--sjs2-color-bg-brand-primary-dim);
+  border-color: var(--sjs2-color-bg-brand-primary-dim);
+}
+
+@mixin button-current-passed {
+  background-color: var(--sjs2-color-bg-basic-primary);
+  border-color: var(--sjs2-color-border-brand-primary);
+
+  .sd-progress-buttons__check-icon {
+    use {
+      fill: var(--sjs2-color-fg-brand-primary);
     }
   }
 }
 
-.sd-progress-buttons__connector {
-  height: var(--sjs2-border-width-x100);
-  background: var(--sjs2-color-border-basic-secondary);
-  width: 100%;
+.sd-progress-buttons__list-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
+  // margin: 0 var(--sjs2-spacing-negative-x075);
 }
+
+// .sd-progress-buttons--with-titles {
+//   .sd-progress-buttons__list-container {
+//     margin: 0;
+//   }
+// }
+
+.sd-progress-buttons__list {
+  display: grid;
+  grid-auto-columns: minmax(var(--sjs2-size-x800), 1fr);
+  grid-auto-flow: column;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.sd-progress-buttons__list li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: var(--sjs2-size-x800);
+
+  // &:first-child {
+  //   flex: 0;
+  //   .sd-progress-buttons__connector {
+  //     display: none;
+  //   }
+  // }
+}
+
+// .sd-progress-buttons__connector {
+//   height: var(--sjs2-border-width-x100);
+//   background-color: var(--sjs2-color-border-basic-secondary);
+//   width: 100%;
+// }
 
 .sd-progress-buttons__button {
   display: flex;
-  justify-content: center;
   align-items: center;
-  content: attr(data-page-number); //?
+  justify-content: center;
+  content: attr(data-page-number);
   @include sjs2--typography--default-strong;
   color: var(--sjs2-color-fg-basic-tertiary);
   border-radius: var(--sjs2-radius-component-stepper-item);
   width: var(--sjs2-size-x300);
   height: var(--sjs2-size-x300);
   box-sizing: border-box;
-  cursor: pointer;
-  background: var(--sjs2-color-bg-basic-secondary);
+  background-color: var(--sjs2-color-bg-basic-secondary);
   border: 1px solid var(--sjs2-color-border-basic-secondary);
   padding: 0;
   margin: 0;
-  flex-shrink: 0;
+  cursor: pointer;
+  transition:
+    background-color var(--sjs-transition-duration, 100ms),
+    border-color var(--sjs-transition-duration, 100ms),
+    color var(--sjs-transition-duration, 100ms);
 
   &:focus-visible {
     outline: 4px solid var(--sjs2-color-utility-a11y);
   }
 
   &:hover {
-    background: var(--sjs2-color-bg-basic-secondary-dim);
+    @include button-hover;
+  }
 
-    .sd-progress-buttons__dot {
-      width: var(--sjs2-size-x125);
-      height: var(--sjs2-size-x125);
-      background: var(--sjs2-color-fg-basic-secondary);
-    }
+  &:has(+ .sd-progress-buttons__page-title:hover) {
+    @include button-hover;
+  }
+}
+
+.sd-progress-buttons__page-title,
+.sd-progress-buttons__page-description {
+  cursor: pointer;
+  &:hover + .sd-progress-buttons__button {
+    @include button-hover;
   }
 }
 
@@ -68,7 +128,7 @@
   width: var(--sjs2-size-x100);
   height: var(--sjs2-size-x100);
   border-radius: var(--sjs2-radius-round);
-  background: var(--sjs2-color-fg-basic-tertiary);
+  background-color: var(--sjs2-color-fg-basic-tertiary);
 }
 
 .sd-progress-buttons__check-icon {
@@ -77,6 +137,85 @@
 
   use {
     fill: var(--sjs2-color-fg-brand-primary);
+  }
+}
+
+.sd-progress-buttons__list-element--current {
+  .sd-progress-buttons__button {
+    @include button-current;
+
+    &:hover {
+      @include button-current;
+    }
+
+    &:has(+ .sd-progress-buttons__page-title:hover) {
+      @include button-current;
+    }
+  }
+
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    cursor: pointer;
+    &:hover + .sd-progress-buttons__button {
+      @include button-current;
+    }
+  }
+}
+
+.sd-progress-buttons__list-element--passed {
+  .sd-progress-buttons__button {
+    background-color: var(--sjs2-color-bg-brand-primary);
+    border-color: var(--sjs2-color-border-brand-primary);
+
+    .sd-progress-buttons__check-icon {
+      use {
+        fill: var(--sjs2-color-fg-brand-on-primary);
+      }
+    }
+
+    &:hover {
+      @include button-hover-passed;
+    }
+
+    &:has(+ .sd-progress-buttons__page-title:hover) {
+      @include button-hover-passed;
+    }
+  }
+
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    cursor: pointer;
+    &:hover + .sd-progress-buttons__button {
+      @include button-hover-passed;
+    }
+  }
+
+  // .sd-progress-buttons__connector {
+  //   background-color: var(--sjs2-color-border-brand-primary);
+  // }
+}
+
+.sd-progress-buttons__list-element--current {
+  &.sd-progress-buttons__list-element--passed {
+    .sd-progress-buttons__button {
+      @include button-current-passed;
+
+      &:hover {
+        @include button-current-passed;
+      }
+
+      &:has(+ .sd-progress-buttons__page-title:hover) {
+        @include button-current-passed;
+      }
+    }
+  }
+
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    cursor: pointer;
+    &:hover + .sd-progress-buttons__button {
+      @include button-current-passed;
+    }
   }
 }
 
@@ -91,7 +230,7 @@
   .sd-progress-buttons__list-element--current {
     .sd-progress-buttons__button {
       border: 2px solid var(--sjs2-color-border-brand-primary);
-      background: var(--sjs2-color-bg-basic-primary);
+      background-color: var(--sjs2-color-bg-basic-primary);
       color: var(--sjs2-color-fg-basic-primary);
     }
   }
@@ -99,7 +238,7 @@
   .sd-progress-buttons__list-element--passed {
     .sd-progress-buttons__button {
       border-color: var(--sjs2-color-border-brand-primary);
-      background: var(--sjs2-color-bg-brand-primary);
+      background-color: var(--sjs2-color-bg-brand-primary);
       color: var(--sjs2-color-fg-brand-on-primary);
     }
   }
@@ -108,56 +247,6 @@
     &.sd-progress-buttons__list-element--passed {
       .sd-progress-buttons__button {
         color: var(--sjs2-color-fg-basic-primary);
-      }
-    }
-  }
-}
-
-.sd-progress-buttons__list-element--current {
-  .sd-progress-buttons__button {
-    border-color: var(--sjs2-color-border-brand-primary);
-    background: var(--sjs2-color-bg-basic-primary);
-
-    .sd-progress-buttons__dot {
-      width: var(--sjs2-size-x125);
-      height: var(--sjs2-size-x125);
-      background: var(--sjs2-color-fg-brand-primary);
-    }
-  }
-}
-
-.sd-progress-buttons__list-element--passed {
-  .sd-progress-buttons__button {
-    background: var(--sjs2-color-bg-brand-primary);
-    border-color: var(--sjs2-color-border-brand-primary);
-
-    &:hover {
-      background: var(--sjs2-color-bg-brand-primary-dim);
-      border-color: var(--sjs2-color-bg-brand-primary-dim);
-    }
-  }
-
-  .sd-progress-buttons__check-icon {
-    use {
-      fill: var(--sjs2-color-fg-brand-on-primary);
-    }
-  }
-
-  .sd-progress-buttons__connector {
-    background: var(--sjs2-color-border-brand-primary);
-  }
-}
-
-.sd-progress-buttons__list-element--current {
-  &.sd-progress-buttons__list-element--passed {
-    .sd-progress-buttons__button {
-      background: var(--sjs2-color-bg-basic-primary);
-      border-color: var(--sjs2-color-border-brand-primary);
-    }
-
-    .sd-progress-buttons__check-icon {
-      use {
-        fill: var(--sjs2-color-fg-brand-primary);
       }
     }
   }
@@ -178,18 +267,13 @@
 
 .sd-progress-buttons__page-description {
   display: none;
+  margin-top: var(--sjs2-spacing-x150);
 }
 
 .sd-progress-buttons {
   padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500) var(--sjs2-spacing-x200) var(--sjs2-spacing-x500);
   display: flex;
   flex-direction: column;
-}
-
-.sd-progress-buttons__list-container {
-  display: flex;
-  // overflow: hidden;
-  margin: 0 var(--sjs2-spacing-negative-x075);
 }
 
 .sd-progress-buttons__page-title {
@@ -202,23 +286,24 @@
   padding: 0 var(--sjs2-spacing-x200);
   margin-bottom: var(--sjs2-spacing-x200);
   color: var(--sjs2-color-component-page-default-title);
+  margin-bottom: var(--sjs2-spacing-x150);
 }
 
-.sd-progress-buttons__header {
-  .sd-progress-buttons__page-title {
-    margin-bottom: var(--sjs2-spacing-x100);
-  }
-}
+// .sd-progress-buttons__header {
+//   .sd-progress-buttons__page-title {
+//     margin-bottom: var(--sjs2-spacing-x100);
+//   }
+// }
 
-.sd-progress-buttons__footer {
-  .sd-progress-buttons__page-title {
-    margin-top: var(--sjs2-spacing-x100);
-    margin-bottom: 0;
-    justify-content: flex-end;
-    padding: 0;
-    color: var(--sjs2-color-fg-basic-secondary);
-  }
-}
+// .sd-progress-buttons__footer {
+//   .sd-progress-buttons__page-title {
+//     margin-top: var(--sjs2-spacing-x100);
+//     margin-bottom: 0;
+//     justify-content: flex-end;
+//     padding: 0;
+//     color: var(--sjs2-color-fg-basic-secondary);
+//   }
+// }
 
 .sd-progress-buttons--bottom {
   padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x500) var(--sjs2-spacing-x400) var(--sjs2-spacing-x500);
@@ -251,12 +336,6 @@
       margin-top: 0;
       margin-bottom: var(--sjs2-spacing-x100);
     }
-  }
-}
-
-.sd-progress-buttons--with-titles {
-  .sd-progress-buttons__list-container {
-    margin: 0;
   }
 }
 
@@ -322,9 +401,9 @@
 [style*="direction: rtl"] {
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        transform: translateX(calc(100% + 20px));
-      }
+      // &:not(:first-child) > .sd-progress-buttons__connector {
+      //   transform: translateX(calc(100% + 20px));
+      // }
     }
   }
 
@@ -332,9 +411,9 @@
   .sd-progress-buttons--no-titles {
     .sd-progress-buttons__list {
       li {
-        &:not(:first-child) > .sd-progress-buttons__connector {
-          transform: translateX(100%);
-        }
+        // &:not(:first-child) > .sd-progress-buttons__connector {
+        //   transform: translateX(100%);
+        // }
       }
     }
   }

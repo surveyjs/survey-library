@@ -452,7 +452,12 @@ export class FunctionOperand extends Operand {
     return proccessValue.asyncValues[this.id];
   }
   public hasFunction(noParamsOnly?: boolean): boolean {
-    if (noParamsOnly === true) return this.paramValues.length === 0;
+    if (noParamsOnly === true) {
+      if (this.paramValues.length === 0) return true;
+      const paramVars: string[] = [];
+      this.parameters.setVariables(paramVars);
+      return paramVars.length === 0;
+    }
     return true;
   }
   public hasAsyncFunction(): boolean {

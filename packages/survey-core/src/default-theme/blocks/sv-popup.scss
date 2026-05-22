@@ -160,7 +160,7 @@ sv-popup {
     }
 
     &::-webkit-scrollbar-thumb {
-      background: $primary-light;
+      background: var(--sjs2-color-bg-brand-secondary);
     }
   }
 }
@@ -329,7 +329,7 @@ sv-popup {
     .sv-list__item--focused {
       &.sv-list__item--selected {
         .sv-list__item-body {
-          background: $primary-light;
+          background: var(--sjs2-color-bg-brand-secondary);
           color: $foreground;
           @include sjs2--typography--default;
         }

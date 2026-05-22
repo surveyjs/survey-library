@@ -1031,4 +1031,281 @@ describe("Triggers", () => {
       "q4": "item1",
       "q5": "item1" });
   });
+  test("Bug#11311 - copyvalue trigger - custom function without parameters is called on any question change", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("alwaysCopyValue", () => {
+      counter++;
+      return true;
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+      ],
+      triggers: [{
+        type: "copyvalue",
+        expression: "alwaysCopyValue()",
+        fromName: "q1",
+        setToName: "q3"
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+
+    q1.value = "A";
+    expect(counter, "expression called on fromName q1 change #1").toBe(1);
+    expect(q3.value, "q3 copied from q1 #1").toBe("A");
+
+    q1.value = "B";
+    expect(counter, "expression called on fromName q1 change #2").toBe(2);
+    expect(q3.value, "q3 copied from q1 #2").toBe("B");
+
+    // A no-params function has no variable dependencies so the expression fires on ANY question change
+    q2.value = "X";
+    expect(counter, "no-params function triggers on any question change").toBe(3);
+    expect(q3.value, "q3 still from q1 after q2 change").toBe("B");
+
+    FunctionFactory.Instance.unregister("alwaysCopyValue");
+  });
+  test("Bug#11311 - copyvalue trigger - custom function with {questionName} parameter is called on that question value change", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("copyIfAllowed", (params) => {
+      counter++;
+      return params[0] === "yes";
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+        { type: "text", name: "q4" },
+      ],
+      triggers: [{
+        type: "copyvalue",
+        expression: "copyIfAllowed({q2})",
+        fromName: "q1",
+        setToName: "q3"
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    const q4 = survey.getQuestionByName("q4");
+
+    // q2 not set -> copyIfAllowed(undefined) = false -> no copy
+    q1.value = "A";
+    expect(counter, "expression called on fromName q1 change #1").toBe(1);
+    expect(q3.value, "not copied - q2 not set").toBeUndefined();
+
+    // changing q2 (expression variable) also triggers re-evaluation
+    q2.value = "yes";
+    expect(counter, "expression called on expression var q2 change #1").toBe(2);
+    expect(q3.value, "copied after q2 = 'yes'").toBe("A");
+
+    q2.value = "no";
+    expect(counter, "expression called on q2 change #2").toBe(3);
+    expect(q3.value, "q3 unchanged - q2 = 'no'").toBe("A");
+
+    q1.value = "B";
+    expect(counter, "expression called on fromName q1 change #2").toBe(4);
+    expect(q3.value, "not copied - q2 still 'no'").toBe("A");
+
+    q2.value = "yes";
+    expect(counter, "expression called on q2 change #3").toBe(5);
+    expect(q3.value, "copied after q2 = 'yes' again, q1 = 'B'").toBe("B");
+
+    // q4 is not fromName and not in expression -> expression NOT called on q4 change
+    q4.value = "Z";
+    expect(counter, "expression NOT called on unrelated q4 change").toBe(5);
+
+    FunctionFactory.Instance.unregister("copyIfAllowed");
+  });
+  test("Bug#11311 - copyvalue trigger - custom function with {$obj.propertyValue} parameter uses current property value at evaluation time", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("copyWhenVisible", (params) => {
+      counter++;
+      return params[0] === true;
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+      ],
+      triggers: [{
+        type: "copyvalue",
+        expression: "copyWhenVisible({$q2.visible})",
+        fromName: "q1",
+        setToName: "q3"
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+
+    // q2.visible is true by default -> copyWhenVisible(true) = true -> copy
+    q1.value = "A";
+    expect(counter, "expression called on fromName q1 change #1").toBe(1);
+    expect(q3.value, "copied - q2.visible is true").toBe("A");
+
+    // make q2 invisible; the expression re-evaluates {$q2.visible} on next q1 change
+    q2.visible = false;
+    q1.value = "B";
+    expect(counter, "expression called on fromName q1 change #2").toBe(2);
+    expect(q3.value, "not copied - {$q2.visible} is false").toBe("A");
+
+    // restore visibility -> copy resumes
+    q2.visible = true;
+    q1.value = "C";
+    expect(counter, "expression called on fromName q1 change #3").toBe(3);
+    expect(q3.value, "copied - {$q2.visible} is true again").toBe("C");
+
+    FunctionFactory.Instance.unregister("copyWhenVisible");
+  });
+  test("Bug#11311 - copyvalue trigger - custom function with const parameters is called on any question change", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("checkConstFlag", (params) => {
+      counter++;
+      return params[0] === "enable";
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" },
+      ],
+      triggers: [{
+        type: "copyvalue",
+        expression: "checkConstFlag('enable')",
+        fromName: "q1",
+        setToName: "q3"
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+
+    q1.value = "A";
+    expect(counter, "expression called on fromName q1 change #1").toBe(1);
+    expect(q3.value, "q3 copied - const flag 'enable' matches").toBe("A");
+
+    q1.value = "B";
+    expect(counter, "expression called on fromName q1 change #2").toBe(2);
+    expect(q3.value, "q3 updated to B").toBe("B");
+
+    // const-param function: all params are constants = treated the same as no-params,
+    // so expression IS called on any question change (not just fromName)
+    q2.value = "X";
+    expect(counter, "const-param function called on any question change - same rule as no-params").toBe(3);
+    expect(q3.value, "q3 still B - flag is 'enable' so copy runs again but value same").toBe("B");
+
+    q1.value = "C";
+    expect(counter, "expression called on fromName q1 change #3").toBe(4);
+    expect(q3.value, "q3 updated to C").toBe("C");
+
+    FunctionFactory.Instance.unregister("checkConstFlag");
+  });
+  test("Bug#11311 - copyvalue trigger - customFunction with string-literal question name params fires on any question change", () => {
+    // customFunction('question2','=','Item 1') passes question names as string constants.
+    // All parameters are constants so hasFunction(true) = true -> treat as no-params -> always evaluate.
+    // maxConditionRunCountOnValueChanged does not affect this behavior.
+    let counter = 0;
+    FunctionFactory.Instance.register("customFunction", function(this: any, params) {
+      counter++;
+      const survey: SurveyModel = this.survey; // survey is bound to 'this' by FunctionFactory
+      const questionName = params[0];
+      const operator = params[1];
+      const expected = params[2];
+      const actual = survey ? survey.getValue(questionName) : undefined;
+      if (operator === "=") return actual === expected;
+      if (operator === "notempty") return actual !== undefined && actual !== "" && actual !== null;
+      return false;
+    });
+
+    const defaultMaxCount = settings.maxConditionRunCountOnValueChanged;
+    settings.maxConditionRunCountOnValueChanged = 1;
+
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "question1" },
+        { type: "radiogroup", name: "question2", choices: ["Item 1", "Item 2"] },
+        { type: "text", name: "source" },
+        { type: "text", name: "dest" },
+      ],
+      triggers: [{
+        type: "copyvalue",
+        expression: "customFunction('question2','=','Item 1') and customFunction('question1','notempty','')",
+        fromName: "source",
+        setToName: "dest"
+      }]
+    });
+
+    survey.setValue("question1", "hello");
+    survey.setValue("question2", "Item 1");
+    survey.setValue("source", "original");
+    expect(dest(), "dest copied when source set and both conditions true").toBe("original");
+
+    // With const-only params, hasFunction(true) = true -> expression fires on ANY question change.
+    // BinaryOperand.evaluate evaluates both operands eagerly (no short-circuit), so both customFunction
+    // calls always run when the trigger evaluates, incrementing counter by 2 per trigger fire.
+    counter = 0;
+    survey.setValue("question2", "Item 2");
+    expect(counter, "trigger called on question2 change - both functions evaluated, no short-circuit").toBe(2);
+    expect(dest(), "dest unchanged - condition false after question2 change").toBe("original");
+
+    // Changing question1 also fires the trigger - both functions called again (+2).
+    survey.setValue("question1", "");
+    expect(counter, "trigger called on question1 change too - both functions evaluated again").toBe(4);
+    expect(dest(), "dest still unchanged - condition still false").toBe("original");
+
+    // Restore: both conditions true again, changing source copies dest.
+    survey.setValue("question2", "Item 1");
+    survey.setValue("question1", "hello");
+    survey.setValue("source", "updated");
+    expect(dest(), "dest updated when both conditions true and source changed").toBe("updated");
+
+    // maxConditionRunCountOnValueChanged=1 has no effect on trigger evaluation:
+    // it controls condition cascade reruns, not whether triggers fire.
+    counter = 0;
+    survey.setValue("question2", "Item 2");
+    expect(counter, "trigger still called on question2 change regardless of maxConditionRunCountOnValueChanged").toBe(2);
+
+    settings.maxConditionRunCountOnValueChanged = defaultMaxCount;
+    FunctionFactory.Instance.unregister("customFunction");
+
+    function dest() { return survey.getValue("dest"); }
+  });
+  test("Bug#11311 - custom function with const parameters is re-evaluated on any question change in visibleIf", () => {
+    let counter = 0;
+    FunctionFactory.Instance.register("checkConstParam", (params) => {
+      counter++;
+      return params[0] === "show";
+    });
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", visibleIf: "checkConstParam('show')" },
+        { type: "text", name: "q3", visibleIf: "checkConstParam('hide')" },
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+
+    expect(q2.isVisible, "q2 visible initially - checkConstParam('show') = true").toBe(true);
+    expect(q3.isVisible, "q3 hidden initially - checkConstParam('hide') = false").toBe(false);
+
+    // Changing q1 has no declared connection to either visibleIf expression.
+    // Before the fix, the engine skipped re-evaluation because it saw no variable dependencies.
+    // After the fix, const-param functions are treated as no-params and always re-evaluated.
+    counter = 0;
+    q1.value = "X";
+    expect(counter, "visibleIf expressions re-evaluated on q1 change - const params treated as no deps").toBeGreaterThan(0);
+    expect(q2.isVisible, "q2 still visible after q1 change").toBe(true);
+    expect(q3.isVisible, "q3 still hidden after q1 change").toBe(false);
+
+    FunctionFactory.Instance.unregister("checkConstParam");
+  });
 });

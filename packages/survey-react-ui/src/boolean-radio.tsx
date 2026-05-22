@@ -10,7 +10,9 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   private renderRadioItem(value: any, locText: any): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     const handleOnChange = () => {
-      this.question.value = value;
+      if (!this.question.isInputReadOnly) {
+        this.question.value = value;
+      }
     };
     return (
       <div role="presentation" className={this.question.getRadioItemClass(cssClasses, value)}>
@@ -43,7 +45,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     return (
-      <div className={cssClasses.rootRadio}>
+      <div className={cssClasses.rootRadio} onKeyDown={this.handleOnKeyDown}>
         <fieldset role="presentation" className={cssClasses.radioFieldset}>
           {!this.question.swapOrder ?
             (<>{this.renderRadioItem(this.question.getValueFalse(), this.question.locLabelFalse)}

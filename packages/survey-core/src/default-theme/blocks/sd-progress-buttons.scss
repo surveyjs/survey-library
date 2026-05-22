@@ -119,9 +119,27 @@
 .sd-progress-buttons__page-title,
 .sd-progress-buttons__page-description {
   cursor: pointer;
+  @include sjs2--typography--small;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  color: var(--sjs2-color-fg-basic-primary, #1c1b20);
+  text-align: center;
+
   &:hover + .sd-progress-buttons__button {
     @include button-hover;
   }
+}
+
+.sd-progress-buttons__page-title {
+  margin-bottom: var(--sjs2-spacing-x150);
+}
+
+.sd-progress-buttons__page-description {
+  display: none;
+  margin-top: var(--sjs2-spacing-x150);
 }
 
 .sd-progress-buttons__dot {
@@ -155,7 +173,6 @@
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
-    cursor: pointer;
     &:hover + .sd-progress-buttons__button {
       @include button-current;
     }
@@ -184,7 +201,6 @@
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
-    cursor: pointer;
     &:hover + .sd-progress-buttons__button {
       @include button-hover-passed;
     }
@@ -212,7 +228,6 @@
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
-    cursor: pointer;
     &:hover + .sd-progress-buttons__button {
       @include button-current-passed;
     }
@@ -276,28 +291,10 @@
   visibility: hidden;
 }
 
-.sd-progress-buttons__page-description {
-  display: none;
-  margin-top: var(--sjs2-spacing-x150);
-}
-
 .sd-progress-buttons {
   padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500) var(--sjs2-spacing-x200) var(--sjs2-spacing-x500);
   display: flex;
   flex-direction: column;
-}
-
-.sd-progress-buttons__page-title {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  @include sjs2--typography--small-strong;
-  flex-grow: 1;
-  text-align: center;
-  padding: 0 var(--sjs2-spacing-x200);
-  margin-bottom: var(--sjs2-spacing-x200);
-  color: var(--sjs2-color-component-page-default-title);
-  margin-bottom: var(--sjs2-spacing-x150);
 }
 
 // .sd-progress-buttons__header {

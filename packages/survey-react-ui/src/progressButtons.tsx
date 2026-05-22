@@ -21,11 +21,11 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     return this.model;
   }
   onResize(canShowItemTitles: boolean): void {
-    this.setState({ canShowItemTitles });
-    this.setState({ canShowHeader: !canShowItemTitles });
+    // this.setState({ canShowItemTitles });
+    // this.setState({ canShowHeader: !canShowItemTitles });
   }
   onUpdateScroller(hasScroller: boolean): void {
-    this.setState({ hasScroller });
+    //this.setState({ hasScroller });
   }
   onUpdateSettings(): void {
     this.setState({ canShowItemTitles: this.model.showItemTitles });
@@ -36,17 +36,10 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
       <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth, ["--sd-progress-buttons-pages-count" as any]: this.model.visiblePages.length }}
         role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label={this.model.progressBarAriaLabel}
       >
-        {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
+        {/* {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
-        </div> : null}
+        </div> : null} */}
         <div className={this.css.progressButtonsContainer}>
-          <div
-            className={this.model.getScrollButtonCss(this.state.hasScroller, true)}
-            role="button"
-            onClick={() =>
-              this.clickScrollButton(this.listContainerRef.current, true)
-            }
-          ></div>
           <div
             className={this.css.progressButtonsListContainer}
             ref={this.listContainerRef}
@@ -55,17 +48,10 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
               {this.getListElements()}
             </ul>
           </div>
-          <div
-            className={this.model.getScrollButtonCss(this.state.hasScroller, false)}
-            role="button"
-            onClick={() =>
-              this.clickScrollButton(this.listContainerRef.current, false)
-            }
-          ></div>
         </div>
-        {this.state.canShowFooter ? <div className={this.css.progressButtonsFooter}>
+        {/* {this.state.canShowFooter ? <div className={this.css.progressButtonsFooter}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.footerText}>{this.model.footerText}</div>
-        </div> : null}
+        </div> : null} */}
       </div>
     );
   }
@@ -85,15 +71,13 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         className={this.model.getListElementCss(index)}
         data-page-number={this.model.getItemNumber(page)}
       >
-        {this.state.canShowItemTitles ? <>
-          <div
-            className={this.css.progressButtonsPageTitle}
-            title={page.renderedNavigationTitle}
-            onClick={onClickHandler}
-          >
-            {text}
-          </div>
-        </> : null}
+        <div
+          className={this.css.progressButtonsPageTitle}
+          title={page.renderedNavigationTitle}
+          onClick={onClickHandler}
+        >
+          {text}
+        </div>
         <button className={this.css.progressButtonsButton}
           onClick={onClickHandler}
         >
@@ -107,15 +91,13 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
                 <div className={this.css.progressButtonsDot}></div>
           }
         </button>
-        {this.state.canShowItemTitles ? <>
-          <div
-            className={this.css.progressButtonsPageDescription}
-            title={page.navigationDescription}
-            onClick={onClickHandler}
-          >
-            {page.navigationDescription}
-          </div>
-        </> : null}
+        <div
+          className={this.css.progressButtonsPageDescription}
+          title={page.navigationDescription}
+          onClick={onClickHandler}
+        >
+          {page.navigationDescription}
+        </div>
       </li>
     );
   }

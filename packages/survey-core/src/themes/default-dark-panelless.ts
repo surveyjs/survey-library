@@ -13,7 +13,6 @@ export default {
     "--sjs2-color-utility-property-grid": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-tabs": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-surface-survey": "#161519",
-    "--sjs2-color-utility-surface-survey-panelless": "#1c1b200d",
     "--sjs2-color-utility-surface-designer": "#161519",
     "--sjs2-color-utility-surface-json-editor": "var(--sjs2-color-utility-surface-designer)",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-basic-secondary)",

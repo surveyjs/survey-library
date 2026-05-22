@@ -12,7 +12,6 @@ export default {
     "--sjs2-color-utility-property-grid": "rgba(38, 38, 38, 1)",
     "--sjs2-color-utility-tabs": "rgba(38, 38, 38, 1)",
     "--sjs2-color-utility-surface-survey": "rgba(28, 28, 28, 1)",
-    "--sjs2-color-utility-surface-survey-panelless": "rgba(28, 28, 28, 1)",
     "--sjs2-color-utility-surface-designer": "#161519",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-basic-secondary)",
     "--sjs2-color-utility-shadow-surface-dragging": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x010))",

@@ -139,7 +139,7 @@ sv-popup {
     }
   }
   .sv-popup__body-content .sv-string-viewer {
-    color: $font-editorfont-color;
+    color: var(--sjs2-color-component-editor-input-default-value);
     align-self: self-start;
     @include sjs2--typography--default;
   }

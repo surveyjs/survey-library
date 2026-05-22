@@ -18,14 +18,12 @@
 
 .sd-page .sd-page__title {
   @include sjs2--typography--component--page--title;
-  color: $font-pagetitle-color;
   position: static;
   margin: 0 0 var(--sjs2-spacing-x050) 0px;
 }
 
 .sd-page .sd-page__description {
   @include sjs2--typography--component--page--description;
-  color: $font-pagedescription-color;
   position: static;
   margin: 0 0 var(--sjs2-spacing-x050) 0;
 }

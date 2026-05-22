@@ -68,19 +68,44 @@
   text-align: center;
   min-width: var(--sjs2-size-x800);
 
-  // &:first-child {
-  //   flex: 0;
-  //   .sd-progress-buttons__connector {
-  //     display: none;
-  //   }
-  // }
+  &::after {
+    content: "";
+    position: absolute;
+    /* 
+      50% = center of the button
+      var(--sjs2-size-x300) / 2 = right half (radius) of the button
+      var(--sjs2-size-x100) = gap
+    */
+    left: calc(50% + var(--sjs2-size-x300) / 2 + var(--sjs2-size-x100));
+    /* 
+      100% = distance from the center of the current button to the center of the next button
+      var(--sjs2-size-x300) = half (radius) of the current button + half (radius) of the next button
+      var(--sjs2-size-x100) * 2 = two gaps (left and right)
+    */
+    width: calc(100% - var(--sjs2-size-x300) - var(--sjs2-size-x100) * 2);
+    /* 
+      var(--sjs2-typography-line-height-small) = line height
+      var(--sjs2-spacing-x150) = vertical gap between title and button
+      var(--sjs2-size-x300) / 2 = top half (radius) of the button
+    */
+    top: calc(var(--sjs2-typography-line-height-small) + var(--sjs2-spacing-x150) + var(--sjs2-size-x300) / 2);
+    height: var(--sjs2-border-width-x100);
+    background-color: var(--sjs2-color-border-basic-secondary);
+    transition: background-color var(--sjs-transition-duration, 100ms);
+  }
+
+  &:last-child::after {
+    display: none;
+  }
 }
 
-// .sd-progress-buttons__connector {
-//   height: var(--sjs2-border-width-x100);
-//   background-color: var(--sjs2-color-border-basic-secondary);
-//   width: 100%;
-// }
+.sd-progress-buttons__list li {
+  &.sd-progress-buttons__list-element--passed {
+    &::after {
+      background-color: var(--sjs2-color-border-brand-primary);
+    }
+  }
+}
 
 .sd-progress-buttons__button {
   display: flex;
@@ -205,10 +230,6 @@
       @include button-hover-passed;
     }
   }
-
-  // .sd-progress-buttons__connector {
-  //   background-color: var(--sjs2-color-border-brand-primary);
-  // }
 }
 
 .sd-progress-buttons__list-element--current {
@@ -240,6 +261,17 @@
     height: var(--sjs2-size-x400);
     padding: 0 2px 1px 2px;
     border: 1px solid var(--sjs2-color-border-basic-secondary);
+  }
+
+  .sd-progress-buttons__list li {
+    &::after {
+      /* 
+        var(--sjs2-typography-line-height-small) = line height
+        var(--sjs2-spacing-x150) = vertical gap between title and button
+        var(--sjs2-size-x400) / 2 = top half (radius) of the button
+      */
+      top: calc(var(--sjs2-typography-line-height-small) + var(--sjs2-spacing-x150) + var(--sjs2-size-x400) / 2);
+    }
   }
 
   .sd-progress-buttons__list-element--current {

@@ -12,7 +12,7 @@ import { findScrollableParent, getRootNode } from "./utils/dom-utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
-  private scrollableParent: Element = undefined;
+  private scrollEventTargets: Array<EventTarget> = undefined;
   private scrollEventCallBack = (event: any) => {
     if (this.isOverlay && IsTouch) {
       event.stopPropagation();
@@ -86,27 +86,32 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
 
-  private attachScrollableParentScrollListener(): void {
+  private getScrollEventTargets(): Array<EventTarget> {
+    const targets: Array<EventTarget> = [];
+    const win = DomWindowHelper.getWindow();
+    if (!!win) targets.push(win);
+
     const targetElement = this.getTargetElement();
-    if (!targetElement) return;
+    if (!targetElement) return targets;
 
-    const scrollableParent = findScrollableParent(targetElement);
-    if (
-      !scrollableParent ||
-      scrollableParent === DomDocumentHelper.getDocumentElement() ||
-      !scrollableParent.addEventListener
-    ) {
-      return;
+    const docElement = DomDocumentHelper.getDocumentElement();
+    let current: Element = targetElement.parentElement;
+    while(!!current && current !== docElement) {
+      const scrollableParent = findScrollableParent(current);
+      if (!scrollableParent || scrollableParent === docElement || !scrollableParent.addEventListener) break;
+      targets.push(scrollableParent);
+      current = scrollableParent.parentElement;
     }
-
-    this.scrollableParent = scrollableParent;
-    this.scrollableParent.addEventListener("scroll", this.scrollEventCallBack);
+    return targets;
   }
-  private detachScrollableParentScrollListener(): void {
-    if (!!this.scrollableParent && !!this.scrollableParent.removeEventListener) {
-      this.scrollableParent.removeEventListener("scroll", this.scrollEventCallBack);
-    }
-    this.scrollableParent = undefined;
+  private subscribeOnScrollEvents(): void {
+    this.scrollEventTargets = this.getScrollEventTargets();
+    this.scrollEventTargets.forEach(target => target.addEventListener("scroll", this.scrollEventCallBack));
+  }
+  private unsubscribeFromScrollEvents(): void {
+    if (!this.scrollEventTargets) return;
+    this.scrollEventTargets.forEach(target => target.removeEventListener("scroll", this.scrollEventCallBack));
+    this.scrollEventTargets = undefined;
   }
 
   private _updatePosition() {
@@ -285,8 +290,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
       this.resizeEventCallback();
     }
-    DomWindowHelper.addEventListener("scroll", this.scrollEventCallBack);
-    this.attachScrollableParentScrollListener();
+    this.subscribeOnScrollEvents();
     this._isPositionSetValue = true;
   }
   private get shouldCreateResizeCallback(): boolean {
@@ -317,8 +321,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
       }
     }
-    DomWindowHelper.removeEventListener("scroll", this.scrollEventCallBack);
-    this.detachScrollableParentScrollListener();
+    this.unsubscribeFromScrollEvents();
 
     if (!this.isDisposed) {
       this.top = undefined;

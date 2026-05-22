@@ -13,11 +13,10 @@ export default {
     "--sjs2-color-utility-property-grid": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-tabs": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-surface-survey": "#161519",
-    "--sjs2-color-utility-surface-survey-panelless": "#1c1b200d",
     "--sjs2-color-utility-surface-designer": "#161519",
     "--sjs2-color-utility-surface-json-editor": "var(--sjs2-color-utility-surface-designer)",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-basic-secondary)",
-    "--sjs2-color-utility-shadow-surface-dragging": "rgba(from #893ced r g b / var(--sjs2-opacity-x010))",
+    "--sjs2-color-utility-shadow-surface-dragging": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x010))",
     "--sjs2-color-utility-shadow-floating-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x060))",
     "--sjs2-color-bg-basic-primary": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-bg-basic-secondary": "var(--sjs2-palette-gray-850)",
@@ -88,9 +87,6 @@ export default {
     "--sjs2-border-effect-surface-hovered": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-hovered)",
     "--sjs2-border-effect-surface-pressed": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-pressed)",
     "--sjs2-border-effect-surface-dragging": "0px 0px 0px 4px var(--sjs2-color-utility-shadow-surface-dragging)",
-    "--sjs2-border-effect-floating-default": "0px 6px 12px 0px var(--sjs2-color-utility-shadow-floating-default)",
-    "--sjs2-color-project-brand-400": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 1.2))",
-    "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
-    "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"
+    "--sjs2-border-effect-floating-default": "0px 6px 12px 0px var(--sjs2-color-utility-shadow-floating-default)"
   }
 };

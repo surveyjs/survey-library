@@ -338,3 +338,4 @@ export { surveyCss, defaultCss, defaultThemeName } from "../../src/defaultCss/de
 export { DragDropCore } from "../../src/dragdrop/core";
 export { DragDropChoices } from "../../src/dragdrop/choices";
 export { DragDropRankingSelectToRank } from "../../src/dragdrop/ranking-select-to-rank";
+export { BaseTheme } from "../../src/default-theme/base-theme-init";

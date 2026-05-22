@@ -240,6 +240,10 @@
       border-color: var(--sjs2-color-border-brand-primary);
       background-color: var(--sjs2-color-bg-brand-primary);
       color: var(--sjs2-color-fg-brand-on-primary);
+      &:hover {
+        border-color: var(--sjs2-color-bg-brand-primary-dim);
+        background-color: var(--sjs2-color-bg-brand-primary-dim);
+      }
     }
   }
 
@@ -247,6 +251,13 @@
     &.sd-progress-buttons__list-element--passed {
       .sd-progress-buttons__button {
         color: var(--sjs2-color-fg-basic-primary);
+        border: 2px solid var(--sjs2-color-border-brand-primary);
+        background-color: var(--sjs2-color-bg-basic-primary);
+
+        &:hover {
+          border-color: var(--sjs2-color-border-brand-primary);
+          color: var(--sjs2-color-fg-basic-primary);
+        }
       }
     }
   }

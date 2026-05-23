@@ -180,14 +180,14 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-multi-select-list .sv-list__item.sv-list__item--selected,
 .sv-multi-select-list .sv-list__item.sv-list__item--selected:hover {
   .sv-list__item-body {
-    background-color: $primary-light;
+    background-color: var(--sjs2-color-bg-brand-secondary);
     color: $font-questiontitle-color;
     @include sjs2--typography--default;
   }
 }
 
 .sv-list__item--group-selected > .sv-list__item-body {
-  background-color: $primary-light;
+  background-color: var(--sjs2-color-bg-brand-secondary);
   color: $font-questiontitle-color;
   @include sjs2--typography--default;
 

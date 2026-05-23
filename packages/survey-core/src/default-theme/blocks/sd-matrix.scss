@@ -19,7 +19,7 @@
 }
 
 .sd-matrix__text--checked {
-  background-color: $primary-light;
+  background-color: var(--sjs2-color-bg-brand-secondary);
   padding: var(--sjs2-spacing-x200);
 }
 

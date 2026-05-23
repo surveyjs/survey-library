@@ -1,12 +1,5 @@
 $primary: var(--sjs2-color-bg-brand-primary, var(--primary, #19b394));
-$primary-light: var(--sjs2-color-bg-brand-secondary, var(--primary-light, rgba(25, 179, 148, 0.1)));
 $primary-foreground: var(--sjs2-color-fg-brand-on-primary, var(--primary-foreground, #fff));
-
-$secondary: var(--sjs2-color-bg-accent-primary, var(--secondary, #ff9814));
-$secondary-light: var(--sjs2-color-bg-accent-secondary, var(--secondary-light, rgba(255, 152, 20, 0.25)));
-$secondary-backcolor-semi-light: var(--sjs2-color-bg-accent-secondary-dim, rgba(255, 152, 20, 0.1));
-$secondary-forecolor: var(--sjs2-color-fg-accent-on-primary, #fff);
-$secondary-forecolor-light: var(--sjs2-color-fg-accent-primary-disabled, rgba(#fff, 0.25));
 
 $editor-background: var(
   --sjs2-color-component-formbox-default-bg,

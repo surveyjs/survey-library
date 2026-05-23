@@ -133,6 +133,7 @@ frameworks.forEach((framework) => {
       const questionDropdownSelect = page.locator(".sd-dropdown");
 
       const fillTheRow = async function (rowNumber: number) {
+        await questionDropdownSelect.nth(rowNumber).scrollIntoViewIfNeeded();
         await questionDropdownSelect.nth(rowNumber).click();
         await getVisibleSelectListItemByText(page, "Science: Physical Science").click();
 

@@ -38,6 +38,10 @@
   }
 }
 
+.sd-progress-buttons {
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+}
+
 .sd-progress-buttons__list-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -356,12 +360,6 @@
 
 .sd-progress-buttons__image-button--hidden {
   visibility: hidden;
-}
-
-.sd-progress-buttons {
-  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500) var(--sjs2-spacing-x200) var(--sjs2-spacing-x500);
-  display: flex;
-  flex-direction: column;
 }
 
 // .sd-progress-buttons__header {

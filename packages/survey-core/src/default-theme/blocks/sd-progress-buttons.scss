@@ -89,11 +89,9 @@
     */
     width: calc(100% - var(--sjs2-size-x300) - var(--sjs2-size-x100) * 2);
     /* 
-      var(--sjs2-typography-line-height-small) = line height
-      var(--sjs2-spacing-x150) = vertical gap between title and button
       var(--sjs2-size-x300) / 2 = top half (radius) of the button
     */
-    top: calc(var(--sjs2-typography-line-height-small) + var(--sjs2-spacing-x150) + var(--sjs2-size-x300) / 2);
+    bottom: calc(var(--sjs2-size-x300) / 2);
     height: var(--sjs2-border-width-x100);
     background-color: var(--sjs2-color-border-basic-secondary);
     transition: background-color var(--sjs-transition-duration, 100ms);
@@ -101,17 +99,6 @@
 
   &:last-child::after {
     display: none;
-  }
-}
-
-.sd-progress-buttons--with-descriptions {
-  .sd-progress-buttons__list li {
-    &::after {
-      top: calc(
-        var(--sjs2-typography-line-height-small) * 2 + var(--sjs2-spacing-x050) + var(--sjs2-spacing-x150) +
-          var(--sjs2-size-x300) / 2
-      );
-    }
   }
 }
 
@@ -294,11 +281,9 @@
       */
       width: calc(100% - var(--sjs2-size-x400) - var(--sjs2-size-x100) * 2);
       /* 
-        var(--sjs2-typography-line-height-small) = line height
-        var(--sjs2-spacing-x150) = vertical gap between title and button
         var(--sjs2-size-x400) / 2 = top half (radius) of the button
       */
-      top: calc(var(--sjs2-typography-line-height-small) + var(--sjs2-spacing-x150) + var(--sjs2-size-x400) / 2);
+      bottom: calc(var(--sjs2-size-x400) / 2);
     }
   }
 

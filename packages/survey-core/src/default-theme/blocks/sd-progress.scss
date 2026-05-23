@@ -2,25 +2,40 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-progress {
-  height: 2px;
-  background-color: var(--sjs2-color-border-basic-secondary);
+  height: var(--sjs2-size-x050);
   position: relative;
+  border-radius: var(--sjs2-radius-round);
+  background-color: var(--sjs2-color-bg-basic-tertiary);
 }
 
 .sd-progress__bar {
   position: relative;
   height: 100%;
+  border-radius: var(--sjs2-radius-round);
   background-color: var(--sjs2-color-bg-brand-primary);
   overflow: hidden;
 }
 
 .sd-progress__text {
+  display: inline-flex;
+  padding: var(--sjs2-spacing-x075, 6px) var(--sjs2-spacing-x150, 12px);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--sjs2-radius-component-tooltip, 4px);
+  background: var(--sjs2-color-bg-basic-primary, #fff);
+  /* sjs2/border-effect/surface/default */
+  box-shadow:
+    var(--sjs2-border-offset-x-surface-default, 0) var(--sjs2-border-offset-y-surface-default, 0)
+      var(--sjs2-border-blur-surface-default, 0) var(--sjs2-border-spread-surface-default, 1px)
+      var(--sjs2-color-utility-shadow-surface-default, rgba(17, 16, 20, 0.1)),
+    0 0 0 0 rgba(0, 0, 0, 0);
+  color: var(--sjs2-color-fg-basic-primary);
+  @include sjs2--typography--small;
   position: absolute;
-  margin-top: var(--sjs2-spacing-x100);
+  margin-top: var(--sjs2-spacing-x050);
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   right: var(--sjs2-spacing-x150);
-  color: var(--sjs2-color-fg-basic-secondary);
-  @include sjs2--typography--small-strong;
 
   @media only screen and (min-width: 1000px) {
     margin-left: 5%;

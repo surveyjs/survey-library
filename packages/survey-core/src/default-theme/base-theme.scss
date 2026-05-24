@@ -497,6 +497,9 @@
   --sjs2-color-component-message-info-bg: var(--sjs2-color-bg-note-secondary);
   --sjs2-color-component-message-info-icon: var(--sjs2-color-fg-note-primary);
   --sjs2-color-component-message-info-text: var(--sjs2-color-fg-basic-primary);
+  --sjs2-color-component-message-warning-bg: var(--sjs2-color-bg-warning-secondary);
+  --sjs2-color-component-message-warning-icon: var(--sjs2-color-fg-warning-primary);
+  --sjs2-color-component-message-warning-text: var(--sjs2-color-fg-basic-primary);
   --sjs2-color-component-page-default-description: var(--sjs2-color-fg-basic-secondary);
   --sjs2-color-component-page-default-description-placeholder: var(--sjs2-color-fg-basic-tertiary);
   --sjs2-color-component-page-default-title: var(--sjs2-color-fg-basic-primary);
@@ -523,12 +526,12 @@
   --sjs2-color-component-slider-disabled-fg: var(--sjs2-color-fg-basic-tertiary-disabled);
   --sjs2-color-component-slider-disabled-thumb: var(--sjs2-color-bg-basic-primary);
   --sjs2-color-component-slider-hovered-bg: var(--sjs2-color-bg-basic-tertiary);
-  --sjs2-color-component-slider-hovered-dot: var(--sjs2-color-bg-brand-primary);
-  --sjs2-color-component-slider-hovered-fg: var(--sjs2-color-bg-brand-primary);
-  --sjs2-color-component-slider-hovered-thumb: var(--sjs2-color-bg-basic-primary);
 }
 
 .sd-theme-root {
+  --sjs2-color-component-slider-hovered-dot: var(--sjs2-color-bg-brand-primary);
+  --sjs2-color-component-slider-hovered-fg: var(--sjs2-color-bg-brand-primary);
+  --sjs2-color-component-slider-hovered-thumb: var(--sjs2-color-bg-basic-primary);
   --sjs2-color-component-slider-invalid-bg: var(--sjs2-color-bg-alert-secondary);
   --sjs2-color-component-slider-invalid-dot: var(--sjs2-color-bg-alert-primary);
   --sjs2-color-component-slider-invalid-fg: var(--sjs2-color-bg-alert-primary);
@@ -576,12 +579,12 @@
   --sjs2-color-component-toggle-false-readonly-border: var(--sjs2-color-border-basic-secondary);
   --sjs2-color-component-toggle-false-readonly-thumb: var(--sjs2-color-fg-basic-tertiary);
   --sjs2-color-component-toggle-true-default-bg: var(--sjs2-color-bg-brand-primary);
-  --sjs2-color-component-toggle-true-default-border: var(--sjs2-color-border-brand-primary);
-  --sjs2-color-component-toggle-true-default-thumb: var(--sjs2-color-fg-brand-on-primary);
-  --sjs2-color-component-toggle-true-disabled-bg: var(--sjs2-color-bg-basic-secondary);
 }
 
 .sd-theme-root {
+  --sjs2-color-component-toggle-true-default-border: var(--sjs2-color-border-brand-primary);
+  --sjs2-color-component-toggle-true-default-thumb: var(--sjs2-color-fg-brand-on-primary);
+  --sjs2-color-component-toggle-true-disabled-bg: var(--sjs2-color-bg-basic-secondary);
   --sjs2-color-component-toggle-true-disabled-border: var(--sjs2-color-border-basic-secondary);
   --sjs2-color-component-toggle-true-disabled-thumb: var(--sjs2-color-fg-basic-tertiary-disabled);
   --sjs2-color-component-toggle-true-hovered-bg: var(--sjs2-color-bg-brand-primary-dim);
@@ -629,12 +632,12 @@
   --sjs2-color-data-chart-fg-on-color-6: var(--sjs2-palette-gray-000);
   --sjs2-color-data-chart-fg-on-color-7: var(--sjs2-palette-gray-000);
   --sjs2-color-data-chart-fg-on-color-8: var(--sjs2-palette-gray-000);
-  --sjs2-color-data-chart-fg-on-color-9: var(--sjs2-palette-gray-000);
-  --sjs2-color-data-grid-border-axis: var(--sjs2-color-border-basic-primary);
-  --sjs2-color-data-grid-border-line: var(--sjs2-color-border-basic-secondary);
 }
 
 .sd-theme-root {
+  --sjs2-color-data-chart-fg-on-color-9: var(--sjs2-palette-gray-000);
+  --sjs2-color-data-grid-border-axis: var(--sjs2-color-border-basic-primary);
+  --sjs2-color-data-grid-border-line: var(--sjs2-color-border-basic-secondary);
   --sjs2-color-data-grid-fg-label: var(--sjs2-color-fg-basic-primary);
   --sjs2-color-fg-alert-on-primary: var(--sjs2-palette-gray-000);
   --sjs2-color-fg-alert-primary: var(--sjs2-palette-red-700);
@@ -671,10 +674,10 @@
   --sjs2-color-utility-overlay: rgba(from var(--sjs2-palette-gray-700) r g b / var(--sjs2-opacity-x060));
   --sjs2-color-utility-property-grid: var(--sjs2-palette-gray-000);
   --sjs2-color-utility-scrollbar: rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x015));
-  --sjs2-color-utility-shadow-floating-default: rgba(from #004C44 r g b / var(--sjs2-opacity-x015));
+  --sjs2-color-utility-shadow-floating-default: rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x015));
   --sjs2-color-utility-shadow-surface-default: rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010));
   --sjs2-color-utility-shadow-surface-disabled: rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x010));
-  --sjs2-color-utility-shadow-surface-dragging: rgba(from #004C44 r g b / var(--sjs2-opacity-x015));
+  --sjs2-color-utility-shadow-surface-dragging: rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x015));
   --sjs2-color-utility-shadow-surface-focused: var(--sjs2-color-project-brand-600);
   --sjs2-color-utility-shadow-surface-hovered: rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x040));
   --sjs2-color-utility-shadow-surface-pressed: var(--sjs2-color-project-brand-600);
@@ -682,12 +685,12 @@
   --sjs2-color-utility-shadow-trigger-design: var(--sjs2-color-border-basic-secondary);
   --sjs2-color-utility-shadow-trigger-disabled: var(--sjs2-color-border-basic-secondary-disabled);
   --sjs2-color-utility-shadow-trigger-hovered: var(--sjs2-color-border-basic-secondary);
-  --sjs2-color-utility-shadow-trigger-invalid: var(--sjs2-color-border-alert-primary);
-  --sjs2-color-utility-shadow-trigger-pressed: var(--sjs2-color-border-basic-secondary);
-  --sjs2-color-utility-shadow-trigger-readonly: var(--sjs2-color-border-basic-primary);
 }
 
 .sd-theme-root {
+  --sjs2-color-utility-shadow-trigger-invalid: var(--sjs2-color-border-alert-primary);
+  --sjs2-color-utility-shadow-trigger-pressed: var(--sjs2-color-border-basic-secondary);
+  --sjs2-color-utility-shadow-trigger-readonly: var(--sjs2-color-border-basic-primary);
   --sjs2-color-utility-sheet: var(--sjs2-palette-gray-000);
   --sjs2-color-utility-surface-dashboard: var(--sjs2-color-utility-surface-survey);
   --sjs2-color-utility-surface-designer: #EDF9F7;
@@ -696,7 +699,7 @@
   --sjs2-color-utility-surface-logic: var(--sjs2-color-utility-surface-designer);
   --sjs2-color-utility-surface-presets-manager: #1c1b200d;
   --sjs2-color-utility-surface-survey: #1c1b200d;
-  --sjs2-color-utility-surface-survey-panelless: var(--sjs2-palette-gray-000);
+  --sjs2-color-utility-surface-survey-panelless: var(--sjs2-color-component-panel-default-bg);
   --sjs2-color-utility-surface-translations: var(--sjs2-color-utility-surface-designer);
   --sjs2-color-utility-tabs: var(--sjs2-palette-gray-000);
   --sjs2-color-utility-toolbox: var(--sjs2-palette-gray-000);
@@ -735,12 +738,12 @@
   --sjs2-opacity-x025: calc(var(--sjs2-base-unit-opacity) * 25);
   --sjs2-opacity-x030: calc(var(--sjs2-base-unit-opacity) * 30);
   --sjs2-opacity-x035: calc(var(--sjs2-base-unit-opacity) * 35);
-  --sjs2-opacity-x040: calc(var(--sjs2-base-unit-opacity) * 40);
-  --sjs2-opacity-x045: calc(var(--sjs2-base-unit-opacity) * 45);
-  --sjs2-opacity-x050: calc(var(--sjs2-base-unit-opacity) * 50);
 }
 
 .sd-theme-root {
+  --sjs2-opacity-x040: calc(var(--sjs2-base-unit-opacity) * 40);
+  --sjs2-opacity-x045: calc(var(--sjs2-base-unit-opacity) * 45);
+  --sjs2-opacity-x050: calc(var(--sjs2-base-unit-opacity) * 50);
   --sjs2-opacity-x055: calc(var(--sjs2-base-unit-opacity) * 55);
   --sjs2-opacity-x060: calc(var(--sjs2-base-unit-opacity) * 60);
   --sjs2-opacity-x065: calc(var(--sjs2-base-unit-opacity) * 65);
@@ -788,12 +791,12 @@
   --sjs2-palette-red-700: #C30935;
   --sjs2-palette-violet-400: #C36FF4;
   --sjs2-palette-violet-600: #A62CEC;
-  --sjs2-palette-violet-700: #9614E1;
-  --sjs2-palette-yellow-400: #FEC64A;
-  --sjs2-palette-yellow-600: #FF9814;
 }
 
 .sd-theme-root {
+  --sjs2-palette-violet-700: #9614E1;
+  --sjs2-palette-yellow-400: #FEC64A;
+  --sjs2-palette-yellow-600: #FF9814;
   --sjs2-palette-yellow-700: #F08700;
   --sjs2-radius-component-action: var(--sjs2-radius-form);
   --sjs2-radius-component-boolean: var(--sjs2-radius-round);
@@ -841,12 +844,12 @@
   --sjs2-radius-x700: calc(var(--sjs2-base-unit-radius) * 7);
   --sjs2-radius-x800: calc(var(--sjs2-base-unit-radius) * 8);
   --sjs2-scale-x000: calc(var(--sjs2-base-unit-scale) * 0);
-  --sjs2-scale-x025: calc(var(--sjs2-base-unit-scale) * 25);
-  --sjs2-scale-x050: calc(var(--sjs2-base-unit-scale) * 50);
-  --sjs2-scale-x075: calc(var(--sjs2-base-unit-scale) * 75);
 }
 
 .sd-theme-root {
+  --sjs2-scale-x025: calc(var(--sjs2-base-unit-scale) * 25);
+  --sjs2-scale-x050: calc(var(--sjs2-base-unit-scale) * 50);
+  --sjs2-scale-x075: calc(var(--sjs2-base-unit-scale) * 75);
   --sjs2-scale-x095: calc(var(--sjs2-base-unit-scale) * 95);
   --sjs2-scale-x098: calc(var(--sjs2-base-unit-scale) * 98);
   --sjs2-scale-x100: calc(var(--sjs2-base-unit-scale) * 100);
@@ -894,12 +897,12 @@
   --sjs2-spacing-x075: calc(var(--sjs2-base-unit-spacing) * 0.75);
   --sjs2-spacing-x100: calc(var(--sjs2-base-unit-spacing) * 1);
   --sjs2-spacing-x125: calc(var(--sjs2-base-unit-spacing) * 1.25);
-  --sjs2-spacing-x150: calc(var(--sjs2-base-unit-spacing) * 1.5);
-  --sjs2-spacing-x200: calc(var(--sjs2-base-unit-spacing) * 2);
-  --sjs2-spacing-x250: calc(var(--sjs2-base-unit-spacing) * 2.50);
 }
 
 .sd-theme-root {
+  --sjs2-spacing-x150: calc(var(--sjs2-base-unit-spacing) * 1.5);
+  --sjs2-spacing-x200: calc(var(--sjs2-base-unit-spacing) * 2);
+  --sjs2-spacing-x250: calc(var(--sjs2-base-unit-spacing) * 2.50);
   --sjs2-spacing-x300: calc(var(--sjs2-base-unit-spacing) * 3);
   --sjs2-spacing-x400: calc(var(--sjs2-base-unit-spacing) * 4);
   --sjs2-spacing-x500: calc(var(--sjs2-base-unit-spacing) * 5);
@@ -947,6 +950,9 @@
   --sjs2-typography-line-height-component-question-title: var(--sjs2-typography-line-height-default);
   --sjs2-typography-line-height-default: var(--sjs2-line-height-x300);
   --sjs2-typography-line-height-large: var(--sjs2-line-height-x500);
+}
+
+.sd-theme-root {
   --sjs2-typography-line-height-medium: var(--sjs2-line-height-x400);
   --sjs2-typography-line-height-small: var(--sjs2-line-height-x200);
 }

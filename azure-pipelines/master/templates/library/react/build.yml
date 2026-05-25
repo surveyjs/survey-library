@@ -22,9 +22,19 @@ steps:
         - $(Build.SourcesDirectory)/packages/survey-core
         - $(Build.SourcesDirectory)/packages/survey-react-ui
 
+  - ${{ if eq(parameters.store, true) }}:
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "npm run release"
+
   - script: npm run build:all
     workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
     displayName: "Build Core"
+
+  - ${{ if eq(parameters.store, true) }}:
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui
+      displayName: "npm run release"
 
   - script: npm run build
     workingDirectory: $(Build.SourcesDirectory)/packages/survey-react-ui

@@ -5,30 +5,102 @@ parameters:
   - name: store
     type: boolean
     default: false
+  - name: deploy
+    type: boolean
+    default: false
 
 steps:
-  - checkout: ${{ parameters.checkout }}
-    displayName: "Checkout ${{ parameters.checkout }}"
+  
+  - ${{ if eq(parameters.deploy, true) }}:
 
-  - script: git fetch origin pull/$(PR)/head && git checkout FETCH_HEAD
-    workingDirectory: $(Build.SourcesDirectory)
-    condition: ne(variables['PR'], '')
-    displayName: "Switch to PR $(PR)"
+    - checkout: ${{ parameters.checkout }}
+      path: s/survey-library
+      displayName: "Checkout ${{ parameters.checkout }}"
 
-  - template: ../../utils/npm.yml
-    parameters:
-      directories: 
-        - $(Build.SourcesDirectory)
-        - $(Build.SourcesDirectory)/packages/survey-core
+    - checkout: Utils
+      path: s/survey-utils
+      displayName: "Checkout Utils"
 
-  - script: npm run build:all
-    workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
-    displayName: "Build"
+    - checkout: SiteData
+      path: s/survey-site-data
+      displayName: "Checkout SiteData"
 
-  - ${{ if eq(parameters.store, true) }}:
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-core/build"
-        ArtifactName: $(ArtifactNameLibraryCore)
-        StoreAsTar: true
+    - template: ../../utils/npm.yml
+      parameters:
+        directories: 
+          - $(Build.SourcesDirectory)/survey-utils
+          - $(Build.SourcesDirectory)/survey-library
+          - $(Build.SourcesDirectory)/survey-library/packages/survey-core
+
+    - powershell: |
+        cd $(Build.SourcesDirectory)/survey-utils
+        npm run build
+        node ./dist/translateLibrary.js
+
+        cd $(Build.SourcesDirectory)
+        Remove-Item -Recurse -Force $(Build.SourcesDirectory)/survey-utils
+        Copy-Item -Recurse -Force $(Build.SourcesDirectory)/survey-library/* $(Build.SourcesDirectory)/
+        Remove-Item -Recurse -Force $(Build.SourcesDirectory)/survey-library
+
+        $branch = "$(branch)"
+        cd $(Build.SourcesDirectory)
+        $env:GIT_REDIRECT_STDERR = '2>&1'
+        git config --global user.email "surveyjs.org@gmail.com"
+        git config --global user.name "surveyjsdeveloper"
+
+        git fetch origin $branch
+        git checkout -B $branch origin/$branch
+        
+        git add packages/survey-core/src/localization
+        if (git status --porcelain) {
+            echo "There are changes in translations. Committing and pushing to GitHub..."
+            # git commit -m "updated survey-library translation for $branch [azurepipelines skip]"
+            # git push origin $branch
+        }
+      displayName: "Update translations and push to github for $(branch)"
+
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
+      displayName: "npm run release"
+
+    - script: npm run build:all
+      workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
+      displayName: "Build"
+
+    - script: |
+        npm run doc_gen
+        cp docs/surveyjs_definition.json build/surveyjs_definition.json
+      workingDirectory: $(Build.SourcesDirectory)/survey-library/packages/survey-core
+      displayName: "Generate Docs"
+
+  - ${{ else }}:
+
+    - checkout: ${{ parameters.checkout }}
+      displayName: "Checkout ${{ parameters.checkout }}"
+
+    - script: git fetch origin pull/$(PR)/head && git checkout FETCH_HEAD
+      workingDirectory: $(Build.SourcesDirectory)
+      condition: ne(variables['PR'], '')
+      displayName: "Switch to PR $(PR)"
+
+    - template: ../../utils/npm.yml
+      parameters:
+        directories: 
+          - $(Build.SourcesDirectory)
+          - $(Build.SourcesDirectory)/packages/survey-core
+
+    - script: npm run release -- --release-as $(VERSION) --skip.tag
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "npm run release"
+
+    - script: npm run build:all
+      workingDirectory: $(Build.SourcesDirectory)/packages/survey-core
+      displayName: "Build"
+
+    - ${{ if eq(parameters.store, true) }}:
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.SourcesDirectory)/packages/survey-core/build"
+          ArtifactName: $(ArtifactNameLibraryCore)
+          StoreAsTar: true
       

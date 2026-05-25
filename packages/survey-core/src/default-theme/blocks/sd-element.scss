@@ -25,7 +25,6 @@
 
 .sd-title.sd-element__title {
   @include sjs2--typography--component--question--title;
-  color: $font-questiontitle-color;
 }
 
 .sd-element__header {
@@ -72,7 +71,6 @@
 .sd-element__title.sd-element__title--singleinput {
   span {
     @include sjs2--typography--component--page--title;
-    color: $font-pagetitle-color;
     position: static;
     margin: 0 0 var(--sjs2-spacing-x050) 0px;
   }

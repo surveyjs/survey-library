@@ -5,7 +5,7 @@
 }
 
 @mixin articleXXLargeFont {
-  font-size: var(--sjs-article-font-xx-large-fontSize, calc(4 * (#{$font-size})));
+  font-size: var(--sjs-article-font-xx-large-fontSize, calc(var(--sjs2-base-unit-font-size) * 8));
   text-decoration: var(--sjs-article-font-xx-large-textDecoration, "none");
   font-family: $font-family;
   font-weight: var(--sjs-article-font-xx-large-fontWeight, 700);
@@ -18,7 +18,7 @@
 }
 
 @mixin articleXLargeFont {
-  font-size: var(--sjs-article-font-x-large-fontSize, calc(3 * (#{$font-size})));
+  font-size: var(--sjs-article-font-x-large-fontSize, var(--sjs2-font-size-x600));
   text-decoration: var(--sjs-article-font-x-large-textDecoration, "none");
   font-family: $font-family;
   font-weight: var(--sjs-article-font-x-large-fontWeight, 700);
@@ -31,7 +31,7 @@
 }
 
 @mixin articleLargeFont {
-  font-size: var(--sjs-article-font-large-fontSize, calc(2 * (#{$font-size})));
+  font-size: var(--sjs-article-font-large-fontSize, var(--sjs2-font-size-x400));
   text-decoration: var(--sjs-article-font-large-textDecoration, "none");
   font-family: $font-family;
   font-weight: var(--sjs-article-font-large-fontWeight, 700);
@@ -44,7 +44,7 @@
 }
 
 @mixin articleMediumFont {
-  font-size: var(--sjs-article-font-medium-fontSize, calc(1.5 * (#{$font-size})));
+  font-size: var(--sjs-article-font-medium-fontSize, var(--sjs2-font-size-x300));
   text-decoration: var(--sjs-article-font-medium-textDecoration, "none");
   font-family: $font-family;
   font-weight: var(--sjs-article-font-medium-fontWeight, 700);
@@ -57,7 +57,7 @@
 }
 
 @mixin articleDefaultFont {
-  font-size: var(--sjs-article-font-default-fontSize, #{$font-size});
+  font-size: var(--sjs-article-font-default-fontSize, var(--sjs2-font-size-x200));
   text-decoration: var(--sjs-article-font-default-textDecoration, "none");
   font-family: $font-family;
   font-weight: var(--sjs-article-font-default-fontWeight, 400);
@@ -71,7 +71,7 @@
 
 @mixin articleHtml {
   @include articleDefaultFont;
-  color: $font-pagetitle-color;
+  color: var(--sjs2-color-component-page-default-title);
   h1 {
     @include articleXXLargeFont;
   }

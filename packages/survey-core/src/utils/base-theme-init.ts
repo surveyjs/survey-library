@@ -1,18 +1,14 @@
 import baseTheme from "../default-theme/base-theme";
+import { defaultCss } from "../defaultCss/defaultCss";
 import { DomDocumentHelper } from "../global_variables_utils";
-import { settings } from "../settings";
-import { isShadowDOM } from "../utils/dom-utils";
 
-const STYLE_ELEMENT_ID = "survey-base-theme-variables";
-const THEME_ROOT_CLASS = "sd-theme-root";
+const STYLE_ELEMENT_ATTR = "data-survey-base-theme-variables";
 const VARIABLES_PER_RULE = 50;
 
-type StyleParent = Document | ShadowRoot | HTMLElement;
-
 let cachedCss: string | undefined;
-const initializedRoots: Array<Document | ShadowRoot> = [];
 
 function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
+  const themeRootClass = defaultCss.rootTheme;
   const names = Object.keys(cssVariables);
   const rules: string[] = [];
 
@@ -21,61 +17,37 @@ function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
       .slice(i, i + VARIABLES_PER_RULE)
       .map((name) => `  ${name}: ${cssVariables[name]};`)
       .join("\n");
-    rules.push(`.${THEME_ROOT_CLASS} {\n${declarations}\n}`);
+    rules.push(`.${themeRootClass} {\n${declarations}\n}`);
   }
 
   return rules.join("\n");
 }
 
-function getRootNodeFor(htmlElement?: Element): Document | ShadowRoot | null {
-  if (!!htmlElement && typeof htmlElement.getRootNode === "function") {
-    const rootNode = htmlElement.getRootNode();
-    if (rootNode instanceof Document || (typeof ShadowRoot !== "undefined" && rootNode instanceof ShadowRoot)) {
-      return rootNode as Document | ShadowRoot;
+function findStyleElement(htmlElement: Element): HTMLStyleElement | null {
+  for (let i = 0; i < htmlElement.children.length; i++) {
+    const child = htmlElement.children[i];
+    if (child.tagName === "STYLE" && child.hasAttribute(STYLE_ELEMENT_ATTR)) {
+      return child as HTMLStyleElement;
     }
   }
-  const envRoot = settings.environment?.root;
-  if (envRoot instanceof Document || (typeof ShadowRoot !== "undefined" && envRoot instanceof ShadowRoot)) {
-    return envRoot;
-  }
-  return DomDocumentHelper.getDocument() || null;
+  return null;
 }
 
-function getStyleParent(rootNode: Document | ShadowRoot): StyleParent {
-  const mountContainer = settings.environment?.stylesSheetsMountContainer;
-  if (mountContainer && rootNode.contains(mountContainer)) {
-    return mountContainer;
-  }
-  if (isShadowDOM(rootNode)) {
-    return rootNode;
-  }
-  return (rootNode as Document).head || rootNode;
-}
-
-function findStyleElement(parent: StyleParent): HTMLStyleElement | null {
-  if (parent instanceof Document) {
-    return parent.getElementById(STYLE_ELEMENT_ID) as HTMLStyleElement | null;
-  }
-  return parent.querySelector(`#${STYLE_ELEMENT_ID}`) as HTMLStyleElement | null;
-}
-
+/**
+ * Injects BaseTheme CSS variables into a local `<style>` element inside `htmlElement`.
+ * Called from `SurveyModel.afterRenderSurvey()` after the survey root is mounted.
+ */
 export function ensureBaseThemeStyles(htmlElement?: Element): void {
-  if (!DomDocumentHelper.isAvailable()) return;
+  if (!DomDocumentHelper.isAvailable() || !htmlElement) return;
 
   const cssVariables = baseTheme.cssVariables;
   if (!cssVariables) return;
 
-  const rootNode = getRootNodeFor(htmlElement);
-  if (!rootNode) return;
-
-  if (initializedRoots.indexOf(rootNode) !== -1) return;
-
-  const parent = getStyleParent(rootNode);
-  let styleElement = findStyleElement(parent);
+  let styleElement = findStyleElement(htmlElement);
   if (!styleElement) {
     styleElement = DomDocumentHelper.createElement("style") as HTMLStyleElement;
-    styleElement.id = STYLE_ELEMENT_ID;
-    parent.appendChild(styleElement);
+    styleElement.setAttribute(STYLE_ELEMENT_ATTR, "");
+    htmlElement.insertBefore(styleElement, htmlElement.firstChild);
   }
 
   if (cachedCss === undefined) {
@@ -84,6 +56,4 @@ export function ensureBaseThemeStyles(htmlElement?: Element): void {
   if (styleElement.textContent !== cachedCss) {
     styleElement.textContent = cachedCss;
   }
-
-  initializedRoots.push(rootNode);
 }

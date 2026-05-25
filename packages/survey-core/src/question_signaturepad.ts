@@ -7,12 +7,12 @@ import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
-import { getColorFromProperty } from "./utils/utils";
 import { isBase64URL } from "./utils/dom-utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ActionContainer } from "./actions/container";
+import { getComputedCssVariableValue } from "./utils/css-variables";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -34,9 +34,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     }
   }
-  private getPenColorFromTheme(element: HTMLElement): string {
-    const cssVariable = "--sjs2-color-bg-brand-primary";
-    return getColorFromProperty(cssVariable, element);
+  private getPenColorFromTheme(element?: HTMLElement): string {
+    return getComputedCssVariableValue("--sjs2-color-bg-brand-primary", element);
   }
   private updateColors(signaturePad: SignaturePad, element?: HTMLElement) {
     const penColorFromTheme = this.getPenColorFromTheme(element);

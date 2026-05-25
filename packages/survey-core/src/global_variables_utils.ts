@@ -105,6 +105,15 @@ export class DomDocumentHelper {
     if (!DomDocumentHelper.isAvailable()) return new CSSStyleDeclaration();
     return document.defaultView.getComputedStyle(elt);
   }
+  public static isRtlDirection(target?: EventTarget | Element | ShadowRoot): boolean {
+    if (!DomDocumentHelper.isAvailable()) return false;
+    const styleTarget =
+      typeof ShadowRoot !== "undefined" && target instanceof ShadowRoot ? target.host :
+        typeof Element !== "undefined" && target instanceof Element ? target :
+          DomDocumentHelper.getBody() || DomDocumentHelper.getDocumentElement();
+    if (!styleTarget) return false;
+    return DomDocumentHelper.getComputedStyle(styleTarget).direction === "rtl";
+  }
   public static addEventListener(type: string, listener: (e?: any) => void): void {
     if (!DomDocumentHelper.isAvailable()) return;
     document.addEventListener(type, listener);

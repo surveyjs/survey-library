@@ -28,6 +28,7 @@ import { ComputedUpdater } from "./base";
 import { Base } from "./base";
 import { MatrixDropdownBaseSingleInputBehavior } from "./question_matrixdropdownbase";
 import { QuestionSingleInputBehavior } from "./question_singleinput_behavior";
+import { DynamicItemModelBase } from "./dynamicItemModelBase";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -221,19 +222,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return Array.isArray(val);
   }
   protected setDefaultValue() {
-    if (
-      this.isValueEmpty(this.defaultRowValue) ||
-      !this.isValueEmpty(this.defaultValue)
-    ) {
-      super.setDefaultValue();
-      return;
-    }
-    if (!this.isEmpty() || this.rowCount == 0) return;
-    var newValue = [];
-    for (var i = 0; i < this.rowCount; i++) {
-      newValue.push(this.defaultRowValue);
-    }
-    this.value = newValue;
+    DynamicItemModelBase.setDefaultValueCore(this, this.defaultRowValue, this.rowCount, () => super.setDefaultValue());
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
     const value = this.createNewValue();

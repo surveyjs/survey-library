@@ -552,7 +552,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-text.sd-rating__item-text {
   @include sjs2--typography--component--input--content;
-  color: var(--sjs2-color-component-editor-input-default-value);
+  color: $font-questiontitle-color;
   display: inline-block;
   box-sizing: border-box;
   transition: color $transition-duration;

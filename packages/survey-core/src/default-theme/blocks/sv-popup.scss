@@ -139,9 +139,9 @@ sv-popup {
     }
   }
   .sv-popup__body-content .sv-string-viewer {
-    color: var(--sjs2-color-component-editor-input-default-value);
-    align-self: self-start;
     @include sjs2--typography--default;
+    color: var(--sjs2-color-fg-basic-primary);
+    align-self: self-start;
   }
 }
 

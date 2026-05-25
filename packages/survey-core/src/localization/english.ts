@@ -2,6 +2,7 @@
 // import { setupLocale } from "survey-core";
 
 export var englishStrings = {
+  newTestPhrase: "New phrase",
   pagePrevText: "Previous",
   pageNextText: "Next",
   completeText: "Complete",

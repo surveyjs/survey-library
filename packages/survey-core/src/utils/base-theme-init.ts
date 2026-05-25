@@ -3,8 +3,6 @@ import { DomDocumentHelper } from "../global_variables_utils";
 import { settings } from "../settings";
 import { isShadowDOM } from "../utils/dom-utils";
 
-export { BaseTheme } from "../default-theme/base-theme-init";
-
 const STYLE_ELEMENT_ID = "survey-base-theme-variables";
 const THEME_ROOT_CLASS = "sd-theme-root";
 const VARIABLES_PER_RULE = 50;

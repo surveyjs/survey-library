@@ -58,6 +58,13 @@ export function mergeValues(src: any, dest: any): void {
   }
 }
 
+export function mergeObjects(dest: any, ...sources: Array<any>): any {
+  sources.forEach(source => {
+    mergeValues(source, dest);
+  });
+  return dest;
+}
+
 export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey: (item: T) => any): { addedItems: Array<T>, deletedItems: Array<T>, reorderedItems: Array<{ item: T, movedForward: boolean }>, mergedItems: Array<T> } {
   const oldItemsMap = new Map<any, T>();
   const newItemsMap = new Map<any, T>();

@@ -55,7 +55,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
-import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
@@ -8387,34 +8387,38 @@ export class SurveyModel extends SurveyElementCore
    *
    * [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
    * @param theme An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings.
+   * @param baseTheme An optional base [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object. When specified, it is deep-merged with `theme` and the result is applied.
    */
-  public applyTheme(theme: ITheme): void {
-    if (!theme) return;
+  public applyTheme(theme: ITheme, baseTheme?: ITheme): void {
+    if (!theme && !baseTheme) return;
 
-    patchLegacyCSSVariables(theme.cssVariables);
-    this.addAnimationResetCSSVariables(theme.cssVariables);
-    Object.keys(theme).forEach((key: keyof ITheme) => {
+    const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : theme;
+    if (!themeToApply) return;
+
+    patchLegacyCSSVariables(themeToApply.cssVariables);
+    this.addAnimationResetCSSVariables(themeToApply.cssVariables);
+    Object.keys(themeToApply).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;
       }
       if (key === "isPanelless") {
-        this.isCompact = theme[key];
+        this.isCompact = themeToApply[key];
       } else if (key === "cssVariables") {
-        this.cssVariables = { ...theme.cssVariables };
+        this.cssVariables = { ...themeToApply.cssVariables };
       } else {
-        (this as any)[key] = theme[key];
+        (this as any)[key] = themeToApply[key];
       }
     });
-    if ("header" in theme && !theme.headerView) {
+    if ("header" in themeToApply && !themeToApply.headerView) {
       this.headerView = "advanced";
     }
     if (this.headerView !== "basic") {
       this.removeLayoutElement("advanced-header");
       const advHeader = new Cover();
-      advHeader.fromTheme(theme);
+      advHeader.fromTheme(themeToApply);
       this.insertAdvancedHeader(advHeader);
     }
-    this.themeChanged(theme);
+    this.themeChanged(themeToApply);
   }
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));

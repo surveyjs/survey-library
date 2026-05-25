@@ -63,7 +63,6 @@ export default {
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
     "--sjs2-border-effect-component-formbox-invalid-focused": "inset 0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-component-formbox-invalid-focused-border)",
-    "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-border-effect-floating-default": "0px 6px 12px 4px var(--sjs2-color-utility-shadow-floating-default)"
   }
 };

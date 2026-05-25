@@ -59,7 +59,7 @@ export default {
     "--sjs2-border-effect-component-boolean-default": "inset 0px 0px 0px var(--sjs2-border-width-x000) var(--sjs2-color-component-boolean-default-border)",
     "--sjs2-border-effect-component-boolean-readonly": "inset 0px 0px 0px var(--sjs2-border-width-x000) var(--sjs2-color-component-boolean-readonly-border)",
     "--sjs2-border-effect-component-boolean-design": "inset 0px 0px 0px var(--sjs2-border-width-x000) var(--sjs2-color-component-boolean-design-border)",
-    "--sjs2-border-effect-surface-default": "",
+    "--sjs2-border-effect-surface-default": "0px 0px 0px 0px rgba(0, 0, 0, 0.35)",
     "--sjs2-border-effect-surface-disabled": "0px 0px 0px var(--sjs2-border-width-x000) var(--sjs2-color-utility-shadow-surface-disabled)",
     "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.2), 0px 8px 16px 0px rgba(0, 0, 0, 0.2)"
   }

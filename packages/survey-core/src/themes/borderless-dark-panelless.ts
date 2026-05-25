@@ -62,10 +62,6 @@ export default {
     "--sjs2-border-effect-component-boolean-design": "inset 0px 0px 0px var(--sjs2-border-width-x000) var(--sjs2-color-component-boolean-design-border)",
     "--sjs2-border-effect-surface-default": "",
     "--sjs2-border-effect-surface-disabled": "0px 0px 0px var(--sjs2-border-width-x000) var(--sjs2-color-utility-shadow-surface-disabled)",
-    "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.2), 0px 8px 16px 0px rgba(0, 0, 0, 0.2)",
-    "--sjs2-color-project-brand-400": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 1.2))",
-    "--sjs2-color-project-brand-700": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.85))",
-    "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
-    "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"
+    "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.2), 0px 8px 16px 0px rgba(0, 0, 0, 0.2)"
   }
 };

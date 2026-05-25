@@ -24,10 +24,6 @@ export default {
     "--sjs2-color-border-basic-secondary-overlay": "rgba(0, 0, 0, 0.16)",
     "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-floating-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.05)",
-    "--sjs2-color-project-brand-400": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 1.2))",
-    "--sjs2-color-project-brand-700": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.85))",
-    "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
-    "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"
+    "--sjs2-border-effect-floating-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.05)"
   }
 };

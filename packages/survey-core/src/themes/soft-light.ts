@@ -53,10 +53,6 @@ export default {
     "--sjs2-border-effect-trigger-hovered": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-hovered)",
     "--sjs2-border-effect-trigger-design": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-design)",
     "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)",
-    "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)",
-    "--sjs2-color-project-brand-400": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 1.2))",
-    "--sjs2-color-project-brand-700": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.85))",
-    "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
-    "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"
+    "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)"
   }
 };

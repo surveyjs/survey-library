@@ -5386,6 +5386,7 @@ export class SurveyModel extends SurveyElementCore
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   private _processingResponsivenessFunc: () => boolean;
+  public generateStylesheet = true;
   afterRenderSurvey(htmlElement: any) {
     if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
@@ -5393,7 +5394,9 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
-    ensureBaseThemeStyles(observedElement);
+    if (this.generateStylesheet) {
+      ensureBaseThemeStyles(observedElement);
+    }
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {

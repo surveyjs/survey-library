@@ -916,9 +916,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (!lastDelRow) {
         this.onMatrixRowCreated(newRow);
       }
+      this.setPropertyValueDirectly("rowCount", val.length);
       if (this.isRendredTableCreated) {
-        this.renderedTable.onAddedRow(newRow, index);
+        if (this.renderedTable.isRequireReset()) {
+          this.resetRenderedTable();
+        } else {
+          this.renderedTable.onAddedRow(newRow, index);
+        }
       }
+      return true;
     }
     this.setPropertyValueDirectly("rowCount", val.length);
     return true;

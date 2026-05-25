@@ -4,6 +4,7 @@ resources:
       type: github
       endpoint: surveyjs
       name: surveyjs/azure-pipelines
+      ref: refs/heads/pipeline-merging
 
 trigger: none
 pr: none

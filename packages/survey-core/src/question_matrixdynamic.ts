@@ -901,6 +901,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.lastDeletedRow = rows[index];
       const row = rows[index];
       rows.splice(index, 1);
+      this.setPropertyValueDirectly("rowCount", val.length);
       if (this.isRendredTableCreated) {
         this.renderedTable.onRemovedRow(row);
       }
@@ -924,9 +925,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
           this.renderedTable.onAddedRow(newRow, index);
         }
       }
-      return true;
     }
-    this.setPropertyValueDirectly("rowCount", val.length);
     return true;
   }
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {

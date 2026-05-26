@@ -157,7 +157,6 @@ test("check rating resize observer behavior", () => {
     expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toBe("default");
 
   } finally {
-    window.ResizeObserver = ResizeObserver;
     window.getComputedStyle = getComputedStyle;
     window.ResizeObserver = ResizeObserver;
 

@@ -19,16 +19,18 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   }
   componentDidMount() {
     this.reactOnStrChanged();
+    this.updateTextContent();
   }
   componentWillUnmount() {
     if (!this.locStr) return;
     this.locStr.onStringChanged.remove(this.onChangedHandler);
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    if (!!prevProps.locStr) {
-      prevProps.locStr.onStringChanged.remove(this.onChangedHandler);
+    if (!!prevProps.model) {
+      prevProps.model.onStringChanged.remove(this.onChangedHandler);
     }
     this.reactOnStrChanged();
+    this.updateTextContent();
   }
   private isRendering: boolean;
   private onChangedHandler = (sender: any, options: any) => {
@@ -38,6 +40,10 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   private reactOnStrChanged() {
     if (!this.locStr) return;
     this.locStr.onStringChanged.add(this.onChangedHandler);
+  }
+  private updateTextContent(): void {
+    if (!this.locStr || this.locStr.hasHtml || !this.rootRef.current) return;
+    this.rootRef.current.textContent = this.locStr.renderedHtml;
   }
   render(): React.JSX.Element | null {
     if (!this.locStr) return null;
@@ -52,7 +58,7 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
       let htmlValue = { __html: this.locStr.renderedHtml };
       return <span ref={this.rootRef} className={className} style={this.style} dangerouslySetInnerHTML={htmlValue} />;
     }
-    return <span ref={this.rootRef} className={className} style={this.style}>{this.locStr.renderedHtml}</span>;
+    return <span ref={this.rootRef} className={className} style={this.style}></span>;
   }
 }
 

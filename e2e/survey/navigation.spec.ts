@@ -142,6 +142,39 @@ frameworks.forEach(framework => {
       await expect(page.locator("input[type=text]")).toHaveValue("some text");
     });
 
+    (framework === "react" ? test : test.skip)("navigation works after Chrome Translate moves button DOM", async ({ page }) => {
+      const pageErrors: string[] = [];
+      page.on("pageerror", err => pageErrors.push(err.message));
+      await initSurvey(page, framework, {
+        pages: [
+          { elements: [{ type: "text", name: "q1" }] },
+          { elements: [{ type: "text", name: "q2" }] }
+        ]
+      });
+
+      const clickTranslatedNavigationInput = async (value: string) => {
+        await page.evaluate((value) => {
+          // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+          const input = Array.from(document.querySelectorAll<HTMLInputElement>(".sd-body__navigation input[type=button]"))
+            .filter(el => !el.closest(".sv-action--hidden"))
+            .find(el => el.value === value);
+          if (!input) throw new Error("Navigation input not found: " + value);
+          const wrapper = document.createElement("font");
+          input.parentNode!.insertBefore(wrapper, input);
+          wrapper.appendChild(input);
+          input.click();
+        }, value);
+      };
+
+      await clickTranslatedNavigationInput("Next");
+      await expect(page.getByRole("textbox", { name: "q2" })).toBeVisible();
+      await clickTranslatedNavigationInput("Previous");
+      await expect(page.getByRole("textbox", { name: "q1" })).toBeVisible();
+      await clickTranslatedNavigationInput("Next");
+      await expect(page.getByRole("textbox", { name: "q2" })).toBeVisible();
+      expect(pageErrors).toEqual([]);
+    });
+
     test("Page should be scrolled to top of survey", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
       await page.locator("input[value=Next]").scrollIntoViewIfNeeded();

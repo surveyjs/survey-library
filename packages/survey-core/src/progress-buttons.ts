@@ -131,6 +131,45 @@ export class ProgressButtons extends Base {
   public resetProgressText(): void {
     this.resetPropertyValue("progressText");
   }
+  public getTabIndex(index: number): number {
+    return this.isPageSelected(index) ? 0 : -1;
+  }
+  public isPageSelected(index: number): boolean {
+    return index === this.survey.currentPageNo;
+  }
+  public getButtonAriaLabel(page: PageModel): string {
+    const index = this.survey.visiblePages.indexOf(page) + 1;
+    return page.renderedNavigationTitle || this.survey.getLocalizationFormatString("progressbarPage", index);
+  }
+  public onKeyDown(event: KeyboardEvent): void {
+    const tabs = this.visiblePages;
+    if (!tabs.length) return;
+
+    const target = event.target as HTMLElement;
+    const currentIndex = Number(target.dataset.pageIndex);
+    if (currentIndex < 0) return;
+
+    let nextIndex: number;
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      nextIndex = (currentIndex + 1) % tabs.length;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = tabs.length - 1;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    const container = target.closest("[role='tablist']");
+    const nextButton = container?.querySelector<HTMLElement>(`[data-page-index="${nextIndex}"]`);
+    if (nextButton) {
+      nextButton.focus();
+    }
+  }
   public onResize: EventBase<ProgressButtons, any> = this.addEvent<ProgressButtons, any>();
   public processResponsiveness(width: number): void {
     this.onResize.fire(this, { width });

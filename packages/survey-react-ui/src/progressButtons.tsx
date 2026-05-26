@@ -34,7 +34,8 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   render(): React.JSX.Element {
     return (
       <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth, ["--sd-progress-buttons-pages-count" as any]: this.model.visiblePages.length }}
-        role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label={this.model.progressBarAriaLabel}
+        role="tablist" aria-label={this.model.progressBarAriaLabel}
+        onKeyDown={(event) => this.model.onKeyDown(event.nativeEvent)}
       >
         {/* {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
@@ -70,6 +71,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         key={"listelement" + page.uniqueId}
         className={this.model.getListElementCss(index)}
         data-page-number={this.model.getItemNumber(page)}
+        role="presentation"
       >
         {
           this.model.showItemTitles ? <div
@@ -92,6 +94,11 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
 
         <button className={this.css.progressButtonsButton}
           onClick={onClickHandler}
+          role="tab"
+          aria-selected={this.model.isPageSelected(index)}
+          aria-label={this.model.getButtonAriaLabel(page)}
+          tabIndex={this.model.getTabIndex(index)}
+          data-page-index={index}
         >
           {
             this.model.showItemNumbers ?

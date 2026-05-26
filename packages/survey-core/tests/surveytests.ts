@@ -17396,6 +17396,30 @@ describe("Survey", () => {
     expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("basic");
   });
+  test("survey.applyTheme with baseTheme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const baseTheme = {
+      backgroundImageFit: "contain",
+      backgroundOpacity: 0.5,
+      cssVariables: {
+        "--sjs2-color-bg-basic-primary": "rgba(255, 255, 255, 1)",
+      },
+      isPanelless: false,
+    };
+    survey.applyTheme({
+      backgroundOpacity: 0.8,
+      cssVariables: {
+        "--sjs2-color-bg-basic-secondary": "rgba(248, 248, 248, 1)",
+      },
+      isPanelless: true,
+    }, baseTheme);
+
+    expect(survey.backgroundImageFit).toBe("contain");
+    expect(survey.backgroundOpacity).toBe(0.8);
+    expect(survey["isCompact"]).toBe(true);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
+    expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
   test("survey.applyTheme patches legacy CSS variables", () => {
     const cssVariables = DefaultTheme.cssVariables;
     try {

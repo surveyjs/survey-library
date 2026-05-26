@@ -35,6 +35,9 @@ export class ProgressButtons extends Base {
     if (this.survey.css.progressButtonsRoot) {
       result += " " + this.survey.css.progressButtonsRoot + " " + this.survey.css.progressButtonsRoot + "--" + (["footer", "contentBottom"].indexOf(container) !== -1 ? "bottom" : "top");
       result += " " + this.survey.css.progressButtonsRoot + "--" + (this.showItemTitles ? "with-titles" : "no-titles");
+      if (this.pageTitleLocation === "bottom" && this.survey.css.progressButtonsTitlesBottom) {
+        result += " " + this.survey.css.progressButtonsTitlesBottom;
+      }
     }
     if (this.showItemNumbers && this.survey.css.progressButtonsNumbered) {
       result += " " + this.survey.css.progressButtonsNumbered;
@@ -109,6 +112,9 @@ export class ProgressButtons extends Base {
       return true;
     }
     return this.survey.progressBarShowPageDescriptions;
+  }
+  public get pageTitleLocation(): "top" | "bottom" {
+    return this.survey.progressBarPageTitleLocation || "top";
   }
   public getItemNumber(page: PageModel): string {
     let result = "";

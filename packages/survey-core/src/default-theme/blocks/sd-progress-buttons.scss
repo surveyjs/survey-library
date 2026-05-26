@@ -322,22 +322,39 @@
       }
     }
   }
+}
 
-  &.sd-progress-buttons--with-descriptions {
+.sd-progress-buttons--titles-bottom {
+  .sd-progress-buttons__list li {
+    flex-direction: column-reverse;
+
+    &::after {
+      top: calc(var(--sjs2-size-x300) / 2);
+      bottom: auto;
+    }
+  }
+
+  &.sd-progress-buttons--numbered {
     .sd-progress-buttons__list li {
       &::after {
-        /*
-          var(--sjs2-typography-line-height-small) * 2 = two lines of text (title + description)
-          var(--sjs2-spacing-x050) = gap between title and description
-          var(--sjs2-spacing-x150) = gap between description and button
-          var(--sjs2-size-x400) / 2 = top half (radius) of the button
-        */
-        top: calc(
-          var(--sjs2-typography-line-height-small) * 2 + var(--sjs2-spacing-x050) + var(--sjs2-spacing-x150) +
-            var(--sjs2-size-x400) / 2
-        );
+        top: calc(var(--sjs2-size-x400) / 2);
       }
     }
+  }
+
+  .sd-progress-buttons__button {
+    margin-top: 0;
+    margin-bottom: var(--sjs2-spacing-x150);
+  }
+
+  .sd-progress-buttons__page-description {
+    margin-top: 0;
+    margin-bottom: var(--sjs2-spacing-x050);
+  }
+
+  .sd-progress-buttons__list-container {
+    padding-top: 10px;
+    padding-bottom: 0;
   }
 }
 

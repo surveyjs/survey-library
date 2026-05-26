@@ -144,6 +144,7 @@ export var defaultCss = {
   progressButtonsRoot: "sd-progress-buttons",
   progressButtonsNumbered: "sd-progress-buttons--numbered",
   progressButtonsWithDescriptions: "sd-progress-buttons--with-descriptions",
+  progressButtonsTitlesBottom: "sd-progress-buttons--titles-bottom",
   progressButtonsFitSurveyWidth: "sd-progress-buttons--fit-survey-width",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",
   progressButtonsContainer: "sd-progress-buttons__container",

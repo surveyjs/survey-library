@@ -37,24 +37,16 @@ function createCssVariableProbeElement(host: HTMLElement): HTMLElement | null {
   return div;
 }
 
-export function getComputedCssVariableValue(varName: string, rootElement?: HTMLElement): string {
-  const host = rootElement || DomDocumentHelper.getBody() || DomDocumentHelper.getDocumentElement();
-  if (!host) return "";
+export function getComputedCssVariableValue(varName: string, element?: HTMLElement): string {
+  const el = element || DomDocumentHelper.getBody() || DomDocumentHelper.getDocumentElement();
+  if (!el) return "";
 
+  const computedStyle = DomDocumentHelper.getComputedStyle(el);
+  if (!computedStyle || !computedStyle.getPropertyValue) return "";
+
+  const value = computedStyle.getPropertyValue(varName);
   const proxyProperty = getCssVariableProxyProperty(varName);
-  if (proxyProperty === null) {
-    return DomDocumentHelper.getComputedStyle(host).getPropertyValue(varName).trim();
-  }
-
-  const tempElement = createCssVariableProbeElement(host);
-  if (!tempElement) return "";
-  try {
-    tempElement.style.setProperty(proxyProperty, `var(${varName})`);
-    const value = DomDocumentHelper.getComputedStyle(tempElement).getPropertyValue(proxyProperty);
-    return normalizeCssVariableValue(value, proxyProperty);
-  } finally {
-    host.removeChild(tempElement);
-  }
+  return normalizeCssVariableValue(value, proxyProperty);
 }
 
 export function getComputedCssVariableValues(

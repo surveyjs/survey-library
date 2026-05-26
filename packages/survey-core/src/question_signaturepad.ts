@@ -34,11 +34,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       }
     }
   }
-  private getPenColorFromTheme(element?: HTMLElement): string {
-    return getComputedCssVariableValue("--sjs2-color-bg-brand-primary", element);
-  }
+
   private updateColors(signaturePad: SignaturePad, element?: HTMLElement) {
-    const penColorFromTheme = this.getPenColorFromTheme(element);
+    const penColorFromTheme = getComputedCssVariableValue("--sjs2-color-bg-brand-primary", element);
     const penColorProperty = this.getPropertyByName("penColor");
     signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
 

@@ -78,13 +78,13 @@
     position: absolute;
     /* 
       50% = center of the button
-      var(--sjs2-size-x300) / 2 = right half (radius) of the button
+      var(--sjs2-size-x300) / 2 = left half (radius) of the button
       var(--sjs2-size-x100) = gap
     */
-    left: calc(50% + var(--sjs2-size-x300) / 2 + var(--sjs2-size-x100));
+    right: calc(50% + var(--sjs2-size-x300) / 2 + var(--sjs2-size-x100));
     /* 
-      100% = distance from the center of the current button to the center of the next button
-      var(--sjs2-size-x300) = half (radius) of the current button + half (radius) of the next button
+      100% = distance from the center of the current button to the center of the previous button
+      var(--sjs2-size-x300) = half (radius) of the current button + half (radius) of the previous button
       var(--sjs2-size-x100) * 2 = two gaps (left and right)
     */
     width: calc(100% - var(--sjs2-size-x300) - var(--sjs2-size-x100) * 2);
@@ -97,13 +97,14 @@
     transition: background-color var(--sjs-transition-duration, 100ms);
   }
 
-  &:last-child::after {
+  &:first-child::after {
     display: none;
   }
 }
 
 .sd-progress-buttons__list li {
-  &.sd-progress-buttons__list-element--passed {
+  &.sd-progress-buttons__list-element--passed,
+  &.sd-progress-buttons__list-element--current {
     &::after {
       background-color: var(--sjs2-color-border-brand-primary);
     }
@@ -270,13 +271,13 @@
     &::after {
       /* 
         50% = center of the button
-        var(--sjs2-size-x400) / 2 = right half (radius) of the button
+        var(--sjs2-size-x400) / 2 = left half (radius) of the button
         var(--sjs2-size-x100) = gap
       */
-      left: calc(50% + var(--sjs2-size-x400) / 2 + var(--sjs2-size-x100));
+      right: calc(50% + var(--sjs2-size-x400) / 2 + var(--sjs2-size-x100));
       /* 
-        100% = distance from the center of the current button to the center of the next button
-        var(--sjs2-size-x400) = half (radius) of the current button + half (radius) of the next button
+        100% = distance from the center of the current button to the center of the previous button
+        var(--sjs2-size-x400) = half (radius) of the current button + half (radius) of the previous button
         var(--sjs2-size-x100) * 2 = two gaps (left and right)
       */
       width: calc(100% - var(--sjs2-size-x400) - var(--sjs2-size-x100) * 2);
@@ -325,6 +326,12 @@
   &.sd-progress-buttons--with-descriptions {
     .sd-progress-buttons__list li {
       &::after {
+        /*
+          var(--sjs2-typography-line-height-small) * 2 = two lines of text (title + description)
+          var(--sjs2-spacing-x050) = gap between title and description
+          var(--sjs2-spacing-x150) = gap between description and button
+          var(--sjs2-size-x400) / 2 = top half (radius) of the button
+        */
         top: calc(
           var(--sjs2-typography-line-height-small) * 2 + var(--sjs2-spacing-x050) + var(--sjs2-spacing-x150) +
             var(--sjs2-size-x400) / 2

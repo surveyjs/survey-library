@@ -227,7 +227,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   protected getActualHorizontalPosition(): "left" | "center" | "right" {
     let actualHorizontalPosition = this.model.horizontalPosition;
     if (DomDocumentHelper.isAvailable()) {
-      let isRtl = DomDocumentHelper.getComputedStyle(DomDocumentHelper.getBody()).direction == "rtl";
+      let isRtl = DomDocumentHelper.isRtlDirection();
       if (isRtl) {
         if (this.model.horizontalPosition === "left") {
           actualHorizontalPosition = "right";

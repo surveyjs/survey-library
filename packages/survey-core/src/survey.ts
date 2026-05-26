@@ -55,7 +55,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
-import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
@@ -8387,10 +8387,15 @@ export class SurveyModel extends SurveyElementCore
    *
    * [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
    * @param theme An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings.
+   * @param baseTheme An optional [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object used as the base theme. When specified, it is deep-merged with `theme`, and the merged result is applied.
    */
-  public applyTheme(theme: ITheme): void {
-    if (!theme) return;
+  public applyTheme(theme: ITheme, baseTheme?: ITheme): void {
+    if (!theme && !baseTheme) return;
 
+    const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : theme;
+    return this._applyTheme(themeToApply);
+  }
+  private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables);
     this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {

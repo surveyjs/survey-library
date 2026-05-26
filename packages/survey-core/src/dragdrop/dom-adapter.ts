@@ -149,7 +149,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let shortcutYOffset = this.draggedElementShortcut.shortcutYOffset || shortcutHeight / 2;
 
     // TODO this is hot fix for RTL support. Probably we need better global strategy for it. https://github.com/surveyjs/survey-library/issues/4554
-    if (DomDocumentHelper.getComputedStyle(<Element>this.rootElement).direction === "rtl") {
+    if (DomDocumentHelper.isRtlDirection(this.rootElement)) {
       shortcutXOffset = shortcutWidth / 2;
       shortcutYOffset = shortcutHeight / 2;
     }

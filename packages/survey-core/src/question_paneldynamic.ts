@@ -1458,19 +1458,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     );
   }
   protected setDefaultValue() {
-    if (
-      this.isValueEmpty(this.defaultPanelValue) ||
-      !this.isValueEmpty(this.defaultValue)
-    ) {
-      super.setDefaultValue();
-      return;
-    }
-    if (!this.isEmpty() || this.panelCount == 0) return;
-    var newValue = [];
-    for (var i = 0; i < this.panelCount; i++) {
-      newValue.push(this.defaultPanelValue);
-    }
-    this.value = newValue;
+    DynamicItemModelBase.setDefaultValueCore(this, this.defaultPanelValue, this.panelCount, () => super.setDefaultValue());
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
@@ -1822,11 +1810,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (includeItSelf) {
       questions.push(this);
     }
-    const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
-    if (!Array.isArray(panels)) return;
-    panels.forEach(panel => {
-      panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-    });
+    DynamicItemModelBase.collectNestedQuestionsInItems(
+      visibleOnly ? this.visiblePanelsCore : this.panelsCore,
+      questions, visibleOnly, includeNested, includeItSelf
+    );
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -1912,14 +1899,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.releaseAnimations();
   }
   private runTriggersOnBuildPanelsFirstTime(): void {
-    const val = this.value;
-    this.visiblePanelsCore.forEach(p => {
-      const panelValue = this.getItemData(p.data);
-      if (!Helpers.isValueEmpty(panelValue)) {
-        const triggeredValue = Helpers.createCopyWithPrefix(panelValue, settings.expressionVariables.panel + ".");
-        (<DynamicItemModelBase>p.data).runTriggers("", undefined, triggeredValue);
-      }
-    });
+    DynamicItemModelBase.runTriggersOnItems(
+      this.visiblePanelsCore.map(p => <DynamicItemModelBase>p.data),
+      item => this.getItemData(item),
+      settings.expressionVariables.panel
+    );
   }
   private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly; }
   private get wasNotRenderedInSurvey(): boolean {

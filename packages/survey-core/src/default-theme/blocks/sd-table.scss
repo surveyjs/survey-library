@@ -154,7 +154,7 @@
         background-color: $background-dark;
 
         &.sd-matrix__text--checked {
-          background-color: $primary-light;
+          background-color: var(--sjs2-color-bg-brand-secondary);
         }
 
         .sd-formbox {

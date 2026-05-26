@@ -14,7 +14,7 @@
   }
 
   .sv-list__item.sv-list__item--selected .sv-list__item-body {
-    background: $primary-light;
+    background: var(--sjs2-color-bg-brand-secondary);
     color: $foreground;
     font-weight: 400;
   }

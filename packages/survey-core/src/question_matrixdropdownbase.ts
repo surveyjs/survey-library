@@ -1870,13 +1870,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   private runTriggersOnNewRows(): void {
     const val = this.value;
-    this.generatedVisibleRows.forEach((row) => {
-      const rowValue = this.getRowValueCore(row, val);
-      if (!Helpers.isValueEmpty(rowValue)) {
-        const triggeredValue = Helpers.createCopyWithPrefix(rowValue, settings.expressionVariables.row + ".");
-        row.runTriggers("", undefined, triggeredValue);
-      }
-    });
+    DynamicItemModelBase.runTriggersOnItems(
+      this.generatedVisibleRows,
+      row => this.getRowValueCore(row as MatrixDropdownRowModelBase, val),
+      settings.expressionVariables.row
+    );
   }
   private getVisibleFromGenerated(rows: Array<MatrixDropdownRowModelBase>): Array<MatrixDropdownRowModelBase> {
     const res: Array<MatrixDropdownRowModelBase> = [];
@@ -2130,10 +2128,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (!Array.isArray(rows)) return;
-    rows.forEach(row => {
-      row.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-    });
+    DynamicItemModelBase.collectNestedQuestionsInItems(rows, questions, visibleOnly, includeNested, includeItSelf);
   }
   protected getConditionObjectRowName(index: number): string {
     return "";

@@ -34,8 +34,8 @@
     display: none;
 }
 .sd-imagemap-control-point {
-    fill: $secondary;
-    stroke: $secondary-light;
+    fill: var(--sjs2-color-bg-accent-primary);
+    stroke: var(--sjs2-color-bg-accent-secondary);
     stroke-width: 1;
     cursor: pointer;
 }

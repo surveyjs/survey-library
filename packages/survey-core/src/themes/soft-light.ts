@@ -16,6 +16,9 @@ export default {
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
     "--sjs2-border-effect-component-formbox-default": "inset 0px 1px 2px 0px var(--sjs2-color-component-formbox-default-border)",
     "--sjs2-border-effect-component-formbox-hovered": "inset 0px 1px 2px 0px var(--sjs2-color-component-formbox-hovered-border)",
+    "--sjs2-border-effect-component-formbox-focused": "0px 0px 0px var(--sjs2-border-width-x200) var(--sjs2-color-component-formbox-focused-border)",
+    "--sjs2-border-effect-component-formbox-invalid-focused": "0px 0px 0px var(--sjs2-border-width-x200) var(--sjs2-color-component-formbox-invalid-focused-border)",
+    "--sjs2-border-effect-component-formbox-highlighted": "0px 0px 0px var(--sjs2-border-width-x200) var(--sjs2-color-component-formbox-highlighted-border)",
     "--sjs2-border-effect-component-formbox-design": "inset 0px 1px 2px 0px var(--sjs2-color-component-formbox-design-border)",
     "--sjs2-border-effect-component-check-false-default": "inset 0px 1px 2px 0px var(--sjs2-color-component-check-false-default-border)",
     "--sjs2-border-effect-component-check-false-hovered": "inset 0px 1px 2px 0px var(--sjs2-color-component-check-false-hovered-border)",
@@ -50,10 +53,6 @@ export default {
     "--sjs2-border-effect-trigger-hovered": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-hovered)",
     "--sjs2-border-effect-trigger-design": "0px 1px 2px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-trigger-design)",
     "--sjs2-border-effect-surface-default": "0px 2px 4px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-default)",
-    "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)",
-    "--sjs2-color-project-brand-400": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 1.2))",
-    "--sjs2-color-project-brand-700": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.85))",
-    "--sjs2-color-project-brand-800": "hsl(from var(--sjs2-color-project-brand-600) h s calc(l * 0.75))",
-    "--sjs2-color-bg-static-2-primary-dim": "hsl(from var(--sjs2-palette-gray-100) h s calc(l * 1.1))"
+    "--sjs2-border-effect-surface-dragging": "0px 6px 12px var(--sjs2-border-width-x400) var(--sjs2-color-utility-shadow-surface-dragging)"
   }
 };

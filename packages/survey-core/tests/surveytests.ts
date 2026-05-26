@@ -17396,6 +17396,30 @@ describe("Survey", () => {
     expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("basic");
   });
+  test("survey.applyTheme with baseTheme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const baseTheme = {
+      backgroundImageFit: "contain",
+      backgroundOpacity: 0.5,
+      cssVariables: {
+        "--sjs2-color-bg-basic-primary": "rgba(255, 255, 255, 1)",
+      },
+      isPanelless: false,
+    };
+    survey.applyTheme({
+      backgroundOpacity: 0.8,
+      cssVariables: {
+        "--sjs2-color-bg-basic-secondary": "rgba(248, 248, 248, 1)",
+      },
+      isPanelless: true,
+    }, baseTheme);
+
+    expect(survey.backgroundImageFit).toBe("contain");
+    expect(survey.backgroundOpacity).toBe(0.8);
+    expect(survey["isCompact"]).toBe(true);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
+    expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
   test("survey.applyTheme patches legacy CSS variables", () => {
     const cssVariables = DefaultTheme.cssVariables;
     try {
@@ -17405,6 +17429,8 @@ describe("Survey", () => {
         cssVariables: {
           "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
           "--sjs-font-size": "18px",
+          "--sjs-font-headertitle-size": "32px",
+          "--sjs-font-headerdescription-size": "20px",
           "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
           "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
         }
@@ -17419,6 +17445,12 @@ describe("Survey", () => {
       expect(vars["--sjs2-border-effect-floating-default"]).toBe("0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)");
       expect(typeof vars["--sjs-shadow-medium"]).toBe("undefined");
       expect(typeof vars["--sjs-shadow-large"]).toBe("undefined");
+      expect(vars["--sjs2-typography-font-size-component-header-title"]).toBe("32px");
+      expect(vars["--sjs2-typography-line-height-component-header-title"]).toBe("40px");
+      expect(typeof vars["--sjs-font-headertitle-size"]).toBe("undefined");
+      expect(vars["--sjs2-typography-font-size-component-header-description"]).toBe("20px");
+      expect(vars["--sjs2-typography-line-height-component-header-description"]).toBe("30px");
+      expect(typeof vars["--sjs-font-headerdescription-size"]).toBe("undefined");
     } finally {
       DefaultTheme.cssVariables = cssVariables;
     }

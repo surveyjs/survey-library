@@ -55,7 +55,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
-import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
@@ -87,6 +87,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
+import { ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -5385,6 +5386,7 @@ export class SurveyModel extends SurveyElementCore
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   private _processingResponsivenessFunc: () => boolean;
+  public generateStylesheet = true;
   afterRenderSurvey(htmlElement: any) {
     if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
@@ -5392,6 +5394,9 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
+    if (this.generateStylesheet) {
+      ensureBaseThemeStyles(observedElement);
+    }
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -8382,17 +8387,13 @@ export class SurveyModel extends SurveyElementCore
    *
    * [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
    * @param theme An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings.
+   * @param baseTheme An optional [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object used as the base theme. When specified, it is deep-merged with `theme`, and the merged result is applied.
    */
-  public applyTheme(theme: ITheme): void {
-    if (!theme) return;
+  public applyTheme(theme: ITheme, baseTheme?: ITheme): void {
+    if (!theme && !baseTheme) return;
 
-    const themeClone = {} as ITheme;
-    Object.keys(theme).forEach((key: string) => {
-      const themeKey = key as keyof ITheme;
-      const value = theme[themeKey];
-      (themeClone as any)[themeKey] = typeof value === "object" && value !== null ? { ...value } : value;
-    });
-    this._applyTheme(themeClone);
+    const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : mergeObjects({}, theme);
+    return this._applyTheme(themeToApply);
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables);

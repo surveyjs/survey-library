@@ -269,7 +269,7 @@ export class QuestionBooleanModel extends Question {
   private calculateBooleanValueByEvent(event: any, isRightClick: boolean) {
     let isRtl = false;
     if (DomDocumentHelper.isAvailable()) {
-      isRtl = DomDocumentHelper.getComputedStyle(event.target).direction == "rtl";
+      isRtl = DomDocumentHelper.isRtlDirection(this.survey.rootElement);
     }
     this.booleanValue = isRtl ? !isRightClick : isRightClick;
   }

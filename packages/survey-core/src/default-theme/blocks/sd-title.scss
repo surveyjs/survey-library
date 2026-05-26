@@ -34,7 +34,6 @@
 
   .sd-title {
     @include sjs2--typography--component--header--title;
-    color: $font-surveytitle-color;
   }
 
   h3 {
@@ -47,7 +46,6 @@
 
   .sd-description {
     @include sjs2--typography--component--header--description;
-    color: $font-surveydescription-color;
   }
 }
 

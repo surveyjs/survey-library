@@ -75,6 +75,7 @@
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-question-title);
   line-height: var(--sjs2-typography-line-height-component-question-title);
+  color: var(--sjs2-color-component-question-default-title);
 }
 
 @mixin sjs2--typography--component--question--description {
@@ -83,6 +84,7 @@
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-question-description);
   line-height: var(--sjs2-typography-line-height-component-question-description);
+  color: var(--sjs2-color-component-question-default-description);
 }
 
 @mixin sjs2--typography--component--page--title {
@@ -91,6 +93,7 @@
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-page-title);
   line-height: var(--sjs2-typography-line-height-component-page-title);
+  color: var(--sjs2-color-component-page-default-title);
 }
 
 @mixin sjs2--typography--component--page--description {
@@ -99,6 +102,7 @@
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-page-description);
   line-height: var(--sjs2-typography-line-height-component-page-description);
+  color: var(--sjs2-color-component-page-default-description);
 }
 
 @mixin sjs2--typography--component--header--title {
@@ -107,6 +111,7 @@
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-header-title);
   line-height: var(--sjs2-typography-line-height-component-header-title);
+  color: var(--sjs2-color-component-header-default-title);
 }
 
 @mixin sjs2--typography--component--header--description {
@@ -115,4 +120,5 @@
   font-style: normal;
   font-weight: var(--sjs2-typography-font-weight-component-header-description);
   line-height: var(--sjs2-typography-line-height-component-header-description);
+  color: var(--sjs2-color-component-header-default-description);
 }

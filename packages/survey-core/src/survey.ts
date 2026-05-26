@@ -8393,7 +8393,6 @@ export class SurveyModel extends SurveyElementCore
     if (!theme && !baseTheme) return;
 
     const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : theme;
-    if (!themeToApply) return;
     return this._applyTheme(themeToApply);
   }
   private _applyTheme(theme: ITheme): void {

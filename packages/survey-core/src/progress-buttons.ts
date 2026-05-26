@@ -104,6 +104,7 @@ export class ProgressButtons extends Base {
     return this.survey.progressBarShowPageTitles;
   }
   public get showItemDescriptions(): boolean {
+    if (!this.showItemTitles) return false;
     if (surveyCss.currentType !== "default") {
       return true;
     }

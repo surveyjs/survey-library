@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { ProgressButtons } from "../src/progress-buttons";
+import { surveyCss } from "../src/defaultCss/defaultCss";
 
 import { describe, test, expect } from "vitest";
 describe("ProgressButtons", () => {
@@ -223,5 +224,47 @@ describe("ProgressButtons", () => {
     expect(focused).toBe(false);
 
     document.body.removeChild(container);
+  });
+  test("showItemDescriptions returns false when showItemTitles is false", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ],
+      progressBarShowPageTitles: false,
+      progressBarShowPageDescriptions: true
+    });
+    surveyCss.currentType = "default";
+    const progress = new ProgressButtons(survey);
+    expect(progress.showItemDescriptions).toBe(false);
+  });
+  test("showItemDescriptions respects progressBarShowPageDescriptions when currentType is default", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ],
+      progressBarShowPageTitles: true,
+      progressBarShowPageDescriptions: false
+    });
+    surveyCss.currentType = "default";
+    const progress = new ProgressButtons(survey);
+    expect(progress.showItemDescriptions).toBe(false);
+
+    survey.progressBarShowPageDescriptions = true;
+    expect(progress.showItemDescriptions).toBe(true);
+  });
+  test("showItemDescriptions returns true when currentType is not default and titles are shown", () => {
+    const prevType = surveyCss.currentType;
+    surveyCss.currentType = "defaultV2";
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const progress = new ProgressButtons(survey);
+    expect(progress.showItemDescriptions).toBe(true);
+    surveyCss.currentType = prevType;
   });
 });

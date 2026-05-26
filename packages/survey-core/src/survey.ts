@@ -8394,31 +8394,33 @@ export class SurveyModel extends SurveyElementCore
 
     const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : theme;
     if (!themeToApply) return;
-
-    patchLegacyCSSVariables(themeToApply.cssVariables);
-    this.addAnimationResetCSSVariables(themeToApply.cssVariables);
-    Object.keys(themeToApply).forEach((key: keyof ITheme) => {
+    return this._applyTheme(themeToApply);
+  }
+  private _applyTheme(theme: ITheme): void {
+    patchLegacyCSSVariables(theme.cssVariables);
+    this.addAnimationResetCSSVariables(theme.cssVariables);
+    Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;
       }
       if (key === "isPanelless") {
-        this.isCompact = themeToApply[key];
+        this.isCompact = theme[key];
       } else if (key === "cssVariables") {
-        this.cssVariables = { ...themeToApply.cssVariables };
+        this.cssVariables = { ...theme.cssVariables };
       } else {
-        (this as any)[key] = themeToApply[key];
+        (this as any)[key] = theme[key];
       }
     });
-    if ("header" in themeToApply && !themeToApply.headerView) {
+    if ("header" in theme && !theme.headerView) {
       this.headerView = "advanced";
     }
     if (this.headerView !== "basic") {
       this.removeLayoutElement("advanced-header");
       const advHeader = new Cover();
-      advHeader.fromTheme(themeToApply);
+      advHeader.fromTheme(theme);
       this.insertAdvancedHeader(advHeader);
     }
-    this.themeChanged(themeToApply);
+    this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));

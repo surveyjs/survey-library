@@ -9585,4 +9585,34 @@ describe("Survey_QuestionMatrixDynamic", () => {
 
     Serializer.removeProperty("question", "expression");
   });
+  test("Remove row and restore via editing-object path - delete button should reappear, Bug#7615 in creator", () => {
+    // Regression: when rows are added back through isEditingObjectValueChanged (the
+    // property-grid / editingObj path), renderedTable.onAddedRow was called directly
+    // without an isRequireReset() check, leaving hasRemoveRowsValue stale at false.
+    const survey = new SurveyModel({
+      elements: [{ type: "matrixdynamic", name: "q1", rowCount: 1, columns: [{ name: "col1" }] }]
+    });
+    // Setting editingObj activates isEditingSurveyElement, which makes isValueSurveyElement
+    // return true and routes value updates through isEditingObjectValueChanged.
+    survey.editingObj = survey;
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+
+    // Materialize the rendered table (simulates browser initial render).
+    expect(matrix.renderedTable.hasRemoveRows).toBeTruthy();
+
+    // Remove the row.
+    matrix.removeRow(0);
+    expect(matrix.rowCount).toBe(0);
+
+    // Re-materialize with 0 rows (simulates browser re-render after removal).
+    // At this point hasRemoveRowsValue = false because canRemoveRows = false (0 rows).
+    expect(matrix.renderedTable.hasRemoveRows).toBeFalsy();
+
+    // Restore the row via the editing-object value path (same as undo in property grid).
+    matrix.updateValueFromSurvey([{}]);
+    expect(matrix.rowCount).toBe(1);
+
+    // The rendered table must reset and expose the delete button again.
+    expect(matrix.renderedTable.hasRemoveRows).toBeTruthy();
+  });
 });

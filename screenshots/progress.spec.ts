@@ -903,5 +903,30 @@ frameworks.forEach(framework => {
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-skipped-pages.png");
     });
+
+    test("Check survey with progress top buttons - advanced header", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-advanced-header.png");
+    });
+
+    test("Check survey with progress bottom buttons", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarLocation = "bottom";
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom-buttons.png");
+    });
   });
 });

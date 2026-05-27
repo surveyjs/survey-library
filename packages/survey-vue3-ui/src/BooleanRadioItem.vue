@@ -44,6 +44,8 @@ const props = defineProps<{
 }>();
 const handleChange = () => {
   const question = props.question;
-  question.value = props.value;
+  if (!question.isInputReadOnly) {
+    question.value = props.value;
+  }
 };
 </script>

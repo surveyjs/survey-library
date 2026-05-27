@@ -1577,8 +1577,8 @@ export class JsonObject {
     if (obj.getType) {
       objType = obj.getType();
       properties = Serializer.getProperties(objType);
-      needAddErrors =
-        !!objType && !Serializer.isDescendantOf(objType, "itemvalue");
+      needAddErrors = !!objType && (typeof jsonObj === "object" && !Array.isArray(jsonObj)
+        || !Serializer.isDescendantOf(objType, "itemvalue"));
     }
     if (!properties) return;
     if (obj.startLoadingFromJson) {

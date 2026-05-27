@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.rootRadio" ref="root">
+  <div :class="question.cssClasses.rootRadio" ref="root" @keydown="(e) => question.onKeyDownCore(e)">
     <fieldset role="presentation" :class="question.cssClasses.radioFieldset">
       <SvComponent
         :is="'sv-boolean-radio-item'"

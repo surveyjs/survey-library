@@ -102,8 +102,7 @@ frameworks.forEach((framework) => {
       await clickButton.click();
       await expect(popupSelector).toBeVisible();
       await page.locator("body").click();
-      const testVariable = await page.evaluate(() => window["testVariable"]);
-      expect(testVariable).toBe("ok");
+      await expect.poll(() => page.evaluate(() => window["testVariable"]), { timeout: 300 }).toBe("ok");
     });
 
     test("check ordinary popup when isVisible is changed twice", async ({ page }) => {

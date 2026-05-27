@@ -106,6 +106,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
       </>
     );
   }
+
   renderInnerButton() {
     const className = this.item.getActionBarItemCss();
     const title = this.item.tooltip || this.item.title;

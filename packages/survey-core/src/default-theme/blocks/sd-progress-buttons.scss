@@ -478,25 +478,38 @@
   margin: auto;
 }
 
+// :dir(rtl),
+// [style*="direction:rtl"],
+// [style*="direction: rtl"] {
+//   .sd-progress-buttons__list {
+//     li {
+//       // &:not(:first-child) > .sd-progress-buttons__connector {
+//       //   transform: translateX(calc(100% + 20px));
+//       // }
+//     }
+//   }
+
+//   .sd-root-modern--mobile,
+//   .sd-progress-buttons--no-titles {
+//     .sd-progress-buttons__list {
+//       li {
+//         // &:not(:first-child) > .sd-progress-buttons__connector {
+//         //   transform: translateX(100%);
+//         // }
+//       }
+//     }
+//   }
+// }
+
 :dir(rtl),
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sd-progress-buttons__list {
-    li {
-      // &:not(:first-child) > .sd-progress-buttons__connector {
-      //   transform: translateX(calc(100% + 20px));
-      // }
-    }
-  }
+    transform: scale(-1, 1);
+    direction: ltr;
 
-  .sd-root-modern--mobile,
-  .sd-progress-buttons--no-titles {
-    .sd-progress-buttons__list {
-      li {
-        // &:not(:first-child) > .sd-progress-buttons__connector {
-        //   transform: translateX(100%);
-        // }
-      }
+    .sd-progress-buttons__button {
+      transform: scale(-1, 1);
     }
   }
 }

@@ -28,7 +28,7 @@ export class ProgressButtons extends Base {
     return index <= this.survey.currentPageNo + 1;
   }
   public isListElementPassed(index: number): boolean {
-    return this.survey.visiblePages[index].passed;
+    return this.survey.visiblePages[index].wasRendered;
   }
   public getRootCss(container: string = "center"): string {
     let result = this.survey.css.progressButtonsContainerCenter;

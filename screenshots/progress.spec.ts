@@ -891,5 +891,17 @@ frameworks.forEach(framework => {
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-bottom.png");
     });
+
+    test("Check survey with progress top buttons - skipped pages stay gray", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.currentPageNo = 3;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-skipped-pages.png");
+    });
   });
 });

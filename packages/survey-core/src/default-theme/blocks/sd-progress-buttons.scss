@@ -109,6 +109,12 @@
       background-color: var(--sjs2-color-border-brand-primary);
     }
   }
+
+  &:not(.sd-progress-buttons__list-element--passed) + .sd-progress-buttons__list-element--passed {
+    &::after {
+      background-color: var(--sjs2-color-border-basic-secondary);
+    }
+  }
 }
 
 .sd-progress-buttons__button {

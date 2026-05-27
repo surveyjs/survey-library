@@ -91,6 +91,7 @@ frameworks.forEach(framework => {
         ],
         "widthMode": "static"
       });
+      await expect(page.locator(".sd-checkbox__control").nth(0)).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Shift+Tab");
       const questionRoot = page.locator(".sd-row");

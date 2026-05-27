@@ -474,6 +474,7 @@ frameworks.forEach(framework => {
         ],
         "autoFocusFirstQuestion": true // do not remove, it is need to check container clipping
       });
+      await expect(page.locator(".sd-checkbox__control").nth(0)).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Shift+Tab");
 

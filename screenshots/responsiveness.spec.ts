@@ -474,6 +474,8 @@ frameworks.forEach(framework => {
         ],
         "autoFocusFirstQuestion": true // do not remove, it is need to check container clipping
       });
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Shift+Tab");
 
       await compareScreenshot(page, ".sd-question", "responsiveness-checkbox-col-count-5-wide.png");
       await page.setViewportSize({ width: 1000, height: 1080 });

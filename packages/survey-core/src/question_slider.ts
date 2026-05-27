@@ -563,7 +563,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public setValueByClickOnPath = (event: PointerEvent, rootNode: HTMLElement) => {
     const { renderedMax: max, renderedMin: min } = this;
-    let isRtl = DomDocumentHelper.getComputedStyle(DomDocumentHelper.getBody()).direction == "rtl";
+    let isRtl = DomDocumentHelper.isRtlDirection(this.survey.rootElement);
 
     let percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
     if (isRtl) percent = 100 - percent;

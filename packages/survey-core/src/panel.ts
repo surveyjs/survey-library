@@ -47,11 +47,11 @@ export class QuestionRowModel extends Base {
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
+    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
     if (this._scrollableParent === DomDocumentHelper.getDocumentElement()) {
       this._scrollableParent = DomWindowHelper.getWindow();
     }
-    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     this.isNeedRender = !hasScroll;
     if (hasScroll) {
       this._updateVisibility = () => {
@@ -390,9 +390,11 @@ export class PanelModelBase extends SurveyElement<Question>
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
-      (obj: Base) => { return !this.areInvisibleElementsShowing; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+      (obj: Base) => { return !this.areInvisibleElementsShowing; },
+      undefined,
+      () => { this.visible = true; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -408,6 +410,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     if (name === "visible") {
       this.onVisibleChanged();
+    }
+    if (name === "isRequired") {
+      if (!this.isRequired && this.errors.length > 0) {
+        this.validateContainerOnly();
+      }
     }
   }
   public getType(): string {
@@ -2469,6 +2476,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     super.expand();
   }
   protected onElementExpanded(elementIsRendered: boolean): void {
+    super.onElementExpanded(elementIsRendered);
     if (!this.forcusFirstQuestionOnExpand) { return; }
     if (this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);

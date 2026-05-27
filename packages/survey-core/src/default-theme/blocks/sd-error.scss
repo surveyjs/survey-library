@@ -9,38 +9,28 @@
   border-radius: var(--sjs2-radius-component-message, 8px);
   @include sjs2--typography--small-strong;
   text-align: left;
-  color: var(--sjs2-color-component-message-error-icon, #C30935);
+  color: var(--sjs2-color-fg-alert-primary);
   white-space: normal;
   width: 100%;
-  background-color: var(--sjs2-color-component-message-error-bg, rgba(229, 10, 62, 0.1));
+  background-color: var(--sjs2-color-component-message-error-bg);
   box-sizing: border-box;
 }
 
-.sd-slider__tooltip-value {
-  font-weight: 600;
-  line-height: var(--lbr-font-small-line-height, size(2));
-  color: var(--lbr-tooltip-text-color, $primary);
-}
-
 .sd-error--warning {
-  background: var(--sjs-semantic-yellow-background-10, $yellow-light);
+  background: var(--sjs2-color-bg-warning-secondary);
 
   .sd-error__item {
-    color: var(--sjs-semantic-yellow-background-500, $yellow);
+    color: var(--sjs2-color-fg-warning-primary);
   }
 }
 
 .sd-error--info {
-  background: var(--sjs-semantic-blue-background-10, $blue-light);
+  background: var(--sjs2-color-component-message-info-bg);
   .sd-error__item {
-    color: var(--sjs-semantic-blue-background-500, $blue);
+    color: var(--sjs2-color-fg-note-primary);
   }
 }
 
 .sd-error__item {
-  font-family: var(--lbr-font-family, $font-family);
-  font-size: var(--lbr-font-small-size, var(--sjs2-font-size-x150));
-  font-style: normal;
-  font-weight: 600;
-  line-height: var(--lbr-font-small-line-height, var(--sjs2-line-height-x200));
+  @include sjs2--typography--small-strong;
 }

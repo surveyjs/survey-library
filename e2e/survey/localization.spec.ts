@@ -117,33 +117,33 @@ frameworks.forEach(framework => {
       const questionDropdownSelect = page.locator(".sd-dropdown");
 
       await questionDropdownSelect.click();
-      await expect(page.getByTitle("en1")).toBeVisible();
-      await expect(page.getByTitle("en2")).toBeVisible();
-      await page.getByTitle("en1").click();
+      await expect(page.getByRole("option", { name: "en1" })).toBeVisible();
+      await expect(page.getByRole("option", { name: "en2" })).toBeVisible();
+      await page.getByRole("option", { name: "en1" }).click();
 
       await page.evaluate(() => {
         window["survey"].locale = "de";
       });
       await questionDropdownSelect.click();
-      await expect(page.getByTitle("de1")).toBeVisible();
-      await expect(page.getByTitle("de2")).toBeVisible();
-      await page.getByTitle("de2").click();
+      await expect(page.getByRole("option", { name: "de1" })).toBeVisible();
+      await expect(page.getByRole("option", { name: "de2" })).toBeVisible();
+      await page.getByRole("option", { name: "de2" }).click();
 
       await page.evaluate(() => {
         window["survey"].locale = "fr";
       });
       await questionDropdownSelect.click();
-      await expect(page.getByTitle("fr1")).toBeVisible();
-      await expect(page.getByTitle("fr2")).toBeVisible();
-      await page.getByTitle("fr1").click();
+      await expect(page.getByRole("option", { name: "fr1" })).toBeVisible();
+      await expect(page.getByRole("option", { name: "fr2" })).toBeVisible();
+      await page.getByRole("option", { name: "fr1" }).click();
 
       await page.evaluate(() => {
         window["survey"].locale = "en";
       });
       await questionDropdownSelect.click();
-      await expect(page.getByTitle("en1")).toBeVisible();
-      await expect(page.getByTitle("en2")).toBeVisible();
-      await page.getByTitle("en2").click();
+      await expect(page.getByRole("option", { name: "en1" })).toBeVisible();
+      await expect(page.getByRole("option", { name: "en2" })).toBeVisible();
+      await page.getByRole("option", { name: "en2" }).click();
     });
   });
 });

@@ -33,6 +33,7 @@ interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
   useStrictDependencies?: boolean;
+  onReset?: (obj: Base) => void;
 }
 
 export interface IExpressionValidationOptions {
@@ -538,7 +539,9 @@ export class Base implements IObjectValueContext {
     if (orgObj !== obj && org !== this) {
       org.mergeLocalizationObj(orgObj, locales);
     }
+    this.mergeLocalizationWithInnerObjects(obj, locales);
   }
+  protected mergeLocalizationWithInnerObjects(_src: Base, _locales?: Array<string>): void {}
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
     const locStrs = obj.localizableStrings;
@@ -966,11 +969,11 @@ export class Base implements IObjectValueContext {
       fireCallback(this);
     }
   }
-  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean): void {
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean, onReset?: (obj: Base) => void): void {
     if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
-    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies };
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies, onReset: onReset };
   }
   public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
     if (!expression) return;
@@ -1053,6 +1056,11 @@ export class Base implements IObjectValueContext {
   private checkConditionPropertyChanged(propName: string): void {
     if (!this.expressionInfo || !this.expressionInfo[propName]) return;
     if (!this.canRunConditions()) return;
+    const info = this.expressionInfo[propName];
+    if (!this.getPropertyValue(propName)) {
+      if (info.onReset) info.onReset(this);
+      return;
+    }
     this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, properties: HashTable<any>): void {
@@ -1071,8 +1079,9 @@ export class Base implements IObjectValueContext {
   }
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
     if (!keys) return false;
-    if (!!runner && runner.hasFunction()) return false;
+    if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    if ((!Array.isArray(vars) || vars.length === 0) && !!runner && runner.hasFunction()) return false;
     return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;

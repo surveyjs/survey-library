@@ -1063,7 +1063,6 @@ json = {
 
 var model = new Survey.Model(json);
 //model.setDesignMode(true);
-model.applyTheme(SurveyTheme.Test);
 window.survey = model;
 
 // class CustomTOCItem extends React.Component {

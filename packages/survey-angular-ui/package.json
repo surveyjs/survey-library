@@ -1,6 +1,6 @@
 {
   "name": "survey-angular-ui",
-  "version": "3.0.0-beta.3",
+  "version": "3.0.0-beta.6",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "license": "MIT",
@@ -35,7 +35,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/surveyjs/surveyjs.git"
+    "url": "https://github.com/surveyjs/survey-library.git"
   },
   "typings": "survey-angular-ui.d.ts",
   "peerDependencies": {
@@ -43,7 +43,7 @@
     "@angular/core": "*",
     "@angular/forms": "*",
     "tslib": "^2.3.0",
-    "survey-core": "^1.9.46"
+    "survey-core": "^2.0.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~12.2.18",

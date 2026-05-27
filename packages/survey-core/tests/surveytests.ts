@@ -2028,13 +2028,18 @@ describe("Survey", () => {
     expect(survey.isCurrentPageHasErrors, "failed, values are undefined : 10 < q1.value + q2.value < 100").toBe(true);
     expect(counter, "onValidatePanel calls one time").toBe(1);
     q1.value = 5;
+    // panel still has the error -> answering q1 re-runs panel validation
+    expect(counter, "onValidatePanel re-runs after q1 value change while panel has errors").toBe(2);
     q2.value = 50;
+    // panel still has the error -> answering q2 re-runs panel validation; this time error clears
+    expect(counter, "onValidatePanel re-runs after q2 value change while panel has errors").toBe(3);
     expect(survey.isCurrentPageHasErrors, "passed: 5 + 50, 10 < q1.value + q2.value < 100").toBe(false);
-    expect(counter, "onValidatePanel calls two time").toBe(2);
+    expect(counter, "onValidatePanel calls four time").toBe(4);
     q1.value = 55;
-
+    // panel currently has no errors so changing value does not auto re-run panel validation
+    expect(counter, "onValidatePanel is not re-run when panel has no errors").toBe(4);
     expect(survey.isCurrentPageHasErrors, "failed: 55 + 50, 10 < q1.value + q2.value < 100").toBe(true);
-    expect(counter, "onValidatePanel calls three time").toBe(3);
+    expect(counter, "onValidatePanel calls five time").toBe(5);
   });
   test("survey.onValidatePanel & options.errors", () => {
     const survey = new SurveyModel();
@@ -15963,12 +15968,13 @@ describe("Survey", () => {
         "component": "sv-progress-questions",
         "id": "progress-questions"
       }]);
-      expect(getContainerContent("footer"), "progress toc both footer").toEqual([{
-        "component": "sv-progress-questions",
-        "id": "progress-questions"
-      }]);
+      expect(getContainerContent("footer"), "progress toc both footer").toEqual([]);
       expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqual([]);
-      expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([]);
+      expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([{
+        "component": "sv-progress-questions",
+        "id": "progress-questions",
+        "index": 150
+      }]);
       expect(getContainerContent("left"), "progress toc both left").toEqual([{
         "component": "sv-navigation-toc",
         "id": "toc-navigation"
@@ -16119,12 +16125,13 @@ describe("Survey", () => {
       "component": "sv-progress-questions",
       "id": "progress-questions"
     }]);
-    expect(getContainerContent("footer"), "progress toc both footer").toEqual([{
-      "component": "sv-progress-questions",
-      "id": "progress-questions"
-    }]);
+    expect(getContainerContent("footer"), "progress toc both footer").toEqual([]);
     expect(getContainerContent("contentTop"), "progress toc both contentTop").toEqual([]);
-    expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([]);
+    expect(getContainerContent("contentBottom"), "progress toc both contentBottom").toEqual([{
+      "component": "sv-progress-questions",
+      "id": "progress-questions",
+      "index": 150
+    }]);
     expect(getContainerContent("left"), "progress toc both left").toEqual([{
       "component": "sv-navigation-toc",
       "id": "toc-navigation"
@@ -17389,6 +17396,30 @@ describe("Survey", () => {
     expect(survey["isCompact"]).toBe(true);
     expect(survey.headerView, "after applyTheme").toBe("basic");
   });
+  test("survey.applyTheme with baseTheme", () => {
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+    const baseTheme = {
+      backgroundImageFit: "contain",
+      backgroundOpacity: 0.5,
+      cssVariables: {
+        "--sjs2-color-bg-basic-primary": "rgba(255, 255, 255, 1)",
+      },
+      isPanelless: false,
+    };
+    survey.applyTheme({
+      backgroundOpacity: 0.8,
+      cssVariables: {
+        "--sjs2-color-bg-basic-secondary": "rgba(248, 248, 248, 1)",
+      },
+      isPanelless: true,
+    }, baseTheme);
+
+    expect(survey.backgroundImageFit).toBe("contain");
+    expect(survey.backgroundOpacity).toBe(0.8);
+    expect(survey["isCompact"]).toBe(true);
+    expect(survey.themeVariables["--sjs2-color-bg-basic-primary"]).toBe("rgba(255, 255, 255, 1)");
+    expect(survey.themeVariables["--sjs2-color-bg-basic-secondary"]).toBe("rgba(248, 248, 248, 1)");
+  });
   test("survey.applyTheme patches legacy CSS variables", () => {
     const cssVariables = DefaultTheme.cssVariables;
     try {
@@ -17398,6 +17429,8 @@ describe("Survey", () => {
         cssVariables: {
           "--sjs-general-backcolor": "rgba(255, 0, 0, 1)",
           "--sjs-font-size": "18px",
+          "--sjs-font-headertitle-size": "32px",
+          "--sjs-font-headerdescription-size": "20px",
           "--sjs-shadow-medium": "0px 2px 6px rgba(0,0,0,0.1)",
           "--sjs-shadow-large": "0px 8px 16px rgba(0,0,0,0.1)"
         }
@@ -17412,6 +17445,12 @@ describe("Survey", () => {
       expect(vars["--sjs2-border-effect-floating-default"]).toBe("0px 2px 6px rgba(0,0,0,0.1),0px 8px 16px rgba(0,0,0,0.1)");
       expect(typeof vars["--sjs-shadow-medium"]).toBe("undefined");
       expect(typeof vars["--sjs-shadow-large"]).toBe("undefined");
+      expect(vars["--sjs2-typography-font-size-component-header-title"]).toBe("32px");
+      expect(vars["--sjs2-typography-line-height-component-header-title"]).toBe("40px");
+      expect(typeof vars["--sjs-font-headertitle-size"]).toBe("undefined");
+      expect(vars["--sjs2-typography-font-size-component-header-description"]).toBe("20px");
+      expect(vars["--sjs2-typography-line-height-component-header-description"]).toBe("30px");
+      expect(typeof vars["--sjs-font-headerdescription-size"]).toBe("undefined");
     } finally {
       DefaultTheme.cssVariables = cssVariables;
     }
@@ -18414,6 +18453,93 @@ describe("Survey", () => {
     expect(getContainerContent("contentBottom"), "progress top contentBottom").toEqual([]);
     expect(getContainerContent("left"), "progress top left").toEqual([]);
     expect(getContainerContent("right"), "progress top right").toEqual([]);
+  });
+
+  test("getContainerContent - header + toc + progress with applied header theme", () => {
+    const json = {
+      showQuestionNumbers: true,
+      autoFocusFirstQuestion: true,
+      showTOC: true,
+      title: "Minimum data reporting form - for suspected and probable cases of COVID-19",
+      pages: [{
+        name: "page1",
+        navigationTitle: "Sign In",
+        navigationDescription: "... to continue purchasing.",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, {
+        name: "page2",
+        navigationTitle: "Shipping information",
+        title: "Shipping",
+        navigationDescription: "Enter shipping information.",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            title: "Select a shipping method.",
+            choices: ["FedEx", "DHL", "USP", "In-Store Pickup"]
+          },
+        ]
+      }, {
+        name: "page3",
+        navigationTitle: "Payment method",
+        navigationDescription: "Select a payment method.",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, {
+        name: "page4",
+        navigationTitle: "Gift Options",
+        navigationDescription: "Choose your gift.",
+        elements: [
+          {
+            name: "q1",
+            type: "text"
+          }
+        ]
+      }, {
+        name: "page5",
+        navigationTitle: "Place Order",
+        navigationDescription: "Finish your purchasing.",
+        elements: [{
+          name: "q1",
+          type: "text"
+        }]
+      }],
+      showProgressBar: true
+    };
+
+    const survey = new SurveyModel(json);
+    const getContainerContent = getContainerContentFunction(survey);
+
+    survey.applyTheme({
+      header: { inheritWidthFrom: "container" },
+      cssVariables: { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }
+    } as any);
+
+    const headerContent = getContainerContent("header");
+    const leftContent = getContainerContent("left");
+    const centerContent = getContainerContent("center");
+    const contentTop = getContainerContent("contentTop");
+    const contentBottom = getContainerContent("contentBottom");
+    const footerContent = getContainerContent("footer");
+
+    expect(headerContent.some(el => el.id === "advanced-header"), "header is rendered").toBeTruthy();
+    expect(leftContent.some(el => el.id === "toc-navigation"), "toc is rendered on the left").toBeTruthy();
+
+    const contentWithProgress = headerContent
+      .concat(centerContent)
+      .concat(contentTop)
+      .concat(contentBottom)
+      .concat(footerContent);
+    expect(contentWithProgress.some(el => el.id && el.id.indexOf("progress-") === 0), "progress is rendered").toBeTruthy();
   });
 
   test("getContainerContent - do not show timer panel in display mode", () => {

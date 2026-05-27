@@ -92,7 +92,7 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  background-color: $primary-light;
+  background-color: var(--sjs2-color-bg-brand-secondary);
   color: $font-questiontitle-color;
   font-size: $font-editorfont-size;
   border-radius: 100%;
@@ -287,10 +287,8 @@
   border-radius: var(--sjs2-radius-component-ranking, 9999px);
   min-width: 100px;
   max-width: 400px;
-  box-shadow:
-    var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)),
-    var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
-  background-color: var(--sjs-general-backcolor, var(--background, #fff));
+  box-shadow: var(--sjs2-border-effect-floating-default);
+  background-color: var(--sjs2-color-bg-basic-primary);
   font-family: $font-family;
 
   .sv-ranking-item {
@@ -420,7 +418,7 @@
 }
 
 .sv-ranking__container-placeholder {
-  color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
+  color: var(--sjs2-color-fg-basic-secondary);
   @include sjs2--typography--default;
   white-space: normal;
   display: flex;

@@ -48,7 +48,7 @@
 }
 
 .sv-list__item-body {
-  --sjs-list-item-padding-left-default: calc(2 * #{$base-unit});
+  --sjs-list-item-padding-left-default: --sjs2-spacing-x200;
   --sjs-list-item-padding-left: calc(var(--sjs-list-item-level) * var(--sjs-list-item-padding-left-default));
 
   position: relative;
@@ -58,7 +58,7 @@
   // padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x800) var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
   padding-block: var(--sjs2-spacing-x100);
   padding-inline-end: var(--sjs2-spacing-x800);
-  padding-inline-start: var(--sjs-list-item-padding-left, var(--sjs2-spacing-x200));
+  padding-inline-start: var(--sjs2-spacing-x200);
   color: $font-questiontitle-color;
   @include sjs2--typography--default;
   cursor: pointer;
@@ -180,14 +180,14 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-multi-select-list .sv-list__item.sv-list__item--selected,
 .sv-multi-select-list .sv-list__item.sv-list__item--selected:hover {
   .sv-list__item-body {
-    background-color: $primary-light;
+    background-color: var(--sjs2-color-bg-brand-secondary);
     color: $font-questiontitle-color;
     @include sjs2--typography--default;
   }
 }
 
 .sv-list__item--group-selected > .sv-list__item-body {
-  background-color: $primary-light;
+  background-color: var(--sjs2-color-bg-brand-secondary);
   color: $font-questiontitle-color;
   @include sjs2--typography--default;
 

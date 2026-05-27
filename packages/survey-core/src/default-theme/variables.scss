@@ -1,14 +1,5 @@
 $primary: var(--sjs2-color-bg-brand-primary, var(--primary, #19b394));
-$primary-light: var(--sjs2-color-bg-brand-secondary, var(--primary-light, rgba(25, 179, 148, 0.1)));
-$primary-background-dark: var(--sjs2-color-bg-brand-primary-dim, rgb(20, 164, 139));
 $primary-foreground: var(--sjs2-color-fg-brand-on-primary, var(--primary-foreground, #fff));
-$primary-foreground-disabled: var(--sjs2-color-fg-brand-primary-disabled, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
-
-$secondary: var(--sjs2-color-bg-accent-primary, var(--secondary, #ff9814));
-$secondary-light: var(--sjs2-color-bg-accent-secondary, var(--secondary-light, rgba(255, 152, 20, 0.25)));
-$secondary-backcolor-semi-light: var(--sjs2-color-bg-accent-secondary-dim, rgba(255, 152, 20, 0.1));
-$secondary-forecolor: var(--sjs2-color-fg-accent-on-primary, #fff);
-$secondary-forecolor-light: var(--sjs2-color-fg-accent-primary-disabled, rgba(#fff, 0.25));
 
 $editor-background: var(
   --sjs2-color-component-formbox-default-bg,
@@ -22,13 +13,7 @@ $question-background: var(
 $background: var(--sjs2-color-bg-basic-primary, var(--background, #fff));
 $background-dim: var(--sjs2-color-bg-neutral-tertiary-dim, var(--background-dim, #f3f3f3));
 $background-dim-light: var(--sjs2-color-bg-basic-secondary, var(--background-dim-light, #f9f9f9));
-$background-semitransparent: var(--lbr-dialog-screen-color, var(--background-semitransparent, rgba(144, 144, 144, 0.5)));
 $background-dark: var(--sjs2-color-unknown-variable-001, var(--sjs2-color-bg-basic-primary-dim, rgb(248, 248, 248)));
-$background-dim-dark: var(--sjs2-color-bg-basic-secondary-dim, var(--sjs2-color-bg-basic-secondary-dim, rgb(243, 243, 243)));
-
-$corner-radius: var(--sjs2-base-unit-radius, 4px);
-$editor-corner-radius: var(--sjs2-radius-component-formbox, 8px);
-$panel-corner-radius: var(--sjs2-radius-component-panel, 12px);
 
 $foreground: var(--sjs2-color-fg-basic-primary, var(--foreground, #161616));
 $foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090));
@@ -63,65 +48,25 @@ $blue-light: var(--sjs2-color-bg-note-secondary, var(--blue-light, rgba(67, 127,
 $blue-forecolor: var(--sjs2-color-fg-note-on-primary, #ffffff);
 
 $font-family: var(--sjs2-typography-font-family-text, var(--font-family, var(--sjs-default-font-family)));
-$font-size: var(--sjs2-font-size-x200, 16px);
 
-$font-surveytitle-family: var(--sjs2-typography-font-family-component-header-title, #{$font-family});
-$font-surveytitle-weight: var(--sjs2-typography-font-weight-component-header-title, 700);
-$font-surveytitle-color: var(--sjs2-color-component-header-default-title, #{$primary-foreground});
-
-$font-surveydescription-family: var(--sjs2-typography-font-family-component-header-description, #{$font-family});
-$font-surveydescription-weight: var(--sjs2-typography-font-weight-component-header-description, 400);
-$font-surveydescription-color: var(--sjs2-color-component-header-default-description, #{$foreground-light});
-
-$font-headertitle-family: var(--sjs2-typography-font-family-component-header-title, #{$font-family});
-$font-headertitle-weight: var(--sjs2-typography-font-weight-component-header-title, 700);
-$font-headertitle-color: var(--sjs2-color-component-header-default-title, #{$primary-foreground});
-
-$font-headerdescription-family: var(--sjs2-typography-font-family-component-header-description, #{$font-family});
-$font-headerdescription-weight: var(--sjs2-typography-font-weight-component-header-description, 400);
-$font-headerdescription-color: var(--sjs2-color-component-header-default-description, #{$primary-foreground});
-
-$font-pagetitle-family: var(--sjs2-typography-font-family-component-page-title, #{$font-family});
-$font-pagetitle-weight: var(--sjs2-typography-font-weight-component-page-title, 700);
-$font-pagetitle-color: var(--sjs2-color-component-page-default-title, var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91)));
-
-$font-pagedescription-family: var(--sjs2-typography-font-family-component-page-description, #{$font-family});
-$font-pagedescription-weight: var(--sjs2-typography-font-weight-component-page-description, 400);
-$font-pagedescription-color: var(
-  --sjs2-color-component-page-default-description,
-  var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
-);
-$font-pagedescription-size: var(--sjs2-typography-font-size-component-page-description, $font-size);
-
-$font-questiontitle-family: var(--sjs2-typography-font-family-component-question-title, #{$font-family});
 $font-questiontitle-weight: var(--sjs2-typography-font-weight-component-question-title, 600);
 $font-questiontitle-color: var(
   --sjs2-color-component-question-default-title,
   var(--sjs2-color-fg-basic-primary, var(--foreground, #161616))
 );
-$font-questiontitle-size: var(--sjs2-typography-font-size-component-question-title, $font-size);
+$font-questiontitle-size: var(--sjs2-typography-font-size-component-question-title, var(--sjs2-font-size-x200));
 
-$font-questiondescription-family: var(--sjs2-typography-font-family-component-question-description, #{$font-family});
-$font-questiondescription-weight: var(--sjs2-typography-font-weight-component-question-description, 400);
 $font-questiondescription-color: var(
   --sjs2-color-component-question-default-description,
   var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
-$font-questiondescription-size: var(--sjs2-typography-font-size-component-question-description, $font-size);
+
 $font-questionplaceholder-color: var(
   --sjs2-color-component-question-default-title-placeholder,
   var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
 );
 
-$font-editorfont-family: var(--sjs2-typography-font-family-component-input-content, #{$font-family});
-$font-editorfont-weight: var(--sjs2-typography-font-weight-component-input-content, 400);
-$font-editorfont-color: var(--sjs2-color-component-editor-input-default-value, var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91)));
-$font-editorfont-placeholdercolor: var(
-  --sjs2-color-component-editor-input-default-placeholder,
-  var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090))
-);
-$font-editorfont-size: var(--sjs2-typography-font-size-component-input-content, $font-size);
-$base-unit: var(--sjs2-base-unit-size, var(--base-unit, 8px));
+$font-editorfont-size: var(--sjs2-typography-font-size-component-input-content, var(--sjs2-font-size-x200));
 
 $sd-panel-normal-min-width: 496px;
 $sd-panel-medium-min-width: 176px;
@@ -200,6 +145,20 @@ $pd-list-fade-out-duration: var(--sjs-pd-list-fade-out-duration, 150ms);
 $pd-list-move-out-duration: var(--sjs-pd-list-move-out-duration, 250ms);
 $pd-list-move-out-delay: var(--sjs-pd-list-move-out-delay, 100ms);
 
+$item-panel-fade-in-duration: var(--sjs-item-panel-fade-in-duration, 300ms);
+$item-panel-move-in-duration: var(--sjs-item-panel-move-in-duration, 300ms);
+$item-panel-fade-in-delay: var(--sjs-item-panel-fade-in-delay, 100ms);
+$item-panel-fade-out-duration: var(--sjs-item-panel-fade-out-duration, 150ms);
+$item-panel-move-out-duration: var(--sjs-item-panel-move-out-duration, 250ms);
+$item-panel-move-out-delay: var(--sjs-item-panel-move-out-delay, 100ms);
+
+$item-comment-fade-in-duration: var(--sjs-item-comment-fade-in-duration, 300ms);
+$item-comment-move-in-duration: var(--sjs-item-comment-move-in-duration, 200ms);
+$item-comment-fade-in-delay: var(--sjs-item-comment-fade-in-delay, 150ms);
+$item-comment-fade-out-duration: var(--sjs-item-comment-fade-out-duration, 150ms);
+$item-comment-move-out-duration: var(--sjs-item-comment-move-out-duration, 250ms);
+$item-comment-move-out-delay: var(--sjs-item-comment-move-out-delay, 100ms);
+
 $transition-duration: var(--sjs-transition-duration, 150ms);
 
 $ease-out: cubic-bezier(0, 0, 0.58, 1);
@@ -211,36 +170,6 @@ $reverse-ease-out: cubic-bezier(0.42, 0, 1, 1);
     @return $result;
   } @else {
     $result: calc(#{$a} * (#{$b}));
-    @return $result;
-  }
-}
-
-@function calcSize($multiplier) {
-  @if $multiplier ==1 {
-    $result: #{$base-unit};
-    @return $result;
-  } @else {
-    $result: calc(#{$multiplier} * (#{$base-unit}));
-    @return $result;
-  }
-}
-
-@function calcLineHeight($multiplier) {
-  @if $multiplier ==1 {
-    $result: #{$font-size};
-    @return $result;
-  } @else {
-    $result: calc(#{$multiplier} * (#{$font-size}));
-    @return $result;
-  }
-}
-
-@function calcCornerRadius($multiplier) {
-  @if $multiplier ==1 {
-    $result: #{$corner-radius};
-    @return $result;
-  } @else {
-    $result: calc(#{$multiplier} * (#{$corner-radius}));
     @return $result;
   }
 }

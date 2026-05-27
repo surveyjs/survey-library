@@ -73,10 +73,11 @@ export async function resetFocusToBody(page: Page): Promise<void> {
 
 export const applyTheme = async (page: Page, theme: any) => {
   await page.evaluate((theme) => {
-    const testTheme = (window as any).SurveyTheme.Test;
-    const newTheme = { ...testTheme, ...theme };
-    newTheme.cssVariables = { ...testTheme.cssVariables, ...theme.cssVariables };
-    (window as any).survey.applyTheme(newTheme);
+    const survey = (window as any).survey;
+    const baseTheme = survey.theme || {};
+    const newTheme = { ...baseTheme, ...theme };
+    newTheme.cssVariables = { ...(baseTheme.cssVariables || {}), ...(theme.cssVariables || {}) };
+    survey.applyTheme(newTheme);
   }, theme);
 };
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
@@ -102,7 +103,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 
     (window as any).Survey.settings.animationEnabled = false;
     const model = new (window as any).Survey.Model(json);
-    model.applyTheme(window["SurveyTheme"].Test);
     model.allowResizeComment = false;
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {

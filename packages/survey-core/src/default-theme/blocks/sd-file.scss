@@ -56,7 +56,7 @@
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;
-  background: $primary-light;
+  background: var(--sjs2-color-bg-brand-secondary);
   box-shadow: inset 0 0 0 1px $primary;
 }
 
@@ -152,7 +152,7 @@
   align-items: stretch;
   justify-content: center;
   gap: var(--sjs2-spacing-x400);
-  height: calc(100% - 21 * #{$base-unit});
+  height: calc(100% - 21 * var(--sjs2-base-unit-size));
   width: 100%;
   position: absolute;
 }
@@ -274,9 +274,9 @@
     min-width: 100%;
     max-width: 100%;
     overflow: hidden;
-    max-height: calcLineHeight(3);
+    max-height: var(--sjs2-line-height-x600);
     text-overflow: ellipsis;
-    line-height: calcLineHeight(1);
+    line-height: var(--sjs2-line-height-x200);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -296,7 +296,7 @@
   .sd-file__remove-file-button {
     left: 50%;
     top: 50%;
-    transform: translate(calc(0.5 * 7 * #{$base-unit} - 50% - 1.5px), calc(-0.5 * 8.5 * #{$base-unit} - 50% + 1.5px));
+    transform: translate(calc(0.5 * 7 * var(--sjs2-base-unit-spacing) - 50% - 1.5px), calc(-0.5 * 8.5 * var(--sjs2-base-unit-spacing) - 50% + 1.5px));
   }
 }
 
@@ -334,7 +334,7 @@
 }
 
 .sd-file--single-image {
-  height: calc(36 * #{$base-unit});
+  height: calc(36 * var(--sjs2-base-unit-size));
 
   .sd-file__page {
     height: 100%;

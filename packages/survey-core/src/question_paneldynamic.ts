@@ -389,6 +389,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "templateElements" && super.isPropertyStoredInHash(name);
   }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
+    if (srcTemplate) {
+      (<any>this.template).mergeLocalizationObj(srcTemplate, locales);
+    }
+  }
   /**
    * A template for panel titles.
    *
@@ -1119,6 +1125,24 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    */
   @property() allowRemovePanel: boolean;
   /**
+   * Indicates whether the add panel button is enabled. When set to `false`, the button is disabled but remains visible.
+   *
+   * Default value: `true`
+   *
+   * This property is not serialized.
+   * @see allowAddPanel
+   */
+  @property({ defaultValue: true }) enableAddPanel: boolean;
+  /**
+   * Indicates whether the remove panel button is enabled. When set to `false`, the button is disabled but remains visible.
+   *
+   * Default value: `true`
+   *
+   * This property is not serialized.
+   * @see allowRemovePanel
+   */
+  @property({ defaultValue: true }) enableRemovePanel: boolean;
+  /**
    * Gets or sets the location of question titles relative to their input fields.
    *
    * - `"default"` (default) - Inherits the setting from the Dynamic Panel's `titleLocation` property, which in turn inherits the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitleLocation) property value specified for the Dynamic Panel's container (page or survey).
@@ -1434,19 +1458,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     );
   }
   protected setDefaultValue() {
-    if (
-      this.isValueEmpty(this.defaultPanelValue) ||
-      !this.isValueEmpty(this.defaultValue)
-    ) {
-      super.setDefaultValue();
-      return;
-    }
-    if (!this.isEmpty() || this.panelCount == 0) return;
-    var newValue = [];
-    for (var i = 0; i < this.panelCount; i++) {
-      newValue.push(this.defaultPanelValue);
-    }
-    this.value = newValue;
+    DynamicItemModelBase.setDefaultValueCore(this, this.defaultPanelValue, this.panelCount, () => super.setDefaultValue());
   }
   public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
@@ -1798,11 +1810,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (includeItSelf) {
       questions.push(this);
     }
-    const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
-    if (!Array.isArray(panels)) return;
-    panels.forEach(panel => {
-      panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
-    });
+    DynamicItemModelBase.collectNestedQuestionsInItems(
+      visibleOnly ? this.visiblePanelsCore : this.panelsCore,
+      questions, visibleOnly, includeNested, includeItSelf
+    );
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -1888,14 +1899,11 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.releaseAnimations();
   }
   private runTriggersOnBuildPanelsFirstTime(): void {
-    const val = this.value;
-    this.visiblePanelsCore.forEach(p => {
-      const panelValue = this.getItemData(p.data);
-      if (!Helpers.isValueEmpty(panelValue)) {
-        const triggeredValue = Helpers.createCopyWithPrefix(panelValue, settings.expressionVariables.panel + ".");
-        (<DynamicItemModelBase>p.data).runTriggers("", undefined, triggeredValue);
-      }
-    });
+    DynamicItemModelBase.runTriggersOnItems(
+      this.visiblePanelsCore.map(p => <DynamicItemModelBase>p.data),
+      item => this.getItemData(item),
+      settings.expressionVariables.panel
+    );
   }
   private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly; }
   private get wasNotRenderedInSurvey(): boolean {
@@ -2164,6 +2172,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
           }
         },
         visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel)].every((val: boolean) => val === true)),
+        enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       });
       action.cssClasses = this.survey.getCss().actionBar || defaultActionBarCss;
@@ -2574,6 +2583,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     });
     const addBtn = new Action({
       id: "sv-pd-add-btn",
+      enabled: <any>new ComputedUpdater(() => this.enableAddPanel !== false),
       action: () => {
         this.addPanelUI();
       },

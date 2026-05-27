@@ -25,7 +25,6 @@
 
 .sd-title.sd-element__title {
   @include sjs2--typography--component--question--title;
-  color: $font-questiontitle-color;
 }
 
 .sd-element__header {
@@ -72,9 +71,8 @@
 .sd-element__title.sd-element__title--singleinput {
   span {
     @include sjs2--typography--component--page--title;
-    color: $font-pagetitle-color;
     position: static;
-    margin: 0 0 calcSize(0.5) 0px;
+    margin: 0 0 var(--sjs2-spacing-x050) 0px;
   }
 }
 
@@ -143,7 +141,7 @@
 
 //with borders styles
 .sd-element--with-frame {
-  border-radius: $panel-corner-radius;
+  border-radius: var(--sjs2-radius-component-panel);
   box-sizing: border-box;
   padding-top: var(--sd-base-padding);
   padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
@@ -156,7 +154,7 @@
 //compact styles
 .sd-element--with-frame.sd-element--compact {
   border: 1px solid $border;
-  border-radius: $panel-corner-radius;
+  border-radius: var(--sjs2-radius-component-panel);
   box-shadow: none;
   background-color: transparent;
 }

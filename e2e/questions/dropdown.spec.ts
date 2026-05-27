@@ -2073,7 +2073,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-dropdown__input").locator("span").filter({ hasText: "notenglish" })).toBeVisible();
       await dropdown.focus();
       await dropdown.click();
-      await expect(page.locator("li div[title='notenglish']")).toBeVisible();
+      await expect(page.locator("li > div").filter({ hasText: "notenglish" })).toBeVisible();
       await expect(page.locator("li div span").filter({ hasText: "notenglish" })).toBeVisible();
       await page.locator("body").click({ position: { x: 0, y: 0 } });
       await page.evaluate((locale) => {
@@ -2082,7 +2082,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-dropdown__input").locator("span").filter({ hasText: "english" })).toBeVisible();
       await dropdown.focus();
       await dropdown.click();
-      await expect(page.locator("li div[title='english']")).toBeVisible();
+      await expect(page.locator("li > div").filter({ hasText: "english" })).toBeVisible();
       await expect(page.locator("li div span").filter({ hasText: "english" })).toBeVisible();
       await page.locator("body").click({ position: { x: 0, y: 0 } });
       await page.evaluate((locale) => {
@@ -2091,7 +2091,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-dropdown__input").locator("span").filter({ hasText: "notenglish" })).toBeVisible();
       await dropdown.focus();
       await dropdown.click();
-      await expect(page.locator("li div[title='notenglish']")).toBeVisible();
+      await expect(page.locator("li > div").filter({ hasText: "notenglish" })).toBeVisible();
       await expect(page.locator("li div span").filter({ hasText: "notenglish" })).toBeVisible();
       await page.locator("body").click({ position: { x: 0, y: 0 } });
     });

@@ -37,7 +37,7 @@
   inset-inline-start: initial;
   @-moz-document url-prefix() {
     scrollbar-width: thin;
-    scrollbar-color: var(--ctr-scrollbar-background-color, var(--sjs-border-25-overlay, #00000026)) transparent;
+    scrollbar-color: var(--sjs2-color-utility-scrollbar) transparent;
   }
 }
 

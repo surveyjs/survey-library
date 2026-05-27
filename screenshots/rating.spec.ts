@@ -322,6 +322,7 @@ frameworks.forEach(framework => {
       });
       await page.evaluate(() => {
         window["survey"].rootElement.style.setProperty("--sjs2-base-unit-size", "4px");
+        window["survey"].rootElement.style.setProperty("--sjs2-base-unit-spacing", "4px");
       });
       await compareScreenshot(page, ".sd-question", "question-rating-stars-baseunit.png");
     });

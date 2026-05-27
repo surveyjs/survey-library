@@ -14,13 +14,5 @@ export default defineConfig(() => {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       }
     },
-    build: {
-      commonjsOptions: {
-        include: [/survey-core\/build\/themes\/test/, /node_modules/],
-      },
-    },
-    optimizeDeps: {
-      include: ["survey-core/themes/test"],
-    },
   }
 })

@@ -89,6 +89,10 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   }
   protected abstract getVisibleItem(idx: number): DynamicItemModelBase;
   protected abstract get visibleIndex(): number;
+  public getContextKeys(): { [key: string]: any } {
+    const varName = this.variableName;
+    return varName ? { [varName]: this.item } : {};
+  }
 }
 
 export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, IObjectValueContext {
@@ -203,5 +207,47 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     return !!this.data
       ? this.data.getSharedQuestionFromArray(columnName, this.getIndex())
       : null;
+  }
+
+  public static collectNestedQuestionsInItems(
+    items: Array<{ questions: Array<Question> }>,
+    questions: Array<Question>,
+    visibleOnly: boolean,
+    includeNested: boolean,
+    includeItSelf: boolean
+  ): void {
+    if (!Array.isArray(items)) return;
+    items.forEach(item => {
+      item.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+    });
+  }
+
+  public static runTriggersOnItems(
+    items: DynamicItemModelBase[],
+    getItemValue: (item: DynamicItemModelBase) => any,
+    variablePrefix: string
+  ): void {
+    items.forEach(item => {
+      const val = getItemValue(item);
+      if (!Helpers.isValueEmpty(val)) {
+        item.runTriggers("", undefined, Helpers.createCopyWithPrefix(val, variablePrefix + "."));
+      }
+    });
+  }
+
+  public static setDefaultValueCore(
+    question: Question,
+    defaultItemValue: any,
+    itemCount: number,
+    callSuper: () => void
+  ): void {
+    if (question.isValueEmpty(defaultItemValue) || !question.isValueEmpty(question.defaultValue)) {
+      callSuper();
+      return;
+    }
+    if (!question.isEmpty() || itemCount == 0) return;
+    var newValue: any[] = [];
+    for (var i = 0; i < itemCount; i++) newValue.push(defaultItemValue);
+    question.value = newValue;
   }
 }

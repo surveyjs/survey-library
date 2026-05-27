@@ -110,7 +110,6 @@ export class SurveyActionBarItem extends SurveyElementBase<
 
   renderInnerButton() {
     const className = this.item.getActionBarItemCss();
-    const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
     const tabIndex = this.item.disableTabStop ? -1 : undefined;
     const button = attachKey2click(
@@ -122,7 +121,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         onMouseDown={(args) => this.item.doMouseDown(args)}
         onFocus={(args) => this.item.doFocus(args)}
         onClick={(args) => this.item.doAction(args)}
-        title={title}
+        title={this.item.getTooltip()}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}
         aria-expanded={this.item.ariaExpanded}

@@ -1,5 +1,8 @@
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionMatrixModel } from "../src/question_matrix";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
@@ -397,5 +400,123 @@ describe("Separate locales", () => {
         elements: [{ type: "text", name: "q1", title: { default: "Title", de: "Titel" }, description: { default: "Description", de: "Beschreibung" } }]
       }]
     });
+  });
+  test("mergeLocalizationJSON for paneldynamic templateElements, Bug#11286", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          panelCount: 1,
+          templateElements: [
+            { type: "text", name: "question2" }
+          ]
+        }
+      ]
+    });
+    const localeJson = {
+      locale: "fr",
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              title: "Question 1 - fr",
+              templateElements: [
+                { type: "text", name: "question2", title: "Question 2 - fr" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    survey.locale = "fr";
+    survey.mergeLocalizationJSON(localeJson);
+    const question2 = <QuestionTextModel>(<QuestionPanelDynamicModel>survey.getQuestionByName("question1")).templateElements[0];
+    expect(question2.locTitle.getLocaleText("fr"), "question2 fr title is set").toBe("Question 2 - fr");
+    expect(question2.locTitle.textOrHtml, "question2 locTitle.textOrHtml returns fr title").toBe("Question 2 - fr");
+  });
+  test("mergeLocalizationJSON for matrix detailElements, Bug#11286", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix1",
+          detailPanelMode: "underRow",
+          columns: [{ name: "col1" }],
+          detailElements: [{ type: "text", name: "detail1" }]
+        }
+      ]
+    });
+    const localeJson = {
+      locale: "fr",
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "matrixdynamic",
+              name: "matrix1",
+              title: "Matrix 1 - fr",
+              detailElements: [
+                { type: "text", name: "detail1", title: "Detail 1 - fr" }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    survey.locale = "fr";
+    survey.mergeLocalizationJSON(localeJson);
+    const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+    const detail1 = <QuestionTextModel>matrix.detailElements[0];
+    expect(detail1.locTitle.getLocaleText("fr"), "detail1 fr title is set").toBe("Detail 1 - fr");
+  });
+  test("mergeLocalizationJSON for checkbox choice item elements, Bug#11286", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: [
+            {
+              value: "item1",
+              text: "Item 1",
+              elements: [{ type: "text", name: "sub1" }]
+            }
+          ]
+        }
+      ]
+    });
+    const localeJson = {
+      locale: "fr",
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "checkbox",
+              name: "q1",
+              choices: [
+                {
+                  value: "item1",
+                  text: "Item 1 - fr",
+                  elements: [{ type: "text", name: "sub1", title: "Sub 1 - fr" }]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+    survey.locale = "fr";
+    survey.mergeLocalizationJSON(localeJson);
+    const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+    const item1 = q1.choices[0];
+    expect(item1.locText.getLocaleText("fr"), "item1 fr text is set").toBe("Item 1 - fr");
+    const sub1 = <QuestionTextModel>item1.elements[0];
+    expect(sub1.locTitle.getLocaleText("fr"), "sub1 fr title is set").toBe("Sub 1 - fr");
   });
 });

@@ -55,7 +55,7 @@ import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
-import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
+import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
 import { chooseFiles } from "./utils/file-utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
@@ -87,6 +87,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
+import { ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -5398,6 +5399,7 @@ export class SurveyModel extends SurveyElementCore
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   private _processingResponsivenessFunc: () => boolean;
+  public generateStylesheet = true;
   afterRenderSurvey(htmlElement: any) {
     if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
@@ -5405,6 +5407,9 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
+    if (this.generateStylesheet) {
+      ensureBaseThemeStyles(observedElement);
+    }
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -6326,12 +6331,21 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private validateQuestionOnValueChanged(question: Question) {
+    if (this.isNavigationButtonPressed) return;
     if (
-      !this.isNavigationButtonPressed &&
-      (this.isValidateOnValueChanged ||
-        question.getAllErrors().length > 0)
+      this.isValidateOnValueChanged ||
+      question.getAllErrors().length > 0
     ) {
       this.validateQuestionOnValueChangedCore(question);
+      return;
+    }
+    let parent: PanelModelBase = <PanelModelBase>question.parent;
+    while(!!parent) {
+      if (parent.errors && parent.errors.length > 0) {
+        parent.validateContainerOnly();
+        return;
+      }
+      parent = <PanelModelBase>parent.parent;
     }
   }
   private validateQuestionOnValueChangedCore(question: Question): boolean {
@@ -6555,9 +6569,13 @@ export class SurveyModel extends SurveyElementCore
         this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
         this.notifyElementsOnAnyValueOrVariableChanged("");
       }
+      if (!this.isRunningConditionOnValueChanged) {
+        this.questionTriggersKeys = undefined;
+      }
     }
   }
   private questionTriggersKeys: any;
+  private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
     return this.questionTriggersKeys;
   }
@@ -6569,7 +6587,9 @@ export class SurveyModel extends SurveyElementCore
     if (this.isRunningConditions) {
       this.isValueChangedOnRunningCondition = true;
     } else {
+      this.isRunningConditionOnValueChanged = true;
       this.runConditions();
+      this.isRunningConditionOnValueChanged = false;
       this.runQuestionsTriggers(name, value);
       this.questionTriggersKeys = undefined;
     }
@@ -8250,13 +8270,17 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (this.showTOC && !(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop && !this.isStartPageActive) {
-            if (container === "center") {
+          if (this.showTOC && !(advHeader && advHeader.hasBackground) && !this.isStartPageActive) {
+            if (container === "center" && this.isShowProgressBarOnTop) {
               if (!isBelowHeader) {
                 layoutElement.index = -150;
               } else {
                 delete layoutElement.index;
               }
+              containerLayoutElements.push(layoutElement);
+            }
+            if (container === "contentBottom" && this.isShowProgressBarOnBottom) {
+              layoutElement.index = 150;
               containerLayoutElements.push(layoutElement);
             }
           } else {
@@ -8274,10 +8298,10 @@ export class SurveyModel extends SurveyElementCore
                 containerLayoutElements.push(layoutElement);
               }
             }
-          }
-          if (container === "footer") {
-            if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
-              containerLayoutElements.push(layoutElement);
+            if (container === "footer") {
+              if (this.isShowProgressBarOnBottom && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
           }
         }
@@ -8376,10 +8400,15 @@ export class SurveyModel extends SurveyElementCore
    *
    * [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
    * @param theme An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings.
+   * @param baseTheme An optional [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object used as the base theme. When specified, it is deep-merged with `theme`, and the merged result is applied.
    */
-  public applyTheme(theme: ITheme): void {
-    if (!theme) return;
+  public applyTheme(theme: ITheme, baseTheme?: ITheme): void {
+    if (!theme && !baseTheme) return;
 
+    const themeToApply = baseTheme ? mergeObjects({}, baseTheme, theme) : theme;
+    return this._applyTheme(themeToApply);
+  }
+  private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables);
     this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {

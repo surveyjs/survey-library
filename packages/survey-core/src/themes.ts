@@ -226,6 +226,22 @@ export interface IHeader {
   descriptionPositionY?: VerticalAlignment;
 }
 
+const typographyComponentLineHeightCoefficients: { component: string, coefficient: number }[] = [
+  { component: "header-title", coefficient: 1.25 },
+  { component: "header-description", coefficient: 1.5 },
+  { component: "page-title", coefficient: 1.33 },
+  { component: "page-description", coefficient: 1.5 },
+  { component: "question-title", coefficient: 1.5 },
+  { component: "question-description", coefficient: 1.5 },
+];
+
+function multiplyCssFontSize(fontSize: string, multiplier: number): string | undefined {
+  const fontSizeValueNumber = parseFloat(fontSize);
+  if (isNaN(fontSizeValueNumber)) return undefined;
+  const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
+  return (fontSizeValueNumber * multiplier).toString() + fontSizeDimension;
+}
+
 export function patchLegacyCSSVariables(newCssVariable: any) {
   if (!newCssVariable) return;
   Object.keys(legacyCssVariables).forEach((variable) => {
@@ -255,11 +271,23 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
 
   const fontSize = newCssVariable["--sjs-font-size"];
   if (!!fontSize) {
-    const fontSizeValueNumber = parseFloat(fontSize);
-    const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
-    const fontSizeBaseUnit = (fontSizeValueNumber / 2).toString() + fontSizeDimension;
-    newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
-    newCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
-    delete newCssVariable["--sjs-font-size"];
+    const fontSizeBaseUnit = multiplyCssFontSize(fontSize, 0.5);
+    if (fontSizeBaseUnit) {
+      newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
+      newCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
+      delete newCssVariable["--sjs-font-size"];
+    }
   }
+
+  typographyComponentLineHeightCoefficients.forEach(({ component, coefficient }) => {
+    const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
+    const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
+    const componentFontSize = newCssVariable[fontSizeVar];
+    if (!!componentFontSize) {
+      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient);
+      if (lineHeight) {
+        newCssVariable[lineHeightVar] = lineHeight;
+      }
+    }
+  });
 }

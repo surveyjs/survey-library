@@ -12,5 +12,5 @@
 }
 
 .sd-element__header .sd-description {
-  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - 0.5 * #{$base-unit});
+  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
 }

@@ -49,51 +49,55 @@ export function getComputedCssVariableValue(varName: string, element?: HTMLEleme
   return normalizeCssVariableValue(value, proxyProperty);
 }
 
+function resolveComputedCssVariableValue(
+  probe: HTMLElement,
+  computed: CSSStyleDeclaration,
+  varName: string
+): string {
+  const rawValue = computed.getPropertyValue(varName);
+  if (typeof rawValue !== "string" || rawValue.trim() === "") return "";
+  const proxyProperty = getCssVariableProxyProperty(varName);
+  if (proxyProperty === null) return rawValue.trim();
+
+  probe.style.setProperty(proxyProperty, `var(${varName})`);
+  const raw = computed.getPropertyValue(proxyProperty);
+  probe.style.removeProperty(proxyProperty);
+  const proxyValue = normalizeCssVariableValue(raw, proxyProperty);
+
+  return typeof proxyValue === "string" ? proxyValue.trim() : "";
+}
+
 export function getComputedCssVariableValues(
-  cssVariables: { [key: string]: string } = {},
+  sourceCssVariables: { [key: string]: string } = {},
   additionalCssVariables: string[] = [],
   rootElement?: HTMLElement
 ): { [key: string]: string } {
-  const sourceCssVariables: { [key: string]: string } = cssVariables || {};
-  const hasCssVariablesToApply = Object.keys(sourceCssVariables).length > 0;
-  const clonedCssVariables: { [key: string]: string } = hasCssVariablesToApply ? JSON.parse(JSON.stringify(sourceCssVariables)) : {};
-  if (!DomDocumentHelper.isAvailable()) return clonedCssVariables;
-  const host = rootElement || DomDocumentHelper.getBody() || DomDocumentHelper.getDocumentElement();
-  if (!host) return clonedCssVariables;
+  const fallbackResult = { ...sourceCssVariables };
+  if (!DomDocumentHelper.isAvailable()) return fallbackResult;
 
-  const tempElement = createCssVariableProbeElement(host);
-  if (!tempElement) return clonedCssVariables;
-  if (hasCssVariablesToApply) {
-    DomDocumentHelper.setStyles(tempElement, sourceCssVariables);
-    tempElement.classList.add(THEME_ROOT_CLASS);
+  const host = rootElement || DomDocumentHelper.getBody() || DomDocumentHelper.getDocumentElement();
+  const probe = host ? createCssVariableProbeElement(host) : null;
+  if (!probe) return fallbackResult;
+
+  if (Object.keys(sourceCssVariables).length !== 0) {
+    DomDocumentHelper.setStyles(probe, sourceCssVariables);
+    probe.classList.add(THEME_ROOT_CLASS);
   }
 
   const result: { [key: string]: string } = {};
   try {
-    const probeComputed = DomDocumentHelper.getComputedStyle(tempElement);
+    const computed = DomDocumentHelper.getComputedStyle(probe);
     const varNames = [...Object.keys(sourceCssVariables), ...additionalCssVariables];
     for (const varName of varNames) {
-      const sourceValue = sourceCssVariables[varName];
-      const proxyProperty = getCssVariableProxyProperty(varName);
-      let value: string;
-      if (proxyProperty === null) {
-        value = probeComputed.getPropertyValue(varName).trim();
-      } else {
-        tempElement.style.setProperty(proxyProperty, `var(${varName})`);
-        const raw = probeComputed.getPropertyValue(proxyProperty);
-        value = normalizeCssVariableValue(raw, proxyProperty);
-        tempElement.style.removeProperty(proxyProperty);
+      const value = resolveComputedCssVariableValue(probe, computed, varName);
+      if (value !== "") {
+        result[varName] = value;
+      } else if (sourceCssVariables[varName] !== undefined) {
+        result[varName] = sourceCssVariables[varName];
       }
-      if (typeof value === "string" && value.trim() === "") {
-        if (sourceValue !== undefined) {
-          result[varName] = sourceValue;
-        }
-        continue;
-      }
-      result[varName] = value;
     }
   } finally {
-    host.removeChild(tempElement);
+    host.removeChild(probe);
   }
   return result;
 }

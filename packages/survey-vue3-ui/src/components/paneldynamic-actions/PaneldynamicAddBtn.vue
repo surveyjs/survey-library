@@ -15,11 +15,11 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { type IPanelDynamicActionProps, usePanelDynamicAction, useIsActionEnabled } from "./action";
+import { type IPanelDynamicActionProps, usePanelDynamicAction, useIsAddActionEnabled } from "./action";
 
 const props = defineProps<IPanelDynamicActionProps>();
 const question = usePanelDynamicAction(props);
-const isActionEnabled = useIsActionEnabled(props);
+const isActionEnabled = useIsAddActionEnabled(props);
 const addPanelClick = () => {
   if (!isActionEnabled.value) return;
   question.value.addPanelUI();

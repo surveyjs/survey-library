@@ -348,6 +348,36 @@ frameworks.forEach((framework) => {
       await expect(removeBtns.nth(2)).toBeEnabled();
     });
 
+    test("enableAddPanel disables the empty-state placeholder add button - #11336", async ({ page }) => {
+      const jsonEmpty = {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            displayMode: "list",
+            panelCount: 0,
+            templateElements: [{ type: "text", name: "q1" }],
+          },
+        ],
+      };
+      await initSurvey(page, framework, jsonEmpty);
+
+      const addBtn = page.locator(".sd-paneldynamic__add-btn");
+
+      await expect(addBtn).toHaveCount(1);
+      await expect(addBtn).toBeEnabled();
+
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("panel").enableAddPanel = false;
+      });
+      await expect(addBtn).toBeDisabled();
+
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("panel").enableAddPanel = true;
+      });
+      await expect(addBtn).toBeEnabled();
+    });
+
     test("templateVisibleIf", async ({ page }) => {
       await initSurvey(page, framework, json3);
       const addNewSelector = page.getByRole("button", { name: "Add new" });

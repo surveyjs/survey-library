@@ -22,6 +22,10 @@ export class PaneldynamicAction {
   templateUrl: "./paneldynamic-add-btn.component.html"
 })
 export class PanelDynamicAddBtn extends PaneldynamicAction {
+  public get isActionEnabled(): boolean {
+    if (this.model) return this.model.enabled !== false;
+    return this.question.enableAddPanel !== false;
+  }
   addPanelClick() {
     if (!this.isActionEnabled) return;
     this.question.addPanelUI();

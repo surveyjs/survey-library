@@ -659,6 +659,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     super.setNewValue(newValue);
   }
+  public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    super.updateValueFromSurvey(newValue, clearData);
+    this.setIsValueChanged(!this.isEmpty());
+  }
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType === "number" || this.inputType === "range") {
@@ -706,11 +710,16 @@ export class QuestionTextModel extends QuestionTextBase {
   //web-based methods
   private _isWaitingForEnter = false;
   private _isValueChanged = false;
-  private setIsValueChanged(): void {
-    if (this._isValueChanged) return;
-    this._isValueChanged = true;
+  private setIsValueChanged(isValueChanged: boolean = true): void {
+    if (!isValueChanged && !this.placeholder) return;
+    if (this._isValueChanged === isValueChanged) return;
+    this._isValueChanged = isValueChanged;
     if (this.input && this.cssClasses.isValueChanged) {
-      this.input.classList.add(this.cssClasses.isValueChanged);
+      if (isValueChanged) {
+        this.input.classList.add(this.cssClasses.isValueChanged);
+      } else {
+        this.input.classList.remove(this.cssClasses.isValueChanged);
+      }
     }
   }
 

@@ -413,6 +413,7 @@ export class Base implements IObjectValueContext {
   protected onBaseCreating(): void { }
   /**
    * Returns the object type as it is used in the JSON schema.
+   * Returns the object type as it is used in the JSON schema.
    */
   public getType(): string {
     return "base";

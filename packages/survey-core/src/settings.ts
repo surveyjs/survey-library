@@ -431,6 +431,13 @@ export var settings = {
    * Default value: `"$"`
    */
   expressionElementPropertyPrefix: "$",
+  /**
+   * Specifies how [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate their value.
+   *
+   * - `false` (default) - An Expression question recalculates its value on every value change in the survey.
+   * - `true` - An Expression question recalculates its value only on the first run, when all expressions are re-evaluated, and when a value or property the expression depends on changes. If the expression contains a function without parameters (or whose parameters reference no survey values), the question still recalculates on every value change.
+   */
+  runExpressionQuestionOnDependencyChange: false,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**

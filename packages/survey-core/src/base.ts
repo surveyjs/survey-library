@@ -1068,14 +1068,15 @@ export class Base implements IObjectValueContext {
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
     if (!!info.canRun && !info.canRun(this)) return;
-    if (info.useStrictDependencies) {
-      const survey: any = this.getSurvey();
-      const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
-      if (this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys)) return;
-    }
+    if (info.useStrictDependencies && this.canSkipRunningExpression(propName)) return;
     this.runExpressionByProperty(propName, properties, (res) => {
       info.onExecute(this, res);
     });
+  }
+  protected canSkipRunningExpression(propName: string): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
     if (!keys) return false;

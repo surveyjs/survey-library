@@ -661,7 +661,9 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     super.updateValueFromSurvey(newValue, clearData);
-    this.setIsValueChanged(!this.isEmpty());
+    if (!this.isEmpty()) {
+      this.setIsValueChanged();
+    }
   }
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
@@ -710,19 +712,13 @@ export class QuestionTextModel extends QuestionTextBase {
   //web-based methods
   private _isWaitingForEnter = false;
   private _isValueChanged = false;
-  private setIsValueChanged(isValueChanged: boolean = true): void {
-    if (!isValueChanged && !this.placeholder) return;
-    if (this._isValueChanged === isValueChanged) return;
-    this._isValueChanged = isValueChanged;
+  private setIsValueChanged(): void {
+    if (this._isValueChanged) return;
+    this._isValueChanged = true;
     if (this.input && this.cssClasses.isValueChanged) {
-      if (isValueChanged) {
-        this.input.classList.add(this.cssClasses.isValueChanged);
-      } else {
-        this.input.classList.remove(this.cssClasses.isValueChanged);
-      }
+      this.input.classList.add(this.cssClasses.isValueChanged);
     }
   }
-
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;

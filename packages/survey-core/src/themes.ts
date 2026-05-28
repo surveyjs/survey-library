@@ -244,10 +244,20 @@ function multiplyCssFontSize(fontSize: string, multiplier: number): string | und
 
 export function patchLegacyCSSVariables(newCssVariable: any) {
   if (!newCssVariable) return;
+  const patchLegacyVarReferencesInValue = (value: string): string => {
+    return value.replace(/var\(\s*(--[\w-]+)\s*\)/g, (match, referencedVar) => {
+      const referencedMapping = legacyCssVariables[referencedVar];
+      if (typeof referencedMapping === "string") {
+        return `var(${referencedMapping})`;
+      }
+      return match;
+    });
+  };
   Object.keys(legacyCssVariables).forEach((variable) => {
     const varValue = newCssVariable[variable];
     const mapping = legacyCssVariables[variable];
     if (!!varValue) {
+      const patchedVarValue = typeof varValue === "string" ? patchLegacyVarReferencesInValue(varValue) : varValue;
       const isJoinMapping = typeof mapping === "object" && mapping !== null && "var" in mapping && "join" in mapping;
       if (isJoinMapping) {
         const targetVar = (mapping as { var: string, join: string }).var;
@@ -257,13 +267,13 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
         } else {
           newCssVariable[targetVar] = "";
         }
-        newCssVariable[targetVar] += varValue;
+        newCssVariable[targetVar] += patchedVarValue;
       } else if (Array.isArray(mapping)) {
         mapping.forEach(key => {
-          newCssVariable[key] = varValue;
+          newCssVariable[key] = patchedVarValue;
         });
       } else {
-        newCssVariable[mapping as string] = varValue;
+        newCssVariable[mapping as string] = patchedVarValue;
       }
       delete newCssVariable[variable];
     }

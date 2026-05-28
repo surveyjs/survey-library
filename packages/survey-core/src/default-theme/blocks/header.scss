@@ -6,10 +6,6 @@
   background-color: var(--sjs2-color-component-header-default-bg, transparent);
 }
 
-.sv-header__background-color--accent {
-  background-color: var(--sjs2-color-component-header-default-bg, #{$primary});
-}
-
 .sv-header__overlap {
   padding-bottom: var(--sjs2-spacing-x800);
   box-sizing: content-box;
@@ -185,12 +181,6 @@
 .sv-header__description .sd-description {
   @include sjs2--typography--component--header--description;
   margin: 0;
-}
-
-.sv-header__background-color--accent {
-  .sv-header__title .sd-title {
-    color: var(--sjs2-color-component-header-default-title, #{$primary-foreground});
-  }
 }
 
 .sv-header__content .sd-header__text h3 {

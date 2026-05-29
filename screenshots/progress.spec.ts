@@ -923,5 +923,59 @@ frameworks.forEach(framework => {
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom-buttons.png");
     });
+
+    test("Check survey with progress buttons - pre-filled data marks pages as passed", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              { type: "text", name: "question1" },
+              { type: "text", name: "question5" }
+            ]
+          },
+          {
+            name: "page2",
+            elements: [
+              { type: "text", name: "question2", isRequired: true },
+              { type: "radiogroup", name: "question8", isRequired: true, choices: ["Item 1", "Item 2", "Item 3"] }
+            ]
+          },
+          {
+            name: "page3",
+            elements: [{ type: "text", name: "question3" }]
+          },
+          {
+            name: "page4",
+            elements: [{ type: "text", name: "question4" }]
+          },
+          {
+            name: "page5",
+            elements: [{ type: "text", name: "question6" }]
+          },
+          {
+            name: "page6",
+            elements: [{ type: "text", name: "question7" }]
+          }
+        ],
+        showProgressBar: true,
+        progressBarLocation: "aboveheader",
+        progressBarShowNavigationText: true,
+        progressBarShowPageNumbers: true
+      });
+      await page.evaluate(() => {
+        (<any>window).survey.data = {
+          "question1": "1",
+          "question5": "1",
+          "question2": "2",
+          "question3": "333",
+          "question4": "444"
+        };
+        (<any>window).survey.currentPageNo = 3;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-prefilled-data-passed.png");
+    });
   });
 });

@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
     test("Check survey with progress top buttons", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
-      newJSON["progressBarShowPageTitles"] = true;
+      newJSON["progressBarShowNavigationText"] = true;
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -168,7 +168,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
       });
 
       await page.click("li:nth-child(2)");
@@ -187,7 +187,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarLocation = "topBottom";
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
       });
 
       await page.click("li:nth-child(2)");
@@ -365,7 +365,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.currentPageNo = 1;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
       });
 
@@ -597,7 +597,7 @@ frameworks.forEach(framework => {
         ],
         showProgressBar: true,
         progressBarLocation: "belowheader",
-        progressBarShowPageTitles: true,
+        progressBarShowNavigationText: true,
         widthMode: "static",
         width: "800px"
       };
@@ -625,7 +625,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       //await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
       });
       await applyTheme(page, {
@@ -794,7 +794,7 @@ frameworks.forEach(framework => {
         ],
         "showProgressBar": true,
         "progressBarLocation": "top",
-        "progressBarShowPageTitles": true,
+        "progressBarShowNavigationText": true,
       });
       await page.waitForTimeout(100);
       await page.locator(".sv-string-viewer").filter({ hasText: "Yes" }).click();
@@ -821,7 +821,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -834,7 +834,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
-        (<any>window).survey.progressBarShowPageTitles = false;
+        (<any>window).survey.progressBarShowNavigationText = false;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -847,7 +847,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = false;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -860,28 +860,28 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = false;
-        (<any>window).survey.progressBarShowPageTitles = false;
+        (<any>window).survey.progressBarShowNavigationText = false;
         (<any>window).survey.currentPageNo = 1;
       });
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-unnumbered-without-titles.png");
     });
 
-    test("progressBarPageTitleLocation", async ({ page }) => {
+    test("progressBarNavigationTextLocation", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.progressBarShowPageNumbers = false;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.currentPageNo = 1;
       });
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-top-default.png");
 
       await page.evaluate(() => {
-        (<any>window).survey.progressBarPageTitleLocation = "bottom";
+        (<any>window).survey.progressBarNavigationTextLocation = "bottom";
       });
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-bottom.png");
@@ -892,7 +892,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.currentPageNo = 3;
       });
 
@@ -903,7 +903,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.headerView = "advanced";
         (<any>window).survey.currentPageNo = 1;
       });
@@ -916,7 +916,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.progressBarLocation = "bottom";
         (<any>window).survey.currentPageNo = 1;
       });

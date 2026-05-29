@@ -230,12 +230,12 @@ describe("ProgressButtons", () => {
         { name: "page1", elements: [{ type: "text", name: "q1" }] },
         { name: "page2", elements: [{ type: "text", name: "q2" }] }
       ],
-      progressBarShowPageTitles: false
+      progressBarShowNavigationText: false
     });
     const progress = new ProgressButtons(survey);
     expect(progress.showItemDescriptions).toBe(false);
 
-    survey.progressBarShowPageTitles = true;
+    survey.progressBarShowNavigationText = true;
     expect(progress.showItemDescriptions).toBe(true);
   });
 });

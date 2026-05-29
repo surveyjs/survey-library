@@ -104,13 +104,13 @@ export class ProgressButtons extends Base {
     if (surveyCss.currentType !== "default") {
       return true;
     }
-    return this.survey.progressBarShowPageTitles;
+    return this.survey.progressBarShowNavigationText;
   }
   public get showItemDescriptions(): boolean {
     return this.showItemTitles;
   }
   public get pageTitleLocation(): "top" | "bottom" {
-    return this.survey.progressBarPageTitleLocation || "top";
+    return this.survey.progressBarNavigationTextLocation || "top";
   }
   public getItemNumber(page: PageModel): string {
     let result = "";
@@ -187,7 +187,7 @@ export interface IProgressButtonsViewModel {
 }
 
 export class ProgressButtonsResponsivityManager {
-  private criticalProperties = ["progressBarType", "progressBarShowPageTitles"];
+  private criticalProperties = ["progressBarType", "progressBarShowNavigationText"];
   private canShowItemTitles = true;
   private pages: number;
   private observer: MutationObserver;

@@ -2897,14 +2897,19 @@ export class SurveyModel extends SurveyElementCore
     getDefaultValue: (self: SurveyModel) => {
       return self.progressBarType === "buttons";
     },
-  }) progressBarShowPageTitles: boolean;
+  }) progressBarShowNavigationText: boolean;
+  /**
+   * @deprecated Use the [`progressBarShowNavigationText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowNavigationText) property instead.
+   */
+  public get progressBarShowPageTitles(): boolean { return this.progressBarShowNavigationText; }
+  public set progressBarShowPageTitles(val: boolean) { this.progressBarShowNavigationText = val; }
   /**
    * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *`
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
-   * @see progressBarShowPageTitles
+   * @see progressBarShowNavigationText
    * @see progressBarInheritWidthFrom
    */
   @property() progressBarShowPageNumbers: boolean;
@@ -2912,7 +2917,7 @@ export class SurveyModel extends SurveyElementCore
     getDefaultValue: (self: SurveyModel) => {
       return "top";
     },
-  }) progressBarPageTitleLocation: "top" | "bottom";
+  }) progressBarNavigationTextLocation: "top" | "bottom";
   /**
    * Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
@@ -2922,7 +2927,7 @@ export class SurveyModel extends SurveyElementCore
    * The progress bar width is the same as the survey width.
    * - `"container"` (default)\
    * The progress bar width is the same as the survey container width.
-   * @see progressBarShowPageTitles
+   * @see progressBarShowNavigationText
    * @see progressBarShowPageNumbers
    */
   @property() progressBarInheritWidthFrom: "survey" | "container";
@@ -8683,7 +8688,8 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
-    name: "progressBarShowPageTitles:switch",
+    name: "progressBarShowNavigationText:switch",
+    alternativeName: "progressBarShowPageTitles",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
 
@@ -8692,10 +8698,10 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
-    name: "progressBarPageTitleLocation:switch",
+    name: "progressBarNavigationTextLocation:switch",
     default: "top",
     choices: ["top", "bottom"],
-    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowPageTitles === true; }
+    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowNavigationText === true; }
   },
   {
     name: "progressBarInheritWidthFrom",

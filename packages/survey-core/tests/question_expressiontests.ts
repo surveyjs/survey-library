@@ -522,39 +522,88 @@ describe("QuestionExpression", () => {
     expect(q.minimumFractionDigits, "min #4").toBe(2);
     expect(q.maximumFractionDigits, "max #4").toBe(3);
   });
-  test("survey.onExpressionRunning, #10258", () => {
-    const survey = new SurveyModel({
-      elements: [
-        { type: "expression", name: "q1", expression: "{q2} + 1" },
-        { type: "text", name: "q2" }
-      ]
-    });
-    let allow = true;
-    let expression = "{q2} + 1";
-    let counter = 0;
-    survey.data = { q2: 1 };
-    survey.onExpressionRunning.add((sender, options) => {
-      if ((<any>options.element).name === "q1" && options.propertyName === "expression") {
-        options.allow = allow;
-        options.expression = expression;
-        counter ++;
-      }
-    });
-    const q1 = survey.getQuestionByName("q1");
-    expect(q1.value, "q1.value #1").toBe(2);
-    expect(counter, "counter #1").toBe(0);
-    survey.setValue("q2", 2);
-    expect(q1.value, "q1.value #2").toBe(3);
-    expect(counter, "counter #2").toBe(2);
-    allow = false;
-    survey.setValue("q2", 3);
-    expect(q1.value, "q1.value #3").toBe(3);
-    expect(counter, "counter #3").toBe(3);
-    allow = true;
-    expression = "{q2} + 2";
-    survey.setValue("q2", 4);
-    expect(q1.value, "q1.value #4").toBe(6);
-    expect(counter, "counter #4").toBe(5);
+  test("survey.onExpressionRunning, expressionQuestionTrackDependencies = false, #10258", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = false;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "expression", name: "q1", expression: "{q2} + 1" },
+          { type: "text", name: "q2" }
+        ]
+      });
+      let allow = true;
+      let expression = "{q2} + 1";
+      let counter = 0;
+      survey.data = { q2: 1 };
+      survey.onExpressionRunning.add((sender, options) => {
+        if ((<any>options.element).name === "q1" && options.propertyName === "expression") {
+          options.allow = allow;
+          options.expression = expression;
+          counter ++;
+        }
+      });
+      const q1 = survey.getQuestionByName("q1");
+      expect(q1.value, "q1.value #1").toBe(2);
+      expect(counter, "counter #1").toBe(0);
+      survey.setValue("q2", 2);
+      expect(q1.value, "q1.value #2").toBe(3);
+      expect(counter, "counter #2").toBe(2);
+      allow = false;
+      survey.setValue("q2", 3);
+      expect(q1.value, "q1.value #3").toBe(3);
+      expect(counter, "counter #3").toBe(3);
+      allow = true;
+      expression = "{q2} + 2";
+      survey.setValue("q2", 4);
+      expect(q1.value, "q1.value #4").toBe(6);
+      expect(counter, "counter #4").toBe(5);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
+  });
+  test("survey.onExpressionRunning, expressionQuestionTrackDependencies = true, #10258", () => {
+    // With dependency tracking on, onExpressionRunning fires twice per evaluation
+    // (once for the skip-check that may rewrite the expression, once for the run),
+    // so the counter increases roughly twice as fast as with tracking off.
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "expression", name: "q1", expression: "{q2} + 1" },
+          { type: "text", name: "q2" }
+        ]
+      });
+      let allow = true;
+      let expression = "{q2} + 1";
+      let counter = 0;
+      survey.data = { q2: 1 };
+      survey.onExpressionRunning.add((sender, options) => {
+        if ((<any>options.element).name === "q1" && options.propertyName === "expression") {
+          options.allow = allow;
+          options.expression = expression;
+          counter ++;
+        }
+      });
+      const q1 = survey.getQuestionByName("q1");
+      expect(q1.value, "q1.value #1").toBe(2);
+      expect(counter, "counter #1").toBe(0);
+      survey.setValue("q2", 2);
+      expect(q1.value, "q1.value #2").toBe(3);
+      expect(counter, "counter #2").toBe(4);
+      allow = false;
+      survey.setValue("q2", 3);
+      expect(q1.value, "q1.value #3").toBe(3);
+      expect(counter, "counter #3").toBe(6);
+      allow = true;
+      expression = "{q2} + 2";
+      survey.setValue("q2", 4);
+      expect(q1.value, "q1.value #4").toBe(6);
+      expect(counter, "counter #4").toBe(10);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+    }
   });
 
   test("Support Promises in Custom Functions", async () => {

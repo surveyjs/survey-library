@@ -1113,10 +1113,9 @@ export class Base implements IObjectValueContext {
     return res;
   }
   private runExpressionHash: HashTable<any>;
-  protected getExpressionFromSurvey(propName: string, runBeforeExpressionRunning: boolean = true): string {
+  protected getExpressionFromSurvey(propName: string): string {
     let expression = this[propName];
     if (!expression) return "";
-    if (!runBeforeExpressionRunning) return expression;
     const survey = this.getSurvey();
     return !!survey ? survey.beforeExpressionRunning(this, propName, expression) : expression;
   }
@@ -1149,7 +1148,11 @@ export class Base implements IObjectValueContext {
     return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
-    const expression = this.getExpressionFromSurvey(propName, false);
+    // Fire onExpressionRunning here too: a handler may rewrite the expression,
+    // so the skip-check must analyze the same (post-event) expression that will
+    // actually run. This is why the event fires twice when dependency tracking
+    // is enabled - once for the skip-check and once for the run.
+    const expression = this.getExpressionFromSurvey(propName);
     if (!expression) return null;
     return this.getExpressionInfoByProperty(propName, expression).runner;
   }

@@ -47,7 +47,7 @@ export class QuestionExpressionModel extends Question {
   protected runConditionCore(properties: HashTable<any>) {
     super.runConditionCore(properties);
     if (this.isExecutionLocked || !this.runIfReadOnly && this.isReadOnly) return;
-    if (settings.runExpressionQuestionOnDependencyChange && this.canSkipRunningExpression("expression")) return;
+    if (settings.expressionQuestionTrackDependencies && this.canSkipRunningExpression("expression")) return;
     this.runExpressionByProperty("expression", properties, (val: any) => {
       this.value = this.roundValue(val);
     });

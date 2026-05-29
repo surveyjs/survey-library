@@ -1082,7 +1082,7 @@ export class Base implements IObjectValueContext {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
-    if ((!Array.isArray(vars) || vars.length === 0) && !!runner && runner.hasFunction()) return false;
+    if (!Array.isArray(vars) || vars.length === 0) return false;
     return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;
@@ -1113,9 +1113,10 @@ export class Base implements IObjectValueContext {
     return res;
   }
   private runExpressionHash: HashTable<any>;
-  protected getExpressionFromSurvey(propName: string): string {
+  protected getExpressionFromSurvey(propName: string, runBeforeExpressionRunning: boolean = true): string {
     let expression = this[propName];
     if (!expression) return "";
+    if (!runBeforeExpressionRunning) return expression;
     const survey = this.getSurvey();
     return !!survey ? survey.beforeExpressionRunning(this, propName, expression) : expression;
   }
@@ -1148,7 +1149,7 @@ export class Base implements IObjectValueContext {
     return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
-    const expression = this.getExpressionFromSurvey(propName);
+    const expression = this.getExpressionFromSurvey(propName, false);
     if (!expression) return null;
     return this.getExpressionInfoByProperty(propName, expression).runner;
   }

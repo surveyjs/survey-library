@@ -264,12 +264,13 @@ describe("QuestionExpression", () => {
     expect(counter, "updated one time").toBe(1);
     expect(q3.value, "calculated correctly").toBe(4);
   });
-  test("settings.runExpressionQuestionOnDependencyChange = true, run on dependency change only", () => {
+  test("settings.expressionQuestionTrackDependencies = true, run on dependency change only", () => {
     let depCount = 0;
     let noParamCount = 0;
     FunctionFactory.Instance.register("depFunc", (params: any[]): any => { depCount++; return params[0]; });
     FunctionFactory.Instance.register("noParamFunc", (): any => { noParamCount++; return 1; });
-    settings.runExpressionQuestionOnDependencyChange = true;
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -291,14 +292,16 @@ describe("QuestionExpression", () => {
       expect(depCount > 0, "dep runs when its dependency changes").toBeTruthy();
       expect(survey.getValue("dep"), "dep value is calculated").toBe("b");
     } finally {
-      settings.runExpressionQuestionOnDependencyChange = false;
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("depFunc");
       FunctionFactory.Instance.unregister("noParamFunc");
     }
   });
-  test("settings.runExpressionQuestionOnDependencyChange = false (default), run on any value change", () => {
+  test("settings.expressionQuestionTrackDependencies = false (default), run on any value change", () => {
     let depCount = 0;
     FunctionFactory.Instance.register("depFunc3", (params: any[]): any => { depCount++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = false;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -311,11 +314,13 @@ describe("QuestionExpression", () => {
       survey.setValue("q2", "a");
       expect(depCount > 0, "dep runs even when a non-dependent value changes").toBeTruthy();
     } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("depFunc3");
     }
   });
-  test("settings.runExpressionQuestionOnDependencyChange = true, chained expressions that depend on each other", () => {
-    settings.runExpressionQuestionOnDependencyChange = true;
+  test("settings.expressionQuestionTrackDependencies = true, chained expressions that depend on each other", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -333,13 +338,14 @@ describe("QuestionExpression", () => {
       expect(survey.getValue("expB"), "expB cascades after q1 change").toBe(12);
       expect(survey.getValue("expC"), "expC cascades after q1 change").toBe(13);
     } finally {
-      settings.runExpressionQuestionOnDependencyChange = false;
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
     }
   });
-  test("settings.runExpressionQuestionOnDependencyChange = true, expression with several dependencies", () => {
+  test("settings.expressionQuestionTrackDependencies = true, expression with several dependencies", () => {
     let count = 0;
     FunctionFactory.Instance.register("multiFunc", (params: any[]): any => { count++; return params[0] + params[1]; });
-    settings.runExpressionQuestionOnDependencyChange = true;
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -359,14 +365,15 @@ describe("QuestionExpression", () => {
       survey.setValue("q2", 3);
       expect(count > 0, "runs when the second dependency changes").toBeTruthy();
     } finally {
-      settings.runExpressionQuestionOnDependencyChange = false;
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("multiFunc");
     }
   });
-  test("settings.runExpressionQuestionOnDependencyChange = true, expression depends on a variable", () => {
+  test("settings.expressionQuestionTrackDependencies = true, expression depends on a variable", () => {
     let count = 0;
     FunctionFactory.Instance.register("varFunc", (params: any[]): any => { count++; return params[0]; });
-    settings.runExpressionQuestionOnDependencyChange = true;
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -381,12 +388,13 @@ describe("QuestionExpression", () => {
       expect(count > 0, "recalculated when the variable changes").toBeTruthy();
       expect(survey.getValue("exp"), "variable value is calculated").toBe(5);
     } finally {
-      settings.runExpressionQuestionOnDependencyChange = false;
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("varFunc");
     }
   });
-  test("settings.runExpressionQuestionOnDependencyChange = true, constant expression", () => {
-    settings.runExpressionQuestionOnDependencyChange = true;
+  test("settings.expressionQuestionTrackDependencies = true, constant expression", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -398,13 +406,14 @@ describe("QuestionExpression", () => {
       survey.setValue("q1", "a");
       expect(survey.getValue("exp"), "constant expression keeps its value").toBe(5);
     } finally {
-      settings.runExpressionQuestionOnDependencyChange = false;
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
     }
   });
-  test("settings.runExpressionQuestionOnDependencyChange = true, runExpressions re-runs everything", () => {
+  test("settings.expressionQuestionTrackDependencies = true, runExpressions re-runs everything", () => {
     let count = 0;
     FunctionFactory.Instance.register("depFunc4", (params: any[]): any => { count++; return params[0]; });
-    settings.runExpressionQuestionOnDependencyChange = true;
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
     try {
       const survey = new SurveyModel({
         elements: [
@@ -419,7 +428,7 @@ describe("QuestionExpression", () => {
       survey.runExpressions();
       expect(count > 0, "runExpressions forces a full re-run").toBeTruthy();
     } finally {
-      settings.runExpressionQuestionOnDependencyChange = false;
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("depFunc4");
     }
   });

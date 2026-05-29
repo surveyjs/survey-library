@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var vietnameseSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Cụm từ mới",
   // "Previous"
   pagePrevText: "Trở về",
   // "Next"

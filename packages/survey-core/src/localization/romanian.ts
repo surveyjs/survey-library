@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var romanianSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Expresie nouă",
   // "Previous"
   pagePrevText: "Precedent",
   // "Next"

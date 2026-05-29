@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var finnishSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Uusi ilmaus",
   // "Previous"
   pagePrevText: "Edellinen",
   // "Next"

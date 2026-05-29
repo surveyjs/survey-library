@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var welshSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Ymadrodd newydd",
   // "Previous"
   pagePrevText: "Blaenorol",
   // "Next"

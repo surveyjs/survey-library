@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var slovakSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nová fráza",
   // "Previous"
   pagePrevText: "Predchádzajúca",
   // "Next"

@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var slovenianStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nova fraza",
   // "Previous"
   pagePrevText: "Prejšnja",
   // "Next"

@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var latvianSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Jauna frāze",
   // "Previous"
   pagePrevText: "Iepriekšēja lapa",
   // "Next"

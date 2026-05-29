@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var italianSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nuova frase",
   // "Previous"
   pagePrevText: "Precedente",
   // "Next"

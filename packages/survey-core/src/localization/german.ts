@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var germanSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Neuer Ausdruck",
   // "Previous"
   pagePrevText: "Zurück",
   // "Next"

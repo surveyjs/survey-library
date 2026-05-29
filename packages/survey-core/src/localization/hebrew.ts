@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var hebrewSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "ביטוי חדש",
   // "Previous"
   pagePrevText: "אחורה",
   // "Next"

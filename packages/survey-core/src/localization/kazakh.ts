@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var kazakhStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Жаңа сөз тіркесі",
   // "Previous"
   pagePrevText: "Артқа",
   // "Next"

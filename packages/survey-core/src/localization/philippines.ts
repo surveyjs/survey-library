@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var philippinesStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Bagong parirala",
   // "Previous"
   pagePrevText: "Nakaraang",
   // "Next"

@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var thaiStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "วลีใหม่",
   // "Previous"
   pagePrevText: "ก่อนหน้า",
   // "Next"

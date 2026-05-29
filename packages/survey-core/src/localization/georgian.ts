@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var georgianSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "ახალი ფრაზა",
   // "Previous"
   pagePrevText: "უკან",
   // "Next"

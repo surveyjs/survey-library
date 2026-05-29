@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var danishSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Ny frase",
   // "Previous"
   pagePrevText: "Tilbage",
   // "Next"

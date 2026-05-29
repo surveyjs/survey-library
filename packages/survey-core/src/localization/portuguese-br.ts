@@ -3,6 +3,8 @@ import { setupLocale } from "survey-core";
  * You don't need to translate strings that have the same value as Portuguese translation
  */
 export var portugueseBrSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nova frase",
   // [Auto-translated] "Previous"
   pagePrevText: "Anterior",
   // [Auto-translated] "Next"

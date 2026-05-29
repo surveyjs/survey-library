@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var hindiStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "नया वाक्यांश",
   // "Previous"
   pagePrevText: "पिछला",
   // "Next"

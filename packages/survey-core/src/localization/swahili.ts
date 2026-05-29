@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var swahiliStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Maneno mapya",
   // "Previous"
   pagePrevText: "Iliyotangulia",
   // "Next"

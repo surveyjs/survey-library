@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var basqueSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Esaldi berria",
   // "Previous"
   pagePrevText: "Aurrekoa",
   // "Next"

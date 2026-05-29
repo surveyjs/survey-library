@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var spanishSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Frase nueva",
   // "Previous"
   pagePrevText: "Anterior",
   // "Next"

@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var hungarianSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Új kifejezés",
   // "Previous"
   pagePrevText: "Vissza",
   // "Next"

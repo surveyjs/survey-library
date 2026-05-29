@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var lithuaniaSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nauja frazė",
   // "Previous"
   pagePrevText: "Atgal",
   // "Next"

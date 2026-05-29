@@ -3,6 +3,8 @@ import { setupLocale } from "survey-core";
 //On behalf of @kleinfelderm (https://github.com/kleinfelderm)
 
 export var haitianCreoleStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nouvo fraz",
   // "Previous"
   pagePrevText: "Anvan",
   // "Next"

@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var turkishSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Yeni ifade",
   // "Previous"
   pagePrevText: "Önceki",
   // "Next"

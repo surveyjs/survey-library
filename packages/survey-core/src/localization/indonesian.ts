@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var indonesianStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Frasa baru",
   // "Previous"
   pagePrevText: "Sebelumnya",
   // "Next"

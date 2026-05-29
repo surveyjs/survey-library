@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var teluguStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "క్రొత్త పదబంధం",
   // "Previous"
   pagePrevText: "వెనకటి",
   // "Next"

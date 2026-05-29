@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var estonianSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Uus fraas",
   // "Previous"
   pagePrevText: "Tagasi",
   // "Next"

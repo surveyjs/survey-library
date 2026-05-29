@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var koreanStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "새로운 구절",
   // "Previous"
   pagePrevText: "이전",
   // "Next"

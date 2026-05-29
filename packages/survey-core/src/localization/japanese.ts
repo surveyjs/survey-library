@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var japaneseSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "新しい表現",
   // "Previous"
   pagePrevText: "前へ",
   // "Next"

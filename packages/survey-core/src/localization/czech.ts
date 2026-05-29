@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var czechSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nová fráze",
   // "Previous"
   pagePrevText: "Předchozí",
   // "Next"

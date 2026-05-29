@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var greekSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Νέα φράση",
   // "Previous"
   pagePrevText: "Προηγούμενο",
   // "Next"

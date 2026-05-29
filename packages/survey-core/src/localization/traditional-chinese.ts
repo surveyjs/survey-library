@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var traditionalChineseSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "新片語",
   // "Previous"
   pagePrevText: "上一頁",
   // "Next"

@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var icelandicSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Ný setning",
   // "Previous"
   pagePrevText: "Tilbaka",
   // "Next"

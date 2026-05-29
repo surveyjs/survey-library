@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var urduSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "نیا جملہ",
   // "Previous"
   pagePrevText: "پچھلا",
   // "Next"

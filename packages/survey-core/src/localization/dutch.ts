@@ -1,6 +1,8 @@
 import { setupLocale } from "survey-core";
 
 export var dutchSurveyStrings = {
+  // [Auto-translated] "New phrase"
+  newTestPhrase: "Nieuwe uitdrukking",
   // "Previous"
   pagePrevText: "Vorige",
   // "Next"

@@ -822,7 +822,6 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
         (<any>window).survey.progressBarShowPageTitles = true;
-        (<any>window).survey.progressBarShowPageDescriptions = true;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -836,7 +835,6 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
         (<any>window).survey.progressBarShowPageTitles = false;
-        (<any>window).survey.progressBarShowPageDescriptions = false;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -850,7 +848,6 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = false;
         (<any>window).survey.progressBarShowPageTitles = true;
-        (<any>window).survey.progressBarShowPageDescriptions = true;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -864,7 +861,6 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = false;
         (<any>window).survey.progressBarShowPageTitles = false;
-        (<any>window).survey.progressBarShowPageDescriptions = false;
         (<any>window).survey.currentPageNo = 1;
       });
 
@@ -879,7 +875,6 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.progressBarShowPageNumbers = false;
         (<any>window).survey.progressBarShowPageTitles = true;
-        (<any>window).survey.progressBarShowPageDescriptions = true;
         (<any>window).survey.currentPageNo = 1;
       });
 

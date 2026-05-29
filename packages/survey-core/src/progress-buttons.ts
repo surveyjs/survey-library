@@ -107,11 +107,7 @@ export class ProgressButtons extends Base {
     return this.survey.progressBarShowPageTitles;
   }
   public get showItemDescriptions(): boolean {
-    if (!this.showItemTitles) return false;
-    if (surveyCss.currentType !== "default") {
-      return true;
-    }
-    return this.survey.progressBarShowPageDescriptions;
+    return this.showItemTitles;
   }
   public get pageTitleLocation(): "top" | "bottom" {
     return this.survey.progressBarPageTitleLocation || "top";

@@ -2898,14 +2898,6 @@ export class SurveyModel extends SurveyElementCore
       return self.progressBarType === "buttons";
     },
   }) progressBarShowPageTitles: boolean;
-    /**
-   * ? //TODO
-   */
-  @property({
-    getDefaultValue: (self: SurveyModel) => {
-      return false;
-    },
-  }) progressBarShowPageDescriptions: boolean;
   /**
    * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *`
@@ -8694,10 +8686,7 @@ Serializer.addClass("survey", [
     name: "progressBarShowPageTitles:switch",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
-  {
-    name: "progressBarShowPageDescriptions:switch",
-    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowPageTitles === true; }
-  },
+
   {
     name: "progressBarShowPageNumbers:switch",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }

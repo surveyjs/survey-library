@@ -49,7 +49,6 @@ frameworks.forEach((framework) => {
         .locator("div")
         .filter({ hasText: "The country name 'wombatland' is not in this list: http://services.groupkt.com/country/get/all" })
         .first();
-      let surveyResult;
 
       await page.locator("input[type=\"text\"]").pressSequentially("wombatland");
       await getButtonByText(page, "Complete").click();
@@ -58,8 +57,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=\"text\"]").fill("Romania");
       await getButtonByText(page, "Complete").click();
 
-      surveyResult = await getSurveyResult(page);
-      await expect(surveyResult).toEqual({
+      await expect.poll(async () => await getSurveyResult(page), { timeout: 300 }).toEqual({
         country: "Romania"
       });
     });

@@ -891,6 +891,34 @@ describe("Survey", () => {
     rows[0].cells[0].question.value = "2";
     expect(survey.progressText).toBe("Answered 2/2 questions");
   });
+  test("getProgress should not return 100% when questions remain unanswered, bug#11299", () => {
+    const elements = [];
+    for (let i = 1; i <= 101; i++) {
+      elements.push({ type: "text", name: "q" + i });
+    }
+    const survey = new SurveyModel({ progressBarType: "questions", elements });
+    for (let i = 1; i <= 100; i++) {
+      survey.getQuestionByName("q" + i).value = "ans";
+    }
+    expect(survey.getProgressInfo().answeredQuestionCount, "100 of 101 answered").toBe(100);
+    expect(survey.getProgress(), "progress should be less than 100 when 1 question is unanswered").toBeLessThan(100);
+    survey.getQuestionByName("q101").value = "ans";
+    expect(survey.getProgress(), "progress should be 100 when all questions are answered").toBe(100);
+  });
+  test("getProgress 'requiredQuestions' should not return 100% when required questions remain unanswered, bug#11299", () => {
+    const elements = [];
+    for (let i = 1; i <= 101; i++) {
+      elements.push({ type: "text", name: "q" + i, isRequired: true });
+    }
+    const survey = new SurveyModel({ progressBarType: "requiredQuestions", elements });
+    for (let i = 1; i <= 100; i++) {
+      survey.getQuestionByName("q" + i).value = "ans";
+    }
+    expect(survey.getProgressInfo().requiredAnsweredQuestionCount, "100 of 101 required answered").toBe(100);
+    expect(survey.getProgress(), "progress should be less than 100 when 1 required question is unanswered").toBeLessThan(100);
+    survey.getQuestionByName("q101").value = "ans";
+    expect(survey.getProgress(), "progress should be 100 when all required questions are answered").toBe(100);
+  });
   test("survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460", () => {
     var survey = new SurveyModel({
       progressBarType: "questions",

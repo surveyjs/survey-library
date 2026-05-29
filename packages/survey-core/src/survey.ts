@@ -3970,14 +3970,14 @@ export class SurveyModel extends SurveyElementCore
       var info = this.getProgressInfo();
       if (this.progressBarType === "requiredQuestions") {
         return info.requiredQuestionCount >= 1
-          ? Math.ceil(
+          ? Math.floor(
             (info.requiredAnsweredQuestionCount * 100) /
             info.requiredQuestionCount
           )
           : 100;
       }
       return info.questionCount >= 1
-        ? Math.ceil((info.answeredQuestionCount * 100) / info.questionCount)
+        ? Math.floor((info.answeredQuestionCount * 100) / info.questionCount)
         : 100;
     }
     const visPages = this.visiblePages;

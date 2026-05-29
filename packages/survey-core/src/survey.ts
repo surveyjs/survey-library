@@ -8698,7 +8698,7 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
   {
-    name: "progressBarNavigationTextLocation:switch",
+    name: "progressBarNavigationTextLocation",
     default: "top",
     choices: ["top", "bottom"],
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowNavigationText === true; }

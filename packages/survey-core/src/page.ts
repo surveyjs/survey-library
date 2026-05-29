@@ -421,9 +421,6 @@ Serializer.addClass(
     },
     {
       name: "navigationDescription",
-      visibleIf: function (obj: any) {
-        return !!obj.survey && obj.survey.progressBarType === "buttons";
-      },
       serializationProperty: "locNavigationDescription",
     },
     { name: "title:text", serializationProperty: "locTitle" },

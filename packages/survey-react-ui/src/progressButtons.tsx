@@ -37,9 +37,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         role="tablist" aria-label={this.model.progressBarAriaLabel}
         onKeyDown={(event) => this.model.onKeyDown(event.nativeEvent)}
       >
-        {/* {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
+        {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
-        </div> : null} */}
+        </div> : null}
         <div className={this.css.progressButtonsContainer} role="presentation">
           <div
             className={this.css.progressButtonsListContainer}
@@ -51,9 +51,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
             </ul>
           </div>
         </div>
-        {/* {this.state.canShowFooter ? <div className={this.css.progressButtonsFooter}>
+        {this.state.canShowFooter ? <div className={this.css.progressButtonsFooter}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.footerText}>{this.model.footerText}</div>
-        </div> : null} */}
+        </div> : null}
       </div>
     );
   }

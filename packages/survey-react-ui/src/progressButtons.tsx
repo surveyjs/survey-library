@@ -40,12 +40,13 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         {/* {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
           <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
         </div> : null} */}
-        <div className={this.css.progressButtonsContainer}>
+        <div className={this.css.progressButtonsContainer} role="presentation">
           <div
             className={this.css.progressButtonsListContainer}
             ref={this.listContainerRef}
+            role="presentation"
           >
-            <ul className={this.css.progressButtonsList}>
+            <ul className={this.css.progressButtonsList} role="presentation">
               {this.getListElements()}
             </ul>
           </div>

@@ -923,8 +923,8 @@ frameworks.forEach((framework) => {
       await expect(controlValue).toContainText("Other (describe)");
       await expect(controlValue).not.toContainText("my custom text");
 
-      const commentArea = page.locator(".sd-question__comment-area");
-      await expect(commentArea).toContainText("my custom text");
+      const commentArea = page.locator(".sd-question__comment-area textarea");
+      await expect(commentArea).toHaveValue("my custom text");
     });
 
     test("Check tagbox popup opens after beak click", async ({ page }) => {

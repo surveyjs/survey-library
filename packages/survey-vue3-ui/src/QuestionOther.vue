@@ -1,6 +1,6 @@
 <template>
   <div :class="question.getCommentAreaCss(true)">
-    <div v-if="question.isReadOnlyRenderDiv()">{{ question.getCommentValue(item) }}</div>
+    <div v-if="question.isReadOnlyRenderDiv()">{{ question.getCommentTextAreaModel(item).getTextValue() }}</div>
     <SvComponent
       :is="'sv-text-area'"
       v-else

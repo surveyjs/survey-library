@@ -11,7 +11,7 @@ export class SurveyCommentChoiceComponent {
   constructor() {
   }
   public get commentValue(): string {
-    return (<QuestionSelectBase>this.question).getCommentValue(this.item);
+    return this.textAreaModel.getTextValue() || "";
   }
   public get textAreaModel(): TextAreaModel {
     return (<QuestionSelectBase>this.question).getCommentTextAreaModel(this.item);

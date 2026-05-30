@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getVisibleListItemByText, setData, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getVisibleListItemByText, test, expect } from "../helper";
 
 const title = "tagbox";
 
@@ -916,8 +916,7 @@ frameworks.forEach((framework) => {
             choices: [{ value: 1, text: "item1" }, { value: 2, text: "item2" }, { value: 3, text: "item3" }]
           }
         ]
-      });
-      await setData(page, { question1: [1, "other"], "question1-Comment": "my custom text" });
+      }, undefined, { data: { question1: [1, "other"], "question1-Comment": "my custom text" } });
 
       const controlValue = page.locator(".sd-tagbox__value");
       await expect(controlValue).toContainText("item1");

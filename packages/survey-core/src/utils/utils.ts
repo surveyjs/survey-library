@@ -164,22 +164,6 @@ export function floorTo2Decimals(number: number): number {
   return Math.floor(number * 100) / 100;
 }
 
-export function getRootNode(node: Element): Document | ShadowRoot | null {
-  const root = node?.getRootNode() || settings.environment.root;
-  if (!(root instanceof Document || root instanceof ShadowRoot)) return null;
-  return root;
-}
-
-export function getActiveElement(): Element | null {
-  const doc = DomDocumentHelper.getDocument();
-  if (!doc) return null;
-  let activeElement = doc.activeElement;
-  if (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement) {
-    activeElement = activeElement.shadowRoot.activeElement;
-  }
-  return activeElement;
-}
-
 export function getColorFromProperty(varName: string, element?: HTMLElement) {
   if ("function" === typeof getComputedStyle) {
     const style = getComputedStyle(element || DomDocumentHelper.getDocumentElement());

@@ -8161,8 +8161,7 @@ export class SurveyModel extends SurveyElementCore
     res.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
-      getData: () => this.progressBar,
-      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
+      getData: () => this.progressBar
     });
     res.push({
       id: "progress-questions",

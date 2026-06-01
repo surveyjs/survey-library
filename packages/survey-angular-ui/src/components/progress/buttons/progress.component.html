@@ -2,14 +2,9 @@
 role="tablist" [attr.aria-label]="model.progressBarAriaLabel"
 (keydown)="model.onKeyDown($event)"
 >
-  <ng-container *ngIf="canShowHeader">
-    <div [class]="survey.css.progressButtonsHeader">
-      <div [class]="survey.css.progressButtonsPageTitle" [title]="model.headerText">{{ model.headerText }}</div>
-    </div>
-  </ng-container>
   <div [class]="survey.css.progressButtonsContainer" role="presentation">
     <div
-      [class]="survey.css.progressButtonsListContainer" #progressButtonsListContainer role="presentation">
+      [class]="survey.css.progressButtonsListContainer" role="presentation">
       <ul [class]="survey.css.progressButtonsList" role="presentation">
         <li
           *ngFor="let page of model.visiblePages; index as index"
@@ -52,9 +47,4 @@ role="tablist" [attr.aria-label]="model.progressBarAriaLabel"
       </ul>
     </div>
   </div>
-  <ng-container *ngIf="canShowFooter">
-    <div [class]="survey.css.progressButtonsFooter">
-      <div [class]="survey.css.progressButtonsPageTitle" [title]="model.footerText">{{ model.footerText }}</div>
-    </div>
-  </ng-container>
 </div>

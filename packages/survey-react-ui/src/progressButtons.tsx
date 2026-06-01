@@ -1,15 +1,12 @@
 import * as React from "react";
-import { ProgressButtons, PageModel, ProgressButtonsResponsivityManager, IProgressButtonsViewModel, Base } from "survey-core";
+import { ProgressButtons, PageModel, Base } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyElementBase } from "./reactquestion_element";
 
-export class SurveyProgressButtons extends SurveyNavigationBase implements IProgressButtonsViewModel {
-  private respManager: ProgressButtonsResponsivityManager;
-  private listContainerRef: React.RefObject<HTMLDivElement>;
+export class SurveyProgressButtons extends SurveyNavigationBase {
   constructor(props: any) {
     super(props);
-    this.listContainerRef = React.createRef();
   }
   protected get model(): ProgressButtons {
     return this.props.model;
@@ -20,29 +17,15 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
   protected getStateElement(): Base | null {
     return this.model;
   }
-  onResize(canShowItemTitles: boolean): void {
-    // this.setState({ canShowItemTitles });
-    // this.setState({ canShowHeader: !canShowItemTitles });
-  }
-  onUpdateScroller(hasScroller: boolean): void {
-    //this.setState({ hasScroller });
-  }
-  onUpdateSettings(): void {
-    this.setState({ canShowFooter: !this.model.showItemTitles });
-  }
   render(): React.JSX.Element {
     return (
       <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth }}
         role="tablist" aria-label={this.model.progressBarAriaLabel}
         onKeyDown={(event) => this.model.onKeyDown(event.nativeEvent)}
       >
-        {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
-          <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
-        </div> : null}
         <div className={this.css.progressButtonsContainer} role="presentation">
           <div
             className={this.css.progressButtonsListContainer}
-            ref={this.listContainerRef}
             role="presentation"
           >
             <ul className={this.css.progressButtonsList} role="presentation">
@@ -50,9 +33,6 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
             </ul>
           </div>
         </div>
-        {this.state.canShowFooter ? <div className={this.css.progressButtonsFooter}>
-          <div className={this.css.progressButtonsPageTitle} title={this.model.footerText}>{this.model.footerText}</div>
-        </div> : null}
       </div>
     );
   }
@@ -68,7 +48,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     const onClickHandler = this.model.isListElementClickable(index) ? () => this.model.clickListElement(page) : undefined;
     return (
       <li
-        key={"listelement" + page.uniqueId}
+        key={page.uniqueId}
         className={this.model.getListElementCss(index)}
         data-page-number={this.model.getItemNumber(page)}
         role="presentation"
@@ -112,24 +92,6 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
         </button>
       </li>
     );
-  }
-  protected clickScrollButton(
-    listContainerElement: Element | null,
-    isLeftScroll: boolean
-  ): void {
-    if (!!listContainerElement) {
-      listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
-    }
-  }
-  componentDidMount() {
-    super.componentDidMount();
-    this.respManager = new ProgressButtonsResponsivityManager(this.model, this.listContainerRef.current as any, this);
-  }
-  componentWillUnmount() {
-    if (!!this.respManager) {
-      this.respManager.dispose();
-    }
-    super.componentWillUnmount();
   }
 }
 

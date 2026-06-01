@@ -65,24 +65,7 @@ export class ProgressButtons extends Base {
     }
     this.survey.tryNavigateToPage(element);
   }
-  public isListContainerHasScroller(element: HTMLElement): boolean {
-    const listContainerElement: HTMLElement = element.querySelector("." + this.survey.css.progressButtonsListContainer);
-    if (!!listContainerElement) {
-      return listContainerElement.scrollWidth > listContainerElement.offsetWidth;
-    }
-    return false;
-  }
-  public minListWidth: number;
-  public isCanShowItemTitles(element: HTMLElement): boolean {
-    const listContainerElement = element.querySelector("ul");
-    if (!listContainerElement || listContainerElement.children.length < 2) return true;
-    if (listContainerElement.clientWidth > listContainerElement.parentElement.clientWidth) {
-      this.minListWidth = Math.min(this.minListWidth || Infinity, listContainerElement.clientWidth);
-      return false;
-    }
-    if (listContainerElement.parentElement.clientWidth < this.minListWidth) { return false; }
-    return true;
-  }
+
   public get isFitToSurveyWidth(): boolean {
     if (surveyCss.currentType !== "default") {
       return false;
@@ -119,12 +102,6 @@ export class ProgressButtons extends Base {
       result += this.survey.visiblePages.indexOf(page) + 1;
     }
     return result;
-  }
-  public get headerText(): string {
-    return this.survey.currentPage ? this.survey.currentPage.renderedNavigationTitle : "";
-  }
-  public get footerText(): string {
-    return this.progressText;
   }
   public get progressText(): string {
     return this.getPropertyValue("progressText", undefined, () => this.survey.getProgressText());
@@ -173,66 +150,5 @@ export class ProgressButtons extends Base {
     if (nextButton) {
       nextButton.focus();
     }
-  }
-  public onResize: EventBase<ProgressButtons, any> = this.addEvent<ProgressButtons, any>();
-  public processResponsiveness(width: number): void {
-    this.onResize.fire(this, { width });
-  }
-}
-
-export interface IProgressButtonsViewModel {
-  container: string;
-  onResize(canShowItemTitles: boolean): void;
-  onUpdateScroller(hasScroller: boolean): void;
-  onUpdateSettings(): void;
-}
-
-export class ProgressButtonsResponsivityManager {
-  private criticalProperties = ["progressBarType", "progressBarShowNavigationText"];
-  private canShowItemTitles = true;
-  private pages: number;
-  private observer: MutationObserver;
-
-  constructor(private model: ProgressButtons, private element: HTMLElement, private viewModel: IProgressButtonsViewModel) {
-    this.model.survey.registerFunctionOnPropertiesValueChanged(this.criticalProperties, () => this.forceUpdate(), "ProgressButtonsResponsivityManager" + this.viewModel.container);
-    this.model.onResize.add(this.processResponsiveness);
-    this.forceUpdate();
-    this.observer = new MutationObserver(() => {
-      const els = element.querySelectorAll("ul > li");
-      if (this.pages !== els.length) {
-        this.pages = els.length;
-        this.model.minListWidth = undefined;
-        this.forceUpdate();
-      }
-    });
-    this.observer.observe(element, { childList: true, subtree: true });
-  }
-
-  private forceUpdate() {
-    this.viewModel.onUpdateSettings();
-    this.processResponsiveness(this.model, {} as any);
-  }
-
-  private processResponsiveness = (model: ProgressButtons, options: { width: number }) => {
-    this.viewModel.onUpdateScroller(model.isListContainerHasScroller(this.element));
-    if (!model.showItemTitles) {
-      return;
-    }
-    if (model.survey.isMobile) {
-      this.canShowItemTitles = false;
-      this.viewModel.onResize(this.canShowItemTitles);
-      return;
-    }
-    this.canShowItemTitles = model.isCanShowItemTitles(this.element);
-    this.viewModel.onResize(this.canShowItemTitles);
-  };
-
-  dispose(): void {
-    this.model.onResize.remove(this.processResponsiveness);
-    this.model.survey.unRegisterFunctionOnPropertiesValueChanged(this.criticalProperties, "ProgressButtonsResponsivityManager" + this.viewModel.container);
-    this.observer.disconnect();
-    this.observer = undefined;
-    this.element = undefined;
-    this.model = undefined;
   }
 }

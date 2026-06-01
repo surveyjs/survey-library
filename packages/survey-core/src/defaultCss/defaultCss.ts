@@ -152,8 +152,6 @@ export var defaultCss = {
   progressButtonsCheckIcon: "sd-progress-buttons__check-icon",
   progressButtonsCheckIconId: "check-16x16",
   progressButtonsDot: "sd-progress-buttons__dot",
-  progressButtonsHeader: "sd-progress-buttons__header",
-  progressButtonsFooter: "sd-progress-buttons__footer",
   progressButtonsListContainer: "sd-progress-buttons__list-container",
   progressButtonsList: "sd-progress-buttons__list",
   progressButtonsListElementPassed: "sd-progress-buttons__list-element--passed",

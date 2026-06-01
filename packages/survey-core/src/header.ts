@@ -112,15 +112,12 @@ export class Cover extends Base {
   }
   private updateHeaderClasses(): void {
     const backgroundColorNone = !this.backgroundColor || this.backgroundColor === "transparent";
-    const backgroundColorAccent = this.backgroundColor === "var(--sjs2-color-bg-brand-primary)";
-    const backgroundColorCustom = !backgroundColorNone && !backgroundColorAccent;
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
       .append("sv-header--height-auto", !this.renderedHeight)
       .append("sv-header__without-background", backgroundColorNone && !this.backgroundImage)
       .append("sv-header__background-color--none", backgroundColorNone && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--accent", backgroundColorAccent && !this.titleColor && !this.descriptionColor)
-      .append("sv-header__background-color--custom", backgroundColorCustom && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--custom", !backgroundColorNone && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }

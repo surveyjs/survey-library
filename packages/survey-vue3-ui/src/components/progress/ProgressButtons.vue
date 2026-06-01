@@ -1,7 +1,7 @@
 <template>
   <div
     :class="model.getRootCss(container)"
-    :style="{ maxWidth: model.progressWidth, '--sd-progress-buttons-pages-count': model.visiblePages.length }"
+    :style="{ maxWidth: model.progressWidth }"
     role="tablist"
     :aria-label="model.progressBarAriaLabel"
     @keydown="model.onKeyDown($event)"

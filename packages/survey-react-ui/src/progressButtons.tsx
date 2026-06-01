@@ -28,12 +28,11 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     //this.setState({ hasScroller });
   }
   onUpdateSettings(): void {
-    this.setState({ canShowItemTitles: this.model.showItemTitles });
     this.setState({ canShowFooter: !this.model.showItemTitles });
   }
   render(): React.JSX.Element {
     return (
-      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth, ["--sd-progress-buttons-pages-count" as any]: this.model.visiblePages.length }}
+      <div className={this.model.getRootCss(this.props.container)} style={{ "maxWidth": this.model.progressWidth }}
         role="tablist" aria-label={this.model.progressBarAriaLabel}
         onKeyDown={(event) => this.model.onKeyDown(event.nativeEvent)}
       >

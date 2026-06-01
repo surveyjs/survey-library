@@ -238,6 +238,26 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sv-string-viewer").getByText("Description!")).toBeVisible();
     });
 
+    test("check readonly radio boolean - arrow keys do not change value", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "boolean",
+            name: "q",
+            renderAs: "radio",
+            readOnly: true,
+            defaultValue: "true",
+          },
+        ],
+      });
+      expect(await getQuestionValue(page)).toEqual(true);
+      await page.locator("input[type=radio]").first().focus();
+      await page.keyboard.press("ArrowDown");
+      expect(await getQuestionValue(page)).toEqual(true);
+      await page.keyboard.press("ArrowRight");
+      expect(await getQuestionValue(page)).toEqual(true);
+    });
+
     test("test radio boolean with values", async ({ page }) => {
       const checkQuestionValue = async (val: any) => {
         return await page.evaluate((val) => {

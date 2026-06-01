@@ -50,7 +50,7 @@ export const legacyCssVariables = {
   "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
   "--sjs-editorpanel-hovercolor": "--sjs2-color-component-check-false-hovered-bg",
-  "--sjs-questionpanel-cornerRadius": "--sjs2-radius-container-panel",
+  "--sjs-questionpanel-cornerRadius": "--sjs2-radius-component-panel",
   "--sjs-questionpanel-backcolor": "--sjs2-color-component-panel-default-bg",
   "--sjs-questionpanel-hovercolor": "--sjs2-color-unknown-variable-001",
 
@@ -92,6 +92,6 @@ export const legacyCssVariables = {
   "--sjs-font-editorfont-family": "--sjs2-typography-font-family-component-input-content",
   "--sjs-font-editorfont-weight": "--sjs2-typography-font-weight-component-input-content",
   "--sjs-font-editorfont-size": "--sjs2-typography-font-size-component-input-content",
-  "--sjs-font-editorfont-color": "--sjs2-color-component-editor-input-default-value",
-  "--sjs-font-editorfont-placeholdercolor": "--sjs2-color-component-editor-input-default-placeholder",
+  "--sjs-font-editorfont-color": "--sjs2-color-component-input-default-value",
+  "--sjs-font-editorfont-placeholdercolor": "--sjs2-color-component-input-default-placeholder",
 };

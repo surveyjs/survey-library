@@ -40,8 +40,8 @@ export default {
     "--sjs2-color-fg-alert-on-primary": "rgba(48, 48, 48, 1)",
     "--sjs2-color-border-basic-secondary": "rgba(255, 255, 255, 0.12)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(255, 255, 255, 0.08)",
-    "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 2px rgba(64, 64, 64, 1), 0px 2px 0px 2px rgba(64, 64, 64, 1)",
-    "--sjs2-border-effect-surface-default": "0px 2px 0px 2px rgba(64, 64, 64, 1), 0px 0px 0px 2px rgba(64, 64, 64, 1)",
-    "--sjs2-border-effect-floating-default": "0px 0px 0px 2px rgba(64, 64, 64, 1), 0px 8px 0px 2px rgba(64, 64, 64, 1), 0px 0px 0px 0px rgba(0, 0, 0, 0.1)"
+    "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 2 rgba(64, 64, 64, 1), 0px 2 0px 2 rgba(64, 64, 64, 1)",
+    "--sjs2-border-effect-surface-default": "0px 2 0px 2 rgba(64, 64, 64, 1), 0px 0px 0px 2 rgba(64, 64, 64, 1)",
+    "--sjs2-border-effect-floating-default": "0px 0px 0px 2 rgba(64, 64, 64, 1), 0px 8 0px 2 rgba(64, 64, 64, 1), 0px 0px 0px 0px rgba(0, 0, 0, 0.1)"
   }
 };

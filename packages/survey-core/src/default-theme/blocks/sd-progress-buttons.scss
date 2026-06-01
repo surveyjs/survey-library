@@ -374,7 +374,12 @@
   }
 }
 
-.sd-progress-buttons__header {
+.sd-progress-buttons--fit-survey-width {
+  max-width: calc(var(--sjs2-base-unit-size) * 90);
+  box-sizing: border-box;
+  width: 100%;
+  margin: auto;
 }
+
 .sd-progress-buttons__footer {
 }

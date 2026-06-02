@@ -2044,14 +2044,14 @@ export class Question extends SurveyElement<Question>
    * @param keysAsText Applies when the question value is an object (in Matrix, Multiple Text, and similar questions). Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`.
    * @param value Specify this parameter to get a display text for a specific value, not for the current question value. If the question value is an object, this parameter should be a similar object.
    */
-  public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
-    var res = this.calcDisplayValue(keysAsText, value);
+  public getDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
+    var res = this.calcDisplayValue(keysAsText, value, isReadOnly);
     if (this.survey) {
       res = this.titleSettings.getQuestionDisplayValue(this, res);
     }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
-  private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
+  private calcDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
@@ -2061,9 +2061,9 @@ export class Question extends SurveyElement<Question>
       value = this.defaultDisplayValue;
     }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
-    return this.getDisplayValueCore(keysAsText, value);
+    return this.getDisplayValueCore(keysAsText, value, isReadOnly);
   }
-  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+  protected getDisplayValueCore(keyAsText: boolean, value: any, isReadOnly?: boolean): any {
     return value;
   }
   protected getDisplayValueEmpty(): string {

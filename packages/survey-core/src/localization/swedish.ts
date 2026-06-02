@@ -246,7 +246,9 @@ export var swedishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Innehållsförteckning",
   // [Auto-translated] "Progress bar"
-  progressbar: "Förloppsindikator"
+  progressbar: "Förloppsindikator",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Sida {0}"
 };
 
 setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });

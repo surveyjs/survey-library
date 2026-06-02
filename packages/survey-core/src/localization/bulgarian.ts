@@ -246,7 +246,9 @@ export var bulgarianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Съдържание",
   // [Auto-translated] "Progress bar"
-  progressbar: "Лента за напредъка"
+  progressbar: "Лента за напредъка",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Страница {0}"
 };
 
 setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });

@@ -246,7 +246,9 @@ export var hebrewSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "תוכן עניינים",
   // [Auto-translated] "Progress bar"
-  progressbar: "מד התקדמות"
+  progressbar: "מד התקדמות",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "עמוד {0}"
 };
 
 setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });

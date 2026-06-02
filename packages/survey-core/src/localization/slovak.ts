@@ -246,7 +246,9 @@ export var slovakSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Obsah",
   // [Auto-translated] "Progress bar"
-  progressbar: "Indikátor priebehu"
+  progressbar: "Indikátor priebehu",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Strana {0}"
 };
 
 setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "Slovenčina", englishName: "Slovak" });

@@ -246,7 +246,9 @@ export var dutchSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Inhoudsopgave",
   // [Auto-translated] "Progress bar"
-  progressbar: "Voortgangsbalk"
+  progressbar: "Voortgangsbalk",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pagina {0}"
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });

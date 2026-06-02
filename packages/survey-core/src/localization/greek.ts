@@ -246,7 +246,9 @@ export var greekSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Πίνακας περιεχομένων",
   // [Auto-translated] "Progress bar"
-  progressbar: "Γραμμή προόδου"
+  progressbar: "Γραμμή προόδου",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Σελίδα {0}"
 };
 
 setupLocale({ localeCode: "el", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });

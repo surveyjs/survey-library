@@ -246,7 +246,9 @@ export var serbianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sadržaj",
   // [Auto-translated] "Progress bar"
-  progressbar: "Traka napretka"
+  progressbar: "Traka napretka",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Stranica {0}"
 };
 
 setupLocale({ localeCode: "sr", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });

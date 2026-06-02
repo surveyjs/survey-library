@@ -246,7 +246,9 @@ export var romanianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Cuprins",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bara de progres"
+  progressbar: "Bara de progres",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pagina {0}"
 };
 
 setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });

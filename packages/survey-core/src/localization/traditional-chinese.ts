@@ -246,7 +246,9 @@ export var traditionalChineseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "目錄",
   // [Auto-translated] "Progress bar"
-  progressbar: "進度條"
+  progressbar: "進度條",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "頁{0}"
 };
 
 setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });

@@ -27,11 +27,18 @@ export class ProgressButtons extends Base {
     }
     return index <= this.survey.currentPageNo + 1;
   }
+  public isListElementPassed(index: number): boolean {
+    const page = this.survey.visiblePages[index];
+    return page.wasRendered || page.hasValueAnyQuestion();
+  }
   public getRootCss(container: string = "center"): string {
     let result = this.survey.css.progressButtonsContainerCenter;
     if (this.survey.css.progressButtonsRoot) {
       result += " " + this.survey.css.progressButtonsRoot + " " + this.survey.css.progressButtonsRoot + "--" + (["footer", "contentBottom"].indexOf(container) !== -1 ? "bottom" : "top");
       result += " " + this.survey.css.progressButtonsRoot + "--" + (this.showItemTitles ? "with-titles" : "no-titles");
+      if (this.pageTitleLocation === "bottom" && this.survey.css.progressButtonsTitlesBottom) {
+        result += " " + this.survey.css.progressButtonsTitlesBottom;
+      }
     }
     if (this.showItemNumbers && this.survey.css.progressButtonsNumbered) {
       result += " " + this.survey.css.progressButtonsNumbered;
@@ -39,21 +46,17 @@ export class ProgressButtons extends Base {
     if (this.isFitToSurveyWidth) {
       result += " " + this.survey.css.progressButtonsFitSurveyWidth;
     }
+    if (this.showItemDescriptions) {
+      result += " " + this.survey.css.progressButtonsWithDescriptions;
+    }
     return result;
   }
   public getListElementCss(index: number | any): string {
     if (index >= this.survey.visiblePages.length) return;
     return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsListElementPassed, this.survey.visiblePages[index].passed)
+      .append(this.survey.css.progressButtonsListElementPassed, this.isListElementPassed(index))
       .append(this.survey.css.progressButtonsListElementCurrent, this.survey.currentPageNo === index)
       .append(this.survey.css.progressButtonsListElementNonClickable, !this.isListElementClickable(index))
-      .toString();
-  }
-  public getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): string {
-    return new CssClassBuilder()
-      .append(this.survey.css.progressButtonsImageButtonLeft, isLeftScroll)
-      .append(this.survey.css.progressButtonsImageButtonRight, !isLeftScroll)
-      .append(this.survey.css.progressButtonsImageButtonHidden, !hasScroller)
       .toString();
   }
   public clickListElement(element: number | PageModel): void {
@@ -62,24 +65,7 @@ export class ProgressButtons extends Base {
     }
     this.survey.tryNavigateToPage(element);
   }
-  public isListContainerHasScroller(element: HTMLElement): boolean {
-    const listContainerElement: HTMLElement = element.querySelector("." + this.survey.css.progressButtonsListContainer);
-    if (!!listContainerElement) {
-      return listContainerElement.scrollWidth > listContainerElement.offsetWidth;
-    }
-    return false;
-  }
-  public minListWidth: number;
-  public isCanShowItemTitles(element: HTMLElement): boolean {
-    const listContainerElement = element.querySelector("ul");
-    if (!listContainerElement || listContainerElement.children.length < 2) return true;
-    if (listContainerElement.clientWidth > listContainerElement.parentElement.clientWidth) {
-      this.minListWidth = Math.min(this.minListWidth || Infinity, listContainerElement.clientWidth);
-      return false;
-    }
-    if (listContainerElement.parentElement.clientWidth < this.minListWidth) { return false; }
-    return true;
-  }
+
   public get isFitToSurveyWidth(): boolean {
     if (surveyCss.currentType !== "default") {
       return false;
@@ -102,7 +88,13 @@ export class ProgressButtons extends Base {
     if (surveyCss.currentType !== "default") {
       return true;
     }
-    return this.survey.progressBarShowPageTitles;
+    return this.survey.progressBarShowNavigationText;
+  }
+  public get showItemDescriptions(): boolean {
+    return this.showItemTitles;
+  }
+  public get pageTitleLocation(): "top" | "bottom" {
+    return this.survey.progressBarNavigationTextLocation || "top";
   }
   public getItemNumber(page: PageModel): string {
     let result = "";
@@ -110,12 +102,6 @@ export class ProgressButtons extends Base {
       result += this.survey.visiblePages.indexOf(page) + 1;
     }
     return result;
-  }
-  public get headerText(): string {
-    return this.survey.currentPage ? this.survey.currentPage.renderedNavigationTitle : "";
-  }
-  public get footerText(): string {
-    return this.progressText;
   }
   public get progressText(): string {
     return this.getPropertyValue("progressText", undefined, () => this.survey.getProgressText());
@@ -126,65 +112,43 @@ export class ProgressButtons extends Base {
   public resetProgressText(): void {
     this.resetPropertyValue("progressText");
   }
-  public onResize: EventBase<ProgressButtons, any> = this.addEvent<ProgressButtons, any>();
-  public processResponsiveness(width: number): void {
-    this.onResize.fire(this, { width });
+  public getTabIndex(index: number): number {
+    return this.isPageSelected(index) ? 0 : -1;
   }
-}
-
-export interface IProgressButtonsViewModel {
-  container: string;
-  onResize(canShowItemTitles: boolean): void;
-  onUpdateScroller(hasScroller: boolean): void;
-  onUpdateSettings(): void;
-}
-
-export class ProgressButtonsResponsivityManager {
-  private criticalProperties = ["progressBarType", "progressBarShowPageTitles"];
-  private canShowItemTitles = true;
-  private pages: number;
-  private observer: MutationObserver;
-
-  constructor(private model: ProgressButtons, private element: HTMLElement, private viewModel: IProgressButtonsViewModel) {
-    this.model.survey.registerFunctionOnPropertiesValueChanged(this.criticalProperties, () => this.forceUpdate(), "ProgressButtonsResponsivityManager" + this.viewModel.container);
-    this.model.onResize.add(this.processResponsiveness);
-    this.forceUpdate();
-    this.observer = new MutationObserver(() => {
-      const els = element.querySelectorAll("ul > li");
-      if (this.pages !== els.length) {
-        this.pages = els.length;
-        this.model.minListWidth = undefined;
-        this.forceUpdate();
-      }
-    });
-    this.observer.observe(element, { childList: true, subtree: true });
+  public isPageSelected(index: number): boolean {
+    return index === this.survey.currentPageNo;
   }
-
-  private forceUpdate() {
-    this.viewModel.onUpdateSettings();
-    this.processResponsiveness(this.model, {} as any);
+  public getButtonAriaLabel(page: PageModel): string {
+    const index = this.survey.visiblePages.indexOf(page) + 1;
+    return page.renderedNavigationTitle || this.survey.getLocalizationFormatString("progressbarPage", index);
   }
+  public onKeyDown(event: KeyboardEvent): void {
+    const tabs = this.visiblePages;
+    if (!tabs.length) return;
 
-  private processResponsiveness = (model: ProgressButtons, options: { width: number }) => {
-    this.viewModel.onUpdateScroller(model.isListContainerHasScroller(this.element));
-    if (!model.showItemTitles) {
+    const target = event.target as HTMLElement;
+    const currentIndex = Number(target.dataset.pageIndex);
+    if (currentIndex < 0) return;
+
+    let nextIndex: number;
+
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      nextIndex = (currentIndex + 1) % tabs.length;
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = tabs.length - 1;
+    } else {
       return;
     }
-    if (model.survey.isMobile) {
-      this.canShowItemTitles = false;
-      this.viewModel.onResize(this.canShowItemTitles);
-      return;
-    }
-    this.canShowItemTitles = model.isCanShowItemTitles(this.element);
-    this.viewModel.onResize(this.canShowItemTitles);
-  };
 
-  dispose(): void {
-    this.model.onResize.remove(this.processResponsiveness);
-    this.model.survey.unRegisterFunctionOnPropertiesValueChanged(this.criticalProperties, "ProgressButtonsResponsivityManager" + this.viewModel.container);
-    this.observer.disconnect();
-    this.observer = undefined;
-    this.element = undefined;
-    this.model = undefined;
+    event.preventDefault();
+    const container = target.closest("[role='tablist']");
+    const nextButton = container?.querySelector<HTMLElement>(`[data-page-index="${nextIndex}"]`);
+    if (nextButton) {
+      nextButton.focus();
+    }
   }
 }

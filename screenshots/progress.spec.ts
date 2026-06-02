@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
     test("Check survey with progress top buttons", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
-      newJSON["progressBarShowPageTitles"] = true;
+      newJSON["progressBarShowNavigationText"] = true;
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -168,7 +168,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
       });
 
       await page.click("li:nth-child(2)");
@@ -187,7 +187,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarLocation = "topBottom";
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
       });
 
       await page.click("li:nth-child(2)");
@@ -365,7 +365,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.currentPageNo = 1;
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
       });
 
@@ -597,7 +597,7 @@ frameworks.forEach(framework => {
         ],
         showProgressBar: true,
         progressBarLocation: "belowheader",
-        progressBarShowPageTitles: true,
+        progressBarShowNavigationText: true,
         widthMode: "static",
         width: "800px"
       };
@@ -625,7 +625,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       //await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
       });
       await applyTheme(page, {
@@ -794,13 +794,188 @@ frameworks.forEach(framework => {
         ],
         "showProgressBar": true,
         "progressBarLocation": "top",
-        "progressBarShowPageTitles": true,
+        "progressBarShowNavigationText": true,
       });
       await page.waitForTimeout(100);
       await page.locator(".sv-string-viewer").filter({ hasText: "Yes" }).click();
       await page.waitForTimeout(100);
 
       await compareMaskedScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-top-page-count-change.png");
+    });
+
+    test("Check survey with progress top buttons - progressBarType questions", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarType = "questions";
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-type-questions.png");
+    });
+
+    test("Check survey with progress top buttons - numbered with titles and descriptions", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageNumbers = true;
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-with-descriptions.png");
+    });
+
+    test("Check survey with progress top buttons - numbered without titles", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageNumbers = true;
+        (<any>window).survey.progressBarShowNavigationText = false;
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-without-titles.png");
+    });
+
+    test("Check survey with progress top buttons - unnumbered with titles and descriptions", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageNumbers = false;
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-unnumbered-with-descriptions.png");
+    });
+
+    test("Check survey with progress top buttons - unnumbered without titles", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageNumbers = false;
+        (<any>window).survey.progressBarShowNavigationText = false;
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-unnumbered-without-titles.png");
+    });
+
+    test("progressBarNavigationTextLocation", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.progressBarShowPageNumbers = false;
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-top-default.png");
+
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarNavigationTextLocation = "bottom";
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-bottom.png");
+    });
+
+    test("Check survey with progress top buttons - skipped pages stay gray", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.currentPageNo = 3;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-skipped-pages.png");
+    });
+
+    test("Check survey with progress top buttons - advanced header", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-advanced-header.png");
+    });
+
+    test("Check survey with progress bottom buttons", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.progressBarLocation = "bottom";
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom-buttons.png");
+    });
+
+    test("Check survey with progress buttons - pre-filled data marks pages as passed", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              { type: "text", name: "question1" },
+              { type: "text", name: "question5" }
+            ]
+          },
+          {
+            name: "page2",
+            elements: [
+              { type: "text", name: "question2", isRequired: true },
+              { type: "radiogroup", name: "question8", isRequired: true, choices: ["Item 1", "Item 2", "Item 3"] }
+            ]
+          },
+          {
+            name: "page3",
+            elements: [{ type: "text", name: "question3" }]
+          },
+          {
+            name: "page4",
+            elements: [{ type: "text", name: "question4" }]
+          },
+          {
+            name: "page5",
+            elements: [{ type: "text", name: "question6" }]
+          },
+          {
+            name: "page6",
+            elements: [{ type: "text", name: "question7" }]
+          }
+        ],
+        showProgressBar: true,
+        progressBarLocation: "aboveheader",
+        progressBarShowNavigationText: true,
+        progressBarShowPageNumbers: true
+      });
+      await page.evaluate(() => {
+        (<any>window).survey.data = {
+          "question1": "1",
+          "question5": "1",
+          "question2": "2",
+          "question3": "333",
+          "question4": "444"
+        };
+        (<any>window).survey.currentPageNo = 3;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-prefilled-data-passed.png");
     });
   });
 });

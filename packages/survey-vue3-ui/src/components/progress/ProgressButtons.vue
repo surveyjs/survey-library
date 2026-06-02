@@ -42,6 +42,7 @@
               :class="css.progressButtonsButton"
               @click="model.isListElementClickable(index) ? model.clickListElement(page) : undefined"
               role="tab"
+              type="button"
               :aria-selected="model.isPageSelected(index)"
               :aria-label="model.getButtonAriaLabel(page)"
               :tabindex="model.getTabIndex(index)"

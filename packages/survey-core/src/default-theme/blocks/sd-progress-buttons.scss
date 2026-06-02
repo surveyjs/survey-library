@@ -160,7 +160,7 @@
   color: var(--sjs2-color-fg-basic-primary, #1c1b20);
   text-align: center;
 
-  &:hover + .sd-progress-buttons__button {
+  &:hover ~ .sd-progress-buttons__button {
     @include button-hover;
   }
 }
@@ -205,7 +205,7 @@
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
-    &:hover + .sd-progress-buttons__button {
+    &:hover ~ .sd-progress-buttons__button {
       @include button-current;
     }
   }
@@ -233,7 +233,7 @@
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
-    &:hover + .sd-progress-buttons__button {
+    &:hover ~ .sd-progress-buttons__button {
       @include button-hover-passed;
     }
   }
@@ -256,7 +256,7 @@
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
-    &:hover + .sd-progress-buttons__button {
+    &:hover ~ .sd-progress-buttons__button {
       @include button-current-passed;
     }
   }

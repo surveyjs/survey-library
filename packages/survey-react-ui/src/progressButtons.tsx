@@ -75,6 +75,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
         <button className={this.css.progressButtonsButton}
           onClick={onClickHandler}
           role="tab"
+          type="button"
           aria-selected={this.model.isPageSelected(index)}
           aria-label={this.model.getButtonAriaLabel(page)}
           tabIndex={this.model.getTabIndex(index)}

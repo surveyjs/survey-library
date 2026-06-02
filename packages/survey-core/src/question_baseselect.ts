@@ -2414,9 +2414,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
   }
-  public get questionName() {
-    return this.name + "_" + this.id;
-  }
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }

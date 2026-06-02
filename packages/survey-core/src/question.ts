@@ -1735,6 +1735,12 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
+  /**
+   * A unique value for the `name` HTML attribute of grouped inputs (e.g. radio buttons), so that questions sharing the same `name` (such as copies inside a Dynamic Panel) do not collapse into one input group.
+   */
+  public get questionName(): string {
+    return this.name + "_" + this.id;
+  }
   public get requireUpdateCommentValue(): boolean { return this.showCommentArea; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {

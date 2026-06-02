@@ -93,7 +93,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--sjs2-color-bg-brand-secondary);
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary, #1C1B20);
   font-size: $font-editorfont-size;
   border-radius: 100%;
   border: var(--sjs2-border-width-x200) solid transparent;
@@ -108,7 +108,7 @@
   align-self: self-start;
 
   svg {
-    fill: $font-questiontitle-color;
+    fill: currentColor;
     width: $font-editorfont-size;
     height: $font-editorfont-size;
   }
@@ -119,7 +119,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary, #1C1B20);
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   margin: 0 var(--sjs2-spacing-x200);
@@ -137,12 +137,12 @@
 }
 
 .sd-ranking--disabled .sv-ranking-item__text {
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary, #1C1B20);
   opacity: 0.25;
 }
 
 .sv-ranking-item--disabled .sv-ranking-item__text {
-  color: $font-questiondescription-color;
+  color: var(--sjs2-color-fg-basic-primary, #1C1B20);
   opacity: 0.25;
 }
 

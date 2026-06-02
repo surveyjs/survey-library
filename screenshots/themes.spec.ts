@@ -210,6 +210,7 @@ frameworks.forEach(framework => {
       await page.waitForLoadState("networkidle");
       await applyTheme(page, {
         "cssVariables": {
+          "--sjs2-color-fg-basic-primary": "rgba(0, 0, 255, 1)",
           "--sjs2-typography-line-height-component-input-content": "36px",
           "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
           "--sjs-font-editorfont-size": "24px"

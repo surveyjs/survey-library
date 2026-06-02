@@ -65,6 +65,7 @@
   line-height: var(--sd-action-title-line-height);
   color: var(--sd-action-title-color);
   padding: var(--sd-action-title-padding);
+  transition: color $transition-duration;
 }
 
 .sd-action__icon {

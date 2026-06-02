@@ -2729,6 +2729,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     super.onMobileChanged();
     this.updateFooterActions();
   }
+  public ensureRowsVisibility(): void {
+    this.visiblePanels.forEach(panel => panel.ensureRowsVisibility());
+  }
 }
 
 export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior {

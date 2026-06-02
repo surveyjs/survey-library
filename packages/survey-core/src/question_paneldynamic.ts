@@ -73,6 +73,9 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   }
   private get indexVar() { return settings.expressionVariables.panelIndex.toLocaleLowerCase(); }
   private get visIndexVar() { return settings.expressionVariables.visiblePanelIndex.toLocaleLowerCase(); }
+  protected getItemVariableNames(): Array<string> {
+    return [settings.expressionVariables.panelIndex, settings.expressionVariables.visiblePanelIndex];
+  }
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {

@@ -255,7 +255,6 @@ frameworks.forEach(framework => {
       });
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs-font-questiontitle-color": "blue",
           "--sjs2-color-fg-basic-primary": "red",
           "--sjs-font-editorfont-size": "32px"
         }

@@ -435,7 +435,7 @@ export var settings = {
    * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
    *
    * - `false` (default) - Recalculate on every value change in the survey.
-   * - `true` - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values, still recalculate on every value change.
+   * - `true` - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
    */
   expressionQuestionTrackDependencies: false,
   get commentPrefix(): string { return settings.commentSuffix; },

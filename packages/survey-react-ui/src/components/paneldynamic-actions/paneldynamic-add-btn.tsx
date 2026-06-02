@@ -21,6 +21,10 @@ export class SurveyQuestionPanelDynamicAction extends ReactSurveyElement {
 }
 
 export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDynamicAction {
+  protected get isActionEnabled(): boolean {
+    if (this.props.item) return this.props.item.enabled !== false;
+    return this.question.enableAddPanel !== false;
+  }
   protected handleClick = (event: any) => {
     if (!this.isActionEnabled) return;
     this.question.addPanelUI();

@@ -6582,7 +6582,7 @@ export class SurveyModel extends SurveyElementCore
   private questionTriggersKeys: any;
   private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
-    return this.questionTriggersKeys;
+    return this.isRunningConditionOnValueChanged ? this.questionTriggersKeys : undefined;
   }
   private runConditionOnValueChanged(name: string, value: any) {
     if (!this.questionTriggersKeys) {

@@ -1,7 +1,7 @@
 @use "../variables.scss" as *;
 
 .sd-radio__decorator {
-  border-radius: var(--sjs2-radius-component-radio, 9999px);
+  border-radius: var(--sjs2-radius-component-radio);
 
   &:after {
     content: " ";
@@ -19,20 +19,20 @@
   width: var(--sjs2-size-x100);
   height: var(--sjs2-size-x100);
   border-radius: 50%;
-  background-color: var(--sjs2-color-component-check-true-default-icon, #fff);
+  background-color: var(--sjs2-color-component-check-true-default-icon);
 }
 .sd-item__control:focus-visible+.sd-radio__decorator {
   &::before {
-    border-radius: var(--sjs2-radius-component-checkbox, 4px);
+    border-radius: var(--sjs2-radius-component-checkbox);
     border-radius: 50%;
   }
 }
 .sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
-  background-color: var(--sjs2-color-component-check-true-disabled-icon, #B3B2B2);
+  background-color: var(--sjs2-color-component-check-true-disabled-icon);
 }
 
 .sd-radio--checked.sd-radio--readonly .sd-radio__decorator:after {
-  background-color: var(--sjs2-color-component-check-true-readonly-icon, #B3B2B2);
+  background-color: var(--sjs2-color-component-check-true-readonly-icon);
 }
 
 .sd-radio--checked.sd-radio--preview .sd-radio__decorator {

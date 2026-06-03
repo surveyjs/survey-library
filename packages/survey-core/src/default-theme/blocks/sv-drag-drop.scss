@@ -49,7 +49,7 @@
 
   .sd-table__cell.sd-table__cell--drag {
     >div {
-      background-color: var(--sjs2-color-component-panel-default-bg, #fff);
+      background-color: var(--sjs2-color-component-panel-default-bg);
       min-height: var(--sjs2-size-x600);
     }
   }

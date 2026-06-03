@@ -76,7 +76,7 @@
 
   .sv-list__item-body {
     @include mixins.borderLight;
-    border-radius: var(--sjs2-radius-component-drop-item, 8px);
+    border-radius: var(--sjs2-radius-component-drop-item);
     padding-block: var(--sjs2-spacing-x075);
     padding-inline-end: calc(var(--sjs2-base-unit-spacing) * 7.75);
     padding-inline-start: calc(var(--sjs2-base-unit-spacing) * 1.75);

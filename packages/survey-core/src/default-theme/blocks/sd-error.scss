@@ -6,7 +6,7 @@
   flex-direction: column;
   gap: var(--sjs2-spacing-x050);
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
-  border-radius: var(--sjs2-radius-component-message, 8px);
+  border-radius: var(--sjs2-radius-component-message);
   @include sjs2--typography--small-strong;
   text-align: left;
   color: var(--sjs2-color-fg-alert-primary);

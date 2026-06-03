@@ -644,6 +644,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         input.step = 0.01;
       }
     }
+    this.isAllowFocusThumb = false;
+    this.focusedThumb = null;
     this.oldValue = this.renderedValue;
     this.animatedThumb = false;
   };
@@ -679,7 +681,11 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.oldValue = null;
   };
 
-  public handleKeyDown = (event: KeyboardEvent) => {
+  public handleKeyDown = (event: KeyboardEvent, inputNumber?: number) => {
+    if (inputNumber !== undefined) {
+      this.isAllowFocusThumb = true;
+      this.focusedThumb = inputNumber;
+    }
     this.oldValue = this.renderedValue;
     this.animatedThumb = true;
   };
@@ -690,10 +696,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public handleOnFocus = (inputNumber: number): void => {
+    if (!this.isAllowFocusThumb) return;
     this.focusedThumb = inputNumber;
   };
 
   public handleOnBlur = (): void => {
+    this.isAllowFocusThumb = true;
     this.focusedThumb = null;
   };
 
@@ -835,6 +843,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
 
   private isRangeMoving = false;
+  private isAllowFocusThumb = true;
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
 

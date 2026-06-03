@@ -53,7 +53,6 @@
   position: absolute;
   height: var(--sjs2-size-x050);
   top: calc(var(--sjs2-size-x400) / 2 - var(--sjs2-size-x050) / 2);
-  border-radius: var(--sjs2-radius-component-slider, 9999px);
 }
 
 .sd-slider__inverse-track {

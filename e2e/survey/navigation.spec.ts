@@ -142,7 +142,7 @@ frameworks.forEach(framework => {
       await expect(page.locator("input[type=text]")).toHaveValue("some text");
     });
 
-    (framework === "react" ? test : test.skip)("navigation works after Chrome Translate moves button DOM", async ({ page }) => {
+    (framework === "react" ? test : test.skip)("navigation works after Chrome Translate moves button DOM (React only!)", async ({ page }) => {
       const pageErrors: string[] = [];
       page.on("pageerror", err => pageErrors.push(err.message));
       await initSurvey(page, framework, {
@@ -156,7 +156,7 @@ frameworks.forEach(framework => {
         await page.evaluate((value) => {
           // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
           const input = Array.from(document.querySelectorAll<HTMLInputElement>(".sd-body__navigation input[type=button]"))
-            .filter(el => !el.closest(".sv-action--hidden"))
+            .filter(el => !el.closest(".sd-action--hidden"))
             .find(el => el.value === value);
           if (!input) throw new Error("Navigation input not found: " + value);
           const wrapper = document.createElement("font");

@@ -14,6 +14,7 @@ export class ProgressButtons extends Base {
     survey.onPagesVisibleChangedCallback = () => {
       this.visiblePages = survey.visiblePages;
     };
+    survey.onCurrentPageChanged.add(this.onCurrentPageChanged);
     this.visiblePages = survey.visiblePages;
   }
 
@@ -126,10 +127,18 @@ export class ProgressButtons extends Base {
   public resetProgressText(): void {
     this.resetPropertyValue("progressText");
   }
+  public dispose(): void {
+    this.survey.onCurrentPageChanged.remove(this.onCurrentPageChanged);
+    super.dispose();
+  }
   public onResize: EventBase<ProgressButtons, any> = this.addEvent<ProgressButtons, any>();
   public processResponsiveness(width: number): void {
     this.onResize.fire(this, { width });
   }
+
+  private readonly onCurrentPageChanged = (): void => {
+    this.resetProgressText();
+  };
 }
 
 export interface IProgressButtonsViewModel {

@@ -93,4 +93,20 @@ describe("ProgressButtons", () => {
     expect(progress.getListElementCss(1), "1) Page 2 style is empty").toBe("");
     expect(progress.getListElementCss(2), "1) Page 3 style is non clickable").toBe(survey.css.progressButtonsListElementNonClickable);
   });
+  test("ProgressButtons progressText is updated on current page change", () => {
+    const survey = new SurveyModel({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "question1" }] },
+        { name: "page2", elements: [{ type: "text", name: "question2" }] },
+        { name: "page3", elements: [{ type: "text", name: "question3" }] }
+      ]
+    });
+    const progress = new ProgressButtons(survey);
+
+    expect(progress.progressText).toBe("Page 1 of 3");
+
+    survey.nextPage();
+
+    expect(progress.progressText).toBe("Page 2 of 3");
+  });
 });

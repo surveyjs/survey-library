@@ -155,9 +155,9 @@ frameworks.forEach(framework => {
       const clickTranslatedNavigationInput = async (value: string) => {
         await page.evaluate((value) => {
           // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-          const input = Array.from(document.querySelectorAll<HTMLInputElement>(".sd-body__navigation input[type=button]"))
-            .filter(el => !el.closest(".sd-action--hidden"))
-            .find(el => el.value === value);
+          const input = Array.from(document.querySelectorAll<HTMLInputElement>(".sd-body__navigation button"))
+            .filter(el => !el.closest(".sd-action-bar__item--hidden"))
+            .find(el => el.textContent === value);
           if (!input) throw new Error("Navigation input not found: " + value);
           const wrapper = document.createElement("font");
           input.parentNode!.insertBefore(wrapper, input);

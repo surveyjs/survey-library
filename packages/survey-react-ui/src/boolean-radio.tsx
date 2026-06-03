@@ -19,7 +19,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
         <label className={cssClasses.radioLabel}>
           <input
             type="radio"
-            name={this.question.name}
+            name={this.question.questionName}
             value={value}
             aria-errormessage={this.question.ariaErrormessage}
             checked={value === this.question.value}

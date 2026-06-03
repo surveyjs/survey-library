@@ -466,9 +466,6 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
-  public get questionName() {
-    return this.name + "_" + this.id;
-  }
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true || this.isDropdown;
   }

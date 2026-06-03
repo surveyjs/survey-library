@@ -382,7 +382,7 @@ describe("question text tests", () => {
   });
 
   test("Date input: value-changed class when value comes from survey.data, Bug#11334", () => {
-    const valueChanged = "sd-input--value-changed";
+    const valueChanged = "sd-formbox__input--value-changed";
     const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", inputType: "date" }] });
     const q = <QuestionTextModel>survey.getQuestionByName("q1");
     expect(q.getControlClass().indexOf(valueChanged) > -1, "no value, placeholder shown #1").toBeFalsy();

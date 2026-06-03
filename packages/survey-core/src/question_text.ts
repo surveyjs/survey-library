@@ -686,9 +686,11 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.isValueChanged, this._isValueChanged);
+  public getControlClass(): string {
+    return new CssClassBuilder()
+      .append(super.getControlClass())
+      .append(this.cssClasses.isValueChanged, this._isValueChanged)
+      .toString();
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

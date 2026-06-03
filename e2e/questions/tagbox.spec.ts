@@ -919,12 +919,12 @@ frameworks.forEach((framework) => {
         ]
       }, undefined, { data: { question1: [1, "other"], "question1-Comment": "my custom text" } });
 
-      const controlValue = page.locator(".sd-tagbox__value");
+      const controlValue = page.locator(".sd-tagbox__input");
       await expect(controlValue).toContainText("item1");
       await expect(controlValue).toContainText("Other (describe)");
       await expect(controlValue).not.toContainText("my custom text");
 
-      const commentArea = page.locator(".sd-question__comment-area textarea");
+      const commentArea = page.locator(".sd-comment__input");
       await expect(commentArea).toHaveValue("my custom text");
     });
 

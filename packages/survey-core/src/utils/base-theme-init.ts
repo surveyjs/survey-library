@@ -17,7 +17,7 @@ function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
       .slice(i, i + VARIABLES_PER_RULE)
       .map((name) => `  ${name}: ${cssVariables[name]};`)
       .join("\n");
-    rules.push(`.${themeRootClass} {\n${declarations}\n}`);
+    rules.push(`:where(.${themeRootClass}) {\n${declarations}\n}`);
   }
 
   return rules.join("\n");

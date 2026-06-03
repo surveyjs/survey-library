@@ -904,6 +904,29 @@ frameworks.forEach((framework) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
     });
 
+    test("tagbox display mode renders 'Other (describe)' for the other item, Bug#11349", async ({ page }) => {
+      await initSurvey(page, framework, {
+        mode: "display",
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "tagbox",
+            name: "question1",
+            showOtherItem: true,
+            choices: [{ value: 1, text: "item1" }, { value: 2, text: "item2" }, { value: 3, text: "item3" }]
+          }
+        ]
+      }, undefined, { data: { question1: [1, "other"], "question1-Comment": "my custom text" } });
+
+      const controlValue = page.locator(".sd-tagbox__value");
+      await expect(controlValue).toContainText("item1");
+      await expect(controlValue).toContainText("Other (describe)");
+      await expect(controlValue).not.toContainText("my custom text");
+
+      const commentArea = page.locator(".sd-question__comment-area textarea");
+      await expect(commentArea).toHaveValue("my custom text");
+    });
+
     test("Check tagbox popup opens after beak click", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       const json = {

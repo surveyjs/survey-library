@@ -659,6 +659,12 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     super.setNewValue(newValue);
   }
+  public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    super.updateValueFromSurvey(newValue, clearData);
+    if (!this.isEmpty()) {
+      this.setIsValueChanged();
+    }
+  }
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
     if (this.inputType === "number" || this.inputType === "range") {
@@ -713,7 +719,6 @@ export class QuestionTextModel extends QuestionTextBase {
       this.input.classList.add(this.cssClasses.isValueChanged);
     }
   }
-
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;

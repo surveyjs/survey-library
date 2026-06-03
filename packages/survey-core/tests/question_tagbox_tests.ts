@@ -2477,6 +2477,18 @@ describe("Tagbox question", () => {
     expect(question.choices[0].showCommentArea, "#2").toBe(false);
     expect(question.otherItem.showCommentArea, "#3").toBe(true);
   });
+  test("Tagbox readOnlyText shows otherText for the other item, but displayValue keeps the comment, Bug#11349", () => {
+    const survey = new SurveyModel({
+      elements: [{ "type": "tagbox", "name": "q1",
+        "choices": [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" }],
+        showOtherItem: true }]
+    });
+    const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+    question.value = [1, "other"];
+    question.comment = "my custom text";
+    expect(question.displayValue, "displayValue keeps the comment value").toBe("Item 1, my custom text");
+    expect(question.readOnlyText, "readOnlyText shows the Other (describe) text").toBe("Item 1, Other (describe)");
+  });
   test("Tagbox otherItem works correctly", assert => {
     const survey = new SurveyModel(
       { elements: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });

@@ -918,6 +918,59 @@ describe("JsonSerializationTests", () => {
       .toBe("The property value: 'wrong' is incorrect for property 'customProp'.");
     Serializer.removeProperty("choicesByUrl", "customProp");
   });
+  test("Unknown property error on deserialization for nested objects (ItemValue/choices in radiogroup), Bug#11251", () => {
+    const survey = new SurveyModel();
+    survey.fromJSON({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: [
+            { value: "item1", text: "Item 1", unknownNested: 123 }
+          ]
+        }
+      ]
+    });
+    expect(survey.jsonErrors, "jsonErrors should be set").toBeTruthy();
+    expect(survey.jsonErrors.length, "There is one error").toBe(1);
+    const error = <JsonUnknownPropertyError>survey.jsonErrors[0];
+    expect(error.propertyName, "the property name in the error").toBe("unknownNested");
+    expect(error.className, "the class name in the error").toBe("choiceitem");
+  });
+  test("validatePropertyValues for nested objects (ItemValue/choices in radiogroup) with custom property choices, Bug#11251", () => {
+    Serializer.addProperty("itemvalue", { name: "customProp", choices: ["a", "b", "c"] });
+    const survey1 = new SurveyModel();
+    survey1.fromJSON({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: [
+            { value: "item1", text: "Item 1", customProp: "b" }
+          ]
+        }
+      ]
+    }, { validatePropertyValues: true });
+    expect(survey1.jsonErrors, "There are no errors for valid value").toBeNull();
+
+    const survey2 = new SurveyModel();
+    survey2.fromJSON({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: [
+            { value: "item1", text: "Item 1", customProp: "wrong" }
+          ]
+        }
+      ]
+    }, { validatePropertyValues: true });
+    expect(survey2.jsonErrors, "jsonErrors should be set for invalid value").toBeTruthy();
+    expect(survey2.jsonErrors.length, "There is one error").toBe(1);
+    expect(survey2.jsonErrors[0].message, "errors[0].message")
+      .toBe("The property value: 'wrong' is incorrect for property 'customProp'.");
+    Serializer.removeProperty("itemvalue", "customProp");
+  });
   test("Having 'pos' property for objects with errors", () => {
     var owner = new LongNamesOwner();
     var jsonObj = new JsonObject();
@@ -1592,7 +1645,7 @@ describe("JsonSerializationTests", () => {
     jsonObject.toObject(
       {
         items: [
-          { value: 7, text: "Item 1", price: 55.5 },
+          { value: 7, text: "Item 1" },
           5,
           "item",
           "value1|text1",

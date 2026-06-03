@@ -223,6 +223,10 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   protected get questionName(): string {
     return settings.expressionVariables.matrix;
   }
+  protected getItemVariableNames(): Array<string> {
+    const v = settings.expressionVariables;
+    return [v.rowIndex, v.visibleRowIndex, v.item, v.rowName, v.rowValue, v.rowTitle];
+  }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
     const setVar = settings.expressionVariables;
@@ -1189,6 +1193,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected isPropertyStoredInHash(name: string): boolean {
     if (name === "detailElements") return !this.detailPanelValue;
     return super.isPropertyStoredInHash(name);
+  }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcPanel = (<QuestionMatrixDropdownModelBase><unknown>src).detailPanelValue;
+    if (srcPanel) {
+      (<any>this.detailPanel).mergeLocalizationObj(srcPanel, locales);
+    }
   }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");

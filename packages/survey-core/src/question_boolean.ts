@@ -284,9 +284,16 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   public onKeyDownCore(event: any): boolean {
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      event.stopPropagation();
-      this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
+    const key = event.key;
+    if (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown") {
+      if (this.isInputReadOnly) {
+        preventDefaults(event);
+        return false;
+      }
+      if (key === "ArrowLeft" || key === "ArrowRight") {
+        event.stopPropagation();
+        this.calculateBooleanValueByEvent(event, key === "ArrowRight");
+      }
     }
     return true;
   }

@@ -73,6 +73,9 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   }
   private get indexVar() { return settings.expressionVariables.panelIndex.toLocaleLowerCase(); }
   private get visIndexVar() { return settings.expressionVariables.visiblePanelIndex.toLocaleLowerCase(); }
+  protected getItemVariableNames(): Array<string> {
+    return [settings.expressionVariables.panelIndex, settings.expressionVariables.visiblePanelIndex];
+  }
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
@@ -387,6 +390,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "templateElements" && super.isPropertyStoredInHash(name);
+  }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
+    if (srcTemplate) {
+      (<any>this.template).mergeLocalizationObj(srcTemplate, locales);
+    }
   }
   /**
    * A template for panel titles.
@@ -2722,6 +2731,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected onMobileChanged(): void {
     super.onMobileChanged();
     this.updateFooterActions();
+  }
+  public ensureRowsVisibility(): void {
+    this.visiblePanels.forEach(panel => panel.ensureRowsVisibility());
   }
 }
 

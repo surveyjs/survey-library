@@ -360,9 +360,9 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
 
-    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
 
     this.addTriggersInfo();
   }
@@ -1735,6 +1735,12 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
+  /**
+   * A unique value for the `name` HTML attribute of grouped inputs (e.g. radio buttons), so that questions sharing the same `name` (such as copies inside a Dynamic Panel) do not collapse into one input group.
+   */
+  public get questionName(): string {
+    return this.name + "_" + this.id;
+  }
   public get requireUpdateCommentValue(): boolean { return this.showCommentArea; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
@@ -2044,14 +2050,14 @@ export class Question extends SurveyElement<Question>
    * @param keysAsText Applies when the question value is an object (in Matrix, Multiple Text, and similar questions). Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`.
    * @param value Specify this parameter to get a display text for a specific value, not for the current question value. If the question value is an object, this parameter should be a similar object.
    */
-  public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
-    var res = this.calcDisplayValue(keysAsText, value);
+  public getDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
+    var res = this.calcDisplayValue(keysAsText, value, isReadOnly);
     if (this.survey) {
       res = this.titleSettings.getQuestionDisplayValue(this, res);
     }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
-  private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
+  private calcDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
@@ -2061,9 +2067,9 @@ export class Question extends SurveyElement<Question>
       value = this.defaultDisplayValue;
     }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
-    return this.getDisplayValueCore(keysAsText, value);
+    return this.getDisplayValueCore(keysAsText, value, isReadOnly);
   }
-  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+  protected getDisplayValueCore(keyAsText: boolean, value: any, isReadOnly?: boolean): any {
     return value;
   }
   protected getDisplayValueEmpty(): string {

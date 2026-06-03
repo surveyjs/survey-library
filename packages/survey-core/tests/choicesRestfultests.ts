@@ -1773,6 +1773,53 @@ test("Clear choices on changing variables", () => {
     question.choicesByUrl.url = "allcountries";
     expect(question.getPropertyValue("choicesByUrl"), "choicesByUrl is created on demand").not.toBeUndefined();
   });
+  test("getData serializes custom array property (itemvalue[]) to plain JSON, Bug#7705", () => {
+    Serializer.addClass("blockitemvalue", [
+      { name: "randomizationGroup" }
+    ], undefined, "itemvalue");
+    Serializer.addProperty("choicesByUrl", { name: "blocks", type: "blockitemvalue[]" });
+    try {
+      const survey = new SurveyModel({ elements: [{ type: "dropdown", name: "q1" }] });
+      const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+
+      const item1 = <ItemValue>Serializer.createClass("blockitemvalue");
+      item1.value = "block1";
+      const item2 = <ItemValue>Serializer.createClass("blockitemvalue");
+      item2.value = "block2";
+      (<any>item2)["randomizationGroup"] = "GroupA";
+
+      (<any>question.choicesByUrl)["blocks"] = [item1, item2];
+
+      const data = question.choicesByUrl.getData();
+      expect(data).toBeTruthy();
+      expect(Array.isArray(data.blocks)).toBeTruthy();
+      expect(data.blocks).toHaveLength(2);
+      expect(data.blocks[0] instanceof ItemValue).toBeFalsy();
+      expect(data.blocks[0]).toEqual("block1");
+      expect(data.blocks[1] instanceof ItemValue).toBeFalsy();
+      expect(data.blocks[1]).toEqual({ value: "block2", randomizationGroup: "GroupA" });
+
+      const json = survey.toJSON();
+      const q1JSON = json.pages[0].elements[0];
+      expect(q1JSON.choicesByUrl).toBeTruthy();
+      expect(q1JSON.choicesByUrl.blocks).toHaveLength(2);
+      expect(q1JSON.choicesByUrl.blocks[0] instanceof ItemValue).toBeFalsy();
+      expect(q1JSON.choicesByUrl.blocks[0]).toEqual("block1");
+
+      const surveyText = JSON.stringify(json);
+      const restoredJSON = JSON.parse(surveyText);
+      const survey2 = new SurveyModel(restoredJSON);
+      const q1Restored = <QuestionDropdownModel>survey2.getQuestionByName("q1");
+      const blocksRestored: any[] = (<any>q1Restored.choicesByUrl)["blocks"];
+      expect(blocksRestored).toHaveLength(2);
+      expect(blocksRestored[0].value).toEqual("block1");
+      expect(blocksRestored[1].value).toEqual("block2");
+      expect(blocksRestored[1]["randomizationGroup"]).toEqual("GroupA");
+    } finally {
+      Serializer.removeProperty("choicesByUrl", "blocks");
+      Serializer.removeClass("blockitemvalue");
+    }
+  });
   function getCACities() {
     return ["Los Angeles", "San Francisco"];
   }

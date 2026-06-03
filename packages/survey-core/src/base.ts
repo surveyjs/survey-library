@@ -33,6 +33,7 @@ interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
   useStrictDependencies?: boolean;
+  onReset?: (obj: Base) => void;
 }
 
 export interface IExpressionValidationOptions {
@@ -538,7 +539,9 @@ export class Base implements IObjectValueContext {
     if (orgObj !== obj && org !== this) {
       org.mergeLocalizationObj(orgObj, locales);
     }
+    this.mergeLocalizationWithInnerObjects(obj, locales);
   }
+  protected mergeLocalizationWithInnerObjects(_src: Base, _locales?: Array<string>): void {}
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
     const locStrs = obj.localizableStrings;
@@ -966,11 +969,11 @@ export class Base implements IObjectValueContext {
       fireCallback(this);
     }
   }
-  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean): void {
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean, onReset?: (obj: Base) => void): void {
     if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
-    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies };
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies, onReset: onReset };
   }
   public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
     if (!expression) return;
@@ -1053,6 +1056,11 @@ export class Base implements IObjectValueContext {
   private checkConditionPropertyChanged(propName: string): void {
     if (!this.expressionInfo || !this.expressionInfo[propName]) return;
     if (!this.canRunConditions()) return;
+    const info = this.expressionInfo[propName];
+    if (!this.getPropertyValue(propName)) {
+      if (info.onReset) info.onReset(this);
+      return;
+    }
     this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, properties: HashTable<any>): void {
@@ -1060,20 +1068,21 @@ export class Base implements IObjectValueContext {
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
     if (!!info.canRun && !info.canRun(this)) return;
-    if (info.useStrictDependencies) {
-      const survey: any = this.getSurvey();
-      const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
-      if (this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys)) return;
-    }
+    if (info.useStrictDependencies && this.canSkipRunningExpression(propName)) return;
     this.runExpressionByProperty(propName, properties, (res) => {
       info.onExecute(this, res);
     });
+  }
+  protected canSkipRunningExpression(propName: string): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
-    if ((!Array.isArray(vars) || vars.length === 0) && !!runner && runner.hasFunction()) return false;
+    if (!Array.isArray(vars) || vars.length === 0) return false;
     return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;
@@ -1139,6 +1148,10 @@ export class Base implements IObjectValueContext {
     return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
+    // Fire onExpressionRunning here too: a handler may rewrite the expression,
+    // so the skip-check must analyze the same (post-event) expression that will
+    // actually run. This is why the event fires twice when dependency tracking
+    // is enabled - once for the skip-check and once for the run.
     const expression = this.getExpressionFromSurvey(propName);
     if (!expression) return null;
     return this.getExpressionInfoByProperty(propName, expression).runner;

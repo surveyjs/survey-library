@@ -131,8 +131,8 @@
 
 .sd-slider__thumb-container--focused {
   .sd-slider__thumb {
-    box-shadow: var(--sjs2-border-effect-trigger-default);
-    background: var(--sjs2-color-component-slider-focused-thumb);
+    box-shadow: none;
+    background: var(--sjs2-color-component-slider-default-thumb);
     border: var(--sjs2-border-width-a11y) solid var(--sjs2-color-utility-a11y);
   }
 

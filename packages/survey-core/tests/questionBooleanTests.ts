@@ -279,4 +279,51 @@ describe("boolean", () => {
     b2.value = !b2.value;
     expect(exp1.value, "exp1.value #3").toBe(true);
   });
+  test("Boolean keyboard navigation should respect swapOrder", () => {
+    var json = {
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "bool",
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+
+    let pdCount = 0;
+    let spCount = 0;
+    const createEvent = (key: string) => ({
+      key: key,
+      target: document.createElement("div"),
+      preventDefault: () => { pdCount++; },
+      stopPropagation: () => { spCount++; }
+    });
+
+    // Test without swapOrder (default behavior)
+    question.onKeyDownCore(createEvent("ArrowRight"));
+    expect(question.booleanValue).toBe(true);
+    expect(spCount).toBe(1);
+
+    question.booleanValue = null;
+    question.onKeyDownCore(createEvent("ArrowLeft"));
+    expect(question.booleanValue).toBe(false);
+    expect(spCount).toBe(2);
+
+    // Test with swapOrder = true
+    question.swapOrder = true;
+    question.booleanValue = null;
+    spCount = 0;
+
+    // With swapOrder, ArrowRight should select false (No is on the right)
+    question.onKeyDownCore(createEvent("ArrowRight"));
+    expect(question.booleanValue).toBe(false);
+    expect(spCount).toBe(1);
+
+    question.booleanValue = null;
+    // With swapOrder, ArrowLeft should select true (Yes is on the left)
+    question.onKeyDownCore(createEvent("ArrowLeft"));
+    expect(question.booleanValue).toBe(true);
+    expect(spCount).toBe(2);
+  });
 });

@@ -78,6 +78,11 @@
       .sd-body__navigation {
         padding-top: calcSize(7);
       }
+      .sv-components-container-contentTop {
+        .sd-body__navigation {
+          padding-top: 0;
+        }
+      }
     }
   }
 }

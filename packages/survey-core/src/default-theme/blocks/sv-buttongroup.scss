@@ -1,3 +1,4 @@
+@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sv-button-group {
@@ -69,6 +70,7 @@
   position: relative;
 
   .sv-button-group__item-decorator {
+    position: relative;
     padding: var(--sjs2-spacing-x100, 8px);
     box-sizing: border-box;
     display: flex;
@@ -105,7 +107,18 @@
 }
 
 .sv-button-group__item-control:focus-visible + .sv-button-group__item-decorator {
-  outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+  &::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--sjs2-radius-component-buttongroup-item, 4px);
+    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-a11y);
+    transition: box-shadow $transition-duration;
+  }
 }
 
 .sv-button-group__item-icon {

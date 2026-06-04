@@ -20,7 +20,6 @@
   transition:
     background-color $transition-duration,
     box-shadow $transition-duration,
-    outline-width $transition-duration,
     transform $transition-duration;
 }
 .sd-action:where(:disabled),
@@ -55,7 +54,7 @@
 }
 .sd-action:where(:focus-visible) {
   &:where(:not(:disabled, .sd-action--disabled)) {
-    outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+    box-shadow: var(--sd-action-boxshadow), var(--sjs2-border-effect-component-action-a11y);
   }
 }
 

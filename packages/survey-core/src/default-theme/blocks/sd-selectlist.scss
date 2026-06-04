@@ -1,3 +1,4 @@
+@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sd-selectlist__container {
@@ -26,6 +27,7 @@
     border-radius: var(--sjs2-radius-component-drop-item, 8px);
     background: var(--sjs2-color-bg-brand-tertiary, rgba(25, 179, 148, 0));
     @include sjs2--typography--default;
+    transition: box-shadow $transition-duration;
 
     &:focus-visible {
         outline: none;
@@ -68,7 +70,7 @@
 }
 
 .sd-selectlist__item--focused {
-    outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+    box-shadow: var(--sjs2-border-effect-a11y);
 }
 
 .sd-selectlist__item--hovered {

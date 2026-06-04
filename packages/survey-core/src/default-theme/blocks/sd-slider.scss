@@ -130,9 +130,9 @@
 
 .sd-slider__thumb-container--focused {
   .sd-slider__thumb {
-    box-shadow: none;
+    box-shadow: var(--sjs2-border-effect-component-slider-a11y);
     background: var(--sjs2-color-component-slider-default-thumb);
-    border: var(--sjs2-border-width-a11y) solid var(--sjs2-color-utility-a11y);
+    border: none;
   }
 
   .sd-slider__tooltip--on-hover {
@@ -149,8 +149,8 @@
   border-radius: var(--sjs2-radius-component-slider-thumb, 9999px);
   background: var(--sjs2-color-component-slider-default-thumb);
   box-shadow: var(--sjs2-border-effect-trigger-default);
-
-  //  box-sizing: border-box;
+  border: none;
+  transition: box-shadow $transition-duration;
 }
 
 .sd-slider__thumb-dot {

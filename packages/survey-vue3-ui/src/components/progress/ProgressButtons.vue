@@ -72,9 +72,9 @@
     <div v-if="canShowFooter" :class="survey.css.progressButtonsFooter">
       <div
         :class="survey.css.progressButtonsPageTitle"
-        :title="model.progressText"
+        :title="model.footerText"
       >
-        {{ model.progressText }}
+        {{ model.footerText }}
       </div>
     </div>
   </div>

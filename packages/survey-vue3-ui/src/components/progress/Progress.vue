@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useBase } from "@/base";
 import { computed } from "vue";
 import { SurveyProgressModel } from "survey-core";
 
@@ -27,6 +28,7 @@ const props = defineProps<{
   container?: string;
   css?: any;
 }>();
+useBase(() => props.model);
 const progress = computed(() => props.model.progressValue + "%");
 
 const getProgressTextInBarCss = (css: any) =>

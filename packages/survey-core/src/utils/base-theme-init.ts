@@ -8,7 +8,7 @@ const VARIABLES_PER_RULE = 50;
 let cachedCss: string | undefined;
 
 function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
-  const themeRootClass = defaultCss.rootTheme;
+  const themeRootClass = "sd-theme-root";
   const names = Object.keys(cssVariables);
   const rules: string[] = [];
 

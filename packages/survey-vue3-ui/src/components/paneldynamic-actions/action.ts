@@ -14,3 +14,9 @@ export function useIsActionEnabled(props: IPanelDynamicActionProps) {
     () => !props.item || props.item.enabled !== false
   );
 }
+export function useIsAddActionEnabled(props: IPanelDynamicActionProps) {
+  const question = usePanelDynamicAction(props);
+  return computed<boolean>(
+    () => props.item ? props.item.enabled !== false : question.value.enableAddPanel !== false
+  );
+}

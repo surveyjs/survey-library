@@ -1563,24 +1563,26 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return questionPlainData;
   }
-  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+  protected getDisplayValueCore(keysAsText: boolean, value: any, isReadOnly?: boolean): any {
     value = this.getValueFromValueWithComment(value);
     if (!this.useDisplayValuesInDynamicTexts) return value;
-    return this.getChoicesDisplayValue(this.visibleChoices, value);
+    return this.getChoicesDisplayValue(this.visibleChoices, value, isReadOnly);
   }
   protected getDisplayValueEmpty(): string {
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
-  private getChoicesDisplayValue(items: ItemValue[], val: any): any {
-    if (this.isOtherValue(val))
+  private getChoicesDisplayValue(items: ItemValue[], val: any, isReadOnly?: boolean): any {
+    if (this.isOtherValue(val)) {
+      if (isReadOnly) return this.locOtherText.textOrHtml;
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
+    }
     const selItem = this.getSingleSelectedItem();
     if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
   protected getDisplayArrayValue(keysAsText: boolean, value: any,
-    onGetValueCallback?: (index: number) => any): string {
+    onGetValueCallback?: (index: number) => any, isReadOnly?: boolean): string {
     var items = this.visibleChoices;
     var strs = [] as Array<string>;
     const vals = [] as Array<any>;
@@ -1588,11 +1590,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
     }
     if (Helpers.isTwoValueEquals(this.value, vals)) {
-      this.getMultipleSelectedItems().forEach((item, index) => strs.push(this.getItemDisplayValue(item, vals[index])));
+      this.getMultipleSelectedItems().forEach((item, index) => strs.push(this.getItemDisplayValue(item, vals[index], isReadOnly)));
     }
     if (strs.length === 0) {
       for (var i = 0; i < vals.length; i++) {
-        let valStr = this.getChoicesDisplayValue(items, vals[i]);
+        let valStr = this.getChoicesDisplayValue(items, vals[i], isReadOnly);
         if (valStr) {
           strs.push(valStr);
         }
@@ -1600,16 +1602,23 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return strs.join(settings.choicesSeparator);
   }
-  private getItemDisplayValue(item: ItemValue, val?: any): string {
+  private getItemDisplayValue(item: ItemValue, val?: any, isReadOnly?: boolean): string {
     if (this.isOtherItemByInstance(item)) {
-      if (this.showOtherItem && this.showCommentArea && !!val) {
-        return val;
-      }
-      if (this.comment) {
-        return this.comment;
+      const otherDisplayValue = this.getOtherItemDisplayValue(val, isReadOnly);
+      if (otherDisplayValue !== undefined) {
+        return otherDisplayValue;
       }
     }
     return item.locText.textOrHtml;
+  }
+  protected getOtherItemDisplayValue(val?: any, isReadOnly?: boolean): string | undefined {
+    if (this.showOtherItem && this.showCommentArea && !!val) {
+      return val;
+    }
+    if (this.comment) {
+      return this.comment;
+    }
+    return undefined;
   }
   private getFilteredChoices(): Array<ItemValue> {
     return this.filteredChoicesValue
@@ -2498,9 +2507,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
-  }
-  public get questionName() {
-    return this.name + "_" + this.id;
   }
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;

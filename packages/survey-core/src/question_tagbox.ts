@@ -31,6 +31,13 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       this.dropdownListModel.setInputPlaceholder(newValue);
     }
   }
+  protected calculateReadOnlyText(): string {
+    return this.getDisplayValue(true, undefined, true);
+  }
+  protected getOtherItemDisplayValue(val?: any, isReadOnly?: boolean): string | undefined {
+    if (isReadOnly) return undefined;
+    return super.getOtherItemDisplayValue(val);
+  }
   supportElementsInChoice(): boolean { return false; }
   public locStrsChanged(): void {
     super.locStrsChanged();

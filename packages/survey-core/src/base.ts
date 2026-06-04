@@ -1068,20 +1068,21 @@ export class Base implements IObjectValueContext {
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
     if (!!info.canRun && !info.canRun(this)) return;
-    if (info.useStrictDependencies) {
-      const survey: any = this.getSurvey();
-      const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
-      if (this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys)) return;
-    }
+    if (info.useStrictDependencies && this.canSkipRunningExpression(propName)) return;
     this.runExpressionByProperty(propName, properties, (res) => {
       info.onExecute(this, res);
     });
+  }
+  protected canSkipRunningExpression(propName: string): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
   }
   protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
     if (!keys) return false;
     if (!!runner && runner.hasFunction(true)) return false;
     if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
-    if ((!Array.isArray(vars) || vars.length === 0) && !!runner && runner.hasFunction()) return false;
+    if (!Array.isArray(vars) || vars.length === 0) return false;
     return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;
@@ -1147,6 +1148,10 @@ export class Base implements IObjectValueContext {
     return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
+    // Fire onExpressionRunning here too: a handler may rewrite the expression,
+    // so the skip-check must analyze the same (post-event) expression that will
+    // actually run. This is why the event fires twice when dependency tracking
+    // is enabled - once for the skip-check and once for the run.
     const expression = this.getExpressionFromSurvey(propName);
     if (!expression) return null;
     return this.getExpressionInfoByProperty(propName, expression).runner;

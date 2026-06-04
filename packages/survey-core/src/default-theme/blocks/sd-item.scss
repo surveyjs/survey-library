@@ -72,7 +72,7 @@
 .sd-item__control-label {
   @include sjs2--typography--component--input--content;
   font-style: normal;
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary, #1C1B20);
   white-space: normal;
   width: 100%;
   text-align: start;

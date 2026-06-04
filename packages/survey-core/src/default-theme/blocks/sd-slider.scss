@@ -53,7 +53,6 @@
   position: absolute;
   height: var(--sjs2-size-x050);
   top: calc(var(--sjs2-size-x400) / 2 - var(--sjs2-size-x050) / 2);
-  border-radius: var(--sjs2-radius-component-slider, 9999px);
 }
 
 .sd-slider__inverse-track {
@@ -131,8 +130,8 @@
 
 .sd-slider__thumb-container--focused {
   .sd-slider__thumb {
-    box-shadow: var(--sjs2-border-effect-trigger-default);
-    background: var(--sjs2-color-component-slider-focused-thumb);
+    box-shadow: none;
+    background: var(--sjs2-color-component-slider-default-thumb);
     border: var(--sjs2-border-width-a11y) solid var(--sjs2-color-utility-a11y);
   }
 

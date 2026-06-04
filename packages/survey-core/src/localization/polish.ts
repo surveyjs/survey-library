@@ -246,7 +246,9 @@ export var polishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Spis treści",
   // [Auto-translated] "Progress bar"
-  progressbar: "Pasek postępu"
+  progressbar: "Pasek postępu",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Strona {0}"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

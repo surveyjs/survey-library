@@ -12706,7 +12706,7 @@ describe("Survey", () => {
         },
       ],
       progressBarType: "pages",
-      progressBarShowPageTitles: true
+      progressBarShowNavigationText: true
     });
     expect(survey.getQuestionByName("q1"), "Do not produce stack-overflow").toBeTruthy();
   });
@@ -16316,7 +16316,7 @@ describe("Survey", () => {
   test("getContainerContent - do not show buttons progress on completed page", () => {
     const json = {
       "progressBarType": "pages",
-      "progressBarShowPageTitles": true,
+      "progressBarShowNavigationText": true,
       "showProgressBar": true,
       "progressBarLocation": "top",
       pages: [
@@ -18754,7 +18754,7 @@ describe("Survey", () => {
     expect(survey.showProgressBar, "default show progress bar").toBe(false);
     expect(survey.progressBarType, "default progress bar type").toBe("pages");
     expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
-    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
+    expect(survey.progressBarShowNavigationText, "don't show page titles in progress by default").toBe(false);
 
     expect(getContainerContent("header"), "empty header").toEqual([]);
     expect(getContainerContent("footer"), "empty footer").toEqual([]);
@@ -18778,7 +18778,7 @@ describe("Survey", () => {
 
     survey.progressBarType = "buttons";
 
-    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
+    expect(survey.progressBarShowNavigationText, "show page titles in progress for buttons").toBe(true);
 
     expect(getContainerContent("header"), "auto buttons header").toEqual([]);
     expect(getContainerContent("footer"), "auto buttons footer").toEqual([]);
@@ -19147,7 +19147,7 @@ describe("Survey", () => {
       showProgressBar: true,
       progressBarLocation: "top",
       progressBarType: "pages",
-      progressBarShowPageTitles: true,
+      progressBarShowNavigationText: true,
       pages: [
         {
           elements: [{ type: "text", name: "q1" }]

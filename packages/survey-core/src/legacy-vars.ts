@@ -22,11 +22,6 @@ export const legacyCssVariables = {
   "--sjs-primary-forecolor-light": "--sjs2-color-fg-brand-primary-disabled", //rgba(255, 255, 255, 0.25)",
   "--sjs-base-unit": ["--sjs2-base-unit-size", "--sjs2-base-unit-spacing"], //"8px"
   "--sjs-corner-radius": "--sjs2-base-unit-radius", //"4px"
-  "--sjs-secondary-backcolor": "--sjs2-color-bg-accent-primary", //rgba(255, 152, 20, 1)",
-  "--sjs-secondary-backcolor-light": "--sjs2-color-bg-accent-secondary", //rgba(255, 152, 20, 0.1)",
-  "--sjs-secondary-backcolor-semi-light": "--sjs2-color-bg-accent-secondary-dim", //rgba(255, 152, 20, 0.25)",
-  "--sjs-secondary-forecolor": "--sjs2-color-fg-accent-on-primary", //rgba(255, 255, 255, 1)",
-  "--sjs-secondary-forecolor-light": "--sjs2-color-fg-accent-primary-disabled", //rgba(255, 255, 255, 0.25)",
   "--sjs-shadow-small": "--sjs2-border-effect-surface-default", //0px 1px 2px 0px rgba(0, 0, 0, 0.15)",
   "--sjs-shadow-medium": { var: "--sjs2-border-effect-floating-default", join: "," }, //0px 2px 6px 0px rgba(0, 0, 0, 0.1)",
   "--sjs-shadow-large": { var: "--sjs2-border-effect-floating-default", join: "," }, //0px 8px 16px 0px rgba(0, 0, 0, 0.1)",

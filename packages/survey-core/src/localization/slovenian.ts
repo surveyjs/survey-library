@@ -246,6 +246,8 @@ export var slovenianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Kazalo vsebine",
   // [Auto-translated] "Progress bar"
-  progressbar: "Vrstica napredovanja"
+  progressbar: "Vrstica napredovanja",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Stran {0}"
 };
 setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenščina", englishName: "Slovenian" });

@@ -23,7 +23,7 @@ frameworks.forEach((framework) => {
         showProgressBar: true,
         progressBarLocation: "top",
         progressBarType: "pages",
-        progressBarShowPageTitles: true
+        progressBarShowNavigationText: true
       };
       await initSurvey(page, framework, json);
       await page.locator("[data-name='question1']").hover();

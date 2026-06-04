@@ -246,7 +246,9 @@ export var philippinesStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Talaan ng mga nilalaman",
   // [Auto-translated] "Progress bar"
-  progressbar: "Email Address *"
+  progressbar: "Email Address *",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pahina {0}"
 };
 
 // Uncomment the lines below if you create a custom dictionary.

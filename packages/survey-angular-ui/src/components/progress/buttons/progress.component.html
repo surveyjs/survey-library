@@ -1,47 +1,51 @@
-<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth" [style.--sd-progress-buttons-pages-count]="model.visiblePages.length"
-role="progressbar" aria-valuemin="0" aria-valuemax="100" [attr.aria-label]="model.progressBarAriaLabel"
+<div [class]="model.getRootCss(container)" [style.maxWidth]="model.progressWidth"
+role="tablist" [attr.aria-label]="model.progressBarAriaLabel"
+(keydown)="model.onKeyDown($event)"
 >
-  <div *ngIf="canShowHeader" [class]="survey.css.progressButtonsHeader">
-    <div [class]="survey.css.progressButtonsPageTitle" [title]="model.headerText">{{ model.headerText }}</div>
-  </div>
-  <div [class]="survey.css.progressButtonsContainer">
+  <div [class]="survey.css.progressButtonsContainer" role="presentation">
     <div
-      [class]="model.getScrollButtonCss(hasScroller, true)"
-      (click)="clickScrollButton(true)"
-      role="button"
-    ></div>
-    <div
-      [class]="survey.css.progressButtonsListContainer" #progressButtonsListContainer>
-      <ul [class]="survey.css.progressButtonsList">
+      [class]="survey.css.progressButtonsListContainer" role="presentation">
+      <ul [class]="survey.css.progressButtonsList" role="presentation">
         <li
           *ngFor="let page of model.visiblePages; index as index"
           [class]="model.getListElementCss(index)"
-          (click)="model.isListElementClickable(index) ? model.clickListElement(page) : null"
-          [attr.data-page-number]="model.getItemNumber(page)">
-          <div [class]="survey.css.progressButtonsConnector"></div>
-          <div *ngIf="canShowItemTitles"
+          [attr.data-page-number]="model.getItemNumber(page)"
+          role="presentation">
+          <div *ngIf="model.showItemTitles"
             [class]="survey.css.progressButtonsPageTitle"
             [title]="page.renderedNavigationTitle"
+            (click)="model.isListElementClickable(index) ? model.clickListElement(page) : null"
           >
             <sv-ng-string [model]="page.locNavigationTitle"></sv-ng-string>
           </div>
-          <div *ngIf="canShowItemTitles"
+          <div *ngIf="model.showItemDescriptions"
             [class]="survey.css.progressButtonsPageDescription"
             [title]="page.navigationDescription"
+            (click)="model.isListElementClickable(index) ? model.clickListElement(page) : null"
           >
             {{ page.navigationDescription }}
           </div>
-          <div [class]="survey.css.progressButtonsButton"><div [class]="survey.css.progressButtonsButtonBackground"></div><div [class]="survey.css.progressButtonsButtonContent"></div><span>{{model.getItemNumber(page)}}</span></div>
+          <button [class]="survey.css.progressButtonsButton"
+            (click)="model.isListElementClickable(index) ? model.clickListElement(page) : undefined"
+            role="tab"
+            type="button"
+            [attr.aria-selected]="model.isPageSelected(index)"
+            [attr.aria-label]="model.getButtonAriaLabel(page)"
+            [attr.tabindex]="model.getTabIndex(index)"
+            [attr.data-page-index]="index"
+          >
+            <ng-container *ngIf="model.showItemNumbers">{{ model.getItemNumber(page) }}</ng-container>
+            <ng-container *ngIf="!model.showItemNumbers && model.isListElementPassed(index)">
+              <svg [class]="survey.css.progressButtonsCheckIcon">
+                <use [attr.xlink:href]="'#icon-' + survey.css.progressButtonsCheckIconId"></use>
+              </svg>
+            </ng-container>
+            <ng-container *ngIf="!model.showItemNumbers && !model.isListElementPassed(index)">
+              <div [class]="survey.css.progressButtonsDot"></div>
+            </ng-container>
+          </button>
         </li>
       </ul>
     </div>
-    <div
-      [class]="model.getScrollButtonCss(hasScroller, false)"
-      (click)="clickScrollButton(false)"
-      role="button"
-    ></div>
-  </div>
-  <div *ngIf="canShowFooter" [class]="survey.css.progressButtonsFooter">
-    <div [class]="survey.css.progressButtonsPageTitle" [title]="model.footerText">{{ model.footerText }}</div>
   </div>
 </div>

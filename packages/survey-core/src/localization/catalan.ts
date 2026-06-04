@@ -246,7 +246,9 @@ export var catalanSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Taula de continguts",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barra de progrés"
+  progressbar: "Barra de progrés",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pàgina {0}"
 };
 
 setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });

@@ -520,12 +520,17 @@ export type VerticalAlignment = "top" | "middle" | "bottom";
 export interface ISurveyLayoutElement {
   id: string;
   container?: LayoutElementContainer | Array<LayoutElementContainer>;
+  isInContainer?: (container: LayoutElementContainer) => boolean;
   component?: string;
   template?: string;
   data?: any;
   index?: number;
   getData?: () => any;
   processResponsiveness?: (width: number) => void;
+}
+
+export interface ILayoutElementModel {
+  createLayoutElements(): Array<ISurveyLayoutElement>;
 }
 export interface IPlainDataOptions {
   includeEmpty?: boolean;

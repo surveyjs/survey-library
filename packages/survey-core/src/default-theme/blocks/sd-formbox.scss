@@ -27,6 +27,7 @@
 .sd-formbox:has(:focus-visible) {
     &::before {
         content: "";
+        pointer-events: none;
         position: absolute;
         top: 0;
         left: 0;

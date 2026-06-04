@@ -128,6 +128,26 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowLeft");
       expect(await getQuestionValue(page)).toEqual(false);
     });
+
+    test("check arrow keydowns with swapOrder", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "boolean",
+            name: "q",
+            swapOrder: true,
+          },
+        ],
+      });
+      page.keyboard.press("Tab");
+      expect(await getQuestionValue(page)).toEqual(undefined);
+      // With swapOrder, ArrowRight should select false (No is on the right)
+      await page.keyboard.press("ArrowRight");
+      expect(await getQuestionValue(page)).toEqual(false);
+      // With swapOrder, ArrowLeft should select true (Yes is on the left)
+      await page.keyboard.press("ArrowLeft");
+      expect(await getQuestionValue(page)).toBeTruthy();
+    });
   });
 });
 

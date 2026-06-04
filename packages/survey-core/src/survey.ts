@@ -87,7 +87,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { ensureBaseThemeStyles } from "./utils/base-theme-init";
+import { addBoxShadowResetVarsIntoStyles, ensureBaseThemeStyles } from "./utils/base-theme-init";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -8382,23 +8382,6 @@ export class SurveyModel extends SurveyElementCore
     this.onCreateCustomChoiceItem.fire(this, options);
   }
 
-  private addAnimationResetCSSVariables(newCssVariable: any) {
-    if (!newCssVariable) return;
-    const targetVars = [
-      "--sjs2-border-effect-surface-default",
-      "--sjs2-border-effect-surface-focused",
-      "--sjs2-border-effect-component-formbox-default",
-      "--sjs2-border-effect-component-formbox-focused"
-    ];
-
-    targetVars.forEach((varName) => {
-      const boxShadow = newCssVariable[varName];
-      if (typeof boxShadow === "string") {
-        newCssVariable[`${varName}-reset`] = createBoxShadowReset(boxShadow);
-      }
-    });
-  }
-
   /**
    * Applies a specified theme to the survey.
    *
@@ -8414,7 +8397,6 @@ export class SurveyModel extends SurveyElementCore
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables);
-    this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;
@@ -8436,6 +8418,7 @@ export class SurveyModel extends SurveyElementCore
       advHeader.fromTheme(theme);
       this.insertAdvancedHeader(advHeader);
     }
+    addBoxShadowResetVarsIntoStyles(this.rootElement);
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {

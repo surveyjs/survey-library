@@ -40,6 +40,8 @@ export default {
     "--sjs2-color-bg-alert-primary-disabled": "var(--sjs2-palette-gray-750)",
     "--sjs2-color-fg-basic-primary": "rgba(from var(--sjs2-palette-gray-000) r g b / var(--sjs2-opacity-x085))",
     "--sjs2-color-fg-basic-primary-muted": "var(--sjs2-color-fg-basic-primary)",
+    "--sjs2-color-fg-basic-secondary": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x065))",
+    "--sjs2-color-fg-basic-tertiary": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x045))",
     "--sjs2-color-fg-basic-primary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-secondary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-tertiary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",

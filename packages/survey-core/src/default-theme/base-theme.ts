@@ -943,7 +943,7 @@ export default {
     "--sjs2-border-offset-y-surface-disabled": "0px",
     "--sjs2-border-offset-y-surface-dragging": "6px",
     "--sjs2-border-offset-y-floating-default": "6px",
-    "--sjs2-border-effect-a11y": "0px 0px 0px {sjs2.border-width.a11y} var(--sjs2-color-utility-a11y)",
+    "--sjs2-border-effect-a11y": "0px 0px 0px var(--sjs2-border-width-a11y) var(--sjs2-color-utility-a11y)",
     "--sjs2-border-effect-component-formbox-default": "inset var(--sjs2-border-offset-x-form-default) var(--sjs2-border-offset-y-form-default) var(--sjs2-border-blur-form-default) var(--sjs2-border-spread-form-default) var(--sjs2-color-component-formbox-default-border)",
     "--sjs2-border-effect-component-formbox-hovered": "inset var(--sjs2-border-offset-x-form-hovered) var(--sjs2-border-offset-y-form-hovered) var(--sjs2-border-blur-form-hovered) var(--sjs2-border-spread-form-hovered) var(--sjs2-color-component-formbox-hovered-border)",
     "--sjs2-border-effect-component-formbox-focused": "inset var(--sjs2-border-offset-x-form-focused) var(--sjs2-border-offset-y-form-focused) var(--sjs2-border-blur-form-focused) var(--sjs2-border-spread-form-focused) var(--sjs2-color-component-formbox-focused-border)",

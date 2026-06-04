@@ -62,8 +62,7 @@ export default {
     "--sjs2-color-component-buttongroup-item-false-default-value": "var(--sjs2-color-fg-basic-primary)",
     "--sjs2-color-component-buttongroup-item-false-disabled-bg": "rgba(from var(--sjs2-color-bg-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
     "--sjs2-color-component-buttongroup-item-false-readonly-bg": "rgba(from var(--sjs2-color-bg-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-buttongroup-item-true-disabled-bg": "var(--sjs2-color-bg-basic-primary)",
-    "--sjs2-color-component-buttongroup-item-true-disabled-border": "var(--sjs2-color-border-basic-secondary)",
+    "--sjs2-color-component-buttongroup-item-true-default-bg": "var(--sjs2-color-bg-basic-secondary)",
     "--sjs2-color-component-check-false-default-bg": "var(--sjs2-color-bg-basic-primary)",
     "--sjs2-color-component-check-false-hovered-bg": "var(--sjs2-color-bg-basic-primary-dim)",
     "--sjs2-color-component-check-false-design-bg": "var(--sjs2-color-bg-basic-primary)",
@@ -85,6 +84,8 @@ export default {
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
     "--sjs2-border-spread-surface-hovered": "var(--sjs2-border-width-x100)",
-    "--sjs2-border-spread-surface-pressed": "var(--sjs2-border-width-x100)"
+    "--sjs2-border-spread-surface-pressed": "var(--sjs2-border-width-x100)",
+    "--sjs2-border-spread-floating-default": "4px",
+    "--sjs2-border-blur-floating-default": "12px"
   }
 };

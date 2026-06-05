@@ -52,7 +52,7 @@
 }
 .sd-action:where(:focus-visible) {
   &:where(:not(:disabled, .sd-action--disabled)) {
-    box-shadow: var(--sd-action-boxshadow), var(--sjs2-border-effect-component-action-a11y);
+    box-shadow: var(--sjs2-border-effect-component-action-a11y);
   }
 }
 
@@ -88,6 +88,11 @@
 .sd-action--border:where(:hover) {
   &:where(:not(:disabled, .sd-action--disabled)) {
     box-shadow: var(--sd-action-hover-box-shadow);
+  }
+}
+.sd-action--border:where(:focus-visible) {
+  &:where(:not(:disabled, .sd-action--disabled)) {
+    box-shadow: var(--sd-action-boxshadow), var(--sjs2-border-effect-component-action-a11y);
   }
 }
 

@@ -1,16 +1,13 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-:root, :host {
+.sd-rating {
   --sd-rating-bad-color: #{$red};
   --sd-rating-normal-color: #{$yellow};
   --sd-rating-good-color: #{$green};
   --sd-rating-bad-color-light: #{$red-light};
   --sd-rating-normal-color-light: #{$yellow-light};
   --sd-rating-good-color-light: #{$green-light};
-}
-
-.sd-rating {
   overflow-x: auto;
   min-height: var(--sjs2-size-x600);
 

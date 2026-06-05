@@ -16,7 +16,6 @@
   background: var(--sd-action-background);
   padding: var(--sd-action-padding);
   border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action, 8px));
-  box-shadow: var(--sd-action-boxshadow);
   cursor: pointer;
   transition:
     background-color $transition-duration,
@@ -27,7 +26,6 @@
 .sd-action--disabled {
   cursor: default;
   background: var(--sd-action-disabled-background);
-  box-shadow: var(--sd-action-disabled-box-shadow);
   .sd-action__title {
     color: var(--sd-action-disabled-title-color);
   }
@@ -39,7 +37,6 @@
 .sd-action:where(:hover) {
   &:where(:not(:disabled, .sd-action--disabled)) {
     background: var(--sd-action-hover-background);
-    box-shadow: var(--sd-action-hover-box-shadow);
     .sd-action__title {
       color: var(--sd-action-hover-title-color);
     }
@@ -81,9 +78,17 @@
 }
 
 .sd-action--border {
-  --sd-action-boxshadow: var(--sjs2-border-effect-trigger-default, 0px 1px 2px 1px rgba(17, 16, 20, 0.1));
-  --sd-action-disabled-box-shadow: var(--sjs2-border-effect-trigger-disabled, 0px 0px 0px 1px rgba(17, 16, 20, 0.1));
-  --sd-action-hover-box-shadow: var(--sjs2-border-effect-trigger-hovered, 0px 1px 2px 1px rgba(17, 16, 20, 0.1));
+  box-shadow: var(--sd-action-boxshadow);
+}
+.sd-action--border:where(:disabled),
+.sd-action--border:where(.sd-action--disabled) {
+  box-shadow: var(--sd-action-disabled-box-shadow);
+}
+.sd-action--border:where(.sd-action--popup-active),
+.sd-action--border:where(:hover) {
+  &:where(:not(:disabled, .sd-action--disabled)) {
+    box-shadow: var(--sd-action-hover-box-shadow);
+  }
 }
 
 //size modifiers
@@ -148,6 +153,10 @@
       --sjs2-color-component-action-neutral-primary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-neutral-primary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-neutral-primary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-neutral-primary-disabled);
   }
   &.sd-action--secondary {
     --sd-action-background: var(--sjs2-color-component-action-neutral-secondary-default-bg, #f5f5f5);
@@ -167,6 +176,10 @@
       --sjs2-color-component-action-neutral-secondary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-neutral-secondary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-neutral-secondary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-neutral-secondary-disabled);
   }
   &.sd-action--tertiary,
   &.sd-action--tertiary-muted {
@@ -190,6 +203,10 @@
       --sjs2-color-component-action-neutral-tertiary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-neutral-tertiary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-neutral-tertiary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-neutral-tertiary-disabled);
   }
   &.sd-action--quaternary {
     --sd-action-background: var(--sjs2-color-component-action-neutral-quaternary-default-bg, rgba(95, 94, 97, 0));
@@ -215,6 +232,10 @@
       --sjs2-color-component-action-neutral-quaternary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-neutral-quaternary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-neutral-quaternary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-neutral-quaternary-disabled);
   }
   &.sd-action--tertiary-surface,
   &.sd-action--tertiary-muted-surface {
@@ -235,6 +256,10 @@
       --sjs2-color-component-action-neutral-tertiary-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-neutral-tertiary-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-neutral-tertiary-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-neutral-tertiary-surface-disabled);
   }
   &.sd-action--quaternary-surface {
     --sd-action-background: var(--sjs2-color-component-action-neutral-quaternary-surface-default-bg, #fff);
@@ -260,6 +285,10 @@
       --sjs2-color-component-action-neutral-quaternary-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-neutral-quaternary-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-neutral-quaternary-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-neutral-quaternary-surface-disabled);
   }
 }
 .sd-action--alert {
@@ -282,6 +311,10 @@
       --sjs2-color-component-action-alert-primary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-primary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-primary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-primary-disabled);
   }
   &.sd-action--secondary {
     --sd-action-background: var(--sjs2-color-component-action-alert-secondary-default-bg, rgba(229, 10, 62, 0.1));
@@ -304,6 +337,10 @@
       --sjs2-color-component-action-alert-secondary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-secondary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-secondary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-secondary-disabled);
   }
   &.sd-action--tertiary {
     --sd-action-background: var(--sjs2-color-component-action-alert-tertiary-default-bg, rgba(229, 10, 62, 0));
@@ -326,6 +363,10 @@
       --sjs2-color-component-action-alert-tertiary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-tertiary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-disabled);
   }
   &.sd-action--quaternary {
     --sd-action-background: var(--sjs2-color-component-action-alert-quaternary-default-bg, rgba(229, 10, 62, 0));
@@ -351,6 +392,10 @@
       --sjs2-color-component-action-alert-quaternary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-quaternary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-quaternary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-quaternary-disabled);
   }
   &.sd-action--tertiary-surface {
     --sd-action-background: var(--sjs2-color-component-action-alert-tertiary-surface-default-bg, #fff);
@@ -370,6 +415,10 @@
       --sjs2-color-component-action-alert-tertiary-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-tertiary-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-surface-disabled);
   }
   &.sd-action--tertiary-muted {
     --sd-action-background: var(--sjs2-color-component-action-alert-tertiary-muted-default-bg, rgba(229, 10, 62, 0));
@@ -395,6 +444,10 @@
       --sjs2-color-component-action-alert-tertiary-muted-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-tertiary-muted-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-muted-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-muted-disabled);
   }
   &.sd-action--tertiary-muted-surface {
     --sd-action-background: var(--sjs2-color-component-action-alert-tertiary-muted-surface-default-bg, #fff);
@@ -420,6 +473,10 @@
       --sjs2-color-component-action-alert-tertiary-muted-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-tertiary-muted-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-muted-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-tertiary-muted-surface-disabled);
   }
   &.sd-action--quaternary-surface {
     --sd-action-background: var(--sjs2-color-component-action-alert-quaternary-surface-default-bg, #fff);
@@ -445,6 +502,10 @@
       --sjs2-color-component-action-alert-quaternary-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-alert-quaternary-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-alert-quaternary-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-alert-quaternary-surface-disabled);
   }
 }
 .sd-action--brand {
@@ -467,6 +528,10 @@
       --sjs2-color-component-action-brand-primary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-primary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-primary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-primary-disabled);
   }
   &.sd-action--secondary {
     --sd-action-background: var(--sjs2-color-component-action-brand-secondary-default-bg, rgba(25, 179, 148, 0.1));
@@ -489,6 +554,10 @@
       --sjs2-color-component-action-brand-secondary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-secondary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-secondary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-secondary-disabled);
   }
   &.sd-action--tertiary {
     --sd-action-background: var(--sjs2-color-component-action-brand-tertiary-default-bg, rgba(25, 179, 148, 0));
@@ -511,6 +580,10 @@
       --sjs2-color-component-action-brand-tertiary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-tertiary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-disabled);
   }
   &.sd-action--quaternary {
     --sd-action-background: var(--sjs2-color-component-action-brand-quaternary-default-bg, rgba(25, 179, 148, 0));
@@ -536,6 +609,10 @@
       --sjs2-color-component-action-brand-quaternary-disabled-icon,
       rgba(28, 27, 32, 0.4)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-quaternary-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-quaternary-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-quaternary-disabled);
   }
   &.sd-action--tertiary-surface {
     --sd-action-background: var(--sjs2-color-component-action-brand-tertiary-surface-default-bg, #fff);
@@ -555,6 +632,10 @@
       --sjs2-color-component-action-brand-tertiary-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-tertiary-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-surface-disabled);
   }
   &.sd-action--tertiary-muted {
     --sd-action-background: var(--sjs2-color-component-action-brand-tertiary-muted-default-bg, rgba(25, 179, 148, 0));
@@ -580,6 +661,10 @@
       --sjs2-color-component-action-brand-tertiary-muted-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-tertiary-muted-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-muted-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-muted-disabled);
   }
   &.sd-action--tertiary-muted-surface {
     --sd-action-background: var(--sjs2-color-component-action-brand-tertiary-muted-surface-default-bg, #fff);
@@ -605,6 +690,10 @@
       --sjs2-color-component-action-brand-tertiary-muted-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-tertiary-muted-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-muted-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-tertiary-muted-surface-disabled);
   }
   &.sd-action--quaternary-surface {
     --sd-action-background: var(--sjs2-color-component-action-brand-quaternary-surface-default-bg, #fff);
@@ -630,6 +719,10 @@
       --sjs2-color-component-action-brand-quaternary-surface-disabled-icon,
       rgba(28, 27, 32, 0.2)
     );
+
+    --sd-action-boxshadow: var(--sjs2-border-effect-component-action-brand-quaternary-surface-default);
+    --sd-action-hover-box-shadow: var(--sjs2-border-effect-component-action-brand-quaternary-surface-hovered);
+    --sd-action-disabled-box-shadow: var(--sjs2-border-effect-component-action-brand-quaternary-surface-disabled);
   }
 }
 .sd-action.sv-dots__item {

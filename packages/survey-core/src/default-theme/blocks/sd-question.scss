@@ -38,7 +38,7 @@
 
 .sd-element--with-frame>.sd-element__erbox--above-element {
   margin-bottom: var(--sd-base-padding);
-  border-radius: var(--sjs2-radius-x100) var(--sjs2-radius-x100) 0 0;
+  border-radius: var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel) 0 0;
 }
 
 .sd-question--left>.sd-element__erbox--above-element {
@@ -51,7 +51,7 @@
 
 .sd-element--with-frame>.sd-question__erbox--below-question {
   margin-top: auto;
-  border-radius: 0 0 var(--sjs2-radius-x100) var(--sjs2-radius-x100);
+  border-radius: 0 0 var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel);
 }
 
 .sd-element--with-frame.sd-question--title-top>.sd-question__erbox--above-question {

@@ -2,7 +2,7 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-formbox {
-    position: relative;
+    position: static;
     width: 100%;
     box-sizing: border-box;
     padding: var(--sjs2-spacing-x050, 4px);

@@ -81,10 +81,10 @@
   box-shadow: var(--sd-action-boxshadow);
 }
 .sd-action--border:where(:disabled),
-.sd-action--border.sd-action--disabled {
+.sd-action--border:where(.sd-action--disabled) {
   box-shadow: var(--sd-action-disabled-box-shadow);
 }
-.sd-action--border.sd-action--popup-active,
+.sd-action--border:where(.sd-action--popup-active),
 .sd-action--border:where(:hover) {
   &:where(:not(:disabled, .sd-action--disabled)) {
     box-shadow: var(--sd-action-hover-box-shadow);

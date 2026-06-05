@@ -2,6 +2,9 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-action {
+  @include sjs2--typography--default-strong;
+  font-size: var(--sd-action-title-font-size);
+  line-height: var(--sd-action-title-line-height);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -60,9 +63,6 @@
 }
 
 .sd-action__title {
-  @include sjs2--typography--default-strong;
-  font-size: var(--sd-action-title-font-size);
-  line-height: var(--sd-action-title-line-height);
   color: var(--sd-action-title-color);
   padding: var(--sd-action-title-padding);
   transition: color $transition-duration;
@@ -71,8 +71,8 @@
 .sd-action__icon {
   pointer-events: none;
   box-sizing: content-box;
-  width: var(--sd-action-icon-size);
-  height: var(--sd-action-icon-size);
+  width: 1lh;
+  height: 1lh;
   padding: var(--sd-action-icon-padding);
   use {
     transition: fill $transition-duration;
@@ -92,7 +92,6 @@
   --sd-action-title-font-size: var(--sjs2-typography-font-size-default, 16px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-default, 24px);
   --sd-action-title-padding: 0 var(--sjs2-spacing-x200, 16px);
-  --sd-action-icon-size: var(--sjs2-line-height-x300, 24px);
   --sd-action-icon-padding: 0;
 }
 .sd-action--medium {
@@ -100,7 +99,6 @@
   --sd-action-title-font-size: var(--sjs2-typography-font-size-default, 16px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-default, 24px);
   --sd-action-title-padding: 0 var(--sjs2-spacing-x100, 8px);
-  --sd-action-icon-size: var(--sjs2-line-height-x300, 24px);
   --sd-action-icon-padding: 0;
 }
 .sd-action--small {
@@ -108,7 +106,6 @@
   --sd-action-title-font-size: var(--sjs2-typography-font-size-default, 16px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-default, 24px);
   --sd-action-title-padding: 0 var(--sjs2-spacing-x075, 6px);
-  --sd-action-icon-size: var(--sjs2-line-height-x300, 24px);
   --sd-action-icon-padding: 0;
 }
 .sd-action--x-small {
@@ -116,7 +113,6 @@
   --sd-action-title-font-size: var(--sjs2-typography-font-size-small, 12px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-small, 16px);
   --sd-action-title-padding: var(--sjs2-spacing-x050, 4px);
-  --sd-action-icon-size: var(--sjs2-line-height-x200, 16px);
   --sd-action-icon-padding: var(--sjs2-spacing-x050, 4px);
 }
 .sd-action--xx-small {
@@ -124,7 +120,6 @@
   --sd-action-title-font-size: var(--sjs2-typography-font-size-small, 12px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-small, 16px);
   --sd-action-title-padding: 0 var(--sjs2-spacing-x025, 2px);
-  --sd-action-icon-size: var(--sjs2-line-height-x200, 16px);
   --sd-action-icon-padding: 0;
 }
 //style modifiers

@@ -139,12 +139,12 @@
 }
 
 .sd-selectlist__filter-icon {
-    width: var(--sjs2-line-height-x300, 24px);
-    height: var(--sjs2-line-height-x300, 24px);
+    width: 1lh;
+    height: 1lh;
 
     .sv-svg-icon {
-        width: var(--sjs2-line-height-x300, 24px);
-        height: var(--sjs2-line-height-x300, 24px);
+        width: 1lh;
+        height: 1lh;
 
         use {
             fill: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));

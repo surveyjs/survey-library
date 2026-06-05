@@ -13,6 +13,7 @@
 }
 
 .sd-tagbox-item {
+  @include sjs2--typography--component--input--content;
   position: relative;
   display: flex;
   align-items: center;
@@ -43,7 +44,6 @@
 }
 
 .sd-tagbox-item__text {
-  @include sjs2--typography--component--input--content;
   color: var(--sjs2-color-component-tagbox-item-default-label, #1c1b20);
   min-width: var(--sjs2-size-x500, 40px);
   padding: 0 var(--sjs2-spacing-x075, 6px);
@@ -106,8 +106,8 @@
 .sd-tagbox-item__clean-button-svg {
   display: block;
   padding: var(--sjs2-spacing-x050, 4px);
-  width: var(--sjs2-line-height-x200, 16px);
-  height: var(--sjs2-line-height-x200, 16px);
+  width: 1lh;
+  height: 1lh;
   box-sizing: content-box;
 }
 

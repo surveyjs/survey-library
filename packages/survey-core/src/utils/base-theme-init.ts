@@ -44,18 +44,21 @@ export function ensureStyleElement(htmlElement: Element): HTMLStyleElement | nul
   return styleElement;
 }
 
+export function createBaseThemeStyle(): string {
+  const cssVariables = baseTheme.cssVariables;
+  if (!cssVariables) return "";
+  return buildBaseThemeCss(cssVariables);
+}
+
 /**
  * Injects BaseTheme CSS variables into a local `<style>` element inside `htmlElement`.
  * Called from `SurveyModel.afterRenderSurvey()` after the survey root is mounted.
  */
 export function ensureBaseThemeStyles(htmlElement?: Element): void {
   if (!DomDocumentHelper.isAvailable() || !htmlElement) return;
-
-  const cssVariables = baseTheme.cssVariables;
-  if (!cssVariables) return;
   const styleElement = ensureStyleElement(htmlElement);
   if (cachedCss === undefined) {
-    cachedCss = buildBaseThemeCss(cssVariables);
+    cachedCss = createBaseThemeStyle();
   }
   if (styleElement.textContent !== cachedCss) {
     styleElement.textContent = cachedCss;
@@ -63,9 +66,8 @@ export function ensureBaseThemeStyles(htmlElement?: Element): void {
   addBoxShadowResetVarsIntoStyles(htmlElement);
 }
 
-export function addBoxShadowResetVarsIntoStyles(htmlElement?:Element): void {
-  if (!DomDocumentHelper.isAvailable() || !htmlElement) return;
-  const styleElement = ensureStyleElement(htmlElement);
+export function createResetVariablesStyle(htmlElement?:Element): string {
+  if (!DomDocumentHelper.isAvailable() || !htmlElement) return "";
   const cssVariables: { [index: string]: string } = {};
   const targetVars = [
     "--sjs2-border-effect-surface-default",
@@ -80,5 +82,10 @@ export function addBoxShadowResetVarsIntoStyles(htmlElement?:Element): void {
       cssVariables[`${varName}-reset`] = createBoxShadowReset(boxShadow);
     }
   });
-  styleElement.textContent += `\n${buildBaseThemeCss(cssVariables)}`;
+  return buildBaseThemeCss(cssVariables);
+}
+
+export function addBoxShadowResetVarsIntoStyles(htmlElement?:Element): void {
+  const styleElement = ensureStyleElement(htmlElement);
+  styleElement.textContent += `\n${createResetVariablesStyle(htmlElement)}`;
 }

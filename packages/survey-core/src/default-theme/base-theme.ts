@@ -953,7 +953,7 @@ export default {
     "--sjs2-border-effect-component-formbox-highlighted": "inset var(--sjs2-border-offset-x-form-highlighted) var(--sjs2-border-offset-y-form-highlighted) var(--sjs2-border-blur-form-highlighted) var(--sjs2-border-spread-form-highlighted) var(--sjs2-color-component-formbox-highlighted-border)",
     "--sjs2-border-effect-component-formbox-readonly": "inset var(--sjs2-border-offset-x-form-readonly) var(--sjs2-border-offset-y-form-readonly) var(--sjs2-border-blur-form-readonly) var(--sjs2-border-spread-form-readonly) var(--sjs2-color-component-formbox-readonly-border)",
     "--sjs2-border-effect-component-formbox-design": "inset var(--sjs2-border-offset-x-form-design) var(--sjs2-border-offset-y-form-design) var(--sjs2-border-blur-form-design) var(--sjs2-border-spread-form-design) var(--sjs2-color-component-formbox-design-border)",
-    "--sjs2-border-effect-component-formbox-a11y": "unset",
+    "--sjs2-border-effect-component-formbox-a11y": "0px 0px 0px 0px transparent",
     "--sjs2-border-effect-component-toggle-a11y": "var(--sjs2-border-effect-a11y)",
     "--sjs2-border-effect-component-toggle-false-default": "inset var(--sjs2-border-offset-x-form-default) var(--sjs2-border-offset-y-form-default) var(--sjs2-border-blur-form-default) var(--sjs2-border-spread-form-default) var(--sjs2-color-component-toggle-false-default-border)",
     "--sjs2-border-effect-component-toggle-false-hovered": "inset var(--sjs2-border-offset-x-form-hovered) var(--sjs2-border-offset-y-form-hovered) var(--sjs2-border-blur-form-hovered) var(--sjs2-border-spread-form-hovered) var(--sjs2-color-component-toggle-false-hovered-border)",

@@ -2863,9 +2863,8 @@ export class SurveyModel extends SurveyElementCore
    * - `"questions"` - The number of answered questions.
    * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
    * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
-   * - `"buttons"` - *(Obsolete)* Use the `"pages"` property value with the [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) property set to `true` instead.
    *
-   * > When `progressBarType` is set to `"pages"`, you can also enable the [`progressBarShowPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageNumbers) and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) properties if you want to display page numbers and titles in the progress bar.
+   * > When `progressBarType` is set to `"pages"`, you can also enable the [`progressBarShowPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageNumbers) and [`progressBarShowNavigationText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowNavigationText) properties if you want to display page numbers, titles, and descriptions in the progress bar.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
    * @see progressValue
@@ -2885,11 +2884,12 @@ export class SurveyModel extends SurveyElementCore
     return "progress-" + actualProgressBarType;
   }
   /**
-   * Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   * Specifies whether the progress bar displays [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription). Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
+   * @see progressBarNavigationTextLocation
    * @see progressBarShowPageNumbers
    * @see progressBarInheritWidthFrom
    */
@@ -2897,19 +2897,37 @@ export class SurveyModel extends SurveyElementCore
     getDefaultValue: (self: SurveyModel) => {
       return self.progressBarType === "buttons";
     },
-  }) progressBarShowPageTitles: boolean;
+  }) progressBarShowNavigationText: boolean;
   /**
-   * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   * @deprecated Use the [`progressBarShowNavigationText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowNavigationText) property instead.
+   */
+  public get progressBarShowPageTitles(): boolean { return this.progressBarShowNavigationText; }
+  public set progressBarShowPageTitles(val: boolean) { this.progressBarShowNavigationText = val; }
+  /**
+   * Specifies whether the progress bar displays page numbers. Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](#progressBarType) is `"pages"`.
    *
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
-   * @see progressBarShowPageTitles
+   * @see progressBarShowNavigationText
    * @see progressBarInheritWidthFrom
    */
   @property() progressBarShowPageNumbers: boolean;
   /**
-   * Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   * Specifies the placement of [navigation titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationTitle) and [descriptions](https://surveyjs.io/form-library/documentation/api-reference/page-model#navigationDescription) in the progress bar relative to the step buttons. Applies only when [`showProgressBar`](#showProgressBar) is `true`, [`progressBarType`](#progressBarType) is `"pages"`, and [`progressBarShowNavigationText`](#progressBarShowNavigationText) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"top"` (default) &ndash; Displays navigation text above the step buttons.
+   * - `"bottom"` &ndash; Displays navigation text below the step buttons.
+   */
+  @property({
+    getDefaultValue: (self: SurveyModel) => {
+      return "top";
+    },
+  }) progressBarNavigationTextLocation: "top" | "bottom";
+  /**
+   * Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](#progressBarType) is `"pages"`.
    *
    * Possible values:
    *
@@ -2917,7 +2935,7 @@ export class SurveyModel extends SurveyElementCore
    * The progress bar width is the same as the survey width.
    * - `"container"` (default)\
    * The progress bar width is the same as the survey container width.
-   * @see progressBarShowPageTitles
+   * @see progressBarShowNavigationText
    * @see progressBarShowPageNumbers
    */
   @property() progressBarInheritWidthFrom: "survey" | "container";
@@ -6564,7 +6582,7 @@ export class SurveyModel extends SurveyElementCore
   private questionTriggersKeys: any;
   private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
-    return this.questionTriggersKeys;
+    return this.isRunningConditionOnValueChanged ? this.questionTriggersKeys : undefined;
   }
   private runConditionOnValueChanged(name: string, value: any) {
     if (!this.questionTriggersKeys) {
@@ -8151,8 +8169,7 @@ export class SurveyModel extends SurveyElementCore
     res.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
-      getData: () => this.progressBar,
-      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
+      getData: () => this.progressBar
     });
     res.push({
       id: "progress-questions",
@@ -8678,12 +8695,20 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
-    name: "progressBarShowPageTitles:switch",
+    name: "progressBarShowNavigationText:switch",
+    alternativeName: "progressBarShowPageTitles",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
   },
+
   {
     name: "progressBarShowPageNumbers:switch",
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages"; }
+  },
+  {
+    name: "progressBarNavigationTextLocation",
+    default: "top",
+    choices: ["top", "bottom"],
+    visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowNavigationText === true; }
   },
   {
     name: "progressBarInheritWidthFrom",

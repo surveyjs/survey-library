@@ -233,13 +233,16 @@ const typographyComponentLineHeightCoefficients: { component: string, coefficien
   { component: "page-description", coefficient: 1.5 },
   { component: "question-title", coefficient: 1.5 },
   { component: "question-description", coefficient: 1.5 },
+  { component: "input-content", coefficient: 1.5 },
 ];
 
-function multiplyCssFontSize(fontSize: string, multiplier: number): string | undefined {
+function multiplyCssFontSize(fontSize: string, multiplier: number, shouldRound = false): string | undefined {
   const fontSizeValueNumber = parseFloat(fontSize);
   if (isNaN(fontSizeValueNumber)) return undefined;
   const fontSizeDimension = fontSize.replace(fontSizeValueNumber.toString(), "");
-  return (fontSizeValueNumber * multiplier).toString() + fontSizeDimension;
+  const result = fontSizeValueNumber * multiplier;
+  const normalizedResult = shouldRound ? Math.round(result) : result;
+  return normalizedResult.toString() + fontSizeDimension;
 }
 
 export function patchLegacyCSSVariables(newCssVariable: any) {
@@ -293,8 +296,8 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
     const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
     const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
     const componentFontSize = newCssVariable[fontSizeVar];
-    if (!!componentFontSize) {
-      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient);
+    if (!!componentFontSize && newCssVariable[lineHeightVar] === undefined) {
+      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient, true);
       if (lineHeight) {
         newCssVariable[lineHeightVar] = lineHeight;
       }

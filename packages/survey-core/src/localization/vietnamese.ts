@@ -246,7 +246,9 @@ export var vietnameseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Mục lục",
   // [Auto-translated] "Progress bar"
-  progressbar: "Thanh tiến trình"
+  progressbar: "Thanh tiến trình",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Trang {0}"
 };
 
 setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });

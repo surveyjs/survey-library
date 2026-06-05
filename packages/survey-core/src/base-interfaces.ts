@@ -430,6 +430,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   needResponsiveWidth(): boolean;
   updateRootStyle(): void;
   updateElementVisibility(): void;
+  ensureRowsVisibility(): void;
 }
 
 export interface IQuestion extends IElement, ISurveyErrorOwner {

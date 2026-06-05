@@ -12706,7 +12706,7 @@ describe("Survey", () => {
         },
       ],
       progressBarType: "pages",
-      progressBarShowPageTitles: true
+      progressBarShowNavigationText: true
     });
     expect(survey.getQuestionByName("q1"), "Do not produce stack-overflow").toBeTruthy();
   });
@@ -14775,32 +14775,32 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
 
     survey.setIsMobile(true);
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile");
 
     survey.readOnly = true;
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
     survey.readOnly = false;
     survey.setIsMobile(false);
     survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
 
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -16316,7 +16316,7 @@ describe("Survey", () => {
   test("getContainerContent - do not show buttons progress on completed page", () => {
     const json = {
       "progressBarType": "pages",
-      "progressBarShowPageTitles": true,
+      "progressBarShowNavigationText": true,
       "showProgressBar": true,
       "progressBarLocation": "top",
       pages: [
@@ -18754,7 +18754,7 @@ describe("Survey", () => {
     expect(survey.showProgressBar, "default show progress bar").toBe(false);
     expect(survey.progressBarType, "default progress bar type").toBe("pages");
     expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
-    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
+    expect(survey.progressBarShowNavigationText, "don't show page titles in progress by default").toBe(false);
 
     expect(getContainerContent("header"), "empty header").toEqual([]);
     expect(getContainerContent("footer"), "empty footer").toEqual([]);
@@ -18778,7 +18778,7 @@ describe("Survey", () => {
 
     survey.progressBarType = "buttons";
 
-    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
+    expect(survey.progressBarShowNavigationText, "show page titles in progress for buttons").toBe(true);
 
     expect(getContainerContent("header"), "auto buttons header").toEqual([]);
     expect(getContainerContent("footer"), "auto buttons footer").toEqual([]);
@@ -19025,7 +19025,7 @@ describe("Survey", () => {
     expect(survey.css.rootReadOnly).toBe("sd-root--readonly");
     expect(survey.mode).toBe("edit");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.readOnly = true;
     expect(survey.mode).toBe("display");
@@ -19035,7 +19035,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     expect(survey.mode).toBe("display");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -19147,7 +19147,7 @@ describe("Survey", () => {
       showProgressBar: true,
       progressBarLocation: "top",
       progressBarType: "pages",
-      progressBarShowPageTitles: true,
+      progressBarShowNavigationText: true,
       pages: [
         {
           elements: [{ type: "text", name: "q1" }]

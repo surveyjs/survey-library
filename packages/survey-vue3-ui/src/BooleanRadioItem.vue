@@ -6,7 +6,7 @@
     <label :class="question.cssClasses.radioLabel">
       <input
         type="radio"
-        :name="question.name"
+        :name="question.questionName"
         :value="value"
         :checked="value === question.value"
         :aria-errormessage="question.ariaErrormessage"

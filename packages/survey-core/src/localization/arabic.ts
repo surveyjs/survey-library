@@ -246,7 +246,9 @@ export var arabicSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "جدول المحتويات",
   // [Auto-translated] "Progress bar"
-  progressbar: "شريط التقدم"
+  progressbar: "شريط التقدم",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "صفحة {0}"
 };
 
 setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });

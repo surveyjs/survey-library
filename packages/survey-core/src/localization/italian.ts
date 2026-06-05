@@ -246,7 +246,9 @@ export var italianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sommario",
   // [Auto-translated] "Progress bar"
-  progressbar: "Indicatore"
+  progressbar: "Indicatore",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pagina {0}"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

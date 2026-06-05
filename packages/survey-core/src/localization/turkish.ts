@@ -246,7 +246,9 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "İçindekiler",
   // [Auto-translated] "Progress bar"
-  progressbar: "İlerleme çubuğu"
+  progressbar: "İlerleme çubuğu",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Sayfa {0}"
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });

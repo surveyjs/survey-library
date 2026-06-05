@@ -158,8 +158,8 @@ body {
 .sv-root--sticky-top.sd-progress--pages,
 .sv-root--sticky-top.sd-progress--buttons {
   .sv-components-container-center {
-    background: var(--sjs2-color-utility-sheet, #fff);
-    border-bottom: 1px solid var(--sjs2-color-border-basic-secondary);
+    background-color: var(--sjs2-color-utility-sheet);
+    box-shadow: var(--sjs2-border-effect-surface-default);
   }
 }
 

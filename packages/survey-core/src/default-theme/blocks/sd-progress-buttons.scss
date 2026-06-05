@@ -1,321 +1,376 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-.sd-progress-buttons__image-button-left {
-  display: none;
+@mixin button-hover {
+  background-color: var(--sjs2-color-bg-basic-secondary-dim);
+
+  .sd-progress-buttons__dot {
+    width: var(--sjs2-size-x125);
+    height: var(--sjs2-size-x125);
+    background-color: var(--sjs2-color-fg-basic-secondary);
+  }
 }
 
-.sd-progress-buttons__image-button-right {
-  display: none;
+@mixin button-current {
+  border: 2px solid var(--sjs2-color-border-brand-primary);
+  background-color: var(--sjs2-color-bg-basic-primary);
+
+  .sd-progress-buttons__dot {
+    width: var(--sjs2-size-x125);
+    height: var(--sjs2-size-x125);
+    background-color: var(--sjs2-color-fg-brand-primary);
+  }
 }
 
-.sd-progress-buttons__image-button--hidden {
-  visibility: hidden;
+@mixin button-hover-passed {
+  background-color: var(--sjs2-color-bg-brand-primary-dim);
+  border-color: var(--sjs2-color-bg-brand-primary-dim);
 }
 
-.sd-progress-buttons__page-description {
-  display: none;
+@mixin button-current-passed {
+  background-color: var(--sjs2-color-bg-basic-primary);
+  border: 2px solid var(--sjs2-color-border-brand-primary);
+
+  .sd-progress-buttons__check-icon {
+    use {
+      fill: var(--sjs2-color-fg-brand-primary);
+    }
+  }
 }
 
 .sd-progress-buttons {
-  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x500) var(--sjs2-spacing-x200) var(--sjs2-spacing-x500);
-  display: flex;
-  flex-direction: column;
+  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x500);
+}
+
+.sd-progress-buttons--bottom {
+  padding-top: 0;
 }
 
 .sd-progress-buttons__list-container {
-  display: flex;
-  overflow: hidden;
-  margin: 0 var(--sjs2-spacing-negative-x075);
-}
-
-.sd-progress-buttons__connector {
-  display: none;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
 }
 
 .sd-progress-buttons__list {
-  display: inline-flex;
-  flex-direction: row;
-  flex-grow: 1;
-  margin: 0 auto;
+  display: grid;
+  grid-auto-columns: minmax(var(--sjs2-size-x800), 1fr);
+  grid-auto-flow: column;
+  width: 100%;
   padding: 0;
+  margin: 0;
+}
 
-  li {
-    display: flex;
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: 0;
-    position: relative;
-    flex-wrap: nowrap;
-    text-align: center;
-    flex-direction: column;
-    cursor: pointer;
+.sd-progress-buttons__list li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: center;
+  min-width: var(--sjs2-size-x800);
 
-    &:not(:first-child) > .sd-progress-buttons__connector {
-      display: block;
-      content: "";
-      height: var(--sjs2-size-x025);
-      background-color: $foreground-dim-light;
-      opacity: 0.5;
-      position: absolute;
-      bottom: calc(var(--sjs2-base-unit-spacing) * 1.125);
-      // right: 50%;
-      right: calc(50% + 10px);
-      width: calc(100% - 20px);
-      pointer-events: none;
-    }
+  &::after {
+    content: "";
+    position: absolute;
+    /* 
+      50% = center of the button
+      var(--sjs2-size-x300) / 2 = left half (radius) of the button
+      var(--sjs2-size-x100) = gap
+    */
+    right: calc(50% + var(--sjs2-size-x300) / 2 + var(--sjs2-size-x100));
+    /* 
+      100% = distance from the center of the current button to the center of the previous button
+      var(--sjs2-size-x300) = half (radius) of the current button + half (radius) of the previous button
+      var(--sjs2-size-x100) * 2 = two gaps (left and right)
+    */
+    width: calc(100% - var(--sjs2-size-x300) - var(--sjs2-size-x100) * 2);
+    /* 
+      var(--sjs2-size-x300) / 2 = top half (radius) of the button
+    */
+    bottom: calc(var(--sjs2-size-x300) / 2);
+    height: var(--sjs2-border-width-x100);
+    background-color: var(--sjs2-color-border-basic-secondary);
+    transition: background-color var(--sjs-transition-duration, 100ms);
+  }
 
-    .sd-progress-buttons__button {
-      position: relative;
-      display: flex;
-      content: attr(data-page-number);
-      width: var(--sjs2-size-x000);
-      height: var(--sjs2-size-x000);
-      margin: var(--sjs2-spacing-x075);
-      border: var(--sjs2-border-width-x400) solid transparent;
-      border-radius: 50%;
-      align-self: center;
-      z-index: 1;
-      @include sjs2--typography--small-strong;
-      justify-content: center;
-      color: var(--sjs2-color-fg-brand-on-primary);
-      box-sizing: content-box;
+  &:first-child::after {
+    display: none;
+  }
+}
 
-      .sd-progress-buttons__button-background {
-        position: absolute;
-        width: var(--sjs2-size-x250);
-        height: var(--sjs2-size-x200);
-        top: var(--sjs2-spacing-negative-x050);
-        left: calc(var(--sjs2-base-unit-spacing) * -1.25);
-        // background-color: $background-dim;
-        z-index: -2;
-        // border: var(--sjs2-border-width-x400) solid $background-dim;
-        // border-radius: 50%;
-      }
-
-      .sd-progress-buttons__button-content {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: var(--sjs2-spacing-negative-x050);
-        left: var(--sjs2-spacing-negative-x050);
-        background-color: $foreground-dim-light;
-        opacity: 0.5;
-        z-index: -1;
-        border: var(--sjs2-border-width-x400) solid transparent;
-        border-radius: 50%;
-        box-sizing: content-box;
-      }
+.sd-progress-buttons__list li {
+  &.sd-progress-buttons__list-element--passed,
+  &.sd-progress-buttons__list-element--current {
+    &::after {
+      background-color: var(--sjs2-color-border-brand-primary);
     }
   }
 
-  li:hover .sd-progress-buttons__button {
-    color: $primary;
-    padding: var(--sjs2-spacing-x050);
-    margin: var(--sjs2-spacing-x025);
-    border: var(--sjs2-border-width-x400) solid $primary;
-    background-color: $primary-foreground;
-
-    .sd-progress-buttons__button-background {
-      left: var(--sjs2-spacing-negative-x075);
-    }
-
-    .sd-progress-buttons__button-content {
-      top: var(--sjs2-spacing-negative-x075);
-      left: var(--sjs2-spacing-negative-x075);
-      border: calc(var(--sjs2-base-unit-border-width) * 6) solid $primary;
-      background-color: $primary-foreground;
-      opacity: 1;
+  &:not(.sd-progress-buttons__list-element--passed) + .sd-progress-buttons__list-element--passed {
+    &::after {
+      background-color: var(--sjs2-color-border-basic-secondary);
     }
   }
+}
 
-  .sd-progress-buttons__list-element--passed {
-    &:not(:first-child) > .sd-progress-buttons__connector {
-      background-color: $primary;
-      opacity: 1;
-    }
+.sd-progress-buttons__button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  content: attr(data-page-number);
+  @include sjs2--typography--default-strong;
+  color: var(--sjs2-color-fg-basic-tertiary);
+  border-radius: var(--sjs2-radius-component-stepper-item);
+  width: var(--sjs2-size-x300);
+  height: var(--sjs2-size-x300);
+  box-sizing: border-box;
+  background-color: var(--sjs2-color-bg-basic-secondary);
+  border: 1px solid var(--sjs2-color-border-basic-secondary);
+  padding: 0;
+  margin: 0;
+  margin-top: var(--sjs2-spacing-x150);
+  cursor: pointer;
+  transition:
+    background-color var(--sjs-transition-duration, 100ms),
+    border-color var(--sjs-transition-duration, 100ms),
+    color var(--sjs-transition-duration, 100ms);
 
-    .sd-progress-buttons__button {
-      background-color: $primary;
-
-      .sd-progress-buttons__button-content {
-        background-color: $primary;
-        opacity: 1;
-      }
-    }
+  &:focus-visible {
+    outline: 4px solid var(--sjs2-color-utility-a11y);
   }
 
-  .sd-progress-buttons__list-element--current {
-    &:not(:first-child) > .sd-progress-buttons__connector {
-      background-color: $primary;
-      opacity: 1;
-    }
+  &:hover {
+    @include button-hover;
+  }
 
-    .sd-progress-buttons__button {
-      border: var(--sjs2-border-width-x400) solid $primary;
-      background-color: $primary-foreground;
-      color: $primary;
-      padding: var(--sjs2-spacing-x050);
-      margin: var(--sjs2-spacing-x025);
+  &:has(+ .sd-progress-buttons__page-title:hover) {
+    @include button-hover;
+  }
+}
 
-      .sd-progress-buttons__button-background {
-        left: var(--sjs2-spacing-negative-x075);
-      }
+.sd-progress-buttons__page-title,
+.sd-progress-buttons__page-description {
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  color: var(--sjs2-color-fg-basic-primary, #1c1b20);
+  text-align: center;
 
-      .sd-progress-buttons__button-content {
-        border: var(--sjs2-border-width-x400) solid $primary;
-        background-color: $primary-foreground;
-        opacity: 1;
-      }
-    }
+  &:hover ~ .sd-progress-buttons__button {
+    @include button-hover;
   }
 }
 
 .sd-progress-buttons__page-title {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   @include sjs2--typography--small-strong;
-  flex-grow: 1;
-  text-align: center;
-  padding: 0 var(--sjs2-spacing-x200);
-  margin-bottom: var(--sjs2-spacing-x200);
-  color: var(--sjs2-color-component-page-default-title);
 }
 
-.sd-progress-buttons__header {
-  .sd-progress-buttons__page-title {
-    margin-bottom: var(--sjs2-spacing-x100);
+.sd-progress-buttons__page-description {
+  @include sjs2--typography--small;
+  margin-top: var(--sjs2-spacing-x050);
+}
+
+.sd-progress-buttons__dot {
+  width: var(--sjs2-size-x100);
+  height: var(--sjs2-size-x100);
+  border-radius: var(--sjs2-radius-round);
+  background-color: var(--sjs2-color-fg-basic-tertiary);
+}
+
+.sd-progress-buttons__check-icon {
+  width: var(--sjs2-line-height-x200);
+  height: var(--sjs2-line-height-x200);
+
+  use {
+    fill: var(--sjs2-color-fg-brand-primary);
   }
 }
 
-.sd-progress-buttons__footer {
-  .sd-progress-buttons__page-title {
-    margin-top: var(--sjs2-spacing-x100);
-    margin-bottom: 0;
-    justify-content: flex-end;
-    padding: 0;
-    color: var(--sjs2-color-fg-basic-secondary);
+.sd-progress-buttons__list-element--current {
+  .sd-progress-buttons__button {
+    @include button-current;
+
+    &:hover {
+      @include button-current;
+    }
+
+    &:has(+ .sd-progress-buttons__page-title:hover) {
+      @include button-current;
+    }
+  }
+
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    &:hover ~ .sd-progress-buttons__button {
+      @include button-current;
+    }
   }
 }
 
-.sd-progress-buttons--bottom {
-  padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x500) var(--sjs2-spacing-x400) var(--sjs2-spacing-x500);
-  flex-direction: column-reverse;
+.sd-progress-buttons__list-element--passed {
+  .sd-progress-buttons__button {
+    background-color: var(--sjs2-color-bg-brand-primary);
+    border-color: var(--sjs2-color-border-brand-primary);
 
-  .sd-progress-buttons__list {
-    li {
-      flex-direction: column-reverse;
+    .sd-progress-buttons__check-icon {
+      use {
+        fill: var(--sjs2-color-fg-brand-on-primary);
+      }
+    }
 
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        top: calc(var(--sjs2-base-unit-spacing) * 1.125);
+    &:hover {
+      @include button-hover-passed;
+    }
+
+    &:has(+ .sd-progress-buttons__page-title:hover) {
+      @include button-hover-passed;
+    }
+  }
+
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    &:hover ~ .sd-progress-buttons__button {
+      @include button-hover-passed;
+    }
+  }
+}
+
+.sd-progress-buttons__list-element--current {
+  &.sd-progress-buttons__list-element--passed {
+    .sd-progress-buttons__button {
+      @include button-current-passed;
+
+      &:hover {
+        @include button-current-passed;
+      }
+
+      &:has(+ .sd-progress-buttons__page-title:hover) {
+        @include button-current-passed;
       }
     }
   }
 
-  .sd-progress-buttons__page-title {
-    margin-top: var(--sjs2-spacing-x200);
-    margin-bottom: 0;
-  }
-
-  .sd-progress-buttons__header {
-    .sd-progress-buttons__page-title {
-      margin-top: var(--sjs2-spacing-x100);
-      margin-bottom: 0;
-    }
-  }
-
-  .sd-progress-buttons__footer {
-    .sd-progress-buttons__page-title {
-      margin-top: 0;
-      margin-bottom: var(--sjs2-spacing-x100);
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    &:hover ~ .sd-progress-buttons__button {
+      @include button-current-passed;
     }
   }
 }
 
 .sd-progress-buttons--numbered {
-  .sd-progress-buttons__list-container {
-    margin: 0 var(--sjs2-spacing-negative-x100);
+  .sd-progress-buttons__button {
+    width: var(--sjs2-size-x400);
+    height: var(--sjs2-size-x400);
+    padding: 0 3px 1px 2px;
+    border: 1px solid var(--sjs2-color-border-basic-secondary);
   }
 
-  .sd-progress-buttons__list {
-    li {
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        bottom: calc(var(--sjs2-base-unit-spacing) * 2.175);
-        right: calc(50% + 18px);
-        width: calc(100% - 36px);
+  .sd-progress-buttons__list li {
+    &::after {
+      /* 
+        50% = center of the button
+        var(--sjs2-size-x400) / 2 = left half (radius) of the button
+        var(--sjs2-size-x100) = gap
+      */
+      right: calc(50% + var(--sjs2-size-x400) / 2 + var(--sjs2-size-x100));
+      /* 
+        100% = distance from the center of the current button to the center of the previous button
+        var(--sjs2-size-x400) = half (radius) of the current button + half (radius) of the previous button
+        var(--sjs2-size-x100) * 2 = two gaps (left and right)
+      */
+      width: calc(100% - var(--sjs2-size-x400) - var(--sjs2-size-x100) * 2);
+      /* 
+        var(--sjs2-size-x400) / 2 = top half (radius) of the button
+      */
+      bottom: calc(var(--sjs2-size-x400) / 2);
+    }
+  }
+
+  .sd-progress-buttons__list-element--current {
+    .sd-progress-buttons__button {
+      border: 2px solid var(--sjs2-color-border-brand-primary);
+      background-color: var(--sjs2-color-bg-basic-primary);
+      color: var(--sjs2-color-fg-basic-primary);
+    }
+  }
+
+  .sd-progress-buttons__list-element--passed {
+    .sd-progress-buttons__button {
+      border-color: var(--sjs2-color-border-brand-primary);
+      background-color: var(--sjs2-color-bg-brand-primary);
+      color: var(--sjs2-color-fg-brand-on-primary);
+      &:hover {
+        border-color: var(--sjs2-color-bg-brand-primary-dim);
+        background-color: var(--sjs2-color-bg-brand-primary-dim);
       }
+    }
+  }
 
+  .sd-progress-buttons__list-element--current {
+    &.sd-progress-buttons__list-element--passed {
       .sd-progress-buttons__button {
-        width: var(--sjs2-size-x200);
-        height: var(--sjs2-size-x200);
+        color: var(--sjs2-color-fg-basic-primary);
+        border: 2px solid var(--sjs2-color-border-brand-primary);
+        background-color: var(--sjs2-color-bg-basic-primary);
 
-        .sd-progress-buttons__button-background {
-          height: var(--sjs2-size-x300);
-          width: calc(var(--sjs2-base-unit-size) * 4.5);
+        &:hover {
+          border-color: var(--sjs2-color-border-brand-primary);
+          color: var(--sjs2-color-fg-basic-primary);
         }
       }
-
-      &:hover .sd-progress-buttons__button {
-        padding: var(--sjs2-spacing-x050);
-      }
     }
   }
 }
 
-.sd-progress-buttons--with-titles {
+.sd-progress-buttons--titles-bottom {
+  .sd-progress-buttons__list li {
+    flex-direction: column-reverse;
+
+    &::after {
+      top: calc(var(--sjs2-size-x300) / 2);
+      bottom: auto;
+    }
+  }
+
+  &.sd-progress-buttons--numbered {
+    .sd-progress-buttons__list li {
+      &::after {
+        top: calc(var(--sjs2-size-x400) / 2);
+      }
+    }
+  }
+
+  .sd-progress-buttons__button {
+    margin-top: 0;
+    margin-bottom: var(--sjs2-spacing-x150);
+  }
+
+  .sd-progress-buttons__page-description {
+    margin-top: 0;
+    margin-bottom: var(--sjs2-spacing-x050);
+  }
+
   .sd-progress-buttons__list-container {
-    margin: 0;
+    padding-top: 10px;
+    padding-bottom: 0;
   }
 }
 
-.sd-root-modern--mobile,
-.sd-progress-buttons--no-titles {
+:dir(rtl),
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
   .sd-progress-buttons__list {
-    justify-content: space-between;
-    width: 100%;
-    position: relative;
-    li {
-      flex-grow: 0;
-      position: static;
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        bottom: calc(50% - 1px);
-        right: auto;
-        width: calc(
-          (100% - calc(20px * var(--sd-progress-buttons-pages-count))) / (var(--sd-progress-buttons-pages-count) - 1)
-        );
-        transform: translatex(-100%);
-      }
-    }
-  }
-}
+    transform: scale(-1, 1);
+    direction: ltr;
 
-.sd-progress-buttons--no-titles.sd-progress-buttons--numbered,
-.sd-root-modern--mobile .sd-progress-buttons--numbered {
-  .sd-progress-buttons__list {
-    li {
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        width: calc(
-          (100% - calc(36px * var(--sd-progress-buttons-pages-count))) / (var(--sd-progress-buttons-pages-count) - 1)
-        );
-      }
+    .sd-progress-buttons__button {
+      transform: scale(-1, 1);
     }
-  }
-}
-
-.sd-progress-buttons--bottom.sd-progress-buttons--numbered {
-  .sd-progress-buttons__list {
-    li {
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        top: calc(var(--sjs2-base-unit-spacing) * 2.175);
-      }
-    }
-  }
-}
-
-.sd-root-modern--mobile {
-  .sd-progress-buttons {
-    padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
   }
 }
 
@@ -324,27 +379,4 @@
   box-sizing: border-box;
   width: 100%;
   margin: auto;
-}
-
-:dir(rtl),
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
-  .sd-progress-buttons__list {
-    li {
-      &:not(:first-child) > .sd-progress-buttons__connector {
-        transform: translateX(calc(100% + 20px));
-      }
-    }
-  }
-
-  .sd-root-modern--mobile,
-  .sd-progress-buttons--no-titles {
-    .sd-progress-buttons__list {
-      li {
-        &:not(:first-child) > .sd-progress-buttons__connector {
-          transform: translateX(100%);
-        }
-      }
-    }
-  }
 }

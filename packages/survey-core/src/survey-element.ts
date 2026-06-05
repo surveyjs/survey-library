@@ -1368,6 +1368,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return seed;
   }
   public randomSeedChanged(): void {}
+  public ensureRowsVisibility() {}
 }
 
 export class RenderingCompletedAwaiter {

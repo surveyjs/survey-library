@@ -246,7 +246,9 @@ export var germanSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Inhaltsverzeichnis",
   // [Auto-translated] "Progress bar"
-  progressbar: "Fortschrittsbalken"
+  progressbar: "Fortschrittsbalken",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Seite {0}"
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });

@@ -246,7 +246,9 @@ export var frenchSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Table des matières",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barre de progression"
+  progressbar: "Barre de progression",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Page {0}"
 };
 
 setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });

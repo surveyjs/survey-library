@@ -246,7 +246,9 @@ export var spanishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Tabla de contenidos",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barra de progreso"
+  progressbar: "Barra de progreso",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Página {0}"
 };
 
 setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "español", englishName: "Spanish" });

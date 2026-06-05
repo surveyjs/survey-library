@@ -80,9 +80,9 @@ describe("PopupSurvey", () => {
 
     const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
     window.show();
-    expect(window.cssRoot, "Root collapsed").toBe("windowRoot sd-theme-root windowRoot--collapsed");
+    expect(window.cssRoot, "Root collapsed").toBe("windowRoot sd-theme-root sjs-theme-overrides windowRoot--collapsed");
     window.changeExpandCollapse();
-    expect(window.cssRoot, "Root expanded").toBe("windowRoot sd-theme-root");
+    expect(window.cssRoot, "Root expanded").toBe("windowRoot sd-theme-root sjs-theme-overrides");
     expect(window.cssHeaderRoot, "HeaderRoot").toBe("headerRoot");
     expect(window.cssBody, "windowBody").toBe("windowBody");
     css.window.root = oldCssRoot;

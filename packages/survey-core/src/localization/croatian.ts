@@ -246,7 +246,9 @@ export var croatianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Tablica sadržaja",
   // [Auto-translated] "Progress bar"
-  progressbar: "Traka napretka"
+  progressbar: "Traka napretka",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Stranica {0}"
 };
 
 setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });

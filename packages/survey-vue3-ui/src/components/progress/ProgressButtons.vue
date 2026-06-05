@@ -1,47 +1,29 @@
 <template>
   <div
     :class="model.getRootCss(container)"
-    :style="{ maxWidth: model.progressWidth, '--sd-progress-buttons-pages-count': model.visiblePages.length }"
-    role="progressbar"
-    aria-valuemin="0"
-    aria-valuemax="100"
+    :style="{ maxWidth: model.progressWidth }"
+    role="tablist"
     :aria-label="model.progressBarAriaLabel"
+    @keydown="model.onKeyDown($event)"
   >
-    <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
-      <div
-        :class="survey.css.progressButtonsPageTitle"
-        :title="model.headerText"
-      >
-        {{ model.headerText }}
-      </div>
-    </div>
-    <div :class="css.progressButtonsContainer">
-      <div
-        :class="model.getScrollButtonCss(hasScroller, true)"
-        v-on:click="clickScrollButton(true)"
-        role="button"
-      ></div>
+    <div :class="css.progressButtonsContainer" role="presentation">
       <div
         :class="css.progressButtonsListContainer"
-        ref="progressButtonsListContainer"
+        role="presentation"
       >
-        <ul :class="css.progressButtonsList">
+        <ul :class="css.progressButtonsList" role="presentation">
           <li
             v-for="(page, index) in model.visiblePages"
-            :key="'listelement' + index"
+            :key="'listelement' + page.uniqueId"
             :class="model.getListElementCss(index)"
-            v-on:click="
-              model.isListElementClickable(index)
-                ? model.clickListElement(page)
-                : null
-            "
             :data-page-number="model.getItemNumber(page)"
+            role="presentation"
           >
-            <div :class="css.progressButtonsConnector"></div>
             <div
-              v-if="canShowItemTitles"
+              v-if="model.showItemTitles"
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
+              @click="model.isListElementClickable(index) ? model.clickListElement(page) : null"
             >
               <SvComponent
                 :is="'survey-string'"
@@ -49,32 +31,35 @@
               />
             </div>
             <div
-              v-if="canShowItemTitles"
+              v-if="model.showItemDescriptions"
               :class="css.progressButtonsPageDescription"
               :title="page.navigationDescription"
+              @click="model.isListElementClickable(index) ? model.clickListElement(page) : null"
             >
               {{ page.navigationDescription }}
             </div>
-            <div :class="css.progressButtonsButton">
-              <div :class="css.progressButtonsButtonBackground"></div>
-              <div :class="css.progressButtonsButtonContent"></div>
-              <span>{{ model.getItemNumber(page) }}</span>
-            </div>
+            <button
+              :class="css.progressButtonsButton"
+              @click="model.isListElementClickable(index) ? model.clickListElement(page) : undefined"
+              role="tab"
+              type="button"
+              :aria-selected="model.isPageSelected(index)"
+              :aria-label="model.getButtonAriaLabel(page)"
+              :tabindex="model.getTabIndex(index)"
+              :data-page-index="index"
+            >
+              <template v-if="model.showItemNumbers">{{ model.getItemNumber(page) }}</template>
+              <template v-else-if="model.isListElementPassed(index)">
+                <svg :class="css.progressButtonsCheckIcon">
+                  <use :xlink:href="'#icon-' + css.progressButtonsCheckIconId"></use>
+                </svg>
+              </template>
+              <template v-else>
+                <div :class="css.progressButtonsDot"></div>
+              </template>
+            </button>
           </li>
         </ul>
-      </div>
-      <div
-        :class="model.getScrollButtonCss(hasScroller, false)"
-        v-on:click="clickScrollButton(false)"
-        role="button"
-      ></div>
-    </div>
-    <div v-if="canShowFooter" :class="survey.css.progressButtonsFooter">
-      <div
-        :class="survey.css.progressButtonsPageTitle"
-        :title="model.footerText"
-      >
-        {{ model.footerText }}
       </div>
     </div>
   </div>
@@ -86,9 +71,8 @@ import SvComponent from "@/SvComponent.vue";
 import {
   type SurveyModel,
   ProgressButtons,
-  ProgressButtonsResponsivityManager,
 } from "survey-core";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed } from "vue";
 
 
 const props = defineProps<{
@@ -97,37 +81,5 @@ const props = defineProps<{
   container: string;
 }>();
 useBase(() => props.model);
-const hasScroller = ref(false);
-const canShowHeader = ref(false);
-const canShowFooter = ref(false);
-const canShowItemTitles = ref(true);
-const progressButtonsListContainer = ref<HTMLElement>();
 const css = computed(() => props.survey.css);
-let respManager: ProgressButtonsResponsivityManager = null as any;
-
-const clickScrollButton = (isLeftScroll: boolean) => {
-  let element: any = progressButtonsListContainer.value;
-  element.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
-};
-
-onMounted(() => {
-  const element: any = progressButtonsListContainer.value;
-  respManager = new ProgressButtonsResponsivityManager(props.model, element, {
-    onResize: (canShowItemTitlesValue: boolean) => {
-      canShowItemTitles.value = canShowItemTitlesValue;
-      canShowHeader.value = !canShowItemTitlesValue;
-    },
-    onUpdateScroller: (hasScrollerValue: boolean) => {
-      hasScroller.value = hasScrollerValue;
-    },
-    onUpdateSettings: () => {
-      canShowItemTitles.value = props.model.showItemTitles;
-      canShowFooter.value = !props.model.showItemTitles;
-    },
-    container: computed(() => props.container),
-  } as any);
-});
-onBeforeUnmount(() => {
-  respManager.dispose();
-});
 </script>

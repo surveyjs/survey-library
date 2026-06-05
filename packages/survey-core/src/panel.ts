@@ -433,7 +433,6 @@ export class PanelModelBase extends SurveyElement<Question>
     };
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    //if(this.surveyImpl === value) return; TODO refactor
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode)this.onVisibleChanged();

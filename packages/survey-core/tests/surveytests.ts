@@ -14775,32 +14775,32 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
 
     survey.setIsMobile(true);
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile");
 
     survey.readOnly = true;
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
     survey.readOnly = false;
     survey.setIsMobile(false);
     survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
 
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -19025,7 +19025,7 @@ describe("Survey", () => {
     expect(survey.css.rootReadOnly).toBe("sd-root--readonly");
     expect(survey.mode).toBe("edit");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.readOnly = true;
     expect(survey.mode).toBe("display");
@@ -19035,7 +19035,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     expect(survey.mode).toBe("display");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 

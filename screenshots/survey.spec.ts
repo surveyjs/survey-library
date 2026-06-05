@@ -1486,5 +1486,25 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-mobile.png");
     });
+    test("Check survey navigation bar top with is compact flag", async({ page }) => {
+      const json = {
+        showQuestionNumbers: true,
+        navigationButtonsLocation: "top",
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1"
+              },
+            ]
+          },
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => { (window as any).survey.isCompact = true; });
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-compact.png");
+    });
   });
 });

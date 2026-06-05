@@ -2,9 +2,6 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-action {
-  @include sjs2--typography--default-strong;
-  font-size: var(--sd-action-title-font-size);
-  line-height: var(--sd-action-title-line-height);
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -63,6 +60,9 @@
 }
 
 .sd-action__title {
+  @include sjs2--typography--default-strong;
+  font-size: var(--sd-action-title-font-size);
+  line-height: var(--sd-action-title-line-height);
   color: var(--sd-action-title-color);
   padding: var(--sd-action-title-padding);
   transition: color $transition-duration;
@@ -71,6 +71,7 @@
 .sd-action__icon {
   pointer-events: none;
   box-sizing: content-box;
+  line-height: var(--sd-action-title-line-height);
   width: 1lh;
   height: 1lh;
   padding: var(--sd-action-icon-padding);

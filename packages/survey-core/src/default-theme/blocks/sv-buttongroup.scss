@@ -1,7 +1,6 @@
 @use "../typography-mixins.scss" as *;
 
 .sv-button-group {
-  @include sjs2--typography--default;
   display: flex;
   padding: var(--sjs2-spacing-x050, 4px);
   box-sizing: border-box;
@@ -27,6 +26,7 @@
   padding: 0 var(--sjs2-spacing-x100, 8px);
 
   .sv-string-viewer {
+    @include sjs2--typography--default;
     color: var(--sjs2-color-component-buttongroup-item-false-default-value, rgba(28, 27, 32, 0.6));
   }
 }

@@ -296,7 +296,7 @@ export function patchLegacyCSSVariables(newCssVariable: any) {
     const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
     const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
     const componentFontSize = newCssVariable[fontSizeVar];
-    if (!!componentFontSize) {
+    if (!!componentFontSize && newCssVariable[lineHeightVar] === undefined) {
       const lineHeight = multiplyCssFontSize(componentFontSize, coefficient, true);
       if (lineHeight) {
         newCssVariable[lineHeightVar] = lineHeight;

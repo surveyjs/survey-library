@@ -110,8 +110,9 @@
 
 .sv-button-group__item-icon {
   display: block;
-  width: var(--sjs2-line-height-x300, 24px);
-  height: var(--sjs2-line-height-x300, 24px);
+  line-height: var(--sjs2-line-height-x300);
+  width: 1lh;
+  height: 1lh;
 
   use {
     fill: var(--sjs2-color-component-buttongroup-item-false-default-value, rgba(28, 27, 32, 0.6));

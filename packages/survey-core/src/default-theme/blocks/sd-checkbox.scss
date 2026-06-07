@@ -26,7 +26,7 @@
 }
 
 .sd-checkbox--checked.sd-checkbox--readonly .sd-checkbox__svg use {
-  fill: var(--sjs2-color-component-check-true-readonly-icon);
+  fill: var(--sjs2-color-component-check-true-disabled-icon);
 }
 
 .sd-checkbox--checked.sd-checkbox--preview .sd-checkbox__svg use {

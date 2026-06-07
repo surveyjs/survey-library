@@ -1354,7 +1354,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public set otherText(val: string) {
     this.setLocStringText(this.locOtherText, val);
-    this.onVisibleChoicesChanged(); //TODO: try to remove it
   }
   get locOtherText(): LocalizableString {
     return this.otherItem.locText;

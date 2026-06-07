@@ -7,30 +7,37 @@
   gap: var(--sjs2-spacing-x050);
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   border-radius: var(--sjs2-radius-component-message);
-  @include sjs2--typography--small-strong;
   text-align: left;
-  color: var(--sjs2-color-fg-alert-primary);
+  color: var(--sjs2-color-component-message-error-text, #1c1b20);
   white-space: normal;
   width: 100%;
   background-color: var(--sjs2-color-component-message-error-bg);
+
   box-sizing: border-box;
+
+  use {
+    fill: var(--sjs2-color-component-message-error-icon, #c30935);
+  }
 }
 
 .sd-error--warning {
-  background: var(--sjs2-color-bg-warning-secondary);
+  background: var(--sjs2-color-component-message-warning-bg);
+  color: var(--sjs2-color-component-message-warning-text, #1c1b20);
 
-  .sd-error__item {
-    color: var(--sjs2-color-fg-warning-primary);
+  use {
+    fill: var(--sjs2-color-component-message-warning-icon, #f08700);
   }
 }
 
 .sd-error--info {
   background: var(--sjs2-color-component-message-info-bg);
-  .sd-error__item {
-    color: var(--sjs2-color-fg-note-primary);
+  color: var(--sjs2-color-component-message-info-text, #1c1b20);
+
+  use {
+    fill: var(--sjs2-color-component-message-info-icon, #2a6cd0);
   }
 }
 
 .sd-error__item {
-  @include sjs2--typography--small-strong;
+  @include sjs2--typography--default;
 }

@@ -178,7 +178,7 @@ export default {
     "--sjs2-palette-indianred-600": "#AF496B",
     "--sjs2-palette-indianred-700": "#973F5C",
     "--sjs2-layout-component-action-xx-small-label-padding-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-action-xx-small-label-padding-horizontal": "var(--sjs2-spacing-x050)",
+    "--sjs2-layout-component-action-xx-small-label-padding-horizontal": "var(--sjs2-spacing-x025)",
     "--sjs2-layout-component-action-xx-small-icon-padding-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-action-xx-small-icon-padding-horizontal": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-action-xx-small-box-padding-vertical": "var(--sjs2-spacing-x050)",

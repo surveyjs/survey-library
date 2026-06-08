@@ -5,6 +5,7 @@ export default {
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#3A179E",
     "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
+    "--sjs2-color-utility-surface-survey": "#F4F2FB",
     "--sjs2-color-utility-surface-designer": "#F4F2FB",
     "--sjs2-color-utility-shadow-surface-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x015))",
     "--sjs2-color-utility-shadow-floating-default": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x020))",

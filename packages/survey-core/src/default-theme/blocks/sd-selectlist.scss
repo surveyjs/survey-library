@@ -1,5 +1,5 @@
 @use "../typography-mixins.scss" as *;
-
+@use "../variables.scss" as *;
 .sd-selectlist__container {
     display: flex;
     flex-direction: column;
@@ -72,7 +72,7 @@
 }
 
 .sd-selectlist__item--hovered {
-    background: var(--sjs2-color-unknown-variable-001);
+    background: $background-dark;
 }
 
 .sd-selectlist__item--disabled {

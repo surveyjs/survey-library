@@ -13,7 +13,7 @@ $question-background: var(
 $background: var(--sjs2-color-bg-basic-primary);
 $background-dim: var(--sjs2-color-bg-neutral-tertiary-dim);
 $background-dim-light: var(--sjs2-color-bg-basic-secondary);
-$background-dark: var(--sjs2-color-unknown-variable-001, var(--sjs2-color-bg-basic-primary-dim, rgb(248, 248, 248)));
+$background-dark: var(--sjs2-color-unknown-variable-001, var(--sjs2-color-bg-basic-primary-dim));
 
 $foreground: var(--sjs2-color-fg-basic-primary);
 $foreground-light: var(--sjs2-color-fg-basic-secondary);

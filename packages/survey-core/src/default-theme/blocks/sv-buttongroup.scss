@@ -68,6 +68,7 @@
   flex-basis: 0;
   outline: none;
   position: relative;
+  --sd-buttongroup-a11y-boxshadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
 
   .sv-button-group__item-decorator {
     position: relative;
@@ -83,7 +84,7 @@
     background: var(--sjs2-color-component-buttongroup-item-false-default-bg, rgba(245, 245, 245, 0));
 
     /* sjs2/border-effect-component-buttongroup-item-false-default */
-    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-default);
+    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-default), var(--sd-buttongroup-a11y-boxshadow);
   }
 }
 
@@ -95,7 +96,7 @@
   background: var(--sjs2-color-component-buttongroup-item-false-hovered-bg, #ededed);
 
   /* sjs2/border-effect-component-buttongroup-item-false-hovered */
-  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-hovered);
+  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-hovered), var(--sd-buttongroup-a11y-boxshadow);
 
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-false-hovered-value, #1c1b20);
@@ -107,18 +108,7 @@
 }
 
 .sv-button-group__item-control:focus-visible + .sv-button-group__item-decorator {
-  &::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    content: "";
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: var(--sjs2-radius-component-buttongroup-item, 4px);
-    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-a11y);
-    transition: box-shadow $transition-duration;
-  }
+  --sd-buttongroup-a11y-boxshadow: var(--sjs2-border-effect-component-buttongroup-item-a11y);
 }
 
 .sv-button-group__item-icon {
@@ -135,7 +125,7 @@
   background: var(--sjs2-color-component-buttongroup-item-true-default-bg, #fff);
 
   /* sjs2/border-effect-component-buttongroup-item-true-default */
-  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-true-default);
+  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-true-default), var(--sd-buttongroup-a11y-boxshadow);
 
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-true-default-value, #19b394);

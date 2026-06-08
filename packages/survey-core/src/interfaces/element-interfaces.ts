@@ -2,7 +2,7 @@ import type { HashTable } from "../helpers";
 import type { LocalizableString } from "../localizablestring";
 import type { AdaptiveActionContainer } from "../actions/adaptive-container";
 import type { PanelLayoutColumnModel } from "../panel-layout-column";
-import type { ISurveyImpl } from "../base-interfaces";
+import type { ISurveyImpl } from "./survey-interfaces";
 import type { ISurveyErrorOwner } from "./validation-interfaces";
 import type { IElementUIState } from "./ui-interfaces";
 

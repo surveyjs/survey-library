@@ -24,6 +24,8 @@ import type {
   ISurveyAfterRenderCallbacks,
 } from "./interfaces/survey-callbacks";
 
+import type { ISurveyData, ITextProcessor } from "./interfaces/data-interfaces";
+
 // Survey-host callback interfaces are defined in ./interfaces/survey-callbacks
 // and re-exported here so existing `./base-interfaces` importers keep working.
 export type {
@@ -36,6 +38,17 @@ export type {
   ISurveyAfterRenderCallbacks,
 } from "./interfaces/survey-callbacks";
 
+// Data & text-processing interfaces are defined in ./interfaces/data-interfaces
+// and re-exported here so existing `./base-interfaces` importers keep working.
+export type {
+  ISurveyVariables,
+  ISurveyDataGetEditingObj,
+  ISurveyData,
+  ITextProcessorProp,
+  ITextProcessorResult,
+  ITextProcessor,
+} from "./interfaces/data-interfaces";
+
 export interface IScrollElementToTopOptions {
   element: ISurveyElement;
   question: IQuestion;
@@ -47,37 +60,6 @@ export interface IScrollElementToTopOptions {
   onScolledCallback?: () => void;
 }
 
-export interface ISurveyVariables {
-  getVariable(name: string): any;
-  setVariable(name: string, newValue: any): void;
-}
-export interface ISurveyDataGetEditingObj {
-  getEditingSurveyElement(): Base;
-}
-export interface ISurveyData {
-  getValue(name: string): any;
-  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, questionName?: string): any;
-  getComment(name: string): string;
-  setComment(name: string, newValue: string, locNotification: boolean | "text"): any;
-  getFilteredProperties(): any;
-  findQuestionByName(name: string): IQuestion;
-}
-export interface ITextProcessorProp {
-  text: string;
-  returnDisplayValue?: boolean;
-  doEncoding?: boolean;
-  runAtDesign?: boolean;
-  replaceUndefinedValues?: boolean;
-  context?: Base;
-}
-export interface ITextProcessorResult {
-  text: string;
-  hasAllValuesOnLastRun: boolean;
-}
-export interface ITextProcessor {
-  processText(text: string, returnDisplayValue: boolean): string;
-  processTextEx(params: ITextProcessorProp): ITextProcessorResult;
-}
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
 }

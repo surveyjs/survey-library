@@ -83,6 +83,10 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     }
     return <datalist id={this.question.dataListId}>{options}</datalist>;
   }
+  componentDidUpdate(prevProps: any, prevState: any): void {
+    super.componentDidUpdate(prevProps, prevState);
+    this.question.updateMaskAdapter();
+  }
   // protected updateDomElement() {
   //   this.control = this.controlRef.current;
   //   super.updateDomElement();

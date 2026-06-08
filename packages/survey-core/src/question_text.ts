@@ -40,7 +40,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.maskInputAdapter = undefined;
     }
   }
-  private updateMaskAdapter() {
+  public updateMaskAdapter() {
     this.deleteMaskAdapter();
     this.createMaskAdapter();
   }

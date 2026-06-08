@@ -2,12 +2,14 @@
 
 .sd-checkbox__decorator {
   border-radius: var(--sjs2-radius-component-checkbox, 4px);
+  width: var(--sjs2-size-component-checkbox-box);
+  height: var(--sjs2-size-component-checkbox-box);
 }
 
 .sd-checkbox__svg {
   display: block;
-  width: var(--sjs2-size-x200);
-  height: var(--sjs2-size-x200);
+  width: var(--sjs2-size-component-checkbox-icon);
+  height: var(--sjs2-size-component-checkbox-icon);
 
   use {
     fill: transparent;

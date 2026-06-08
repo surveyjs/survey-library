@@ -2,52 +2,34 @@
 
 .sd-radio__decorator {
   border-radius: var(--sjs2-radius-component-radio, 9999px);
-
-  &:after {
-    content: " ";
-    display: block;
-    width: var(--sjs2-size-x100);
-    height: var(--sjs2-size-x100);
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color $transition-duration;
-  }
+  width: var(--sjs2-size-component-radio-box);
+  height: var(--sjs2-size-component-radio-box);  
 }
-.sd-radio--checked .sd-radio__decorator:after {
-  content: " ";
-  display: block;
-  width: var(--sjs2-size-x100);
-  height: var(--sjs2-size-x100);
-  border-radius: 50%;
-  background-color: var(--sjs2-color-component-check-true-default-icon, #fff);
-}
-.sd-item__control:focus-visible+.sd-radio__decorator {
-  &::before {
-    border-radius: var(--sjs2-radius-component-checkbox, 4px);
-    border-radius: 50%;
-  }
-}
-.sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
-  background-color: var(--sjs2-color-component-check-true-disabled-icon, #B3B2B2);
-}
-
-.sd-radio--checked.sd-radio--readonly .sd-radio__decorator:after {
-  background-color: var(--sjs2-color-component-check-true-readonly-icon, #B3B2B2);
-}
-
-.sd-radio--checked.sd-radio--preview .sd-radio__decorator {
-  &:after {
-    display: none;
-  }
-
-  .sd-radio__svg {
-    fill: $foreground;
-    display: block;
-    width: var(--sjs2-size-x250);
-    height: var(--sjs2-size-x250);
-  }
-}
-
 .sd-radio__svg {
-  display: none;
+  display: block;
+  width: var(--sjs2-size-component-radio-icon);
+  height: var(--sjs2-size-component-radio-icon);
+
+  use {
+    fill: transparent;
+    transition: fill $transition-duration;
+  }
+}
+
+  .sd-radio--checked .sd-radio__svg {
+  use {
+    fill: var(--sjs2-color-component-check-true-default-icon, #fff);
+  }
+}
+
+.sd-radio--checked.sd-radio--disabled .sd-radio__svg use {
+  fill: var(--sjs2-color-component-check-true-disabled-icon, #B3B2B2);
+}
+
+.sd-radio--checked.sd-radio--readonly .sd-radio__svg use {
+  fill: var(--sjs2-color-component-check-true-readonly-icon, #B3B2B2);
+}
+
+.sd-radio--checked.sd-radio--preview .sd-radio__svg use {
+  fill: $foreground;
 }

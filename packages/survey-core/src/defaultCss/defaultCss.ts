@@ -336,6 +336,7 @@ export var defaultCss = {
     itemHover: "sd-item--allowhover sd-radio--allowhover",
     itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",
     itemDecorator: "sd-item__svg sd-radio__svg",
+    itemSvgIconId: "#icon-radio-8x8",
     controlLabel: "sd-item__control-label",
     materialDecorator: "sd-item__decorator sd-radio__decorator",
     otherArea: "sd-selectbase__other",

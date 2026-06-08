@@ -88,5 +88,9 @@ export const legacyCssVariables = {
   "--sjs-font-editorfont-weight": "--sjs2-typography-font-weight-component-input-content",
   "--sjs-font-editorfont-size": "--sjs2-typography-font-size-component-input-content",
   "--sjs-font-editorfont-color": "--sjs2-color-component-input-default-value",
-  "--sjs-font-editorfont-placeholdercolor": "--sjs2-color-component-input-default-placeholder",
+  "--sjs-font-editorfont-placeholdercolor": [
+    "--sjs2-color-component-input-default-placeholder",
+    "--sjs2-color-component-boolean-item-false-default-value",
+    "--sjs2-color-component-input-default-label"
+  ],
 };

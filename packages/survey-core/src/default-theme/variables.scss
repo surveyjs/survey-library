@@ -1,14 +1,8 @@
 $primary: var(--sjs2-color-bg-brand-primary);
 $primary-foreground: var(--sjs2-color-fg-brand-on-primary);
 
-$editor-background: var(
-  --sjs2-color-component-formbox-default-bg,
-  var(--sjs-editor-background, var(--sjs2-color-component-formbox-default-bg))
-);
-$question-background: var(
-  --sjs2-color-bg-basic-primary,
-  var(--sjs-question-background, var(--sjs2-color-bg-basic-primary))
-);
+$editor-background: var(--sjs2-color-component-formbox-default-bg);
+$question-background: var(--sjs2-color-bg-basic-primary);
 
 $background: var(--sjs2-color-bg-basic-primary);
 $background-dim: var(--sjs2-color-bg-neutral-tertiary-dim);

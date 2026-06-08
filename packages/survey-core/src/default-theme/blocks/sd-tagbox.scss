@@ -107,8 +107,9 @@
 .sd-tagbox-item__clean-button-svg {
   display: block;
   padding: var(--sjs2-spacing-x050, 4px);
-  width: var(--sjs2-line-height-x200, 16px);
-  height: var(--sjs2-line-height-x200, 16px);
+  line-height: var(--sjs2-line-height-x200);
+  width: 1lh;
+  height: 1lh;
   box-sizing: content-box;
 }
 

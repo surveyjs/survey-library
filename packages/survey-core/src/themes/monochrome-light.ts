@@ -4,6 +4,7 @@ export default {
   "colorPalette": "light",
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#1C1B20",
+    "--sjs2-color-utility-surface-survey": "#1c1b200d",
     "--sjs2-color-utility-surface-designer": "#1c1b200d",
     "--sjs2-color-utility-shadow-surface-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x020))",
     "--sjs2-color-utility-shadow-surface-hovered": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x040))",

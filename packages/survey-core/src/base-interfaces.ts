@@ -1,4 +1,4 @@
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { HashTable } from "./helpers";
 import type {
   MatrixDropdownRowModelBase,
@@ -25,6 +25,7 @@ import type {
 } from "./interfaces/survey-callbacks";
 
 import type { ISurveyData, ITextProcessor } from "./interfaces/data-interfaces";
+import type { ISurveyErrorOwner, ISurveyValidation } from "./interfaces/validation-interfaces";
 
 // Survey-host callback interfaces are defined in ./interfaces/survey-callbacks
 // and re-exported here so existing `./base-interfaces` importers keep working.
@@ -49,6 +50,14 @@ export type {
   ITextProcessor,
 } from "./interfaces/data-interfaces";
 
+// Validation/error-owner interfaces are defined in ./interfaces/validation-interfaces
+// and re-exported here so existing `./base-interfaces` importers keep working.
+export type {
+  ISurveyErrorOwner,
+  ISurveyValidatorOwner,
+  ISurveyValidation,
+} from "./interfaces/validation-interfaces";
+
 export interface IScrollElementToTopOptions {
   element: ISurveyElement;
   question: IQuestion;
@@ -60,12 +69,6 @@ export interface IScrollElementToTopOptions {
   onScolledCallback?: () => void;
 }
 
-export interface ISurveyErrorOwner extends ILocalizableOwner {
-  getErrorCustomText(text: string, error: SurveyError): string;
-}
-export interface ISurveyValidatorOwner extends ISurveyErrorOwner {
-  createRegexValidator(validator: Base, pattern: string, flags: string): RegExp;
-}
 export interface IValueItemCustomPropValues {
   propertyName: string;
   values: Array<any>;
@@ -107,17 +110,6 @@ export interface ISurveyTitleSettings {
     actions: Array<IAction>,
     question?: QuestionPanelDynamicModel
   ): Array<IAction>;
-}
-/**
- * Validation-related members for questions and panels.
- */
-export interface ISurveyValidation {
-  validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
-  validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
-  createRegexValidator(question: IQuestion, validator: Base, pattern: string, flags: string): RegExp;
-  isValidateOnValueChanging: boolean;
-  isValidateOnValueChanged: boolean;
-  getValidateVisitedEmptyFields(): boolean;
 }
 /**
  * Settings and callbacks for single-input (single-question-per-page) mode.

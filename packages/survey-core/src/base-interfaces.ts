@@ -26,6 +26,7 @@ import type {
 
 import type { ISurveyData, ITextProcessor } from "./interfaces/data-interfaces";
 import type { ISurveyErrorOwner, ISurveyValidation } from "./interfaces/validation-interfaces";
+import type { IDropdownMenuOptions, IElementUIState, IScrollElementToTopOptions } from "./interfaces/ui-interfaces";
 
 // Survey-host callback interfaces are defined in ./interfaces/survey-callbacks
 // and re-exported here so existing `./base-interfaces` importers keep working.
@@ -58,16 +59,21 @@ export type {
   ISurveyValidation,
 } from "./interfaces/validation-interfaces";
 
-export interface IScrollElementToTopOptions {
-  element: ISurveyElement;
-  question: IQuestion;
-  page?: IPage;
-  id: string;
-  scrollIfVisible?: boolean;
-  scrollIntoViewOptions?: ScrollIntoViewOptions;
-  passedRootElement?: HTMLElement;
-  onScolledCallback?: () => void;
-}
+// UI / layout / environment interfaces are defined in ./interfaces/ui-interfaces
+// and re-exported here so existing `./base-interfaces` importers keep working.
+export type {
+  IScrollElementToTopOptions,
+  IElementUIState,
+  ISurveyUIState,
+  IWrapperObject,
+  ISurveyEnvironment,
+  LayoutElementContainer,
+  HorizontalAlignment,
+  VerticalAlignment,
+  ISurveyLayoutElement,
+  ILayoutElementModel,
+  IDropdownMenuOptions,
+} from "./interfaces/ui-interfaces";
 
 export interface IValueItemCustomPropValues {
   propertyName: string;
@@ -262,16 +268,6 @@ export interface ISurveyElement extends IShortcutText {
   collapse(): void;
   uiState: IElementUIState;
 }
-export interface IElementUIState {
-  collapsed?: boolean;
-  activePanelIndex?: number; // For Dynamic panel only, current Tab index
-}
-export interface ISurveyUIState {
-  panels?: { [key:string]: IElementUIState };
-  questions?: { [key:string]: IElementUIState };
-  activeElementName?: string;
-  randomSeed?: number;
-}
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
   renderWidth: string;
@@ -362,43 +358,11 @@ export interface IProgressInfo {
   requiredAnsweredQuestionCount: number;
 }
 
-export interface IWrapperObject {
-  getOriginalObj(): Base;
-  getClassNameProperty(): string;
-}
-
 export interface IFindElement {
   element: Base;
   str: LocalizableString;
 }
 
-export type ISurveyEnvironment = {
-  root: Document | ShadowRoot,
-  rootElement: HTMLElement | ShadowRoot,
-  popupMountContainer: HTMLElement | string,
-  svgMountContainer: HTMLElement | string,
-  stylesSheetsMountContainer: HTMLElement,
-}
-
-export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom" | "center";
-export type HorizontalAlignment = "left" | "center" | "right";
-export type VerticalAlignment = "top" | "middle" | "bottom";
-
-export interface ISurveyLayoutElement {
-  id: string;
-  container?: LayoutElementContainer | Array<LayoutElementContainer>;
-  isInContainer?: (container: LayoutElementContainer) => boolean;
-  component?: string;
-  template?: string;
-  data?: any;
-  index?: number;
-  getData?: () => any;
-  processResponsiveness?: (width: number) => void;
-}
-
-export interface ILayoutElementModel {
-  createLayoutElements(): Array<ISurveyLayoutElement>;
-}
 export interface IPlainDataOptions {
   includeEmpty?: boolean;
   includeQuestionTypes?: boolean;
@@ -440,12 +404,4 @@ export interface ISaveToJSONOptions {
    * Specifies the locales to include in the exported JSON schema. Applies only when [`storeLocaleStrings`](#storeLocaleStrings) is `true` or `"stringsOnly"`.
    */
   locales?: Array<string>;
-}
-
-export interface IDropdownMenuOptions {
-  menuType: "dropdown" | "popup" | "overlay";
-  deviceType: "mobile" | "tablet" | "desktop";
-  hasTouchScreen: boolean;
-  screenHeight: number;
-  screenWidth: number;
 }

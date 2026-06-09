@@ -85,7 +85,9 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
   }
   componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    this.question?.updateInputValueFromMask();
+    if (this.question && this.question instanceof QuestionTextModel) {
+      this.question?.updateInputValueFromMask();
+    }
   }
   // protected updateDomElement() {
   //   this.control = this.controlRef.current;

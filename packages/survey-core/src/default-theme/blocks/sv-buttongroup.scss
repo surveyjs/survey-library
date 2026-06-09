@@ -1,3 +1,4 @@
+@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sv-button-group {
@@ -67,6 +68,7 @@
   flex-basis: 0;
   outline: none;
   position: relative;
+  --sd-buttongroup-a11y-boxshadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
 
   .sv-button-group__item-decorator {
     padding: var(--sjs2-spacing-x100, 8px);
@@ -81,7 +83,7 @@
     background: var(--sjs2-color-component-buttongroup-item-false-default-bg, rgba(245, 245, 245, 0));
 
     /* sjs2/border-effect-component-buttongroup-item-false-default */
-    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-default);
+    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-default), var(--sd-buttongroup-a11y-boxshadow);
   }
 }
 
@@ -93,7 +95,7 @@
   background: var(--sjs2-color-component-buttongroup-item-false-hovered-bg, #ededed);
 
   /* sjs2/border-effect-component-buttongroup-item-false-hovered */
-  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-hovered);
+  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-hovered), var(--sd-buttongroup-a11y-boxshadow);
 
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-false-hovered-value, #1c1b20);
@@ -105,7 +107,7 @@
 }
 
 .sv-button-group__item-control:focus-visible + .sv-button-group__item-decorator {
-  outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+  --sd-buttongroup-a11y-boxshadow: var(--sjs2-border-effect-component-buttongroup-item-a11y);
 }
 
 .sv-button-group__item-icon {
@@ -123,7 +125,7 @@
   background: var(--sjs2-color-component-buttongroup-item-true-default-bg, #fff);
 
   /* sjs2/border-effect-component-buttongroup-item-true-default */
-  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-true-default);
+  box-shadow: var(--sjs2-border-effect-component-buttongroup-item-true-default), var(--sd-buttongroup-a11y-boxshadow);
 
   .sv-string-viewer {
     color: var(--sjs2-color-component-buttongroup-item-true-default-value, #19b394);

@@ -16,7 +16,7 @@
   &.sd-boolean--allowhover:has(input:focus-visible) {
     box-shadow:
       $shadow-inner-reset,
-      0px 0px 0px var(--sjs2-border-width-a11y, 4px) var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.60));
+      var(--sjs2-border-effect-component-boolean-a11y);
   }
 }
 

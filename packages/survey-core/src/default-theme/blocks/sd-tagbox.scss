@@ -94,11 +94,12 @@
   display: flex;
   cursor: pointer;
   outline: none;
+  transition: box-shadow $transition-duration;
 
   &:focus,
   &:focus-within {
     border-radius: var(--sjs2-radius-component-tagbox-item-action, 9999px);
-    border: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+    box-shadow: var(--sjs2-border-effect-component-tagbox-item-a11y);
     background: var(--sjs2-color-component-tagbox-item-action-default-bg, #f5f5f5);
   }
 }

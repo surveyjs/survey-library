@@ -20,14 +20,14 @@
 .sd-formbox:where(:hover) {
     background: var(--sjs2-color-component-formbox-hovered-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-hovered, 0 1px 2px 0 #d4d4d4 inset),
-        var(--sjs2-border-effect-component-formbox-focused-reset, 0 0 0 0 #19b394 inset);
+        var(--sjs2-border-effect-component-formbox-hovered),
+        var(--sjs2-border-effect-component-formbox-focused-reset);
 }
 .sd-formbox:where(:focus-within) {
     background: var(--sjs2-color-component-formbox-focused-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default-reset, 0 0 0 0 #d4d4d4 inset),
-        var(--sjs2-border-effect-component-formbox-focused, 0 0 0 2px #19b394 inset),
+        var(--sjs2-border-effect-component-formbox-default-reset),
+        var(--sjs2-border-effect-component-formbox-focused),
         var(--sjs2-border-effect-component-formbox-a11y);
 
     .sd-formbox__character-counter {

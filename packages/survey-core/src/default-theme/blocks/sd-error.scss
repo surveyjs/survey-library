@@ -8,7 +8,7 @@
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
   border-radius: var(--sjs2-radius-component-message);
   text-align: left;
-  color: var(--sjs2-color-component-message-error-text, #1c1b20);
+  color: var(--sjs2-color-component-message-error-text);
   white-space: normal;
   width: 100%;
   background-color: var(--sjs2-color-component-message-error-bg);
@@ -16,25 +16,25 @@
   box-sizing: border-box;
 
   use {
-    fill: var(--sjs2-color-component-message-error-icon, #c30935);
+    fill: var(--sjs2-color-component-message-error-icon);
   }
 }
 
 .sd-error--warning {
   background: var(--sjs2-color-component-message-warning-bg);
-  color: var(--sjs2-color-component-message-warning-text, #1c1b20);
+  color: var(--sjs2-color-component-message-warning-text);
 
   use {
-    fill: var(--sjs2-color-component-message-warning-icon, #f08700);
+    fill: var(--sjs2-color-component-message-warning-icon);
   }
 }
 
 .sd-error--info {
   background: var(--sjs2-color-component-message-info-bg);
-  color: var(--sjs2-color-component-message-info-text, #1c1b20);
+  color: var(--sjs2-color-component-message-info-text);
 
   use {
-    fill: var(--sjs2-color-component-message-info-icon, #2a6cd0);
+    fill: var(--sjs2-color-component-message-info-icon);
   }
 }
 

@@ -131,6 +131,11 @@
 .sd-formbox__label {
     height: calc(100% - var(--sjs2-spacing-x300));
     padding: var(--sjs2-layout-component-input-medium-label-padding-vertical)
+        calc(
+            var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
+                var(--sjs2-layout-component-formbox-medium-gap)
+        )
+        var(--sjs2-layout-component-input-medium-label-padding-vertical)
         var(--sjs2-layout-component-input-medium-label-padding-horizontal);
     max-width: 30%;
     border-right: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-input-default-line, #d4d4d4);

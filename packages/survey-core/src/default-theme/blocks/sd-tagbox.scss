@@ -129,7 +129,7 @@
 
 .sd-tagbox__input.sd-dropdown__input {
   position: relative;
-  gap: var(--sjs2-spacing-x050, 4px);
+  gap: var(--sjs2-layout-component-input-small-tag-group-gap);
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;

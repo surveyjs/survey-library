@@ -15,6 +15,7 @@
   box-sizing: content-box;
   background: var(--sd-action-background);
   padding: var(--sd-action-padding);
+  gap: var(--sd-action-gap);
   border-radius: var(--sd-action-border-radius, var(--sjs2-radius-component-action, 8px));
   cursor: pointer;
   transition:
@@ -99,44 +100,64 @@
 
 //size modifiers
 .sd-action--large {
-  --sd-action-padding: var(--sjs2-spacing-x200, 16px);
+  --sd-action-padding: var(--sjs2-layout-component-action-large-box-padding-vertical)
+    var(--sjs2-layout-component-action-large-box-padding-horizontal);
+  --sd-action-gap: var(--sjs2-layout-component-action-large-box-gap);
   --sd-action-title-font-size: var(--sjs2-typography-font-size-default, 16px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-default, 24px);
-  --sd-action-title-padding: 0 var(--sjs2-spacing-x200, 16px);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-large-label-padding-vertical)
+    var(--sjs2-layout-component-action-large-label-padding-horizontal);
   --sd-action-icon-size: var(--sjs2-line-height-x300, 24px);
-  --sd-action-icon-padding: 0;
+  --sd-action-icon-padding: var(--sjs2-layout-component-action-large-icon-padding-vertical)
+    var(--sjs2-layout-component-action-large-icon-padding-horizontal);
 }
 .sd-action--medium {
-  --sd-action-padding: var(--sjs2-spacing-x150, 12px);
+  --sd-action-padding: var(--sjs2-layout-component-action-medium-box-padding-vertical)
+    var(--sjs2-layout-component-action-medium-box-padding-horizontal);
+  --sd-action-gap: var(--sjs2-layout-component-action-medium-box-gap);
   --sd-action-title-font-size: var(--sjs2-typography-font-size-default, 16px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-default, 24px);
-  --sd-action-title-padding: 0 var(--sjs2-spacing-x100, 8px);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-medium-label-padding-vertical)
+    var(--sjs2-layout-component-action-medium-label-padding-horizontal);
   --sd-action-icon-size: var(--sjs2-line-height-x300, 24px);
-  --sd-action-icon-padding: 0;
+  --sd-action-icon-padding: var(--sjs2-layout-component-action-medium-icon-padding-vertical)
+    var(--sjs2-layout-component-action-medium-icon-padding-horizontal);
 }
 .sd-action--small {
-  --sd-action-padding: var(--sjs2-spacing-x100, 8px);
+  --sd-action-padding: var(--sjs2-layout-component-action-small-box-padding-vertical)
+    var(--sjs2-layout-component-action-small-box-padding-horizontal);
+  --sd-action-gap: var(--sjs2-layout-component-action-small-box-gap);
   --sd-action-title-font-size: var(--sjs2-typography-font-size-default, 16px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-default, 24px);
-  --sd-action-title-padding: 0 var(--sjs2-spacing-x075, 6px);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-small-label-padding-vertical)
+    var(--sjs2-layout-component-action-small-label-padding-horizontal);
   --sd-action-icon-size: var(--sjs2-line-height-x300, 24px);
-  --sd-action-icon-padding: 0;
+  --sd-action-icon-padding: var(--sjs2-layout-component-action-small-icon-padding-vertical)
+    var(--sjs2-layout-component-action-small-icon-padding-horizontal);
 }
 .sd-action--x-small {
-  --sd-action-padding: var(--sjs2-spacing-x050, 4px);
+  --sd-action-padding: var(--sjs2-layout-component-action-x-small-box-padding-vertical)
+    var(--sjs2-layout-component-action-x-small-box-padding-horizontal);
+  --sd-action-gap: var(--sjs2-layout-component-action-x-small-box-gap);
   --sd-action-title-font-size: var(--sjs2-typography-font-size-small, 12px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-small, 16px);
-  --sd-action-title-padding: var(--sjs2-spacing-x050, 4px);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-x-small-label-padding-vertical)
+    var(--sjs2-layout-component-action-x-small-label-padding-horizontal);
   --sd-action-icon-size: var(--sjs2-line-height-x200, 16px);
-  --sd-action-icon-padding: var(--sjs2-spacing-x050, 4px);
+  --sd-action-icon-padding: var(--sjs2-layout-component-action-x-small-icon-padding-vertical)
+    var(--sjs2-layout-component-action-x-small-icon-padding-horizontal);
 }
 .sd-action--xx-small {
-  --sd-action-padding: var(--sjs2-spacing-x050, 4px);
+  --sd-action-padding: var(--sjs2-layout-component-action-xx-small-box-padding-vertical)
+    var(--sjs2-layout-component-action-xx-small-box-padding-horizontal);
+  --sd-action-gap: var(--sjs2-layout-component-action-xx-small-box-gap);
   --sd-action-title-font-size: var(--sjs2-typography-font-size-small, 12px);
   --sd-action-title-line-height: var(--sjs2-typography-line-height-small, 16px);
-  --sd-action-title-padding: 0 var(--sjs2-spacing-x025, 2px);
+  --sd-action-title-padding: var(--sjs2-layout-component-action-xx-small-label-padding-vertical)
+    var(--sjs2-layout-component-action-xx-small-label-padding-horizontal);
   --sd-action-icon-size: var(--sjs2-line-height-x200, 16px);
-  --sd-action-icon-padding: 0;
+  --sd-action-icon-padding: var(--sjs2-layout-component-action-xx-small-icon-padding-vertical)
+    var(--sjs2-layout-component-action-xx-small-icon-padding-horizontal);
 }
 //style modifiers
 .sd-action--neutral {

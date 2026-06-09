@@ -213,7 +213,7 @@ export default {
     "--sjs2-layout-component-action-medium-box-gap": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-action-medium-dropdown-icon-padding-vertical": "var(--sjs2-spacing-x050)",
     "--sjs2-layout-component-action-medium-dropdown-icon-padding-horizontal": "var(--sjs2-spacing-x050)",
-    "--sjs2-layout-component-action-large-label-padding-horizontal": "var(--sjs2-spacing-x150)",
+    "--sjs2-layout-component-action-large-label-padding-horizontal": "var(--sjs2-spacing-x200)",
     "--sjs2-layout-component-action-large-label-padding-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-action-large-icon-padding-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-action-large-icon-padding-horizontal": "var(--sjs2-spacing-x000)",

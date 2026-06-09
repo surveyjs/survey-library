@@ -2,10 +2,11 @@
 
 .sv-button-group {
   display: flex;
-  padding: var(--sjs2-spacing-x050, 4px);
+  padding: var(--sjs2-layout-component-formbox-medium-padding-vertical)
+    var(--sjs2-layout-component-formbox-medium-padding-horizontal);
   box-sizing: border-box;
   align-items: center;
-  gap: var(--sjs2-spacing-x050, 4px);
+  gap: var(--sjs2-layout-component-formbox-medium-gap);
   flex-direction: row;
   overflow-x: auto;
   border-radius: var(--sjs2-radius-component-formbox, 8px);

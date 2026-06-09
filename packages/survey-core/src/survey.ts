@@ -3980,6 +3980,15 @@ export class SurveyModel extends SurveyElementCore
         oldValue.passed = true;
       }
     }
+    if (newValue) {
+      const newIndex = this.visiblePages.indexOf(newValue);
+      for (let i = 0; i < newIndex; i++) {
+        const page = this.visiblePages[i];
+        if (!page.passed) {
+          page.passed = true;
+        }
+      }
+    }
     if (this.isCurrentPageRendered === true) {
       this.isCurrentPageRendered = false;
     }

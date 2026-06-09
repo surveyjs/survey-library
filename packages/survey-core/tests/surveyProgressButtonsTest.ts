@@ -93,6 +93,22 @@ describe("ProgressButtons", () => {
     expect(progress.getListElementCss(1), "1) Page 2 style is empty").toBe("");
     expect(progress.getListElementCss(2), "1) Page 3 style is non clickable").toBe(survey.css.progressButtonsListElementNonClickable);
   });
+  test("ProgressButtons pages before current are marked passed on survey resume", () => {
+    const json: any = {
+      "pages": [
+        { "name": "page1", "elements": [{ "type": "text", "name": "q1" }] },
+        { "name": "page2", "elements": [{ "type": "text", "name": "q2" }] },
+        { "name": "page3", "elements": [{ "type": "text", "name": "q3" }] }
+      ]
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    survey.data = { q1: "a", q2: "b" };
+    survey.currentPageNo = 2;
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(progress.getListElementCss(0), "Page 1 should be passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(1), "Page 2 should be passed").toBe(survey.css.progressButtonsListElementPassed);
+    expect(progress.getListElementCss(2), "Page 3 should be current").toBe(survey.css.progressButtonsListElementCurrent);
+  });
   test("ProgressButtons progressText is updated on current page change", () => {
     const survey = new SurveyModel({
       pages: [

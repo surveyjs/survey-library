@@ -11,7 +11,7 @@ export class InputElementAdapter {
     }
     this.inputElement.value = value;
   }
-  private updateInputValue() {
+  public updateInputValue() {
     if (!!this.inputElement.placeholder && this.inputElement.value == this.maskedEmptyValue) {
       this.inputElement.value = "";
     }

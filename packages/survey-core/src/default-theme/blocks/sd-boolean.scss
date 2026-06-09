@@ -7,16 +7,13 @@
   position: relative;
   gap: var(--sjs2-spacing-x050);
   padding: var(--sjs2-spacing-x050);
-  background-color: var(--sjs2-color-component-boolean-default-bg, #F5F5F5);
-  border-radius: var(--sjs2-radius-component-boolean, 9999px);
-  box-shadow:
-    var(--sjs2-border-effect-component-boolean-default, inset 0px 1px 2px 0px #D4D4D4), $shadow-focused-reset;
+  background-color: var(--sjs2-color-component-boolean-default-bg);
+  border-radius: var(--sjs2-radius-component-boolean);
+  box-shadow: var(--sjs2-border-effect-component-boolean-default), $shadow-focused-reset;
   transition: box-shadow $transition-duration;
 
   &.sd-boolean--allowhover:has(input:focus-visible) {
-    box-shadow:
-      $shadow-inner-reset,
-      0px 0px 0px var(--sjs2-border-width-a11y, 4px) var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.60));
+    box-shadow: $shadow-inner-reset, var(--sjs2-border-effect-component-boolean-a11y);
   }
 }
 
@@ -24,10 +21,10 @@
 .sd-boolean__label {
   display: block;
   @include sjs2--typography--component--input--content;
-  color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
-  background-color: var(--sjs2-color-component-boolean-item-false-default-bg, #F5F5F5);
-  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
-  box-shadow: var(--sjs2-border-effect-component-boolean-item-false-default, $shadow-small);
+  color: var(--sjs2-color-component-boolean-item-false-default-value);
+  background-color: var(--sjs2-color-component-boolean-item-false-default-bg);
+  border-radius: var(--sjs2-radius-component-boolean-item);
+  box-shadow: var(--sjs2-border-effect-component-boolean-item-false-default);
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
 }
 
@@ -41,7 +38,7 @@
   width: calc(100%);
   height: calc(100%);
   box-sizing: border-box;
-  border-radius: var(--sjs2-radius-component-boolean, 9999px);
+  border-radius: var(--sjs2-radius-component-boolean);
   overflow: hidden;
 }
 
@@ -65,13 +62,13 @@
   position: absolute;
   left: var(--sjs2-spacing-x050);
   transform: translateX(0);
-  background-color: var(--sjs2-color-component-boolean-item-true-default-bg, #fff);
-  box-shadow: var(--sjs2-border-effect-component-boolean-item-true-default, $shadow-small);
-  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
+  background-color: var(--sjs2-color-component-boolean-item-true-default-bg);
+  box-shadow: var(--sjs2-border-effect-component-boolean-item-true-default);
+  border-radius: var(--sjs2-radius-component-boolean-item);
   transition-duration: 0.2s;
   transition-property: transform, left;
   transition-timing-function: linear;
-  color: var(--sjs2-color-component-boolean-item-true-default-value, #19B394);
+  color: var(--sjs2-color-component-boolean-item-true-default-value);
   @include sjs2--typography--default-strong;
   z-index: 2;
 
@@ -108,34 +105,34 @@
 .sd-boolean--exchanged {
   &.sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
-    color: var(--sjs2-color-component-boolean-item-false-default-value, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-boolean-item-false-default-value);
   }
 }
 
 .sd-boolean--disabled {
   pointer-events: none;
-  box-shadow: var(--sjs2-border-effect-component-boolean-disabled, inset 0px 0px 0px 1px #F5F5F5);
-  background-color: var(--sjs2-color-component-boolean-disabled-bg, #F5F5F5);
+  box-shadow: var(--sjs2-border-effect-component-boolean-disabled);
+  background-color: var(--sjs2-color-component-boolean-disabled-bg);
 
   .sd-boolean__thumb {
-    box-shadow: var(--sjs2-border-effect-component-boolean-item-true-disabled, inset 0px 0px 0px 2px $foreground);
-    color: var(--sjs2-color-component-boolean-item-true-disabled-value, #B3B2B2);
+    box-shadow: var(--sjs2-border-effect-component-boolean-item-true-disabled);
+    color: var(--sjs2-color-component-boolean-item-true-disabled-value);
   }
   .sd-boolean__label {
-    color: var(--sjs2-color-component-boolean-item-false-disabled-value, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-boolean-item-false-disabled-value);
   }
 }
 
 .sd-boolean--readonly {
   pointer-events: none;
-  box-shadow: var(--sjs2-border-effect-component-boolean-readonly, none);
-  background-color: var(--sjs2-color-component-boolean-readonly-bg, #fff);
+  box-shadow: var(--sjs2-border-effect-component-boolean-readonly);
+  background-color: var(--sjs2-color-component-boolean-readonly-bg);
   transition: none;
 
   .sd-boolean__thumb {
-    box-shadow: var(--sjs2-border-effect-component-boolean-item-true-readonly, inset 0px 0px 0px 2px $foreground);
+    box-shadow: var(--sjs2-border-effect-component-boolean-item-true-readonly);
     transition: none;
-    color: var(--sjs2-color-component-boolean-item-true-readonly-value, #1C1B20);
+    color: var(--sjs2-color-component-boolean-item-true-readonly-value);
   }
 }
 
@@ -166,20 +163,20 @@
 
 .sd-boolean__thumb-ghost {
   z-index: 1;
-  border-radius: var(--sjs2-radius-component-boolean-item, 9999px);
+  border-radius: var(--sjs2-radius-component-boolean-item);
   background-color: transparent;
   transition: background-color $transition-duration;
 }
 
 .sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover .sd-boolean__label {
-  color: var(--sjs2-color-component-boolean-item-false-hovered-value, rgba(28, 27, 32, 1));
-  background-color: var(--sjs2-color-component-boolean-item-false-hovered-bg, #EDEDED);
-  box-shadow: var(--sjs2-border-effect-component-boolean-item-false-hovered, $shadow-small);
+  color: var(--sjs2-color-component-boolean-item-false-hovered-value);
+  background-color: var(--sjs2-color-component-boolean-item-false-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-boolean-item-false-hovered);
 }
 
 .sd-boolean--error {
-  background-color: var(--sjs2-color-component-boolean-invalid-bg, #F5F5F5);
-  box-shadow: var(--sjs2-border-effect-component-boolean-invalid, 0 0 0 1px #e50a3e inset);
+  background-color: var(--sjs2-color-component-boolean-invalid-bg);
+  box-shadow: var(--sjs2-border-effect-component-boolean-invalid);
 }
 
 .sd-question--boolean {

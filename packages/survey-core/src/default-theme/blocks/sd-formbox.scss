@@ -10,35 +10,33 @@
     display: flex;
     gap: var(--sjs2-layout-component-formbox-medium-gap);
     align-items: center;
-    background: var(--sjs2-color-component-formbox-default-bg, #f5f5f5);
+    background: var(--sjs2-color-component-formbox-default-bg);
     border: none;
-    border-radius: var(--sjs2-radius-component-formbox, 8px);
+    border-radius: var(--sjs2-radius-component-formbox);
     text-align: start;
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default, 0 1px 2px 0 #d4d4d4 inset),
-        var(--sjs2-border-effect-component-formbox-focused-reset, 0 0 0 0 #19b394 inset);
+        var(--sjs2-border-effect-component-formbox-default), var(--sjs2-border-effect-component-formbox-focused-reset);
     transition: box-shadow $transition-duration;
 }
 .sd-formbox:where(:hover) {
-    background: var(--sjs2-color-component-formbox-hovered-bg, #f5f5f5);
+    background: var(--sjs2-color-component-formbox-hovered-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default-reset, 0 0 0 0 #d4d4d4 inset),
-        var(--sjs2-border-effect-component-formbox-hovered, 0 0 0 2px #19b394 inset);
+        var(--sjs2-border-effect-component-formbox-hovered), var(--sjs2-border-effect-component-formbox-focused-reset);
 }
 .sd-formbox:where(:focus-within) {
-    background: var(--sjs2-color-component-formbox-focused-bg, #f5f5f5);
+    background: var(--sjs2-color-component-formbox-focused-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default-reset, 0 0 0 0 #d4d4d4 inset),
-        var(--sjs2-border-effect-component-formbox-focused, 0 0 0 2px #19b394 inset);
+        var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
+        var(--sjs2-border-effect-component-formbox-a11y);
 
     .sd-formbox__character-counter {
         display: block;
     }
 }
 .sd-formbox--readonly {
-    border-radius: var(--sjs2-radius-component-formbox, 8px);
-    background: var(--sjs2-color-component-formbox-readonly-bg, #fff);
-    box-shadow: var(--sjs2-border-effect-component-formbox-readonly, 0 0 0 1px #d4d4d4 inset);
+    border-radius: var(--sjs2-radius-component-formbox);
+    background: var(--sjs2-color-component-formbox-readonly-bg);
+    box-shadow: var(--sjs2-border-effect-component-formbox-readonly);
 
     .sd-formbox__input {
         cursor: default;
@@ -60,12 +58,12 @@
     }
 }
 .sd-formbox--error {
-    background: var(--sjs2-color-component-formbox-invalid-bg, #f5f5f5);
-    box-shadow: var(--sjs2-border-effect-component-formbox-invalid, 0 0 0 1px #e50a3e inset);
+    background: var(--sjs2-color-component-formbox-invalid-bg);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid);
 }
 .sd-formbox--error:where(:focus-within) {
-    background: var(--sjs2-color-component-formbox-invalid-focused-bg, #f5f5f5);
-    box-shadow: var(--sjs2-border-effect-component-formbox-invalid-focused, 0 0 0 2px #e50a3e inset);
+    background: var(--sjs2-color-component-formbox-invalid-focused-bg);
+    box-shadow: var(--sjs2-border-effect-component-formbox-invalid-focused);
 }
 
 .sd-formbox {
@@ -79,8 +77,8 @@
     justify-content: flex-end;
     --sd-action-bar-gap: var(--sjs2-layout-component-input-medium-action-group-gap);
     .sd-action {
-        --sd-action-border-radius: var(--sjs2-radius-component-formbox-action, 4px);
-        --sd-action-icon-size: var(--sjs2-typography-line-height-component-input-content, 24px);
+        --sd-action-border-radius: var(--sjs2-radius-component-formbox-action);
+        --sd-action-icon-size: var(--sjs2-typography-line-height-component-input-content);
     }
     .sd-action-bar__item {
         height: 100%;
@@ -98,7 +96,7 @@
     border: none;
     width: 100%;
     min-width: 0;
-    color: var(--sjs2-color-component-input-default-value, #1c1b20);
+    color: var(--sjs2-color-component-input-default-value);
     text-overflow: ellipsis;
 
     @include sjs2--typography--component--input--content;
@@ -112,7 +110,7 @@
 
     margin: 0;
     &::placeholder {
-        color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+        color: var(--sjs2-color-component-input-default-placeholder);
         -webkit-user-select: none;
         -moz-user-select: none;
         -ms-user-select: none;
@@ -138,10 +136,10 @@
         var(--sjs2-layout-component-input-medium-label-padding-vertical)
         var(--sjs2-layout-component-input-medium-label-padding-horizontal);
     max-width: 30%;
-    border-right: var(--sjs2-border-width-default, 1px) solid var(--sjs2-color-component-input-default-line, #d4d4d4);
+    border-right: var(--sjs2-border-width-x100) solid var(--sjs2-color-component-input-default-line);
     box-sizing: content-box;
     white-space: normal;
-    color: var(--sjs2-color-component-input-default-label, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-input-default-label);
     @include sjs2--typography--component--input--content;
 }
 
@@ -198,5 +196,5 @@
 .sd-formbox__input[type="datetime-local"]:not(.sd-formbox__input--value-changed),
 .sd-formbox__input[type="week"]:not(.sd-formbox__input--value-changed),
 .sd-formbox__input[type="month"]:not(.sd-formbox__input--value-changed) {
-    color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-input-default-placeholder);
 }

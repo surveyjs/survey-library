@@ -134,10 +134,12 @@
   transition:
     background-color var(--sjs-transition-duration, 100ms),
     border-color var(--sjs-transition-duration, 100ms),
-    color var(--sjs-transition-duration, 100ms);
+    color var(--sjs-transition-duration, 100ms),
+    box-shadow $transition-duration;
 
   &:focus-visible {
-    outline: 4px solid var(--sjs2-color-utility-a11y);
+    outline: none;
+    box-shadow: var(--sjs2-border-effect-a11y);
   }
 
   &:hover {
@@ -157,7 +159,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   box-sizing: border-box;
-  color: var(--sjs2-color-fg-basic-primary, #1c1b20);
+  color: var(--sjs2-color-fg-basic-primary);
   text-align: center;
 
   &:hover ~ .sd-progress-buttons__button {

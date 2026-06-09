@@ -1,10 +1,11 @@
+@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sd-menu-list__container {
-    --thm-list-padding: var(--sjs2-spacing-x100, 8px);
+    --thm-list-padding: var(--sjs2-spacing-x100);
 
     display: flex;
-    padding: var(--sjs2-spacing-x000, 0);
+    padding: var(--sjs2-spacing-x000);
     min-width: 188px;
     flex-direction: column;
     align-items: flex-start;
@@ -24,9 +25,10 @@
 .sd-menu-item {
     cursor: pointer;
     text-align: start;
-    color: var(--sjs2-color-fg-basic-primary, #1c1b20);
-    border-radius: var(--sjs2-radius-component-drop-item, 8px);
+    color: var(--sjs2-color-fg-basic-primary);
+    border-radius: var(--sjs2-radius-component-drop-item);
     @include sjs2--typography--default;
+    transition: box-shadow $transition-duration;
 
     &:focus-visible {
         outline: none;
@@ -41,11 +43,11 @@
     --thm-list-item-padding-left: calc(var(--sjs-list-item-level) * var(--sjs2-spacing-x150));
 
     display: flex;
-    padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px)
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x100)
         var(--thm-list-item-padding-left, 12px);
     align-items: center;
-    border-radius: var(--sjs2-radius-component-drop-item, 8px);
-    gap: var(--sjs2-spacing-x100, 8px);
+    border-radius: var(--sjs2-radius-component-drop-item);
+    gap: var(--sjs2-spacing-x100);
     width: 100%;
     box-sizing: border-box;
 
@@ -63,7 +65,7 @@
         display: contents;
     }
     use {
-        fill: var(--sjs2-color-fg-basic-primary-muted, rgba(28, 27, 32, 0.8));
+        fill: var(--sjs2-color-fg-basic-primary-muted);
     }
 }
 
@@ -73,65 +75,65 @@
 .sd-menu-item--selected,
 .sd-menu-item--selected.sd-menu-item--hovered {
     & > .sd-menu-item__body {
-        background: var(--sjs2-color-bg-brand-primary, #19b394);
-        color: var(--sjs2-color-fg-brand-on-primary, #fff);
+        background: var(--sjs2-color-bg-brand-primary);
+        color: var(--sjs2-color-fg-brand-on-primary);
         @include sjs2--typography--default-strong;
     }
 
     .sd-menu-item__icon use {
-        fill: var(--sjs2-color-fg-brand-on-primary, #fff);
+        fill: var(--sjs2-color-fg-brand-on-primary);
     }
 }
 
 .sd-menu-item--hovered,
 .sd-menu-item--group-selected {
     & > .sd-menu-item__body {
-        background: var(--sjs2-color-bg-basic-primary-dim, #f5f5f5);
+        background: var(--sjs2-color-bg-basic-primary-dim);
     }
 }
 
 .sd-menu-item:focus-visible,
 .sd-menu-item--focused {
-    outline: var(--sjs2-border-width-a11y, 4px) solid var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.6));
+    box-shadow: var(--sjs2-border-effect-a11y);
 }
 
 .sd-menu-item--label,
 .sd-menu-item--label.sd-menu-item--hovered {
     & > .sd-menu-item__body {
         cursor: default;
-        color: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
+        color: var(--sjs2-color-fg-basic-secondary);
         background-color: transparent;
         @include sjs2--typography--small;
     }
 }
 
 .sd-menu-item--brand {
-    color: var(--sjs2-color-fg-brand-primary, #15987e);
+    color: var(--sjs2-color-fg-brand-primary);
 
     use {
-        fill: var(--sjs2-color-fg-brand-primary, #15987e);
+        fill: var(--sjs2-color-fg-brand-primary);
     }
 
     &.sd-menu-item--hovered,
     &.sd-menu-item--group-selected {
         & > .sd-menu-item__body {
-            background: var(--sjs2-color-bg-brand-tertiary-dim, rgba(25, 179, 148, 0.1));
+            background: var(--sjs2-color-bg-brand-tertiary-dim);
         }
     }
 }
 
 .sd-menu-item--alert {
-    color: var(--sjs2-color-fg-alert-primary, #c30935);
+    color: var(--sjs2-color-fg-alert-primary);
 
     use {
-        fill: var(--sjs2-color-fg-alert-primary, #c30935);
+        fill: var(--sjs2-color-fg-alert-primary);
     }
 
     &.sd-menu-item--hovered,
     &.sd-menu-item--group-selected {
         & > .sd-menu-item__body {
-            border-radius: var(--sjs2-radius-component-drop-item, 8px);
-            background: var(--sjs2-color-bg-alert-tertiary-dim, rgba(229, 10, 62, 0.1));
+            border-radius: var(--sjs2-radius-component-drop-item);
+            background: var(--sjs2-color-bg-alert-tertiary-dim);
         }
     }
 }
@@ -170,30 +172,29 @@
 }
 
 .sd-menu-item__marker-icon + * {
-    margin-inline-start: var(--sjs2-spacing-negative-x100, -8px);
+    margin-inline-start: var(--sjs2-spacing-negative-x100);
 }
 
 .sd-menu-item__separator {
     width: 100%;
-    height: var(--sjs2-border-width-x100, 1px);
-    margin: var(--sjs2-spacing-x100, 8px) 0;
-    background: var(--sjs2-color-border-basic-secondary, #d4d4d4);
+    height: var(--sjs2-border-width-x100);
+    margin: var(--sjs2-spacing-x100) 0;
+    background: var(--sjs2-color-border-basic-secondary);
 }
 
 .sd-menu-filter {
     display: flex;
-    padding: var(--sjs2-spacing-x100, 8px);
+    padding: var(--sjs2-spacing-x100);
     align-items: center;
     align-self: stretch;
-    background: var(--sjs2-color-utility-sheet, #fff);
-    border-bottom: solid var(--sjs2-border-width-x100, 1px) var(--sjs2-color-border-basic-secondary, #d4d4d4);
+    background: var(--sjs2-color-utility-sheet);
+    border-bottom: solid var(--sjs2-border-width-x100) var(--sjs2-color-border-basic-secondary);
 }
 
 .sd-menu-filter__box {
     display: flex;
-    padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px)
-        var(--sjs2-spacing-x150, 12px);
-    gap: var(--sjs2-spacing-x100, 8px);
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+    gap: var(--sjs2-spacing-x100);
 }
 
 .sd-menu-filter__icon {
@@ -207,7 +208,7 @@
         height: 1lh;
 
         use {
-            fill: var(--sjs2-color-component-input-default-icon, rgba(28, 27, 32, 0.4));
+            fill: var(--sjs2-color-component-input-default-icon);
         }
     }
 }
@@ -223,17 +224,17 @@
     border: none;
     padding: 0;
 
-    color: var(--sjs2-color-component-input-default-value, #1c1b20);
+    color: var(--sjs2-color-component-input-default-value);
     @include sjs2--typography--default;
 }
 
 .sd-selectlist__input::placeholder {
-    color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-input-default-placeholder);
 }
 
 .sd-menu-list__empty-container {
     display: flex;
-    padding: var(--sjs2-spacing-x200, 16px);
+    padding: var(--sjs2-spacing-x200);
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -242,7 +243,7 @@
 
 .sd-menu-list__empty-text {
     flex: 1 0 0;
-    color: var(--sjs2-color-fg-basic-secondary, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-fg-basic-secondary);
     text-align: center;
 
     @include sjs2--typography--default;

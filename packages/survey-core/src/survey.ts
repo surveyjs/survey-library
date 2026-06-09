@@ -87,7 +87,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { ensureBaseThemeStyles } from "./utils/base-theme-init";
+import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -5412,9 +5412,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
-    if (this.generateStylesheet) {
-      ensureBaseThemeStyles(observedElement);
-    }
+    this.clearResetVariablesStyle();
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
@@ -8382,23 +8380,6 @@ export class SurveyModel extends SurveyElementCore
     this.onCreateCustomChoiceItem.fire(this, options);
   }
 
-  private addAnimationResetCSSVariables(newCssVariable: any) {
-    if (!newCssVariable) return;
-    const targetVars = [
-      "--sjs2-border-effect-surface-default",
-      "--sjs2-border-effect-surface-focused",
-      "--sjs2-border-effect-component-formbox-default",
-      "--sjs2-border-effect-component-formbox-focused"
-    ];
-
-    targetVars.forEach((varName) => {
-      const boxShadow = newCssVariable[varName];
-      if (typeof boxShadow === "string") {
-        newCssVariable[`${varName}-reset`] = createBoxShadowReset(boxShadow);
-      }
-    });
-  }
-
   /**
    * Applies a specified theme to the survey.
    *
@@ -8414,7 +8395,6 @@ export class SurveyModel extends SurveyElementCore
   }
   private _applyTheme(theme: ITheme): void {
     patchLegacyCSSVariables(theme.cssVariables);
-    this.addAnimationResetCSSVariables(theme.cssVariables);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;
@@ -8436,10 +8416,28 @@ export class SurveyModel extends SurveyElementCore
       advHeader.fromTheme(theme);
       this.insertAdvancedHeader(advHeader);
     }
+    this.clearResetVariablesStyle();
     this.themeChanged(theme);
   }
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));
+  }
+  @property() private _themeStyle: string;
+  public get themeStyle(): string {
+    if (!this._themeStyle) {
+      this._themeStyle = createBaseThemeStyle();
+    }
+    return this._themeStyle;
+  }
+  @property() private _resetVariablesStyle: string;
+  public get resetVariablesStyle(): string {
+    if (!this._resetVariablesStyle) {
+      this._resetVariablesStyle = createResetVariablesStyle(this.rootElement);
+    }
+    return this._resetVariablesStyle;
+  }
+  private clearResetVariablesStyle(): void {
+    this._resetVariablesStyle = undefined;
   }
 
   private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();

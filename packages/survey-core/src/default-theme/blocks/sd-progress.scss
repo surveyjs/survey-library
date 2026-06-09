@@ -21,13 +21,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: var(--sjs2-radius-component-tooltip, 4px);
-  background: var(--sjs2-color-bg-basic-primary, #fff);
+  border-radius: var(--sjs2-radius-component-tooltip);
+  background: var(--sjs2-color-bg-basic-primary);
   /* sjs2/border-effect/surface/default */
   box-shadow:
-    var(--sjs2-border-offset-x-surface-default, 0) var(--sjs2-border-offset-y-surface-default, 0)
-      var(--sjs2-border-blur-surface-default, 0) var(--sjs2-border-spread-surface-default, 1px)
-      var(--sjs2-color-utility-shadow-surface-default, rgba(17, 16, 20, 0.1)),
+    var(--sjs2-border-offset-x-surface-default) var(--sjs2-border-offset-y-surface-default)
+      var(--sjs2-border-blur-surface-default) var(--sjs2-border-spread-surface-default)
+      var(--sjs2-color-utility-shadow-surface-default),
     0 0 0 0 rgba(0, 0, 0, 0);
   color: var(--sjs2-color-fg-basic-primary);
   @include sjs2--typography--small;

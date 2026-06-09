@@ -40,9 +40,9 @@ sv-popup {
 .sv-popup--menu-popup {
   & > .sv-popup__container {
     overflow: hidden;
-    border-radius: var(--sjs2-radius-component-drop, 16px);
-    border: var(--sjs2-border-width-x100, 1px) solid var(--sjs2-color-border-basic-secondary, #d4d4d4);
-    background: var(--sjs2-color-utility-sheet, #fff);
+    border-radius: var(--sjs2-radius-component-drop);
+    border: var(--sjs2-border-width-x100) solid var(--sjs2-color-border-basic-secondary);
+    background: var(--sjs2-color-utility-sheet);
     box-sizing: border-box;
     box-shadow: var(--sjs2-border-effect-floating-default);
   }
@@ -103,8 +103,8 @@ sv-popup {
   & > .sv-popup__container {
     position: relative;
     display: flex;
-    background-color: var(--sjs2-color-utility-sheet, #fff);
-    border-radius: var(--sjs2-radius-component-modal, 24px);
+    background-color: var(--sjs2-color-utility-sheet);
+    border-radius: var(--sjs2-radius-component-modal);
     box-shadow: var(--sjs2-border-effect-floating-default);
   }
 
@@ -348,7 +348,7 @@ sv-popup {
     border: unset;
     box-shadow: unset;
     box-sizing: content-box;
-    background: var(--sjs2-color-utility-sheet, #FFF);
+    background: var(--sjs2-color-utility-sheet);
   }
 
   & > .sv-popup__container > .sv-popup__body-content {
@@ -366,7 +366,7 @@ sv-popup {
     // padding-top: 0;
     border: unset;
     box-sizing: content-box;
-    background: var(--sjs2-color-utility-sheet, #FFF);
+    background: var(--sjs2-color-utility-sheet);
 
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - var(--sjs2-base-unit-spacing) * 8);
     --sv-popup-overlay-max-width: calc(100% - var(--sjs2-base-unit-spacing) * 8);
@@ -380,7 +380,7 @@ sv-popup {
     width: auto;
     min-width: min(calc(var(--sjs2-base-unit-size) * 40), var(--sv-popup-overlay-max-width));
     max-width: var(--sv-popup-overlay-max-width);
-    border-radius: var(--sjs2-radius-component-drop, 16px);
+    border-radius: var(--sjs2-radius-component-drop);
     overflow: hidden;
     box-shadow: $shadow-medium-large;
   }

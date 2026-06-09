@@ -1,3 +1,4 @@
+@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sd-menu-list__container {
@@ -27,6 +28,7 @@
     color: var(--sjs2-color-fg-basic-primary);
     border-radius: var(--sjs2-radius-component-drop-item);
     @include sjs2--typography--default;
+    transition: box-shadow $transition-duration;
 
     &:focus-visible {
         outline: none;
@@ -92,7 +94,7 @@
 
 .sd-menu-item:focus-visible,
 .sd-menu-item--focused {
-    outline: var(--sjs2-border-width-a11y) solid var(--sjs2-color-utility-a11y);
+    box-shadow: var(--sjs2-border-effect-a11y);
 }
 
 .sd-menu-item--label,

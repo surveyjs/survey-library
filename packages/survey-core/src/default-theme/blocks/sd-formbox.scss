@@ -14,21 +14,21 @@
     border-radius: var(--sjs2-radius-component-formbox);
     text-align: start;
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default),
-        var(--sjs2-border-effect-component-formbox-focused-reset);
+        var(--sjs2-border-effect-component-formbox-default), var(--sjs2-border-effect-component-formbox-focused-reset);
     transition: box-shadow $transition-duration;
 }
 .sd-formbox:where(:hover) {
     background: var(--sjs2-color-component-formbox-hovered-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default-reset),
-        var(--sjs2-border-effect-component-formbox-hovered);
+        var(--sjs2-border-effect-component-formbox-hovered, 0 1px 2px 0 #d4d4d4 inset),
+        var(--sjs2-border-effect-component-formbox-focused-reset, 0 0 0 0 #19b394 inset);
 }
 .sd-formbox:where(:focus-within) {
     background: var(--sjs2-color-component-formbox-focused-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default-reset),
-        var(--sjs2-border-effect-component-formbox-focused);
+        var(--sjs2-border-effect-component-formbox-default-reset, 0 0 0 0 #d4d4d4 inset),
+        var(--sjs2-border-effect-component-formbox-focused, 0 0 0 2px #19b394 inset),
+        var(--sjs2-border-effect-component-formbox-a11y);
 
     .sd-formbox__character-counter {
         display: block;
@@ -102,9 +102,7 @@
 
     @include sjs2--typography--component--input--content;
 
-    min-height: calc(
-        var(--sjs2-typography-line-height-component-input-content) + var(--sjs2-spacing-x100) * 2
-    );
+    min-height: calc(var(--sjs2-typography-line-height-component-input-content) + var(--sjs2-spacing-x100) * 2);
     padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
     margin: 0;
     &::placeholder {
@@ -126,8 +124,8 @@
 }
 .sd-formbox__label {
     height: calc(100% - var(--sjs2-spacing-x300));
-    padding: var(--sjs2-spacing-x100) calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x050))
-        var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+    padding: var(--sjs2-spacing-x100) calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x050)) var(--sjs2-spacing-x100)
+        var(--sjs2-spacing-x150);
     max-width: 30%;
     border-right: var(--sjs2-border-width-x100) solid var(--sjs2-color-component-input-default-line);
     box-sizing: content-box;

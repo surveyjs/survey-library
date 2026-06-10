@@ -35,6 +35,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { SurveyTriggersRunner, TriggersRunType } from "./survey-triggers-runner";
 import { LazyRenderingController, ILazyRenderingHost } from "./lazy-rendering-controller";
+import { SurveyCompletionController, ISurveyCompletionHost } from "./survey-completion-controller";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -1278,6 +1279,13 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.lazyRenderingControllerValue;
   }
+  private completionControllerValue: SurveyCompletionController | undefined;
+  private get completionController(): SurveyCompletionController {
+    if (!this.completionControllerValue) {
+      this.completionControllerValue = new SurveyCompletionController(<ISurveyCompletionHost><any>this);
+    }
+    return this.completionControllerValue;
+  }
   private canRunTriggersOrConditions(type: TriggersRunType): boolean {
     if (this.isCompleted) return false;
     if (type === "trigger") return !this.isDisplayMode && this.triggers.length > 0;
@@ -1295,7 +1303,7 @@ export class SurveyModel extends SurveyElementCore
       title: this.getLocalizationString("saveAgainButton"),
       action: () => {
         if (this.isCompleted) {
-          this.saveDataOnComplete();
+          this.completionController.saveDataOnComplete();
         } else {
           this.doComplete();
         }
@@ -3925,7 +3933,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
-    this.completedByTriggers = undefined;
+    this.completionController.resetCompletedByTriggers();
     this.skippedPages = [];
     this.lastActiveQuestion = undefined;
     if (clearData) {
@@ -4616,7 +4624,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
-    let res = this.doCurrentPageComplete(true);
+    this.doCurrentPageComplete(true);
     return this.isCompleted;
   }
   /**
@@ -4691,7 +4699,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       if (this.currentPage)this.currentPage.passed = true;
-      return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
+      return this.doComplete(this.completionController.canBeCompletedByTrigger, this.completionController.completedTrigger);
     }
     this.doNextPage();
     return true;
@@ -5083,12 +5091,12 @@ export class SurveyModel extends SurveyElementCore
     return page && page.getMaxTimeToFinish() <= 0;
   }
   private calcIsShowNextButton(): boolean {
-    return this.state === "running" && !this.isLastPageOrElement && !this.canBeCompletedByTrigger;
+    return this.state === "running" && !this.isLastPageOrElement && !this.completionController.canBeCompletedByTrigger;
   }
   public calcIsCompleteButtonVisible(): boolean {
     const state = this.state;
     return this.isEditMode && (this.state === "running" &&
-      (this.isLastPageOrElement && !this.showPreviewBeforeComplete || this.canBeCompletedByTrigger)
+      (this.isLastPageOrElement && !this.showPreviewBeforeComplete || this.completionController.canBeCompletedByTrigger)
       || state === "preview") && this.showCompleteButton;
   }
   private calcIsPreviewButtonVisible(): boolean {
@@ -5138,80 +5146,7 @@ export class SurveyModel extends SurveyElementCore
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    */
   public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean | undefined {
-    if (this.isCompleted) return;
-
-    return this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger, (allow) => {
-      if (allow) {
-        this.triggersRunner.checkOnPageTriggers(true);
-        this.stopTimer();
-        this.notifyQuestionsOnHidingContent(this.currentPage);
-        this.isCompleted = true;
-        this.cancelPreview();
-        this.clearUnusedValues();
-        this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
-        this.setCookie();
-      } else {
-        this.isCompleted = false;
-      }
-    });
-  }
-  private saveDataOnComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger) {
-    let previousCookie = this.hasCookie;
-    const showSaveInProgress = (text: string) => {
-      savingDataStarted = true;
-      this.setCompletedState("saving", text);
-    };
-    const showSaveError = (text: string) => {
-      this.setCompletedState("error", text);
-    };
-    const showSaveSuccess = (text: string) => {
-      this.setCompletedState("success", text);
-      this.navigateTo();
-    };
-    const clearSaveMessages = (text: string) => {
-      this.setCompletedState("", "");
-    };
-    var savingDataStarted = false;
-    var onCompleteOptions = {
-      isCompleteOnTrigger: isCompleteOnTrigger,
-      completeTrigger: completeTrigger,
-      showSaveInProgress: showSaveInProgress,
-      showSaveError: showSaveError,
-      showSaveSuccess: showSaveSuccess,
-      clearSaveMessages: clearSaveMessages,
-      //Obsolete functions
-      showDataSaving: showSaveInProgress,
-      showDataSavingError: showSaveError,
-      showDataSavingSuccess: showSaveSuccess,
-      showDataSavingClear: clearSaveMessages
-    };
-    this.onComplete.fire(this, onCompleteOptions);
-    if (!previousCookie && this.surveyPostId) {
-      this.sendResult();
-    }
-    if (!savingDataStarted) {
-      this.navigateTo();
-    }
-  }
-  private checkOnCompletingEvent(isCompleteOnTrigger: boolean, completeTrigger: Trigger, onComplete: (allow: boolean) => void): boolean | undefined {
-    let result: boolean | undefined = undefined;
-    const options: CompletingEvent = {
-      allowComplete: true,
-      allow: true,
-      isCompleteOnTrigger: isCompleteOnTrigger,
-      completeTrigger: completeTrigger
-    };
-    const doCompleteFunc = () => {
-      this.isNavigationBlocked = false;
-      const allow = options.allowComplete && options.allow;
-      if (!!options.message) {
-        this.notify(options.message, allow ? "success" : "error");
-      }
-      result = allow;
-      onComplete(allow);
-    };
-    this.onCompleting.fire(this, options, doCompleteFunc, () => this.isNavigationBlocked = true);
-    return result;
+    return this.completionController.doComplete(isCompleteOnTrigger, completeTrigger);
   }
   /**
    * Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
@@ -5351,34 +5286,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
-    if (!settings.triggers.changeNavigationButtonsOnComplete) return;
-    const prevCanBeCompleted = this.canBeCompletedByTrigger;
-    if (!this.completedByTriggers)this.completedByTriggers = {};
-    if (isCompleted) {
-      this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
-    } else {
-      delete this.completedByTriggers[trigger.id];
-    }
-    if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
+    if (this.completionController.canBeCompleted(trigger, isCompleted)) {
       this.updateButtonsVisibility();
     }
-  }
-  private completedByTriggers: HashTable<any>;
-  private get canBeCompletedByTrigger(): boolean {
-    if (!this.completedByTriggers) return false;
-    const keys = Object.keys(this.completedByTriggers);
-    if (keys.length === 0) return false;
-    const id = this.currentPage?.id;
-    if (!id) return true;
-    for (let i = 0; i < keys.length; i++) {
-      if (id === this.completedByTriggers[keys[i]].pageId) return true;
-    }
-    return false;
-  }
-  private get completedTrigger(): Trigger {
-    if (!this.canBeCompletedByTrigger) return undefined;
-    const key = Object.keys(this.completedByTriggers)[0];
-    return this.completedByTriggers[key].trigger;
   }
   /**
    * Returns HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).

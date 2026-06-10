@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { frameworks, url, initSurvey, getData, setData, test, expect, doDragDrop, getQuestionValue } from "../helper";
 
 const title = "ranking";
@@ -418,6 +419,93 @@ frameworks.forEach((framework) => {
         await page.mouse.up();
       }
       await page.waitForTimeout(100);
+    });
+
+    const SHORTCUT_TOLERANCE = 10;
+    const GRAB_OFFSET = { x: 10, y: 10 };
+
+    async function expectShortcutFollowsCursor(page: Page, targets: Array<{ x: number, y: number }>) {
+      const item = page.locator(".sv-ranking-item").first();
+      await item.hover({ force: true, position: GRAB_OFFSET });
+      await page.mouse.down();
+
+      const shortcut = page.locator(".sv-ranking-shortcut");
+      for (const target of targets) {
+        await page.mouse.move(target.x, target.y, { steps: 20 });
+        await expect(shortcut).toBeVisible();
+        const box = await shortcut.boundingBox();
+        expect(Math.abs(box!.x - (target.x - GRAB_OFFSET.x))).toBeLessThanOrEqual(SHORTCUT_TOLERANCE);
+        expect(Math.abs(box!.y - (target.y - GRAB_OFFSET.y))).toBeLessThanOrEqual(SHORTCUT_TOLERANCE);
+      }
+      await page.mouse.up();
+    }
+
+    test("Shortcut position due container layout (relative)", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "ranking",
+            title: "ranking question",
+            name: "ranking_question",
+            choices: ["."]
+          }
+        ]
+      });
+
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.querySelector("#surveyElement") as HTMLElement;
+        container.style.position = "relative";
+        container.style.margin = "100px";
+      });
+
+      const itemBox = await page.locator(".sv-ranking-item").first().boundingBox();
+      const gx = itemBox!.x + itemBox!.width / 2;
+      const gy = itemBox!.y + itemBox!.height / 2;
+      await expectShortcutFollowsCursor(page, [
+        { x: gx + 40, y: gy + 30 },
+        { x: gx - 30, y: gy + 80 }
+      ]);
+    });
+
+    test("Shortcut position due container layout (scroll)", async ({ page }) => {
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "ranking",
+            title: "ranking question",
+            name: "ranking_question",
+            choices: ["."]
+          }
+        ]
+      });
+
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.querySelector("#surveyElement") as HTMLElement;
+        container.style.height = "300px";
+
+        const surveyContainer = (window as any).survey.rootElement.getRootNode()
+          .querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
+        if (surveyContainer) {
+          surveyContainer.scrollTop = 50;
+        }
+        const question = (window as any).survey.getAllQuestions()[0];
+        question.dragDropRankingChoices.domAdapter.doScroll = () => { };
+      });
+
+      const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
+      expect(await scroller.evaluate((el) => el.scrollTop)).toBe(50);
+
+      const itemBox = await page.locator(".sv-ranking-item").first().boundingBox();
+      const gx = itemBox!.x + itemBox!.width / 2;
+      const gy = itemBox!.y + itemBox!.height / 2;
+      await expectShortcutFollowsCursor(page, [
+        { x: gx - 10, y: gy + 30 },
+        { x: gx + 40, y: gy - 20 }
+      ]);
     });
 
     test("is focused after page changed", async ({ page }) => {

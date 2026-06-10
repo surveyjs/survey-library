@@ -15,7 +15,6 @@ export interface ISurveyTriggersHost {
   canBeCompletedByTrigger: boolean;
   canRunTriggersOrConditions(type: TriggersRunType): boolean;
   getFilteredProperties(): any;
-  getFilteredValues(): any;
   getQuestionByValueName(name: string): Question;
   getAllQuestions(): Question[];
   getCurrentPageQuestions(includeInvisible?: boolean): Array<Question>;
@@ -49,7 +48,7 @@ export class SurveyTriggersRunner extends Base {
   }
 
   public runTriggers(): void {
-    this.checkTriggers(this.survey.getFilteredValues(), false);
+    this.checkTriggers({}, false, false, false, undefined, true);
   }
 
   public runExpressions(): void {
@@ -80,7 +79,8 @@ export class SurveyTriggersRunner extends Base {
     isOnNextPage: boolean,
     isOnComplete: boolean = false,
     isOnNavigation: boolean = false,
-    name?: string
+    name?: string,
+    runAll: boolean = false
   ): void {
     if (!this.survey.canRunTriggersOrConditions("trigger")) return;
     if (this.isTriggerIsRunning) {
@@ -102,11 +102,13 @@ export class SurveyTriggersRunner extends Base {
       isOnComplete: isOnComplete,
       isOnNavigation: isOnNavigation,
       keys: this.triggerKeys,
-      properties: properties
+      properties: properties,
+      runAll: false
     };
     let originalKeys = Helpers.createCopy(this.triggerKeys);
     const maxIterations = 3;
     for (let i = 0; i < maxIterations; i++) {
+      options.runAll = runAll && i === 0;
       this.runSurveyTriggers(options, isQuestionInvalid);
       if (
         !this.survey.canRunTriggersOrConditions("trigger") ||

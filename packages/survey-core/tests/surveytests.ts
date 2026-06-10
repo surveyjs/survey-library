@@ -20026,15 +20026,6 @@ describe("Survey", () => {
     survey.pages[1].onFirstRendering();
     expect(counter, "page[1].onFirstRendering(), do nothing").toBe(1);
   });
-  test("Do not include questions.values into survey.getFilteredValue in design time", () => {
-    const survey = new SurveyModel({
-      elements: [{ type: "text", name: "q1", defaultValue: 1 }],
-      calculatedValues: [{ name: "val1", expression: "2" }]
-    });
-    expect(survey.getFilteredValues(), "survey in running state").toEqual({ q1: 1, val1: 2 });
-    survey.setDesignMode(true);
-    expect(survey.getFilteredValues(), "survey at design time").toEqual({ val1: 2 });
-  });
   test("onValueChanged event & isExpressionRunning parameter", () => {
     const survey = new SurveyModel({
       elements: [

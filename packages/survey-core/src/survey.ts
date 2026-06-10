@@ -3400,31 +3400,6 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  getFilteredValues(): any {
-    const values: { [index: string]: any } = {};
-    for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    this.addCalculatedValuesIntoFilteredValues(values);
-    if (!this.isDesignMode) {
-      const keys = this.getValuesKeys();
-      for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        values[key] = this.getDataValueCore(this.valuesHash, key);
-      }
-      this.getAllQuestions().forEach(q => {
-        if (q.hasFilteredValue) {
-          values[q.getFilteredName()] = q.getFilteredValue(true);
-        }
-      });
-    }
-    return values;
-  }
-  private addCalculatedValuesIntoFilteredValues(values: {
-    [index: string]: any,
-  }) {
-    var caclValues = this.calculatedValues;
-    for (var i = 0; i < caclValues.length; i++)
-      values[caclValues[i].name] = caclValues[i].value;
-  }
   getFilteredProperties(): any {
     return { survey: this };
   }

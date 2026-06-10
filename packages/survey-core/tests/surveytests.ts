@@ -85,7 +85,7 @@ describe("Survey", () => {
       content.forEach(item => {
         const resItem: any = {};
         Object.keys(item).forEach(key => {
-          if (["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
+          if (["data", "getData", "processResponsiveness", "isInContainer"].indexOf(key) === -1) {
             resItem[key] = item[key];
           }
         });
@@ -16393,15 +16393,7 @@ describe("Survey", () => {
     };
 
     let survey = new SurveyModel(json);
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-        delete item["processResponsiveness"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(getContainerContent("header"), "header for running survey").toEqual([{
       "component": "sv-header",
@@ -16447,15 +16439,7 @@ describe("Survey", () => {
 
     let survey = new SurveyModel(json);
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-        delete item["processResponsiveness"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(survey.showHeaderOnCompletePage).toBe("auto");
     survey.showHeaderOnCompletePage = true;
@@ -16810,14 +16794,7 @@ describe("Survey", () => {
 
     let survey = new SurveyModel(json);
     survey.headerView = "basic";
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(survey.showNavigationButtons).toBe(true);
     expect(survey.navigationButtonsLocation).toBe("bottom");
@@ -16876,15 +16853,6 @@ describe("Survey", () => {
   });
 
   test("getContainerContent - header elements order", () => {
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["processResponsiveness"];
-        delete item["data"];
-      });
-      return result;
-    }
-
     const json = {
       pages: [
         {
@@ -16913,6 +16881,7 @@ describe("Survey", () => {
       component: "sv-custom",
     });
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(getContainerContent("header"), "advanved header first, progress next").toEqual([
       {

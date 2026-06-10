@@ -14,6 +14,7 @@ export class ProgressButtons extends Base {
     survey.onPagesVisibleChangedCallback = () => {
       this.visiblePages = survey.visiblePages;
     };
+    survey.onCurrentPageChanged.add(this.onCurrentPageChanged);
     this.visiblePages = survey.visiblePages;
   }
 
@@ -118,6 +119,16 @@ export class ProgressButtons extends Base {
   public isPageSelected(index: number): boolean {
     return index === this.survey.currentPageNo;
   }
+
+  public dispose(): void {
+    this.survey.onCurrentPageChanged.remove(this.onCurrentPageChanged);
+    super.dispose();
+  }
+
+  private readonly onCurrentPageChanged = (): void => {
+    this.resetProgressText();
+  };
+
   public getButtonAriaLabel(page: PageModel): string {
     const index = this.survey.visiblePages.indexOf(page) + 1;
     return page.renderedNavigationTitle || this.survey.getLocalizationFormatString("progressbarPage", index);

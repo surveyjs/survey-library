@@ -259,6 +259,8 @@ export {
 } from "../../src/question_paneldynamic";
 export { SurveyTimer } from "../../src/surveytimer";
 export { SurveyTimerModel } from "../../src/surveyTimerModel";
+export { SurveyProgressTextModel } from "../../src/surveyProgressTextModel";
+export { SurveyNavigationLayoutModel } from "../../src/surveyNavigationLayoutModel";
 export * from "../../src/surveyToc";
 export { SurveyProgressModel } from "../../src/surveyProgress";
 export { ProgressButtons } from "../../src/progress-buttons";

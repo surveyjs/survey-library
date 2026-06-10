@@ -33,6 +33,7 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
+import { SurveyTriggersRunner, TriggersRunType } from "./survey-triggers-runner";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -1262,6 +1263,19 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.navigationLayoutModelValue;
   }
+  private triggersRunnerValue: SurveyTriggersRunner | undefined;
+  private get triggersRunner(): SurveyTriggersRunner {
+    if (!this.triggersRunnerValue) {
+      this.triggersRunnerValue = new SurveyTriggersRunner(<any>this);
+    }
+    return this.triggersRunnerValue;
+  }
+  private canRunTriggersOrConditions(type: TriggersRunType): boolean {
+    if (this.isCompleted) return false;
+    if (type === "trigger") return !this.isDisplayMode && this.triggers.length > 0;
+    if (type === "questionTrigger") return !this.isDisplayMode && !this.isDesignMode;
+    return this.isEndLoadingFromJson !== "processing";
+  }
   @property() sjsVersion: string;
   @property() $schema: string;
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
@@ -2475,7 +2489,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onTriggerExecuted
    */
   public runTriggers(): void {
-    this.checkTriggers(this.getFilteredValues(), false);
+    this.triggersRunner.runTriggers();
   }
   public get renderedCompletedHtml(): string {
     var item = this.getExpressionItemOnRunCondition(
@@ -3385,31 +3399,6 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     return result;
-  }
-  getFilteredValues(): any {
-    const values: { [index: string]: any } = {};
-    for (var key in this.variablesHash) values[key] = this.variablesHash[key];
-    this.addCalculatedValuesIntoFilteredValues(values);
-    if (!this.isDesignMode) {
-      const keys = this.getValuesKeys();
-      for (var i = 0; i < keys.length; i++) {
-        var key = keys[i];
-        values[key] = this.getDataValueCore(this.valuesHash, key);
-      }
-      this.getAllQuestions().forEach(q => {
-        if (q.hasFilteredValue) {
-          values[q.getFilteredName()] = q.getFilteredValue(true);
-        }
-      });
-    }
-    return values;
-  }
-  private addCalculatedValuesIntoFilteredValues(values: {
-    [index: string]: any,
-  }) {
-    var caclValues = this.calculatedValues;
-    for (var i = 0; i < caclValues.length; i++)
-      values[caclValues[i].name] = caclValues[i].value;
   }
   getFilteredProperties(): any {
     return { survey: this };
@@ -5170,7 +5159,7 @@ export class SurveyModel extends SurveyElementCore
 
     return this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger, (allow) => {
       if (allow) {
-        this.checkOnPageTriggers(true);
+        this.triggersRunner.checkOnPageTriggers(true);
         this.stopTimer();
         this.notifyQuestionsOnHidingContent(this.currentPage);
         this.isCompleted = true;
@@ -5358,7 +5347,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doNextPage() {
     var curPage = this.currentPage;
-    this.checkOnPageTriggers(false);
+    this.triggersRunner.checkOnPageTriggers(false);
     this.sendPartialResult();
     if (!this.isCompleted) {
       if (curPage === this.currentPage) {
@@ -6559,10 +6548,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
     if (this.isEndLoadingFromJson === "processing") return;
-    if (this.isRunningConditions) {
-      this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
-      return;
-    }
+    if (this.triggersRunner.deferUntilConditionsCompleted("notifyElementsOnAnyValueOrVariableChanged",
+      () => this.notifyElementsOnAnyValueOrVariableChanged(""))) return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name, questionName);
     }
@@ -6589,17 +6576,6 @@ export class SurveyModel extends SurveyElementCore
       );
     }
   }
-  private checkOnPageTriggers(isOnComplete: boolean) {
-    var questions = this.getCurrentPageQuestions(true);
-    var values: { [index: string]: any } = {};
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
-      var name = question.getValueName();
-      values[name] = this.getValue(name);
-    }
-    this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true, isOnComplete);
-  }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false
   ): Array<Question> {
@@ -6613,153 +6589,28 @@ export class SurveyModel extends SurveyElementCore
     }
     return result;
   }
-  private isTriggerIsRunning: boolean = false;
-  private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
-    if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
-    if (this.isTriggerIsRunning) {
-      for (var k in key) {
-        this.triggerKeys[k] = key[k];
-      }
-      return;
-    }
-    let isQuestionInvalid = false;
-    if (!isOnComplete && name && this.hasRequiredValidQuestionTrigger) {
-      const question = <Question>this.getQuestionByValueName(name);
-      isQuestionInvalid = question && !question.validate(false);
-    }
-    this.isTriggerIsRunning = true;
-    this.triggerKeys = key;
-    const properties = this.getFilteredProperties();
-    const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-      keys: this.triggerKeys, properties: properties };
-    let originalKeys = Helpers.createCopy(this.triggerKeys);
-    const maxIterations = 3;
-    for (let i = 0; i < maxIterations; i++) {
-      this.runSurveyTriggers(options, isQuestionInvalid);
-      if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
-      this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
-      originalKeys = Helpers.createCopy(this.triggerKeys);
-    }
-    let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
-      this.updateButtonsVisibility();
-    }
-    this.isTriggerIsRunning = false;
-  }
-  private runSurveyTriggers(options: any, isQuestionInvalid: boolean): void {
-    for (let i = 0; i < this.triggers.length; i++) {
-      const trigger = this.triggers[i];
-      if (isQuestionInvalid && trigger.requireValidQuestion) continue;
-      options.keys = this.triggerKeys;
-      trigger.checkExpression(options);
-    }
-  }
-  private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
-    var triggerKeys: { [index: string]: any } = {};
-    triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
-    this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false, false, false, name);
-  }
-  private get hasRequiredValidQuestionTrigger(): boolean {
-    for (let i = 0; i < this.triggers.length; i++) {
-      if (this.triggers[i].requireValidQuestion) return true;
-    }
-    return false;
-  }
   private doElementsOnLoad() {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onSurveyLoad();
     }
   }
-  private isRunningConditionsValue: boolean;
-  private get isRunningConditions(): boolean {
-    return this.isRunningConditionsValue;
-  }
-  private isValueChangedOnRunningCondition: boolean = false;
-  private conditionRunnerCounter: number = 0;
-  private conditionUpdateVisibleIndexes: boolean = false;
-  private conditionNotifyElementsOnAnyValueOrVariableChanged: boolean = false;
   /**
    * Recalculates all [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) in the survey.
    */
   public runExpressions(): void {
-    this.runConditions();
+    this.triggersRunner.runExpressions();
   }
-  private runConditions() {
-    if (
-      this.isCompleted ||
-      this.isEndLoadingFromJson === "processing" ||
-      this.isRunningConditions
-    )
-      return;
-    this.isRunningConditionsValue = true;
-    var properties = this.getFilteredProperties();
-    this.runConditionsCore(properties);
-    this.isRunningConditionsValue = false;
-    if (
-      this.isValueChangedOnRunningCondition &&
-      this.conditionRunnerCounter <
-      settings.maxConditionRunCountOnValueChanged
-    ) {
-      this.isValueChangedOnRunningCondition = false;
-      this.conditionRunnerCounter++;
-      this.runConditions();
-    } else {
-      this.isValueChangedOnRunningCondition = false;
-      this.conditionRunnerCounter = 0;
-      if (this.conditionUpdateVisibleIndexes) {
-        this.conditionUpdateVisibleIndexes = false;
-        this.updateVisibleIndexes();
-      }
-      if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
-        this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
-        this.notifyElementsOnAnyValueOrVariableChanged("");
-      }
-      if (!this.isRunningConditionOnValueChanged) {
-        this.questionTriggersKeys = undefined;
-      }
-    }
-  }
-  private questionTriggersKeys: any;
-  private isRunningConditionOnValueChanged: boolean;
   public getValueChangedKeys(): any {
-    return this.isRunningConditionOnValueChanged ? this.questionTriggersKeys : undefined;
+    return this.triggersRunner.getValueChangedKeys();
   }
-  private runConditionOnValueChanged(name: string, value: any) {
-    if (!this.questionTriggersKeys) {
-      this.questionTriggersKeys = {};
-    }
-    this.questionTriggersKeys[name] = value;
-    if (this.isRunningConditions) {
-      this.isValueChangedOnRunningCondition = true;
-    } else {
-      this.isRunningConditionOnValueChanged = true;
-      this.runConditions();
-      this.isRunningConditionOnValueChanged = false;
-      this.runQuestionsTriggers(name, value);
-      this.questionTriggersKeys = undefined;
-    }
+  private runConditions(): void {
+    this.triggersRunner.runExpressions();
   }
-  private runConditionsCore(properties: any) {
-    var pages = this.pages;
-    for (var i = 0; i < this.calculatedValues.length; i++) {
-      this.calculatedValues[i].resetCalculation();
-    }
-    for (var i = 0; i < this.calculatedValues.length; i++) {
-      this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
-    }
-    super.runConditionCore(properties);
-    for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(properties);
-    }
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
+    this.triggersRunner.checkTriggers(key, isOnNextPage, isOnComplete, isOnNavigation, name);
   }
-  private runQuestionsTriggers(name: string, value: any): void {
-    if (this.isDisplayMode || this.isDesignMode) return;
-    const questions = this.getAllQuestions();
-    questions.forEach(q => {
-      q.runTriggers(name, value, this.questionTriggersKeys);
-    });
+  private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
+    this.triggersRunner.checkTriggersAndRunConditions(name, newValue, oldValue);
   }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
@@ -6820,14 +6671,11 @@ export class SurveyModel extends SurveyElementCore
   private updateVisibleIndexes(page?: IPage) {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     if (
-      this.isRunningConditions &&
       this.onQuestionVisibleChanged.isEmpty &&
-      this.onPageVisibleChanged.isEmpty
-    ) {
+      this.onPageVisibleChanged.isEmpty &&
       //Run update visible index only one time on finishing running conditions
-      this.conditionUpdateVisibleIndexes = true;
-      return;
-    }
+      this.triggersRunner.deferUntilConditionsCompleted("updateVisibleIndexes", () => this.updateVisibleIndexes())
+    ) return;
     if (this.isRunningElementsBindings) {
       this.updateVisibleIndexAfterBindings = true;
       return;
@@ -6951,7 +6799,7 @@ export class SurveyModel extends SurveyElementCore
     this.doElementsOnLoad();
     this.onQuestionsOnPageModeChanged("standard");
     this.isEndLoadingFromJson = "conditions";
-    this.runConditions();
+    this.triggersRunner.runExpressions();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
@@ -7053,7 +6901,7 @@ export class SurveyModel extends SurveyElementCore
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
-      this.checkTriggersAndRunConditions(name, newValue, oldValue);
+      this.triggersRunner.checkTriggersAndRunConditions(name, newValue, oldValue);
       this.onVariableChanged.fire(this, { name: name, value: newValue });
     }
   }

@@ -3666,22 +3666,61 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
+  //#region Page navigation validation
+  /**
+   * Validates before allowing page navigation to `page`.
+   * Handles validation of intermediate pages when navigating forward.
+   */
   private performValidationOnPageChanging(page: PageModel): boolean {
     if (this.isDesignMode) return false;
     if (this.canGoTroughValidation()) return true;
-    const index = this.visiblePages.indexOf(page);
-    if (index < 0 || index >= this.visiblePageCount) return false;
-    if (index === this.currentPageNo) return false;
-    if (index < this.currentPageNo || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages)
-      return true;
+
+    const targetIndex = this.getPageIndex(page);
+    if (targetIndex < 0 || targetIndex >= this.visiblePageCount) return false;
+    if (targetIndex === this.currentPageNo) return false;
+
+    // Skip validation for backward navigation or when checkErrorsMode is "onComplete"
+    if (this.isNavigatingBackwardOrSkipping(targetIndex)) return true;
+
+    // Validate current page before proceeding forward
     if (!this.validateCurrentPage()) return false;
-    for (let i = this.currentPageNo + 1; i < index; i++) {
+
+    // Validate all intermediate pages
+    return this.validateIntermediatePages(this.currentPageNo + 1, targetIndex);
+  }
+
+  /**
+   * Gets the index of a page in the visible pages array.
+   * Returns -1 if page is not found.
+   */
+  private getPageIndex(page: PageModel): number {
+    return this.visiblePages.indexOf(page);
+  }
+
+  /**
+   * Determines if we should skip validation based on navigation direction
+   * or validation settings.
+   */
+  private isNavigatingBackwardOrSkipping(targetIndex: number): boolean {
+    return (
+      targetIndex < this.currentPageNo ||
+      this.checkErrorsMode === "onComplete" ||
+      this.validationAllowSwitchPages
+    );
+  }
+
+  /**
+   * Validates all pages between `startIndex` and `targetIndex` (exclusive).
+   */
+  private validateIntermediatePages(startIndex: number, targetIndex: number): boolean {
+    for (let i = startIndex; i < targetIndex; i++) {
       const page = this.visiblePages[i];
       if (!page.validate(true, true)) return false;
       page.passed = true;
     }
     return true;
   }
+  //#endregion
 
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
@@ -4232,35 +4271,89 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     return this.prevPage();
   }
+
+  //#region Validation orchestration (navigation flow)
+  /**
+   * Validates before allowing page navigation. Decides what validation is needed
+   * based on checkErrorsMode and other validation settings.
+   */
   private validateOnNavigate(doComplete: boolean, isPreview?: boolean): boolean {
-    const skipValidation = this.canGoTroughValidation() || doComplete && this.validationAllowComplete
-    || !doComplete && (this.validationAllowSwitchPages || this.isValidateOnComplete) || isPreview && this.isValidateOnComplete;
-    const doFunc = (): void => {
-      if (isPreview) {
-        this.showPreviewCore();
-      } else {
-        this.doCurrentPageCompleteCore(doComplete);
-      }
-    };
-    if (skipValidation) {
-      doFunc();
+    if (this.canSkipValidation(doComplete, isPreview)) {
+      this.proceedWithNavigation(doComplete, isPreview);
       return true;
     }
-    const func = (hasErrors: boolean) => {
+
+    const onAsyncValidationComplete = (hasErrors: boolean) => {
       if (!hasErrors) {
-        doFunc();
+        this.proceedWithNavigation(doComplete, isPreview);
       }
     };
-    if (this.isValidateOnComplete) {
-      if (!this.isLastPage) {
-        doFunc();
-        return true;
-      }
-      return this.validate(true, this.autoFocusFirstError, func, true) !== true;
+
+    if (this.shouldValidateAllPages()) {
+      return this.validateAllPagesBeforeCompletion(onAsyncValidationComplete);
     }
-    return this.validateCurrentPage(func) !== false;
+
+    return this.validateCurrentPageBeforeNavigation(onAsyncValidationComplete);
   }
+
+  /**
+   * Determines if validation can be skipped based on mode and settings.
+   */
+  private canSkipValidation(doComplete: boolean, isPreview?: boolean): boolean {
+    // Skip if not in edit mode or validation is disabled
+    if (this.canGoTroughValidation()) return true;
+
+    // Skip based on validation settings
+    if (doComplete && this.validationAllowComplete) return true;
+    if (!doComplete && (this.validationAllowSwitchPages || this.isValidateOnComplete)) return true;
+    if (isPreview && this.isValidateOnComplete) return true;
+
+    return false;
+  }
+
+  /**
+   * Performs the post-validation navigation action (show preview or complete page).
+   */
+  private proceedWithNavigation(doComplete: boolean, isPreview: boolean): void {
+    if (isPreview) {
+      this.showPreviewCore();
+    } else {
+      this.doCurrentPageCompleteCore(doComplete);
+    }
+  }
+
+  /**
+   * Validates the current page before proceeding with navigation.
+   */
+  private validateCurrentPageBeforeNavigation(onComplete: (hasErrors: boolean) => void): boolean {
+    return this.validateCurrentPage(onComplete) !== false;
+  }
+
+  /**
+   * Validates all pages before completion (when using onComplete validation mode).
+   * Returns false if validation has async operations, true if validation complete.
+   */
+  private validateAllPagesBeforeCompletion(onComplete: (hasErrors: boolean) => void): boolean {
+    // On non-final pages, skip validation and proceed
+    if (!this.isLastPage) {
+      this.proceedWithNavigation(true, false);
+      return true;
+    }
+
+    // On final page, validate all pages
+    return this.validate(true, this.autoFocusFirstError, onComplete, true) !== true;
+  }
+
+  /**
+   * Determines if validation should happen on completion (all pages at once)
+   * versus page-by-page validation.
+   */
+  private shouldValidateAllPages(): boolean {
+    return this.isValidateOnComplete;
+  }
+
   private canGoTroughValidation(): boolean { return !this.isEditMode || !this.validationEnabled; }
+  //#endregion
   public get isCurrentPageHasErrors(): boolean {
     return this.validateActivePage() === false;
   }
@@ -4411,16 +4504,24 @@ export class SurveyModel extends SurveyElementCore
     num++;
     return base + num;
   }
+  //#region Core page validation (internal implementation)
   private validateActivePage(isFocusOnFirstError?: boolean): boolean {
     return this.validatePageCore(this.activePage, isFocusOnFirstError);
   }
+
+  /**
+   * Core page validation logic. Handles async callbacks and event firing.
+   * @internal
+   */
   private validatePageCore(page: PageModel, isFocusOnFirstError?: boolean, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     if (isFocusOnFirstError === undefined) {
       isFocusOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
+
     let callback: any = undefined;
     let syncCallbackHasErrors: boolean | undefined;
+
     if (onAsyncValidation) {
       callback = (res: boolean) => {
         if (syncCallbackHasErrors === undefined) {
@@ -4431,39 +4532,54 @@ export class SurveyModel extends SurveyElementCore
         }
       };
     }
+
     const res = page.validate(true, isFocusOnFirstError, callback);
+
     if (syncCallbackHasErrors === undefined && onAsyncValidation) {
       syncCallbackHasErrors = false;
       return res;
     }
+
     const handlerHasErrors = this.fireValidatedErrorsOnPage(page);
     if (onAsyncValidation && syncCallbackHasErrors !== undefined) {
       onAsyncValidation(syncCallbackHasErrors || handlerHasErrors);
     }
+
     return res && !handlerHasErrors;
   }
+
+  /**
+   * Fires the onValidatePage event for any errors on the page.
+   * Returns true if the event handler added new errors.
+   * @internal
+   */
   private fireValidatedErrorsOnPage(page: PageModel): boolean {
     if (this.onValidatePage.isEmpty || !page) return false;
+
     const questionsOnPage = this.getNestedQuestionsByQuestionArray(page.questions, true);
-    var questions = new Array<Question>();
-    var errors = new Array<SurveyError>();
-    for (var i = 0; i < questionsOnPage.length; i++) {
-      var q = questionsOnPage[i];
+    const questions = new Array<Question>();
+    const errors = new Array<SurveyError>();
+
+    for (let i = 0; i < questionsOnPage.length; i++) {
+      const q = questionsOnPage[i];
       if (q.errors.length > 0) {
         questions.push(q);
-        for (var j = 0; j < q.errors.length; j++) {
+        for (let j = 0; j < q.errors.length; j++) {
           errors.push(q.errors[j]);
         }
       }
     }
+
     const errorsCountBeforeFire = errors.length;
     this.onValidatePage.fire(this, {
       questions: questions,
       errors: errors,
       page: page,
     });
+
     return errors.length > errorsCountBeforeFire;
   }
+  //#endregion
   /**
    * Switches the survey to the previous page.
    *
@@ -6316,49 +6432,94 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  //#region Question value change validation
+  /**
+   * Validates a question when its value changes, respecting validation settings.
+   * @internal
+   */
   private validateQuestionOnValueChanged(question: Question) {
     if (this.isNavigationButtonPressed) return;
-    if (
-      this.isValidateOnValueChanged ||
-      question.getAllErrors().length > 0
-    ) {
+
+    if (this.shouldValidateQuestionOnChange(question)) {
       this.validateQuestionOnValueChangedCore(question);
       return;
     }
-    let parent: PanelModelBase = <PanelModelBase>question.parent;
-    while(!!parent) {
-      if (parent.errors && parent.errors.length > 0) {
-        parent.validateContainerOnly();
+
+    this.validateParentPanelsIfNeeded(question.parent);
+  }
+
+  /**
+   * Determines if a question should be validated when its value changes.
+   */
+  private shouldValidateQuestionOnChange(question: Question): boolean {
+    return (
+      this.isValidateOnValueChanged ||
+      question.getAllErrors().length > 0
+    );
+  }
+
+  /**
+   * Validates parent panels up the hierarchy if they have errors.
+   */
+  private validateParentPanelsIfNeeded(parent: any) {
+    let panelParent = parent as PanelModelBase;
+    while(!!panelParent) {
+      if (panelParent.errors && panelParent.errors.length > 0) {
+        panelParent.validateContainerOnly();
         return;
       }
-      parent = <PanelModelBase>parent.parent;
+      panelParent = panelParent.parent as PanelModelBase;
     }
   }
+
+  /**
+   * Core validation logic for a question value change.
+   * Fires page events if needed.
+   * @internal
+   */
   private validateQuestionOnValueChangedCore(question: Question): boolean {
-    var oldErrorCount = question.getAllErrors().length;
-    let res = question.validate(true, false, !this.isValidateOnValueChanging, undefined, this.isValidateOnValueChanging);
+    const oldErrorCount = question.getAllErrors().length;
+    const res = question.validate(
+      true,
+      false,
+      !this.isValidateOnValueChanging,
+      undefined,
+      this.isValidateOnValueChanging
+    );
+
     if (
-      !!question.page && this.isValidateOnValueChange &&
+      !!question.page &&
+      this.isValidateOnValueChange &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)
     ) {
-      this.fireValidatedErrorsOnPage(<PageModel>question.page);
+      this.fireValidatedErrorsOnPage(question.page as PageModel);
     }
+
     return res;
   }
+
+  /**
+   * Validates multiple questions bound to the same value.
+   * Used when multiple questions share a value name.
+   * @internal
+   */
   private validateOnValueChanging(valueName: string, newValue: any): boolean {
     if (this.isLoadingFromJson) return false;
+
     const questions = this.getQuestionsByValueName(valueName);
     if (!questions) return false;
+
     let res = true;
-    for (let i: number = 0; i < questions.length; i++) {
+    for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       if (!this.isTwoValueEquals(q.valueForSurvey, newValue)) {
         q.value = newValue;
       }
-      res = this.validateQuestionOnValueChangedCore(q) && res && q.errors.length == 0;
+      res = this.validateQuestionOnValueChangedCore(q) && res && q.errors.length === 0;
     }
     return res;
   }
+  //#endregion
   private fireOnValueChanged(name: string, value: any, question: Question): void {
     this.onValueChanged.fire(this, {
       name: name,

@@ -19,8 +19,6 @@ export interface ISurveyTriggersHost {
   getCurrentPageQuestions(includeInvisible?: boolean): Array<Question>;
   getValue(name: string): any;
   runConditionCore(properties: any): void;
-  notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string): void;
-  updateVisibleIndexes(): void;
 }
 
 export class SurveyTriggersRunner extends Base {
@@ -30,8 +28,7 @@ export class SurveyTriggersRunner extends Base {
   private isRunningConditionsValue: boolean = false;
   private isValueChangedOnRunningCondition: boolean = false;
   private conditionRunnerCounter: number = 0;
-  public conditionUpdateVisibleIndexes: boolean = false;
-  public conditionNotifyElementsOnAnyValueOrVariableChanged: boolean = false;
+  private onConditionsCompletedActions: { [id: string]: () => void } = {};
   private isRunningConditionOnValueChanged: boolean = false;
 
   private survey: ISurveyTriggersHost;
@@ -43,6 +40,12 @@ export class SurveyTriggersRunner extends Base {
 
   public get isRunningConditions(): boolean {
     return this.isRunningConditionsValue;
+  }
+
+  public deferUntilConditionsCompleted(id: string, func: () => void): boolean {
+    if (!this.isRunningConditions) return false;
+    this.onConditionsCompletedActions[id] = func;
+    return true;
   }
 
   public runTriggers(): void {
@@ -166,14 +169,9 @@ export class SurveyTriggersRunner extends Base {
     } else {
       this.isValueChangedOnRunningCondition = false;
       this.conditionRunnerCounter = 0;
-      if (this.conditionUpdateVisibleIndexes) {
-        this.conditionUpdateVisibleIndexes = false;
-        this.survey.updateVisibleIndexes();
-      }
-      if (this.conditionNotifyElementsOnAnyValueOrVariableChanged) {
-        this.conditionNotifyElementsOnAnyValueOrVariableChanged = false;
-        this.survey.notifyElementsOnAnyValueOrVariableChanged("");
-      }
+      const actions = this.onConditionsCompletedActions;
+      this.onConditionsCompletedActions = {};
+      Object.keys(actions).forEach(id => actions[id]());
       if (!this.isRunningConditionOnValueChanged) {
         this.questionTriggersKeys = undefined;
       }

@@ -6548,10 +6548,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
     if (this.isEndLoadingFromJson === "processing") return;
-    if (this.triggersRunner.isRunningConditions) {
-      this.triggersRunner.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
-      return;
-    }
+    if (this.triggersRunner.deferUntilConditionsCompleted("notifyElementsOnAnyValueOrVariableChanged",
+      () => this.notifyElementsOnAnyValueOrVariableChanged(""))) return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name, questionName);
     }
@@ -6673,14 +6671,11 @@ export class SurveyModel extends SurveyElementCore
   private updateVisibleIndexes(page?: IPage) {
     if (this.isLoadingFromJson || !!this.isEndLoadingFromJson) return;
     if (
-      this.triggersRunner.isRunningConditions &&
       this.onQuestionVisibleChanged.isEmpty &&
-      this.onPageVisibleChanged.isEmpty
-    ) {
+      this.onPageVisibleChanged.isEmpty &&
       //Run update visible index only one time on finishing running conditions
-      this.triggersRunner.conditionUpdateVisibleIndexes = true;
-      return;
-    }
+      this.triggersRunner.deferUntilConditionsCompleted("updateVisibleIndexes", () => this.updateVisibleIndexes())
+    ) return;
     if (this.isRunningElementsBindings) {
       this.updateVisibleIndexAfterBindings = true;
       return;

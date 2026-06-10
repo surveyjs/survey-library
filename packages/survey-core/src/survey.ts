@@ -33,7 +33,7 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
-import { SurveyTriggersRunner } from "./survey-triggers-runner";
+import { SurveyTriggersRunner, TriggersRunType } from "./survey-triggers-runner";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -1269,6 +1269,12 @@ export class SurveyModel extends SurveyElementCore
       this.triggersRunnerValue = new SurveyTriggersRunner(<any>this);
     }
     return this.triggersRunnerValue;
+  }
+  private canRunTriggersOrConditions(type: TriggersRunType): boolean {
+    if (this.isCompleted) return false;
+    if (type === "trigger") return !this.isDisplayMode && this.triggers.length > 0;
+    if (type === "questionTrigger") return !this.isDisplayMode && !this.isDesignMode;
+    return this.isEndLoadingFromJson !== "processing";
   }
   @property() sjsVersion: string;
   @property() $schema: string;
@@ -6628,12 +6634,7 @@ export class SurveyModel extends SurveyElementCore
     this.triggersRunner.runExpressions();
   }
   private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
-    // This method is kept for backward compatibility with internal calls
-    // The actual implementation is in SurveyTriggersRunner
-    // Just call runTriggers if keys are provided
-    if (key) {
-      this.triggersRunner.runTriggers();
-    }
+    this.triggersRunner.checkTriggers(key, isOnNextPage, isOnComplete, isOnNavigation, name);
   }
   private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
     this.triggersRunner.checkTriggersAndRunConditions(name, newValue, oldValue);

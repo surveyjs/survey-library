@@ -4,20 +4,21 @@ import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
+import { SurveyTrigger } from "./trigger";
+
+export type TriggersRunType = "trigger" | "questionTrigger" | "condition";
 
 export interface ISurveyTriggersHost {
-  isCompleted: boolean;
-  isDisplayMode: boolean;
-  isDesignMode: boolean;
-  triggers: any[];
+  triggers: Array<SurveyTrigger>;
   calculatedValues: CalculatedValue[];
   pages: PageModel[];
   canBeCompletedByTrigger: boolean;
-  isEndLoadingFromJson: string;
+  canRunTriggersOrConditions(type: TriggersRunType): boolean;
   getFilteredProperties(): any;
   getFilteredValues(): any;
   getQuestionByValueName(name: string): Question;
   getAllQuestions(): Question[];
+  getCurrentPageQuestions(includeInvisible?: boolean): Array<Question>;
   getValue(name: string): any;
   updateButtonsVisibility(): void;
   runConditionCore(properties: any): void;
@@ -60,16 +61,7 @@ export class SurveyTriggersRunner extends Base {
   }
 
   public checkOnPageTriggers(isOnComplete: boolean): void {
-    var pages = this.survey.pages;
-    if (pages.length === 0) return;
-    var page = pages[pages.length - 1];
-    if (!page) return;
-    var questions: Question[] = [];
-    for (var i = 0; i < page.questions.length; i++) {
-      var question = page.questions[i];
-      if (!question.name) continue;
-      questions.push(question);
-    }
+    var questions = this.survey.getCurrentPageQuestions(true);
     var values: { [index: string]: any } = {};
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
@@ -77,24 +69,20 @@ export class SurveyTriggersRunner extends Base {
       values[name] = this.survey.getValue(name);
     }
     var caclValues = this.survey.calculatedValues;
-    for (var i = 0; i < caclValues.length; i++)
+    for (var i = 0; i < caclValues.length; i++) {
       values[caclValues[i].name] = caclValues[i].value;
+    }
     this.checkTriggers(values, true, isOnComplete);
   }
 
-  private checkTriggers(
+  public checkTriggers(
     key: any,
     isOnNextPage: boolean,
     isOnComplete: boolean = false,
     isOnNavigation: boolean = false,
     name?: string
   ): void {
-    if (
-      this.survey.isCompleted ||
-      this.survey.triggers.length == 0 ||
-      this.survey.isDisplayMode
-    )
-      return;
+    if (!this.survey.canRunTriggersOrConditions("trigger")) return;
     if (this.isTriggerIsRunning) {
       for (var k in key) {
         this.triggerKeys[k] = key[k];
@@ -121,7 +109,7 @@ export class SurveyTriggersRunner extends Base {
     for (let i = 0; i < maxIterations; i++) {
       this.runSurveyTriggers(options, isQuestionInvalid);
       if (
-        this.survey.isCompleted ||
+        !this.survey.canRunTriggersOrConditions("trigger") ||
         Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)
       )
         break;
@@ -164,8 +152,7 @@ export class SurveyTriggersRunner extends Base {
 
   private runConditions(): void {
     if (
-      this.survey.isCompleted ||
-      this.survey.isEndLoadingFromJson === "processing" ||
+      !this.survey.canRunTriggersOrConditions("condition") ||
       this.isRunningConditions
     )
       return;
@@ -231,7 +218,7 @@ export class SurveyTriggersRunner extends Base {
   }
 
   private runQuestionsTriggers(name: string, value: any): void {
-    if (this.survey.isDisplayMode || this.survey.isDesignMode) return;
+    if (!this.survey.canRunTriggersOrConditions("questionTrigger")) return;
     const questions = this.survey.getAllQuestions();
     questions.forEach(q => {
       q.runTriggers(name, value, this.questionTriggersKeys);

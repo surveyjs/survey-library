@@ -11,15 +11,10 @@ export interface ISurveyCompletionHost {
   currentPage: PageModel;
   hasCookie: boolean;
   surveyPostId: string;
-  triggersRunner: { checkOnPageTriggers(isOnComplete: boolean): void };
   onComplete: { fire(sender: any, options: CompleteEvent): void };
   onCompleting: { fire(sender: any, options: CompletingEvent, onComplete?: () => void, onFirstAsync?: () => void): void };
   setCompletedState(value: string, text: string): void;
   notify(message: string, type: string): void;
-  stopTimer(): void;
-  notifyQuestionsOnHidingContent(page: PageModel): void;
-  cancelPreview(): void;
-  clearUnusedValues(): void;
   setCookie(): void;
   sendResult(): void;
   navigateTo(): void;
@@ -41,12 +36,7 @@ export class SurveyCompletionController extends Base {
 
     return this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger, (allow: boolean) => {
       if (allow) {
-        survey.triggersRunner.checkOnPageTriggers(true);
-        survey.stopTimer();
-        survey.notifyQuestionsOnHidingContent(survey.currentPage);
         survey.isCompleted = true;
-        survey.cancelPreview();
-        survey.clearUnusedValues();
         this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
         survey.setCookie();
       } else {

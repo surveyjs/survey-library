@@ -3858,7 +3858,29 @@ export class SurveyModel extends SurveyElementCore
     if (this.isShowingPreview) return this.currentPage ? "preview" : "empty";
     return this.currentPage ? "running" : "empty";
   }
-  @property({ defaultValue: false }) private isCompleted: boolean;
+  @property({
+    defaultValue: false,
+    onSetting: (val: boolean, target: SurveyModel, prevVal?: boolean) => {
+      if (val === true && prevVal !== true) {
+        target.onIsCompletedSetting();
+      }
+      return val;
+    },
+    onSet: (val: boolean, target: SurveyModel) => {
+      if (val === true) {
+        target.onIsCompletedSet();
+      }
+    }
+  }) private isCompleted: boolean;
+  private onIsCompletedSetting(): void {
+    this.triggersRunner.checkOnPageTriggers(true);
+    this.stopTimer();
+    this.notifyQuestionsOnHidingContent(this.currentPage);
+  }
+  private onIsCompletedSet(): void {
+    this.cancelPreview();
+    this.clearUnusedValues();
+  }
   private get isShowingPreview(): boolean {
     return this.getPropertyValue("isShowingPreview", false);
   }

@@ -12,14 +12,12 @@ export interface ISurveyTriggersHost {
   triggers: Array<SurveyTrigger>;
   calculatedValues: CalculatedValue[];
   pages: PageModel[];
-  canBeCompletedByTrigger: boolean;
   canRunTriggersOrConditions(type: TriggersRunType): boolean;
   getFilteredProperties(): any;
   getQuestionByValueName(name: string): Question;
   getAllQuestions(): Question[];
   getCurrentPageQuestions(includeInvisible?: boolean): Array<Question>;
   getValue(name: string): any;
-  updateButtonsVisibility(): void;
   runConditionCore(properties: any): void;
   notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string): void;
   updateVisibleIndexes(): void;
@@ -117,10 +115,6 @@ export class SurveyTriggersRunner extends Base {
         break;
       this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
       originalKeys = Helpers.createCopy(this.triggerKeys);
-    }
-    let prevCanBeCompleted = this.survey.canBeCompletedByTrigger;
-    if (prevCanBeCompleted !== this.survey.canBeCompletedByTrigger) {
-      this.survey.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
   }

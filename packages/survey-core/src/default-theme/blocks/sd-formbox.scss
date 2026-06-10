@@ -5,9 +5,10 @@
     position: static;
     width: 100%;
     box-sizing: border-box;
-    padding: var(--sjs2-spacing-x050);
+    padding: var(--sjs2-layout-component-formbox-medium-padding-vertical)
+        var(--sjs2-layout-component-formbox-medium-padding-horizontal);
     display: flex;
-    gap: var(--sjs2-spacing-x050);
+    gap: var(--sjs2-layout-component-formbox-medium-gap);
     align-items: center;
     background: var(--sjs2-color-component-formbox-default-bg);
     border: none;
@@ -20,14 +21,12 @@
 .sd-formbox:where(:hover) {
     background: var(--sjs2-color-component-formbox-hovered-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-hovered),
-        var(--sjs2-border-effect-component-formbox-focused-reset);
+        var(--sjs2-border-effect-component-formbox-hovered), var(--sjs2-border-effect-component-formbox-focused-reset);
 }
 .sd-formbox:where(:focus-within) {
     background: var(--sjs2-color-component-formbox-focused-bg);
     box-shadow:
-        var(--sjs2-border-effect-component-formbox-default-reset),
-        var(--sjs2-border-effect-component-formbox-focused),
+        var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
         var(--sjs2-border-effect-component-formbox-a11y);
 
     .sd-formbox__character-counter {
@@ -76,7 +75,7 @@
     align-items: stretch;
     align-self: stretch;
     justify-content: flex-end;
-    --sd-action-bar-gap: var(--sjs2-spacing-x050);
+    --sd-action-bar-gap: var(--sjs2-layout-component-input-medium-action-group-gap);
     .sd-action {
         --sd-action-border-radius: var(--sjs2-radius-component-formbox-action);
         --sd-action-icon-size: var(--sjs2-typography-line-height-component-input-content);
@@ -102,8 +101,13 @@
 
     @include sjs2--typography--component--input--content;
 
-    min-height: calc(var(--sjs2-typography-line-height-component-input-content) + var(--sjs2-spacing-x100) * 2);
-    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+    min-height: calc(
+        var(--sjs2-typography-line-height-component-input-content) +
+            var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2
+    );
+    padding: var(--sjs2-layout-component-input-medium-content-padding-vertical)
+        var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+
     margin: 0;
     &::placeholder {
         color: var(--sjs2-color-component-input-default-placeholder);
@@ -124,8 +128,13 @@
 }
 .sd-formbox__label {
     height: calc(100% - var(--sjs2-spacing-x300));
-    padding: var(--sjs2-spacing-x100) calc(var(--sjs2-spacing-x150) + var(--sjs2-spacing-x050)) var(--sjs2-spacing-x100)
-        var(--sjs2-spacing-x150);
+    padding: var(--sjs2-layout-component-input-medium-label-padding-vertical)
+        calc(
+            var(--sjs2-layout-component-input-medium-label-padding-horizontal) +
+                var(--sjs2-layout-component-formbox-medium-gap)
+        )
+        var(--sjs2-layout-component-input-medium-label-padding-vertical)
+        var(--sjs2-layout-component-input-medium-label-padding-horizontal);
     max-width: 30%;
     border-right: var(--sjs2-border-width-x100) solid var(--sjs2-color-component-input-default-line);
     box-sizing: content-box;
@@ -136,7 +145,11 @@
 
 .sd-formbox__character-counter {
     display: none;
-    padding: var(--sjs2-spacing-x075) var(--sjs2-spacing-x100);
+    padding: var(--sjs2-layout-component-input-medium-limit-padding-vertical)
+        var(--sjs2-layout-component-input-medium-limit-padding-right)
+        var(--sjs2-layout-component-input-medium-limit-padding-vertical)
+        var(--sjs2-layout-component-input-medium-limit-padding-left);
+
     color: var(--sjs2-color-component-input-default-limit);
     @include sjs2--typography--small;
     align-self: center;

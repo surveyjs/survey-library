@@ -1,12 +1,12 @@
-@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sv-button-group {
   display: flex;
-  padding: var(--sjs2-spacing-x050);
+  padding: var(--sjs2-layout-component-formbox-medium-padding-vertical)
+    var(--sjs2-layout-component-formbox-medium-padding-horizontal);
   box-sizing: border-box;
   align-items: center;
-  gap: var(--sjs2-spacing-x050);
+  gap: var(--sjs2-layout-component-formbox-medium-gap);
   flex-direction: row;
   overflow-x: auto;
   border-radius: var(--sjs2-radius-component-formbox);

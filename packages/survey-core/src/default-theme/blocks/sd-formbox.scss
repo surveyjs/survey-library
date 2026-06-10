@@ -101,10 +101,7 @@
 
     @include sjs2--typography--component--input--content;
 
-    min-height: calc(
-        var(--sjs2-typography-line-height-component-input-content) +
-            var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2
-    );
+    min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
     padding: var(--sjs2-layout-component-input-medium-content-padding-vertical)
         var(--sjs2-layout-component-input-medium-content-padding-horizontal);
 

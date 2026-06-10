@@ -6,10 +6,20 @@
   position: relative;
 }
 .sd-dropdown--select {
+  &:before {
+    pointer-events: none;
+    content: "";
+    @include sjs2--typography--component--input--content;
+    min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
+  }
   justify-content: end;
   select.sd-dropdown__input {
     position: absolute;
-    padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
+    padding: 
+      calc(var(--sjs2-layout-component-input-medium-content-padding-vertical) + 
+        var(--sjs2-layout-component-formbox-medium-padding-vertical))
+      calc(var(--sjs2-layout-component-input-medium-content-padding-horizontal) + 
+        var(--sjs2-layout-component-formbox-medium-padding-horizontal));
     top: 0;
     left: 0;
     right: 0;

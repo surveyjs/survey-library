@@ -80,6 +80,11 @@
       .sd-body__navigation {
         padding-top: var(--sjs2-spacing-x700);
       }
+      .sv-components-container-contentTop {
+        .sd-body__navigation {
+          padding-top: 0;
+        }
+      }
     }
   }
 }

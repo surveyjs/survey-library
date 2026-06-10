@@ -424,6 +424,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public getLocalizableString(name: string): LocalizableString {
     if (name === "templateTitle") return this.template.locTitle;
+    if (name === "templateDescription") return this.template.locDescription;
     return super.getLocalizableString(name);
   }
   /**

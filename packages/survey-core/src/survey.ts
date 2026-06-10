@@ -6624,6 +6624,20 @@ export class SurveyModel extends SurveyElementCore
   public getValueChangedKeys(): any {
     return this.triggersRunner.getValueChangedKeys();
   }
+  private runConditions(): void {
+    this.triggersRunner.runExpressions();
+  }
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
+    // This method is kept for backward compatibility with internal calls
+    // The actual implementation is in SurveyTriggersRunner
+    // Just call runTriggers if keys are provided
+    if (key) {
+      this.triggersRunner.runTriggers();
+    }
+  }
+  private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
+    this.triggersRunner.checkTriggersAndRunConditions(name, newValue, oldValue);
+  }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */

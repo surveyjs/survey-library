@@ -5,19 +5,18 @@ import { PageModel } from "./page";
 import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { SurveyTrigger } from "./trigger";
+import { ISurveyData } from "./base-interfaces";
 
 export type TriggersRunType = "trigger" | "questionTrigger" | "condition";
 
-export interface ISurveyTriggersHost {
+export interface ISurveyTriggersHost extends ISurveyData {
   triggers: Array<SurveyTrigger>;
   calculatedValues: CalculatedValue[];
   pages: PageModel[];
   canRunTriggersOrConditions(type: TriggersRunType): boolean;
-  getFilteredProperties(): any;
   getQuestionByValueName(name: string): Question;
   getAllQuestions(): Question[];
   getCurrentPageQuestions(includeInvisible?: boolean): Array<Question>;
-  getValue(name: string): any;
   runConditionCore(properties: any): void;
 }
 

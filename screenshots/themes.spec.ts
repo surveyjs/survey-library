@@ -78,7 +78,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-size.png");
     });
 
-    test("Check question title font size, #2", async ({ page }) => {
+    test("Check question title font weight", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
         "logoPosition": "right",
@@ -137,7 +137,93 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-weight.png");
     });
 
-    test.skip("Check input element placeholder", async ({ page }) => {
+    test("Check items size & colors", async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 2000 });
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        "logoPosition": "right",
+        "showQuestionNumbers": "off",
+        "elements": [
+          {
+            type: "dropdown",
+            name: "cars",
+            choices: [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen"
+            ]
+          },
+          {
+            "type": "checkbox",
+            "name": "question6",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "ranking",
+            "name": "question1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question4",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "rating",
+            "name": "question5"
+          },
+          {
+            type: "imagepicker",
+            name: "choosepicture",
+            showLabel: true,
+            choices: [{
+              value: "lion",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+            },
+            {
+              value: "giraffe",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+            },
+            ]
+          }
+        ]
+      });
+      await page.waitForLoadState("networkidle");
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
+            "--sjs-font-editorfont-size": "24px"
+          }
+        });
+      });
+      await page.waitForTimeout(500);
+      await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-color-for-items.png");
+
+      await page.click(".sd-dropdown");
+      await compareScreenshot(page, ".sv-popup.sv-dropdown-popup .sv-popup__container", "survey-theme-questiontitle-font-color-for-dropdown-list-items.png");
+    });
+
+    test("Check input element placeholder", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -161,16 +247,6 @@ frameworks.forEach(framework => {
                     "name": "text2"
                   }
                 ]
-              },
-              {
-                "type": "dropdown",
-                "name": "question3",
-                "defaultValue": "Item 1",
-                "choices": [
-                  "Item 1",
-                  "Item 2",
-                  "Item 3"
-                ]
               }
             ]
           }
@@ -183,7 +259,6 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-editorfont-placeholdercolor.png");
     });
 
-    // TODO remove etalon
     test.skip("Check dropdown element colors", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
@@ -311,15 +386,10 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, jsonWithInputs);
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "18px",
           "--sjs-font-editorfont-size": "12px",
           "--sjs-font-size": "20px"
         } });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-desktop-input-size.png");
-
-      // TODO remove etalon
-      // await page.locator(".sd-formbox.sd-dropdown").first().click();
-      // await compareScreenshot(page, ".sv-popup__container", "survey-theme-desktop-popup-input-size.png");
     });
 
     test("Mobile mode: input font-size less 16px", async ({ page }) => {
@@ -337,7 +407,6 @@ frameworks.forEach(framework => {
       }, jsonWithInputs);
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "18px",
           "--sjs-font-editorfont-size": "12px",
           "--sjs-font-size": "20px"
         }

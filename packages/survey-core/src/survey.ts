@@ -34,6 +34,7 @@ import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { SurveyTriggersRunner, TriggersRunType } from "./survey-triggers-runner";
+import { LazyRenderingController, ILazyRenderingHost } from "./lazy-rendering-controller";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -1270,6 +1271,13 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.triggersRunnerValue;
   }
+  private lazyRenderingControllerValue: LazyRenderingController | undefined;
+  private get lazyRenderingController(): LazyRenderingController {
+    if (!this.lazyRenderingControllerValue) {
+      this.lazyRenderingControllerValue = new LazyRenderingController(<ILazyRenderingHost><any>this);
+    }
+    return this.lazyRenderingControllerValue;
+  }
   private canRunTriggersOrConditions(type: TriggersRunType): boolean {
     if (this.isCompleted) return false;
     if (type === "trigger") return !this.isDisplayMode && this.triggers.length > 0;
@@ -1481,7 +1489,6 @@ export class SurveyModel extends SurveyElementCore
    */
   public showHeaderOnCompletePage: true | false | "auto" = "auto";
 
-  private lazyRenderEnabledValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
   /**
@@ -1495,15 +1502,10 @@ export class SurveyModel extends SurveyElementCore
    * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
    */
   public get lazyRenderEnabled(): boolean {
-    return this.lazyRenderEnabledValue === true;
+    return this.lazyRenderingController.enabled;
   }
   public set lazyRenderEnabled(val: boolean) {
-    if (this.lazyRenderEnabled === val) return;
-    this.lazyRenderEnabledValue = val;
-    const page: PageModel = this.currentPage;
-    if (!!page) {
-      page.updateRows();
-    }
+    this.lazyRenderingController.enabled = val;
   }
   /**
    * @deprecated Use the [`lazyRenderEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#lazyRenderEnabled) property instead.
@@ -1515,35 +1517,16 @@ export class SurveyModel extends SurveyElementCore
     this.lazyRenderEnabled = val;
   }
   public get isLazyRendering(): boolean {
-    return this.lazyRenderEnabled || settings.lazyRender.enabled;
+    return this.lazyRenderingController.isLazyRendering;
   }
-  @property() lazyRenderFirstBatchSizeValue: number;
   public get lazyRenderFirstBatchSize(): number {
-    return this.lazyRenderFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
+    return this.lazyRenderingController.firstBatchSize;
   }
   public set lazyRenderFirstBatchSize(val: number) {
-    this.lazyRenderFirstBatchSizeValue = val;
+    this.lazyRenderingController.firstBatchSize = val;
   }
-
-  protected _isLazyRenderingSuspended = false;
   public get isLazyRenderingSuspended(): boolean {
-    return this._isLazyRenderingSuspended;
-  }
-  protected suspendLazyRendering(): void {
-    if (!this.isLazyRendering) return;
-    this._isLazyRenderingSuspended = true;
-  }
-  protected releaseLazyRendering(): void {
-    if (!this.isLazyRendering) return;
-    this._isLazyRenderingSuspended = false;
-  }
-  private updateLazyRenderingRowsOnRemovingElements() {
-    if (!this.isLazyRendering) return;
-    var page = this.currentPage;
-    if (!!page) {
-      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(`#${page.id}`);
-      activateLazyRenderingChecks(htmlElement);
-    }
+    return this.lazyRenderingController.isSuspended;
   }
   /**
    * A list of triggers in the survey.
@@ -5963,9 +5946,9 @@ export class SurveyModel extends SurveyElementCore
         }
         elementPage.forceRenderElement(elementToForceRender as IElement, () => {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          this.suspendLazyRendering();
+          this.lazyRenderingController.suspend();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
-            this.releaseLazyRendering();
+            this.lazyRenderingController.release();
             const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
             activateLazyRenderingChecks(pageRootElement);
             optOnScolledCallback && optOnScolledCallback();
@@ -5977,9 +5960,9 @@ export class SurveyModel extends SurveyElementCore
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, optScrollIfVisible, optScrollIntoViewOptions, optOnScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          this.suspendLazyRendering();
+          this.lazyRenderingController.suspend();
           SurveyElement.ScrollElementToTop(htmlElement, optScrollIfVisible, optScrollIntoViewOptions, () => {
-            this.releaseLazyRendering();
+            this.lazyRenderingController.release();
             activateLazyRenderingChecks(htmlElement);
             optOnScolledCallback && optOnScolledCallback();
           });
@@ -7074,7 +7057,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    this.updateLazyRenderingRowsOnRemovingElements();
+    this.lazyRenderingController.updateRowsOnRemovingElements();
   }
   private generateNewName(elements: Array<any>, baseName: string): string {
     var keys: { [index: string]: any } = {};
@@ -7295,7 +7278,7 @@ export class SurveyModel extends SurveyElementCore
       question: question,
       name: question.name,
     });
-    this.updateLazyRenderingRowsOnRemovingElements();
+    this.lazyRenderingController.updateRowsOnRemovingElements();
   }
   questionRenamed(
     question: IQuestion,
@@ -7418,7 +7401,7 @@ export class SurveyModel extends SurveyElementCore
   panelRemoved(panel: PanelModel): void {
     this.updateVisibleIndexes(panel.page);
     this.onPanelRemoved.fire(this, { panel: panel, name: panel.name });
-    this.updateLazyRenderingRowsOnRemovingElements();
+    this.lazyRenderingController.updateRowsOnRemovingElements();
   }
   validateQuestion(question: Question, errors: Array<SurveyError>, fireCallback: boolean): void {
     if (!this.onValidateQuestion.isEmpty) {

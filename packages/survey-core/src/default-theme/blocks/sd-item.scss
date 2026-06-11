@@ -3,6 +3,7 @@
 
 .sd-item {
   display: flex;
+  padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
 }
 
 .sd-item__decorator {
@@ -70,9 +71,8 @@
 }
 
 .sd-item__control-label {
-  @include sjs2--typography--component--input--content;
-  font-style: normal;
-  color: var(--sjs2-color-fg-basic-primary);
+  @include sjs2--typography--component--label--content;
+  color: var(--sjs2-color-component-label-default-text);
   white-space: normal;
   width: 100%;
   text-align: start;
@@ -87,7 +87,7 @@
 }
 
 .sd-item--disabled .sd-item__control-label {
-  color: var(--sjs2-color-fg-basic-primary-disabled);
+  color: var(--sjs2-color-component-label-disabled-text);
 }
 
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {

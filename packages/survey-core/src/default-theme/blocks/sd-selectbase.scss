@@ -1,12 +1,9 @@
 @use "../variables.scss" as *;
 
 .sd-selectbase {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-layout-component-labeled-group-box-gap-vertical);
-  padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
   border: none;
   margin: 0;
+  padding: 0;
   //prevent comment to resize over question area
   min-inline-size: 0;
   min-width: 0;
@@ -23,7 +20,7 @@
 
 .sd-selectbase--multi-column {
   display: flex;
-  flex: 1 1;
+  flex: 1 1 0px;
   flex-wrap: nowrap;
   overflow: auto;
   padding: var(--sjs2-border-width-a11y);
@@ -43,9 +40,7 @@
 }
 
 .sd-selectbase__column {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-layout-component-labeled-group-box-gap-vertical);
+  display: block;
   box-sizing: border-box;
   flex: 1 1 0px;
   max-width: 100%;

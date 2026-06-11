@@ -1,9 +1,12 @@
 @use "../variables.scss" as *;
 
 .sd-selectbase {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-layout-component-labeled-group-box-gap-vertical);
+  padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
   border: none;
   margin: 0;
-  padding: 0;
   //prevent comment to resize over question area
   min-inline-size: 0;
   min-width: 0;
@@ -20,7 +23,7 @@
 
 .sd-selectbase--multi-column {
   display: flex;
-  flex: 1 1 0px;
+  flex: 1 1;
   flex-wrap: nowrap;
   overflow: auto;
   padding: var(--sjs2-border-width-a11y);
@@ -30,7 +33,7 @@
 .sd-selectbase__label {
   display: inline-flex;
   position: relative;
-  gap: var(--sjs2-spacing-x100);
+  gap: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
   vertical-align: top;
   max-width: 100%;
 }
@@ -40,14 +43,16 @@
 }
 
 .sd-selectbase__column {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-layout-component-labeled-group-box-gap-vertical);
   box-sizing: border-box;
   flex: 1 1 0px;
   max-width: 100%;
 }
 
 .sd-selectbase__column:not(:last-child) {
-  padding-right: var(--sjs2-spacing-x200);
+  padding-right: var(--sjs2-layout-component-labeled-group-box-gap-horizontal);
 }
 
 // Copied from stylesmanager

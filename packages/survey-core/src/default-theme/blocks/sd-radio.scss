@@ -1,9 +1,9 @@
 @use "../variables.scss" as *;
 
 .sd-radio__decorator {
-  border-radius: var(--sjs2-radius-component-radio, 9999px);
+  border-radius: var(--sjs2-radius-component-radio);
   width: var(--sjs2-size-component-radio-box);
-  height: var(--sjs2-size-component-radio-box);  
+  height: var(--sjs2-size-component-radio-box);
 }
 .sd-radio__svg {
   display: block;
@@ -16,9 +16,15 @@
   }
 }
 
-  .sd-radio--checked .sd-radio__svg {
+.sd-radio--checked .sd-radio__svg {
   use {
     fill: var(--sjs2-color-component-check-true-default-icon);
+  }
+}
+
+.sd-item__control:focus-visible + .sd-radio__decorator {
+  &::before {
+    border-radius: var(--sjs2-radius-component-radio);
   }
 }
 

@@ -484,7 +484,10 @@ frameworks.forEach((framework) => {
 
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const container = document.querySelector("#surveyElement") as HTMLElement;
+        let container: any = document.querySelector("#surveyElement");
+        if (container?.shadowRoot) {
+          container = container.shadowRoot.querySelector("div");
+        }
         container.style.height = "300px";
 
         const surveyContainer = (window as any).survey.rootElement.getRootNode()
@@ -496,15 +499,16 @@ frameworks.forEach((framework) => {
         question.dragDropRankingChoices.domAdapter.doScroll = () => { };
       });
 
-      const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
-      expect(await scroller.evaluate((el) => el.scrollTop)).toBe(50);
+      const scrollTop = await page.evaluate(() => (window as any).survey.rootElement.getRootNode()
+        .querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller").scrollTop);
+      expect(scrollTop).toBe(50);
 
       const itemBox = await page.locator(".sv-ranking-item").first().boundingBox();
       const gx = itemBox!.x + itemBox!.width / 2;
       const gy = itemBox!.y + itemBox!.height / 2;
       await expectShortcutFollowsCursor(page, [
         { x: gx - 10, y: gy + 30 },
-        { x: gx + 40, y: gy - 20 }
+        { x: gx + 40, y: gy + 60 }
       ]);
     });
 

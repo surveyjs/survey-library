@@ -52,6 +52,7 @@ export default {
     "--sjs2-color-border-basic-secondary": "rgba(255, 255, 255, 0.12)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(255, 255, 255, 0.08)",
     "--sjs2-color-border-basic-secondary-disabled": "rgba(from var(--sjs2-color-border-basic-secondary) r g b / var(--sjs2-opacity-disabled))",
+    "--sjs2-color-component-panel-default-border": "var(--sjs2-color-utility-shadow-surface-default)",
     "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1 rgba(255, 255, 255, 0.12)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 1 rgba(255, 255, 255, 0.12)",
     "--sjs2-border-effect-floating-default": "0px 0px 0px 1 rgba(255, 255, 255, 0.12), 0px 2 6 0px rgba(0, 0, 0, 0.2), 0px 8 16 0px rgba(0, 0, 0, 0.2)"

@@ -19,39 +19,39 @@
   overflow: hidden;
   max-width: calc(100% - var(--sjs2-spacing-x100));
   box-sizing: border-box;
-  padding: var(--sjs2-spacing-x100, 8px);
-  border-radius: var(--sjs2-radius-component-tagbox-item, 4px);
-  background: var(--sjs2-color-component-tagbox-item-default-bg, #fff);
+  padding: var(--sjs2-spacing-x100);
+  border-radius: var(--sjs2-radius-component-tagbox-item);
+  background: var(--sjs2-color-component-tagbox-item-default-bg);
 
   /* sjs2/border-effect/component/tagbox-item/default */
   box-shadow:
-    var(--sjs2-border-offset-x-trigger-default, 0) var(--sjs2-border-offset-y-trigger-default, 0)
-      var(--sjs2-border-blur-trigger-default, 0) var(--sjs2-border-spread-trigger-default, 1px)
-      var(--sjs2-color-component-tagbox-item-default-border, #d4d4d4),
+    var(--sjs2-border-offset-x-trigger-default) var(--sjs2-border-offset-y-trigger-default)
+      var(--sjs2-border-blur-trigger-default) var(--sjs2-border-spread-trigger-default)
+      var(--sjs2-color-component-tagbox-item-default-border),
     0 0 0 0 rgba(0, 0, 0, 0);
 
   &:hover {
-    background: var(--sjs2-color-component-tagbox-item-hovered-bg, #fff);
+    background: var(--sjs2-color-component-tagbox-item-hovered-bg);
 
     /* sjs2/border-effect/component/tagbox-item/hovered */
     box-shadow:
-      var(--sjs2-border-offset-x-trigger-hovered, 0) var(--sjs2-border-offset-y-trigger-hovered, 0)
-        var(--sjs2-border-blur-trigger-hovered, 0) var(--sjs2-border-spread-trigger-hovered, 1px)
-        var(--sjs2-color-component-tagbox-item-hovered-border, #d4d4d4),
+      var(--sjs2-border-offset-x-trigger-hovered) var(--sjs2-border-offset-y-trigger-hovered)
+        var(--sjs2-border-blur-trigger-hovered) var(--sjs2-border-spread-trigger-hovered)
+        var(--sjs2-color-component-tagbox-item-hovered-border),
       0 0 0 0 rgba(0, 0, 0, 0);
   }
 }
 
 .sd-tagbox-item__text {
   @include sjs2--typography--component--input--content;
-  color: var(--sjs2-color-component-tagbox-item-default-label, #1c1b20);
-  min-width: var(--sjs2-size-x500, 40px);
-  padding: 0 var(--sjs2-spacing-x075, 6px);
+  color: var(--sjs2-color-component-tagbox-item-default-label);
+  min-width: var(--sjs2-size-x500);
+  padding: 0 var(--sjs2-spacing-x075);
   text-align: center;
   box-sizing: content-box;
 
   &:hover {
-    color: var(--sjs2-color-component-tagbox-item-hovered-label, #1c1b20);
+    color: var(--sjs2-color-component-tagbox-item-hovered-label);
   }
 
   span {
@@ -80,13 +80,13 @@
   width: 70px;
   height: 100%;
   box-sizing: border-box;
-  padding: var(--sjs2-spacing-x100, 8px);
+  padding: var(--sjs2-spacing-x100);
   justify-content: flex-end;
   align-items: center;
   background: linear-gradient(
     270deg,
-    var(--sjs2-color-component-tagbox-item-hovered-mask-stop-1, #fff) 50%,
-    var(--sjs2-color-component-tagbox-item-hovered-mask-stop-2, rgba(255, 255, 255, 0)) 100%
+    var(--sjs2-color-component-tagbox-item-hovered-mask-stop-1) 50%,
+    var(--sjs2-color-component-tagbox-item-hovered-mask-stop-2) 100%
   );
 }
 
@@ -98,15 +98,15 @@
 
   &:focus,
   &:focus-within {
-    border-radius: var(--sjs2-radius-component-tagbox-item-action, 9999px);
+    border-radius: var(--sjs2-radius-component-tagbox-item-action);
     box-shadow: var(--sjs2-border-effect-component-tagbox-item-a11y);
-    background: var(--sjs2-color-component-tagbox-item-action-default-bg, #f5f5f5);
+    background: var(--sjs2-color-component-tagbox-item-action-default-bg);
   }
 }
 
 .sd-tagbox-item__clean-button-svg {
   display: block;
-  padding: var(--sjs2-spacing-x050, 4px);
+  padding: var(--sjs2-spacing-x050);
   line-height: var(--sjs2-line-height-x200);
   width: 1lh;
   height: 1lh;
@@ -114,12 +114,12 @@
 }
 
 .sd-tagbox-item__clean-button-svg:hover {
-  border-radius: var(--sjs2-radius-component-tagbox-item-action, 9999px);
-  background: var(--sjs2-color-component-tagbox-item-action-hovered-bg, #ededed);
+  border-radius: var(--sjs2-radius-component-tagbox-item-action);
+  background: var(--sjs2-color-component-tagbox-item-action-hovered-bg);
 }
 
 .sd-tagbox-item__clean-button-svg use {
-  fill: var(--sjs2-color-component-tagbox-item-action-hovered-icon, #424146);
+  fill: var(--sjs2-color-component-tagbox-item-action-hovered-icon);
 }
 
 .sd-tagbox:where(:not(.sd-tagbox--empty, .sd-tagbox--readonly)) {
@@ -130,7 +130,7 @@
 
 .sd-tagbox__input.sd-dropdown__input {
   position: relative;
-  gap: var(--sjs2-spacing-x050, 4px);
+  gap: var(--sjs2-layout-component-input-small-tag-group-gap);
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
@@ -166,8 +166,8 @@
   .sd-tagbox-item__clean {
     background: linear-gradient(
       90deg,
-      var(--sjs2-color-component-tagbox-item-hovered-mask-stop-1, #fff) 50%,
-      var(--sjs2-color-component-tagbox-item-hovered-mask-stop-2, rgba(255, 255, 255, 0)) 100%
+      var(--sjs2-color-component-tagbox-item-hovered-mask-stop-1) 50%,
+      var(--sjs2-color-component-tagbox-item-hovered-mask-stop-2) 100%
     );
   }
 }

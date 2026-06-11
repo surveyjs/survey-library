@@ -1,15 +1,21 @@
-import { Component, Input } from "@angular/core";
+import { ChangeDetectorRef, Component, Input, ViewContainerRef } from "@angular/core";
 import { AngularComponentFactory } from "../../../component-factory";
 import { SurveyProgressModel } from "survey-core";
-import { EmbeddedViewContentComponent } from "../../../embedded-view-content.component";
+import { BaseAngular } from "../../../base-angular";
 
 @Component({
   selector: "sv-ng-progress-default",
   templateUrl: "./progress.component.html"
 })
-export class ProgressDefaultComponent extends EmbeddedViewContentComponent {
+export class ProgressDefaultComponent extends BaseAngular {
   @Input() container?: string;
   @Input() model: any;
+  constructor(changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
+    super(changeDetectorRef, viewContainerRef);
+  }
+  protected getModel() {
+    return this.model;
+  }
   getProgressTextInBarCss(css: any): string {
     return SurveyProgressModel.getProgressTextInBarCss(css);
   }

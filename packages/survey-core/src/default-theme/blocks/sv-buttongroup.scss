@@ -1,16 +1,16 @@
-@use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
 .sv-button-group {
   display: flex;
-  padding: var(--sjs2-spacing-x050, 4px);
+  padding: var(--sjs2-layout-component-formbox-medium-padding-vertical)
+    var(--sjs2-layout-component-formbox-medium-padding-horizontal);
   box-sizing: border-box;
   align-items: center;
-  gap: var(--sjs2-spacing-x050, 4px);
+  gap: var(--sjs2-layout-component-formbox-medium-gap);
   flex-direction: row;
   overflow-x: auto;
-  border-radius: var(--sjs2-radius-component-formbox, 8px);
-  background: var(--sjs2-color-component-formbox-default-bg, #f5f5f5);
+  border-radius: var(--sjs2-radius-component-formbox);
+  background: var(--sjs2-color-component-formbox-default-bg);
 
   /* sjs2/border-effect-component-formbox-default */
   box-shadow: var(--sjs2-border-effect-component-formbox-default);
@@ -24,11 +24,11 @@
 
 .sv-button-group__item-caption {
   display: block;
-  padding: 0 var(--sjs2-spacing-x100, 8px);
+  padding: 0 var(--sjs2-spacing-x100);
 
   .sv-string-viewer {
     @include sjs2--typography--default;
-    color: var(--sjs2-color-component-buttongroup-item-false-default-value, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-buttongroup-item-false-default-value);
   }
 }
 
@@ -37,21 +37,21 @@
 }
 
 .sv-button-group.sd-formbox--error {
-  background: var(--sjs2-color-component-formbox-invalid-bg, #f5f5f5);
+  background: var(--sjs2-color-component-formbox-invalid-bg);
 
   /* sjs2/border-effect-component-formbox-invalid */
   box-shadow: var(--sjs2-border-effect-component-formbox-invalid);
 }
 
 .sv-button-group.sd-formbox--readonly {
-  background: var(--sjs2-color-component-formbox-readonly-bg, #fff);
+  background: var(--sjs2-color-component-formbox-readonly-bg);
 
   /* sjs2/border-effect-component-formbox-readonly */
   box-shadow: var(--sjs2-border-effect-component-formbox-readonly);
 }
 
 .sv-button-group.sd-formbox--disabled {
-  background: var(--sjs2-color-component-formbox-disabled-bg, #fff);
+  background: var(--sjs2-color-component-formbox-disabled-bg);
 
   /* sjs2/border-effect-component-formbox-disabled */
   box-shadow: var(--sjs2-border-effect-component-formbox-disabled);
@@ -71,7 +71,7 @@
   --sd-buttongroup-a11y-boxshadow: 0px 0px 0px 0px rgba(0, 0, 0, 0);
 
   .sv-button-group__item-decorator {
-    padding: var(--sjs2-spacing-x100, 8px);
+    padding: var(--sjs2-spacing-x100);
     box-sizing: border-box;
     display: flex;
     flex-grow: 1;
@@ -79,11 +79,12 @@
     justify-content: center;
     align-items: center;
     align-self: stretch;
-    border-radius: var(--sjs2-radius-component-buttongroup-item, 4px);
-    background: var(--sjs2-color-component-buttongroup-item-false-default-bg, rgba(245, 245, 245, 0));
+    border-radius: var(--sjs2-radius-component-buttongroup-item);
+    background: var(--sjs2-color-component-buttongroup-item-false-default-bg);
 
     /* sjs2/border-effect-component-buttongroup-item-false-default */
-    box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-default), var(--sd-buttongroup-a11y-boxshadow);
+    box-shadow:
+      var(--sjs2-border-effect-component-buttongroup-item-false-default), var(--sd-buttongroup-a11y-boxshadow);
   }
 }
 
@@ -92,17 +93,17 @@
 }
 
 .sv-button-group__item--allowhover:hover .sv-button-group__item-decorator {
-  background: var(--sjs2-color-component-buttongroup-item-false-hovered-bg, #ededed);
+  background: var(--sjs2-color-component-buttongroup-item-false-hovered-bg);
 
   /* sjs2/border-effect-component-buttongroup-item-false-hovered */
   box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-hovered), var(--sd-buttongroup-a11y-boxshadow);
 
   .sv-string-viewer {
-    color: var(--sjs2-color-component-buttongroup-item-false-hovered-value, #1c1b20);
+    color: var(--sjs2-color-component-buttongroup-item-false-hovered-value);
   }
 
   .sv-button-group__item-icon use {
-    fill: var(--sjs2-color-component-buttongroup-item-false-hovered-value, #1c1b20);
+    fill: var(--sjs2-color-component-buttongroup-item-false-hovered-value);
   }
 }
 
@@ -117,51 +118,51 @@
   height: 1lh;
 
   use {
-    fill: var(--sjs2-color-component-buttongroup-item-false-default-value, rgba(28, 27, 32, 0.6));
+    fill: var(--sjs2-color-component-buttongroup-item-false-default-value);
   }
 }
 
 .sv-button-group__item--selected .sv-button-group__item-decorator {
-  background: var(--sjs2-color-component-buttongroup-item-true-default-bg, #fff);
+  background: var(--sjs2-color-component-buttongroup-item-true-default-bg);
 
   /* sjs2/border-effect-component-buttongroup-item-true-default */
   box-shadow: var(--sjs2-border-effect-component-buttongroup-item-true-default), var(--sd-buttongroup-a11y-boxshadow);
 
   .sv-string-viewer {
-    color: var(--sjs2-color-component-buttongroup-item-true-default-value, #19b394);
+    color: var(--sjs2-color-component-buttongroup-item-true-default-value);
     @include sjs2--typography--default-strong;
   }
   .sv-button-group__item-icon use {
-    fill: var(--sjs2-color-component-buttongroup-item-true-default-value, #19b394);
+    fill: var(--sjs2-color-component-buttongroup-item-true-default-value);
   }
 }
 
 .sv-button-group__item--disabled .sv-button-group__item-decorator {
-  background: var(--sjs2-color-component-buttongroup-item-false-disabled-bg, #fff);
+  background: var(--sjs2-color-component-buttongroup-item-false-disabled-bg);
 
   /* sjs2/border-effect-component-buttongroup-item-false-disabled */
   box-shadow: var(--sjs2-border-effect-component-buttongroup-item-false-disabled);
 
   .sv-string-viewer {
-    color: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #d4d4d4);
+    color: var(--sjs2-color-component-buttongroup-item-false-disabled-value);
   }
 
   .sv-button-group__item-icon use {
-    fill: var(--sjs2-color-component-buttongroup-item-false-disabled-value, #d4d4d4);
+    fill: var(--sjs2-color-component-buttongroup-item-false-disabled-value);
   }
 }
 
 .sv-button-group__item--selected.sv-button-group__item--disabled .sv-button-group__item-decorator {
-  background: var(--sjs2-color-component-buttongroup-item-true-disabled-bg, #f5f5f5);
+  background: var(--sjs2-color-component-buttongroup-item-true-disabled-bg);
 
   /* sjs2/border-effect-component-buttongroup-item-true-disabled */
   box-shadow: var(--sjs2-border-effect-component-buttongroup-item-true-disabled);
 
   .sv-string-viewer {
-    color: var(--sjs2-color-component-buttongroup-item-true-disabled-value, #b3b2b2);
+    color: var(--sjs2-color-component-buttongroup-item-true-disabled-value);
   }
 
   .sv-button-group__item-icon use {
-    fill: var(--sjs2-color-component-buttongroup-item-true-disabled-value, #b3b2b2);
+    fill: var(--sjs2-color-component-buttongroup-item-true-disabled-value);
   }
 }

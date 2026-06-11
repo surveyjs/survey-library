@@ -215,7 +215,7 @@
 .sd-tab-item--icon {
     padding: var(--sjs2-spacing-x100);
     width: auto;
-    border-radius: var(--sjs2-radius-component-action, 8px);
+    border-radius: var(--sjs2-radius-component-action);
 
     use {
         fill: $foreground-light;
@@ -225,11 +225,11 @@
 
 .sd-tab-item--icon:hover,
 .sd-tab-item--icon.sd-tab-item--active {
-    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg, rgba(25, 179, 148, 0.1));
+    background-color: var(--sjs2-color-component-action-brand-tertiary-hovered-bg);
     box-shadow: none;
 
     use {
-        fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon, #19b394);
+        fill: var(--sjs2-color-component-action-brand-tertiary-hovered-icon);
     }
 }
 

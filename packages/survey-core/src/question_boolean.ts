@@ -271,7 +271,13 @@ export class QuestionBooleanModel extends Question {
     if (DomDocumentHelper.isAvailable()) {
       isRtl = DomDocumentHelper.isRtlDirection(this.survey.rootElement);
     }
-    this.booleanValue = isRtl ? !isRightClick : isRightClick;
+    let value = isRtl ? !isRightClick : isRightClick;
+    // When swapOrder is true, the visual order is reversed (Yes on left, No on right)
+    // So we need to invert the boolean value to match the visual expectation
+    if (this.swapOrder) {
+      value = !value;
+    }
+    this.booleanValue = value;
   }
   public onSwitchClickModel(event: any) {
     if (this.allowClick) {

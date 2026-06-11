@@ -410,6 +410,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
 
   /**
    * @deprecated Use `visibleChoices` instead.
+   * @hidden
    */
   public get renderedRateItems(): RatingItem[] {
     return this.visibleChoices;

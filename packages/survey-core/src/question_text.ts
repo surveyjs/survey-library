@@ -225,6 +225,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
+   * @hidden
    */
   public get size(): number {
     return this.inputSize;

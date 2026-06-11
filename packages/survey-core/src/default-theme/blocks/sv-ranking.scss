@@ -119,9 +119,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--sjs2-color-fg-basic-primary);
-  font-size: $font-editorfont-size;
-  line-height: multiply(1.5, $font-editorfont-size);
+  @include sjs2--typography--component--label--content;
+  color: var(--sjs2-color-component-label-default-text);
   margin: 0 var(--sjs2-spacing-x200);
   overflow-wrap: break-word;
   word-break: normal;

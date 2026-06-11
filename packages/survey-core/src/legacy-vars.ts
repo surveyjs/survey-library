@@ -91,10 +91,22 @@ export const legacyCssVariables = {
   "--sjs-font-headerdescription-color": "--sjs2-color-component-header-default-description",
   "--sjs-header-backcolor": "--sjs2-color-component-header-default-bg",
 
-  "--sjs-font-editorfont-family": "--sjs2-typography-font-family-component-input-content",
-  "--sjs-font-editorfont-weight": "--sjs2-typography-font-weight-component-input-content",
-  "--sjs-font-editorfont-size": "--sjs2-typography-font-size-component-input-content",
-  "--sjs-font-editorfont-color": "--sjs2-color-component-input-default-value",
+  "--sjs-font-editorfont-family": [
+    "--sjs2-typography-font-family-component-input-content",
+    "--sjs2-typography-font-family-component-label-content",
+  ],
+  "--sjs-font-editorfont-weight": [
+    "--sjs2-typography-font-weight-component-input-content",
+    "--sjs2-typography-font-weight-component-label-content",
+  ],
+  "--sjs-font-editorfont-size": [
+    "--sjs2-typography-font-size-component-input-content",
+    "--sjs2-typography-font-size-component-label-content",
+  ],
+  "--sjs-font-editorfont-color": [
+    "--sjs2-color-component-input-default-value",
+    "--sjs2-color-component-label-default-text",
+  ],
   "--sjs-font-editorfont-placeholdercolor": [
     "--sjs2-color-component-input-default-placeholder",
     "--sjs2-color-component-boolean-item-false-default-value",

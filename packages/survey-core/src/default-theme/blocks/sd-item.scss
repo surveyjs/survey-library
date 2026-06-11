@@ -5,7 +5,7 @@
   display: flex;
   padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
 
-  &:first-child, &:last-child {
+  &:where(:first-child, :last-child) {
     padding: var(--sjs2-layout-component-labeled-group-box-padding-vertical) 0;
   }
 }

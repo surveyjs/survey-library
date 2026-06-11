@@ -33,7 +33,7 @@
 }
 
 .sd-radio--checked.sd-radio--readonly .sd-radio__svg use {
-  fill: var(--sjs2-color-component-check-true-readonly-icon);
+  fill: var(--sjs2-color-component-check-true-disabled-icon);
 }
 
 .sd-radio--checked.sd-radio--preview .sd-radio__svg use {

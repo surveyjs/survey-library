@@ -3868,7 +3868,15 @@ export class SurveyModel extends SurveyElementCore
   private set isShowingPreview(val: boolean) {
     if (this.isShowingPreview == val) return;
     this.setPropertyValue("isShowingPreview", val);
-    this.pageStructureController.updatePagesContainer();
+    this.updatePagesContainer();
+  }
+  private updatePagesContainer(): void {
+    if (!this.isDesignMode) {
+      this.getAllQuestions().forEach(q => q.updateElementVisibility());
+      this.setPropertyValue("currentPage", undefined);
+      this.pageStructureController.updatePagesContainer();
+      this.updateButtonsVisibility();
+    }
   }
   @property({ defaultValue: false }) private isStartedState: boolean;
   @property({ defaultValue: false }) private isCompletedBefore: boolean;
@@ -4635,13 +4643,13 @@ export class SurveyModel extends SurveyElementCore
     this.skippedPages = [];
     this.currentSingleElement = undefined;
     if (oldValue === "singlePage") {
-      this.pageStructureController.updatePagesContainer();
+      this.updatePagesContainer();
     }
     if (oldValue === "inputPerPage") {
       this.getAllQuestions().forEach(q => q.resetSingleInput());
     }
     if (this.isSinglePage) {
-      this.pageStructureController.updatePagesContainer();
+      this.updatePagesContainer();
     }
     this.setupSingleInputNavigationActions();
     this.singleInputController.moveToFirstElement();

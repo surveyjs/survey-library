@@ -3,20 +3,14 @@ import { IElement } from "./base-interfaces";
 import { Helpers } from "./helpers";
 import { Serializer } from "./jsonobject";
 import { PageModel } from "./page";
-import { Question } from "./question";
 
 export interface ISurveyPageStructureHost {
   pages: Array<PageModel>;
   visiblePages: Array<PageModel>;
-  visiblePageCount: number;
   currentPage: PageModel;
-  isDesignMode: boolean;
   isSinglePage: boolean;
   isShowingPreview: boolean;
   singleInputController: { currentSingleElement: IElement };
-  getAllQuestions(): Array<Question>;
-  updateButtonsVisibility(): void;
-  setPropertyValue(name: string, val: any): void;
 }
 
 export class SurveyPageStructureController extends Base {
@@ -42,9 +36,6 @@ export class SurveyPageStructureController extends Base {
   }
   public updatePagesContainer(): void {
     const survey = this.survey;
-    if (survey.isDesignMode) return;
-    survey.getAllQuestions().forEach(q => q.updateElementVisibility());
-    survey.setPropertyValue("currentPage", undefined);
     const singleName = "single-page";
     const previewName = "preview-page";
     let rootPage: PageModel = undefined;
@@ -73,8 +64,9 @@ export class SurveyPageStructureController extends Base {
       this.disposeContainerPage();
       let curPage = this.gotoPageFromPreview;
       this.gotoPageFromPreview = null;
-      if (Helpers.isValueEmpty(curPage) && survey.visiblePageCount > 0) {
-        curPage = survey.visiblePages[survey.visiblePageCount - 1];
+      const vpCount = this.survey.visiblePages.length;
+      if (Helpers.isValueEmpty(curPage) && vpCount > 0) {
+        curPage = survey.visiblePages[vpCount - 1];
       }
       if (!!curPage) {
         isCurrentPageSet = true;
@@ -83,7 +75,7 @@ export class SurveyPageStructureController extends Base {
         this.changeCurrentPageFromPreviewValue = false;
       }
     }
-    if (!survey.currentPage && survey.visiblePageCount > 0 && !isCurrentPageSet) {
+    if (!survey.currentPage && survey.visiblePages.length > 0 && !isCurrentPageSet) {
       survey.currentPage = survey.visiblePages[0];
     }
     if (survey.isShowingPreview) {
@@ -96,7 +88,6 @@ export class SurveyPageStructureController extends Base {
         page.updateElementCss(true);
       }
     });
-    survey.updateButtonsVisibility();
   }
   private createRootPage(name: string, pages: Array<PageModel>): PageModel {
     const container = Serializer.createClass("page");

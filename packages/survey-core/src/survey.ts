@@ -4523,10 +4523,10 @@ export class SurveyModel extends SurveyElementCore
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   public get isSingleVisibleQuestion(): boolean {
-    return !this.isDesignMode && (this.singleInputController.isSingleVisibleQuestionVal(this.questionsOnPageMode) || this.isSingleVisibleInput);
+    return this.singleInputController.isSingleVisibleQuestion;
   }
   public get isSingleVisibleInput(): boolean {
-    return !this.isDesignMode && this.questionsOnPageMode == "inputPerPage";
+    return this.singleInputController.isSingleVisibleInput;
   }
   /**
    * Specifies how to distribute survey elements between pages.
@@ -4716,9 +4716,7 @@ export class SurveyModel extends SurveyElementCore
       this.updatePagesContainer();
     }
     this.setupSingleInputNavigationActions();
-    if (this.isSingleVisibleQuestion) {
-      this.singleInputController.moveToFirstElement();
-    }
+    this.singleInputController.moveToFirstElement();
   }
   private setupSingleInputNavigationActions(): void {
     const actionAddId = "sv-singleinput-add";
@@ -7557,7 +7555,7 @@ export class SurveyModel extends SurveyElementCore
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
     }
-    if (this.isSingleVisibleQuestion && !this.isDesignMode) {
+    if (this.isSingleVisibleQuestion) {
       this.currentSingleElement = question;
     }
     if (!isNeedWaitForPageRendered) {

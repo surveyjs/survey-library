@@ -9,8 +9,7 @@ export interface ISurveySingleInputHost {
   currentPage: PageModel;
   autoFocusFirstQuestion: boolean;
   questionsOnPageMode: string;
-  isSingleVisibleQuestion: boolean;
-  isSingleVisibleInput: boolean;
+  isDesignMode: boolean;
   onCurrentPageChanged: { fire(sender: any, options: CurrentPageChangedEvent): void };
   createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel, newQuestion?: Question, oldQuestion?: Question): CurrentPageChangedEvent;
   currentPageChanging(options: any, onSuccess: () => void): void;
@@ -49,7 +48,7 @@ export class SurveySingleInputController extends Base {
       const changingFunc = () => {
         this.elementValue = val;
         if (!!val) {
-          if (survey.isSingleVisibleInput && val.isQuestion) {
+          if (this.isSingleVisibleInput && val.isQuestion) {
             (<Question>val).onSetAsSingleInput();
           }
           page.updateRows();
@@ -76,13 +75,19 @@ export class SurveySingleInputController extends Base {
       }
     }
   }
-  public isSingleVisibleQuestionVal(val: string): boolean {
+  public get isSingleVisibleQuestion(): boolean {
+    return !this.survey.isDesignMode && (this.isSingleVisibleQuestionVal(this.survey.questionsOnPageMode) || this.isSingleVisibleInput);
+  }
+  public get isSingleVisibleInput(): boolean {
+    return !this.survey.isDesignMode && this.survey.questionsOnPageMode == "inputPerPage";
+  }
+  private isSingleVisibleQuestionVal(val: string): boolean {
     return val === "questionPerPage" || val === "questionOnPage";
   }
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.survey.visiblePages;
-    const isSingleInput = this.survey.isSingleVisibleInput;
+    const isSingleInput = this.isSingleVisibleInput;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if (!p.isStartPage) {
@@ -106,6 +111,7 @@ export class SurveySingleInputController extends Base {
     this.currentSingleElement = newEl;
   }
   public moveToFirstElement(): void {
+    if (!this.isSingleVisibleQuestion) return;
     const els = this.getSingleElements();
     if (els.length > 0) {
       this.currentSingleElement = els[0];
@@ -115,7 +121,7 @@ export class SurveySingleInputController extends Base {
     const survey = this.survey;
     const q: any = this.currentSingleElement;
     if (!q) return false;
-    if (survey.isSingleVisibleInput) {
+    if (this.isSingleVisibleInput) {
       if (!q.validateSingleInput()) return false;
       if (q.nextSingleInput()) {
         survey.updateButtonsVisibility();
@@ -148,7 +154,7 @@ export class SurveySingleInputController extends Base {
     }
   }
   public prevPageSingleElement(curElement: IElement): boolean {
-    if (this.survey.isSingleVisibleInput) {
+    if (this.isSingleVisibleInput) {
       if ((<Question>curElement).prevSingleInput()) {
         this.survey.updateButtonsVisibility();
         return true;
@@ -167,7 +173,7 @@ export class SurveySingleInputController extends Base {
     if (!!q) {
       let isFirstInput = true;
       let isLastInput = true;
-      if (this.survey.isSingleVisibleInput) {
+      if (this.isSingleVisibleInput) {
         const inputState = (<Question>q).getSingleInputElementPos();
         if (inputState !== 0) {
           isFirstInput = inputState === -1;
@@ -193,7 +199,7 @@ export class SurveySingleInputController extends Base {
   }
   public setCurrentElement(val: ISurveyElement): void {
     const page = (<any>val).page;
-    if (!!page && !this.survey.isSingleVisibleQuestion) {
+    if (!!page && !this.isSingleVisibleQuestion) {
       this.survey.currentPage = page;
     } else {
       this.currentSingleElement = <IElement>val;

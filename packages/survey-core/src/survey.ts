@@ -39,6 +39,7 @@ import { SurveyCompletionController, ISurveyCompletionHost } from "./survey-comp
 import { SurveyValidationController, ISurveyValidationHost } from "./survey-validation-controller";
 import { SurveySingleInputController, ISurveySingleInputHost } from "./survey-single-input-controller";
 import { SurveyPageStructureController, ISurveyPageStructureHost } from "./survey-page-structure-controller";
+import { SurveyScrollFocusController, ISurveyScrollFocusHost } from "./survey-scroll-focus-controller";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -1309,6 +1310,13 @@ export class SurveyModel extends SurveyElementCore
       this.pageStructureControllerValue = new SurveyPageStructureController(<ISurveyPageStructureHost><any>this);
     }
     return this.pageStructureControllerValue;
+  }
+  private scrollFocusControllerValue: SurveyScrollFocusController | undefined;
+  private get scrollFocusController(): SurveyScrollFocusController {
+    if (!this.scrollFocusControllerValue) {
+      this.scrollFocusControllerValue = new SurveyScrollFocusController(<ISurveyScrollFocusHost><any>this);
+    }
+    return this.scrollFocusControllerValue;
   }
   private canRunTriggersOrConditions(type: TriggersRunType): boolean {
     if (this.isCompleted) return false;
@@ -3789,23 +3797,10 @@ export class SurveyModel extends SurveyElementCore
    * @see autoFocusFirstQuestion
    */
   public focusFirstQuestion() {
-    if (this.focusingQuestionInfo) return;
-    var page = this.activePage;
-    if (page) {
-      page.scrollToTop();
-      page.focusFirstQuestion();
-    }
+    this.scrollFocusController.focusFirstQuestion();
   }
   scrollToTopOnPageChange(doScroll: boolean = true): void {
-    var page = this.activePage;
-    if (!page) return;
-    if (doScroll) {
-      page.scrollToTop();
-    }
-    if (this.isCurrentPageRendering && this.autoFocusFirstQuestion && !this.focusingQuestionInfo) {
-      page.focusFirstQuestion();
-      this.isCurrentPageRendering = false;
-    }
+    this.scrollFocusController.scrollToTopOnPageChange(doScroll);
   }
   /**
    * Returns the current survey state.
@@ -5104,11 +5099,11 @@ export class SurveyModel extends SurveyElementCore
   private isCurrentPageRendering: boolean = true;
   private isCurrentPageRendered: boolean = undefined;
   afterRenderPage(htmlElement: HTMLElement) {
-    if (!this.isDesignMode && !this.focusingQuestionInfo) {
+    if (!this.isDesignMode && !this.scrollFocusController.isFocusingQuestion) {
       const doScroll = this.isCurrentPageRendered === false;
       setTimeout(() => this.scrollToTopOnPageChange(doScroll), 1);
     }
-    this.focusQuestionInfo();
+    this.scrollFocusController.focusQuestionInfo();
     this.isCurrentPageRendered = true;
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
@@ -7448,7 +7443,6 @@ export class SurveyModel extends SurveyElementCore
   private finishSetValueFromTrigger(): void {
     this.setValueFromTriggerCounter --;
   }
-  private focusingQuestionInfo: any;
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {
     this.isMovingQuestion = true;
@@ -7481,30 +7475,7 @@ export class SurveyModel extends SurveyElementCore
     return this.focusQuestionByInstance(this.getQuestionByName(name, true));
   }
   focusQuestionByInstance(question: Question, onError: boolean = false): boolean {
-    if (!question || !question.isVisible || !question.page) return false;
-    const oldQuestion = this.focusingQuestionInfo?.question;
-    if (oldQuestion === question) return false;
-    this.focusingQuestionInfo = { question: question, onError: onError };
-    const curElement = this.currentSingleElement;
-    this.skippedPages.push({ from: curElement || this.currentPage, to: curElement ? question : question.page });
-    const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
-    if (isNeedWaitForPageRendered) {
-      this.currentPage = <PageModel>question.page;
-    }
-    if (this.isSingleVisibleQuestion) {
-      this.currentSingleElement = question;
-    }
-    if (!isNeedWaitForPageRendered) {
-      this.focusQuestionInfo();
-    }
-    return true;
-  }
-  private focusQuestionInfo(): void {
-    const question = this.focusingQuestionInfo?.question;
-    if (!!question && !question.isDisposed) {
-      question.focus(this.focusingQuestionInfo.onError);
-    }
-    this.focusingQuestionInfo = undefined;
+    return this.scrollFocusController.focusQuestionByInstance(question, onError);
   }
 
   public questionEditFinishCallback(question: Question, event: any): void {

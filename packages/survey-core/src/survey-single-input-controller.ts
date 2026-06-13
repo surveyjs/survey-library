@@ -33,6 +33,7 @@ export class SurveySingleInputController extends Base {
     return this.elementValue;
   }
   public set currentSingleElement(val: IElement) {
+    if (!!val && !this.isSingleVisibleQuestion) return;
     const survey = this.survey;
     if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(survey.questionsOnPageMode)) {
       while(val.parent && val.parent.isPanel) {

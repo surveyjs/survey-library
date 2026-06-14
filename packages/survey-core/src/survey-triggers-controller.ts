@@ -19,7 +19,7 @@ export interface ISurveyTriggersHost extends ISurveyData {
   runConditionCore(properties: any): void;
 }
 
-export class SurveyTriggersRunner {
+export class SurveyTriggersController {
   private isTriggerIsRunning: boolean = false;
   private triggerKeys: any = null;
   private questionTriggersKeys: any;

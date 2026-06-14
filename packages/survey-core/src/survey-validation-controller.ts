@@ -216,7 +216,7 @@ export class SurveyValidationController {
     }
     this.serverValidationEventCount = 0;
     this.survey.setIsValidatingOnServer(false);
-    if (!options && !options.survey) return;
+    if (!options || !options.survey) return;
     var self = options.survey;
     let isValid = true;
     if (options.errors) {

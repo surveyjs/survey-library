@@ -2,20 +2,20 @@ import { settings } from "./settings";
 import { PageModel } from "./page";
 import { activateLazyRenderingChecks } from "./utils/dom-utils";
 
-export interface ILazyRenderingHost {
+export interface ISurveyLazyRenderingHost {
   currentPage: PageModel;
   rootElement: HTMLElement;
   creator?: { rootElement?: HTMLElement };
 }
 
-export class LazyRenderingController {
+export class SurveyLazyRenderingController {
   private enabledValue: boolean;
   private firstBatchSizeValue: number;
   private isSuspendedValue: boolean = false;
 
-  private survey: ILazyRenderingHost;
+  private survey: ISurveyLazyRenderingHost;
 
-  constructor(survey: ILazyRenderingHost) {
+  constructor(survey: ISurveyLazyRenderingHost) {
     this.survey = survey;
   }
 

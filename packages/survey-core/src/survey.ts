@@ -33,8 +33,8 @@ import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
-import { SurveyTriggersRunner, TriggersRunType } from "./survey-triggers-runner";
-import { LazyRenderingController, ILazyRenderingHost } from "./lazy-rendering-controller";
+import { SurveyTriggersController, TriggersRunType } from "./survey-triggers-controller";
+import { SurveyLazyRenderingController, ISurveyLazyRenderingHost } from "./survey-lazy-rendering-controller";
 import { SurveyCompletionController, ISurveyCompletionHost } from "./survey-completion-controller";
 import { SurveyValidationController, ISurveyValidationHost } from "./survey-validation-controller";
 import { SurveySingleInputController, ISurveySingleInputHost } from "./survey-single-input-controller";
@@ -1269,17 +1269,17 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.navigationLayoutModelValue;
   }
-  private triggersRunnerValue: SurveyTriggersRunner | undefined;
-  private get triggersRunner(): SurveyTriggersRunner {
-    if (!this.triggersRunnerValue) {
-      this.triggersRunnerValue = new SurveyTriggersRunner(<any>this);
+  private triggersControllerValue: SurveyTriggersController | undefined;
+  private get triggersController(): SurveyTriggersController {
+    if (!this.triggersControllerValue) {
+      this.triggersControllerValue = new SurveyTriggersController(<any>this);
     }
-    return this.triggersRunnerValue;
+    return this.triggersControllerValue;
   }
-  private lazyRenderingControllerValue: LazyRenderingController | undefined;
-  private get lazyRenderingController(): LazyRenderingController {
+  private lazyRenderingControllerValue: SurveyLazyRenderingController | undefined;
+  private get lazyRenderingController(): SurveyLazyRenderingController {
     if (!this.lazyRenderingControllerValue) {
-      this.lazyRenderingControllerValue = new LazyRenderingController(<ILazyRenderingHost><any>this);
+      this.lazyRenderingControllerValue = new SurveyLazyRenderingController(<ISurveyLazyRenderingHost><any>this);
     }
     return this.lazyRenderingControllerValue;
   }
@@ -2512,7 +2512,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onTriggerExecuted
    */
   public runTriggers(): void {
-    this.triggersRunner.runTriggers();
+    this.triggersController.runTriggers();
   }
   public get renderedCompletedHtml(): string {
     var item = this.getExpressionItemOnRunCondition(
@@ -3849,7 +3849,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }) private isCompleted: boolean;
   private onIsCompletedSetting(): void {
-    this.triggersRunner.checkOnPageTriggers(true);
+    this.triggersController.checkOnPageTriggers(true);
     this.stopTimer();
     this.notifyQuestionsOnHidingContent(this.currentPage);
   }
@@ -4871,7 +4871,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doNextPage() {
     var curPage = this.currentPage;
-    this.triggersRunner.checkOnPageTriggers(false);
+    this.triggersController.checkOnPageTriggers(false);
     this.sendPartialResult();
     if (!this.isCompleted) {
       if (curPage === this.currentPage) {
@@ -5975,7 +5975,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
     if (this.isEndLoadingFromJson === "processing") return;
-    if (this.triggersRunner.deferUntilConditionsCompleted("notifyElementsOnAnyValueOrVariableChanged",
+    if (this.triggersController.deferUntilConditionsCompleted("notifyElementsOnAnyValueOrVariableChanged",
       () => this.notifyElementsOnAnyValueOrVariableChanged(""))) return;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].onAnyValueChanged(name, questionName);
@@ -6025,19 +6025,19 @@ export class SurveyModel extends SurveyElementCore
    * Recalculates all [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) in the survey.
    */
   public runExpressions(): void {
-    this.triggersRunner.runExpressions();
+    this.triggersController.runExpressions();
   }
   public getValueChangedKeys(): any {
-    return this.triggersRunner.getValueChangedKeys();
+    return this.triggersController.getValueChangedKeys();
   }
   private runConditions(): void {
-    this.triggersRunner.runExpressions();
+    this.triggersController.runExpressions();
   }
   private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
-    this.triggersRunner.checkTriggers(key, isOnNextPage, isOnComplete, isOnNavigation, name);
+    this.triggersController.checkTriggers(key, isOnNextPage, isOnComplete, isOnNavigation, name);
   }
   private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
-    this.triggersRunner.checkTriggersAndRunConditions(name, newValue, oldValue);
+    this.triggersController.checkTriggersAndRunConditions(name, newValue, oldValue);
   }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
@@ -6101,7 +6101,7 @@ export class SurveyModel extends SurveyElementCore
       this.onQuestionVisibleChanged.isEmpty &&
       this.onPageVisibleChanged.isEmpty &&
       //Run update visible index only one time on finishing running conditions
-      this.triggersRunner.deferUntilConditionsCompleted("updateVisibleIndexes", () => this.updateVisibleIndexes())
+      this.triggersController.deferUntilConditionsCompleted("updateVisibleIndexes", () => this.updateVisibleIndexes())
     ) return;
     if (this.isRunningElementsBindings) {
       this.updateVisibleIndexAfterBindings = true;
@@ -6226,7 +6226,7 @@ export class SurveyModel extends SurveyElementCore
     this.doElementsOnLoad();
     this.onQuestionsOnPageModeChanged("standard");
     this.isEndLoadingFromJson = "conditions";
-    this.triggersRunner.runExpressions();
+    this.triggersController.runExpressions();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
@@ -6328,7 +6328,7 @@ export class SurveyModel extends SurveyElementCore
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
     if (!Helpers.isTwoValueEquals(oldValue, newValue)) {
-      this.triggersRunner.checkTriggersAndRunConditions(name, newValue, oldValue);
+      this.triggersController.checkTriggersAndRunConditions(name, newValue, oldValue);
       this.onVariableChanged.fire(this, { name: name, value: newValue });
     }
   }

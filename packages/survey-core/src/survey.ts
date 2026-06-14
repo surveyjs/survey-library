@@ -4216,7 +4216,7 @@ export class SurveyModel extends SurveyElementCore
     this.resetNavigationButton();
     return this.singleInputController.performNext();
   }
-  private validateSingleElement(el: Question, onComplete: (hasErrors: boolean) => void): boolean {
+  private validateSingleElement(el: Question | PanelModelBase, onComplete: (hasErrors: boolean) => void): boolean {
     if (!this.validationEnabled) {
       onComplete(false);
       return true;

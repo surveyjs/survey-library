@@ -1,5 +1,6 @@
 import { IElement, ISurveyElement } from "./base-interfaces";
 import { PageModel } from "./page";
+import { PanelModelBase } from "./panel";
 import { Question } from "./question";
 import { CurrentPageChangedEvent } from "./survey-events-api";
 
@@ -15,7 +16,7 @@ export interface ISurveySingleInputHost {
   updateButtonsVisibility(): void;
   sendPartialResult(): void;
   checkTriggers(key: any, isOnNextPage: boolean, isOnComplete?: boolean, isOnNavigation?: boolean, name?: string): void;
-  validateSingleElement(el: Question, onComplete: (hasErrors: boolean) => void): boolean;
+  validateSingleElement(el: Question | PanelModelBase, onComplete: (hasErrors: boolean) => void): boolean;
 }
 
 export class SurveySingleInputController {

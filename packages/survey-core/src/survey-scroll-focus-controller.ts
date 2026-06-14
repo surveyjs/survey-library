@@ -1,4 +1,3 @@
-import { Base } from "./base";
 import { IElement } from "./base-interfaces";
 import { PageModel } from "./page";
 import { Question } from "./question";
@@ -12,13 +11,12 @@ export interface ISurveyScrollFocusHost {
   isCurrentPageRendering: boolean;
 }
 
-export class SurveyScrollFocusController extends Base {
+export class SurveyScrollFocusController {
   private focusingQuestionInfo: { question: Question, onError: boolean };
 
   private survey: ISurveyScrollFocusHost;
 
   constructor(survey: ISurveyScrollFocusHost) {
-    super();
     this.survey = survey;
   }
 

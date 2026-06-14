@@ -1,4 +1,3 @@
-import { Base } from "./base";
 import { HashTable } from "./helpers";
 import { PageModel } from "./page";
 import { settings } from "./settings";
@@ -20,13 +19,12 @@ export interface ISurveyCompletionHost {
   navigateTo(): void;
 }
 
-export class SurveyCompletionController extends Base {
+export class SurveyCompletionController {
   private completedByTriggers: HashTable<any>;
 
   private survey: ISurveyCompletionHost;
 
   constructor(survey: ISurveyCompletionHost) {
-    super();
     this.survey = survey;
   }
 

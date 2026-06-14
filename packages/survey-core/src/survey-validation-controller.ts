@@ -1,4 +1,4 @@
-import { Base } from "./base";
+import { Helpers } from "./helpers";
 import { PageModel } from "./page";
 import { PanelModelBase } from "./panel";
 import { Question, ValidationContext } from "./question";
@@ -24,13 +24,12 @@ export interface ISurveyValidationHost {
   setIsValidatingOnServer(val: boolean): void;
 }
 
-export class SurveyValidationController extends Base {
+export class SurveyValidationController {
   private serverValidationEventCount: number;
 
   private survey: ISurveyValidationHost;
 
   constructor(survey: ISurveyValidationHost) {
-    super();
     this.survey = survey;
   }
 
@@ -310,7 +309,7 @@ export class SurveyValidationController extends Base {
     let res = true;
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!this.isTwoValueEquals(q.valueForSurvey, newValue)) {
+      if (!Helpers.isTwoValueEquals(q.valueForSurvey, newValue)) {
         q.value = newValue;
       }
       res = this.validateQuestionOnValueChangedCore(q) && res && q.errors.length === 0;

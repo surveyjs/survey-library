@@ -1,5 +1,3 @@
-import { Base } from "./base";
-import { property } from "./decorators";
 import { settings } from "./settings";
 import { PageModel } from "./page";
 import { activateLazyRenderingChecks } from "./utils/dom-utils";
@@ -10,15 +8,14 @@ export interface ILazyRenderingHost {
   creator?: { rootElement?: HTMLElement };
 }
 
-export class LazyRenderingController extends Base {
+export class LazyRenderingController {
   private enabledValue: boolean;
-  @property() private firstBatchSizeValue: number;
+  private firstBatchSizeValue: number;
   private isSuspendedValue: boolean = false;
 
   private survey: ILazyRenderingHost;
 
   constructor(survey: ILazyRenderingHost) {
-    super();
     this.survey = survey;
   }
 

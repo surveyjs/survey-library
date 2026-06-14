@@ -1,4 +1,3 @@
-import { Base } from "./base";
 import { IElement } from "./base-interfaces";
 import { Helpers } from "./helpers";
 import { Serializer } from "./jsonobject";
@@ -13,7 +12,7 @@ export interface ISurveyPageStructureHost {
   singleInputController: { currentSingleElement: IElement };
 }
 
-export class SurveyPageStructureController extends Base {
+export class SurveyPageStructureController {
   private pageContainerValue: PageModel;
   private gotoPageFromPreview: PageModel;
   private changeCurrentPageFromPreviewValue: boolean;
@@ -21,7 +20,6 @@ export class SurveyPageStructureController extends Base {
   private survey: ISurveyPageStructureHost;
 
   constructor(survey: ISurveyPageStructureHost) {
-    super();
     this.survey = survey;
   }
 

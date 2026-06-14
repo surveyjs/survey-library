@@ -1,4 +1,3 @@
-import { Base } from "./base";
 import { Question } from "./question";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
@@ -20,7 +19,7 @@ export interface ISurveyTriggersHost extends ISurveyData {
   runConditionCore(properties: any): void;
 }
 
-export class SurveyTriggersRunner extends Base {
+export class SurveyTriggersRunner {
   private isTriggerIsRunning: boolean = false;
   private triggerKeys: any = null;
   private questionTriggersKeys: any;
@@ -33,7 +32,6 @@ export class SurveyTriggersRunner extends Base {
   private survey: ISurveyTriggersHost;
 
   constructor(survey: ISurveyTriggersHost) {
-    super();
     this.survey = survey;
   }
 

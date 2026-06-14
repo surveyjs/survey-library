@@ -1,4 +1,3 @@
-import { Base } from "./base";
 import { IElement, ISurveyElement } from "./base-interfaces";
 import { PageModel } from "./page";
 import { Question } from "./question";
@@ -19,13 +18,12 @@ export interface ISurveySingleInputHost {
   validateSingleElement(el: Question, onComplete: (hasErrors: boolean) => void): boolean;
 }
 
-export class SurveySingleInputController extends Base {
+export class SurveySingleInputController {
   private elementValue: IElement;
 
   private survey: ISurveySingleInputHost;
 
   constructor(survey: ISurveySingleInputHost) {
-    super();
     this.survey = survey;
   }
 

@@ -34,6 +34,6 @@ export default {
     "--sjs2-border-effect-component-formbox-invalid-focused": "var(--sjs2-border-offset-x-form-invalid-focused) var(--sjs2-border-offset-y-form-invalid-focused) var(--sjs2-border-blur-form-invalid-focused) var(--sjs2-border-spread-form-invalid-focused) var(--sjs2-color-component-formbox-invalid-focused-border)",
     "--sjs2-border-effect-component-formbox-highlighted": "var(--sjs2-border-offset-x-form-highlighted) var(--sjs2-border-offset-y-form-highlighted) var(--sjs2-border-blur-form-highlighted) var(--sjs2-border-spread-form-highlighted) var(--sjs2-color-component-formbox-highlighted-border)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 0px rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-floating-default": "0px 2 6 0px rgba(0, 0, 0, 0.1), 0px 8 16 0px rgba(0, 0, 0, 0.1)"
+    "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1)"
   }
 };

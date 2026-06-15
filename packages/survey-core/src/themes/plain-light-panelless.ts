@@ -23,8 +23,8 @@ export default {
     "--sjs2-color-border-basic-secondary": "rgba(0, 0, 0, 0.15)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(0, 0, 0, 0.16)",
     "--sjs2-color-component-panel-default-border": "var(--sjs2-color-utility-shadow-surface-default)",
-    "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1 rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-surface-default": "0px 0px 0px 1 rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-floating-default": "0px 0px 0px 1 rgba(0, 0, 0, 0.1), 0px 8 16 0px rgba(0, 0, 0, 0.05)"
+    "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
+    "--sjs2-border-effect-surface-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
+    "--sjs2-border-effect-floating-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.05)"
   }
 };

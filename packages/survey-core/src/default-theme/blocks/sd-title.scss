@@ -2,12 +2,12 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-title {
-  display: block;
-  @include sjs2--typography--default;
-  font-style: normal;
-  color: $foreground;
-  flex-direction: row;
-  white-space: normal;
+  // display: block;
+  // @include sjs2--typography--default;
+  // font-style: normal;
+  // color: $foreground;
+  // flex-direction: row;
+  // white-space: normal;
 }
 
 .sd-title.sd-container-modern__title {

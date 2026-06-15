@@ -2,9 +2,9 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-description {
-  @include sjs2--typography--component--question--description;
-  color: $font-questiondescription-color;
-  white-space: normal;
+  // @include sjs2--typography--component--question--description;
+  // color: $font-questiondescription-color;
+  // white-space: normal;
 }
 
 .sd-description.sd-question__description--under-input {
@@ -12,5 +12,5 @@
 }
 
 .sd-element__header .sd-description {
-  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
+  // margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
 }

@@ -74,6 +74,31 @@
   color: $red;
 }
 
+.sd-panel__header {
+  display: flex;
+  flex-direction: column;
+  row-gap: var(--sjs2-layout-component-panel-header-gap-vertical);
+  // padding: var(--sjs2-layout-component-panel-header-padding-vertical)
+  //   var(--sjs2-layout-component-panel-header-padding-horizontal);
+}
+
+.sd-panel__title {
+  @include sjs2--typography--component--panel--title;
+  padding: var(--sjs2-layout-component-panel-title-padding-vertical)
+    var(--sjs2-layout-component-panel-title-padding-horizontal);
+}
+
+.sd-panel__description {
+  @include sjs2--typography--component--panel--description;
+  padding-top: var(--sjs2-layout-component-panel-description-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-description-padding-bottom);
+  padding-inline: var(--sjs2-layout-component-panel-description-padding-horizontal);
+}
+
+.sd-panel > .sd-panel__header:after {
+  background: var(--sjs2-color-component-panel-default-separator);
+}
+
 .sd-panel__footer {
   box-sizing: border-box;
   padding-left: calc(var(--sd-base-padding) + var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));

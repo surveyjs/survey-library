@@ -821,6 +821,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property({ localizable: { defaultStr: "pagePrevText" } }) prevPanelText: string;
   /**
    * @deprecated Use the [`prevPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#prevPanelText) property instead.
+   * @hidden
    */
   public get panelPrevText(): string { return this.prevPanelText; }
   public set panelPrevText(val: string) { this.prevPanelText = val; }
@@ -832,6 +833,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property({ localizable: { defaultStr: "pageNextText" } }) nextPanelText: string;
   /**
    * @deprecated Use the [`nextPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#nextPanelText) property instead.
+   * @hidden
    */
   public get panelNextText(): string { return this.nextPanelText; }
   public set panelNextText(val: string) { this.nextPanelText = val; }
@@ -841,6 +843,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property({ localizable: { defaultStr: "addPanel" } }) addPanelText: string;
   /**
    * @deprecated Use the [`addPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanelText) property instead.
+   * @hidden
    */
   public get panelAddText(): string { return this.addPanelText; }
   public set panelAddText(value: string) { this.addPanelText = value; }
@@ -851,6 +854,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property({ localizable: { defaultStr: "removePanel" } }) removePanelText: string;
   /**
    * @deprecated Use the [`removePanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelText) property instead.
+   * @hidden
    */
   public get panelRemoveText(): string { return this.removePanelText; }
   public set panelRemoveText(val: string) { this.removePanelText = val; }
@@ -1159,6 +1163,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property() templateQuestionTitleLocation: string;
   /**
    * @deprecated Use the [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) property instead.
+   * @hidden
    */
   public get templateTitleLocation(): string {
     return this.templateQuestionTitleLocation;
@@ -1202,7 +1207,6 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * - `"default"` - Inherits the setting from the parent panel, page, or survey.
    * - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
    * - `"onpanel"` - Starts numbering within the dynamic panel from scratch.
-   * - `"onSurvey"` - Obsolete. Use the `"default"` value instead.
    * @see questionStartIndex
    * @see showNumber
    */
@@ -1236,11 +1240,13 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property() removePanelButtonLocation: string;
   /**
    * @deprecated Use the [`removePanelButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelButtonLocation) property instead.
+   * @hidden
    */
   public get panelRemoveButtonLocation(): string { return this.removePanelButtonLocation; }
   public set panelRemoveButtonLocation(val: string) { this.removePanelButtonLocation = val; }
   /**
    * @deprecated Use the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#showProgressBar) property instead.
+   * @hidden
    */
   public get showRangeInProgress(): boolean {
     return this.showProgressBar;
@@ -1250,6 +1256,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   /**
    * @deprecated Use the [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) property instead.
+   * @hidden
    */
   public get renderMode(): string {
     let displayMode = this.displayMode;
@@ -1449,6 +1456,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   @property() copyDefaultValueFromLastEntry: boolean;
   /**
    * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#copyDefaultValueFromLastEntry) property instead.
+   * @hidden
    */
   public get defaultValueFromLastPanel(): boolean {
     return this.copyDefaultValueFromLastEntry;

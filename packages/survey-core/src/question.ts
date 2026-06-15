@@ -775,6 +775,7 @@ export class Question extends SurveyElement<Question>
   @property() showNumber: boolean;
   /**
    * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
+   * @hidden
    */
   public get hideNumber(): boolean {
     return !this.showNumber;
@@ -2541,6 +2542,7 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @hidden
    */
   public get requiredText(): string {
     return this.requiredMark;

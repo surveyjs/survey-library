@@ -80,6 +80,7 @@ export class QuestionBooleanModel extends Question {
 
   /**
    * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
+   * @hidden
    */
   @property({ localizable: true }) label: string;
 

@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-selectbase {
   border: none;
@@ -28,9 +29,10 @@
 }
 
 .sd-selectbase__label {
+  @include sjs2--typography--component--label--content;
   display: inline-flex;
   position: relative;
-  gap: var(--sjs2-spacing-x100);
+  gap: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
   vertical-align: top;
   max-width: 100%;
 }
@@ -47,7 +49,7 @@
 }
 
 .sd-selectbase__column:not(:last-child) {
-  padding-right: var(--sjs2-spacing-x200);
+  padding-right: var(--sjs2-layout-component-labeled-group-box-gap-horizontal);
 }
 
 // Copied from stylesmanager

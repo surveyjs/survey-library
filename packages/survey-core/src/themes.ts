@@ -234,6 +234,7 @@ const typographyComponentLineHeightCoefficients: { component: string, coefficien
   { component: "question-title", coefficient: 1.5 },
   { component: "question-description", coefficient: 1.5 },
   { component: "input-content", coefficient: 1.5 },
+  { component: "label-content", coefficient: 1.5 },
 ];
 
 function multiplyCssFontSize(fontSize: string, multiplier: number, shouldRound = false): string | undefined {

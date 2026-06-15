@@ -2,52 +2,41 @@
 
 .sd-radio__decorator {
   border-radius: var(--sjs2-radius-component-radio);
+  width: var(--sjs2-size-component-radio-box);
+  height: var(--sjs2-size-component-radio-box);
+  margin-top: calc(calc(1lh - var(--sjs2-size-component-radio-box)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
+}
+.sd-radio__svg {
+  display: block;
+  width: var(--sjs2-size-component-radio-icon);
+  height: var(--sjs2-size-component-radio-icon);
 
-  &:after {
-    content: " ";
-    display: block;
-    width: var(--sjs2-size-x100);
-    height: var(--sjs2-size-x100);
-    border-radius: 50%;
-    background-color: transparent;
-    transition: background-color $transition-duration;
+  use {
+    fill: transparent;
+    transition: fill $transition-duration;
   }
 }
-.sd-radio--checked .sd-radio__decorator:after {
-  content: " ";
-  display: block;
-  width: var(--sjs2-size-x100);
-  height: var(--sjs2-size-x100);
-  border-radius: 50%;
-  background-color: var(--sjs2-color-component-check-true-default-icon);
+
+.sd-radio--checked .sd-radio__svg {
+  use {
+    fill: var(--sjs2-color-component-check-true-default-icon);
+  }
 }
+
 .sd-item__control:focus-visible + .sd-radio__decorator {
   &::before {
-    border-radius: var(--sjs2-radius-component-checkbox);
-    border-radius: 50%;
-  }
-}
-.sd-radio--checked.sd-radio--disabled .sd-radio__decorator:after {
-  background-color: var(--sjs2-color-component-check-true-disabled-icon);
-}
-
-.sd-radio--checked.sd-radio--readonly .sd-radio__decorator:after {
-  background-color: var(--sjs2-color-component-check-true-disabled-icon);
-}
-
-.sd-radio--checked.sd-radio--preview .sd-radio__decorator {
-  &:after {
-    display: none;
-  }
-
-  .sd-radio__svg {
-    fill: $foreground;
-    display: block;
-    width: var(--sjs2-size-x250);
-    height: var(--sjs2-size-x250);
+    border-radius: var(--sjs2-radius-component-radio);
   }
 }
 
-.sd-radio__svg {
-  display: none;
+.sd-radio--checked.sd-radio--disabled .sd-radio__svg use {
+  fill: var(--sjs2-color-component-check-true-disabled-icon);
+}
+
+.sd-radio--checked.sd-radio--readonly .sd-radio__svg use {
+  fill: var(--sjs2-color-component-check-true-disabled-icon);
+}
+
+.sd-radio--checked.sd-radio--preview .sd-radio__svg use {
+  fill: $foreground;
 }

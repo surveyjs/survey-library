@@ -69,6 +69,14 @@
   line-height: var(--sjs2-typography-line-height-component-input-content);
 }
 
+@mixin sjs2--typography--component--label--content {
+  font-family: var(--sjs2-typography-font-family-component-label-content);
+  font-size: var(--sjs2-typography-font-size-component-label-content);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-label-content);
+  line-height: var(--sjs2-typography-line-height-component-label-content);
+}
+
 @mixin sjs2--typography--component--question--title {
   font-family: var(--sjs2-typography-font-family-component-question-title);
   font-size: var(--sjs2-typography-font-size-component-question-title);

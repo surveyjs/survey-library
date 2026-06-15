@@ -429,6 +429,7 @@ export class QuestionMatrixModel
   @property() eachRowRequired: boolean;
   /**
    * @deprecated Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
+   * @hidden
    */
   public get isAllRowRequired(): boolean {
     return this.eachRowRequired;
@@ -457,6 +458,7 @@ export class QuestionMatrixModel
   @property({ isLowerCase: true }) rowOrder: string;
   /**
    * @deprecated Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
+   * @hidden
    */
   public get rowsOrder(): string {
     return this.rowOrder;

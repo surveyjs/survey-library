@@ -37,6 +37,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   @property() allowClear: boolean;
   /**
    * @deprecated Use the [`allowClear`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model#allowClear) property instead.
+   * @hidden
    */
   public get showClearButton(): boolean {
     return this.allowClear;

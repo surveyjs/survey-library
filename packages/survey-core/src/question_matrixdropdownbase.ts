@@ -1063,6 +1063,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   @property() transposeData: boolean;
   /**
    * @deprecated Use the [`transposeData`](#transposeData) property instead.
+   * @hidden
    */
   public get columnLayout(): string {
     return this.transposeData ? "vertical" : "horizontal";
@@ -1130,6 +1131,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   /**
    * @deprecated Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
+   * @hidden
    */
   public get isUniqueCaseSensitive(): boolean {
     return this.useCaseSensitiveComparison;

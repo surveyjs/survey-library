@@ -420,8 +420,8 @@ function sortInlineStyles(str: string) {
 function removeInputValueAttributeForSlider(str: string) {
   const div = document.createElement("div");
   div.innerHTML = str;
-  div.querySelectorAll("*").forEach(el => {
-    if (el.tagName.toLowerCase() === "input") {
+  div.querySelectorAll("*").forEach((el) => {
+    if (el.tagName.toLowerCase() === "input" && !!(el as HTMLInputElement).type && (el as HTMLInputElement).type === "range") {
       el.removeAttribute("value");
     }
   });

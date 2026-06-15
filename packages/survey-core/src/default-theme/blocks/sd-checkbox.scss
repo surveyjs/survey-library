@@ -4,6 +4,7 @@
   border-radius: var(--sjs2-radius-component-checkbox);
   width: var(--sjs2-size-component-checkbox-box);
   height: var(--sjs2-size-component-checkbox-box);
+  margin-top: calc(calc(1lh - var(--sjs2-size-component-checkbox-box)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
 }
 
 .sd-checkbox__svg {

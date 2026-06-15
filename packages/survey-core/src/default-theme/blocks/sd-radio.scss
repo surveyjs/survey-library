@@ -4,6 +4,7 @@
   border-radius: var(--sjs2-radius-component-radio);
   width: var(--sjs2-size-component-radio-box);
   height: var(--sjs2-size-component-radio-box);
+  margin-top: calc(calc(1lh - var(--sjs2-size-component-radio-box)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
 }
 .sd-radio__svg {
   display: block;

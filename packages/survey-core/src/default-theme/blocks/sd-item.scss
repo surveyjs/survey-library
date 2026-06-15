@@ -5,8 +5,11 @@
   display: flex;
   padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
 
-  &:where(:first-child, :last-child) {
-    padding: var(--sjs2-layout-component-labeled-group-box-padding-vertical) 0;
+  &:where(:first-child) {
+    padding-top: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
+  }
+  &:where(:last-child) {
+    padding-bottom: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
   }
 }
 
@@ -21,7 +24,6 @@
   background-color: var(--sjs2-color-component-check-false-default-bg);
   border: none;
   flex-shrink: 0;
-  margin-top: calc(calc(1lh - var(--sjs2-layout-component-labeled-group-box-gap-vertical)) / 2 + var(--sjs2-layout-component-labeled-item-box-padding-vertical));
   margin-bottom: var(--sjs2-layout-component-labeled-item-box-padding-vertical);
   box-shadow: var(--sjs2-border-effect-component-check-false-default), $shadow-focused-reset;
   transition:

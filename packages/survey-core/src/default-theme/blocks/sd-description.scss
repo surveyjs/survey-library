@@ -1,16 +1,2 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
-
-.sd-description {
-  @include sjs2--typography--component--question--description;
-  color: $font-questiondescription-color;
-  white-space: normal;
-}
-
-.sd-description.sd-question__description--under-input {
-  padding-top: calc(0.375 * var(--sd-base-vertical-padding));
-}
-
-.sd-element__header .sd-description {
-  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
-}

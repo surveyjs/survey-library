@@ -95,6 +95,24 @@
   color: var(--sjs2-color-component-question-default-description);
 }
 
+@mixin sjs2--typography--component--panel--title {
+  font-family: var(--sjs2-typography-font-family-component-panel-title);
+  font-size: var(--sjs2-typography-font-size-component-panel-title);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-panel-title);
+  line-height: var(--sjs2-typography-line-height-component-panel-title);
+  color: var(--sjs2-color-component-panel-default-title);
+}
+
+@mixin sjs2--typography--component--panel--description {
+  font-family: var(--sjs2-typography-font-family-component-panel-description);
+  font-size: var(--sjs2-typography-font-size-component-panel-description);
+  font-style: normal;
+  font-weight: var(--sjs2-typography-font-weight-component-panel-description);
+  line-height: var(--sjs2-typography-line-height-component-panel-description);
+  color: var(--sjs2-color-component-panel-default-description);
+}
+
 @mixin sjs2--typography--component--page--title {
   font-family: var(--sjs2-typography-font-family-component-page-title);
   font-size: var(--sjs2-typography-font-size-component-page-title);

@@ -83,7 +83,6 @@
 .sd-panel__description {
   @include sjs2--typography--component--panel--description;
   color: $font-questiondescription-color;
-  white-space: normal;
   padding-top: var(--sjs2-layout-component-panel-description-padding-top);
   padding-bottom: var(--sjs2-layout-component-panel-description-padding-bottom);
   padding-inline: var(--sjs2-layout-component-panel-description-padding-horizontal);

@@ -95,6 +95,7 @@ export interface ISurveyElementLifecycle {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
+  pageShown(page: IPage): void;
 }
 /**
  * Callbacks for file upload, download, removal, and file chooser operations.
@@ -397,8 +398,10 @@ export interface ISurveyElement extends IShortcutText {
 export interface IElementUIState {
   collapsed?: boolean;
   activePanelIndex?: number; // For Dynamic panel only, current Tab index
+  shown?: boolean; // For Page only, indicates that the respondent has already seen the page (progress state)
 }
 export interface ISurveyUIState {
+  pages?: { [key:string]: IElementUIState };
   panels?: { [key:string]: IElementUIState };
   questions?: { [key:string]: IElementUIState };
   activeElementName?: string;

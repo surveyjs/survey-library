@@ -254,4 +254,33 @@ describe("ProgressButtons", () => {
 
     expect(progress.progressText).toBe("Page 2 of 3");
   });
+  test("ProgressButtons passed pages survive uiState save & restore", () => {
+    const json: any = {
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "question1" }] },
+        { name: "page2", elements: [{ type: "text", name: "question2" }] },
+        { name: "page3", elements: [{ type: "text", name: "question3" }] }
+      ]
+    };
+    // Source survey: visit page3 directly (page2 stays unvisited), leave all questions empty.
+    const survey1: SurveyModel = new SurveyModel(json);
+    survey1.currentPage = survey1.pages[2];
+    const uiState: any = survey1.uiState;
+    // Visited pages are captured as "shown", the skipped one is not.
+    expect(uiState.pages.page1.shown, "page1 is captured as shown").toBe(true);
+    expect(uiState.pages.page3.shown, "page3 is captured as shown").toBe(true);
+    expect(uiState.pages.page2, "page2 was not visited, so it is not captured").toBe(undefined);
+
+    // Target survey: a fresh model that restores the saved UI state.
+    const survey2: SurveyModel = new SurveyModel(json);
+    const progress2: ProgressButtons = new ProgressButtons(survey2);
+    expect(progress2.isListElementPassed(2), "page3 is not passed before restore").toBe(false);
+
+    survey2.uiState = uiState;
+    // The visited (but empty) non-first page is passed again purely from the restored state.
+    expect(progress2.isListElementPassed(2), "page3 is passed after restore").toBe(true);
+    expect(progress2.isListElementPassed(1), "page2 stays not passed after restore").toBe(false);
+    // The survey is restored on the last passed page.
+    expect(survey2.currentPageNo, "currentPageNo is restored to the last passed page").toBe(2);
+  });
 });

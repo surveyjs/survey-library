@@ -83,7 +83,7 @@ body {
   --sd-timer-size: calc(18 * var(--sjs2-base-unit-size));
   width: 100%;
   font-family: $font-family;
-  background-color: var(--sjs2-color-utility-surface-survey);
+  background-color: var(--sjs2-color-utility-body);
   position: relative;
 
   @include mixins.scrollRules;
@@ -91,6 +91,16 @@ body {
   form {
     // z-index: 1;
     position: relative;
+  }
+  &:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    background-color: var(--sjs2-color-utility-surface-survey);
+    content: "";
   }
 }
 

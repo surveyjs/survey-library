@@ -105,7 +105,9 @@ body {
 }
 
 .sd-root--compact {
-  background-color: var(--sjs2-color-utility-surface-survey-panelless);
+  &:before {
+    background-color: var(--sjs2-color-utility-surface-survey-panelless);
+  }
 }
 
 .sd-root-modern--animation-disabled * {

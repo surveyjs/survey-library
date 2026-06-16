@@ -65,14 +65,34 @@
 
 .sd-question__header {
   width: 100%;
+  padding-left: var(--sjs2-layout-component-question-header-padding-left);
+  padding-right: var(--sjs2-layout-component-question-header-padding-right);
 }
 
 .sd-question__header--location-top {
-  padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
+  padding-top: var(--sjs2-layout-component-question-header-padding-top);
+  padding-bottom: calc(0.5 * var(--sd-base-vertical-padding)); // var(--sjs2-layout-component-question-header-padding-bottom)
 }
 
 .sd-question__header--location--bottom {
   padding-top: calc(0.375 * var(--sd-base-vertical-padding));
+}
+
+.sd-question__description {
+  @include sjs2--typography--component--question--description;
+  color: $font-questiondescription-color;
+  white-space: normal;
+  padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
+  padding-top: var(--sjs2-layout-component-question-description-padding-top);
+  padding-bottom: var(--sjs2-layout-component-question-description-padding-bottom);
+}
+
+.sd-question__description--under-input {
+  padding-top: calc(0.375 * var(--sd-base-vertical-padding));
+}
+
+.sd-question__header .sd-question__description {
+  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
 }
 
 .sd-element--with-frame {

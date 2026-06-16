@@ -97,6 +97,10 @@ export class ChoiceItem extends ItemValue {
   public get panel(): PanelModel {
     if (!this.panelValue) {
       this.panelValue = this.createPanel();
+    } else if (!this.panelValue.survey) {
+      // The panel may have been created while the owner question was detached (e.g. during
+      // fromJSON on question type conversion). Re-link it once the owner has a survey.
+      this.setPanelSurvey(this.panelValue);
     }
     return this.panelValue;
   }

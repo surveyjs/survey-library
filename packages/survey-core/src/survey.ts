@@ -8135,22 +8135,19 @@ export class SurveyModel extends SurveyElementCore
     return this.skeletonComponentName;
   }
   private get layoutElements(): Array<ISurveyLayoutElement> {
-    let res = this.getPropertyValue("layoutElements");
-    if (!Array.isArray(res)) {
-      // Assign the array before populating it so that re-entrant reads (e.g. TOCModel
-      // accessing findLayoutElement during its construction) return this array instead
-      // of recomputing it and causing infinite recursion.
-      res = new Array<ISurveyLayoutElement>();
-      this.setPropertyValue("layoutElements", res);
-      this.createLayoutElements(res);
-    }
-    return res;
+    return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
   }
-  private createLayoutElements(res: Array<ISurveyLayoutElement>): void {
+  private isCreatingLayout: boolean | undefined;
+  private createLayoutElements(): Array<ISurveyLayoutElement> {
+    if (this.isCreatingLayout) return [];
+    this.isCreatingLayout = true;
+    const res = new Array<ISurveyLayoutElement>();
     res.push(...this.timerModel.createLayoutElements());
     res.push(...this.progressTextModel.createLayoutElements());
     res.push(...this.tocModel.createLayoutElements());
     res.push(...this.navigationLayoutModel.createLayoutElements());
+    this.isCreatingLayout = false;
+    return res;
   }
   private isElementInContainerByContainerProperty(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
     return Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container;

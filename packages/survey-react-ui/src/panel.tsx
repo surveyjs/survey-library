@@ -27,8 +27,12 @@ export class SurveyPanel extends SurveyPanelBase {
         creator={this.creator}
       />
     );
-    const style = {
-      paddingLeft: this.panel.innerPaddingLeft,
+    const panelPaddingHorizontal = "var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500))";
+    const style: React.CSSProperties = {
+      paddingInlineStart: this.panel.innerPaddingLeft
+        ? `calc(${panelPaddingHorizontal} + ${this.panel.innerPaddingLeft})`
+        : panelPaddingHorizontal,
+      paddingInlineEnd: panelPaddingHorizontal,
       display: this.panel.renderedIsExpanded ? undefined : "none",
     };
     let content: React.JSX.Element | null = null;

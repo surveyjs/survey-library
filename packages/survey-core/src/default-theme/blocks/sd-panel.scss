@@ -3,6 +3,39 @@
 
 .sd-panel {
   position: relative;
+  padding-inline-start:  var(--sjs2-layout-component-panel-box-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-inline-end: var(--sjs2-layout-component-panel-box-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-top: var(--sjs2-layout-component-panel-box-padding-top, var(--sjs2-spacing-x000));
+  padding-bottom: var(--sjs2-layout-component-panel-box-padding-bottom, var(--sjs2-spacing-x000));
+  gap: var(--sjs2-layout-component-panel-box-gap-vertical, var(--sjs2-spacing-x000));
+}
+
+.sd-panel__header {
+  padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));
+}
+
+.sd-panel__title {
+  padding: var(--sjs2-layout-component-panel-title-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-panel-title-padding-horizontal, var(--sjs2-spacing-x000));
+}
+
+.sd-panel__description {
+  padding-inline-start:  var(--sjs2-layout-component-panel-description-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-inline-end: var(--sjs2-layout-component-panel-description-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-top: var(--sjs2-layout-component-panel-description-padding-top, var(--sjs2-spacing-x000));
+  padding-bottom: var(--sjs2-layout-component-panel-description-padding-bottom, var(--sjs2-spacing-x000));
+}
+
+.sd-panel__content {
+  padding-inline-start:  var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-inline-end: var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-top: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x400));
+  --animation-padding-top: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x400));
+  padding-bottom: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x400));
+  row-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal, var(--sjs2-spacing-x400));
+  column-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical, var(--sjs2-spacing-x500));
+  display: flex;
+  flex-direction: column;
 }
 
 .sd-panel.sd-panel--as-page {
@@ -90,9 +123,9 @@
   border: none;
   width: initial;
 }
-.sd-panel__content {
-  padding-top: var(--sd-base-padding);
-}
+// .sd-panel__content {
+//   padding-top: var(--sd-base-padding);
+// }
 
 .sd-panel.sd-element--nested {
   & > .sd-panel__content {
@@ -101,6 +134,6 @@
   }
 }
 
-.sd-panel__content {
-  --animation-padding-top: var(--sd-base-padding);
-}
+// .sd-panel__content {
+//   --animation-padding-top: var(--sd-base-padding);
+// }

@@ -12,8 +12,8 @@
     padding: var(--sjs2-spacing-x000) var(--sd-base-padding);
     box-sizing: border-box;
     background-color: $background;
-    margin-inline-start: calc(-1 * var(--sd-base-padding));
-    width: calc(100% + 2 * var(--sd-base-padding));
+    // margin-inline-start: calc(-1 * var(--sd-base-padding));
+    // width: calc(100% + 2 * var(--sd-base-padding));
   }
 
   &.sd-element--with-frame {

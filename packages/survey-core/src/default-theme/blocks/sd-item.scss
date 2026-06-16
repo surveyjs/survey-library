@@ -25,7 +25,7 @@
   border: none;
   flex-shrink: 0;
   margin-bottom: var(--sjs2-layout-component-labeled-item-box-padding-vertical);
-  box-shadow: var(--sjs2-border-effect-component-check-false-default), $shadow-focused-reset;
+  box-shadow: var(--sjs2-border-effect-component-check-false-default);
   transition:
     box-shadow $transition-duration,
     background $transition-duration;
@@ -34,7 +34,7 @@
 .sd-item--disabled.sd-item--disabled {
   .sd-item__decorator {
     background-color: var(--sjs2-color-component-check-false-disabled-bg);
-    box-shadow: var(--sjs2-border-effect-component-check-false-disabled), $shadow-focused-reset;
+    box-shadow: var(--sjs2-border-effect-component-check-false-disabled);
   }
 }
 
@@ -42,7 +42,7 @@
   &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
   .sd-item__decorator {
     background-color: var(--sjs2-color-component-check-false-readonly-bg);
-    box-shadow: var(--sjs2-border-effect-component-check-false-readonly), $shadow-focused-reset;
+    box-shadow: var(--sjs2-border-effect-component-check-false-readonly);
   }
 }
 
@@ -74,6 +74,13 @@
 
 .sd-item--allowhover:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
   background: var(--sjs2-color-component-check-false-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-check-false-hovered);
+  outline: none;
+}
+
+.sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
+  background: var(--sjs2-color-component-check-true-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-check-true-hovered);
   outline: none;
 }
 

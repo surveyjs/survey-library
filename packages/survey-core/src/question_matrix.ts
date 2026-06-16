@@ -490,7 +490,7 @@ export class QuestionMatrixModel
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
     const isDisabled = this.isReadOnly;
-    const allowHover = !isChecked && !isDisabled;
+    const allowHover = !isDisabled;
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
     return new CssClassBuilder()

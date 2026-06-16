@@ -23,10 +23,6 @@
   opacity: 0.35;
 }
 
-.sd-title.sd-element__title {
-  @include sjs2--typography--component--question--title;
-}
-
 .sd-element__header {
   .sv-string-editor {
     max-width: 100%;
@@ -53,9 +49,6 @@
   .sv-title-actions__title {
     font-size: 0;
     line-height: 0;
-  }
-
-  .sv-title-actions__title {
     white-space: nowrap;
   }
 

@@ -78,6 +78,19 @@
   padding-top: calc(0.375 * var(--sd-base-vertical-padding));
 }
 
+.sd-question__title {
+  @include sjs2--typography--component--question--title;
+  padding: var(--sjs2-layout-component-question-title-padding-vertical)
+    var(--sjs2-layout-component-question-title-padding-horizontal);
+}
+
+.sd-question__title--empty {
+  .sv-string-viewer {
+    display: inline-block;
+    height: multiply(1.5, $font-questiontitle-size);
+  }
+}
+
 .sd-question__description {
   @include sjs2--typography--component--question--description;
   color: $font-questiondescription-color;
@@ -193,13 +206,6 @@
   width: max-content;
   overflow: visible;
   max-width: 100%;
-}
-
-.sd-question__title--empty {
-  .sv-string-viewer {
-    display: inline-block;
-    height: multiply(1.5, $font-questiontitle-size);
-  }
 }
 
 .sd-question__content {

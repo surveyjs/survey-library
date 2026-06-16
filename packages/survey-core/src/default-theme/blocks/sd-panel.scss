@@ -74,6 +74,18 @@
   color: $red;
 }
 
+.sd-panel__title {
+  @include sjs2--typography--component--panel--title;
+}
+
+.sd-panel__description {
+  @include sjs2--typography--component--panel--description;
+}
+
+.sd-panel > .sd-panel__header:after {
+  background: var(--sjs2-color-component-panel-default-separator);
+}
+
 .sd-panel__footer {
   box-sizing: border-box;
   padding-left: calc(var(--sd-base-padding) + var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));

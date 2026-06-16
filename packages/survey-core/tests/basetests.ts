@@ -8,6 +8,7 @@ import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/dom-utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionTextModel } from "../src/question_text";
 import { settings } from "../src/settings";
 import { describe, test, expect, vi } from "vitest";
 export * from "../src/localization/german";
@@ -825,6 +826,17 @@ describe("Base", () => {
     expect(question.placeholder, "placeholder property value is empty string").toBe("");
     question.resetPropertyValue("placeholder");
     expect(question.placeholder, "placeholder property value is reset, #2").toBe("Select...");
+  });
+  test("base.hasDefaultPropertyValue for a lazily created localizable property, minErrorText, Bug#11431", () => {
+    const question = new QuestionTextModel("q1");
+    question.inputType = "number";
+    expect(question.hasDefaultPropertyValue("minErrorText"), "minErrorText has a default value before the first access").toBe(true);
+    expect(question.getDefaultPropertyValue("minErrorText"), "minErrorText default value").toBe("The value should not be less than {0}");
+
+    const item = new ItemValue("item1");
+    expect(item.hasDefaultPropertyValue("text"), "itemvalue.text has no default value, the 'text' localization string is empty").toBe(false);
+    expect(item.locText.renderedHtml, "itemvalue.locText is rendered as the value").toBe("item1");
+    expect(item.hasDefaultPropertyValue("text"), "itemvalue.text has no default value after locText is created").toBe(false);
   });
   test("base.resetPropertyValue() for localization string", () => {
     const survey = new SurveyModel();

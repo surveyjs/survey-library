@@ -2240,7 +2240,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     const isReadOnly = readOnlyStyles[0];
     const isDisabled = readOnlyStyles[1];
     const isChecked = this.isItemSelected(item);
-    const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
+    const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItemValue;
     options.isDisabled = isDisabled || isReadOnly;
     options.isChecked = isChecked;

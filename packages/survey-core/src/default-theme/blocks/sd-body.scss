@@ -62,6 +62,9 @@
       .sv-components-container-contentBottom .sd-body__navigation {
         padding-bottom: 0;
       }
+      .sv-components-container-contentTop .sv-header ~ .sd-body__navigation {
+        padding-top: calcSize(4);
+      }
       .sv-components-container-contentTop .sd-body__navigation {
         padding-top: 0;
       }

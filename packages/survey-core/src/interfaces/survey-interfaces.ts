@@ -95,7 +95,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   state: string;
   cancelPreviewByPage(panel: IPanel): any;
   locEditText: LocalizableString;
-  cssNavigationEdit: string;
   //#endregion
 
   //#region Question lookup

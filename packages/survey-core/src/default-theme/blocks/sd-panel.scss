@@ -29,11 +29,11 @@
 .sd-panel__content {
   padding-inline-start:  var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
   padding-inline-end: var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
-  padding-top: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x400));
-  --animation-padding-top: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x400));
-  padding-bottom: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x400));
-  row-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal, var(--sjs2-spacing-x400));
-  column-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical, var(--sjs2-spacing-x500));
+  padding-top: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500));
+  --animation-padding-top: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500));
+  padding-bottom: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500));
+  row-gap: var(--sjs2-layout-component-panel-content-area-gap-vertical, var(--sjs2-spacing-x400));
+  column-gap: var(--sjs2-layout-component-panel-content-area-gap-horizontal, var(--sjs2-spacing-x500));
   display: flex;
   flex-direction: column;
 }
@@ -90,12 +90,12 @@
 }
 
 .sd-root--compact {
-  .sd-panel__content {
-    padding-top: var(--sjs2-spacing-x500);
-    --animation-padding-top: var(--sjs2-spacing-x500);
-    padding-bottom: var(--sjs2-spacing-x500);
-    row-gap: var(--sjs2-spacing-x400);
-  }
+  // .sd-panel__content {
+  //   padding-top: var(--sjs2-spacing-x500);
+  //   --animation-padding-top: var(--sjs2-spacing-x500);
+  //   padding-bottom: var(--sjs2-spacing-x500);
+  //   row-gap: var(--sjs2-spacing-x400);
+  // }
 
   .sd-panel--as-page {
     & > .sd-panel__errbox {

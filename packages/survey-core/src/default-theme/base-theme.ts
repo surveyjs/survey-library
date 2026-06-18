@@ -295,7 +295,7 @@ export default {
     "--sjs2-layout-component-panel-box-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-box-gap-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-spacing-x500)",
-    "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-spacing-x400)",
+    "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-spacing-x500)",
     "--sjs2-layout-component-panel-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
     "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-spacing-x400)",
     "--sjs2-layout-component-panel-header-padding-horizontal": "var(--sjs2-layout-component-panel-content-area-padding-horizontal)",

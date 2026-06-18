@@ -13,8 +13,8 @@
 
   padding-inline-start:  var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
   padding-inline-end: var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
-  padding-top: var(--sjs2-layout-component-page-box-padding-top, var(--sjs2-spacing-x500));
-  padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom, var(--sjs2-spacing-x500));
+  padding-top: var(--sjs2-layout-component-page-box-padding-top, var(--sjs2-spacing-x000));
+  padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom, var(--sjs2-spacing-x000));
   row-gap: var(--sjs2-layout-component-page-box-gap-horizontal, var(--sjs2-spacing-x300));
   column-gap: var(--sjs2-layout-component-page-box-gap-vertical, var(--sjs2-spacing-x300));
 }

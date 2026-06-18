@@ -7588,6 +7588,28 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.panelCount = 10;
     expect(panel.panelCount, "#7").toBe(5);
   });
+  test("panelCount property onSettingValue clamps to minPanelCount & maxPanelCount (property grid path), Bug#11458", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [{ type: "text", name: "q1" }],
+          panelCount: 1,
+          minPanelCount: 1,
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const prop = Serializer.findProperty("paneldynamic", "panelCount");
+    expect(prop.settingValue(panel, 0), "#1 below min reverts to min").toBe(1);
+    panel.minPanelCount = 0;
+    expect(prop.settingValue(panel, 0), "#2 min is 0 now").toBe(0);
+    panel.maxPanelCount = 5;
+    expect(prop.settingValue(panel, 10), "#3 above max reverts to max").toBe(5);
+    expect(prop.settingValue(panel, 3), "#4 within range unchanged").toBe(3);
+    expect(prop.settingValue(panel, -2), "#5 negative reverts to min").toBe(0);
+  });
   test("maxRowCount & footer buttons, Bug#8865", () => {
     const survey = new SurveyModel({
       "elements": [

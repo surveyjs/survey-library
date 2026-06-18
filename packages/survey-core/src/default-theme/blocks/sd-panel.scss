@@ -90,6 +90,13 @@
 }
 
 .sd-root--compact {
+  .sd-panel__content {
+    padding-top: var(--sjs2-spacing-x500);
+    --animation-padding-top: var(--sjs2-spacing-x500);
+    padding-bottom: var(--sjs2-spacing-x500);
+    row-gap: var(--sjs2-spacing-x400);
+  }
+
   .sd-panel--as-page {
     & > .sd-panel__errbox {
       margin: 0 0 var(--sd-base-vertical-padding) 0;

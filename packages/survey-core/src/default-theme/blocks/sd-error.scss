@@ -4,8 +4,9 @@
 .sd-error {
   display: flex;
   flex-direction: column;
-  gap: var(--sjs2-spacing-x050);
-  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
+  gap: var(--sjs2-layout-component-message-box-gap-vertical);
+  padding: var(--sjs2-layout-component-message-box-padding-vertical)
+    var(--sjs2-layout-component-message-box-padding-horizontal);
   border-radius: var(--sjs2-radius-component-message);
   text-align: left;
   color: var(--sjs2-color-component-message-error-text);
@@ -40,4 +41,7 @@
 
 .sd-error__item {
   @include sjs2--typography--default;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-layout-component-message-content-gap-horizontal);
 }

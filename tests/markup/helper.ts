@@ -11,6 +11,7 @@ export interface MarkupTestDescriptor {
   excludePlatform?: string;
   etalon?: string;
   removeIds?: boolean;
+  removeValues?: boolean;
   initSurvey?: (survey: Model) => void;
   initSurveyAfterIdSetup?: (survey: Model) => void;
   getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
@@ -148,6 +149,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         oldStr = sortInlineStyles(oldStr);
         newstr = removeInputValueAttributeForSlider(newstr);
         oldStr = removeInputValueAttributeForSlider(oldStr);
+        if (test.removeValues) {
+          newstr = removeValueAttributes(newstr);
+          oldStr = removeValueAttributes(oldStr);
+        }
         newstr = removeActionsIdAttribute(newstr);
         oldStr = removeActionsIdAttribute(oldStr);
 
@@ -424,6 +429,15 @@ function removeInputValueAttributeForSlider(str: string) {
     if (el.tagName.toLowerCase() === "input" && !!(el as HTMLInputElement).type && (el as HTMLInputElement).type === "range") {
       el.removeAttribute("value");
     }
+  });
+  return div.innerHTML;
+}
+
+function removeValueAttributes(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("[value]").forEach((el) => {
+    el.removeAttribute("value");
   });
   return div.innerHTML;
 }

@@ -54,6 +54,7 @@ registerMarkupTests(
         ListModel.MINELEMENTCOUNT = oldMinCount;
       },
       removeIds: true,
+      removeValues: true,
       snapshot: "tagbox-mobile"
     }, {
       name: "Test Tagbox question markup",

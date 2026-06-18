@@ -6,10 +6,48 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 var(--sjs2-spacing-x500);
+  // padding: 0 var(--sjs2-spacing-x500);
   width: 100%;
   box-sizing: border-box;
   border-radius: var(--sjs2-radius-component-page);
+
+  padding-inline-start:  var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-inline-end: var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-top: var(--sjs2-layout-component-page-box-padding-top, var(--sjs2-spacing-x500));
+  padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom, var(--sjs2-spacing-x500));
+  row-gap: var(--sjs2-layout-component-page-box-gap-horizontal, var(--sjs2-spacing-x300));
+  column-gap: var(--sjs2-layout-component-page-box-gap-vertical, var(--sjs2-spacing-x300));
+}
+
+.sd-page__header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: var(--sjs2-layout-component-page-header-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-header-padding-horizontal, var(--sjs2-spacing-x000));
+  gap: var(--sjs2-layout-component-page-header-gap-vertical, var(--sjs2-spacing-x050));
+}
+
+.sd-page__title {
+  padding: var(--sjs2-layout-component-page-title-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-title-padding-horizontal, var(--sjs2-spacing-x000));
+}
+
+.sd-page__description {
+  padding-inline-start:  var(--sjs2-layout-component-page-description-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-inline-end: var(--sjs2-layout-component-page-description-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-top: var(--sjs2-layout-component-page-description-padding-top, var(--sjs2-spacing-x000));
+  padding-bottom: var(--sjs2-layout-component-page-description-padding-bottom, var(--sjs2-spacing-x000));
+}
+
+.sd-page__content {
+  padding-inline-start:  var(--sjs2-layout-component-page-content-area-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-inline-end: var(--sjs2-layout-component-page-content-area-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-top: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
+  padding-bottom: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
+  row-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal, var(--sjs2-spacing-x200));
+  column-gap: var(--sjs2-layout-component-page-content-area-gap-vertical, var(--sjs2-spacing-x200));
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .sd-root-modern--mobile .sd-page {

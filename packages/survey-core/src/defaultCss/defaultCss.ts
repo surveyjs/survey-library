@@ -164,9 +164,11 @@ export var defaultCss = {
   progressTextInBar: "sd-hidden",
   page: {
     root: "sd-page sd-body__page",
+    header: "sd-page__header",
     emptyHeaderRoot: "sd-page__empty-header",
     title: "sd-title sd-page__title",
     description: "sd-description sd-page__description",
+    content: "sd-page__content",
     number: "sd-page__num",
     errorsContainer: "sd-page__errbox"
   },

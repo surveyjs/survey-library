@@ -40,8 +40,8 @@ export class SurveyPage extends SurveyPanelBase {
     return (
       <div ref={this.rootRef} className={this.page.cssRoot}>
         {header}
-        {errors}
         <div className={this.page.cssContent}>
+          {errors}
           {rows}
         </div >
       </div >

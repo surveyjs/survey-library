@@ -25,6 +25,7 @@
   width: 100%;
   padding: var(--sjs2-layout-component-page-header-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-header-padding-horizontal, var(--sjs2-spacing-x000));
   gap: var(--sjs2-layout-component-page-header-gap-vertical, var(--sjs2-spacing-x050));
+  margin: 0 0 var(--sjs2-spacing-x050) 0;
 }
 
 .sd-page__title {
@@ -57,13 +58,13 @@
 .sd-page .sd-page__title {
   @include sjs2--typography--component--page--title;
   position: static;
-  margin: 0 0 var(--sjs2-spacing-x050) 0px;
+  // margin: 0 0 var(--sjs2-spacing-x050) 0px;
 }
 
 .sd-page .sd-page__description {
   @include sjs2--typography--component--page--description;
   position: static;
-  margin: 0 0 var(--sjs2-spacing-x050) 0;
+  // margin: 0 0 var(--sjs2-spacing-x050) 0;
 }
 
 

@@ -20,7 +20,8 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base } from "./base";
+import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 
 const OTHER_ITEM_VALUE = "other";
@@ -196,6 +197,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public getType(): string {
     return "selectbase";
+  }
+  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult | undefined {
+    const res = super.validateExpression(name, expression, options);
+    // {item} is a runtime variable provided per choice for these properties, so it is not an unknown variable.
+    if (!!res && (name === "choicesVisibleIf" || name === "choicesEnableIf")) {
+      res.errors = res.errors.filter(err => err.errorType !== ExpressionErrorType.UnknownVariable ||
+        (err.variableName || "").toLowerCase() !== "item");
+      if (res.errors.length === 0) return undefined;
+    }
+    return res;
   }
   protected getAllChildren(): Base[] {
     return [

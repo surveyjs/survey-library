@@ -50,7 +50,7 @@
     .sd-panel__title {
       @include sjs2--typography--component--page--title;
       position: static;
-      margin: 0 0 var(--sjs2-spacing-x050) 0px;
+      // margin: 0 0 var(--sjs2-spacing-x050) 0px;
 
       span {
         font-family: inherit;
@@ -71,7 +71,7 @@
     .sd-panel__description {
       @include sjs2--typography--component--page--description;
       position: static;
-      margin: 0 0 var(--sjs2-spacing-x050) 0;
+      // margin: 0 0 var(--sjs2-spacing-x050) 0;
     }
 
     .sd-panel__required-text {
@@ -85,7 +85,7 @@
   }
 
   & > .sd-panel__content {
-    padding-top: 0;
+    padding: 0;
   }
 }
 
@@ -125,7 +125,7 @@
   padding-top: calc(0.5 * var(--sd-base-vertical-padding));
 }
 .sd-panel--as-page .sd-panel__footer {
-  padding: var(--sjs2-spacing-x400) 0 0;
+  padding: 0;
   margin: 0;
   border: none;
   width: initial;

@@ -142,8 +142,11 @@
     border-top: none;
     position: relative;
     // top: calc(0.5 * var(--sd-base-vertical-padding));
+    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
     margin-right: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
     justify-content: flex-end;
+    padding-top: 0;
+    margin-top: calc(var(--sjs2-spacing-negative-x300));
 
     &.sd-action-bar--empty {
         display: none;

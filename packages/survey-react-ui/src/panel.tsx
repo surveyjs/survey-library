@@ -36,11 +36,13 @@ export class SurveyPanel extends SurveyPanelBase {
       display: this.panel.renderedIsExpanded ? undefined : "none",
     };
     let content: React.JSX.Element | null = null;
+    let bottom: React.JSX.Element | null = null;
     if (this.panel.renderedIsExpanded) {
       // this.hasBeenExpanded = true;
       const rows: React.JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
       const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
+      bottom = this.renderBottom();
     }
     const focusIn = () => {
       if (this.panelBase) (this.panelBase as PanelModel).focusIn();
@@ -57,6 +59,7 @@ export class SurveyPanel extends SurveyPanelBase {
         {header}
         {this.panel.showErrorsAbovePanel ? null : errors}
         {content}
+        {bottom}
       </div>
     );
   }
@@ -75,7 +78,6 @@ export class SurveyPanel extends SurveyPanelBase {
     return wrapper ?? element;
   }
   protected renderContent(style: any, rows: React.JSX.Element[], className: string): React.JSX.Element {
-    const bottom: React.JSX.Element | null = this.renderBottom();
     return (
       <div
         style={style} className={className}
@@ -84,7 +86,6 @@ export class SurveyPanel extends SurveyPanelBase {
         aria-labelledby={this.panel.ariaLabelledBy}
         aria-label={this.panel.ariaLabel}>
         {rows}
-        {bottom}
       </div>
     );
   }

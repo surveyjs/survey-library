@@ -144,13 +144,16 @@
     // top: calc(0.5 * var(--sd-base-vertical-padding));
     margin-right: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
     justify-content: flex-end;
-}
 
-.sd-paneldynamic__panel-footer {
+    .sd-action-bar--empty {
+        display: none;
+    }
+
     .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
         margin-bottom: var(--sjs2-spacing-negative-x100);
     }
 }
+
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
     .sd-tabs-toolbar {

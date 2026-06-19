@@ -295,7 +295,7 @@ export default {
     "--sjs2-layout-component-panel-box-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-box-gap-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-spacing-x500)",
-    "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-spacing-x500)",
+    "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-spacing-x500)", // TODO: This is a temporary fix to make the panel content area padding match the design spec. The correct value should be var(--sjs2-spacing-x400) but this will cause a breaking change in the UI. We will need to update the design spec to match the current implementation.
     "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-spacing-x400)",
     "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-spacing-x400)",
     "--sjs2-layout-component-panel-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",

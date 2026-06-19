@@ -22,6 +22,7 @@ export interface ISurveyUIState {
   panels?: { [key:string]: IElementUIState };
   questions?: { [key:string]: IElementUIState };
   activeElementName?: string;
+  currentPageName?: string;
   randomSeed?: number;
 }
 

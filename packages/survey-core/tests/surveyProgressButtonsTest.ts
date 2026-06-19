@@ -283,4 +283,32 @@ describe("ProgressButtons", () => {
     // The survey is restored on the last passed page.
     expect(survey2.currentPageNo, "currentPageNo is restored to the last passed page").toBe(2);
   });
+  test("ProgressButtons restores the actually active page, not the furthest visited", () => {
+    const json: any = {
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] },
+        { name: "page3", elements: [{ type: "text", name: "q3" }] },
+        { name: "page4", elements: [{ type: "text", name: "q4" }] },
+        { name: "page5", elements: [{ type: "text", name: "q5" }] }
+      ]
+    };
+    // Visit page1 -> page3 -> page4 -> back to page3, WITHOUT focusing questions or
+    // entering values, so the restore relies purely on the saved current page (not on
+    // activeElementName, which would restore the last focused question's page).
+    const survey1: SurveyModel = new SurveyModel(json);
+    survey1.currentPageNo = 2; // page3
+    survey1.currentPageNo = 3; // page4
+    survey1.currentPageNo = 2; // back to page3 (the actually active page)
+    const uiState: any = survey1.uiState;
+    expect(uiState.activeElementName, "no question was focused").toBe(undefined);
+    expect(uiState.currentPageName, "the actually active page is captured").toBe("page3");
+    // page4 was visited (further than the active page) and is still marked shown.
+    expect(uiState.pages.page4.shown, "page4 stays shown").toBe(true);
+
+    const survey2: SurveyModel = new SurveyModel(json);
+    survey2.uiState = uiState;
+    // Restored on page3 (the active page), NOT page4 (the furthest visited).
+    expect(survey2.currentPageNo, "restored on the active page, not the furthest visited").toBe(2);
+  });
 });

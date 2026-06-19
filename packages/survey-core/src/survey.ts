@@ -3156,6 +3156,9 @@ export class SurveyModel extends SurveyElementCore
     if (randomSeed) {
       res.randomSeed = randomSeed;
     }
+    if (this.currentPageNo > 0 && this.currentPage) {
+      res.currentPageName = this.currentPage.name;
+    }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
         const s = e.uiState;
@@ -3183,7 +3186,7 @@ export class SurveyModel extends SurveyElementCore
     setElementsStates(state["pages"], this.getPageByName.bind(this));
     setElementsStates(state["panels"], this.getPanelByName.bind(this));
     setElementsStates(state["questions"], this.getQuestionByName.bind(this));
-    this.restoreCurrentPageFromUIState();
+    this.restoreCurrentPageFromUIState(state);
     if (state.activeElementName) {
       // If we focused dynamic pannel?
       this.getQuestionByName(state.activeElementName)?.focus();
@@ -3192,15 +3195,11 @@ export class SurveyModel extends SurveyElementCore
       this.randomSeed = state.randomSeed;
     }
   }
-  private restoreCurrentPageFromUIState(): void {
-    const pages = this.visiblePages;
-    for (let i = pages.length - 1; i >= 0; i--) {
-      const page = pages[i];
-      if (page.wasShown || page.hasValueAnyQuestion()) {
-        if (this.currentPage !== page) {
-          this.currentPage = page;
-        }
-        break;
+  private restoreCurrentPageFromUIState(state: ISurveyUIState): void {
+    if (state.currentPageName) {
+      const page = this.getPageByName(state.currentPageName);
+      if (page && this.currentPage !== page) {
+        this.currentPage = page;
       }
     }
   }

@@ -145,7 +145,7 @@
     margin-right: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
     justify-content: flex-end;
 
-    .sd-action-bar--empty {
+    &.sd-action-bar--empty {
         display: none;
     }
 

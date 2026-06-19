@@ -87,6 +87,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   protected renderNavigator(): React.JSX.Element | null {
     if (!this.question.showNavigation) return null;
     const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
+    if (!range && !this.question.showFooterToolbar) return null;
     return (<div className={this.question.cssClasses.footer}>
       <hr className={this.question.cssClasses.separator} />
       {range}

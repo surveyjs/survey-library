@@ -9,7 +9,7 @@
 
 .sd-element--collapsed {
   &>.sd-element__header {
-    padding: var(--sjs2-spacing-x000) var(--sd-base-padding);
+    // padding: var(--sjs2-spacing-x000) var(--sd-base-padding);
     box-sizing: border-box;
     background-color: $background;
     // margin-inline-start: calc(-1 * var(--sd-base-padding));

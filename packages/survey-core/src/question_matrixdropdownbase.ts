@@ -196,7 +196,8 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     super(row);
   }
   protected get visibleIndex(): number {
-    return this.getQuestionData().visibleRows.indexOf(this.row);
+    const rows = this.getQuestionData().visibleRows;
+    return !!rows ? rows.indexOf(this.row) : this.row.visibleIndex;
   }
   protected getNextName(): string {
     return settings.expressionVariables.nextRow;
@@ -206,8 +207,9 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getVisibleItem(index: number): DynamicItemModelBase {
     const matrix = this.getQuestionData();
-    if (index < 0 || index >= matrix.visibleRows.length) return null;
-    return matrix.visibleRows[index];
+    const rows = matrix.visibleRows;
+    if (!rows || index < 0 || index >= rows.length) return null;
+    return rows[index];
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;

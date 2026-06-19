@@ -43,8 +43,8 @@
   border: 1px solid $border-light;
   border-radius: var(--sjs2-radius-component-panel-nested);
   box-sizing: border-box;
-  padding-left: var(--sd-base-padding);
-  padding-right: var(--sd-base-padding);
+  // padding-left: var(--sd-base-padding);
+  // padding-right: var(--sd-base-padding);
 
   & > .sd-element__header--location-top {
     padding-top: calc(0.5 * var(--sd-base-vertical-padding));

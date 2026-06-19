@@ -31,8 +31,8 @@ export class SurveyPanel extends SurveyPanelBase {
     const style: React.CSSProperties = {
       paddingInlineStart: this.panel.innerPaddingLeft
         ? `calc(${panelPaddingHorizontal} + ${this.panel.innerPaddingLeft})`
-        : panelPaddingHorizontal,
-      paddingInlineEnd: panelPaddingHorizontal,
+        : this.panel.innerPaddingLeft,
+      // paddingInlineEnd: this.panel.innerPaddingLeft ? panelPaddingHorizontal : undefined,
       display: this.panel.renderedIsExpanded ? undefined : "none",
     };
     let content: React.JSX.Element | null = null;

@@ -10,17 +10,21 @@ export const legacyCssVariables = {
     "--sjs2-color-component-action-brand-quaternary-surface-hovered-bg",
     "--sjs2-color-component-action-neutral-quaternary-surface-default-bg",
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-bg",
-    "--sjs2-color-component-action-brand-tertiary-surface-default-bg",
   ],
   "--sjs-general-backcolor-dark": [
     "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
-    "--sjs2-color-component-action-brand-tertiary-surface-hovered-bg",
   ],
   "--sjs-general-backcolor-dim": ["--sjs2-color-bg-neutral-tertiary-dim",
     "--sjs2-color-utility-surface-survey-panelless",
     "--sjs2-color-utility-surface-survey"], //rgba(243, 243, 243, 1)",
-  "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
-  "--sjs-general-backcolor-dim-dark": "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
+  "--sjs-general-backcolor-dim-light": [
+    "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
+    "--sjs2-color-component-action-brand-tertiary-surface-default-bg",
+  ],
+  "--sjs-general-backcolor-dim-dark": [
+    "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
+    "--sjs2-color-component-action-brand-tertiary-surface-hovered-bg",
+  ],
   "--sjs-general-forecolor": "--sjs2-color-fg-basic-primary", //rgba(0, 0, 0, 0.91)",
   "--sjs-general-forecolor-light": [
     "--sjs2-color-fg-basic-secondary", //rgba(0, 0, 0, 0.45)",
@@ -71,7 +75,10 @@ export const legacyCssVariables = {
 
   "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
-  "--sjs-editorpanel-hovercolor": "--sjs2-color-component-check-false-hovered-bg",
+  "--sjs-editorpanel-hovercolor": [
+    "--sjs2-color-component-check-false-hovered-bg",
+    "--sjs2-color-component-action-brand-tertiary-surface-hovered-bg",
+  ],
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-component-panel",
   "--sjs-questionpanel-backcolor": [
     "--sjs2-color-component-panel-default-bg",
@@ -81,11 +88,9 @@ export const legacyCssVariables = {
     "--sjs2-color-component-action-brand-quaternary-surface-hovered-bg",
     "--sjs2-color-component-action-neutral-quaternary-surface-default-bg",
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-bg",
-    "--sjs2-color-component-action-brand-tertiary-surface-default-bg",
   ],
   "--sjs-questionpanel-hovercolor": [
     "--sjs2-color-unknown-variable-001",
-    "--sjs2-color-component-action-brand-tertiary-surface-hovered-bg",
   ],
 
   "--sjs-font-family": "--sjs2-typography-font-family-text",
@@ -100,10 +105,7 @@ export const legacyCssVariables = {
 
   "--sjs-font-questiontitle-family": "--sjs2-typography-font-family-component-question-title",
   "--sjs-font-questiontitle-weight": "--sjs2-typography-font-weight-component-question-title",
-  "--sjs-font-questiontitle-size": [
-    "--sjs2-typography-font-size-component-question-title",
-    "--sjs2-typography-font-size-component-action-large-content",
-  ],
+  "--sjs-font-questiontitle-size": "--sjs2-typography-font-size-component-question-title",
   "--sjs-font-questiontitle-color": [
     "--sjs2-color-component-question-default-title",
     "--sjs2-color-fg-basic-primary",

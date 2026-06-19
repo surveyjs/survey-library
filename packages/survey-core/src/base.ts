@@ -723,8 +723,15 @@ export class Base implements IObjectValueContext {
     if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);
     if (!this.isValueUndefined(dValue) && !Array.isArray(dValue)) return dValue;
-    const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-    if (locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
+    let locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+    if (!locStr && prop.isLocalizable && !!prop.serializationProperty) {
+      //localizable strings declared via the property decorator are created on the first access
+      locStr = (<any>this)[prop.serializationProperty];
+    }
+    if (locStr && locStr.localizationName) {
+      const defaultStr = this.getLocalizationString(locStr.localizationName);
+      if (!!defaultStr) return defaultStr;
+    }
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;

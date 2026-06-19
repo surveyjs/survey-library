@@ -7545,12 +7545,16 @@ export class SurveyModel extends SurveyElementCore
   private get layoutElements(): Array<ISurveyLayoutElement> {
     return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
   }
+  private isCreatingLayout: boolean | undefined;
   private createLayoutElements(): Array<ISurveyLayoutElement> {
+    if (this.isCreatingLayout) return [];
+    this.isCreatingLayout = true;
     const res = new Array<ISurveyLayoutElement>();
     res.push(...this.timerModel.createLayoutElements());
     res.push(...this.progressTextModel.createLayoutElements());
     res.push(...this.tocModel.createLayoutElements());
     res.push(...this.navigationLayoutModel.createLayoutElements());
+    this.isCreatingLayout = false;
     return res;
   }
   private isElementInContainerByContainerProperty(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {

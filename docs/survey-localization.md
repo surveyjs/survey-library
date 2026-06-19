@@ -6,13 +6,6 @@ description: To adapt a survey to the local language of your respondents, locali
 
 This article describes how to localize UI elements and contents of your survey.
 
-- [Localize UI Elements](#localize-ui-elements)
-  - [Available Languages](#available-languages)
-  - [Enable Localization and Switch Between Locales](#enable-localization-and-switch-between-locales)
-  - [Override Individual Translations](#override-individual-translations)
-- [Localize Survey Contents](#localize-survey-contents)
-  - [Localize `choicesByUrl`](#localize-choicesbyurl)
-
 ## Localize UI Elements
 
 ### Available Languages
@@ -47,7 +40,7 @@ import "survey-core/i18n/german";
 import "survey-core/i18n/italian";
 ```
 
-The default language for UI elements is English. To select another language, use `SurveyModel`'s [`locale`](https://surveyjs.io/Documentation/Library?id=surveymodel#locale) property. For example, the following code translates the survey UI to French:
+The default language for UI elements is English. To select another language, use `SurveyModel`'s [`locale`](/Documentation/Library?id=surveymodel#locale) property. For example, the following code translates the survey UI to French:
 
 ```js
 import { Model } from "survey-core";
@@ -112,7 +105,7 @@ const surveyJson = { ... };
 const survey = new Model(surveyJson);
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library/survey-localization/ (linkStyle))
+[View Demo](/Examples/Library/survey-localization/ (linkStyle))
 
 ## Localize Survey Contents
 
@@ -163,7 +156,7 @@ To apply your translations, set the current locale:
 survey.locale = "fr";
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
+[View Demo](/form-library/examples/survey-localization/ (linkStyle))
 
 ### Localize `choicesByUrl`
 
@@ -186,6 +179,75 @@ Checkbox, Dropdown, and Radiogroup questions can load choices from a RESTful ser
 // ...
 ]
 ```
+
+## Split Survey JSON Schema to Load Translations Dynamically
+
+By default, a survey JSON schema includes all user-defined translations for every language configured in the survey. When a survey supports many languages, this can significantly increase the size of the JSON schema.
+
+To optimize payload size and improve loading performance, you can now split the survey schema into a **layout schema** that contains no textual content and one or more **localization schemas** that store translations for specific languages. You can then load only the required languages at runtime.
+
+To support this workflow, the `SurveyModel` API includes the following members:
+
+- [`getLocalizationJSON(locales)`](/form-library/documentation/api-reference/survey-data-model#getLocalizationJSON) method\
+Generates a localization JSON schema that contains all languages or a specified subset of locales.
+
+- [`mergeLocalizationJSON(json, locales)`](/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method\
+Applies a localization schema to an existing survey model. You can optionally specify which languages to apply.
+
+- `storeLocaleStrings` option in the [`toJSON(options)`](/form-library/documentation/api-reference/survey-data-model#toJSON) method\
+When `storeLocaleStrings` is disabled, `toJSON()` generates a layout-only JSON schema without any textual content.
+
+The following examples demonstrate how to generate and apply split JSON schemas.
+
+### Generate Split JSON Schemas
+
+```js
+// ...
+// Omitted: `SurveyModel` creation
+// ...
+
+// Generate a layout-only JSON schema
+const layoutJson = survey.toJSON({ storeLocaleStrings: false });
+
+// Option 1: Generate a multi-language localization JSON schema with all languages
+const localizationJson = survey.getLocalizationJSON();
+
+// Option 2: Generate a multi-language localization JSON schema with specific languages
+// (default - English, French, and Italian)
+const localizationJson = survey.getLocalizationJSON([ "default", "fr", "it" ]);
+
+// Option 3: Generate multiple single-language localization JSON schemas
+const defaultLocalizationJson = survey.getLocalizationJSON([ "default" ]);
+const frLocalizationJson = survey.getLocalizationJSON([ "fr" ]);
+const itLocalizationJson = survey.getLocalizationJSON([ "it" ]);
+
+// ...
+// Save the generated JSON schemas to your storage
+// ...
+```
+
+### Apply Split JSON Schemas
+
+```js
+// ...
+// Load the required JSON schemas from your storage
+// ...
+
+// Apply the layout JSON schema
+survey.fromJSON(layoutJson);
+
+// Option 1: Apply all languages from a multi-language localization JSON schema
+survey.mergeLocalizationJSON(localizationJson);
+
+// Option 2: Apply specific languages from a multi-language localization JSON schema
+survey.mergeLocalizationJSON(localizationJson, [ "fr", "it" ]);
+
+// Option 3: Apply single-language localization JSON schemas
+survey.mergeLocalizationJSON(frLocalizationJson);
+survey.mergeLocalizationJSON(itLocalizationJson);
+```
+
+> To check whether a locale is already present in a survey before merging a localization schema, call the [`getUsedLocales`](/form-library/documentation/api-reference/survey-data-model#getUsedLocales) method.
 
 ## See Also
 

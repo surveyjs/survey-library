@@ -939,4 +939,23 @@ describe("Numeric mask", () => {
     number.fractionalPart = "65";
     expect(maskInstance.validateNumber(number, false), "test " + maskInstance.convertNumber(number)).toBeTruthy();
   });
+
+  test("empty thousandsSeparator disables grouping", () => {
+    const maskInstance = new InputMaskNumeric();
+    maskInstance.setData({
+      thousandsSeparator: "",
+      precision: 0,
+      allowNegativeValues: false,
+      min: -10,
+      max: 999999999
+    });
+
+    expect(maskInstance.thousandsSeparator).toBe("");
+    expect(maskInstance.getMaskedValue(1234567)).toBe("1234567");
+    expect(maskInstance.getMaskedValue("1234567")).toBe("1234567");
+
+    let result = maskInstance.processInput({ insertedChars: "4", selectionStart: 3, selectionEnd: 3, prevValue: "123", inputDirection: "forward" });
+    expect(result.value).toBe("1234");
+    expect(result.caretPosition).toBe(4);
+  });
 });

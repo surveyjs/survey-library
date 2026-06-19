@@ -36,7 +36,7 @@
 
 .sd-paneldynamic__footer {
     clear: both;
-    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
     gap: var(--sjs2-layout-component-panel-footer-gap-vertical, var(--sjs2-spacing-x050));
     position: relative;
 
@@ -295,6 +295,7 @@
 }
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
+    position: relative;
 }
 
 @keyframes movePanel {

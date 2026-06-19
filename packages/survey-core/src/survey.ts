@@ -4148,9 +4148,7 @@ export class SurveyModel extends SurveyElementCore
    * @see deleteCookie
    */
   public get hasCookie(): boolean {
-    if (!this.cookieName) return false;
-    var cookies = DomDocumentHelper.getCookie();
-    return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
+    return this.completionController.hasCookie;
   }
   /**
    * Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) in the browser. If the `cookieName` property value is defined, this method is automatically called on survey completion.
@@ -4158,8 +4156,7 @@ export class SurveyModel extends SurveyElementCore
    * @see deleteCookie
    */
   public setCookie() {
-    if (!this.cookieName) return;
-    DomDocumentHelper.setCookie(this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT");
+    this.completionController.setCookie();
   }
   /**
    * Deletes a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) from the browser.
@@ -4167,8 +4164,7 @@ export class SurveyModel extends SurveyElementCore
    * @see setCookie
    */
   public deleteCookie() {
-    if (!this.cookieName) return;
-    DomDocumentHelper.setCookie(this.cookieName + "=;");
+    this.completionController.deleteCookie();
   }
   /**
    * @deprecated Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.

@@ -1,4 +1,5 @@
 import { HashTable } from "./helpers";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { PageModel } from "./page";
 import { settings } from "./settings";
 import { Trigger } from "./trigger";
@@ -8,13 +9,12 @@ export interface ISurveyCompletionHost {
   isCompleted: boolean;
   isNavigationBlocked: boolean;
   currentPage: PageModel;
-  hasCookie: boolean;
+  cookieName: string;
   surveyPostId: string;
   onComplete: { fire(sender: any, options: CompleteEvent): void };
   onCompleting: { fire(sender: any, options: CompletingEvent, onComplete?: () => void, onFirstAsync?: () => void): void };
   setCompletedState(value: string, text: string): void;
   notify(message: string, type: string): void;
-  setCookie(): void;
   sendResult(): void;
   navigateTo(): void;
 }
@@ -36,7 +36,7 @@ export class SurveyCompletionController {
       if (allow) {
         survey.isCompleted = true;
         this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
-        survey.setCookie();
+        this.setCookie();
       } else {
         survey.isCompleted = false;
       }
@@ -45,7 +45,7 @@ export class SurveyCompletionController {
 
   public saveDataOnComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): void {
     const survey = this.survey;
-    let previousCookie = survey.hasCookie;
+    let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
       survey.setCompletedState("saving", text);
@@ -137,5 +137,22 @@ export class SurveyCompletionController {
 
   public resetCompletedByTriggers(): void {
     this.completedByTriggers = undefined;
+  }
+
+  public get hasCookie(): boolean {
+    const cookieName = this.survey.cookieName;
+    if (!cookieName) return false;
+    const cookies = DomDocumentHelper.getCookie();
+    return !!cookies && cookies.indexOf(cookieName + "=true") > -1;
+  }
+  public setCookie(): void {
+    const cookieName = this.survey.cookieName;
+    if (!cookieName) return;
+    DomDocumentHelper.setCookie(cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT");
+  }
+  public deleteCookie(): void {
+    const cookieName = this.survey.cookieName;
+    if (!cookieName) return;
+    DomDocumentHelper.setCookie(cookieName + "=;");
   }
 }

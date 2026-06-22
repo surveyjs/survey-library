@@ -109,7 +109,7 @@ describe("SurveyStateTest", () => {
     panel.currentIndex = 1;
 
     survey.whenQuestionFocusIn(panel.panels[1].getQuestionByName("q6"));
-    expect(survey.uiState, "survey state with last active").toEqual({ questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" });
+    expect(survey.uiState, "survey state with last active").toEqual({ pages: { page1: { passed: true } }, currentPageName: "page2", questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" });
 
     survey = new SurveyModel(config);
     survey.uiState = { questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" };

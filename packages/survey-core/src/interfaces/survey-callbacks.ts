@@ -38,6 +38,7 @@ export interface ISurveyElementLifecycle {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
+  pagePassed(page: IPage): void;
 }
 /**
  * Callbacks for file upload, download, removal, and file chooser operations.

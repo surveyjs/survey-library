@@ -1132,7 +1132,7 @@ export interface UIStateChangedEvent {
   /**
    * The name of the UI state property that changed.
    */
-  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex";
+  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex" | "passed";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**

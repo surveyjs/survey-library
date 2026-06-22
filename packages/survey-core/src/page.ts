@@ -5,6 +5,7 @@ import {
   IPanel,
   IElement,
   ISurvey,
+  IElementUIState,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -289,6 +290,26 @@ export class PageModel extends PanelModel implements IPage {
   public setWasShown(val: boolean): void {
     if (!val) {
       this.resetWasRendered();
+    }
+  }
+  protected getUIState(): IElementUIState {
+    let result = super.getUIState();
+    if (this.passed) {
+      result = result || {};
+      result.passed = true;
+    }
+    return result;
+  }
+  protected setUIState(state: IElementUIState): void {
+    super.setUIState(state);
+    if (state.passed) {
+      this.passed = true;
+    }
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "passed" && newValue && !!this.survey) {
+      this.lifecycleCallbacks.pagePassed(this);
     }
   }
   protected onFirstRenderingCore(): void {

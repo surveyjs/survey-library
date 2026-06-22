@@ -3141,6 +3141,7 @@ export class SurveyModel extends SurveyElementCore
    * - Order of randomized choice options
    * - Last visited question
    * - Last active panel within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model)
+   * - Pages that the respondent has already visited (used to display progress in the progress bar)
    *
    * Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
    *
@@ -3154,6 +3155,9 @@ export class SurveyModel extends SurveyElementCore
     const randomSeed = this.getPropertyValueWithoutDefault("randomSeed");
     if (randomSeed) {
       res.randomSeed = randomSeed;
+    }
+    if (this.currentPageNo > 0 && this.currentPage) {
+      res.currentPageName = this.currentPage.name;
     }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
@@ -3182,12 +3186,21 @@ export class SurveyModel extends SurveyElementCore
     setElementsStates(state["pages"], this.getPageByName.bind(this));
     setElementsStates(state["panels"], this.getPanelByName.bind(this));
     setElementsStates(state["questions"], this.getQuestionByName.bind(this));
+    this.restoreCurrentPageFromUIState(state);
     if (state.activeElementName) {
       // If we focused dynamic pannel?
       this.getQuestionByName(state.activeElementName)?.focus();
     }
     if (state.randomSeed) {
       this.randomSeed = state.randomSeed;
+    }
+  }
+  private restoreCurrentPageFromUIState(state: ISurveyUIState): void {
+    if (state.currentPageName) {
+      const page = this.getPageByName(state.currentPageName);
+      if (page && this.currentPage !== page) {
+        this.currentPage = page;
+      }
     }
   }
   public get randomSeed (): number {
@@ -5732,7 +5745,10 @@ export class SurveyModel extends SurveyElementCore
     this.onElementContentVisibilityChanged.fire(this, { element });
     this.doUIStateChanged("collapsed", element);
   }
-  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex", element: ISurveyElement): void {
+  pageShown(page: IPage): void {
+    this.doUIStateChanged("shown", page);
+  }
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }
@@ -8263,7 +8279,7 @@ export class SurveyModel extends SurveyElementCore
     return this._applyTheme(themeToApply);
   }
   private _applyTheme(theme: ITheme): void {
-    patchLegacyCSSVariables(theme.cssVariables);
+    patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;

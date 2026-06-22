@@ -202,9 +202,9 @@ describe("RandomSeed", () => {
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
 
-    expect(survey.uiState, "random seed is in the state").toEqual({ randomSeed: survey.randomSeed });
+    expect(survey.uiState, "random seed is in the state").toEqual({ pages: { p1: { shown: true } }, randomSeed: survey.randomSeed });
     survey.randomSeed = 987654;
-    expect(survey.uiState, "random seed in state is changed").toEqual({ randomSeed: 987654 });
+    expect(survey.uiState, "random seed in state is changed").toEqual({ pages: { p1: { shown: true } }, randomSeed: 987654 });
     expect(p1.visibleQuestions.map(q => q.name), "page questions order for seed 987654").toEqual(["q8", "q1", "q4", "q9", "q3", "q2", "q6", "q7", "q5"]);
     expect(q1.visibleChoices.map((e: any) => e.value), "dropdown choices order for seed 987654").toEqual([8, 9, 3, 7, 1, 2, 6, 5, 4]);
     expect(q2.visibleChoices.map((e: any) => e.value), "checkbox choices order for seed 987654").toEqual([9, 4, 6, 2, 5, 1, 3, 7, 8]);

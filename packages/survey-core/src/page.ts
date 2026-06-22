@@ -5,6 +5,7 @@ import {
   IPanel,
   IElement,
   ISurvey,
+  IElementUIState,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -283,23 +284,42 @@ export class PageModel extends PanelModel implements IPage {
   public get isActive(): boolean {
     return !!this.survey && <PageModel>this.survey.currentPage === this;
   }
+  private wasShownValue: boolean = false;
   /**
-   * Returns `true` if the respondent has already seen this page during the current session.
+   * Returns `true` if the respondent has already seen this page (it was rendered during the current session or its visited state was restored via [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState)).
    */
   public get wasShown(): boolean {
-    return this.wasRendered;
+    return this.wasRendered || this.wasShownValue;
   }
   get hasShown(): boolean {
-    return this.wasRendered;
+    return this.wasShown;
   }
   public setWasShown(val: boolean): void {
+    this.wasShownValue = val;
     if (!val) {
       this.resetWasRendered();
+    }
+  }
+  protected getUIState(): IElementUIState {
+    let result = super.getUIState();
+    if (this.wasShown) {
+      result = result || {};
+      result.shown = true;
+    }
+    return result;
+  }
+  protected setUIState(state: IElementUIState): void {
+    super.setUIState(state);
+    if (state.shown) {
+      this.setWasShown(true);
     }
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
     if (this.isDesignMode) return;
+    if (this.survey) {
+      this.lifecycleCallbacks.pageShown(this);
+    }
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
       if (els[i].isPanel) {

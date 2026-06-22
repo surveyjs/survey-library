@@ -4,6 +4,7 @@ import { ITextInputParams } from "./mask_utils";
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
   private maskedEmptyValue : string;
+  private pastedPlainText: string | undefined = undefined;
 
   private setInputValue(value: string) {
     if (this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
@@ -54,6 +55,17 @@ export class InputElementAdapter {
     this.updateInputValue();
   };
 
+  pasteHandler = (event: ClipboardEvent) => {
+    if (this.inputElement.readOnly) {
+      event.preventDefault();
+      return;
+    }
+    const plainText = event.clipboardData?.getData("text/plain");
+    if (plainText !== undefined && plainText !== null) {
+      this.pastedPlainText = plainText;
+    }
+  };
+
   beforeInputHandler = (event: any) => {
     if (this.inputElement.readOnly) {
       event.preventDefault();
@@ -92,11 +104,16 @@ export class InputElementAdapter {
     if (event.inputType === "deleteContentForward" && args.selectionStart === args.selectionEnd) {
       args.selectionEnd += 1;
     }
+    if (event.inputType === "insertFromPaste" && this.pastedPlainText !== undefined) {
+      args.insertedChars = this.pastedPlainText;
+      this.pastedPlainText = undefined;
+    }
 
     return args;
   }
   public addInputEventListener(): void {
     if (!!this.inputElement) {
+      this.inputElement.addEventListener("paste", this.pasteHandler);
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.addEventListener("click", this.clickHandler);
       this.inputElement.addEventListener("focus", this.focusHandler);
@@ -106,6 +123,7 @@ export class InputElementAdapter {
   }
   public removeInputEventListener(): void {
     if (!!this.inputElement) {
+      this.inputElement.removeEventListener("paste", this.pasteHandler);
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.removeEventListener("click", this.clickHandler);
       this.inputElement.removeEventListener("focus", this.focusHandler);

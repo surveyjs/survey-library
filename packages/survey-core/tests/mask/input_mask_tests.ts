@@ -239,4 +239,35 @@ describe("Input mask", () => {
 
     testInput.remove();
   });
+
+  test("InputElementAdapter insertFromPaste uses text/plain when beforeinput supplies HTML", () => {
+    const testInput = document.createElement("input");
+    const inputMaskPattern = new InputMaskPattern();
+    inputMaskPattern.pattern = "+1(999) 999-9999";
+    const adapter = new InputElementAdapter(inputMaskPattern, testInput);
+    testInput.value = "+1(___) ___-____";
+    testInput.selectionStart = 0;
+    testInput.selectionEnd = 0;
+
+    const plainText = "(123) 456-7890";
+    const htmlClipboard = "<meta charset='utf-8'><span style=\"color: rgba(0, 0, 0, 0.91); font-size: 16px;\">(123) 456-7890</span>";
+
+    const pasteEvent = new Event("paste", { bubbles: true, cancelable: true }) as ClipboardEvent;
+    Object.defineProperty(pasteEvent, "clipboardData", {
+      value: {
+        getData: (type: string) => type === "text/plain" ? plainText : htmlClipboard
+      }
+    });
+    testInput.dispatchEvent(pasteEvent);
+
+    adapter.beforeInputHandler({
+      data: htmlClipboard,
+      inputType: "insertFromPaste",
+      target: testInput,
+      preventDefault: () => {}
+    });
+    expect(testInput.value).toBe("+1(123) 456-7890");
+
+    testInput.remove();
+  });
 });

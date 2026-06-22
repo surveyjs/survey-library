@@ -134,6 +134,7 @@
     position: relative;
     top: calc(0.5 * var(--sd-base-vertical-padding));
     justify-content: flex-end;
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
 
 .sd-paneldynamic__panel-footer {

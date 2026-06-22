@@ -119,6 +119,7 @@ sv-popup {
     overflow: visible;
     justify-content: flex-end;
     width: 100%;
+    --sd-action-bar-gap: var(--sjs2-layout-component-modal-footer-action-group-gap);
   }
 
   .sv-popup__scrolling-content {

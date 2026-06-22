@@ -295,8 +295,11 @@
 
 .sd-table__cell--detail-panel {
   border-top: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
-  padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x100) var(--sjs2-spacing-x400);
+  padding: var(--sjs2-spacing-x400) var(--sjs2-spacing-x100);
   border-bottom: calc(var(--sjs2-base-unit-border-width) * 8) solid transparent;
+  .sd-panel__content {
+    padding: 0;
+  }
 }
 
 .sd-table__cell--actions,
@@ -757,11 +760,11 @@
   @include table_responsive();
 }
 
-.sd-table__cell--detail-panel {
-  .sd-panel__content {
-    padding-top: var(--sjs2-spacing-x100);
-  }
-}
+// .sd-table__cell--detail-panel {
+//   .sd-panel__content {
+//     padding-top: var(--sjs2-spacing-x100);
+//   }
+// }
 
 .sd-table__question-wrapper {
   .sd-boolean-root {

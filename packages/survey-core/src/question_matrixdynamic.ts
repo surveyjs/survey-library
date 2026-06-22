@@ -1039,7 +1039,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private initFooterToolbar() {
     this.toolbarValue = this.createActionContainer();
-    this.toolbarValue.setActionsAppearance({ style: "brand", mode: "tertiary", size: "small", });
+    this.toolbarValue.setActionsAppearance({ style: "brand", mode: "secondary", size: "small", });
     const addBtnAction = new Action({
       locTitle: this.locAddRowText,
       visible: new ComputedUpdater(() => this.canAddRow),

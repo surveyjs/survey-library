@@ -8263,7 +8263,7 @@ export class SurveyModel extends SurveyElementCore
     return this._applyTheme(themeToApply);
   }
   private _applyTheme(theme: ITheme): void {
-    patchLegacyCSSVariables(theme.cssVariables);
+    patchLegacyCSSVariables(theme.cssVariables, theme.isPanelless);
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
         return;

@@ -11,20 +11,12 @@ export const legacyCssVariables = {
     "--sjs2-color-component-action-neutral-quaternary-surface-default-bg",
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-bg",
   ],
-  "--sjs-general-backcolor-dark": [
-    "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
-  ],
+  "--sjs-general-backcolor-dark": "--sjs2-color-bg-basic-primary-dim", //rgba(248, 248, 248, 1)",
   "--sjs-general-backcolor-dim": ["--sjs2-color-bg-neutral-tertiary-dim",
     "--sjs2-color-utility-surface-survey-panelless",
     "--sjs2-color-utility-surface-survey"], //rgba(243, 243, 243, 1)",
-  "--sjs-general-backcolor-dim-light": [
-    "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
-    "--sjs2-color-component-action-brand-tertiary-surface-default-bg",
-  ],
-  "--sjs-general-backcolor-dim-dark": [
-    "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
-    "--sjs2-color-component-action-brand-tertiary-surface-hovered-bg",
-  ],
+  "--sjs-general-backcolor-dim-light": "--sjs2-color-bg-basic-secondary", //??? //rgba(249, 249, 249, 1)",
+  "--sjs-general-backcolor-dim-dark": "--sjs2-color-bg-basic-secondary-dim", //rgba(243, 243, 243, 1)",
   "--sjs-general-forecolor": "--sjs2-color-fg-basic-primary", //rgba(0, 0, 0, 0.91)",
   "--sjs-general-forecolor-light": [
     "--sjs2-color-fg-basic-secondary", //rgba(0, 0, 0, 0.45)",
@@ -75,10 +67,7 @@ export const legacyCssVariables = {
 
   "--sjs-editorpanel-cornerRadius": "--sjs2-radius-form",
   "--sjs-editorpanel-backcolor": "--sjs2-color-component-formbox-default-bg",
-  "--sjs-editorpanel-hovercolor": [
-    "--sjs2-color-component-check-false-hovered-bg",
-    "--sjs2-color-component-action-brand-tertiary-surface-hovered-bg",
-  ],
+  "--sjs-editorpanel-hovercolor": "--sjs2-color-component-check-false-hovered-bg",
   "--sjs-questionpanel-cornerRadius": "--sjs2-radius-component-panel",
   "--sjs-questionpanel-backcolor": [
     "--sjs2-color-component-panel-default-bg",
@@ -89,9 +78,7 @@ export const legacyCssVariables = {
     "--sjs2-color-component-action-neutral-quaternary-surface-default-bg",
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-bg",
   ],
-  "--sjs-questionpanel-hovercolor": [
-    "--sjs2-color-unknown-variable-001",
-  ],
+  "--sjs-questionpanel-hovercolor": "--sjs2-color-unknown-variable-001",
 
   "--sjs-font-family": "--sjs2-typography-font-family-text",
   "--sjs-font-pagetitle-family": "--sjs2-typography-font-family-component-page-title",

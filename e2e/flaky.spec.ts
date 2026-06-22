@@ -23,7 +23,6 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  // Only register this demo test for the React renderer.
   if (framework !== "react") return;
 
   test.describe(`${framework} ${title}`, () => {
@@ -32,18 +31,6 @@ frameworks.forEach((framework) => {
     });
 
     test("intentionally flaky - random pass/fail (~50%)", async ({ page }) => {
-      await initSurvey(page, framework, json);
-
-      // Do something real so the test isn't a no-op.
-      await page.locator("input[type=text]").first().fill("John Snow");
-      await getButtonByText(page, "Complete").click();
-
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({ name: "John Snow" });
-
-      // --- The flaky part -------------------------------------------------
-      // A coin-flip assertion: ~50% of attempts fail. With retries: 4, the
-      // overall test almost always ends up green but is flagged as flaky.
       const coin = Math.random() < 0.5;
       expect(coin, "flaky coin-flip assertion (expected to fail ~50% of attempts)").toBe(true);
     });

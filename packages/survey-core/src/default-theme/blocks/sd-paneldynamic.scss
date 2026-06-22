@@ -169,8 +169,8 @@
         position: relative;
         background: $border-light;
         bottom: 0;
-        inset-inline-start: calc(-1 * var(--sd-base-padding));
-        width: calc(100% + 2 * var(--sd-base-padding));
+        // inset-inline-start: calc(-1 * var(--sd-base-padding));
+        // width: calc(100% + 2 * var(--sd-base-padding));
     }
 }
 .sd-paneldynamic__tabs-container--with-header {

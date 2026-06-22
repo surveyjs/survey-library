@@ -185,9 +185,14 @@
 
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
+    padding-left: var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    padding-right: var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
     .sd-tabs-toolbar {
         margin-bottom: -1px;
     }
+}
+.sd-paneldynamic__tabs-container--with-header {
+    padding-top: var(--sjs2-spacing-x300);
     &:after {
         content: " ";
         display: block;
@@ -197,11 +202,17 @@
         bottom: 0;
         // inset-inline-start: calc(-1 * var(--sd-base-padding));
         // width: calc(100% + 2 * var(--sd-base-padding));
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal)));
     }
 }
-.sd-paneldynamic__tabs-container--with-header {
-    padding-top: var(--sjs2-spacing-x300);
+.sd-root-modern--mobile {
+    .sd-paneldynamic__tabs-container--with-header {
+        &:after {
+            margin: 0 var(--sjs2-spacing-negative-x300);
+        }
+    }
 }
+
 .sd-tabs-toolbar.sd-action-bar {
     align-items: flex-start;
     z-index: 1;

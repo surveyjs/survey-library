@@ -1,0 +1,228 @@
+.sjs-theme-overrides {
+  --sjs2-base-unit-radius: var(--bs-border-radius);
+  --sjs2-base-unit-spacing: 0.25rem;
+  
+  --sjs2-border-effect-a11y: 0px 0px 0px 0.25rem rgba(13, 110, 253, .25);
+  /* buttons */
+  --sjs2-border-effect-component-action-a11y: 0px 0px 0px 0.25rem rgba(rgb(49, 132, 253), .5);
+  --sjs2-radius-component-action: var(--bs-border-radius);
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(0.75rem + var(--bs-border-width));
+  --sjs2-layout-component-action-large-box-padding-vertical: calc(0.375rem + var(--bs-border-width));
+  --sjs2-layout-component-action-large-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-large-label-padding-vertical: 0;
+
+  /* primary buttons */
+  --sjs2-color-component-action-brand-primary-default-label: #fff; /* --bs-btn-color */
+  --sjs2-color-component-action-brand-primary-default-icon: #fff; /* --bs-btn-color */
+  --sjs2-color-component-action-brand-primary-default-bg: #0d6efd; /* --bs-btn-bg */
+  --sjs2-border-effect-component-action-brand-primary-default: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-border-color */
+  
+  --sjs2-color-component-action-brand-primary-hovered-label: #fff; /* --bs-btn-hover-color */
+  --sjs2-color-component-action-brand-primary-hovered-icon: #fff; /* --bs-btn-hover-color */
+  --sjs2-color-component-action-brand-primary-hovered-bg: #0b5ed7; /* --bs-btn-hover-bg */
+  --sjs2-border-effect-component-action-brand-primary-hovered: inset 0px 0px 0px 1px #0a58ca; /* --bs-btn-hover-border-color */
+
+  --sjs2-color-component-action-brand-primary-disabled-label: #fff; /* --bs-btn-disabled-color */
+  --sjs2-color-component-action-brand-primary-disabled-icon: #fff; /* --bs-btn-disabled-color */
+  --sjs2-color-component-action-brand-primary-disabled-bg: #0d6efd; /* --bs-btn-disabled-bg */
+  --sjs2-border-effect-component-action-brand-primary-disabled: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-disabled-border-color */
+  
+  /* tertiary buttons */
+  
+  --sjs2-color-component-action-brand-tertiary-surface-default-label: #0d6efd; /* --bs-btn-color */
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon: #0d6efd; /* --bs-btn-color */
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent; /* --bs-btn-bg */
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-border-color */
+  
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-label: #fff; /* --bs-btn-hover-color */
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: #fff; /* --bs-btn-hover-color */
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: #0d6efd; /* --bs-btn-hover-bg */
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-hover-border-color */
+  
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-label: #0d6efd; /* --bs-btn-disabled-color */
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: #0d6efd; /* --bs-btn-disabled-color */
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent; /* --bs-btn-disabled-bg */
+  --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-disabled-border-color */
+  
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px var(--bs-primary);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px var(--bs-primary);
+  
+  /* formboxes */
+  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px #86b7fe, 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  
+  --sjs2-color-component-formbox-default-border: var(--bs-border-color);
+  --sjs2-color-component-formbox-default-fg: var(--bs-body-color);
+  --sjs2-color-component-formbox-focused-border: var(--bs-primary);
+  
+  --sjs2-radius-component-formbox: var(--bs-border-radius);
+  --sjs2-layout-component-formbox-medium-padding-vertical: var(--bs-border-width);
+  --sjs2-layout-component-formbox-medium-padding-horizontal: calc(var(--bs-border-width) + 2px);
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(0.75rem - 2px);
+  --sjs2-layout-component-input-medium-content-padding-vertical: 0.375rem; 
+  
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: .25em;
+  --sjs2-color-component-check-false-focused-border: var(--bs-primary);
+  --sjs2-size-component-checkbox-box: 1em;
+  --sjs2-size-component-checkbox-icon: 0.75em;
+  --sjs2-size-component-radio-icon: 0.75em;
+  --sjs2-size-component-radio-box: 1em;
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: 0.5em;
+  --sjs2-layout-component-labeled-group-box-gap-vertical: .125rem;
+  --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
+  --sjs2-typography-font-weight-component-label-content: var(--bs-body-font-weight);
+  --sjs2-typography-line-height-component-label-content: var(--bs-body-line-height);
+
+  --sjs2-color-component-check-false-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-check-false-hovered-bg: var(--bs-body-bg);
+  --sjs2-color-component-check-false-focused-bg: var(--bs-body-bg);
+
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--bs-border-color);
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--bs-border-color);
+  
+  /* common and other */
+  --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--bs-danger) 90%, black);
+  --sjs2-color-bg-alert-primary-disabled: var(--bs-secondary-bg);
+  --sjs2-color-bg-alert-primary: var(--bs-danger);
+  --sjs2-color-bg-alert-secondary-dim: rgba(var(--bs-danger-rgb), 0.15);
+  --sjs2-color-bg-alert-secondary: rgba(var(--bs-danger-rgb), 0.1);
+  --sjs2-color-bg-basic-primary-dim: var(--bs-secondary-bg);
+  --sjs2-color-bg-basic-primary: var(--bs-body-bg);
+  --sjs2-color-bg-basic-secondary: var(--bs-body-bg);
+  --sjs2-color-bg-basic-tertiary: var(--bs-tertiary-bg, var(--bs-secondary-bg));
+  --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
+  --sjs2-color-bg-brand-secondary-dim: rgba(var(--bs-secondary-rgb), 0.15);
+  --sjs2-color-bg-brand-secondary-disabled: var(--bs-secondary-bg);
+  --sjs2-color-bg-brand-secondary: var(--bs-secondary);
+
+  --sjs2-color-border-basic-primary: var(--bs-border-color);
+  --sjs2-color-border-basic-secondary: var(--bs-border-color);
+
+  --sjs2-color-component-panel-default-bg: var(--bs-card-bg, var(--bs-body-bg));
+  --sjs2-color-component-slider-default-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-slider-default-dot: var(--bs-primary);
+  --sjs2-color-component-slider-default-fg: var(--bs-secondary-bg);
+  --sjs2-color-component-slider-default-thumb: var(--bs-primary);
+
+  --sjs2-color-fg-alert-on-primary: #fff;
+  --sjs2-color-fg-basic-primary: var(--bs-body-color);
+  --sjs2-color-fg-basic-secondary: var(--bs-secondary-color);
+  --sjs2-color-fg-brand-on-primary: var(--bs-btn-color, #fff);
+  --sjs2-color-fg-brand-on-secondary: var(--bs-btn-color, #fff);
+  --sjs2-color-project-brand-600: var(--bs-primary);
+  --sjs2-color-utility-shadow-surface-default: var(--bs-border-color-translucent);
+  --sjs2-color-utility-shadow-trigger-default: transparent;
+  
+  --sjs2-radius-component-drop: var(--bs-border-radius);
+  --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
+  --sjs2-typography-font-family-text: var(--bs-font-sans-serif);
+  --sjs2-typography-font-size-component-question-description: .875em;
+  --sjs2-typography-font-size-default: var(--bs-body-font-size);
+  --sjs2-typography-font-size-large: 1.25rem;
+  --sjs2-typography-font-weight-component-question-title: var(--bs-body-font-weight);
+  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-line-height-default: var(--bs-body-line-height);
+  --sjs2-typography-line-height-large: 1.5;
+  --sjs2-color-utility-surface-survey: transparent;
+}
+
+/* check/radio icon redifinition */
+.sd-item--checked .sd-radio__decorator {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.sd-item--checked .sd-checkbox__decorator {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+.sd-item__decorator {
+  transition: none;
+}
+
+.sd-item--checked .sd-item__decorator {
+  background-size: calc(1em - 2 * var(--bs-border-width));
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sd-item__svg {
+  display: none;
+}
+
+/* check focus and pressed state */
+.sd-item:not(.sd-item--checked) {
+  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px #86b7fe, var(--sjs2-border-effect-a11y);
+}
+.sd-item__control:focus + .sd-item__decorator::before,
+.sd-item__control:active + .sd-item__decorator::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-shadow: var(--sjs2-border-effect-component-check-a11y);
+}
+.sd-item__control:focus + .sd-checkbox__decorator::before,
+.sd-item__control:active + .sd-checkbox__decorator::before {
+  border-radius: var(--sjs2-radius-component-checkbox);
+}
+.sd-item__control:focus + .sd-radio__decorator::before,
+.sd-item__control:active + .sd-radio__decorator::before {
+  border-radius: var(--sjs2-radius-component-radio);
+}
+.sd-item__control:active + .sd-item__decorator {
+  filter: brightness(90%);
+}
+
+/* button pressed state */
+.sd-action--primary:active {
+  transform: initial;
+}
+.sd-action--primary:active {
+  color: #fff; /*--bs-btn-active-color*/
+  background-color: #0a58ca; /*--bs-btn-active-bg*/
+  border-color: #0a53be; /*--bs-btn-active-border-color*/
+}
+
+.sd-action--tertiary:active {
+  color: #fff; /*--bs-btn-active-color*/
+  background-color: #0d6efd; /*--bs-btn-active-bg*/
+  border-color: #0d6efd; /*--bs-btn-active-border-color*/
+}
+
+.sd-theme-root .sd-panel__title {
+  --sjs2-typography-font-size-component-question-title: 1rem;
+  --sjs2-typography-font-weight-component-question-title: 500;
+}
+
+.sd-theme-root .sd-question__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x100);
+}
+
+.sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header {
+  padding-bottom: 0;
+  border: none;
+}
+
+.sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
+  content: initial;
+}
+
+.sd-theme-root .sd-action__title {
+  font-weight: normal;
+}
+
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-padding: 1rem;
+}
+
+.sd-theme-root .sd-slider__track,
+.sd-theme-root .sd-slider__track:before,
+.sd-theme-root .sd-slider__track:after,
+.sd-theme-root input[type=range].sd-slider__input::-webkit-slider-runnable-track {
+    height: calc(0.25rem * 2);
+}

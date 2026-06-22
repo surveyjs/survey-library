@@ -1,0 +1,448 @@
+.sjs-theme-overrides {
+  --sjs2-base-unit-radius: var(--mui-shape-borderRadius);
+  --sjs2-base-unit-spacing: 8px;
+
+  --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
+
+  /* buttons */
+  --sjs2-border-effect-component-action-a11y: 0 0 0 0 transparent;
+  --sjs2-radius-component-action: var(--mui-shape-borderRadius);
+  --sjs2-layout-component-action-large-box-padding-horizontal: 16px;
+  --sjs2-layout-component-action-large-box-padding-vertical: 6px;
+  --sjs2-layout-component-action-large-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-large-label-padding-vertical: 0;
+  --sjs2-typography-font-size-component-action-large-content: 0.875rem;
+  --sjs2-typography-font-weight-component-action-large-content: 500;
+  --sjs2-typography-line-height-component-action-large-content: 1.75;
+  
+  /* primary buttons (contained) */
+  --sjs2-color-component-action-brand-primary-default-label: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-action-brand-primary-default-icon: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-action-brand-primary-default-bg: var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-action-brand-primary-default: var(--mui-shadows-2);
+  
+  --sjs2-color-component-action-brand-primary-hovered-label: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-action-brand-primary-hovered-icon: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-action-brand-primary-hovered-bg: var(--mui-palette-primary-dark);
+  --sjs2-border-effect-component-action-brand-primary-hovered: var(--mui-shadows-4);
+
+  --sjs2-color-component-action-brand-primary-disabled-label: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-primary-disabled-icon: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-primary-disabled-bg: var(--mui-palette-action-disabledBackground);
+  --sjs2-border-effect-component-action-brand-primary-disabled: inset 0 0 0 0 transparent;
+
+  /* outlined buttons */
+  --sjs2-color-component-action-brand-tertiary-surface-default-label: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent;
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0 0 0 1px
+    rgba(from var(--mui-palette-primary-main) r g b / 0.5);
+
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-label: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: rgba(
+    from var(--mui-palette-primary-main) r g b / 0.04
+  );
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0 0 0 1px
+    var(--mui-palette-primary-main);
+
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-label: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent;
+  --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px
+    rgba(from var(--mui-palette-primary-main) r g b / 0.5);
+
+  /* formboxes */
+  --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px
+    var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-focused: inset 0 0 0 2px var(--mui-palette-primary-main);
+
+  --sjs2-color-component-formbox-default-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-formbox-focused-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-formbox-default-fg: var(--mui-palette-text-primary);
+  --sjs2-color-component-formbox-default-border: rgba(var(--mui-palette-common-onBackgroundChannel) / 0.23);
+  --sjs2-color-component-formbox-hovered-border: var(--mui-palette-text-primary);
+  --sjs2-color-component-formbox-focused-border: var(--mui-palette-primary-main);
+
+  --sjs2-color-component-input-default-placeholder: var(--mui-palette-text-primary);
+
+  --sjs2-radius-component-formbox: var(--mui-shape-borderRadius);
+  --sjs2-layout-component-formbox-medium-padding-vertical: 0;
+  --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 14px;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 16.5px;
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 2px;
+  --sjs2-color-component-check-false-focused-border: var(--mui-palette-primary-main);
+  --sjs2-size-component-checkbox-box: 18px;
+  --sjs2-size-component-checkbox-icon: 18px;
+  --sjs2-size-component-radio-icon: 20px;
+  --sjs2-size-component-radio-box: 20px;
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: 12px;
+  --sjs2-layout-component-labeled-group-box-gap-vertical: 18px;
+  --sjs2-layout-component-labeled-group-box-padding-vertical: 9px;
+  
+  --sjs2-typography-font-size-component-label-content: 1rem;
+  --sjs2-typography-font-weight-component-label-content: 400;
+  --sjs2-typography-line-height-component-label-content: 1.5;
+  
+  --mui-to-sjs-check-hover-bg: rgba(var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-hoverOpacity)));
+
+  --sjs2-color-component-check-false-default-bg: var(--mui-palette-background-paper);
+  --sjs2-color-component-check-false-hovered-bg: transparent;
+  --sjs2-color-component-check-true-hovered-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-check-false-focused-bg: var(--mui-palette-background-paper);
+
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-check-true-default: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 2px var(--mui-palette-text-secondary);
+  --sjs2-border-effect-component-check-true-hovered: inset 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-check-a11y: 0 0 0 0 transparent;
+
+  --sjs2-color-component-check-true-default-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-check-true-default-border: var(--mui-palette-primary-main);
+  --sjs2-color-component-check-true-default-icon: var(--mui-palette-primary-contrastText);
+
+  /* common and other */
+  --sjs2-color-utility-surface-survey: transparent;
+
+  --sjs2-color-bg-basic-primary: var(--mui-palette-background-default);
+  --sjs2-color-bg-basic-primary-dim: var(--mui-palette-action-hover);
+  --sjs2-color-bg-basic-secondary: var(--mui-palette-background-paper);
+  --sjs2-color-bg-basic-tertiary: var(--mui-palette-action-selected);
+  --sjs2-color-fg-basic-primary: var(--mui-palette-text-primary);
+  --sjs2-color-fg-basic-secondary: var(--mui-palette-text-secondary);
+
+  --sjs2-color-component-panel-default-bg: var(--mui-palette-background-paper);
+
+  --sjs2-color-project-brand-600: var(--mui-palette-primary-main);
+  --sjs2-color-bg-brand-primary: var(--mui-palette-primary-main);
+  --sjs2-color-bg-brand-primary-dim: var(--mui-palette-primary-dark);
+  --sjs2-color-bg-brand-primary-disabled: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-fg-brand-on-primary: var(--mui-palette-primary-contrastText);
+
+  --sjs2-color-bg-brand-secondary: var(--mui-palette-secondary-main);
+  --sjs2-color-bg-brand-secondary-dim: color-mix(
+    in srgb,
+    var(--mui-palette-secondary-main) 15%,
+    transparent
+  );
+  --sjs2-color-bg-brand-secondary-disabled: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-fg-brand-on-secondary: var(--mui-palette-secondary-contrastText);
+
+  --sjs2-color-bg-alert-primary: var(--mui-palette-error-main);
+  --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--mui-palette-error-main) 90%, black);
+  --sjs2-color-bg-alert-primary-disabled: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-fg-alert-on-primary: var(--mui-palette-error-contrastText);
+
+  --sjs2-color-bg-alert-secondary: color-mix(
+    in srgb,
+    var(--mui-palette-error-main) 10%,
+    transparent
+  );
+  --sjs2-color-bg-alert-secondary-dim: color-mix(
+    in srgb,
+    var(--mui-palette-error-main) 15%,
+    transparent
+  );
+
+  --sjs2-color-border-basic-primary: var(--mui-palette-divider);
+  --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
+
+  --sjs2-color-component-slider-default-thumb: var(--mui-palette-primary-main);
+  --sjs2-color-component-slider-default-dot: var(--mui-palette-primary-main);
+  --sjs2-color-component-slider-default-fg: var(--mui-palette-primary-main);
+  --sjs2-color-component-slider-default-bg: rgba(from var(--mui-palette-primary-main) r g b / 0.38);
+  --sjs2-color-utility-shadow-surface-default: var(--mui-palette-divider);
+  --sjs2-color-utility-shadow-trigger-default: transparent;
+
+  --sjs2-radius-component-drop: var(--mui-shape-borderRadius);
+  --sjs2-radius-component-panel: var(--mui-shape-borderRadius);
+
+  --sjs2-typography-font-family-text: var(--mui-fontFamily, "Roboto", Helvetica, Arial, sans-serif);
+  --sjs2-typography-font-size-large: 1.25rem;
+  --sjs2-typography-font-size-default: 1rem;
+  --sjs2-typography-font-size-component-input-content: 1rem;
+  --sjs2-typography-font-size-component-question-description: 0.75rem;
+
+  --sjs2-typography-line-height-default: 1.43;
+  --sjs2-typography-line-height-large: 1.5;
+  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-font-weight-component-question-title: 400;
+}
+
+
+/* input */
+
+.sd-formbox {
+  transition: none;
+}
+
+.sd-question:has(.sd-text, .sd-comment, .sd-dropdown) .sd-question__header {
+  transform: translate(0, 0) scale(1);
+  position: absolute;
+  --sjs2-typography-font-size-component-question-title: 1rem;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+  padding-top: 15px;
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-bottom: 0px;
+  width: fit-content;
+  transition: all 0.2s ease-in-out;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.sd-question:has(.sd-text, .sd-comment, .sd-dropdown):focus-within .sd-question__header {
+  transform: translate(-8px, -26px) scale(0.75);
+  padding-left: 6px;
+  padding-right: 10px;
+  color: var(--mui-palette-primary-main);
+  --sjs2-color-component-question-default-title: currentColor;
+  background-color: var(--mui-palette-background-default);
+}
+
+.sd-question:has(.sd-comment):focus-within .sd-question__header {
+  transform: translate(-14px, -26px) scale(0.75);
+}
+.sd-question:has(.sd-dropdown):focus-within .sd-question__header {
+  transform: translate(-2px, -26px) scale(0.75);
+}
+
+
+.sd-question:has(.sd-text, .sd-comment, .sd-dropdown) :where(input, textarea)::placeholder {
+  opacity: var(--mui-opacity-inputPlaceholder);
+  transition: all 0.2s ease-in-out;
+}
+.sd-question:has(.sd-text, .sd-comment, .sd-dropdown) :where(input, textarea):not(:focus)::placeholder {
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.sd-dropdown .sd-formbox__group .sd-action {
+  pointer-events: none;
+  transition: none;
+  background-color: transparent;        
+}
+.sd-dropdown .sd-formbox__group .sd-action svg {
+  width: 24px;
+  height: 24px;  
+  padding: 0;    
+}
+.sd-dropdown .sd-formbox__group .sd-action--popup-active {
+  transform: rotate(180deg);
+}
+
+/* button pressed state */
+.sd-action {
+  transform: none;
+  overflow: clip;
+  position: relative;
+}
+.sd-action--primary:active {
+  box-shadow: var(--mui-shadows-8);
+}
+.sd-action:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--sd-action-title-color);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition: opacity 0.6s ease-in-out, transform 0s linear 0.6s;
+}
+/* keyboard focus: ripple pulsates slightly wider than the label (MUI pulsate) */
+.sd-action:focus-visible:after {
+  width: 85%;
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1);
+  animation: sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
+}
+/* pressed: ripple expands from center */
+.sd-action:active:not(:focus-visible):after {
+  width: 200%;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.3;
+  transition: transform 0.6s ease-out, opacity 0s;
+}
+/* released but still mouse-focused: finish the grow (same scale target), then fade out */
+.sd-action:not(:active):focus:not(:focus-visible):after {
+  width: 200%;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0;
+  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+}
+
+@keyframes sd-action-ripple-enter {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes sd-action-ripple-pulsate {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* checkbox / radio hover highlight (MUI-style circular overlay) */
+:root {
+  --mui-to-sjs-animation-speed-slow: 0.4s;
+  --mui-to-sjs-animation-speed-fast: 0.15s;
+}
+.sd-selectbase__label {
+  position: relative;
+  overflow: visible;
+}
+.sd-selectbase__label::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--mui-to-sjs-check-hover-bg);
+  opacity: 0;
+  pointer-events: none;
+}
+.sd-item:not(.sd-item--disabled):hover .sd-selectbase__label::before {
+  opacity: 1;
+}
+.sd-item--checked:not(.sd-item--disabled):hover .sd-selectbase__label::before {
+  background-color: var(--mui-to-sjs-check-hover-bg);
+}
+
+/* checkbox / radio pressed + focus ripple (MUI-style, 42px) */
+.sd-item__decorator {
+  position: relative;
+  overflow: visible;
+}
+.sd-checkbox__decorator {
+  margin-inline: 1px;
+}
+.sd-item__decorator::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--mui-palette-text-secondary);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition: opacity var(--mui-to-sjs-animation-speed-slow) ease-in-out, transform 0s linear var(--mui-to-sjs-animation-speed-slow), background-color var(--mui-to-sjs-animation-speed-slow) ease-out;
+}
+.sd-item--checked .sd-item__decorator::after {
+  background-color: var(--mui-palette-primary-main);
+}
+/* keyboard focus (pointer away): ripple grows from zero, then pulsates (MUI pulsate).
+   Inputs match :focus-visible on mouse click too, so :not(:hover) tells keyboard from mouse. */
+.sd-item:not(.sd-item--disabled):not(:hover):has(.sd-item__control:focus-visible) .sd-item__decorator::after {
+  opacity: 0.3;
+  transform: translate(-50%, -50%) scale(1);
+  animation: sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
+}
+/* mouse press ripple: one smooth grow + fade in a single animation.
+   Driven by the persistent hover+focus state (not :active), so there is no rule
+   hand-off mid-grow - the animation always runs to completion without stutter. */
+.sd-item:not(.sd-item--disabled):hover:has(.sd-item__control:focus) .sd-item__decorator::after {
+  animation: sd-check-ripple-press calc(var(--mui-to-sjs-animation-speed-slow) * 2) ease-out forwards;
+}
+
+@keyframes sd-check-ripple-press {
+  0% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* radio: dot icon grows from the center when checked (MUI RadioButtonIcon) */
+.sd-radio__svg {
+  transform-origin: center;
+  transform: scale(0);
+  transition: transform var(--mui-to-sjs-animation-speed-fast) cubic-bezier(0.4, 0, 1, 1);
+}
+.sd-radio--checked .sd-radio__svg {
+  transform: scale(1);
+  transition: transform var(--mui-to-sjs-animation-speed-fast) cubic-bezier(0, 0, 0.2, 1);
+}
+
+.sd-item--checked .sd-radio__decorator {
+  background-color: transparent;
+}
+
+.sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-radio__decorator {
+  background-color: transparent;
+}
+
+
+.sd-item--checked .sd-radio__svg use {
+  fill: var(--mui-palette-primary-main);
+}
+
+
+
+.sd-panel__title {
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-primary);
+  --sjs2-typography-font-size-component-question-title: 1rem;
+  --sjs2-typography-font-weight-component-question-title: 600;
+}
+
+.sd-question__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x100);
+}
+
+.sd-element--complex.sd-element--with-frame > .sd-element__header {
+  padding-bottom: 0;
+  border: none;
+}
+
+.sd-element--complex.sd-element--with-frame > .sd-element__header:after {
+  content: initial;
+}
+
+.sd-element--with-frame {
+  --sd-base-padding: 16px;
+}
+
+.sd-action__title {
+  text-transform: uppercase;
+}
+
+.sd-slider__track,
+.sd-slider__track:before,
+.sd-slider__track:after,
+input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
+  height: 4px;
+}

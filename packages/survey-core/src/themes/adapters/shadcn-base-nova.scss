@@ -1,0 +1,22 @@
+@import "./shadcn.scss";
+
+/* shadcn/ui "base-nova" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  /* buttons */
+  --sjs2-radius-component-action: var(--radius);
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 8); /* h-8 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+
+  /* formboxes */
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 8); /* h-8 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2); /* py-2 */
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1); /* py-1 */
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 4px;
+
+  /* common and other */
+  --sjs2-radius-component-panel: calc(var(--radius) + 2px);
+}

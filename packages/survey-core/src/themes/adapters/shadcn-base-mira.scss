@@ -1,0 +1,57 @@
+@import "./shadcn.scss";
+
+/* shadcn/ui "base-mira" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  --sjs2-border-effect-a11y: 0 0 0 calc(2px + 0px) color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* buttons */
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 7); /* h-7 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 2); /* px-2 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+  --sjs2-typography-font-size-component-action-large-content: var(--text-xs);
+  --sjs2-typography-line-height-component-action-large-content: calc(var(--text-xs--line-height) * 1.25);
+
+  /* formboxes */
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 7); /* h-7 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2); /* py-2 */
+  --sjs2-radius-component-formbox: calc(var(--radius) - 2px);
+  --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 20%, transparent);
+  --sjs2-color-component-formbox-hovered-bg: color-mix(in oklab, var(--input) 20%, transparent);
+  --sjs2-color-component-formbox-focused-bg: color-mix(in oklab, var(--input) 20%, transparent);
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 2); /* px-2 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 0.5); /* py-0.5 */
+  --sjs2-typography-line-height-component-input-content: calc(var(--text-sm--line-height) * 1.25);
+  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px var(--ring);
+  --sjs2-border-effect-component-formbox-a11y: 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: calc(var(--radius) - 6px); /* rounded-[4px] */
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 1.5);
+  --sjs2-color-component-check-false-default-bg: var(--background);
+  --sjs2-color-component-check-false-hovered-bg: var(--background);
+  --sjs2-typography-line-height-component-label-content: calc(var(--spacing) * 4);
+  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* common and other */
+  --sjs2-typography-font-size-default: var(--text-xs);
+}
+
+.sd-comment__grip {
+  display: none;
+}
+
+
+.sd-theme-root .sd-panel__title {
+  --sjs2-typography-font-size-component-question-title: var(--text-sm);
+}
+
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-padding: calc(var(--spacing) * 3);
+}
+
+.sd-theme-root .sd-slider__track,
+.sd-theme-root .sd-slider__track:before,
+.sd-theme-root .sd-slider__track:after,
+.sd-theme-root input[type=range].sd-slider__input::-webkit-slider-runnable-track {
+  height: calc(var(--spacing) * 1);
+}

@@ -128,11 +128,11 @@
   }
 
   &>.sd-element__erbox {
-    margin-left: calc(-1 * var(--sd-base-padding));
-    margin-right: calc(-1 * var(--sd-base-padding));
-    width: calc(100% + 2 * var(--sd-base-padding));
+    // margin-left: calc(-1 * var(--sd-base-padding));
+    // margin-right: calc(-1 * var(--sd-base-padding));
+    // width: calc(100% + 2 * var(--sd-base-padding));
     position: sticky;
-    left: calc(-1 * var(--sd-base-padding));
+    // left: calc(-1 * var(--sd-base-padding));
   }
 }
 

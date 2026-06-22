@@ -19343,7 +19343,7 @@ describe("Survey", () => {
       querySelector: () => topStickyContainer,
       scrollTop: 0
     };
-    survey.scrollerElement = rootElement;
+    survey["stickyController"].scrollerElement = rootElement;
 
     expect(survey._isElementShouldBeSticky(".test"), "no scrolling").toBeFalsy();
 

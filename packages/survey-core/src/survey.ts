@@ -40,6 +40,7 @@ import { SurveyValidationController, ISurveyValidationHost } from "./survey-vali
 import { SurveySingleInputController, ISurveySingleInputHost } from "./survey-single-input-controller";
 import { SurveyPageStructureController, ISurveyPageStructureHost } from "./survey-page-structure-controller";
 import { SurveyScrollFocusController, ISurveyScrollFocusHost } from "./survey-scroll-focus-controller";
+import { SurveyStickyController, ISurveyStickyHost } from "./survey-sticky-controller";
 import { PageModel } from "./page";
 import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditions/conditionProcessValue";
@@ -1317,6 +1318,13 @@ export class SurveyModel extends SurveyElementCore
       this.scrollFocusControllerValue = new SurveyScrollFocusController(<ISurveyScrollFocusHost><any>this);
     }
     return this.scrollFocusControllerValue;
+  }
+  private stickyControllerValue: SurveyStickyController | undefined;
+  private get stickyController(): SurveyStickyController {
+    if (!this.stickyControllerValue) {
+      this.stickyControllerValue = new SurveyStickyController(<ISurveyStickyHost><any>this);
+    }
+    return this.stickyControllerValue;
   }
   private canRunTriggersOrConditions(type: TriggersRunType): boolean {
     if (this.isCompleted) return false;
@@ -5025,8 +5033,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
-    this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
-    this.addScrollEventListener();
+    this.stickyController.addScrollEventListener();
   }
   forceProcessResponsiveness(): void {
     if (!!this._processingResponsivenessFunc) {
@@ -5036,9 +5043,8 @@ export class SurveyModel extends SurveyElementCore
   beforeDestroySurveyElement() {
     this._processingResponsivenessFunc = undefined;
     this.destroyResizeObserver();
-    this.removeScrollEventListener();
+    this.stickyControllerValue?.removeScrollEventListener();
     this.rootElement = undefined;
-    this.scrollerElement = undefined;
   }
   /**
    * An event that is raised when the survey's width or height is changed.
@@ -7686,7 +7692,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public dispose(): void {
     this.unConnectEditingObj();
-    this.removeScrollEventListener();
+    this.stickyControllerValue?.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
     if (this.layoutElements) {
@@ -7713,16 +7719,8 @@ export class SurveyModel extends SurveyElementCore
   disposeCallback: () => void;
 
   private onScrollCallback: () => void;
-  // private _lastScrollTop = 0;
   public _isElementShouldBeSticky(selector: string): boolean {
-    if (!selector) return false;
-    const topStickyContainer = this.scrollerElement?.querySelector(selector);
-    if (!!topStickyContainer) {
-      // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
-      // this._lastScrollTop = this.rootElement.scrollTop;
-      return !!this.scrollerElement && this.scrollerElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.scrollerElement.getBoundingClientRect().y;
-    }
-    return false;
+    return this.stickyController.isElementShouldBeSticky(selector);
   }
 
   public get rootScrollDisabled() {
@@ -7733,40 +7731,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public onScroll(): void {
-    if (!!this.rootElement) {
-      if (this._isElementShouldBeSticky(".sv-components-container-center")) {
-        this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
-      } else {
-        this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
-      }
-      if (!!this.tocModel) {
-        this.tocModel.updateStickyTOCSize(this.rootElement);
-      }
-    }
-    if (this.onScrollCallback) {
-      this.onScrollCallback();
-    }
-  }
-  public addScrollEventListener(): void {
-    this.scrollHandler = () => { this.onScroll(); };
-    this.rootElement.addEventListener("scroll", this.scrollHandler);
-    if (!!this.rootElement.getElementsByTagName("form")[0]) {
-      this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
-    }
-    if (!!this.scrollerElement) {
-      this.scrollerElement.addEventListener("scroll", this.scrollHandler);
-    }
-  }
-  public removeScrollEventListener(): void {
-    if (!!this.rootElement && !!this.scrollHandler) {
-      this.rootElement.removeEventListener("scroll", this.scrollHandler);
-      if (!!this.rootElement.getElementsByTagName("form")[0]) {
-        this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
-      }
-      if (!!this.scrollerElement) {
-        this.scrollerElement.removeEventListener("scroll", this.scrollHandler);
-      }
-    }
+    this.stickyController.onScroll();
   }
   public questionErrorComponent = "sv-question-error";
 }

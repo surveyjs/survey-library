@@ -180,6 +180,14 @@
   gap: var(--sjs2-spacing-x100);
   color: $foreground;
   white-space: normal;
+  padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500)) var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-top: 0;
+}
+.sd-root-modern--mobile {
+  .sd-question__comment-area {
+    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-spacing-x300);
+    padding-top: 0;
+  }
 }
 
 .sd-question__placeholder {

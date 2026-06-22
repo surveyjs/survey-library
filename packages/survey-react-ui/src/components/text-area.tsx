@@ -75,7 +75,6 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
           aria-describedby={this.viewModel.ariaDescribedBy}
           aria-invalid={this.viewModel.ariaInvalid}
           aria-errormessage={this.viewModel.ariaErrormessage}
-          style={{ resize: "none" }}
         />
         {this.renderGroup()}
         {this.viewModel.question.resizeStyle !== "none" ?

@@ -21,7 +21,6 @@
     [attr.aria-describedby]="model.ariaDescribedBy"
     [attr.aria-invalid]="model.ariaInvalid"
     [attr.aria-errormessage]="model.ariaErrormessage"
-    [style.resize]="'none'"
     #contentElement></textarea>
     <sv-ng-action-bar *ngIf="model.hasVisibleInputActions"  [model]="model.inputActionsContainer"></sv-ng-action-bar>
     <div *ngIf="model.question.resizeStyle !== 'none'" [class]="model.getCssClasses().grip" #anchorRef>

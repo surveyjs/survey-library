@@ -42,7 +42,6 @@
       :aria-describedby="model.ariaDescribedBy"
       :aria-invalid="model.ariaInvalid"
       :aria-errormessage="model.ariaErrormessage"
-      :style="{ resize: 'none' }"
     ></textarea>
     <SvComponent v-if="model.hasVisibleInputActions" :is="'sv-action-bar'" :model="model.inputActionsContainer"></SvComponent>
     <div v-if="model.question.resizeStyle !== 'none'" :class="cssClasses.grip" ref="anchorRef">

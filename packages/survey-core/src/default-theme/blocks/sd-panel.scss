@@ -138,14 +138,17 @@
 
 .sd-panel__footer {
   box-sizing: border-box;
-  padding-left: calc(var(--sd-base-padding) + var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
-  margin-left: calc(-1 * var(--sd-base-padding));
-  width: calc(100% + 2 * var(--sd-base-padding));
-  margin-bottom: calc(-1 * var(--sd-base-padding) + 0.5 * var(--sd-base-vertical-padding));
-  margin-top: calc(0.5 * var(--sd-base-vertical-padding));
+  // padding-left: calc(var(--sd-base-padding) + var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
+  // margin-left: calc(-1 * var(--sd-base-padding));
+  // width: calc(100% + 2 * var(--sd-base-padding));
+  // margin-bottom: calc(-1 * var(--sd-base-padding) + 0.5 * var(--sd-base-vertical-padding));
+  // margin-top: calc(0.5 * var(--sd-base-vertical-padding));
+  padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x200)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   border-top: 1px solid $border-light;
-  padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+  margin-top: calc(-1 * var(--sjs2-spacing-x300));
+  padding-inline-start: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal) - 1.75 * var(--sjs2-spacing-x100));
 }
+
 .sd-panel--as-page .sd-panel__footer {
   padding: 0;
   margin: 0;

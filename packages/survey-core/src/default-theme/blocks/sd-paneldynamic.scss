@@ -29,6 +29,18 @@
     }
 }
 
+.sd-paneldynamic ~ .sd-question__comment-area {
+  padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500)) var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-top: 0;
+}
+.sd-root-modern--mobile {
+  .sd-paneldynamic ~ .sd-question__comment-area {
+    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-spacing-x300);
+    padding-top: 0;
+  }
+}
+
+
 .sd-paneldynamic__header {
   padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));

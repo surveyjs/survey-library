@@ -1,4 +1,4 @@
-@import "./shadcn.scss";
+@use "./shadcn.scss";
 
 /* shadcn/ui "base-rhea" style. Load after shadcn.css (overrides only). */
 .sjs-theme-overrides {

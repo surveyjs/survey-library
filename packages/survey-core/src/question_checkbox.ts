@@ -653,7 +653,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return json;
   }
   public isAnswerCorrect(): boolean {
-    return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
+    return Helpers.isArrayContainsEqual(this.value, this.getCorrectAnswerValue());
+  }
+  protected getCorrectAnswerOnChoicesChanged(val: any): any {
+    if (!Array.isArray(val)) return super.getCorrectAnswerOnChoicesChanged(val);
+    const res = val.filter((item) => this.correctAnswerValueExistsInChoices(item));
+    return res.length > 0 ? res : undefined;
   }
   protected setDefaultValueWithOthers() {
     this.value = this.renderedValueFromDataCore(this.defaultValue);

@@ -6742,6 +6742,135 @@ describe("Survey", () => {
     expect(survey.getCorrectedAnswerCount(), "The order is correct, #4").toBe(1);
     expect(counter, "counter #3").toBe(3);
   });
+  test("Quiz, ignore non-existent choices in correctAnswer for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", "c"],
+          correctAnswer: "z" //"z" choice doesn't exist
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", "c"],
+          correctAnswer: ["a", "b", "z"] //"z" choice doesn't exist
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.correctAnswer, "the correctAnswer is set correctly").toBe("z");
+    //radiogroup: correctAnswer references a non-existent choice, so it is ignored
+    expect(q1.quizQuestionCount, "radiogroup is not a quiz question").toBe(0);
+    q1.value = "a";
+    expect(q1.isAnswerCorrect(), "radiogroup answer is not marked incorrect").toBe(true);
+    expect(q2.correctAnswer, "the correctAnswer is set correctly").toEqual(["a", "b", "z"]);
+    //checkbox: only existing choices in correctAnswer are taken into account
+    expect(q2.quizQuestionCount, "checkbox is a quiz question").toBe(1);
+    q2.value = ["a"];
+    expect(q2.isAnswerCorrect(), "checkbox, partial answer is incorrect").toBe(false);
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox, the user can answer correctly").toBe(true);
+    expect(q2.correctAnswerCount, "checkbox, correctAnswerCount").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "survey.getCorrectAnswerCount").toBe(1);
+    expect(survey.getInCorrectAnswerCount(), "survey.getInCorrectAnswerCount").toBe(0);
+  });
+  test("Quiz, ignore invisible choices in correctAnswer for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", { value: "c", visibleIf: "false" }],
+          correctAnswer: "c" //"c" choice is invisible
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", { value: "c", visibleIf: "false" }],
+          correctAnswer: ["a", "b", "c"] //"c" choice is invisible
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.visibleChoices.map(ch => ch.value), "radiogroup visible choices").toEqual(["a", "b"]);
+    //radiogroup: correctAnswer references an invisible choice, so it is ignored
+    expect(q1.quizQuestionCount, "radiogroup is not a quiz question").toBe(0);
+    q1.value = "a";
+    expect(q1.isAnswerCorrect(), "radiogroup answer is not marked incorrect").toBe(true);
+    //checkbox: invisible choice value in correctAnswer is ignored
+    expect(q2.quizQuestionCount, "checkbox is a quiz question").toBe(1);
+    q2.value = ["a"];
+    expect(q2.isAnswerCorrect(), "checkbox, partial answer is incorrect").toBe(false);
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox, the user can answer correctly").toBe(true);
+    expect(q2.correctAnswerCount, "checkbox, correctAnswerCount").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "survey.getCorrectAnswerCount").toBe(1);
+    expect(survey.getInCorrectAnswerCount(), "survey.getInCorrectAnswerCount").toBe(0);
+  });
+  test("Quiz, clear non-existent correctAnswer values on changing choices for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", "c"],
+          correctAnswer: "c"
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", "c"],
+          correctAnswer: ["a", "b", "c"]
+        },
+        {
+          type: "checkbox",
+          name: "q3",
+          choices: ["a", "b"],
+          correctAnswer: ["a", "b"]
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    //correctAnswer is not modified on loading
+    expect(q1.correctAnswer, "radiogroup correctAnswer on load").toBe("c");
+    expect(q2.correctAnswer, "checkbox correctAnswer on load").toEqual(["a", "b", "c"]);
+    expect(q3.correctAnswer, "checkbox correctAnswer on load #2").toEqual(["a", "b"]);
+    //change choices so that some correctAnswer values no longer exist
+    q1.choices = ["a", "b"];
+    q2.choices = ["a", "b"];
+    q3.choices = ["x", "y"];
+    //radiogroup: the correctAnswer value no longer exists, so it is cleared
+    expect(q1.correctAnswer, "radiogroup correctAnswer is cleared").toBe(undefined);
+    //checkbox: non-existent values are removed from the correctAnswer array
+    expect(q2.correctAnswer, "checkbox keeps existing correctAnswer values").toEqual(["a", "b"]);
+    //checkbox: correctAnswer becomes an empty array, so it is set to undefined
+    expect(q3.correctAnswer, "checkbox correctAnswer becomes undefined").toBe(undefined);
+    //a user can still answer the question with the updated correctAnswer
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox is answered correctly").toBe(true);
+  });
+  test("Quiz, do not clear correctAnswer for invisible choices on changing choices, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", { value: "c", visibleIf: "{val1} = 'x'" }],
+          correctAnswer: "c"
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    expect(q1.visibleChoices.map(ch => ch.value), "the 'c' choice is invisible").toEqual(["a", "b"]);
+    //the 'c' choice still exists, it is only invisible, so correctAnswer is preserved
+    expect(q1.correctAnswer, "radiogroup correctAnswer is preserved for invisible choice").toBe("c");
+  });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
       "elements": [

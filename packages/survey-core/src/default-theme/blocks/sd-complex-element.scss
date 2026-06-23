@@ -21,15 +21,15 @@
   }
 }
 
-.sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-top: var(--sd-base-vertical-padding);
-  padding-bottom: var(--sd-base-vertical-padding);
-}
+// .sd-element--complex.sd-element--with-frame > .sd-element__header {
+//   padding-top: var(--sd-base-vertical-padding);
+//   padding-bottom: var(--sd-base-vertical-padding);
+// }
 
-.sd-element--collapsed.sd-element--complex > .sd-element__header {
-  padding-top: var(--sjs2-spacing-x200);
-  padding-bottom: var(--sjs2-spacing-x200);
-}
+// .sd-element--collapsed.sd-element--complex > .sd-element__header {
+//   padding-top: var(--sjs2-spacing-x200);
+//   padding-bottom: var(--sjs2-spacing-x200);
+// }
 
 .sd-element--nested.sd-element--complex {
   & > .sd-element__header--location-top {

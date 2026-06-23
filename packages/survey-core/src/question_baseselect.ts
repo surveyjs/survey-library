@@ -185,6 +185,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (visibleChoicesChangedProps.indexOf(name) > -1 && (name !== "choices" || !this.filterItems())) {
       this.onVisibleChoicesChanged();
     }
+    if (visibleChoicesChangedProps.indexOf(name) > -1) {
+      this.updateCorrectAnswerOnChoicesChanged();
+    }
     if (name === "hideIfChoicesEmpty") {
       this.onVisibleChanged();
     }
@@ -693,6 +696,39 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       return val.length > 0 ? val[0] : undefined;
     }
     return val;
+  }
+  protected getCorrectAnswerValue(): any {
+    const val = super.getCorrectAnswerValue();
+    if (this.isValueEmpty(val) || this.isLoadingFromJson || this.visibleChoices.length === 0) return val;
+    if (Array.isArray(val)) {
+      const res = val.filter((item) => this.isCorrectAnswerValueExists(item));
+      return res.length > 0 ? res : undefined;
+    }
+    return this.isCorrectAnswerValueExists(val) ? val : undefined;
+  }
+  protected isCorrectAnswerValueExists(val: any): boolean {
+    return !!this.getItemByValue(val, this.visibleChoices);
+  }
+  private updateCorrectAnswerOnChoicesChanged(): void {
+    if (this.isValueEmpty(this.correctAnswer) || this.activeChoices.length === 0 ||
+      !this.canClearIncorrectValues()) return;
+    const newValue = this.getCorrectAnswerOnChoicesChanged(this.correctAnswer);
+    if (Helpers.isTwoValueEquals(this.correctAnswer, newValue)) return;
+    if (this.isValueEmpty(newValue)) {
+      this.correctAnswer = undefined;
+      //an array-valued property keeps an empty array on resetting, so remove it explicitly
+      if (Array.isArray(this.getPropertyValue("correctAnswer"))) {
+        this.clearPropertyValue("correctAnswer");
+      }
+    } else {
+      this.correctAnswer = newValue;
+    }
+  }
+  protected getCorrectAnswerOnChoicesChanged(val: any): any {
+    return this.correctAnswerValueExistsInChoices(val) ? val : undefined;
+  }
+  protected correctAnswerValueExistsInChoices(val: any): boolean {
+    return !this.hasUnknownValueItem(val, true, false);
   }
   protected filterItems(): boolean {
     if (

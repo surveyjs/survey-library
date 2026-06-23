@@ -14288,6 +14288,45 @@ describe("Survey", () => {
     q.delete();
     expect(removedCounter, "onQuestionRemoved #2").toBe(1);
   });
+  test("onQuestionAdded fires before the question is placed into a row, so it can be removed safely, Bug#11475", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    const page = survey.addNewPage("page1");
+    page.addNewQuestion("text", "q1");
+    expect(page.rows).toHaveLength(1);
+
+    // A renderer reacts to a question being placed into a row. If onQuestionAdded fires only
+    // after the row is built, a handler that deletes the question leaves the renderer with a
+    // question detached from its page ("Cannot read properties of undefined (reading 'page')").
+    let inRowWhenAdded: boolean | undefined = undefined;
+    survey.onQuestionAdded.add((_, options) => {
+      const q = options.question;
+      inRowWhenAdded = page.rows.some(row => row.elements.indexOf(q) > -1);
+      if (q.getType() === "text") {
+        q.delete();
+      }
+    });
+    const q2 = page.addNewQuestion("text", "q2");
+
+    expect(inRowWhenAdded, "onQuestionAdded must fire before the question is rendered into a row").toBe(false);
+    expect(page.questions).toHaveLength(1);
+    expect(page.rows).toHaveLength(1);
+    expect(page.rows[0].elements.indexOf(q2)).toBe(-1);
+  });
+  test("cssClasses returns a valid object for a disposed element, Bug#11475", () => {
+    const survey = new SurveyModel({ pages: [{ name: "p1", elements: [{ type: "text", name: "q1" }] }] });
+    survey.setDesignMode(true);
+    // A renderer may render an element right after it was removed and disposed (mid-update).
+    // cssClasses must stay a valid object so rendering does not crash reading cssClasses.page.
+    const page = survey.addNewPage("page2");
+    page.dispose();
+    expect(page.cssClasses).toBeTruthy();
+    expect(page.cssClasses.page).toBeTruthy();
+
+    const q1 = survey.getQuestionByName("q1");
+    q1.dispose();
+    expect(q1.cssClasses).toBeTruthy();
+  });
   test("Set values into radiogroup and checkbox questions before creating them", () => {
     const survey = new SurveyModel();
     survey.data = { q1: 1, q2: [1, 2] };

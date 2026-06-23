@@ -36,6 +36,7 @@ pr:
   branches:
     include:
       - V3
+      - tsv2013/issue11421
 
 pool:
   name: main-selfhosted

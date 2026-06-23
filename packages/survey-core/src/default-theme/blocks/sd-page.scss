@@ -49,24 +49,36 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  box-sizing: border-box;
 }
 
-.sd-root-modern--mobile .sd-page {
-  padding: 0;
-}
+.sd-root-modern--mobile {
+  .sd-page {
+    padding: 0;
+  }
 
-.sd-page .sd-page__title {
-  @include sjs2--typography--component--page--title;
-  position: static;
-  // margin: 0 0 var(--sjs2-spacing-x050) 0px;
-}
+  .sd-page__title {
+    @include sjs2--typography--component--page--title;
+    position: static;
+    // margin: 0 0 var(--sjs2-spacing-x050) 0px;
+  }
 
-.sd-page .sd-page__description {
-  @include sjs2--typography--component--page--description;
-  position: static;
-  // margin: 0 0 var(--sjs2-spacing-x050) 0;
-}
+  .sd-page__description {
+    @include sjs2--typography--component--page--description;
+    position: static;
+    // margin: 0 0 var(--sjs2-spacing-x050) 0;
+  }
 
+  .sd-page__content {
+    // padding-inline-start:  var(--sjs2-spacing-x300);
+    // padding-inline-end: var(--sjs2-spacing-x300);
+    // padding-top: var(--sjs2-spacing-x300);
+    // padding-bottom: var(--sjs2-spacing-x300);
+    row-gap: var(--sjs2-spacing-x200);
+    column-gap: var(--sjs2-spacing-x200);
+    padding: 0;
+  }
+}
 
 .sd-page__errbox {
   padding: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100)) var(--sd-base-padding);

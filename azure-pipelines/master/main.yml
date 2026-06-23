@@ -124,20 +124,6 @@ jobs:
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPM
 
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
       - task: Npm@1
         displayName: "NPM install root"
         inputs:
@@ -161,12 +147,6 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
@@ -360,21 +340,6 @@ jobs:
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPM
 
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
-
       - task: Npm@1
         displayName: "NPM install root"
         inputs:
@@ -415,12 +380,6 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
@@ -512,21 +471,6 @@ jobs:
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPMs
 
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
-
       - task: Npm@1
         displayName: "NPM install root"
         inputs:
@@ -567,12 +511,6 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
@@ -674,21 +612,6 @@ jobs:
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPMs
 
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
-
       - task: Npm@1
         displayName: "NPM install root"
         inputs:
@@ -729,12 +652,6 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
@@ -835,21 +752,6 @@ jobs:
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPM
 
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
-
       - task: Npm@1
         displayName: "NPM install root"
         inputs:
@@ -890,12 +792,6 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
-          git tag -l | xargs -r git tag -d
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui

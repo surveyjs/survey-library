@@ -11,10 +11,10 @@
   box-sizing: border-box;
   border-radius: var(--sjs2-radius-component-page);
 
-  padding-inline-start:  var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
-  padding-inline-end: var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
-  padding-top: var(--sjs2-layout-component-page-box-padding-top, var(--sjs2-spacing-x500));
-  padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom, var(--sjs2-spacing-x500));
+  // padding-inline-start:  var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
+  // padding-inline-end: var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
+  // padding-top: var(--sjs2-layout-component-page-box-padding-top, var(--sjs2-spacing-x500));
+  // padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom, var(--sjs2-spacing-x500));
   row-gap: var(--sjs2-layout-component-page-box-gap-horizontal, var(--sjs2-spacing-x300));
   column-gap: var(--sjs2-layout-component-page-box-gap-vertical, var(--sjs2-spacing-x300));
 }
@@ -42,10 +42,12 @@
 .sd-page__content {
   padding-inline-start:  var(--sjs2-layout-component-page-content-area-padding-horizontal, var(--sjs2-spacing-x000));
   padding-inline-end: var(--sjs2-layout-component-page-content-area-padding-horizontal, var(--sjs2-spacing-x000));
-  padding-top: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
-  padding-bottom: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
-  row-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal, var(--sjs2-spacing-x200));
-  column-gap: var(--sjs2-layout-component-page-content-area-gap-vertical, var(--sjs2-spacing-x200));
+  // padding-top: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
+  // padding-bottom: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
+  // row-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal, var(--sjs2-spacing-x200));
+  // column-gap: var(--sjs2-layout-component-page-content-area-gap-vertical, var(--sjs2-spacing-x200));
+  row-gap: var(--sjs2-spacing-x200);
+  column-gap: var(--sjs2-spacing-x200);
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -53,9 +55,9 @@
 }
 
 .sd-root-modern--mobile {
-  .sd-page {
-    padding: 0;
-  }
+  // .sd-page {
+  //   padding: 0;
+  // }
 
   .sd-page__title {
     @include sjs2--typography--component--page--title;

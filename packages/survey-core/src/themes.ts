@@ -246,8 +246,35 @@ function multiplyCssFontSize(fontSize: string, multiplier: number, shouldRound =
   return normalizedResult.toString() + fontSizeDimension;
 }
 
-export function patchLegacyCSSVariables(newCssVariable: any) {
+function patchActionButtonCssVariables(newCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
+  const questionTitleFontSize = newCssVariable["--sjs-font-questiontitle-size"];
+  if (!!questionTitleFontSize) {
+    newCssVariable["--sjs2-typography-font-size-component-action-large-content"] = questionTitleFontSize;
+    newCssVariable["--sjs2-typography-line-height-component-action-large-content"] = multiplyCssFontSize(questionTitleFontSize, 1.5, true);
+  }
+
+  let background: string | undefined;
+  let hoverBackground: string | undefined;
+
+  if (isPanelless) {
+    background = newCssVariable["--sjs-general-backcolor-dim-light"];
+    hoverBackground = newCssVariable["--sjs-editorpanel-hovercolor"] || newCssVariable["--sjs-general-backcolor-dim-dark"];
+  } else {
+    background = newCssVariable["--sjs-questionpanel-backcolor"] || newCssVariable["--sjs-general-backcolor"];
+    hoverBackground = newCssVariable["--sjs-questionpanel-hovercolor"] || newCssVariable["--sjs-general-backcolor-dark"];
+  }
+
+  if (!!background) {
+    newCssVariable["--sjs2-color-component-action-brand-tertiary-surface-default-bg"] = background;
+  }
+  if (!!hoverBackground) {
+    newCssVariable["--sjs2-color-component-action-brand-tertiary-surface-hovered-bg"] = hoverBackground;
+  }
+}
+
+export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
+  patchActionButtonCssVariables(newCssVariable, isPanelless);
   const patchLegacyVarReferencesInValue = (value: string): string => {
     return value.replace(/var\(\s*(--[\w-]+)\s*\)/g, (match, referencedVar) => {
       const referencedMapping = legacyCssVariables[referencedVar];

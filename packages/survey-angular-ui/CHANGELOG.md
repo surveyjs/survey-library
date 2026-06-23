@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## 3.0.0-beta.7 (2026-06-19)
+
 ## [3.0.0-beta.6](https://github.com/surveyjs/survey-library/compare/v3.0.0-beta.5...v3.0.0-beta.6) (2026-05-26)
 
 ## 3.0.0-beta.4 (2026-05-20)
@@ -524,5 +526,3 @@ All notable changes to this project will be documented in this file. See [standa
 # Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
-
-

@@ -127,6 +127,7 @@
     width: 100%;
     margin: 0;
     width: calc(100% + var(--sjs2-spacing-x600));
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
 }
 
 .sd-paneldynamic__panel-footer {

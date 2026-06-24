@@ -79,6 +79,8 @@
   --sjs2-color-component-message-error-icon: var(--bs-form-invalid-color);
   //--sjs2-layout-component-message-box-padding-horizontal: 0;
   --sjs2-layout-component-message-box-padding-vertical: 0;
+
+  --sjs2-color-component-boolean-invalid-border: var(--bs-form-invalid-color);
   
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: .25em;
@@ -105,17 +107,20 @@
   /* common and other */
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--bs-danger) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--bs-secondary-bg);
+  --sjs2-color-border-alert-primary: var(--bs-danger);
   --sjs2-color-bg-alert-primary: var(--bs-danger);
   --sjs2-color-bg-alert-secondary-dim: rgba(var(--bs-danger-rgb), 0.15);
   --sjs2-color-bg-alert-secondary: rgba(var(--bs-danger-rgb), 0.1);
   --sjs2-color-bg-basic-primary-dim: var(--bs-secondary-bg);
   --sjs2-color-bg-basic-primary: var(--bs-body-bg);
   --sjs2-color-bg-basic-secondary: var(--bs-body-bg);
+  --sjs2-color-bg-basic-secondary-dim: var(--bs-tertiary-bg);
   --sjs2-color-bg-basic-tertiary: var(--bs-tertiary-bg, var(--bs-secondary-bg));
   --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
   --sjs2-color-bg-brand-secondary-dim: rgba(var(--bs-secondary-rgb), 0.15);
   --sjs2-color-bg-brand-secondary-disabled: var(--bs-secondary-bg);
   --sjs2-color-bg-brand-secondary: var(--bs-secondary);
+
 
   --sjs2-color-border-basic-primary: var(--bs-border-color);
   --sjs2-color-border-basic-secondary: var(--bs-border-color);

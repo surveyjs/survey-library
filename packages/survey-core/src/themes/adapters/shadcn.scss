@@ -14,7 +14,16 @@
   --sjs2-base-unit-radius: var(--radius);
   --sjs2-base-unit-spacing: var(--spacing);
 
-  --sjs2-border-effect-a11y: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-color-utility-body: var(--background);
+  --sjs2-color-utility-sheet: var(--background);
+  --sjs2-color-utility-a11y: color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-color-utility-toolbox: var(--background);
+  --sjs2-color-utility-property-grid: var(--background);
+  --sjs2-color-utility-tabs: var(--background);
+  --sjs2-color-utility-surface-survey: var(--sjs2-color-bg-brand-secondary);
+  --sjs2-color-utility-surface-designer: var(--sjs2-color-bg-brand-secondary);
+
+  --sjs2-border-effect-a11y: 0 0 0 3px var(--sjs2-color-utility-a11y);
 
   --shadow-xs:  rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 
@@ -78,6 +87,8 @@
   --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-hovered: var(--sjs2-border-effect-component-formbox-default);
   --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-focused-border);
+  --sjs2-border-effect-component-formbox-invalid: inset 0px 0px 0px 1px var(--destructive);
+  --sjs2-border-effect-component-formbox-invalid-focused: inset 0px 0px 0px 1px var(--destructive), 0 0 0 3px color-mix(in oklab, var(--destructive) 50%, transparent);
   --sjs2-radius-component-formbox: var(--radius);
   --sjs2-layout-component-formbox-medium-padding-vertical: 0;
   --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
@@ -87,6 +98,13 @@
   --sjs2-color-component-input-default-placeholder: var(--muted-foreground);
   --sjs2-typography-line-height-component-input-content: var(--text-sm--line-height);
 
+  /* error message */
+  --sjs2-color-component-message-error-bg: initial;
+  --sjs2-color-component-message-error-text: var(--destructive);
+  --sjs2-color-component-message-error-icon: var(--destructive);
+  --sjs2-layout-component-message-box-padding-vertical: 0;
+
+  --sjs2-color-component-boolean-invalid-border: var(--destructive);
 
   --sjs2-border-effect-component-formbox-a11y: var(--sjs2-border-effect-a11y);
 
@@ -111,13 +129,16 @@
 
   --sjs2-color-component-check-true-default-bg: var(--primary);
   --sjs2-color-component-check-true-default-icon: var(--primary-foreground);
+  --sjs2-color-component-check-true-hovered-bg: var(--primary);
+  --sjs2-color-component-check-true-hovered-icon: var(--primary-foreground);
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary), var(--shadow-xs);
   --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* common and other */
-  --sjs2-color-utility-surface-survey: transparent;
   --sjs2-color-bg-basic-primary: var(--background);
   --sjs2-color-bg-basic-primary-dim: var(--muted);
+  --sjs2-color-bg-basic-secondary: var(--background);
+  --sjs2-color-bg-basic-secondary-dim: var(--accent);
   --sjs2-color-bg-basic-tertiary: var(--muted);
   --sjs2-color-fg-basic-primary: var(--foreground);
   --sjs2-color-fg-basic-secondary: var(--muted-foreground);
@@ -133,9 +154,11 @@
   --sjs2-color-bg-brand-secondary-disabled: var(--muted);
   --sjs2-color-fg-brand-on-secondary: var(--secondary-foreground);
 
+  --sjs2-color-fg-alert-primary: var(--destructive);
   --sjs2-color-bg-alert-primary: var(--destructive);
   --sjs2-color-bg-alert-primary-dim: color-mix(in oklch, var(--destructive) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--muted);
+  --sjs2-color-border-alert-primary: var(--destructive);
   --sjs2-color-fg-alert-on-primary: var(--destructive-foreground);
   --sjs2-color-bg-alert-secondary: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x010));
   --sjs2-color-bg-alert-secondary-dim: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x015));

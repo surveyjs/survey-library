@@ -8,8 +8,8 @@
   --sjs2-color-utility-toolbox: var(--bs-body-bg);
   --sjs2-color-utility-property-grid: var(--bs-body-bg);
   --sjs2-color-utility-tabs: var(--bs-body-bg);
-  --sjs2-color-utility-surface-survey: var(--bs-primary-bg-subtle);
-  --sjs2-color-utility-surface-designer: var(--bs-primary-bg-subtle);
+  --sjs2-color-utility-surface-survey: var(--sjs2-color-bg-brand-secondary);
+  --sjs2-color-utility-surface-designer: var(--sjs2-color-bg-brand-secondary);
   
   --sjs2-border-effect-a11y: 0px 0px 0px 0.25rem var(--sjs2-color-utility-a11y);
 
@@ -69,8 +69,8 @@
   
   --sjs2-radius-component-formbox: var(--bs-border-radius);
   --sjs2-layout-component-formbox-medium-padding-vertical: var(--bs-border-width);
-  --sjs2-layout-component-formbox-medium-padding-horizontal: calc(var(--bs-border-width) + 2px);
-  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(0.75rem - 2px);
+  --sjs2-layout-component-formbox-medium-padding-horizontal: var(--bs-border-width);
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 0.75rem;
   --sjs2-layout-component-input-medium-content-padding-vertical: 0.375rem; 
   
   /* error message */
@@ -117,10 +117,6 @@
   --sjs2-color-bg-basic-secondary-dim: var(--bs-tertiary-bg);
   --sjs2-color-bg-basic-tertiary: var(--bs-tertiary-bg, var(--bs-secondary-bg));
   --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
-  --sjs2-color-bg-brand-secondary-dim: rgba(var(--bs-secondary-rgb), 0.15);
-  --sjs2-color-bg-brand-secondary-disabled: var(--bs-secondary-bg);
-  --sjs2-color-bg-brand-secondary: var(--bs-secondary);
-
 
   --sjs2-color-border-basic-primary: var(--bs-border-color);
   --sjs2-color-border-basic-secondary: var(--bs-border-color);

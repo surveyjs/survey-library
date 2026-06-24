@@ -25,7 +25,7 @@ export default {
     "--sjs2-color-fg-brand-primary-disabled": "rgba(255, 255, 255, 0.25)",
     "--sjs2-color-border-basic-secondary": "rgba(0, 0, 0, 0.12)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(0, 0, 0, 0.16)",
-    "--sjs2-color-data-chart-track-color-0": "var(--sjs2-palette-gray-100)",
+    "--sjs2-color-data-chart-track-color-0": "var(--sjs2-palette-gray-000)",
     "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.12)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
     "--sjs2-border-effect-floating-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1)"

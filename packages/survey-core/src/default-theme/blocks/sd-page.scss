@@ -29,7 +29,9 @@
 }
 
 .sd-page__title {
-  padding: var(--sjs2-layout-component-page-title-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-title-padding-horizontal, var(--sjs2-spacing-x000));
+  @include sjs2--typography--component--page--title;
+  position: static;
+  // padding: var(--sjs2-layout-component-page-title-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-title-padding-horizontal, var(--sjs2-spacing-x000));
 }
 
 .sd-page__description {
@@ -60,8 +62,6 @@
   }
 
   .sd-page__title {
-    @include sjs2--typography--component--page--title;
-    position: static;
     // margin: 0 0 var(--sjs2-spacing-x050) 0px;
   }
 

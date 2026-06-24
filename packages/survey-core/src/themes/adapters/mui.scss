@@ -1,8 +1,14 @@
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--mui-shape-borderRadius);
   --sjs2-base-unit-spacing: 8px;
-
+  --sjs2-color-utility-body: var(--mui-palette-background-default);
+  --sjs2-color-utility-sheet: var(--mui-palette-background-default);
   --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
+  --sjs2-color-utility-toolbox: var(--mui-palette-background-default);
+  --sjs2-color-utility-property-grid: var(--mui-palette-background-default);
+  --sjs2-color-utility-tabs: var(--mui-palette-background-default);
+  --sjs2-color-utility-surface-survey: var(--sjs2-color-bg-brand-secondary);
+  --sjs2-color-utility-surface-designer: var(--sjs2-color-bg-brand-secondary);
 
   /* buttons */
   --sjs2-border-effect-component-action-a11y: 0 0 0 0 transparent;
@@ -72,6 +78,14 @@
   --sjs2-layout-component-input-medium-content-padding-horizontal: 14px;
   --sjs2-layout-component-input-medium-content-padding-vertical: 16.5px;
 
+  /* error message */
+  --sjs2-color-component-message-error-bg: initial;
+  --sjs2-color-component-message-error-text: var(--mui-palette-error-main);
+  --sjs2-color-component-message-error-icon: var(--mui-palette-error-main);
+  --sjs2-layout-component-message-box-padding-vertical: 0;
+
+  --sjs2-color-component-boolean-invalid-border: var(--mui-palette-error-main);
+
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: 2px;
   --sjs2-color-component-check-false-focused-border: var(--mui-palette-primary-main);
@@ -110,6 +124,7 @@
   --sjs2-color-bg-basic-primary: var(--mui-palette-background-default);
   --sjs2-color-bg-basic-primary-dim: var(--mui-palette-action-hover);
   --sjs2-color-bg-basic-secondary: var(--mui-palette-background-paper);
+  --sjs2-color-bg-basic-secondary-dim: var(--mui-palette-action-hover);
   --sjs2-color-bg-basic-tertiary: var(--mui-palette-action-selected);
   --sjs2-color-fg-basic-primary: var(--mui-palette-text-primary);
   --sjs2-color-fg-basic-secondary: var(--mui-palette-text-secondary);
@@ -122,20 +137,12 @@
   --sjs2-color-bg-brand-primary-disabled: var(--mui-palette-action-disabledBackground);
   --sjs2-color-fg-brand-on-primary: var(--mui-palette-primary-contrastText);
 
-  --sjs2-color-bg-brand-secondary: var(--mui-palette-secondary-main);
-  --sjs2-color-bg-brand-secondary-dim: color-mix(
-    in srgb,
-    var(--mui-palette-secondary-main) 15%,
-    transparent
-  );
-  --sjs2-color-bg-brand-secondary-disabled: var(--mui-palette-action-disabledBackground);
-  --sjs2-color-fg-brand-on-secondary: var(--mui-palette-secondary-contrastText);
-
+  --sjs2-color-fg-alert-primary: var(--mui-palette-error-main);
+  --sjs2-color-fg-alert-on-primary: var(--mui-palette-error-contrastText);
   --sjs2-color-bg-alert-primary: var(--mui-palette-error-main);
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--mui-palette-error-main) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--mui-palette-action-disabledBackground);
-  --sjs2-color-fg-alert-on-primary: var(--mui-palette-error-contrastText);
-
+  --sjs2-color-border-alert-primary: var(--mui-palette-error-main);
   --sjs2-color-bg-alert-secondary: color-mix(
     in srgb,
     var(--mui-palette-error-main) 10%,
@@ -179,7 +186,7 @@
   transition: none;
 }
 
-.sd-question:has(.sd-text, .sd-comment, .sd-dropdown) .sd-question__header {
+.sd-question:has(>.sd-text__content, >.sd-comment__content, >.sd-dropdown__content) .sd-question__header {
   transform: translate(0, 0) scale(1);
   position: absolute;
   --sjs2-typography-font-size-component-question-title: 1rem;
@@ -194,28 +201,39 @@
   pointer-events: none;
 }
 
-.sd-question:has(.sd-text, .sd-comment, .sd-dropdown):focus-within .sd-question__header {
-  transform: translate(-8px, -26px) scale(0.75);
-  padding-left: 6px;
-  padding-right: 10px;
-  color: var(--mui-palette-primary-main);
-  --sjs2-color-component-question-default-title: currentColor;
-  background-color: var(--mui-palette-background-default);
+.sd-question:has(>.sd-text__content, >.sd-comment__content, >.sd-dropdown__content) {
+  &:focus-within {
+    .sd-question__header {
+      transform: translate(-8px, -26px) scale(0.75);
+      padding-left: 6px;
+      padding-right: 10px;
+      color: var(--mui-palette-primary-main);
+      --sjs2-color-component-question-default-title: currentColor;
+      background-color: var(--mui-palette-background-default);
+    }
+  }
+  &.sd-question--error {
+    .sd-question__header {
+      --sjs2-color-component-question-default-title: var(--mui-palette-error-main);
+      color: var(--mui-palette-error-main);
+      --sjs2-color-component-question-default-title: currentColor;
+    }
+  }
 }
 
-.sd-question:has(.sd-comment):focus-within .sd-question__header {
+.sd-question:has(>.sd-comment__content):focus-within .sd-question__header {
   transform: translate(-14px, -26px) scale(0.75);
 }
-.sd-question:has(.sd-dropdown):focus-within .sd-question__header {
+.sd-question:has(>.sd-dropdown__content):focus-within .sd-question__header {
   transform: translate(-2px, -26px) scale(0.75);
 }
 
 
-.sd-question:has(.sd-text, .sd-comment, .sd-dropdown) :where(input, textarea)::placeholder {
+.sd-question:has(>.sd-text__content, >.sd-comment__content, >.sd-dropdown__content) :where(input, textarea)::placeholder {
   opacity: var(--mui-opacity-inputPlaceholder);
   transition: all 0.2s ease-in-out;
 }
-.sd-question:has(.sd-text, .sd-comment, .sd-dropdown) :where(input, textarea):not(:focus)::placeholder {
+.sd-question:has(>.sd-text__content, >.sd-comment__content, >.sd-dropdown__content) :where(input, textarea):not(:focus)::placeholder {
   opacity: 0;
   transition: all 0.2s ease-in-out;
 }

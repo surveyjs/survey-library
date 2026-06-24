@@ -35,6 +35,8 @@
 }
 
 .sd-page__description {
+  @include sjs2--typography--component--page--description;
+  position: static;
   padding-inline-start:  var(--sjs2-layout-component-page-description-padding-horizontal, var(--sjs2-spacing-x000));
   padding-inline-end: var(--sjs2-layout-component-page-description-padding-horizontal, var(--sjs2-spacing-x000));
   padding-top: var(--sjs2-layout-component-page-description-padding-top, var(--sjs2-spacing-x000));
@@ -66,8 +68,6 @@
   }
 
   .sd-page__description {
-    @include sjs2--typography--component--page--description;
-    position: static;
     // margin: 0 0 var(--sjs2-spacing-x050) 0;
   }
 

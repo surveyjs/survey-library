@@ -51,11 +51,11 @@
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
 
-  & > .sd-element__erbox {
-    margin-left: calc(-1 * var(--sd-base-padding));
-    margin-right: calc(-1 * var(--sd-base-padding));
-    width: calc(100% + 2 * var(--sd-base-padding));
-  }
+  // & > .sd-element__erbox {
+  //   margin-left: calc(-1 * var(--sd-base-padding));
+  //   margin-right: calc(-1 * var(--sd-base-padding));
+  //   width: calc(100% + 2 * var(--sd-base-padding));
+  // }
 
   & > .sd-question__erbox--below-question {
     bottom: 0;

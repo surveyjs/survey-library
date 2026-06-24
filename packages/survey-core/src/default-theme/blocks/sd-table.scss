@@ -456,8 +456,8 @@
   }
 
   & > .sd-question__content {
-    padding-top: var(--sjs2-spacing-x200);
-    --animation-padding-top: #{var(--sjs2-spacing-x200)};
+    padding-top: var(--sd-base-vertical-padding);
+    --animation-padding-top: #{var(--sd-base-vertical-padding)};
     min-width: min-content;
   }
 
@@ -499,8 +499,8 @@
 @mixin table_responsive {
   &.sd-question.sd-question--table {
     & > .sd-question__content {
-      padding-top: 0;
-      --animation-padding-top: 0;
+      padding-top: var(--sjs2-spacing-x100);
+      --animation-padding-top: var(--sjs2-spacing-x100);
     }
   }
 

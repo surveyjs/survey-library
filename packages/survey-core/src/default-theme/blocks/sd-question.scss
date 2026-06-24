@@ -181,25 +181,26 @@
   //   padding-top: var(--sd-base-vertical-padding);
   // }
 
-  &.sd-question--error-top {
-    padding-top: 0;
-  }
+  // &.sd-question--error-top {
+  //   padding-top: 0;
+  // }
 
-  &.sd-question--error-bottom {
-    padding-bottom: 0;
-    display: flex;
-    flex-direction: column;
+  // &.sd-question--error-bottom {
+  //   padding-bottom: 0;
+  //   display: flex;
+  //   flex-direction: column;
 
-    &>.sd-question__content {
-      margin-bottom: var(--sd-base-padding);
-    }
-  }
+  //   // &>.sd-question__content {
+  //   //   margin-bottom: var(--sd-base-padding);
+  //   // }
+  // }
 
   &>.sd-element__erbox {
     // margin-left: calc(-1 * var(--sd-base-padding));
     // margin-right: calc(-1 * var(--sd-base-padding));
     // width: calc(100% + 2 * var(--sd-base-padding));
     position: sticky;
+    left: 0;
     // left: calc(-1 * var(--sd-base-padding));
   }
 }

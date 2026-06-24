@@ -4,6 +4,7 @@ resources:
       type: github
       endpoint: surveyjs
       name: surveyjs/azure-pipelines
+      ref: refs/heads/flaky-detector
 
 trigger: none
 pr: none

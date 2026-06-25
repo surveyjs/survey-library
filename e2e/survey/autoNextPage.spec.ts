@@ -130,22 +130,35 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const progressText = page.locator(".sd-progress-buttons__page-title");
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      // The first radio input on the currently visible page.
+      const firstRadio = page.locator("input[type='radio']").first();
+
+      // Use web-first assertions so Playwright retries until the progress bar
+      // reflects the navigation that autoAdvanceEnabled triggers — a bare
+      // textContent() call races against the page transition animation.
+      await expect(progressText).toHaveText("Page 1 of 3");
+      // afterRenderPage schedules focus via setTimeout(..., 1) inside
+      // scrollToTopOnPageChange → focusFirstQuestion, so the progress text
+      // changes *before* focus lands. Wait for the radio to actually be
+      // focused before issuing keyboard presses.
+      await expect(firstRadio).toBeFocused();
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText("Page 2 of 3");
+      // Same async focus race on every page transition.
+      await expect(firstRadio).toBeFocused();
+
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText("Page 3 of 3");
+      await expect(firstRadio).toBeFocused();
+
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

@@ -272,6 +272,46 @@ function patchActionButtonCssVariables(newCssVariable: { [index: string]: string
   }
 }
 
+function patchTypographyCssVariables(newCssVariable: { [index: string]: string }): void {
+  const fontSize = newCssVariable["--sjs-font-size"];
+  if (!!fontSize) {
+    const fontSizeBaseUnit = multiplyCssFontSize(fontSize, 0.5);
+    if (fontSizeBaseUnit) {
+      newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
+      newCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
+      delete newCssVariable["--sjs-font-size"];
+    }
+  }
+
+  typographyComponentLineHeightCoefficients.forEach(({ component, coefficient }) => {
+    const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
+    const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
+    const componentFontSize = newCssVariable[fontSizeVar];
+    if (!!componentFontSize && newCssVariable[lineHeightVar] === undefined) {
+      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient, true);
+      if (lineHeight) {
+        newCssVariable[lineHeightVar] = lineHeight;
+      }
+    }
+  });
+}
+
+function patchComponentRadiusCssVariables(newCssVariable: { [index: string]: string }): void {
+  const cornerRadius = newCssVariable["--sjs2-base-unit-radius"] ?? newCssVariable["--sjs-corner-radius"];
+  if (!cornerRadius) return;
+
+  const componentRadiusVars = [
+    "--sjs2-radius-component-panel",
+    "--sjs2-radius-component-formbox",
+    "--sjs2-radius-component-action",
+  ];
+  componentRadiusVars.forEach((varName) => {
+    if (newCssVariable[varName] === undefined) {
+      newCssVariable[varName] = cornerRadius;
+    }
+  });
+}
+
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
   patchActionButtonCssVariables(newCssVariable, isPanelless);
@@ -310,25 +350,6 @@ export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boole
     }
   });
 
-  const fontSize = newCssVariable["--sjs-font-size"];
-  if (!!fontSize) {
-    const fontSizeBaseUnit = multiplyCssFontSize(fontSize, 0.5);
-    if (fontSizeBaseUnit) {
-      newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
-      newCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
-      delete newCssVariable["--sjs-font-size"];
-    }
-  }
-
-  typographyComponentLineHeightCoefficients.forEach(({ component, coefficient }) => {
-    const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
-    const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
-    const componentFontSize = newCssVariable[fontSizeVar];
-    if (!!componentFontSize && newCssVariable[lineHeightVar] === undefined) {
-      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient, true);
-      if (lineHeight) {
-        newCssVariable[lineHeightVar] = lineHeight;
-      }
-    }
-  });
+  patchTypographyCssVariables(newCssVariable);
+  patchComponentRadiusCssVariables(newCssVariable);
 }

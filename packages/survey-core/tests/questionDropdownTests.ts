@@ -2991,6 +2991,45 @@ describe("Dropdown question", () => {
 
     settings.dropdownSaveOnOutsideClick = false;
   });
+
+  test("discarded popup selection resets focus on reopen", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        searchEnabled: true,
+        choices: ["item1", "item2", "item3", "item4"]
+      }]
+    });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    const event = { keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } };
+
+    question.value = "item2";
+    dropdownListModel.popupModel.show();
+    list.flushUpdates();
+
+    dropdownListModel.keyHandler(event);
+    dropdownListModel.keyHandler(event);
+    expect(list.focusedItem?.value, "focused item after moving down").toBe("item3");
+    expect(question.selectedItem?.selected, "question selected item should be temporarily cleared").toBe(false);
+
+    dropdownListModel.keyHandler({ keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } });
+    expect(dropdownListModel.popupModel.isVisible, "popup hidden after Escape").toBe(false);
+
+    dropdownListModel.popupModel.show();
+    list.flushUpdates();
+
+    expect(question.selectedItem?.selected, "question selected item is restored on reopen").toBe(true);
+    expect(question.selectedItem?.selectedValue, "selectedValue reset on reopen").toBeUndefined();
+
+    dropdownListModel.keyHandler(event);
+    expect(list.focusedItem?.value, "focused item after reopen and down arrow").toBe("item2");
+    expect(list.focusedItem?.selected, "focused item is displayed as selected after reopen").toBe(true);
+    expect(dropdownListModel.inputString, "inputString after reopen and down arrow").toBe("item2");
+  });
+
   test("Test createCustomChoiceText property, Issue#11041", () => {
 
     const survey = new SurveyModel({

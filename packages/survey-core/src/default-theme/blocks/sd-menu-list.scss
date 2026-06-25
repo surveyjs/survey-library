@@ -5,7 +5,9 @@
     --thm-list-padding: var(--sjs2-spacing-x100);
 
     display: flex;
-    padding: var(--sjs2-spacing-x000);
+    padding: var(--sjs2-layout-component-menu-box-padding-vertical)
+        var(--sjs2-layout-component-menu-box-padding-horizontal);
+    gap: var(--sjs2-layout-component-menu-box-gap-vertical);
     min-width: 188px;
     flex-direction: column;
     align-items: flex-start;

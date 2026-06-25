@@ -417,7 +417,7 @@ frameworks.forEach(framework => {
         (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content svg")).style.height = "48px";
         (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
       });
-      await compareScreenshot(page, ".sd-question__content>div", "dropdown-custom-component.png");
+      await compareScreenshot(page, ".sd-question__content", "dropdown-custom-component.png");
     });
 
     test("Check ReadOnly dropdown with custom component", async ({ page }) => {
@@ -443,7 +443,7 @@ frameworks.forEach(framework => {
       //   (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content svg")).style.height = "48px";
       //   (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
       // });
-      await compareScreenshot(page, ".sd-question__content>div", "dropdown-readonly-custom-component.png");
+      await compareScreenshot(page, ".sd-question__content", "dropdown-readonly-custom-component.png");
     });
 
     test("Check overlay popup in dropdown question", async ({ page }) => {

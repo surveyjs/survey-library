@@ -80,6 +80,7 @@ export class QuestionBooleanModel extends Question {
 
   /**
    * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
+   * @hidden
    */
   @property({ localizable: true }) label: string;
 
@@ -271,7 +272,13 @@ export class QuestionBooleanModel extends Question {
     if (DomDocumentHelper.isAvailable()) {
       isRtl = DomDocumentHelper.isRtlDirection(this.survey.rootElement);
     }
-    this.booleanValue = isRtl ? !isRightClick : isRightClick;
+    let value = isRtl ? !isRightClick : isRightClick;
+    // When swapOrder is true, the visual order is reversed (Yes on left, No on right)
+    // So we need to invert the boolean value to match the visual expectation
+    if (this.swapOrder) {
+      value = !value;
+    }
+    this.booleanValue = value;
   }
   public onSwitchClickModel(event: any) {
     if (this.allowClick) {
@@ -284,9 +291,16 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   public onKeyDownCore(event: any): boolean {
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      event.stopPropagation();
-      this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
+    const key = event.key;
+    if (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown") {
+      if (this.isInputReadOnly) {
+        preventDefaults(event);
+        return false;
+      }
+      if (key === "ArrowLeft" || key === "ArrowRight") {
+        event.stopPropagation();
+        this.calculateBooleanValueByEvent(event, key === "ArrowRight");
+      }
     }
     return true;
   }

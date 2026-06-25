@@ -246,7 +246,9 @@ export var latvianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Satura rādītājs",
   // [Auto-translated] "Progress bar"
-  progressbar: "Progresa josla"
+  progressbar: "Progresa josla",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Lapa {0}"
 };
 
 setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });

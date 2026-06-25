@@ -23,10 +23,6 @@
   opacity: 0.35;
 }
 
-.sd-title.sd-element__title {
-  @include sjs2--typography--component--question--title;
-}
-
 .sd-element__header {
   .sv-string-editor {
     max-width: 100%;
@@ -53,9 +49,6 @@
   .sv-title-actions__title {
     font-size: 0;
     line-height: 0;
-  }
-
-  .sv-title-actions__title {
     white-space: nowrap;
   }
 
@@ -147,7 +140,7 @@
   padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
-  background: var(--sjs2-color-component-panel-default-bg, #fff);
+  background: var(--sjs2-color-component-panel-default-bg);
   box-shadow: $shadow-small;
 }
 

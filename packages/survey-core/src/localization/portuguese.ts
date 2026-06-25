@@ -246,7 +246,9 @@ export var portugueseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Índice",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barra de progresso"
+  progressbar: "Barra de progresso",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Página {0}"
 };
 
 setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "português", englishName: "Portuguese" });

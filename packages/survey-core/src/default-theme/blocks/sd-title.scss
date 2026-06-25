@@ -1,15 +1,6 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-.sd-title {
-  display: block;
-  @include sjs2--typography--default;
-  font-style: normal;
-  color: $foreground;
-  flex-direction: row;
-  white-space: normal;
-}
-
 .sd-title.sd-container-modern__title {
   display: flex;
   align-items: center;
@@ -49,22 +40,10 @@
   }
 }
 
-//todo: add ability to customize class sv-title-actions in library
-.sd-title {
-  .sv-title-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
 .sd-root-modern {
   .sd-container-modern__title {
     background-color: $background;
-  }
-}
 
-.sd-root-modern {
-  .sd-container-modern__title {
     .sd-header__text h3 {
       margin: 0;
     }

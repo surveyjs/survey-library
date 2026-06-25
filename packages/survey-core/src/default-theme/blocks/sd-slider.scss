@@ -53,7 +53,6 @@
   position: absolute;
   height: var(--sjs2-size-x050);
   top: calc(var(--sjs2-size-x400) / 2 - var(--sjs2-size-x050) / 2);
-  border-radius: var(--sjs2-radius-component-slider, 9999px);
 }
 
 .sd-slider__inverse-track {
@@ -106,7 +105,7 @@
   flex-shrink: 0;
   width: var(--sjs2-size-x400);
   height: var(--sjs2-size-x400);
-  border-radius: var(--sjs2-radius-component-slider-thumb, 9999px);
+  border-radius: var(--sjs2-radius-component-slider-thumb);
 }
 
 .sd-slider__input {
@@ -131,9 +130,9 @@
 
 .sd-slider__thumb-container--focused {
   .sd-slider__thumb {
-    box-shadow: var(--sjs2-border-effect-trigger-default);
-    background: var(--sjs2-color-component-slider-focused-thumb);
-    border: var(--sjs2-border-width-a11y) solid var(--sjs2-color-utility-a11y);
+    box-shadow: var(--sjs2-border-effect-component-slider-a11y);
+    background: var(--sjs2-color-component-slider-default-thumb);
+    border: none;
   }
 
   .sd-slider__tooltip--on-hover {
@@ -147,16 +146,16 @@
   justify-content: center;
   align-items: center;
 
-  border-radius: var(--sjs2-radius-component-slider-thumb, 9999px);
+  border-radius: var(--sjs2-radius-component-slider-thumb);
   background: var(--sjs2-color-component-slider-default-thumb);
   box-shadow: var(--sjs2-border-effect-trigger-default);
-
-  //  box-sizing: border-box;
+  border: none;
+  transition: box-shadow $transition-duration;
 }
 
 .sd-slider__thumb-dot {
   display: flex;
-  border-radius: var(--sjs2-radius-component-slider-item, 9999px);
+  border-radius: var(--sjs2-radius-component-slider-thumb);
   background: var(--sjs2-color-component-slider-default-dot);
   width: var(--sjs2-size-x150);
   height: var(--sjs2-size-x150);
@@ -172,13 +171,13 @@
   display: flex;
   flex-direction: column;
   user-select: none;
-  border-radius: var(--sjs2-radius-component-tooltip, 4px);
+  border-radius: var(--sjs2-radius-component-tooltip);
   transition: opacity $transition-duration;
 }
 
 .sd-slider__tooltip-panel {
   padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
-  border-radius: var(--sjs2-radius-component-tooltip, 4px);
+  border-radius: var(--sjs2-radius-component-tooltip);
   background: var(--sjs2-color-bg-neutral-primary);
   display: flex;
   justify-content: center;

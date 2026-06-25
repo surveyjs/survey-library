@@ -33,6 +33,36 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "dropdown-question-answered.png");
     });
 
+    test("Check dropdown select themed", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: false,
+        elements: [
+          {
+            type: "dropdown",
+            title: "Where are you living?",
+            name: "dropdown_question",
+            renderAs: "select",
+            placeholder: "Select country here...",
+            choices: ["Greece"]
+          },
+        ]
+      });
+      await page.evaluate(() => {
+        window["survey"].applyTheme({
+          "cssVariables": {
+            "--sjs2-layout-component-input-medium-content-padding-vertical": "30px",
+            "--sjs2-layout-component-input-medium-content-padding-horizontal": "40px",
+            "--sjs2-layout-component-formbox-medium-padding-vertical": "10px",
+            "--sjs2-layout-component-formbox-medium-padding-horizontal": "20px",
+          }
+        });
+      });
+
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-question", "dropdown-select-themed.png");
+    });
+
     test("Check dropdown question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {

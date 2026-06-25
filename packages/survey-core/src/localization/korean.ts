@@ -246,7 +246,9 @@ export var koreanStrings = {
   // [Auto-translated] "Table of contents"
   toc: "목차",
   // [Auto-translated] "Progress bar"
-  progressbar: "진행률 표시줄"
+  progressbar: "진행률 표시줄",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "페이지 {0}"
 };
 
 setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });

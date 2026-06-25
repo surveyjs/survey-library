@@ -85,7 +85,7 @@ describe("Survey", () => {
       content.forEach(item => {
         const resItem: any = {};
         Object.keys(item).forEach(key => {
-          if (["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
+          if (["data", "getData", "processResponsiveness", "isInContainer"].indexOf(key) === -1) {
             resItem[key] = item[key];
           }
         });
@@ -890,6 +890,34 @@ describe("Survey", () => {
     const rows = survey.getQuestionByName("q2").visibleRows;
     rows[0].cells[0].question.value = "2";
     expect(survey.progressText).toBe("Answered 2/2 questions");
+  });
+  test("getProgress should not return 100% when questions remain unanswered, bug#11299", () => {
+    const elements = [];
+    for (let i = 1; i <= 101; i++) {
+      elements.push({ type: "text", name: "q" + i });
+    }
+    const survey = new SurveyModel({ progressBarType: "questions", elements });
+    for (let i = 1; i <= 100; i++) {
+      survey.getQuestionByName("q" + i).value = "ans";
+    }
+    expect(survey.getProgressInfo().answeredQuestionCount, "100 of 101 answered").toBe(100);
+    expect(survey.getProgress(), "progress should be less than 100 when 1 question is unanswered").toBeLessThan(100);
+    survey.getQuestionByName("q101").value = "ans";
+    expect(survey.getProgress(), "progress should be 100 when all questions are answered").toBe(100);
+  });
+  test("getProgress 'requiredQuestions' should not return 100% when required questions remain unanswered, bug#11299", () => {
+    const elements = [];
+    for (let i = 1; i <= 101; i++) {
+      elements.push({ type: "text", name: "q" + i, isRequired: true });
+    }
+    const survey = new SurveyModel({ progressBarType: "requiredQuestions", elements });
+    for (let i = 1; i <= 100; i++) {
+      survey.getQuestionByName("q" + i).value = "ans";
+    }
+    expect(survey.getProgressInfo().requiredAnsweredQuestionCount, "100 of 101 required answered").toBe(100);
+    expect(survey.getProgress(), "progress should be less than 100 when 1 required question is unanswered").toBeLessThan(100);
+    survey.getQuestionByName("q101").value = "ans";
+    expect(survey.getProgress(), "progress should be 100 when all required questions are answered").toBe(100);
   });
   test("survey.progressBarType = 'questions' and non input question, Bug #2108, Bug #2460", () => {
     var survey = new SurveyModel({
@@ -12678,7 +12706,7 @@ describe("Survey", () => {
         },
       ],
       progressBarType: "pages",
-      progressBarShowPageTitles: true
+      progressBarShowNavigationText: true
     });
     expect(survey.getQuestionByName("q1"), "Do not produce stack-overflow").toBeTruthy();
   });
@@ -14747,32 +14775,32 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
 
     survey.setIsMobile(true);
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile");
 
     survey.readOnly = true;
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
     survey.readOnly = false;
     survey.setIsMobile(false);
     survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
 
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -16288,7 +16316,7 @@ describe("Survey", () => {
   test("getContainerContent - do not show buttons progress on completed page", () => {
     const json = {
       "progressBarType": "pages",
-      "progressBarShowPageTitles": true,
+      "progressBarShowNavigationText": true,
       "showProgressBar": true,
       "progressBarLocation": "top",
       pages: [
@@ -16365,15 +16393,7 @@ describe("Survey", () => {
     };
 
     let survey = new SurveyModel(json);
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-        delete item["processResponsiveness"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(getContainerContent("header"), "header for running survey").toEqual([{
       "component": "sv-header",
@@ -16419,15 +16439,7 @@ describe("Survey", () => {
 
     let survey = new SurveyModel(json);
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-        delete item["processResponsiveness"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(survey.showHeaderOnCompletePage).toBe("auto");
     survey.showHeaderOnCompletePage = true;
@@ -16782,14 +16794,7 @@ describe("Survey", () => {
 
     let survey = new SurveyModel(json);
     survey.headerView = "basic";
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(survey.showNavigationButtons).toBe(true);
     expect(survey.navigationButtonsLocation).toBe("bottom");
@@ -16848,15 +16853,6 @@ describe("Survey", () => {
   });
 
   test("getContainerContent - header elements order", () => {
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["processResponsiveness"];
-        delete item["data"];
-      });
-      return result;
-    }
-
     const json = {
       pages: [
         {
@@ -16885,6 +16881,7 @@ describe("Survey", () => {
       component: "sv-custom",
     });
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(getContainerContent("header"), "advanved header first, progress next").toEqual([
       {
@@ -18726,7 +18723,7 @@ describe("Survey", () => {
     expect(survey.showProgressBar, "default show progress bar").toBe(false);
     expect(survey.progressBarType, "default progress bar type").toBe("pages");
     expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
-    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
+    expect(survey.progressBarShowNavigationText, "don't show page titles in progress by default").toBe(false);
 
     expect(getContainerContent("header"), "empty header").toEqual([]);
     expect(getContainerContent("footer"), "empty footer").toEqual([]);
@@ -18750,7 +18747,7 @@ describe("Survey", () => {
 
     survey.progressBarType = "buttons";
 
-    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
+    expect(survey.progressBarShowNavigationText, "show page titles in progress for buttons").toBe(true);
 
     expect(getContainerContent("header"), "auto buttons header").toEqual([]);
     expect(getContainerContent("footer"), "auto buttons footer").toEqual([]);
@@ -18997,7 +18994,7 @@ describe("Survey", () => {
     expect(survey.css.rootReadOnly).toBe("sd-root--readonly");
     expect(survey.mode).toBe("edit");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.readOnly = true;
     expect(survey.mode).toBe("display");
@@ -19007,7 +19004,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     expect(survey.mode).toBe("display");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -19119,7 +19116,7 @@ describe("Survey", () => {
       showProgressBar: true,
       progressBarLocation: "top",
       progressBarType: "pages",
-      progressBarShowPageTitles: true,
+      progressBarShowNavigationText: true,
       pages: [
         {
           elements: [{ type: "text", name: "q1" }]
@@ -20242,7 +20239,7 @@ describe("Survey", () => {
     const advancedHeaderThemeWithoutOverlapEnabled: any = { headerView: "advanced", "cssVariables": {} };
 
     survey.applyTheme(advancedHeaderThemeWithAccentBackgroundColor);
-    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs-primary-backcolor)");
+    expect(survey.findLayoutElement("advanced-header").data.backgroundColor, "#1 backgroundColor accent").toBe("var(--sjs2-color-project-brand-600)");
     expect(survey.findLayoutElement("advanced-header").data.overlapEnabled === false, "#1 overlapEnabled false").toBeTruthy();
 
     survey.applyTheme(advancedHeaderThemeWithOverlapEnabled);

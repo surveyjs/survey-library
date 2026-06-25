@@ -68,7 +68,7 @@
     align-items: center;
     margin-left: var(--sjs2-spacing-negative-x400);
     width: var(--sjs2-size-x400);
-    background-color: var(--sjs2-color-component-panel-default-bg, #fff);
+    background-color: var(--sjs2-color-component-panel-default-bg);
     min-height: var(--sjs2-size-x600);
   }
 }
@@ -81,7 +81,7 @@
   visibility: hidden;
 
   use {
-    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon, #19b394);
+    fill: var(--sjs2-color-component-action-brand-tertiary-default-icon);
   }
 }
 

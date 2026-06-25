@@ -246,7 +246,9 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Зміст",
   // [Auto-translated] "Progress bar"
-  progressbar: "Індикатор прогресу"
+  progressbar: "Індикатор прогресу",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Сторінка {0}"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

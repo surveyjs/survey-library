@@ -9,7 +9,7 @@
   opacity: 0;
   padding: var(--sjs2-spacing-x300) var(--sjs2-spacing-x600);
   box-shadow: $shadow-medium;
-  border-radius: var(--sjs2-radius-component-notifier, 16px);
+  border-radius: var(--sjs2-radius-component-notifier);
   color: $foreground;
   min-width: calc(var(--sjs2-base-unit-size) * 30);
   text-align: center;

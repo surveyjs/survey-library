@@ -246,7 +246,9 @@ export var basqueSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Edukien taula",
   // [Auto-translated] "Progress bar"
-  progressbar: "Aurrerapen barra"
+  progressbar: "Aurrerapen barra",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Orrialde {0}"
 };
 
 setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });

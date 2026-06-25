@@ -246,7 +246,9 @@ export var russianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Содержание",
   // [Auto-translated] "Progress bar"
-  progressbar: "Индикатор выполнения"
+  progressbar: "Индикатор выполнения",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Страница {0}"
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });

@@ -246,7 +246,9 @@ export var persianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "جدول محتویات",
   // [Auto-translated] "Progress bar"
-  progressbar: "نوار پیشرفت"
+  progressbar: "نوار پیشرفت",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "صفحه {0}"
 };
 
 setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });

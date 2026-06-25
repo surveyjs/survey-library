@@ -84,9 +84,6 @@ export var settings = {
    *
    * - `storeDuplicatedTranslations`: `boolean`\
    * Specifies whether surveys should store translation strings that equal the translation strings in the default locale. Default value: `false`.
-   *
-   * - `useLocalTimeZone`: `boolean`\
-   * Obsolete. Use the [`storeUtcDates`](https://surveyjs.io/form-library/documentation/api-reference/settings#storeUtcDates) setting instead.
    */
   localization: {
     /**
@@ -119,10 +116,7 @@ export var settings = {
    *
    * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
-   *
-   * - `surveyServiceUrl`: `string`\
-   * Obsolete. Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
-   *
+
    * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { url: string, request?: XMLHttpRequest, fetchOptions?: RequestInit })`\
    * An event that is raised before a request for choices is sent. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options` parameter to access and modify the request to be sent. The `options.fetchOptions` object is defined only when the Form Library is run on a Node.js server; `options.request` is defined in the rest of cases. The following example shows how you can add authentication headers to a request for choices:
    *
@@ -431,6 +425,13 @@ export var settings = {
    * Default value: `"$"`
    */
   expressionElementPropertyPrefix: "$",
+  /**
+   * Specifies whether [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) questions recalculate only when their dependencies change.
+   *
+   * - `true` (default) - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+   * - `false` - Recalculate on every value change in the survey.
+   */
+  expressionQuestionTrackDependencies: true,
   get commentPrefix(): string { return settings.commentSuffix; },
   set commentPrefix(val: string) { settings.commentSuffix = val; },
   /**

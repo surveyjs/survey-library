@@ -248,7 +248,9 @@ export var portugueseBrSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Índice",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barra de progresso"
+  progressbar: "Barra de progresso",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Página {0}"
 };
 
 setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });

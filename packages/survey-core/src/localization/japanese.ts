@@ -246,7 +246,9 @@ export var japaneseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "目次",
   // [Auto-translated] "Progress bar"
-  progressbar: "進行状況バー"
+  progressbar: "進行状況バー",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "ページ{0}"
 };
 
 setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日本語", englishName: "Japanese" });

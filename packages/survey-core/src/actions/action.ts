@@ -70,7 +70,7 @@ export interface IAction {
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
+   * In the rendered markup, an action item consists of a `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -79,9 +79,9 @@ export interface IAction {
    */
   css?: string;
   /**
-   * One or several CSS classes that you want to apply to the inner `<input>` or `<button>` element.
+   * One or several CSS classes that you want to apply to the inner `<button>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`/`<button>` element.
+   * In the rendered markup, an action item consists of a `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<button>` element. The button contains a nested `<span>` element that displays the label text. Use the `span` selector to style it.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *

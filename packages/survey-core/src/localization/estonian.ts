@@ -246,7 +246,9 @@ export var estonianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sisukord",
   // [Auto-translated] "Progress bar"
-  progressbar: "Edenemisriba"
+  progressbar: "Edenemisriba",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Lehekülg {0}"
 };
 
 setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });

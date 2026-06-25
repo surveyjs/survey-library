@@ -246,7 +246,9 @@ export var welshSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Tabl cynnwys",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bar cynnydd"
+  progressbar: "Bar cynnydd",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Tudalen {0}"
 };
 
 setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });

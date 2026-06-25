@@ -1161,4 +1161,22 @@ describe("TOC", () => {
     expect(panel2.isCollapsed, "panel2 is expanded after navigation").toBe(false);
     expect(panel4.isCollapsed, "panel4 is collapsed after navigation").toBe(true);
   });
+
+  test("No stack overflow when layoutElements are computed for an already rendered survey, Bug#7801 (creator)", () => {
+    const survey: SurveyModel = new SurveyModel({
+      showTOC: true,
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const root = document.createElement("div");
+    const tocRoot = document.createElement("div");
+    tocRoot.className = TOCModel.RootStyle;
+    root.appendChild(tocRoot);
+    survey.rootElement = root;
+
+    expect(() => survey.findLayoutElement("toc-navigation")).not.toThrow();
+    expect(!!survey.findLayoutElement("toc-navigation")).toBe(true);
+  });
 });

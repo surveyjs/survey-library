@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SurveyProgressModel } from "survey-core";
+import { SurveyProgressModel, Base } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 
@@ -10,37 +10,43 @@ export class SurveyProgress extends SurveyNavigationBase {
   protected get isTop(): boolean {
     return this.props.isTop;
   }
+  protected get model(): any {
+    return this.props.model;
+  }
+  protected getStateElement(): Base | null {
+    return this.model;
+  }
   protected get progress(): number {
-    return this.survey.progressValue;
+    return this.model.progressValue;
   }
   protected get progressText(): string {
-    return this.survey.progressText;
+    return this.model.progressText;
   }
   protected get progressBarAriaLabel(): string {
-    return this.survey.progressBarAriaLabel;
+    return this.model.progressBarAriaLabel;
   }
   render(): React.JSX.Element {
     var progressStyle = {
       width: this.progress + "%",
     };
     return (
-      <div className={this.survey.getProgressCssClasses(this.props.container)}>
+      <div className={this.model.getProgressCssClasses(this.props.container)}>
         <div
           style={progressStyle}
-          className={this.css.progressBar}
+          className={this.model.css.progressBar}
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label={this.progressBarAriaLabel}
         >
           <span
-            className={SurveyProgressModel.getProgressTextInBarCss(this.css)}
+            className={SurveyProgressModel.getProgressTextInBarCss(this.model.css)}
           >
             {this.progressText}
           </span>
         </div>
         <span
-          className={SurveyProgressModel.getProgressTextUnderBarCss(this.css)}
+          className={SurveyProgressModel.getProgressTextUnderBarCss(this.model.css)}
         >
           {this.progressText}
         </span>

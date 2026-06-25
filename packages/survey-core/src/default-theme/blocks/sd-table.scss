@@ -379,7 +379,6 @@
 .sd-matrix tr > td:first-of-type {
   position: sticky;
   background: var(--sd-table-sticky-background-color);
-  border-image: var(--sd-table-sticky-background-color);
   z-index: 12;
 
   &:first-of-type {

@@ -770,7 +770,7 @@
 //       await takeElementScreenshot("question-comment-remaining-character-counter.png", Selector(".sd-question__content--comment"), t, comparer);
 
 //       await t.pressKey("tab");
-//       await takeElementScreenshot("question-multipletext-remaining-character-counter.png", Selector(".sd-multipletext__content"), t, comparer);
+//       await takeElementScreenshot("question-multipletext-remaining-character-counter.png", Selector(".sd-question__content--multipletext"), t, comparer);
 //     });
 //   });
 
@@ -851,7 +851,7 @@
 //       });
 
 //       await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-question__content--text"), t, comparer);
-//       await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+//       await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-question__content--multipletext"), t, comparer);
 //       await takeElementScreenshot("question-text-remaining-character-counter-maxLength-100-without-focus.png", Selector(".sd-question__content--text").nth(1), t, comparer);
 
 //       await t.pressKey("tab");
@@ -859,7 +859,7 @@
 
 //       await t.pressKey("tab");
 //       await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-question__content--text"), t, comparer);
-//       await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+//       await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-question__content--multipletext"), t, comparer);
 //     });
 //   });
 

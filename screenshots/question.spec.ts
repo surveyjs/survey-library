@@ -636,7 +636,7 @@ frameworks.forEach(framework => {
       await page.keyboard.press("Tab");
       await compareScreenshot(page, page.locator(".sd-question__content--comment"), "question-comment-remaining-character-counter.png");
       await page.keyboard.press("Tab");
-      await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--multipletext"), "question-multipletext-remaining-character-counter.png");
     });
 
     test("Update comment height", async ({ page }) => {
@@ -710,7 +710,7 @@ frameworks.forEach(framework => {
       await page.keyboard.press("Tab");
 
       await compareScreenshot(page, page.locator(".sd-question__content--text"), "question-text-remaining-character-counter-mobile-view-with-focus.png");
-      await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter-mobile-view-without-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--multipletext"), "question-multipletext-remaining-character-counter-mobile-view-without-focus.png");
       await compareScreenshot(page, page.locator(".sd-question__content--text").nth(1), "question-text-remaining-character-counter-maxLength-100-without-focus.png");
 
       await page.keyboard.press("Tab");
@@ -718,7 +718,7 @@ frameworks.forEach(framework => {
 
       await page.keyboard.press("Tab");
       await compareScreenshot(page, page.locator(".sd-question__content--text"), "question-text-remaining-character-counter-mobile-view-without-focus.png");
-      await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter-mobile-view-with-focus.png");
+      await compareScreenshot(page, page.locator(".sd-question__content--multipletext"), "question-multipletext-remaining-character-counter-mobile-view-with-focus.png");
     });
 
     test("Remaining character counter inputType is email - mobile view", async ({ page }) => {

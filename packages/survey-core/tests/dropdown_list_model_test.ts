@@ -824,6 +824,7 @@ describe("DropdownListModel", () => {
 
     dropdownListModel.onClick(null);
     expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value, "list selection is question value on reopen").toBe("item1");
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only one item selected on mouse reopen").toBe(1);
     expect(list.focusedItem?.id, "focused item is question value on reopen").toBe("item1");
   });
 
@@ -848,6 +849,7 @@ describe("DropdownListModel", () => {
 
     dropdownListModel.onClick(null);
     expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item1");
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only one item selected on mouse reopen").toBe(1);
     expect(list.focusedItem?.id).toBe("item1");
     popupViewModel.dispose();
   });
@@ -875,7 +877,31 @@ describe("DropdownListModel", () => {
 
     dropdownListModel.onClick(null);
     expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item1");
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only one item selected on mouse reopen").toBe(1);
     expect(list.focusedItem?.id).toBe("item1");
+    popupViewModel.dispose();
+  });
+
+  test("mouse reopen after escape clears stale keyboard preview selection", async () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.value = "item2";
+    dropdownListModel.onClick(null);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item4");
+
+    dropdownListModel.keyHandler({ keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } });
+    expect(question.value).toBe("item2");
+    await new Promise(resolve => setTimeout(resolve, 2));
+
+    dropdownListModel.onClick(null);
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only committed value is selected on mouse reopen").toBe(1);
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item2");
     popupViewModel.dispose();
   });
 

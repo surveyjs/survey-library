@@ -3003,6 +3003,7 @@ describe("Dropdown question", () => {
     });
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
+    const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
     const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
     const event = { keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } };
     const committedItem = () => question.selectedItem as ItemValue;
@@ -3032,6 +3033,7 @@ describe("Dropdown question", () => {
     expect(list.focusedItem?.value, "focused item after reopen and down arrow").toBe("item2");
     expect(list.focusedItem?.selected, "focused item is displayed as selected after reopen").toBe(true);
     expect(dropdownListModel.inputString, "inputString after reopen and down arrow").toBe("item2");
+    popupViewModel.dispose();
   });
 
   test("Test createCustomChoiceText property, Issue#11041", () => {

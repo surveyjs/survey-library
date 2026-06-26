@@ -375,14 +375,12 @@ export class DropdownListModel extends Base {
   }
 
   protected resetListKeyboardHighlightState(): void {
-    const focusedItem = this.listModel.focusedItem as ItemValue;
-    if (focusedItem && typeof focusedItem.selectedValue === "boolean") {
-      focusedItem.selectedValue = undefined;
-    }
-    const selectedItem = this.question.selectedItem as ItemValue;
-    if (selectedItem && typeof selectedItem.selectedValue === "boolean") {
-      selectedItem.selectedValue = undefined;
-    }
+    this.listModel.actions.forEach(action => {
+      const item = action as ItemValue;
+      if (typeof item.selectedValue === "boolean") {
+        item.selectedValue = undefined;
+      }
+    });
     this.listModel.resetFocusedItem();
     this.ariaActivedescendant = undefined;
   }

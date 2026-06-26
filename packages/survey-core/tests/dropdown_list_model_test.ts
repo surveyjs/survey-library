@@ -1,4 +1,5 @@
 import { DropdownListModel } from "../src/dropdownListModel";
+import { ItemValue } from "../src/itemvalue";
 import { ListModel } from "../src/list";
 import { PopupModel } from "../src/popup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
@@ -784,7 +785,7 @@ describe("DropdownListModel", () => {
     expect(dropdownListModel.hintStringSuffix, "list click, hint suffix empty").toBe("");
   });
 
-  test("change selection on keyboard", () => {
+  test("change selection on keyboard", async () => {
     const survey = new SurveyModel(jsonDropdown);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
@@ -819,13 +820,14 @@ describe("DropdownListModel", () => {
     const event = { keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } };
     dropdownListModel.keyHandler(event);
     expect(question.selectedItemLocText.calculatedText).toBe("item1");
+    await new Promise(resolve => setTimeout(resolve, 2));
 
     dropdownListModel.onClick(null);
-    expect((list.actions.filter(a => (a as any).selected)[0] as any).value, "list selection is question value on reopen").toBe("item1");
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value, "list selection is question value on reopen").toBe("item1");
     expect(list.focusedItem?.id, "focused item is question value on reopen").toBe("item1");
   });
 
-  test("reset keyboard navigation state on popup close", () => {
+  test("reset keyboard navigation state on popup close", async () => {
     const survey = new SurveyModel(jsonDropdown);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
@@ -842,14 +844,15 @@ describe("DropdownListModel", () => {
 
     dropdownListModel.popupModel.hide();
     expect(question.value).toBe("item1");
+    await new Promise(resolve => setTimeout(resolve, 2));
 
     dropdownListModel.onClick(null);
-    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item1");
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item1");
     expect(list.focusedItem?.id).toBe("item1");
     popupViewModel.dispose();
   });
 
-  test("reset keyboard navigation state on escape", () => {
+  test("reset keyboard navigation state on escape", async () => {
     const survey = new SurveyModel(jsonDropdown);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
     const dropdownListModel = question.dropdownListModel;
@@ -868,9 +871,10 @@ describe("DropdownListModel", () => {
     dropdownListModel.keyHandler(event);
 
     expect(question.value).toBe("item1");
+    await new Promise(resolve => setTimeout(resolve, 2));
 
     dropdownListModel.onClick(null);
-    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item1");
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item1");
     expect(list.focusedItem?.id).toBe("item1");
     popupViewModel.dispose();
   });
@@ -1267,7 +1271,7 @@ describe("DropdownListModel", () => {
     expect(chevronButton.visible, "chevronButton visible #5").toBe(true);
   });
 
-  test("keyboard navigation after confirmed selection with filter", () => {
+  test("keyboard navigation after confirmed selection with filter", async () => {
     const survey = new SurveyModel({
       elements: [{
         type: "dropdown",
@@ -1291,6 +1295,7 @@ describe("DropdownListModel", () => {
     dropdownListModel.keyHandler(enter);
     list.flushUpdates();
     expect(question.value).toBe("item20");
+    await new Promise(resolve => setTimeout(resolve, 2));
 
     dropdownListModel.keyHandler(down);
     dropdownListModel.keyHandler(down);

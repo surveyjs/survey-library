@@ -295,12 +295,13 @@ export class DropdownListModel extends Base {
   }
 
   protected onHidePopup(): void {
-    this.resetKeyboardPreviewState();
+    this.question.suggestedItem = null;
     if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
     }
     this.customValue = undefined;
     this.resetCustomItemValue();
+    setTimeout(() => this.resetListKeyboardHighlightState(), 1);
   }
 
   protected getAvailableItems(): Array<ItemValue> {
@@ -363,6 +364,17 @@ export class DropdownListModel extends Base {
 
   protected resetKeyboardPreviewState(): void {
     this.question.suggestedItem = null;
+    this.listModel.actions.forEach(action => {
+      const item = action as ItemValue;
+      if (typeof item.selectedValue === "boolean") {
+        item.selectedValue = undefined;
+      }
+    });
+    this.listModel.resetFocusedItem();
+    this.ariaActivedescendant = undefined;
+  }
+
+  protected resetListKeyboardHighlightState(): void {
     const focusedItem = this.listModel.focusedItem as ItemValue;
     if (focusedItem && typeof focusedItem.selectedValue === "boolean") {
       focusedItem.selectedValue = undefined;
@@ -406,7 +418,11 @@ export class DropdownListModel extends Base {
   }
 
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
-    model.isItemSelected = (action: ItemValue) => !!action.selected;
+    model.isItemSelected = (action: ItemValue) => {
+      if (action.selectedValue === true) return true;
+      if (action.selectedValue === false && this.question.suggestedItem) return false;
+      return !!this.question.isItemSelected(action);
+    };
     model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
     model.disableSearch = this.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);

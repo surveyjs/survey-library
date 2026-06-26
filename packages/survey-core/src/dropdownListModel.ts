@@ -362,8 +362,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  protected resetKeyboardPreviewState(): void {
-    this.question.suggestedItem = null;
+  protected resetListKeyboardHighlightState(): void {
     this.listModel.actions.forEach(action => {
       const item = action as ItemValue;
       if (typeof item.selectedValue === "boolean") {
@@ -374,15 +373,9 @@ export class DropdownListModel extends Base {
     this.ariaActivedescendant = undefined;
   }
 
-  protected resetListKeyboardHighlightState(): void {
-    this.listModel.actions.forEach(action => {
-      const item = action as ItemValue;
-      if (typeof item.selectedValue === "boolean") {
-        item.selectedValue = undefined;
-      }
-    });
-    this.listModel.resetFocusedItem();
-    this.ariaActivedescendant = undefined;
+  protected resetKeyboardPreviewState(): void {
+    this.question.suggestedItem = null;
+    this.resetListKeyboardHighlightState();
   }
 
   protected selectAvailableItem(): boolean {

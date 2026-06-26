@@ -21,10 +21,6 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-utils
-  pipelines:
-    - pipeline: ReleaseVersion
-      source: Release Version
-      trigger: true
 
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
@@ -101,8 +97,6 @@ jobs:
         persistCredentials: true
         clean: true
         fetchDepth: 1
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -286,13 +280,6 @@ jobs:
           SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
 
-      #trigger next build via the artifact file 'version.txt'
-      - task: CopyFiles@2
-        inputs:
-          contents: "version.txt"
-          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
-        displayName: "copy version file to Build.ArtifactStagingDirectory"
-
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
@@ -318,8 +305,6 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -448,8 +433,6 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -589,8 +572,6 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -730,8 +711,6 @@ jobs:
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:

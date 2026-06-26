@@ -952,6 +952,60 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toBe("1.2 b");
     expect(q4.no, "q4 number").toBe("1.3");
   });
+  test("PanelDynamic, nested panels showQuestionNumbers recursive on setting data, Bug#11487", () => {
+    const json = {
+      pages: [{
+        name: "page1",
+        elements: [{
+          type: "paneldynamic",
+          name: "pd_a",
+          showQuestionNumbers: "recursive",
+          templateElements: [
+            { type: "text", name: "t_a" },
+            {
+              type: "paneldynamic",
+              name: "pd_b",
+              showQuestionNumbers: "recursive",
+              templateElements: [
+                { type: "text", name: "t_b" },
+                {
+                  type: "paneldynamic",
+                  name: "pd_c",
+                  showQuestionNumbers: "recursive",
+                  templateElements: [
+                    { type: "text", name: "t_c" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }]
+      }],
+      showQuestionNumbers: "recursive"
+    };
+    const survey = new SurveyModel(json);
+    survey.data = {
+      pd_a: [{
+        t_a: "1",
+        pd_b: [{
+          t_b: "2",
+          pd_c: [{ t_c: "3" }]
+        }]
+      }]
+    };
+    const pd_a = <QuestionPanelDynamicModel>survey.getQuestionByName("pd_a");
+    const pa = pd_a.panels[0];
+    const pd_b = <QuestionPanelDynamicModel>pa.getQuestionByName("pd_b");
+    const pb = pd_b.panels[0];
+    const pd_c = <QuestionPanelDynamicModel>pb.getQuestionByName("pd_c");
+    const pc = pd_c.panels[0];
+    expect(pd_a.no, "pd_a number").toBe("1.");
+    expect(pa.getQuestionByName("t_a").no, "t_a number").toBe("1.1.");
+    expect(pd_b.no, "pd_b number").toBe("1.2.");
+    expect(pb.getQuestionByName("t_b").no, "t_b number").toBe("1.2.1.");
+    expect(pd_c.no, "pd_c number").toBe("1.2.2.");
+    expect(pc.getQuestionByName("t_c").no, "t_c number").toBe("1.2.2.1.");
+  });
   test("PanelDynamic, showQuestionNumbers onpanel & questionStartIndex, Issue#10288", () => {
     const survey = new SurveyModel({
       elements: [

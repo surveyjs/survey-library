@@ -12,7 +12,7 @@
 
 .sd-list__item-body {
   padding-block: var(--sjs2-spacing-x150);
-  border-radius: var(--sjs2-radius-component-drop-item, 8px);
+  border-radius: var(--sjs2-radius-component-drop-item);
   @include sjs2--typography--component--input--content;
 }
 

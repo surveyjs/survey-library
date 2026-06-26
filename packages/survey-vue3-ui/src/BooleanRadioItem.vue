@@ -6,7 +6,7 @@
     <label :class="question.cssClasses.radioLabel">
       <input
         type="radio"
-        :name="question.name"
+        :name="question.questionName"
         :value="value"
         :checked="value === question.value"
         :aria-errormessage="question.ariaErrormessage"
@@ -44,6 +44,8 @@ const props = defineProps<{
 }>();
 const handleChange = () => {
   const question = props.question;
-  question.value = props.value;
+  if (!question.isInputReadOnly) {
+    question.value = props.value;
+  }
 };
 </script>

@@ -654,13 +654,22 @@
                             "$href": "#paneldynamic"
                         },
                         {
+                            "$href": "#matrixdynamic"
+                        },
+                        {
+                            "$href": "#matrixdropdown"
+                        },
+                        {
+                            "$href": "#matrix"
+                        },
+                        {
+                            "$href": "#expression"
+                        },
+                        {
                             "$href": "#file"
                         },
                         {
                             "$href": "#signaturepad"
-                        },
-                        {
-                            "$href": "#expression"
                         },
                         {
                             "$href": "#text"
@@ -670,15 +679,6 @@
                         },
                         {
                             "$href": "#multipletext"
-                        },
-                        {
-                            "$href": "#matrixdynamic"
-                        },
-                        {
-                            "$href": "#matrixdropdown"
-                        },
-                        {
-                            "$href": "#matrix"
                         },
                         {
                             "$href": "#html"
@@ -704,12 +704,6 @@
                     "type": "array",
                     "items": [
                         {
-                            "$href": "#page"
-                        },
-                        {
-                            "$href": "#flowpanel"
-                        },
-                        {
                             "$href": "#tagbox"
                         },
                         {
@@ -731,13 +725,22 @@
                             "$href": "#paneldynamic"
                         },
                         {
+                            "$href": "#matrixdynamic"
+                        },
+                        {
+                            "$href": "#matrixdropdown"
+                        },
+                        {
+                            "$href": "#matrix"
+                        },
+                        {
+                            "$href": "#expression"
+                        },
+                        {
                             "$href": "#file"
                         },
                         {
                             "$href": "#signaturepad"
-                        },
-                        {
-                            "$href": "#expression"
                         },
                         {
                             "$href": "#text"
@@ -747,15 +750,6 @@
                         },
                         {
                             "$href": "#multipletext"
-                        },
-                        {
-                            "$href": "#matrixdynamic"
-                        },
-                        {
-                            "$href": "#matrixdropdown"
-                        },
-                        {
-                            "$href": "#matrix"
                         },
                         {
                             "$href": "#html"
@@ -774,6 +768,12 @@
                         },
                         {
                             "$href": "#boolean"
+                        },
+                        {
+                            "$href": "#page"
+                        },
+                        {
+                            "$href": "#flowpanel"
                         }
                     ]
                 },
@@ -2176,12 +2176,6 @@
                             "type": "array",
                             "items": [
                                 {
-                                    "$href": "#page"
-                                },
-                                {
-                                    "$href": "#flowpanel"
-                                },
-                                {
                                     "$href": "#tagbox"
                                 },
                                 {
@@ -2203,13 +2197,22 @@
                                     "$href": "#paneldynamic"
                                 },
                                 {
+                                    "$href": "#matrixdynamic"
+                                },
+                                {
+                                    "$href": "#matrixdropdown"
+                                },
+                                {
+                                    "$href": "#matrix"
+                                },
+                                {
+                                    "$href": "#expression"
+                                },
+                                {
                                     "$href": "#file"
                                 },
                                 {
                                     "$href": "#signaturepad"
-                                },
-                                {
-                                    "$href": "#expression"
                                 },
                                 {
                                     "$href": "#text"
@@ -2219,15 +2222,6 @@
                                 },
                                 {
                                     "$href": "#multipletext"
-                                },
-                                {
-                                    "$href": "#matrixdynamic"
-                                },
-                                {
-                                    "$href": "#matrixdropdown"
-                                },
-                                {
-                                    "$href": "#matrix"
                                 },
                                 {
                                     "$href": "#html"
@@ -2246,6 +2240,12 @@
                                 },
                                 {
                                     "$href": "#boolean"
+                                },
+                                {
+                                    "$href": "#page"
+                                },
+                                {
+                                    "$href": "#flowpanel"
                                 }
                             ]
                         },
@@ -2458,132 +2458,388 @@
                 }
             ]
         },
-        "file": {
-            "$id": "#file",
+        "matrixbase": {
+            "$id": "#matrixbase",
             "type": "object",
-            "properties": {
-                "allowCameraAccess": {
-                    "type": "boolean"
+            "allOff": [
+                {
+                    "$ref": "#question"
                 },
-                "sourceType": {
-                    "type": "string",
-                    "enum": [
-                        "file",
-                        "camera",
-                        "file-camera"
-                    ]
-                },
-                "showPreview": {
-                    "type": "boolean"
-                },
-                "allowMultiple": {
-                    "type": "boolean"
-                },
-                "imageHeight": {
-                    "type": "string"
-                },
-                "imageWidth": {
-                    "type": "string"
-                },
-                "acceptedCategories": {
-                    "type": "array",
-                    "items": "string",
-                    "enum": [
-                        "image",
-                        "video",
-                        "audio",
-                        "document",
-                        "archive",
-                        "custom"
-                    ]
-                },
-                "acceptedTypes": {
-                    "type": "string"
-                },
-                "allowImagesPreview": {
-                    "type": "boolean"
-                },
-                "maxSize": {
-                    "type": "number"
-                },
-                "maxFiles": {
-                    "type": "number"
-                },
-                "needConfirmRemoveFile": {
-                    "type": "boolean"
-                },
-                "fileOrPhotoPlaceholder": {
-                    "type": "string"
-                },
-                "photoPlaceholder": {
-                    "type": "string"
-                },
-                "filePlaceholder": {
-                    "type": "string"
-                }
-            }
-        },
-        "signaturepad": {
-            "$id": "#signaturepad",
-            "type": "object",
-            "properties": {
-                "dataFormat": {
-                    "type": "string",
-                    "enum": [
-                        {
-                            "value": "png",
-                            "text": "PNG"
+                {
+                    "properties": {
+                        "showHeader": {
+                            "type": "boolean"
                         },
-                        {
-                            "value": "jpeg",
-                            "text": "JPEG"
+                        "rowsVisibleIf": {
+                            "type": "string"
                         },
-                        {
-                            "value": "svg",
-                            "text": "SVG"
+                        "columnsVisibleIf": {
+                            "type": "string"
+                        },
+                        "verticalAlign": {
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
+                            "enum": [
+                                "top",
+                                "middle"
+                            ]
+                        },
+                        "alternateRows": {
+                            "type": "boolean"
+                        },
+                        "columnMinWidth": {
+                            "type": "string"
+                        },
+                        "displayMode": {
+                            "type": [
+                                "boolean",
+                                "string"
+                            ],
+                            "enum": [
+                                "auto",
+                                "table",
+                                "list"
+                            ]
                         }
-                    ]
-                },
-                "signatureWidth": {
-                    "type": "number"
-                },
-                "signatureHeight": {
-                    "type": "number"
-                },
-                "signatureAutoScaleEnabled": {
-                    "type": "boolean"
-                },
-                "penMinWidth": {
-                    "type": "number"
-                },
-                "penMaxWidth": {
-                    "type": "number"
-                },
-                "height": {
-                    "type": "number"
-                },
-                "allowClear": {
-                    "type": "boolean"
-                },
-                "penColor": {
-                    "type": "string"
-                },
-                "backgroundColor": {
-                    "type": "string"
-                },
-                "backgroundImage": {
-                    "type": "string"
-                },
-                "showPlaceholder": {
-                    "type": "boolean"
-                },
-                "placeholder": {
-                    "type": "string"
-                },
-                "placeholderReadOnly": {
-                    "type": "string"
+                    }
                 }
-            }
+            ]
+        },
+        "matrixdropdownbase": {
+            "$id": "#matrixdropdownbase",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#matrixbase"
+                },
+                {
+                    "properties": {
+                        "transposeData": {
+                            "type": "boolean"
+                        },
+                        "detailErrorLocation": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "top",
+                                "bottom"
+                            ]
+                        },
+                        "cellErrorLocation": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "top",
+                                "bottom"
+                            ]
+                        },
+                        "detailPanelMode": {
+                            "type": "string",
+                            "enum": [
+                                "none",
+                                "underRow",
+                                "underRowSingle"
+                            ]
+                        },
+                        "detailElements": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "$href": "#tagbox"
+                                },
+                                {
+                                    "$href": "#ranking"
+                                },
+                                {
+                                    "$href": "#imagepicker"
+                                },
+                                {
+                                    "$href": "#radiogroup"
+                                },
+                                {
+                                    "$href": "#buttongroup"
+                                },
+                                {
+                                    "$href": "#dropdown"
+                                },
+                                {
+                                    "$href": "#paneldynamic"
+                                },
+                                {
+                                    "$href": "#matrixdynamic"
+                                },
+                                {
+                                    "$href": "#matrixdropdown"
+                                },
+                                {
+                                    "$href": "#matrix"
+                                },
+                                {
+                                    "$href": "#expression"
+                                },
+                                {
+                                    "$href": "#file"
+                                },
+                                {
+                                    "$href": "#signaturepad"
+                                },
+                                {
+                                    "$href": "#text"
+                                },
+                                {
+                                    "$href": "#comment"
+                                },
+                                {
+                                    "$href": "#multipletext"
+                                },
+                                {
+                                    "$href": "#html"
+                                },
+                                {
+                                    "$href": "#image"
+                                },
+                                {
+                                    "$href": "#empty"
+                                },
+                                {
+                                    "$href": "#rating"
+                                },
+                                {
+                                    "$href": "#slider"
+                                },
+                                {
+                                    "$href": "#boolean"
+                                },
+                                {
+                                    "$href": "#page"
+                                },
+                                {
+                                    "$href": "#flowpanel"
+                                }
+                            ]
+                        },
+                        "cellType": {
+                            "type": "string",
+                            "enum": [
+                                "dropdown",
+                                "checkbox",
+                                "radiogroup",
+                                "tagbox",
+                                "text",
+                                "comment",
+                                "boolean",
+                                "expression",
+                                "rating",
+                                "slider"
+                            ]
+                        },
+                        "columnColCount": {
+                            "type": "number",
+                            "enum": [
+                                0,
+                                1,
+                                2,
+                                3,
+                                4
+                            ]
+                        },
+                        "horizontalScroll": {
+                            "type": "boolean"
+                        },
+                        "allowAdaptiveActions": {
+                            "type": "boolean"
+                        },
+                        "choices": {
+                            "type": "array",
+                            "items": "any"
+                        },
+                        "placeholder": {
+                            "type": "string"
+                        },
+                        "optionsCaption": {
+                            "type": "string"
+                        },
+                        "keyDuplicationError": {
+                            "type": "string"
+                        },
+                        "singleInputTitleTemplate": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
+        "matrixdynamic": {
+            "$id": "#matrixdynamic",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#matrixdropdownbase"
+                },
+                {
+                    "properties": {
+                        "confirmDelete": {
+                            "type": "boolean"
+                        },
+                        "keyName": {
+                            "type": "string"
+                        },
+                        "defaultRowValue": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
+                        },
+                        "copyDefaultValueFromLastEntry": {
+                            "type": "boolean"
+                        },
+                        "defaultValueFromLastRow": {
+                            "type": "boolean"
+                        },
+                        "rowCount": {
+                            "type": "number"
+                        },
+                        "allowRowReorder": {
+                            "type": "boolean"
+                        },
+                        "allowRowsDragAndDrop": {
+                            "type": "boolean"
+                        },
+                        "minRowCount": {
+                            "type": "number"
+                        },
+                        "maxRowCount": {
+                            "type": "number"
+                        },
+                        "allowAddRows": {
+                            "type": "boolean"
+                        },
+                        "allowRemoveRows": {
+                            "type": "boolean"
+                        },
+                        "detailPanelShowOnAdding": {
+                            "type": "boolean"
+                        },
+                        "confirmDeleteText": {
+                            "type": "string"
+                        },
+                        "addRowText": {
+                            "type": "string"
+                        },
+                        "addRowButtonLocation": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "top",
+                                "bottom",
+                                "topBottom"
+                            ]
+                        },
+                        "addRowLocation": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "top",
+                                "bottom",
+                                "topBottom"
+                            ]
+                        },
+                        "hideColumnsIfEmpty": {
+                            "type": "boolean"
+                        },
+                        "removeRowText": {
+                            "type": "string"
+                        },
+                        "noRowsText": {
+                            "type": "string"
+                        },
+                        "emptyRowsText": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
+        "matrixdropdown": {
+            "$id": "#matrixdropdown",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#matrixdropdownbase"
+                },
+                {
+                    "properties": {
+                        "totalText": {
+                            "type": "string"
+                        },
+                        "hideIfRowsEmpty": {
+                            "type": "boolean"
+                        },
+                        "rowOrder": {
+                            "type": "string",
+                            "enum": [
+                                "initial",
+                                "random"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "matrix": {
+            "$id": "#matrix",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#matrixbase"
+                },
+                {
+                    "properties": {
+                        "cellType": {
+                            "type": "string",
+                            "enum": [
+                                "radio",
+                                "checkbox"
+                            ]
+                        },
+                        "cellComponent": {
+                            "type": "string"
+                        },
+                        "eachRowRequired": {
+                            "type": "boolean"
+                        },
+                        "isAllRowRequired": {
+                            "type": "boolean"
+                        },
+                        "eachRowUnique": {
+                            "type": "boolean"
+                        },
+                        "rowOrder": {
+                            "type": "string",
+                            "enum": [
+                                "initial",
+                                "random"
+                            ]
+                        },
+                        "rowsOrder": {
+                            "type": "string",
+                            "enum": [
+                                "initial",
+                                "random"
+                            ]
+                        },
+                        "hideIfRowsEmpty": {
+                            "type": "boolean"
+                        },
+                        "cells": {
+                            "type": "MatrixCells"
+                        }
+                    }
+                }
+            ]
         },
         "expression": {
             "$id": "#expression",
@@ -2804,10 +3060,230 @@
                         },
                         "precision": {
                             "type": "number"
+                        },
+                        "requiredErrorText": {
+                            "type": "string"
+                        },
+                        "isRequired": {
+                            "type": "boolean"
+                        },
+                        "requiredIf": {
+                            "type": "string"
+                        },
+                        "enableIf": {
+                            "type": "string"
+                        },
+                        "defaultValue": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
+                        },
+                        "defaultValueExpression": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
+                        },
+                        "resetValueIf": {
+                            "type": "string"
+                        },
+                        "setValueIf": {
+                            "type": "string"
+                        },
+                        "setValueExpression": {
+                            "type": "string"
+                        },
+                        "correctAnswer": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
                         }
                     }
                 }
             ]
+        },
+        "file": {
+            "$id": "#file",
+            "type": "object",
+            "properties": {
+                "allowCameraAccess": {
+                    "type": "boolean"
+                },
+                "sourceType": {
+                    "type": "string",
+                    "enum": [
+                        "file",
+                        "camera",
+                        "file-camera"
+                    ]
+                },
+                "showPreview": {
+                    "type": "boolean"
+                },
+                "allowMultiple": {
+                    "type": "boolean"
+                },
+                "imageHeight": {
+                    "type": "string"
+                },
+                "imageWidth": {
+                    "type": "string"
+                },
+                "acceptedCategories": {
+                    "type": "array",
+                    "items": "string",
+                    "enum": [
+                        "image",
+                        "video",
+                        "audio",
+                        "document",
+                        "archive",
+                        "custom"
+                    ]
+                },
+                "acceptedTypes": {
+                    "type": "string"
+                },
+                "allowImagesPreview": {
+                    "type": "boolean"
+                },
+                "maxSize": {
+                    "type": "number"
+                },
+                "maxFiles": {
+                    "type": "number"
+                },
+                "needConfirmRemoveFile": {
+                    "type": "boolean"
+                },
+                "fileOrPhotoPlaceholder": {
+                    "type": "string"
+                },
+                "photoPlaceholder": {
+                    "type": "string"
+                },
+                "filePlaceholder": {
+                    "type": "string"
+                },
+                "defaultValue": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                },
+                "correctAnswer": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                },
+                "validators": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "$href": "#numericvalidator"
+                        },
+                        {
+                            "$href": "#textvalidator"
+                        },
+                        {
+                            "$href": "#answercountvalidator"
+                        },
+                        {
+                            "$href": "#regexvalidator"
+                        },
+                        {
+                            "$href": "#emailvalidator"
+                        },
+                        {
+                            "$href": "#expressionvalidator"
+                        }
+                    ]
+                }
+            }
+        },
+        "signaturepad": {
+            "$id": "#signaturepad",
+            "type": "object",
+            "properties": {
+                "dataFormat": {
+                    "type": "string",
+                    "enum": [
+                        {
+                            "value": "png",
+                            "text": "PNG"
+                        },
+                        {
+                            "value": "jpeg",
+                            "text": "JPEG"
+                        },
+                        {
+                            "value": "svg",
+                            "text": "SVG"
+                        }
+                    ]
+                },
+                "signatureWidth": {
+                    "type": "number"
+                },
+                "signatureHeight": {
+                    "type": "number"
+                },
+                "signatureAutoScaleEnabled": {
+                    "type": "boolean"
+                },
+                "penMinWidth": {
+                    "type": "number"
+                },
+                "penMaxWidth": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "allowClear": {
+                    "type": "boolean"
+                },
+                "penColor": {
+                    "type": "string"
+                },
+                "backgroundColor": {
+                    "type": "string"
+                },
+                "backgroundImage": {
+                    "type": "string"
+                },
+                "showPlaceholder": {
+                    "type": "boolean"
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "placeholderReadOnly": {
+                    "type": "string"
+                },
+                "defaultValue": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                },
+                "correctAnswer": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                }
+            }
         },
         "text": {
             "$id": "#text",
@@ -3016,389 +3492,6 @@
                         },
                         "itemTitleWidth": {
                             "type": "string"
-                        }
-                    }
-                }
-            ]
-        },
-        "matrixbase": {
-            "$id": "#matrixbase",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#question"
-                },
-                {
-                    "properties": {
-                        "showHeader": {
-                            "type": "boolean"
-                        },
-                        "rowsVisibleIf": {
-                            "type": "string"
-                        },
-                        "columnsVisibleIf": {
-                            "type": "string"
-                        },
-                        "verticalAlign": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "enum": [
-                                "top",
-                                "middle"
-                            ]
-                        },
-                        "alternateRows": {
-                            "type": "boolean"
-                        },
-                        "columnMinWidth": {
-                            "type": "string"
-                        },
-                        "displayMode": {
-                            "type": [
-                                "boolean",
-                                "string"
-                            ],
-                            "enum": [
-                                "auto",
-                                "table",
-                                "list"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "matrixdropdownbase": {
-            "$id": "#matrixdropdownbase",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#matrixbase"
-                },
-                {
-                    "properties": {
-                        "transposeData": {
-                            "type": "boolean"
-                        },
-                        "detailErrorLocation": {
-                            "type": "string",
-                            "enum": [
-                                "default",
-                                "top",
-                                "bottom"
-                            ]
-                        },
-                        "cellErrorLocation": {
-                            "type": "string",
-                            "enum": [
-                                "default",
-                                "top",
-                                "bottom"
-                            ]
-                        },
-                        "detailPanelMode": {
-                            "type": "string",
-                            "enum": [
-                                "none",
-                                "underRow",
-                                "underRowSingle"
-                            ]
-                        },
-                        "detailElements": {
-                            "type": "array",
-                            "items": [
-                                {
-                                    "$href": "#page"
-                                },
-                                {
-                                    "$href": "#flowpanel"
-                                },
-                                {
-                                    "$href": "#tagbox"
-                                },
-                                {
-                                    "$href": "#ranking"
-                                },
-                                {
-                                    "$href": "#imagepicker"
-                                },
-                                {
-                                    "$href": "#radiogroup"
-                                },
-                                {
-                                    "$href": "#buttongroup"
-                                },
-                                {
-                                    "$href": "#dropdown"
-                                },
-                                {
-                                    "$href": "#paneldynamic"
-                                },
-                                {
-                                    "$href": "#file"
-                                },
-                                {
-                                    "$href": "#signaturepad"
-                                },
-                                {
-                                    "$href": "#expression"
-                                },
-                                {
-                                    "$href": "#text"
-                                },
-                                {
-                                    "$href": "#comment"
-                                },
-                                {
-                                    "$href": "#multipletext"
-                                },
-                                {
-                                    "$href": "#matrixdynamic"
-                                },
-                                {
-                                    "$href": "#matrixdropdown"
-                                },
-                                {
-                                    "$href": "#matrix"
-                                },
-                                {
-                                    "$href": "#html"
-                                },
-                                {
-                                    "$href": "#image"
-                                },
-                                {
-                                    "$href": "#empty"
-                                },
-                                {
-                                    "$href": "#rating"
-                                },
-                                {
-                                    "$href": "#slider"
-                                },
-                                {
-                                    "$href": "#boolean"
-                                }
-                            ]
-                        },
-                        "cellType": {
-                            "type": "string",
-                            "enum": [
-                                "dropdown",
-                                "checkbox",
-                                "radiogroup",
-                                "tagbox",
-                                "text",
-                                "comment",
-                                "boolean",
-                                "expression",
-                                "rating",
-                                "slider"
-                            ]
-                        },
-                        "columnColCount": {
-                            "type": "number",
-                            "enum": [
-                                0,
-                                1,
-                                2,
-                                3,
-                                4
-                            ]
-                        },
-                        "horizontalScroll": {
-                            "type": "boolean"
-                        },
-                        "allowAdaptiveActions": {
-                            "type": "boolean"
-                        },
-                        "choices": {
-                            "type": "array",
-                            "items": "any"
-                        },
-                        "placeholder": {
-                            "type": "string"
-                        },
-                        "optionsCaption": {
-                            "type": "string"
-                        },
-                        "keyDuplicationError": {
-                            "type": "string"
-                        },
-                        "singleInputTitleTemplate": {
-                            "type": "string"
-                        }
-                    }
-                }
-            ]
-        },
-        "matrixdynamic": {
-            "$id": "#matrixdynamic",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#matrixdropdownbase"
-                },
-                {
-                    "properties": {
-                        "confirmDelete": {
-                            "type": "boolean"
-                        },
-                        "keyName": {
-                            "type": "string"
-                        },
-                        "defaultRowValue": {
-                            "type": [
-                                "string",
-                                "numeric",
-                                "boolean"
-                            ]
-                        },
-                        "copyDefaultValueFromLastEntry": {
-                            "type": "boolean"
-                        },
-                        "defaultValueFromLastRow": {
-                            "type": "boolean"
-                        },
-                        "rowCount": {
-                            "type": "number"
-                        },
-                        "allowRowReorder": {
-                            "type": "boolean"
-                        },
-                        "allowRowsDragAndDrop": {
-                            "type": "boolean"
-                        },
-                        "minRowCount": {
-                            "type": "number"
-                        },
-                        "maxRowCount": {
-                            "type": "number"
-                        },
-                        "allowAddRows": {
-                            "type": "boolean"
-                        },
-                        "allowRemoveRows": {
-                            "type": "boolean"
-                        },
-                        "detailPanelShowOnAdding": {
-                            "type": "boolean"
-                        },
-                        "confirmDeleteText": {
-                            "type": "string"
-                        },
-                        "addRowText": {
-                            "type": "string"
-                        },
-                        "addRowButtonLocation": {
-                            "type": "string",
-                            "enum": [
-                                "default",
-                                "top",
-                                "bottom",
-                                "topBottom"
-                            ]
-                        },
-                        "addRowLocation": {
-                            "type": "string",
-                            "enum": [
-                                "default",
-                                "top",
-                                "bottom",
-                                "topBottom"
-                            ]
-                        },
-                        "hideColumnsIfEmpty": {
-                            "type": "boolean"
-                        },
-                        "removeRowText": {
-                            "type": "string"
-                        },
-                        "noRowsText": {
-                            "type": "string"
-                        },
-                        "emptyRowsText": {
-                            "type": "string"
-                        }
-                    }
-                }
-            ]
-        },
-        "matrixdropdown": {
-            "$id": "#matrixdropdown",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#matrixdropdownbase"
-                },
-                {
-                    "properties": {
-                        "totalText": {
-                            "type": "string"
-                        },
-                        "hideIfRowsEmpty": {
-                            "type": "boolean"
-                        },
-                        "rowOrder": {
-                            "type": "string",
-                            "enum": [
-                                "initial",
-                                "random"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "matrix": {
-            "$id": "#matrix",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#matrixbase"
-                },
-                {
-                    "properties": {
-                        "cellType": {
-                            "type": "string",
-                            "enum": [
-                                "radio",
-                                "checkbox"
-                            ]
-                        },
-                        "cellComponent": {
-                            "type": "string"
-                        },
-                        "eachRowRequired": {
-                            "type": "boolean"
-                        },
-                        "isAllRowRequired": {
-                            "type": "boolean"
-                        },
-                        "eachRowUnique": {
-                            "type": "boolean"
-                        },
-                        "rowOrder": {
-                            "type": "string",
-                            "enum": [
-                                "initial",
-                                "random"
-                            ]
-                        },
-                        "rowsOrder": {
-                            "type": "string",
-                            "enum": [
-                                "initial",
-                                "random"
-                            ]
-                        },
-                        "hideIfRowsEmpty": {
-                            "type": "boolean"
-                        },
-                        "cells": {
-                            "type": "MatrixCells"
                         }
                     }
                 }

@@ -246,7 +246,9 @@ export var kazakhStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Мазмұн кестесі",
   // [Auto-translated] "Progress bar"
-  progressbar: "Прогресс тақтасы"
+  progressbar: "Прогресс тақтасы",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "{0}-бет"
 };
 
 setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });

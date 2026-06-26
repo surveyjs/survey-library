@@ -1,77 +1,69 @@
-$primary: var(--sjs2-color-bg-brand-primary, var(--primary, #19b394));
-$primary-foreground: var(--sjs2-color-fg-brand-on-primary, var(--primary-foreground, #fff));
+$primary: var(--sjs2-color-bg-brand-primary);
+$primary-foreground: var(--sjs2-color-fg-brand-on-primary);
 
-$editor-background: var(
-  --sjs2-color-component-formbox-default-bg,
-  var(--sjs-editor-background, var(--sjs2-color-component-formbox-default-bg, var(--background-dim-light, #f9f9f9)))
-);
-$question-background: var(
-  --sjs2-color-bg-basic-primary,
-  var(--sjs-question-background, var(--sjs2-color-bg-basic-primary, var(--background, #fff)))
-);
+$editor-background: var(--sjs2-color-component-formbox-default-bg);
+$question-background: var(--sjs2-color-bg-basic-primary);
 
-$background: var(--sjs2-color-bg-basic-primary, var(--background, #fff));
-$background-dim: var(--sjs2-color-bg-neutral-tertiary-dim, var(--background-dim, #f3f3f3));
-$background-dim-light: var(--sjs2-color-bg-basic-secondary, var(--background-dim-light, #f9f9f9));
-$background-dark: var(--sjs2-color-unknown-variable-001, var(--sjs2-color-bg-basic-primary-dim, rgb(248, 248, 248)));
+$background: var(--sjs2-color-bg-basic-primary);
+$background-dim: var(--sjs2-color-bg-neutral-tertiary-dim);
+$background-dim-light: var(--sjs2-color-bg-basic-secondary);
+$background-dark: var(--sjs2-color-unknown-variable-001, var(--sjs2-color-bg-basic-primary-dim));
 
-$foreground: var(--sjs2-color-fg-basic-primary, var(--foreground, #161616));
-$foreground-light: var(--sjs2-color-fg-basic-secondary, var(--foreground-light, #909090));
-$foreground-dim: var(--sjs2-color-fg-basic-primary, rgba(0, 0, 0, 0.91));
-$foreground-dim-light: var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45));
+$foreground: var(--sjs2-color-fg-basic-primary);
+$foreground-light: var(--sjs2-color-fg-basic-secondary);
+$foreground-dim: var(--sjs2-color-fg-basic-primary);
+$foreground-dim-light: var(--sjs2-color-fg-basic-secondary);
 
-$border: var(--sjs2-color-component-input-default-line, var(--border, #d6d6d6));
-$border-light: var(--sjs2-color-border-basic-secondary, var(--border-light, #eaeaea));
-$border-inside: var(--sjs2-color-border-basic-secondary-overlay, var(--border-inside, rgba(0, 0, 0, 0.16)));
+$border: var(--sjs2-color-component-input-default-line);
+$border-light: var(--sjs2-color-border-basic-secondary);
+$border-inside: var(--sjs2-color-border-basic-secondary-overlay);
 
-$shadow-small: var(--sjs2-border-effect-surface-default, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-$shadow-small-reset: var(--sjs2-border-effect-surface-default-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
-$shadow-medium-large: var(--sjs2-border-effect-floating-default, 0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
+$shadow-small: var(--sjs2-border-effect-surface-default);
+$shadow-small-reset: var(--sjs2-border-effect-surface-default-reset);
+$shadow-medium-large: var(--sjs2-border-effect-floating-default);
 $shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
 
-$shadow-inner: var(--sjs2-border-effect-component-formbox-default, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
-$shadow-inner-reset: var(--sjs2-border-effect-component-formbox-default-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
-$shadow-focused: var(--sjs2-border-effect-component-formbox-focused, 0px 0px 0px 2px $primary);
-$shadow-focused-reset: var(--sjs2-border-effect-component-formbox-focused-reset, 0px 0px 0px 0px $primary);
+$shadow-inner: var(--sjs2-border-effect-component-formbox-default);
+$shadow-inner-reset: var(--sjs2-border-effect-component-formbox-default-reset);
+$shadow-focused: var(--sjs2-border-effect-component-formbox-focused);
+$shadow-focused-reset: var(--sjs2-border-effect-component-formbox-focused-reset);
 
-$red: var(--sjs2-color-bg-alert-primary, var(--red, #e60a3e));
-$red-light: var(--sjs2-color-bg-alert-secondary, var(--red-light, rgba(230, 10, 62, 0.1)));
-$red-forecolor: var(--sjs2-color-fg-alert-on-primary, #ffffff);
-$yellow: var(--sjs2-color-bg-warning-primary, var(--yellow, #ff9814));
-$yellow-light: var(--sjs2-color-bg-warning-secondary, var(--yellow-light, rgba(255, 152, 20, 0.1)));
-$yellow-forecolor: var(--sjs2-color-fg-warning-on-primary, #ffffff);
-$green: var(--sjs2-color-bg-positive-primary, var(--green, #19b394));
-$green-light: var(--sjs2-color-bg-positive-secondary, var(--green-light, rgba(25, 179, 148, 0.1)));
-$green-forecolor: var(--sjs2-color-fg-positive-on-primary, #ffffff);
-$blue: var(--sjs2-color-bg-note-primary, #437fd9);
-$blue-light: var(--sjs2-color-bg-note-secondary, var(--blue-light, rgba(67, 127, 217, 0.1)));
-$blue-forecolor: var(--sjs2-color-fg-note-on-primary, #ffffff);
+$red: var(--sjs2-color-bg-alert-primary);
+$red-light: var(--sjs2-color-bg-alert-secondary);
+$red-forecolor: var(--sjs2-color-fg-alert-on-primary);
+$yellow: var(--sjs2-color-bg-warning-primary);
+$yellow-light: var(--sjs2-color-bg-warning-secondary);
+$yellow-forecolor: var(--sjs2-color-fg-warning-on-primary);
+$green: var(--sjs2-color-bg-positive-primary);
+$green-light: var(--sjs2-color-bg-positive-secondary);
+$green-forecolor: var(--sjs2-color-fg-positive-on-primary);
+$blue: var(--sjs2-color-bg-note-primary);
+$blue-light: var(--sjs2-color-bg-note-secondary);
+$blue-forecolor: var(--sjs2-color-fg-note-on-primary);
 
-$font-family: var(--sjs2-typography-font-family-text, var(--font-family, var(--sjs-default-font-family)));
+$font-family: var(--sjs2-typography-font-family-text);
 
-$font-questiontitle-weight: var(--sjs2-typography-font-weight-component-question-title, 600);
-$font-questiontitle-color: var(
-  --sjs2-color-component-question-default-title,
-  var(--sjs2-color-fg-basic-primary, var(--foreground, #161616))
-);
-$font-questiontitle-size: var(--sjs2-typography-font-size-component-question-title, var(--sjs2-font-size-x200));
+$font-questiontitle-weight: var(--sjs2-typography-font-weight-component-question-title);
+$font-questiontitle-color: var(--sjs2-color-component-question-default-title, var(--sjs2-color-fg-basic-primary));
+$font-questiontitle-size: var(--sjs2-typography-font-size-component-question-title);
 
 $font-questiondescription-color: var(
   --sjs2-color-component-question-default-description,
-  var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
+  var(--sjs2-color-fg-basic-secondary)
 );
 
 $font-questionplaceholder-color: var(
   --sjs2-color-component-question-default-title-placeholder,
-  var(--sjs2-color-fg-basic-secondary, rgba(0, 0, 0, 0.45))
+  var(--sjs2-color-fg-basic-secondary)
 );
 
-$font-editorfont-size: var(--sjs2-typography-font-size-component-input-content, var(--sjs2-font-size-x200));
+$font-editorfont-size: var(--sjs2-typography-font-size-component-input-content);
 
 $sd-panel-normal-min-width: 496px;
 $sd-panel-medium-min-width: 176px;
 
-:root, :host {
+:root,
+:host {
   --sjs-transition-duration: 150ms;
 }
 

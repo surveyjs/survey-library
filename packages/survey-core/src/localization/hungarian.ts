@@ -246,7 +246,9 @@ export var hungarianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Tartalomjegyzék",
   // [Auto-translated] "Progress bar"
-  progressbar: "Folyamatjelző sáv"
+  progressbar: "Folyamatjelző sáv",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "{0} oldal"
 };
 
 setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });

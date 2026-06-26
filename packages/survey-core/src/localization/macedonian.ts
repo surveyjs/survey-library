@@ -246,7 +246,9 @@ export var macedonianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Содржина",
   // [Auto-translated] "Progress bar"
-  progressbar: "Лента за напредок"
+  progressbar: "Лента за напредок",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Страница {0}"
 };
 
 setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });

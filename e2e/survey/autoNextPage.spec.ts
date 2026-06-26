@@ -101,19 +101,16 @@ frameworks.forEach((framework) => {
     test("check auto next page", async ({ page }) => {
       await initSurvey(page, framework, json);
       const firstRadioElement = page.locator(".sd-radio__decorator").first();
-      const progressText = page.locator(".sd-progress-buttons__page-title");
+      const stepElements = page.locator(".sd-progress-buttons__list > li");
 
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await firstRadioElement.click();
       await page.waitForTimeout(500);
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await firstRadioElement.click();
       await page.waitForTimeout(500);
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await firstRadioElement.click();
       await page.waitForTimeout(500);
@@ -129,23 +126,20 @@ frameworks.forEach((framework) => {
     test("check auto next page with keyboard", async ({ page }) => {
       await initSurvey(page, framework, json);
 
-      const progressText = page.locator(".sd-progress-buttons__page-title");
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      const stepElements = page.locator(".sd-progress-buttons__list > li");
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

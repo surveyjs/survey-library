@@ -2359,6 +2359,57 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question4.visibleChoices.length, "There are two visible choices by now").toBe(2);
   });
 
+  test("Page.ensureRowsVisibility updates rows in dynamic panel", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              panelCount: 2,
+              renderMode: "list",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "question2",
+                },
+                {
+                  type: "checkbox",
+                  name: "question3",
+                  choices: ["item1", "item2", "item3"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    let panels = panelDynamic.panels;
+
+    let counter = 0;
+    panels.forEach((p)=> p.rows.forEach((row: any) => {
+      row["_updateVisibility"] = () => counter++;
+    }));
+
+    survey.currentPage.ensureRowsVisibility();
+    expect(counter, "rows from paneldynamic panel were updated").toBe(4);
+
+    panelDynamic.addPanel();
+    panels = panelDynamic.panels;
+
+    counter = 0;
+    panels.forEach((p)=> p.rows.forEach((row: any) => {
+      row["_updateVisibility"] = () => counter++;
+    }));
+
+    survey.currentPage.ensureRowsVisibility();
+    expect(counter, "rows from paneldynamic panel were updated").toBe(6);
+  });
+
   test("panel.defaultPanelValue, apply from json and then from UI", () => {
     var json = {
       elements: [
@@ -8825,5 +8876,34 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.addPanelUI();
     expect(panel.panels.length, "panel count after add #2").toBe(3);
     expect(getRemoveAction(2).enabled, "remove[2] enabled on newly added panel when enableRemovePanel=true").toBe(true);
+  });
+  test("templateDescription should be serialized into JSON, Bug#11383", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          panelCount: 1,
+          templateTitle: "My Title",
+          templateDescription: "My Description",
+          templateElements: [{ type: "text", name: "sub1" }],
+        },
+      ],
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    expect(question.templateTitle, "templateTitle is read from the model").toBe("My Title");
+    expect(question.templateDescription, "templateDescription is read from the model").toBe("My Description");
+    const json = question.toJSON();
+    expect(json.templateTitle, "templateTitle is serialized into JSON").toBe("My Title");
+    expect(json.templateDescription, "templateDescription is serialized into JSON").toBe("My Description");
+
+    expect(question.panels.length, "There is one panel").toBe(1);
+    expect(question.panels[0].title, "The first panel title is taken from templateTitle").toBe("My Title");
+    expect(question.panels[0].description, "The first panel description is taken from templateDescription").toBe("My Description");
+
+    question.addPanel();
+    expect(question.panels.length, "There are two panels after addPanel()").toBe(2);
+    expect(question.panels[1].title, "The added panel title is taken from templateTitle").toBe("My Title");
+    expect(question.panels[1].description, "The added panel description is taken from templateDescription").toBe("My Description");
   });
 });

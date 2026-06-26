@@ -9,6 +9,7 @@ import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { SurveyModel } from "./survey";
 import { getLocaleString } from "./surveyStrings";
+import type { ILayoutElementModel, ISurveyLayoutElement, LayoutElementContainer } from "./base-interfaces";
 
 export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolean {
   if (survey.isDesignMode) return true;
@@ -110,7 +111,7 @@ export function getTocRootCss(survey: SurveyModel, isMobile = false): string {
   return rootCss;
 }
 
-export class TOCModel {
+export class TOCModel implements ILayoutElementModel {
   public static RootStyle = "sv_progress-toc";
   public static StickyPosition = true;
   constructor(public survey: SurveyModel) {
@@ -123,6 +124,24 @@ export class TOCModel {
       survey.onAfterRenderSurvey.add((s, o) => this.initStickyTOCSubscriptions(o.htmlElement));
       this.initStickyTOCSubscriptions(survey.rootElement);
     }
+  }
+
+  public createLayoutElements(): Array<ISurveyLayoutElement> {
+    const layoutElement: ISurveyLayoutElement = {
+      id: "toc-navigation",
+      component: "sv-navigation-toc",
+      getData: () => this,
+      processResponsiveness: () => this.updateStickyTOCSize(this.survey.rootElement),
+      isInContainer: (container: LayoutElementContainer) => this.isTocNavigationInContainer(container)
+    };
+    return [layoutElement];
+  }
+
+  private isTocNavigationInContainer(container: LayoutElementContainer): boolean {
+    if (this.survey.state !== "running" || !this.survey.showTOC) return false;
+    if (container === "left") return ["left", "both"].indexOf(this.survey.tocLocation) !== -1;
+    if (container === "right") return ["right", "both"].indexOf(this.survey.tocLocation) !== -1;
+    return false;
   }
 
   private initStickyTOCSubscriptions(rootElement: HTMLElement) {

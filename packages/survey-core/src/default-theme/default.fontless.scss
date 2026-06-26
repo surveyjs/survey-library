@@ -30,7 +30,6 @@
 @use "blocks/sd-comment.scss";
 @use "blocks/sd-panel.scss";
 @use "blocks/sd-signaturepad.scss";
-@use "blocks/sd-checkbox.scss";
 @use "blocks/sd-matrixdynamic.scss";
 @use "blocks/sd-table.scss";
 @use "blocks/sd-page.scss";
@@ -39,6 +38,7 @@
 @use "blocks/sd-description.scss";
 @use "blocks/sd-item.scss";
 @use "blocks/sd-selectbase.scss";
+@use "blocks/sd-checkbox.scss";
 @use "blocks/sd-radio.scss";
 @use "blocks/sd-visuallyhidden.scss";
 @use "blocks/sd-matrix.scss";
@@ -83,7 +83,7 @@ body {
   --sd-timer-size: calc(18 * var(--sjs2-base-unit-size));
   width: 100%;
   font-family: $font-family;
-  background-color: var(--sjs2-color-utility-surface-survey);
+  background-color: var(--sjs2-color-utility-body);
   position: relative;
 
   @include mixins.scrollRules;
@@ -92,10 +92,22 @@ body {
     // z-index: 1;
     position: relative;
   }
+  &:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    background-color: var(--sjs2-color-utility-surface-survey);
+    content: "";
+  }
 }
 
 .sd-root--compact {
-  background-color: var(--sjs2-color-utility-surface-survey-panelless);
+  &:before {
+    background-color: var(--sjs2-color-utility-surface-survey-panelless);
+  }
 }
 
 .sd-root-modern--animation-disabled * {
@@ -158,8 +170,8 @@ body {
 .sv-root--sticky-top.sd-progress--pages,
 .sv-root--sticky-top.sd-progress--buttons {
   .sv-components-container-center {
-    background: var(--sjs2-color-utility-sheet, #fff);
-    border-bottom: 1px solid var(--sjs2-color-border-basic-secondary);
+    background-color: var(--sjs2-color-utility-sheet);
+    box-shadow: var(--sjs2-border-effect-surface-default);
   }
 }
 

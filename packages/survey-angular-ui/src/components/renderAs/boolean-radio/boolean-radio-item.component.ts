@@ -12,6 +12,8 @@ export class BooleanRadioItemComponent {
 
   }
   public change() {
-    this.question.value = this.value;
+    if (!this.question.isInputReadOnly) {
+      this.question.value = this.value;
+    }
   }
 }

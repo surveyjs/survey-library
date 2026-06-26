@@ -246,7 +246,9 @@ export var thaiStrings = {
   // [Auto-translated] "Table of contents"
   toc: "สารบัญ",
   // [Auto-translated] "Progress bar"
-  progressbar: "แถบความคืบหน้า"
+  progressbar: "แถบความคืบหน้า",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "หน้า {0}"
 };
 
 setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", englishName: "Thai" });

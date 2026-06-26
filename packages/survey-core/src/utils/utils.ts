@@ -164,6 +164,14 @@ export function floorTo2Decimals(number: number): number {
   return Math.floor(number * 100) / 100;
 }
 
+export function getColorFromProperty(varName: string, element?: HTMLElement) {
+  if ("function" === typeof getComputedStyle) {
+    const style = getComputedStyle(element || DomDocumentHelper.getDocumentElement());
+    return style.getPropertyValue && style.getPropertyValue(varName);
+  }
+  return "";
+}
+
 export function mulberry32(seed: number): () => number {
   return function() {
     var t = seed += 0x6D2B79F5;

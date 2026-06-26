@@ -124,7 +124,8 @@ export var englishStrings = {
   cancel: "Cancel",
   createCustomItem: "Create \"{0}\" item...",
   toc: "Table of contents",
-  progressbar: "Progress bar"
+  progressbar: "Progress bar",
+  progressbarPage: "Page {0}"
 };
 
 /*

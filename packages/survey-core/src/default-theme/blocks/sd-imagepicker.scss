@@ -113,7 +113,7 @@
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   margin-top: var(--sjs2-spacing-x100);
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary);
 }
 
 .sd-imagepicker__no-image {

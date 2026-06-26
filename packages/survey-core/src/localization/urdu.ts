@@ -246,7 +246,9 @@ export var urduSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "مواد کا جدول",
   // [Auto-translated] "Progress bar"
-  progressbar: "Progress bar"
+  progressbar: "Progress bar",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "صفحہ {0}"
 };
 
 setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });

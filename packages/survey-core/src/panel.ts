@@ -433,7 +433,6 @@ export class PanelModelBase extends SurveyElement<Question>
     };
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    //if(this.surveyImpl === value) return; TODO refactor
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode)this.onVisibleChanged();
@@ -545,6 +544,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
+   * @hidden
    */
   public get requiredText(): string {
     return this.requiredMark;
@@ -580,6 +580,7 @@ export class PanelModelBase extends SurveyElement<Question>
   @property() questionOrder: string;
   /**
    * @deprecated Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
+   * @hidden
    */
   public get questionsOrder(): string {
     return this.questionOrder;

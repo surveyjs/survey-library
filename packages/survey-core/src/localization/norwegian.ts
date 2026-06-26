@@ -246,7 +246,9 @@ export var norwegianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Innhold",
   // [Auto-translated] "Progress bar"
-  progressbar: "Fremdriftsindikator"
+  progressbar: "Fremdriftsindikator",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Side {0}"
 };
 
 setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });

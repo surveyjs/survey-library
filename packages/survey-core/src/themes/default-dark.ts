@@ -13,6 +13,7 @@ export default {
     "--sjs2-color-utility-tabs": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-surface-survey": "#161519",
     "--sjs2-color-utility-surface-designer": "#161519",
+    "--sjs2-color-utility-surface-presets-manager": "#161519",
     "--sjs2-color-utility-surface-json-editor": "var(--sjs2-color-utility-surface-designer)",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-basic-secondary)",
     "--sjs2-color-utility-shadow-surface-hovered": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x025))",
@@ -84,9 +85,10 @@ export default {
     "--sjs2-color-component-slider-design-dot": "var(--sjs2-color-bg-neutral-primary)",
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
-    "--sjs2-border-effect-surface-hovered": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-hovered)",
-    "--sjs2-border-effect-surface-pressed": "0px 0px 0px var(--sjs2-border-width-x100) var(--sjs2-color-utility-shadow-surface-pressed)",
-    "--sjs2-border-effect-surface-dragging": "0px 0px 0px 4px var(--sjs2-color-utility-shadow-surface-dragging)",
-    "--sjs2-border-effect-floating-default": "0px 6px 12px 0px var(--sjs2-color-utility-shadow-floating-default)"
+    "--sjs2-border-spread-surface-hovered": "var(--sjs2-border-width-x100)",
+    "--sjs2-border-spread-surface-pressed": "var(--sjs2-border-width-x100)",
+    "--sjs2-border-blur-surface-dragging": "0px",
+    "--sjs2-border-blur-floating-default": "12px",
+    "--sjs2-border-offset-y-surface-dragging": "0px"
   }
 };

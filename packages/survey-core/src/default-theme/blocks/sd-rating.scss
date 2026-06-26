@@ -1,16 +1,13 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-:root, :host {
+.sd-rating {
   --sd-rating-bad-color: #{$red};
   --sd-rating-normal-color: #{$yellow};
   --sd-rating-good-color: #{$green};
   --sd-rating-bad-color-light: #{$red-light};
   --sd-rating-normal-color-light: #{$yellow-light};
   --sd-rating-good-color-light: #{$green-light};
-}
-
-.sd-rating {
   overflow-x: auto;
   min-height: var(--sjs2-size-x600);
 
@@ -109,7 +106,7 @@
   @include sjs2--typography--default;
   position: relative;
   background: $question-background;
-  border-radius: var(--sjs2-radius-component-rating, 9999px);
+  border-radius: var(--sjs2-radius-component-rating);
   white-space: nowrap;
   padding: var(--sjs2-spacing-x050) var(--sjs2-spacing-x250);
   height: var(--sjs2-size-x600);
@@ -224,7 +221,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item-smiley {
   position: relative;
-  border-radius: var(--sjs2-radius-component-rating, 9999px);
+  border-radius: var(--sjs2-radius-component-rating);
   white-space: nowrap;
   padding: calc(var(--sjs2-base-unit-spacing) * 1.25);
   box-sizing: border-box;
@@ -552,7 +549,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-text.sd-rating__item-text {
   @include sjs2--typography--component--input--content;
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary);
   display: inline-block;
   box-sizing: border-box;
   transition: color $transition-duration;

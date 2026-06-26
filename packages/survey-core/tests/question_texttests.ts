@@ -381,6 +381,16 @@ describe("question text tests", () => {
     expect(ch.remainingCharacterCounter, "#4").toBe("4/7");
   });
 
+  test("Date input: value-changed class when value comes from survey.data, Bug#11334", () => {
+    const valueChanged = "sd-formbox__input--value-changed";
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", inputType: "date" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    expect(q.getControlClass().indexOf(valueChanged) > -1, "no value, placeholder shown #1").toBeFalsy();
+
+    survey.data = { q1: "2024-01-01" };
+    expect(q.getControlClass().indexOf(valueChanged) > -1, "value set from survey.data #2").toBeTruthy();
+  });
+
   test("Set empty text", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "q1" }]

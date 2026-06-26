@@ -246,7 +246,9 @@ export var simplifiedChineseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "目录",
   // [Auto-translated] "Progress bar"
-  progressbar: "进度条"
+  progressbar: "进度条",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "第{0}页"
 };
 
 setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });

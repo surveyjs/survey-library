@@ -4,9 +4,9 @@
 
 .sv_window {
     position: fixed;
-    bottom: var(--sjs2-spacing-x200, 16px);
-    right: var(--sjs2-spacing-x200, 16px);
-    border-radius: var(--sjs2-radius-x100, 8px);
+    bottom: var(--sjs2-spacing-x200);
+    right: var(--sjs2-spacing-x200);
+    border-radius: var(--sjs2-radius-x100);
     border: 1px solid $border-inside;
     box-shadow: $shadow-medium-large;
     background-clip: padding-box;
@@ -15,7 +15,7 @@
     overflow: auto;
     box-sizing: border-box;
     background: $background-dim;
-    width: calc(100% - var(--sjs2-size-x400, 32px)) !important;
+    width: calc(100% - var(--sjs2-size-x400)) !important;
 
     @include mixins.scrollRules;
 }
@@ -25,10 +25,10 @@
 }
 
 .sv_window--full-screen {
-    top: var(--sjs2-spacing-x200, 16px);
-    left: var(--sjs2-spacing-x200, 16px);
-    right: var(--sjs2-spacing-x200, 16px);
-    bottom: var(--sjs2-spacing-x200, 16px);
+    top: var(--sjs2-spacing-x200);
+    left: var(--sjs2-spacing-x200);
+    right: var(--sjs2-spacing-x200);
+    bottom: var(--sjs2-spacing-x200);
     max-height: 100%;
     width: initial !important;
     max-width: initial!important;
@@ -47,9 +47,9 @@
     height: initial;
     
     .sv_window_header {
-        height: var(--sjs2-size-x400, 32px);
-        padding: var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x100, 8px) var(--sjs2-spacing-x200, 16px);
-        border-radius: var(--sjs2-radius-x100, 8px);
+        height: var(--sjs2-size-x400);
+        padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x100) var(--sjs2-spacing-x200);
+        border-radius: var(--sjs2-radius-x100);
         display: flex;
         background-color: $background-dim;
         box-sizing: content-box;
@@ -85,19 +85,19 @@
 
 .sv_window_buttons_container {
     position: fixed;
-    margin-top: var(--sjs2-spacing-x100, 8px);
-    margin-right: var(--sjs2-spacing-x100, 8px);
+    margin-top: var(--sjs2-spacing-x100);
+    margin-right: var(--sjs2-spacing-x100);
     display: flex;
-    gap: var(--sjs2-spacing-x100, 8px);
+    gap: var(--sjs2-spacing-x100);
     z-index: 10000;
 }
 
 .sv_window_button {
     display: flex;
-    padding: var(--sjs2-spacing-x100, 8px);
+    padding: var(--sjs2-spacing-x100);
     justify-content: center;
     align-items: center;
-    border-radius: var(--sjs2-radius-x050, 4px);
+    border-radius: var(--sjs2-radius-x050);
     cursor: pointer;
 
     &:hover,

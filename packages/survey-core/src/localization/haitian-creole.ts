@@ -248,7 +248,9 @@ export var haitianCreoleStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sa ki nan yon tablo",
   // [Auto-translated] "Progress bar"
-  progressbar: "ba pwogrè"
+  progressbar: "ba pwogrè",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Paj {0}"
 };
 
 setupLocale({ localeCode: "ht", strings: haitianCreoleStrings, nativeName: "Kreyòl ayisyen", englishName: "Haitian Creole" });

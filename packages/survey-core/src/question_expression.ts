@@ -3,7 +3,7 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
 import { QuestionFactory } from "./questionfactory";
-import { LocalizableString } from "./localizablestring";
+import { settings } from "./settings";
 
 /**
  * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
@@ -47,6 +47,7 @@ export class QuestionExpressionModel extends Question {
   protected runConditionCore(properties: HashTable<any>) {
     super.runConditionCore(properties);
     if (this.isExecutionLocked || !this.runIfReadOnly && this.isReadOnly) return;
+    if (settings.expressionQuestionTrackDependencies && this.canSkipRunningExpression("expression")) return;
     this.runExpressionByProperty("expression", properties, (val: any) => {
       this.value = this.roundValue(val);
     });

@@ -197,6 +197,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   @property() copyDefaultValueFromLastEntry: boolean;
   /**
    * @deprecated Use the [`copyDefaultValueFromLastEntry`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#copyDefaultValueFromLastEntry) property instead.
+   * @hidden
    */
   public get defaultValueFromLastRow(): boolean {
     return this.copyDefaultValueFromLastEntry;
@@ -349,6 +350,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   @property() allowRowReorder: boolean;
   /**
    * @deprecated Use the [`allowRowReorder`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#allowRowReorder) property instead.
+   * @hidden
    */
   public get allowRowsDragAndDrop(): boolean {
     return this.allowRowReorder;
@@ -749,6 +751,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   @property() addRowButtonLocation: string;
   /**
    * @deprecated Use the [`addRowButtonLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#addRowButtonLocation) property instead.
+   * @hidden
    */
   public get addRowLocation(): string {
     return this.addRowButtonLocation;
@@ -786,6 +789,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * @deprecated Use the [`noRowsText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#noRowsText) property instead.
+   * @hidden
    */
   public get emptyRowsText(): string {
     return this.noRowsText;
@@ -885,6 +889,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.lastDeletedRow = rows[index];
       const row = rows[index];
       rows.splice(index, 1);
+      this.setPropertyValueDirectly("rowCount", val.length);
       if (this.isRendredTableCreated) {
         this.renderedTable.onRemovedRow(row);
       }
@@ -900,11 +905,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       if (!lastDelRow) {
         this.onMatrixRowCreated(newRow);
       }
+      this.setPropertyValueDirectly("rowCount", val.length);
       if (this.isRendredTableCreated) {
-        this.renderedTable.onAddedRow(newRow, index);
+        if (this.renderedTable.isRequireReset()) {
+          this.resetRenderedTable();
+        } else {
+          this.renderedTable.onAddedRow(newRow, index);
+        }
       }
     }
-    this.setPropertyValueDirectly("rowCount", val.length);
     return true;
   }
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {

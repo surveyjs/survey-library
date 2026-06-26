@@ -255,6 +255,7 @@ export class MultipleTextItemModel extends Base
   public set inputSize(val: number) { this.editor.inputSize = val; }
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#inputSize) property instead.
+   * @hidden
    */
   public get size(): number { return this.inputSize; }
   public set size(val: number) { this.inputSize = val; }
@@ -637,6 +638,7 @@ export class QuestionMultipleTextModel extends Question
   @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#inputSize) property instead.
+   * @hidden
    */
   public get itemSize(): number { return this.inputSize; }
   public set itemSize(val: number) { this.inputSize = val; }

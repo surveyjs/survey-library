@@ -246,7 +246,9 @@ export var lithuaniaSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Turinys",
   // [Auto-translated] "Progress bar"
-  progressbar: "Eigos juosta"
+  progressbar: "Eigos juosta",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Puslapio {0}"
 };
 
 setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });

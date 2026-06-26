@@ -246,7 +246,9 @@ export var georgianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "სარჩევი",
   // [Auto-translated] "Progress bar"
-  progressbar: "პროგრესის ბარი"
+  progressbar: "პროგრესის ბარი",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "გვერდი {0}"
 };
 
 setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქართული", englishName: "Georgian" });

@@ -4,33 +4,44 @@
 .sd-error {
   display: flex;
   flex-direction: column;
-  gap: var(--sjs2-spacing-x050);
-  padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x150);
-  border-radius: var(--sjs2-radius-component-message, 8px);
-  @include sjs2--typography--small-strong;
+  gap: var(--sjs2-layout-component-message-box-gap-vertical);
+  padding: var(--sjs2-layout-component-message-box-padding-vertical)
+    var(--sjs2-layout-component-message-box-padding-horizontal);
+  border-radius: var(--sjs2-radius-component-message);
   text-align: left;
-  color: var(--sjs2-color-fg-alert-primary);
+  color: var(--sjs2-color-component-message-error-text);
   white-space: normal;
   width: 100%;
   background-color: var(--sjs2-color-component-message-error-bg);
+
   box-sizing: border-box;
+
+  use {
+    fill: var(--sjs2-color-component-message-error-icon);
+  }
 }
 
 .sd-error--warning {
-  background: var(--sjs2-color-bg-warning-secondary);
+  background: var(--sjs2-color-component-message-warning-bg);
+  color: var(--sjs2-color-component-message-warning-text);
 
-  .sd-error__item {
-    color: var(--sjs2-color-fg-warning-primary);
+  use {
+    fill: var(--sjs2-color-component-message-warning-icon);
   }
 }
 
 .sd-error--info {
   background: var(--sjs2-color-component-message-info-bg);
-  .sd-error__item {
-    color: var(--sjs2-color-fg-note-primary);
+  color: var(--sjs2-color-component-message-info-text);
+
+  use {
+    fill: var(--sjs2-color-component-message-info-icon);
   }
 }
 
 .sd-error__item {
-  @include sjs2--typography--small-strong;
+  @include sjs2--typography--default;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sjs2-layout-component-message-content-gap-horizontal);
 }

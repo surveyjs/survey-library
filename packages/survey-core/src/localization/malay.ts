@@ -246,7 +246,9 @@ export var malaySurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Jadual kandungan",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bar kemajuan"
+  progressbar: "Bar kemajuan",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Halaman {0}"
 };
 
 setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });

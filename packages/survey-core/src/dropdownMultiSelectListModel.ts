@@ -188,6 +188,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   protected focusItemOnClickAndPopup() {
     return;
   }
+  protected resetKeyboardPreviewState(): void {
+    this.listModel.resetFocusedItem();
+    this.ariaActivedescendant = undefined;
+  }
   protected onEscape() {
     return;
   }

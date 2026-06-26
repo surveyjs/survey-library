@@ -240,7 +240,6 @@ export class DropdownListModel extends Base {
   private popupVisibilityChanged(isVisible: boolean) {
     if (isVisible) {
       this.listModel.renderElements = true;
-      this.syncListSelectionOnPopupOpen();
     }
     if (isVisible && this.choicesLazyLoadEnabled) {
       this.listModel.actions = [];
@@ -364,18 +363,16 @@ export class DropdownListModel extends Base {
 
   protected resetKeyboardPreviewState(): void {
     this.question.suggestedItem = null;
-    this.listModel.actions.forEach(action => {
-      const item = action as ItemValue;
-      if (typeof item.selectedValue === "boolean") {
-        item.selectedValue = undefined;
-      }
-    });
+    const focusedItem = this.listModel.focusedItem as ItemValue;
+    if (focusedItem && typeof focusedItem.selectedValue === "boolean") {
+      focusedItem.selectedValue = undefined;
+    }
+    const selectedItem = this.question.selectedItem as ItemValue;
+    if (selectedItem && typeof selectedItem.selectedValue === "boolean") {
+      selectedItem.selectedValue = undefined;
+    }
     this.listModel.resetFocusedItem();
     this.ariaActivedescendant = undefined;
-  }
-
-  protected syncListSelectionOnPopupOpen(): void {
-    this.resetKeyboardPreviewState();
   }
 
   protected selectAvailableItem(): boolean {

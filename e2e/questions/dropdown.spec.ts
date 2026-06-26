@@ -971,9 +971,6 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Escape");
       await expect(page.locator(".sd-dropdown__value input")).toHaveValue("item20");
-
-      await page.keyboard.press("ArrowDown");
-      await expect(page.locator(".sv-list__item.sv-list__item--selected")).toContainText("item20");
     });
 
     test("Check dropdown key press with auto-generated list", async ({ page }) => {

@@ -138,14 +138,22 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
 
       text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText(text);
+      await page.waitForFunction(() => {
+        const el = document.activeElement as HTMLInputElement;
+        return el && el.type === "radio";
+      });
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
       text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText(text);
+      await page.waitForFunction(() => {
+        const el = document.activeElement as HTMLInputElement;
+        return el && el.type === "radio";
+      });
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

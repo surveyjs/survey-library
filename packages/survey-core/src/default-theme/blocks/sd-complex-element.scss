@@ -10,6 +10,15 @@
   margin-bottom: 0;
 }
 
+.sd-element__header ~ hr {
+  margin: 0 calc(-1 * var(--sd-base-padding));
+  margin-top: calc(0.5 * var(--sd-base-vertical-padding));
+  width: calc(100% + 2 * var(--sd-base-padding));
+  border: none;
+  height: 1px;
+  background-color: $border-light;
+}
+
 .sd-element--complex > .sd-element__header {
   &:after {
     content: " ";
@@ -39,6 +48,16 @@
   }
 }
 
+.sd-element--nested.sd-element--complex>div>div {
+  & > .sd-element__header--location-top {
+    &~hr {
+      display: block;
+      margin: 0;
+      width: 100%;
+    }
+  }
+}
+
 .sd-element--nested-with-borders {
   border: 1px solid $border-light;
   border-radius: var(--sjs2-radius-component-panel-nested);
@@ -47,6 +66,10 @@
   // padding-right: var(--sd-base-padding);
 
   & > .sd-element__header--location-top {
+    padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
+  }
+  & >div>div> .sd-element__header--location-top {
     padding-top: calc(0.5 * var(--sd-base-vertical-padding));
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }

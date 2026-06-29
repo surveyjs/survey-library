@@ -42,6 +42,9 @@
  .sd-panel__header {
     padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
   }
+  .sd-element--nested > .sd-panel__header {
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
+  }
  .sd-panel__content {
     padding: var(--sjs2-spacing-x300);
     gap: var(--sjs2-spacing-x200);
@@ -138,9 +141,9 @@
   padding-inline: var(--sjs2-layout-component-panel-description-padding-horizontal);
 }
 
-.sd-panel__header .sd-panel__description {
-  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
-}
+// .sd-panel__header .sd-panel__description {
+//   margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
+// }
 
 .sd-panel > .sd-panel__header:after {
   background: var(--sjs2-color-component-panel-default-separator);

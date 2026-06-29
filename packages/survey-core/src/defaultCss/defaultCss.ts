@@ -261,6 +261,8 @@ export var defaultCss = {
     summaryRowAction: "sd-summary-row-action",
     summaryRowActionEdit: "sd-summary-row-action sd-summary-row-action--edit",
     summaryRowActionDelete: "sd-summary-row-action sd-summary-row-action--delete",
+    questionContainer: "sd-question__container",
+    headerAndContentContainer: "sd-question__header-and-content-container"
   },
   image: {
     mainRoot: "sd-element sd-question sd-question--image",

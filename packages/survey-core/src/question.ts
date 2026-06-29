@@ -1526,7 +1526,21 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
-
+  public getQuestionContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.questionContainer)
+      .toString();
+  }
+  public getHeaderAndContentContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.headerAndContentContainer)
+      .toString();
+  }
+  public get isComplexQuestion(): boolean {
+    const rootCss = this.getRootCss() || "";
+    return rootCss.indexOf("sd-element--complex") > -1;
+    // return this.isContainer || !!this.singleInputQuestion;
+  }
   public getQuestionRootCss() {
     return new CssClassBuilder()
       .append(this.cssClasses.root)

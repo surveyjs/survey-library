@@ -292,7 +292,7 @@ export default {
     "--sjs2-layout-component-panel-header-padding-left": "var(--sjs2-layout-component-panel-content-area-padding-horizontal)",
     "--sjs2-layout-component-panel-header-padding-right": "var(--sjs2-layout-component-panel-content-area-padding-horizontal)",
     "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-spacing-x400)",
-    "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-x400)",
+    "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-x200)",
     // "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-layout-large-horizontal)",
     // "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-layout-medium-vertical)",
     // "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-layout-medium-vertical)",

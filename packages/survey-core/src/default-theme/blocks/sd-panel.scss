@@ -105,6 +105,7 @@
   margin-top: calc(0.5 * var(--sd-base-vertical-padding));
   border-top: 1px solid $border-light;
   padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+  --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
 .sd-panel--as-page .sd-panel__footer {
   padding: var(--sjs2-spacing-x400) 0 0;

@@ -2992,7 +2992,7 @@ describe("Dropdown question", () => {
     settings.dropdownSaveOnOutsideClick = false;
   });
 
-  test("discarded popup selection resets keyboard preview on popup close", async () => {
+  test("discarded popup selection resets keyboard preview on popup close", () => {
     const survey = new SurveyModel({
       elements: [{
         type: "dropdown",
@@ -3019,7 +3019,6 @@ describe("Dropdown question", () => {
 
     dropdownListModel.keyHandler({ keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } });
     expect(dropdownListModel.popupModel.isVisible, "popup hidden after Escape").toBe(false);
-    await new Promise(resolve => setTimeout(resolve, 2));
 
     expect(question.value, "committed value unchanged after Escape").toBe("item2");
     expect(question.isItemSelected(committedItem()), "committed item stays selected after Escape").toBe(true);

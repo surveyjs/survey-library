@@ -295,13 +295,12 @@ export class DropdownListModel extends Base {
   }
 
   protected onHidePopup(): void {
-    this.question.suggestedItem = null;
     if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
     }
     this.customValue = undefined;
     this.resetCustomItemValue();
-    setTimeout(() => this.resetListKeyboardHighlightState(), 1);
+    this.resetKeyboardPreviewState();
   }
 
   protected getAvailableItems(): Array<ItemValue> {

@@ -1299,7 +1299,7 @@ describe("Survey", () => {
     survey.data = { q1: "", q2: "abc" };
     expect(question.errors.length, "No error on setting value to data").toBe(0);
   });
-  test("Required question: error shown on complete, then setting survey.data clears it as a user value change does", () => {
+  test("Required question: error shown on complete, then setting survey.data clears it as a user value change does ,bug#11513", () => {
     const json = {
       elements: [{ type: "text", name: "q1", isRequired: true }]
     };
@@ -1312,7 +1312,7 @@ describe("Survey", () => {
     expect(question.value, "The value is set into the question").toBe("abc");
     expect(question.errors.length, "The error is cleared on setting the correct survey.data").toBe(0);
   });
-  test("Required question: error shown on complete, clears the same way via survey.data and via question.value", () => {
+  test("Required question: error shown on complete, clears the same way via survey.data and via question.value ,bug#11513", () => {
     const createSurvey = (): SurveyModel => {
       return new SurveyModel({ elements: [{ type: "text", name: "q1", isRequired: true }] });
     };
@@ -1331,7 +1331,7 @@ describe("Survey", () => {
     surveyByData.data = { q1: "abc" };
     expect(questionByData.errors.length, "By data: error is cleared on setting survey.data").toBe(0);
   });
-  test("Required question with email validator: required error first, then email error, then cleared via survey.data", () => {
+  test("Required question with email validator: required error first, then email error, then cleared via survey.data ,bug#11513", () => {
     const json = {
       elements: [{ type: "text", name: "q1", isRequired: true, validators: [{ type: "email" }] }]
     };
@@ -1346,7 +1346,7 @@ describe("Survey", () => {
     survey.data = { q1: "a@a.co" };
     expect(question.errors.length, "The error finally disappeared on setting the correct survey.data").toBe(0);
   });
-  test("Two required questions: complete shows two errors, setting survey.data clears them one by one", () => {
+  test("Two required questions: complete shows two errors, setting survey.data clears them one by one ,bug#11513", () => {
     const json = {
       elements: [
         { type: "text", name: "q1", isRequired: true },

@@ -13,7 +13,7 @@
     .sd-progress ~ .sd-paneldynamic__panels-container {
         padding-top: 1px;
     }
-    
+
     & > .sd-panel {
         padding-top: 1px;
         padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
@@ -213,9 +213,6 @@
     &.sd-action-bar--empty {
         display: none;
     }
-}
-
-
     .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
         margin-bottom: var(--sjs2-spacing-negative-x100);
     }

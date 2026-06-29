@@ -2806,8 +2806,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionValue(newValue);
     if (!isEqual) {
       this.resetSingleInput();
+      this.revalidateOnValueChangedFromSurvey();
     }
     this.isChangingViaDefaultValue = false;
+  }
+  private revalidateOnValueChangedFromSurvey(): void {
+    if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||
+      this.getAllErrors().length === 0) return;
+    const isOnValueChanging = this.validationCallbacks.isValidateOnValueChanging;
+    this.validate(true, false, !isOnValueChanging, undefined, isOnValueChanging);
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;

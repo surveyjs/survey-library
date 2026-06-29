@@ -1299,6 +1299,72 @@ describe("Survey", () => {
     survey.data = { q1: "", q2: "abc" };
     expect(question.errors.length, "No error on setting value to data").toBe(0);
   });
+  test("Required question: error shown on complete, then setting survey.data clears it as a user value change does", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", isRequired: true }]
+    };
+    const survey = new SurveyModel(json);
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(question.errors.length, "No error initially").toBe(0);
+    expect(survey.tryComplete(), "Survey is not completed because of the error").toBeFalsy();
+    expect(question.errors.length, "The required error is shown on complete").toBe(1);
+    survey.data = { q1: "abc" };
+    expect(question.value, "The value is set into the question").toBe("abc");
+    expect(question.errors.length, "The error is cleared on setting the correct survey.data").toBe(0);
+  });
+  test("Required question: error shown on complete, clears the same way via survey.data and via question.value", () => {
+    const createSurvey = (): SurveyModel => {
+      return new SurveyModel({ elements: [{ type: "text", name: "q1", isRequired: true }] });
+    };
+    //Baseline: a user modifies the question value directly
+    const surveyByValue = createSurvey();
+    const questionByValue = <Question>surveyByValue.getQuestionByName("q1");
+    expect(surveyByValue.tryComplete(), "By value: not completed").toBeFalsy();
+    expect(questionByValue.errors.length, "By value: error is shown on complete").toBe(1);
+    questionByValue.value = "abc";
+    expect(questionByValue.errors.length, "By value: error is cleared on value change").toBe(0);
+    //The same process should run when the value comes from survey.data
+    const surveyByData = createSurvey();
+    const questionByData = <Question>surveyByData.getQuestionByName("q1");
+    expect(surveyByData.tryComplete(), "By data: not completed").toBeFalsy();
+    expect(questionByData.errors.length, "By data: error is shown on complete").toBe(1);
+    surveyByData.data = { q1: "abc" };
+    expect(questionByData.errors.length, "By data: error is cleared on setting survey.data").toBe(0);
+  });
+  test("Required question with email validator: required error first, then email error, then cleared via survey.data", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", isRequired: true, validators: [{ type: "email" }] }]
+    };
+    const survey = new SurveyModel(json);
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(survey.tryComplete(), "Not completed, the question is empty").toBeFalsy();
+    expect(question.errors.length, "The required error is shown first").toBe(1);
+    expect(question.errors[0].getErrorType(), "It is the required error").toBe("required");
+    survey.data = { q1: "it is not e-mail" };
+    expect(question.errors.length, "There is still one error").toBe(1);
+    expect(question.errors[0].getErrorType(), "Now it is the email (custom) error, not the required one").toBe("custom");
+    survey.data = { q1: "a@a.co" };
+    expect(question.errors.length, "The error finally disappeared on setting the correct survey.data").toBe(0);
+  });
+  test("Two required questions: complete shows two errors, setting survey.data clears them one by one", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2", isRequired: true }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const q1 = <Question>survey.getQuestionByName("q1");
+    const q2 = <Question>survey.getQuestionByName("q2");
+    expect(survey.tryComplete(), "Not completed, both questions are empty").toBeFalsy();
+    expect(q1.errors.length, "q1 has the required error").toBe(1);
+    expect(q2.errors.length, "q2 has the required error").toBe(1);
+    survey.data = { q1: "abc" };
+    expect(q1.errors.length, "q1 error is cleared on setting survey.data").toBe(0);
+    expect(q2.errors.length, "q2 still has the error").toBe(1);
+    survey.data = { q1: "abc", q2: "def" };
+    expect(q2.errors.length, "q2 error is cleared on setting survey.data").toBe(0);
+  });
   test("survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612", () => {
     var json = {
       checkErrorsMode: "onValueChanged",

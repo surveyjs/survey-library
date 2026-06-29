@@ -415,7 +415,7 @@ export var defaultCss = {
     rootReadOnly: "sd-formbox--readonly",
     rootPreview: "sd-formbox--preview",
     control: "sd-formbox__input",
-    content: "sd-text__content sd-question__content",
+    content: "sd-question__content sd-question__content--text",
     characterCounter: "sd-formbox__character-counter",
     onError: "sd-formbox--error",
     isValueChanged: "sd-formbox__input--value-changed"
@@ -432,7 +432,7 @@ export var defaultCss = {
     itemLabelAnswered: "sd-multipletext__item-container--answered",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title sd-formbox__label",
-    content: "sd-multipletext__content sd-question__content",
+    content: "sd-question__content--multipletext sd-question__content",
     row: "sd-multipletext__row",
     cell: "sd-multipletext__cell",
     cellError: "sd-multipletext__cell--error",
@@ -441,6 +441,7 @@ export var defaultCss = {
   },
   dropdown: {
     root: "sd-selectbase",
+    content: "sd-question__content sd-question__content--dropdown",
     popup: "sv-dropdown-popup",
     small: "sd-row__question--small",
     selectWrapper: "sv-dropdown_select-wrapper",
@@ -743,7 +744,7 @@ export var defaultCss = {
     group: "sd-formbox__group sd-comment__group",
     grip: "sd-comment__grip",
     gripIconId: "icon-grip",
-    content: "sd-comment__content sd-question__content",
+    content: "sd-question__content--comment sd-question__content",
     characterCounter: "sd-formbox__character-counter sd-comment__character-counter",
     onError: "sd-formbox--error"
   },
@@ -920,6 +921,7 @@ export var defaultCss = {
   },
   tagbox: {
     root: "sd-selectbase",
+    content: "sd-question__content sd-question__content--dropdown sd-question__content--tagbox",
     popup: "sv-dropdown-popup",
     small: "sd-row__question--small",
     selectWrapper: "sv-dropdown_select-wrapper",

@@ -160,6 +160,8 @@
   border-top: 1px solid $border-light;
   margin-top: calc(-1 * var(--sjs2-spacing-x300));
   padding-inline-start: calc(var(--sjs2-layout-component-panel-content-area-padding-horizontal) - 1.75 * var(--sjs2-spacing-x100));
+  padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+  --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 }
 
 .sd-panel--as-page .sd-panel__footer {

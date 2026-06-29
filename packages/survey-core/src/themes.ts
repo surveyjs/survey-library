@@ -246,35 +246,76 @@ function multiplyCssFontSize(fontSize: string, multiplier: number, shouldRound =
   return normalizedResult.toString() + fontSizeDimension;
 }
 
-function patchActionButtonCssVariables(newCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
-  const questionTitleFontSize = newCssVariable["--sjs-font-questiontitle-size"];
+function patchActionButtonCssVariables(legacyCssVariable: { [index: string]: string }, convertedCssVariable: { [index: string]: string }, isPanelless?: boolean): void {
+  const questionTitleFontSize = legacyCssVariable["--sjs-font-questiontitle-size"];
   if (!!questionTitleFontSize) {
-    newCssVariable["--sjs2-typography-font-size-component-action-large-content"] = questionTitleFontSize;
-    newCssVariable["--sjs2-typography-line-height-component-action-large-content"] = multiplyCssFontSize(questionTitleFontSize, 1.5, true);
+    convertedCssVariable["--sjs2-typography-font-size-component-action-large-content"] = questionTitleFontSize;
+    convertedCssVariable["--sjs2-typography-line-height-component-action-large-content"] = multiplyCssFontSize(questionTitleFontSize, 1.5, true);
   }
 
   let background: string | undefined;
   let hoverBackground: string | undefined;
 
   if (isPanelless) {
-    background = newCssVariable["--sjs-general-backcolor-dim-light"];
-    hoverBackground = newCssVariable["--sjs-editorpanel-hovercolor"] || newCssVariable["--sjs-general-backcolor-dim-dark"];
+    background = legacyCssVariable["--sjs-general-backcolor-dim-light"];
+    hoverBackground = legacyCssVariable["--sjs-editorpanel-hovercolor"] || legacyCssVariable["--sjs-general-backcolor-dim-dark"];
   } else {
-    background = newCssVariable["--sjs-questionpanel-backcolor"] || newCssVariable["--sjs-general-backcolor"];
-    hoverBackground = newCssVariable["--sjs-questionpanel-hovercolor"] || newCssVariable["--sjs-general-backcolor-dark"];
+    background = legacyCssVariable["--sjs-questionpanel-backcolor"] || legacyCssVariable["--sjs-general-backcolor"];
+    hoverBackground = legacyCssVariable["--sjs-questionpanel-hovercolor"] || legacyCssVariable["--sjs-general-backcolor-dark"];
   }
 
   if (!!background) {
-    newCssVariable["--sjs2-color-component-action-brand-tertiary-surface-default-bg"] = background;
+    convertedCssVariable["--sjs2-color-component-action-brand-tertiary-surface-default-bg"] = background;
   }
   if (!!hoverBackground) {
-    newCssVariable["--sjs2-color-component-action-brand-tertiary-surface-hovered-bg"] = hoverBackground;
+    convertedCssVariable["--sjs2-color-component-action-brand-tertiary-surface-hovered-bg"] = hoverBackground;
   }
+}
+
+function patchTypographyCssVariables(legacyCssVariable: { [index: string]: string }, convertedCssVariable: { [index: string]: string }): void {
+  const fontSize = legacyCssVariable["--sjs-font-size"];
+  if (!!fontSize) {
+    const fontSizeBaseUnit = multiplyCssFontSize(fontSize, 0.5);
+    if (fontSizeBaseUnit) {
+      convertedCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
+      convertedCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
+      delete legacyCssVariable["--sjs-font-size"];
+    }
+  }
+
+  typographyComponentLineHeightCoefficients.forEach(({ component, coefficient }) => {
+    const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
+    const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
+    const componentFontSize = convertedCssVariable[fontSizeVar];
+    if (!!componentFontSize && legacyCssVariable[lineHeightVar] === undefined && convertedCssVariable[lineHeightVar] === undefined) {
+      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient, true);
+      if (lineHeight) {
+        convertedCssVariable[lineHeightVar] = lineHeight;
+      }
+    }
+  });
+}
+
+function patchComponentRadiusCssVariables(legacyCssVariable: { [index: string]: string }, convertedCssVariable: { [index: string]: string }): void {
+  const cornerRadius = convertedCssVariable["--sjs2-base-unit-radius"];
+  if (!cornerRadius) return;
+
+  const componentRadiusVars = [
+    "--sjs2-radius-component-panel",
+    "--sjs2-radius-component-formbox",
+    "--sjs2-radius-component-action",
+  ];
+  componentRadiusVars.forEach((varName) => {
+    if (legacyCssVariable[varName] === undefined && convertedCssVariable[varName] === undefined) {
+      convertedCssVariable[varName] = cornerRadius;
+    }
+  });
 }
 
 export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boolean) {
   if (!newCssVariable) return;
-  patchActionButtonCssVariables(newCssVariable, isPanelless);
+  const convertedCssVariable: { [index: string]: string } = {};
+  patchActionButtonCssVariables(newCssVariable, convertedCssVariable, isPanelless);
   const patchLegacyVarReferencesInValue = (value: string): string => {
     return value.replace(/var\(\s*(--[\w-]+)\s*\)/g, (match, referencedVar) => {
       const referencedMapping = legacyCssVariables[referencedVar];
@@ -293,42 +334,29 @@ export function patchLegacyCSSVariables(newCssVariable: any, isPanelless?: boole
       if (isJoinMapping) {
         const targetVar = (mapping as { var: string, join: string }).var;
         const joinStr = (mapping as { var: string, join: string }).join;
-        if (newCssVariable[targetVar]) {
-          newCssVariable[targetVar] += joinStr;
+        if (convertedCssVariable[targetVar]) {
+          convertedCssVariable[targetVar] += joinStr;
         } else {
-          newCssVariable[targetVar] = "";
+          convertedCssVariable[targetVar] = "";
         }
-        newCssVariable[targetVar] += patchedVarValue;
+        convertedCssVariable[targetVar] += patchedVarValue;
       } else if (Array.isArray(mapping)) {
         mapping.forEach(key => {
-          newCssVariable[key] = patchedVarValue;
+          convertedCssVariable[key] = patchedVarValue;
         });
       } else {
-        newCssVariable[mapping as string] = patchedVarValue;
+        convertedCssVariable[mapping as string] = patchedVarValue;
       }
       delete newCssVariable[variable];
     }
   });
 
-  const fontSize = newCssVariable["--sjs-font-size"];
-  if (!!fontSize) {
-    const fontSizeBaseUnit = multiplyCssFontSize(fontSize, 0.5);
-    if (fontSizeBaseUnit) {
-      newCssVariable["--sjs2-base-unit-font-size"] = fontSizeBaseUnit;
-      newCssVariable["--sjs2-base-unit-line-height"] = fontSizeBaseUnit;
-      delete newCssVariable["--sjs-font-size"];
-    }
-  }
+  patchTypographyCssVariables(newCssVariable, convertedCssVariable);
+  patchComponentRadiusCssVariables(newCssVariable, convertedCssVariable);
 
-  typographyComponentLineHeightCoefficients.forEach(({ component, coefficient }) => {
-    const fontSizeVar = `--sjs2-typography-font-size-component-${component}`;
-    const lineHeightVar = `--sjs2-typography-line-height-component-${component}`;
-    const componentFontSize = newCssVariable[fontSizeVar];
-    if (!!componentFontSize && newCssVariable[lineHeightVar] === undefined) {
-      const lineHeight = multiplyCssFontSize(componentFontSize, coefficient, true);
-      if (lineHeight) {
-        newCssVariable[lineHeightVar] = lineHeight;
-      }
+  Object.keys(convertedCssVariable).forEach((key) => {
+    if (newCssVariable[key] === undefined) {
+      newCssVariable[key] = convertedCssVariable[key];
     }
   });
 }

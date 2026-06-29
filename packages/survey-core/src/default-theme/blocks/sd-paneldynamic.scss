@@ -171,7 +171,7 @@
 
 .sd-paneldynamic__placeholder {
     .sd-action-bar--empty {
-        margin-top: var(--sjs2-spacing-negative-x050);
+        margin-top: var(--sjs2-spacing-negative-x200);
     }
 }
 
@@ -194,8 +194,9 @@
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
-    margin: 0 calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
+    margin: 0;
     width: calc(100% + var(--sjs2-spacing-x600));
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-dynamic-footer-action-group-gap);
 }
 
 .sd-paneldynamic__panel-footer {
@@ -207,10 +208,13 @@
     justify-content: flex-end;
     padding-top: 0;
     margin-top: calc(var(--sjs2-spacing-negative-x300));
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
 
     &.sd-action-bar--empty {
         display: none;
     }
+}
+
 
     .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
         margin-bottom: var(--sjs2-spacing-negative-x100);

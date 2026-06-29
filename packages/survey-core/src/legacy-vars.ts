@@ -95,6 +95,7 @@ export const legacyCssVariables = {
   "--sjs-font-questiontitle-size": "--sjs2-typography-font-size-component-question-title",
   "--sjs-font-questiontitle-color": [
     "--sjs2-color-component-question-default-title",
+    "--sjs2-color-component-label-default-text",
     "--sjs2-color-fg-basic-primary",
   ],
   "--sjs-font-questiondescription-family": "--sjs2-typography-font-family-component-question-description",
@@ -137,7 +138,6 @@ export const legacyCssVariables = {
   ],
   "--sjs-font-editorfont-color": [
     "--sjs2-color-component-input-default-value",
-    "--sjs2-color-component-label-default-text",
   ],
   "--sjs-font-editorfont-placeholdercolor": [
     "--sjs2-color-component-input-default-placeholder",

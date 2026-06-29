@@ -6,11 +6,13 @@
     flex-direction: column;
     min-height: 0;
     height: 100%;
+    gap: var(--sjs2-layout-component-drop-box-gap-vertical);
     overflow: hidden;
 }
 .sd-selectlist {
     width: 100%;
-    padding: var(--sjs2-spacing-x100);
+    padding: var(--sjs2-layout-component-drop-box-padding-vertical)
+        var(--sjs2-layout-component-drop-box-padding-horizontal);
     box-sizing: border-box;
     margin: 0;
     overflow-y: auto;
@@ -86,6 +88,8 @@
 }
 
 .sd-selectlist__item-icon {
+    width: 1lh;
+    height: 1lh;
 }
 
 .sd-selectlist__item-text--wrap span.sv-string-viewer {

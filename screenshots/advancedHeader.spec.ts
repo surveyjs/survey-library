@@ -136,7 +136,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await applyTheme(page, { "cssVariables": { "--sjs2-color-component-header-default-title": "" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": {}, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
@@ -146,12 +146,12 @@ frameworks.forEach(framework => {
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-accent.png");
 
-      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "transparent", "--sjs2-color-component-header-default-title": "" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-none.png");
 
-      await applyTheme(page, { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)", "--sjs2-color-component-header-default-title": "" }, "header": {}, "headerView": "advanced" });
+      await applyTheme(page, { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" });
       await page.waitForTimeout(500);
       await resetFocusToBody(page);
       await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-set.png");

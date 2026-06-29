@@ -46,6 +46,9 @@
     }
   }
 }
+.sd-body__navigation {
+  --sd-action-bar-gap: var(--sjs2-layout-component-page-footer-action-group-gap);
+}
 
 .sd-root-modern--mobile {
   .sd-body {

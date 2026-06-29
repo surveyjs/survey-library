@@ -68,10 +68,16 @@
   --sjs2-color-component-formbox-focused-border: var(--bs-primary);
   
   --sjs2-radius-component-formbox: var(--bs-border-radius);
-  --sjs2-layout-component-formbox-medium-padding-vertical: var(--bs-border-width);
-  --sjs2-layout-component-formbox-medium-padding-horizontal: var(--bs-border-width);
-  --sjs2-layout-component-input-medium-content-padding-horizontal: 0.75rem;
-  --sjs2-layout-component-input-medium-content-padding-vertical: 0.375rem; 
+  --sjs2-layout-component-formbox-medium-padding-vertical: calc(0.125rem + var(--bs-border-width));
+  --sjs2-layout-component-formbox-medium-padding-horizontal: calc(0.125rem + var(--bs-border-width));
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 0.625rem;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 0.25rem; 
+  
+  /* buttongroup */
+  --sjs2-color-component-buttongroup-item-true-default-bg: var(--bs-primary);
+  --sjs2-color-component-buttongroup-item-true-default-value: #fff;
+  --sjs2-color-component-buttongroup-item-true-default-border: var(--bs-primary);
+
   
   /* error message */
   --sjs2-color-component-message-error-bg: initial;

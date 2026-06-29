@@ -73,10 +73,15 @@
   --sjs2-color-component-input-default-placeholder: var(--mui-palette-text-primary);
 
   --sjs2-radius-component-formbox: var(--mui-shape-borderRadius);
-  --sjs2-layout-component-formbox-medium-padding-vertical: 0;
-  --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
-  --sjs2-layout-component-input-medium-content-padding-horizontal: 14px;
-  --sjs2-layout-component-input-medium-content-padding-vertical: 16.5px;
+  --sjs2-layout-component-formbox-medium-padding-vertical: 8px;
+  --sjs2-layout-component-formbox-medium-padding-horizontal: 8px;
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 6px;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 8.5px;
+
+  /* buttongroup */
+  --sjs2-color-component-buttongroup-item-true-default-bg: var(--mui-palette-primary-main);
+  --sjs2-color-component-buttongroup-item-true-default-value: var(--mui-palette-primary-contrastText);
+  --sjs2-color-component-buttongroup-item-true-default-border: var(--mui-palette-primary-main);
 
   /* error message */
   --sjs2-color-component-message-error-bg: initial;
@@ -186,7 +191,7 @@
   transition: none;
 }
 
-.sd-question:not(.sd-question--complex):has(.sd-text, .sd-comment, .sd-dropdown) {
+.sd-question:not(.sd-question--complex):has(.sd-question__content--text, .sd-question__content--comment, .sd-question__content--dropdown) {
   .sd-question__header {
     position: absolute;
     padding-top: 15px;
@@ -198,6 +203,8 @@
     padding-left: 6px;
     padding-right: 10px;
     --sjs2-color-component-question-default-title: currentColor;
+
+    z-index: 1;
   }
   
   &:focus-within, &.sd-question--answered {
@@ -244,7 +251,7 @@
 .sd-question:has(>.sd-question__content--comment):focus-within .sd-question__header {
   transform: translate(-14px, -26px) scale(0.75);
 }
-.sd-question:has(>.sd-dropdown__content):focus-within .sd-question__header {
+.sd-question:has(>.sd-question__content--dropdown):focus-within .sd-question__header {
   transform: translate(-2px, -26px) scale(0.75);
 }
 

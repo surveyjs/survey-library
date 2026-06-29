@@ -194,24 +194,25 @@
 .sd-question:not(.sd-question--complex):has(.sd-question__content--text, .sd-question__content--comment, .sd-question__content--dropdown) {
   .sd-question__header {
     position: absolute;
-    padding-top: 15px;
+    top: 0;
+    left: 0;
     transition: all 0.2s ease-in-out;
     padding-bottom: 0px;
     width: fit-content;
-
-    transform: translate(-8px, -26px) scale(0.75);
+    padding-top: 0px;
     padding-left: 6px;
     padding-right: 10px;
-    --sjs2-color-component-question-default-title: currentColor;
-
     z-index: 1;
+    transform-origin: top left;
+
+    --sjs2-color-component-question-default-title: currentColor;
+    background-color: var(--mui-palette-background-default);
   }
   
   &:focus-within, &.sd-question--answered {
     .sd-question__header {
-      --sjs2-typography-font-size-component-question-title: 1rem;
+      transform: translate(8px, -8px) scale(0.75);
       --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
-      background-color: var(--mui-palette-background-default);
     }
     input, textarea {
       transition: all 0.2s ease-in-out;
@@ -224,10 +225,7 @@
   
   &:not(:focus-within, .sd-question--answered) {
     .sd-question__header {
-      transform: translate(0, 0) scale(1);
-      padding-left: 14px;
-      padding-right: 14px;
-      z-index: 1;
+      transform: translate(8px, 15px) scale(1);
       pointer-events: none;
     }
     input, textarea {
@@ -242,19 +240,18 @@
     .sd-question__header {
       --sjs2-color-component-question-default-title: var(--mui-palette-error-main);
       color: var(--mui-palette-error-main);
-      --sjs2-color-component-question-default-title: currentColor;
     }
   }
 }
 
-
+/*
 .sd-question:has(>.sd-question__content--comment):focus-within .sd-question__header {
-  transform: translate(-14px, -26px) scale(0.75);
+  transform: translate(-14px, -11px) scale(0.75);
 }
 .sd-question:has(>.sd-question__content--dropdown):focus-within .sd-question__header {
-  transform: translate(-2px, -26px) scale(0.75);
+  transform: translate(-2px, -11px) scale(0.75);
 }
-
+*/
 
 
 

@@ -38,7 +38,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     column-gap: var(--sjs2-spacing-x300);
-    // row-gap: calc(0.25 * var(--sd-base-vertical-padding));
+    row-gap: var(--sjs2-spacing-x100);
     padding-top: var(--sd-base-padding);
   }
 }
@@ -58,17 +58,6 @@
     padding: 0;
   }
 }
-
-// TODO: remove this during tockens update
-.sd-question__erbox ~ .sd-question__header-and-content-container {
-  padding-top: var(--sjs2-spacing-x300);
-}
-.sd-root-modern--mobile {
-  .sd-question__erbox ~ .sd-question__header-and-content-container {
-    padding-top: var(--sd-base-vertical-padding);
-  }
-}
-// END TODO: remove this during tockens update
 
 // .sd-question--left {
 //   display: flex;
@@ -97,6 +86,11 @@
   width: auto;
   vertical-align: top;
   margin-top: var(--sjs2-spacing-x150);
+}
+
+.sd-question__content--left {
+  flex: 1;
+  max-width: 100%;
 }
 
 // .sd-question--title-bottom {

@@ -12,12 +12,6 @@
   column-gap: var(--sjs2-spacing-x300);
 }
 
-.sd-element--nested {
-  &>.sd-question__container {
-    row-gap: var(--sjs2-spacing-x100);
-  }
-}
-
 .sd-element--with-frame > .sd-question__container {
   gap: 0;
 }

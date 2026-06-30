@@ -74,7 +74,7 @@
 }
 
 .sd-table--no-header {
-  padding-top: var(--sjs2-spacing-x300);
+  padding-top: var(--sjs2-spacing-x100);
 }
 
 .sd-panel:not(.sd-panel--as-page) {
@@ -516,7 +516,7 @@
   }
   .sd-table-wrapper {
     width: auto;
-    margin-top: calc(-1 * var(--sjs2-spacing-x100));
+    margin-top: calc(-2 * var(--sjs2-spacing-x100));
   }
   .sd-table {
     display: block;

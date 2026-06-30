@@ -41,6 +41,12 @@
   padding: 0;
 }
 
+.sd-root--compact {
+  .sd-question__header-and-content-container {
+    padding: 0;
+  }
+}
+
 // .sd-question--left {
 //   display: flex;
 //   flex-wrap: wrap;

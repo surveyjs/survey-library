@@ -1181,136 +1181,101 @@ describe("TOC", () => {
   });
 });
 
-QUnit.test("tocItemComponent sets listModel.itemComponent", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      }
-    ],
-    "showTOC": true,
-    "tocItemComponent": "sv-custom-toc-item"
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
+describe("TOC custom item component", () => {
+  test("tocItemComponent sets listModel.itemComponent", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true,
+      tocItemComponent: "sv-custom-toc-item"
+    });
 
-  assert.equal(tocListModel.itemComponent, "sv-custom-toc-item", "listModel.itemComponent is set from survey.tocItemComponent");
-});
+    const tocListModel = createTOCListModel(survey);
 
-QUnit.test("tocItemComponent updates listModel.itemComponent dynamically", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      }
-    ],
-    "showTOC": true
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
+    expect(tocListModel.itemComponent).toBe("sv-custom-toc-item");
+  });
 
-  assert.equal(tocListModel.itemComponent, "sv-list-item-content", "default itemComponent");
+  test("tocItemComponent updates listModel.itemComponent dynamically", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
 
-  survey.tocItemComponent = "sv-custom-toc-item";
-  assert.equal(tocListModel.itemComponent, "sv-custom-toc-item", "listModel.itemComponent is updated when survey.tocItemComponent changes");
-});
+    const tocListModel = createTOCListModel(survey);
 
-QUnit.test("TOC items have page and survey in data", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      }
-    ],
-    "showTOC": true
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
+    expect(tocListModel.itemComponent).toBe("sv-list-item-content");
 
-  assert.ok(tocListModel.actions[0].data, "First item has data");
-  assert.equal(tocListModel.actions[0].data.page, survey.pages[0], "First item data.page is the first page");
-  assert.equal(tocListModel.actions[0].data.survey, survey, "First item data.survey is the survey");
-  assert.equal(tocListModel.actions[1].data.page, survey.pages[1], "Second item data.page is the second page");
-  assert.equal(tocListModel.actions[1].data.survey, survey, "Second item data.survey is the survey");
-});
+    survey.tocItemComponent = "sv-custom-toc-item";
 
-QUnit.test("TOC listModel.onGetItemExtraComponentData returns survey and page", function (assert) {
-  let json: any = {
-    "pages": [
-      {
-        "name": "page1",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question1"
-          }
-        ]
-      },
-      {
-        "name": "page2",
-        "elements": [
-          {
-            "type": "text",
-            "name": "question2"
-          }
-        ]
-      }
-    ],
-    "showTOC": true
-  };
-  let survey: SurveyModel = new SurveyModel(json);
-  let tocListModel = createTOCListModel(survey);
+    expect(tocListModel.itemComponent).toBe("sv-custom-toc-item");
+  });
 
-  assert.ok(tocListModel.onGetItemExtraComponentData, "onGetItemExtraComponentData is set");
-  const extraData = tocListModel.onGetItemExtraComponentData(tocListModel.actions[0]);
-  assert.equal(extraData.survey, survey, "Extra data contains the survey");
-  assert.equal(extraData.page, survey.pages[0], "Extra data contains the page for first item");
+  test("TOC items have page and survey in data", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
 
-  const extraData2 = tocListModel.onGetItemExtraComponentData(tocListModel.actions[1]);
-  assert.equal(extraData2.page, survey.pages[1], "Extra data contains the page for second item");
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.actions[0].data).toBeTruthy();
+    expect(tocListModel.actions[0].data.page).toBe(survey.pages[0]);
+    expect(tocListModel.actions[0].data.survey).toBe(survey);
+
+    expect(tocListModel.actions[1].data.page).toBe(survey.pages[1]);
+    expect(tocListModel.actions[1].data.survey).toBe(survey);
+  });
+
+  test("TOC listModel.onGetItemExtraComponentData returns survey and page", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [{ type: "text", name: "question1" }]
+        },
+        {
+          name: "page2",
+          elements: [{ type: "text", name: "question2" }]
+        }
+      ],
+      showTOC: true
+    });
+
+    const tocListModel = createTOCListModel(survey);
+
+    expect(tocListModel.onGetItemExtraComponentData).toBeTruthy();
+
+    const extraData = tocListModel.onGetItemExtraComponentData!(tocListModel.actions[0]);
+    expect(extraData.survey).toBe(survey);
+    expect(extraData.page).toBe(survey.pages[0]);
+
+    const extraData2 = tocListModel.onGetItemExtraComponentData!(tocListModel.actions[1]);
+    expect(extraData2.page).toBe(survey.pages[1]);
+  });
 });

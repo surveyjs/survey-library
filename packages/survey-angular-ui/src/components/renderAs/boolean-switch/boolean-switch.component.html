@@ -1,0 +1,17 @@
+<div [class]="model.cssClasses.rootSwitch" (click)="model.booleanValue = !model.booleanValue">
+  <div [class]="model.getSwitchButtonCss()" role="checkbox" tabindex="0" [key2click]
+    [attr.aria-checked]="model.booleanValue || false"
+    [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
+    [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+    [attr.aria-errormessage]="model.a11y_input_ariaErrormessage">
+    <div [class]="model.cssClasses.switchThumb">
+      <div [class]="model.cssClasses.switchThumbCircle + ' ' + model.cssClasses.switchThumbLeft"></div>
+    </div>
+    <div [class]="model.cssClasses.switchThumb">
+      <div [class]="model.cssClasses.switchThumbCircle + ' ' + model.cssClasses.switchThumbRight"></div>
+    </div>
+  </div>
+  <div [class]="model.cssClasses.switchCaption">
+    <div [class]="model.cssClasses.switchTitle" [id]="model.labelRenderedAriaID" [model]="model.locTitle" sv-ng-string></div>
+  </div>
+</div>

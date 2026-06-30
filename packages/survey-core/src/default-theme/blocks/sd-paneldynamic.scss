@@ -74,7 +74,8 @@
 }
 
 .sd-paneldynamic__header ~ hr {
-    display: none;
+    margin: 0;
+    width: 100%;
 }
 
 .sd-paneldynamic__footer {

@@ -2,18 +2,18 @@
   <div
     :class="question.cssClasses.rootSwitch"
     ref="root"
-    role="checkbox"
-    :aria-checked="question.booleanValue || false"
-    :aria-required="question.a11y_input_ariaRequired"
-    :aria-label="question.a11y_input_ariaLabel"
-    :aria-labelledby="question.a11y_input_ariaLabelledBy"
-    :aria-invalid="question.a11y_input_ariaInvalid"
-    :aria-errormessage="question.a11y_input_ariaErrormessage"
     @click="renderedValue = !renderedValue"
   >
     <div
       :class="question.getSwitchButtonCss()"
+      role="checkbox"
       tabindex="0"
+      :aria-checked="question.booleanValue || false"
+      :aria-required="question.a11y_input_ariaRequired"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-invalid="question.a11y_input_ariaInvalid"
+      :aria-errormessage="question.a11y_input_ariaErrormessage"
       v-key2click="{ processEsc: false }"
     >
       <div :class="question.cssClasses.switchThumb">

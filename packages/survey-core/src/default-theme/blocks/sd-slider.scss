@@ -225,20 +225,18 @@
   color: var(--sjs2-color-fg-basic-primary);
   position: absolute;
   top: 0;
-  width: var(--sjs2-size-x400);
+  /*
+    The label is anchored at its value position (inline `left`) and centered on the
+    tick, so clicking it always moves the thumb under the label. Its `max-width`
+    (inline, = distance to the nearest neighbour) keeps long text from overlapping
+    neighbours — it ellipsizes instead. The first/last labels bleed outward symmetrically.
+  */
+  transform: translateX(-50%);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--sjs2-spacing-x050);
-  margin-left: calc(var(--sjs2-size-x400) / -2);
-}
-
-.sd-slider__label--long:first-child .sd-slider__label-text-container {
-  align-self: flex-start;
-}
-
-.sd-slider__label--long:last-child .sd-slider__label-text-container {
-  align-self: flex-end;
 }
 
 .sd-slider__label-tick {
@@ -250,10 +248,21 @@
   background: var(--sjs2-color-fg-basic-tertiary);
 }
 
+.sd-slider__label-text-container {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 .sd-slider__label-text {
   @include sjs2--typography--default;
   color: var(--sjs2-color-fg-basic-primary);
   text-align: center;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--sjs2-spacing-x100);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sd-slider__label-text--secondary {
@@ -634,15 +643,6 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 
 .sd-slider--labels-show-value-text-mode {
   margin-bottom: var(--sjs2-spacing-x300);
-
-  .sd-slider__label--long:first-child .sd-slider__label-text:first-child {
-    text-align: start;
-    margin-left: 11px;
-  }
-
-  .sd-slider__label--long:last-child .sd-slider__label-text:first-child {
-    text-align: end;
-  }
 }
 
 :dir(rtl),

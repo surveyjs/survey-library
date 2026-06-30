@@ -2,6 +2,8 @@
 @use "../typography-mixins.scss" as *;
 
 .sd-panel {
+  display: flex;
+  flex-direction: column;
   position: relative;
   padding-inline-start:  var(--sjs2-layout-component-panel-box-padding-horizontal, var(--sjs2-spacing-x000));
   padding-inline-end: var(--sjs2-layout-component-panel-box-padding-horizontal, var(--sjs2-spacing-x000));
@@ -11,6 +13,8 @@
 }
 
 .sd-panel__header {
+  display: flex;
+  flex-direction: column;
   padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));
 }
@@ -53,8 +57,8 @@
 
 .sd-panel.sd-panel--as-page {
   & > .sd-panel__header.sd-panel__header {
-    padding-top: 0;
-    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
+    padding: 0;
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x150));
 
     &:after {
       content: none;
@@ -99,6 +103,7 @@
 
   & > .sd-panel__content {
     padding: 0;
+    row-gap: var(--sjs2-spacing-x200);
   }
 }
 

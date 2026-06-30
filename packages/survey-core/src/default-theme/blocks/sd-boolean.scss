@@ -184,7 +184,7 @@
     display: flex;
   }
   // TODO: remove this during tockens update
-  &.sd-element--with-frame > .sd-question__container > .sd-question__header-and-content-container {
-    padding-top: var(--sd-base-padding);
-  }
+  // &.sd-element--with-frame > .sd-question__container > .sd-question__header-and-content-container {
+  //   padding-top: var(--sd-base-padding);
+  // }
 }

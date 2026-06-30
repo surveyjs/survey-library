@@ -166,7 +166,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
             {errorsAboveQuestion}
             <div className={question.getHeaderAndContentContainerCss()}>
               {headerTop}
-              {headerTop && question.isComplexQuestion ? <hr /> : null}
+              {question.isComplexQuestion ? <hr /> : null}
               {questionContent}
               {headerBottom}
             </div>

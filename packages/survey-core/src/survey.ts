@@ -1688,6 +1688,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see tocLocation
+   * @see tocItemComponent
    */
   @property() showTOC: boolean;
   /**
@@ -1700,17 +1701,25 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see showTOC
+   * @see tocItemComponent
    */
   @property() tocLocation: "left" | "right";
   /**
-   * Specifies a custom component name for table of contents items. Applies only when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is enabled.
+   * The name of a component used to render item in the Table of Contents. Applies only when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true`.
    *
    * The custom component receives the following props:
    *
-   * - `item` - The action item ([`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction)).
-   * - `model` - The list model ([`ListModel`](https://surveyjs.io/form-library/documentation/api-reference/list-model)).
-   * - `survey` - The survey model ([`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)).
-   * - `page` - The page model ([`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)).
+   * - `item`: [`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction)\
+   * A TOC item.
+   *
+   * - `model`: `ListModel`\
+   * A TOC item list model.
+   *
+   * - `survey`: [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)\
+   * The survey model.
+   *
+   * - `page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
+   * The page model.
    * @see showTOC
    * @see tocLocation
    */

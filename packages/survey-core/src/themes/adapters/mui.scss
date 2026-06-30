@@ -444,6 +444,36 @@
   fill: var(--mui-palette-primary-main);
 }
 
+/* stepper */
+.sd-progress-buttons--numbered {
+  .sd-progress-buttons__button {
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: normal;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    background-color: var(--mui-palette-text-disabled);
+    color: var(--mui-palette-primary-contrastText);
+  }
+
+  .sd-progress-buttons__list li:after {
+    top: 12px;
+    bottom: unset
+  }
+  
+  .sd-progress-buttons__page-title {
+    margin-top: 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .sd-progress-buttons__list li {
+    flex-direction: column-reverse;
+  }
+}
+
 
 
 .sd-panel__title {

@@ -1,0 +1,158 @@
+@use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
+
+.sd-boolean-switch,
+.sd-boolean-switch * {
+  box-sizing: border-box;
+}
+
+.sd-boolean-switch {
+  display: flex;
+  flex-direction: row;
+  gap: var(--sjs2-spacing-x100);
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.sd-boolean-switch__button {
+  background: var(--sjs2-color-component-toggle-false-default-bg);
+  outline: none;
+  border-radius: var(--sjs2-radius-component-toggle);
+  box-shadow: var(--sjs2-border-effect-component-toggle-false-default);
+  padding: var(--sjs2-spacing-x075, 6px);
+  display: flex;
+  flex-direction: row;
+  gap: var(--sjs2-spacing-x050);
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+
+  &:focus-visible::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--sjs2-radius-component-toggle);
+    box-shadow: var(--sjs2-border-effect-component-toggle-a11y);
+  }
+
+  &:hover {
+    background: var(--sjs2-color-component-toggle-false-hovered-bg);
+    box-shadow: var(--sjs2-border-effect-component-toggle-false-hovered);
+
+    .sd-boolean-switch__thumb--left {
+      background: var(--sjs2-color-component-toggle-false-hovered-thumb);
+    }
+  }
+}
+
+.sd-boolean-switch__button--checked {
+  background: var(--sjs2-color-component-toggle-true-default-bg);
+  box-shadow: var(--sjs2-border-effect-component-toggle-true-default);
+
+  .sd-boolean-switch__thumb--left {
+    background: none;
+  }
+
+  .sd-boolean-switch__thumb--right {
+    background: var(--sjs2-color-component-toggle-true-default-thumb);
+  }
+
+  &:hover {
+    background: var(--sjs2-color-component-toggle-true-hovered-bg);
+    box-shadow: var(--sjs2-border-effect-component-toggle-true-hovered);
+
+    .sd-boolean-switch__thumb--left {
+      background: none;
+    }
+
+    .sd-boolean-switch__thumb--right {
+      background: var(--sjs2-color-component-toggle-true-hovered-thumb);
+    }
+  }
+}
+
+.sd-boolean-switch__button--readonly:not(.sd-boolean-switch__button--checked) {
+  cursor: default;
+
+  &,
+  &:hover {
+    background: var(--sjs2-color-component-toggle-false-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-toggle-false-disabled);
+
+    .sd-boolean-switch__thumb--left {
+      background: var(--sjs2-color-component-toggle-false-disabled-thumb);
+    }
+  }
+}
+
+.sd-boolean-switch__button--checked.sd-boolean-switch__button--readonly {
+  &,
+  &:hover {
+    background: var(--sjs2-color-component-toggle-true-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-toggle-true-disabled);
+
+    .sd-boolean-switch__thumb--right {
+      background: var(--sjs2-color-component-toggle-true-disabled-thumb);
+    }
+  }
+}
+
+.sd-boolean-switch__thumb {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.sd-boolean-switch__thumb-circle {
+  border-radius: var(--sjs2-radius-component-toggle-thumb);
+  border: 0px solid var(--sjs2-color-component-toggle-false-default-border);
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--sjs2-font-size-x150);
+  height: var(--sjs2-font-size-x150);
+  position: relative;
+  overflow: hidden;
+}
+
+.sd-boolean-switch__thumb--left {
+  background: var(--sjs2-color-component-toggle-false-default-thumb);
+}
+
+.sd-boolean-switch__caption {
+  display: flex;
+  flex-direction: row;
+  gap: 0px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.sd-boolean-switch__title {
+  @include sjs2--typography--default;
+
+  color: var(--sjs2-color-fg-basic-primary);
+  text-align: left;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.sd-question--readonly .sd-boolean-switch__title {
+  opacity: var(--sjs2-opacity-disabled, 0.25);
+}

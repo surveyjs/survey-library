@@ -11,7 +11,7 @@ export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
   }
   protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
-    const buttonClass = cssClasses.switchButton + (this.question.booleanValue ? " " + cssClasses.switchButtonChecked : "");
+    const buttonClass = this.question.getSwitchButtonCss();
     const button = attachKey2click(<div className={buttonClass} tabIndex={0}
       role="checkbox"
       aria-checked={this.question.booleanValue || false}

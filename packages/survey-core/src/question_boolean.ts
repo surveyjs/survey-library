@@ -193,6 +193,13 @@ export class QuestionBooleanModel extends Question {
   public getItemCss(): string {
     return this.getItemCssValue(this.cssClasses);
   }
+  public getSwitchButtonCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.switchButton)
+      .append(this.cssClasses.switchButtonChecked, !!this.booleanValue)
+      .append(this.cssClasses.switchButtonReadOnly, this.isReadOnlyStyle)
+      .toString();
+  }
   public getCheckboxItemCss() {
     return this.getItemCssValue(
       {

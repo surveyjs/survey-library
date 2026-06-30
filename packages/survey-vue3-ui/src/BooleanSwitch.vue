@@ -12,7 +12,7 @@
     @click="renderedValue = !renderedValue"
   >
     <div
-      :class="question.cssClasses.switchButton + (question.booleanValue ? ' ' + question.cssClasses.switchButtonChecked : '')"
+      :class="question.getSwitchButtonCss()"
       tabindex="0"
       v-key2click="{ processEsc: false }"
     >

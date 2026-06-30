@@ -2,7 +2,7 @@
   [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
   [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.aria-invalid]="model.a11y_input_ariaInvalid"
   [attr.aria-errormessage]="model.a11y_input_ariaErrormessage" (click)="model.booleanValue = !model.booleanValue">
-  <div [class]="model.cssClasses.switchButton + (model.booleanValue ? ' ' + model.cssClasses.switchButtonChecked : '')"
+  <div [class]="model.getSwitchButtonCss()"
     tabindex="0" [key2click]>
     <div [class]="model.cssClasses.switchThumb">
       <div [class]="model.cssClasses.switchThumbCircle + ' ' + model.cssClasses.switchThumbLeft"></div>

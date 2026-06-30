@@ -2,7 +2,10 @@
 
 /* shadcn/ui "base-lyra" style. Load after shadcn.css (overrides only). */
 .sjs-theme-overrides {
+  @include shadcn.shadcn-dark-input-bg;
+
   --sjs2-border-effect-a11y: 0 0 0 calc(1px + 0px) color-mix(in oklab, var(--ring) 50%, transparent);
+
 
   /* buttons */
   --sjs2-radius-component-action: 0;
@@ -24,6 +27,7 @@
   --sjs2-radius-component-checkbox: 0;
   --sjs2-typography-font-weight-component-label-content: normal;
   --sjs2-typography-line-height-component-label-content: calc(var(--spacing) * 4);
+  --sjs2-typography-font-size-component-label-content: var(--text-xs);
   --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 1px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* common and other */
@@ -31,7 +35,7 @@
   --sjs2-typography-font-size-default: var(--text-xs);
   --sjs2-typography-line-height-component-action-large-content: var(--text-xs--line-height);
   --sjs2-typography-line-height-component-input-content: var(--text-xs--line-height);
-  --sjs2-typography-font-weight-component-question-title: normal;
+  --sjs2-typography-font-size-component-question-title: var(--text-sm);
 }
 
 .sd-theme-root .sd-element--with-frame {

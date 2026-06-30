@@ -5,6 +5,7 @@
   /* buttons */
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9);
   /* formboxes */
+  --sjs2-color-component-formbox-default-bg: transparent;
   --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1);
   --sjs2-shadcn-input-height: calc(var(--spacing) * 9);
   --sjs2-shadcn-textarea-min-height: calc(var(--spacing) * 16);
@@ -33,12 +34,12 @@
 /* classic outlined radio: transparent disc + primary dot */
 .sd-theme-root .sd-item--checked .sd-radio__decorator {
   background-color: var(--background);
-  box-shadow: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
 .sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-radio__decorator {
   background-color: var(--background);
-  box-shadow: var(--sjs2-border-effect-component-check-false-hovered), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-shadow: var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
 .sd-theme-root .sd-radio--checked .sd-radio__svg use {

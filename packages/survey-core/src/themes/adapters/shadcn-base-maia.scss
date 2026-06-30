@@ -2,9 +2,9 @@
 
 /* shadcn/ui "base-maia" style. Load after shadcn.css (overrides only). */
 .sjs-theme-overrides {
+  @include shadcn.shadcn-dark-input-bg;
   /* buttons */
   --sjs2-radius-component-action: calc(var(--spacing) * 8);
-  --sjs2-color-component-action-brand-tertiary-surface-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
   --sjs2-layout-component-action-large-box-padding-vertical: 0;
@@ -18,7 +18,6 @@
 
   /* checkboxes and radio */
   --sjs2-radius-component-checkbox: calc(var(--radius) * 0.6); /* rounded-[6px] */
-  --sjs2-color-component-check-false-default-bg: var(--background);
 
   /* common and other */
   --sjs2-radius-component-panel: calc(var(--radius) * 1.8);

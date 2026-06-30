@@ -1,3 +1,15 @@
+@mixin shadcn-dark-input-bg {
+  :is(.dark *) {
+    --sjs2-color-component-action-brand-tertiary-surface-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-check-false-hovered-bg: var(--sjs2-color-component-check-false-default-bg);
+    --sjs2-color-component-check-false-focused-bg: var(--sjs2-color-component-check-false-default-bg);
+  }
+}
+
 /* shadcn/ui -> SurveyJS bridge: shared base.
    Maps shadcn design tokens (--background, --primary, --radius, --spacing, --text-*, ...)
    onto SurveyJS --sjs2-* variables, mirroring the structure of bootstrap.css / mui.css.
@@ -117,7 +129,7 @@
   --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 2);
   --sjs2-layout-component-labeled-group-box-gap-vertical: calc(var(--spacing) * 3);
   --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
-  --sjs2-typography-font-weight-component-label-content: var(--font-weight-medium);
+  --sjs2-typography-font-weight-component-label-content: var(--font-weight-normal);
   --sjs2-typography-line-height-component-label-content: 1;
   --sjs2-color-component-label-default-text: var(--foreground);
 
@@ -247,18 +259,24 @@
   transition: box-shadow var(--sjs-transition-duration, .15s);
   width: 100%;
 }
-/* radio: modern shadcn fills the disc with --primary on check (matches the base-* styles).
-   default / new-york keep the classic outlined disc + dot (see their style files). */
+
+/* classic outlined radio: transparent disc + primary dot */
 .sd-item--checked .sd-radio__decorator {
-  background-color: var(--sjs2-color-component-check-true-default-bg);
-  box-shadow: none;
-}
-.sd-radio--checked .sd-radio__svg use {
-  fill: var(--sjs2-color-component-check-true-default-icon);
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--primary);
 }
 
-.sd-item__control-label .sv-string-viewer {
-  overflow: visible;
+.sd-formbox, .sd-item__decorator, .sd-item__svg use {
+  transition: none;
+}
+
+.sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-radio__decorator {
+  background-color: var(--background);
+  box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+}
+
+.sd-theme-root .sd-radio--checked .sd-radio__svg use {
+  fill: var(--primary);
 }
 
 /* panel / question titles */

@@ -2,7 +2,6 @@
 
 /* shadcn/ui "base-sera" style. Load after shadcn.css (overrides only). */
 .sjs-theme-overrides {
-
   --sjs2-border-effect-a11y: 0 0 0 calc(2px + 0px) color-mix(in oklab, var(--ring) 30%, transparent);
 
   /* buttons */
@@ -11,6 +10,7 @@
   --sjs2-layout-component-action-large-box-padding-vertical: 0;
   --sjs2-typography-font-size-component-action-large-content: var(--text-xs);
   --sjs2-typography-font-weight-component-action-large-content: var(--font-weight-semibold);
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent; 
 
   /* formboxes */
   --sjs2-radius-component-formbox: 0;

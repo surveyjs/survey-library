@@ -2,6 +2,8 @@
 
 /* shadcn/ui "base-vega" style. Load after shadcn.css (overrides only). */
 .sjs-theme-overrides {
+  @include shadcn.shadcn-dark-input-bg;
+
   /* buttons */
   --sjs2-radius-component-action: calc(var(--radius) * 0.8);
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */

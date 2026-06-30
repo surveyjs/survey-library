@@ -69,8 +69,12 @@ export var frenchSurveyStrings = {
   stepError: "Entrez une valeur qui correspond à la taille du pas de {0}.",
   // "The value should not be greater than {0}"
   maxError: "La valeur ne doit pas être supérieure à {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Entrée invalide",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Les numéros ne sont pas autorisés.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Veuillez compléter la valeur pour correspondre au format requis.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Merci de saisir au moins {0} caractères.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var frenchSurveyStrings = {
   urlGetChoicesError: "La requête a renvoyé des données vides ou la propriété 'path' est incorrecte",
   // "The file size should not exceed {0}."
   exceedMaxSize: "La taille du fichier ne doit pas excéder {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Octets, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Le nombre maximal de fichiers que vous pouvez télécharger est {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l'événement 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +135,7 @@ export var frenchSurveyStrings = {
   noRowsText: "Il n'y a pas de lignes.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Ligne {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Ajouter",
@@ -137,8 +145,8 @@ export var frenchSurveyStrings = {
   showDetails: "Afficher les détails",
   // [Auto-translated] "Hide Details"
   hideDetails: "Masquer les détails",
-  // "item"
-  choices_Item: "item",
+  // [Auto-translated] "item"
+  choices_Item: "Item",
   // [Auto-translated] "Choice option"
   choices_Choice: "Option au choix",
   // "Column"
@@ -157,10 +165,10 @@ export var frenchSurveyStrings = {
   savingExceedSize: "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de vos fichiers et réessayer ou contacter le propriétaire du sondage.",
   // "Try again"
   saveAgainButton: "Réessayer",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
-  timerSec: "sec",
+  // [Auto-translated] "sec"
+  timerSec: "SEC",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Vous avez passé {0} sur cette page et {1} au total.",
   // "You have spent {0} on this page."

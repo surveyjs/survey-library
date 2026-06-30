@@ -69,8 +69,12 @@ export var vietnameseSurveyStrings = {
   stepError: "Vui lòng nhập giá trị khớp với kích thước bước của {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Giá trị không được lớn hơn {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Đầu vào không hợp lệ",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Số không được phép.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vui lòng hoàn thành giá trị để phù hợp với định dạng yêu cầu.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Vui lòng nhập ít nhất {0} kí tự.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var vietnameseSurveyStrings = {
   urlGetChoicesError: "Yêu cầu trả về dữ liệu trống hoặc thuộc tính 'path' không đúng",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Kích thước tập tin không nên vượt quá {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Byte, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Số lượng tệp tối đa bạn có thể tải lên là {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Không thể tải tệp lên. Vui lòng thêm trình xử lý cho sự kiện 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,8 +135,8 @@ export var vietnameseSurveyStrings = {
   noRowsText: "Không có hàng.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Hàng {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{hàng Tiêu đề}",
   // "Add new"
   addPanel: "Thêm mới",
   // "Remove"

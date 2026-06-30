@@ -15,7 +15,7 @@ import { IExpressionError } from "./expressions/expressionError";
 import { expressionObjectCachedValue } from "./functionsfactory";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditions/conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
 
 export interface IPropertyValueChangedEvent {
@@ -32,6 +32,8 @@ export interface IPropertyArrayValueChangedEvent {
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
+  useStrictDependencies?: boolean;
+  onReset?: (obj: Base) => void;
 }
 
 export interface IExpressionValidationOptions {
@@ -467,7 +469,12 @@ export class Base implements IObjectValueContext {
   }
   public getValueGetterContext(): IValueGetterContext {
     const survey = <IObjectValueContext><any>this.getSurvey();
-    return !!survey ? survey.getValueGetterContext() : new VariableGetterContext({});
+    if (!survey) return new VariableGetterContext({});
+    const surveyContext = survey.getValueGetterContext();
+    if (!surveyContext || !surveyContext.getObj) return surveyContext;
+    const self = this;
+    surveyContext.getObj = () => self;
+    return surveyContext;
   }
   /**
    * Returns `true` if the survey is being designed in Survey Creator.
@@ -532,7 +539,9 @@ export class Base implements IObjectValueContext {
     if (orgObj !== obj && org !== this) {
       org.mergeLocalizationObj(orgObj, locales);
     }
+    this.mergeLocalizationWithInnerObjects(obj, locales);
   }
+  protected mergeLocalizationWithInnerObjects(_src: Base, _locales?: Array<string>): void {}
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
     const locStrs = obj.localizableStrings;
@@ -714,8 +723,15 @@ export class Base implements IObjectValueContext {
     if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);
     if (!this.isValueUndefined(dValue) && !Array.isArray(dValue)) return dValue;
-    const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-    if (locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
+    let locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+    if (!locStr && prop.isLocalizable && !!prop.serializationProperty) {
+      //localizable strings declared via the property decorator are created on the first access
+      locStr = (<any>this)[prop.serializationProperty];
+    }
+    if (locStr && locStr.localizationName) {
+      const defaultStr = this.getLocalizationString(locStr.localizationName);
+      if (!!defaultStr) return defaultStr;
+    }
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
@@ -903,11 +919,11 @@ export class Base implements IObjectValueContext {
       this.isFuncExecuting = false;
     }
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges): void { }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     if (this.isLoadingFromJson) return;
     this.updateBindings(name, newValue);
-    this.onPropertyValueChanged(name, oldValue, newValue);
+    this.onPropertyValueChanged(name, oldValue, newValue, arrayChanges);
     this.onPropertyChanged.fire(this, {
       name: name,
       oldValue: oldValue,
@@ -960,14 +976,14 @@ export class Base implements IObjectValueContext {
       fireCallback(this);
     }
   }
-  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
+  public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean, useStrictDependencies?: boolean, onReset?: (obj: Base) => void): void {
     if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
-    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
+    this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies, onReset: onReset };
   }
-  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
-    if (!expression) return;
+  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult | undefined {
+    if (!expression) return undefined;
     const prop = this.getPropertyByName(name);
     const isCondition = !!prop && prop.type == "condition";
     const runner = this.createExpressionRunner(expression);
@@ -1047,6 +1063,11 @@ export class Base implements IObjectValueContext {
   private checkConditionPropertyChanged(propName: string): void {
     if (!this.expressionInfo || !this.expressionInfo[propName]) return;
     if (!this.canRunConditions()) return;
+    const info = this.expressionInfo[propName];
+    if (!this.getPropertyValue(propName)) {
+      if (info.onReset) info.onReset(this);
+      return;
+    }
     this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, properties: HashTable<any>): void {
@@ -1054,9 +1075,22 @@ export class Base implements IObjectValueContext {
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
     if (!!info.canRun && !info.canRun(this)) return;
+    if (info.useStrictDependencies && this.canSkipRunningExpression(propName)) return;
     this.runExpressionByProperty(propName, properties, (res) => {
       info.onExecute(this, res);
     });
+  }
+  protected canSkipRunningExpression(propName: string): boolean {
+    const survey: any = this.getSurvey();
+    const keys = !!survey && typeof survey.getValueChangedKeys === "function" ? survey.getValueChangedKeys() : undefined;
+    return this.canSkipExpressionByKeys(this.getExpressionByProperty(propName), keys);
+  }
+  protected canSkipExpressionByKeys(runner: ExpressionRunner, keys: any, vars?: string[]): boolean {
+    if (!keys) return false;
+    if (!!runner && runner.hasFunction(true)) return false;
+    if (vars === undefined) vars = !!runner ? runner.getVariables() : [];
+    if (!Array.isArray(vars) || vars.length === 0) return false;
+    return !new ValueGetter().isAnyKeyChanged(keys, vars);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
@@ -1121,6 +1155,10 @@ export class Base implements IObjectValueContext {
     return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
+    // Fire onExpressionRunning here too: a handler may rewrite the expression,
+    // so the skip-check must analyze the same (post-event) expression that will
+    // actually run. This is why the event fires twice when dependency tracking
+    // is enabled - once for the skip-check and once for the run.
     const expression = this.getExpressionFromSurvey(propName);
     if (!expression) return null;
     return this.getExpressionInfoByProperty(propName, expression).runner;
@@ -1195,7 +1233,7 @@ export class Base implements IObjectValueContext {
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
     if (!obj || !propertyName || !(obj instanceof Base)) return;
-    const id = this.uniqueId + "_" + propertyName;
+    const id = this.uniqueId + "_" + obj.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
         this.onDependencyValueChanged(obj, propertyName);

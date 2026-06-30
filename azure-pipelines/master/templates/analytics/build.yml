@@ -1,0 +1,44 @@
+parameters:
+  - name: checkout
+    type: string
+    default: self
+  - name: store
+    type: boolean
+    default: false
+
+steps:
+  - checkout: ${{ parameters.checkout }}
+    displayName: "Checkout '${{ parameters.checkout }}'"
+
+  - script: git fetch origin pull/$(PR)/head && git checkout FETCH_HEAD
+    workingDirectory: $(Build.SourcesDirectory)
+    condition: ne(variables['PR'], '')
+    displayName: "Switch to PR $(PR)"
+
+  - template: ../utils/npm.yml
+    parameters:
+      directories:
+        - $(Build.SourcesDirectory)
+
+  - template: ../utils/artifact.yml
+    parameters:
+      artifacts:
+        - $(ArtifactNameLibraryCore)
+
+  - template: ../utils/copy.yml
+    parameters:
+      items:
+        - source: $(Agent.TempDirectory)/$(ArtifactNameLibraryCore)
+          destination: $(Build.SourcesDirectory)/node_modules/survey-core
+
+  - script: npm run build:all
+    workingDirectory: $(Build.SourcesDirectory)
+    displayName: "Build"
+
+  - ${{ if eq(parameters.store, true) }}:
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/build/'
+        ArtifactName: $(ArtifactNameAnalytics)
+        publishLocation: 'Container'
+        StoreAsTar: true

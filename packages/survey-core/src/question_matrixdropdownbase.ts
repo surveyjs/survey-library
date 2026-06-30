@@ -66,6 +66,12 @@ export class MatrixDropdownCell {
     this.questionValue = this.createQuestion(column, row, data);
     this.questionValue.updateCustomWidget();
     this.updateCellQuestionTitleDueToAccessebility(row);
+    this.questionValue.registerPropertyChangedHandlers(
+      ["isVisible"], () => {
+        this.onQuestionVisibilityChanged();
+      },
+      "cell"
+    );
   }
   private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
     this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
@@ -114,6 +120,13 @@ export class MatrixDropdownCell {
   }
   public runCondition(properties: HashTable<any>): void {
     this.question.runCondition(properties);
+  }
+  private onQuestionVisibilityChanged(): void {
+    this.column.onCellVisibilityChanged(this.question.isVisible);
+  }
+  public dispose(): void {
+    this.questionValue.unregisterPropertyChangedHandlers(["isVisible"], "cell");
+    this.questionValue.dispose();
   }
 }
 
@@ -183,7 +196,8 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     super(row);
   }
   protected get visibleIndex(): number {
-    return this.getQuestionData().visibleRows.indexOf(this.row);
+    const rows = this.getQuestionData().visibleRows;
+    return !!rows ? rows.indexOf(this.row) : this.row.visibleIndex;
   }
   protected getNextName(): string {
     return settings.expressionVariables.nextRow;
@@ -193,8 +207,9 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getVisibleItem(index: number): DynamicItemModelBase {
     const matrix = this.getQuestionData();
-    if (index < 0 || index >= matrix.visibleRows.length) return null;
-    return matrix.visibleRows[index];
+    const rows = matrix.visibleRows;
+    if (!rows || index < 0 || index >= rows.length) return null;
+    return rows[index];
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
@@ -209,6 +224,10 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected get questionName(): string {
     return settings.expressionVariables.matrix;
+  }
+  protected getItemVariableNames(): Array<string> {
+    const v = settings.expressionVariables;
+    return [v.rowIndex, v.visibleRowIndex, v.item, v.rowName, v.rowValue, v.rowTitle];
   }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
@@ -531,6 +550,15 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       this.runTriggersOnSetValue(changedName, newColumnValue);
     }
     this.onAnyValueChanged(rowName, "");
+    if (!isComment && changedQuestion) {
+      const survey = <any>this.getSurvey();
+      if (survey && survey.isValidateOnValueChanged) {
+        const col = this.data.columns.filter(c => c.name === name)[0];
+        if (col && col.isUnique) {
+          this.data.checkIfValueInRowDuplicated(this, changedQuestion);
+        }
+      }
+    }
   }
 
   private onCellValueChanging(question: Question, newValue: any, isComment: boolean): any {
@@ -748,7 +776,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
         continue;
       res = question.validateElement(context) && res;
     }
-    if (this.hasPanel) {
+    if (this.hasPanel && (!!this.detailPanelValue || !context || !context.isOnValueChanging)) {
       this.ensureDetailPanel();
       const isValid = this.detailPanel.validateElement(context);
       const rec = <any>context;
@@ -827,6 +855,9 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   private editingObjValue: Base;
   public dispose(): void {
+    for (let i = 0; i < this.cells.length; i++) {
+      this.cells[i].dispose();
+    }
     if (!!this.editingObj) {
       this.editingObj.onPropertyChanged.remove(
         this.onEditingObjPropertyChanged
@@ -1165,6 +1196,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (name === "detailElements") return !this.detailPanelValue;
     return super.isPropertyStoredInHash(name);
   }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcPanel = (<QuestionMatrixDropdownModelBase><unknown>src).detailPanelValue;
+    if (srcPanel) {
+      (<any>this.detailPanel).mergeLocalizationObj(srcPanel, locales);
+    }
+  }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");
   }
@@ -1399,6 +1436,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   onColumnVisibilityChanged(column: MatrixDropdownColumn): void {
     this.resetTableAndRows();
   }
+  onColumnCellVisibilityChanged(column: MatrixDropdownColumn): void {
+    if (this.isDesignMode || this.isRunningCellsCondition) return;
+    if (this.isColumnVisibilityChanged(column, true)) {
+      this.resetRenderedTable(true);
+    }
+  }
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.updateDefaultRowValue(column);
     this.resetTableAndRows();
@@ -1547,9 +1590,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
+  private isRunningCellsCondition: boolean;
   protected runCellsCondition(properties: HashTable<any>): boolean {
     if (this.isDesignMode) return false;
     let isRowVisiblilityChanged = false;
+    this.isRunningCellsCondition = true;
     const isAlwaysVisible = this.areInvisibleElementsShowing;
     const rowsVisibleIf = this.getExpressionFromSurvey("rowsVisibleIf");
     const rows = this.generatedVisibleRows;
@@ -1564,6 +1609,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     this.checkColumnsVisibility();
     this.checkColumnsRenderedRequired();
+    this.isRunningCellsCondition = false;
     return isRowVisiblilityChanged;
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {

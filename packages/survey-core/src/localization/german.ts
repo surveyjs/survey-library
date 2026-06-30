@@ -11,7 +11,7 @@ export var germanSurveyStrings = {
   previewText: "Vorschau",
   // "Edit"
   editText: "Bearbeiten",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Bitte hinterlassen Sie einen Kommentar",
@@ -69,8 +69,12 @@ export var germanSurveyStrings = {
   stepError: "Geben Sie einen Wert ein, der der Schrittweite von {0} entspricht.",
   // "The value should not be greater than {0}"
   maxError: "Der Wert sollte nicht größer als {0} sein",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ungültige Eingabe",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Zahlen sind nicht erlaubt.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Bitte füllen Sie den Wert aus, um dem erforderlichen Format zu entsprechen.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Bitte geben Sie mindestens {0} Zeichen ein.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var germanSurveyStrings = {
   urlGetChoicesError: "Eine Netzwerkdienst hat ungültige Daten zurückgegeben",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Die Datei darf nicht größer als {0} sein.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Die maximale Anzahl an Dateien, die du hochladen kannst, ist {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Dateien können nicht hochgeladen werden. Fügen Sie einen Handler für das Ereignis 'onUploadFiles' hinzu.",
   // "Response required: enter another value."
@@ -127,7 +135,7 @@ export var germanSurveyStrings = {
   noRowsText: "Es gibt keine Reihen.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Zeile {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Neu hinzufügen",
@@ -223,13 +231,13 @@ export var germanSurveyStrings = {
   tabTitlePlaceholder: "Neues Panel",
   // "More"
   more: "Mehr",
-  // "OK"
+  // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
   // "All choices are selected for ranking"
   selectToRankEmptyRankedAreaText: "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet",
   // "Drag choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "Ziehen Sie die Auswahl hierher, um sie zu ordnen",
-  // "OK"
+  // [Auto-translated] "OK"
   ok: "OK",
   // "Cancel"
   cancel: "Abbrechen",

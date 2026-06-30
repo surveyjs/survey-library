@@ -30,6 +30,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
+import { IValueGetterContext } from "./conditions/conditionProcessValue";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
@@ -46,11 +47,11 @@ export class QuestionRowModel extends Base {
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
+    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
     if (this._scrollableParent === DomDocumentHelper.getDocumentElement()) {
       this._scrollableParent = DomWindowHelper.getWindow();
     }
-    const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     this.isNeedRender = !hasScroll;
     if (hasScroll) {
       this._updateVisibility = () => {
@@ -389,9 +390,11 @@ export class PanelModelBase extends SurveyElement<Question>
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
-      (obj: Base) => { return !this.areInvisibleElementsShowing; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+      (obj: Base) => { return !this.areInvisibleElementsShowing; },
+      undefined,
+      () => { this.visible = true; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -406,12 +409,28 @@ export class PanelModelBase extends SurveyElement<Question>
       this.resetHasTextInTitle();
     }
     if (name === "visible") {
-      this.setPropertyValue("isVisible", this.isVisible);
       this.onVisibleChanged();
+    }
+    if (name === "isRequired") {
+      if (!this.isRequired && this.errors.length > 0) {
+        this.validateContainerOnly();
+      }
     }
   }
   public getType(): string {
     return "panelbase";
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    const ctx = super.getValueGetterContext();
+    if (!ctx) return ctx;
+    const self = this;
+    return {
+      getValue: (params) => ctx.getValue(params),
+      getTextValue: ctx.getTextValue ? (name, value, isDisplayValue) => ctx.getTextValue(name, value, isDisplayValue) : undefined,
+      getObj: () => self,
+      getRootObj: ctx.getRootObj ? () => ctx.getRootObj() : undefined,
+      getQuestion: ctx.getQuestion ? () => ctx.getQuestion() : undefined
+    };
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     //if(this.surveyImpl === value) return; TODO refactor
@@ -963,6 +982,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private validateInPanels(context: ValidationContext): void {
+    if (this.isReadOnly) return;
     var errors = <Array<any>>[];
     this.validateRequired(context, errors);
     if (this.survey) {
@@ -1467,6 +1487,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private updateRowsOnElementAdded(element: IElement): void {
     if (!this.wasRendered && this.rows.length === 0 && this.elements.length > 1) return;
+    if (!!this.findRowByElement(element)) return;
     const index = this.elements.indexOf(element);
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
@@ -1521,15 +1542,20 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     element.parent = this;
     this.markQuestionListDirty();
-    if (this.canBuildRows()) {
-      this.updateRowsOnElementAdded(element);
-    }
     if (fireNotification) {
       if (element.isPanel) {
         survey.panelAdded(<PanelModel>element, index, this, this.root);
       } else {
         survey.questionAdded(<Question>element, index, this, this.root);
       }
+    }
+    // The add notification above may remove the element synchronously (for example,
+    // an onQuestionAdded handler calls element.delete()). Do not build a row for an
+    // element that no longer belongs to this panel, otherwise the renderer is notified
+    // about an element that is detached from its page (Bug#11475).
+    if (element.parent !== this) return;
+    if (this.canBuildRows()) {
+      this.updateRowsOnElementAdded(element);
     }
     if (!!this.addElementCallback)this.addElementCallback(element);
     (<Base>(<any>element)).registerPropertyChangedHandlers(
@@ -1584,10 +1610,7 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       if (row.elements.indexOf(element) > -1) {
-        row.updateVisible();
-        if (row.visible && !row.isNeedRender) {
-          row.isNeedRender = true;
-        }
+        this.refreshRowVisibility(row);
         break;
       }
     }
@@ -1738,7 +1761,12 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
-    this.setPropertyValue("isVisible", this.isVisible);
+    const oldIsVisible = this.getPropertyValue("isVisible");
+    const currentIsVisible = this.isVisible;
+    this.setPropertyValue("isVisible", currentIsVisible);
+    if (oldIsVisible !== currentIsVisible) {
+      this.updateRowsVisibleState();
+    }
 
     if (this.canUpdateValueOnVisibleChanged()) {
       const questions = this.questions;
@@ -1752,6 +1780,19 @@ export class PanelModelBase extends SurveyElement<Question>
           q.updateValueWithDefaults();
         }
       }
+    }
+  }
+  private updateRowsVisibleState(): void {
+    const rows = this.rows;
+    for (let i = 0; i < rows.length; i++) {
+      this.refreshRowVisibility(rows[i]);
+    }
+  }
+  private refreshRowVisibility(row: QuestionRowModel): void {
+    row.updateVisible();
+    if (row.visible && !row.isNeedRender) {
+      row.setIsLazyRendering(false);
+      row.stopLazyRendering();
     }
   }
   protected notifyStateChanged(prevState: string): void {
@@ -2440,6 +2481,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     super.expand();
   }
   protected onElementExpanded(elementIsRendered: boolean): void {
+    super.onElementExpanded(elementIsRendered);
     if (!this.forcusFirstQuestionOnExpand) { return; }
     if (this.survey != null && !this.isLoadingFromJson) {
       const q = this.getFirstQuestionToFocus(false);

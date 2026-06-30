@@ -32,6 +32,7 @@ export default () => {
       tsconfig: resolve(__dirname, "tsconfig.themes.json"),
       external: ["survey-core"],
       dir: resolve(buildPath),
+      declarationDir: resolve(buildPath, "themes"),
       emitMinified: process.env.emitMinified === "true",
       globalName: name == "themes/index" ? "SurveyTheme" : "SurveyTheme." + name.split("/").pop().split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(""),
       exports: name == "themes/index" ? "named" : "default",

@@ -51,8 +51,8 @@ export var bulgarianStrings = {
   ratingOptionsCaption: "Отбран...",
   // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "Отбран...",
-  // "value"
-  value: "value",
+  // [Auto-translated] "value"
+  value: "Стойност",
   // "Response required."
   requiredError: "Моля, отговорете на следния въпрос.",
   // "Response required: answer at least one question."
@@ -69,8 +69,12 @@ export var bulgarianStrings = {
   stepError: "Моля, въведете стойност, която съответства на размера на стъпката на {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Стойността не трябва да бъде по-голяма от {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Невалиден вход",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номерата не са позволени.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Моля, попълнете стойността, за да съответствате на необходимия формат.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Моля, използвайте поне {0} символа.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var bulgarianStrings = {
   urlGetChoicesError: "Заявката не връща данни или частта 'path' (път до търсения ресурс на сървъра) е неправилно зададена",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Размерът на файла следва да не превишава {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Байтове, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Максималният брой файлове, които можете да качите, е {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var bulgarianStrings = {
   noRowsText: "Няма редове.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Ред {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Добавяне на панел",

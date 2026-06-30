@@ -69,8 +69,12 @@ export var lithuaniaSurveyStrings = {
   stepError: "Įveskite reikšmę, atitinkančią {0} žingsnio dydį.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Vertė neturėtų būti didesnė nei {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Neleistina įvestis",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numeriai neleidžiami.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Užpildykite reikšmę, kad ji atitiktų reikiamą formatą.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Prašome suvesti bent {0} simbolius.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var lithuaniaSurveyStrings = {
   urlGetChoicesError: "Užklausa grąžino tuščius duomenis arba 'path' savybė yra neteisinga",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Failo dydis neturi viršyti {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Baitai, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksimalus failų, kuriuos galite įkelti, skaičius yra {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Failų įkelti negalima. Pridėkite įvykio \"onUploadFiles\" tvarkytoją.",
   // "Response required: enter another value."
@@ -127,8 +135,8 @@ export var lithuaniaSurveyStrings = {
   noRowsText: "Eilių nėra.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Eilutė {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{eilutėPavadinimas}",
   // "Add new"
   addPanel: "Pridėti naują",
   // "Remove"
@@ -157,7 +165,7 @@ export var lithuaniaSurveyStrings = {
   savingExceedSize: "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku.",
   // "Try again"
   saveAgainButton: "Bandyti dar kartą",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

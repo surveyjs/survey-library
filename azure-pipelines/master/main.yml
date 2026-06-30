@@ -21,10 +21,6 @@ resources:
       type: github
       endpoint: github.com_surveyjsdeveloper
       name: surveyjs/survey-utils
-  pipelines:
-    - pipeline: ReleaseVersion
-      source: Release Version
-      trigger: true
 
 variables:
   npm_config_cache: $(Pipeline.Workspace)/.npm
@@ -42,7 +38,7 @@ trigger:
 pr: none
 
 pool:
-  vmImage: "Ubuntu-22.04"
+  name: main-selfhosted
 
 jobs:
   - job: NPMCache
@@ -86,6 +82,8 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
+        fetchTags: false
         persistCredentials: true
       - checkout: Service
         persistCredentials: true
@@ -99,8 +97,6 @@ jobs:
         persistCredentials: true
         clean: true
         fetchDepth: 1
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -122,20 +118,6 @@ jobs:
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPM
 
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
       - task: Npm@1
         displayName: "NPM install root"
         inputs:
@@ -159,11 +141,6 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
         displayName: "Set up git config"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
@@ -303,24 +280,19 @@ jobs:
           SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
 
-      #trigger next build via the artifact file 'version.txt'
-      - task: CopyFiles@2
-        inputs:
-          contents: "version.txt"
-          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
-        displayName: "copy version file to Build.ArtifactStagingDirectory"
-
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
           ArtifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
           publishLocation: "Container"
+          Parallel: true
 
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildCore"
           publishLocation: "Container"
+          Parallel: true
 
   - job: React
     dependsOn:
@@ -328,11 +300,11 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
+        fetchTags: false
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -352,21 +324,6 @@ jobs:
           path: $(Build.SourcesDirectory)/survey-library/node_modules
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPM
-
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
 
       - task: Npm@1
         displayName: "NPM install root"
@@ -411,11 +368,6 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
           npm run build
         displayName: "Build React UI"
 
@@ -439,6 +391,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildReact"
           publishLocation: "Container"
+          Parallel: true
 
       - task: CopyFiles@2
         inputs:
@@ -454,6 +407,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
           ArtifactName: "Library_React_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -474,11 +428,11 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
+        fetchTags: false
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -499,21 +453,6 @@ jobs:
           path: $(Build.SourcesDirectory)/survey-library/node_modules
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPMs
-
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
 
       - task: Npm@1
         displayName: "NPM install root"
@@ -558,11 +497,6 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
           npm run build
         displayName: "Build Angular"
 
@@ -596,6 +530,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildAngular"
           publishLocation: "Container"
+          Parallel: true
 
       - task: CopyFiles@2
         inputs:
@@ -611,6 +546,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E/"
           ArtifactName: "Library_Angular_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -631,11 +567,11 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
+        fetchTags: false
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -656,21 +592,6 @@ jobs:
           path: $(Build.SourcesDirectory)/survey-library/node_modules
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPMs
-
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
 
       - task: Npm@1
         displayName: "NPM install root"
@@ -715,11 +636,6 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
           npm run build
         displayName: "Build Vue3"
 
@@ -753,6 +669,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildVue3"
           publishLocation: "Container"
+          Parallel: true
 
       - task: CopyFiles@2
         inputs:
@@ -768,6 +685,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
           ArtifactName: "Library_Vue3_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -788,11 +706,11 @@ jobs:
 
     steps:
       - checkout: self
+        clean: true
+        fetchTags: false
       - checkout: EmptyRepo
         persistCredentials: true
         clean: true
-      - download: ReleaseVersion
-        artifact: ReleaseVersionFile
 
       - task: NodeTool@0
         inputs:
@@ -812,21 +730,6 @@ jobs:
           path: $(Build.SourcesDirectory)/survey-library/node_modules
           cacheHitVar: NPM_CACHE_RESTORED
         displayName: Cache NPM
-
-      # setup next release version
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Pipeline.Workspace)/ReleaseVersion/ReleaseVersionFile/"
-          Contents: "version.txt"
-          TargetFolder: "$(Build.SourcesDirectory)/"
-          OverWrite: true
-        displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-      - powershell: |
-          $version = Get-Content $(Build.SourcesDirectory)/version.txt
-          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-      ##########################################################################
 
       - task: Npm@1
         displayName: "NPM install root"
@@ -871,11 +774,6 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
-          npm run release -- --release-as $(SurveyJSVersion)
-        displayName: "npm run release"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
           npm run build
         displayName: "Build UI"
 
@@ -898,6 +796,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
           ArtifactName: "Library_React_E2E"
           publishLocation: "Container"
+          Parallel: true
         condition: always()
         displayName: "publish e2e artifacts"
 
@@ -922,3 +821,4 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildSurveyUI"
           publishLocation: "Container"
+          Parallel: true

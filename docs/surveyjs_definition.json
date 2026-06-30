@@ -400,7 +400,8 @@
             "type": "string",
             "enum": [
                 "underInput",
-                "underTitle"
+                "underTitle",
+                "hidden"
             ]
         },
         "readOnly": {
@@ -653,13 +654,22 @@
                             "$href": "#paneldynamic"
                         },
                         {
+                            "$href": "#matrixdynamic"
+                        },
+                        {
+                            "$href": "#matrixdropdown"
+                        },
+                        {
+                            "$href": "#matrix"
+                        },
+                        {
+                            "$href": "#expression"
+                        },
+                        {
                             "$href": "#file"
                         },
                         {
                             "$href": "#signaturepad"
-                        },
-                        {
-                            "$href": "#expression"
                         },
                         {
                             "$href": "#text"
@@ -669,15 +679,6 @@
                         },
                         {
                             "$href": "#multipletext"
-                        },
-                        {
-                            "$href": "#matrixdynamic"
-                        },
-                        {
-                            "$href": "#matrixdropdown"
-                        },
-                        {
-                            "$href": "#matrix"
                         },
                         {
                             "$href": "#html"
@@ -703,12 +704,6 @@
                     "type": "array",
                     "items": [
                         {
-                            "$href": "#page"
-                        },
-                        {
-                            "$href": "#flowpanel"
-                        },
-                        {
                             "$href": "#tagbox"
                         },
                         {
@@ -730,13 +725,22 @@
                             "$href": "#paneldynamic"
                         },
                         {
+                            "$href": "#matrixdynamic"
+                        },
+                        {
+                            "$href": "#matrixdropdown"
+                        },
+                        {
+                            "$href": "#matrix"
+                        },
+                        {
+                            "$href": "#expression"
+                        },
+                        {
                             "$href": "#file"
                         },
                         {
                             "$href": "#signaturepad"
-                        },
-                        {
-                            "$href": "#expression"
                         },
                         {
                             "$href": "#text"
@@ -746,15 +750,6 @@
                         },
                         {
                             "$href": "#multipletext"
-                        },
-                        {
-                            "$href": "#matrixdynamic"
-                        },
-                        {
-                            "$href": "#matrixdropdown"
-                        },
-                        {
-                            "$href": "#matrix"
                         },
                         {
                             "$href": "#html"
@@ -773,6 +768,12 @@
                         },
                         {
                             "$href": "#boolean"
+                        },
+                        {
+                            "$href": "#page"
+                        },
+                        {
+                            "$href": "#flowpanel"
                         }
                     ]
                 },
@@ -850,7 +851,8 @@
                     "enum": [
                         "default",
                         "underInput",
-                        "underTitle"
+                        "underTitle",
+                        "hidden"
                     ]
                 },
                 "requiredErrorText": {
@@ -950,6 +952,12 @@
                     ]
                 },
                 "renderAs": {
+                    "type": "string"
+                },
+                "randomize": {
+                    "type": "boolean"
+                },
+                "randomizeCategory": {
                     "type": "string"
                 }
             }
@@ -2168,12 +2176,6 @@
                             "type": "array",
                             "items": [
                                 {
-                                    "$href": "#page"
-                                },
-                                {
-                                    "$href": "#flowpanel"
-                                },
-                                {
                                     "$href": "#tagbox"
                                 },
                                 {
@@ -2195,13 +2197,22 @@
                                     "$href": "#paneldynamic"
                                 },
                                 {
+                                    "$href": "#matrixdynamic"
+                                },
+                                {
+                                    "$href": "#matrixdropdown"
+                                },
+                                {
+                                    "$href": "#matrix"
+                                },
+                                {
+                                    "$href": "#expression"
+                                },
+                                {
                                     "$href": "#file"
                                 },
                                 {
                                     "$href": "#signaturepad"
-                                },
-                                {
-                                    "$href": "#expression"
                                 },
                                 {
                                     "$href": "#text"
@@ -2211,15 +2222,6 @@
                                 },
                                 {
                                     "$href": "#multipletext"
-                                },
-                                {
-                                    "$href": "#matrixdynamic"
-                                },
-                                {
-                                    "$href": "#matrixdropdown"
-                                },
-                                {
-                                    "$href": "#matrix"
                                 },
                                 {
                                     "$href": "#html"
@@ -2238,6 +2240,12 @@
                                 },
                                 {
                                     "$href": "#boolean"
+                                },
+                                {
+                                    "$href": "#page"
+                                },
+                                {
+                                    "$href": "#flowpanel"
                                 }
                             ]
                         },
@@ -2450,569 +2458,6 @@
                 }
             ]
         },
-        "file": {
-            "$id": "#file",
-            "type": "object",
-            "properties": {
-                "allowCameraAccess": {
-                    "type": "boolean"
-                },
-                "sourceType": {
-                    "type": "string",
-                    "enum": [
-                        "file",
-                        "camera",
-                        "file-camera"
-                    ]
-                },
-                "showPreview": {
-                    "type": "boolean"
-                },
-                "allowMultiple": {
-                    "type": "boolean"
-                },
-                "imageHeight": {
-                    "type": "string"
-                },
-                "imageWidth": {
-                    "type": "string"
-                },
-                "acceptedCategories": {
-                    "type": "array",
-                    "items": "string",
-                    "enum": [
-                        "image",
-                        "video",
-                        "audio",
-                        "document",
-                        "archive",
-                        "custom"
-                    ]
-                },
-                "acceptedTypes": {
-                    "type": "string"
-                },
-                "allowImagesPreview": {
-                    "type": "boolean"
-                },
-                "maxSize": {
-                    "type": "number"
-                },
-                "maxFiles": {
-                    "type": "number"
-                },
-                "needConfirmRemoveFile": {
-                    "type": "boolean"
-                },
-                "fileOrPhotoPlaceholder": {
-                    "type": "string"
-                },
-                "photoPlaceholder": {
-                    "type": "string"
-                },
-                "filePlaceholder": {
-                    "type": "string"
-                }
-            }
-        },
-        "signaturepad": {
-            "$id": "#signaturepad",
-            "type": "object",
-            "properties": {
-                "dataFormat": {
-                    "type": "string",
-                    "enum": [
-                        {
-                            "value": "png",
-                            "text": "PNG"
-                        },
-                        {
-                            "value": "jpeg",
-                            "text": "JPEG"
-                        },
-                        {
-                            "value": "svg",
-                            "text": "SVG"
-                        }
-                    ]
-                },
-                "signatureWidth": {
-                    "type": "number"
-                },
-                "signatureHeight": {
-                    "type": "number"
-                },
-                "signatureAutoScaleEnabled": {
-                    "type": "boolean"
-                },
-                "penMinWidth": {
-                    "type": "number"
-                },
-                "penMaxWidth": {
-                    "type": "number"
-                },
-                "height": {
-                    "type": "number"
-                },
-                "allowClear": {
-                    "type": "boolean"
-                },
-                "penColor": {
-                    "type": "string"
-                },
-                "backgroundColor": {
-                    "type": "string"
-                },
-                "backgroundImage": {
-                    "type": "string"
-                },
-                "showPlaceholder": {
-                    "type": "boolean"
-                },
-                "placeholder": {
-                    "type": "string"
-                },
-                "placeholderReadOnly": {
-                    "type": "string"
-                }
-            }
-        },
-        "expression": {
-            "$id": "#expression",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#question"
-                },
-                {
-                    "properties": {
-                        "format": {
-                            "type": "string"
-                        },
-                        "expression": {
-                            "type": "string"
-                        },
-                        "maximumFractionDigits": {
-                            "type": "number"
-                        },
-                        "minimumFractionDigits": {
-                            "type": "number"
-                        },
-                        "displayStyle": {
-                            "type": "string",
-                            "enum": [
-                                "none",
-                                "decimal",
-                                "currency",
-                                "percent",
-                                "date"
-                            ]
-                        },
-                        "currency": {
-                            "type": "string",
-                            "enum": [
-                                "AED",
-                                "AFN",
-                                "ALL",
-                                "AMD",
-                                "ANG",
-                                "AOA",
-                                "ARS",
-                                "AUD",
-                                "AWG",
-                                "AZN",
-                                "BAM",
-                                "BBD",
-                                "BDT",
-                                "BGN",
-                                "BHD",
-                                "BIF",
-                                "BMD",
-                                "BND",
-                                "BOB",
-                                "BOV",
-                                "BRL",
-                                "BSD",
-                                "BTN",
-                                "BWP",
-                                "BYN",
-                                "BZD",
-                                "CAD",
-                                "CDF",
-                                "CHE",
-                                "CHF",
-                                "CHW",
-                                "CLF",
-                                "CLP",
-                                "CNY",
-                                "COP",
-                                "COU",
-                                "CRC",
-                                "CUC",
-                                "CUP",
-                                "CVE",
-                                "CZK",
-                                "DJF",
-                                "DKK",
-                                "DOP",
-                                "DZD",
-                                "EGP",
-                                "ERN",
-                                "ETB",
-                                "EUR",
-                                "FJD",
-                                "FKP",
-                                "GBP",
-                                "GEL",
-                                "GHS",
-                                "GIP",
-                                "GMD",
-                                "GNF",
-                                "GTQ",
-                                "GYD",
-                                "HKD",
-                                "HNL",
-                                "HRK",
-                                "HTG",
-                                "HUF",
-                                "IDR",
-                                "ILS",
-                                "INR",
-                                "IQD",
-                                "IRR",
-                                "ISK",
-                                "JMD",
-                                "JOD",
-                                "JPY",
-                                "KES",
-                                "KGS",
-                                "KHR",
-                                "KMF",
-                                "KPW",
-                                "KRW",
-                                "KWD",
-                                "KYD",
-                                "KZT",
-                                "LAK",
-                                "LBP",
-                                "LKR",
-                                "LRD",
-                                "LSL",
-                                "LYD",
-                                "MAD",
-                                "MDL",
-                                "MGA",
-                                "MKD",
-                                "MMK",
-                                "MNT",
-                                "MOP",
-                                "MRO",
-                                "MUR",
-                                "MVR",
-                                "MWK",
-                                "MXN",
-                                "MXV",
-                                "MYR",
-                                "MZN",
-                                "NAD",
-                                "NGN",
-                                "NIO",
-                                "NOK",
-                                "NPR",
-                                "NZD",
-                                "OMR",
-                                "PAB",
-                                "PEN",
-                                "PGK",
-                                "PHP",
-                                "PKR",
-                                "PLN",
-                                "PYG",
-                                "QAR",
-                                "RON",
-                                "RSD",
-                                "RUB",
-                                "RWF",
-                                "SAR",
-                                "SBD",
-                                "SCR",
-                                "SDG",
-                                "SEK",
-                                "SGD",
-                                "SHP",
-                                "SLL",
-                                "SOS",
-                                "SRD",
-                                "SSP",
-                                "STD",
-                                "SVC",
-                                "SYP",
-                                "SZL",
-                                "THB",
-                                "TJS",
-                                "TMT",
-                                "TND",
-                                "TOP",
-                                "TRY",
-                                "TTD",
-                                "TWD",
-                                "TZS",
-                                "UAH",
-                                "UGX",
-                                "USD",
-                                "USN",
-                                "UYI",
-                                "UYU",
-                                "UZS",
-                                "VEF",
-                                "VND",
-                                "VUV",
-                                "WST",
-                                "XAF",
-                                "XAG",
-                                "XAU",
-                                "XBA",
-                                "XBB",
-                                "XBC",
-                                "XBD",
-                                "XCD",
-                                "XDR",
-                                "XOF",
-                                "XPD",
-                                "XPF",
-                                "XPT",
-                                "XSU",
-                                "XTS",
-                                "XUA",
-                                "XXX",
-                                "YER",
-                                "ZAR",
-                                "ZMW",
-                                "ZWL"
-                            ]
-                        },
-                        "useGrouping": {
-                            "type": "boolean"
-                        },
-                        "precision": {
-                            "type": "number"
-                        }
-                    }
-                }
-            ]
-        },
-        "text": {
-            "$id": "#text",
-            "type": "object",
-            "properties": {
-                "maskType": {
-                    "type": "string",
-                    "enum": [
-                        "none",
-                        "pattern",
-                        "datetime",
-                        "numeric",
-                        "currency"
-                    ]
-                },
-                "inputTextAlignment": {
-                    "type": [
-                        "boolean",
-                        "string"
-                    ],
-                    "enum": [
-                        "left",
-                        "right",
-                        "auto"
-                    ]
-                },
-                "maskSettings": {
-                    "type": [
-                        {
-                            "$href": "#datetimemask"
-                        },
-                        {
-                            "$href": "#currencymask"
-                        }
-                    ]
-                },
-                "inputType": {
-                    "type": "string",
-                    "enum": [
-                        "color",
-                        "date",
-                        "datetime-local",
-                        "email",
-                        "month",
-                        "number",
-                        "password",
-                        "range",
-                        "tel",
-                        "text",
-                        "time",
-                        "url",
-                        "week"
-                    ]
-                },
-                "inputSize": {
-                    "type": "number"
-                },
-                "size": {
-                    "type": "number"
-                },
-                "autocomplete": {
-                    "type": "string",
-                    "enum": [
-                        "",
-                        "name",
-                        "honorific-prefix",
-                        "given-name",
-                        "additional-name",
-                        "family-name",
-                        "honorific-suffix",
-                        "nickname",
-                        "organization-title",
-                        "username",
-                        "new-password",
-                        "current-password",
-                        "organization",
-                        "street-address",
-                        "address-line1",
-                        "address-line2",
-                        "address-line3",
-                        "address-level4",
-                        "address-level3",
-                        "address-level2",
-                        "address-level1",
-                        "country",
-                        "country-name",
-                        "postal-code",
-                        "cc-name",
-                        "cc-given-name",
-                        "cc-additional-name",
-                        "cc-family-name",
-                        "cc-number",
-                        "cc-exp",
-                        "cc-exp-month",
-                        "cc-exp-year",
-                        "cc-csc",
-                        "cc-type",
-                        "transaction-currency",
-                        "transaction-amount",
-                        "language",
-                        "bday",
-                        "bday-day",
-                        "bday-month",
-                        "bday-year",
-                        "sex",
-                        "url",
-                        "photo",
-                        "tel",
-                        "tel-country-code",
-                        "tel-national",
-                        "tel-area-code",
-                        "tel-local",
-                        "tel-local-prefix",
-                        "tel-local-suffix",
-                        "tel-extension",
-                        "email",
-                        "impp"
-                    ]
-                },
-                "min": {
-                    "type": "string"
-                },
-                "max": {
-                    "type": "string"
-                },
-                "minValueExpression": {
-                    "type": "string"
-                },
-                "maxValueExpression": {
-                    "type": "string"
-                },
-                "minErrorText": {
-                    "type": "string"
-                },
-                "maxErrorText": {
-                    "type": "string"
-                },
-                "stepErrorText": {
-                    "type": "string"
-                },
-                "step": {
-                    "type": "string"
-                },
-                "dataList": {
-                    "type": "array",
-                    "items": "string"
-                }
-            }
-        },
-        "comment": {
-            "$id": "#comment",
-            "type": "object",
-            "properties": {
-                "rows": {
-                    "type": "number"
-                },
-                "acceptCarriageReturn": {
-                    "type": "boolean"
-                },
-                "autoGrow": {
-                    "type": "boolean"
-                },
-                "allowResize": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "multipletext": {
-            "$id": "#multipletext",
-            "type": "object",
-            "allOff": [
-                {
-                    "$ref": "#question"
-                },
-                {
-                    "properties": {
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "$href": "#multipletextitem"
-                            }
-                        },
-                        "itemErrorLocation": {
-                            "type": "string",
-                            "enum": [
-                                "default",
-                                "top",
-                                "bottom"
-                            ]
-                        },
-                        "colCount": {
-                            "type": "number",
-                            "enum": [
-                                1,
-                                2,
-                                3,
-                                4,
-                                5
-                            ]
-                        },
-                        "inputSize": {
-                            "type": "number"
-                        },
-                        "itemSize": {
-                            "type": "number"
-                        },
-                        "itemTitleWidth": {
-                            "type": "string"
-                        }
-                    }
-                }
-            ]
-        },
         "matrixbase": {
             "$id": "#matrixbase",
             "type": "object",
@@ -3102,12 +2547,6 @@
                             "type": "array",
                             "items": [
                                 {
-                                    "$href": "#page"
-                                },
-                                {
-                                    "$href": "#flowpanel"
-                                },
-                                {
                                     "$href": "#tagbox"
                                 },
                                 {
@@ -3129,13 +2568,22 @@
                                     "$href": "#paneldynamic"
                                 },
                                 {
+                                    "$href": "#matrixdynamic"
+                                },
+                                {
+                                    "$href": "#matrixdropdown"
+                                },
+                                {
+                                    "$href": "#matrix"
+                                },
+                                {
+                                    "$href": "#expression"
+                                },
+                                {
                                     "$href": "#file"
                                 },
                                 {
                                     "$href": "#signaturepad"
-                                },
-                                {
-                                    "$href": "#expression"
                                 },
                                 {
                                     "$href": "#text"
@@ -3145,15 +2593,6 @@
                                 },
                                 {
                                     "$href": "#multipletext"
-                                },
-                                {
-                                    "$href": "#matrixdynamic"
-                                },
-                                {
-                                    "$href": "#matrixdropdown"
-                                },
-                                {
-                                    "$href": "#matrix"
                                 },
                                 {
                                     "$href": "#html"
@@ -3172,6 +2611,12 @@
                                 },
                                 {
                                     "$href": "#boolean"
+                                },
+                                {
+                                    "$href": "#page"
+                                },
+                                {
+                                    "$href": "#flowpanel"
                                 }
                             ]
                         },
@@ -3396,6 +2841,662 @@
                 }
             ]
         },
+        "expression": {
+            "$id": "#expression",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#question"
+                },
+                {
+                    "properties": {
+                        "format": {
+                            "type": "string"
+                        },
+                        "expression": {
+                            "type": "string"
+                        },
+                        "maximumFractionDigits": {
+                            "type": "number"
+                        },
+                        "minimumFractionDigits": {
+                            "type": "number"
+                        },
+                        "displayStyle": {
+                            "type": "string",
+                            "enum": [
+                                "none",
+                                "decimal",
+                                "currency",
+                                "percent",
+                                "date"
+                            ]
+                        },
+                        "currency": {
+                            "type": "string",
+                            "enum": [
+                                "AED",
+                                "AFN",
+                                "ALL",
+                                "AMD",
+                                "ANG",
+                                "AOA",
+                                "ARS",
+                                "AUD",
+                                "AWG",
+                                "AZN",
+                                "BAM",
+                                "BBD",
+                                "BDT",
+                                "BGN",
+                                "BHD",
+                                "BIF",
+                                "BMD",
+                                "BND",
+                                "BOB",
+                                "BOV",
+                                "BRL",
+                                "BSD",
+                                "BTN",
+                                "BWP",
+                                "BYN",
+                                "BZD",
+                                "CAD",
+                                "CDF",
+                                "CHE",
+                                "CHF",
+                                "CHW",
+                                "CLF",
+                                "CLP",
+                                "CNY",
+                                "COP",
+                                "COU",
+                                "CRC",
+                                "CUC",
+                                "CUP",
+                                "CVE",
+                                "CZK",
+                                "DJF",
+                                "DKK",
+                                "DOP",
+                                "DZD",
+                                "EGP",
+                                "ERN",
+                                "ETB",
+                                "EUR",
+                                "FJD",
+                                "FKP",
+                                "GBP",
+                                "GEL",
+                                "GHS",
+                                "GIP",
+                                "GMD",
+                                "GNF",
+                                "GTQ",
+                                "GYD",
+                                "HKD",
+                                "HNL",
+                                "HRK",
+                                "HTG",
+                                "HUF",
+                                "IDR",
+                                "ILS",
+                                "INR",
+                                "IQD",
+                                "IRR",
+                                "ISK",
+                                "JMD",
+                                "JOD",
+                                "JPY",
+                                "KES",
+                                "KGS",
+                                "KHR",
+                                "KMF",
+                                "KPW",
+                                "KRW",
+                                "KWD",
+                                "KYD",
+                                "KZT",
+                                "LAK",
+                                "LBP",
+                                "LKR",
+                                "LRD",
+                                "LSL",
+                                "LYD",
+                                "MAD",
+                                "MDL",
+                                "MGA",
+                                "MKD",
+                                "MMK",
+                                "MNT",
+                                "MOP",
+                                "MRO",
+                                "MUR",
+                                "MVR",
+                                "MWK",
+                                "MXN",
+                                "MXV",
+                                "MYR",
+                                "MZN",
+                                "NAD",
+                                "NGN",
+                                "NIO",
+                                "NOK",
+                                "NPR",
+                                "NZD",
+                                "OMR",
+                                "PAB",
+                                "PEN",
+                                "PGK",
+                                "PHP",
+                                "PKR",
+                                "PLN",
+                                "PYG",
+                                "QAR",
+                                "RON",
+                                "RSD",
+                                "RUB",
+                                "RWF",
+                                "SAR",
+                                "SBD",
+                                "SCR",
+                                "SDG",
+                                "SEK",
+                                "SGD",
+                                "SHP",
+                                "SLL",
+                                "SOS",
+                                "SRD",
+                                "SSP",
+                                "STD",
+                                "SVC",
+                                "SYP",
+                                "SZL",
+                                "THB",
+                                "TJS",
+                                "TMT",
+                                "TND",
+                                "TOP",
+                                "TRY",
+                                "TTD",
+                                "TWD",
+                                "TZS",
+                                "UAH",
+                                "UGX",
+                                "USD",
+                                "USN",
+                                "UYI",
+                                "UYU",
+                                "UZS",
+                                "VEF",
+                                "VND",
+                                "VUV",
+                                "WST",
+                                "XAF",
+                                "XAG",
+                                "XAU",
+                                "XBA",
+                                "XBB",
+                                "XBC",
+                                "XBD",
+                                "XCD",
+                                "XDR",
+                                "XOF",
+                                "XPD",
+                                "XPF",
+                                "XPT",
+                                "XSU",
+                                "XTS",
+                                "XUA",
+                                "XXX",
+                                "YER",
+                                "ZAR",
+                                "ZMW",
+                                "ZWL"
+                            ]
+                        },
+                        "useGrouping": {
+                            "type": "boolean"
+                        },
+                        "precision": {
+                            "type": "number"
+                        },
+                        "requiredErrorText": {
+                            "type": "string"
+                        },
+                        "isRequired": {
+                            "type": "boolean"
+                        },
+                        "requiredIf": {
+                            "type": "string"
+                        },
+                        "enableIf": {
+                            "type": "string"
+                        },
+                        "defaultValue": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
+                        },
+                        "defaultValueExpression": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
+                        },
+                        "resetValueIf": {
+                            "type": "string"
+                        },
+                        "setValueIf": {
+                            "type": "string"
+                        },
+                        "setValueExpression": {
+                            "type": "string"
+                        },
+                        "correctAnswer": {
+                            "type": [
+                                "string",
+                                "numeric",
+                                "boolean"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "file": {
+            "$id": "#file",
+            "type": "object",
+            "properties": {
+                "allowCameraAccess": {
+                    "type": "boolean"
+                },
+                "sourceType": {
+                    "type": "string",
+                    "enum": [
+                        "file",
+                        "camera",
+                        "file-camera"
+                    ]
+                },
+                "showPreview": {
+                    "type": "boolean"
+                },
+                "allowMultiple": {
+                    "type": "boolean"
+                },
+                "imageHeight": {
+                    "type": "string"
+                },
+                "imageWidth": {
+                    "type": "string"
+                },
+                "acceptedCategories": {
+                    "type": "array",
+                    "items": "string",
+                    "enum": [
+                        "image",
+                        "video",
+                        "audio",
+                        "document",
+                        "archive",
+                        "custom"
+                    ]
+                },
+                "acceptedTypes": {
+                    "type": "string"
+                },
+                "allowImagesPreview": {
+                    "type": "boolean"
+                },
+                "maxSize": {
+                    "type": "number"
+                },
+                "maxFiles": {
+                    "type": "number"
+                },
+                "needConfirmRemoveFile": {
+                    "type": "boolean"
+                },
+                "fileOrPhotoPlaceholder": {
+                    "type": "string"
+                },
+                "photoPlaceholder": {
+                    "type": "string"
+                },
+                "filePlaceholder": {
+                    "type": "string"
+                },
+                "defaultValue": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                },
+                "correctAnswer": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                },
+                "validators": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "$href": "#numericvalidator"
+                        },
+                        {
+                            "$href": "#textvalidator"
+                        },
+                        {
+                            "$href": "#answercountvalidator"
+                        },
+                        {
+                            "$href": "#regexvalidator"
+                        },
+                        {
+                            "$href": "#emailvalidator"
+                        },
+                        {
+                            "$href": "#expressionvalidator"
+                        }
+                    ]
+                }
+            }
+        },
+        "signaturepad": {
+            "$id": "#signaturepad",
+            "type": "object",
+            "properties": {
+                "dataFormat": {
+                    "type": "string",
+                    "enum": [
+                        {
+                            "value": "png",
+                            "text": "PNG"
+                        },
+                        {
+                            "value": "jpeg",
+                            "text": "JPEG"
+                        },
+                        {
+                            "value": "svg",
+                            "text": "SVG"
+                        }
+                    ]
+                },
+                "signatureWidth": {
+                    "type": "number"
+                },
+                "signatureHeight": {
+                    "type": "number"
+                },
+                "signatureAutoScaleEnabled": {
+                    "type": "boolean"
+                },
+                "penMinWidth": {
+                    "type": "number"
+                },
+                "penMaxWidth": {
+                    "type": "number"
+                },
+                "height": {
+                    "type": "number"
+                },
+                "allowClear": {
+                    "type": "boolean"
+                },
+                "penColor": {
+                    "type": "string"
+                },
+                "backgroundColor": {
+                    "type": "string"
+                },
+                "backgroundImage": {
+                    "type": "string"
+                },
+                "showPlaceholder": {
+                    "type": "boolean"
+                },
+                "placeholder": {
+                    "type": "string"
+                },
+                "placeholderReadOnly": {
+                    "type": "string"
+                },
+                "defaultValue": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                },
+                "correctAnswer": {
+                    "type": [
+                        "string",
+                        "numeric",
+                        "boolean"
+                    ]
+                }
+            }
+        },
+        "text": {
+            "$id": "#text",
+            "type": "object",
+            "properties": {
+                "maskType": {
+                    "type": "string",
+                    "enum": [
+                        "none",
+                        "pattern",
+                        "datetime",
+                        "numeric",
+                        "currency"
+                    ]
+                },
+                "inputTextAlignment": {
+                    "type": [
+                        "boolean",
+                        "string"
+                    ],
+                    "enum": [
+                        "left",
+                        "right",
+                        "auto"
+                    ]
+                },
+                "maskSettings": {
+                    "type": [
+                        {
+                            "$href": "#datetimemask"
+                        },
+                        {
+                            "$href": "#currencymask"
+                        }
+                    ]
+                },
+                "inputType": {
+                    "type": "string",
+                    "enum": [
+                        "color",
+                        "date",
+                        "datetime-local",
+                        "email",
+                        "month",
+                        "number",
+                        "password",
+                        "range",
+                        "tel",
+                        "text",
+                        "time",
+                        "url",
+                        "week"
+                    ]
+                },
+                "inputSize": {
+                    "type": "number"
+                },
+                "size": {
+                    "type": "number"
+                },
+                "autocomplete": {
+                    "type": "string",
+                    "enum": [
+                        "",
+                        "name",
+                        "honorific-prefix",
+                        "given-name",
+                        "additional-name",
+                        "family-name",
+                        "honorific-suffix",
+                        "nickname",
+                        "organization-title",
+                        "username",
+                        "new-password",
+                        "current-password",
+                        "organization",
+                        "street-address",
+                        "address-line1",
+                        "address-line2",
+                        "address-line3",
+                        "address-level4",
+                        "address-level3",
+                        "address-level2",
+                        "address-level1",
+                        "country",
+                        "country-name",
+                        "postal-code",
+                        "cc-name",
+                        "cc-given-name",
+                        "cc-additional-name",
+                        "cc-family-name",
+                        "cc-number",
+                        "cc-exp",
+                        "cc-exp-month",
+                        "cc-exp-year",
+                        "cc-csc",
+                        "cc-type",
+                        "transaction-currency",
+                        "transaction-amount",
+                        "language",
+                        "bday",
+                        "bday-day",
+                        "bday-month",
+                        "bday-year",
+                        "sex",
+                        "url",
+                        "photo",
+                        "tel",
+                        "tel-country-code",
+                        "tel-national",
+                        "tel-area-code",
+                        "tel-local",
+                        "tel-local-prefix",
+                        "tel-local-suffix",
+                        "tel-extension",
+                        "email",
+                        "impp"
+                    ]
+                },
+                "min": {
+                    "type": "string"
+                },
+                "max": {
+                    "type": "string"
+                },
+                "minValueExpression": {
+                    "type": "string"
+                },
+                "maxValueExpression": {
+                    "type": "string"
+                },
+                "minErrorText": {
+                    "type": "string"
+                },
+                "maxErrorText": {
+                    "type": "string"
+                },
+                "stepErrorText": {
+                    "type": "string"
+                },
+                "step": {
+                    "type": "string"
+                },
+                "dataList": {
+                    "type": "array",
+                    "items": "string"
+                }
+            }
+        },
+        "comment": {
+            "$id": "#comment",
+            "type": "object",
+            "properties": {
+                "rows": {
+                    "type": "number"
+                },
+                "acceptCarriageReturn": {
+                    "type": "boolean"
+                },
+                "autoGrow": {
+                    "type": "boolean"
+                },
+                "allowResize": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "multipletext": {
+            "$id": "#multipletext",
+            "type": "object",
+            "allOff": [
+                {
+                    "$ref": "#question"
+                },
+                {
+                    "properties": {
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "$href": "#multipletextitem"
+                            }
+                        },
+                        "itemErrorLocation": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "top",
+                                "bottom"
+                            ]
+                        },
+                        "colCount": {
+                            "type": "number",
+                            "enum": [
+                                1,
+                                2,
+                                3,
+                                4,
+                                5
+                            ]
+                        },
+                        "inputSize": {
+                            "type": "number"
+                        },
+                        "itemSize": {
+                            "type": "number"
+                        },
+                        "itemTitleWidth": {
+                            "type": "string"
+                        }
+                    }
+                }
+            ]
+        },
         "nonvalue": {
             "$id": "#nonvalue",
             "type": "object",
@@ -3521,7 +3622,8 @@
                             "enum": [
                                 "default",
                                 "underInput",
-                                "underTitle"
+                                "underTitle",
+                                "hidden"
                             ]
                         },
                         "requiredErrorText": {

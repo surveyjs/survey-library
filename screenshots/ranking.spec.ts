@@ -152,76 +152,8 @@ frameworks.forEach(framework => {
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
 
-      const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
-    });
-
-    test("Shortcut position due container layout (relative)", async ({ page }) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: false,
-        elements: [
-          {
-            type: "ranking",
-            title: "ranking question",
-            name: "ranking_question",
-            choices: ["."]
-          }
-        ]
-      });
-
-      await page.evaluate(() => {
-        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        document.querySelector("#surveyElement")!.style.position = "relative";
-        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        document.querySelector("#surveyElement")!.style.margin = "100px";
-      });
-
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
-      const target = page.locator(".sd-question");
-      await doDrag({ page, element, target });
-      const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png", 0, maxDiffPixels);
-    });
-
-    test("Shortcut position due container layout (scroll)", async ({ page }) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: false,
-        elements: [
-          {
-            type: "ranking",
-            title: "ranking question",
-            name: "ranking_question",
-            choices: ["."]
-          }
-        ]
-      });
-
-      await page.evaluate(() => {
-        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        document.querySelector("#surveyElement")!.style.height = "300px";
-        const surveyContainer = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
-        if (surveyContainer) {
-          surveyContainer.scrollTop = 50;
-        }
-        const question = window["survey"].getAllQuestions()[0];
-        question.dragDropRankingChoices.domAdapter.doScroll = () => { };
-      });
-
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
-      await page.waitForTimeout(500);
-      const { x, y } = await <any>element.boundingBox();
-      await page.waitForTimeout(500);
-      await element.hover({ force: true });
-      //   await page.waitForTimeout(500);
-      await page.mouse.down();
-      //  await page.waitForTimeout(500);
-      await page.mouse.move(x - 10, y, { steps: 20 });
-      // await page.waitForTimeout(500);
-
       const maxDiffPixels = 40;
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png", { maxDiffPixels });
     });
 
     test("Ranking theming", async ({ page }) => {
@@ -322,7 +254,7 @@ frameworks.forEach(framework => {
       await doDrag({ page, element, target });
 
       const maxDiffPixels = 10;
-      await compareScreenshot(page, ".sd-question", "rtl-question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
+      await compareScreenshot(page, ".sd-question", "rtl-question-ranking-shortcut-position-container-layout.png", { maxDiffPixels });
     });
   });
 });

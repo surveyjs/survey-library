@@ -94,6 +94,7 @@ export default (options = {}) => {
       ],
       dir: resolve(buildPath, "./fesm"),
       version: pkg.version,
+      noEmitOnError: !options.watch,
     }),
     createUmdConfig({
       input: {
@@ -115,6 +116,7 @@ export default (options = {}) => {
         "survey-core": "Survey"
       },
       version: pkg.version,
+      noEmitOnError: !options.watch,
     }),
   ];
 };

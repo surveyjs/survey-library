@@ -372,9 +372,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.renderedIsExpanded = !this.isCollapsed;
   }
   protected notifyStateChanged(prevState: string): void {
-    if (this.survey) {
-      this.lifecycleCallbacks.elementContentVisibilityChanged(this);
-    }
   }
   /**
    * Returns `true` if the survey element is collapsed.
@@ -561,6 +558,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const data = <IObjectValueContext><any>this.data;
     return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
+  protected canSkipExpressionByKeys(runner: any, keys: any, vars?: string[]): boolean {
+    if (!keys) return false;
+    const data = <IObjectValueContext><any>this.data;
+    if (!!data && typeof data.getValueGetterContext === "function") {
+      const dataContext = data.getValueGetterContext();
+      if (typeof dataContext?.getContextKeys === "function") {
+        return super.canSkipExpressionByKeys(runner, Object.assign({}, keys, dataContext.getContextKeys()), vars);
+      }
+    }
+    return super.canSkipExpressionByKeys(runner, keys, vars);
+  }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();
   }
@@ -696,7 +704,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get cssClasses(): any {
-    if (!this.survey) return this.calcCssClasses(this.css);
+    if (!this.survey || this.isDisposed) return this.calcCssClasses(this.css);
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
@@ -1240,7 +1248,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get isAnimatingCollapseExpand() {
     return this._isAnimatingCollapseExpand || this._renderedIsExpanded != this.isExpanded;
   }
+  protected notifyElementContentVisibilityChanged() {
+    if (this.survey) {
+      this.lifecycleCallbacks.elementContentVisibilityChanged(this);
+    }
+  }
   protected onElementExpanded(elementIsRendered: boolean) {
+    this.notifyElementContentVisibilityChanged();
+  }
+  protected onElementCollapsed() {
+    this.notifyElementContentVisibilityChanged();
   }
   private getExpandCollapseAnimationOptions(): IAnimationConsumer {
     const beforeRunAnimation = (el: HTMLElement) => {
@@ -1269,7 +1286,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         return {
           cssClass: cssClasses.contentLeave,
           onBeforeRunAnimation: beforeRunAnimation,
-          onAfterRunAnimation: afterRunAnimation
+          onAfterRunAnimation: (el) => {
+            afterRunAnimation(el);
+            this.onElementCollapsed();
+          },
         };
       },
       getAnimatedElement: () => {
@@ -1303,8 +1323,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set renderedIsExpanded(val: boolean) {
     const oldValue = this._renderedIsExpanded;
     this.animationCollapsed.sync(val);
-    if (!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
-      this.onElementExpanded(false);
+    if (!this.isExpandCollapseAnimationEnabled) {
+      if (oldValue !== val) {
+        if (!oldValue)
+          this.onElementExpanded(false);
+        else
+          this.onElementCollapsed();
+      }
     }
   }
 
@@ -1336,6 +1361,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return seed;
   }
   public randomSeedChanged(): void {}
+  public ensureRowsVisibility() {}
 }
 
 export class RenderingCompletedAwaiter {

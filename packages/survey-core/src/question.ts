@@ -180,6 +180,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
 export interface IValidationContextParams {
   fireCallback: boolean;
   isOnValueChanged?: boolean;
+  isOnValueChanging?: boolean;
   focusOnFirstError?: boolean;
   firstErrorQuestion?: IQuestion;
   changeCurrentPage?: boolean;
@@ -190,6 +191,7 @@ export class ValidationContext extends AsyncElementsRunner {
   private fireCallbackValue: boolean;
   private focusOnFirstErrorValue: boolean;
   private isOnValueChangedValue: boolean;
+  private isOnValueChangingValue: boolean;
   private changeCurrentPage: boolean;
   private firstErrorQuestionValue: Question;
   private res: boolean = true;
@@ -203,12 +205,14 @@ export class ValidationContext extends AsyncElementsRunner {
     }
     this.fireCallbackValue = context.fireCallback || false;
     this.isOnValueChangedValue = context.isOnValueChanged || false;
+    this.isOnValueChangingValue = context.isOnValueChanging || false;
     this.focusOnFirstErrorValue = context.focusOnFirstError || false;
     this.callbackResult = context.callbackResult || null;
     this.changeCurrentPage = context.changeCurrentPage || false;
   }
   public get fireCallback(): boolean { return this.fireCallbackValue; }
   public get isOnValueChanged(): boolean { return this.isOnValueChangedValue; }
+  public get isOnValueChanging(): boolean { return this.isOnValueChangingValue; }
   public get focusOnFirstError(): boolean { return this.focusOnFirstErrorValue; }
   public get result(): boolean { return this.res; }
   public get runningResult(): boolean {
@@ -356,9 +360,9 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
 
-    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; });
-    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
-    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+    this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
+    this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; }, undefined, undefined, () => { this.readOnly = false; });
+    this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; }, undefined, undefined, () => { this.isRequired = false; });
 
     this.addTriggersInfo();
   }
@@ -847,11 +851,9 @@ export class Question extends SurveyElement<Question>
   }
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     if (!runner.expression) return "";
+    if (runner.hasFunction(true)) return "func";
     const vars = runner.getVariables();
-    if ((!Array.isArray(vars) || vars.length === 0)) {
-      if (runner.hasFunction()) return "func";
-      return "const";
-    }
+    if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
@@ -1189,6 +1191,7 @@ export class Question extends SurveyElement<Question>
    * - `"default"` (default) - Inherits the setting from the Survey's [`questionDescriptionLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionDescriptionLocation) property.
    * - `"underTitle"` - Displays the description under the question title.
    * - `"underInput"` - Displays the description under the interactive area.
+   * - `"hidden"` - Hides the description.
    * @see description
    * @see hasDescription
    */
@@ -1200,7 +1203,7 @@ export class Question extends SurveyElement<Question>
   get hasDescriptionUnderInput(): boolean {
     return this.getDescriptionLocation() == "underInput" && this.hasDescription;
   }
-  private getDescriptionLocation() {
+  protected getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
     return !!this.survey
       ? this.titleSettings.questionDescriptionLocation
@@ -1732,6 +1735,12 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
+  /**
+   * A unique value for the `name` HTML attribute of grouped inputs (e.g. radio buttons), so that questions sharing the same `name` (such as copies inside a Dynamic Panel) do not collapse into one input group.
+   */
+  public get questionName(): string {
+    return this.name + "_" + this.id;
+  }
   public get requireUpdateCommentValue(): boolean { return this.showCommentArea; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
@@ -2041,14 +2050,14 @@ export class Question extends SurveyElement<Question>
    * @param keysAsText Applies when the question value is an object (in Matrix, Multiple Text, and similar questions). Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`.
    * @param value Specify this parameter to get a display text for a specific value, not for the current question value. If the question value is an object, this parameter should be a similar object.
    */
-  public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
-    var res = this.calcDisplayValue(keysAsText, value);
+  public getDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
+    var res = this.calcDisplayValue(keysAsText, value, isReadOnly);
     if (this.survey) {
       res = this.titleSettings.getQuestionDisplayValue(this, res);
     }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
-  private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
+  private calcDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
@@ -2058,9 +2067,9 @@ export class Question extends SurveyElement<Question>
       value = this.defaultDisplayValue;
     }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
-    return this.getDisplayValueCore(keysAsText, value);
+    return this.getDisplayValueCore(keysAsText, value, isReadOnly);
   }
-  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+  protected getDisplayValueCore(keyAsText: boolean, value: any, isReadOnly?: boolean): any {
     return value;
   }
   protected getDisplayValueEmpty(): string {
@@ -2210,13 +2219,13 @@ export class Question extends SurveyElement<Question>
     if (
       this.isVisible &&
       this.hasInput &&
-      !this.isValueEmpty(this.correctAnswer)
+      !this.isValueEmpty(this.getCorrectAnswerValue())
     )
       return this.getQuizQuestionCount();
     return 0;
   }
   public get correctAnswerCount(): number {
-    if (!this.isEmpty() && !this.isValueEmpty(this.correctAnswer))
+    if (!this.isEmpty() && !this.isValueEmpty(this.getCorrectAnswerValue()))
       return this.getCorrectAnswerCount();
     return 0;
   }
@@ -2226,8 +2235,16 @@ export class Question extends SurveyElement<Question>
   protected getCorrectAnswerCount(): number {
     return this.checkIfAnswerCorrect() ? 1 : 0;
   }
+  /**
+   * Returns the [`correctAnswer`](#correctAnswer) value used in quiz calculations. Descendant
+   * classes can override this method to exclude values that cannot be selected (for example,
+   * non-existent or invisible choices in select-based questions).
+   */
+  protected getCorrectAnswerValue(): any {
+    return this.correctAnswer;
+  }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -2474,15 +2491,16 @@ export class Question extends SurveyElement<Question>
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult);
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void, isOnValueChanging?: boolean): boolean {
+    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult, isOnValueChanging);
   }
-  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void, isOnValueChanging?: boolean): boolean {
     if (isRoot && isOnValueChanged && !!this.parent) {
       this.parent.validateContainerOnly();
     }
     const context = new ValidationContext({
       isOnValueChanged: isOnValueChanged,
+      isOnValueChanging: isOnValueChanging,
       focusOnFirstError: focusOnFirstError,
       fireCallback: fireCallback,
       callbackResult: callbackResult
@@ -2788,8 +2806,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionValue(newValue);
     if (!isEqual) {
       this.resetSingleInput();
+      this.revalidateOnValueChangedFromSurvey();
     }
     this.isChangingViaDefaultValue = false;
+  }
+  private revalidateOnValueChangedFromSurvey(): void {
+    if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||
+      this.getAllErrors().length === 0) return;
+    const isOnValueChanging = this.validationCallbacks.isValidateOnValueChanging;
+    this.validate(true, false, !isOnValueChanging, undefined, isOnValueChanging);
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
@@ -3140,7 +3165,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    if (this.hasTitle && this.hasDescription) {
+    if (this.hasTitle && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -3190,7 +3215,7 @@ export class Question extends SurveyElement<Question>
 
     if (this.hasCssError()) {
       result = this.id + "_errors";
-    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
+    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       result = this.ariaDescriptionId;
     }
 
@@ -3208,6 +3233,9 @@ export class Question extends SurveyElement<Question>
   public get dragDropMatrixAttribute(): string {
     return null;
   }
+
+  @property() randomize: boolean;
+  @property() randomizeCategory: string;
 }
 function makeNameValid(str: string): string {
   if (!str) return str;
@@ -3284,7 +3312,7 @@ Serializer.addClass("question", [
   {
     name: "descriptionLocation",
     default: "default",
-    choices: ["default", "underInput", "underTitle"],
+    choices: ["default", "underInput", "underTitle", "hidden"],
   },
   {
     name: "showNumber:boolean",
@@ -3365,6 +3393,8 @@ Serializer.addClass("question", [
       return obj.showCommentArea;
     }
   },
-  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }
+  { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" },
+  { name: "randomize:boolean", default: true, visible: false, locationInTable: "detail" },
+  { name: "randomizeCategory:string", visible: false, locationInTable: "detail" },
 ]);
 Serializer.addAlterNativeClassName("question", "questionbase");

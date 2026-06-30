@@ -6,49 +6,50 @@ import {
 } from "../../src/expressions/expressions";
 import { parse } from "../../src/expressions/expressionParser";
 
-export default QUnit.module("Expressions");
+import { describe, test, expect } from "vitest";
+describe("Expressions", () => {
+  test("Arithmetic Operands", () => {
+    let expression = new BinaryOperand(
+      "plus",
+      new Const(2),
+      new BinaryOperand("mul", new Const(2), new Const(2))
+    );
+    expect(expression.toString()).toBe("(2 + (2 * 2))");
+    expect(expression.evaluate()).toBe(6);
+  });
 
-QUnit.test("Arithmetic Operands", function(assert) {
-  let expression = new BinaryOperand(
-    "plus",
-    new Const(2),
-    new BinaryOperand("mul", new Const(2), new Const(2))
-  );
-  assert.equal(expression.toString(), "(2 + (2 * 2))");
-  assert.equal(expression.evaluate(), 6);
-});
+  test("Comparable Operand", () => {
+    let expression = new BinaryOperand("less", new Const(2), new Const(-10));
+    expect(expression.toString()).toBe("(2 < -10)");
+    expect(expression.evaluate()).toBe(false);
+  });
 
-QUnit.test("Comparable Operand", function(assert) {
-  let expression = new BinaryOperand("less", new Const(2), new Const(-10));
-  assert.equal(expression.toString(), "(2 < -10)");
-  assert.equal(expression.evaluate(), false);
-});
+  test("Logic Operands", () => {
+    let expression = new BinaryOperand(
+      "and",
+      new Const(true),
+      new BinaryOperand("less", new Const(1), new Const(2))
+    );
+    expect(expression.toString()).toBe("(true and (1 < 2))");
+    expect(expression.evaluate()).toBe(true);
+  });
 
-QUnit.test("Logic Operands", function(assert) {
-  let expression = new BinaryOperand(
-    "and",
-    new Const(true),
-    new BinaryOperand("less", new Const(1), new Const(2))
-  );
-  assert.equal(expression.toString(), "(true and (1 < 2))");
-  assert.equal(expression.evaluate(), true);
-});
+  test("FunctionOperand.toString Operands", () => {
+    const expression = "iif(({q1} == 1), 'Yes', 'No')";
+    const op = <FunctionOperand>parse(expression);
+    expect(op.toString()).toBe(expression);
+    expect(op.functionName).toBe("iif");
+  });
 
-QUnit.test("FunctionOperand.toString Operands", function(assert) {
-  const expression = "iif(({q1} == 1), 'Yes', 'No')";
-  const op = <FunctionOperand>parse(expression);
-  assert.equal(op.toString(), expression);
-  assert.equal(op.functionName, "iif");
-});
+  test("ParametersOperand empty string", () => {
+    const expression = "iif(({q1} == 1), 'Yes', '')";
+    const op = <Operand>parse(expression);
+    expect(op.toString()).toBe(expression);
+  });
 
-QUnit.test("ParametersOperand empty string", function(assert) {
-  const expression = "iif(({q1} == 1), 'Yes', '')";
-  const op = <Operand>parse(expression);
-  assert.equal(op.toString(), expression);
-});
-
-QUnit.test("ConstOperand empty string", function(assert) {
-  const expression = "({q1} == '')";
-  const op = <Operand>parse(expression);
-  assert.equal(op.toString(), expression);
+  test("ConstOperand empty string", () => {
+    const expression = "({q1} == '')";
+    const op = <Operand>parse(expression);
+    expect(op.toString()).toBe(expression);
+  });
 });

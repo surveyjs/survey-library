@@ -15,7 +15,7 @@ export interface IExpressionExecutorBase {
   run(values: HashTable<any>, properties: HashTable<any>, id: number): any;
   runContext(context: IValueGetterContext, properties: HashTable<any>, id: number): any;
   getVariables(): Array<string>;
-  hasFunction(): boolean;
+  hasFunction(noParamsOnly?: boolean): boolean;
   isAsync: boolean;
   validate(context: IValueGetterContext, isCondition: boolean, options: IExpressionValidationOptions): IExpressionError[];
 }
@@ -51,7 +51,7 @@ export interface IExpressionExecutor {
   /**
    * Returns true if there is a function in the expression
    */
-  hasFunction(): boolean;
+  hasFunction(noParamsOnly?: boolean): boolean;
   /**
    * Returns true if there is an async function in the expression
    */
@@ -170,7 +170,8 @@ export class ExpressionExecutor implements IExpressionExecutor {
     return variables;
   }
 
-  public hasFunction(): boolean {
+  public hasFunction(noParamsOnly?: boolean): boolean {
+    if (noParamsOnly === true) return !!this.operand && this.operand.hasFunction(true);
     return this.hasFunctionValue;
   }
   public get isAsync(): boolean {
@@ -222,14 +223,44 @@ export class ExpressionExecutor implements IExpressionExecutor {
     }
 
     if (options.variables) {
+      const arrayContextVars = this.getArrayContextVarNames(operands, context);
       for (const operand of (operands.variable || []) as Variable[]) {
-        if (!new ProcessValue(context).hasValue(operand.variable)) {
+        if (!new ProcessValue(context).hasValue(operand.variable) && !arrayContextVars.has(operand.variable)) {
           errors.push({ errorType: ExpressionErrorType.UnknownVariable, variableName: operand.variable });
         }
       }
     }
 
     return errors;
+  }
+  private getArrayContextVarNames(operands: { [key: string]: Operand[] }, context: IValueGetterContext): Set<string> {
+    const result = new Set<string>();
+    const survey = this.getSurveyFromContext(context);
+    if (!survey) return result;
+    const inArrayFunctions = new Set(["sumInArray", "minInArray", "maxInArray", "countInArray", "avgInArray"]);
+    for (const operand of (operands.function || []) as FunctionOperand[]) {
+      if (!inArrayFunctions.has(operand.functionName)) continue;
+      const params = operand.paramValues;
+      if (!params || params.length < 1 || params[0].getType() !== "variable") continue;
+      const question = survey.getQuestionByValueName((<Variable>params[0]).variable, true);
+      if (!question) continue;
+      const templateElements = question.templateElements;
+      if (Array.isArray(templateElements)) {
+        templateElements.forEach((e: any) => { if (e.name) result.add(e.name); });
+      }
+      const columns = question.columns;
+      if (Array.isArray(columns)) {
+        columns.forEach((c: any) => { if (c.name) result.add(c.name); });
+      }
+    }
+    return result;
+  }
+  private getSurveyFromContext(context: IValueGetterContext): any {
+    if (!context || !context.getObj) return null;
+    const obj = context.getObj();
+    if (!obj) return null;
+    if (obj.getQuestionByValueName) return obj;
+    return obj.getSurvey ? obj.getSurvey() : null;
   }
 }
 

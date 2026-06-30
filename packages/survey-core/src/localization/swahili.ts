@@ -69,8 +69,12 @@ export var swahiliStrings = {
   stepError: "Tafadhali ingiza thamani inayolingana na saizi ya hatua ya {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Thamani haipaswi kuwa kubwa kuliko {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ingizo batili",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Hesabu haziruhusiwi.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Tafadhali kamilisha thamani ili kuendana na umbizo linalohitajika.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Tafadhali ingiza angalau{0} husika.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var swahiliStrings = {
   urlGetChoicesError: "Ombi lilirudisha data tupu au the 'path' mali ya njia sio sahihi",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Saizi ya faili haipaswi kuzidi {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Idadi ya juu ya faili unazoweza kupakia ni {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var swahiliStrings = {
   noRowsText: "Hakuna safu.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Safu {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Ongeza mpya",

@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+import { HorizontalAlignment, ILayoutElementModel, ISurveyLayoutElement, LayoutElementContainer, VerticalAlignment } from "./base-interfaces";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { Serializer } from "./jsonobject";
 import { property } from "./decorators";
@@ -98,7 +98,7 @@ export class CoverCell {
   }
 }
 
-export class Cover extends Base {
+export class Cover extends Base implements ILayoutElementModel {
   private _survey: SurveyModel;
 
   private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile"): string {
@@ -343,6 +343,28 @@ export class Cover extends Base {
         this.width = elWidth - paddingLeft - paddingRight - 2 * columnGap;
       }
     }
+  }
+
+  public createLayoutElements(): Array<ISurveyLayoutElement> {
+    const layoutElement: ISurveyLayoutElement = {
+      id: "advanced-header",
+      container: "header",
+      component: "sv-header",
+      index: -100,
+      data: this,
+      processResponsiveness: () => this.processResponsiveness(),
+      isInContainer: (container: LayoutElementContainer) => this.isAdvancedHeaderInContainer(layoutElement, container)
+    };
+    return [layoutElement];
+  }
+
+  private isAdvancedHeaderInContainer(layoutElement: ISurveyLayoutElement, container: LayoutElementContainer): boolean {
+    const canShowHeader = this.survey.state === "running" || this.survey.state === "starting" || (this.survey.showHeaderOnCompletePage === true && this.survey.state === "completed");
+    if (!canShowHeader) return false;
+    if (this.survey.showTOC && !this.hasBackground) {
+      return container === "contentTop";
+    }
+    return layoutElement.container === container;
   }
 
   get hasBackground(): boolean {

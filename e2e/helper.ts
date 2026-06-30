@@ -14,24 +14,40 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export async function compareScreenshot(page: Page, elementSelector: string | Locator | undefined, screenshotName: string, elementIndex = 0, maxDiffPixels?:number) {
+export async function compareScreenshot(
+  page: Page,
+  elementSelector: string | Locator | undefined,
+  screenshotName: string,
+  options: {
+      animations?: "disabled" | "allow",
+      caret?: "hide" | "initial",
+      mask?: Array<Locator>,
+      maskColor?: string,
+      maxDiffPixelRatio?: number,
+      maxDiffPixels?: number,
+      omitBackground?: boolean,
+      scale?: "css" | "device",
+      stylePath?: string | Array<string>,
+      threshold?: number,
+      timeout?: number,
+  } = {}) {
   let currentElement = elementSelector;
   if (!!currentElement && typeof currentElement == "string") {
     currentElement = page.locator(currentElement);
   }
 
-  const options: {timeout: number, maxDiffPixels?: number} = {
-    timeout: 10000
+  const pwOptions: {timeout: number, maxDiffPixels?: number} = {
+    timeout: 10000,
+    maskColor: "#000000",
+    ...options
   };
-
-  if (maxDiffPixels) options.maxDiffPixels = maxDiffPixels;
 
   if (!!currentElement) {
     const element = (<Locator>currentElement).filter({ visible: true });
-    await expect.soft(element.nth(elementIndex)).toBeVisible();
-    await expect.soft(element.nth(elementIndex)).toHaveScreenshot(screenshotName, options);
+    await expect.soft(element.nth(0)).toBeVisible();
+    await expect.soft(element.nth(0)).toHaveScreenshot(screenshotName, pwOptions);
   } else {
-    await expect.soft(page).toHaveScreenshot(screenshotName, options);
+    await expect.soft(page).toHaveScreenshot(screenshotName, pwOptions);
   }
 }
 
@@ -109,6 +125,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 
       const shadowRoot = surveyElement.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
+      rootElement.classList.add("root-element");
       const styles = document.createElement("style");
       styles.textContent = `
         *,

@@ -4,12 +4,20 @@ export default defineConfig({
   retries: 2,
   maxFailures: 5,
   fullyParallel: true,
+  expect: {
+    toHaveScreenshot: { threshold: 0.02 }
+  },
   webServer: {
     command: "",
     url: "http://localhost:8080"
   },
   snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
-  reporter: [["line"], ["junit", { outputFile: "test-results/e2e-junit-results.xml" }], ["html", { open: "never", printSteps: false }]],
+  reporter: [
+    ["line"],
+    ["junit", { outputFile: "test-results/e2e-junit-results.xml" }],
+    ["json", { outputFile: "test-results/results.json" }],
+    ["html", { open: "never", printSteps: false }]
+  ],
   projects: [
     {
       name: "a11y",
@@ -21,7 +29,12 @@ export default defineConfig({
     },
     {
       name: "e2e",
-      testDir: resolve(__dirname, "./e2e")
+      testDir: resolve(__dirname, "./e2e"),
+      use: {
+        contextOptions: {
+          permissions: ["clipboard-read", "clipboard-write"],
+        },
+      },
     }
   ]
 });

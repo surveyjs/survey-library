@@ -69,8 +69,12 @@ export var spanishSurveyStrings = {
   stepError: "Introduzca un valor que coincida con el tamaño del paso de {0}.",
   // "The value should not be greater than {0}"
   maxError: "La estimación no debe ser mayor que {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Entrada inválida",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "No se permiten números.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Por favor, completa el valor para que coincida con el formato requerido.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Por favor entre por lo menos {0} símbolos.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var spanishSurveyStrings = {
   urlGetChoicesError: "La solicitud regresó vacío de data o la propiedad 'trayectoria' no es correcta",
   // "The file size should not exceed {0}."
   exceedMaxSize: "El tamaño del archivo no debe de exceder {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "El número máximo de archivos que puedes subir es {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Los archivos no se pueden cargar. Agregue un controlador para el evento 'onUploadFiles'.",
   // "Response required: enter another value."
@@ -127,7 +135,7 @@ export var spanishSurveyStrings = {
   noRowsText: "No hay hileras.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Fila {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Añadir nuevo",
@@ -157,10 +165,10 @@ export var spanishSurveyStrings = {
   savingExceedSize: "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de la encuesta.",
   // "Try again"
   saveAgainButton: "Inténtalo de nuevo.",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
-  // "sec"
-  timerSec: "sec",
+  // [Auto-translated] "sec"
+  timerSec: "SEC",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "Has gastado {0} en esta página y {1} en total.",
   // "You have spent {0} on this page."
@@ -195,7 +203,7 @@ export var spanishSurveyStrings = {
   removeFileCaption: "Elimina este archivo",
   // "Yes"
   booleanCheckedLabel: "Sí",
-  // "No"
+  // [Auto-translated] "No"
   booleanUncheckedLabel: "No",
   // "Are you sure that you want to remove this file: {0}?"
   confirmRemoveFile: "¿Estás seguro de que quieres eliminar este archivo: {0}?",

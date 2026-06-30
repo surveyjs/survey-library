@@ -69,8 +69,12 @@ export var icelandicSurveyStrings = {
   stepError: "Vinsamlegast sláðu inn gildi sem passar við þrepastærð {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Gildið má ekki vera hærra en {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ógild inntak",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Tölur eru ekki leyfðar.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vinsamlegast fylltu út gildið til að passa við nauðsynlegt snið.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Það ætti að vera minnst {0} tákn.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var icelandicSurveyStrings = {
   urlGetChoicesError: "Beiðninng skilaði engum gögnum eða slóðinn var röng",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Skráinn skal ekki vera stærri en {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bæti, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Hámarksfjöldi skráa sem þú getur hlaðið upp er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var icelandicSurveyStrings = {
   noRowsText: "Það eru engar raðir.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Röð {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Bæta við nýju",

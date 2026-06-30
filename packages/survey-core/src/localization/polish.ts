@@ -11,7 +11,7 @@ export var polishSurveyStrings = {
   previewText: "Premiera",
   // "Edit"
   editText: "Edycja",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Proszę o komentarz",
@@ -69,8 +69,12 @@ export var polishSurveyStrings = {
   stepError: "Wprowadź wartość odpowiadającą rozmiarowi kroku {0}.",
   // "The value should not be greater than {0}"
   maxError: "Wartość nie powinna być większa niż {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Nieprawidłowe wejście",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Liczby są niedozwolone.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Prosimy o wypełnienie wartości, aby pasowało do wymaganego formatu.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Proszę wpisać co najmniej {0} znaków.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,10 @@ export var polishSurveyStrings = {
   urlGetChoicesError: "Żądanie nie zwróciło danych albo ścieżka jest nieprawidłowa",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Rozmiar przesłanego pliku nie może przekraczać {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bajty, KB, MB, GB, TB",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksymalna liczba plików, które możesz przesłać, to {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Nie można przesłać plików. Dodaj moduł obsługi zdarzenia \"onUploadFiles\".",
   // "Response required: enter another value."
@@ -127,7 +135,7 @@ export var polishSurveyStrings = {
   noRowsText: "Nie ma rzędów.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Wiersz {indeks wiersza}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Dodaj panel",
@@ -157,7 +165,7 @@ export var polishSurveyStrings = {
   savingExceedSize: "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety.",
   // "Try again"
   saveAgainButton: "Spróbuj ponownie",
-  // "min"
+  // [Auto-translated] "min"
   timerMin: "min",
   // "sec"
   timerSec: "sek",

@@ -19,7 +19,7 @@ trigger:
 pr: none
 
 pool:
-  vmImage: "windows-latest"
+  name: main-selfhosted
 
 jobs:
   - job: Core
@@ -77,6 +77,7 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build/survey-core"
           ArtifactName: "SurveyJSLibraryBuildCore-AT-$(Build.BuildId)"
           publishLocation: "Container"
+          Parallel: true
 
   - job: React
     dependsOn: Core

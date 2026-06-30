@@ -69,8 +69,12 @@ export var thaiStrings = {
   stepError: "โปรดป้อนค่าที่ตรงกับขนาดขั้นตอนของ {0}",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "ค่าไม่ควรเกิน{0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "อินพุตไม่ถูกต้อง",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "ไม่อนุญาตให้ใช้หมายเลข",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "โปรดกรอกค่าให้ตรงกับรูปแบบที่ต้องการ",
   // "Please enter at least {0} character(s)."
   textMinLength: "กรุณาใส่ขั้นต่ำจำนวน {0} ตัวอักษร",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var thaiStrings = {
   urlGetChoicesError: "รีเควสรีเทิร์นข้อมูลว่างเปล่า หรือ 'path' property ไม่ถูกต้อง",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ขนาดไฟล์ต้องไม่เกิน {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "ไบต์, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "จํานวนไฟล์สูงสุดที่คุณสามารถอัปโหลดได้คือ {0}",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,8 +135,8 @@ export var thaiStrings = {
   noRowsText: "ไม่มีแถว",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "แถว {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
+  // [Auto-translated] "{rowTitle}"
+  rowNameTemplateTitle: "{แถวชื่อ}",
   // "Add new"
   addPanel: "เพิ่ม",
   // "Remove"

@@ -11,7 +11,7 @@ export var dutchSurveyStrings = {
   previewText: "Voorbeeld",
   // "Edit"
   editText: "Bewerk",
-  // "Start"
+  // [Auto-translated] "Start"
   startSurveyText: "Start",
   // [Auto-translated] "Please leave a comment"
   commentText: "Laat een reactie achter",
@@ -69,8 +69,12 @@ export var dutchSurveyStrings = {
   stepError: "Voer een waarde in die overeenkomt met de stapgrootte van {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "De waarde mag niet groter zijn dan {0}",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Ongeldige invoer",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Nummers zijn niet toegestaan.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Vul de waarde in om aan het vereiste formaat te voldoen.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Vul minstens {0} karakters in",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var dutchSurveyStrings = {
   urlGetChoicesError: "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
   // "The file size should not exceed {0}."
   exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Bytes, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Het maximale aantal bestanden dat je kunt uploaden is {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var dutchSurveyStrings = {
   noRowsText: "Er zijn geen rijen.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rij {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Nieuwe toevoegen",
@@ -161,7 +167,7 @@ export var dutchSurveyStrings = {
   saveAgainButton: "Probeer opnieuw",
   // "min"
   timerMin: "minimum",
-  // "sec"
+  // [Auto-translated] "sec"
   timerSec: "sec",
   // "You have spent {0} on this page and {1} in total."
   timerSpentAll: "U heeft {0} gespendeerd op deze pagina en {1} in totaal.",

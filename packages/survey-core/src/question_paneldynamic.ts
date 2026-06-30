@@ -73,6 +73,9 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   }
   private get indexVar() { return settings.expressionVariables.panelIndex.toLocaleLowerCase(); }
   private get visIndexVar() { return settings.expressionVariables.visiblePanelIndex.toLocaleLowerCase(); }
+  protected getItemVariableNames(): Array<string> {
+    return [settings.expressionVariables.panelIndex, settings.expressionVariables.visiblePanelIndex];
+  }
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
@@ -388,6 +391,12 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "templateElements" && super.isPropertyStoredInHash(name);
   }
+  protected mergeLocalizationWithInnerObjects(src: Base, locales?: Array<string>): void {
+    const srcTemplate = (<QuestionPanelDynamicModel><unknown>src).template;
+    if (srcTemplate) {
+      (<any>this.template).mergeLocalizationObj(srcTemplate, locales);
+    }
+  }
   /**
    * A template for panel titles.
    *
@@ -414,6 +423,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
   }
   public getLocalizableString(name: string): LocalizableString {
     if (name === "templateTitle") return this.template.locTitle;
+    if (name === "templateDescription") return this.template.locDescription;
     return super.getLocalizableString(name);
   }
   /**
@@ -952,6 +962,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
     const isAddingOnePanel = val - this.panelCount === 1;
+    const firstAddedIndex = this.panelCount;
     for (let i = this.panelCount; i < val; i++) {
       const panel = this.createNewPanel();
       this.panelsCore.push(panel);
@@ -976,8 +987,17 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.updateFooterActions();
+    this.updateNewPanelsVisibleIndex(firstAddedIndex);
     this.fireCallback(this.panelCountChangedCallback);
     this.enablePanelsAnimations();
+  }
+  private updateNewPanelsVisibleIndex(firstAddedIndex: number): void {
+    if (!this.survey) return;
+    const sQN = this.getShowQuestionNumbers();
+    if (sQN !== "onpanel" && sQN !== "recursive") return;
+    for (let i = firstAddedIndex; i < this.panelsCore.length; i++) {
+      this.panelsCore[i].setVisibleIndex(0);
+    }
   }
   /**
    * Returns the number of visible panels in Dynamic Panel.
@@ -1121,6 +1141,24 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * @see allowAddPanel
    */
   @property() allowRemovePanel: boolean;
+  /**
+   * Indicates whether the add panel button is enabled. When set to `false`, the button is disabled but remains visible.
+   *
+   * Default value: `true`
+   *
+   * This property is not serialized.
+   * @see allowAddPanel
+   */
+  @property({ defaultValue: true }) enableAddPanel: boolean;
+  /**
+   * Indicates whether the remove panel button is enabled. When set to `false`, the button is disabled but remains visible.
+   *
+   * Default value: `true`
+   *
+   * This property is not serialized.
+   * @see allowRemovePanel
+   */
+  @property({ defaultValue: true }) enableRemovePanel: boolean;
   /**
    * Gets or sets the location of question titles relative to their input fields.
    *
@@ -2156,6 +2194,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
         id: `remove-panel-${panel.id}`,
         component: "sv-paneldynamic-remove-btn",
         visible: <any>new ComputedUpdater(() => [this.canRenderRemovePanel(panel, "bottom")].every((val: boolean) => val === true)),
+        enabled: <any>new ComputedUpdater(() => this.enableRemovePanel !== false),
         data: { question: this, panel: panel }
       }));
     }
@@ -2228,10 +2267,22 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+    // Do not force-refresh nested panel questions while a child question updates panel data.
+    // It may recreate nested dynamic questions (for example, matrixdynamic) from persisted
+    // value and drop transient UI-only state, such as an added trailing empty row.
+    if (!this.isSettingPanelItemData()) {
+      for (var i = 0; i < this.panelsCore.length; i++) {
+        this.panelUpdateValueFromSurvey(this.panelsCore[i]);
+      }
     }
     this.updateIsAnswered();
+  }
+
+  private isSettingPanelItemData(): boolean {
+    for (const key in this.isSetPanelItemData) {
+      if (this.isSetPanelItemData[key] > 0) return true;
+    }
+    return false;
   }
   public onSurveyValueChanged(newValue: any): void {
     if (newValue === undefined && this.isAllPanelsEmpty()) return;
@@ -2551,6 +2602,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const addBtn = new Action({
       id: "sv-pd-add-btn",
       component: "sv-paneldynamic-add-btn",
+      enabled: <any>new ComputedUpdater(() => this.enableAddPanel !== false),
       data: { question: this }
     });
     const prevBtnIcon = new Action({
@@ -2691,6 +2743,9 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     super.onMobileChanged();
     this.updateFooterActions();
   }
+  public ensureRowsVisibility(): void {
+    this.visiblePanels.forEach(panel => panel.ensureRowsVisibility());
+  }
 }
 
 export class PanelDynamicSingleInputBehavior extends QuestionSingleInputBehavior {
@@ -2830,6 +2885,11 @@ Serializer.addClass(
       isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      onSettingValue: (obj: any, val: any): any => {
+        if (val < obj.minPanelCount) return obj.minPanelCount;
+        if (val > obj.maxPanelCount) return obj.maxPanelCount;
+        return val;
+      },
     },
     { name: "minPanelCount:number", default: 0, minValue: 0 },
     {

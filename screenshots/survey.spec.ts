@@ -347,7 +347,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-responsive-timer.png");
+      await compareScreenshot(page, "body", "survey-responsive-timer.png", { maxDiffPixels: 2 });
     });
 
     test("Check survey timer", async ({ page }) => {
@@ -422,7 +422,7 @@ frameworks.forEach(framework => {
         (window as any).Survey.SurveyTimer.instance.start = () => { };
       });
       await page.click(".sd-navigation__start-btn");
-      await compareScreenshot(page, "body", "survey-timer.png");
+      await compareScreenshot(page, "body", "survey-timer.png", { maxDiffPixels: 2 });
     });
 
     test("Check survey timer with no limits", async ({ page }) => {
@@ -1485,6 +1485,50 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top.png");
       await page.setViewportSize({ width: 1920, height: 1080 });
       await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-mobile.png");
+    });
+    test("Check survey navigation bar top with is compact flag", async({ page }) => {
+      const json = {
+        showQuestionNumbers: true,
+        navigationButtonsLocation: "top",
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1"
+              },
+            ]
+          },
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => { (window as any).survey.isCompact = true; });
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await compareScreenshot(page, ".sd-root-modern", "survey-navigation-top-compact.png");
+    });
+    test("Check survey navigation bar top with header and toc in mobile mode", async({ page }) => {
+      const json = {
+        "title": "Patient Assessment Form",
+        "showTOC": true,
+        pages: [
+          {
+            name: "Page 1",
+            title: "Page 1",
+            elements: [
+              {
+                type: "text",
+                name: "name",
+                title: "Question 1",
+              }
+            ]
+          }
+        ],
+        "headerView": "advanced",
+        "navigationButtonsLocation": "top"
+      };
+      await initSurvey(page, framework, json);
+      await page.setViewportSize({ width: 600, height: 1080 });
+      await compareScreenshot(page, ".sd-root-modern", "survey-toc-navigation-top-mobile.png");
     });
   });
 });

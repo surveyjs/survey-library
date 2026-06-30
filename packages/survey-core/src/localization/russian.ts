@@ -69,8 +69,12 @@ export var russianSurveyStrings = {
   stepError: "Пожалуйста, введите значение, которое соответствует размеру шага {0}.",
   // "The value should not be greater than {0}"
   maxError: "Значение не должно превышать {0}.",
+  // [Auto-translated] "Invalid input"
+  invalidInputError: "Некорректный вход",
   // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Номера не допускаются.",
+  // [Auto-translated] "Please complete the value to match the required format."
+  incompletePatternError: "Пожалуйста, заполните значение, чтобы соответствовать необходимому формату.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Пожалуйста введите больше {0} символов.",
   // "Please enter no more than {0} character(s)."
@@ -99,6 +103,8 @@ export var russianSurveyStrings = {
   urlGetChoicesError: "Ответ на запрос пришел пустой или свойство 'path' указано неверно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Размер файла не должен превышать {0}.",
+  // [Auto-translated] "Bytes, KB, MB, GB, TB"
+  fileSizeUnits: "Байты, KB, MB, GB, TB",
   // [Auto-translated] "The maximum number of files you can upload is {0}."
   exceedMaxFiles: "Максимальное количество файлов, которые вы можете загрузить, — {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
@@ -129,7 +135,7 @@ export var russianSurveyStrings = {
   noRowsText: "Рядов нет.",
   // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Строка {rowIndex}",
-  // "{rowTitle}"
+  // [Auto-translated] "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Добавить новую",

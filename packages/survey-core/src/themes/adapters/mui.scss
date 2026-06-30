@@ -182,6 +182,13 @@
   --sjs2-typography-line-height-large: 1.5;
   --sjs2-typography-line-height-component-question-title: 1.25;
   --sjs2-typography-font-weight-component-question-title: 400;
+
+  --sjs2-typography-font-size-component-page-title: 1.25rem;
+  --sjs2-typography-font-weight-component-page-title: 500;
+
+  --sjs2-typography-font-size-component-header-title: 1.5rem;
+  --sjs2-typography-font-size-component-header-description: 1.25rem;
+  --sjs2-typography-font-weight-component-header-description: 500;
 }
 
 
@@ -212,7 +219,6 @@
   &:focus-within, &.sd-question--answered {
     .sd-question__header {
       transform: translate(8px, -8px) scale(0.75);
-      --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
     }
     input, textarea {
       transition: all 0.2s ease-in-out;
@@ -222,6 +228,11 @@
     }
   }
   
+  &:focus-within {
+    .sd-question__header {
+      --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
+    }
+  }
   
   &:not(:focus-within, .sd-question--answered) {
     .sd-question__header {
@@ -474,7 +485,11 @@
   }
 }
 
-
+.sd-body.sd-body--responsive,
+.sd-progress-buttons,
+.sv-header__content {
+  padding: 16px;
+}
 
 .sd-panel__title {
   --sjs2-color-component-question-default-title: var(--mui-palette-text-primary);

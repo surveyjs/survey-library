@@ -130,22 +130,23 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       const progressText = page.locator(".sd-progress-buttons__page-title");
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText("Page 1 of 3");
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText("Page 2 of 3");
+      // autoFocusFirstQuestion fires in a 1 ms setTimeout inside afterRenderPage;
+      // wait for it to actually focus the first radio before pressing arrow keys.
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(progressText).toHaveText("Page 3 of 3");
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

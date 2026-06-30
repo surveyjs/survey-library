@@ -1,82 +1,66 @@
 <template>
   <div
-    :class="question.cssClasses.root"
+    :class="question.cssClasses.rootSwitch"
     ref="root"
-    v-on:keydown="question.onKeyDownCore($event)"
+    role="checkbox"
+    :aria-checked="question.booleanValue || false"
+    :aria-required="question.a11y_input_ariaRequired"
+    :aria-label="question.a11y_input_ariaLabel"
+    :aria-labelledby="question.a11y_input_ariaLabelledBy"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-errormessage="question.a11y_input_ariaErrormessage"
+    @click="renderedValue = !renderedValue"
   >
-    <label :class="question.getItemCss()">
-      <input
-        type="checkbox"
-        :name="question.name"
-        :value="question.booleanValue ?? ''"
-        v-model="question.booleanValue"
-        :class="question.cssClasses.control"
-        :id="question.inputId"
-        :indeterminate.prop="question.isIndeterminate"
-        :disabled="question.isDisabledAttr"
-        :readonly="question.isReadOnlyAttr"
-        :role="question.a11y_input_ariaRole"
-        :aria-required="question.a11y_input_ariaRequired"
-        :aria-label="question.a11y_input_ariaLabel"
-        :aria-labelledby="question.a11y_input_ariaLabelledBy"
-        :aria-describedby="question.a11y_input_ariaDescribedBy"
-        :aria-invalid="question.a11y_input_ariaInvalid"
-        :aria-errormessage="question.a11y_input_ariaErrormessage"
-      />
-      <div
-        :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, question.swapOrder)"
-      >
-        <span :class="question.getLabelCss(question.swapOrder)"
-          ><SvComponent
-            :is="'survey-string'"
-            :locString="question.locLabelLeft"
-          />
-        </span>
+    <div
+      :class="question.cssClasses.switchButton + (question.booleanValue ? ' ' + question.cssClasses.switchButtonChecked : '')"
+      tabindex="0"
+      v-key2click="{ processEsc: false }"
+    >
+      <div :class="question.cssClasses.switchThumb">
+        <div
+          :class="question.cssClasses.switchThumbCircle + ' ' + question.cssClasses.switchThumbLeft"
+        ></div>
       </div>
-      <div
-        :class="question.cssClasses.switch"
-        v-on:click="onSwitchClick($event)"
-      >
-        <span :class="question.cssClasses.slider">
-          <span
-            v-if="question.cssClasses.sliderText && question.isDeterminated"
-            :class="question.cssClasses.sliderText"
-          >
-            <SvComponent
-              :is="'survey-string'"
-              :locString="question.getCheckedLabel()"
-            ></SvComponent>
-          </span>
-        </span>
+      <div :class="question.cssClasses.switchThumb">
+        <div
+          :class="question.cssClasses.switchThumbCircle + ' ' + question.cssClasses.switchThumbRight"
+        ></div>
       </div>
-      <div
-        :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, !question.swapOrder)"
-      >
-        <span :class="question.getLabelCss(!question.swapOrder)"
-          ><SvComponent
-            :is="'survey-string'"
-            :locString="question.locLabelRight"
-        /></span>
+    </div>
+    <div :class="question.cssClasses.switchCaption">
+      <div :class="question.cssClasses.switchTitle" :id="question.labelRenderedAriaID">
+        <SvComponent :is="'survey-string'" :locString="question.locTitle" />
       </div>
-    </label>
+    </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
+import { RendererFactory } from "survey-core";
+import { computed, ref } from "vue";
 import { useQuestion } from "./base";
-import { ref } from "vue";
+import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import type { IBooleanProps } from "./boolean";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<IBooleanProps>();
 const root = ref(null);
 useQuestion(props, root);
-const onLabelClick = (event: any, value: boolean) => {
-  props.question.onLabelClick(event, value);
-};
-const onSwitchClick = (event: any) => {
-  props.question.onSwitchClickModel(event);
-};
+
+const renderedValue = computed({
+  get() {
+    return props.question.booleanValue;
+  },
+  set(val) {
+    // eslint-disable-next-line vue/no-mutating-props
+    props.question.booleanValue = val;
+  },
+});
+</script>
+
+<script lang="ts">
+RendererFactory.Instance.registerRenderer(
+  "boolean",
+  "switch",
+  "sv-boolean-switch"
+);
 </script>

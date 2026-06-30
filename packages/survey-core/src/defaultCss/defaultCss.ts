@@ -402,6 +402,18 @@ export var defaultCss = {
     checkboxControlLabel: "sd-item__control-label",
     checkboxIsLabelRendered: "sd-checkbox--label-rendered",
     svgIconCheckedId: "#icon-check-16x16",
+    //end checkbox
+    //switch
+    rootSwitch: "sd-boolean-switch",
+    switchButton: "sd-boolean-switch__button",
+    switchButtonChecked: "sd-boolean-switch__button--checked",
+    switchThumb: "sd-boolean-switch__thumb",
+    switchThumbCircle: "sd-boolean-switch__thumb-circle",
+    switchThumbLeft: "sd-boolean-switch__thumb--left",
+    switchThumbRight: "sd-boolean-switch__thumb--right",
+    switchCaption: "sd-boolean-switch__caption",
+    switchTitle: "sd-boolean-switch__title",
+    //end switch
   },
   text: {
     root: "sd-formbox sd-text",

@@ -1299,6 +1299,72 @@ describe("Survey", () => {
     survey.data = { q1: "", q2: "abc" };
     expect(question.errors.length, "No error on setting value to data").toBe(0);
   });
+  test("Required question: error shown on complete, then setting survey.data clears it as a user value change does ,bug#11513", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", isRequired: true }]
+    };
+    const survey = new SurveyModel(json);
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(question.errors.length, "No error initially").toBe(0);
+    expect(survey.tryComplete(), "Survey is not completed because of the error").toBeFalsy();
+    expect(question.errors.length, "The required error is shown on complete").toBe(1);
+    survey.data = { q1: "abc" };
+    expect(question.value, "The value is set into the question").toBe("abc");
+    expect(question.errors.length, "The error is cleared on setting the correct survey.data").toBe(0);
+  });
+  test("Required question: error shown on complete, clears the same way via survey.data and via question.value ,bug#11513", () => {
+    const createSurvey = (): SurveyModel => {
+      return new SurveyModel({ elements: [{ type: "text", name: "q1", isRequired: true }] });
+    };
+    //Baseline: a user modifies the question value directly
+    const surveyByValue = createSurvey();
+    const questionByValue = <Question>surveyByValue.getQuestionByName("q1");
+    expect(surveyByValue.tryComplete(), "By value: not completed").toBeFalsy();
+    expect(questionByValue.errors.length, "By value: error is shown on complete").toBe(1);
+    questionByValue.value = "abc";
+    expect(questionByValue.errors.length, "By value: error is cleared on value change").toBe(0);
+    //The same process should run when the value comes from survey.data
+    const surveyByData = createSurvey();
+    const questionByData = <Question>surveyByData.getQuestionByName("q1");
+    expect(surveyByData.tryComplete(), "By data: not completed").toBeFalsy();
+    expect(questionByData.errors.length, "By data: error is shown on complete").toBe(1);
+    surveyByData.data = { q1: "abc" };
+    expect(questionByData.errors.length, "By data: error is cleared on setting survey.data").toBe(0);
+  });
+  test("Required question with email validator: required error first, then email error, then cleared via survey.data ,bug#11513", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", isRequired: true, validators: [{ type: "email" }] }]
+    };
+    const survey = new SurveyModel(json);
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(survey.tryComplete(), "Not completed, the question is empty").toBeFalsy();
+    expect(question.errors.length, "The required error is shown first").toBe(1);
+    expect(question.errors[0].getErrorType(), "It is the required error").toBe("required");
+    survey.data = { q1: "it is not e-mail" };
+    expect(question.errors.length, "There is still one error").toBe(1);
+    expect(question.errors[0].getErrorType(), "Now it is the email (custom) error, not the required one").toBe("custom");
+    survey.data = { q1: "a@a.co" };
+    expect(question.errors.length, "The error finally disappeared on setting the correct survey.data").toBe(0);
+  });
+  test("Two required questions: complete shows two errors, setting survey.data clears them one by one ,bug#11513", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2", isRequired: true }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const q1 = <Question>survey.getQuestionByName("q1");
+    const q2 = <Question>survey.getQuestionByName("q2");
+    expect(survey.tryComplete(), "Not completed, both questions are empty").toBeFalsy();
+    expect(q1.errors.length, "q1 has the required error").toBe(1);
+    expect(q2.errors.length, "q2 has the required error").toBe(1);
+    survey.data = { q1: "abc" };
+    expect(q1.errors.length, "q1 error is cleared on setting survey.data").toBe(0);
+    expect(q2.errors.length, "q2 still has the error").toBe(1);
+    survey.data = { q1: "abc", q2: "def" };
+    expect(q2.errors.length, "q2 error is cleared on setting survey.data").toBe(0);
+  });
   test("survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612", () => {
     var json = {
       checkErrorsMode: "onValueChanged",
@@ -6741,6 +6807,135 @@ describe("Survey", () => {
     q1.value = [2, 3];
     expect(survey.getCorrectedAnswerCount(), "The order is correct, #4").toBe(1);
     expect(counter, "counter #3").toBe(3);
+  });
+  test("Quiz, ignore non-existent choices in correctAnswer for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", "c"],
+          correctAnswer: "z" //"z" choice doesn't exist
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", "c"],
+          correctAnswer: ["a", "b", "z"] //"z" choice doesn't exist
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.correctAnswer, "the correctAnswer is set correctly").toBe("z");
+    //radiogroup: correctAnswer references a non-existent choice, so it is ignored
+    expect(q1.quizQuestionCount, "radiogroup is not a quiz question").toBe(0);
+    q1.value = "a";
+    expect(q1.isAnswerCorrect(), "radiogroup answer is not marked incorrect").toBe(true);
+    expect(q2.correctAnswer, "the correctAnswer is set correctly").toEqual(["a", "b", "z"]);
+    //checkbox: only existing choices in correctAnswer are taken into account
+    expect(q2.quizQuestionCount, "checkbox is a quiz question").toBe(1);
+    q2.value = ["a"];
+    expect(q2.isAnswerCorrect(), "checkbox, partial answer is incorrect").toBe(false);
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox, the user can answer correctly").toBe(true);
+    expect(q2.correctAnswerCount, "checkbox, correctAnswerCount").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "survey.getCorrectAnswerCount").toBe(1);
+    expect(survey.getInCorrectAnswerCount(), "survey.getInCorrectAnswerCount").toBe(0);
+  });
+  test("Quiz, ignore invisible choices in correctAnswer for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", { value: "c", visibleIf: "false" }],
+          correctAnswer: "c" //"c" choice is invisible
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", { value: "c", visibleIf: "false" }],
+          correctAnswer: ["a", "b", "c"] //"c" choice is invisible
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.visibleChoices.map(ch => ch.value), "radiogroup visible choices").toEqual(["a", "b"]);
+    //radiogroup: correctAnswer references an invisible choice, so it is ignored
+    expect(q1.quizQuestionCount, "radiogroup is not a quiz question").toBe(0);
+    q1.value = "a";
+    expect(q1.isAnswerCorrect(), "radiogroup answer is not marked incorrect").toBe(true);
+    //checkbox: invisible choice value in correctAnswer is ignored
+    expect(q2.quizQuestionCount, "checkbox is a quiz question").toBe(1);
+    q2.value = ["a"];
+    expect(q2.isAnswerCorrect(), "checkbox, partial answer is incorrect").toBe(false);
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox, the user can answer correctly").toBe(true);
+    expect(q2.correctAnswerCount, "checkbox, correctAnswerCount").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "survey.getCorrectAnswerCount").toBe(1);
+    expect(survey.getInCorrectAnswerCount(), "survey.getInCorrectAnswerCount").toBe(0);
+  });
+  test("Quiz, clear non-existent correctAnswer values on changing choices for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", "c"],
+          correctAnswer: "c"
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", "c"],
+          correctAnswer: ["a", "b", "c"]
+        },
+        {
+          type: "checkbox",
+          name: "q3",
+          choices: ["a", "b"],
+          correctAnswer: ["a", "b"]
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    //correctAnswer is not modified on loading
+    expect(q1.correctAnswer, "radiogroup correctAnswer on load").toBe("c");
+    expect(q2.correctAnswer, "checkbox correctAnswer on load").toEqual(["a", "b", "c"]);
+    expect(q3.correctAnswer, "checkbox correctAnswer on load #2").toEqual(["a", "b"]);
+    //change choices so that some correctAnswer values no longer exist
+    q1.choices = ["a", "b"];
+    q2.choices = ["a", "b"];
+    q3.choices = ["x", "y"];
+    //radiogroup: the correctAnswer value no longer exists, so it is cleared
+    expect(q1.correctAnswer, "radiogroup correctAnswer is cleared").toBe(undefined);
+    //checkbox: non-existent values are removed from the correctAnswer array
+    expect(q2.correctAnswer, "checkbox keeps existing correctAnswer values").toEqual(["a", "b"]);
+    //checkbox: correctAnswer becomes an empty array, so it is set to undefined
+    expect(q3.correctAnswer, "checkbox correctAnswer becomes undefined").toBe(undefined);
+    //a user can still answer the question with the updated correctAnswer
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox is answered correctly").toBe(true);
+  });
+  test("Quiz, do not clear correctAnswer for invisible choices on changing choices, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", { value: "c", visibleIf: "{val1} = 'x'" }],
+          correctAnswer: "c"
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    expect(q1.visibleChoices.map(ch => ch.value), "the 'c' choice is invisible").toEqual(["a", "b"]);
+    //the 'c' choice still exists, it is only invisible, so correctAnswer is preserved
+    expect(q1.correctAnswer, "radiogroup correctAnswer is preserved for invisible choice").toBe("c");
   });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
@@ -14287,6 +14482,45 @@ describe("Survey", () => {
     expect(removedCounter, "onQuestionRemoved #1").toBe(0);
     q.delete();
     expect(removedCounter, "onQuestionRemoved #2").toBe(1);
+  });
+  test("onQuestionAdded fires before the question is placed into a row, so it can be removed safely, Bug#11475", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    const page = survey.addNewPage("page1");
+    page.addNewQuestion("text", "q1");
+    expect(page.rows).toHaveLength(1);
+
+    // A renderer reacts to a question being placed into a row. If onQuestionAdded fires only
+    // after the row is built, a handler that deletes the question leaves the renderer with a
+    // question detached from its page ("Cannot read properties of undefined (reading 'page')").
+    let inRowWhenAdded: boolean | undefined = undefined;
+    survey.onQuestionAdded.add((_, options) => {
+      const q = options.question;
+      inRowWhenAdded = page.rows.some(row => row.elements.indexOf(q) > -1);
+      if (q.getType() === "text") {
+        q.delete();
+      }
+    });
+    const q2 = page.addNewQuestion("text", "q2");
+
+    expect(inRowWhenAdded, "onQuestionAdded must fire before the question is rendered into a row").toBe(false);
+    expect(page.questions).toHaveLength(1);
+    expect(page.rows).toHaveLength(1);
+    expect(page.rows[0].elements.indexOf(q2)).toBe(-1);
+  });
+  test("cssClasses returns a valid object for a disposed element, Bug#11475", () => {
+    const survey = new SurveyModel({ pages: [{ name: "p1", elements: [{ type: "text", name: "q1" }] }] });
+    survey.setDesignMode(true);
+    // A renderer may render an element right after it was removed and disposed (mid-update).
+    // cssClasses must stay a valid object so rendering does not crash reading cssClasses.page.
+    const page = survey.addNewPage("page2");
+    page.dispose();
+    expect(page.cssClasses).toBeTruthy();
+    expect(page.cssClasses.page).toBeTruthy();
+
+    const q1 = survey.getQuestionByName("q1");
+    q1.dispose();
+    expect(q1.cssClasses).toBeTruthy();
   });
   test("Set values into radiogroup and checkbox questions before creating them", () => {
     const survey = new SurveyModel();

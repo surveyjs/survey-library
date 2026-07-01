@@ -20,7 +20,8 @@ import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./uti
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base } from "./base";
+import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 
 const OTHER_ITEM_VALUE = "other";
@@ -176,6 +177,10 @@ export class ChoiceItem extends ItemValue {
   public get panel(): PanelModel {
     if (!this.panelValue) {
       this.panelValue = this.createPanel();
+    } else if (!this.panelValue.survey) {
+      // The panel may have been created while the owner question was detached (e.g. during
+      // fromJSON on question type conversion). Re-link it once the owner has a survey.
+      this.setPanelSurvey(this.panelValue);
     }
     return this.panelValue;
   }
@@ -259,6 +264,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (visibleChoicesChangedProps.indexOf(name) > -1 && (name !== "choices" || !this.filterItems())) {
       this.onVisibleChoicesChanged();
     }
+    if (visibleChoicesChangedProps.indexOf(name) > -1) {
+      this.updateCorrectAnswerOnChoicesChanged();
+    }
     if (name === "hideIfChoicesEmpty") {
       this.onVisibleChanged();
     }
@@ -271,6 +279,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public getType(): string {
     return "selectbase";
+  }
+  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult | undefined {
+    const res = super.validateExpression(name, expression, options);
+    // {item} is a runtime variable provided per choice for these properties, so it is not an unknown variable.
+    if (!!res && (name === "choicesVisibleIf" || name === "choicesEnableIf")) {
+      res.errors = res.errors.filter(err => err.errorType !== ExpressionErrorType.UnknownVariable ||
+        (err.variableName || "").toLowerCase() !== "item");
+      if (res.errors.length === 0) return undefined;
+    }
+    return res;
   }
   protected getAllChildren(): Base[] {
     return [
@@ -764,6 +782,39 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       return val.length > 0 ? val[0] : undefined;
     }
     return val;
+  }
+  protected getCorrectAnswerValue(): any {
+    const val = super.getCorrectAnswerValue();
+    if (this.isValueEmpty(val) || this.isLoadingFromJson || this.visibleChoices.length === 0) return val;
+    if (Array.isArray(val)) {
+      const res = val.filter((item) => this.isCorrectAnswerValueExists(item));
+      return res.length > 0 ? res : undefined;
+    }
+    return this.isCorrectAnswerValueExists(val) ? val : undefined;
+  }
+  protected isCorrectAnswerValueExists(val: any): boolean {
+    return !!this.getItemByValue(val, this.visibleChoices);
+  }
+  private updateCorrectAnswerOnChoicesChanged(): void {
+    if (this.isValueEmpty(this.correctAnswer) || this.activeChoices.length === 0 ||
+      !this.canClearIncorrectValues()) return;
+    const newValue = this.getCorrectAnswerOnChoicesChanged(this.correctAnswer);
+    if (Helpers.isTwoValueEquals(this.correctAnswer, newValue)) return;
+    if (this.isValueEmpty(newValue)) {
+      this.correctAnswer = undefined;
+      //an array-valued property keeps an empty array on resetting, so remove it explicitly
+      if (Array.isArray(this.getPropertyValue("correctAnswer"))) {
+        this.clearPropertyValue("correctAnswer");
+      }
+    } else {
+      this.correctAnswer = newValue;
+    }
+  }
+  protected getCorrectAnswerOnChoicesChanged(val: any): any {
+    return this.correctAnswerValueExistsInChoices(val) ? val : undefined;
+  }
+  protected correctAnswerValueExistsInChoices(val: any): boolean {
+    return !this.hasUnknownValueItem(val, true, false);
   }
   protected filterItems(): boolean {
     if (

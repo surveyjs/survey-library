@@ -42,9 +42,9 @@
 }
 
 .sd-question--title-bottom > .sd-question__container {
-  &>.sd-question__header-and-content-container {
-    row-gap: calc(0.375 * var(--sd-base-vertical-padding));
-  }
+}
+.sd-question--error-bottom:not(.sd-question--left) > .sd-question__container {
+  row-gap: var(--sjs2-spacing-x100);
 }
 
 // TODO: Remove as not working

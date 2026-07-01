@@ -89,7 +89,8 @@
   // padding-bottom: var(--sjs2-layout-component-question-header-padding-bottom, calc(0.5 * var(--sd-base-vertical-padding)));
   // padding-left: var(--sjs2-layout-component-question-header-padding-left, calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px)));
   // padding-right: var(--sjs2-layout-component-question-header-padding-right, calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px)));
-  row-gap: var(--sjs2-layout-component-question-header-gap-vertical, var(--sjs2-spacing-x050));
+  row-gap: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
+  // row-gap: var(--sjs2-layout-component-question-header-gap-vertical, var(--sjs2-spacing-x050));
   column-gap: var(--sjs2-layout-component-question-header-gap-horizontal, var(--sjs2-spacing-x150));
 }
 

@@ -10,6 +10,7 @@
   flex-direction: column;
   row-gap: calc(0.5 * var(--sd-base-vertical-padding));
   column-gap: var(--sjs2-spacing-x300);
+  height: 100%;
 }
 
 .sd-element--with-frame > .sd-question__container {
@@ -18,6 +19,7 @@
 
 .sd-question__header-and-content-container {
   display: flex;
+  flex: 1;
   flex-direction: column;
   padding-top: var(--sd-base-vertical-padding);
   padding-left: var(--sjs2-layout-component-question-content-padding-left, calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px)));
@@ -27,6 +29,14 @@
   column-gap: var(--sjs2-spacing-x300);
 }
 
+.sd-question--title-bottom > .sd-question__container {
+  &>.sd-question__header-and-content-container {
+    padding-top: var(--sd-base-padding);
+    row-gap: calc(0.375 * var(--sd-base-vertical-padding));
+  }
+}
+
+// TODO: Remove as not working
 .sd-question--left {
   .sd-question__header-and-content-container {
     flex-direction: row;
@@ -192,14 +202,20 @@
 //   margin-top: calc(0.25 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x050));
 // }
 
-.sd-element--with-frame>div>.sd-element__erbox {
-    position: sticky;
-    left: 0;
-}
+// .sd-element--with-frame>div>.sd-element__erbox {
+//     position: sticky;
+//     left: 0;
+// }
 
 .sd-element--with-frame>div>.sd-element__erbox--above-element {
   // margin-bottom: var(--sd-base-padding);
   border-radius: var(--sjs2-radius-component-panel) var(--sjs2-radius-component-panel) 0 0;
+}
+// TODO: Remove after new design system is implemented
+.sd-element--with-frame:not(.sd-element--complex)>div>.sd-element__erbox--above-element {
+  &~.sd-question__header-and-content-container {
+    padding-top: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
+  }
 }
 
 .sd-element--with-frame>div>.sd-question__erbox--below-question {

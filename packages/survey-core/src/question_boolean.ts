@@ -333,11 +333,43 @@ export class QuestionBooleanModel extends Question {
     return className;
   }
 
+  /**
+   * Specifies the visual representation of the Yes/No question.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Displays a toggle switch on wide screens and radio buttons on narrow screens.
+   * - `"radio"` - Displays Yes/No answers as radio buttons.
+   * - `"checkbox"` - Displays a single checkbox.
+   * - `"switch"` - Displays a switch control with the question title.
+   */
+  @property() displayMode: "default" | "radio" | "checkbox" | "switch";
+  private updateRenderAsBasedOnDisplayMode(): void {
+    this.renderAs = this.displayMode;
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    const legacyRenderAs = this.renderAs;
+    if (this.displayMode === "default" && (legacyRenderAs === "radio" || legacyRenderAs === "checkbox" || legacyRenderAs === "switch")) {
+      this.displayMode = legacyRenderAs;
+    } else {
+      this.updateRenderAsBasedOnDisplayMode();
+    }
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "displayMode") {
+      this.updateRenderAsBasedOnDisplayMode();
+    }
+  }
   protected supportResponsiveness(): boolean {
     return true;
   }
   protected getCompactRenderAs(): string {
-    return "radio";
+    return this.displayMode === "default" ? "radio" : this.displayMode;
+  }
+  protected getDesktopRenderAs(): string {
+    return this.displayMode;
   }
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.renderAs !== "checkbox");
@@ -371,7 +403,12 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "swapOrder:boolean" },
-    { name: "renderAs", default: "default", visible: false },
+    {
+      name: "displayMode",
+      default: "default",
+      choices: ["default", "radio", "checkbox", "switch"]
+    },
+    { name: "renderAs", default: "default", isSerializable: false, visible: false },
     { name: "useTitleAsLabel", default: false, visible: false },
   ],
   function () {

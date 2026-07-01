@@ -30,14 +30,14 @@
 }
 
 // TODO: Remove after new design system is implemented
-.sd-element--with-frame.sd-question--title-top:not(.sd-element--complex) > .sd-question__container {
+.sd-element--with-frame.sd-question--title-top > .sd-question__container {
   &>.sd-question__header-and-content-container {
     padding-top: var(--sd-base-vertical-padding);
   }
-  &>.sd-element__erbox--above-element {
-    &~.sd-question__header-and-content-container {
-      padding-top: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
-    }
+}
+.sd-element--with-frame.sd-question--title-top:not(.sd-element--complex)>div>.sd-element__erbox--above-element {
+  &~.sd-question__header-and-content-container {
+    padding-top: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
   }
 }
 

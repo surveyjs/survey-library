@@ -30,7 +30,7 @@
 }
 
 // TODO: Remove after new design system is implemented
-.sd-element--with-frame.sd-question--title-top:not(.sd-question--paneldynamic) > .sd-question__container {
+.sd-element--with-frame.sd-question--title-top:not(.sd-element--collapsed):not(.sd-question--paneldynamic) > .sd-question__container {
   &>.sd-question__header-and-content-container {
     padding-top: var(--sd-base-vertical-padding);
   }

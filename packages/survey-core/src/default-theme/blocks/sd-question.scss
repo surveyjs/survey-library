@@ -47,7 +47,7 @@
   }
 }
 // TODO: Remove after new design system is implemented
-.sd-question--error-bottom:not(.sd-question--left) > .sd-question__container {
+.sd-element--nested.sd-question--error-bottom:not(.sd-question--left) > .sd-question__container {
   row-gap: var(--sjs2-spacing-x100);
 }
 

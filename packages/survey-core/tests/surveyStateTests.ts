@@ -13,11 +13,11 @@ describe("SurveyStateTest", () => {
 
     const quesiton = page.addNewQuestion("text", "question1");
     expect(quesiton.uiState, "quesiton state is undefined").toBeUndefined();
-    expect(survey.uiState, "only the rendered page is shown").toEqual({ pages: { page1: { shown: true } } });
+    expect(survey.uiState, "there is no state #2").toEqual({});
 
     quesiton.collapse();
     expect(quesiton.uiState, "quesiton state is no undefined").toEqual({ collapsed: true });
-    expect(survey.uiState, "survey state is no undefined").toEqual({ pages: { page1: { shown: true } }, questions: { question1: { collapsed: true } } });
+    expect(survey.uiState, "survey state is no undefined").toEqual({ questions: { question1: { collapsed: true } } });
 
     survey.uiState = { questions: { question1: { collapsed: false } } };
     expect(quesiton.isExpanded, "question is expanded").toBe(true);
@@ -48,12 +48,12 @@ describe("SurveyStateTest", () => {
     };
 
     let survey = new SurveyModel(config);
-    expect(survey.uiState, "only the rendered first page is shown").toEqual({ pages: { page1: { shown: true } } });
+    expect(survey.uiState, "there is no state").toEqual({});
     survey.whenQuestionFocusIn(survey.getQuestionByName("q3"));
-    expect(survey.uiState, "first page shown + last active question").toEqual({ pages: { page1: { shown: true } }, "activeElementName": "q3" });
+    expect(survey.uiState, "there is no state").toEqual({ "activeElementName": "q3" });
 
     survey = new SurveyModel(config);
-    expect(survey.uiState, "only the rendered first page is shown #2").toEqual({ pages: { page1: { shown: true } } });
+    expect(survey.uiState, "there is no state #2").toEqual({});
     expect(survey.currentPageNo, "survey on first page").toBe(0);
     survey.uiState = { "activeElementName": "q5" };
     expect(survey.currentPageNo, "survey on last page").toBe(2);

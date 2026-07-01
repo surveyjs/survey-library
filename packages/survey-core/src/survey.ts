@@ -1217,9 +1217,6 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
   }
-  pageShown(page: IPage): void {
-    throw new Error("Method not implemented.");
-  }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {

@@ -15,7 +15,7 @@ export interface IScrollElementToTopOptions {
 export interface IElementUIState {
   collapsed?: boolean;
   activePanelIndex?: number; // For Dynamic panel only, current Tab index
-  passed?: boolean; // For Page only, indicates that the respondent has already passed the page (progress state)
+  shown?: boolean; // For Page only, indicates that the respondent has already seen the page (progress state)
 }
 export interface ISurveyUIState {
   pages?: { [key:string]: IElementUIState };

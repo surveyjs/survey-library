@@ -3186,12 +3186,7 @@ export class SurveyModel extends SurveyElementCore
     setElementsStates(state["pages"], this.getPageByName.bind(this));
     setElementsStates(state["panels"], this.getPanelByName.bind(this));
     setElementsStates(state["questions"], this.getQuestionByName.bind(this));
-    if (state.currentPageName) {
-      const page = this.getPageByName(state.currentPageName);
-      if (page && this.currentPage !== page) {
-        this.currentPage = page;
-      }
-    }
+    this.restoreCurrentPageFromUIState(state);
     if (state.activeElementName) {
       // If we focused dynamic pannel?
       this.getQuestionByName(state.activeElementName)?.focus();
@@ -5750,10 +5745,10 @@ export class SurveyModel extends SurveyElementCore
     this.onElementContentVisibilityChanged.fire(this, { element });
     this.doUIStateChanged("collapsed", element);
   }
-  pagePassed(page: IPage): void {
-    this.doUIStateChanged("passed", page);
+  pageShown(page: IPage): void {
+    this.doUIStateChanged("shown", page);
   }
-  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "passed", element: ISurveyElement): void {
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex" | "shown", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
     this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }

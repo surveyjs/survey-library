@@ -711,7 +711,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get cssClasses(): any {
-    if (!this.survey) return this.calcCssClasses(this.css);
+    if (!this.survey || this.isDisposed) return this.calcCssClasses(this.css);
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {

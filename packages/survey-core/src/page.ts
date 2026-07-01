@@ -302,23 +302,29 @@ export class PageModel extends PanelModel implements IPage {
   }
   protected getUIState(): IElementUIState {
     let result = super.getUIState();
-    if (this.wasShown) {
+    if (this.passed) {
       result = result || {};
-      result.shown = true;
+      result.passed = true;
     }
     return result;
   }
   protected setUIState(state: IElementUIState): void {
     super.setUIState(state);
-    if (state.shown) {
-      this.setWasShown(true);
+    if (state.passed) {
+      this.passed = true;
+    }
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "passed" && newValue && !!this.survey) {
+      this.lifecycleCallbacks.pagePassed(this);
     }
   }
   protected onFirstRenderingCore(): void {
     super.onFirstRenderingCore();
     if (this.isDesignMode) return;
     if (this.survey) {
-      this.lifecycleCallbacks.pageShown(this);
+      this.lifecycleCallbacks.pagePassed(this);
     }
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {

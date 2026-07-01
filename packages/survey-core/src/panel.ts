@@ -1488,6 +1488,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private updateRowsOnElementAdded(element: IElement): void {
     if (!this.wasRendered && this.rows.length === 0 && this.elements.length > 1) return;
+    if (!!this.findRowByElement(element)) return;
     const index = this.elements.indexOf(element);
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
@@ -1542,15 +1543,20 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     element.parent = this;
     this.markQuestionListDirty();
-    if (this.canBuildRows()) {
-      this.updateRowsOnElementAdded(element);
-    }
     if (fireNotification) {
       if (element.isPanel) {
         survey.panelAdded(<PanelModel>element, index, this, this.root);
       } else {
         survey.questionAdded(<Question>element, index, this, this.root);
       }
+    }
+    // The add notification above may remove the element synchronously (for example,
+    // an onQuestionAdded handler calls element.delete()). Do not build a row for an
+    // element that no longer belongs to this panel, otherwise the renderer is notified
+    // about an element that is detached from its page (Bug#11475).
+    if (element.parent !== this) return;
+    if (this.canBuildRows()) {
+      this.updateRowsOnElementAdded(element);
     }
     if (!!this.addElementCallback)this.addElementCallback(element);
     (<Base>(<any>element)).registerPropertyChangedHandlers(

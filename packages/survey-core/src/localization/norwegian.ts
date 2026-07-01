@@ -47,10 +47,10 @@ export var norwegianSurveyStrings = {
   loadingSurvey: "Undersøkelsen laster...",
   // "Select..."
   placeholder: "Velg...",
-  // [Auto-translated] "Select..."
-  ratingOptionsCaption: "Velge...",
-  // [Auto-translated] "Select..."
-  buttongroupOptionsCaption: "Velge...",
+  // "Select..."
+  ratingOptionsCaption: "Velg...",
+  // "Select..."
+  buttongroupOptionsCaption: "Velg...",
   // "value"
   value: "verdi",
   // "Response required."
@@ -182,11 +182,11 @@ export var norwegianSurveyStrings = {
   // "You have spent {0} of {1} in total."
   timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
   // "Clear"
-  clearCaption: "Klar",
-  // [Auto-translated] "Select"
-  selectCaption: "Velge",
-  // [Auto-translated] "Sign here"
-  signaturePlaceHolder: "Logg inn her",
+  clearCaption: "Tøm",
+  // "Select"
+  selectCaption: "Velg",
+  // "Sign here"
+  signaturePlaceHolder: "Signer her",
   // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "Ingen signatur",
   // "Select File"
@@ -211,10 +211,10 @@ export var norwegianSurveyStrings = {
   confirmRemoveAllFiles: "Er du sikker på at du vil fjerne alle filene?",
   // "Question Title"
   questionTitlePatternText: "Spørsmålstittel",
-  // [Auto-translated] "Cancel"
-  modalCancelButtonText: "Annullere",
-  // [Auto-translated] "Apply"
-  modalApplyButtonText: "Bruke",
+  // "Cancel"
+  modalCancelButtonText: "Avbryt",
+  // "Apply"
+  modalApplyButtonText: "Bruk",
   // [Auto-translated] "Type to search..."
   filterStringPlaceholder: "Skriv for å søke ...",
   // [Auto-translated] "No data to display"
@@ -239,13 +239,12 @@ export var norwegianSurveyStrings = {
   selectToRankEmptyUnrankedAreaText: "Dra valg hit for å rangere dem",
   // [Auto-translated] "OK"
   ok: "OK",
-  // [Auto-translated] "Cancel"
-  cancel: "Annullere",
+  // "Cancel"
+  cancel: "Avbryt",
   // "Create \"{0}\" item..."
   createCustomItem: "Lag \"{0}\" element...",
   // [Auto-translated] "Table of contents"
   toc: "Innhold",
-  // [Auto-translated] "Progress bar"
   progressbar: "Fremdriftsindikator",
   // [Auto-translated] "Page {0}"
   progressbarPage: "Side {0}"

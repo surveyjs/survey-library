@@ -2227,13 +2227,13 @@ export class Question extends SurveyElement<Question>
     if (
       this.isVisible &&
       this.hasInput &&
-      !this.isValueEmpty(this.correctAnswer)
+      !this.isValueEmpty(this.getCorrectAnswerValue())
     )
       return this.getQuizQuestionCount();
     return 0;
   }
   public get correctAnswerCount(): number {
-    if (!this.isEmpty() && !this.isValueEmpty(this.correctAnswer))
+    if (!this.isEmpty() && !this.isValueEmpty(this.getCorrectAnswerValue()))
       return this.getCorrectAnswerCount();
     return 0;
   }
@@ -2243,8 +2243,16 @@ export class Question extends SurveyElement<Question>
   protected getCorrectAnswerCount(): number {
     return this.checkIfAnswerCorrect() ? 1 : 0;
   }
+  /**
+   * Returns the [`correctAnswer`](#correctAnswer) value used in quiz calculations. Descendant
+   * classes can override this method to exclude values that cannot be selected (for example,
+   * non-existent or invisible choices in select-based questions).
+   */
+  protected getCorrectAnswerValue(): any {
+    return this.correctAnswer;
+  }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -2807,8 +2815,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionValue(newValue);
     if (!isEqual) {
       this.resetSingleInput();
+      this.revalidateOnValueChangedFromSurvey();
     }
     this.isChangingViaDefaultValue = false;
+  }
+  private revalidateOnValueChangedFromSurvey(): void {
+    if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||
+      this.getAllErrors().length === 0) return;
+    const isOnValueChanging = this.validationCallbacks.isValidateOnValueChanging;
+    this.validate(true, false, !isOnValueChanging, undefined, isOnValueChanging);
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;

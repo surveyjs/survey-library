@@ -982,8 +982,8 @@ export class Base implements IObjectValueContext {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun, useStrictDependencies: useStrictDependencies, onReset: onReset };
   }
-  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
-    if (!expression) return;
+  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult | undefined {
+    if (!expression) return undefined;
     const prop = this.getPropertyByName(name);
     const isCondition = !!prop && prop.type == "condition";
     const runner = this.createExpressionRunner(expression);

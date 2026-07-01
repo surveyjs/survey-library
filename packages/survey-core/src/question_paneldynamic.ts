@@ -967,6 +967,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.updateBindings("panelCount", val);
     this.prepareValueForPanelCreating();
     const isAddingOnePanel = val - this.panelCount === 1;
+    const firstAddedIndex = this.panelCount;
     for (let i = this.panelCount; i < val; i++) {
       const panel = this.createNewPanel();
       this.panelsCore.push(panel);
@@ -991,8 +992,17 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.setValueBasedOnPanelCount();
     this.reRunCondition();
     this.updateFooterActions();
+    this.updateNewPanelsVisibleIndex(firstAddedIndex);
     this.fireCallback(this.panelCountChangedCallback);
     this.enablePanelsAnimations();
+  }
+  private updateNewPanelsVisibleIndex(firstAddedIndex: number): void {
+    if (!this.survey) return;
+    const sQN = this.getShowQuestionNumbers();
+    if (sQN !== "onpanel" && sQN !== "recursive") return;
+    for (let i = firstAddedIndex; i < this.panelsCore.length; i++) {
+      this.panelsCore[i].setVisibleIndex(0);
+    }
   }
   /**
    * Returns the number of visible panels in Dynamic Panel.
@@ -2859,6 +2869,11 @@ Serializer.addClass(
       isBindable: true,
       default: 0,
       choices: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      onSettingValue: (obj: any, val: any): any => {
+        if (val < obj.minPanelCount) return obj.minPanelCount;
+        if (val > obj.maxPanelCount) return obj.maxPanelCount;
+        return val;
+      },
     },
     { name: "minPanelCount:number", default: 0, minValue: 0 },
     {

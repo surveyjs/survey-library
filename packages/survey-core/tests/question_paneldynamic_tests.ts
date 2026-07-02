@@ -5621,7 +5621,7 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     setOldTheme(survey);
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-tab");
 
     panel.addPanel();
     expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");

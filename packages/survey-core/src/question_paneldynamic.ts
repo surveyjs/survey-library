@@ -2473,6 +2473,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;
     return new CssClassBuilder()
       .append(super.getCssHeader(this.cssClasses))
+      .append(this.cssClasses.root + "__header-" + this.displayMode)
       .append(this.cssClasses.headerTab, this.hasTitleOnTop && showTab)
       .toString();
   }

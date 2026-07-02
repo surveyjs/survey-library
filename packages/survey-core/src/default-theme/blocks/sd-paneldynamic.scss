@@ -77,8 +77,10 @@
     margin: 0;
     width: 100%;
 }
-.sd-paneldynamic__header-tab ~ hr {
-    display: none;
+.sd-paneldynamic__header-tab, .sd-paneldynamic__header-carousel {
+    & ~ hr {
+        display: none;
+    }
 }
 
 .sd-paneldynamic__footer {

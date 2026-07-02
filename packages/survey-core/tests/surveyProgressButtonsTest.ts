@@ -283,6 +283,39 @@ describe("ProgressButtons", () => {
     // The survey is restored on the last passed page.
     expect(survey2.currentPageNo, "currentPageNo is restored to the last passed page").toBe(2);
   });
+  test("Progress bar 'passed' style marks a page with entered values, even if not yet visited", () => {
+    const json: any = {
+      progressBarType: "pages",
+      pages: [
+        { name: "patient", title: "Patient", elements: [{ type: "text", name: "firstName" }] },
+        { name: "history", title: "History", elements: [{ type: "comment", name: "currentMedications" }] },
+        { name: "consent", title: "Consent", elements: [{ type: "boolean", name: "consentTreatment", isRequired: true }] },
+      ],
+    };
+    const survey: SurveyModel = new SurveyModel(json);
+    const progress: ProgressButtons = new ProgressButtons(survey);
+
+    // After init the current (first) page is passed, the not-yet-visited pages are not.
+    expect(progress.isListElementPassed(0), "first page is passed after init").toBe(true);
+    expect(progress.isListElementPassed(1), "history page is not passed after init").toBe(false);
+    expect(progress.isListElementPassed(2), "consent page is not passed after init").toBe(false);
+
+    // Entering a value on a not-yet-visited page marks it as passed via hasValueAnyQuestion().
+    survey.setValue("currentMedications", "Aspirin");
+    expect(progress.isListElementPassed(1), "history page becomes passed once it has a value").toBe(true);
+    expect(survey.visiblePages[1].wasShown, "but it is still not marked as visited").toBe(false);
+  });
+  test("Progress bar does not mark an unvisited page as passed just because of a default value", () => {
+    const survey: SurveyModel = new SurveyModel({
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2", defaultValue: "x" }] },
+      ],
+    });
+    const progress: ProgressButtons = new ProgressButtons(survey);
+    expect(progress.isListElementPassed(0), "the current page is passed").toBe(true);
+    expect(progress.isListElementPassed(1), "the unvisited page with a default value is not passed").toBe(false);
+  });
   test("ProgressButtons restores the actually active page, not the furthest visited", () => {
     const json: any = {
       pages: [

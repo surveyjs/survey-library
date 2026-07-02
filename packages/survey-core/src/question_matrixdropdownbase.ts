@@ -250,11 +250,6 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
 }
 
 export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
-  private static idCounter: number = 1;
-  private static getId(): string {
-    return "srow_" + MatrixDropdownRowModelBase.idCounter++;
-  }
-
   private idValue: string;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
@@ -272,9 +267,11 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
-    this.idValue = MatrixDropdownRowModelBase.getId();
   }
   public get id(): string {
+    if (this.idValue === undefined) {
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("srow");
+    }
     return this.idValue;
   }
   public get rowName(): any {

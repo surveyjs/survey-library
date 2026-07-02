@@ -357,7 +357,6 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
@@ -1722,10 +1721,7 @@ export class Question extends SurveyElement<Question>
     this.showCommentArea = val;
   }
 
-  /**
-   * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
-   */
-  @property() id: string;
+  protected getIdPrefix(): string { return "sq"; }
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }

@@ -1,4 +1,4 @@
-import { IPlainDataOptions, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
+import { IPlainDataOptions, ISurvey, ISurveyImpl, ISurveyFileCallbacks } from "./base-interfaces";
 import { IQuestionPlainData, Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { property, propertyArray } from "./decorators";
@@ -159,15 +159,13 @@ export class QuestionFileModelBase extends Question {
 }
 
 export class QuestionFilePage extends Base {
-  private static pageCounter = 0;
-  private static getId() {
-    return "sv_sfp_" + QuestionFilePage.pageCounter++;
-  }
   @propertyArray({}) public items: Array<any>;
-  public id: string;
   constructor(private question: QuestionFileModel, private index: number) {
     super();
-    this.id = QuestionFilePage.getId();
+  }
+  protected getIdPrefix(): string { return "sv_sfp"; }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    return this.question ? this.question.getSurvey(isLive) : null;
   }
   get css(): string {
     return this.question.cssClasses.page;

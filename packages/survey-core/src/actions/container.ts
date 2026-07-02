@@ -10,9 +10,6 @@ import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
 
 export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
-  private static ContainerID = 1;
-  protected id = ActionContainer.ContainerID++;
-
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }

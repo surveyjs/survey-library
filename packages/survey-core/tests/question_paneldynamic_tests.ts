@@ -5621,16 +5621,16 @@ describe("Survey_QuestionPanelDynamic", () => {
     });
     setOldTheme(survey);
     const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-tab");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
 
     panel.addPanel();
     expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
 
     panel.renderMode = undefined;
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-list");
 
     panel.titleLocation = "hidden";
-    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header");
+    expect(panel.cssHeader).toBe("sv-paneldynamic__header sv_header sv_panel_dynamic__header-list");
 
     panel.displayMode = "tab";
     panel.titleLocation = "top";

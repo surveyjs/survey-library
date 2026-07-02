@@ -76,11 +76,10 @@
 .sd-paneldynamic__header ~ hr {
     margin: 0;
     width: 100%;
+    display: none
 }
-.sd-paneldynamic__header-tab, .sd-paneldynamic__header-carousel {
-    & ~ hr {
-        display: none;
-    }
+.sd-paneldynamic__header-list ~ hr {
+    display: block;
 }
 
 .sd-paneldynamic__footer {

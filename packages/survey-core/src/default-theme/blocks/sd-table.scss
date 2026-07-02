@@ -493,6 +493,12 @@
     margin-left: calc(-1 * var(--sd-base-padding));
     box-sizing: content-box;
   }
+
+  &:not(.sd-element--nested)>.sd-question__container {
+    &>.sd-question__header-and-content-container:first-child {
+      padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+    }
+  }
 }
 
 .sd-row--multiple {

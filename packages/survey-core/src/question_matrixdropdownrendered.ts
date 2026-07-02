@@ -1,6 +1,7 @@
 import { property, propertyArray } from "./decorators";
 import { Question } from "./question";
 import { Base, ComputedUpdater } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
@@ -20,8 +21,7 @@ function getId(id: string, isError: boolean, isDetail: boolean) {
 }
 
 export class QuestionMatrixDropdownRenderedCell {
-  private static counter = 1;
-  private idValue: number;
+  private idValue: string;
   private itemValue: ItemValue;
   public minWidth: string = "";
   public width: string = "";
@@ -44,7 +44,15 @@ export class QuestionMatrixDropdownRenderedCell {
   public isDetailRowCell: boolean = false;
   private classNameValue: string = "";
   public constructor() {
-    this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
+  }
+  public getSurvey(): ISurvey {
+    return this.matrix?.getSurvey() || this.row?.getSurvey() || null;
+  }
+  private getGeneratedId(): string {
+    if (this.idValue === undefined) {
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("scell");
+    }
+    return this.idValue;
   }
   public get requiredMark(): string {
     return this.column && this.column.isRenderedRequired ? this.column.requiredMark : undefined;
@@ -59,7 +67,7 @@ export class QuestionMatrixDropdownRenderedCell {
     return !!this.panel;
   }
   public get id(): string {
-    let id = this.question ? this.question.id : this.idValue.toString();
+    let id = this.question ? this.question.id : this.getGeneratedId();
     if (this.isChoice) {
       id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
     }

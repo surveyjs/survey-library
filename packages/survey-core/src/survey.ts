@@ -53,6 +53,7 @@ import {
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
+import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
@@ -1192,6 +1193,34 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
+  }
+  private idGeneratorValue: SurveyIdGenerator;
+  /**
+   * The id generator that produces deterministic, SSR-safe DOM ids for every element of this survey.
+   * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`).
+   */
+  public get idGenerator(): SurveyIdGenerator {
+    if (!this.idGeneratorValue) {
+      this.idGeneratorValue = new SurveyIdGenerator(this.idPrefix || "");
+    }
+    return this.idGeneratorValue;
+  }
+  protected getIdGenerator(): SurveyIdGenerator { return this.idGenerator; }
+  /**
+   * A prefix added to every DOM id generated for this survey's elements. Set a distinct value per
+   * survey when you render **multiple surveys on one page** (especially with SSR) to keep their ids
+   * from colliding. Leave it empty (default) for a single survey. Assign it before the survey is
+   * rendered.
+   *
+   * Default value: `""`
+   */
+  public get idPrefix(): string { return this.getPropertyValue("idPrefix", ""); }
+  public set idPrefix(val: string) {
+    val = val || "";
+    this.setPropertyValue("idPrefix", val);
+    if (!!this.idGeneratorValue) {
+      this.idGeneratorValue.rootPrefix = val;
+    }
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;
@@ -5277,9 +5306,9 @@ export class SurveyModel extends SurveyElementCore
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if (!this.completedByTriggers)this.completedByTriggers = {};
     if (isCompleted) {
-      this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
+      this.completedByTriggers[trigger.uniqueId] = { trigger: trigger, pageId: this.currentPage?.id };
     } else {
-      delete this.completedByTriggers[trigger.id];
+      delete this.completedByTriggers[trigger.uniqueId];
     }
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();

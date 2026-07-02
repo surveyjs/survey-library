@@ -1,6 +1,7 @@
 import { property, propertyArray } from "./decorators";
 import { Question } from "./question";
 import { Base, ComputedUpdater } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
@@ -44,10 +45,12 @@ export class QuestionMatrixDropdownRenderedCell {
   private classNameValue: string = "";
   public constructor() {
   }
+  public getSurvey(): ISurvey {
+    return this.matrix?.getSurvey() || this.row?.getSurvey() || null;
+  }
   private getGeneratedId(): string {
     if (this.idValue === undefined) {
-      const survey: any = this.matrix?.getSurvey() || this.row?.getSurvey();
-      this.idValue = Base.getIdGeneratorBySurvey(survey).next("scell");
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("scell");
     }
     return this.idValue;
   }

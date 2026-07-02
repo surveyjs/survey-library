@@ -223,6 +223,9 @@ describe("question signaturepad", () => {
   });
 
   test("check penColor & background color from theme", () => {
+    const defaultThemePenColor = "#1ab394";
+    const defaultBackgroundColor = "transparent";
+
     const json = {
       elements: [
         {
@@ -242,7 +245,7 @@ describe("question signaturepad", () => {
 
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe(defaultThemePenColor);
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toBe("#ffffff");
 
     containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "rgba(103, 58, 176, 1)");
@@ -250,19 +253,21 @@ describe("question signaturepad", () => {
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toBe("rgba(103, 58, 176, 1)");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe("transparent");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe(defaultBackgroundColor);
 
     containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "");
     survey.applyTheme({ "cssVariables": {} });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe("#1ab394");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe(defaultThemePenColor);
     expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor default").toBe("#ffffff");
 
     containerEl.remove();
   });
 
   test("check penColor & background color if background image", () => {
+    const defaultThemePenColor = "#1ab394";
+    const defaultBackgroundColor = "transparent";
     const json = {
       elements: [
         {
@@ -283,28 +288,28 @@ describe("question signaturepad", () => {
 
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe(defaultThemePenColor);
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe(defaultBackgroundColor);
 
     containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "rgba(103, 58, 176, 1)");
     survey.applyTheme({ "cssVariables": { "--sjs2-color-bg-brand-primary": "rgba(103, 58, 176, 1)" } });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
     expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor from theme").toBe("rgba(103, 58, 176, 1)");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe("transparent");
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor from theme").toBe(defaultBackgroundColor);
 
     containerEl.style.setProperty("--sjs2-color-bg-brand-primary", "");
     survey.applyTheme({ "cssVariables": {} });
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor undefined").toBeUndefined();
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe(defaultThemePenColor);
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe(defaultBackgroundColor);
 
     signaturepadQuestion.backgroundColor = "#dde6db";
     expect(signaturepadQuestion.penColor, "penColor undefined").toBeUndefined();
     expect(signaturepadQuestion.backgroundColor, "backgroundColor #dde6db").toBe("#dde6db");
-    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor #1ab394").toBe("#1ab394");
-    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe("transparent");
+    expect(signaturepadQuestion.signaturePad.penColor, "signaturePad.penColor default").toBe(defaultThemePenColor);
+    expect(signaturepadQuestion.signaturePad.backgroundColor, "signaturePad.backgroundColor transparent").toBe(defaultBackgroundColor);
 
     containerEl.remove();
   });

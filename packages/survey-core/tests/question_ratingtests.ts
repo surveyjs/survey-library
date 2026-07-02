@@ -129,35 +129,40 @@ test("check rating resize observer behavior", () => {
       },
     ],
   };
-  const survey = new SurveyModel(json);
-  survey.css = defaultCss;
-  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  q1.afterRender(rootElement);
-  expect(q1["resizeObserver"]).toBeTruthy();
-  expect(q1.renderAs).toBe("default");
-  currentOffsetWidth = 300;
-  currentScrollWidth = 300;
-  (<any>q1["resizeObserver"]).call();
-  expect(q1.renderAs).toBe("default");
-  currentOffsetWidth = 200;
-  (<any>q1["resizeObserver"]).call();
-  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toBe("dropdown");
-  currentOffsetWidth = 400;
-  (<any>q1["resizeObserver"]).call();
-  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toBe("default");
-  currentOffsetWidth = 200;
-  (<any>q1["resizeObserver"]).call();
-  (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
-  expect(q1.renderAs).toBe("dropdown");
-  q1["destroyResizeObserver"]();
-  expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toBe("default");
-  window.getComputedStyle = getComputedStyle;
-  window.ResizeObserver = ResizeObserver;
 
-  contentElement.remove();
-  rootElement.remove();
+  try {
+    const survey = new SurveyModel(json);
+    survey.css = defaultCss;
+    const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+    q1.afterRender(rootElement);
+    expect(q1["resizeObserver"]).toBeTruthy();
+    expect(q1.renderAs).toBe("default");
+    currentOffsetWidth = 300;
+    currentScrollWidth = 300;
+    (<any>q1["resizeObserver"]).call();
+    expect(q1.renderAs).toBe("default");
+    currentOffsetWidth = 200;
+    (<any>q1["resizeObserver"]).call();
+    (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+    expect(q1.renderAs).toBe("dropdown");
+    currentOffsetWidth = 400;
+    (<any>q1["resizeObserver"]).call();
+    (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+    expect(q1.renderAs).toBe("default");
+    currentOffsetWidth = 200;
+    (<any>q1["resizeObserver"]).call();
+    (<any>q1["resizeObserver"]).call(); //double process to reset isProcessed flag
+    expect(q1.renderAs).toBe("dropdown");
+    q1["destroyResizeObserver"]();
+    expect(q1.renderAs, "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state").toBe("default");
+
+  } finally {
+    window.getComputedStyle = getComputedStyle;
+    window.ResizeObserver = ResizeObserver;
+
+    contentElement.remove();
+    rootElement.remove();
+  }
 });
 
 test("check rating in case of state 'collapsed'", () => {

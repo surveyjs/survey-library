@@ -56,7 +56,7 @@ interface ITriggerExpressionInfo {
 }
 
 export class QuestionValueGetterContext implements IValueGetterContext {
-  constructor (protected question: Question, protected isUnwrapped?: boolean) {}
+  constructor (protected question: Question) {}
   public getObj(): Base { return this.question; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
@@ -72,7 +72,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
         return new PropertyGetterContext(this.question.parentQuestion).getValue(params);
       }
     }
-    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.self)) return this.getQuestionValue(index);
+    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.self)) return this.getQuestionValue(index, params.isOriginalValue);
     if (path.length > 1 && path[0].name === expVar.panel) {
       params.isRoot = false;
       const panel: any = this.question.parent;
@@ -104,9 +104,13 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     if (survey) return (<any>survey).getValueGetterContext().getValue({ path, isRoot: false, index });
     return undefined;
   }
-  private getQuestionValue(index: number): IValueGetterInfo {
+  private getQuestionValue(index: number, isOriginalValue?: boolean): IValueGetterInfo {
     const q = this.question;
-    let val = q.getFilteredValue(this.isUnwrapped);
+    // The plain {name} exposes the unwrapped value by default (the "-unwrapped" suffix is kept for
+    // backward compatibility). The wrapped/original value - e.g. a checkbox with valuePropertyName -
+    // is used only when a consumer, such as an aggregate function, requests it via isOriginalValue.
+    const isUnwrapped = !isOriginalValue && q.hasFilteredValue;
+    let val = q.getFilteredValue(isUnwrapped);
     if (index > -1 && Array.isArray(val)) {
       val = index < val.length ? val[index] : undefined;
     }
@@ -163,14 +167,13 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
   protected isSearchNameRevert(): boolean { return true; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const lowName = name.toLocaleLowerCase();
-    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
       const qName = q.getFilteredName().toLocaleLowerCase();
       if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
         res.obj = q;
-        res.context = q.getValueGetterContext(qName.endsWith(unWrappedNameSuffix));
+        res.context = q.getValueGetterContext();
         break;
       }
     }
@@ -856,8 +859,8 @@ export class Question extends SurveyElement<Question>
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
-  public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
-    return new QuestionValueGetterContext(this, isUnwrapped);
+  public getValueGetterContext(): IValueGetterContext {
+    return new QuestionValueGetterContext(this);
   }
   private addTriggersInfo(): void {
     this.addTriggerInfo({

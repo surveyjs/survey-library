@@ -72,8 +72,10 @@
 }
 
 .sd-root--compact {
-  .sd-question__header-and-content-container {
-    padding: 0;
+  .sd-question:not(.sd-question--complex) > .sd-question__container {
+    &>.sd-question__header-and-content-container {
+      padding: 0;
+    }
   }
   .sd-question--left {
     &>.sd-question__container {

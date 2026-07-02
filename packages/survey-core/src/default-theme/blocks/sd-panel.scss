@@ -119,6 +119,9 @@
     & > .sd-panel__errbox {
       margin: 0 0 var(--sd-base-vertical-padding) 0;
     }
+    .sd-panel__content {
+      row-gap: var(--sd-base-vertical-padding);
+    }
   }
 }
 

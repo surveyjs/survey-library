@@ -136,7 +136,7 @@
       &>.sd-question__header-and-content-container {
           row-gap: 0;
           padding-bottom: var(--sd-base-padding);
-          &>.sd-question__header {
+          &>.sd-element__header {
               padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
               &~hr {
                   display: none;

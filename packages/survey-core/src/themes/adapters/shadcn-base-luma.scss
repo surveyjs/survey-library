@@ -1,0 +1,43 @@
+@use "./shadcn.scss";
+/* shadcn/ui "base-luma" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+
+  --sjs2-border-effect-a11y: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
+
+  /* buttons */
+  --sjs2-radius-component-action: calc(var(--spacing) * 6);
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+
+  /* formboxes */
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 9); /* h-9 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 3); /* py-3 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1); /* py-1 */
+  --sjs2-radius-component-formbox: calc(var(--spacing) * 6);
+  --sjs2-color-component-formbox-default-border: transparent;
+  --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 50%, transparent);
+  --sjs2-border-effect-component-formbox-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px var(--ring);
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 5px; /* rounded-[5px] */
+  --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-check-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-check-false-default-border: transparent;
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary);
+
+  /* common and other */
+  --sjs2-radius-component-panel: calc(var(--spacing) * 6);
+}
+
+.sd-comment__grip {
+  display: none;
+}
+
+
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-padding: calc(var(--spacing) * 5);
+}

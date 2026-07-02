@@ -1,13 +1,14 @@
 {
   "name": "survey-core",
-  "version": "3.0.0-beta.7",
+  "version": "3.0.0-beta.8",
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",
     "build:themes": "rollup -c rollup.themes.config.mjs --environment emitMinified",
     "build:icons": "rollup -c rollup.icons.config.mjs --environment emitMinified",
+    "build:adapters": "rollup -c rollup.adapters.config.mjs --environment emitMinified",
     "watch:dev": "rollup -c rollup.config.mjs -w",
-    "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
+    "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons && npm run build:adapters",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "test": "vitest run",

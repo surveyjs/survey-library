@@ -94,7 +94,7 @@ function pluginIgnoreStyles() {
 
 export function createUmdConfig(options) {
 
-  const { input, globalName, external, globals, dir, tsconfig, declarationDir = null, emitMinified, exports, useEsbuild, version, emitCss, virtualModules, aliases, resolve, sourceMap = true, noEmitOnError = true } = options;
+  const { input, globalName, external, globals, dir, tsconfig, declarationDir = null, emitMinified, exports, useEsbuild, version, emitCss, virtualModules, aliases, resolve, sourceMap = true, noEmitOnError = true, extraPlugins = [] } = options;
 
   if (Object.keys(input).length > 1) throw Error("umd config accepts only one input");
 
@@ -103,6 +103,7 @@ export function createUmdConfig(options) {
     input,
     external,
     plugins: [
+      ...extraPlugins,
       pluginVirtual(virtualModules || {}),
       pluginAlias({ entries: aliases || {} }),
       nodeResolve(resolve ? resolve : { browser: true }),
@@ -168,12 +169,13 @@ export function createUmdConfig(options) {
 
 export function createEsmConfig(options) {
 
-  const { input, external, dir, tsconfig, sharedFileName, useEsbuild, version, emitCss, virtualModules, aliases, resolve, sourceMap = true, noEmitOnError = true } = options;
+  const { input, external, dir, tsconfig, sharedFileName, useEsbuild, version, emitCss, virtualModules, aliases, resolve, sourceMap = true, noEmitOnError = true, extraPlugins = [] } = options;
 
   return {
     context: "this",
     input,
     plugins: [
+      ...extraPlugins,
       pluginVirtual(virtualModules || {}),
       pluginAlias({ entries: aliases || {} }),
       nodeResolve(resolve ? resolve : { browser: true }),

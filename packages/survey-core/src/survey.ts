@@ -3141,7 +3141,7 @@ export class SurveyModel extends SurveyElementCore
    * - Order of randomized choice options
    * - Last visited question
    * - Last active panel within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model)
-   * - Pages that the respondent has already visited (used to display progress in the progress bar)
+   * - Pages that the respondent has already passed (used to display progress in the progress bar)
    *
    * Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
    *

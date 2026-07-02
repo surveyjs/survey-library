@@ -1,0 +1,25 @@
+@use "./shadcn.scss";
+
+/* shadcn/ui "base-vega" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  @include shadcn.shadcn-dark-input-bg;
+
+  /* buttons */
+  --sjs2-radius-component-action: calc(var(--radius) * 0.8);
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+
+  /* formboxes */
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 9); /* h-9 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2); /* py-2 */
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1); /* py-1 */
+  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 4px;
+
+  /* common and other */
+  --sjs2-radius-component-panel: calc(var(--radius) + 2px);
+}

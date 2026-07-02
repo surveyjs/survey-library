@@ -1,0 +1,47 @@
+@use "./shadcn.scss";
+
+/* shadcn/ui "new-york" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  /* buttons */
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9);
+  /* formboxes */
+  --sjs2-color-component-formbox-default-bg: transparent;
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1);
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 9);
+  --sjs2-shadcn-textarea-min-height: calc(var(--spacing) * 16);
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2); /* py-2 */
+  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 4px;
+  --sjs2-size-component-radio-icon: calc(var(--spacing) * 3.5);
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
+
+  /* common and other */
+  --sjs2-border-effect-surface-default: 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+}
+
+.sd-action:active {
+  translate: none;
+}
+
+
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-vertical-padding: calc(var(--spacing) * 7);
+}
+
+/* classic outlined radio: transparent disc + primary dot */
+.sd-theme-root .sd-item--checked .sd-radio__decorator {
+  background-color: var(--background);
+  box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+}
+
+.sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-radio__decorator {
+  background-color: var(--background);
+  box-shadow: var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+}
+
+.sd-theme-root .sd-radio--checked .sd-radio__svg use {
+  fill: var(--primary);
+}

@@ -835,4 +835,23 @@ describe("Expression Validation", () => {
     expect(result.length, "There are 5 invalid expressions").toBe(5);
     expect(result.map(e => [(<any>e.obj).name, e.errors.map(er => [er.errorType, er.variableName]).join()]).join(), "Errors are correct").toBe("q11,2,foo,q12,2,foo,q13,2,foo,q14,2,foo,q15,2,foo");
   });
+  test("validateExpressions() incorrectly reports UnknownVariable for {item} in choicesEnableIf/choicesVisibleIf, Bug#11457", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "q1",
+          choices: ["a", "b"],
+          choicesEnableIf: "{item} != 'a' or {undefinedVar} != 'yes'",
+          choicesVisibleIf: "{item} != 'b'",
+        },
+      ],
+    });
+    const result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+    expect(result.length, "Only the unknown variable is reported, not {item}").toBe(1);
+    expect(result[0].propertyName, "choicesEnableIf has the error").toBe("choicesEnableIf");
+    expect(result[0].errors.length, "There is 1 error").toBe(1);
+    expect(result[0].errors[0].errorType, "Error type is 'UnknownVariable'").toBe(ExpressionErrorType.UnknownVariable);
+    expect(result[0].errors[0].variableName, "The unknown variable is reported").toBe("undefinedVar");
+  });
 });

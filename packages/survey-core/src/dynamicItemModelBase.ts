@@ -10,7 +10,7 @@ export interface IDynamicItemModelData {
     getItem(index: number): DynamicItemModelBase;
     getItemData(item: ISurveyData): any;
     getItemIndex(item: ISurveyData): number;
-    getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
+    getValueGetterContext(): IValueGetterContext;
     getFilteredData(): any;
     getBindedQuestions(): IQuestion[];
     getSharedQuestionFromArray(name: string, index: number): Question;

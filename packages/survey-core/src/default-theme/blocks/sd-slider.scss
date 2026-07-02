@@ -225,12 +225,6 @@
   color: var(--sjs2-color-fg-basic-primary);
   position: absolute;
   top: 0;
-  /*
-    The label is anchored at its value position (inline `left`) and centered on the
-    tick, so clicking it always moves the thumb under the label. Its `max-width`
-    (inline, = distance to the nearest neighbour) keeps long text from overlapping
-    neighbours — it ellipsizes instead. The first/last labels bleed outward symmetrically.
-  */
   transform: translateX(-50%);
   box-sizing: border-box;
   display: flex;

@@ -275,19 +275,13 @@ frameworks.forEach(framework => {
       };
       const question = new Question(page, "q1");
 
-      // Ticks stay anchored to their values; each label is centered on its tick
-      // and collapses long text to an ellipsis instead of overlapping. The first
-      // and last labels bleed outward symmetrically around their end ticks.
       await page.setViewportSize({ width: 900, height: 600 });
       await initSurvey(page, framework, json);
       await compareScreenshot(page, ".sd-question", "slider-long-labels.png");
 
-      // When the slider gets narrow, the text shrinks further (more ellipsis)
-      // while the ticks remain on their values.
       await page.setViewportSize({ width: 420, height: 600 });
       await compareScreenshot(page, ".sd-question", "slider-long-labels-narrow.png");
 
-      // showValue keeps the numeric value visible while the custom text ellipsizes.
       await question.setPropertyValue("customLabels", [
         { value: 0, text: "long longlong longlong longlong longlong long", showValue: true },
         20,

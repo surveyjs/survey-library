@@ -322,16 +322,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .toString();
   };
 
-  /**
-   * The maximum width of a label, in percent of the scale, so that its text never
-   * overlaps a neighbouring label. The label stays anchored to its value; the value
-   * is the distance to the closest neighbouring label (the label may bleed half of
-   * that distance to either side before meeting a neighbour). Long text is ellipsized.
-   */
   public getLabelMaxWidth = (item: ItemValue): string => {
     const labels = this.renderedLabels;
     const range = this.renderedMax - this.renderedMin;
-    if (range <= 0 || labels.length < 2) return "none";
+    if (range <= 0 || labels.length <= 1) return "none";
     let nearest = Number.POSITIVE_INFINITY;
     for (let i = 0; i < labels.length; i++) {
       if (labels[i] === item) continue;

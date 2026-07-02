@@ -189,6 +189,7 @@ export var defaultCss = {
     leave: "sd-element-wrapper--leave",
     mobile: "sd-question--mobile",
     mainRoot: "sd-element sd-question sd-row__question",
+    rootSingleInput: "sd-element sd-question--single-input",
     flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
     withFrame: "sd-element--with-frame",
     asCell: "sd-table__cell",

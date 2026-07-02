@@ -77,6 +77,17 @@
   }
 }
 
+.sd-question--single-input {
+    &>.sd-question__container {
+        &>.sd-question__header-and-content-container {
+            padding: 0;
+            &>.sd-paneldynamic__header {
+                padding: 0;
+            }
+        }
+    }
+}
+
 // .sd-question--left {
 //   display: flex;
 //   flex-wrap: wrap;

@@ -276,6 +276,19 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false.png");
       await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true.png");
 
+      questionRoot.nth(1).locator(".sd-boolean-switch__button").hover();
+      await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-hovered.png");
+
+      questionRoot.nth(2).locator(".sd-boolean-switch__button").hover();
+      await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-hovered.png");
+
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-focused.png");
+
+      await page.keyboard.press("Tab");
+      await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-focused.png");
+
       await questionRoot.first().locator(".sv-string-viewer").filter({ hasText: "No" }).click();
       await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-readOnly.png");
       await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-readOnly.png");

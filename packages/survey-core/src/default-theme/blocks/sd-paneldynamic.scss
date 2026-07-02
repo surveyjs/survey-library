@@ -76,10 +76,9 @@
 .sd-paneldynamic__header ~ hr {
     margin: 0;
     width: 100%;
-    display: none
 }
-.sd-paneldynamic__header-list ~ hr {
-    display: block;
+.sd-paneldynamic__header-tab ~ hr {
+    display: none;
 }
 
 .sd-paneldynamic__footer {
@@ -87,6 +86,10 @@
     padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
     gap: var(--sjs2-layout-component-panel-footer-gap-vertical, var(--sjs2-spacing-x050));
     position: relative;
+
+    .sd-progress {
+        top: -1px;
+    }
 
     .sd-paneldynamic__progress-text,
     .sd-paneldynamic__progress--bottom {

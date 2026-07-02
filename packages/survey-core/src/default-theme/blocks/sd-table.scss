@@ -403,12 +403,17 @@
 
 .sd-question.sd-question--table {
   position: relative;
-  overflow-x: auto;
+  // overflow-x: auto;
+  &>.sd-question__container {
+    &>.sd-question__header-and-content-container {
+      overflow-x: auto;
+    }
+  }
 }
 
 .sd-question--table.sd-element--collapsed,
 .sd-question--table.sd-element--nested {
-  overflow-x: visible;
+  // overflow-x: visible;
 }
 
 .sd-table-wrapper {

@@ -17,6 +17,8 @@
   border: none;
   height: 1px;
   background-color: $border-light;
+  position: sticky;
+  left: calc(-1 * var(--sd-base-padding));
 }
 
 .sd-element--complex > .sd-element__header {

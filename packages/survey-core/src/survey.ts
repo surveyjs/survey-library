@@ -1688,6 +1688,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see tocLocation
+   * @see tocItemComponent
    */
   @property() showTOC: boolean;
   /**
@@ -1700,8 +1701,29 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see showTOC
+   * @see tocItemComponent
    */
   @property() tocLocation: "left" | "right";
+  /**
+   * The name of a component used to render item in the Table of Contents. Applies only when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true`.
+   *
+   * The custom component receives the following props:
+   *
+   * - `item`: [`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction)\
+   * A TOC item.
+   *
+   * - `model`: `ListModel`\
+   * A TOC item list model.
+   *
+   * - `survey`: [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)\
+   * The survey model.
+   *
+   * - `page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
+   * The page model.
+   * @see showTOC
+   * @see tocLocation
+   */
+  @property() tocItemComponent: string;
   /**
    * Specifies whether to display the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
    *
@@ -8557,6 +8579,10 @@ Serializer.addClass("survey", [
     name: "tocLocation", default: "left", choices: ["left", "right"],
     dependsOn: ["showTOC"],
     visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
+  },
+  {
+    name: "tocItemComponent",
+    visible: false
   },
   { name: "readOnly:boolean" },
   { name: "mode", visible: false, isSerializable: false },

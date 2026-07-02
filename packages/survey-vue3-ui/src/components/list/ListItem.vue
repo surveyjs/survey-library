@@ -29,6 +29,7 @@
         :is="itemComponent"
         :item="item"
         :model="model"
+        v-bind="extraComponentData"
       ></SvComponent>
     </div>
   </li>
@@ -54,6 +55,10 @@ useBase(() => props.item);
 
 const itemComponent = computed(
   () => props.item.component || props.model.itemComponent
+);
+
+const extraComponentData = computed(
+  () => props.model.onGetItemExtraComponentData ? props.model.onGetItemExtraComponentData(props.item as any) : undefined
 );
 
 onMounted(() => {

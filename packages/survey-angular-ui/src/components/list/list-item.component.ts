@@ -41,6 +41,10 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
   get itemComponent(): string {
     return this.model.component || this.listModel.itemComponent;
   }
+  get itemComponentData(): any {
+    const extraData = this.listModel.onGetItemExtraComponentData ? this.listModel.onGetItemExtraComponentData(this.model) : undefined;
+    return { model: this.model, listModel: this.listModel, ...extraData };
+  }
 
   getModel() {
     return this.model;

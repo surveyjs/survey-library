@@ -414,6 +414,11 @@
 .sd-question--table.sd-element--collapsed,
 .sd-question--table.sd-element--nested {
   // overflow-x: visible;
+  &>.sd-question__container {
+    &>.sd-question__header-and-content-container {
+      overflow-x: visible;
+    }
+  }
 }
 
 .sd-table-wrapper {

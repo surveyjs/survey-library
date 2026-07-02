@@ -53,11 +53,14 @@
 
 // TODO: Remove as not working
 .sd-question--left {
-  .sd-question__header-and-content-container {
-    flex-direction: row;
-    flex-wrap: wrap;
-    column-gap: var(--sjs2-spacing-x300);
+  &>.sd-question__container {
     row-gap: var(--sjs2-spacing-x100);
+    &>.sd-question__header-and-content-container {
+      flex-direction: row;
+      flex-wrap: wrap;
+      column-gap: var(--sjs2-spacing-x300);
+      row-gap: var(--sjs2-spacing-x100);
+    }
   }
 }
 

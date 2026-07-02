@@ -68,20 +68,6 @@
     }
 }
 
-.sd-question--paneldynamic.sd-question--empty {
-    &>.sd-question__container {
-        &>.sd-question__header-and-content-container {
-            padding-bottom: var(--sd-base-padding);
-            &>.sd-paneldynamic__header {
-                padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-                &~hr {
-                    display: none;
-                }
-            }
-        }
-    }
-}
-
 .sd-paneldynamic__header {
   padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));

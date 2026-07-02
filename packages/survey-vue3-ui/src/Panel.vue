@@ -24,7 +24,7 @@
     />
     <div
       :id="element.contentId"
-      :style="{ paddingLeft: element.innerPaddingLeft }"
+      :style="panelContentStyle"
       v-if="element.renderedIsExpanded"
       :class="element.cssClasses.panel.content"
       :role="element.ariaRole"
@@ -75,6 +75,16 @@ const props = defineProps<{
 }>();
 const root = ref<HTMLElement>(null as any);
 const survey = computed(() => props.element.survey);
+const panelPaddingHorizontal = "var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500))";
+const panelContentStyle = computed(() => {
+  const innerPaddingLeft = props.element.innerPaddingLeft;
+  return {
+    paddingInlineStart: innerPaddingLeft
+      ? `calc(${panelPaddingHorizontal} + ${innerPaddingLeft})`
+      : panelPaddingHorizontal,
+    paddingInlineEnd: panelPaddingHorizontal,
+  };
+});
 
 useBase(() => props.element);
 

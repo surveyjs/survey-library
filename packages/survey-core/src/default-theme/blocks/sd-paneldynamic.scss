@@ -7,7 +7,11 @@
         right: 0;
         height: 2px;
         z-index: 2;
-        transform: translateY(-1px);
+        // transform: translateY(-1px);
+    }
+
+    .sd-progress ~ .sd-paneldynamic__panels-container {
+        padding-top: 1px;
     }
 
     & > .sd-panel {
@@ -15,17 +19,95 @@
         padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
     }
 
-    & .sd-paneldynamic__panel-wrapper > .sd-panel > .sd-panel__header {
-        padding-top: var(--sd-base-vertical-padding);
-        padding-bottom: 0;
+    & .sd-paneldynamic__panel-wrapper > .sd-panel {
+        // &>.sd-panel__content {
+        //     padding: 0;
+        // }
+        &> .sd-panel__header {
+            padding-top: var(--sd-base-vertical-padding);
+            padding-bottom: 0;
 
-        &:after {
-            display: none;
-        }
+            &:after {
+                display: none;
+            }
 
-        & > .sd-panel__title {
-            color: $foreground-light;
+            & > .sd-panel__title {
+                color: $foreground-light;
+            }
         }
+    }
+}
+
+.sd-paneldynamic ~ .sd-question__comment-area {
+  padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x500)) var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500));
+  padding-top: 0;
+}
+.sd-root-modern--mobile {
+  .sd-paneldynamic ~ .sd-question__comment-area {
+    padding: var(--sjs2-layout-component-panel-content-area-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-spacing-x300);
+    padding-top: 0;
+  }
+}
+
+.sd-question:not(.sd-element--with-frame) {
+    &>.sd-paneldynamic__footer {
+        padding: 0;
+    }
+
+    &>.sd-paneldynamic__panel-footer {
+        padding: 0;
+    }
+}
+
+.sd-question--paneldynamic {
+    &>.sd-question__container {
+        &>.sd-question__header-and-content-container {
+            padding: 0;
+            gap: 0;
+        }
+    }
+}
+
+.sd-paneldynamic__header {
+  padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+  gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));
+}
+
+.sd-paneldynamic__header ~ hr {
+    margin: 0;
+    width: 100%;
+}
+.sd-paneldynamic__header-tab ~ hr {
+    display: none;
+}
+
+.sd-paneldynamic__footer {
+    clear: both;
+    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    gap: var(--sjs2-layout-component-panel-footer-gap-vertical, var(--sjs2-spacing-x050));
+    position: relative;
+
+    .sd-progress {
+        top: -1px;
+    }
+
+    .sd-paneldynamic__progress-text,
+    .sd-paneldynamic__progress--bottom {
+        display: initial;
+    }
+}
+
+.sd-root-modern--mobile {
+    .sd-paneldynamic__header {
+        padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
+    }
+    .sd-paneldynamic__footer {
+        padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x100)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-spacing-x300));
+    }
+    .sd-paneldynamic__panel-footer {
+        padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x200)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-spacing-x200));
+        // margin-right: calc(1.5 * var(--sjs2-spacing-negative-x050));
+        margin-top: calc(var(--sjs2-spacing-negative-x400));
     }
 }
 
@@ -35,13 +117,11 @@
         color: $foreground;
     }
 }
-.sd-paneldynamic__separator {
-    display: none;
-}
-.sd-paneldynamic__panel-wrapper {
-    box-sizing: border-box;
-    padding-bottom: calc(1 * var(--sd-base-padding));
-}
+
+// .sd-paneldynamic__panel-wrapper {
+//     box-sizing: border-box;
+//     padding-bottom: calc(1 * var(--sd-base-padding));
+// }
 
 .sd-paneldynamic__panel-wrapper:after {
     display: table;
@@ -49,11 +129,15 @@
     content: " ";
 }
 
+.sd-paneldynamic__separator {
+    display: none;
+}
 .sd-paneldynamic__footer .sd-paneldynamic__separator,
 .sd-paneldynamic__panel-wrapper--list ~ .sd-paneldynamic__panel-wrapper--list:before {
     content: " ";
     display: block;
     position: absolute;
+    top: 0;
     left: 0;
     right: 0;
     margin: 0;
@@ -79,19 +163,10 @@
     }
 }
 
-.sd-paneldynamic__footer {
-    clear: both;
-
-    .sd-paneldynamic__progress-text,
-    .sd-paneldynamic__progress--bottom {
-        display: initial;
-    }
-}
-
 .sd-paneldynamic__buttons-container {
     display: flex;
     align-items: center;
-    padding: calc(var(--sd-base-vertical-padding) - var(--sjs2-spacing-x100)) 0;
+    // padding: calc(var(--sd-base-vertical-padding) - var(--sjs2-spacing-x100)) 0;
 }
 
 .sd-paneldynamic__progress-text {
@@ -117,6 +192,8 @@
 
 .sd-question--paneldynamic:not(.sd-question--empty) {
     & > .sd-question__content {
+        padding: 0;
+        --animation-padding-bottom: 0;
         & > .sd-question__comment-area {
             padding-bottom: var(--sd-base-padding);
         }
@@ -133,21 +210,32 @@
 .sd-paneldynamic__panel-footer {
     border-top: none;
     position: relative;
-    top: calc(0.5 * var(--sd-base-vertical-padding));
+    // top: calc(0.5 * var(--sd-base-vertical-padding));
+    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    // margin-right: calc(var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
     justify-content: flex-end;
+    padding-top: 0;
+    margin-top: calc(var(--sjs2-spacing-negative-x300));
     --sd-action-bar-gap: var(--sjs2-layout-component-panel-footer-action-group-gap);
-}
 
-.sd-paneldynamic__panel-footer {
+    &.sd-action-bar--empty {
+        display: none;
+    }
     .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
         margin-bottom: var(--sjs2-spacing-negative-x100);
     }
 }
+
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
+    padding-left: var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    padding-right: var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
     .sd-tabs-toolbar {
         margin-bottom: -1px;
     }
+}
+.sd-paneldynamic__tabs-container--with-header {
+    padding-top: var(--sjs2-spacing-x300);
     &:after {
         content: " ";
         display: block;
@@ -155,13 +243,19 @@
         position: relative;
         background: $border-light;
         bottom: 0;
-        inset-inline-start: calc(-1 * var(--sd-base-padding));
-        width: calc(100% + 2 * var(--sd-base-padding));
+        // inset-inline-start: calc(-1 * var(--sd-base-padding));
+        // width: calc(100% + 2 * var(--sd-base-padding));
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal)));
     }
 }
-.sd-paneldynamic__tabs-container--with-header {
-    padding-top: var(--sjs2-spacing-x300);
+.sd-root-modern--mobile {
+    .sd-paneldynamic__tabs-container--with-header {
+        &:after {
+            margin: 0 var(--sjs2-spacing-negative-x300);
+        }
+    }
 }
+
 .sd-tabs-toolbar.sd-action-bar {
     align-items: flex-start;
     z-index: 1;
@@ -270,20 +364,22 @@
     content: none;
 }
 
-.sd-question--paneldynamic.sd-element--with-frame {
-    padding-bottom: 0;
-}
+// .sd-question--paneldynamic.sd-element--with-frame {
+//     padding: 0;
+// }
 
 .sd-paneldynamic__panels-container {
     position: relative;
     overflow: hidden;
-    margin-left: calc(-1 * var(--sd-base-padding));
-    padding-left: var(--sd-base-padding);
-    margin-right: calc(-1 * var(--sd-base-padding));
-    padding-right: var(--sd-base-padding);
+    // margin-left: calc(-1 * var(--sd-base-padding));
+    // padding-left: var(--sd-base-padding);
+    // margin-right: calc(-1 * var(--sd-base-padding));
+    // padding-right: var(--sd-base-padding);
 }
+
 .sd-paneldynamic__panel-wrapper {
     box-sizing: border-box;
+    position: relative;
 }
 
 @keyframes movePanel {

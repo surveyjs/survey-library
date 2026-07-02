@@ -164,9 +164,11 @@ export var defaultCss = {
   progressTextInBar: "sd-hidden",
   page: {
     root: "sd-page sd-body__page",
+    header: "sd-page__header",
     emptyHeaderRoot: "sd-page__empty-header",
     title: "sd-title sd-page__title",
     description: "sd-description sd-page__description",
+    content: "sd-page__content",
     number: "sd-page__num",
     errorsContainer: "sd-page__errbox"
   },
@@ -187,6 +189,7 @@ export var defaultCss = {
     leave: "sd-element-wrapper--leave",
     mobile: "sd-question--mobile",
     mainRoot: "sd-element sd-question sd-row__question",
+    rootSingleInput: "sd-element sd-question--single-input",
     flowRoot: "sd-element sd-question sd-row__question sd-row__question--flow",
     withFrame: "sd-element--with-frame",
     asCell: "sd-table__cell",
@@ -259,6 +262,8 @@ export var defaultCss = {
     summaryRowAction: "sd-summary-row-action",
     summaryRowActionEdit: "sd-summary-row-action sd-summary-row-action--edit",
     summaryRowActionDelete: "sd-summary-row-action sd-summary-row-action--delete",
+    questionContainer: "sd-question__container",
+    headerAndContentContainer: "sd-question__header-and-content-container"
   },
   image: {
     mainRoot: "sd-element sd-question sd-question--image",

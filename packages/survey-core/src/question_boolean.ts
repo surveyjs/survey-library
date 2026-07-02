@@ -7,6 +7,17 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { preventDefaults } from "./utils/dom-utils";
 import { ActionContainer } from "./actions/container";
 import { DomDocumentHelper } from "./global_variables_utils";
+import { RendererFactory } from "./rendererFactory";
+
+function isBooleanDisplayMode(val: string): boolean {
+  return val === "radio" || val === "checkbox" || val === "switch";
+}
+function isEmptyRenderAs(val: string): boolean {
+  return !val || val === "default";
+}
+function isCustomRenderAs(val: string): boolean {
+  return !isEmptyRenderAs(val) && !isBooleanDisplayMode(val);
+}
 
 /**
  * A class that describes the Yes/No (Boolean) question type.
@@ -21,7 +32,7 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   supportAutoAdvance(): boolean {
-    return this.renderAs !== "checkbox";
+    return this.getRenderAsValue() !== "checkbox";
   }
   public get isIndeterminate(): boolean {
     return this.isEmpty();
@@ -333,14 +344,81 @@ export class QuestionBooleanModel extends Question {
     return className;
   }
 
+  /**
+   * Specifies the visual representation of the Yes/No question.
+   *
+   * Possible values:
+   *
+   * - `"segmented"` (default) - Displays a toggle switch on wide screens and radio buttons on narrow screens.
+   * - `"radio"` - Displays Yes/No answers as radio buttons.
+   * - `"checkbox"` - Displays a single checkbox.
+   * - `"switch"` - Displays a switch control with the question title.
+   * - `"custom"` - Set automatically when the `renderAs` property contains a custom renderer name.
+   */
+  @property() displayMode: "segmented" | "radio" | "checkbox" | "switch" | "custom";
+  private customRenderAs: string;
+  private saveCustomRenderAs(renderAs: string): void {
+    if (isCustomRenderAs(renderAs)) {
+      this.customRenderAs = renderAs;
+    }
+  }
+  private getRenderAsValue(): string {
+    if (!isEmptyRenderAs(this.renderAs)) return this.renderAs;
+    const displayMode = this.displayMode;
+    if (displayMode === "custom" && this.customRenderAs) return this.customRenderAs;
+    return isBooleanDisplayMode(displayMode) ? displayMode : "default";
+  }
+  public getComponentName(): string {
+    return RendererFactory.Instance.getRenderer(this.getType(), this.getRenderAsValue());
+  }
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
+    const renderAs = this.renderAs;
+    if (isEmptyRenderAs(renderAs)) return;
+    if (isBooleanDisplayMode(renderAs)) {
+      this.displayMode = <"radio" | "checkbox" | "switch">renderAs;
+      this.renderAs = "default";
+    } else {
+      this.customRenderAs = renderAs;
+      this.displayMode = "custom";
+    }
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "displayMode") {
+      this.updateRenderAsOnDisplayModeChanged(oldValue, newValue);
+    }
+    if (name === "renderAs" && this.displayMode === "custom") {
+      this.saveCustomRenderAs(newValue);
+    }
+  }
+  private updateRenderAsOnDisplayModeChanged(oldValue: string, newValue: string): void {
+    if (newValue === "custom") {
+      if (this.customRenderAs) {
+        this.renderAs = this.customRenderAs;
+      }
+      return;
+    }
+    if (oldValue === "custom") {
+      this.saveCustomRenderAs(this.renderAs);
+      this.renderAs = "default";
+    } else if (isBooleanDisplayMode(this.renderAs)) {
+      this.renderAs = "default";
+    }
+  }
   protected supportResponsiveness(): boolean {
     return true;
   }
   protected getCompactRenderAs(): string {
-    return "radio";
+    const displayMode = this.displayMode;
+    return isBooleanDisplayMode(displayMode) ? displayMode : "radio";
+  }
+  protected getDesktopRenderAs(): string {
+    const displayMode = this.displayMode;
+    return isBooleanDisplayMode(displayMode) ? displayMode : "default";
   }
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
-    return super.createActionContainer(this.renderAs !== "checkbox");
+    return super.createActionContainer(this.getRenderAsValue() !== "checkbox");
   }
 
   protected getIsTitleRenderedAsString(): boolean { return false; }
@@ -371,7 +449,18 @@ Serializer.addClass(
     "valueTrue",
     "valueFalse",
     { name: "swapOrder:boolean" },
-    { name: "renderAs", default: "default", visible: false },
+    {
+      name: "displayMode",
+      default: "segmented",
+      choices: ["segmented", "radio", "checkbox", "switch"],
+      isSerializableFunc: (obj: any) => obj.displayMode !== "custom"
+    },
+    {
+      name: "renderAs",
+      default: "default",
+      visible: false,
+      isSerializableFunc: (obj: any) => isCustomRenderAs(obj.renderAs)
+    },
     { name: "useTitleAsLabel", default: false, visible: false },
   ],
   function () {

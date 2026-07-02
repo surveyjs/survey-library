@@ -15,7 +15,7 @@
  * within the survey, not per-prefix numbering.
  */
 export class SurveyIdGenerator {
-  private counters: { [prefix: string]: number } = {};
+  private counters: { [prefix: string]: number } = Object.create(null);
   private uniqueIdCounter: number = 0;
   constructor(public rootPrefix: string = "") { }
   /**

@@ -5,6 +5,8 @@ import { QuestionFileModel, QuestionFilePage } from "../src/question_file";
 import { PanelModel } from "../src/panel";
 import { ItemValue } from "../src/itemvalue";
 import { Action } from "../src/actions/action";
+import { ActionContainer } from "../src/actions/container";
+import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { Base } from "../src/base";
 import { settings } from "../src/settings";
 
@@ -213,6 +215,25 @@ describe("SSR-safe element ids", () => {
       const a = new Action({ id: "act" }); a.owner = survey as any;
       expect(a.renderedId).toBe(a.uniqueId);
     });
+
+    test("Actions hosted in a container resolve the survey generator, not the fallback", () => {
+      const survey = new SurveyModel(json);
+      survey.idPrefix = "nav-";
+      const container = new ActionContainer();
+      container.locOwner = survey as any;
+      container.setItems([{ id: "a1" }]);
+      const action = container.actions[0];
+      // owner is the container (set by patchAction); the container surfaces the survey via locOwner
+      expect(action.renderedElementId).toBe("nav-sv-action_0");
+    });
+
+    test("AdaptiveActionContainer dots item resolves the survey generator", () => {
+      const survey = new SurveyModel(json);
+      survey.idPrefix = "dots-";
+      const container = new AdaptiveActionContainer();
+      container.locOwner = survey as any;
+      expect(container.dotsItem.renderedElementId.startsWith("dots-sv-action_")).toBe(true);
+    });
   });
 
   describe("Detached objects (no survey)", () => {
@@ -232,6 +253,19 @@ describe("SSR-safe element ids", () => {
       expect(Base.getIdGeneratorBySurvey(undefined)).toBe(Base.defaultIdGenerator);
       const fake: any = { idGenerator: {} };
       expect(Base.getIdGeneratorBySurvey(fake)).toBe(fake.idGenerator);
+    });
+  });
+
+  describe("Robustness", () => {
+    test("Prefixes that collide with Object.prototype keys do not corrupt id generation", () => {
+      // getIdPrefix() defaults to getType(); for a custom component that is an author-chosen name,
+      // which could be "toString", "constructor", "__proto__", etc.
+      const gen = new SurveyModel(json).idGenerator;
+      expect(gen.next("toString")).toBe("toString_0");
+      expect(gen.next("toString")).toBe("toString_1");
+      expect(gen.next("constructor")).toBe("constructor_0");
+      expect(gen.next("__proto__")).toBe("__proto___0");
+      expect(gen.next("hasOwnProperty")).toBe("hasOwnProperty_0");
     });
   });
 });

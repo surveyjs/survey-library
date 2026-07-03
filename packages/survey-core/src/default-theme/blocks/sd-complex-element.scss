@@ -145,3 +145,25 @@
       }
   }
 }
+
+// TODO: remove this after the next release, it is a temporary fix to keep screenshot
+.sd-element--complex.sd-element--with-frame.sd-question--left {
+  &>.sd-question__container {
+      &>.sd-question__header-and-content-container {
+          &>.sd-element__header {
+              margin-top: calc(var(--sjs2-size-x300) + var(--sjs2-size-x050));
+              &~hr {
+                  display: none;
+              }
+              &:after {
+                  content: " ";
+                  display: block;
+                  height: 1px;
+                  position: relative;
+                  background: var(--sjs2-color-border-basic-secondary);
+                  bottom: var(--sjs2-size-x050);
+              }              
+          }
+      }
+  }
+}

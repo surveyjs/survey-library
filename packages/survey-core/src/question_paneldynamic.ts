@@ -2477,7 +2477,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     return getLocaleString("progressbar", this.getLocale());
   }
   public getRootCss(): string {
-    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
+    return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder())
+      .append(this.cssClasses.navigation + "--top", this.isRangeShowing && this.isProgressTopShowing).append(this.cssClasses.navigation + "--bottom", this.isRangeShowing && this.isProgressBottomShowing).toString();
   }
   public get cssHeader(): string {
     const showTab = this.isRenderModeTab && !!this.visiblePanelCount;

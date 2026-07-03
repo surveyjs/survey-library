@@ -80,6 +80,15 @@
 .sd-paneldynamic__header-tab ~ hr {
     display: none;
 }
+.sd-paneldynamic__navigation--top {
+    &>.sd-question__container {
+        &>.sd-question__header-and-content-container {
+            & > hr {
+                display: none;
+            }
+        }
+    }
+}
 
 .sd-paneldynamic__footer {
     clear: both;

@@ -274,9 +274,12 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.render(platform.survey, surveyElement);
 }
 
-const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean> = [
-  (htmlElement: HTMLElement) => htmlElement.classList.contains("sv-vue-title-additional-div"),
-  (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-/) > -1
+const removeExtraElementsConditions: Array<(e: HTMLElement) => boolean> = [
+  (e: HTMLElement) => e.classList.contains("sv-vue-title-additional-div"),
+  (e: HTMLElement) => e.tagName.toLowerCase().search(/^sv-/) > -1,
+  (e: HTMLElement) => e.classList.contains("sd-question__header-and-content-container"),
+  (e: HTMLElement) => e.classList.contains("sd-question__content"),
+  (e: HTMLElement) => e.classList.contains("sd-clearfix") && e.classList.contains("sd-page__row") && e.classList.contains("sd-row"),
 ];
 
 function clearExtraElements(innerHTML: string): string {

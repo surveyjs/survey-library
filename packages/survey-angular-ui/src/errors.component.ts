@@ -3,7 +3,12 @@ import { SurveyElement } from "survey-core";
 
 @Component({
   templateUrl: "./errors.component.html",
-  selector: "'[sv-ng-errors]'"
+  selector: "'[sv-ng-errors]'",
+  host: {
+    "role": "alert",
+    "aria-live": "polite",
+    "aria-atomic": "true"
+  }
 })
 export class ErrorsComponent {
   @Input() element!: SurveyElement | any;

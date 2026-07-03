@@ -402,10 +402,8 @@
   padding-left: 0;
   left: 0;    
 }
-.sd-matrix tr > th:last-of-type,
-.sd-matrix tr > td:last-of-type,
-.sd-table tr > th:last-of-type,
-.sd-table tr > td:last-of-type {
+.sd-table__cell:last-of-type,
+.sd-matrix__cell:last-of-type {
   padding-right: 0;
   right: 0;    
 }

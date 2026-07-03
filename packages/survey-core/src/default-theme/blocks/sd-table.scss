@@ -386,12 +386,19 @@
   z-index: 12;
 
   &:first-of-type {
-    left: var(--sjs2-spacing-negative-x100);
+    // left: var(--sjs2-spacing-negative-x100);
+    left: 0;
+    padding-left: 0;
   }
 
   &:last-of-type {
     right: var(--sjs2-spacing-negative-x100);
   }
+}
+.sd-table th:last-of-type,
+.sd-table td:last-of-type {
+  // right: var(--sjs2-spacing-negative-x100);
+  padding-right: 0;
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
@@ -410,21 +417,33 @@
       .sd-question__header {
         position: sticky;
         left: 0;
+        ~ hr {
+          left: 0;
+        }
       }
       overflow-x: auto;
     }
   }
 }
 
-.sd-question--table.sd-element--collapsed,
-.sd-question--table.sd-element--nested {
-  // overflow-x: visible;
-  &>.sd-question__container {
-    &>.sd-question__header-and-content-container {
-      overflow-x: visible;
-    }
-  }
-}
+// .sd-question--table.sd-element--nested {
+//   // overflow-x: visible;
+//   &>.sd-question__container {
+//     &>.sd-question__header-and-content-container {
+//       overflow-x: auto;
+//     }
+//   }
+// }
+
+// .sd-question--table.sd-element--collapsed,
+// .sd-question--table.sd-element--nested {
+//   // overflow-x: visible;
+//   &>.sd-question__container {
+//     &>.sd-question__header-and-content-container {
+//       overflow-x: visible;
+//     }
+//   }
+// }
 
 // TODO: Discuss with team if we need to keep this or not.
 .sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:first-of-type {
@@ -456,29 +475,29 @@
 
 .sd-table-wrapper {
   display: flex;
-  margin: 0 calc(-1 * var(--sd-base-padding));
+  // margin: 0 calc(-1 * var(--sd-base-padding));
   width: fit-content;
-  min-width: calc(100% + 2 * var(--sd-base-padding));
+  // min-width: calc(100% + 2 * var(--sd-base-padding));
 
-  &:before,
-  &:after {
-    content: "";
-    display: block;
-    position: sticky;
-    min-height: 100%;
-    width: calc(var(--sd-base-padding) - var(--sjs2-spacing-x100));
-    flex-shrink: 0;
-    background: var(--sd-table-sticky-background-color);
-    z-index: 11;
-  }
+  // &:before,
+  // &:after {
+  //   content: "";
+  //   display: block;
+  //   position: sticky;
+  //   min-height: 100%;
+  //   width: calc(var(--sd-base-padding) - var(--sjs2-spacing-x100));
+  //   flex-shrink: 0;
+  //   background: var(--sd-table-sticky-background-color);
+  //   z-index: 11;
+  // }
 
-  &::before {
-    left: calc(-1 * var(--sd-base-padding));
-  }
+  // &::before {
+  //   left: calc(-1 * var(--sd-base-padding));
+  // }
 
-  &:after {
-    right: calc(-1 * var(--sd-base-padding));
-  }
+  // &:after {
+  //   right: calc(-1 * var(--sd-base-padding));
+  // }
 
   & > * {
     flex-basis: 100%;

@@ -809,10 +809,13 @@ export class PanelModelBase extends SurveyElement<Question>
     this.collectValues(data, 0);
     return Helpers.getUnbindValue(data);
   }
-  public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
+  public hasValueAnyQuestion(visibleOnly?: boolean, includeDefaultValues: boolean = true): boolean {
     const questions = visibleOnly ? this.visibleQuestions : this.questions;
     for (let i = 0; i < questions.length; i++) {
-      if (!questions[i].isEmpty()) return true;
+      const question = questions[i];
+      if (question.isEmpty()) continue;
+      if (!includeDefaultValues && question.isValueDefault) continue;
+      return true;
     }
     return false;
   }

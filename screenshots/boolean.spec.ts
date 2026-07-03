@@ -282,6 +282,7 @@ frameworks.forEach(framework => {
       questionRoot.nth(2).locator(".sd-boolean-switch__button").hover();
       await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-hovered.png");
 
+      await page.mouse.move(0, 0);
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-focused.png");

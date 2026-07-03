@@ -15554,6 +15554,43 @@ describe("Survey", () => {
 
     commentDescriptionProperty.placeholder = oldValue;
   });
+  test("hasDescription: creator can show/hide empty description in design mode per element", () => {
+    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
+    const oldValue = commentDescriptionProperty.placeholder;
+    commentDescriptionProperty.placeholder = "Q placeholder";
+
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    const calls: Array<string> = [];
+    survey.getShowElementDescriptionInDesignerCallback = (element: any, show: boolean): boolean => {
+      calls.push(element.name);
+      if (element.name === "q1") return false; // hide even though placeholder would show it
+      if (element.name === "q3") return true; // show even though no placeholder is defined
+      return show;
+    };
+    survey.fromJSON({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "comment", name: "q1" },
+          { type: "comment", name: "q2" },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.hasDescription, "q1 empty description hidden by creator").toBeFalsy();
+    expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
+    expect(q3.hasDescription, "q3 empty description shown by creator").toBeTruthy();
+    expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
+    expect(calls.indexOf("q1") > -1, "creator hook is called for q1").toBeTruthy();
+
+    commentDescriptionProperty.placeholder = oldValue;
+  });
   test("Test survey with custom type", () => {
     JsonObject.metaData.addClass(
       "sortablelist",

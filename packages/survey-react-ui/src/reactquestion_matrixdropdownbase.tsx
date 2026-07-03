@@ -57,7 +57,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       const cellContent = this.renderCellContent(cell, "column-header", {});
       const header = cell.hasTitle ?
         <th className={cell.className} key={key} style={columnStyle}> {cellContent} </th>
-        : <td className={cell.className} key={key} style={columnStyle}></td>;
+        : <th className={cell.className} key={key} style={columnStyle}></th>;
       headers.push(header);
     }
     return (

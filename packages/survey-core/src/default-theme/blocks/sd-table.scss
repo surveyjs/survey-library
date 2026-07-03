@@ -391,9 +391,14 @@
     padding-left: 0;
   }
 
-  &:last-of-type {
-    right: var(--sjs2-spacing-negative-x100);
-  }
+  // &:last-of-type {
+  //   right: var(--sjs2-spacing-negative-x100);
+  // }
+}
+.sd-table th:first-of-type,
+.sd-table td:first-of-type {
+  // right: var(--sjs2-spacing-negative-x100);
+  padding-left: 0;
 }
 .sd-table th:last-of-type,
 .sd-table td:last-of-type {

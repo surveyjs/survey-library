@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: row;
   gap: var(--sjs2-spacing-x100);
+  padding-block: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
   align-items: flex-start;
   justify-content: flex-start;
   flex-shrink: 0;
@@ -143,9 +144,8 @@
 }
 
 .sd-boolean-switch__title {
-  @include sjs2--typography--default;
-
-  color: var(--sjs2-color-fg-basic-primary);
+  @include sjs2--typography--component--label--content;
+  color: var(--sjs2-color-component-label-default-text);
   text-align: left;
   position: relative;
   display: flex;
@@ -154,5 +154,5 @@
 }
 
 .sd-question--readonly .sd-boolean-switch__title {
-  opacity: var(--sjs2-opacity-disabled, 0.25);
+  color: var(--sjs2-color-component-label-disabled-text);
 }

@@ -901,19 +901,19 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if (this.contentQuestion) {
       return this.contentQuestion.ariaTitleId;
     }
-    return this.id + "_ariaTitle11";
+    return this.renderedId + "_ariaTitle11";
   }
   public get ariaDescriptionId(): string {
     if (this.contentQuestion) {
       return this.contentQuestion.ariaDescriptionId;
     }
-    return this.id + "_ariaDescription";
+    return this.renderedId + "_ariaDescription";
   }
   public get commentId(): string {
     if (this.contentQuestion) {
       return this.contentQuestion.commentId;
     }
-    return this.id + "_comment";
+    return this.renderedId + "_comment";
   }
   protected createQuestion(): Question {
     var json = this.customQuestion.json;

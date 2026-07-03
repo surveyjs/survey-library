@@ -2,7 +2,7 @@
   <div
     v-if="element.hasVisibleErrors"
     :class="element.cssError"
-    :id="element.id + '_errors'"
+    :id="element.renderedId + '_errors'"
     role="alert"
     aria-live="polite"
     aria-atomic="true"

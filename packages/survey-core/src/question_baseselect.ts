@@ -131,7 +131,7 @@ export class ChoiceItem extends ItemValue {
       pnl.selectedElementInDesign = <any>this.choiceOwner;
       const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
-        pnl.name = "choicePanel" + pnl.uniqueId;
+        pnl.name = "choicePanel_" + pnl.id;
         pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
       }
@@ -329,7 +329,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.getItemCommentId(this.otherItem);
   }
   public getItemCommentId(item: ItemValue): string {
-    return this.id + "_" + item.uniqueId;
+    // The item's renderedElementId is a per-survey-deterministic, uniqueId-free, SSR-namespaced
+    // token (unique per item regardless of its position in visibleChoices), so it is a stable base
+    // for the comment textarea DOM id.
+    return item.renderedElementId + "_comment";
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];

@@ -53,6 +53,7 @@ import {
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
+import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeValues } from "./utils/utils";
@@ -1192,6 +1193,42 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
+  }
+  private idGeneratorValue: SurveyIdGenerator;
+  /**
+   * The id generator that produces deterministic, SSR-safe raw ids for every element of this survey.
+   * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`). The survey's
+   * `idPrefix`/`postId` are applied on top of the raw id in `Base.renderedId`.
+   */
+  public get idGenerator(): SurveyIdGenerator {
+    if (!this.idGeneratorValue) {
+      this.idGeneratorValue = new SurveyIdGenerator();
+    }
+    return this.idGeneratorValue;
+  }
+  protected getIdGenerator(): SurveyIdGenerator { return this.idGenerator; }
+  /**
+   * A prefix prepended to every DOM id (`renderedId`) generated for this survey's elements. Set a
+   * distinct value per survey when you render **multiple surveys on one page** (especially with SSR)
+   * to keep their ids from colliding. Leave it empty (default) for a single survey. Assign it before
+   * the survey is rendered.
+   *
+   * Default value: `""`
+   */
+  public get idPrefix(): string { return this.getPropertyValue("idPrefix", ""); }
+  public set idPrefix(val: string) {
+    this.setPropertyValue("idPrefix", val || "");
+  }
+  /**
+   * A postfix appended to every DOM id (`renderedId`) generated for this survey's elements. It is
+   * supplied by the framework SSR layer (React/Vue/Angular `useId`) so the same survey definition
+   * produces the same DOM ids on the server and on the client. Ignored when `idPrefix` is set.
+   *
+   * Default value: `""`
+   */
+  public get postId(): string { return this.getPropertyValue("postId", ""); }
+  public set postId(val: string) {
+    this.setPropertyValue("postId", val || "");
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;
@@ -5277,9 +5314,9 @@ export class SurveyModel extends SurveyElementCore
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if (!this.completedByTriggers)this.completedByTriggers = {};
     if (isCompleted) {
-      this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
+      this.completedByTriggers[trigger.uniqueId] = { trigger: trigger, pageId: this.currentPage?.id };
     } else {
-      delete this.completedByTriggers[trigger.id];
+      delete this.completedByTriggers[trigger.uniqueId];
     }
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();

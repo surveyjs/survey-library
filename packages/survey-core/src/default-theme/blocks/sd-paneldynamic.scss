@@ -242,9 +242,6 @@
     .sd-tabs-toolbar {
         margin-bottom: -1px;
     }
-}
-.sd-paneldynamic__tabs-container--with-header {
-    padding-top: var(--sjs2-spacing-x300);
     &:after {
         content: " ";
         display: block;
@@ -256,6 +253,9 @@
         // width: calc(100% + 2 * var(--sd-base-padding));
         margin: 0 calc(-1 * var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal)));
     }
+}
+.sd-paneldynamic__tabs-container--with-header {
+    padding-top: var(--sjs2-spacing-x300);
 }
 .sd-root-modern--mobile {
     .sd-paneldynamic__tabs-container--with-header {

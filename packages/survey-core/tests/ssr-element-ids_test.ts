@@ -211,6 +211,18 @@ describe("SSR-safe element ids", () => {
       const set1 = new Set(collectIds(s1));
       expect(collectIds(s2).some((id) => set1.has(id))).toBe(false);
     });
+
+    test("Setting postId is quiet - it fires no onPropertyChanged (renderers assign it during render)", () => {
+      const survey = new SurveyModel(json);
+      let changes = 0;
+      survey.onPropertyChanged.add((_, options) => { if (options.name === "postId") changes++; });
+      survey.postId = "_r1";
+      survey.postId = "_r2";
+      expect(changes).toBe(0);
+      expect(survey.postId).toBe("_r2");
+      // and it still composes into renderedId
+      expect(survey.getQuestionByName("q1").renderedId).toBe("sq_0_r2");
+    });
   });
 
   describe("No id generated during load", () => {

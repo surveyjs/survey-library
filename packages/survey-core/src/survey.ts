@@ -1224,11 +1224,16 @@ export class SurveyModel extends SurveyElementCore
    * supplied by the framework SSR layer (React/Vue/Angular `useId`) so the same survey definition
    * produces the same DOM ids on the server and on the client. Ignored when `idPrefix` is set.
    *
+   * Assigned quietly (no `onPropertyChanged` notification): renderers set it from inside a render
+   * pass (e.g. React/Vue `useId`), so it must not trigger a reactivity update while rendering. It is
+   * read lazily at render time in `Base.renderedId`, so setting it before first render is enough.
+   *
    * Default value: `""`
    */
-  public get postId(): string { return this.getPropertyValue("postId", ""); }
+  private postIdValue: string = "";
+  public get postId(): string { return this.postIdValue; }
   public set postId(val: string) {
-    this.setPropertyValue("postId", val || "");
+    this.postIdValue = val || "";
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;

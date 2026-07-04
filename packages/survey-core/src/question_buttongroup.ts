@@ -236,7 +236,7 @@ export class ButtonGroupItemModel {
   }
   public get describedBy() {
     return this.question.errors.length > 0
-      ? this.question.id + "_errors"
+      ? this.question.renderedId + "_errors"
       : null;
   }
   public get tabIndex(): number {

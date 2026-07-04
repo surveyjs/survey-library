@@ -1,5 +1,6 @@
 import { property, propertyArray } from "../decorators";
 import { Base } from "../base";
+import { ISurvey } from "../base-interfaces";
 import { IAction, Action, BaseAction, IActionAppearance } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
@@ -10,9 +11,6 @@ import { ActionBarCssClasses, defaultActionBarCss } from "./actionBarCss";
 export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
 
 export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
-  private static ContainerID = 1;
-  protected id = ActionContainer.ContainerID++;
-
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }
@@ -27,6 +25,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
+  }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    const lo: any = this.locOwner;
+    return lo && lo.getSurvey ? lo.getSurvey(isLive) : null;
   }
   @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({

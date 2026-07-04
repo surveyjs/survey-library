@@ -148,6 +148,7 @@ SvgRegistry.registerIcons(iconsV2);
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import { type SurveyModel } from "survey-core";
+import * as Vue from "vue";
 import {
   toRaw,
   ref,
@@ -157,6 +158,18 @@ import {
   triggerRef
 } from "vue";
 import { useBase } from "./base";
+
+// Vue 3.5 adds `useId()`, an SSR-stable id (same on `renderToString` and the hydrating client). Vue
+// 3.0-3.4 do not export it, so `vueUseId` is undefined and `renderedIdSuffix` is left empty
+// (renderedId === raw id, today's behavior). Read off the namespace so a missing export does not
+// break the build.
+const vueUseId = (Vue as any).useId as (() => string) | undefined;
+// useId tokens are already selector-safe in Vue, but strip to word chars/dashes for parity with the
+// other renderers; the transform is deterministic so it stays stable across SSR -> hydration.
+const sanitizeIdSuffix = (token: string): string => {
+  const cleaned = (token || "").replace(/[^\w-]/g, "");
+  return cleaned ? "_" + cleaned : "";
+};
 const props = defineProps<
   | {
       model: SurveyModel;
@@ -173,6 +186,14 @@ const vueSurvey = computed((): SurveyModel => {
   const survey = props.survey ? props.survey : props.model;
   return toRaw(survey) as SurveyModel;
 });
+// Assign the framework SSR token once at setup, before the survey body renders and reads renderedId.
+// renderedIdPrefix (Creator) wins over renderedIdSuffix, so only assign when it would actually be used.
+if (vueUseId) {
+  const survey = vueSurvey.value;
+  if (survey && !survey.renderedIdPrefix) {
+    survey.renderedIdSuffix = sanitizeIdSuffix(vueUseId());
+  }
+}
 const pageId = computed(() => {
   return vueSurvey.value.activePage ? vueSurvey.value.activePage.id : "";
 });

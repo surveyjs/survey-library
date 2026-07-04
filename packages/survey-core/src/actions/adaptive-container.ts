@@ -52,7 +52,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     super();
 
     this.dotsItem = createDropdownActionModelAdvanced({
-      id: "dotsItem-id" + this.id++,
+      id: "dotsItem-id-" + this.id,
       css: "sv-dots",
       innerCss: "sv-dots__item",
       iconName: "icon-more",
@@ -62,6 +62,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       items: [],
       allowSelection: false
     });
+    this.dotsItem.owner = this;
     this.hiddenItemsListModel.createActionCallback = (item: IAction) => this.createActionCore(this.hiddenItemsListModel, item);
   }
   public get hiddenItemsListModel(): ListModel {

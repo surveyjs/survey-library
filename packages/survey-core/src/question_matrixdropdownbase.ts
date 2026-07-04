@@ -250,11 +250,6 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
 }
 
 export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
-  private static idCounter: number = 1;
-  private static getId(): string {
-    return "srow_" + MatrixDropdownRowModelBase.idCounter++;
-  }
-
   private idValue: string;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
@@ -272,10 +267,17 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
-    this.idValue = MatrixDropdownRowModelBase.getId();
   }
   public get id(): string {
+    if (this.idValue === undefined) {
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("srow");
+    }
     return this.idValue;
+  }
+  // This class implements ISurvey* interfaces but does not extend Base, so it needs its own DOM id
+  // composition (renderedIdPrefix/renderedIdSuffix wrapping) rather than inheriting Base.renderedId.
+  public get renderedId(): string {
+    return Base.composeRenderedId(this.getSurvey(), this.id);
   }
   public get rowName(): any {
     return null;

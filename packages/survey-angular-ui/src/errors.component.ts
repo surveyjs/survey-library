@@ -10,7 +10,7 @@ export class ErrorsComponent {
   @Input() location?: string;
   constructor() {}
   @HostBinding("id") get id(): string {
-    return this.element.id + "_errors";
+    return this.element.renderedId + "_errors";
   }
   @HostBinding("class") get class(): string {
     return this.element.cssError;

@@ -17,6 +17,7 @@ import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, ValueGetter, VariableGetterContext } from "./conditions/conditionProcessValue";
 import { EventBase, Event } from "./event";
+import { SurveyIdGenerator } from "./survey-id-generator";
 
 export interface IPropertyValueChangedEvent {
   name: string;
@@ -235,8 +236,19 @@ export class ComputedUpdater<T = any> {
  * A base class for all SurveyJS objects.
  */
 export class Base implements IObjectValueContext {
-  private static UniqueId = 0;
-  private uniqueIdValue: number = (Base.UniqueId++);
+  private uniqueIdValue: number | undefined;
+  private static defaultIdGeneratorValue: SurveyIdGenerator;
+  /**
+   * A shared fallback id generator used by objects that are not attached to a survey (standalone
+   * actions, popup models, unit-test fixtures). Such objects are client-only and do not take part
+   * in SSR hydration; the moment an object is attached to a survey it uses that survey's generator.
+   */
+  public static get defaultIdGenerator(): SurveyIdGenerator {
+    if (!Base.defaultIdGeneratorValue) {
+      Base.defaultIdGeneratorValue = new SurveyIdGenerator();
+    }
+    return Base.defaultIdGeneratorValue;
+  }
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -397,7 +409,76 @@ export class Base implements IObjectValueContext {
   public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
-  public get uniqueId(): number { return this.uniqueIdValue; }
+  /**
+   * A numeric identifier assigned in object-creation order. Used for framework `key`s and for
+   * creation-order dependent sorting (e.g. `Helpers.randomizeArray`); it is **not** rendered to the
+   * DOM on its own, so it does not require per-survey/SSR determinism. It is sourced from the survey's
+   * id generator (or the shared fallback) rather than a `Base`-level mutable static field.
+   */
+  public get uniqueId(): number {
+    if (this.uniqueIdValue === undefined) {
+      this.uniqueIdValue = this.getIdGenerator().nextUniqueId();
+    }
+    return this.uniqueIdValue;
+  }
+  /**
+   * Returns the given survey's id generator, or the shared fallback generator when there is no
+   * survey. Used by `getIdGenerator` overrides to avoid repeating the null check.
+   */
+  public static getIdGeneratorBySurvey(survey: any): SurveyIdGenerator {
+    return (survey && survey.idGenerator) || Base.defaultIdGenerator;
+  }
+  /**
+   * Returns the id generator this object draws its `id`/`uniqueId` from, so that its ids are
+   * deterministic and unique within its survey. Resolves to `this.getSurvey()?.idGenerator` (falling
+   * back to the shared generator for detached objects). Classes whose survey is reached through a
+   * different owner (a panel, a question, an action owner) override this to pass that owner's survey.
+   */
+  protected getIdGenerator(): SurveyIdGenerator {
+    return Base.getIdGeneratorBySurvey(this.getSurvey());
+  }
+  /**
+   * Returns the "kind" segment used when this object's `id` is generated (for example, `"sq"` for
+   * questions or `"sp"` for panels/pages). Defaults to `getType()`; override to pin a short, stable,
+   * type-independent prefix. CSS selectors and tests match on this prefix.
+   */
+  protected getIdPrefix(): string { return this.getType(); }
+  /**
+   * The raw, per-survey logical id (`"sq_0"`, `"sp_0"`, ...). Used for internal logic, dictionaries
+   * and virtual-DOM identity; it is **not** rendered to the DOM directly (see `renderedId`). A
+   * deterministic default is generated lazily on first access; assigning a value explicitly always
+   * wins.
+   */
+  public get id(): string {
+    return this.getPropertyValue("id", undefined, () => this.generateElementId());
+  }
+  public set id(val: string) { this.setPropertyValue("id", val); }
+  protected generateElementId(): string {
+    if (!!settings.getElementId) {
+      return settings.getElementId(this, this.getIdPrefix());
+    }
+    return this.getIdGenerator().next(this.getIdPrefix());
+  }
+  /**
+   * Wraps a raw, per-survey `id` with the survey's `renderedIdPrefix` (prepended) and
+   * `renderedIdSuffix` (appended, the framework-supplied SSR token) to produce the actual DOM id.
+   * With both empty the result equals the raw id. `renderedIdSuffix` is ignored when
+   * `renderedIdPrefix` is set, since `renderedIdPrefix` already namespaces ids.
+   */
+  public static composeRenderedId(survey: any, id: string): string {
+    const prefix: string = (survey && survey.renderedIdPrefix) || "";
+    const suffix: string = !prefix && survey ? (survey.renderedIdSuffix || "") : "";
+    return prefix + id + suffix;
+  }
+  /**
+   * The value assigned to the `id` attribute of the rendered HTML element, and the base for every
+   * derived DOM id. It wraps the raw `id` with the survey's `renderedIdPrefix`/`renderedIdSuffix`
+   * (see `composeRenderedId`). With both empty (a single non-SSR survey, unit tests, the markup
+   * harness) `renderedId === id`.
+   */
+  public get renderedId(): string {
+    return Base.composeRenderedId(this.getSurvey(), this.id);
+  }
   public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(onCallbacksChanged?: () => void): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
@@ -1113,8 +1194,13 @@ export class Base implements IObjectValueContext {
   public get isAsyncExpressionRunning(): boolean {
     return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
   }
+  private asyncRunIdCounter: number = 0;
   protected createExpressionRunner(expression: string): ExpressionRunner {
     const res = new ExpressionRunner(expression);
+    // The run id correlates async start/complete callbacks within this object's asynExpressionHash.
+    // Source it from a per-owner counter so it is unique across all of this object's runners without
+    // relying on a module-level static.
+    res.getRunId = (): number => ++this.asyncRunIdCounter;
     res.onBeforeAsyncRun = (id: number): void => { this.doBeforeAsynRun(id); };
     res.onAfterAsyncRun = (id: number): void => { this.doAfterAsynRun(id); };
     return res;

@@ -97,7 +97,7 @@ describe("SSR-safe element ids", () => {
   });
 
   describe("renderedId === id when unwrapped", () => {
-    test("With no idPrefix/postId, renderedId equals the raw id for every element kind", () => {
+    test("With no renderedIdPrefix/renderedIdSuffix, renderedId equals the raw id for every element kind", () => {
       const survey = new SurveyModel(json);
       const q1 = survey.getQuestionByName("q1");
       expect(q1.id).toBe("sq_0");
@@ -154,10 +154,10 @@ describe("SSR-safe element ids", () => {
     });
   });
 
-  describe("idPrefix (multiple surveys on one page)", () => {
-    test("Distinct idPrefix namespaces every renderedId - no collision between two surveys", () => {
-      const survey1 = new SurveyModel(json); survey1.idPrefix = "a-";
-      const survey2 = new SurveyModel(json); survey2.idPrefix = "b-";
+  describe("renderedIdPrefix (multiple surveys on one page)", () => {
+    test("Distinct renderedIdPrefix namespaces every renderedId - no collision between two surveys", () => {
+      const survey1 = new SurveyModel(json); survey1.renderedIdPrefix = "a-";
+      const survey2 = new SurveyModel(json); survey2.renderedIdPrefix = "b-";
       const ids1 = collectIds(survey1);
       const ids2 = collectIds(survey2);
       expect(ids1[0]).toBe("page:a-sp_0");
@@ -166,8 +166,8 @@ describe("SSR-safe element ids", () => {
       expect(ids2.some((id) => set1.has(id))).toBe(false);
     });
 
-    test("idPrefix wraps renderedId and derived ids but leaves the raw id unchanged", () => {
-      const survey = new SurveyModel(json); survey.idPrefix = "a-";
+    test("renderedIdPrefix wraps renderedId and derived ids but leaves the raw id unchanged", () => {
+      const survey = new SurveyModel(json); survey.renderedIdPrefix = "a-";
       const q1 = survey.getQuestionByName("q1");
       expect(q1.id).toBe("sq_0");
       expect(q1.renderedId).toBe("a-sq_0");
@@ -175,51 +175,51 @@ describe("SSR-safe element ids", () => {
       expect(q1.ariaTitleId).toBe("a-sq_0_ariaTitle");
     });
 
-    test("Without idPrefix, two surveys reuse the same ids (documented limitation)", () => {
+    test("Without renderedIdPrefix, two surveys reuse the same ids (documented limitation)", () => {
       const ids1 = collectIds(new SurveyModel(json));
       const ids2 = collectIds(new SurveyModel(json));
       expect(ids2).toEqual(ids1);
     });
 
-    test("idPrefix set after construction still applies (no id is generated during load)", () => {
+    test("renderedIdPrefix set after construction still applies (no id is generated during load)", () => {
       const survey = new SurveyModel(json);
-      survey.idPrefix = "x-";
+      survey.renderedIdPrefix = "x-";
       expect(survey.getQuestionByName("q1").renderedId).toBe("x-sq_0");
       expect(survey.pages[0].renderedId).toBe("x-sp_0");
     });
   });
 
-  describe("postId (SSR token)", () => {
-    test("postId is appended to renderedId and derived ids", () => {
-      const survey = new SurveyModel(json); survey.postId = "_r1";
+  describe("renderedIdSuffix (SSR token)", () => {
+    test("renderedIdSuffix is appended to renderedId and derived ids", () => {
+      const survey = new SurveyModel(json); survey.renderedIdSuffix = "_r1";
       const q1 = survey.getQuestionByName("q1");
       expect(q1.id).toBe("sq_0");
       expect(q1.renderedId).toBe("sq_0_r1");
       expect(q1.inputId).toBe("sq_0_r1i");
     });
 
-    test("postId is ignored when idPrefix is set", () => {
+    test("renderedIdSuffix is ignored when renderedIdPrefix is set", () => {
       const survey = new SurveyModel(json);
-      survey.idPrefix = "a-";
-      survey.postId = "_r1";
+      survey.renderedIdPrefix = "a-";
+      survey.renderedIdSuffix = "_r1";
       expect(survey.getQuestionByName("q1").renderedId).toBe("a-sq_0");
     });
 
-    test("Two surveys with distinct postId have zero renderedId overlap", () => {
-      const s1 = new SurveyModel(json); s1.postId = "_a";
-      const s2 = new SurveyModel(json); s2.postId = "_b";
+    test("Two surveys with distinct renderedIdSuffix have zero renderedId overlap", () => {
+      const s1 = new SurveyModel(json); s1.renderedIdSuffix = "_a";
+      const s2 = new SurveyModel(json); s2.renderedIdSuffix = "_b";
       const set1 = new Set(collectIds(s1));
       expect(collectIds(s2).some((id) => set1.has(id))).toBe(false);
     });
 
-    test("Setting postId is quiet - it fires no onPropertyChanged (renderers assign it during render)", () => {
+    test("Setting renderedIdSuffix is quiet - it fires no onPropertyChanged (renderers assign it during render)", () => {
       const survey = new SurveyModel(json);
       let changes = 0;
-      survey.onPropertyChanged.add((_, options) => { if (options.name === "postId") changes++; });
-      survey.postId = "_r1";
-      survey.postId = "_r2";
+      survey.onPropertyChanged.add((_, options) => { if (options.name === "renderedIdSuffix") changes++; });
+      survey.renderedIdSuffix = "_r1";
+      survey.renderedIdSuffix = "_r2";
       expect(changes).toBe(0);
-      expect(survey.postId).toBe("_r2");
+      expect(survey.renderedIdSuffix).toBe("_r2");
       // and it still composes into renderedId
       expect(survey.getQuestionByName("q1").renderedId).toBe("sq_0_r2");
     });
@@ -264,8 +264,8 @@ describe("SSR-safe element ids", () => {
       expect(q1.ariaTitleId).toBe("my-custom-id_ariaTitle");
     });
 
-    test("Explicit id still gets wrapped by idPrefix in renderedId", () => {
-      const survey = new SurveyModel(json); survey.idPrefix = "a-";
+    test("Explicit id still gets wrapped by renderedIdPrefix in renderedId", () => {
+      const survey = new SurveyModel(json); survey.renderedIdPrefix = "a-";
       const q1 = survey.getQuestionByName("q1");
       q1.id = "custom";
       expect(q1.id).toBe("custom");
@@ -292,7 +292,7 @@ describe("SSR-safe element ids", () => {
   });
 
   describe("Actions", () => {
-    test("BaseAction.renderedElementId is generated, deterministic per survey, and namespaced by idPrefix", () => {
+    test("BaseAction.renderedElementId is generated, deterministic per survey, and namespaced by renderedIdPrefix", () => {
       const s1 = new SurveyModel(json);
       const s2 = new SurveyModel(json);
       const a1 = new Action({ id: "act1" }); a1.owner = s1 as any;
@@ -300,7 +300,7 @@ describe("SSR-safe element ids", () => {
       expect(a1.renderedElementId.startsWith("sv-action_")).toBe(true);
       expect(a2.renderedElementId).toBe(a1.renderedElementId);
 
-      const s3 = new SurveyModel(json); s3.idPrefix = "p3-";
+      const s3 = new SurveyModel(json); s3.renderedIdPrefix = "p3-";
       const a3 = new Action({ id: "act1" }); a3.owner = s3 as any;
       expect(a3.renderedElementId).toBe("p3-sv-action_0");
       // the semantic id is independent from the rendered DOM id
@@ -315,7 +315,7 @@ describe("SSR-safe element ids", () => {
 
     test("Actions hosted in a container resolve the survey generator, not the fallback", () => {
       const survey = new SurveyModel(json);
-      survey.idPrefix = "nav-";
+      survey.renderedIdPrefix = "nav-";
       const container = new ActionContainer();
       container.locOwner = survey as any;
       container.setItems([{ id: "a1" }]);
@@ -325,7 +325,7 @@ describe("SSR-safe element ids", () => {
 
     test("AdaptiveActionContainer dots item resolves the survey generator", () => {
       const survey = new SurveyModel(json);
-      survey.idPrefix = "dots-";
+      survey.renderedIdPrefix = "dots-";
       const container = new AdaptiveActionContainer();
       container.locOwner = survey as any;
       expect(container.dotsItem.renderedElementId.startsWith("dots-sv-action_")).toBe(true);

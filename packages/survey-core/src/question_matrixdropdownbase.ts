@@ -275,7 +275,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     return this.idValue;
   }
   // This class implements ISurvey* interfaces but does not extend Base, so it needs its own DOM id
-  // composition (idPrefix/postId wrapping) rather than inheriting Base.renderedId.
+  // composition (renderedIdPrefix/renderedIdSuffix wrapping) rather than inheriting Base.renderedId.
   public get renderedId(): string {
     return Base.composeRenderedId(this.getSurvey(), this.id);
   }

@@ -25,11 +25,12 @@ export class SurveyComponent extends BaseAngular<SurveyModel> {
   ngOnInit(): void {
     // Assign the app-scoped SSR token before the survey body renders and reads renderedId. Inert on
     // Angular 12 (idSource.next() returns "" while SurveyIdSourceService.isEnabled is false), so
-    // postId stays empty. idPrefix (Creator) wins over postId, so skip when it is set.
+    // renderedIdSuffix stays empty. renderedIdPrefix (Creator) wins over renderedIdSuffix, so skip
+    // when it is set.
     const model = this.model;
-    if (model && !model.idPrefix) {
+    if (model && !model.renderedIdPrefix) {
       const token = this.idSource.next();
-      if (token) model.postId = token;
+      if (token) model.renderedIdSuffix = token;
     }
   }
   protected override getShouldReattachChangeDetector(): boolean {

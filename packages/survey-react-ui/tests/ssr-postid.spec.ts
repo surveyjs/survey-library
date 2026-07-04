@@ -38,25 +38,25 @@ function renderToStaticHtml(survey: SurveyModel): string {
   return ReactDOMServer.renderToStaticMarkup(React.createElement(SurveyReact, { model: survey }));
 }
 
-describe("SSR postId wiring (survey-react-ui)", () => {
-  it("Fallback: with useId absent, postId stays empty and the server HTML uses the raw ids", () => {
+describe("SSR renderedIdSuffix wiring (survey-react-ui)", () => {
+  it("Fallback: with useId absent, renderedIdSuffix stays empty and the server HTML uses the raw ids", () => {
     const survey = new SurveyModel(json);
     const html = renderToStaticHtml(survey);
 
-    // On React 17 the initializer is inert; on React 18 it assigns a postId (see the two-pass block).
+    // On React 17 the initializer is inert; on React 18 it assigns a renderedIdSuffix (see the two-pass block).
     if (!reactUseId) {
-      expect(survey.postId).toBe("");
+      expect(survey.renderedIdSuffix).toBe("");
       const q1 = survey.getQuestionByName("q1");
       expect(q1.renderedId).toBe("sq_0");
       expect(html).toContain("id=\"sq_0i\""); // inputId of the first text question
     }
   });
 
-  it("Determinism: two independent models with the same postId produce byte-identical markup", () => {
+  it("Determinism: two independent models with the same renderedIdSuffix produce byte-identical markup", () => {
     const s1 = new SurveyModel(json);
     const s2 = new SurveyModel(json);
     // Whatever the renderer assigned to s1 (empty on React 17, a useId token on 18), pin s2 to match.
-    s2.postId = s1.postId;
+    s2.renderedIdSuffix = s1.renderedIdSuffix;
     expect(renderToStaticHtml(s2)).toBe(renderToStaticHtml(s1));
   });
 
@@ -70,9 +70,9 @@ describe("SSR postId wiring (survey-react-ui)", () => {
     });
   });
 
-  it("Two surveys with distinct idPrefix render into one document with zero id collision", () => {
-    const s1 = new SurveyModel(json); s1.idPrefix = "a-";
-    const s2 = new SurveyModel(json); s2.idPrefix = "b-";
+  it("Two surveys with distinct renderedIdPrefix render into one document with zero id collision", () => {
+    const s1 = new SurveyModel(json); s1.renderedIdPrefix = "a-";
+    const s2 = new SurveyModel(json); s2.renderedIdPrefix = "b-";
     const html1 = renderToStaticHtml(s1);
     const html2 = renderToStaticHtml(s2);
     expect(html1).toContain("id=\"a-sq_0i\"");
@@ -90,7 +90,7 @@ describe("SSR postId wiring (survey-react-ui)", () => {
       // Server pass: an independent model, rendered to string the way SSR would.
       const serverModel = new SurveyModel(json);
       // Emulate what the renderer's initializer does on the server, using a fixed token.
-      serverModel.postId = "_srv";
+      serverModel.renderedIdSuffix = "_srv";
       const serverHtml = ReactDOMServer.renderToString(
         React.createElement(SurveyReact, { model: serverModel })
       );
@@ -100,7 +100,7 @@ describe("SSR postId wiring (survey-react-ui)", () => {
       container.innerHTML = serverHtml;
       document.body.appendChild(container);
       const clientModel = new SurveyModel(json);
-      clientModel.postId = "_srv";
+      clientModel.renderedIdSuffix = "_srv";
 
       const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});

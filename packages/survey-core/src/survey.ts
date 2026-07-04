@@ -1198,7 +1198,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The id generator that produces deterministic, SSR-safe raw ids for every element of this survey.
    * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`). The survey's
-   * `idPrefix`/`postId` are applied on top of the raw id in `Base.renderedId`.
+   * `renderedIdPrefix`/`renderedIdSuffix` are applied on top of the raw id in `Base.renderedId`.
    */
   public get idGenerator(): SurveyIdGenerator {
     if (!this.idGeneratorValue) {
@@ -1215,14 +1215,14 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `""`
    */
-  public get idPrefix(): string { return this.getPropertyValue("idPrefix", ""); }
-  public set idPrefix(val: string) {
-    this.setPropertyValue("idPrefix", val || "");
+  public get renderedIdPrefix(): string { return this.getPropertyValue("renderedIdPrefix", ""); }
+  public set renderedIdPrefix(val: string) {
+    this.setPropertyValue("renderedIdPrefix", val || "");
   }
   /**
-   * A postfix appended to every DOM id (`renderedId`) generated for this survey's elements. It is
+   * A suffix appended to every DOM id (`renderedId`) generated for this survey's elements. It is
    * supplied by the framework SSR layer (React/Vue/Angular `useId`) so the same survey definition
-   * produces the same DOM ids on the server and on the client. Ignored when `idPrefix` is set.
+   * produces the same DOM ids on the server and on the client. Ignored when `renderedIdPrefix` is set.
    *
    * Assigned quietly (no `onPropertyChanged` notification): renderers set it from inside a render
    * pass (e.g. React/Vue `useId`), so it must not trigger a reactivity update while rendering. It is
@@ -1230,10 +1230,10 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `""`
    */
-  private postIdValue: string = "";
-  public get postId(): string { return this.postIdValue; }
-  public set postId(val: string) {
-    this.postIdValue = val || "";
+  private renderedIdSuffixValue: string = "";
+  public get renderedIdSuffix(): string { return this.renderedIdSuffixValue; }
+  public set renderedIdSuffix(val: string) {
+    this.renderedIdSuffixValue = val || "";
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;

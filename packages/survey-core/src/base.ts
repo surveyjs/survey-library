@@ -460,20 +460,21 @@ export class Base implements IObjectValueContext {
     return this.getIdGenerator().next(this.getIdPrefix());
   }
   /**
-   * Wraps a raw, per-survey `id` with the survey's `idPrefix` (prepended) and `postId` (appended,
-   * the framework-supplied SSR token) to produce the actual DOM id. With both empty the result equals
-   * the raw id. `postId` is ignored when `idPrefix` is set, since `idPrefix` already namespaces ids.
+   * Wraps a raw, per-survey `id` with the survey's `renderedIdPrefix` (prepended) and
+   * `renderedIdSuffix` (appended, the framework-supplied SSR token) to produce the actual DOM id.
+   * With both empty the result equals the raw id. `renderedIdSuffix` is ignored when
+   * `renderedIdPrefix` is set, since `renderedIdPrefix` already namespaces ids.
    */
   public static composeRenderedId(survey: any, id: string): string {
-    const idPrefix: string = (survey && survey.idPrefix) || "";
-    const postId: string = !idPrefix && survey ? (survey.postId || "") : "";
-    return idPrefix + id + postId;
+    const prefix: string = (survey && survey.renderedIdPrefix) || "";
+    const suffix: string = !prefix && survey ? (survey.renderedIdSuffix || "") : "";
+    return prefix + id + suffix;
   }
   /**
    * The value assigned to the `id` attribute of the rendered HTML element, and the base for every
-   * derived DOM id. It wraps the raw `id` with the survey's `idPrefix`/`postId` (see
-   * `composeRenderedId`). With both empty (a single non-SSR survey, unit tests, the markup harness)
-   * `renderedId === id`.
+   * derived DOM id. It wraps the raw `id` with the survey's `renderedIdPrefix`/`renderedIdSuffix`
+   * (see `composeRenderedId`). With both empty (a single non-SSR survey, unit tests, the markup
+   * harness) `renderedId === id`.
    */
   public get renderedId(): string {
     return Base.composeRenderedId(this.getSurvey(), this.id);

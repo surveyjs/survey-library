@@ -224,7 +224,7 @@ export abstract class BaseAction extends Base implements IAction {
   /**
    * A deterministic, SSR-safe id rendered to the `id` attribute of the action's root element.
    * Generated lazily from the owner survey's id generator (or the fallback for detached actions) and
-   * wrapped with the survey's `idPrefix`/`postId`.
+   * wrapped with the survey's `renderedIdPrefix`/`renderedIdSuffix`.
    */
   public get renderedElementId(): string {
     const raw = this.getPropertyValue("renderedElementIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));

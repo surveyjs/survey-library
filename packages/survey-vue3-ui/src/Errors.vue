@@ -2,7 +2,7 @@
   <div
     v-if="element.hasVisibleErrors"
     :class="element.cssError"
-    :id="element.id + '_errors'"
+    :id="element.renderedId + '_errors'"
     ref="root"
   >
     <SvComponent

@@ -53,6 +53,7 @@ import {
 import { ConditionRunner } from "./conditions/conditionRunner";
 import { expressionSurveyCachedValue } from "./functionsfactory";
 import { settings } from "./settings";
+import { SurveyIdGenerator } from "./survey-id-generator";
 import { isContainerVisible, activateLazyRenderingChecks, classesToSelector, getRootNode } from "./utils/dom-utils";
 import { navigateToUrl, wrapUrlForBackgroundImage } from "./utils/dom-utils";
 import { getRenderedStyleSize, getRenderedSize, mergeObjects, mergeValues } from "./utils/utils";
@@ -1216,6 +1217,59 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
+  }
+  private idGeneratorValue: SurveyIdGenerator;
+  /**
+   * The id generator that produces deterministic, SSR-safe raw ids for every element of this survey.
+   * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`). The survey's
+   * `renderedIdPrefix`/`renderedIdSuffix` are applied on top of the raw id in `Base.renderedId`.
+   */
+  public get idGenerator(): SurveyIdGenerator {
+    if (!this.idGeneratorValue) {
+      this.idGeneratorValue = new SurveyIdGenerator();
+    }
+    return this.idGeneratorValue;
+  }
+  protected getIdGenerator(): SurveyIdGenerator { return this.idGenerator; }
+  /**
+   * A prefix prepended to every DOM id (`renderedId`) generated for this survey's elements. Set a
+   * distinct value per survey when you render **multiple surveys on one page** (especially with SSR)
+   * to keep their ids from colliding. Leave it empty (default) for a single survey. Assign it before
+   * the survey is rendered.
+   *
+   * Default value: `""`
+   */
+  public get renderedIdPrefix(): string { return this.getPropertyValue("renderedIdPrefix", ""); }
+  public set renderedIdPrefix(val: string) {
+    this.setPropertyValue("renderedIdPrefix", val || "");
+  }
+  /**
+   * A suffix appended to every DOM id (`renderedId`) generated for this survey's elements. It is
+   * supplied by the framework SSR layer (React/Vue/Angular `useId`) so the same survey definition
+   * produces the same DOM ids on the server and on the client. Ignored when `renderedIdPrefix` is set.
+   *
+   * Assigned quietly (no `onPropertyChanged` notification): renderers set it from inside a render
+   * pass (e.g. React/Vue `useId`), so it must not trigger a reactivity update while rendering. It is
+   * read lazily at render time in `Base.renderedId`, so setting it before first render is enough.
+   *
+   * Default value: `""`
+   */
+  private renderedIdSuffixValue: string = "";
+  public get renderedIdSuffix(): string { return this.renderedIdSuffixValue; }
+  public set renderedIdSuffix(val: string) {
+    this.renderedIdSuffixValue = val || "";
+  }
+  /**
+   * Wraps a raw, per-survey element `id` with this survey's `renderedIdPrefix` (prepended) and
+   * `renderedIdSuffix` (appended, the framework-supplied SSR token) to produce the actual DOM id.
+   * With both empty the result equals the raw id. `renderedIdSuffix` is ignored when
+   * `renderedIdPrefix` is set, since `renderedIdPrefix` already namespaces ids. This is the single
+   * place that knows the id-namespacing policy; elements reach it via `Base.renderedId`.
+   */
+  public getRenderedId(id: string): string {
+    const prefix: string = this.renderedIdPrefix || "";
+    const suffix: string = !prefix ? (this.renderedIdSuffix || "") : "";
+    return prefix + id + suffix;
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;
@@ -5282,9 +5336,9 @@ export class SurveyModel extends SurveyElementCore
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if (!this.completedByTriggers)this.completedByTriggers = {};
     if (isCompleted) {
-      this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
+      this.completedByTriggers[trigger.uniqueId] = { trigger: trigger, pageId: this.currentPage?.id };
     } else {
-      delete this.completedByTriggers[trigger.id];
+      delete this.completedByTriggers[trigger.uniqueId];
     }
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();

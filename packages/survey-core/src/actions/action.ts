@@ -1,5 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
+import { ISurvey } from "../base-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -175,11 +176,12 @@ export function setCreatePopupModelWithListModel(fn: (listOptions: IListModel, p
 
 export abstract class BaseAction extends Base implements IAction {
   items?: IAction[];
-  private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
-  private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
+  public getSurvey(isLive: boolean = false): ISurvey {
+    const owner: any = this.owner;
+    return owner && owner.getSurvey ? owner.getSurvey(isLive) : null;
+  }
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
@@ -220,7 +222,22 @@ export abstract class BaseAction extends Base implements IAction {
   maxDimension: number;
   public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
-  public get renderedId(): number { return this.rendredIdValue; }
+  /**
+   * A per-instance identifier used as a framework `key` (React `key`, Vue `:key`, Angular trackBy).
+   * Not rendered to the DOM. Historically a bare number; it is now the stringified `uniqueId` so it
+   * stays type-compatible with `Base.renderedId` (the DOM id) which this override intentionally does
+   * NOT provide - an action's DOM id is `renderedElementId`.
+   */
+  public get renderedId(): string { return "" + this.uniqueId; }
+  /**
+   * A deterministic, SSR-safe id rendered to the `id` attribute of the action's root element.
+   * Generated lazily from the owner survey's id generator (or the fallback for detached actions) and
+   * wrapped with the survey's `renderedIdPrefix`/`renderedIdSuffix`.
+   */
+  public get renderedElementId(): string {
+    const raw = this.getPropertyValue("renderedElementIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
+    return this.composeRenderedId(raw);
+  }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
     if (val !== this.owner) {

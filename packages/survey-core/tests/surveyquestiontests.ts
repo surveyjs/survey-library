@@ -7012,7 +7012,7 @@ describe("Survey_Questions", () => {
     const textAreaOptions = q2.textAreaModel;
     const q1Id = q1.id;
     const q2Id = q2.id;
-    expect(otherOptions.id, "otherOptions id").toBe(q1Id + "_" + q1.otherItem.uniqueId);
+    expect(otherOptions.id, "otherOptions id").toBe(q1.getItemCommentId(q1.otherItem));
     expect(otherOptions.getCssClasses().root, "otherOptions className").toBe("sd-formbox sd-comment");
     expect(otherOptions.isDisabledAttr, "otherOptions isDisabledAttr").toBe(false);
     expect(otherOptions.isReadOnlyAttr, "otherOptions isReadOnlyAttr").toBeUndefined();

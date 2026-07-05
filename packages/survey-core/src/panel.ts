@@ -1580,9 +1580,6 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!this.removeElementCallback)this.removeElementCallback(element);
     this.onElementVisibilityChanged(this);
   }
-  // A stable per-instance key for element change handlers. Uses `uniqueId` (an internal identifier)
-  // rather than the DOM `id` so registering handlers during survey load does not force early,
-  // pre-`renderedIdPrefix` generation of the DOM id.
   private get elementHandlersKey(): string { return "el-handlers-" + this.uniqueId; }
   protected unregisterElementPropertiesChanged(element: IElement): void {
     (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.elementHandlersKey);

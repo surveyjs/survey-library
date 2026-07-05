@@ -23,11 +23,10 @@ export class SurveyComponent extends BaseAngular<SurveyModel> {
   override ngOnInit(): void {
     // Assign the app-scoped SSR token before the survey body renders and reads renderedId. Inert on
     // Angular 12 (idSource.next() returns "" while SurveyIdSourceService.isEnabled is false), so
-    // renderedIdSuffix stays empty. renderedIdPrefix (Creator) wins over renderedIdSuffix, so skip
-    // when it is set. Must run before super.ngOnInit() creates the embedded view (which renders the
+    // Must run before super.ngOnInit() creates the embedded view (which renders the
     // survey body and reads renderedId).
     const model = this.model;
-    if (model && !model.renderedIdPrefix) {
+    if (model) {
       const token = this.idSource.next();
       if (token) model.renderedIdSuffix = token;
     }

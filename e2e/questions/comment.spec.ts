@@ -124,22 +124,27 @@ frameworks.forEach((framework) => {
         //survey.readOnly = false;
       });
 
-      await expect(page.locator("#radiogroup_comment")).toBeVisible();
-      await expect(page.locator("#checkbox_comment")).toBeVisible();
-      await expect(page.locator("#dropdown_comment")).toBeVisible();
-      await expect(page.locator("#rating_comment")).toBeVisible();
-      await expect(page.locator("#ranking_comment")).toBeVisible();
-      await expect(page.locator("#boolean_comment")).toBeVisible();
-      await expect(page.locator("#matrix_comment")).toBeVisible();
-      await expect(page.locator("#matrixdropdown_comment")).toBeVisible();
-      await expect(page.locator("#matrixdynamic_comment")).toBeVisible();
-      await expect(page.locator("#paneldynamic_comment")).toBeVisible();
-      await expect(page.locator("#file_comment")).toBeVisible();
-      await expect(page.locator("#text_comment")).not.toBeVisible();
-      await expect(page.locator("#comment_comment")).not.toBeVisible();
-      await expect(page.locator("#html_comment")).not.toBeVisible();
-      await expect(page.locator("#image_comment")).not.toBeVisible();
-      await expect(page.locator("#expression_comment")).not.toBeVisible();
+      // A question's comment id is `renderedId + "_comment"`, and `renderedId` may carry a
+      // survey-level `renderedIdSuffix` (e.g. from Vue 3.5 / React 18 `useId`), so the DOM id is
+      // `<name>[_<suffix>]_comment`. Match on the name prefix + `_comment` suffix so these assertions
+      // hold whether or not a suffix is present. The trailing `_` in the prefix keeps `matrix` from
+      // also matching `matrixdropdown` / `matrixdynamic`.
+      await expect(page.locator("[id^='radiogroup_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='checkbox_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='dropdown_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='rating_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='ranking_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='boolean_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='matrix_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='matrixdropdown_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='matrixdynamic_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='paneldynamic_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='file_'][id$='_comment']")).toBeVisible();
+      await expect(page.locator("[id^='text_'][id$='_comment']")).not.toBeVisible();
+      await expect(page.locator("[id^='comment_'][id$='_comment']")).not.toBeVisible();
+      await expect(page.locator("[id^='html_'][id$='_comment']")).not.toBeVisible();
+      await expect(page.locator("[id^='image_'][id$='_comment']")).not.toBeVisible();
+      await expect(page.locator("[id^='expression_'][id$='_comment']")).not.toBeVisible();
     });
 
     test("autoGrowComment & acceptCarriageReturn", async ({ page }) => {

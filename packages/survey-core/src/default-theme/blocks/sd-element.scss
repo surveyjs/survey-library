@@ -2,10 +2,10 @@
 @use "../mixins.scss" as mixins;
 @use "../typography-mixins.scss" as *;
 
-.sd-element {
-  padding-left: var(--sv-element-add-padding-left, 0px);
-  padding-right: var(--sv-element-add-padding-right, 0px);
-}
+// .sd-element {
+//   padding-left: var(--sv-element-add-padding-left, 0px);
+//   padding-right: var(--sv-element-add-padding-right, 0px);
+// }
 
 .sd-element__title {
   outline: none;

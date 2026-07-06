@@ -16,8 +16,24 @@
 .sd-element--with-frame > .sd-question__container {
   gap: 0;
 }
+// TODO: Refactor
 .sd-composite > .sd-question__container > .sd-question__header-and-content-container {
   padding: 0;
+  &>.sd-question__header {
+    padding-left: var(--sjs2-layout-component-question-header-padding-left, calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px)));
+    padding-right: var(--sjs2-layout-component-question-header-padding-right, calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px)));
+    & ~ hr {
+      width: 100%;
+      left: 0;
+      margin-left: 0;
+    }
+  }
+  &>.sd-question__header ~ .sd-question__content {
+    padding: 0;
+    &>.sd-panel>.sd-panel__content {
+      padding-top: calc(var(--sd-base-padding) - 0.5 * var(--sd-base-vertical-padding));
+    }
+  }
 }
 
 .sd-question__header-and-content-container {

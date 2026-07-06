@@ -322,6 +322,20 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .toString();
   };
 
+  public getLabelMaxWidth = (item: ItemValue): string => {
+    const labels = this.renderedLabels;
+    const range = this.renderedMax - this.renderedMin;
+    if (range <= 0 || labels.length <= 1) return "none";
+    let nearest = Number.POSITIVE_INFINITY;
+    for (let i = 0; i < labels.length; i++) {
+      if (labels[i] === item) continue;
+      const distance = Math.abs(labels[i].value - item.value);
+      if (distance < nearest) nearest = distance;
+    }
+    if (!isFinite(nearest) || nearest <= 0) return "none";
+    return (nearest / range) * 100 + "%";
+  };
+
   public get renderedLabelCount(): number {
     return this.labelCount < 0 ? 6 : this.labelCount;
   }

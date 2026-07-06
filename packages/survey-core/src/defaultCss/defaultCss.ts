@@ -415,8 +415,6 @@ export var defaultCss = {
     switchButtonReadOnly: "sd-boolean-switch__button--readonly",
     switchThumb: "sd-boolean-switch__thumb",
     switchThumbCircle: "sd-boolean-switch__thumb-circle",
-    switchThumbLeft: "sd-boolean-switch__thumb--left",
-    switchThumbRight: "sd-boolean-switch__thumb--right",
     switchCaption: "sd-boolean-switch__caption",
     switchTitle: "sd-boolean-switch__title",
     //end switch

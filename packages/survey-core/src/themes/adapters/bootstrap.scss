@@ -1,20 +1,20 @@
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--bs-border-radius);
   --sjs2-base-unit-spacing: 0.25rem;
-  
+
   --sjs2-color-utility-body: var(--bs-body-bg);
   --sjs2-color-utility-sheet: var(--bs-body-bg);
-  --sjs2-color-utility-a11y: rgba(13, 110, 253, .25);
+  --sjs2-color-utility-a11y: rgba(13, 110, 253, 0.25);
   --sjs2-color-utility-toolbox: var(--bs-body-bg);
   --sjs2-color-utility-property-grid: var(--bs-body-bg);
   --sjs2-color-utility-tabs: var(--bs-body-bg);
   --sjs2-color-utility-surface-survey: var(--sjs2-color-bg-brand-secondary);
   --sjs2-color-utility-surface-designer: var(--sjs2-color-bg-brand-secondary);
-  
+
   --sjs2-border-effect-a11y: 0px 0px 0px 0.25rem var(--sjs2-color-utility-a11y);
 
   /* buttons */
-  --sjs2-border-effect-component-action-a11y: 0px 0px 0px 0.25rem rgba(rgb(49, 132, 253), .5);
+  --sjs2-border-effect-component-action-a11y: 0px 0px 0px 0.25rem rgba(rgb(49, 132, 253), 0.5);
   --sjs2-radius-component-action: var(--bs-border-radius);
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(0.75rem + var(--bs-border-width));
   --sjs2-layout-component-action-large-box-padding-vertical: calc(0.375rem + var(--bs-border-width));
@@ -26,7 +26,7 @@
   --sjs2-color-component-action-brand-primary-default-icon: #fff; /* --bs-btn-color */
   --sjs2-color-component-action-brand-primary-default-bg: #0d6efd; /* --bs-btn-bg */
   --sjs2-border-effect-component-action-brand-primary-default: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-border-color */
-  
+
   --sjs2-color-component-action-brand-primary-hovered-label: #fff; /* --bs-btn-hover-color */
   --sjs2-color-component-action-brand-primary-hovered-icon: #fff; /* --bs-btn-hover-color */
   --sjs2-color-component-action-brand-primary-hovered-bg: #0b5ed7; /* --bs-btn-hover-bg */
@@ -36,49 +36,51 @@
   --sjs2-color-component-action-brand-primary-disabled-icon: #fff; /* --bs-btn-disabled-color */
   --sjs2-color-component-action-brand-primary-disabled-bg: #0d6efd; /* --bs-btn-disabled-bg */
   --sjs2-border-effect-component-action-brand-primary-disabled: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-disabled-border-color */
-  
+
   /* tertiary buttons */
-  
+
   --sjs2-color-component-action-brand-tertiary-surface-default-label: #0d6efd; /* --bs-btn-color */
   --sjs2-color-component-action-brand-tertiary-surface-default-icon: #0d6efd; /* --bs-btn-color */
   --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent; /* --bs-btn-bg */
   --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-border-color */
-  
+
   --sjs2-color-component-action-brand-tertiary-surface-hovered-label: #fff; /* --bs-btn-hover-color */
   --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: #fff; /* --bs-btn-hover-color */
   --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: #0d6efd; /* --bs-btn-hover-bg */
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-hover-border-color */
-  
+
   --sjs2-color-component-action-brand-tertiary-surface-disabled-label: #0d6efd; /* --bs-btn-disabled-color */
   --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: #0d6efd; /* --bs-btn-disabled-color */
   --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent; /* --bs-btn-disabled-bg */
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-disabled-border-color */
-  
+
   --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px var(--bs-primary);
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px var(--bs-primary);
-  
+
   /* formboxes */
-  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border);
-  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px #86b7fe, 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
+    var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-focused:
+    inset 0px 0px 0px 1px #86b7fe, 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
   --sjs2-border-effect-component-formbox-invalid: inset 0px 0px 0px 1px var(--bs-form-invalid-color);
-  --sjs2-border-effect-component-formbox-invalid-focused: inset 0px 0px 0px 1px var(--bs-form-invalid-color), 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
-  
+  --sjs2-border-effect-component-formbox-invalid-focused:
+    inset 0px 0px 0px 1px var(--bs-form-invalid-color), 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
+
   --sjs2-color-component-formbox-default-border: var(--bs-border-color);
   --sjs2-color-component-formbox-default-fg: var(--bs-body-color);
   --sjs2-color-component-formbox-focused-border: var(--bs-primary);
-  
+
   --sjs2-radius-component-formbox: var(--bs-border-radius);
   --sjs2-layout-component-formbox-medium-padding-vertical: calc(0.125rem + var(--bs-border-width));
   --sjs2-layout-component-formbox-medium-padding-horizontal: calc(0.125rem + var(--bs-border-width));
   --sjs2-layout-component-input-medium-content-padding-horizontal: 0.625rem;
-  --sjs2-layout-component-input-medium-content-padding-vertical: 0.25rem; 
-  
+  --sjs2-layout-component-input-medium-content-padding-vertical: 0.25rem;
+
   /* buttongroup */
   --sjs2-color-component-buttongroup-item-true-default-bg: var(--bs-primary);
   --sjs2-color-component-buttongroup-item-true-default-value: #fff;
   --sjs2-color-component-buttongroup-item-true-default-border: var(--bs-primary);
 
-  
   /* error message */
   --sjs2-color-component-message-error-bg: initial;
   --sjs2-color-component-message-error-text: var(--bs-form-invalid-color);
@@ -87,16 +89,16 @@
   --sjs2-layout-component-message-box-padding-vertical: 0;
 
   --sjs2-color-component-boolean-invalid-border: var(--bs-form-invalid-color);
-  
+
   /* checkboxes and radio */
-  --sjs2-radius-component-checkbox: .25em;
+  --sjs2-radius-component-checkbox: 0.25em;
   --sjs2-color-component-check-false-focused-border: var(--bs-primary);
   --sjs2-size-component-checkbox-box: 1em;
   --sjs2-size-component-checkbox-icon: 0.75em;
   --sjs2-size-component-radio-icon: 0.75em;
   --sjs2-size-component-radio-box: 1em;
   --sjs2-layout-component-labeled-item-box-gap-horizontal: 0.5em;
-  --sjs2-layout-component-labeled-group-box-gap-vertical: .125rem;
+  --sjs2-layout-component-labeled-group-box-gap-vertical: 0.125rem;
   --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
   --sjs2-typography-font-weight-component-label-content: var(--bs-body-font-weight);
   --sjs2-typography-line-height-component-label-content: var(--bs-body-line-height);
@@ -109,7 +111,7 @@
 
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--bs-border-color);
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--bs-border-color);
-  
+
   /* common and other */
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--bs-danger) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--bs-secondary-bg);
@@ -141,11 +143,11 @@
   --sjs2-color-project-brand-600: var(--bs-primary);
   --sjs2-color-utility-shadow-surface-default: var(--bs-border-color-translucent);
   --sjs2-color-utility-shadow-trigger-default: transparent;
-  
+
   --sjs2-radius-component-drop: var(--bs-border-radius);
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
   --sjs2-typography-font-family-text: var(--bs-font-sans-serif);
-  --sjs2-typography-font-size-component-question-description: .875em;
+  --sjs2-typography-font-size-component-question-description: 0.875em;
   --sjs2-typography-font-size-default: var(--bs-body-font-size);
   --sjs2-typography-font-size-large: 1.25rem;
   --sjs2-typography-font-weight-component-question-title: var(--bs-body-font-weight);
@@ -254,6 +256,34 @@
 .sd-theme-root .sd-slider__track,
 .sd-theme-root .sd-slider__track:before,
 .sd-theme-root .sd-slider__track:after,
-.sd-theme-root input[type=range].sd-slider__input::-webkit-slider-runnable-track {
-    height: calc(0.25rem * 2);
+.sd-theme-root input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
+  height: calc(0.25rem * 2);
+}
+
+/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
+.sd-row.sd-row--multiple > * {
+  min-width: 0 !important;
+}
+
+/* xs — phones */
+@media (width < 576px) {
+}
+
+/* sm and down */
+@media (width < 768px) {
+  .sd-row.sd-row--multiple {
+    flex-direction: column;
+  }
+}
+
+/* md and down */
+@media (width < 992px) {
+}
+
+/* lg and down */
+@media (width < 1200px) {
+}
+
+/* xxl and up */
+@media (width >= 1400px) {
 }

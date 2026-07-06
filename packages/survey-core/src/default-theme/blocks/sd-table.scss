@@ -407,11 +407,11 @@
   // overflow-x: auto;
   &>.sd-question__container {
     &>.sd-question__header-and-content-container {
+      overflow-x: auto;
       .sd-question__header {
         position: sticky;
         left: 0;
       }
-      overflow-x: auto;
     }
   }
 }
@@ -422,6 +422,12 @@
   &>.sd-question__container {
     &>.sd-question__header-and-content-container {
       overflow-x: visible;
+      &>.sd-question__content {
+        margin: 0 calc(-1 * var(--sd-base-padding));
+        padding: 0 calc(var(--sd-base-padding));
+        min-width: auto;
+        overflow-x: auto;
+      }
     }
   }
 }

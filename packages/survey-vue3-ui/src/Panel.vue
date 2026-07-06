@@ -47,11 +47,12 @@
           </SvComponent>
         </SvComponent>
       </template>
-      <SvComponent
-        :is="'sv-action-bar'"
-        :model="element.getFooterToolbar()"
-      ></SvComponent>
     </div>
+    <SvComponent
+      :is="'sv-action-bar'"
+      v-if="element.renderedIsExpanded && element.getFooterToolbar().hasActions"
+      :model="element.getFooterToolbar()"
+    ></SvComponent>
   </div>
 </template>
 
@@ -75,15 +76,14 @@ const props = defineProps<{
 }>();
 const root = ref<HTMLElement>(null as any);
 const survey = computed(() => props.element.survey);
-const panelPaddingHorizontal = "var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500))";
+const panelPaddingHorizontal = "var(--sd-base-padding, var(--sjs2-spacing-x500))";
 const panelContentStyle = computed(() => {
   const innerPaddingLeft = props.element.innerPaddingLeft;
-  return {
-    paddingInlineStart: innerPaddingLeft
-      ? `calc(${panelPaddingHorizontal} + ${innerPaddingLeft})`
-      : panelPaddingHorizontal,
-    paddingInlineEnd: panelPaddingHorizontal,
-  };
+  return innerPaddingLeft
+    ? {
+        paddingInlineStart: `calc(${panelPaddingHorizontal} + ${innerPaddingLeft})`,
+      }
+    : {};
 });
 
 useBase(() => props.element);

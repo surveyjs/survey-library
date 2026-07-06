@@ -10,7 +10,7 @@
           <sv-ng-row [row]="row"></sv-ng-row>
         </ng-template>
       </ng-container>
-      <sv-ng-action-bar [model]="model.getFooterToolbar()"></sv-ng-action-bar>
     </div>
+    <sv-ng-action-bar *ngIf="model.renderedIsExpanded && model.getFooterToolbar().hasActions" [model]="model.getFooterToolbar()"></sv-ng-action-bar>
   </div>
 </ng-template>

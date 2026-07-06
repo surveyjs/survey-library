@@ -9,7 +9,7 @@ import { AngularComponentFactory } from "./component-factory";
 export class PanelComponent extends BaseAngular<PanelModel> implements AfterViewInit {
   @Input() model!: PanelModel;
   @ViewChild("panelContainer", { static: false, read: ElementRef }) panelContainerRef!: ElementRef<HTMLDivElement>;
-  private readonly panelPaddingHorizontal = "var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500))";
+  private readonly panelPaddingHorizontal = "var(--sd-base-padding, var(--sjs2-spacing-x500))";
   protected getModel(): PanelModel {
     return this.model;
   }
@@ -26,12 +26,9 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
   }
   public get panelContentStyle(): Record<string, string> {
     const hasInnerPadding = !!this.model?.innerPaddingLeft;
-    return {
-      "padding-inline-start": hasInnerPadding
-        ? `calc(${this.panelPaddingHorizontal} + ${this.model.innerPaddingLeft})`
-        : this.panelPaddingHorizontal,
-      "padding-inline-end": this.panelPaddingHorizontal,
-    };
+    return hasInnerPadding ? {
+      "padding-inline-start": `calc(${this.panelPaddingHorizontal} + ${this.model.innerPaddingLeft})`,
+    } : {};
   }
 }
 AngularComponentFactory.Instance.registerComponent("panel", PanelComponent);

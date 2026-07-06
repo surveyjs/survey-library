@@ -24,7 +24,7 @@
   <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showNavigation"></ng-container>
 </div>
 <ng-template #progress>
-  <div [class]="model.cssClasses.footer" *ngIf="!!model.cssClasses.footer">
+  <div [class]="model.cssClasses.footer" *ngIf="(model.isRangeShowing && model.isProgressBottomShowing) || model.showFooterToolbar">
     <hr [class]="model.cssClasses.separator" />
     <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing && model.isProgressBottomShowing">
       <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" 

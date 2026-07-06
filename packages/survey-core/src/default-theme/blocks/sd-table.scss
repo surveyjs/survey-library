@@ -867,14 +867,14 @@
     &>.sd-question__container {
       &>.sd-question__header-and-content-container {
         &>.sd-question__content {
-          .sd-table-wrapper > .sd-table.sd-table--no-header {
+          .sd-table-wrapper .sd-table.sd-table--no-header {
           }
-          .sd-table-wrapper > .sd-table:not(.sd-table--no-header) {
+          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
           }
           &:first-of-type { // No question header
-            .sd-table-wrapper > .sd-table.sd-table--no-header {
+            .sd-table-wrapper .sd-table.sd-table--no-header {
             }
-            .sd-table-wrapper > .sd-table:not(.sd-table--no-header) {
+            .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
             }
           }
         }
@@ -887,15 +887,15 @@
       &>.sd-question__header-and-content-container {
         padding: 0;
         &>.sd-question__content {
-          .sd-table-wrapper > .sd-table.sd-table--no-header {
+          .sd-table-wrapper .sd-table.sd-table--no-header {
           }
-          .sd-table-wrapper > .sd-table:not(.sd-table--no-header) {
+          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
           }
           &:first-of-type { // No question header
-            .sd-table-wrapper > .sd-table.sd-table--no-header {
+            .sd-table-wrapper .sd-table.sd-table--no-header {
               padding-top: 0;
             }
-            .sd-table-wrapper > .sd-table:not(.sd-table--no-header) {
+            .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
             }
           }
         }

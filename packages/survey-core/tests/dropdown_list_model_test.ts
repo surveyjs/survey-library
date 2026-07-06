@@ -1027,6 +1027,24 @@ describe("DropdownListModel", () => {
     expect(dropdownListModel.placeholderRendered, "placeholderRendered #6").toBe("");
   });
 
+  test("lazy load & invalid defaultValueExpression: set survey.data should apply value and show displayText, Bug#11531", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        "type": "dropdown",
+        "name": "country",
+        "defaultValueExpression": "{abc[0]} <!= 123",
+        "choicesLazyLoadEnabled": true
+      }]
+    });
+    survey.onGetChoiceDisplayValue.add((_, options) => {
+      options.setItems(options.values.map((v: any) => "Display " + v));
+    });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    survey.data = { country: "item2" };
+    expect(question.value, "value is set from survey.data despite the invalid defaultValueExpression").toBe("item2");
+    expect(question.displayValue, "displayValue is resolved via onGetChoiceDisplayValue").toBe("Display item2");
+  });
+
   test("lazy loading clear value", () => {
     const survey = new SurveyModel({
       elements: [{

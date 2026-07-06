@@ -1267,7 +1267,7 @@ describe("baseselect", () => {
   test("quesstion commentId/otherId", () => {
     const q1 = new QuestionCheckboxModel("q1");
     expect(q1.commentId, "Comment id").toBe(q1.renderedId + "_comment");
-    expect(q1.otherId, "Other id").toBe(q1.otherItem.renderedElementId + "_comment");
+    expect(q1.otherId, "Other id").toBe(q1.otherItem.renderedId + "_comment");
   });
   test("selectbase, otherValue&question-Comment", () => {
     const survey = new SurveyModel({ elements: [

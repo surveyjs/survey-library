@@ -244,13 +244,13 @@ describe("imagemap", () => {
     (container.querySelector(`#${q1.id}-bg`) as HTMLImageElement).dispatchEvent(new Event("load"));
     flushRAF();
 
-    expect(q1.areas[0].svg.outerHTML, "area[0] SVG incorrect").toBe(`<polygon data-uid="${ q1.areas[0].renderedElementId }" points="${ q1.areas[0].coords }" class="${ q1.areas[0].getCSSClasses() }" title="${ q1.areas[0].title }"></polygon>`);
+    expect(q1.areas[0].svg.outerHTML, "area[0] SVG incorrect").toBe(`<polygon data-uid="${ q1.areas[0].renderedId }" points="${ q1.areas[0].coords }" class="${ q1.areas[0].getCSSClasses() }" title="${ q1.areas[0].title }"></polygon>`);
 
     let a1coords = q1.areas[1].coords.split(",").map(Number);
-    expect(q1.areas[1].svg.outerHTML, "area[1] SVG incorrect").toBe(`<rect data-uid="${ q1.areas[1].renderedElementId }" x="${ a1coords[0] }" y="${ a1coords[1] }" width="${ a1coords[2] - a1coords[0] }" height="${ a1coords[3] - a1coords[1] }" class="${ q1.areas[1].getCSSClasses() }" title="${ q1.areas[1].title }"></rect>`);
+    expect(q1.areas[1].svg.outerHTML, "area[1] SVG incorrect").toBe(`<rect data-uid="${ q1.areas[1].renderedId }" x="${ a1coords[0] }" y="${ a1coords[1] }" width="${ a1coords[2] - a1coords[0] }" height="${ a1coords[3] - a1coords[1] }" class="${ q1.areas[1].getCSSClasses() }" title="${ q1.areas[1].title }"></rect>`);
 
     let a2coords = q1.areas[2].coords.split(",").map(Number);
-    expect(q1.areas[2].svg.outerHTML, "area[2] SVG incorrect").toBe(`<circle data-uid="${ q1.areas[2].renderedElementId }" cx="${ a2coords[0] }" cy="${ a2coords[1] }" r="${ a2coords[2] }" class="${ q1.areas[2].getCSSClasses() }" title="${ q1.areas[2].title }"></circle>`);
+    expect(q1.areas[2].svg.outerHTML, "area[2] SVG incorrect").toBe(`<circle data-uid="${ q1.areas[2].renderedId }" cx="${ a2coords[0] }" cy="${ a2coords[1] }" r="${ a2coords[2] }" class="${ q1.areas[2].getCSSClasses() }" title="${ q1.areas[2].title }"></circle>`);
   });
 
   test("css variables", () => {
@@ -656,10 +656,10 @@ describe("imagemap", () => {
     flushRAF();
 
     expect(q2.areas[0].text, "v1 'de' locale text").toBe("v1_text_de");
-    expect(q2.areas[0].svg.outerHTML, "area[0] 'de' locale svg render").toBe(`<polygon data-uid="${ q2.areas[0].renderedElementId }" points="${ q2.areas[0].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[0].text }"></polygon>`);
+    expect(q2.areas[0].svg.outerHTML, "area[0] 'de' locale svg render").toBe(`<polygon data-uid="${ q2.areas[0].renderedId }" points="${ q2.areas[0].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[0].text }"></polygon>`);
 
     expect(q2.areas[1].text, "v2 'de' locale text").toBe("v2_text");
-    expect(q2.areas[1].svg.outerHTML, "area[1] 'de' locale svg render").toBe(`<polygon data-uid="${ q2.areas[1].renderedElementId }" points="${ q2.areas[1].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[1].text }"></polygon>`);
+    expect(q2.areas[1].svg.outerHTML, "area[1] 'de' locale svg render").toBe(`<polygon data-uid="${ q2.areas[1].renderedId }" points="${ q2.areas[1].getCoords() }" class="sd-imagemap-svg-item" title="${ q2.areas[1].text }"></polygon>`);
 
     expect(q2.svg.innerHTML, "svg innerHTML on 'de' locale").toBe(q2.areas[0].svg.outerHTML + q2.areas[1].svg.outerHTML);
   });

@@ -236,7 +236,8 @@ export class ComputedUpdater<T = any> {
  * A base class for all SurveyJS objects.
  */
 export class Base implements IObjectValueContext {
-  private uniqueIdValue: number | undefined;
+  private static UniqueId = 0;
+  private uniqueIdValue: number = Base.UniqueId++;
   private static defaultIdGeneratorValue: SurveyIdGenerator;
   /**
    * A shared fallback id generator used by objects that are not attached to a survey (standalone
@@ -410,15 +411,12 @@ export class Base implements IObjectValueContext {
     return this.isDisposedValue === true;
   }
   /**
-   * A numeric identifier assigned in object-creation order. Used for framework `key`s and for
-   * creation-order dependent sorting (e.g. `Helpers.randomizeArray`); it is **not** rendered to the
-   * DOM on its own, so it does not require per-survey/SSR determinism. It is sourced from the survey's
-   * id generator (or the shared fallback) rather than a `Base`-level mutable static field.
+   * A process-global numeric identifier assigned eagerly in object-creation order. Used for framework
+   * `key`s, instance-keyed maps, the reactivity dependency hash, and creation-order sorting (e.g.
+   * `Helpers.randomizeArray`). It is **not** rendered to the DOM (that is `renderedId`), so it needs no
+   * per-survey/SSR determinism - hence a plain immutable static counter rather than the id generator.
    */
   public get uniqueId(): number {
-    if (this.uniqueIdValue === undefined) {
-      this.uniqueIdValue = this.getIdGenerator().nextUniqueId();
-    }
     return this.uniqueIdValue;
   }
   /**

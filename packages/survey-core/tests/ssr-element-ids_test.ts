@@ -86,13 +86,18 @@ describe("SSR-safe element ids", () => {
       }
     });
 
-    test("uniqueId is per-survey and deterministic across two identical builds", () => {
+    test("uniqueId is a process-global per-instance number; cross-build determinism lives on renderedId", () => {
       const s1 = new SurveyModel(json);
       const s2 = new SurveyModel(json);
-      expect(s2.getQuestionByName("q1").uniqueId).toBe(s1.getQuestionByName("q1").uniqueId);
-      const u1 = s1.getQuestionByName("q1").uniqueId;
-      const u4 = s1.getQuestionByName("q4").uniqueId;
-      expect(u1).not.toBe(u4);
+      const q1a = s1.getQuestionByName("q1");
+      const q1b = s2.getQuestionByName("q1");
+      // Distinct instances always get distinct uniqueIds - even the same question in an identical
+      // build - because uniqueId is a global identity counter, not a DOM id.
+      expect(q1b.uniqueId).not.toBe(q1a.uniqueId);
+      expect(q1a.uniqueId).not.toBe(s1.getQuestionByName("q4").uniqueId);
+      expect(typeof q1a.uniqueId).toBe("number");
+      // The DOM id (renderedId) is what must be deterministic across identical builds, and is.
+      expect(q1b.renderedId).toBe(q1a.renderedId);
     });
   });
 
@@ -248,8 +253,8 @@ describe("SSR-safe element ids", () => {
         });
       });
       const q3 = survey.getQuestionByName("q3") as QuestionCheckboxModel;
-      // otherId is built from the item's generated renderedElementId, not its uniqueId
-      expect(q3.otherId).toBe(q3.otherItem.renderedElementId + "_comment");
+      // otherId is built from the item's generated renderedId, not its uniqueId
+      expect(q3.otherId).toBe(q3.otherItem.renderedId + "_comment");
     });
   });
 
@@ -287,30 +292,33 @@ describe("SSR-safe element ids", () => {
       const q3b = new SurveyModel(json).getQuestionByName("q3") as QuestionCheckboxModel;
       expect(q3b.otherId).toBe(q3a.otherId);
       expect(q3a.otherId.endsWith("_comment")).toBe(true);
-      expect(q3a.otherId).toBe(q3a.otherItem.renderedElementId + "_comment");
+      expect(q3a.otherId).toBe(q3a.otherItem.renderedId + "_comment");
     });
   });
 
   describe("Actions", () => {
-    test("BaseAction.renderedElementId is generated, deterministic per survey, and namespaced by renderedIdPrefix", () => {
+    test("BaseAction.renderedId is generated, deterministic per survey, and namespaced by renderedIdPrefix", () => {
       const s1 = new SurveyModel(json);
       const s2 = new SurveyModel(json);
       const a1 = new Action({ id: "act1" }); a1.owner = s1 as any;
       const a2 = new Action({ id: "act1" }); a2.owner = s2 as any;
-      expect(a1.renderedElementId.startsWith("sv-action_")).toBe(true);
-      expect(a2.renderedElementId).toBe(a1.renderedElementId);
+      expect(a1.renderedId.startsWith("sv-action_")).toBe(true);
+      expect(a2.renderedId).toBe(a1.renderedId);
 
       const s3 = new SurveyModel(json); s3.renderedIdPrefix = "p3-";
       const a3 = new Action({ id: "act1" }); a3.owner = s3 as any;
-      expect(a3.renderedElementId).toBe("p3-sv-action_0");
+      expect(a3.renderedId).toBe("p3-sv-action_0");
       // the semantic id is independent from the rendered DOM id
       expect(a3.id).toBe("act1");
     });
 
-    test("renderedId equals uniqueId (framework key, not a DOM id)", () => {
+    test("uniqueId is the framework key (a number); renderedId is the generated DOM id", () => {
       const survey = new SurveyModel(json);
       const a = new Action({ id: "act" }); a.owner = survey as any;
-      expect(a.renderedId).toBe("" + a.uniqueId);
+      expect(typeof a.uniqueId).toBe("number");
+      expect(a.renderedId.startsWith("sv-action_")).toBe(true);
+      // the semantic id is independent from the rendered DOM id
+      expect(a.id).toBe("act");
     });
 
     test("Actions hosted in a container resolve the survey generator, not the fallback", () => {
@@ -320,7 +328,7 @@ describe("SSR-safe element ids", () => {
       container.locOwner = survey as any;
       container.setItems([{ id: "a1" }]);
       const action = container.actions[0];
-      expect(action.renderedElementId).toBe("nav-sv-action_0");
+      expect(action.renderedId).toBe("nav-sv-action_0");
     });
 
     test("AdaptiveActionContainer dots item resolves the survey generator", () => {
@@ -328,7 +336,7 @@ describe("SSR-safe element ids", () => {
       survey.renderedIdPrefix = "dots-";
       const container = new AdaptiveActionContainer();
       container.locOwner = survey as any;
-      expect(container.dotsItem.renderedElementId.startsWith("dots-sv-action_")).toBe(true);
+      expect(container.dotsItem.renderedId.startsWith("dots-sv-action_")).toBe(true);
     });
   });
 
@@ -341,7 +349,7 @@ describe("SSR-safe element ids", () => {
 
     test("A standalone Action generates a fallback id without throwing", () => {
       const a = new Action({ title: "Standalone" });
-      expect(a.renderedElementId.startsWith("sv-action_")).toBe(true);
+      expect(a.renderedId.startsWith("sv-action_")).toBe(true);
     });
 
     test("Base.getIdGeneratorBySurvey falls back to the shared generator when survey is null", () => {

@@ -179,7 +179,7 @@ export class QuestionImageMapModel extends Question {
     }
     const uid = (event.target as HTMLElement).dataset["uid"];
     if (!uid) return;
-    const item = this.areas.find(i => i.renderedElementId === uid);
+    const item = this.areas.find(i => i.renderedId === uid);
     this.mapItemToggle(item);
   };
 
@@ -368,9 +368,9 @@ export class QuestionImageMapModel extends Question {
 
   public isItemHovered(item: ImageMapArea): boolean {
     if (!this.hoveredUID) return false;
-    const hoveredItem = this.areas.find(i => i.renderedElementId === this.hoveredUID);
+    const hoveredItem = this.areas.find(i => i.renderedId === this.hoveredUID);
     if (!hoveredItem) return false;
-    return this.isInDesignMode ? item.renderedElementId === this.hoveredUID : item.value === hoveredItem.value;
+    return this.isInDesignMode ? item.renderedId === this.hoveredUID : item.value === hoveredItem.value;
   }
 
   public addItem(value: any): ImageMapArea {
@@ -625,7 +625,7 @@ export class ImageMapArea extends ItemValue {
     const document = DomDocumentHelper.getDocument();
 
     const el = document.createElementNS("http://www.w3.org/2000/svg", shape === "poly" ? "polygon" : shape);
-    el.dataset["uid"] = this.renderedElementId;
+    el.dataset["uid"] = this.renderedId;
     this.svg = el;
 
     this.draw();

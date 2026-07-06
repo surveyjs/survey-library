@@ -415,10 +415,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.getItemCommentId(this.otherItem);
   }
   public getItemCommentId(item: ItemValue): string {
-    // The item's renderedElementId is a per-survey-deterministic, uniqueId-free, SSR-namespaced
-    // token (unique per item regardless of its position in visibleChoices), so it is a stable base
-    // for the comment textarea DOM id.
-    return item.renderedElementId + "_comment";
+    // The item's renderedId is a per-survey-deterministic, uniqueId-free, SSR-namespaced token
+    // (unique per item regardless of its position in visibleChoices), so it is a stable base for the
+    // comment textarea DOM id.
+    return item.renderedId + "_comment";
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];

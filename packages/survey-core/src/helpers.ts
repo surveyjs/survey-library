@@ -197,10 +197,8 @@ export class Helpers {
   public static randomizeArray<T>(array: Array<T>, seed?: number): Array<T> {
 
     const shuffle = (array: Array<T>) => {
-      // `uniqueId` is assigned lazily on first read. Touch every item in array (definition) order
-      // first, so the base sort below reflects creation order deterministically instead of the
-      // engine-specific order in which the sort comparator happens to call it.
-      array.forEach((item: any) => { void item.uniqueId; });
+      // Sort by `uniqueId` (assigned eagerly in creation order) so the shuffle starts from a
+      // deterministic base order regardless of the array's incoming order.
       array.sort((a: any, b: any) => a.uniqueId - b.uniqueId);
       const random = mulberry32(seed || Date.now());
       for (var i = array.length - 1; i > 0; i--) {

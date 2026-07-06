@@ -22,7 +22,6 @@ export class SurveyIdGenerator {
   // an author-chosen name. A plain object would let "toString"/"constructor"/"__proto__" collide
   // with Object.prototype and corrupt generation.
   private counters: { [prefix: string]: number } = Object.create(null);
-  private uniqueIdCounter: number = 0;
   /**
    * Returns the next raw id for the given `prefix` (the value of `Base.getIdPrefix()`).
    */
@@ -30,12 +29,5 @@ export class SurveyIdGenerator {
     const n = this.counters[prefix] || 0;
     this.counters[prefix] = n + 1;
     return prefix + "_" + n;
-  }
-  /**
-   * Returns the next numeric `uniqueId`. Not rendered to the DOM on its own; used for framework
-   * `key`s and creation-order dependent sorting.
-   */
-  public nextUniqueId(): number {
-    return ++this.uniqueIdCounter;
   }
 }

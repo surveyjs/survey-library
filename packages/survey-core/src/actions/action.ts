@@ -223,19 +223,18 @@ export abstract class BaseAction extends Base implements IAction {
   public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   /**
-   * A per-instance identifier used as a framework `key` (React `key`, Vue `:key`, Angular trackBy).
-   * Not rendered to the DOM. Historically a bare number; it is now the stringified `uniqueId` so it
-   * stays type-compatible with `Base.renderedId` (the DOM id) which this override intentionally does
-   * NOT provide - an action's DOM id is `renderedElementId`.
+   * The DOM id rendered to the `id` attribute of the action's root element, and the base for derived
+   * ids (e.g. the "other" comment input on choice items, image-map area uids). Deterministic and
+   * SSR-safe: generated lazily from the owner survey's id generator (or the shared fallback for
+   * detached actions) and wrapped with the survey's `renderedIdPrefix`/`renderedIdSuffix` via
+   * `composeRenderedId`.
+   *
+   * Unlike a plain `Base` element, an action's own `id` is its *semantic* identifier (from JSON, e.g.
+   * `"nav-complete"`), which need not be unique or DOM-safe - so this override generates the DOM id
+   * separately instead of deriving it from `id`. Frameworks use `uniqueId` (not this) as the list `key`.
    */
-  public get renderedId(): string { return "" + this.uniqueId; }
-  /**
-   * A deterministic, SSR-safe id rendered to the `id` attribute of the action's root element.
-   * Generated lazily from the owner survey's id generator (or the fallback for detached actions) and
-   * wrapped with the survey's `renderedIdPrefix`/`renderedIdSuffix`.
-   */
-  public get renderedElementId(): string {
-    const raw = this.getPropertyValue("renderedElementIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
+  public get renderedId(): string {
+    const raw = this.getPropertyValue("renderedIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
     return this.composeRenderedId(raw);
   }
   public get owner(): ILocalizableOwner { return this.ownerValue; }

@@ -157,15 +157,14 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
-    const isUnwrapped = name.endsWith(unWrappedNameSuffix);
-    if (isUnwrapped) {
+    if (name.endsWith(unWrappedNameSuffix)) {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);
     }
     const question = this.survey.getQuestionByValueName(name, true);
     if (question) {
       res.isFound = true;
       res.obj = question;
-      res.context = question.getValueGetterContext(isUnwrapped);
+      res.context = question.getValueGetterContext();
     }
   }
   protected isSearchNameRevert(): boolean { return true; }

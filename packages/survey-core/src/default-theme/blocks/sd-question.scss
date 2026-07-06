@@ -16,6 +16,9 @@
 .sd-element--with-frame > .sd-question__container {
   gap: 0;
 }
+.sd-composite > .sd-question__container > .sd-question__header-and-content-container {
+  padding: 0;
+}
 
 .sd-question__header-and-content-container {
   display: flex;

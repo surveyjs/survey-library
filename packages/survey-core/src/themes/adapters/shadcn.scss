@@ -37,7 +37,7 @@
 
   --sjs2-border-effect-a11y: 0 0 0 3px var(--sjs2-color-utility-a11y);
 
-  --shadow-xs:  rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  --shadow-xs: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 
   --sjs2-shadcn-action-large-height: calc(var(--spacing) * 10);
   --sjs2-shadcn-input-height: calc(var(--spacing) * 10);
@@ -64,7 +64,11 @@
 
   --sjs2-color-component-action-brand-primary-hovered-label: var(--primary-foreground);
   --sjs2-color-component-action-brand-primary-hovered-icon: var(--primary-foreground);
-  --sjs2-color-component-action-brand-primary-hovered-bg: color-mix(in oklch, var(--primary) 90%, transparent); /* hover:bg-primary/90 */
+  --sjs2-color-component-action-brand-primary-hovered-bg: color-mix(
+    in oklch,
+    var(--primary) 90%,
+    transparent
+  ); /* hover:bg-primary/90 */
   --sjs2-border-effect-component-action-brand-primary-hovered: var(--shadow-xs);
 
   --sjs2-color-component-action-brand-primary-disabled-label: var(--muted-foreground);
@@ -96,11 +100,14 @@
   --sjs2-color-component-formbox-default-fg: var(--foreground);
   --sjs2-color-component-formbox-default-border: var(--border);
   --sjs2-color-component-formbox-focused-border: var(--ring);
-  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
+    var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-hovered: var(--sjs2-border-effect-component-formbox-default);
-  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px var(--sjs2-color-component-formbox-focused-border);
+  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px
+    var(--sjs2-color-component-formbox-focused-border);
   --sjs2-border-effect-component-formbox-invalid: inset 0px 0px 0px 1px var(--destructive);
-  --sjs2-border-effect-component-formbox-invalid-focused: inset 0px 0px 0px 1px var(--destructive), 0 0 0 3px color-mix(in oklab, var(--destructive) 50%, transparent);
+  --sjs2-border-effect-component-formbox-invalid-focused:
+    inset 0px 0px 0px 1px var(--destructive), 0 0 0 3px color-mix(in oklab, var(--destructive) 50%, transparent);
   --sjs2-radius-component-formbox: var(--radius);
   --sjs2-layout-component-formbox-medium-padding-vertical: 0;
   --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
@@ -136,15 +143,18 @@
   --sjs2-color-component-check-false-default-bg: transparent;
   --sjs2-color-component-check-false-hovered-bg: transparent;
   --sjs2-color-component-check-false-default-border: var(--input);
-  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border);
-  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border);
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-check-false-default-border);
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
+    var(--sjs2-color-component-check-false-default-border);
 
   --sjs2-color-component-check-true-default-bg: var(--primary);
   --sjs2-color-component-check-true-default-icon: var(--primary-foreground);
   --sjs2-color-component-check-true-hovered-bg: var(--primary);
   --sjs2-color-component-check-true-hovered-icon: var(--primary-foreground);
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary), var(--shadow-xs);
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-border-effect-component-check-a11y:
+    inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
@@ -197,7 +207,7 @@
   --sjs2-typography-font-weight-component-question-title: var(--font-weight-medium);
 
   --sjs2-typography-font-size-component-page-title: var(--text-lg);
-  
+
   --sjs2-typography-font-size-component-header-title: var(--text-2xl);
   --sjs2-typography-font-size-component-header-description: 1em;
 }
@@ -231,7 +241,10 @@
 
 /* button pressed state (cannot be expressed via variables) */
 .sd-action {
-  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 .sd-action:active {
   transform: none;
@@ -247,21 +260,26 @@
 
 /* checkbox / radio pressed state + shadcn radio (ring + primary dot, no fill) */
 .sd-item__decorator {
-  transition: box-shadow 0.15s ease, background-color 0.15s ease, filter 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    filter 0.15s ease;
 }
 .sd-item__control:active + .sd-item__decorator {
   filter: brightness(0.92);
 }
-.sd-item__control+.sd-item__decorator:before {
+.sd-item__control + .sd-item__decorator:before {
   border-radius: var(--sjs2-radius-component-checkbox);
-  box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent;
+  box-shadow:
+    0 0 0 0 transparent,
+    0 0 0 0 transparent;
   content: "";
   display: block;
   height: 100%;
   left: 0;
   position: absolute;
   top: 0;
-  transition: box-shadow var(--sjs-transition-duration, .15s);
+  transition: box-shadow var(--sjs-transition-duration, 0.15s);
   width: 100%;
 }
 
@@ -271,13 +289,17 @@
   box-shadow: inset 0 0 0 1px var(--primary);
 }
 
-.sd-formbox, .sd-item__decorator, .sd-item__svg use {
+.sd-formbox,
+.sd-item__decorator,
+.sd-item__svg use {
   transition: none;
 }
 
 .sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-radio__decorator {
   background-color: var(--background);
-  box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-shadow:
+    inset 0 0 0 1px var(--primary),
+    rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
 .sd-theme-root .sd-radio--checked .sd-radio__svg use {
@@ -310,6 +332,30 @@
 .sd-theme-root .sd-slider__track,
 .sd-theme-root .sd-slider__track:before,
 .sd-theme-root .sd-slider__track:after,
-.sd-theme-root input[type=range].sd-slider__input::-webkit-slider-runnable-track {
+.sd-theme-root input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
+}
+
+/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
+.sd-row.sd-row--multiple > * {
+  min-width: 0 !important;
+}
+
+/* below sm — phones */
+@media (width < 640px) {
+  .sd-row.sd-row--multiple {
+    flex-direction: column;
+  }
+}
+
+/* below md — tablets */
+@media (width < 768px) {
+}
+
+/* below lg — small desktops */
+@media (width < 1024px) {
+}
+
+/* 2xl and up — large desktops */
+@media (width >= 1536px) {
 }

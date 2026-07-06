@@ -88,12 +88,15 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
     if (this.isDesignMode) {
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
       showPlaceholder = !!(property?.placeholder);
+    }
+    let res = !!newDescription || (showPlaceholder && this.isDesignMode);
+    if (this.isDesignMode) {
       const survey = this.getSurvey();
-      if (!!survey && !!survey.getShowElementDescriptionInDesignerCallback) {
-        showPlaceholder = survey.getShowElementDescriptionInDesignerCallback(this, showPlaceholder);
+      if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
+        res = survey.beforeShowInplaceDescriptionEditorCallback(this, res);
       }
     }
-    return !!newDescription || (showPlaceholder && this.isDesignMode);
+    return res;
   }
   protected resetDescriptionVisibility(): void {
     this.resetPropertyValue("hasDescription");

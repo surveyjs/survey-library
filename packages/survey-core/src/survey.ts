@@ -2293,7 +2293,13 @@ export class SurveyModel extends SurveyElementCore
     return !this.titleIsEmpty && this.showTitle;
   }
   public get renderedHasDescription(): boolean {
-    if (this.isDesignMode) return this.isPropertyVisible("description");
+    if (this.isDesignMode) {
+      let show = this.isPropertyVisible("description");
+      if (!!this.beforeShowInplaceDescriptionEditorCallback) {
+        show = this.beforeShowInplaceDescriptionEditorCallback(this, show);
+      }
+      return show;
+    }
     return !!this.hasDescription && this.showTitle;
   }
   public get hasTitle(): boolean {
@@ -2682,7 +2688,7 @@ export class SurveyModel extends SurveyElementCore
    */
   @property({ localizable: { defaultStr: true } }) editText: string;
 
-  public getShowElementDescriptionInDesignerCallback: (element: Base, show: boolean) => boolean;
+  public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };

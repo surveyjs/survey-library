@@ -38,7 +38,7 @@ export interface ISurveyTitleSettings {
   showQuestionNumbers: string | boolean;
   getQuestionStartIndex(pageVisibleIndex: number): string;
   getElementTitleTagName(element: Base, tagName: string): string;
-  getShowElementDescriptionInDesignerCallback?: (element: Base, show: boolean) => boolean;
+  beforeShowInplaceDescriptionEditorCallback?: (element: Base, show: boolean) => boolean;
   getQuestionDisplayValue(question: IElement, displayValue: any): any;
   getExpressionDisplayValue(
     question: IQuestion,

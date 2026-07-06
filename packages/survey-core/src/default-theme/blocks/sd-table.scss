@@ -414,22 +414,22 @@
   }
 }
 
-// .sd-question.sd-question--table {
-//   position: relative;
-//   // overflow-x: auto;
-//   &>.sd-question__container {
-//     &>.sd-question__header-and-content-container {
-//       .sd-question__header {
-//         position: sticky;
-//         left: 0;
-//         ~ hr {
-//           left: 0;
-//         }
-//       }
-//       overflow-x: auto;
-//     }
-//   }
-// }
+.sd-question.sd-question--table {
+  position: relative;
+  // overflow-x: auto;
+  &>.sd-question__container {
+    &>.sd-question__header-and-content-container {
+      .sd-question__header {
+        position: sticky;
+        left: 0;
+        ~ hr {
+          left: 0;
+        }
+      }
+      overflow-x: auto;
+    }
+  }
+}
 
 // .sd-question--table.sd-element--nested {
 //   // overflow-x: visible;

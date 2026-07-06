@@ -295,12 +295,12 @@ export class DropdownListModel extends Base {
   }
 
   protected onHidePopup(): void {
-    this.question.suggestedItem = null;
     if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
     }
     this.customValue = undefined;
     this.resetCustomItemValue();
+    this.resetKeyboardPreviewState();
   }
 
   protected getAvailableItems(): Array<ItemValue> {
@@ -353,12 +353,28 @@ export class DropdownListModel extends Base {
       selectedItem = newChoice;
     }
     if (!!selectedItem) {
-      this.resetFilterString();
       this.question.selectItem(selectedItem);
+      this.resetFilterString();
       if (this.searchEnabled) {
         this.applyInputString(selectedItem as ItemValue);
       }
     }
+  }
+
+  protected resetListKeyboardHighlightState(): void {
+    this.listModel.actions.forEach(action => {
+      const item = action as ItemValue;
+      if (typeof item.selectedValue === "boolean") {
+        item.selectedValue = undefined;
+      }
+    });
+    this.listModel.resetFocusedItem();
+    this.ariaActivedescendant = undefined;
+  }
+
+  protected resetKeyboardPreviewState(): void {
+    this.question.suggestedItem = null;
+    this.resetListKeyboardHighlightState();
   }
 
   protected selectAvailableItem(): boolean {
@@ -392,7 +408,11 @@ export class DropdownListModel extends Base {
   }
 
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
-    model.isItemSelected = (action: ItemValue) => !!action.selected;
+    model.isItemSelected = (action: ItemValue) => {
+      if (action.selectedValue === true) return true;
+      if (action.selectedValue === false && this.question.suggestedItem) return false;
+      return !!this.question.isItemSelected(action);
+    };
     model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
     model.disableSearch = this.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
@@ -736,11 +756,13 @@ export class DropdownListModel extends Base {
   public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
-    if (this._popupModel.isVisible && !!this.question.selectedItem) {
-      this.listModel.scrollToSelectedItem();
-      this.afterScrollToItem();
-    }
+    this.focusItemOnClickAndPopup();
     this.question.focusInputElement(false);
+  }
+  protected focusItemOnClickAndPopup(): void {
+    if (this._popupModel.isVisible && this.question.value) {
+      this.changeSelectionWithKeyboard(false);
+    }
   }
   public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {
@@ -762,6 +784,7 @@ export class DropdownListModel extends Base {
   }
 
   public onClear(event?: any): void {
+    this.resetKeyboardPreviewState();
     this.question.clearValueFromUI();
     this._popupModel.hide();
     if (event) {
@@ -792,24 +815,6 @@ export class DropdownListModel extends Base {
     this.scrollToFocusedItem();
     this.afterScrollToItem();
 
-    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
-  }
-
-  private ensureFocusedItemIsSet(): void {
-    if (!this.listModel.focusedItem && this.question.selectedItem && ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
-      this.listModel.focusedItem = this.question.selectedItem;
-    }
-  }
-  private focusSelectedOrFirstOnOpen(): void {
-    if (!this.listModel.focusedItem) {
-      if (this.question.selectedItem && ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
-        this.listModel.focusedItem = this.question.selectedItem;
-      } else {
-        this.listModel.focusNextVisibleItem();
-      }
-    }
-    this.scrollToFocusedItem();
-    this.afterScrollToItem();
     this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
 
@@ -866,7 +871,6 @@ export class DropdownListModel extends Base {
 
   private handleArrowUp(event: any): { stopPropagation: boolean } {
     if (this.popupModel.isVisible) {
-      this.ensureFocusedItemIsSet();
       this.changeSelectionWithKeyboard(true);
       return { stopPropagation: true };
     }
@@ -875,14 +879,8 @@ export class DropdownListModel extends Base {
   }
 
   private handleArrowDown(): { stopPropagation: boolean } {
-    const wasVisible = this.popupModel.isVisible;
     this.popupModel.show();
-    if (!wasVisible) {
-      this.focusSelectedOrFirstOnOpen();
-    } else {
-      this.ensureFocusedItemIsSet();
-      this.changeSelectionWithKeyboard(false);
-    }
+    this.changeSelectionWithKeyboard(false);
     return { stopPropagation: true };
   }
 
@@ -895,7 +893,7 @@ export class DropdownListModel extends Base {
   private handleSpace(event: any): { stopPropagation: boolean } {
     if (!this.popupModel.isVisible) {
       this.popupModel.show();
-      this.focusSelectedOrFirstOnOpen();
+      this.changeSelectionWithKeyboard(false);
       return { stopPropagation: true };
     }
     if (!this.searchEnabled || !this.inputString) {

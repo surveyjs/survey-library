@@ -1134,12 +1134,17 @@ export class Base implements IObjectValueContext {
       const info = this.getExpressionInfoByProperty(propName, expression);
       const runner = info.runner;
       if (!info.isRunning && (!canRun || canRun(runner))) {
+        const doRun = () => runner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, propName));
+        if (!runner.canRun()) {
+          doRun();
+          return false;
+        }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
           onExecute(value);
           info.isRunning = false;
         };
-        runner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, propName));
+        doRun();
       }
     }
     return true;

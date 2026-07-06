@@ -39,6 +39,19 @@
       box-shadow: 0 var(--sjs2-spacing-negative-x200) 0 0 $background-dim-light, 0 var(--sjs2-spacing-x200) 0 $background-dim-light;
     }
   }
+
+  &.sd-element--nested > div > div {
+
+    &>.sd-element__header:hover,
+    &>.sd-element__header:focus-within {
+      background-color: $background-dim-light;
+      // box-shadow: var(--sjs2-spacing-negative-x500) var(--sjs2-spacing-negative-x200) 0 0 var(--sjs2-color-bg-basic-secondary), 
+      // var(--sjs2-spacing-x500) var(--sjs2-spacing-negative-x200) 0 0 var(--sjs2-color-bg-basic-secondary), 
+      // var(--sjs2-spacing-x500) var(--sjs2-spacing-x200) 0 var(--sjs2-color-bg-basic-secondary), 
+      // var(--sjs2-spacing-negative-x500) var(--sjs2-spacing-x200) 0 var(--sjs2-color-bg-basic-secondary);
+      box-shadow: var(--sjs2-spacing-negative-x300) 0px 0px var(--sjs2-spacing-x200) var(--sjs2-color-bg-basic-secondary), var(--sjs2-spacing-x300) 0px 0px var(--sjs2-spacing-x200) var(--sjs2-color-bg-basic-secondary);
+    }
+  }
 }
 
 .sd-element--expandable > div > div {

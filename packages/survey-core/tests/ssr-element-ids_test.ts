@@ -9,7 +9,6 @@ import { ActionContainer } from "../src/actions/container";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { Base } from "../src/base";
 import { SurveyIdGenerator } from "../src/survey-id-generator";
-import { settings } from "../src/settings";
 
 import { describe, test, expect, afterEach } from "vitest";
 
@@ -67,10 +66,6 @@ function collectIds(survey: SurveyModel): Array<string> {
 }
 
 describe("SSR-safe element ids", () => {
-  afterEach(() => {
-    settings.getElementId = undefined;
-  });
-
   describe("Cross-instance determinism", () => {
     test("Two independent models from the same JSON produce byte-identical id sets", () => {
       const ids1 = collectIds(new SurveyModel(json));
@@ -258,7 +253,7 @@ describe("SSR-safe element ids", () => {
     });
   });
 
-  describe("Explicit id and settings hook", () => {
+  describe("Explicit id", () => {
     test("An explicitly assigned id wins and propagates to renderedId and derived ids", () => {
       const survey = new SurveyModel(json);
       const q1 = survey.getQuestionByName("q1");
@@ -275,14 +270,6 @@ describe("SSR-safe element ids", () => {
       q1.id = "custom";
       expect(q1.id).toBe("custom");
       expect(q1.renderedId).toBe("a-custom");
-    });
-
-    test("settings.getElementId fully controls id generation and receives the kind", () => {
-      settings.getElementId = (owner: any, kind: string) => `${kind}--${owner.name || "x"}`;
-      const survey = new SurveyModel(json);
-      expect(survey.getQuestionByName("q1").id).toBe("sq--q1");
-      expect(survey.pages[0].id).toBe("sp--page1");
-      expect((survey.getQuestionByName("q1") as any).validators[0].id).toBe("svd--x");
     });
   });
 

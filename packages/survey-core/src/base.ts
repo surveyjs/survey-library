@@ -452,9 +452,6 @@ export class Base implements IObjectValueContext {
   }
   public set id(val: string) { this.setPropertyValue("id", val); }
   protected generateElementId(): string {
-    if (!!settings.getElementId) {
-      return settings.getElementId(this, this.getIdPrefix());
-    }
     return this.getIdGenerator().next(this.getIdPrefix());
   }
   /**

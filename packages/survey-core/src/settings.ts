@@ -931,22 +931,5 @@ export var settings = {
     document: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".odt"],
     archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
   },
-  customFileCategoryName: "custom",
-  /**
-   * A function that lets you fully control how DOM element ids are generated for survey elements.
-   *
-   * When set, it is called instead of the built-in generator every time an element's default `id`
-   * is computed. It receives the element and its kind (the value of the element's `getIdPrefix()`,
-   * for example `"sq"` for questions or `"sp"` for panels) and must return a **stable** string that
-   * is unique within the page.
-   *
-   * Use this to integrate an external id scheme (for instance, one derived from `React.useId`). To
-   * keep the default behavior, leave it `undefined`.
-   *
-   * ```js
-   * import { settings } from "survey-core";
-   * settings.getElementId = (owner, kind) => `${kind}-${owner.name || ""}`;
-   * ```
-   */
-  getElementId: <((owner: any, kind: string) => string) | undefined>undefined
+  customFileCategoryName: "custom"
 };

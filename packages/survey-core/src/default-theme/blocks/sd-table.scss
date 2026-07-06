@@ -74,38 +74,8 @@
   }
 }
 
-.sd-question__header ~ .sd-question__content {
-  .sd-table--no-header {
-    padding-top: var(--sjs2-spacing-x300);
-  }
-}
-
-// TODO: Discuss with team if we need to keep this or not.
-.sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:first-of-type {
-  .sd-question--table.sd-element--nested {
-    &>.sd-question__container {
-      &>.sd-question__header-and-content-container {
-        &>.sd-question__content:first-child {
-          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-            margin-top: var(--sjs2-spacing-negative-x300);
-          }
-        }
-      }
-    }
-  }
-}
-.sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:not(:first-of-type) {
-  .sd-question--table.sd-element--nested {
-    &>.sd-question__container {
-      &>.sd-question__header-and-content-container {
-        &>.sd-question__content:first-child {
-          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-            margin-top: var(--sjs2-spacing-negative-x200);
-          }
-        }
-      }
-    }
-  }
+.sd-table--no-header {
+  padding-top: var(--sjs2-spacing-x300);
 }
 
 .sd-panel:not(.sd-panel--as-page) {
@@ -457,6 +427,34 @@
         padding: 0 calc(var(--sd-base-padding));
         min-width: auto;
         overflow-x: auto;
+      }
+    }
+  }
+}
+
+// TODO: Discuss with team if we need to keep this or not.
+.sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:first-of-type {
+  .sd-question--table.sd-element--nested {
+    &>.sd-question__container {
+      &>.sd-question__header-and-content-container {
+        &>.sd-question__content:first-child {
+          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+            margin-top: var(--sjs2-spacing-negative-x300);
+          }
+        }
+      }
+    }
+  }
+}
+.sd-panel:not(.sd-panel--as-page) > .sd-panel__content > .sd-row:not(:first-of-type) {
+  .sd-question--table.sd-element--nested {
+    &>.sd-question__container {
+      &>.sd-question__header-and-content-container {
+        &>.sd-question__content:first-child {
+          .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+            margin-top: var(--sjs2-spacing-negative-x200);
+          }
+        }
       }
     }
   }

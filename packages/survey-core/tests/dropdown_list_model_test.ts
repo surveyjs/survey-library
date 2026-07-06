@@ -1,4 +1,5 @@
 import { DropdownListModel } from "../src/dropdownListModel";
+import { ItemValue } from "../src/itemvalue";
 import { ListModel } from "../src/list";
 import { PopupModel } from "../src/popup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
@@ -71,6 +72,26 @@ describe("DropdownListModel", () => {
     dropdownListModel.onClear(new Event("click"));
     expect(question.value).toBeUndefined();
     expect(list.actions.filter(item => list.isItemSelected(item)).length).toBe(0);
+  });
+
+  test("clear value resets list selection after keyboard navigation", () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.value = "item1";
+    dropdownListModel.onClick(null);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item3");
+
+    dropdownListModel.onClear(new Event("click"));
+    expect(question.value).toBeUndefined();
+
+    dropdownListModel.onClick(null);
+    expect(list.actions.filter(a => (a as any).selected).length).toBe(0);
+    expect(list.focusedItem).toBeFalsy();
   });
 
   test("DropdownListModel focusFirstInputSelector", () => {
@@ -796,8 +817,88 @@ describe("DropdownListModel", () => {
     expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item3");
     expect(question.selectedItemLocText.calculatedText, "selected item is changed too on DOWN one more time").toBe("item3");
 
-    (dropdownListModel as any).onHidePopup();
+    const event = { keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } };
+    dropdownListModel.keyHandler(event);
     expect(question.selectedItemLocText.calculatedText).toBe("item1");
+
+    dropdownListModel.onClick(null);
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value, "list selection is question value on reopen").toBe("item1");
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only one item selected on mouse reopen").toBe(1);
+    expect(list.focusedItem?.id, "focused item is question value on reopen").toBe("item1");
+  });
+
+  test("reset keyboard navigation state on popup close", () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.value = "item1";
+    dropdownListModel.onFocus(null);
+    dropdownListModel.onClick(null);
+
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item3");
+
+    dropdownListModel.popupModel.hide();
+    expect(question.value).toBe("item1");
+
+    dropdownListModel.onClick(null);
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item1");
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only one item selected on mouse reopen").toBe(1);
+    expect(list.focusedItem?.id).toBe("item1");
+    popupViewModel.dispose();
+  });
+
+  test("reset keyboard navigation state on escape", () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.value = "item1";
+    dropdownListModel.onFocus(null);
+    dropdownListModel.onClick(null);
+
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item3");
+
+    const event = { keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } };
+    dropdownListModel.keyHandler(event);
+
+    expect(question.value).toBe("item1");
+
+    dropdownListModel.onClick(null);
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item1");
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only one item selected on mouse reopen").toBe(1);
+    expect(list.focusedItem?.id).toBe("item1");
+    popupViewModel.dispose();
+  });
+
+  test("mouse reopen after escape clears stale keyboard preview selection", () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.value = "item2";
+    dropdownListModel.onClick(null);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    dropdownListModel.changeSelectionWithKeyboard(false);
+    expect((list.actions.filter(a => (a as any).selected)[0] as any).value).toBe("item4");
+
+    dropdownListModel.keyHandler({ keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } });
+    expect(question.value).toBe("item2");
+
+    dropdownListModel.onClick(null);
+    expect(list.actions.filter(a => list.isItemSelected(a as ItemValue)).length, "only committed value is selected on mouse reopen").toBe(1);
+    expect((list.actions.filter(a => list.isItemSelected(a as ItemValue))[0] as any).value).toBe("item2");
+    popupViewModel.dispose();
   });
 
   test("filtering on question with value", () => {
@@ -1190,6 +1291,38 @@ describe("DropdownListModel", () => {
     expect(chevronButton.locTitle.text, "chevronButton title #5").toBe("Select");
     expect(chevronButton.enabled, "chevronButton enabled #5").toBe(true);
     expect(chevronButton.visible, "chevronButton visible #5").toBe(true);
+  });
+
+  test("keyboard navigation after confirmed selection with filter", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        searchEnabled: true,
+        choices: Array.from({ length: 27 }, (_, i) => `item${i + 1}`)
+      }]
+    });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    const down = { keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } };
+    const enter = { keyCode: 13, preventDefault: () => { }, stopPropagation: () => { } };
+
+    dropdownListModel.onFocus(null);
+    dropdownListModel.inputStringRendered = "2";
+    list.flushUpdates();
+
+    dropdownListModel.keyHandler(down);
+    dropdownListModel.keyHandler(down);
+    dropdownListModel.keyHandler(enter);
+    list.flushUpdates();
+    expect(question.value).toBe("item20");
+
+    dropdownListModel.keyHandler(down);
+    dropdownListModel.keyHandler(down);
+    dropdownListModel.keyHandler(enter);
+    list.flushUpdates();
+    expect(question.value).toBe("item21");
   });
 
   test("DropdownListModel with ListModel & allowCustomChoices true", () => {

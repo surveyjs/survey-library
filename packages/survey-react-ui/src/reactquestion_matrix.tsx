@@ -34,7 +34,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
-    var rowsTH = this.question.hasRows ? <th /> : null;
+    var rowsTH = this.question.hasRows ? <td /> : null;
     var headers: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];

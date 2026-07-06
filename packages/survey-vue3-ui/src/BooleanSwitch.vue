@@ -17,14 +17,7 @@
       v-key2click="{ processEsc: false }"
     >
       <div :class="question.cssClasses.switchThumb">
-        <div
-          :class="question.cssClasses.switchThumbCircle + ' ' + question.cssClasses.switchThumbLeft"
-        ></div>
-      </div>
-      <div :class="question.cssClasses.switchThumb">
-        <div
-          :class="question.cssClasses.switchThumbCircle + ' ' + question.cssClasses.switchThumbRight"
-        ></div>
+        <div :class="question.cssClasses.switchThumbCircle"></div>
       </div>
     </div>
     <div :class="question.cssClasses.switchCaption">

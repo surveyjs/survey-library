@@ -123,6 +123,24 @@
   --sjs2-color-component-check-true-default-border: var(--mui-palette-primary-main);
   --sjs2-color-component-check-true-default-icon: var(--mui-palette-primary-contrastText);
 
+  /* toggle */
+  --sjs2-color-component-toggle-true-default-thumb: var(--mui-palette-primary-main);
+  --sjs2-color-component-toggle-true-hovered-thumb: var(--mui-palette-primary-main);
+  --sjs2-color-component-toggle-true-default-bg: rgb(from var(--mui-palette-primary-main) r g b / 0.5);
+  --sjs2-color-component-toggle-true-hovered-bg: rgb(from var(--mui-palette-primary-main) r g b / 0.5);
+  --sjs2-color-component-toggle-false-default-thumb: var(--mui-palette-Switch-defaultColor);
+  --sjs2-color-component-toggle-false-hovered-thumb: var(--mui-palette-Switch-defaultColor);
+  --sjs2-color-component-toggle-false-default-bg: rgb(
+    from var(--mui-palette-common-onBackground) r g b / var(--mui-opacity-switchTrack)
+  );
+  --sjs2-color-component-toggle-false-hovered-bg: rgb(
+    from var(--mui-palette-common-onBackground) r g b / var(--mui-opacity-switchTrack)
+  );
+  --sjs2-color-component-toggle-true-default-border: transparent;
+  --sjs2-color-component-toggle-true-hovered-border: transparent;
+  --sjs2-color-component-toggle-false-default-border: transparent;
+  --sjs2-color-component-toggle-false-hovered-border: transparent;
+
   /* common and other */
   --sjs2-color-utility-surface-survey: transparent;
 
@@ -453,6 +471,112 @@
 
 .sd-item--checked .sd-radio__svg use {
   fill: var(--mui-palette-primary-main);
+}
+
+/* toggle */
+.sd-boolean-switch__button {
+  width: 34px;
+  height: 14px;
+  padding: 0;
+  gap: 0;
+  margin-inline: 9px;
+  margin-block: auto; // TODO
+}
+
+.sd-boolean-switch__thumb {
+  top: -3px;
+  left: 0;
+}
+
+.sd-boolean-switch__thumb-circle {
+  width: 20px;
+  height: 20px;
+  box-shadow: var(--mui-shadows-1);
+}
+
+.sd-boolean-switch__button:not(.sd-boolean-switch__button--checked):hover {
+  .sd-boolean-switch__thumb::before {
+    content: "";
+    position: absolute;
+    top: 11px;
+    left: 10px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(var(--mui-palette-action-activeChannel) / calc(var(--mui-palette-action-hoverOpacity)));
+    pointer-events: none;
+  }
+}
+
+.sd-boolean-switch__button--checked:hover {
+  .sd-boolean-switch__thumb::before {
+    content: "";
+    position: absolute;
+    top: 11px;
+    left: 10px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-hoverOpacity)));
+    pointer-events: none;
+  }
+}
+
+/* toggle press ripple (MUI-style: a darkening circle grows from the knob center on
+   press and fades out via opacity on release). Centered on the knob like the hover overlay. */
+.sd-boolean-switch__thumb::after {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: var(--mui-palette-Switch-defaultColor);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition:
+    opacity var(--mui-to-sjs-animation-speed-slow) ease-in-out,
+    transform 0s linear var(--mui-to-sjs-animation-speed-slow);
+}
+.sd-boolean-switch__button--checked .sd-boolean-switch__thumb::after {
+  background-color: var(--mui-palette-primary-main);
+}
+
+/* keyboard focus (pointer away): ripple grows from the visible knob, then pulsates (MUI pulsate) */
+.sd-boolean-switch__button:not(.sd-boolean-switch__button--readonly):not(:hover):focus-visible {
+  .sd-boolean-switch__thumb::after {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1);
+    animation:
+      sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+      sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
+  }
+}
+
+/* mouse press: ripple expands from the center of the visible knob */
+.sd-boolean-switch__button:not(.sd-boolean-switch__button--readonly):active:not(:focus-visible) {
+  .sd-boolean-switch__thumb::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.3;
+    transition:
+      transform var(--mui-to-sjs-animation-speed-slow) ease-out,
+      opacity 0s;
+  }
+}
+
+/* released but still mouse-focused: keep the grown circle in place and fade it out via opacity */
+.sd-boolean-switch__button:not(.sd-boolean-switch__button--readonly):not(:active):focus:not(:focus-visible) {
+  .sd-boolean-switch__thumb::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+    transition:
+      transform var(--mui-to-sjs-animation-speed-slow) ease-out,
+      opacity var(--mui-to-sjs-animation-speed-slow) ease-out;
+  }
 }
 
 /* stepper */

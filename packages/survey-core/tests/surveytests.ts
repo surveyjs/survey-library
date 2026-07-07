@@ -15546,6 +15546,113 @@ describe("Survey", () => {
 
     commentDescriptionProperty.placeholder = oldValue;
   });
+  test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide empty description in design mode", () => {
+    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
+    const oldValue = commentDescriptionProperty.placeholder;
+    commentDescriptionProperty.placeholder = "Q placeholder";
+
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    const calls: Array<string> = [];
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      calls.push(element.name);
+      if (element.name === "q1") return false; // hide even though placeholder would show it
+      if (element.name === "q3") return true; // show even though no placeholder is defined
+      return show;
+    };
+    survey.fromJSON({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "comment", name: "q1" },
+          { type: "comment", name: "q2" },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.hasDescription, "q1 empty description hidden by callback").toBeFalsy();
+    expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
+    expect(q3.hasDescription, "q3 empty description shown by callback").toBeTruthy();
+    expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
+    expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
+
+    commentDescriptionProperty.placeholder = oldValue;
+  });
+  test("beforeShowInplaceDescriptionEditorCallback is called for both empty and non-empty descriptions", () => {
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    const calledFor: { [key: string]: boolean } = {};
+    const lastShow: { [key: string]: boolean } = {};
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      calledFor[element.name] = true;
+      lastShow[element.name] = show;
+      if (element.name === "q1") return false; // hide a non-empty description
+      if (element.name === "q2") return true; // show an empty description
+      return show;
+    };
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "q1", description: "desc1" },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    expect(q1.hasDescription, "q1: non-empty description hidden by the callback").toBeFalsy();
+    expect(q2.hasDescription, "q2: empty description shown by the callback").toBeTruthy();
+    expect(calledFor["q1"], "the callback is called for the non-empty description").toBeTruthy();
+    expect(calledFor["q2"], "the callback is called for the empty description").toBeTruthy();
+    expect(lastShow["q1"], "the default visibility for a non-empty description is true").toBe(true);
+    expect(lastShow["q2"], "the default visibility for an empty description without a placeholder is false").toBe(false);
+  });
+  test("renderedHasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide the survey empty description in design mode", () => {
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    survey.fromJSON({
+      elements: [{ type: "text", name: "q1" }]
+    });
+    expect(survey.renderedHasDescription, "survey empty description shown by default in design mode").toBeTruthy();
+
+    const calls: Array<any> = [];
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      calls.push(element);
+      return false;
+    };
+    expect(survey.renderedHasDescription, "survey empty description hidden by callback").toBeFalsy();
+    expect(calls[0], "callback receives the survey instance").toBe(survey);
+
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => show;
+    expect(survey.renderedHasDescription, "survey empty description shown when callback keeps the default").toBeTruthy();
+  });
+  test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide a page empty description in design mode", () => {
+    const pageDescriptionProperty = Serializer.getProperty("page", "description");
+    const oldValue = pageDescriptionProperty.placeholder;
+    pageDescriptionProperty.placeholder = "Page placeholder";
+
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      if (element.name === "page1") return false;
+      return show;
+    };
+    survey.fromJSON({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const page1 = survey.getPageByName("page1");
+    const page2 = survey.getPageByName("page2");
+    expect(page1.hasDescription, "page1 empty description hidden by callback").toBeFalsy();
+    expect(page2.hasDescription, "page2 empty description shown by default").toBeTruthy();
+
+    pageDescriptionProperty.placeholder = oldValue;
+  });
   test("Test survey with custom type", () => {
     JsonObject.metaData.addClass(
       "sortablelist",

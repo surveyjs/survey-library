@@ -584,6 +584,7 @@ export class DropdownListModel extends Base {
   }
 
   public set inputStringRendered(val: string) {
+    this.isListFocusedByKeyboard = !!val;
     this.inputString = val;
     this.filterString = val;
 

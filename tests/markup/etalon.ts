@@ -42,6 +42,6 @@ registerMarkupTests([
         }
       ]
     },
-    etalon: "<div class=\"sd-html\">HTML content here</div>"
+    etalon: "<div class=\"sd-question__header-and-content-container\"><div class=\"sd-element__content sd-question__content\" role=\"presentation\"><div class=\"sd-html\">HTML content here</div></div></div>"
   },
 ]);

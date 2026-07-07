@@ -917,6 +917,22 @@ describe("DropdownListModel", () => {
     expect((list.actions.filter(a => (a as any).selected)[0] as any)?.id, "selected marker remains on selected item").toBe("item2");
   });
 
+  test("focused css class is applied only for keyboard navigation", () => {
+    const survey = new SurveyModel(jsonDropdown);
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+    question.value = "item1";
+    dropdownListModel.onClick(null);
+    expect(list.focusedItem?.id, "mouse open keeps internal focused item for navigation").toBe("item1");
+    expect(list.getItemClass(list.actions[0] as any), "mouse open should not add focused css class").not.toContain(list.cssClasses.itemFocused);
+
+    dropdownListModel.keyHandler({ keyCode: 40, which: 40, preventDefault: () => { }, stopPropagation: () => { } });
+    expect(list.focusedItem?.id, "ArrowDown moves focus to next item").toBe("item2");
+    expect(list.getItemClass(list.actions[1] as any), "keyboard navigation should add focused css class").toContain(list.cssClasses.itemFocused);
+  });
+
   test("filtering on question with value", () => {
     const survey = new SurveyModel(jsonDropdown);
     const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

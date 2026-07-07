@@ -256,9 +256,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
 
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
+    this.raiseUpdateCallback.async = true;
     return;
   }
-  public resetResponsivityManager(): void { }
+  public resetResponsivityManager(): void {
+    this.raiseUpdateCallback.async = false;
+  }
   public getActionById(id: string): T {
     const index = this.getActionIndexById(id);
     return index > -1 ? this.actions[index] : null;

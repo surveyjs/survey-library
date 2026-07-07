@@ -229,6 +229,7 @@
   height: 1em;
   padding: 0;
   box-sizing: content-box;
+  margin-top: calc(calc(1lh - 1em) / 2);
   
   &:focus {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2386b7fe'/%3e%3c/svg%3e");
@@ -246,13 +247,13 @@
 
 .sd-boolean-switch__thumb {
   top: 0;
-  left: var(--bs-border-width);
-  width: calc(1em - var(--bs-border-width) * 2);
-  height: calc(1em - var(--bs-border-width));
+  left: 0;
+  width: 50%;
+  height: 100%;
   background-image: var(--bs-form-switch-bg);
   background-repeat: no-repeat;
   background-position: center;
-  background-size: contain;
+  background-size: calc(1em - var(--bs-border-width) * 2);
 }
 
 .sd-boolean-switch__thumb-circle {

@@ -486,7 +486,7 @@
   padding: 0;
   gap: 0;
   margin-inline: 9px;
-  margin-block: auto; // TODO
+  margin-top: calc(calc(1lh - 14px) / 2);
 }
 
 .sd-boolean-switch__thumb {

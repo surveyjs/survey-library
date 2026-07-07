@@ -767,11 +767,6 @@ export class DropdownListModel extends Base {
     this.focusItemOnClickAndPopup();
     this.question.focusInputElement(false);
   }
-  protected focusItemOnClickAndPopup(): void {
-    if (this._popupModel.isVisible && this.question.value) {
-      this.changeSelectionWithKeyboard(false);
-    }
-  }
   public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {
       event.preventDefault();
@@ -795,7 +790,7 @@ export class DropdownListModel extends Base {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
         this.listModel.focusedItem = this.question.selectedItem;
       }
-      this.afterScrollToFocusedItem();
+      this.afterScrollToItem();
     }
   }
   public onClear(event?: any): void {

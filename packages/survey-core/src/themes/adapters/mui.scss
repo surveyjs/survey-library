@@ -20,13 +20,13 @@
   --sjs2-typography-font-size-component-action-large-content: 0.875rem;
   --sjs2-typography-font-weight-component-action-large-content: 500;
   --sjs2-typography-line-height-component-action-large-content: 1.75;
-  
+
   /* primary buttons (contained) */
   --sjs2-color-component-action-brand-primary-default-label: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-action-brand-primary-default-icon: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-action-brand-primary-default-bg: var(--mui-palette-primary-main);
   --sjs2-border-effect-component-action-brand-primary-default: var(--mui-shadows-2);
-  
+
   --sjs2-color-component-action-brand-primary-hovered-label: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-action-brand-primary-hovered-icon: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-action-brand-primary-hovered-bg: var(--mui-palette-primary-dark);
@@ -49,8 +49,7 @@
   --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: rgba(
     from var(--mui-palette-primary-main) r g b / 0.04
   );
-  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0 0 0 1px
-    var(--mui-palette-primary-main);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0 0 0 1px var(--mui-palette-primary-main);
 
   --sjs2-color-component-action-brand-tertiary-surface-disabled-label: var(--mui-palette-action-disabled);
   --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: var(--mui-palette-action-disabled);
@@ -59,8 +58,7 @@
     rgba(from var(--mui-palette-primary-main) r g b / 0.5);
 
   /* formboxes */
-  --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px
-    var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-focused: inset 0 0 0 2px var(--mui-palette-primary-main);
 
   --sjs2-color-component-formbox-default-bg: var(--mui-palette-background-paper);
@@ -101,12 +99,14 @@
   --sjs2-layout-component-labeled-item-box-gap-horizontal: 12px;
   --sjs2-layout-component-labeled-group-box-gap-vertical: 18px;
   --sjs2-layout-component-labeled-group-box-padding-vertical: 9px;
-  
+
   --sjs2-typography-font-size-component-label-content: 1rem;
   --sjs2-typography-font-weight-component-label-content: 400;
   --sjs2-typography-line-height-component-label-content: 1.5;
-  
-  --mui-to-sjs-check-hover-bg: rgba(var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-hoverOpacity)));
+
+  --mui-to-sjs-check-hover-bg: rgba(
+    var(--mui-palette-primary-mainChannel) / calc(var(--mui-palette-action-hoverOpacity))
+  );
 
   --sjs2-color-component-check-false-default-bg: var(--mui-palette-background-paper);
   --sjs2-color-component-check-false-hovered-bg: transparent;
@@ -148,16 +148,8 @@
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--mui-palette-error-main) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--mui-palette-action-disabledBackground);
   --sjs2-color-border-alert-primary: var(--mui-palette-error-main);
-  --sjs2-color-bg-alert-secondary: color-mix(
-    in srgb,
-    var(--mui-palette-error-main) 10%,
-    transparent
-  );
-  --sjs2-color-bg-alert-secondary-dim: color-mix(
-    in srgb,
-    var(--mui-palette-error-main) 15%,
-    transparent
-  );
+  --sjs2-color-bg-alert-secondary: color-mix(in srgb, var(--mui-palette-error-main) 10%, transparent);
+  --sjs2-color-bg-alert-secondary-dim: color-mix(in srgb, var(--mui-palette-error-main) 15%, transparent);
 
   --sjs2-color-border-basic-primary: var(--mui-palette-divider);
   --sjs2-color-border-basic-secondary: var(--mui-palette-divider);
@@ -191,14 +183,17 @@
   --sjs2-typography-font-weight-component-header-description: 500;
 }
 
-
 /* input */
 
 .sd-formbox {
   transition: none;
 }
 
-.sd-question:not(.sd-question--complex):has(.sd-question__content--text, .sd-question__content--comment, .sd-question__content--dropdown) {
+.sd-question:not(.sd-question--complex):has(
+    .sd-question__content--text,
+    .sd-question__content--comment,
+    .sd-question__content--dropdown
+  ) {
   .sd-question__header {
     position: absolute;
     top: 0;
@@ -215,31 +210,34 @@
     --sjs2-color-component-question-default-title: currentColor;
     background-color: var(--mui-palette-background-default);
   }
-  
-  &:focus-within, &.sd-question--answered {
+
+  &:focus-within,
+  &.sd-question--answered {
     .sd-question__header {
       transform: translate(8px, -8px) scale(0.75);
     }
-    input, textarea {
+    input,
+    textarea {
       transition: all 0.2s ease-in-out;
       &::placeholder {
         opacity: var(--mui-opacity-inputPlaceholder);
       }
     }
   }
-  
+
   &:focus-within {
     .sd-question__header {
       --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
     }
   }
-  
+
   &:not(:focus-within, .sd-question--answered) {
     .sd-question__header {
       transform: translate(8px, 15px) scale(1);
       pointer-events: none;
     }
-    input, textarea {
+    input,
+    textarea {
       color: transparent;
       transition: all 0.2s ease-in-out;
       &::placeholder {
@@ -264,17 +262,15 @@
 }
 */
 
-
-
 .sd-dropdown .sd-formbox__group .sd-action {
   pointer-events: none;
   transition: none;
-  background-color: transparent;        
+  background-color: transparent;
 }
 .sd-dropdown .sd-formbox__group .sd-action svg {
   width: 24px;
-  height: 24px;  
-  padding: 0;    
+  height: 24px;
+  padding: 0;
 }
 .sd-dropdown .sd-formbox__group .sd-action--popup-active {
   transform: rotate(180deg);
@@ -301,14 +297,17 @@
   pointer-events: none;
   opacity: 0;
   transform: translate(-50%, -50%) scale(0);
-  transition: opacity 0.6s ease-in-out, transform 0s linear 0.6s;
+  transition:
+    opacity 0.6s ease-in-out,
+    transform 0s linear 0.6s;
 }
 /* keyboard focus: ripple pulsates slightly wider than the label (MUI pulsate) */
 .sd-action:focus-visible:after {
   width: 85%;
   opacity: 0.3;
   transform: translate(-50%, -50%) scale(1);
-  animation: sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+  animation:
+    sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
     sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
 }
 /* pressed: ripple expands from center */
@@ -316,14 +315,18 @@
   width: 200%;
   transform: translate(-50%, -50%) scale(1);
   opacity: 0.3;
-  transition: transform 0.6s ease-out, opacity 0s;
+  transition:
+    transform 0.6s ease-out,
+    opacity 0s;
 }
 /* released but still mouse-focused: finish the grow (same scale target), then fade out */
 .sd-action:not(:active):focus:not(:focus-visible):after {
   width: 200%;
   transform: translate(-50%, -50%) scale(1);
   opacity: 0;
-  transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+  transition:
+    transform 0.6s ease-out,
+    opacity 0.6s ease-out;
 }
 
 @keyframes sd-action-ripple-enter {
@@ -396,7 +399,10 @@
   pointer-events: none;
   opacity: 0;
   transform: translate(-50%, -50%) scale(0);
-  transition: opacity var(--mui-to-sjs-animation-speed-slow) ease-in-out, transform 0s linear var(--mui-to-sjs-animation-speed-slow), background-color var(--mui-to-sjs-animation-speed-slow) ease-out;
+  transition:
+    opacity var(--mui-to-sjs-animation-speed-slow) ease-in-out,
+    transform 0s linear var(--mui-to-sjs-animation-speed-slow),
+    background-color var(--mui-to-sjs-animation-speed-slow) ease-out;
 }
 .sd-item--checked .sd-item__decorator::after {
   background-color: var(--mui-palette-primary-main);
@@ -406,7 +412,8 @@
 .sd-item:not(.sd-item--disabled):not(:hover):has(.sd-item__control:focus-visible) .sd-item__decorator::after {
   opacity: 0.3;
   transform: translate(-50%, -50%) scale(1);
-  animation: sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
+  animation:
+    sd-action-ripple-enter 550ms cubic-bezier(0.4, 0, 0.2, 1) forwards,
     sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
 }
 /* mouse press ripple: one smooth grow + fade in a single animation.
@@ -450,7 +457,6 @@
   background-color: transparent;
 }
 
-
 .sd-item--checked .sd-radio__svg use {
   fill: var(--mui-palette-primary-main);
 }
@@ -471,15 +477,15 @@
 
   .sd-progress-buttons__list li:after {
     top: 12px;
-    bottom: unset
+    bottom: unset;
   }
-  
+
   .sd-progress-buttons__page-title {
     margin-top: 16px;
     font-size: 0.875rem;
     font-weight: 500;
   }
-  
+
   .sd-progress-buttons__list li {
     flex-direction: column-reverse;
   }
@@ -529,4 +535,28 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
+}
+
+/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
+.sd-row.sd-row--multiple > * {
+  min-width: 0 !important;
+}
+
+/* xs — phones */
+@media (width < 600px) {
+  .sd-row.sd-row--multiple {
+    flex-direction: column;
+  }
+}
+
+/* sm and down — tablets */
+@media (width < 900px) {
+}
+
+/* md and down — small desktops */
+@media (width < 1200px) {
+}
+
+/* xl and up — large desktops */
+@media (width >= 1536px) {
 }

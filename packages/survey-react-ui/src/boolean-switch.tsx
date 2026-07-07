@@ -22,10 +22,7 @@ export class SurveyQuestionBooleanSwitch extends SurveyQuestionBoolean {
       aria-errormessage={this.question.a11y_input_ariaErrormessage}
     >
       <div className={cssClasses.switchThumb}>
-        <div className={cssClasses.switchThumbCircle + " " + cssClasses.switchThumbLeft}></div>
-      </div>
-      <div className={cssClasses.switchThumb}>
-        <div className={cssClasses.switchThumbCircle + " " + cssClasses.switchThumbRight}></div>
+        <div className={cssClasses.switchThumbCircle}></div>
       </div>
     </div>, this.question, { processEsc: false });
 

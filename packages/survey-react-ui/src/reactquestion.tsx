@@ -280,6 +280,9 @@ export class SurveyElementErrors extends ReactSurveyElement {
       <div
         className={this.element.cssError}
         id={this.id}
+        role="alert"
+        aria-live="polite"
+        aria-atomic="true"
       >
         {errors}
       </div>

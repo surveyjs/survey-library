@@ -2991,6 +2991,50 @@ describe("Dropdown question", () => {
 
     settings.dropdownSaveOnOutsideClick = false;
   });
+
+  test("discarded popup selection resets keyboard preview on popup close", () => {
+    const survey = new SurveyModel({
+      elements: [{
+        type: "dropdown",
+        name: "q1",
+        searchEnabled: true,
+        choices: ["item1", "item2", "item3", "item4"]
+      }]
+    });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    const popupViewModel = new PopupDropdownViewModel(dropdownListModel.popupModel);
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    const event = { keyCode: 40, preventDefault: () => { }, stopPropagation: () => { } };
+    const committedItem = () => question.selectedItem as ItemValue;
+
+    question.value = "item2";
+    dropdownListModel.popupModel.show();
+    list.flushUpdates();
+
+    dropdownListModel.keyHandler(event);
+    dropdownListModel.keyHandler(event);
+    expect(list.focusedItem?.value, "focused item after moving down").toBe("item3");
+    expect(question.selectedItem?.selected, "question selected item should be temporarily cleared").toBe(false);
+
+    dropdownListModel.keyHandler({ keyCode: 27, preventDefault: () => { }, stopPropagation: () => { } });
+    expect(dropdownListModel.popupModel.isVisible, "popup hidden after Escape").toBe(false);
+
+    expect(question.value, "committed value unchanged after Escape").toBe("item2");
+    expect(question.isItemSelected(committedItem()), "committed item stays selected after Escape").toBe(true);
+    expect(list.focusedItem, "focus cleared on close").toBeFalsy();
+    expect(question.suggestedItem, "suggested item cleared on close").toBeNull();
+
+    dropdownListModel.popupModel.show();
+    list.flushUpdates();
+
+    dropdownListModel.keyHandler(event);
+    expect(list.focusedItem?.value, "focused item after reopen and down arrow").toBe("item2");
+    expect(list.focusedItem?.selected, "focused item is displayed as selected after reopen").toBe(true);
+    expect(dropdownListModel.inputString, "inputString after reopen and down arrow").toBe("item2");
+    popupViewModel.dispose();
+  });
+
   test("Test createCustomChoiceText property, Issue#11041", () => {
 
     const survey = new SurveyModel({

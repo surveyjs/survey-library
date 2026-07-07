@@ -343,6 +343,10 @@ export class DropdownListModel extends Base {
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };
+    const baseIsItemFocused = res.isItemFocused.bind(res);
+    res.isItemFocused = (action: ItemValue): boolean => {
+      return (this.isListFocusedByKeyboard || !!this.filterString) && baseIsItemFocused(action);
+    };
     return res;
   }
 
@@ -373,6 +377,7 @@ export class DropdownListModel extends Base {
   }
 
   protected resetKeyboardPreviewState(): void {
+    this.isListFocusedByKeyboard = false;
     this.question.suggestedItem = null;
     this.resetListKeyboardHighlightState();
   }
@@ -536,6 +541,7 @@ export class DropdownListModel extends Base {
   @property({}) showInputFieldComponent: boolean;
   @property() ariaActivedescendant: string;
   @property() ariaExpanded : "true" | "false";
+  private isListFocusedByKeyboard: boolean = false;
 
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
@@ -756,6 +762,7 @@ export class DropdownListModel extends Base {
   public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
+    this.isListFocusedByKeyboard = false;
     this.focusItemOnClickAndPopup();
     this.question.focusInputElement(false);
   }
@@ -777,11 +784,14 @@ export class DropdownListModel extends Base {
       this.setTextWrapEnabled(options.newValue);
     }
   }
-  protected focusItemOnClickAndPopup() {
-    if (this._popupModel.isVisible && this.question.value)
-      this.changeSelectionWithKeyboard(false);
+  protected focusItemOnClickAndPopup(): void {
+    if (this._popupModel.isVisible && this.question.value) {
+      if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
+        this.listModel.focusedItem = this.question.selectedItem;
+      }
+      this.afterScrollToFocusedItem();
+    }
   }
-
   public onClear(event?: any): void {
     this.resetKeyboardPreviewState();
     this.question.clearValueFromUI();
@@ -797,6 +807,7 @@ export class DropdownListModel extends Base {
   }
 
   changeSelectionWithKeyboard(reverse: boolean): void {
+    this.isListFocusedByKeyboard = true;
     let focusedItem = this.listModel.focusedItem;
     if (!focusedItem && this.question.selectedItem) {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {

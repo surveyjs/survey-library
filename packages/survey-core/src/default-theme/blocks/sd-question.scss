@@ -130,7 +130,7 @@
 .sd-question__header--location--left {
   width: auto;
   vertical-align: top;
-  margin-top: var(--sjs2-spacing-x150);
+  margin-top: var(--sjs2-layout-component-question-header-side-padding-top, var(--sjs2-spacing-x150));
 }
 
 .sd-question__content--left {
@@ -140,6 +140,7 @@
 
 .sd-question__title {
   @include sjs2--typography--component--question--title;
+  padding: var(--sjs2-layout-component-question-title-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-question-title-padding-horizontal, var(--sjs2-spacing-x000));
 }
 
 .sd-question__title--empty {
@@ -153,7 +154,9 @@
   @include sjs2--typography--component--question--description;
   color: $font-questiondescription-color;
   white-space: normal;
-  padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal);
+  padding-inline: var(--sjs2-layout-component-question-description-padding-horizontal, var(--sjs2-spacing-x000));
+  padding-top: var(--sjs2-layout-component-question-description-padding-top, var(--sjs2-spacing-x000));
+  padding-bottom: var(--sjs2-layout-component-question-description-padding-bottom, var(--sjs2-spacing-x000));
 }
 
 .sd-question--no-pointer-events {

@@ -75,6 +75,7 @@ frameworks.forEach((framework) => {
       const getTitle3 = page.locator(".sd-element__title").filter({ hasText: "question3" });
       const getTitle4 = page.locator(".sd-element__title").filter({ hasText: "question4" });
 
+      // TODO: Check whether this test actual for new rendering
       const getPanelsCountByMargin = await page.evaluate(
         () => (window as any).survey.rootElement.getRootNode().querySelectorAll('div[style*="padding-inline-start"][style*="20px"]').length
       );

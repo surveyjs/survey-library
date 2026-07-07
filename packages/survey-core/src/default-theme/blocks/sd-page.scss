@@ -11,10 +11,6 @@
   box-sizing: border-box;
   border-radius: var(--sjs2-radius-component-page);
 
-  // padding-inline-start:  var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
-  // padding-inline-end: var(--sjs2-layout-component-page-box-padding-horizontal, var(--sjs2-spacing-x500));
-  // padding-top: var(--sjs2-layout-component-page-box-padding-top, var(--sjs2-spacing-x500));
-  // padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom, var(--sjs2-spacing-x500));
   row-gap: var(--sjs2-layout-component-page-box-gap-horizontal, var(--sjs2-spacing-x300));
   column-gap: var(--sjs2-layout-component-page-box-gap-vertical, var(--sjs2-spacing-x300));
 }
@@ -23,7 +19,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  // padding: var(--sjs2-layout-component-page-header-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-header-padding-horizontal, var(--sjs2-spacing-x000));
   gap: var(--sjs2-layout-component-page-header-gap-vertical, var(--sjs2-spacing-x050));
   margin: 0 0 var(--sjs2-spacing-x050) 0;
 }
@@ -31,7 +26,6 @@
 .sd-page__title {
   @include sjs2--typography--component--page--title;
   position: static;
-  // padding: var(--sjs2-layout-component-page-title-padding-vertical, var(--sjs2-spacing-x000)) var(--sjs2-layout-component-page-title-padding-horizontal, var(--sjs2-spacing-x000));
 }
 
 .sd-page__description {
@@ -44,12 +38,6 @@
 }
 
 .sd-page__content {
-  // padding-inline-start:  var(--sjs2-layout-component-page-content-area-padding-horizontal, var(--sjs2-spacing-x000));
-  // padding-inline-end: var(--sjs2-layout-component-page-content-area-padding-horizontal, var(--sjs2-spacing-x000));
-  // padding-top: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
-  // padding-bottom: var(--sjs2-layout-component-page-content-area-padding-vertical, var(--sjs2-spacing-x000));
-  // row-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal, var(--sjs2-spacing-x200));
-  // column-gap: var(--sjs2-layout-component-page-content-area-gap-vertical, var(--sjs2-spacing-x200));
   row-gap: var(--sjs2-spacing-x200);
   column-gap: var(--sjs2-spacing-x200);
   display: flex;
@@ -64,18 +52,12 @@
   }
 
   .sd-page__title {
-    // margin: 0 0 var(--sjs2-spacing-x050) 0px;
   }
 
   .sd-page__description {
-    // margin: 0 0 var(--sjs2-spacing-x050) 0;
   }
 
   .sd-page__content {
-    // padding-inline-start:  var(--sjs2-spacing-x300);
-    // padding-inline-end: var(--sjs2-spacing-x300);
-    // padding-top: var(--sjs2-spacing-x300);
-    // padding-bottom: var(--sjs2-spacing-x300);
     row-gap: var(--sjs2-spacing-x200);
     column-gap: var(--sjs2-spacing-x200);
     padding: 0;
@@ -86,22 +68,7 @@
   padding: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100)) var(--sd-base-padding);
 }
 
-// .sd-page__title,
-// .sd-page__description {
-//   &~.sd-page__errbox {
-//     margin-top: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100));
-//     margin-bottom: var(--sjs2-spacing-negative-x100);
-//   }
-// }
-
 .sd-root--compact {
-
-  // .sd-page__title,
-  // .sd-page__description {
-  //   &~.sd-page__errbox {
-  //     margin-bottom: 0;
-  //   }
-  // }
 
   // TODO: remove after new tokens are released, it is a temporary fix to keep screenshot
   .sd-page__header ~ .sd-page__content {

@@ -13,10 +13,7 @@
 }
 
 .sd-panel__header {
-  // display: flex;
-  // flex-direction: column;
   padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  // gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));
 }
 
 .sd-panel__title {
@@ -67,7 +64,6 @@
     .sd-panel__title {
       @include sjs2--typography--component--page--title;
       position: static;
-      // margin: 0 0 var(--sjs2-spacing-x050) 0px;
 
       span {
         font-family: inherit;
@@ -88,7 +84,6 @@
     .sd-panel__description {
       @include sjs2--typography--component--page--description;
       position: static;
-      // margin: 0 0 var(--sjs2-spacing-x050) 0;
     }
 
     .sd-panel__required-text {
@@ -108,12 +103,6 @@
 }
 
 .sd-root--compact {
-  // .sd-panel__content {
-  //   padding-top: var(--sjs2-spacing-x500);
-  //   --animation-padding-top: var(--sjs2-spacing-x500);
-  //   padding-bottom: var(--sjs2-spacing-x500);
-  //   row-gap: var(--sjs2-spacing-x400);
-  // }
 
   .sd-panel--as-page {
     & > .sd-panel__errbox {
@@ -150,7 +139,6 @@
 }
 
 .sd-panel__title ~ .sd-panel__description {
-  // margin-top: calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050));
   margin-top: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));
 }
 
@@ -160,11 +148,6 @@
 
 .sd-panel__footer {
   box-sizing: border-box;
-  // padding-left: calc(var(--sd-base-padding) + var(--sjs2-spacing-negative-x150) + var(--sjs2-spacing-negative-x025));
-  // margin-left: calc(-1 * var(--sd-base-padding));
-  // width: calc(100% + 2 * var(--sd-base-padding));
-  // margin-bottom: calc(-1 * var(--sd-base-padding) + 0.5 * var(--sd-base-vertical-padding));
-  // margin-top: calc(0.5 * var(--sd-base-vertical-padding));
   padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x200)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
   border-top: 1px solid $border-light;
   margin-top: calc(-1 * var(--sjs2-spacing-x300));
@@ -179,9 +162,6 @@
   border: none;
   width: initial;
 }
-// .sd-panel__content {
-//   padding-top: var(--sd-base-padding);
-// }
 
 .sd-panel.sd-element--nested {
   & > .sd-panel__content {
@@ -189,7 +169,3 @@
     --animation-padding-top: var(--sd-base-padding);
   }
 }
-
-// .sd-panel__content {
-//   --animation-padding-top: var(--sd-base-padding);
-// }

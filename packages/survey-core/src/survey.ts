@@ -2954,12 +2954,13 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"top"` (default) &ndash; Displays navigation text above the step buttons.
    * - `"bottom"` &ndash; Displays navigation text below the step buttons.
+   * - `"inline"` &ndash; Displays navigation text next to the step buttons on the same line.
    */
   @property({
     getDefaultValue: (self: SurveyModel) => {
       return "top";
     },
-  }) progressBarNavigationTextLocation: "top" | "bottom";
+  }) progressBarNavigationTextLocation: "top" | "bottom" | "inline";
   /**
    * Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when [`showProgressBar`](#showProgressBar) is `true` and [`progressBarType`](#progressBarType) is `"pages"`.
    *
@@ -8590,7 +8591,7 @@ Serializer.addClass("survey", [
   {
     name: "progressBarNavigationTextLocation",
     default: "top",
-    choices: ["top", "bottom"],
+    choices: ["top", "bottom", "inline"],
     visibleIf: (obj: any) => { return obj.showProgressBar && obj.progressBarType === "pages" && obj.progressBarShowNavigationText === true; }
   },
   {

@@ -114,6 +114,34 @@
   }
 }
 
+// Pin the first step to the left edge and the last step to the right edge
+// (space-between-like distribution) instead of centering every step in its column.
+.sd-progress-buttons__list li {
+  &:first-child {
+    align-items: flex-start;
+  }
+
+  &:last-child {
+    align-items: flex-end;
+
+    // the last button is now flush right, so its connector starts at the button's left edge
+    &::after {
+      right: calc(var(--sjs2-size-x300) + var(--sjs2-size-x100));
+    }
+  }
+
+  // a connector segment that touches an edge-pinned button spans further than a centered one
+  &:nth-child(2):not(:last-child)::after,
+  &:nth-child(n + 3):last-child::after {
+    width: calc(150% - var(--sjs2-size-x300) * 1.5 - var(--sjs2-size-x100) * 2);
+  }
+
+  // the single segment between the two edge-pinned buttons (a two-step survey)
+  &:nth-child(2):last-child::after {
+    width: calc(200% - var(--sjs2-size-x300) * 2 - var(--sjs2-size-x100) * 2);
+  }
+}
+
 .sd-progress-buttons__button {
   display: flex;
   align-items: center;
@@ -275,22 +303,36 @@
 
   .sd-progress-buttons__list li {
     &::after {
-      /* 
+      /*
         50% = center of the button
         var(--sjs2-size-x400) / 2 = left half (radius) of the button
         var(--sjs2-size-x100) = gap
       */
       right: calc(50% + var(--sjs2-size-x400) / 2 + var(--sjs2-size-x100));
-      /* 
+      /*
         100% = distance from the center of the current button to the center of the previous button
         var(--sjs2-size-x400) = half (radius) of the current button + half (radius) of the previous button
         var(--sjs2-size-x100) * 2 = two gaps (left and right)
       */
       width: calc(100% - var(--sjs2-size-x400) - var(--sjs2-size-x100) * 2);
-      /* 
+      /*
         var(--sjs2-size-x400) / 2 = top half (radius) of the button
       */
       bottom: calc(var(--sjs2-size-x400) / 2);
+    }
+
+    // edge-pinned connectors for the numbered variant (larger button: x400)
+    &:last-child::after {
+      right: calc(var(--sjs2-size-x400) + var(--sjs2-size-x100));
+    }
+
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after {
+      width: calc(150% - var(--sjs2-size-x400) * 1.5 - var(--sjs2-size-x100) * 2);
+    }
+
+    &:nth-child(2):last-child::after {
+      width: calc(200% - var(--sjs2-size-x400) * 2 - var(--sjs2-size-x100) * 2);
     }
   }
 
@@ -361,6 +403,81 @@
   .sd-progress-buttons__list-container {
     padding-top: 10px;
     padding-bottom: 0;
+  }
+}
+
+// Inline navigation text: the label sits next to the step button on one line,
+// and the connector becomes a horizontal line that trails each step up to the next one.
+.sd-progress-buttons--titles-inline {
+  // lay the steps out in a flex row so they stretch across the full available width
+  .sd-progress-buttons__list {
+    display: flex;
+    align-items: center;
+  }
+
+  .sd-progress-buttons__list li {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: start;
+    gap: var(--sjs2-size-x100);
+    // every step but the last grows equally; the last one is content-sized so it sits at the right edge
+    flex: 1 1 0;
+    min-width: 0;
+
+    &:last-child {
+      flex: 0 0 auto;
+    }
+
+    // keep every step vertically centered (reset the column-layout edge pinning)
+    &,
+    &:first-child,
+    &:last-child {
+      align-items: center;
+    }
+
+    // turn the absolute connector into a flex line that fills the space after the label
+    &::after,
+    &:last-child::after,
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after,
+    &:nth-child(2):last-child::after {
+      position: static;
+      flex: 1 1 auto;
+      width: auto;
+      min-width: var(--sjs2-size-x400);
+      height: var(--sjs2-border-width-x100);
+      margin-inline: var(--sjs2-size-x100);
+      background-color: var(--sjs2-color-border-basic-secondary);
+    }
+
+    // trailing model: the first step now shows its line, the last step has none
+    &:first-child::after {
+      display: block;
+    }
+
+    &:last-child::after {
+      display: none;
+    }
+
+    // colour the segment that follows a completed step
+    &.sd-progress-buttons__list-element--passed::after {
+      background-color: var(--sjs2-color-border-brand-primary);
+    }
+  }
+
+  .sd-progress-buttons__button {
+    margin-top: 0;
+    // the button precedes the label in the inline layout, even though it follows it in the DOM
+    order: -1;
+  }
+
+  .sd-progress-buttons__page-title,
+  .sd-progress-buttons__page-description {
+    text-align: start;
+  }
+
+  .sd-progress-buttons__page-description {
+    margin-top: 0;
   }
 }
 

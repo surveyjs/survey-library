@@ -885,6 +885,34 @@ frameworks.forEach(framework => {
       });
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-bottom.png");
+
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarNavigationTextLocation = "inline";
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-inline.png");
+    });
+
+    test("Check survey with progress buttons - inline navigation text", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.progressBarShowPageNumbers = false;
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.progressBarNavigationTextLocation = "inline";
+        // a middle page so passed / current / upcoming steps are all visible
+        (<any>window).survey.currentPageNo = 2;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-inline-navigation-text.png");
+
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarShowPageNumbers = true;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-inline-navigation-text-numbered.png");
     });
 
     test("Check survey with progress top buttons - skipped pages stay gray", async ({ page }) => {

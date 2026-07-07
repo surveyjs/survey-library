@@ -343,6 +343,10 @@ export class DropdownListModel extends Base {
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };
+    const baseIsItemFocused = res.isItemFocused.bind(res);
+    res.isItemFocused = (action: ItemValue): boolean => {
+      return this.isListFocusedByKeyboard && baseIsItemFocused(action);
+    };
     return res;
   }
 
@@ -373,6 +377,7 @@ export class DropdownListModel extends Base {
   }
 
   protected resetKeyboardPreviewState(): void {
+    this.isListFocusedByKeyboard = false;
     this.question.suggestedItem = null;
     this.resetListKeyboardHighlightState();
   }
@@ -536,6 +541,7 @@ export class DropdownListModel extends Base {
   @property({}) showInputFieldComponent: boolean;
   @property() ariaActivedescendant: string;
   @property() ariaExpanded : "true" | "false";
+  private isListFocusedByKeyboard: boolean = false;
 
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
@@ -756,12 +762,16 @@ export class DropdownListModel extends Base {
   public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
+    this.isListFocusedByKeyboard = false;
     this.focusItemOnClickAndPopup();
     this.question.focusInputElement(false);
   }
   protected focusItemOnClickAndPopup(): void {
     if (this._popupModel.isVisible && this.question.value) {
-      this.changeSelectionWithKeyboard(false);
+      if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
+        this.listModel.focusedItem = this.question.selectedItem;
+      }
+      this.afterScrollToItem();
     }
   }
   public chevronPointerDown(event: any): void {
@@ -798,6 +808,7 @@ export class DropdownListModel extends Base {
   }
 
   changeSelectionWithKeyboard(reverse: boolean): void {
+    this.isListFocusedByKeyboard = true;
     let focusedItem = this.listModel.focusedItem;
     if (!focusedItem && this.question.selectedItem) {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {

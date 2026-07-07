@@ -345,7 +345,7 @@ export class DropdownListModel extends Base {
     };
     const baseIsItemFocused = res.isItemFocused.bind(res);
     res.isItemFocused = (action: ItemValue): boolean => {
-      return this.isListFocusedByKeyboard && baseIsItemFocused(action);
+      return (this.isListFocusedByKeyboard || !!this.filterString) && baseIsItemFocused(action);
     };
     return res;
   }
@@ -584,6 +584,7 @@ export class DropdownListModel extends Base {
   }
 
   public set inputStringRendered(val: string) {
+    this.isListFocusedByKeyboard = !!val;
     this.inputString = val;
     this.filterString = val;
 

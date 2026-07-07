@@ -97,7 +97,7 @@ describe("SSR-safe element ids", () => {
   });
 
   describe("renderedId === id when unwrapped", () => {
-    test("With no renderedIdPrefix/renderedIdSuffix, renderedId equals the raw id for every element kind", () => {
+    test("With no renderedIdPrefix, renderedId equals the raw id for every element kind", () => {
       const survey = new SurveyModel(json);
       const q1 = survey.getQuestionByName("q1");
       expect(q1.id).toBe("sq_0");
@@ -186,42 +186,6 @@ describe("SSR-safe element ids", () => {
       survey.renderedIdPrefix = "x-";
       expect(survey.getQuestionByName("q1").renderedId).toBe("x-sq_0");
       expect(survey.pages[0].renderedId).toBe("x-sp_0");
-    });
-  });
-
-  describe("renderedIdSuffix (SSR token)", () => {
-    test("renderedIdSuffix is appended to renderedId and derived ids", () => {
-      const survey = new SurveyModel(json); survey.renderedIdSuffix = "_r1";
-      const q1 = survey.getQuestionByName("q1");
-      expect(q1.id).toBe("sq_0");
-      expect(q1.renderedId).toBe("sq_0_r1");
-      expect(q1.inputId).toBe("sq_0_r1i");
-    });
-
-    test("renderedIdSuffix is ignored when renderedIdPrefix is set", () => {
-      const survey = new SurveyModel(json);
-      survey.renderedIdPrefix = "a-";
-      survey.renderedIdSuffix = "_r1";
-      expect(survey.getQuestionByName("q1").renderedId).toBe("a-sq_0");
-    });
-
-    test("Two surveys with distinct renderedIdSuffix have zero renderedId overlap", () => {
-      const s1 = new SurveyModel(json); s1.renderedIdSuffix = "_a";
-      const s2 = new SurveyModel(json); s2.renderedIdSuffix = "_b";
-      const set1 = new Set(collectIds(s1));
-      expect(collectIds(s2).some((id) => set1.has(id))).toBe(false);
-    });
-
-    test("Setting renderedIdSuffix is quiet - it fires no onPropertyChanged (renderers assign it during render)", () => {
-      const survey = new SurveyModel(json);
-      let changes = 0;
-      survey.onPropertyChanged.add((_, options) => { if (options.name === "renderedIdSuffix") changes++; });
-      survey.renderedIdSuffix = "_r1";
-      survey.renderedIdSuffix = "_r2";
-      expect(changes).toBe(0);
-      expect(survey.renderedIdSuffix).toBe("_r2");
-      // and it still composes into renderedId
-      expect(survey.getQuestionByName("q1").renderedId).toBe("sq_0_r2");
     });
   });
 

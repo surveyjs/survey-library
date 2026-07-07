@@ -226,7 +226,7 @@ export abstract class BaseAction extends Base implements IAction {
    * The DOM id rendered to the `id` attribute of the action's root element, and the base for derived
    * ids (e.g. the "other" comment input on choice items, image-map area uids). Deterministic and
    * SSR-safe: generated lazily from the owner survey's id generator (or the shared fallback for
-   * detached actions) and wrapped with the survey's `renderedIdPrefix`/`renderedIdSuffix` via
+   * detached actions) and wrapped with the survey's `renderedIdPrefix` via
    * `composeRenderedId`.
    *
    * Unlike a plain `Base` element, an action's own `id` is its *semantic* identifier (from JSON, e.g.

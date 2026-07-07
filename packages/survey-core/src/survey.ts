@@ -1222,7 +1222,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * The id generator that produces deterministic, SSR-safe raw ids for every element of this survey.
    * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`). The survey's
-   * `renderedIdPrefix`/`renderedIdSuffix` are applied on top of the raw id in `Base.renderedId`.
+   * `renderedIdPrefix` is applied on top of the raw id in `Base.renderedId`.
    */
   public get idGenerator(): SurveyIdGenerator {
     if (!this.idGeneratorValue) {
@@ -1244,32 +1244,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("renderedIdPrefix", val || "");
   }
   /**
-   * A suffix appended to every DOM id (`renderedId`) generated for this survey's elements. It is
-   * supplied by the framework SSR layer (React/Vue/Angular `useId`) so the same survey definition
-   * produces the same DOM ids on the server and on the client. Ignored when `renderedIdPrefix` is set.
-   *
-   * Assigned quietly (no `onPropertyChanged` notification): renderers set it from inside a render
-   * pass (e.g. React/Vue `useId`), so it must not trigger a reactivity update while rendering. It is
-   * read lazily at render time in `Base.renderedId`, so setting it before first render is enough.
-   *
-   * Default value: `""`
-   */
-  private renderedIdSuffixValue: string = "";
-  public get renderedIdSuffix(): string { return this.renderedIdSuffixValue; }
-  public set renderedIdSuffix(val: string) {
-    this.renderedIdSuffixValue = val || "";
-  }
-  /**
-   * Wraps a raw, per-survey element `id` with this survey's `renderedIdPrefix` (prepended) and
-   * `renderedIdSuffix` (appended, the framework-supplied SSR token) to produce the actual DOM id.
-   * With both empty the result equals the raw id. `renderedIdSuffix` is ignored when
-   * `renderedIdPrefix` is set, since `renderedIdPrefix` already namespaces ids. This is the single
+   * Wraps a raw, per-survey element `id` with this survey's `renderedIdPrefix` (prepended) to
+   * produce the actual DOM id. With it empty the result equals the raw id. This is the single
    * place that knows the id-namespacing policy; elements reach it via `Base.renderedId`.
    */
   public getRenderedId(id: string): string {
-    const prefix: string = this.renderedIdPrefix || "";
-    const suffix: string = !prefix ? (this.renderedIdSuffix || "") : "";
-    return prefix + id + suffix;
+    return (this.renderedIdPrefix || "") + id;
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;

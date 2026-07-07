@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, Input } from "@angular/core";
 import { SurveyModel, SvgRegistry, addIconsToThemeSet } from "survey-core";
 import { BaseAngular } from "./base-angular";
-import { SurveyIdSourceService } from "./survey-id-source.service";
 
 import { icons as iconsV2 } from "survey-core/icons/iconsV2";
 addIconsToThemeSet("v2", iconsV2);
@@ -16,21 +15,9 @@ export class SurveyComponent extends BaseAngular<SurveyModel> {
   protected getModel(): SurveyModel {
     return this.model;
   }
-  constructor(changeDetectorRef: ChangeDetectorRef, private idSource: SurveyIdSourceService) {
+  constructor(changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef);
     changeDetectorRef.detach();
-  }
-  override ngOnInit(): void {
-    // Assign the app-scoped SSR token before the survey body renders and reads renderedId. Inert on
-    // Angular 12 (idSource.next() returns "" while SurveyIdSourceService.isEnabled is false), so
-    // Must run before super.ngOnInit() creates the embedded view (which renders the
-    // survey body and reads renderedId).
-    const model = this.model;
-    if (model) {
-      const token = this.idSource.next();
-      if (token) model.renderedIdSuffix = token;
-    }
-    super.ngOnInit();
   }
   protected override getShouldReattachChangeDetector(): boolean {
     return false;

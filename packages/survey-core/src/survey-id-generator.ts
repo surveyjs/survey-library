@@ -10,7 +10,7 @@
  * pins). The id is `prefix + "_" + n`, so different prefixes never collide even though their
  * number-spaces overlap.
  *
- * The generator produces the raw, un-namespaced `id`. The survey's `renderedIdPrefix`/`renderedIdSuffix` wrapping is
+ * The generator produces the raw, un-namespaced `id`. The survey's `renderedIdPrefix` wrapping is
  * applied later, in `Base.renderedId`, so the raw `id` stays stable and test-friendly.
  *
  * `uniqueId` (used for framework `key`s and creation-order sorting, never rendered to the DOM by

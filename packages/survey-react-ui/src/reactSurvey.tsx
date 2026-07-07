@@ -17,38 +17,6 @@ import { Scroll } from "./components/scroll";
 addIconsToThemeSet("v2", iconsV2);
 SvgRegistry.registerIcons(iconsV2);
 
-// React 18 exposes `useId()`, which returns an SSR-stable token (identical on the server render and
-// the hydrating client). React 17 does not have it, so `reactUseId` is undefined and the survey's
-// `renderedIdSuffix` is left empty - `renderedId` then equals the raw id (today's behavior). Captured
-// once at module scope so the branch inside the component is stable across renders (rules-of-hooks safe).
-const reactUseId: (() => string) | undefined = (React as any).useId;
-// useId returns strings like ":r0:" - colons are valid in HTML ids but break `querySelector("#id")`
-// and CSS identifiers. We use `renderedIdSuffix` as a suffix on ids that ARE referenced by
-// selectors/aria, so strip everything but word chars and dashes. The transform is deterministic, so
-// it stays stable across the SSR -> hydration boundary. A leading letter is prepended so the token
-// never starts with a digit after stripping.
-function sanitizeIdSuffix(token: string): string {
-  const cleaned = token.replace(/[^\w-]/g, "");
-  return cleaned ? "_" + cleaned : "";
-}
-// Assigns the framework's SSR-stable token to `survey.renderedIdSuffix` before descendants render.
-// Rendered as the first child of the Survey root so it runs before any page/question reads
-// `renderedId`. Renders nothing. Inert on React 17 (no `useId`); there `renderedIdSuffix` stays empty
-// and single-survey SSR still hydrates cleanly (see v3-element-ids-02).
-export function SurveyRenderedIdSuffixInitializer(props: { survey: SurveyModel }): null {
-  if (reactUseId) {
-    // reactUseId is a stable module constant, so this call is not actually conditional at runtime
-    // (the branch is decided once at module load), which keeps React's rules-of-hooks satisfied.
-    const suffix = sanitizeIdSuffix(reactUseId());
-    // renderedIdPrefix (Creator) takes precedence over renderedIdSuffix, so only assign when
-    // renderedIdSuffix would be used.
-    if (!props.survey.renderedIdPrefix && props.survey.renderedIdSuffix !== suffix) {
-      props.survey.renderedIdSuffix = suffix;
-    }
-  }
-  return null;
-}
-
 export class Survey extends SurveyElementBase<any, any>
   implements ISurveyCreator {
   private previousJSON = {};
@@ -140,7 +108,6 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} lang={this.survey.locale || "en"} dir={this.survey.localeDir}>
-        <SurveyRenderedIdSuffixInitializer survey={this.survey} />
         { this.survey.generateStylesheet ?
           <>
             <style>{this.survey.themeStyle}</style>

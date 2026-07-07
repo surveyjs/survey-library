@@ -2,14 +2,14 @@ import { DomDocumentHelper } from "./global_variables_utils";
 import { IDialogOptions, IConfirmDialogOptions } from "./popup";
 
 export type ISurveyEnvironment = {
-  root: Document | ShadowRoot,
-  rootElement: HTMLElement | ShadowRoot,
-  popupMountContainer: HTMLElement | string,
+  root: Document | ShadowRoot | undefined,
+  rootElement: HTMLElement | ShadowRoot | undefined,
+  popupMountContainer: HTMLElement | string | undefined,
   /**
    * @deprecated
    */
-  svgMountContainer: HTMLElement | string,
-  stylesSheetsMountContainer: HTMLElement,
+  svgMountContainer: HTMLElement | string | undefined,
+  stylesSheetsMountContainer: HTMLElement | undefined,
 }
 export interface IBeforeRequestChoicesOptions { request?: XMLHttpRequest, url: string, fetchOptions?: RequestInit }
 
@@ -18,23 +18,29 @@ const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ?
   root: document,
 
   _rootElement: DomDocumentHelper.getBody(),
-  get rootElement(): HTMLElement | ShadowRoot {
+  get rootElement(): HTMLElement | ShadowRoot | undefined {
     return this._rootElement ?? DomDocumentHelper.getBody();
   },
-  set rootElement(rootElement: HTMLElement | ShadowRoot) {
+  set rootElement(rootElement: HTMLElement | ShadowRoot | undefined) {
     (this._rootElement as any) = rootElement;
   },
-
   _popupMountContainer: DomDocumentHelper.getBody(),
-  get popupMountContainer(): HTMLElement | string {
+  get popupMountContainer(): HTMLElement | string | undefined {
     return this._popupMountContainer ?? DomDocumentHelper.getBody();
   },
-  set popupMountContainer(popupMountContainer: HTMLElement | string) {
+  set popupMountContainer(popupMountContainer: HTMLElement | string | undefined) {
     (this._popupMountContainer as any) = popupMountContainer;
   },
   svgMountContainer: document.head,
   stylesSheetsMountContainer: document.head,
-} : undefined);
+} :
+  {
+    root: undefined,
+    rootElement: undefined,
+    popupMountContainer: undefined,
+    svgMountContainer: undefined,
+    stylesSheetsMountContainer: undefined,
+  });
 const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
   "file": { minWidth: "240px" },
   "comment": { minWidth: "200px" }

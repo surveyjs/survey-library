@@ -424,26 +424,32 @@
 }
 
 .sd-question--table {
-  & > .sd-question__header,
+  // Commented out "& > .sd-question__header": the header is no longer a direct child of
+  // the question root (sticky header is handled by the .sd-question.sd-question--table rule above)
+  // & > .sd-question__header,
   .sd-question__description--under-input .sv-string-viewer {
     position: sticky;
     left: 0;
   }
 
-  & > .sd-question__content {
-    padding-top: var(--sd-base-vertical-padding);
-    --animation-padding-top: #{var(--sd-base-vertical-padding)};
-    min-width: min-content;
-  }
+  // Commented out: .sd-question__content is no longer a direct child of the question root
+  // (it is nested inside .sd-question__container > .sd-question__header-and-content-container)
+  // & > .sd-question__content {
+  //   padding-top: var(--sd-base-vertical-padding);
+  //   --animation-padding-top: #{var(--sd-base-vertical-padding)};
+  //   min-width: min-content;
+  // }
 
-  &.sd-element--nested {
-    & > .sd-question__content {
-      min-width: auto;
-      overflow-x: auto;
-    }
-  }
+  // Commented out: same reason, replaced by the .sd-question--table.sd-element--nested rule above
+  // &.sd-element--nested {
+  //   & > .sd-question__content {
+  //     min-width: auto;
+  //     overflow-x: auto;
+  //   }
+  // }
 
-  &.sd-element--nested > .sd-question__content,
+  // Commented out "&.sd-element--nested > .sd-question__content": content is no longer a direct child of the question root
+  // &.sd-element--nested > .sd-question__content,
   &:not(.sd-element--with-frame):not(.sd-element--nested) {
     padding-right: var(--sd-base-padding);
     margin-right: calc(-1 * var(--sd-base-padding));
@@ -460,9 +466,10 @@
 }
 
 .sd-row--multiple {
-  .sd-question--table.sd-element--nested > .sd-question__content {
-    padding-right: calc(var(--sd-base-padding) + 2px);
-  }
+  // Commented out: content is no longer a direct child of the question root, see the updated rule below
+  // .sd-question--table.sd-element--nested > .sd-question__content {
+  //   padding-right: calc(var(--sd-base-padding) + 2px);
+  // }
   .sd-question--table.sd-element--nested > .sd-question__container >.sd-question__header-and-content-container > .sd-question__content {
     padding-right: calc(var(--sd-base-padding) + 2px);
   }
@@ -481,20 +488,23 @@
 }
 
 @mixin table_responsive {
-  &.sd-question.sd-question--table {
-    & > .sd-question__content {
-      padding-top: var(--sjs2-spacing-x100);
-      --animation-padding-top: var(--sjs2-spacing-x100);
-    }
-  }
+  // Commented out: .sd-question__content is no longer a direct child of the question root
+  // (it is nested inside .sd-question__container > .sd-question__header-and-content-container)
+  // &.sd-question.sd-question--table {
+  //   & > .sd-question__content {
+  //     padding-top: var(--sjs2-spacing-x100);
+  //     --animation-padding-top: var(--sjs2-spacing-x100);
+  //   }
+  // }
 
   &.sd-question--table,
   &.sd-question--scroll {
     overflow-x: visible;
   }
-  & > .sd-question__content {
-    min-width: auto;
-  }
+  // Commented out: content is no longer a direct child of the question root
+  // & > .sd-question__content {
+  //   min-width: auto;
+  // }
   .sd-table-wrapper {
     width: auto;
     margin-top: calc(-1 * var(--sjs2-spacing-x100));

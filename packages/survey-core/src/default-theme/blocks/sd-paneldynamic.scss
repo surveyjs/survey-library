@@ -45,15 +45,18 @@
   }
 }
 
-.sd-question:not(.sd-element--with-frame) {
-    &>.sd-paneldynamic__footer {
-        padding: 0;
-    }
+// Commented out: .sd-paneldynamic__footer / .sd-paneldynamic__panel-footer are never
+// direct children of the question root (footer lives inside .sd-paneldynamic,
+// panel footer inside .sd-panel)
+// .sd-question:not(.sd-element--with-frame) {
+//     &>.sd-paneldynamic__footer {
+//         padding: 0;
+//     }
 
-    &>.sd-paneldynamic__panel-footer {
-        padding: 0;
-    }
-}
+//     &>.sd-paneldynamic__panel-footer {
+//         padding: 0;
+//     }
+// }
 
 .sd-question--paneldynamic {
     &>.sd-question__container {
@@ -181,22 +184,24 @@
     }
 }
 
-.sd-question--empty.sd-question--paneldynamic {
-    & > .sd-question__content {
-        padding-bottom: var(--sd-base-padding);
-        --animation-padding-bottom: var(--sd-base-padding);
-    }
-}
+// Commented out: .sd-question__content is no longer a direct child of the question root
+// (it is nested inside .sd-question__container > .sd-question__header-and-content-container)
+// .sd-question--empty.sd-question--paneldynamic {
+//     & > .sd-question__content {
+//         padding-bottom: var(--sd-base-padding);
+//         --animation-padding-bottom: var(--sd-base-padding);
+//     }
+// }
 
-.sd-question--paneldynamic:not(.sd-question--empty) {
-    & > .sd-question__content {
-        padding: 0;
-        --animation-padding-bottom: 0;
-        & > .sd-question__comment-area {
-            padding-bottom: var(--sd-base-padding);
-        }
-    }
-}
+// .sd-question--paneldynamic:not(.sd-question--empty) {
+//     & > .sd-question__content {
+//         padding: 0;
+//         --animation-padding-bottom: 0;
+//         & > .sd-question__comment-area {
+//             padding-bottom: var(--sd-base-padding);
+//         }
+//     }
+// }
 
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;

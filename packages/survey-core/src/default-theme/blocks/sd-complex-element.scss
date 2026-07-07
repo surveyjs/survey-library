@@ -64,10 +64,12 @@
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
 
-  & > .sd-question__erbox--below-question {
-    bottom: 0;
-    margin-top: 0;
-  }
+  // Commented out: question erbox is no longer a direct child of the question root
+  // (it is nested inside .sd-question__container)
+  // & > .sd-question__erbox--below-question {
+  //   bottom: 0;
+  //   margin-top: 0;
+  // }
 
   &.sd-element--collapsed {
     & > .sd-element__header--location-top {

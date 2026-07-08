@@ -35,33 +35,35 @@ const surveyJson = {
 
 ### `allowNegativeValues`
 
+**Type**: `boolean`
+
 Specifies whether respondents can enter negative values.
 
 Default value: `true`
 
-**Type**: `boolean`
-
 ### `decimalSeparator`
+
+**Type**: `string`
 
 A symbol used to separate the fractional part from the integer part of a displayed number.
 
 Default value: `"."`
 
-**Type**: `string`
-
 ### `max`
+
+**Type**: `number`
 
 A maximum value that respondents can enter.
 
-**Type**: `number`
-
 ### `min`
+
+**Type**: `number`
 
 A minimum value that respondents can enter.
 
-**Type**: `number`
-
 ### `precision`
+
+**Type**: `number`
 
 Limits how many digits to retain after the decimal point for a displayed number.
 
@@ -69,12 +71,10 @@ Default value: 2
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
-**Type**: `number`
-
 ### `thousandsSeparator`
+
+**Type**: `string`
 
 A symbol used to separate the digits of a large number into groups of three.
 
 Default value: `","`
-
-**Type**: `string`

@@ -16,11 +16,13 @@ An `IHeader` object configures advanced survey header appearance settings. To ap
 
 ### `backgroundImage`
 
-An image to display in the background of the header. Accepts a base64 or URL string value.
-
 **Type**: `string`
 
+An image to display in the background of the header. Accepts a base64 or URL string value.
+
 ### `backgroundImageFit`
+
+**Type**: `"contain" | "cover" | "fill" | "tile"`
 
 A string value that specifies how to resize a [background image](#backgroundImage) to fit it into the header.
 
@@ -35,15 +37,15 @@ Scales the image to the largest possible size without cropping or stretching it.
 - `"tile"`\
 Tiles as many copies of the image as needed to fill the entire header.
 
-**Type**: `"contain" | "cover" | "fill" | "tile"`
-
 ### `backgroundImageOpacity`
-
-A value from 0 to 1 that specifies how transparent the [background image](#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
 
 **Type**: `number`
 
+A value from 0 to 1 that specifies how transparent the [background image](#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
+
 ### `descriptionPositionX`
+
+**Type**: `HorizontalAlignment`
 
 A string value that specifies the survey description position within the header in the horizontal direction.
 
@@ -55,9 +57,9 @@ Possible values:
 
 To specify a survey description, set `SurveyModel`'s [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description) property.
 
-**Type**: `HorizontalAlignment`
-
 ### `descriptionPositionY`
+
+**Type**: `VerticalAlignment`
 
 A string value that specifies the survey description position within the header in the vertical direction.
 
@@ -69,17 +71,17 @@ Possible values:
 
 To specify a survey description, set `SurveyModel`'s [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description) property.
 
-**Type**: `VerticalAlignment`
-
 ### `height`
+
+**Type**: `number`
 
 The height of the survey header in pixels.
 
 Default value: 256
 
-**Type**: `number`
-
 ### `inheritWidthFrom`
+
+**Type**: `"survey" | "container"`
 
 A string value that specifies whether the header spans the width of the survey or that of the survey container.
 
@@ -90,9 +92,9 @@ The header width is the same as the survey width.
 - `"container"` (default)\
 The header width is the same as the survey container width.
 
-**Type**: `"survey" | "container"`
-
 ### `logoPositionX`
+
+**Type**: `HorizontalAlignment`
 
 A string value that specifies the logo position within the header in the horizontal direction.
 
@@ -104,9 +106,9 @@ Possible values:
 
 To specify a logo, set `SurveyModel`'s [`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo) property.
 
-**Type**: `HorizontalAlignment`
-
 ### `logoPositionY`
+
+**Type**: `VerticalAlignment`
 
 A string value that specifies the logo position within the header in the vertical direction.
 
@@ -118,33 +120,33 @@ Possible values:
 
 To specify a logo, set `SurveyModel`'s [`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo) property.
 
-**Type**: `VerticalAlignment`
-
 ### `mobileHeight`
+
+**Type**: `number`
 
 The height of the survey header on smartphones, measured in pixels.
 
 Default value: 0 (the height is calculated automatically to accommodate the header's content).
 
-**Type**: `number`
-
 ### `overlapEnabled`
+
+**Type**: `boolean`
 
 A Boolean value that specifies whether the header overlaps the survey content.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `textAreaWidth`
+
+**Type**: `number`
 
 The width of the header area that contains the survey [title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) and [description](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description), measured in pixels.
 
 Default value: 512
 
-**Type**: `number`
-
 ### `titlePositionX`
+
+**Type**: `HorizontalAlignment`
 
 A string value that specifies the survey title position within the header in the horizontal direction.
 
@@ -156,9 +158,9 @@ Possible values:
 
 To specify a survey title, set `SurveyModel`'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
 
-**Type**: `HorizontalAlignment`
-
 ### `titlePositionY`
+
+**Type**: `VerticalAlignment`
 
 A string value that specifies the survey title position within the header in the vertical direction.
 
@@ -169,5 +171,3 @@ Possible values:
 - `"middle"`
 
 To specify a survey title, set `SurveyModel`'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
-
-**Type**: `VerticalAlignment`

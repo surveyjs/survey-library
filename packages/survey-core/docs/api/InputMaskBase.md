@@ -23,8 +23,8 @@ A base class for classes that implement input masks:
 
 ### `saveMaskedValue`
 
+**Type**: `boolean`
+
 Specifies whether to store the question value with an applied mask in survey results.
 
 Default value: `false`
-
-**Type**: `boolean`

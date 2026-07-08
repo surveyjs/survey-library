@@ -20,8 +20,8 @@ A class that implements validation using [expressions](https://surveyjs.io/form-
 
 ### `expression`
 
+**Type**: `string`
+
 A Boolean [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). If it evaluates to `false`, validation fails.
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `string`

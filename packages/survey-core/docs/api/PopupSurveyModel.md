@@ -20,6 +20,8 @@ A class that renders a survey in a pop-up window.
 
 ### `allowClose`
 
+**Type**: `boolean`
+
 Specifies whether to display a button that closes the pop-up window.
 
 Default value: `false`
@@ -28,17 +30,17 @@ Default value: `false`
 
 If you allow users to close the pop-up window, make sure to implement a UI element that opens it. This element should call the [`show()`](#show) method or enable the [`isShowing`](#isShowing) property.
 
-**Type**: `boolean`
-
 ### `allowFullScreen`
+
+**Type**: `boolean`
 
 Specifies whether to display a button that allows respondents to show the pop-up survey in full screen mode.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `closeOnCompleteTimeout`
+
+**Type**: `number`
 
 Specifies how many seconds the pop-up window should remain open after users complete the survey.
 
@@ -48,9 +50,9 @@ Set this property to a negative value (for instance, -1) to keep the pop-up wind
 
 [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
 
-**Type**: `number`
-
 ### `isExpanded`
+
+**Type**: `boolean`
 
 Indicates whether the pop-up window is expanded or collapsed.
 
@@ -58,27 +60,25 @@ Indicates whether the pop-up window is expanded or collapsed.
 
 You can set this property to `true` or `false` to control the expand state of the pop-up survey. Alternatively, you can use the [`expand()`](#expand) and [`collapse()`](#collapse) methods.
 
-**Type**: `boolean`
-
 ### `isShowing`
+
+**Type**: `boolean`
 
 Indicates whether the pop-up survey appears on the page, regardless of its [expand state](#isExpanded).
 
 You can set this property to `true` or `false` to control visibility of the pop-up survey. Alternatively, you can use the [`show()`](#show) and [`hide()`](#hide) methods.
 
-**Type**: `boolean`
-
 ### `survey`
-
-A [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model) instance rendered in the pop-up window.
 
 **Type**: `SurveyModel`
 
+A [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model) instance rendered in the pop-up window.
+
 ### `title`
 
-A title for the pop-up window. If this property is undefined, the title is taken from [`SurveyModel`](#survey)'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
-
 **Type**: `string`
+
+A title for the pop-up window. If this property is undefined, the title is taken from [`SurveyModel`](#survey)'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
 
 ## Methods
 

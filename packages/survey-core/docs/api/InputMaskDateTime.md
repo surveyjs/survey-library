@@ -35,12 +35,12 @@ const surveyJson = {
 
 ### `max`
 
-A maximum date and time value that respondents can enter.
-
 **Type**: `string`
+
+A maximum date and time value that respondents can enter.
 
 ### `min`
 
-A minimum date and time value that respondents can enter.
-
 **Type**: `string`
+
+A minimum date and time value that respondents can enter.

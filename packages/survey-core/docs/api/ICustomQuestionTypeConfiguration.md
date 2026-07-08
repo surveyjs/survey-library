@@ -19,17 +19,19 @@ Refer to the following articles for more information:
 
 ### `createElements`
 
-A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
-
 **Type**: `any`
+
+A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
 
 ### `createQuestion`
 
-A function that allows you to create a custom question if you do not specify the `questionJSON` property.
-
 **Type**: `any`
 
+A function that allows you to create a custom question if you do not specify the `questionJSON` property.
+
 ### `defaultQuestionTitle`
+
+**Type**: `any`
 
 A default title for questions created with this question type. Survey authors can change the default title in the JSON object or in Survey Creator's Property Grid.
 
@@ -53,29 +55,29 @@ ComponentCollection.Instance.add({
 });
 ```
 
-**Type**: `any`
-
 ### `elementsJSON`
+
+**Type**: `any`
 
 JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
 
-**Type**: `any`
-
 ### `getDisplayValue`
-
-A function that allows you to override the default `getDisplayValue()` implementation.
 
 **Type**: `((keyAsText: boolean, value: any) => any) | ((question: Question) => any)`
 
+A function that allows you to override the default `getDisplayValue()` implementation.
+
 ### `iconName`
+
+**Type**: `string`
 
 The name of an icon to use for the custom question type.
 
 [UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
 
-**Type**: `string`
-
 ### `inheritBaseProps`
+
+**Type**: `boolean | string[]`
 
 An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.
 
@@ -87,23 +89,23 @@ When you create a [custom specialized question type](https://surveyjs.io/form-li
 
 [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types (linkStyle))
 
-**Type**: `boolean | string[]`
-
 ### `name`
-
-A name used to identify a custom question type.
 
 **Type**: `string`
 
+A name used to identify a custom question type.
+
 ### `questionJSON`
+
+**Type**: `any`
 
 A JSON schema for a built-in question type on which the custom question type is based.
 
 Refer to the [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types) help topic for more information.
 
-**Type**: `any`
-
 ### `showInToolbox`
+
+**Type**: `boolean`
 
 Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
 
@@ -111,21 +113,19 @@ Default value: `true`
 
 Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
 
-**Type**: `boolean`
-
 ### `title`
 
-A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
-
 **Type**: `string`
+
+A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
 
 ## Methods
 
 ### `getErrorText()`
 
-A function that allows you to display different error texts based on conditions.
-
 **Return value:** `string` &ndash; An error text.
+
+A function that allows you to display different error texts based on conditions.
 
 **Parameters:**
 
@@ -297,6 +297,8 @@ If you want to perform some actions when the value is changed in code as well as
 
 ### `onValueChanging()`
 
+**Return value:** `any`
+
 A function that is called before a question value is changed in the UI.
 
 This function should return the value you want to save: `newValue`, a custom value, or `undefined` if you want to clear the question value.
@@ -309,8 +311,6 @@ A custom question.
 The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
 - `newValue`: `any`\
 A new value for the question.
-
-**Return value:** `any`
 
 **Parameters:**
 

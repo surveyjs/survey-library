@@ -20,16 +20,16 @@ A class that implements answer count validation in the question types that can h
 
 ### `maxCount`
 
+**Type**: `number`
+
 A maximum number of selected answers.
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
 
-**Type**: `number`
-
 ### `minCount`
+
+**Type**: `number`
 
 A minimum number of selected answers.
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `number`

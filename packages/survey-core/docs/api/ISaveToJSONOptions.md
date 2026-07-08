@@ -14,19 +14,21 @@ An interface with configuration options that control how a `SurveyModel` instanc
 
 ### `locales`
 
-Specifies the locales to include in the exported JSON schema. Applies only when [`storeLocaleStrings`](#storeLocaleStrings) is `true` or `"stringsOnly"`.
-
 **Type**: `string[]`
 
+Specifies the locales to include in the exported JSON schema. Applies only when [`storeLocaleStrings`](#storeLocaleStrings) is `true` or `"stringsOnly"`.
+
 ### `storeDefaults`
+
+**Type**: `boolean`
 
 Specifies whether the exported JSON schema should include properties whose values are equal to their defaults.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `storeLocaleStrings`
+
+**Type**: `boolean | "stringsOnly"`
 
 Specifies how locale-specific strings are handled during JSON export.
 
@@ -40,5 +42,3 @@ Export the JSON schema without any textual content.
 Export a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements. Use the [`locales`](#locales) array to restrict the output to specific locales. To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
 
 > As an alternative to calling `toJSON()` with `"stringsOnly"`, you can call the [`getLocalizationJSON(locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getLocalizationJSON) method, which is syntactic sugar.
-
-**Type**: `boolean | "stringsOnly"`

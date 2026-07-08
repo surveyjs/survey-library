@@ -20,13 +20,15 @@ A class that describes the Expression question type. It is a read-only question 
 
 ### `currency`
 
+**Type**: `string`
+
 A three-letter currency code. Applies only if the `displayStyle` property is set to `"currency"`.
 
 Default value: "USD".
 
-**Type**: `string`
-
 ### `displayStyle`
+
+**Type**: `string`
 
 Specifies a display style for the question value.
 
@@ -42,9 +44,9 @@ If you use the `"currency"` display style, you can also set the `currency` prope
 
 [View Demo](https://surveyjs.io/form-library/examples/expression-question-for-dynamic-form-calculations/ (linkStyle))
 
-**Type**: `string`
-
 ### `expression`
+
+**Type**: `string`
 
 An expression used to calculate the question value.
 
@@ -52,42 +54,40 @@ Refer to the following help topic for more information: [Expressions](https://su
 
 [View Demo](https://surveyjs.io/form-library/examples/expression-question-for-dynamic-form-calculations/ (linkStyle))
 
-**Type**: `string`
-
 ### `format`
+
+**Type**: `string`
 
 A string that formats a question value. Use `{0}` to reference the question value in the format string.
 
-**Type**: `string`
-
 ### `maximumFractionDigits`
+
+**Type**: `number`
 
 The maximum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
 
 Default value: -1
 
-**Type**: `number`
-
 ### `minimumFractionDigits`
+
+**Type**: `number`
 
 The minimum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
 
 Default value: -1
 
-**Type**: `number`
-
 ### `precision`
+
+**Type**: `number`
 
 Specifies how many decimal digits to keep in the expression value.
 
 Default value: -1 (unlimited)
 
-**Type**: `number`
-
 ### `useGrouping`
+
+**Type**: `boolean`
 
 Specifies whether to use grouping separators in number representation. Separators depend on the selected [locale](https://surveyjs.io/form-library/documentation/surveymodel#locale).
 
 Default value: `true`
-
-**Type**: `boolean`

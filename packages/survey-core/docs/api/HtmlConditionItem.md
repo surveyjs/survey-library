@@ -19,6 +19,6 @@ If the expression returns true then html of this item uses instead of survey.com
 
 ### `html`
 
-The html that shows on completed ('Thank you') page. The expression should return true
-
 **Type**: `string`
+
+The html that shows on completed ('Thank you') page. The expression should return true

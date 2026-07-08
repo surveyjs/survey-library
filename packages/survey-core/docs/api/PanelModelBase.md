@@ -18,17 +18,19 @@ A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentati
 
 ### `areQuestionsRandomized`
 
-Returns `true` if elements in this panel/page are arranged in random order.
-
 **Type**: `boolean`
+
+Returns `true` if elements in this panel/page are arranged in random order.
 
 ### `elements`
 
-An array of all survey elements (questions or panels) within this panel/page. Does not include questions within nested panels.
-
 **Type**: `IElement[]`
 
+An array of all survey elements (questions or panels) within this panel/page. Does not include questions within nested panels.
+
 ### `enableIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `false`, this panel/page becomes read-only.
 
@@ -36,9 +38,9 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ### `gridLayoutColumns`
+
+**Type**: `PanelLayoutColumnModel[]`
 
 An array of columns used to arrange survey elements within this page or panel. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true`.
 
@@ -52,29 +54,29 @@ The width of question titles, in pixels.
 
 The `gridLayoutColumns` array is generated automatically based on the maximum number of questions and panels in the same row. To arrange the survey elements in one or several rows, disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those elements that should occupy the same row as the previous question or panel. You can also set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns they span.
 
-**Type**: `PanelLayoutColumnModel[]`
-
 ### `id`
-
-An auto-generated unique element identifier.
 
 **Type**: `string`
 
-### `isRequired`
+An auto-generated unique element identifier.
 
-Makes the panel/page require an answer at least in one nested question. If a respondent leaves the panel/page without any answers, the survey displays a validation error.
+### `isRequired`
 
 **Type**: `boolean`
 
+Makes the panel/page require an answer at least in one nested question. If a respondent leaves the panel/page without any answers, the survey displays a validation error.
+
 ### `isVisible`
+
+**Type**: `boolean`
 
 Returns `true` if the panel/page is visible or the survey is currently in design mode.
 
 If you want to display or hide a question based on a condition, specify the `visibleIf` property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `boolean`
-
 ### `parent`
+
+**Type**: `PanelModelBase`
 
 Returns a survey element (panel or page) that contains this panel and allows you to move the panel to a different survey element.
 
@@ -85,9 +87,9 @@ For `PageModel` objects, the `parent` property is `null`, except in the followin
 
 In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and the `parent` property contains this object.
 
-**Type**: `PanelModelBase`
-
 ### `questionErrorLocation`
+
+**Type**: `string`
 
 Specifies the error message position for questions that belong to this page/panel.
 
@@ -101,9 +103,9 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
 
-**Type**: `string`
-
 ### `questionOrder`
+
+**Type**: `string`
 
 Specifies the sort order of questions in the panel/page.
 
@@ -113,15 +115,15 @@ Possible values:
 - `"random"` - Displays questions in random order.
 - `"default"` (default) - Inherits the setting from the `SurveyModel`'s [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionOrder) property.
 
-**Type**: `string`
-
 ### `questions`
-
-An array of all questions within this panel/page. Includes questions within nested panels.
 
 **Type**: `Question[]`
 
+An array of all questions within this panel/page. Includes questions within nested panels.
+
 ### `questionStartIndex`
+
+**Type**: `string`
 
 Specifies a number or letter used to start numbering of elements inside this page/panel.
 
@@ -134,9 +136,9 @@ You can include desired prefixes and postfixes alongside the number or letter:
 ```
 Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
 
-**Type**: `string`
-
 ### `questionTitleLocation`
+
+**Type**: `string`
 
 Sets a title location relative to the input field for questions that belong to this panel/page.
 
@@ -154,9 +156,9 @@ Possible values:
 
 > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
 
-**Type**: `string`
-
 ### `questionTitleWidth`
+
+**Type**: `string`
 
 Sets consistent width for question titles in CSS values. Applies only when [`questionTitleLocation`](#questionTitleLocation) evaluates to `"left"`.
 
@@ -164,15 +166,15 @@ Default value: `undefined`
 
 [View Demo](https://surveyjs.io/form-library/examples/vertically-align-input-fields/ (linkStyle))
 
-**Type**: `string`
-
 ### `requiredErrorText`
+
+**Type**: `string`
 
 Specifies a custom error message for a required panel/page.
 
-**Type**: `string`
-
 ### `requiredIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have an answer).
 
@@ -180,23 +182,23 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ### `requiredMark`
+
+**Type**: `string`
 
 Returns a character or text string that indicates a required panel/page.
 
-**Type**: `string`
-
 ### `visible`
+
+**Type**: `boolean`
 
 Gets or sets panel/page visibility.
 
 If you want to display or hide a survey element based on a condition, specify the `visibleIf` property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `boolean`
-
 ### `visibleIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `false`, this panel/page becomes hidden.
 
@@ -204,15 +206,13 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ## Methods
 
 ### `addElement()`
 
-Adds a survey element (question or panel) to this panel/page. Returns `true` if the element was added successfully; `false` otherwise.
-
 **Return value:** `boolean`
+
+Adds a survey element (question or panel) to this panel/page. Returns `true` if the element was added successfully; `false` otherwise.
 
 **Parameters:**
 
@@ -223,11 +223,11 @@ Adds a survey element (question or panel) to this panel/page. Returns `true` if 
 
 ### `addNewPanel()`
 
+**Return value:** `PanelModel`
+
 Creates a new panel and adds it to the end of the `elements` array.
 
 This method returns `null` if the panel cannot be created or added to this panel/page; otherwise, the method returns the created panel.
-
-**Return value:** `PanelModel`
 
 **Parameters:**
 
@@ -237,11 +237,11 @@ This method returns `null` if the panel cannot be created or added to this panel
 
 ### `addNewQuestion()`
 
+**Return value:** `Question`
+
 Creates a new question of a given type and adds it to the `elements` array at a specified index.
 
 This method returns `null` if the question cannot be created or added to this panel/page; otherwise, the method returns the created question.
-
-**Return value:** `Question`
 
 **Parameters:**
 
@@ -265,9 +265,9 @@ Call this method after you assign new question values in code to ensure that the
 
 ### `containsElement()`
 
-Checks whether a given element belongs to this panel/page or nested panels.
-
 **Return value:** `boolean`
+
+Checks whether a given element belongs to this panel/page or nested panels.
 
 **Parameters:**
 
@@ -285,15 +285,15 @@ Focuses the first question in this panel/page.
 
 ### `getComments()`
 
-Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
-
 **Return value:** `any`
+
+Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
 
 ### `getDisplayValue()`
 
-Returns a JSON object with display texts that correspond to question values nested in the panel/page.
-
 **Return value:** `any`
+
+Returns a JSON object with display texts that correspond to question values nested in the panel/page.
 
 **Parameters:**
 
@@ -303,9 +303,9 @@ Returns a JSON object with display texts that correspond to question values nest
 
 ### `getElementByName()`
 
-Returns a survey element with a specified `name`. This method can find survey elements within nested panels.
-
 **Return value:** `IElement`
+
+Returns a survey element with a specified `name`. This method can find survey elements within nested panels.
 
 **Parameters:**
 
@@ -315,9 +315,9 @@ Returns a survey element with a specified `name`. This method can find survey el
 
 ### `getQuestionByName()`
 
-Returns a question with a specified `name`. This method does not find questions within nested panels.
-
 **Return value:** `Question`
+
+Returns a question with a specified `name`. This method does not find questions within nested panels.
 
 **Parameters:**
 
@@ -327,15 +327,15 @@ Returns a question with a specified `name`. This method does not find questions 
 
 ### `getValue()`
 
-Returns a JSON object with question values nested in the panel/page.
-
 **Return value:** `any`
+
+Returns a JSON object with question values nested in the panel/page.
 
 ### `removeElement()`
 
-Deletes a survey element (question or panel) from this panel/page. Returns `true` if the element was deleted successfully; `false` otherwise.
-
 **Return value:** `boolean`
+
+Deletes a survey element (question or panel) from this panel/page. Returns `true` if the element was deleted successfully; `false` otherwise.
 
 **Parameters:**
 
@@ -345,9 +345,9 @@ Deletes a survey element (question or panel) from this panel/page. Returns `true
 
 ### `validate()`
 
-Validates questions within this panel or page and returns `false` if the validation fails.
-
 **Return value:** `boolean`
+
+Validates questions within this panel or page and returns `false` if the validation fails.
 
 **Parameters:**
 

@@ -35,14 +35,14 @@ const surveyJson = {
 
 ### `prefix`
 
+**Type**: `string`
+
 One or several symbols to be displayed before the currency value.
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
-**Type**: `string`
-
 ### `suffix`
 
-One or several symbols to be displayed after the currency value.
-
 **Type**: `string`
+
+One or several symbols to be displayed after the currency value.

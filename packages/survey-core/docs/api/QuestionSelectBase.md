@@ -18,6 +18,8 @@ A base class for multiple-choice question types ([Checkboxes](https://surveyjs.i
 
 ### `choices`
 
+**Type**: `any[]`
+
 Gets or sets choice items. This property accepts an array of objects with the following structure:
 
 ```js
@@ -47,17 +49,17 @@ If you need to specify only the `value` property, you can set the `choices` prop
 
 [Conditionally Display Choice Options](https://surveyjs.io/form-library/examples/how-to-conditionally-display-choice-options/ (linkStyle))
 
-**Type**: `any[]`
-
 ### `choicesByUrl`
+
+**Type**: `ChoicesRestful`
 
 Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
 
 [View Demo](https://surveyjs.io/form-library/examples/dropdown-menu-load-data-from-restful-service/ (linkStyle))
 
-**Type**: `ChoicesRestful`
-
 ### `choicesEnableIf`
+
+**Type**: `string`
 
 A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes read-only.
 
@@ -67,9 +69,9 @@ Use the `{item}` placeholder to reference the current choice item in the express
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ### `choicesFromQuestion`
+
+**Type**: `string`
 
 Copies choice items from a specified question. Accepts a question name.
 
@@ -79,9 +81,9 @@ In addition, you can specify the [`choicesFromQuestionMode`](#choicesFromQuestio
 
 [View Demo](https://surveyjs.io/form-library/examples/carry-forward-responses/ (linkStyle))
 
-**Type**: `string`
-
 ### `choicesFromQuestionMode`
+
+**Type**: `string`
 
 Specifies which choice items to copy from another question. Applies only when the [`choicesFromQuestion`](#choicesFromQuestion) property is specified.
 
@@ -95,9 +97,9 @@ Possible values:
 
 > Use the [`visibleChoices`](#visibleChoices) property to access copied choice items in code.
 
-**Type**: `string`
-
 ### `choicesOrder`
+
+**Type**: `string`
 
 Specifies the sort order of choice items.
 
@@ -108,9 +110,9 @@ Possible values:
 - `"desc"`- Sorts choice items in ascending order.
 - `"random"` - Displays choice items in random order.
 
-**Type**: `string`
-
 ### `choicesVisibleIf`
+
+**Type**: `string`
 
 A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes hidden.
 
@@ -120,9 +122,9 @@ Use the `{item}` placeholder to reference the current choice item in the express
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ### `choiceTextsFromQuestion`
+
+**Type**: `string`
 
 Specifies which matrix column or dynamic panel question supplies choice texts. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
 
@@ -130,9 +132,9 @@ Each choice item consists of a value saved in survey results and a text displaye
 
 [View Demo](https://surveyjs.io/form-library/examples/pipe-answers-from-dynamic-matrix-or-panel/ (linkStyle))
 
-**Type**: `string`
-
 ### `choiceValuesFromQuestion`
+
+**Type**: `string`
 
 Specifies which matrix column or dynamic panel question supplies choice values. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
 
@@ -140,49 +142,49 @@ Each choice item consists of a value saved in survey results and a text displaye
 
 [View Demo](https://surveyjs.io/form-library/examples/pipe-answers-from-dynamic-matrix-or-panel/ (linkStyle))
 
-**Type**: `string`
-
 ### `customChoices`
+
+**Type**: `any[]`
 
 An array of choice items that were added by a user. Applies only if the [`allowCustomChoices`](#allowCustomChoices) is set to `true` for this question.
 
 > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
 
-**Type**: `any[]`
-
 ### `dontKnowItem`
-
-Returns the "Don't know" choice item. Use this property to change the item's `value` or `text`.
 
 **Type**: `ItemValue`
 
-### `dontKnowText`
+Returns the "Don't know" choice item. Use this property to change the item's `value` or `text`.
 
-Gets or sets a caption for the "Don't know" choice item.
+### `dontKnowText`
 
 **Type**: `string`
 
-### `enabledChoices`
+Gets or sets a caption for the "Don't know" choice item.
 
-An array of choice items with which users can interact. Includes the "Select All", "Other", and "None" choice items if they are not disabled. Items are sorted according to the `choicesOrder` value.
+### `enabledChoices`
 
 **Type**: `ItemValue[]`
 
+An array of choice items with which users can interact. Includes the "Select All", "Other", and "None" choice items if they are not disabled. Items are sorted according to the `choicesOrder` value.
+
 ### `hideIfChoicesEmpty`
+
+**Type**: `boolean`
 
 Specifies whether to hide the question if no choice items are visible.
 
 This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
 
-**Type**: `boolean`
-
 ### `isOtherSelected`
+
+**Type**: `boolean`
 
 Returns `true` if the "Other" choice item is selected.
 
-**Type**: `boolean`
-
 ### `itemComponent`
+
+**Type**: `string`
 
 The name of a component used to render items.
 
@@ -192,65 +194,65 @@ The name of a component used to render items.
 
 [Checkboxes and Radio Button Group Demo](https://surveyjs.io/form-library/examples/add-custom-items-to-single-and-multi-select-questions/ (linkStyle))
 
-**Type**: `string`
-
 ### `keepIncorrectValues`
+
+**Type**: `boolean`
 
 Specifies whether to keep values that cannot be assigned to this question, for example, choices unlisted in the `choices` array.
 
 > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
 
-**Type**: `boolean`
-
 ### `noneItem`
+
+**Type**: `ItemValue`
 
 Returns the "None" choice item. Use this property to change the item's `value` or `text`.
 
-**Type**: `ItemValue`
-
 ### `noneText`
+
+**Type**: `string`
 
 Gets or sets a caption for the "None" choice item.
 
-**Type**: `string`
-
 ### `otherErrorText`
+
+**Type**: `string`
 
 Gets or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
 
-**Type**: `string`
-
 ### `otherItem`
+
+**Type**: `ItemValue`
 
 Returns the "Other" choice item. Use this property to change the item's `value` or `text`.
 
-**Type**: `ItemValue`
-
 ### `otherPlaceholder`
+
+**Type**: `string`
 
 A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
 
-**Type**: `string`
-
 ### `otherText`
+
+**Type**: `string`
 
 Gets or sets a caption for the "Other" choice item.
 
-**Type**: `string`
-
 ### `refuseItem`
-
-Returns the "Refuse to answer" choice item. Use this property to change the item's `value` or `text`.
 
 **Type**: `ItemValue`
 
-### `refuseText`
+Returns the "Refuse to answer" choice item. Use this property to change the item's `value` or `text`.
 
-Gets or sets a caption for the "Refuse to answer" choice item.
+### `refuseText`
 
 **Type**: `string`
 
+Gets or sets a caption for the "Refuse to answer" choice item.
+
 ### `separateSpecialChoices`
+
+**Type**: `boolean`
 
 Displays the "Select All", "None", and "Other" choices on individual rows.
 
@@ -258,17 +260,17 @@ Displays the "Select All", "None", and "Other" choices on individual rows.
 
 [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showDontKnowItem`
+
+**Type**: `boolean`
 
 Specifies whether to display the "Don't know" choice item.
 
 When users select the "Don't know" item in multi-select questions, all other items become unselected.
 
-**Type**: `boolean`
-
 ### `showNoneItem`
+
+**Type**: `boolean`
 
 Specifies whether to display the "None" choice item.
 
@@ -280,9 +282,9 @@ When users select the "None" item in multi-select questions, all other items bec
 
 [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showOtherItem`
+
+**Type**: `boolean`
 
 Specifies whether to display the "Other" choice item.
 
@@ -292,31 +294,29 @@ Specifies whether to display the "Other" choice item.
 
 [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showRefuseItem`
+
+**Type**: `boolean`
 
 Specifies whether to display the "Refuse to answer" choice item.
 
 When users select the "Refuse to answer" item in multi-select questions, all other items become unselected.
 
-**Type**: `boolean`
-
 ### `visibleChoices`
 
-An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.
-
 **Type**: `ChoiceItem[]`
+
+An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.
 
 ## Methods
 
 ### `isItemSelected()`
 
+**Return value:** `boolean`
+
 Returns `true` if a passed choice item is selected.
 
 To obtain a choice item to check, use the `noneItem` or `otherItem` property or the `choices` array.
-
-**Return value:** `boolean`
 
 **Parameters:**
 

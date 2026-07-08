@@ -20,19 +20,21 @@ A class that describes the Single-Select Matrix question type.
 
 ### `cellComponent`
 
-The name of a component used to render cells.
-
 **Type**: `string`
 
+The name of a component used to render cells.
+
 ### `cells`
+
+**Type**: `MatrixCells`
 
 An array of matrix cells. Use this array to get or set cell values.
 
 [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrix-rubric/ (linkStyle))
 
-**Type**: `MatrixCells`
-
 ### `cellType`
+
+**Type**: `string`
 
 Specifies the type of matrix cells.
 
@@ -45,29 +47,29 @@ Possible values:
 
 [Checkbox Matrix Demo](https://surveyjs.io/form-library/examples/checkbox-matrix-question/ (linkStyle))
 
-**Type**: `string`
-
 ### `eachRowRequired`
+
+**Type**: `boolean`
 
 Specifies whether each row requires an answer. If a respondent skips a row, the question displays a validation error.
 
 [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `eachRowUnique`
+
+**Type**: `boolean`
 
 Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
 
-**Type**: `boolean`
-
 ### `hideIfRowsEmpty`
+
+**Type**: `boolean`
 
 Specifies whether to hide the question when the matrix has no visible rows.
 
-**Type**: `boolean`
-
 ### `rowOrder`
+
+**Type**: `string`
 
 Specifies a sort order for matrix rows.
 
@@ -75,5 +77,3 @@ Possible values:
 
 - `"initial"` (default) - Preserves the original order of the `rows` array.
 - `"random"` - Arranges matrix rows in random order each time the question is displayed.
-
-**Type**: `string`

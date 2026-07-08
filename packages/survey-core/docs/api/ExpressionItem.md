@@ -18,6 +18,6 @@ Base class for HtmlConditionItem and UrlConditionItem classes.
 
 ### `expression`
 
-The expression property. If this expression returns true, then survey will use html property to show on complete page.
-
 **Type**: `string`
+
+The expression property. If this expression returns true, then survey will use html property to show on complete page.

@@ -20,11 +20,13 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 
 ### `activePage`
 
-Returns [`startPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
-
 **Type**: `any`
 
+Returns [`startPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
+
 ### `allowResizeComment`
+
+**Type**: `boolean`
 
 Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
 
@@ -32,17 +34,17 @@ Default value: `true`
 
 You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
 
-**Type**: `boolean`
-
 ### `autoAdvanceAllowComplete`
+
+**Type**: `boolean`
 
 Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is `true`.
 
 Default value: `true`
 
-**Type**: `boolean`
-
 ### `autoAdvanceEnabled`
+
+**Type**: `boolean`
 
 Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
 
@@ -54,25 +56,25 @@ If you enable this property, the survey is also completed automatically. Set the
 
 [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `autoFocusFirstError`
+
+**Type**: `boolean`
 
 Specifies whether to focus the first question with a validation error on the current page.
 
 Default value: `true`
 
-**Type**: `boolean`
-
 ### `autoFocusFirstQuestion`
+
+**Type**: `boolean`
 
 Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
 
 Default value: `false` in v1.9.114 and later, `true` in earlier versions
 
-**Type**: `boolean`
-
 ### `autoGrowComment`
+
+**Type**: `boolean`
 
 Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
 
@@ -80,29 +82,29 @@ Default value: `false`
 
 You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
 
-**Type**: `boolean`
-
 ### `backgroundImage`
-
-An image to display in the background of the survey or form. Accepts a base64 or URL string value.
 
 **Type**: `string`
 
-### `backgroundOpacity`
+An image to display in the background of the survey or form. Accepts a base64 or URL string value.
 
-A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
+### `backgroundOpacity`
 
 **Type**: `number`
 
+A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
+
 ### `calculatedValues`
+
+**Type**: `CalculatedValue[]`
 
 An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
 
 [View Demo](https://surveyjs.io/form-library/examples/custom-variables-for-background-form-calculations/ (linkStyle))
 
-**Type**: `CalculatedValue[]`
-
 ### `checkErrorsMode`
+
+**Type**: `string`
 
 Specifies when the survey validates answers.
 
@@ -116,9 +118,9 @@ Possible values:
 
 Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
 
-**Type**: `string`
-
 ### `clearDisabledChoices`
+
+**Type**: `boolean`
 
 Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.
 
@@ -126,9 +128,9 @@ Default value: `false`
 
 > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
 
-**Type**: `boolean`
-
 ### `clearInvisibleValues`
+
+**Type**: `any`
 
 Specifies when to remove values of invisible questions from [survey results](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data).
 
@@ -141,9 +143,9 @@ Possible values:
 - `true` - Equivalent to `"onComplete"`.
 - `false` - Equivalent to `"none"`.
 
-**Type**: `any`
-
 ### `commentAreaRows`
+
+**Type**: `number`
 
 Specifies the visible height of comment areas, measured in lines. Applies to the questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property enabled.
 
@@ -151,15 +153,15 @@ Default value: 2
 
 The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
 
-**Type**: `number`
-
 ### `comments`
-
-An object with all comment values.
 
 **Type**: `any`
 
+An object with all comment values.
+
 ### `commentSuffix`
+
+**Type**: `string`
 
 A suffix added to the name of the property that stores comments.
 
@@ -171,25 +173,25 @@ Respondents can also leave comments when they select "Other" in choice-based que
 
 [View Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
 
-**Type**: `string`
-
 ### `completedBeforeHtml`
+
+**Type**: `string`
 
 HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName).
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
 
-**Type**: `string`
-
 ### `completedHtml`
+
+**Type**: `string`
 
 HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
 
 [View Demo](https://surveyjs.io/form-library/examples/modify-survey-navigation-settings/ (linkStyle))
 
-**Type**: `string`
-
 ### `completedHtmlOnCondition`
+
+**Type**: `HtmlConditionItem[]`
 
 An array of objects that allows you to specify different HTML content for the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
 
@@ -197,15 +199,15 @@ Each object should include the [`expression`](https://surveyjs.io/form-library/d
 
 [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
 
-**Type**: `HtmlConditionItem[]`
-
 ### `completeText`
-
-Gets or sets a caption for the Complete button.
 
 **Type**: `string`
 
+Gets or sets a caption for the Complete button.
+
 ### `cookieName`
+
+**Type**: `string`
 
 A cookie name used to save information about survey completion.
 
@@ -213,17 +215,17 @@ When this property has a value, the survey creates a cookie with the specified n
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
 
-**Type**: `string`
-
 ### `css`
+
+**Type**: `any`
 
 Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
 
-**Type**: `any`
-
 ### `currentElement`
+
+**Type**: `ISurveyElement`
 
 Gets or sets the current page, panel, or question (depends on the [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) value).
 
@@ -235,9 +237,9 @@ The following table illustrates the dependency between `questionsOnPageMode` val
 | `"questionPerPage"` | Question or Panel |
 | `"inputPerPage"` | Question |
 
-**Type**: `ISurveyElement`
-
 ### `currentElementName`
+
+**Type**: `string`
 
 Specifies the current page, panel, or question (depends on the [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) value) using its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
 
@@ -249,9 +251,9 @@ The following table illustrates the dependency between `questionsOnPageMode` val
 | `"questionPerPage"` | Question or Panel |
 | `"inputPerPage"` | Question |
 
-**Type**: `string`
-
 ### `currentPage`
+
+**Type**: `any`
 
 Gets or sets the current page.
 
@@ -269,17 +271,17 @@ Alternative ways to change the current page are listed below:
 
 The `currentPage` property does not return the start page even if it is current. Use the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage) property instead if your survey contains a start page.
 
-**Type**: `any`
-
 ### `currentPageNo`
+
+**Type**: `number`
 
 A zero-based index of the current page in the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-editprevious/ (linkStyle))
 
-**Type**: `number`
-
 ### `data`
+
+**Type**: `any`
 
 Gets or sets an object with survey results. You can set this property with an object of the following structure:
 
@@ -297,29 +299,29 @@ When you set the `data` property in code, the new object overrides the old objec
 
 If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
 
-**Type**: `any`
-
 ### `editText`
+
+**Type**: `string`
 
 Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
 
-**Type**: `string`
-
 ### `emptySurveyText`
+
+**Type**: `string`
 
 A message that is displayed when a survey does not contain visible pages or questions.
 
-**Type**: `string`
-
 ### `firstPageIsStartPage`
+
+**Type**: `boolean`
 
 Gets or sets a Boolean value that specifies whether the first page is a start page.
 
 Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
 
-**Type**: `boolean`
-
 ### `gridLayoutEnabled`
+
+**Type**: `boolean`
 
 Enables the grid layout, which structures form elements using a column-based system.
 
@@ -327,81 +329,81 @@ Default value: `false`
 
 Specify the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) property for pages and panels to configure layout columns. Set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for an individual question or panel to adjust how many columns this survey element spans.
 
-**Type**: `boolean`
-
 ### `hasCookie`
+
+**Type**: `boolean`
 
 Indicates whether the browser has a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName). If this property's value is `true`, the respondent has passed the survey previously.
 
-**Type**: `boolean`
-
 ### `hideRequiredErrors`
+
+**Type**: `boolean`
 
 Specifies whether to hide validation errors thrown by the Required validation in the UI.
 
 [Built-In Client-Side Validators](https://surveyjs.io/form-library/documentation/data-validation#built-in-client-side-validators (linkStyle))
 
-**Type**: `boolean`
-
 ### `isCurrentPageValid`
+
+**Type**: `boolean`
 
 Returns `true` if the current page does not contain errors.
 
-**Type**: `boolean`
-
 ### `isDesignMode`
+
+**Type**: `boolean`
 
 Indicates whether the survey is being designed in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview).
 
-**Type**: `boolean`
-
 ### `isEmpty`
+
+**Type**: `boolean`
 
 Returns `true` if the survey contains zero pages.
 
-**Type**: `boolean`
-
 ### `isFirstPage`
+
+**Type**: `boolean`
 
 Indicates whether the [current page](#currentPage) is the first page.
 
 > If the survey displays the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page), this property contains `false`. Use the [`isStartPageActive`](#isStartPageActive) property to find out whether the start page is currently displayed.
 
-**Type**: `boolean`
-
 ### `isLastPage`
+
+**Type**: `boolean`
 
 Indicates whether the [current page](#currentPage) is the last page.
 
-**Type**: `boolean`
-
 ### `isStartPageActive`
+
+**Type**: `boolean`
 
 A Boolean value that indicates whether the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page) is currently displayed.
 
-**Type**: `boolean`
-
 ### `isValidatingOnServer`
+
+**Type**: `boolean`
 
 Indicates whether the current page is being [validated on a server](#onServerValidateQuestions).
 
-**Type**: `boolean`
-
 ### `jsonErrors`
-
-A list of errors in a survey JSON schema.
 
 **Type**: `JsonError[]`
 
+A list of errors in a survey JSON schema.
+
 ### `keepIncorrectValues`
+
+**Type**: `boolean`
 
 Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.
 
 > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
 
-**Type**: `boolean`
-
 ### `lazyRenderEnabled`
+
+**Type**: `boolean`
 
 Specifies whether to enable lazy rendering.
 
@@ -411,15 +413,15 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `loadingHtml`
-
-HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
 
 **Type**: `string`
 
+HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
+
 ### `locale`
+
+**Type**: `string`
 
 Specifies the survey's locale.
 
@@ -429,17 +431,17 @@ Default value: `""` (a default locale is used)
 
 [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
 
-**Type**: `string`
-
 ### `logo`
+
+**Type**: `string`
 
 An image URL or a Base64-encoded image to use as a survey logo.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
-**Type**: `string`
-
 ### `logoFit`
+
+**Type**: `string`
 
 Specifies how to resize a logo to fit it into its container.
 
@@ -454,9 +456,9 @@ Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/obj
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
-**Type**: `string`
-
 ### `logoHeight`
+
+**Type**: `any`
 
 A logo height in CSS-accepted values.
 
@@ -464,9 +466,9 @@ Default value: `40px`
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
-**Type**: `any`
-
 ### `logoPosition`
+
+**Type**: `string`
 
 A logo position relative to the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
 
@@ -478,9 +480,9 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
-**Type**: `string`
-
 ### `logoWidth`
+
+**Type**: `any`
 
 A logo width in CSS-accepted values.
 
@@ -488,9 +490,9 @@ Default value: `auto` (the width is calculated automatically based on the [`logo
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
-**Type**: `any`
-
 ### `matraixDragHandleArea`
+
+**Type**: `string`
 
 Specifies which part of a matrix row responds to a drag gesture in [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions.
 
@@ -499,17 +501,17 @@ Possible values:
 - `"entireItem"` (default) - Users can use the entire matrix row as a drag handle.
 - `"icon"` - Users can only use a drag icon as a drag handle.
 
-**Type**: `string`
-
 ### `maxCommentLength`
+
+**Type**: `number`
 
 Specifies the maximum text length for question comments. Applies to questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property set to `true`.
 
 Default value: 0 (unlimited)
 
-**Type**: `number`
-
 ### `maxTextLength`
+
+**Type**: `number`
 
 Specifies the maximum text length in textual questions ([Single-Line Input](https://surveyjs.io/form-library/examples/text-entry-question/), [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/), [Multiple Textboxes](https://surveyjs.io/form-library/examples/multiple-text-box-question/)), measured in characters.
 
@@ -517,23 +519,23 @@ Default value: 0 (unlimited)
 
 You can override this setting for individual questions if you specify their [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property.
 
-**Type**: `number`
-
 ### `navigateToUrl`
-
-A URL to which respondents should be navigated after survey completion.
 
 **Type**: `string`
 
+A URL to which respondents should be navigated after survey completion.
+
 ### `navigateToUrlOnCondition`
+
+**Type**: `UrlConditionItem[]`
 
 An array of objects that allows you to navigate respondents to different URLs after survey completion.
 
 Each object should include the [`expression`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#url) and [`url`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#expression) properties. When `expression` evaluates to `true`, the survey navigates to the corresponding `url`. Refer to the following help topic for more information about expressions: [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
 
-**Type**: `UrlConditionItem[]`
-
 ### `navigationButtonsLocation`
+
+**Type**: `any`
 
 Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons. Applies only if the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showNavigationButtons) property is `true`.
 
@@ -543,45 +545,45 @@ Possible values:
 - `"top"` - Displays the navigation buttons above survey content.
 - `"topBottom"` - Displays the navigation buttons above and below survey content.
 
-**Type**: `any`
-
 ### `pageCount`
+
+**Type**: `number`
 
 Returns a total number of survey pages.
 
 To get the number of visible pages, use the [`visiblePageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePageCount) property.
 
-**Type**: `number`
-
 ### `pageNextText`
+
+**Type**: `string`
 
 Gets or sets a caption for the Next button.
 
-**Type**: `string`
-
 ### `pagePrevText`
+
+**Type**: `string`
 
 Gets or sets a caption for the Previous button.
 
-**Type**: `string`
-
 ### `pages`
+
+**Type**: `PageModel[]`
 
 Returns an array of all pages in the survey.
 
 To get an array of only visible pages, use the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
 
-**Type**: `PageModel[]`
-
 ### `partialSendEnabled`
+
+**Type**: `boolean`
 
 Specifies whether to save survey results when respondents switch between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
 
 Alternatively, you can handle the [`onCurrentPageChanged`](#onCurrentPageChanged) and [`onValueChanged`](#onValueChanged) events, as shown in the following demo: [Continue an Incomplete Survey](https://surveyjs.io/form-library/examples/survey-editprevious/).
 
-**Type**: `boolean`
-
 ### `previewMode`
+
+**Type**: `string`
 
 Specifies whether the [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) includes all or only answered questions.
 
@@ -592,39 +594,39 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
 
-**Type**: `string`
-
 ### `previewText`
+
+**Type**: `string`
 
 Gets or sets a caption for the Preview button.
 
-**Type**: `string`
-
 ### `processedCompletedBeforeHtml`
+
+**Type**: `string`
 
 Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName).
 
 To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
 
-**Type**: `string`
-
 ### `processedCompletedHtml`
+
+**Type**: `string`
 
 Returns HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
 
 To specify HTML content, use the [`completedHtml`](#completedHtml) property.
 
-**Type**: `string`
-
 ### `processedLoadingHtml`
+
+**Type**: `string`
 
 Returns HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
 
 To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
 
-**Type**: `string`
-
 ### `progressBarInheritWidthFrom`
+
+**Type**: `"survey" | "container"`
 
 Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
 
@@ -635,9 +637,9 @@ The progress bar width is the same as the survey width.
 - `"container"` (default)\
 The progress bar width is the same as the survey container width.
 
-**Type**: `"survey" | "container"`
-
 ### `progressBarLocation`
+
+**Type**: `string`
 
 Specifies the alignment of the progress bar. Applies only if the [`showProgressBar`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) property is `true`.
 
@@ -651,9 +653,9 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
 
-**Type**: `string`
-
 ### `progressBarShowPageNumbers`
+
+**Type**: `boolean`
 
 Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
 
@@ -661,9 +663,9 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `progressBarShowPageTitles`
+
+**Type**: `boolean`
 
 Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
 
@@ -671,9 +673,9 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `progressBarType`
+
+**Type**: `string`
 
 Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is `true`.
 
@@ -689,21 +691,21 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
 
-**Type**: `string`
-
 ### `progressText`
+
+**Type**: `string`
 
 Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
 
-**Type**: `string`
-
 ### `progressValue`
-
-Returns a percentage value that indicates user progress in the survey.
 
 **Type**: `number`
 
+Returns a percentage value that indicates user progress in the survey.
+
 ### `questionDescriptionLocation`
+
+**Type**: `string`
 
 Specifies where to display question descriptions.
 
@@ -715,9 +717,9 @@ Possible values:
 
 You can override this setting for individual questions if you specify their [`descriptionLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#descriptionLocation) property.
 
-**Type**: `string`
-
 ### `questionErrorLocation`
+
+**Type**: `string`
 
 Specifies the error message position.
 
@@ -728,9 +730,9 @@ Possible values:
 
 You can override this setting if you specify the `questionErrorLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionErrorLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionErrorLocation) or set the `errorLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#errorLocation).
 
-**Type**: `string`
-
 ### `questionOrder`
+
+**Type**: `string`
 
 Specifies the sort order of questions in the survey.
 
@@ -741,9 +743,9 @@ Possible values:
 
 You can override this property for individual pages and panels.
 
-**Type**: `string`
-
 ### `questionsOnPageMode`
+
+**Type**: `string`
 
 Specifies how to distribute survey elements between pages.
 
@@ -754,17 +756,17 @@ Possible values:
 - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page. [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/)
 - `"standard"` (default) - Retains the original structure specified in the JSON schema.
 
-**Type**: `string`
-
 ### `questionStartIndex`
+
+**Type**: `string`
 
 Specifies the initial number or letter from which to start question numbering.
 
 [Question Numbers](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#question-numbers (linkStyle))
 
-**Type**: `string`
-
 ### `questionTitleLocation`
+
+**Type**: `string`
 
 Gets or sets question title location relative to the input field: `"top"`, `"bottom"`, or `"left"`.
 
@@ -772,17 +774,17 @@ Gets or sets question title location relative to the input field: `"top"`, `"bot
 
 You can override this setting if you specify the `questionTitleLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionTitleLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionTitleLocation) or set the `titleLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#titleLocation).
 
-**Type**: `string`
-
 ### `questionTitlePattern`
+
+**Type**: `string`
 
 Specifies a pattern for question titles.
 
 Refer to the following help topic for more information: [Title Pattern](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#title-pattern).
 
-**Type**: `string`
-
 ### `readOnly`
+
+**Type**: `boolean`
 
 Enables the read-only mode. If you set this property to `true`, users cannot take the survey.
 
@@ -790,9 +792,9 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/prevent-form-editing-with-read-only-mode/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `requiredMark`
+
+**Type**: `string`
 
 Specifies one or multiple characters that designate required questions.
 
@@ -800,21 +802,21 @@ Default value: `*`
 
 [View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
 
-**Type**: `string`
-
 ### `showCompleteButton`
+
+**Type**: `boolean`
 
 Specifies whether to display the Complete button. Set this property to `false` if respondents should not complete the survey.
 
-**Type**: `boolean`
-
 ### `showCompletePage`
+
+**Type**: `boolean`
 
 Specifies whether to show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
 
-**Type**: `boolean`
-
 ### `showHeaderOnCompletePage`
+
+**Type**: `boolean | "auto"`
 
 Specifies whether the [Complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page) should display the [survey header](https://surveyjs.io/form-library/examples/brand-your-survey-header/).
 
@@ -826,17 +828,17 @@ Possible values:
 
 > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
 
-**Type**: `boolean | "auto"`
-
 ### `showInvisibleElements`
+
+**Type**: `boolean`
 
 Specifies whether to show all survey elements, regardless of their visibility.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `showNavigationButtons`
+
+**Type**: `any`
 
 Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons.
 
@@ -845,29 +847,29 @@ Possible values:
 - `true` (default) - Displays the navigation buttons.
 - `false` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
 
-**Type**: `any`
-
 ### `showPageNumbers`
+
+**Type**: `boolean`
 
 Specifies whether page titles contain page numbers.
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showPageTitles`
+
+**Type**: `boolean`
 
 Specifies whether to display [page titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title).
 
-**Type**: `boolean`
-
 ### `showPrevButton`
+
+**Type**: `boolean`
 
 Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
 
-**Type**: `boolean`
-
 ### `showPreviewBeforeComplete`
+
+**Type**: `any`
 
 Specifies whether to show a preview of given answers before they are submitted.
 
@@ -875,9 +877,9 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
 
-**Type**: `any`
-
 ### `showProgressBar`
+
+**Type**: `boolean`
 
 Specifies the visibility of the progress bar.
 
@@ -885,9 +887,9 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showQuestionNumbers`
+
+**Type**: `string | boolean`
 
 Specifies whether to display survey element numbers and how to calculate them.
 
@@ -902,9 +904,9 @@ Possible values:
 
 If you want to hide the number of an individual question, disable its [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property.
 
-**Type**: `string | boolean`
-
 ### `showTimer`
+
+**Type**: `boolean`
 
 Specifies the timer's visibility. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
@@ -918,17 +920,17 @@ The timer displays information about time spent on an individual page and the en
 
 You can enable the timer without displaying it. In this case, you need to specify the required time limits and use the [`startTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startTimer) and [`stopTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#stopTimer) methods to control the timer.
 
-**Type**: `boolean`
-
 ### `showTitle`
+
+**Type**: `boolean`
 
 Specifies whether to display the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
 
 [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showTOC`
+
+**Type**: `boolean`
 
 Gets or sets the visibility of the table of contents.
 
@@ -936,25 +938,25 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `startPage`
+
+**Type**: `PageModel`
 
 Returns the start page. Applies only if the [`firstPageIsStartPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStartPage) property is set to `true`.
 
 Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
 
-**Type**: `PageModel`
-
 ### `startSurveyText`
+
+**Type**: `string`
 
 Gets or sets a caption for the Start button.
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
 
-**Type**: `string`
-
 ### `state`
+
+**Type**: `string`
 
 Returns the current survey state.
 
@@ -967,9 +969,9 @@ Possible values:
 - `"preview"` - A respondent is [previewing](https://surveyjs.io/form-library/examples/survey-showpreview/) answers before submitting them.
 - `"completed"` - A respondent has completed the survey and submitted the results.
 
-**Type**: `string`
-
 ### `storeOthersAsComment`
+
+**Type**: `boolean`
 
 Specifies whether to store the "Other" option response in a separate property.
 
@@ -977,9 +979,9 @@ Default value: `true`
 
 Respondents can leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. Comment values are saved in a separate property. The property name is composed of the question `name` and [`commentSuffix`](#commentSuffix). However, you can use the question `name` as a key to store the comment value instead. Disable the `storeOthersAsComment` property in this case.
 
-**Type**: `boolean`
-
 ### `textUpdateMode`
+
+**Type**: `string`
 
 Specifies when to update the question value in questions with a text input field.
 
@@ -994,9 +996,9 @@ Possible values:
 
 You can override this setting for individual questions: [`textUpdateMode`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#textUpdateMode).
 
-**Type**: `string`
-
 ### `timeLimit`
+
+**Type**: `number`
 
 A time period that a respondent has to complete the survey; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
@@ -1004,9 +1006,9 @@ Default value: 0 (time is unlimited)
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
 
-**Type**: `number`
-
 ### `timeLimitPerPage`
+
+**Type**: `number`
 
 A time period that a respondent has to complete each survey page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
@@ -1016,9 +1018,9 @@ You can also use `PageModel`'s [`timeLimit`](https://surveyjs.io/form-library/do
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
 
-**Type**: `number`
-
 ### `timerInfoMode`
+
+**Type**: `string`
 
 Specifies whether the timer panel displays timers for the current page, the entire survey, or both. Applies only if the timer panel is [visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer).
 
@@ -1028,9 +1030,9 @@ Possible values:
 - `"page"` - Displays only the page timer.
 - `"combined"` (default) - Displays both the survey and page timers.
 
-**Type**: `string`
-
 ### `timerLocation`
+
+**Type**: `string`
 
 Specifies the timer's position relative to the survey. Applies only if the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) property is set to `true`.
 
@@ -1039,9 +1041,9 @@ Possible values:
 - `"top"` (default) - Displays the timer at the top of the survey.
 - `"bottom"` - Displays the timer at the bottom of the survey.
 
-**Type**: `string`
-
 ### `timeSpent`
+
+**Type**: `number`
 
 A time period that a respondent has spent on the survey so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
@@ -1049,9 +1051,9 @@ Assign a number to this property if you need to start the quiz timer from a spec
 
 You can also find out how many seconds a respondent has spent on an individual survey page. To do this, use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeSpent) property of a [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) object.
 
-**Type**: `number`
-
 ### `tocLocation`
+
+**Type**: `"left" | "right"`
 
 Gets or sets the position of the table of contents. Applies only when the table of contents is visible.
 
@@ -1062,17 +1064,17 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
-**Type**: `"left" | "right"`
-
 ### `triggers`
+
+**Type**: `SurveyTrigger[]`
 
 A list of triggers in the survey.
 
 [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
 
-**Type**: `SurveyTrigger[]`
-
 ### `uiState`
+
+**Type**: `ISurveyUIState`
 
 Represents the current state of the survey UI.
 
@@ -1088,9 +1090,9 @@ Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/a
 
 [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
 
-**Type**: `ISurveyUIState`
-
 ### `validateVisitedEmptyFields`
+
+**Type**: `boolean`
 
 Specifies whether to trigger validation when a user focuses on an empty input field and then leaves it without making any changes. Applies only if [`checkErrorsMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#checkErrorsMode) is set to `"onValueChanged"`.
 
@@ -1102,57 +1104,57 @@ This property changes validation behavior for the following question types:
 - [Long Text](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model)
 - [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model)
 
-**Type**: `boolean`
-
 ### `validationAllowComplete`
+
+**Type**: `boolean`
 
 Specifies whether respondents can end a survey with validation errors.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `validationAllowSwitchPages`
+
+**Type**: `boolean`
 
 Specifies whether respondents can switch the current page even if it contains validation errors.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `validationEnabled`
+
+**Type**: `boolean`
 
 Specifies whether data validation is enabled.
 
 Default value: `true`
 
-**Type**: `boolean`
-
 ### `visiblePageCount`
+
+**Type**: `number`
 
 Returns the number of visible survey pages.
 
 To get a total number of survey pages, use the [`pageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pageCount) property.
 
-**Type**: `number`
-
 ### `visiblePages`
+
+**Type**: `PageModel[]`
 
 Returns an array of visible pages without the start page.
 
 To get an array of all pages, use the [`pages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pages) property. If all pages are visible, the `pages` and `visiblePages` arrays are identical.
 
-**Type**: `PageModel[]`
-
 ### `width`
+
+**Type**: `string`
 
 A survey width in CSS values.
 
 Default value: `undefined` (the survey inherits the width from its container)
 
-**Type**: `string`
-
 ### `widthMode`
+
+**Type**: `string`
 
 Specifies how to calculate the survey width.
 
@@ -1162,11 +1164,11 @@ Possible values:
 - `"responsive"` - A survey occupies all available horizontal space and stretches or shrinks horizontally to fit in the screen size.
 - `"auto"` (default) - Survey width depends on a question type and corresponds to the `"static"` or `"responsive"` mode.
 
-**Type**: `string`
-
 ## Methods
 
 ### `addLayoutElement()`
+
+**Return value:** `ISurveyLayoutElement` &ndash; The configuration of the previous layout element with the same `id`.
 
 Adds an element to the survey layout.
 
@@ -1186,8 +1188,6 @@ Data passed as props to `component`.
 
 [View Demo](https://surveyjs.io/form-library/examples/progress-bar-with-percentage/ (linkStyle))
 
-**Return value:** `ISurveyLayoutElement` &ndash; The configuration of the previous layout element with the same `id`.
-
 **Parameters:**
 
 | Name | Type | Description |
@@ -1196,11 +1196,11 @@ Data passed as props to `component`.
 
 ### `addNavigationItem()`
 
+**Return value:** `Action`
+
 Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons. Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
-
-**Return value:** `Action`
 
 **Parameters:**
 
@@ -1210,11 +1210,11 @@ Adds a custom navigation item similar to the Previous Page, Next Page, and Compl
 
 ### `addNewPage()`
 
+**Return value:** `PageModel` &ndash; The created and added page.
+
 Creates a new page and adds it to the survey.
 
 If you want to switch a survey to the newly added page, assign its index to the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property or assign the entire page to the [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage) property.
-
-**Return value:** `PageModel` &ndash; The created and added page.
 
 **Parameters:**
 
@@ -1309,11 +1309,11 @@ Deletes an answer from survey results.
 
 ### `createNewPage()`
 
+**Return value:** `PageModel`
+
 Creates and returns a new page but does not add it to the survey.
 
 Call the [`addPage(page)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addPage) method to add the created page to the survey later or the [`addNewPage(name, index)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addNewPage) method to create _and_ add a page to the survey.
-
-**Return value:** `PageModel`
 
 **Parameters:**
 
@@ -1333,6 +1333,8 @@ Call this method to release resources if your application contains multiple surv
 
 ### `doComplete()`
 
+**Return value:** `boolean` &ndash; `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
+
 Completes the survey.
 
 When you call this method, Form Library performs the following actions:
@@ -1343,8 +1345,6 @@ When you call this method, Form Library performs the following actions:
 1. Navigates the user to a URL specified by the [`navigateToUrl`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrl) or [`navigateToUrlOnCondition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrlOnCondition) property.
 
 The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`tryComplete()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#tryComplete) method instead.
-
-**Return value:** `boolean` &ndash; `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
 
 **Parameters:**
 
@@ -1363,9 +1363,9 @@ Focuses the first question on the current page.
 
 ### `focusQuestion()`
 
-Focuses a question with a specified name. Switches the current page if needed.
-
 **Return value:** `boolean` &ndash; `false` if the survey does not contain a question with the specified name or this question is hidden; otherwise, `true`.
+
+Focuses a question with a specified name. Switches the current page if needed.
 
 **Parameters:**
 
@@ -1375,9 +1375,9 @@ Focuses a question with a specified name. Switches the current page if needed.
 
 ### `getAllPanels()`
 
-Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
-
 **Return value:** `IPanel[]<IPanel>` &ndash; An array of panels.
+
+Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
 
 **Parameters:**
 
@@ -1388,9 +1388,9 @@ Returns a list of all [panels](https://surveyjs.io/form-library/documentation/ap
 
 ### `getAllQuestions()`
 
-Returns a list of all [questions](https://surveyjs.io/form-library/documentation/api-reference/question) in the survey.
-
 **Return value:** `Question[]<Question>` &ndash; An array of questions.
+
+Returns a list of all [questions](https://surveyjs.io/form-library/documentation/api-reference/question) in the survey.
 
 **Parameters:**
 
@@ -1402,9 +1402,9 @@ Returns a list of all [questions](https://surveyjs.io/form-library/documentation
 
 ### `getComment()`
 
-Returns a comment value from a question with a specified `name`.
-
 **Return value:** `string` &ndash; A comment.
+
+Returns a comment value from a question with a specified `name`.
 
 **Parameters:**
 
@@ -1414,13 +1414,15 @@ Returns a comment value from a question with a specified `name`.
 
 ### `getCorrectAnswerCount()`
 
+**Return value:** `number` &ndash; The number of correct answers in a quiz.
+
 Returns the number of correct answers in a quiz.
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
 
-**Return value:** `number` &ndash; The number of correct answers in a quiz.
-
 ### `getData()`
+
+**Return value:** `any`
 
 Returns an object with survey results.
 
@@ -1434,8 +1436,6 @@ const survey = new Model(surveyJson);
 survey.getData({ includePages: true, includePanels: true });
 ```
 
-**Return value:** `any`
-
 **Parameters:**
 
 | Name | Type | Description |
@@ -1444,9 +1444,9 @@ survey.getData({ includePages: true, includePanels: true });
 
 ### `getElementByName()`
 
-Returns a page, panel, or question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
-
 **Return value:** `ISurveyElement` &ndash; A survey element with the specified name.
+
+Returns a page, panel, or question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
 
 **Parameters:**
 
@@ -1456,17 +1456,17 @@ Returns a page, panel, or question with a specified [`name`](https://surveyjs.io
 
 ### `getIncorrectAnswerCount()`
 
+**Return value:** `number` &ndash; The number of incorrect answers in a quiz.
+
 Returns the number of incorrect answers in a quiz.
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
 
-**Return value:** `number` &ndash; The number of incorrect answers in a quiz.
-
 ### `getPageByElement()`
 
-Returns a page to which a specified survey element (question or panel) belongs.
-
 **Return value:** `PageModel`
+
+Returns a page to which a specified survey element (question or panel) belongs.
 
 **Parameters:**
 
@@ -1476,9 +1476,9 @@ Returns a page to which a specified survey element (question or panel) belongs.
 
 ### `getPageByName()`
 
-Returns a page with a specified name.
-
 **Return value:** `PageModel` &ndash; A page with the specified name.
+
+Returns a page with a specified name.
 
 **Parameters:**
 
@@ -1488,9 +1488,9 @@ Returns a page with a specified name.
 
 ### `getPageByQuestion()`
 
-Returns a page to which a specified question belongs.
-
 **Return value:** `PageModel`
+
+Returns a page to which a specified question belongs.
 
 **Parameters:**
 
@@ -1500,9 +1500,9 @@ Returns a page to which a specified question belongs.
 
 ### `getPanelByName()`
 
-Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
-
 **Return value:** `PanelModel` &ndash; A panel with the specified name.
+
+Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
 
 **Parameters:**
 
@@ -1513,13 +1513,13 @@ Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/p
 
 ### `getPlainData()`
 
+**Return value:** `IQuestionPlainData[]<IQuestionPlainData>`
+
 Returns survey results as an array of objects in which the question name, title, value, and other parameters are stored as individual properties.
 
 If a question can have more than one value (Matrix, Multiple Text), its object enables the `isNode` flag and stores information about these values in the `data` property. Refer to the following help topic for more information: [Access Full Survey Results](https://surveyjs.io/form-library/documentation/handle-survey-results-access#access-full-survey-results).
 
 If you want to skip empty answers, pass an object with the `includeEmpty` property set to `false`.
-
-**Return value:** `IQuestionPlainData[]<IQuestionPlainData>`
 
 **Parameters:**
 
@@ -1528,6 +1528,8 @@ If you want to skip empty answers, pass an object with the `includeEmpty` proper
 | `options` | `IPlainDataOptions` |  |
 
 ### `getProgressInfo()`
+
+**Return value:** `IProgressInfo` &ndash; An object containing survey progress information.
 
 Returns an object that provides information about survey progress.
 
@@ -1545,13 +1547,11 @@ The number of questions marked as required.
 - `requiredAnsweredQuestionCount`: `number`\
 The number of required questions that have been answered.
 
-**Return value:** `IProgressInfo` &ndash; An object containing survey progress information.
-
 ### `getQuestionByName()`
 
-Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
-
 **Return value:** `Question` &ndash; A question with the specified name.
+
+Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
 
 **Parameters:**
 
@@ -1562,11 +1562,11 @@ Returns a question with a specified [`name`](https://surveyjs.io/form-library/do
 
 ### `getQuestionByValueName()`
 
+**Return value:** `Question` &ndash; A question with a specified `valueName`.
+
 Returns a question with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName).
 
 > Since `valueName` does not have to be unique, multiple questions can have the same `valueName` value. In this case, the `getQuestionByValueName()` method returns the first such question. If you need to get all questions with the same `valueName`, call the `getQuestionsByValueName()` method.
-
-**Return value:** `Question` &ndash; A question with a specified `valueName`.
 
 **Parameters:**
 
@@ -1577,9 +1577,9 @@ Returns a question with a specified [`valueName`](https://surveyjs.io/form-libra
 
 ### `getQuestionsByValueName()`
 
-Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
-
 **Return value:** `Question[]<Question>` &ndash; An array of questions with a specified `valueName`.
+
+Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
 
 **Parameters:**
 
@@ -1590,23 +1590,25 @@ Returns all questions with a specified [`valueName`](https://surveyjs.io/form-li
 
 ### `getQuizQuestionCount()`
 
+**Return value:** `number` &ndash; The number of quiz questions.
+
 Returns the number of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
 
 This number may be different from `getQuizQuestions().length` because certain question types (for instance, matrix-like types) include more than one question.
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
 
-**Return value:** `number` &ndash; The number of quiz questions.
-
 ### `getQuizQuestions()`
+
+**Return value:** `IQuestion[]<IQuestion>` &ndash; An array of quiz questions.
 
 Returns an array of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
 
-**Return value:** `IQuestion[]<IQuestion>` &ndash; An array of quiz questions.
-
 ### `getUsedLocales()`
+
+**Return value:** `string[]<any>`
 
 Returns an array of locales whose translations are used in the survey.
 
@@ -1614,13 +1616,11 @@ Returns an array of locales whose translations are used in the survey.
 
 [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
 
-**Return value:** `string[]<any>`
-
 ### `getValue()`
 
-Returns a value (answer) for a question with a specified `name`.
-
 **Return value:** `any` &ndash; A question value (answer).
+
+Returns a value (answer) for a question with a specified `name`.
 
 **Parameters:**
 
@@ -1630,11 +1630,11 @@ Returns a value (answer) for a question with a specified `name`.
 
 ### `getVariable()`
 
+**Return value:** `any`
+
 Returns a variable value.
 
 [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
-
-**Return value:** `any`
 
 **Parameters:**
 
@@ -1644,11 +1644,11 @@ Returns a variable value.
 
 ### `getVariableNames()`
 
+**Return value:** `string[]<any>` &ndash; An array of variable names.
+
 Returns the names of all variables in the survey.
 
 [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
-
-**Return value:** `string[]<any>` &ndash; An array of variable names.
 
 ### `mergeData()`
 
@@ -1677,11 +1677,11 @@ The JSON schema should contain only locale strings and identifier properties; al
 
 ### `nextPage()`
 
+**Return value:** `boolean` &ndash; `true` if the page was successfully switched; `false` otherwise.
+
 Switches the survey to the next page.
 
 This method returns a Boolean value that indicates whether the page was successfully switched. `false` is returned if the current page is the last page or if it contains validation errors.
-
-**Return value:** `boolean` &ndash; `true` if the page was successfully switched; `false` otherwise.
 
 ### `notify()`
 
@@ -1701,11 +1701,11 @@ Depending on the `type` argument, a survey can display the following notificatio
 
 ### `prevPage()`
 
+**Return value:** `boolean` &ndash; `true` if the page was successfully switched; `false` otherwise.
+
 Switches the survey to the previous page.
 
 This method returns a Boolean value that indicates whether the page was successfully switched. `false` is returned if the current page is the first page.
-
-**Return value:** `boolean` &ndash; `true` if the page was successfully switched; `false` otherwise.
 
 ### `removePage()`
 
@@ -1726,9 +1726,9 @@ survey.removePage(survey.currentPage);
 
 ### `runCondition()`
 
-Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
-
 **Return value:** `boolean`
+
+Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
 
 **Parameters:**
 
@@ -1738,9 +1738,9 @@ Calculates a given [expression](https://surveyjs.io/form-library/documentation/d
 
 ### `runExpression()`
 
-Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
-
 **Return value:** `any`
+
+Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
 
 **Parameters:**
 
@@ -1808,15 +1808,15 @@ Sets a variable value.
 
 ### `showPreview()`
 
-Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
-
 **Return value:** `boolean`
+
+Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
 
 ### `start()`
 
-Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
-
 **Return value:** `boolean`
+
+Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
 
 ### `startTimer()`
 
@@ -1828,11 +1828,11 @@ Stops the timer. Applies only to [quiz surveys](https://surveyjs.io/form-library
 
 ### `tryComplete()`
 
+**Return value:** `boolean`
+
 Completes the survey if it currently displays the last page and the page contains no validation errors. If both these conditions are met, this method returns `true`; otherwise, `false`.
 
 If you want to complete the survey regardless of the current page and validation errors, use the [`doComplete()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#doComplete) method.
-
-**Return value:** `boolean`
 
 ### `uploadFiles()`
 
@@ -1864,11 +1864,11 @@ survey.uploadFiles(
 
 ### `validate()`
 
+**Return value:** `boolean`
+
 Validates all questions and returns `false` if the validation fails.
 
 If you use validation expressions and at least one of them calls an async function, the `validate` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
-
-**Return value:** `boolean`
 
 **Parameters:**
 
@@ -1881,11 +1881,11 @@ If you use validation expressions and at least one of them calls an async functi
 
 ### `validateCurrentPage()`
 
+**Return value:** `boolean`
+
 Validates all questions on the current page and returns `false` if the validation fails.
 
 If you use validation expressions and at least one of them calls an async function, the `validateCurrentPage` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
-
-**Return value:** `boolean`
 
 **Parameters:**
 
@@ -1895,11 +1895,11 @@ If you use validation expressions and at least one of them calls an async functi
 
 ### `validatePage()`
 
+**Return value:** `boolean`
+
 Validates all questions on a specified page and returns `false` if the validation fails.
 
 If you use validation expressions and at least one of them calls an async function, the `validatePage` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
-
-**Return value:** `boolean`
 
 **Parameters:**
 

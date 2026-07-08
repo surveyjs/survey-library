@@ -20,6 +20,8 @@ A class that describes the Image Picker question type.
 
 ### `contentMode`
 
+**Type**: `string`
+
 Specifies the type of content that choice items display.
 
 Possible values:
@@ -27,17 +29,17 @@ Possible values:
 - `"image"` (default) - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
 - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
 
-**Type**: `string`
-
 ### `imageFit`
+
+**Type**: `string`
 
 Specifies how to resize images or videos to fit them into their containers.
 
 Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
 
-**Type**: `string`
-
 ### `imageHeight`
+
+**Type**: `number`
 
 Specifies the height of containers for images or videos. Accepts positive numbers and CSS values.
 
@@ -47,9 +49,9 @@ This property allows you to specify the exact image height. If you do not set it
 
 Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
 
-**Type**: `number`
-
 ### `imageWidth`
+
+**Type**: `number`
 
 Specifies the width of containers for images or videos. Accepts positive numbers and CSS values.
 
@@ -59,9 +61,9 @@ This property allows you to specify the exact image width. If you do not set it,
 
 Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
 
-**Type**: `number`
-
 ### `maxImageHeight`
+
+**Type**: `number`
 
 Specifies a maximum height for image or video containers. Accepts positive numbers and CSS values.
 
@@ -71,9 +73,9 @@ Default value: 3000
 
 The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
 
-**Type**: `number`
-
 ### `maxImageWidth`
+
+**Type**: `number`
 
 Specifies a maximum width for image or video containers. Accepts positive numbers and CSS values.
 
@@ -83,9 +85,9 @@ Default value: 3000
 
 The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
 
-**Type**: `number`
-
 ### `minImageHeight`
+
+**Type**: `number`
 
 Specifies a minimum height for image or video containers. Accepts positive numbers and CSS values.
 
@@ -95,9 +97,9 @@ Default value: 133
 
 The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
 
-**Type**: `number`
-
 ### `minImageWidth`
+
+**Type**: `number`
 
 Specifies a minimum width for image or video containers. Accepts positive numbers and CSS values.
 
@@ -105,9 +107,9 @@ Default value: 200
 
 The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
 
-**Type**: `number`
-
 ### `multiSelect`
+
+**Type**: `boolean`
 
 Specifies whether users can select multiple images or videos.
 
@@ -115,12 +117,10 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `showLabel`
+
+**Type**: `boolean`
 
 Specifies whether to display labels under images or videos. Labels text are taken from the `text` property of each object in the [`choices`](#choices) array.
 
 [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
-
-**Type**: `boolean`

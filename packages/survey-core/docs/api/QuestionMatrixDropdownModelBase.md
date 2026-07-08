@@ -18,6 +18,8 @@ A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-li
 
 ### `cellErrorLocation`
 
+**Type**: `string`
+
 Specifies the error message position relative to matrix cells.
 
 Possible values:
@@ -26,9 +28,9 @@ Possible values:
 - `"top"` - Displays error messages above matrix cells.
 - `"bottom"` - Displays error messages below matrix cells.
 
-**Type**: `string`
-
 ### `cellType`
+
+**Type**: `string`
 
 Specifies the type of matrix cells. You can override this property for individual columns.
 
@@ -51,9 +53,9 @@ Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](
 
 [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
-**Type**: `string`
-
 ### `choices`
+
+**Type**: `any[]`
 
 Gets or sets choice items for Dropdown, Checkbox, and Radiogroup matrix cells. You can override this property for individual columns.
 
@@ -73,17 +75,17 @@ If you add custom properties, refer to the following help topic to learn how to 
 
 If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
 
-**Type**: `any[]`
-
 ### `columnColCount`
+
+**Type**: `number`
 
 Specifies the number of columns in Radiogroup and Checkbox cells.
 
 Default value: 0 (the number of columns is selected automatically based on the available column width)
 
-**Type**: `number`
-
 ### `detailElements`
+
+**Type**: `IElement[]`
 
 An array of survey elements (questions and panels) to be displayed in detail sections.
 
@@ -93,9 +95,9 @@ Set the [`detailPanelMode`](#detailPanelMode) property to `"underRow"` or `"unde
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
 
-**Type**: `IElement[]`
-
 ### `detailErrorLocation`
+
+**Type**: `string`
 
 Specifies the error message position for questions within detail sections.
 
@@ -105,15 +107,15 @@ Possible values:
 - `"top"` - Displays error messages above questions.
 - `"bottom"` - Displays error messages below questions.
 
-**Type**: `string`
-
 ### `detailPanel`
-
-Contains a [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) instance that represents a detail section template.
 
 **Type**: `PanelModel`
 
+Contains a [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) instance that represents a detail section template.
+
 ### `detailPanelMode`
+
+**Type**: `string`
 
 Specifies the location of detail sections.
 
@@ -127,31 +129,31 @@ Use the [`detailElements`](#detailElements) property to specify content of detai
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
 
-**Type**: `string`
-
 ### `isColumnLayoutHorizontal`
+
+**Type**: `boolean`
 
 Returns `true` if [`columns`](#columns) are placed in the horizontal direction and [`rows`](#columns) in the vertical direction.
 
 To specify the layout, use the [`transposeData`](#transposeData) property. If you set it to `true`, the survey applies it only when the screen has enough space. Otherwise, the survey falls back to the original layout, but the `transposeData` property remains set to `true`. Unlike `transposeData`, the `isColumnLayoutHorizontal` property always indicates the current layout.
 
-**Type**: `boolean`
-
 ### `keyDuplicationError`
+
+**Type**: `string`
 
 An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
 
 A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
 
-**Type**: `string`
-
 ### `placeholder`
+
+**Type**: `string`
 
 A placeholder for Dropdown matrix cells.
 
-**Type**: `string`
-
 ### `singleInputTitleTemplate`
+
+**Type**: `string`
 
 A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
 
@@ -167,9 +169,9 @@ The template can contain the following placeholders:
 
 [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
 
-**Type**: `string`
-
 ### `transposeData`
+
+**Type**: `boolean`
 
 Specifies whether to display [`columns`](#columns) as rows and [`rows`](#rows) as columns.
 
@@ -179,9 +181,9 @@ Default value: `false`
 
 [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/transpose-dynamic-rows-to-columns-in-matrix/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `useCaseSensitiveComparison`
+
+**Type**: `boolean`
 
 Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
 
@@ -189,15 +191,13 @@ When this property is `true`, `"ABC"` and `"abc"` are considered different value
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ## Methods
 
 ### `getColumnByName()`
 
-Returns a matrix column with a given `name` or `null` if a column with this is not found.
-
 **Return value:** `MatrixDropdownColumn`
+
+Returns a matrix column with a given `name` or `null` if a column with this is not found.
 
 **Parameters:**
 
@@ -207,9 +207,9 @@ Returns a matrix column with a given `name` or `null` if a column with this is n
 
 ### `getRowValue()`
 
-Returns an object with row values. If a row has no answers, this method returns an empty object.
-
 **Return value:** `any`
+
+Returns an object with row values. If a row has no answers, this method returns an empty object.
 
 **Parameters:**
 
@@ -218,6 +218,8 @@ Returns an object with row values. If a row has no answers, this method returns 
 | `rowIndex` | `number` | A zero-based row index. |
 
 ### `getType()`
+
+**Return value:** `string`
 
 Returns the question type.
 Possible values:
@@ -243,13 +245,11 @@ Possible values:
 - [*"signaturepad"*](https://surveyjs.io/Documentation/Library?id=questionsignaturepadmodel)
 - [*"text"*](https://surveyjs.io/Documentation/Library?id=questiontextmodel)
 
-**Return value:** `string`
-
 ### `setRowValue()`
 
-Assigns values to a row.
-
 **Return value:** `any`
+
+Assigns values to a row.
 
 **Parameters:**
 

@@ -20,19 +20,21 @@ A class that describes the Multiple Text question type.
 
 ### `colCount`
 
+**Type**: `number`
+
 The number of columns used to arrange input items. Accepts the following values: 1, 2, 3, 4, 5.
 
 Default value: 1
 
-**Type**: `number`
-
 ### `inputSize`
+
+**Type**: `number`
 
 A value passed on to the [`inputSize`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` elements.
 
-**Type**: `number`
-
 ### `itemErrorLocation`
+
+**Type**: `string`
 
 Specifies the error message position relative to individual input fields.
 
@@ -42,9 +44,9 @@ Possible values:
 - `"top"` - Displays error messages above input fields.
 - `"bottom"` - Displays error messages below input fields.
 
-**Type**: `string`
-
 ### `items`
+
+**Type**: `MultipleTextItemModel[]`
 
 Gets or sets an array of [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel) objects that represent input items.
 
@@ -61,23 +63,21 @@ To enable Markdown support for the `title` property, implement Markdown-to-HTML 
 
 [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
 
-**Type**: `MultipleTextItemModel[]`
-
 ### `itemTitleWidth`
+
+**Type**: `string`
 
 Specifies a uniform width for all text box titles. Accepts CSS values.
 
 Default value: `""` (the width of each title depends on the title length)
 
-**Type**: `string`
-
 ## Methods
 
 ### `addItem()`
 
-Adds a new input item.
-
 **Return value:** `MultipleTextItemModel`
+
+Adds a new input item.
 
 **Parameters:**
 

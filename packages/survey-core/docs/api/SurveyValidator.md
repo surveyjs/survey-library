@@ -20,6 +20,8 @@ A base class for all classes that implement validators.
 
 ### `notificationType`
 
+**Type**: `string`
+
 Specifies the type of notification shown to users.
 
 Possible values:
@@ -32,10 +34,8 @@ Errors block survey progress until resolved. Warnings indicate potential issues 
 
 > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
 
-**Type**: `string`
-
 ### `text`
 
-An error message to display when a value fails validation.
-
 **Type**: `string`
+
+An error message to display when a value fails validation.

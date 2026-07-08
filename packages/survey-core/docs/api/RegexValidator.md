@@ -20,16 +20,16 @@ A class that implements validation using regular expressions.
 
 ### `caseInsensitive`
 
+**Type**: `boolean`
+
 Specifies whether uppercase and lowercase letters must be treated as distinct or equivalent when validating values.
 
 Default value: `false` (uppercase and lowercase letters are treated as distinct)
 
-**Type**: `boolean`
-
 ### `regex`
+
+**Type**: `string`
 
 A regular expression used to validate values.
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `string`

@@ -18,27 +18,29 @@ Action items are used in the Toolbar, matrix rows, titles of pages, panels, ques
 
 ### `action`
 
+**Type**: `(context?: any) => void`
+
 A function that is executed when users click the action item.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
-**Type**: `(context?: any) => void`
-
 ### `active`
+
+**Type**: `boolean`
 
 Specifies whether the action item is active.
 
 Use this property as a flag to specify different action item appearances in different states.
 
-**Type**: `boolean`
-
 ### `component`
-
-Specifies the name of a component used to render the action item.
 
 **Type**: `string`
 
+Specifies the name of a component used to render the action item.
+
 ### `css`
+
+**Type**: `string`
 
 One or several CSS classes that you want to apply to the outer `<div>` element.
 
@@ -48,54 +50,54 @@ To apply several classes, separate them with a space character: `"myclass1 mycla
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
-**Type**: `string`
-
 ### `data`
-
-The action item's data object. Use it to pass required data to a custom template or component.
 
 **Type**: `any`
 
+The action item's data object. Use it to pass required data to a custom template or component.
+
 ### `disableShrink`
+
+**Type**: `boolean`
 
 Set this property to `true` if you want the item's `title` to be always visible.
 If you set it to `false`, the `title` hides when the screen space is limited, and the item displays only the icon.
 
-**Type**: `boolean`
-
 ### `disableTabStop`
+
+**Type**: `boolean`
 
 Set this property to `true` if you want to disable keyboard navigation for the action item (sets the `tabIndex` attribute to -1).
 
-**Type**: `boolean`
-
 ### `enabled`
-
-Specifies whether users can interact with the action item.
 
 **Type**: `boolean | ComputedUpdater<boolean>`
 
-### `iconName`
+Specifies whether users can interact with the action item.
 
-The action item's icon name.
+### `iconName`
 
 **Type**: `string`
 
-### `iconSize`
+The action item's icon name.
 
-The action item's icon size in pixels.
+### `iconSize`
 
 **Type**: `string | number`
 
+The action item's icon size in pixels.
+
 ### `id`
+
+**Type**: `string`
 
 A unique action item identifier.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
-**Type**: `string`
-
 ### `innerCss`
+
+**Type**: `string`
 
 One or several CSS classes that you want to apply to the inner `<input>` or `<button>` element.
 
@@ -105,9 +107,9 @@ To apply several classes, separate them with a space character: `"myclass1 mycla
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
-**Type**: `string`
-
 ### `location`
+
+**Type**: `string`
 
 The action item's location in a matrix question's row.
 
@@ -116,44 +118,42 @@ The following values are available:
 - `"start"` - The action item is located at the beginning of the row.
 - `"end"` - The action is located at the end of the row.
 
-**Type**: `string`
-
 ### `showTitle`
-
-Specifies the visibility of the action item's title.
 
 **Type**: `boolean`
 
-### `template`
+Specifies the visibility of the action item's title.
 
-Specifies the name of a template used to render the action item.
+### `template`
 
 **Type**: `string`
 
+Specifies the name of a template used to render the action item.
+
 ### `title`
+
+**Type**: `string`
 
 The action item's title.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
-**Type**: `string`
-
 ### `tooltip`
+
+**Type**: `string`
 
 The action item's tooltip.
 
-**Type**: `string`
-
 ### `visible`
-
-Specifies the action item's visibility.
 
 **Type**: `boolean | ComputedUpdater<boolean>`
 
+Specifies the action item's visibility.
+
 ### `visibleIndex`
+
+**Type**: `number`
 
 A number that specifies the action's position relative to other actions.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
-
-**Type**: `number`

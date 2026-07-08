@@ -18,8 +18,8 @@ A base class for multiple-selection question types that can display choice items
 
 ### `colCount`
 
+**Type**: `number`
+
 Gets or sets the number of columns used to arrange choice items.
 
 Set this property to 0 if you want to display all items in one line. The default value depends on the available width.
-
-**Type**: `number`

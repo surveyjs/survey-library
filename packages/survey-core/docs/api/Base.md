@@ -14,25 +14,27 @@ A base class for all SurveyJS objects.
 
 ### `inSurvey`
 
+**Type**: `boolean`
+
 Returns `true` if the object is included in a survey.
 
 This property may return `false`, for example, when you [create a survey model dynamically](https://surveyjs.io/form-library/documentation/design-survey-create-a-simple-survey#create-or-change-a-survey-model-dynamically).
 
-**Type**: `boolean`
-
 ### `isDesignMode`
+
+**Type**: `boolean`
 
 Returns `true` if the survey is being designed in Survey Creator.
 
-**Type**: `boolean`
-
 ### `isLoadingFromJson`
+
+**Type**: `boolean`
 
 Returns `true` if the object configuration is being loaded from JSON.
 
-**Type**: `boolean`
-
 ### `isPage`
+
+**Type**: `boolean`
 
 Returns `true` if the survey element is a page.
 
@@ -43,9 +45,9 @@ This property returns `false` for [`PageModel`](https://surveyjs.io/form-library
 
 In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and all regular pages become panels.
 
-**Type**: `boolean`
-
 ### `isPanel`
+
+**Type**: `boolean`
 
 Returns `true` if the survey element is a panel or acts as one.
 
@@ -56,27 +58,25 @@ This property returns `true` for `PageModel` objects in the following cases:
 
 In those cases, the survey creates an internal `PageModel` object to show all questions on one page, and all regular pages become panels.
 
-**Type**: `boolean`
-
 ### `isQuestion`
+
+**Type**: `boolean`
 
 Returns `true` if the survey element is a question.
 
-**Type**: `boolean`
-
 ### `isSurvey`
 
-Returns `true` if the element is a survey.
-
 **Type**: `boolean`
+
+Returns `true` if the element is a survey.
 
 ## Methods
 
 ### `clone()`
 
-Creates a new object that has the same type and properties as the current SurveyJS object.
-
 **Return value:** `Base`
+
+Creates a new object that has the same type and properties as the current SurveyJS object.
 
 ### `fromJSON()`
 
@@ -94,13 +94,13 @@ The JSON schema should contain only serializable properties of this survey eleme
 
 ### `getLocalizationJSON()`
 
+**Return value:** `any` &ndash; A locale-strings-only JSON schema.
+
 Returns a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements.
 
 This method is syntactic sugar for calling the [`toJSON()`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
 
 To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
-
-**Return value:** `any` &ndash; A locale-strings-only JSON schema.
 
 **Parameters:**
 
@@ -110,17 +110,17 @@ To apply a locale-strings-only schema to a survey model, call the [`mergeLocaliz
 
 ### `getOwner()`
 
-Returns the survey element that owns this element. Returns `undefined` if called on a `SurveyModel` instance.
-
 **Return value:** `any` &ndash; The owner survey element, or `undefined` if none exists.
 
+Returns the survey element that owns this element. Returns `undefined` if called on a `SurveyModel` instance.
+
 ### `getPropertyByName()`
+
+**Return value:** `JsonObjectProperty`
 
 Returns a `JsonObjectProperty` object with metadata about a serializable property that belongs to the current SurveyJS object.
 
 If the property is not found, this method returns `null`.
-
-**Return value:** `JsonObjectProperty`
 
 **Parameters:**
 
@@ -130,11 +130,11 @@ If the property is not found, this method returns `null`.
 
 ### `getPropertyValue()`
 
+**Return value:** `any`
+
 Returns the value of a property with a specified name.
 
 If the property is not found or does not have a value, this method returns either `undefined`, `defaultValue` specified in the property configuration, or a value passed as the `defaultValue` parameter.
-
-**Return value:** `any`
 
 **Parameters:**
 
@@ -146,15 +146,15 @@ If the property is not found or does not have a value, this method returns eithe
 
 ### `getType()`
 
-Returns the object type as it is used in the JSON schema.
-
 **Return value:** `string`
+
+Returns the object type as it is used in the JSON schema.
 
 ### `isDescendantOf()`
 
-Use this method to find out if the current object is of a given `typeName` or inherited from it.
-
 **Return value:** `boolean` &ndash; `true` if the current object is of a given `typeName` or inherited from it.
+
+Use this method to find out if the current object is of a given `typeName` or inherited from it.
 
 **Parameters:**
 
@@ -164,9 +164,9 @@ Use this method to find out if the current object is of a given `typeName` or in
 
 ### `isValueEmpty()`
 
-Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
-
 **Return value:** `boolean`
+
+Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
 
 **Parameters:**
 
@@ -202,9 +202,9 @@ Assigns a new value to a specified property.
 
 ### `toJSON()`
 
-Returns a JSON schema that corresponds to the current survey element.
-
 **Return value:** `any` &ndash; A JSON schema of the survey element.
+
+Returns a JSON schema that corresponds to the current survey element.
 
 **Parameters:**
 
@@ -224,6 +224,8 @@ Unregisters value change event handlers for the specified properties.
 | `key` | `string` | *(Optional)* A key of the registration that you want to cancel. |
 
 ### `validateExpressions()`
+
+**Return value:** `IExpressionValidationResult[]<IExpressionValidationResult>` &ndash; An [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/IExpressionValidationResult) array.
 
 Validates expressions used in the survey.
 
@@ -255,8 +257,6 @@ const res = survey.validateExpressions({
   semantics: false
 });
 ```
-
-**Return value:** `IExpressionValidationResult[]<IExpressionValidationResult>` &ndash; An [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/IExpressionValidationResult) array.
 
 **Parameters:**
 

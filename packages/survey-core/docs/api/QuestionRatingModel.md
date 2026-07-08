@@ -20,6 +20,8 @@ A class that describes the Rating Scale question type.
 
 ### `displayMode`
 
+**Type**: `"auto" | "dropdown" | "buttons"`
+
 Specifies whether to display rate values as buttons or items in a drop-down list.
 
 Possible values:
@@ -30,9 +32,9 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/ui-adaptation-modes-for-rating-scale/ (linkStyle))
 
-**Type**: `"auto" | "dropdown" | "buttons"`
-
 ### `displayRateDescriptionsAsExtremeItems`
+
+**Type**: `boolean`
 
 Specifies whether to display [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) values as captions for buttons that correspond to the extreme (first and last) rate values.
 
@@ -42,27 +44,27 @@ If this property is disabled, the `minRateDescription` and `maxRateDescription` 
 
 If any of the `minRateDescription` and `maxRateDescription` properties is empty, the corresponding rate value's `value` or `text` is displayed as a button caption.
 
-**Type**: `boolean`
-
 ### `itemComponent`
+
+**Type**: `string`
 
 The name of a component used to render items.
 
-**Type**: `string`
-
 ### `maxRateDescription`
+
+**Type**: `string`
 
 Specifies a description for the maximum (last) rate value.
 
-**Type**: `string`
-
 ### `minRateDescription`
+
+**Type**: `string`
 
 Specifies a description for the minimum (first) rate value.
 
-**Type**: `string`
-
 ### `rateColorMode`
+
+**Type**: `"default" | "scale"`
 
 Specifies how to colorize the selected emoji. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
 
@@ -71,9 +73,9 @@ Possible values:
 - `"default"` - Displays the selected emoji in default survey color.
 - `"scale"` (default) - Inherits the color from the scale.
 
-**Type**: `"default" | "scale"`
-
 ### `rateCount`
+
+**Type**: `number`
 
 Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
 
@@ -81,9 +83,9 @@ Set the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
-**Type**: `number`
-
 ### `rateDescriptionLocation`
+
+**Type**: `"top" | "bottom" | "topBottom" | "leftRight"`
 
 Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.
 
@@ -94,9 +96,9 @@ Possible values:
 - `"bottom"` - Displays both descriptions below the minimum and maximum rate values.
 - `"topBottom"` - Displays `minRateDescription` above the minimum rate value and `maxRateDescription` below the maximum rate value.
 
-**Type**: `"top" | "bottom" | "topBottom" | "leftRight"`
-
 ### `rateMax`
+
+**Type**: `number`
 
 Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
 
@@ -104,9 +106,9 @@ Default value: 5
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
-**Type**: `number`
-
 ### `rateMin`
+
+**Type**: `number`
 
 Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
 
@@ -114,9 +116,9 @@ Default value: 1
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
-**Type**: `number`
-
 ### `rateStep`
+
+**Type**: `number`
 
 Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
 
@@ -124,9 +126,9 @@ Default value: 1
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
-**Type**: `number`
-
 ### `rateType`
+
+**Type**: `"labels" | "stars" | "smileys"`
 
 Specifies the visual representation of rate values.
 
@@ -138,9 +140,9 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
-**Type**: `"labels" | "stars" | "smileys"`
-
 ### `rateValues`
+
+**Type**: `any[]`
 
 A list of rate values.
 
@@ -164,9 +166,9 @@ If you do not specify the `rateValues` property, rate values are generated autom
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
-**Type**: `any[]`
-
 ### `scaleColorMode`
+
+**Type**: `"monochrome" | "colored"`
 
 Specifies how to colorize the smiley face rating scale. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
 
@@ -176,5 +178,3 @@ Possible values:
 - `"colored"` - Displays emojis in color.
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
-
-**Type**: `"monochrome" | "colored"`

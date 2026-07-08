@@ -18,13 +18,15 @@ A base class for all matrix question types.
 
 ### `alternateRows`
 
+**Type**: `boolean`
+
 Specifies whether to apply shading to alternate matrix rows.
 
 [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `columnMinWidth`
+
+**Type**: `string`
 
 Minimum column width in CSS values.
 
@@ -32,9 +34,9 @@ Minimum column width in CSS values.
 
 [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
-**Type**: `string`
-
 ### `columns`
+
+**Type**: `any[]`
 
 An array of matrix columns.
 
@@ -46,9 +48,9 @@ For a Multi-Select Matrix or Dynamic Matrix, the `columns` array should contain 
 
 [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
 
-**Type**: `any[]`
-
 ### `columnsVisibleIf`
+
+**Type**: `string`
 
 A Boolean expression that is evaluated against each matrix column. If the expression evaluates to `false`, the column becomes hidden.
 
@@ -60,9 +62,9 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
 
-**Type**: `string`
-
 ### `displayMode`
+
+**Type**: `"auto" | "list" | "table"`
 
 Specifies how to arrange matrix questions.
 
@@ -72,9 +74,9 @@ Possible values:
 - `"list"` - Displays matrix questions one under another as a list.
 - `"auto"` (default) - Uses the `"table"` mode if the survey has sufficient width to fit the table or the `"list"` mode otherwise.
 
-**Type**: `"auto" | "list" | "table"`
-
 ### `rows`
+
+**Type**: `any[]`
 
 An array of matrix rows.
 
@@ -85,9 +87,9 @@ This array can contain primitive values or objects with the `text` (display valu
 [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
 +
 
-**Type**: `any[]`
-
 ### `rowsVisibleIf`
+
+**Type**: `string`
 
 A Boolean expression that is evaluated against each matrix row. If the expression evaluates to `false`, the row becomes hidden.
 
@@ -99,30 +101,28 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
 
-**Type**: `string`
-
 ### `rowTitleWidth`
+
+**Type**: `string`
 
 A width for the column that displays row titles (first column). Accepts CSS values.
 
-**Type**: `string`
-
 ### `showHeader`
+
+**Type**: `boolean`
 
 Specifies whether to display the table header that contains column captions.
 
 Default value: `true`
 
-**Type**: `boolean`
-
 ### `verticalAlign`
-
-Aligns matrix cell content in the vertical direction.
 
 **Type**: `"top" | "middle"`
 
+Aligns matrix cell content in the vertical direction.
+
 ### `visibleRows`
 
-Returns an array of visible matrix rows.
-
 **Type**: `TRow[]`
+
+Returns an array of visible matrix rows.

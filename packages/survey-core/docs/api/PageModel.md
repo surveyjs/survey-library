@@ -20,19 +20,21 @@ The `PageModel` object describes a survey page and contains properties and metho
 
 ### `isActive`
 
-Returns `true` if this is the current page.
-
 **Type**: `boolean`
 
+Returns `true` if this is the current page.
+
 ### `isStartPage`
+
+**Type**: `boolean`
 
 Returns `true` if this page is a start page.
 
 Refer to the following help topic for more information on how to configure a start page: [Start Page](https://surveyjs.io/form-library/documentation/design-survey-create-a-multi-page-survey#start-page).
 
-**Type**: `boolean`
-
 ### `navigationTitle`
+
+**Type**: `string`
 
 A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar), [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"pages"`, and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarShowPageTitles) is `true`.
 
@@ -42,17 +44,17 @@ A caption displayed on a navigation button in the TOC or progress bar. Applies w
 
 > If navigation titles are unspecified, the navigation buttons display page [titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [names](https://surveyjs.io/form-library/documentation/pagemodel#name).
 
-**Type**: `string`
-
 ### `showNavigationButtons`
+
+**Type**: `string | boolean`
 
 Gets or sets the visibility of the Start, Next, Previous, and Complete navigation buttons on this page. Overrides the [`showNavigationButtons`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showNavigationButtons) property specified on the survey-level.
 
 Default value: `undefined` (the visibility depends on the survey-level setting)
 
-**Type**: `string | boolean`
-
 ### `timeLimit`
+
+**Type**: `number`
 
 A time period that a respondent has to complete this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
@@ -60,33 +62,31 @@ Default value: 0 (time is unlimited)
 
 Alternatively, you can use the `SurveyModel`'s [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/surveymodel#timeLimitPerPage) property to specify identical time periods for all survey pages.
 
-**Type**: `number`
-
 ### `timeSpent`
+
+**Type**: `number`
 
 A time period that a respondent has spent on this page so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
-**Type**: `number`
-
 ### `visibleIndex`
+
+**Type**: `number`
 
 The visible index of the page. It has values from 0 to visible page count - 1.
 
-**Type**: `number`
-
 ### `wasShown`
 
-Returns `true` if the respondent has already seen this page during the current session.
-
 **Type**: `boolean`
+
+Returns `true` if the respondent has already seen this page during the current session.
 
 ## Methods
 
 ### `getAllPanels()`
 
-Returns a list of all panels on this page.
-
 **Return value:** `IPanel[]<IPanel>`
+
+Returns a list of all panels on this page.
 
 **Parameters:**
 

@@ -20,13 +20,15 @@ A class that implements a validator for text values.
 
 ### `allowDigits`
 
+**Type**: `boolean`
+
 Specifies whether a text value can include numerical digits.
 
 Default value: `true`
 
-**Type**: `boolean`
-
 ### `maxLength`
+
+**Type**: `number`
 
 The maximum length of a text value measured in characters.
 
@@ -34,14 +36,12 @@ Default value: 0 (unlimited)
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
 
-**Type**: `number`
-
 ### `minLength`
+
+**Type**: `number`
 
 The minimum length of a text value measured in characters.
 
 Default value: 0
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `number`

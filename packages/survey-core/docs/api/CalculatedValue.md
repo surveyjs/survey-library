@@ -22,19 +22,19 @@ You may set includeIntoResult property to true to store this calculated value in
 
 ### `expression`
 
+**Type**: `string`
+
 The Expression that used to calculate the value. You may use standard operators like +, -, * and /, squares (). Here is the example of accessing the question value {questionname}.
 Example: "({quantity} * {price}) * (100 - {discount}) / 100"
 
-**Type**: `string`
-
 ### `includeIntoResult`
-
-Set this property to true to include the non-empty calculated value into survey result, survey.data property.
 
 **Type**: `boolean`
 
+Set this property to true to include the non-empty calculated value into survey result, survey.data property.
+
 ### `name`
 
-The calculated value name. It should be non empty and unique.
-
 **Type**: `string`
+
+The calculated value name. It should be non empty and unique.

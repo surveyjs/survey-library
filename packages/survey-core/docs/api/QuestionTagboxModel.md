@@ -20,11 +20,13 @@ A class that describes the Multi-Select Dropdown (Tag Box) question type.
 
 ### `allowClear`
 
-Specifies whether to display a button that clears the selected value.
-
 **Type**: `boolean`
 
+Specifies whether to display a button that clears the selected value.
+
 ### `allowCustomChoices`
+
+**Type**: `boolean`
 
 Specifies whether users can add their own choices if the desired option isn't available in the dropdown.
 
@@ -32,45 +34,45 @@ Default value: `false`
 
 >  Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
 
-**Type**: `boolean`
-
 ### `choicesLazyLoadEnabled`
+
+**Type**: `boolean`
 
 Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
 
-**Type**: `boolean`
-
 ### `choicesLazyLoadPageSize`
+
+**Type**: `number`
 
 Specifies the number of choice items to load at a time when choices are loaded on demand.
 
-**Type**: `number`
-
 ### `closeOnSelect`
+
+**Type**: `number`
 
 Specifies whether to close the drop-down menu after a user selects a value.
 
-**Type**: `number`
-
 ### `hideSelectedItems`
+
+**Type**: `boolean`
 
 Specifies whether to remove selected items from the drop-down list.
 
-**Type**: `boolean`
-
 ### `placeholder`
-
-A text displayed in the input field when it doesn't have a value.
 
 **Type**: `string`
 
-### `searchEnabled`
+A text displayed in the input field when it doesn't have a value.
 
-Specifies whether users can enter a value into the input field to filter the drop-down list.
+### `searchEnabled`
 
 **Type**: `boolean`
 
+Specifies whether users can enter a value into the input field to filter the drop-down list.
+
 ### `searchMode`
+
+**Type**: `"contains" | "startsWith"`
 
 Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
 
@@ -78,5 +80,3 @@ Possible values:
 
 - `"contains"` (default)
 - `"startsWith"`
-
-**Type**: `"contains" | "startsWith"`

@@ -35,6 +35,8 @@ const surveyJson = {
 
 ### `pattern`
 
+**Type**: `string`
+
 A pattern for the input value.
 
 If you set the [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) to `"pattern"`, the mask can contain string literals and the following placeholders:
@@ -67,5 +69,3 @@ If you set the [`maskType`](https://surveyjs.io/form-library/documentation/api-r
 Example: `mm/dd/yyyy HH:MM:ss`
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
-
-**Type**: `string`

@@ -14,6 +14,6 @@ Contains information about a property of a survey element (page, panel, question
 
 ### `choices`
 
-Depricated, please use getChoices
-
 **Type**: `any[]`
+
+Depricated, please use getChoices

@@ -22,33 +22,35 @@ A panel can contain questions and other panels. Refer to the following help topi
 
 ### `innerIndent`
 
-Increases or decreases an indent of panel content from the left edge. Accepts positive integer values and 0.
-
 **Type**: `number`
 
+Increases or decreases an indent of panel content from the left edge. Accepts positive integer values and 0.
+
 ### `no`
+
+**Type**: `string`
 
 A question number or letter (depends on the `questionStartIndex` property).
 
 When the question number, title, or the entire question is invisible, this property returns an empty string.
 
-**Type**: `string`
-
 ### `page`
-
-Returns a page to which the panel belongs and allows you to move this panel to a different page.
 
 **Type**: `IPage`
 
+Returns a page to which the panel belongs and allows you to move this panel to a different page.
+
 ### `showNumber`
+
+**Type**: `boolean`
 
 Specifies whether to show the panel number in the title.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `showQuestionNumbers`
+
+**Type**: `string`
 
 Specifies whether to display survey element numbers within this page/panel and how to calculate them.
 
@@ -59,22 +61,20 @@ Possible values:
 - `"onpanel"` - Starts numbering within this page/panel from scratch.
 - `"off"` - Hides question numbers within this page/panel.
 
-**Type**: `string`
-
 ### `startWithNewLine`
+
+**Type**: `boolean`
 
 Disable this property if you want to render the current panel on the same line or row with the previous question or panel.
 
 [View Demo](https://surveyjs.io/form-library/examples/arrange-multiple-questions-in-single-line/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `visibleIndex`
+
+**Type**: `number`
 
 Returns the visible index of the panel in the survey. Commonly it is -1 and it doesn't show.
 You have to set showNumber to true to show index/numbering for the Panel
-
-**Type**: `number`
 
 ## Methods
 

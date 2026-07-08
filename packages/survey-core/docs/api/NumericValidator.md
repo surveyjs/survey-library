@@ -20,16 +20,16 @@ A class that implements a validator for numeric values.
 
 ### `maxValue`
 
+**Type**: `number`
+
 A maximum allowed numeric value.
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
 
-**Type**: `number`
-
 ### `minValue`
+
+**Type**: `number`
 
 A minimum allowed numeric value.
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `number`

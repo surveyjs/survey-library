@@ -20,22 +20,22 @@ An interface used to configure the content and behavior of a modal dialog displa
 
 ### `componentName`
 
+**Type**: `string`
+
 The name of the component to render inside the dialog.
 
 This component should be registered in the component collection used by the application (e.g., in `ReactElementFactory` for React and HTML/JS/CSS, `AngularComponentFactory` for Angular, or `app.component()` for Vue.js).
 
-**Type**: `string`
-
 ### `data`
-
-An object with component props.
 
 **Type**: `any`
 
+An object with component props.
+
 ### `onApply`
+
+**Type**: `() => boolean`
 
 A callback function executed when users click the Apply button in the dialog.
 
 This function should return `true` to close the dialog or `false` to keep it open (for example, if validation fails).
-
-**Type**: `() => boolean`

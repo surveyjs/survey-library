@@ -20,6 +20,8 @@ You can get an object of this class from the [`columns`](https://surveyjs.io/for
 
 ### `cellType`
 
+**Type**: `string`
+
 Specifies the type of column cells.
 
 Possible values:
@@ -40,9 +42,9 @@ The input types are based upon standalone question types. Depending on the selec
 
 [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
 
-**Type**: `string`
-
 ### `colCount`
+
+**Type**: `number`
 
 Gets or sets the number of columns used to arrange choice options. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
 
@@ -50,9 +52,9 @@ Default value: -1 (inherits the actual value from the parent matrix's [`columnCo
 
 [View Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
 
-**Type**: `number`
-
 ### `defaultDisplayValue`
+
+**Type**: `string`
 
 A value to show in HTML questions and in the dynamic titles and descriptions of survey elements when the cell value is empty.
 
@@ -60,17 +62,17 @@ Default value: `""`
 
 [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
 
-**Type**: `string`
-
 ### `defaultValueExpression`
+
+**Type**: `string`
 
 An expression used to calculate the column's default value. This expression applies to all cells of this column until the cell value is specified by an end user or programmatically.
 
 [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-**Type**: `string`
-
 ### `enableIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `false`, this column becomes read-only.
 
@@ -78,69 +80,69 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 [View Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
 
-**Type**: `string`
-
 ### `isRequired`
+
+**Type**: `boolean`
 
 Marks the column as required. If a respondent skips any cell in a required column, the matrix displays a [validation error](#requiredErrorText).
 
 If you want to mark the column as required based on a condition, specify the [`requiredIf`](#requiredIf) property.
 
-**Type**: `boolean`
-
 ### `isUnique`
+
+**Type**: `boolean`
 
 Specifies whether a respondent is required to provide a unique response for each question within this column.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `minWidth`
-
-Gets or sets minimum column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
 
 **Type**: `string`
 
+Gets or sets minimum column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
+
 ### `name`
+
+**Type**: `string`
 
 A column ID that is not visible to respondents.
 
 > Column IDs must be unique.
 
-**Type**: `string`
-
 ### `readOnly`
+
+**Type**: `boolean`
 
 Makes the column read-only.
 
 If you want to switch the column to the read-only state based on a condition, specify the [`enableIf`](#enableIf) property.
 
-**Type**: `boolean`
-
 ### `requiredErrorText`
-
-Specifies a custom error message for a required column.
 
 **Type**: `string`
 
+Specifies a custom error message for a required column.
+
 ### `requiredIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `true`, this column becomes required.
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ### `resetValueIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `true`, all cells in this column are set to a value calculated using the [`defaultValueExpression`](#defaultValueExpression).
 
 [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-**Type**: `string`
-
 ### `setValueExpression`
+
+**Type**: `string`
 
 An expression that calculates a value for all cells in this column.
 
@@ -148,31 +150,31 @@ The `setValueExpression` is re-evaluated whenever a referenced question's value 
 
 [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-**Type**: `string`
-
 ### `setValueIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `true`, all cells in this column are set to a value calculated using the [`setValueExpression`](#setValueExpression).
 
 [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-**Type**: `string`
-
 ### `showInMultipleColumns`
+
+**Type**: `boolean`
 
 Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
 
 [View Demo](https://surveyjs.io/form-library/examples/columnize-choice-options-of-matrix-cell/ (linkStyle))
 
-**Type**: `boolean`
-
 ### `title`
-
-A user-friendly column caption to display. If `title` is undefined, [`name`](#name) is displayed instead.
 
 **Type**: `string`
 
+A user-friendly column caption to display. If `title` is undefined, [`name`](#name) is displayed instead.
+
 ### `totalAlignment`
+
+**Type**: `string`
 
 An alignment for calculated total values.
 
@@ -185,15 +187,15 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
 
-**Type**: `string`
-
 ### `totalCurrency`
+
+**Type**: `string`
 
 Specifies a currency used to display calculated total values. Applies only if [`totalDisplayStyle`](#totalDisplayStyle) is set to `"currency"`.
 
-**Type**: `string`
-
 ### `totalDisplayStyle`
+
+**Type**: `string`
 
 A format for calculated total values.
 
@@ -206,25 +208,25 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
 
-**Type**: `string`
-
 ### `totalExpression`
+
+**Type**: `string`
 
 An expression used to calculate total values. Overrides the [`totalType`](#totalType) property.
 
 [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-**Type**: `string`
-
 ### `totalFormat`
+
+**Type**: `string`
 
 A string pattern used to display column totals. To reference a total value within this pattern, use the `{0}` placeholder.
 
 [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
 
-**Type**: `string`
-
 ### `totalType`
+
+**Type**: `string`
 
 An aggregation method used to calculate the column total.
 
@@ -239,34 +241,32 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
 
-**Type**: `string`
-
 ### `validators`
+
+**Type**: `SurveyValidator[]`
 
 Column validators.
 
 [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
 
-**Type**: `SurveyValidator[]`
-
 ### `visible`
+
+**Type**: `boolean`
 
 Gets or sets column visibility.
 
 If you want to display or hide a column based on a condition, specify the [`visibleIf`](#visibleIf) property.
 
-**Type**: `boolean`
-
 ### `visibleIf`
+
+**Type**: `string`
 
 A Boolean expression. If it evaluates to `false`, this column becomes hidden.
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-**Type**: `string`
-
 ### `width`
 
-Gets or sets column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
-
 **Type**: `string`
+
+Gets or sets column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.

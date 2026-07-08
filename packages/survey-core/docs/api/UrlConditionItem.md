@@ -19,6 +19,6 @@ If the expression returns true then url of this item uses instead of survey.navi
 
 ### `url`
 
-The url that survey navigates to on completing the survey. The expression should return true
-
 **Type**: `string`
+
+The url that survey navigates to on completing the survey. The expression should return true

@@ -26,23 +26,25 @@ A class that describes the Single-Line Input question type, which is used to cre
 
 ### `autocomplete`
 
-A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
-
 **Type**: `string`
+
+A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
 
 ### `dataList`
 
-An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
-
 **Type**: `string[]`
+
+An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
 
 ### `inputSize`
 
-A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
-
 **Type**: `number`
 
+A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
+
 ### `inputTextAlignment`
+
+**Type**: `"auto" | "left" | "right"`
 
 Specifies text alignment within the input field.
 
@@ -52,9 +54,9 @@ Possible values:
 - `"right"` - Aligns input text to the right side.
 - `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) is specified. Otherwise, applies left alignment.
 
-**Type**: `"auto" | "left" | "right"`
-
 ### `inputType`
+
+**Type**: `string`
 
 A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
 
@@ -68,15 +70,15 @@ Default value: `"text"`
 
 [Color Input Demo](https://surveyjs.io/form-library/examples/color-input-question/ (linkStyle))
 
-**Type**: `string`
-
 ### `isMinMaxType`
-
-Returns `true` if the specified `inputType` supports the `min` and `max` properties.
 
 **Type**: `boolean`
 
+Returns `true` if the specified `inputType` supports the `min` and `max` properties.
+
 ### `maskSettings`
+
+**Type**: `InputMaskBase`
 
 An object with properties that configure the mask applied to the input.
 
@@ -91,9 +93,9 @@ Available properties depend on the specified [`maskType`](https://surveyjs.io/fo
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
-**Type**: `InputMaskBase`
-
 ### `maskType`
+
+**Type**: `string`
 
 Specifies the type of a mask applied to the input.
 
@@ -107,52 +109,50 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
-**Type**: `string`
-
 ### `max`
+
+**Type**: `string`
 
 A value passed on to the [`max`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/max) attribute of the underlying `<input>` element.
 
-**Type**: `string`
-
 ### `maxErrorText`
+
+**Type**: `string`
 
 An error message to display when the entered value exceeds the maximum accepted value.
 
-**Type**: `string`
-
 ### `maxValueExpression`
+
+**Type**: `string`
 
 The maximum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
 
-**Type**: `string`
-
 ### `min`
+
+**Type**: `string`
 
 A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
 
-**Type**: `string`
-
 ### `minErrorText`
+
+**Type**: `string`
 
 An error message to display when the entered value is less than the minimum accepted value.
 
-**Type**: `string`
-
 ### `minValueExpression`
+
+**Type**: `string`
 
 The minimum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
 
-**Type**: `string`
-
 ### `step`
+
+**Type**: `string`
 
 A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
 
-**Type**: `string`
-
 ### `stepErrorText`
 
-An error message to display when the entered value does not match the [step size](#step).
-
 **Type**: `string`
+
+An error message to display when the entered value does not match the [step size](#step).

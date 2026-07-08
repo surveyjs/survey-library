@@ -18,11 +18,13 @@ A theme configuration interface.
 
 ### `backgroundImage`
 
-An image to display as survey background. This property accepts a hyperlink or a data URL.
-
 **Type**: `string`
 
+An image to display as survey background. This property accepts a hyperlink or a data URL.
+
 ### `backgroundImageAttachment`
+
+**Type**: `"fixed" | "scroll"`
 
 A string value that specifies whether the [background image](#backgroundImage) is fixed in its position or scrolled along with the survey.
 
@@ -31,9 +33,9 @@ Possible values:
 - `"fixed"`
 - `"scroll"`
 
-**Type**: `"fixed" | "scroll"`
-
 ### `backgroundImageFit`
+
+**Type**: `"auto" | "contain" | "cover"`
 
 A string value that specifies how to resize the [background image](#backgroundImage) to fit it into its container.
 
@@ -45,15 +47,15 @@ Possible values:
 
 Refer to the description of the [`background-size`](https://developer.mozilla.org/en-US/docs/Web/CSS/background-size#values) CSS property values on MDN for detailed information on the possible values.
 
-**Type**: `"auto" | "contain" | "cover"`
-
 ### `backgroundOpacity`
-
-A value from 0 to 1 that specifies how transparent the [background image](#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
 
 **Type**: `number`
 
+A value from 0 to 1 that specifies how transparent the [background image](#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
+
 ### `colorPalette`
+
+**Type**: `string`
 
 A color palette.
 
@@ -62,21 +64,21 @@ Possible values:
 - `"light"`
 - `"dark"`
 
-**Type**: `string`
-
 ### `cssVariables`
-
-An object with CSS variables.
 
 **Type**: `{ [index: string]: string; }`
 
-### `header`
+An object with CSS variables.
 
-An object with [advanced survey header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader). Applies when the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property is set to `"advanced"`.
+### `header`
 
 **Type**: `IHeader`
 
+An object with [advanced survey header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader). Applies when the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property is set to `"advanced"`.
+
 ### `headerView`
+
+**Type**: `"advanced" | "basic"`
 
 Specifies whether the survey header uses only basic appearance settings or applies advanced settings from the survey theme.
 
@@ -90,16 +92,14 @@ An advanced header view applies the same properties as the basic view, plus [hea
 
 [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
 
-**Type**: `"advanced" | "basic"`
-
 ### `isPanelless`
-
-A Boolean value that specifies whether survey questions are displayed within panels (`false`) or without them (`true`).
 
 **Type**: `boolean`
 
+A Boolean value that specifies whether survey questions are displayed within panels (`false`) or without them (`true`).
+
 ### `themeName`
 
-A theme name.
-
 **Type**: `string`
+
+A theme name.

@@ -18,20 +18,20 @@ A base class for the [`SurveyElement`](https://surveyjs.io/form-library/document
 
 ### `description`
 
-Explanatory text displayed under the title.
-
 **Type**: `string`
+
+Explanatory text displayed under the title.
 
 ### `hasDescription`
 
-Returns `true` if the survey element has a description.
-
 **Type**: `boolean`
 
+Returns `true` if the survey element has a description.
+
 ### `title`
+
+**Type**: `string`
 
 A title for the survey element. If `title` is undefined, the `name` property value is displayed instead.
 
 Empty pages and panels do not display their titles or names.
-
-**Type**: `string`

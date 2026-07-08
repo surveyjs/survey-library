@@ -20,15 +20,17 @@ A class that describes the Ranking question type.
 
 ### `longTap`
 
+**Type**: `boolean`
+
 Specifies whether to use a long tap (press and hold) gesture to start dragging.
 
 Default value: `true`
 
 Disable this property if you want to start dragging when users perform a scroll gesture.
 
-**Type**: `boolean`
-
 ### `selectToRankAreasLayout`
+
+**Type**: `string`
 
 Specifies the layout of the ranked and unranked areas. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
 
@@ -39,21 +41,21 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
 
-**Type**: `string`
-
 ### `selectToRankEmptyRankedAreaText`
+
+**Type**: `string`
 
 A placeholder displayed in the area for ranked choices. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
 
-**Type**: `string`
-
 ### `selectToRankEmptyUnrankedAreaText`
+
+**Type**: `string`
 
 A placeholder displayed in the area for unranked choices. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
 
-**Type**: `string`
-
 ### `selectToRankEnabled`
+
+**Type**: `boolean`
 
 Specifies whether users can select choices they want to rank.
 
@@ -62,5 +64,3 @@ When you enable this property, the Ranking question displays two areas for ranke
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
-
-**Type**: `boolean`

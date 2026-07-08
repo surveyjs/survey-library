@@ -20,11 +20,13 @@ A class that describes the Multi-Select Matrix question type. Multi-Select Matri
 
 ### `hideIfRowsEmpty`
 
-Specifies whether to hide the question when the matrix has no visible rows.
-
 **Type**: `boolean`
 
+Specifies whether to hide the question when the matrix has no visible rows.
+
 ### `rowOrder`
+
+**Type**: `string`
 
 Specifies a sort order for matrix rows.
 
@@ -33,10 +35,8 @@ Possible values:
 - `"initial"` (default) - Preserves the original order of the `rows` array.
 - `"random"` - Arranges matrix rows in random order each time the question is displayed.
 
-**Type**: `string`
-
 ### `totalText`
 
-A title for the total row. Applies if at least one column displays total values.
-
 **Type**: `string`
+
+A title for the total row. Applies if at least one column displays total values.

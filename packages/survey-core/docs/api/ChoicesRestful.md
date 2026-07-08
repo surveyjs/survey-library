@@ -34,13 +34,15 @@ Typically, you should assign this object to a question's [`choicesByUrl`](https:
 
 ### `allowEmptyResponse`
 
+**Type**: `boolean`
+
 Specifies whether the service is allowed to return an empty response or an empty array in a response.
 
 Default value: `false`
 
-**Type**: `boolean`
-
 ### `attachData`
+
+**Type**: `boolean`
 
 Specifies whether to attach original data objects to choice items.
 
@@ -75,15 +77,15 @@ function retrieveItemData(survey, qName) {
 }
 ```
 
-**Type**: `boolean`
-
 ### `imageLinkName`
-
-Specifies which property in the obtained data object contains image URLs. Used only in [Image Picker](https://surveyjs.io/Examples/Library?id=questiontype-imagepicker) questions.
 
 **Type**: `string`
 
+Specifies which property in the obtained data object contains image URLs. Used only in [Image Picker](https://surveyjs.io/Examples/Library?id=questiontype-imagepicker) questions.
+
 ### `path`
+
+**Type**: `string`
 
 Path to the array of choices. The following path separators are allowed: semicolon `;`, comma `,`.
 
@@ -98,15 +100,15 @@ Specify this property only if the array of choices is nested within the object r
 
 To populate choices with values from the `countries` array, set the `path` property to `"countries"`. To use the `capitals` array, set this property to `"capitals"`.
 
-**Type**: `string`
-
 ### `titleName`
+
+**Type**: `string`
 
 Specifies which property in the obtained data object contains display texts for choices.
 
-**Type**: `string`
-
 ### `url`
+
+**Type**: `string`
 
 A RESTful service's URL.
 
@@ -118,12 +120,10 @@ url: "https://surveyjs.io/api/CountriesExample?region={region}"
 
 [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
 
-**Type**: `string`
-
 ### `valueName`
+
+**Type**: `string`
 
 Specifies which property in the obtained data object contains choice values.
 
 [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
-
-**Type**: `string`

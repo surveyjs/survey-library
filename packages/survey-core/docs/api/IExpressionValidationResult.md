@@ -14,6 +14,8 @@ An interface that describes the result returned by the [`validateExpressions`](h
 
 ### `errors`
 
+**Type**: `IExpressionError[]`
+
 A list of validation errors detected in the expression.
 
 Each error object in this array may contain the following properties:
@@ -27,16 +29,14 @@ The name of the unknown function. Present only when `errorType` is `UnknownFunct
 - `variableName`: `string`\
 The name of the unknown variable. Present only when `errorType` is `UnknownVariable`.
 
-**Type**: `IExpressionError[]`
-
 ### `obj`
-
-A SurveyJS object (question, panel, page, collection item, or the survey itself) that contains the validated expression.
 
 **Type**: `Base`
 
+A SurveyJS object (question, panel, page, collection item, or the survey itself) that contains the validated expression.
+
 ### `propertyName`
 
-The name of the property that holds the expression.
-
 **Type**: `string`
+
+The name of the property that holds the expression.

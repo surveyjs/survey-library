@@ -20,10 +20,10 @@ A class that describes the HTML question type. Unlike other question types, HTML
 
 ### `html`
 
+**Type**: `string`
+
 HTML markup to display.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-html-form-field/ (linkStyle))
 
 > If you get the markup from a third party, ensure that it does not contain malicious code.
-
-**Type**: `string`

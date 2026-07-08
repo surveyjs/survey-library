@@ -14,41 +14,41 @@ Base interface for expression execution
 
 ### `expression`
 
-The expression as string, property with get
-
 **Type**: `string`
+
+The expression as string, property with get
 
 ### `isAsync`
 
-Returns true if there is an async function in the expression
-
 **Type**: `boolean`
+
+Returns true if there is an async function in the expression
 
 ### `onComplete`
 
-This call back runs on executing expression if there is at least one async function
-
 **Type**: `(res: any, id: number) => void`
+
+This call back runs on executing expression if there is at least one async function
 
 ## Methods
 
 ### `canRun()`
 
-Returns true if the expression is valid and can be executed
-
 **Return value:** `boolean`
+
+Returns true if the expression is valid and can be executed
 
 ### `getVariables()`
 
-Returns the list of variables that used in the expression. They defined as: {variableName} in default parser.
-
 **Return value:** `string[]<any>`
+
+Returns the list of variables that used in the expression. They defined as: {variableName} in default parser.
 
 ### `hasFunction()`
 
-Returns true if there is a function in the expression
-
 **Return value:** `boolean`
+
+Returns true if there is a function in the expression
 
 **Parameters:**
 
@@ -58,10 +58,10 @@ Returns true if there is a function in the expression
 
 ### `run()`
 
+**Return value:** `any`
+
 Run the expression. Returns the result of execution.
 The result can be undefined if there is an asyn function. In this case result will be returned onComplete callback.
-
-**Return value:** `any`
 
 **Parameters:**
 

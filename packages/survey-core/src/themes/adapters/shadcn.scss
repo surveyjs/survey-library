@@ -26,7 +26,7 @@
   --sjs2-base-unit-radius: var(--radius);
   --sjs2-base-unit-spacing: var(--spacing);
 
-  --sjs2-color-utility-body: var(--background);
+  --sjs2-color-utility-body: var(--card);
   --sjs2-color-utility-sheet: var(--background);
   --sjs2-color-utility-a11y: color-mix(in oklab, var(--ring) 50%, transparent);
   --sjs2-color-utility-toolbox: var(--background);
@@ -92,6 +92,11 @@
   --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: var(--background);
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px var(--input);
 
+  /* secondary buttons */
+  --sjs2-color-component-action-neutral-secondary-default-bg: var(--background);
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: var(--background);
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: var(--background);
+
   /* formboxes (input / textarea / dropdown) */
   --sjs2-color-component-formbox-default-bg: var(--background);
   --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
@@ -105,9 +110,8 @@
   --sjs2-border-effect-component-formbox-hovered: var(--sjs2-border-effect-component-formbox-default);
   --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px
     var(--sjs2-color-component-formbox-focused-border);
-  --sjs2-border-effect-component-formbox-invalid: inset 0px 0px 0px 1px var(--destructive);
-  --sjs2-border-effect-component-formbox-invalid-focused:
-    inset 0px 0px 0px 1px var(--destructive), 0 0 0 3px color-mix(in oklab, var(--destructive) 50%, transparent);
+  --sjs2-border-effect-component-formbox-invalid: var(--sjs2-border-effect-component-formbox-default);
+  --sjs2-border-effect-component-formbox-invalid-focused: var(--sjs2-border-effect-component-formbox-focused);
   --sjs2-radius-component-formbox: var(--radius);
   --sjs2-layout-component-formbox-medium-padding-vertical: 0;
   --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
@@ -148,9 +152,9 @@
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
     var(--sjs2-color-component-check-false-default-border);
 
-  --sjs2-color-component-check-true-default-bg: var(--primary);
+  --sjs2-color-component-check-true-default-bg: transparent;
   --sjs2-color-component-check-true-default-icon: var(--primary-foreground);
-  --sjs2-color-component-check-true-hovered-bg: var(--primary);
+  --sjs2-color-component-check-true-hovered-bg: transparent;
   --sjs2-color-component-check-true-hovered-icon: var(--primary-foreground);
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary), var(--shadow-xs);
   --sjs2-border-effect-component-check-a11y:
@@ -166,6 +170,11 @@
   --sjs2-color-component-toggle-false-hovered-bg: var(--input);
   --sjs2-color-component-toggle-false-default-border: transparent;
   --sjs2-color-component-toggle-true-default-border: transparent;
+
+  :is(.dark *) {
+    --sjs2-color-component-toggle-false-default-thumb: var(--foreground);
+    --sjs2-color-component-toggle-false-hovered-thumb: var(--foreground);
+  }
 
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
@@ -244,10 +253,16 @@
 .sd-editor-chevron-button .sd-action-bar__item-content {
   padding: 0;
 }
+.sd-editor-clean-button {
+  display: none;
+}
 .sd-editor-chevron-button button.sd-action {
-  padding: 0;
-  pointer-events: none;
+  cursor: default;
   --sd-action-hover-background: transparent;
+
+  &:active {
+    background-color: transparent;
+  }
 }
 
 /* button pressed state (cannot be expressed via variables) */

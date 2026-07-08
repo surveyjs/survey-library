@@ -177,6 +177,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
   public initResponsivityManager(container: HTMLDivElement): void {
+    super.initResponsivityManager(container);
     if (!!this.responsivityManager) {
       if (this.responsivityManager.container == container) {
         return;
@@ -190,6 +191,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     };
   }
   public resetResponsivityManager(): void {
+    super.resetResponsivityManager();
     if (!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;

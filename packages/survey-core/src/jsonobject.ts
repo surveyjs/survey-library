@@ -1325,43 +1325,56 @@ export class JsonMetadata {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
   /**
-   * Registers an alias for an existing class (element/question type). JSON with the `alias` type is deserialized
-   * into the base type model, reusing its properties and renderers (`getType()` returns the base type). On
-   * serialization the serializer writes the `alias` instead of the base type name, so both the base type name
-   * and the alias in the source JSON are accepted, and the alias becomes the serialized name for the type.
-   * @param name A name of the existing class, for example, `"comment"`.
-   * @param alias An alias for the class, for example, `"longtext"`.
+   * Registers an alias for an existing element type.
+   *
+   * When deserializing JSON, the serializer treats the alias as the original type and creates the corresponding model. When serializing the model back to JSON, it writes the alias instead of the original type name. Both the original type name and its alias are accepted in input JSON.
+   *
+   * One element type can have only one alias.
+   *
+   * > [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) always returns the original type.
+   * @param type The original type, for example, `"comment"`.
+   * @param alias The alias to register for the type, for example, `"longtext"`.
+   * @see getTypeByAlias
+   * @see getAliasByType
+   * @see removeAlias
    */
-  public setAlias(name: string, alias: string): void {
-    if (!name || !alias) return;
-    name = name.toLowerCase();
+  public setAlias(type: string, alias: string): void {
+    if (!type || !alias) return;
+    type = type.toLowerCase();
     alias = alias.toLowerCase();
-    if (name === alias) return;
-    this.addAlterNativeClassName(name, alias); // forward: alias -> base type (findClass/createClass/getProperties)
-    this.typeAliases[name] = alias; // reverse: base type -> alias (serialization)
+    if (type === alias) return;
+    this.addAlterNativeClassName(type, alias); // forward: alias -> base type (findClass/createClass/getProperties)
+    this.typeAliases[type] = alias; // reverse: base type -> alias (serialization)
   }
   /**
-   * Returns the name of the base class for the passed alias or `undefined` if the passed name is not an alias.
-   * @param alias An alias name registered via the [`setAlias`](#setAlias) method.
+   * Returns the original element type associated with a registered alias, or `undefined` if the specified value is not an alias.
+   * @param alias An alias registered with the [`setAlias`](#setAlias) method.
+   * @see getAliasByType
+   * @see setAlias
+   * @see removeAlias
    */
-  public getAlias(alias: string): string {
+  public getTypeByAlias(alias: string): string {
     if (!alias) return undefined;
     alias = alias.toLowerCase();
     const name = this.alternativeNames[alias];
     return !!name && this.typeAliases[name] === alias ? name : undefined;
   }
   /**
-   * Returns the alias registered for the passed class (base type) name or `undefined` if the class has no alias.
-   * The serializer writes this alias instead of the base type name (see [`setAlias`](#setAlias)).
-   * @param name A base class name.
+   * Returns the alias registered for the specified original element type, or `undefined` if no alias is registered.
+   * @param type The original element type.
+   * @see getTypeByAlias
+   * @see setAlias
+   * @see removeAlias
    */
-  public getTypeAlias(name: string): string {
-    if (!name) return undefined;
-    return this.typeAliases[name.toLowerCase()];
+  public getAliasByType(type: string): string {
+    if (!type) return undefined;
+    return this.typeAliases[type.toLowerCase()];
   }
   /**
-   * Removes an alias registered via the [`setAlias`](#setAlias) method.
-   * @param alias An alias name.
+   * Removes an alias registered with the [`setAlias`](#setAlias) method.
+   * @param alias The alias to remove.
+   * @see getAliasByType
+   * @see getTypeByAlias
    */
   public removeAlias(alias: string): void {
     if (!alias) return;
@@ -1709,7 +1722,7 @@ export class JsonObject {
   }
   private getObjSerializedType(obj: any): string {
     const type = obj.getType();
-    return Serializer.getTypeAlias(type) || type;
+    return Serializer.getAliasByType(type) || type;
   }
   private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
     return Serializer.getDynamicPropertiesByObj(obj);

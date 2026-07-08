@@ -1199,13 +1199,13 @@ describe("JsonSerializationTests", () => {
     Serializer.setAlias("comment", "longtext");
     const baseClass = Serializer.findClass("comment");
     expect(Serializer.findClass("longtext"), "The alias is resolved to the base class").toBe(baseClass);
-    expect(Serializer.getAlias("longtext"), "getAlias returns the base type name").toBe("comment");
-    expect(Serializer.getAlias("comment"), "The base type is not an alias").toBeFalsy();
+    expect(Serializer.getTypeByAlias("longtext"), "getTypeByAlias returns the base type name").toBe("comment");
+    expect(Serializer.getTypeByAlias("comment"), "The base type is not an alias").toBeFalsy();
     expect(Serializer.getProperties("longtext").length, "The alias has the same properties as the base type")
       .toBe(Serializer.getProperties("comment").length);
     expect(Serializer.isDescendantOf("longtext", "comment"), "The alias is a descendant of the base type").toBe(true);
     Serializer.removeAlias("longtext");
-    expect(Serializer.getAlias("longtext"), "The alias is removed").toBeFalsy();
+    expect(Serializer.getTypeByAlias("longtext"), "The alias is removed").toBeFalsy();
     expect(Serializer.findClass("longtext"), "The alias class can not be found anymore").toBeFalsy();
   });
   test("Serializer.setAlias: createClass creates the base model, getType stays the base type", () => {
@@ -1282,7 +1282,7 @@ describe("JsonSerializationTests", () => {
   });
   test("Serializer.setAlias: JSON with both the default class name and the alias load into the base type and normalize to the alias", () => {
     Serializer.setAlias("comment", "longtext");
-    expect(Serializer.getTypeAlias("comment"), "The base type reports its alias").toBe("longtext");
+    expect(Serializer.getAliasByType("comment"), "The base type reports its alias").toBe("longtext");
     const survey = new SurveyModel({
       elements: [
         { type: "comment", name: "q1" },
@@ -1299,7 +1299,7 @@ describe("JsonSerializationTests", () => {
     expect(json.pages[0].elements[0].type, "The base type name is serialized as the alias").toBe("longtext");
     expect(json.pages[0].elements[1].type, "The alias is serialized as the alias").toBe("longtext");
     Serializer.removeAlias("longtext");
-    expect(Serializer.getTypeAlias("comment"), "The alias is removed").toBeFalsy();
+    expect(Serializer.getAliasByType("comment"), "The alias is removed").toBeFalsy();
   });
   test("Serializer.setAlias: an unknown property on an alias question raises an error", () => {
     Serializer.setAlias("comment", "longtext");

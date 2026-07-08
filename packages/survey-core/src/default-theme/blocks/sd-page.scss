@@ -11,7 +11,9 @@
   box-sizing: border-box;
   border-radius: var(--sjs2-radius-component-page);
 
-  row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
+  // row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
+  // TODO: Discuss with design team about the gap between page header and content. It is not clear if it should be the same as the gap between content areas or not.
+  row-gap: var(--sjs2-spacing-x300);
   column-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal);
 }
 

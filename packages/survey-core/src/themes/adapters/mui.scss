@@ -280,10 +280,22 @@
 }
 */
 
-.sd-dropdown .sd-formbox__group .sd-action {
-  pointer-events: none;
+/* dropdown */
+.sd-editor-clean-button {
+  display: none;
+}
+.sd-editor-chevron-button button.sd-action {
+  padding-inline: 0;
+  cursor: default;
   transition: none;
-  background-color: transparent;
+  --sd-action-hover-background: transparent;
+
+  &:active {
+    background-color: transparent;
+  }
+  &:after {
+    background-color: transparent;
+  }
 }
 .sd-dropdown .sd-formbox__group .sd-action svg {
   width: 24px;

@@ -916,6 +916,7 @@ export class JsonMetadataClass {
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};
+  private typeAliases: HashTable<string> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
   private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
@@ -1323,6 +1324,53 @@ export class JsonMetadata {
   public addAlterNativeClassName(name: string, alternativeName: string) {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
+  /**
+   * Registers an alias for an existing class (element/question type). JSON with the `alias` type is deserialized
+   * into the base type model, reusing its properties and renderers (`getType()` returns the base type). On
+   * serialization the serializer writes the `alias` instead of the base type name, so both the base type name
+   * and the alias in the source JSON are accepted, and the alias becomes the serialized name for the type.
+   * @param name A name of the existing class, for example, `"comment"`.
+   * @param alias An alias for the class, for example, `"longtext"`.
+   */
+  public setAlias(name: string, alias: string): void {
+    if (!name || !alias) return;
+    name = name.toLowerCase();
+    alias = alias.toLowerCase();
+    if (name === alias) return;
+    this.addAlterNativeClassName(name, alias); // forward: alias -> base type (findClass/createClass/getProperties)
+    this.typeAliases[name] = alias; // reverse: base type -> alias (serialization)
+  }
+  /**
+   * Returns the name of the base class for the passed alias or `undefined` if the passed name is not an alias.
+   * @param alias An alias name registered via the [`setAlias`](#setAlias) method.
+   */
+  public getAlias(alias: string): string {
+    if (!alias) return undefined;
+    alias = alias.toLowerCase();
+    const name = this.alternativeNames[alias];
+    return !!name && this.typeAliases[name] === alias ? name : undefined;
+  }
+  /**
+   * Returns the alias registered for the passed class (base type) name or `undefined` if the class has no alias.
+   * The serializer writes this alias instead of the base type name (see [`setAlias`](#setAlias)).
+   * @param name A base class name.
+   */
+  public getTypeAlias(name: string): string {
+    if (!name) return undefined;
+    return this.typeAliases[name.toLowerCase()];
+  }
+  /**
+   * Removes an alias registered via the [`setAlias`](#setAlias) method.
+   * @param alias An alias name.
+   */
+  public removeAlias(alias: string): void {
+    if (!alias) return;
+    alias = alias.toLowerCase();
+    const name = this.alternativeNames[alias];
+    if (!name || this.typeAliases[name] !== alias) return;
+    delete this.typeAliases[name];
+    delete this.alternativeNames[alias];
+  }
   public generateSchema(className: string = undefined): any {
     if (!className) className = "survey";
     var classInfo = this.findClass(className);
@@ -1632,7 +1680,7 @@ export class JsonObject {
     var result = {};
     if (property != null && !property.className) {
       (<any>result)[JsonObject.typePropertyName] = property.getObjType(
-        obj.getType()
+        this.getObjSerializedType(obj)
       );
     }
     const storeDefaults = options === true;
@@ -1658,6 +1706,10 @@ export class JsonObject {
       options
     );
     return result;
+  }
+  private getObjSerializedType(obj: any): string {
+    const type = obj.getType();
+    return Serializer.getTypeAlias(type) || type;
   }
   private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
     return Serializer.getDynamicPropertiesByObj(obj);

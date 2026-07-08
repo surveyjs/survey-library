@@ -26,6 +26,7 @@ import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
 import { QuestionTagboxModel } from "../src/question_tagbox";
+import { QuestionFactory } from "../src/questionfactory";
 
 import { describe, test, expect } from "vitest";
 class Car extends Base implements ILocalizableOwner {
@@ -1194,6 +1195,121 @@ describe("JsonSerializationTests", () => {
     expect(propertiesCount, "the additional property is removed").toBe(Serializer.getProperties("truck").length);
   });
 
+  test("Serializer.setAlias: findClass and getProperties resolve the alias to the base type", () => {
+    Serializer.setAlias("comment", "longtext");
+    const baseClass = Serializer.findClass("comment");
+    expect(Serializer.findClass("longtext"), "The alias is resolved to the base class").toBe(baseClass);
+    expect(Serializer.getAlias("longtext"), "getAlias returns the base type name").toBe("comment");
+    expect(Serializer.getAlias("comment"), "The base type is not an alias").toBeFalsy();
+    expect(Serializer.getProperties("longtext").length, "The alias has the same properties as the base type")
+      .toBe(Serializer.getProperties("comment").length);
+    expect(Serializer.isDescendantOf("longtext", "comment"), "The alias is a descendant of the base type").toBe(true);
+    Serializer.removeAlias("longtext");
+    expect(Serializer.getAlias("longtext"), "The alias is removed").toBeFalsy();
+    expect(Serializer.findClass("longtext"), "The alias class can not be found anymore").toBeFalsy();
+  });
+  test("Serializer.setAlias: createClass creates the base model, getType stays the base type", () => {
+    Serializer.setAlias("comment", "longtext");
+    const q = Serializer.createClass("longtext", { type: "longtext" });
+    expect(q, "The object is created").toBeTruthy();
+    expect(q instanceof QuestionCommentModel, "The base model is created").toBe(true);
+    expect(q.getType(), "getType is untouched and returns the base type").toBe("comment");
+    expect(q.getTemplate(), "getTemplate returns the base type").toBe("comment");
+    Serializer.removeAlias("longtext");
+  });
+  test("Serializer.setAlias: QuestionFactory creates the alias question as the base type", () => {
+    Serializer.setAlias("comment", "longtext");
+    const q = QuestionFactory.Instance.createQuestion("longtext", "q1");
+    expect(q, "The question is created via the factory").toBeTruthy();
+    expect(q instanceof QuestionCommentModel, "The base model is created").toBe(true);
+    expect(q.name, "The name is set").toBe("q1");
+    expect(q.getType(), "getType is untouched and returns the base type").toBe("comment");
+    Serializer.removeAlias("longtext");
+  });
+  test("Serializer.setAlias: load a survey from JSON with an alias type and serialize it back", () => {
+    Serializer.setAlias("comment", "longtext");
+    const survey = new SurveyModel({
+      elements: [{ type: "longtext", name: "q1" }]
+    });
+    const q = survey.getQuestionByName("q1");
+    expect(q, "The question is created").toBeTruthy();
+    expect(q instanceof QuestionCommentModel, "The alias question behaves as the base type").toBe(true);
+    expect(q.getType(), "getType is untouched and returns the base type").toBe("comment");
+    expect(q.getTemplate(), "getTemplate returns the base type").toBe("comment");
+    q.value = "some text";
+    expect(survey.data.q1, "The alias question stores its value like the base type").toBe("some text");
+    const json = survey.toJSON();
+    expect(json.pages[0].elements[0].type, "The alias type is preserved on serialization").toBe("longtext");
+    Serializer.removeAlias("longtext");
+  });
+  test("Serializer.setAlias: deserialize base-type properties for an alias question", () => {
+    Serializer.setAlias("comment", "longtext");
+    const survey = new SurveyModel({
+      pages: [{
+        name: "page1",
+        elements: [{ type: "longtext", name: "q1", rows: 10, maxLength: 25, placeholder: "type here" }]
+      }]
+    });
+    const q = <QuestionCommentModel>survey.getQuestionByName("q1");
+    expect(q instanceof QuestionCommentModel, "The alias question is a comment model").toBe(true);
+    expect(q.getType(), "getType is untouched and returns the base type").toBe("comment");
+    expect(q.rows, "The rows property is deserialized").toBe(10);
+    expect(q.maxLength, "The maxLength property is deserialized").toBe(25);
+    expect(q.placeholder, "The localizable placeholder property is deserialized").toBe("type here");
+    Serializer.removeAlias("longtext");
+  });
+  test("Serializer.setAlias: serialize an alias question, round trip with the base-type properties", () => {
+    Serializer.setAlias("comment", "longtext");
+    const elementJson = { type: "longtext", name: "q1", rows: 10, maxLength: 25 };
+    const survey = new SurveyModel({ pages: [{ name: "page1", elements: [elementJson] }] });
+    const outJson = survey.toJSON();
+    expect(outJson.pages[0].elements[0], "Only the type and the modified base-type properties are serialized, type stays the alias")
+      .toEqual(elementJson);
+    Serializer.removeAlias("longtext");
+  });
+  test("Serializer.setAlias: JsonObject deserializes/serializes an alias object directly", () => {
+    Serializer.setAlias("comment", "longtext");
+    const page = new PageModel("page1");
+    new JsonObject().toObject({ elements: [{ type: "longtext", name: "q1", rows: 7 }] }, page);
+    const q = <QuestionCommentModel>page.questions[0];
+    expect(q instanceof QuestionCommentModel, "The alias object is a comment model").toBe(true);
+    expect(q.getType(), "getType is untouched and returns the base type").toBe("comment");
+    expect(q.rows, "The base-type property is set from JSON").toBe(7);
+    const jsObj = new JsonObject().toJsonObject(page);
+    expect(jsObj.elements[0], "The alias object is serialized with the alias type")
+      .toEqual({ type: "longtext", name: "q1", rows: 7 });
+    Serializer.removeAlias("longtext");
+  });
+  test("Serializer.setAlias: JSON with both the default class name and the alias load into the base type and normalize to the alias", () => {
+    Serializer.setAlias("comment", "longtext");
+    expect(Serializer.getTypeAlias("comment"), "The base type reports its alias").toBe("longtext");
+    const survey = new SurveyModel({
+      elements: [
+        { type: "comment", name: "q1" },
+        { type: "longtext", name: "q2" }
+      ]
+    });
+    const q1 = <QuestionCommentModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCommentModel>survey.getQuestionByName("q2");
+    expect(q1 instanceof QuestionCommentModel, "The default class name question is a comment model").toBe(true);
+    expect(q2 instanceof QuestionCommentModel, "The alias question is a comment model").toBe(true);
+    expect(q1.getType(), "The default class name question keeps the base type").toBe("comment");
+    expect(q2.getType(), "The alias question keeps the base type").toBe("comment");
+    const json = survey.toJSON();
+    expect(json.pages[0].elements[0].type, "The base type name is serialized as the alias").toBe("longtext");
+    expect(json.pages[0].elements[1].type, "The alias is serialized as the alias").toBe("longtext");
+    Serializer.removeAlias("longtext");
+    expect(Serializer.getTypeAlias("comment"), "The alias is removed").toBeFalsy();
+  });
+  test("Serializer.setAlias: an unknown property on an alias question raises an error", () => {
+    Serializer.setAlias("comment", "longtext");
+    const jsonObj = new JsonObject();
+    const survey = new SurveyModel();
+    jsonObj.toObject({ pages: [{ name: "page1", elements: [{ type: "longtext", name: "q1", unknownProp: 1 }] }] }, survey);
+    expect(jsonObj.errors.length, "There is one error for the unknown property").toBe(1);
+    expect(jsonObj.errors[0].type, "The error is about the unknown property").toBe("unknownproperty");
+    Serializer.removeAlias("longtext");
+  });
   test("Add a new number property with default value", () => {
     Serializer.addProperty("car", { name: "tag:number", default: 1 });
     var dealer = new Dealer();

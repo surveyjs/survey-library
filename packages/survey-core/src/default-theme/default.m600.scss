@@ -7,6 +7,10 @@
   --sd-base-padding: var(--sjs2-spacing-x500);
   --sd-base-vertical-padding: var(--sjs2-spacing-x400);
   --sd-page-vertical-padding: var(--sjs2-spacing-x300);
+  --sjs2-layout-large-horizontal: var(--sjs2-spacing-x500);
+  --sjs2-layout-large-vertical: var(--sjs2-spacing-x500);
+  --sjs2-layout-medium-horizontal: var(--sjs2-spacing-x300);
+  --sjs2-layout-medium-vertical: var(--sjs2-spacing-x300);
 }
 
 .sd-root-modern.sd-root-modern--mobile,
@@ -14,6 +18,10 @@
   --sd-base-padding: var(--sjs2-spacing-x300);
   --sd-base-vertical-padding: var(--sjs2-spacing-x200);
   --sd-page-vertical-padding: var(--sjs2-spacing-x200);
+  --sjs2-layout-large-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-layout-large-vertical: var(--sjs2-spacing-x300); // TODO x500
+  --sjs2-layout-medium-horizontal: var(--sjs2-spacing-x200);
+  --sjs2-layout-medium-vertical: var(--sjs2-spacing-x200);
 }
 
 .sd-root-modern {

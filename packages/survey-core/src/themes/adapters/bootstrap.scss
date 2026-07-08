@@ -245,6 +245,10 @@
   }
 }
 
+[data-bs-theme=dark] .sd-boolean-switch__button:not(.sd-boolean-switch__button--checked):not(:focus) {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 0.25%29'/%3e%3c/svg%3e");
+}
+
 .sd-boolean-switch__thumb {
   top: 0;
   left: 0;
@@ -258,6 +262,19 @@
 
 .sd-boolean-switch__thumb-circle {
   display: none;
+}
+
+/* dropdown */
+.sd-editor-clean-button {
+  display: none;
+}
+.sd-editor-chevron-button button.sd-action {
+  cursor: default;
+  --sd-action-hover-background: transparent;
+
+  &:active {
+    background-color: transparent;
+  }
 }
 
 /* button pressed state */

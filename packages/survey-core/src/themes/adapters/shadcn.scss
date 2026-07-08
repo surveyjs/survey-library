@@ -245,18 +245,12 @@
   padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
 }
 
-.sd-editor-chevron-button svg {
-  width: calc(var(--spacing) * 4);
-  height: calc(var(--spacing) * 4);
-  margin-inline-end: var(--sjs2-layout-component-input-medium-content-padding-horizontal);
-}
-.sd-editor-chevron-button .sd-action-bar__item-content {
-  padding: 0;
-}
+/* dropdown */
 .sd-editor-clean-button {
   display: none;
 }
 .sd-editor-chevron-button button.sd-action {
+  padding-inline: 0;
   cursor: default;
   --sd-action-hover-background: transparent;
 

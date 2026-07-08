@@ -1,0 +1,78 @@
+---
+title: Classes
+---
+
+# Classes
+
+- `SurveyModel` — The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
+- `Question` — A base class for all questions.
+- `QuestionPanelDynamicModel` — A class that describes the Dynamic Panel question type.
+- `PanelModelBase` — A base class for the `PanelModel` and `PageModel` classes.
+- `QuestionSelectBase` — A base class for multiple-choice question types (Checkboxes, Dropdown, Radio Button Group, etc.).
+- `SurveyElement` — A base class for all survey elements.
+- `QuestionMatrixDropdownModelBase` — A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes.
+- `Base` — A base class for all SurveyJS objects.
+- `QuestionFileModel` — A class that describes the File Upload question type.
+- `JsonObjectProperty` — Contains information about a property of a survey element (page, panel, questions, and etc).
+- `MatrixDropdownColumn` — An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic Matrix.
+- `QuestionSliderModel` — A class that describes the Slider question type.
+- `QuestionRatingModel` — A class that describes the Rating Scale question type.
+- `QuestionMatrixDynamicModel` — A class that describes the Dynamic Matrix question type.
+- `QuestionRankingModel` — A class that describes the Ranking question type.
+- `ItemValue` — Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
+- `LocalizableString` — The class represents the string that supports multi-languages and markdown.
+- `QuestionTextModel` — A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
+- `QuestionMatrixModel` — A class that describes the Single-Select Matrix question type.
+- `PageModel` — The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
+- `QuestionImagePickerModel` — A class that describes the Image Picker question type.
+- `ChoicesRestful` — Configures access to a RESTful service that returns choices for Checkbox, Dropdown, Radiogroup, and other multiple-choice question types.
+- `PanelModel` — A class that describes the Panel container element.
+- `MultipleTextItemModel` — A class that describes an item in a Multiple Textboxes question.
+- `PopupSurveyModel` — A class that renders a survey in a pop-up window.
+- `QuestionCheckboxModel` — A class that describes the Checkboxes question type.
+- `QuestionMultipleTextModel` — A class that describes the Multiple Text question type.
+- `QuestionDropdownModel` — A class that describes the Dropdown question type.
+- `QuestionSignaturePadModel` — A class that describes the Signature question type.
+- `JsonMetadata` — The metadata object.
+- `QuestionBooleanModel` — A class that describes the Yes/No (Boolean) question type.
+- `SurveyElementCore` — A base class for the `SurveyElement` and `SurveyModel` classes.
+- `QuestionTagboxModel` — A class that describes the Multi-Select Dropdown (Tag Box) question type.
+- `QuestionImageModel` — A class that describes the Image question type.
+- `QuestionMatrixBaseModel` — A base class for all matrix question types.
+- `CalculatedValue` — The calculated value is a way to define the variable in Survey Creator.
+- `QuestionButtonGroupModel` — A Model for a button group question.
+- `QuestionExpressionModel` — A class that describes the Expression question type.
+- `InputMaskDateTime` — A class that describes an input mask of the `"datetime"` `maskType`.
+- `QuestionCommentModel` — A class that describes the Long Text question type.
+- `InputMaskNumeric` — A class that describes an input mask of the `"numeric"` `maskType`.
+- `LocalizableStrings` — The class represents the list of strings that supports multi-languages.
+- `QuestionTextBase` — A base class for the Single-Line Input and Long Text question types.
+- `Trigger` — A base class for all triggers.
+- `ExpressionItem` — Base class for HtmlConditionItem and UrlConditionItem classes.
+- `InputMaskBase` — A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern`
+- `QuestionMatrixDropdownModel` — A class that describes the Multi-Select Matrix question type.
+- `QuestionNonValue` — A base class for question types that cannot have a value (Html, Image).
+- `SurveyValidator` — A base class for all classes that implement validators.
+- `FlowPanelModel` — The flow panel object.
+- `QuestionFileModelBase` — A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
+- `QuestionRadiogroupModel` — A class that describes the Radio Button Group question type.
+- `InputMaskPattern` — A class that describes an input mask of the `"pattern"` `maskType`.
+- `QuestionHtmlModel` — A class that describes the HTML question type.
+- `InputMaskCurrency` — A class that describes an input mask of the `"currency"` `maskType`.
+- `ExpressionValidator` — A class that implements validation using expressions.
+- `RegexValidator` — A class that implements validation using regular expressions.
+- `TextValidator` — A class that implements a validator for text values.
+- `AnswerCountValidator` — A class that implements answer count validation in the question types that can have multiple values (for instance, Checkboxes).
+- `NumericValidator` — A class that implements a validator for numeric values.
+- `SurveyTrigger` — It extends the Trigger base class and add properties required for SurveyJS classes.
+- `SurveyTriggerCopyValue` — If expression returns true, the value from question **fromName** will be set into **setToName**.
+- `SurveyTriggerSetValue` — If expression returns true, the value from property **setValue** will be set to **setToName**
+- `EmailValidator` — A class that implements a validator for e-mail addresses.
+- `SurveyTriggerRunExpression` — If expression returns true, the **runExpression** will be run.
+- `SurveyTriggerSkip` — If expression returns true, the survey go to question **gotoName** and focus it.
+- `SurveyTriggerVisible` — If expression returns true, it makes questions/pages visible.
+- `HtmlConditionItem` — A class that contains expression and html propeties.
+- `QuestionCheckboxBase` — A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
+- `SurveyTriggerComplete` — If expression returns true, it completes the survey.
+- `UrlConditionItem` — A class that contains expression and url propeties.
+- `QuestionEmptyModel` — A Model for an question that renders empty "div" tag.

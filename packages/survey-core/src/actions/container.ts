@@ -61,6 +61,11 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public flushUpdates() {
     this.raiseUpdateCallback.flushSync();
   }
+  // Updates are synchronous until the container is mounted (so SSR renders with the correct actions);
+  // once mounted in the browser they are debounced/batched into a microtask.
+  protected setUpdatesAsync(isAsync: boolean): void {
+    this.raiseUpdateCallback.async = isAsync;
+  }
   protected raiseUpdate(options?: { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }) {
     const lastArguments = this.raiseUpdateCallback.getLastArguments();
     const lastOptions = ((lastArguments && lastArguments[0]) ?? {}) as ContainerUpdateOptions;
@@ -256,9 +261,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
 
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
+    this.setUpdatesAsync(true);
     return;
   }
-  public resetResponsivityManager(): void { }
+  public resetResponsivityManager(): void {
+    this.setUpdatesAsync(false);
+  }
   public getActionById(id: string): T {
     const index = this.getActionIndexById(id);
     return index > -1 ? this.actions[index] : null;

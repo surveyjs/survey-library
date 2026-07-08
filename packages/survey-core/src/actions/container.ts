@@ -50,7 +50,17 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
 
   @property({}) containerCss: string;
   public sizeMode: "default" | "small" = "default";
-  public locOwner: ILocalizableOwner;
+  private locOwnerValue: ILocalizableOwner;
+  public get locOwner(): ILocalizableOwner { return this.locOwnerValue; }
+  public set locOwner(val: ILocalizableOwner) {
+    this.locOwnerValue = val;
+    if (val) {
+      // Eagerly assign renderedId to every action so that id numbering follows
+      // model-construction order (deterministic for SSR) rather than first-render
+      // order (which can differ between server and client).
+      this.getAllActions().forEach(a => { void a.renderedId; });
+    }
+  }
   @property({ defaultValue: true }) isEmpty: boolean;
   public locStrsChanged(): void {
     super.locStrsChanged();

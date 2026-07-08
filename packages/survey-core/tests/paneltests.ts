@@ -740,6 +740,59 @@ describe("Panel", () => {
     expect(page.hasTitle, "No title").toBeFalsy();
     expect(page._showDescription, "No description").toBeFalsy();
   });
+  test("PageModel: _showDescription honors beforeShowInplaceDescriptionEditorCallback, empty & non-empty", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    page.title = "My page";
+    survey.setDesignMode(true);
+    // Shown by default in design mode
+    expect(page._showDescription, "empty description shown by default").toBeTruthy();
+
+    let show = true;
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (_el: any, defaultShow: boolean): boolean => show;
+
+    // Empty description
+    show = false;
+    expect(page._showDescription, "empty description hidden by the callback").toBeFalsy();
+    show = true;
+    expect(page._showDescription, "empty description shown by the callback").toBeTruthy();
+
+    // Non-empty description
+    page.description = "My description";
+    show = false;
+    expect(page._showDescription, "non-empty description hidden by the callback").toBeFalsy();
+    show = true;
+    expect(page._showDescription, "non-empty description shown by the callback").toBeTruthy();
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
+  test("PageModel: setting/clearing the description resets hasDescription so the design surface re-renders", () => {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    page.title = "My page";
+    survey.setDesignMode(true);
+    // Show the description only while it is not empty (a dynamic decision).
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = (el: any): boolean => !!el.description;
+
+    const changedProps: Array<string> = [];
+    page.onPropertyChanged.add((_, opt) => changedProps.push(opt.name));
+
+    // Reading _showDescription primes hasDescription (its reset drives the re-render).
+    expect(page._showDescription, "empty -> hidden").toBeFalsy();
+
+    changedProps.length = 0;
+    page.description = "Hello";
+    // hasDescription notification must fire so the page re-renders.
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on set").toBeTruthy();
+    expect(page._showDescription, "non-empty -> shown").toBeTruthy();
+
+    changedProps.length = 0;
+    page.description = "";
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on clear").toBeTruthy();
+    expect(page._showDescription, "cleared -> hidden").toBeFalsy();
+
+    (<any>survey).beforeShowInplaceDescriptionEditorCallback = undefined;
+  });
 
   test("Page/Panel.getProgressInfo()", () => {
     const page = new PageModel("q1");

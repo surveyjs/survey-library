@@ -2,8 +2,8 @@
 title: TextValidator
 product: Form Library
 api-type: class
-description: "A class that implements a validator for text values. [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))"
-source: 
+description: A class that implements a validator for text values.
+source: https://surveyjs.io/form-library/documentation/api-reference/textvalidator
 ---
 
 # `TextValidator`
@@ -18,15 +18,13 @@ A class that implements a validator for text values.
 
 ## Properties
 
-### `minLength`
+### `allowDigits`
 
-The minimum length of a text value measured in characters.
+Specifies whether a text value can include numerical digits.
 
-Default value: 0
+Default value: `true`
 
-[View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `number`
+**Type**: `boolean`
 
 ### `maxLength`
 
@@ -38,28 +36,12 @@ Default value: 0 (unlimited)
 
 **Type**: `number`
 
-### `allowDigits`
+### `minLength`
 
-Specifies whether a text value can include numerical digits.
+The minimum length of a text value measured in characters.
 
-Default value: `true`
+Default value: 0
 
-**Type**: `boolean`
+[View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
 
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `validate()`
-
-**Return value:** `ValidatorResult`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `any` |  |
-| `name` | `string` |  |
-| `properties` | `any` |  |
+**Type**: `number`

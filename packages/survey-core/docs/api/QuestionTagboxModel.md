@@ -2,8 +2,8 @@
 title: QuestionTagboxModel
 product: Form Library
 api-type: class
-description: "A class that describes the Multi-Select Dropdown (Tag Box) question type. [View Demo](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/ (linkStyle))"
-source: 
+description: A class that describes the Multi-Select Dropdown (Tag Box) question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questiontagboxmodel
 ---
 
 # `QuestionTagboxModel`
@@ -18,24 +18,11 @@ A class that describes the Multi-Select Dropdown (Tag Box) question type.
 
 ## Properties
 
-### `itemDisplayNameMap`
+### `allowClear`
 
-**Type**: `{ [key: string]: string; }`
+Specifies whether to display a button that clears the selected value.
 
-### `dropdownListModel`
-
-**Type**: `DropdownMultiSelectListModel`
-
-### `searchMode`
-
-Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
-
-Possible values:
-
-- `"contains"` (default)
-- `"startsWith"`
-
-**Type**: `"contains" | "startsWith"`
+**Type**: `boolean`
 
 ### `allowCustomChoices`
 
@@ -44,28 +31,6 @@ Specifies whether users can add their own choices if the desired option isn't av
 Default value: `false`
 
 >  Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
-
-**Type**: `boolean`
-
-### `createCustomChoiceText`
-
-**Type**: `string`
-
-### `allowClear`
-
-Specifies whether to display a button that clears the selected value.
-
-**Type**: `boolean`
-
-### `searchEnabled`
-
-Specifies whether users can enter a value into the input field to filter the drop-down list.
-
-**Type**: `boolean`
-
-### `hideSelectedItems`
-
-Specifies whether to remove selected items from the drop-down list.
 
 **Type**: `boolean`
 
@@ -87,7 +52,9 @@ Specifies whether to close the drop-down menu after a user selects a value.
 
 **Type**: `number`
 
-### `textWrapEnabled`
+### `hideSelectedItems`
+
+Specifies whether to remove selected items from the drop-down list.
 
 **Type**: `boolean`
 
@@ -97,48 +64,19 @@ A text displayed in the input field when it doesn't have a value.
 
 **Type**: `string`
 
-### `a11yInputAriaRole`
+### `searchEnabled`
 
-**Type**: `string`
+Specifies whether users can enter a value into the input field to filter the drop-down list.
 
-### `selectAllTextValue`
+**Type**: `boolean`
 
-**Type**: `LocalizableString`
+### `searchMode`
 
-### `deselectAllTextValue`
+Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
 
-**Type**: `LocalizableString`
+Possible values:
 
-## Methods
+- `"contains"` (default)
+- `"startsWith"`
 
-### `locStrsChanged()`
-
-### `getType()`
-
-**Return value:** `string`
-
-### `supportMultipleComment()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `item` | `ItemValue` |  |
-
-### `getControlClass()`
-
-**Return value:** `string`
-
-### `getInputId()`
-
-**Return value:** `string`
-
-### `updateSelectAllItemText()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `isAllSelected` | `boolean` |  |
+**Type**: `"contains" | "startsWith"`

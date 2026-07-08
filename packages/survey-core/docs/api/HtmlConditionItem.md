@@ -2,8 +2,8 @@
 title: HtmlConditionItem
 product: Form Library
 api-type: class
-description: A class that contains expression and html propeties. It uses in survey.completedHtmlOnCondition array. If the expression returns true then html of this item uses instead of survey.completedHtml property
-source: 
+description: A class that contains expression and html propeties.
+source: https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem
 ---
 
 # `HtmlConditionItem`
@@ -22,9 +22,3 @@ If the expression returns true then html of this item uses instead of survey.com
 The html that shows on completed ('Thank you') page. The expression should return true
 
 **Type**: `string`
-
-## Methods
-
-### `getType()`
-
-**Return value:** `string`

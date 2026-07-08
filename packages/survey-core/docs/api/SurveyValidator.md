@@ -2,8 +2,8 @@
 title: SurveyValidator
 product: Form Library
 api-type: class
-description: "A base class for all classes that implement validators. [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))"
-source: 
+description: A base class for all classes that implement validators.
+source: https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator
 ---
 
 # `SurveyValidator`
@@ -17,22 +17,6 @@ A base class for all classes that implement validators.
 `Base` &rarr; `SurveyValidator`
 
 ## Properties
-
-### `owner`
-
-**Type**: `ISurveyValidatorOwner`
-
-### `errorOwner`
-
-**Type**: `ISurveyValidatorOwner`
-
-### `id`
-
-**Type**: `string`
-
-### `isValidator`
-
-**Type**: `boolean`
 
 ### `notificationType`
 
@@ -55,48 +39,3 @@ Errors block survey progress until resolved. Warnings indicate potential issues 
 An error message to display when a value fails validation.
 
 **Type**: `string`
-
-## Methods
-
-### `getSurvey()`
-
-**Return value:** `ISurvey`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `live` | `boolean` |  |
-
-### `getOwner()`
-
-**Return value:** `ISurveyValidatorOwner`
-
-### `validateOnCallback()`
-
-**Return value:** `ValidatorResult`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `any` |  |
-| `callback` | `(res: ValidatorResult) => void` |  |
-| `name` | `string` |  |
-| `properties` | `any` |  |
-
-### `validate()`
-
-**Return value:** `ValidatorResult`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `any` |  |
-| `name` | `string` |  |
-| `properties` | `any` |  |
-
-### `toString()`
-
-**Return value:** `string`

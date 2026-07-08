@@ -2,8 +2,8 @@
 title: AnswerCountValidator
 product: Form Library
 api-type: class
-description: "A class that implements answer count validation in the question types that can have multiple values (for instance, [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model)). [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))"
-source: 
+description: A class that implements answer count validation in the question types that can have multiple values (for instance, Checkboxes).
+source: https://surveyjs.io/form-library/documentation/api-reference/answercountvalidator
 ---
 
 # `AnswerCountValidator`
@@ -18,14 +18,6 @@ A class that implements answer count validation in the question types that can h
 
 ## Properties
 
-### `minCount`
-
-A minimum number of selected answers.
-
-[View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
-
-**Type**: `number`
-
 ### `maxCount`
 
 A maximum number of selected answers.
@@ -34,20 +26,10 @@ A maximum number of selected answers.
 
 **Type**: `number`
 
-## Methods
+### `minCount`
 
-### `getType()`
+A minimum number of selected answers.
 
-**Return value:** `string`
+[View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
 
-### `validate()`
-
-**Return value:** `ValidatorResult`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `any` |  |
-| `name` | `string` |  |
-| `properties` | `any` |  |
+**Type**: `number`

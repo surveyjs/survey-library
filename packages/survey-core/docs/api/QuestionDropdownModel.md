@@ -2,8 +2,8 @@
 title: QuestionDropdownModel
 product: Form Library
 api-type: class
-description: "A class that describes the Dropdown question type. [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdown/ (linkStyle))"
-source: 
+description: A class that describes the Dropdown question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questiondropdownmodel
 ---
 
 # `QuestionDropdownModel`
@@ -18,51 +18,41 @@ A class that describes the Dropdown question type.
 
 ## Properties
 
-### `lastSelectedItemValue`
+### `allowClear`
 
-**Type**: `ItemValue`
-
-### `showOptionsCaption`
+Specifies whether to display a button that clears the selected value.
 
 **Type**: `boolean`
 
-### `optionsCaption`
+### `allowCustomChoices`
 
-**Type**: `string`
+Specifies whether users can add their own choices if the desired option isn't available in the dropdown.
 
-### `placeholder`
+Default value: `false`
 
-A placeholder for the input field.
+[View Demo](https://surveyjs.io/form-library/examples/dropdown-custom-choice-options/ (linkStyle))
 
-**Type**: `string`
-
-### `isNewA11yStructure`
+> Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
 
 **Type**: `boolean`
 
-### `a11yQuestionAriaRole`
+### `choicesLazyLoadEnabled`
 
-**Type**: `string`
-
-### `a11yInputAriaRole`
-
-**Type**: `string`
-
-### `selectedItem`
-
-Returns the selected choice item. If no item is selected, returns `null`.
-
-**Type**: `ChoiceItem`
-
-### `isShowingChoiceComment`
+Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
 
 **Type**: `boolean`
 
-### `minMaxChoices`
+### `choicesLazyLoadPageSize`
 
-**Type**: `ItemValue[]`
+Specifies the number of choice items to load at a time when choices are loaded on demand.
 
-### `choicesMin`
+Default value: 25
+
+> This property does not accept values below 25 to prevent the server from being flooded with requests.
+
+**Type**: `number`
+
+### `choicesMax`
 
 Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
 
@@ -74,7 +64,7 @@ Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate cho
 
 **Type**: `number`
 
-### `choicesMax`
+### `choicesMin`
 
 Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate choice items automatically. For example, the configuration below generates three choice items: [10, 20, 30].
 
@@ -100,15 +90,19 @@ The default value of the `choicesStep` property is 1.
 
 **Type**: `number`
 
-### `autocomplete`
+### `createCustomChoiceText`
+
+Specifies the text displayed for the command that creates a custom choice. Applies only when [`allowCustomChoices`](#allowCustomChoices) is `true`.
+
+Default value: `"Create \"{0}\" item..."`
 
 **Type**: `string`
 
-### `allowClear`
+### `placeholder`
 
-Specifies whether to display a button that clears the selected value.
+A placeholder for the input field.
 
-**Type**: `boolean`
+**Type**: `string`
 
 ### `searchEnabled`
 
@@ -129,25 +123,11 @@ Possible values:
 
 **Type**: `"contains" | "startsWith"`
 
-### `allowCustomChoices`
+### `selectedItem`
 
-Specifies whether users can add their own choices if the desired option isn't available in the dropdown.
+Returns the selected choice item. If no item is selected, returns `null`.
 
-Default value: `false`
-
-[View Demo](https://surveyjs.io/form-library/examples/dropdown-custom-choice-options/ (linkStyle))
-
-> Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
-
-**Type**: `boolean`
-
-### `createCustomChoiceText`
-
-Specifies the text displayed for the command that creates a custom choice. Applies only when [`allowCustomChoices`](#allowCustomChoices) is `true`.
-
-Default value: `"Create \"{0}\" item..."`
-
-**Type**: `string`
+**Type**: `ChoiceItem`
 
 ### `textWrapEnabled`
 
@@ -158,71 +138,3 @@ Default value: `true`
 Disable this property if you want the texts to be truncated with ellipsis.
 
 **Type**: `boolean`
-
-### `inputHasValue`
-
-**Type**: `boolean`
-
-### `choicesLazyLoadEnabled`
-
-Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
-
-**Type**: `boolean`
-
-### `choicesLazyLoadPageSize`
-
-Specifies the number of choice items to load at a time when choices are loaded on demand.
-
-Default value: 25
-
-> This property does not accept values below 25 to prevent the server from being flooded with requests.
-
-**Type**: `number`
-
-### `suggestedItem`
-
-**Type**: `ItemValue`
-
-### `selectedItemLocText`
-
-**Type**: `LocalizableString`
-
-### `inputFieldComponentName`
-
-**Type**: `string`
-
-### `showSelectedItemLocText`
-
-**Type**: `boolean`
-
-### `showInputFieldComponent`
-
-**Type**: `boolean`
-
-### `dropdownListModel`
-
-**Type**: `DropdownListModel`
-
-## Methods
-
-### `locStrsChanged()`
-
-### `getType()`
-
-**Return value:** `string`
-
-### `getControlClass()`
-
-**Return value:** `string`
-
-### `getInputId()`
-
-**Return value:** `string`
-
-### `afterRenderCore()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |

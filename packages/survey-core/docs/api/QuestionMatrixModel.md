@@ -2,8 +2,8 @@
 title: QuestionMatrixModel
 product: Form Library
 api-type: class
-description: "A class that describes the Single-Select Matrix question type. [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))"
-source: 
+description: A class that describes the Single-Select Matrix question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel
 ---
 
 # `QuestionMatrixModel`
@@ -18,11 +18,17 @@ A class that describes the Single-Select Matrix question type.
 
 ## Properties
 
-### `isRowChanging`
+### `cellComponent`
 
-**Type**: `boolean`
+The name of a component used to render cells.
 
-### `cellsValue`
+**Type**: `string`
+
+### `cells`
+
+An array of matrix cells. Use this array to get or set cell values.
+
+[View Demo](https://surveyjs.io/form-library/examples/questiontype-matrix-rubric/ (linkStyle))
 
 **Type**: `MatrixCells`
 
@@ -41,29 +47,11 @@ Possible values:
 
 **Type**: `string`
 
-### `isMultiSelect`
-
-**Type**: `boolean`
-
-### `cellComponent`
-
-The name of a component used to render cells.
-
-**Type**: `string`
-
-### `hasSingleInput`
-
-**Type**: `boolean`
-
 ### `eachRowRequired`
 
 Specifies whether each row requires an answer. If a respondent skips a row, the question displays a validation error.
 
 [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
-
-**Type**: `boolean`
-
-### `isAllRowRequired`
 
 **Type**: `boolean`
 
@@ -73,7 +61,9 @@ Specifies whether answers in all rows should be unique. If any answers duplicate
 
 **Type**: `boolean`
 
-### `hasRows`
+### `hideIfRowsEmpty`
+
+Specifies whether to hide the question when the matrix has no visible rows.
 
 **Type**: `boolean`
 
@@ -87,261 +77,3 @@ Possible values:
 - `"random"` - Arranges matrix rows in random order each time the question is displayed.
 
 **Type**: `string`
-
-### `rowsOrder`
-
-**Type**: `string`
-
-### `hideIfRowsEmpty`
-
-Specifies whether to hide the question when the matrix has no visible rows.
-
-**Type**: `boolean`
-
-### `checkType`
-
-**Type**: `string`
-
-### `itemSvgIcon`
-
-**Type**: `string`
-
-### `cssItemValue`
-
-**Type**: `string`
-
-### `cssMaterialDecorator`
-
-**Type**: `string`
-
-### `cssItemDecorator`
-
-**Type**: `string`
-
-### `nestedQuestionsValue`
-
-**Type**: `Question[]`
-
-### `visibleRows`
-
-**Type**: `MatrixRowModel[]`
-
-### `cells`
-
-An array of matrix cells. Use this array to get or set cell values.
-
-[View Demo](https://surveyjs.io/form-library/examples/questiontype-matrix-rubric/ (linkStyle))
-
-**Type**: `MatrixCells`
-
-### `hasCellText`
-
-**Type**: `boolean`
-
-### `emptyLocalizableString`
-
-**Type**: `LocalizableString`
-
-### `errorsInRow`
-
-**Type**: `HashTable<boolean>`
-
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `addColumn()`
-
-**Return value:** `MatrixColumn`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `any` |  |
-| `text` | `string` |  |
-
-### `getItemClass()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `any` |  |
-| `column` | `any` |  |
-
-### `getItemSvgIcon()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `any` |  |
-| `column` | `any` |  |
-
-### `locStrsChanged()`
-
-### `getMatrixRows()`
-
-**Return value:** `MatrixRowModel[]<MatrixRowModel>`
-
-### `getMatrixSingleInputQuestions()`
-
-**Return value:** `Question[]<Question>`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` |  |
-| `checkDynamic` | `boolean` |  |
-
-### `resetSingleInput()`
-
-### `dispose()`
-
-### `randomSeedChanged()`
-
-### `setCellText()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `any` |  |
-| `column` | `any` |  |
-| `val` | `string` |  |
-
-### `getCellText()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `any` |  |
-| `column` | `any` |  |
-
-### `setDefaultCellText()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `column` | `any` |  |
-| `val` | `string` |  |
-
-### `getDefaultCellText()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `column` | `any` |  |
-
-### `getCellDisplayText()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `any` |  |
-| `column` | `any` |  |
-
-### `getCellDisplayLocText()`
-
-**Return value:** `LocalizableString`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `any` |  |
-| `column` | `any` |  |
-
-### `getValueGetterContext()`
-
-**Return value:** `IValueGetterContext`
-
-### `getPlainData()`
-
-**Return value:** `IQuestionPlainData`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `options` | `IPlainDataOptions` |  |
-
-### `addConditionObjectsByContext()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `objects` | `IConditionObject[]` |  |
-| `context` | `any` |  |
-
-### `getConditionJson()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `operator` | `string` |  |
-| `path` | `string` |  |
-
-### `clearIncorrectValues()`
-
-### `getColumnHeaderWrapperComponentName()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `cell` | `ItemValue` |  |
-
-### `getColumnHeaderWrapperComponentData()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `cell` | `ItemValue` |  |
-
-### `getRowHeaderWrapperComponentName()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `cell` | `ItemValue` |  |
-
-### `getRowHeaderWrapperComponentData()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `cell` | `ItemValue` |  |

@@ -2,8 +2,8 @@
 title: QuestionSliderModel
 product: Form Library
 api-type: class
-description: "A class that describes the Slider question type. [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle)) [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))"
-source: 
+description: A class that describes the Slider question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel
 ---
 
 # `QuestionSliderModel`
@@ -20,146 +20,19 @@ A class that describes the Slider question type.
 
 ## Properties
 
-### `sliderType`
+### `allowClear`
 
-Specifies whether the slider allows selecting a single value (`"single"`) or a value range (`"range"`).
+Specifies whether to display a button that clears the selected slider value and resets it to `undefined`.
 
-Possible values:
-
-- `"single"` (default)
-- `"range"`
-
-[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
-
-[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
-
-**Type**: `"range" | "single"`
-
-### `max`
-
-Defines the maximum value on the slider scale.
-
-Default value: 100
-
-[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
-
-[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
-
-**Type**: `number`
-
-### `min`
-
-Defines the minimum value on the slider scale.
-
-Default value: 0
-
-[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
-
-[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
-
-**Type**: `number`
-
-### `maxValueExpression`
-
-An expression that dynamically calculates the maximum scale value. Overrides the static [`max`](#max) property if defined.
-
-[Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
-
-**Type**: `string`
-
-### `minValueExpression`
-
-An expression that dynamically calculates the minimum scale value. Overrides the static [`min`](#min) property if defined.
-
-[Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
-
-**Type**: `string`
-
-### `maxRangeLength`
-
-Specifies the maximum length between the two thumbs of a range slider. Applies only if [`sliderType`](#sliderType) is `"range"`.
-
-Default value: `null`
-
-[View Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
-
-**Type**: `number`
-
-### `minRangeLength`
-
-Specifies the minimum length between the two thumbs of a range slider. Applies only if [`sliderType`](#sliderType) is `"range"`.
-
-Default value: `null`
-
-[View Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
-
-**Type**: `number`
-
-### `tooltipFormat`
-
-A formatting string for thumb tooltips. You can use `{0}` as a placeholder for a tooltip's numeric value.
-
-Default value: `"{0}"`
-
-**Type**: `string`
-
-### `labelFormat`
-
-A formatting string for [auto-generated](#labelCount) or [custom labels](#customLabels). You can use `{0}` as a placeholder for the label's numeric value.
-
-Default value: `"{0}"`
-
-[View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
-
-> If you are using custom labels, `labelFormat` affects only those that do not define the `text` property.
-
-**Type**: `string`
-
-### `tooltipVisibility`
-
-Controls the visibility of thumb tooltips.
-
-Possible values:
-
-- `"auto"` (default) - Tooltips appear when the thumb or selected range is hovered or focused.
-- `"always"`- Tooltips are always visible.
-- `"never"` - Tooltips are never displayed.
-
-**Type**: `"auto" | "always" | "never"`
-
-### `step`
-
-Sets the interval between selectable scale values.
-
-Default value: 1
-
-[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
-
-[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
-
-**Type**: `number`
-
-### `showLabels`
-
-Specifies whether the slider displays value labels along the scale.
-
-Default value: `true`
-
-[View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+Default value: `false`
 
 **Type**: `boolean`
 
-### `labelCount`
+### `allowSwap`
 
-Defines how many auto-generated labels should be displayed along the slider scale. Ignored if the [`customLabels`](#customLabels) property is set.
+Allows the start and end thumbs to cross over each other. If `false`, the thumbs cannot be swapped. Applies only if [`sliderType`](#sliderType) is `"range"`.
 
-Default value: -1 (the number of labels is calculated automatically based on the [`min`](#min) and [`max`](#max) values)
-
-[View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
-
-**Type**: `number`
-
-### `autoGenerate`
+Default value: `false` if [`minRangeLength`](#minRangeLength) is defined, `true` otherwise.
 
 **Type**: `boolean`
 
@@ -203,268 +76,141 @@ const surveyJson = {
 
 **Type**: `SliderLabelItemValue[]`
 
-### `allowDragRange`
+### `labelCount`
 
-**Type**: `boolean`
+Defines how many auto-generated labels should be displayed along the slider scale. Ignored if the [`customLabels`](#customLabels) property is set.
 
-### `tickSize`
+Default value: -1 (the number of labels is calculated automatically based on the [`min`](#min) and [`max`](#max) values)
 
-**Type**: `number`
-
-### `allowSwap`
-
-Allows the start and end thumbs to cross over each other. If `false`, the thumbs cannot be swapped. Applies only if [`sliderType`](#sliderType) is `"range"`.
-
-Default value: `false` if [`minRangeLength`](#minRangeLength) is defined, `true` otherwise.
-
-**Type**: `boolean`
-
-### `allowClear`
-
-Specifies whether to display a button that clears the selected slider value and resets it to `undefined`.
-
-Default value: `false`
-
-**Type**: `boolean`
-
-### `focusedThumb`
+[View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
 
 **Type**: `number`
 
-### `animatedThumb`
+### `labelFormat`
 
-**Type**: `boolean`
+A formatting string for [auto-generated](#labelCount) or [custom labels](#customLabels). You can use `{0}` as a placeholder for the label's numeric value.
 
-### `dragOrClickHelper`
+Default value: `"{0}"`
 
-**Type**: `DragOrClickHelper<any>`
+[View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
 
-### `generatedLabels`
-
-**Type**: `ItemValue[]`
-
-### `renderedValue`
-
-**Type**: `number[]`
-
-### `rootCss`
+> If you are using custom labels, `labelFormat` affects only those that do not define the `text` property.
 
 **Type**: `string`
 
-### `getThumbContainerCss`
+### `max`
 
-**Type**: `(thumbNumber: number) => string`
+Defines the maximum value on the slider scale.
 
-### `tooltipCss`
+Default value: 100
+
+[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
+
+[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+
+**Type**: `number`
+
+### `maxRangeLength`
+
+Specifies the maximum length between the two thumbs of a range slider. Applies only if [`sliderType`](#sliderType) is `"range"`.
+
+Default value: `null`
+
+[View Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+
+**Type**: `number`
+
+### `maxValueExpression`
+
+An expression that dynamically calculates the maximum scale value. Overrides the static [`max`](#max) property if defined.
+
+[Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
 **Type**: `string`
 
-### `getLabelCss`
+### `min`
 
-**Type**: `(locText: LocalizableString) => string`
+Defines the minimum value on the slider scale.
 
-### `renderedLabelCount`
+Default value: 0
 
-**Type**: `number`
+[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
 
-### `renderedMax`
-
-**Type**: `number`
-
-### `renderedMin`
+[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
 
 **Type**: `number`
 
-### `renderedMaxRangeLength`
+### `minRangeLength`
+
+Specifies the minimum length between the two thumbs of a range slider. Applies only if [`sliderType`](#sliderType) is `"range"`.
+
+Default value: `null`
+
+[View Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
 
 **Type**: `number`
 
-### `renderedMinRangeLength`
+### `minValueExpression`
 
-**Type**: `number`
+An expression that dynamically calculates the minimum scale value. Overrides the static [`min`](#min) property if defined.
 
-### `renderedLabels`
+[Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
 
-**Type**: `ItemValue[]`
+**Type**: `string`
 
-### `isIndeterminate`
+### `showLabels`
+
+Specifies whether the slider displays value labels along the scale.
+
+Default value: `true`
+
+[View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
 
 **Type**: `boolean`
 
-### `isNegativeScale`
+### `sliderType`
 
-**Type**: `boolean`
+Specifies whether the slider allows selecting a single value (`"single"`) or a value range (`"range"`).
 
-### `getTrackPercentLeft`
+Possible values:
 
-**Type**: `() => number`
+- `"single"` (default)
+- `"range"`
 
-### `getTrackPercentRight`
+[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
 
-**Type**: `() => number`
+[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
 
-### `getPercent`
+**Type**: `"range" | "single"`
 
-**Type**: `(value: number) => number`
+### `step`
 
-### `ensureMaxRangeBorders`
+Sets the interval between selectable scale values.
 
-**Type**: `(newValue: number, inputNumber: number) => number`
+Default value: 1
 
-### `ensureMinRangeBorders`
+[View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
 
-**Type**: `(newValue: number, inputNumber: number) => number`
-
-### `getClosestToStepValue`
-
-**Type**: `(value: number) => number`
-
-### `handleRangeOnChange`
-
-**Type**: `(event: any) => void`
-
-### `prepareInputRangeForMoving`
-
-**Type**: `(event: any, questionRootNode: any) => void`
-
-### `handleRangePointerDown`
-
-**Type**: `(event: any, rootNode: any) => void`
-
-### `handleRangePointerUp`
-
-**Type**: `(event: any, rootNode: any) => void`
-
-### `refreshInputRange`
-
-**Type**: `(inputRef?: any) => void`
-
-### `setSliderValue`
-
-**Type**: `(newValue: number | number[]) => void`
-
-### `setValueByClickOnPath`
-
-**Type**: `(event: any, rootNode: any) => void`
-
-### `setValueByClick`
-
-**Type**: `(newValue: number, inputNode?: any) => void`
-
-### `handleOnChange`
-
-**Type**: `(event: any, inputNumber: number) => void`
-
-### `handlePointerDown`
-
-**Type**: `(e: any) => void`
-
-### `handlePointerUp`
-
-**Type**: `(event: any) => void`
-
-### `handleKeyDown`
-
-**Type**: `(event: any) => void`
-
-### `handleKeyUp`
-
-**Type**: `(event: any) => void`
-
-### `handleOnFocus`
-
-**Type**: `(inputNumber: number) => void`
-
-### `handleOnBlur`
-
-**Type**: `() => void`
-
-### `handleLabelPointerUp`
-
-**Type**: `(event: any, newValue: number) => void`
-
-### `getTooltipValue`
-
-**Type**: `(tooltipNumber: number) => string`
-
-### `getLabelText`
-
-**Type**: `(labelNumber: number) => string`
-
-### `getLabelPosition`
-
-**Type**: `(labelNumber: number) => number`
-
-### `isRangeMoving`
-
-**Type**: `boolean`
-
-### `oldInputValue`
+[View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
 
 **Type**: `number`
 
-### `oldValue`
+### `tooltipFormat`
 
-**Type**: `number | number[]`
+A formatting string for thumb tooltips. You can use `{0}` as a placeholder for a tooltip's numeric value.
 
-### `calcRenderedValue`
+Default value: `"{0}"`
 
-**Type**: `() => number[]`
+**Type**: `string`
 
-### `questionRootElement`
+### `tooltipVisibility`
 
-**Type**: `any`
+Controls the visibility of thumb tooltips.
 
-## Methods
+Possible values:
 
-### `getType()`
+- `"auto"` (default) - Tooltips appear when the thumb or selected range is hovered or focused.
+- `"always"`- Tooltips are always visible.
+- `"never"` - Tooltips are never displayed.
 
-**Return value:** `string`
-
-### `getTextByItem()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `item` | `ItemValue` |  |
-
-### `endLoadingFromJson()`
-
-### `updateValueFromSurvey()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `newValue` | `any` |  |
-| `clearData` | `boolean` |  |
-
-### `itemValuePropertyChanged()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `item` | `ItemValue` |  |
-| `name` | `string` |  |
-| `oldValue` | `any` |  |
-| `newValue` | `any` |  |
-
-### `afterRenderQuestionElement()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |
-
-### `beforeDestroyQuestionElement()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |
+**Type**: `"auto" | "always" | "never"`

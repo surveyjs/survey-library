@@ -2,8 +2,8 @@
 title: QuestionCheckboxBase
 product: Form Library
 api-type: class
-description: "A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel))."
-source: 
+description: A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
+source: https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase
 ---
 
 # `QuestionCheckboxBase`
@@ -15,10 +15,6 @@ A base class for multiple-selection question types that can display choice items
 `Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionCheckboxBase`
 
 ## Properties
-
-### `colCountChangedCallback`
-
-**Type**: `() => void`
 
 ### `colCount`
 

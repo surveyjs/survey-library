@@ -2,8 +2,8 @@
 title: PanelModel
 product: Form Library
 api-type: class
-description: "A class that describes the Panel container element. A panel can contain questions and other panels. Refer to the following help topic for an illustration: [Survey Structure](https://surveyjs.io/form-library/documentation/design-survey-create-a-simple-survey#survey-structure). [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))"
-source: 
+description: A class that describes the Panel container element.
+source: https://surveyjs.io/form-library/documentation/api-reference/panelmodel
 ---
 
 # `PanelModel`
@@ -20,26 +20,25 @@ A panel can contain questions and other panels. Refer to the following help topi
 
 ## Properties
 
-### `contentId`
+### `innerIndent`
+
+Increases or decreases an indent of panel content from the left edge. Accepts positive integer values and 0.
+
+**Type**: `number`
+
+### `no`
+
+A question number or letter (depends on the `questionStartIndex` property).
+
+When the question number, title, or the entire question is invisible, this property returns an empty string.
 
 **Type**: `string`
-
-### `isPanel`
-
-**Type**: `boolean`
 
 ### `page`
 
 Returns a page to which the panel belongs and allows you to move this panel to a different page.
 
 **Type**: `IPage`
-
-### `visibleIndex`
-
-Returns the visible index of the panel in the survey. Commonly it is -1 and it doesn't show.
-You have to set showNumber to true to show index/numbering for the Panel
-
-**Type**: `number`
 
 ### `showNumber`
 
@@ -48,10 +47,6 @@ Specifies whether to show the panel number in the title.
 Default value: `false`
 
 **Type**: `boolean`
-
-### `recursiveNoCallback`
-
-**Type**: `() => string`
 
 ### `showQuestionNumbers`
 
@@ -66,24 +61,6 @@ Possible values:
 
 **Type**: `string`
 
-### `no`
-
-A question number or letter (depends on the `questionStartIndex` property).
-
-When the question number, title, or the entire question is invisible, this property returns an empty string.
-
-**Type**: `string`
-
-### `onGetNoCallback`
-
-**Type**: `(no: string) => string`
-
-### `innerIndent`
-
-Increases or decreases an indent of panel content from the left edge. Accepts positive integer values and 0.
-
-**Type**: `number`
-
 ### `startWithNewLine`
 
 Disable this property if you want to render the current panel on the same line or row with the previous question or panel.
@@ -92,112 +69,14 @@ Disable this property if you want to render the current panel on the same line o
 
 **Type**: `boolean`
 
-### `allowAdaptiveActions`
+### `visibleIndex`
 
-**Type**: `boolean`
+Returns the visible index of the panel in the survey. Commonly it is -1 and it doesn't show.
+You have to set showNumber to true to show index/numbering for the Panel
 
-### `innerPaddingLeft`
-
-**Type**: `string`
-
-### `footerActions`
-
-**Type**: `IAction[]`
-
-### `footerToolbarValue`
-
-**Type**: `ActionContainer<Action>`
-
-### `onGetFooterActionsCallback`
-
-**Type**: `() => IAction[]`
-
-### `onGetFooterToolbarCssCallback`
-
-**Type**: `() => string`
-
-### `hasEditButton`
-
-**Type**: `boolean`
-
-### `cssTitle`
-
-**Type**: `string`
-
-### `showErrorsAbovePanel`
-
-**Type**: `boolean`
-
-### `showPanelAsPage`
-
-**Type**: `boolean`
-
-### `forcusFirstQuestionOnExpand`
-
-**Type**: `boolean`
+**Type**: `number`
 
 ## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `getSurvey()`
-
-**Return value:** `ISurvey`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `live` | `boolean` |  |
-
-### `getOwner()`
-
-**Return value:** `any`
-
-### `moveTo()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `container` | `IPanel` |  |
-| `insertBefore` | `any` |  |
-
-### `getPanelInDesignMode()`
-
-**Return value:** `PanelModel`
-
-### `addNoFromChild()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `no` | `string` |  |
-
-### `clearOnDeletingContainer()`
-
-### `getFooterToolbar()`
-
-**Return value:** `ActionContainer<Action>`
-
-### `cancelPreview()`
-
-### `getCssTitleExpandableSvg()`
-
-**Return value:** `string`
-
-### `needResponsiveWidth()`
-
-**Return value:** `boolean`
-
-### `focusIn()`
 
 ### `expand()`
 
@@ -208,15 +87,3 @@ Expands the panel.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `focusFirstQuestion` | `boolean` | Specifies whether to focus the first question within the expanded panel. Default value: `true`. |
-
-### `getContainerCss()`
-
-**Return value:** `string`
-
-### `afterRenderCore()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `any` |  |

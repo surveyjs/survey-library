@@ -2,8 +2,8 @@
 title: ITheme
 product: Form Library
 api-type: interface
-description: "A theme configuration interface. `ITheme` objects are used to apply predefined themes or create custom themes. Refer to the following help topic for more information: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))"
-source: 
+description: A theme configuration interface.
+source: https://surveyjs.io/form-library/documentation/api-reference/itheme
 ---
 
 # `ITheme`
@@ -16,34 +16,22 @@ A theme configuration interface.
 
 ## Properties
 
-### `themeName`
-
-A theme name.
-
-**Type**: `string`
-
-### `colorPalette`
-
-A color palette.
-
-Possible values:
-
-- `"light"`
-- `"dark"`
-
-**Type**: `string`
-
-### `isPanelless`
-
-A Boolean value that specifies whether survey questions are displayed within panels (`false`) or without them (`true`).
-
-**Type**: `boolean`
-
 ### `backgroundImage`
 
 An image to display as survey background. This property accepts a hyperlink or a data URL.
 
 **Type**: `string`
+
+### `backgroundImageAttachment`
+
+A string value that specifies whether the [background image](#backgroundImage) is fixed in its position or scrolled along with the survey.
+
+Possible values:
+
+- `"fixed"`
+- `"scroll"`
+
+**Type**: `"fixed" | "scroll"`
 
 ### `backgroundImageFit`
 
@@ -59,22 +47,28 @@ Refer to the description of the [`background-size`](https://developer.mozilla.or
 
 **Type**: `"auto" | "contain" | "cover"`
 
-### `backgroundImageAttachment`
-
-A string value that specifies whether the [background image](#backgroundImage) is fixed in its position or scrolled along with the survey.
-
-Possible values:
-
-- `"fixed"`
-- `"scroll"`
-
-**Type**: `"fixed" | "scroll"`
-
 ### `backgroundOpacity`
 
 A value from 0 to 1 that specifies how transparent the [background image](#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
 
 **Type**: `number`
+
+### `colorPalette`
+
+A color palette.
+
+Possible values:
+
+- `"light"`
+- `"dark"`
+
+**Type**: `string`
+
+### `cssVariables`
+
+An object with CSS variables.
+
+**Type**: `{ [index: string]: string; }`
 
 ### `header`
 
@@ -98,8 +92,14 @@ An advanced header view applies the same properties as the basic view, plus [hea
 
 **Type**: `"advanced" | "basic"`
 
-### `cssVariables`
+### `isPanelless`
 
-An object with CSS variables.
+A Boolean value that specifies whether survey questions are displayed within panels (`false`) or without them (`true`).
 
-**Type**: `{ [index: string]: string; }`
+**Type**: `boolean`
+
+### `themeName`
+
+A theme name.
+
+**Type**: `string`

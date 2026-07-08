@@ -4,75 +4,75 @@ title: Classes
 
 # Classes
 
-- `SurveyModel` — The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
-- `Question` — A base class for all questions.
-- `QuestionPanelDynamicModel` — A class that describes the Dynamic Panel question type.
-- `PanelModelBase` — A base class for the `PanelModel` and `PageModel` classes.
-- `QuestionSelectBase` — A base class for multiple-choice question types (Checkboxes, Dropdown, Radio Button Group, etc.).
-- `SurveyElement` — A base class for all survey elements.
-- `QuestionMatrixDropdownModelBase` — A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes.
-- `Base` — A base class for all SurveyJS objects.
-- `QuestionFileModel` — A class that describes the File Upload question type.
-- `JsonObjectProperty` — Contains information about a property of a survey element (page, panel, questions, and etc).
-- `MatrixDropdownColumn` — An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic Matrix.
-- `QuestionSliderModel` — A class that describes the Slider question type.
-- `QuestionRatingModel` — A class that describes the Rating Scale question type.
-- `QuestionMatrixDynamicModel` — A class that describes the Dynamic Matrix question type.
-- `QuestionRankingModel` — A class that describes the Ranking question type.
-- `ItemValue` — Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
-- `LocalizableString` — The class represents the string that supports multi-languages and markdown.
-- `QuestionTextModel` — A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
-- `QuestionMatrixModel` — A class that describes the Single-Select Matrix question type.
-- `PageModel` — The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
-- `QuestionImagePickerModel` — A class that describes the Image Picker question type.
-- `ChoicesRestful` — Configures access to a RESTful service that returns choices for Checkbox, Dropdown, Radiogroup, and other multiple-choice question types.
-- `PanelModel` — A class that describes the Panel container element.
-- `MultipleTextItemModel` — A class that describes an item in a Multiple Textboxes question.
-- `PopupSurveyModel` — A class that renders a survey in a pop-up window.
-- `QuestionCheckboxModel` — A class that describes the Checkboxes question type.
-- `QuestionMultipleTextModel` — A class that describes the Multiple Text question type.
-- `QuestionDropdownModel` — A class that describes the Dropdown question type.
-- `QuestionSignaturePadModel` — A class that describes the Signature question type.
-- `JsonMetadata` — The metadata object.
-- `QuestionBooleanModel` — A class that describes the Yes/No (Boolean) question type.
-- `SurveyElementCore` — A base class for the `SurveyElement` and `SurveyModel` classes.
-- `QuestionTagboxModel` — A class that describes the Multi-Select Dropdown (Tag Box) question type.
-- `QuestionImageModel` — A class that describes the Image question type.
-- `QuestionMatrixBaseModel` — A base class for all matrix question types.
-- `CalculatedValue` — The calculated value is a way to define the variable in Survey Creator.
-- `QuestionButtonGroupModel` — A Model for a button group question.
-- `QuestionExpressionModel` — A class that describes the Expression question type.
-- `InputMaskDateTime` — A class that describes an input mask of the `"datetime"` `maskType`.
-- `QuestionCommentModel` — A class that describes the Long Text question type.
-- `InputMaskNumeric` — A class that describes an input mask of the `"numeric"` `maskType`.
-- `LocalizableStrings` — The class represents the list of strings that supports multi-languages.
-- `QuestionTextBase` — A base class for the Single-Line Input and Long Text question types.
-- `Trigger` — A base class for all triggers.
-- `ExpressionItem` — Base class for HtmlConditionItem and UrlConditionItem classes.
-- `InputMaskBase` — A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern`
-- `QuestionMatrixDropdownModel` — A class that describes the Multi-Select Matrix question type.
-- `QuestionNonValue` — A base class for question types that cannot have a value (Html, Image).
-- `SurveyValidator` — A base class for all classes that implement validators.
-- `FlowPanelModel` — The flow panel object.
-- `QuestionFileModelBase` — A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
-- `QuestionRadiogroupModel` — A class that describes the Radio Button Group question type.
-- `InputMaskPattern` — A class that describes an input mask of the `"pattern"` `maskType`.
-- `QuestionHtmlModel` — A class that describes the HTML question type.
-- `InputMaskCurrency` — A class that describes an input mask of the `"currency"` `maskType`.
-- `ExpressionValidator` — A class that implements validation using expressions.
-- `RegexValidator` — A class that implements validation using regular expressions.
-- `TextValidator` — A class that implements a validator for text values.
-- `AnswerCountValidator` — A class that implements answer count validation in the question types that can have multiple values (for instance, Checkboxes).
-- `NumericValidator` — A class that implements a validator for numeric values.
-- `SurveyTrigger` — It extends the Trigger base class and add properties required for SurveyJS classes.
-- `SurveyTriggerCopyValue` — If expression returns true, the value from question **fromName** will be set into **setToName**.
-- `SurveyTriggerSetValue` — If expression returns true, the value from property **setValue** will be set to **setToName**
-- `EmailValidator` — A class that implements a validator for e-mail addresses.
-- `SurveyTriggerRunExpression` — If expression returns true, the **runExpression** will be run.
-- `SurveyTriggerSkip` — If expression returns true, the survey go to question **gotoName** and focus it.
-- `SurveyTriggerVisible` — If expression returns true, it makes questions/pages visible.
-- `HtmlConditionItem` — A class that contains expression and html propeties.
-- `QuestionCheckboxBase` — A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
-- `SurveyTriggerComplete` — If expression returns true, it completes the survey.
-- `UrlConditionItem` — A class that contains expression and url propeties.
-- `QuestionEmptyModel` — A Model for an question that renders empty "div" tag.
+- [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/surveymodel.md) — The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
+- [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) — A base class for all questions.
+- [`QuestionPanelDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/questionpaneldynamicmodel.md) — A class that describes the Dynamic Panel question type.
+- [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase.md) — A base class for the `PanelModel` and `PageModel` classes.
+- [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) — A base class for multiple-choice question types (Checkboxes, Dropdown, Radio Button Group, etc.).
+- [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/matrixdropdowncolumn.md) — An auxiliary class that describes a column in a Multi-Select Matrix or Dynamic Matrix.
+- [`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) — A base class for all SurveyJS objects.
+- [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdynamicmodel.md) — A class that describes the Dynamic Matrix question type.
+- [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) — A base class for all survey elements.
+- [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) — A base class for the `QuestionMatrixDropdownModel` and `QuestionMatrixDynamicModel` classes.
+- [`MultipleTextItemModel`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel.md) — A class that describes an item in a Multiple Textboxes question.
+- [`QuestionFileModel`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodel.md) — A class that describes the File Upload question type.
+- [`QuestionSliderModel`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel.md) — A class that describes the Slider question type.
+- [`QuestionTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questiontextmodel.md) — A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
+- [`QuestionRatingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionratingmodel.md) — A class that describes the Rating Scale question type.
+- [`QuestionDropdownModel`](https://surveyjs.io/form-library/documentation/api-reference/questiondropdownmodel.md) — A class that describes the Dropdown question type.
+- [`QuestionSignaturePadModel`](https://surveyjs.io/form-library/documentation/api-reference/questionsignaturepadmodel.md) — A class that describes the Signature question type.
+- [`PopupSurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/popupsurveymodel.md) — A class that renders a survey in a pop-up window.
+- [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) — A base class for all matrix question types.
+- [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/pagemodel.md) — The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
+- [`QuestionImagePickerModel`](https://surveyjs.io/form-library/documentation/api-reference/questionimagepickermodel.md) — A class that describes the Image Picker question type.
+- [`QuestionCheckboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxmodel.md) — A class that describes the Checkboxes question type.
+- [`QuestionTagboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questiontagboxmodel.md) — A class that describes the Multi-Select Dropdown (Tag Box) question type.
+- [`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panelmodel.md) — A class that describes the Panel container element.
+- [`QuestionExpressionModel`](https://surveyjs.io/form-library/documentation/api-reference/questionexpressionmodel.md) — A class that describes the Expression question type.
+- [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/api-reference/choicesrestful.md) — Configures access to a RESTful service that returns choices for Checkbox, Dropdown, Radiogroup, and other multiple-choice question types.
+- [`QuestionImageModel`](https://surveyjs.io/form-library/documentation/api-reference/questionimagemodel.md) — A class that describes the Image question type.
+- [`QuestionMatrixModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixmodel.md) — A class that describes the Single-Select Matrix question type.
+- [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric.md) — A class that describes an input mask of the `"numeric"` `maskType`.
+- [`QuestionBooleanModel`](https://surveyjs.io/form-library/documentation/api-reference/questionbooleanmodel.md) — A class that describes the Yes/No (Boolean) question type.
+- [`QuestionMultipleTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmultipletextmodel.md) — A class that describes the Multiple Text question type.
+- [`QuestionRankingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrankingmodel.md) — A class that describes the Ranking question type.
+- [`QuestionCommentModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncommentmodel.md) — A class that describes the Long Text question type.
+- [`CalculatedValue`](https://surveyjs.io/form-library/documentation/api-reference/calculatedvalue.md) — The calculated value is a way to define the variable in Survey Creator.
+- [`QuestionFileModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodelbase.md) — A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
+- [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodel.md) — A class that describes the Multi-Select Matrix question type.
+- [`QuestionTextBase`](https://surveyjs.io/form-library/documentation/api-reference/questiontextbase.md) — A base class for the Single-Line Input and Long Text question types.
+- [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) — A base class for the `SurveyElement` and `SurveyModel` classes.
+- [`TextValidator`](https://surveyjs.io/form-library/documentation/api-reference/textvalidator.md) — A class that implements a validator for text values.
+- [`AnswerCountValidator`](https://surveyjs.io/form-library/documentation/api-reference/answercountvalidator.md) — A class that implements answer count validation in the question types that can have multiple values (for instance, Checkboxes).
+- [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency.md) — A class that describes an input mask of the `"currency"` `maskType`.
+- [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime.md) — A class that describes an input mask of the `"datetime"` `maskType`.
+- [`NumericValidator`](https://surveyjs.io/form-library/documentation/api-reference/numericvalidator.md) — A class that implements a validator for numeric values.
+- [`QuestionRadiogroupModel`](https://surveyjs.io/form-library/documentation/api-reference/questionradiogroupmodel.md) — A class that describes the Radio Button Group question type.
+- [`RegexValidator`](https://surveyjs.io/form-library/documentation/api-reference/regexvalidator.md) — A class that implements validation using regular expressions.
+- [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) — A base class for all classes that implement validators.
+- [`ExpressionItem`](https://surveyjs.io/form-library/documentation/api-reference/expressionitem.md) — Base class for HtmlConditionItem and UrlConditionItem classes.
+- [`ExpressionValidator`](https://surveyjs.io/form-library/documentation/api-reference/expressionvalidator.md) — A class that implements validation using expressions.
+- [`HtmlConditionItem`](https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem.md) — A class that contains expression and html propeties.
+- [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) — A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern`
+- [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern.md) — A class that describes an input mask of the `"pattern"` `maskType`.
+- [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue.md) — Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
+- [`JsonObjectProperty`](https://surveyjs.io/form-library/documentation/api-reference/jsonobjectproperty.md) — Contains information about a property of a survey element (page, panel, questions, and etc).
+- [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) — A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
+- [`QuestionHtmlModel`](https://surveyjs.io/form-library/documentation/api-reference/questionhtmlmodel.md) — A class that describes the HTML question type.
+- [`UrlConditionItem`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem.md) — A class that contains expression and url propeties.
+- [`EmailValidator`](https://surveyjs.io/form-library/documentation/api-reference/emailvalidator.md) — A class that implements a validator for e-mail addresses.
+- [`FlowPanelModel`](https://surveyjs.io/form-library/documentation/api-reference/flowpanelmodel.md) — The flow panel object.
+- [`JsonMetadata`](https://surveyjs.io/form-library/documentation/api-reference/jsonmetadata.md) — The metadata object.
+- [`LocalizableString`](https://surveyjs.io/form-library/documentation/api-reference/localizablestring.md) — The class represents the string that supports multi-languages and markdown.
+- [`LocalizableStrings`](https://surveyjs.io/form-library/documentation/api-reference/localizablestrings.md) — The class represents the list of strings that supports multi-languages.
+- [`QuestionButtonGroupModel`](https://surveyjs.io/form-library/documentation/api-reference/questionbuttongroupmodel.md) — A Model for a button group question.
+- [`QuestionEmptyModel`](https://surveyjs.io/form-library/documentation/api-reference/questionemptymodel.md) — A Model for an question that renders empty "div" tag.
+- [`QuestionNonValue`](https://surveyjs.io/form-library/documentation/api-reference/questionnonvalue.md) — A base class for question types that cannot have a value (Html, Image).
+- [`SurveyTrigger`](https://surveyjs.io/form-library/documentation/api-reference/surveytrigger.md) — It extends the Trigger base class and add properties required for SurveyJS classes.
+- [`SurveyTriggerComplete`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggercomplete.md) — If expression returns true, it completes the survey.
+- [`SurveyTriggerCopyValue`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggercopyvalue.md) — If expression returns true, the value from question **fromName** will be set into **setToName**.
+- [`SurveyTriggerRunExpression`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggerrunexpression.md) — If expression returns true, the **runExpression** will be run.
+- [`SurveyTriggerSetValue`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggersetvalue.md) — If expression returns true, the value from property **setValue** will be set to **setToName**
+- [`SurveyTriggerSkip`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggerskip.md) — If expression returns true, the survey go to question **gotoName** and focus it.
+- [`SurveyTriggerVisible`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggervisible.md) — If expression returns true, it makes questions/pages visible.
+- [`Trigger`](https://surveyjs.io/form-library/documentation/api-reference/trigger.md) — A base class for all triggers.

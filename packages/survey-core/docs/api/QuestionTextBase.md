@@ -2,8 +2,8 @@
 title: QuestionTextBase
 product: Form Library
 api-type: class
-description: "A base class for the [Single-Line Input](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Long Text](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types."
-source: 
+description: A base class for the Single-Line Input and Long Text question types.
+source: https://surveyjs.io/form-library/documentation/api-reference/questiontextbase
 ---
 
 # `QuestionTextBase`
@@ -26,10 +26,6 @@ Default value: -1 (inherits the actual value from the `SurveyModel`'s [`maxTextL
 
 **Type**: `number`
 
-### `characterCounter`
-
-**Type**: `CharacterCounter`
-
 ### `placeholder`
 
 A placeholder for the input field.
@@ -37,14 +33,6 @@ A placeholder for the input field.
 [View Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
 
 **Type**: `string`
-
-### `placeHolder`
-
-**Type**: `string`
-
-### `locPlaceHolder`
-
-**Type**: `LocalizableString`
 
 ### `textUpdateMode`
 
@@ -59,39 +47,3 @@ Possible values:
 > Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are re-evaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
 
 **Type**: `string`
-
-### `renderedPlaceholder`
-
-**Type**: `string`
-
-### `isNewA11yStructure`
-
-**Type**: `boolean`
-
-### `onKeyDownPreprocess`
-
-**Type**: `(event: any) => void`
-
-## Methods
-
-### `getMaxLength()`
-
-**Return value:** `any`
-
-### `updateRemainingCharacterCounter()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `newValue` | `string` |  |
-
-### `getType()`
-
-**Return value:** `string`
-
-### `localeChanged()`
-
-### `getControlClass()`
-
-**Return value:** `string`

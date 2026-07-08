@@ -2,8 +2,8 @@
 title: QuestionHtmlModel
 product: Form Library
 api-type: class
-description: "A class that describes the HTML question type. Unlike other question types, HTML cannot have a title or value. [View Demo](https://surveyjs.io/form-library/examples/questiontype-html/ (linkStyle))"
-source: 
+description: A class that describes the HTML question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questionhtmlmodel
 ---
 
 # `QuestionHtmlModel`
@@ -18,14 +18,6 @@ A class that describes the HTML question type. Unlike other question types, HTML
 
 ## Properties
 
-### `ignoreHtmlProgressing`
-
-**Type**: `boolean`
-
-### `isCompositeQuestion`
-
-**Type**: `boolean`
-
 ### `html`
 
 HTML markup to display.
@@ -35,31 +27,3 @@ HTML markup to display.
 > If you get the markup from a third party, ensure that it does not contain malicious code.
 
 **Type**: `string`
-
-### `processedHtml`
-
-**Type**: `string`
-
-### `isNewA11yStructure`
-
-**Type**: `boolean`
-
-### `renderCssRoot`
-
-**Type**: `string`
-
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `getProcessedText()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `text` | `string` |  |

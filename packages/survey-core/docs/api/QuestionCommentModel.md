@@ -2,8 +2,8 @@
 title: QuestionCommentModel
 product: Form Library
 api-type: class
-description: "A class that describes the Long Text question type. [View Demo](https://surveyjs.io/form-library/examples/questiontype-comment/ (linkStyle))"
-source: 
+description: A class that describes the Long Text question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questioncommentmodel
 ---
 
 # `QuestionCommentModel`
@@ -18,51 +18,11 @@ A class that describes the Long Text question type.
 
 ## Properties
 
-### `element`
-
-**Type**: `any`
-
-### `textAreaModelValue`
-
-**Type**: `TextAreaModel`
-
-### `textAreaModel`
-
-**Type**: `TextAreaModel`
-
-### `rows`
-
-Specifies the visible height of the comment area, measured in lines.
-
-The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
-
-[View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
-
-**Type**: `number`
-
-### `cols`
-
-**Type**: `number`
-
 ### `acceptCarriageReturn`
 
 Specifies whether the question allows line breaks.
 
 When this property is enabled, a user can press Enter to insert line breaks. They are saved as `\n` in survey results. The Comment question also recognizes and interprets the `\n` sequence as a line break when you set the question `value` in code.
-
-**Type**: `boolean`
-
-### `autoGrow`
-
-Specifies whether the comment area automatically increases its height to accomodate multi-line content.
-
-Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
-
-[View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
-
-**Type**: `boolean`
-
-### `renderedAutoGrow`
 
 **Type**: `boolean`
 
@@ -76,52 +36,22 @@ Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](htt
 
 **Type**: `boolean`
 
-### `renderedAllowResize`
+### `autoGrow`
+
+Specifies whether the comment area automatically increases its height to accomodate multi-line content.
+
+Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
+
+[View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
 
 **Type**: `boolean`
 
-### `resizeStyle`
+### `rows`
 
-**Type**: `"both" | "none"`
+Specifies the visible height of the comment area, measured in lines.
 
-### `className`
+The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
 
-**Type**: `string`
+[View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
 
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `afterRenderQuestionElement()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |
-
-### `beforeDestroyQuestionElement()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |
-
-### `onInput()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `event` | `any` |  |
-
-### `onKeyDown()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `event` | `any` |  |
+**Type**: `number`

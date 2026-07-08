@@ -2,8 +2,8 @@
 title: PanelModelBase
 product: Form Library
 api-type: class
-description: "A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) and [`PageModel`](https://surveyjs.io/form-library/documentation/pagemodel) classes."
-source: 
+description: A base class for the `PanelModel` and `PageModel` classes.
+source: https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase
 ---
 
 # `PanelModelBase`
@@ -16,29 +16,27 @@ A base class for the [`PanelModel`](https://surveyjs.io/form-library/documentati
 
 ## Properties
 
-### `elementsValue`
+### `areQuestionsRandomized`
+
+Returns `true` if elements in this panel/page are arranged in random order.
+
+**Type**: `boolean`
+
+### `elements`
+
+An array of all survey elements (questions or panels) within this panel/page. Does not include questions within nested panels.
 
 **Type**: `IElement[]`
 
-### `isQuestionsReady`
+### `enableIf`
 
-**Type**: `boolean`
+A Boolean expression. If it evaluates to `false`, this panel/page becomes read-only.
 
-### `questionsValue`
+A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
 
-**Type**: `Question[]`
+Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
-### `validationCallbacks`
-
-**Type**: `ISurveyValidation`
-
-### `_columns`
-
-**Type**: `PanelLayoutColumnModel[]`
-
-### `_columnsReady`
-
-**Type**: `boolean`
+**Type**: `string`
 
 ### `gridLayoutColumns`
 
@@ -56,108 +54,23 @@ The `gridLayoutColumns` array is generated automatically based on the maximum nu
 
 **Type**: `PanelLayoutColumnModel[]`
 
-### `addElementCallback`
+### `id`
 
-**Type**: `(element: IElement) => void`
+An auto-generated unique element identifier.
 
-### `removeElementCallback`
+**Type**: `string`
 
-**Type**: `(element: IElement) => void`
+### `isRequired`
 
-### `onGetQuestionTitleLocation`
-
-**Type**: `() => string`
-
-### `onGetQuestionTitleWidth`
-
-**Type**: `() => string`
-
-### `rowsAnimation`
-
-**Type**: `AnimationGroup<QuestionRowModel>`
-
-### `showTitle`
+Makes the panel/page require an answer at least in one nested question. If a respondent leaves the panel/page without any answers, the survey displays a validation error.
 
 **Type**: `boolean`
 
-### `hasTextInTitle`
+### `isVisible`
 
-**Type**: `boolean`
+Returns `true` if the panel/page is visible or the survey is currently in design mode.
 
-### `showDescription`
-
-**Type**: `boolean`
-
-### `locNavigationTitle`
-
-**Type**: `LocalizableString`
-
-### `renderedNavigationTitle`
-
-**Type**: `string`
-
-### `requiredMark`
-
-Returns a character or text string that indicates a required panel/page.
-
-**Type**: `string`
-
-### `requiredText`
-
-**Type**: `string`
-
-### `isRequireTextOnStart`
-
-**Type**: `boolean`
-
-### `isRequireTextBeforeTitle`
-
-**Type**: `boolean`
-
-### `isRequireTextAfterTitle`
-
-**Type**: `boolean`
-
-### `requiredErrorText`
-
-Specifies a custom error message for a required panel/page.
-
-**Type**: `string`
-
-### `questionOrder`
-
-Specifies the sort order of questions in the panel/page.
-
-Possible values:
-
-- `"initial"` - Preserves the original order of questions.
-- `"random"` - Displays questions in random order.
-- `"default"` (default) - Inherits the setting from the `SurveyModel`'s [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionOrder) property.
-
-**Type**: `string`
-
-### `questionsOrder`
-
-**Type**: `string`
-
-### `questionStartIndex`
-
-Specifies a number or letter used to start numbering of elements inside this page/panel.
-
-You can include desired prefixes and postfixes alongside the number or letter:
-
-```js
-"questionStartIndex": "a.", // a., b., c., ...
-"questionStartIndex": "#3", // #3, #4, #5, ...
-"questionStartIndex": "(B)." // (B)., (C)., (D)., ...
-```
-Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
-
-**Type**: `string`
-
-### `areQuestionsRandomized`
-
-Returns `true` if elements in this panel/page are arranged in random order.
+If you want to display or hide a question based on a condition, specify the `visibleIf` property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
 **Type**: `boolean`
 
@@ -174,29 +87,33 @@ In those cases, the survey creates an internal `PageModel` object to show all qu
 
 **Type**: `PanelModelBase`
 
-### `depth`
+### `questionErrorLocation`
 
-**Type**: `number`
+Specifies the error message position for questions that belong to this page/panel.
 
-### `visibleIf`
+Use this property to override the [`questionErrorLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionErrorLocation) property specified for the survey. You can also set the [`errorLocation`](https://surveyjs.io/form-library/documentation/question#errorLocation) property for individual questions.
 
-A Boolean expression. If it evaluates to `false`, this panel/page becomes hidden.
+Possible values:
 
-A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+- `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the survey.
+- `"top"` - Displays error messages above questions.
+- `"bottom"` - Displays error messages below questions.
 
-Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
-
-**Type**: `string`
-
-### `id`
-
-An auto-generated unique element identifier.
+[View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
 
 **Type**: `string`
 
-### `isPanel`
+### `questionOrder`
 
-**Type**: `boolean`
+Specifies the sort order of questions in the panel/page.
+
+Possible values:
+
+- `"initial"` - Preserves the original order of questions.
+- `"random"` - Displays questions in random order.
+- `"default"` (default) - Inherits the setting from the `SurveyModel`'s [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionOrder) property.
+
+**Type**: `string`
 
 ### `questions`
 
@@ -204,35 +121,20 @@ An array of all questions within this panel/page. Includes questions within nest
 
 **Type**: `Question[]`
 
-### `visibleQuestions`
+### `questionStartIndex`
 
-**Type**: `Question[]`
+Specifies a number or letter used to start numbering of elements inside this page/panel.
 
-### `elements`
+You can include desired prefixes and postfixes alongside the number or letter:
 
-An array of all survey elements (questions or panels) within this panel/page. Does not include questions within nested panels.
-
-**Type**: `IElement[]`
-
-### `isRequired`
-
-Makes the panel/page require an answer at least in one nested question. If a respondent leaves the panel/page without any answers, the survey displays a validation error.
-
-**Type**: `boolean`
-
-### `requiredIf`
-
-A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have an answer).
-
-A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
-
-Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+```js
+"questionStartIndex": "a.", // a., b., c., ...
+"questionStartIndex": "#3", // #3, #4, #5, ...
+"questionStartIndex": "(B)." // (B)., (C)., (D)., ...
+```
+Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
 
 **Type**: `string`
-
-### `onColumnPropertyValueChangedCallback`
-
-**Type**: `(name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges<any>) => void`
 
 ### `questionTitleLocation`
 
@@ -264,35 +166,25 @@ Default value: `undefined`
 
 **Type**: `string`
 
-### `columns`
+### `requiredErrorText`
 
-**Type**: `PanelLayoutColumnModel[]`
-
-### `root`
-
-**Type**: `PanelModelBase`
-
-### `locCountRowUpdates`
-
-**Type**: `number`
-
-### `ariaTitleId`
+Specifies a custom error message for a required panel/page.
 
 **Type**: `string`
 
-### `ariaLabelledBy`
+### `requiredIf`
+
+A Boolean expression. If it evaluates to `true`, this panel/page becomes required (at least one question in the panel/page should have an answer).
+
+A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+
+Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
 **Type**: `string`
 
-### `ariaLabel`
+### `requiredMark`
 
-**Type**: `string`
-
-### `ariaRole`
-
-**Type**: `string`
-
-### `processedTitle`
+Returns a character or text string that indicates a required panel/page.
 
 **Type**: `string`
 
@@ -304,25 +196,9 @@ If you want to display or hide a survey element based on a condition, specify th
 
 **Type**: `boolean`
 
-### `isVisible`
+### `visibleIf`
 
-Returns `true` if the panel/page is visible or the survey is currently in design mode.
-
-If you want to display or hide a question based on a condition, specify the `visibleIf` property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
-
-**Type**: `boolean`
-
-### `lastVisibleIndex`
-
-**Type**: `number`
-
-### `isReadOnly`
-
-**Type**: `boolean`
-
-### `enableIf`
-
-A Boolean expression. If it evaluates to `false`, this panel/page becomes read-only.
+A Boolean expression. If it evaluates to `false`, this panel/page becomes hidden.
 
 A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
 
@@ -330,403 +206,7 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 **Type**: `string`
 
-### `isRunningConditions`
-
-**Type**: `boolean`
-
-### `hasDescriptionUnderTitle`
-
-**Type**: `boolean`
-
-### `cssHeader`
-
-**Type**: `string`
-
-### `cssDescription`
-
-**Type**: `string`
-
-### `questionErrorLocation`
-
-Specifies the error message position for questions that belong to this page/panel.
-
-Use this property to override the [`questionErrorLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionErrorLocation) property specified for the survey. You can also set the [`errorLocation`](https://surveyjs.io/form-library/documentation/question#errorLocation) property for individual questions.
-
-Possible values:
-
-- `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the survey.
-- `"top"` - Displays error messages above questions.
-- `"bottom"` - Displays error messages below questions.
-
-[View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
-
-**Type**: `string`
-
-### `no`
-
-**Type**: `string`
-
-### `cssTitleNumber`
-
-**Type**: `string`
-
-### `cssRequiredMark`
-
-**Type**: `string`
-
-### `cssError`
-
-**Type**: `string`
-
 ## Methods
-
-### `onAddRow()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `QuestionRowModel` |  |
-
-### `onRemoveRow()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `row` | `QuestionRowModel` |  |
-
-### `getType()`
-
-**Return value:** `string`
-
-### `getValueGetterContext()`
-
-**Return value:** `IValueGetterContext`
-
-### `setSurveyImpl()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `ISurveyImpl` |  |
-| `isLight` | `boolean` |  |
-
-### `delete()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `doDispose` | `boolean` |  |
-
-### `localeChanged()`
-
-### `locStrsChanged()`
-
-### `randomSeedChanged()`
-
-### `addNoFromChild()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `no` | `string` |  |
-
-### `getPanels()`
-
-**Return value:** `IPanel[]<IPanel>`
-
-### `getQuestions()`
-
-**Return value:** `Question[]<Question>`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `includeNested` | `boolean` |  |
-
-### `getQuestionByName()`
-
-Returns a question with a specified `name`. This method does not find questions within nested panels.
-
-**Return value:** `Question`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `name` | `string` | A question name. |
-
-### `getElementByName()`
-
-Returns a survey element with a specified `name`. This method can find survey elements within nested panels.
-
-**Return value:** `IElement`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `name` | `string` | An element name. |
-
-### `getQuestionByValueName()`
-
-**Return value:** `Question`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `valueName` | `string` |  |
-| `caseInsensitive` | `boolean` |  |
-
-### `getQuestionsByValueName()`
-
-**Return value:** `Question[]<Question>`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `valueName` | `string` |  |
-| `caseInsensitive` | `boolean` |  |
-
-### `getValue()`
-
-Returns a JSON object with question values nested in the panel/page.
-
-**Return value:** `any`
-
-### `hasValueAnyQuestion()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `visibleOnly` | `boolean` |  |
-
-### `getDisplayValue()`
-
-Returns a JSON object with display texts that correspond to question values nested in the panel/page.
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `keysAsText` | `boolean` | Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`. |
-
-### `getComments()`
-
-Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
-
-**Return value:** `any`
-
-### `clearIncorrectValues()`
-
-Removes values that cannot be assigned to nested questions, for example, choices unlisted in the `choices` array.
-
-Call this method after you assign new question values in code to ensure that they are acceptable.
-
-> This method does not remove values for invisible questions and values that fail validation. Call the `validate()` method to validate newly assigned values.
-
-### `clearErrors()`
-
-Empties the `errors` array for this panel/page and all its child elements (panels and questions).
-
-### `getElementsInDesign()`
-
-**Return value:** `IElement[]<IElement>`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `includeHidden` | `boolean` |  |
-
-### `containsElement()`
-
-Checks whether a given element belongs to this panel/page or nested panels.
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `IElement` | A survey element to check. |
-
-### `searchText()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `text` | `string` |  |
-| `founded` | `IFindElement[]` |  |
-
-### `hasErrors()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `fireCallback` | `boolean` |  |
-| `focusOnFirstError` | `boolean` |  |
-
-### `validate()`
-
-Validates questions within this panel or page and returns `false` if the validation fails.
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `fireCallback` | `boolean` | *(Optional)* Pass `false` if you do not want to show validation errors in the UI. |
-| `focusFirstError` | `boolean` | *(Optional)* Pass `true` if you want to focus the first question with a validation error. |
-| `callbackResult` | `(res: boolean, question: Question) => void` |  |
-
-### `validateContainerOnly()`
-
-### `validateElement()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `context` | `ValidationContext` |  |
-
-### `focusFirstQuestion()`
-
-Focuses the first question in this panel/page.
-
-### `focusFirstErrorQuestion()`
-
-Focuses the first question with a validation error in this panel/page.
-
-### `addQuestionsToList()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `list` | `IQuestion[]` |  |
-| `visibleOnly` | `boolean` |  |
-| `includingDesignTime` | `boolean` |  |
-
-### `addPanelsIntoList()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `list` | `IPanel[]` |  |
-| `visibleOnly` | `boolean` |  |
-| `includingDesignTime` | `boolean` |  |
-
-### `updateColumns()`
-
-### `updateRootStyle()`
-
-### `updateCustomWidgets()`
-
-### `updateGridColumns()`
-
-### `getColumsForElement()`
-
-**Return value:** `PanelLayoutColumnModel[]<PanelLayoutColumnModel>`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `IElement` |  |
-
-### `getProgressInfo()`
-
-**Return value:** `IProgressInfo`
-
-### `onSurveyLoad()`
-
-### `updateRows()`
-
-### `ensureRowsVisibility()`
-
-### `canBuildRows()`
-
-**Return value:** `boolean`
-
-### `getDragDropInfo()`
-
-**Return value:** `any`
-
-### `getAllRows()`
-
-**Return value:** `QuestionRowModel[]<QuestionRowModel>`
-
-### `forceRenderElement()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `IElement` |  |
-| `elementsRendered` | `() => void` |  |
-| `gap` | `number` |  |
-
-### `forceRenderRows()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `rows` | `QuestionRowModel[]` |  |
-| `elementsRendered` | `() => void` |  |
-
-### `findRowByElement()`
-
-**Return value:** `QuestionRowModel`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `IElement` |  |
-
-### `onHidingContent()`
-
-### `setVisibleIndex()`
-
-**Return value:** `number`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `index` | `number` |  |
-
-### `updateElementCss()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `reNew` | `boolean` |  |
 
 ### `addElement()`
 
@@ -741,55 +221,19 @@ Adds a survey element (question or panel) to this panel/page. Returns `true` if 
 | `element` | `IElement` | A survey element to add. |
 | `index` | `number` | A desired index of this element in the `elements` array. |
 
-### `insertElement()`
+### `addNewPanel()`
+
+Creates a new panel and adds it to the end of the `elements` array.
+
+This method returns `null` if the panel cannot be created or added to this panel/page; otherwise, the method returns the created panel.
+
+**Return value:** `PanelModel`
 
 **Parameters:**
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `element` | `IElement` |  |
-| `dest` | `IElement` |  |
-| `location` | `"left" \| "right" \| "top" \| "bottom"` |  |
-
-### `insertElementAfter()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `IElement` |  |
-| `after` | `IElement` |  |
-
-### `insertElementBefore()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `IElement` |  |
-| `before` | `IElement` |  |
-
-### `addQuestion()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` |  |
-| `index` | `number` |  |
-
-### `addPanel()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `panel` | `PanelModel` |  |
-| `index` | `number` |  |
+| `name` | `string` | A panel name. |
 
 ### `addNewQuestion()`
 
@@ -807,29 +251,85 @@ This method returns `null` if the question cannot be created or added to this pa
 | `name` | `string` | A question name. |
 | `index` | `number` | A desired index of the new question in the `elements` array. |
 
-### `addNewPanel()`
+### `clearErrors()`
 
-Creates a new panel and adds it to the end of the `elements` array.
+Empties the `errors` array for this panel/page and all its child elements (panels and questions).
 
-This method returns `null` if the panel cannot be created or added to this panel/page; otherwise, the method returns the created panel.
+### `clearIncorrectValues()`
 
-**Return value:** `PanelModel`
+Removes values that cannot be assigned to nested questions, for example, choices unlisted in the `choices` array.
+
+Call this method after you assign new question values in code to ensure that they are acceptable.
+
+> This method does not remove values for invisible questions and values that fail validation. Call the `validate()` method to validate newly assigned values.
+
+### `containsElement()`
+
+Checks whether a given element belongs to this panel/page or nested panels.
+
+**Return value:** `boolean`
 
 **Parameters:**
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `name` | `string` | A panel name. |
+| `element` | `IElement` | A survey element to check. |
 
-### `indexOf()`
+### `focusFirstErrorQuestion()`
 
-**Return value:** `number`
+Focuses the first question with a validation error in this panel/page.
+
+### `focusFirstQuestion()`
+
+Focuses the first question in this panel/page.
+
+### `getComments()`
+
+Returns a JSON object with comments left to questions within this panel/page. Question names are used as keys.
+
+**Return value:** `any`
+
+### `getDisplayValue()`
+
+Returns a JSON object with display texts that correspond to question values nested in the panel/page.
+
+**Return value:** `any`
 
 **Parameters:**
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `element` | `IElement` |  |
+| `keysAsText` | `boolean` | Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`. |
+
+### `getElementByName()`
+
+Returns a survey element with a specified `name`. This method can find survey elements within nested panels.
+
+**Return value:** `IElement`
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `name` | `string` | An element name. |
+
+### `getQuestionByName()`
+
+Returns a question with a specified `name`. This method does not find questions within nested panels.
+
+**Return value:** `Question`
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `name` | `string` | A question name. |
+
+### `getValue()`
+
+Returns a JSON object with question values nested in the panel/page.
+
+**Return value:** `any`
 
 ### `removeElement()`
 
@@ -843,36 +343,16 @@ Deletes a survey element (question or panel) from this panel/page. Returns `true
 | ---- | ---- | ----------- |
 | `element` | `IElement` | A survey element to delete. |
 
-### `removeQuestion()`
+### `validate()`
 
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` |  |
-
-### `needResponsiveWidth()`
+Validates questions within this panel or page and returns `false` if the validation fails.
 
 **Return value:** `boolean`
 
-### `getQuestionErrorLocation()`
-
-**Return value:** `string`
-
-### `getTitleOwner()`
-
-**Return value:** `ITitleOwner`
-
-### `getSerializableColumnsValue()`
-
-**Return value:** `PanelLayoutColumnModel[]<PanelLayoutColumnModel>`
-
-### `afterRender()`
-
 **Parameters:**
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `el` | `any` |  |
-
-### `dispose()`
+| `fireCallback` | `boolean` | *(Optional)* Pass `false` if you do not want to show validation errors in the UI. |
+| `focusFirstError` | `boolean` | *(Optional)* Pass `true` if you want to focus the first question with a validation error. |
+| `callbackResult` | `(res: boolean, question: Question) => void` |  |

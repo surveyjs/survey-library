@@ -2,8 +2,8 @@
 title: IExpressionValidationResult
 product: Form Library
 api-type: interface
-description: "An interface that describes the result returned by the [`validateExpressions`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validateExpressions) method."
-source: 
+description: An interface that describes the result returned by the `validateExpressions` method.
+source: https://surveyjs.io/form-library/documentation/api-reference/iexpressionvalidationresult
 ---
 
 # `IExpressionValidationResult`
@@ -11,18 +11,6 @@ source:
 An interface that describes the result returned by the [`validateExpressions`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
 
 ## Properties
-
-### `obj`
-
-A SurveyJS object (question, panel, page, collection item, or the survey itself) that contains the validated expression.
-
-**Type**: `Base`
-
-### `propertyName`
-
-The name of the property that holds the expression.
-
-**Type**: `string`
 
 ### `errors`
 
@@ -40,3 +28,15 @@ The name of the unknown function. Present only when `errorType` is `UnknownFunct
 The name of the unknown variable. Present only when `errorType` is `UnknownVariable`.
 
 **Type**: `IExpressionError[]`
+
+### `obj`
+
+A SurveyJS object (question, panel, page, collection item, or the survey itself) that contains the validated expression.
+
+**Type**: `Base`
+
+### `propertyName`
+
+The name of the property that holds the expression.
+
+**Type**: `string`

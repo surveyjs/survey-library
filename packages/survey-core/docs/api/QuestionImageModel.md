@@ -2,8 +2,8 @@
 title: QuestionImageModel
 product: Form Library
 api-type: class
-description: "A class that describes the Image question type. Unlike other question types, Image cannot have a title or value. [View Demo](https://surveyjs.io/form-library/examples/questiontype-image/ (linkStyle))"
-source: 
+description: A class that describes the Image question type.
+source: https://surveyjs.io/form-library/documentation/api-reference/questionimagemodel
 ---
 
 # `QuestionImageModel`
@@ -18,75 +18,11 @@ A class that describes the Image question type. Unlike other question types, Ima
 
 ## Properties
 
-### `contentNotLoaded`
-
-**Type**: `boolean`
-
-### `isCompositeQuestion`
-
-**Type**: `boolean`
-
-### `imageLink`
-
-Specifies an image or video URL.
-
-[View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
-
-**Type**: `string`
-
 ### `altText`
 
 Specifies a value for the `alt` attribute of the underlying `<img>` element.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
-
-**Type**: `string`
-
-### `imageHeight`
-
-Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.
-
-Default value: 150
-
-[View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
-
-> Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
-
-**Type**: `string`
-
-### `renderedStyleHeight`
-
-**Type**: `string`
-
-### `renderedHeight`
-
-**Type**: `number`
-
-### `imageWidth`
-
-Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
-
-Default value: 200
-
-[View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
-
-> Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
-
-**Type**: `string`
-
-### `renderedStyleWidth`
-
-**Type**: `string`
-
-### `renderedWidth`
-
-**Type**: `number`
-
-### `imageFit`
-
-Specifies how to resize the image or video to fit it into its container.
-
-Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
 
 **Type**: `string`
 
@@ -103,36 +39,48 @@ Possible values:
 
 **Type**: `string`
 
+### `imageFit`
+
+Specifies how to resize the image or video to fit it into its container.
+
+Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
+
+**Type**: `string`
+
+### `imageHeight`
+
+Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.
+
+Default value: 150
+
+[View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
+
+> Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
+
+**Type**: `string`
+
+### `imageLink`
+
+Specifies an image or video URL.
+
+[View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
+
+**Type**: `string`
+
+### `imageWidth`
+
+Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
+
+Default value: 200
+
+[View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
+
+> Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
+
+**Type**: `string`
+
 ### `renderedMode`
 
 Returns the type of content that the Image question displays: `"image"`, `"video"`, or `"youtube"`.
 
 **Type**: `string`
-
-### `ariaInvalid`
-
-**Type**: `any`
-
-### `ariaLabel`
-
-**Type**: `any`
-
-### `renderedAltText`
-
-**Type**: `string`
-
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `onSurveyLoad()`
-
-### `getImageCss()`
-
-**Return value:** `string`
-
-### `onLoadHandler()`
-
-### `onErrorHandler()`

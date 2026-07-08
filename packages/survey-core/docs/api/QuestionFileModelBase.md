@@ -3,7 +3,7 @@ title: QuestionFileModelBase
 product: Form Library
 api-type: class
 description: "A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`."
-source: 
+source: https://surveyjs.io/form-library/documentation/api-reference/questionfilemodelbase
 ---
 
 # `QuestionFileModelBase`
@@ -15,18 +15,6 @@ A base class for question types that support file upload: `QuestionFileModel` an
 `Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionFileModelBase`
 
 ## Properties
-
-### `isUploading`
-
-**Type**: `boolean`
-
-### `currentState`
-
-**Type**: `string`
-
-### `showLoadingIndicator`
-
-**Type**: `boolean`
 
 ### `storeDataAsText`
 
@@ -51,27 +39,6 @@ Default value: `false`
 [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
 
 **Type**: `boolean`
-
-### `fileCallbacks`
-
-**Type**: `ISurveyFileCallbacks`
-
-### `isFileLoadingValue`
-
-**Type**: `boolean`
-
-## Methods
-
-### `clearValue()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `keepComment` | `boolean` |  |
-| `fromUI` | `boolean` |  |
-
-### `clearOnDeletingContainer()`
 
 ## Events
 

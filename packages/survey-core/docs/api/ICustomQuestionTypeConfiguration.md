@@ -2,8 +2,8 @@
 title: ICustomQuestionTypeConfiguration
 product: Form Library
 api-type: interface
-description: "An interface used to create custom question types. Refer to the following articles for more information: - [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types) - [Create Composite Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types)"
-source: 
+description: An interface used to create custom question types.
+source: https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration
 ---
 
 # `ICustomQuestionTypeConfiguration`
@@ -17,39 +17,17 @@ Refer to the following articles for more information:
 
 ## Properties
 
-### `name`
+### `createElements`
 
-A name used to identify a custom question type.
+A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
 
-**Type**: `string`
+**Type**: `any`
 
-### `title`
+### `createQuestion`
 
-A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
+A function that allows you to create a custom question if you do not specify the `questionJSON` property.
 
-**Type**: `string`
-
-### `iconName`
-
-The name of an icon to use for the custom question type.
-
-[UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
-
-**Type**: `string`
-
-### `internal`
-
-**Type**: `boolean`
-
-### `showInToolbox`
-
-Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
-
-Default value: `true`
-
-Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
-
-**Type**: `boolean`
+**Type**: `any`
 
 ### `defaultQuestionTitle`
 
@@ -77,6 +55,26 @@ ComponentCollection.Instance.add({
 
 **Type**: `any`
 
+### `elementsJSON`
+
+JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
+
+**Type**: `any`
+
+### `getDisplayValue`
+
+A function that allows you to override the default `getDisplayValue()` implementation.
+
+**Type**: `((keyAsText: boolean, value: any) => any) | ((question: Question) => any)`
+
+### `iconName`
+
+The name of an icon to use for the custom question type.
+
+[UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
+
+**Type**: `string`
+
 ### `inheritBaseProps`
 
 An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.
@@ -91,23 +89,11 @@ When you create a [custom specialized question type](https://surveyjs.io/form-li
 
 **Type**: `boolean | string[]`
 
-### `getDisplayValue`
+### `name`
 
-A function that allows you to override the default `getDisplayValue()` implementation.
+A name used to identify a custom question type.
 
-**Type**: `((keyAsText: boolean, value: any) => any) | ((question: Question) => any)`
-
-### `elementsJSON`
-
-JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
-
-**Type**: `any`
-
-### `createElements`
-
-A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
-
-**Type**: `any`
+**Type**: `string`
 
 ### `questionJSON`
 
@@ -117,51 +103,35 @@ Refer to the [Create Specialized Question Types](https://surveyjs.io/form-librar
 
 **Type**: `any`
 
-### `createQuestion`
+### `showInToolbox`
 
-A function that allows you to create a custom question if you do not specify the `questionJSON` property.
+Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
 
-**Type**: `any`
+Default value: `true`
 
-### `numberQuestionsWithHiddenTitle`
+Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
 
 **Type**: `boolean`
 
+### `title`
+
+A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
+
+**Type**: `string`
+
 ## Methods
 
-### `onInit()`
+### `getErrorText()`
 
-A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
+A function that allows you to display different error texts based on conditions.
 
-### `onCreated()`
-
-A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
-
-Parameters:
-
-- `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-The custom question.
+**Return value:** `string` &ndash; An error text.
 
 **Parameters:**
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| `question` | `Question` |  |
-
-### `onLoaded()`
-
-A function that is called when JSON schemas are loaded.
-
-Parameters:
-
-- `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-A custom question.
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` |  |
+| `question` | `Question` | A custom question. Use the `question.value` property to access the question's value. |
 
 ### `onAfterRender()`
 
@@ -202,26 +172,63 @@ An HTML element that represents a nested question.
 | `element` | `Question` |  |
 | `htmlElement` | `any` |  |
 
-### `onUpdateQuestionCssClasses()`
+### `onCreated()`
 
-A function that is called each time a question nested within a [composite question](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types) requires an update of its CSS classes.
+A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
 
 Parameters:
 
 - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-A composite question.
-- `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-A nested question.
-- `cssClasses`: `any`\
-An object with CSS classes applied to a nested question, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
+The custom question.
 
 **Parameters:**
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `question` | `Question` |  |
-| `element` | `Question` |  |
-| `cssClasses` | `any` |  |
+
+### `onInit()`
+
+A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
+
+### `onItemValuePropertyChanged()`
+
+A function that is called when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
+
+Parameters:
+
+- `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+A custom question.
+- `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue)\
+An `ItemValue` object.
+- `options.propertyName`: `string`\
+The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
+- `options.name`: `string`\
+The name of the changed property: `"text"` or `"value"`.
+- `options.newValue`: `any`\
+A new value for the property.
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `question` | `Question` |  |
+| `options` | `{ obj: ItemValue; propertyName: string; name: string; newValue: any; }` |  |
+
+### `onLoaded()`
+
+A function that is called when JSON schemas are loaded.
+
+Parameters:
+
+- `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+A custom question.
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `question` | `Question` |  |
 
 ### `onPropertyChanged()`
 
@@ -243,6 +250,27 @@ A new value for the property.
 | `question` | `Question` |  |
 | `propertyName` | `string` |  |
 | `newValue` | `any` |  |
+
+### `onUpdateQuestionCssClasses()`
+
+A function that is called each time a question nested within a [composite question](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types) requires an update of its CSS classes.
+
+Parameters:
+
+- `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+A composite question.
+- `element`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+A nested question.
+- `cssClasses`: `any`\
+An object with CSS classes applied to a nested question, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
+
+**Parameters:**
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| `question` | `Question` |  |
+| `element` | `Question` |  |
+| `cssClasses` | `any` |  |
 
 ### `onValueChanged()`
 
@@ -292,42 +320,6 @@ A new value for the question.
 | `name` | `string` |  |
 | `newValue` | `any` |  |
 
-### `onItemValuePropertyChanged()`
-
-A function that is called when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
-
-Parameters:
-
-- `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
-A custom question.
-- `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue)\
-An `ItemValue` object.
-- `options.propertyName`: `string`\
-The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
-- `options.name`: `string`\
-The name of the changed property: `"text"` or `"value"`.
-- `options.newValue`: `any`\
-A new value for the property.
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` |  |
-| `options` | `{ obj: ItemValue; propertyName: string; name: string; newValue: any; }` |  |
-
-### `getErrorText()`
-
-A function that allows you to display different error texts based on conditions.
-
-**Return value:** `string` &ndash; An error text.
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` | A custom question. Use the `question.value` property to access the question's value. |
-
 ### `onValueSet()`
 
 A function that is called after the question value is set.
@@ -349,52 +341,3 @@ Unlike the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api
 | ---- | ---- | ----------- |
 | `question` | `Question` |  |
 | `newValue` | `any` |  |
-
-### `onSetQuestionValue()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `question` | `Question` |  |
-| `newValue` | `any` |  |
-
-### `valueToQuestion()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `val` | `any` |  |
-
-### `valueFromQuestion()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `val` | `any` |  |
-
-### `getValue()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `val` | `any` |  |
-
-### `setValue()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `val` | `any` |  |

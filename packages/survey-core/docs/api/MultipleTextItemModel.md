@@ -2,8 +2,8 @@
 title: MultipleTextItemModel
 product: Form Library
 api-type: class
-description: "A class that describes an [item](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model#items) in a Multiple Textboxes question. [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))"
-source: 
+description: A class that describes an item in a Multiple Textboxes question.
+source: https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel
 ---
 
 # `MultipleTextItemModel`
@@ -18,89 +18,9 @@ A class that describes an [item](https://surveyjs.io/form-library/documentation/
 
 ## Properties
 
-### `editorValue`
+### `defaultValueExpression`
 
-**Type**: `MultipleTextEditorModel`
-
-### `data`
-
-**Type**: `IMultipleTextData`
-
-### `valueChangedCallback`
-
-**Type**: `(newValue: any) => void`
-
-### `id`
-
-**Type**: `string`
-
-### `name`
-
-An item ID that is not visible to respondents.
-
-> Item IDs must be unique.
-
-**Type**: `string`
-
-### `question`
-
-**Type**: `Question`
-
-### `editor`
-
-**Type**: `MultipleTextEditorModel`
-
-### `focusIn`
-
-**Type**: `() => void`
-
-### `isRequired`
-
-Marks the item as required. If a respondent leaves this item empty, the question displays a [validation error](#requiredErrorText).
-
-**Type**: `boolean`
-
-### `inputType`
-
-A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
-
-Default value: `"text"`
-
-[View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
-
-**Type**: `string`
-
-### `title`
-
-A user-friendly item label to display. If `title` is undefined, [`name`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#name) is displayed instead.
-
-**Type**: `string`
-
-### `fullTitle`
-
-**Type**: `string`
-
-### `maxLength`
-
-The maximum text length measured in characters. Assign 0 if the length should be unlimited.
-
-Default value: -1 (inherits the actual value from the `SurveyModel`'s [`maxTextLength`](https://surveyjs.io/form-library/documentation/surveymodel#maxTextLength) property).
-
-**Type**: `number`
-
-### `placeholder`
-
-A placeholder for the input field.
-
-**Type**: `string`
-
-### `placeHolder`
-
-**Type**: `string`
-
-### `requiredErrorText`
-
-Specifies a custom error message for a [required item](#isRequired).
+An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the default item value.
 
 **Type**: `string`
 
@@ -112,51 +32,33 @@ If you want to set a uniform `inputSize` for all text box items, use the [`input
 
 **Type**: `number`
 
-### `size`
+### `inputTextAlignment`
 
-**Type**: `number`
-
-### `defaultValueExpression`
-
-An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the default item value.
-
-**Type**: `string`
-
-### `minValueExpression`
-
-An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the minimum item value.
-
-**Type**: `string`
-
-### `maxValueExpression`
-
-An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the maximum item value.
-
-**Type**: `string`
-
-### `validators`
-
-Item validators.
-
-[View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
-
-**Type**: `SurveyValidator[]`
-
-### `maskType`
-
-Specifies the type of a mask applied to the input.
+Specifies text alignment within the input field.
 
 Possible values:
 
-- `"none"` (default)
-- `"numeric"`
-- `"currency"`
-- `"datetime"`
-- `"pattern"`
+- `"left"` - Aligns input text to the left side.
+- `"right"` - Aligns input text to the right side.
+- `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#maskType) is specified. Otherwise, applies left alignment.
 
-[View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+**Type**: `"auto" | "left" | "right"`
+
+### `inputType`
+
+A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
+
+Default value: `"text"`
+
+[View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
 
 **Type**: `string`
+
+### `isRequired`
+
+Marks the item as required. If a respondent leaves this item empty, the question displays a [validation error](#requiredErrorText).
+
+**Type**: `boolean`
 
 ### `maskSettings`
 
@@ -175,66 +77,78 @@ Available properties depend on the specified [`maskType`](#maskType) and belong 
 
 **Type**: `InputMaskBase`
 
-### `inputTextAlignment`
+### `maskType`
 
-Specifies text alignment within the input field.
+Specifies the type of a mask applied to the input.
 
 Possible values:
 
-- `"left"` - Aligns input text to the left side.
-- `"right"` - Aligns input text to the right side.
-- `"auto"` (default) - Applies right alignment if a [numeric or currency input mask](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#maskType) is specified. Otherwise, applies left alignment.
+- `"none"` (default)
+- `"numeric"`
+- `"currency"`
+- `"datetime"`
+- `"pattern"`
 
-**Type**: `"auto" | "left" | "right"`
+[View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+
+**Type**: `string`
+
+### `maxLength`
+
+The maximum text length measured in characters. Assign 0 if the length should be unlimited.
+
+Default value: -1 (inherits the actual value from the `SurveyModel`'s [`maxTextLength`](https://surveyjs.io/form-library/documentation/surveymodel#maxTextLength) property).
+
+**Type**: `number`
+
+### `maxValueExpression`
+
+An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the maximum item value.
+
+**Type**: `string`
+
+### `minValueExpression`
+
+An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the minimum item value.
+
+**Type**: `string`
+
+### `name`
+
+An item ID that is not visible to respondents.
+
+> Item IDs must be unique.
+
+**Type**: `string`
+
+### `placeholder`
+
+A placeholder for the input field.
+
+**Type**: `string`
+
+### `requiredErrorText`
+
+Specifies a custom error message for a [required item](#isRequired).
+
+**Type**: `string`
+
+### `title`
+
+A user-friendly item label to display. If `title` is undefined, [`name`](https://surveyjs.io/form-library/documentation/api-reference/multipletextitemmodel#name) is displayed instead.
+
+**Type**: `string`
+
+### `validators`
+
+Item validators.
+
+[View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
+
+**Type**: `SurveyValidator[]`
 
 ### `value`
 
 An item value.
 
 **Type**: `any`
-
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `getOwner()`
-
-**Return value:** `Question`
-
-### `getOriginalObj()`
-
-**Return value:** `Base`
-
-### `addUsedLocales()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `locales` | `string[]` |  |
-
-### `localeChanged()`
-
-### `locStrsChanged()`
-
-### `getMaxLength()`
-
-**Return value:** `any`
-
-### `getValidators()`
-
-**Return value:** `SurveyValidator[]<SurveyValidator>`
-
-### `isEmpty()`
-
-**Return value:** `boolean`
-
-### `onValueChanged()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `newValue` | `any` |  |

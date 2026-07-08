@@ -2,8 +2,8 @@
 title: InputMaskPattern
 product: Form Library
 api-type: class
-description: "A class that describes an input mask of the `\"pattern\"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType). The following code shows how to specify the properties of this class within a survey JSON schema: ```js const surveyJson = { \"elements\": [{ \"name\": \"textquestion1\" \"type\": \"text\", \"maskType\": \"pattern\", \"maskSettings\": { // Specify the properties of a pattern input mask here } }] } ``` [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))"
-source: 
+description: "A class that describes an input mask of the `\"pattern\"` `maskType`."
+source: https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern
 ---
 
 # `InputMaskPattern`
@@ -32,10 +32,6 @@ const surveyJson = {
 `Base` &rarr; `InputMaskBase` &rarr; `InputMaskPattern`
 
 ## Properties
-
-### `literals`
-
-**Type**: `IMaskLiteral[]`
 
 ### `pattern`
 
@@ -73,70 +69,3 @@ Example: `mm/dd/yyyy HH:MM:ss`
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
 **Type**: `string`
-
-## Methods
-
-### `getType()`
-
-**Return value:** `string`
-
-### `fromJSON()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `json` | `any` |  |
-| `options` | `ILoadFromJSONOptions` |  |
-
-### `_getMaskedValue()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `src` | `string` |  |
-| `matchWholeMask` | `boolean` |  |
-
-### `_getUnmaskedValue()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `src` | `string` |  |
-| `matchWholeMask` | `boolean` |  |
-
-### `processInput()`
-
-**Return value:** `IMaskedInputResult`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `args` | `ITextInputParams` |  |
-
-### `getMaskedValue()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `src` | `any` |  |
-
-### `getUnmaskedValue()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `src` | `string` |  |

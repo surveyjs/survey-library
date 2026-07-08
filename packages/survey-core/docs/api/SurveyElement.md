@@ -3,7 +3,7 @@ title: SurveyElement
 product: Form Library
 api-type: class
 description: A base class for all survey elements.
-source: 
+source: https://surveyjs.io/form-library/documentation/api-reference/surveyelement
 ---
 
 # `SurveyElement`
@@ -16,38 +16,6 @@ A base class for all survey elements.
 
 ## Properties
 
-### `stateChangedCallback`
-
-**Type**: `() => void`
-
-### `surveyImplValue`
-
-**Type**: `ISurveyImpl`
-
-### `surveyDataValue`
-
-**Type**: `ISurveyData`
-
-### `surveyValue`
-
-**Type**: `ISurvey`
-
-### `textProcessorValue`
-
-**Type**: `ITextProcessor`
-
-### `selectedElementInDesignValue`
-
-**Type**: `SurveyElement<any>`
-
-### `readOnlyChangedCallback`
-
-**Type**: `() => void`
-
-### `effectiveColSpan`
-
-**Type**: `number`
-
 ### `colSpan`
 
 Specifies how many columns this survey element spans in the grid layout. Applies only if you set the `SurveyModel`'s [`gridLayoutEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#gridLayoutEnabled) property to `true` and define the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation/api-reference/page-model#gridLayoutColumns) array for the parent page or panel.
@@ -56,163 +24,11 @@ Default value: 1
 
 **Type**: `number`
 
-### `parentQuestionValue`
+### `containsErrors`
 
-**Type**: `E`
+Returns `true` if the survey element or its child elements have validation errors.
 
-### `parentQuestion`
-
-A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.
-
-This property is `null` for standalone questions.
-
-**Type**: `E`
-
-### `skeletonComponentName`
-
-**Type**: `string`
-
-### `state`
-
-Gets and sets the survey element's expand state.
-
-Possible values:
-
-- `"default"` (default) - The survey element is displayed in full and cannot be collapsed in the UI.
-- `"expanded"` - The survey element is displayed in full and can be collapsed in the UI.
-- `"collapsed"` - The survey element displays only `title` and `description` and can be expanded in the UI.
-
-[View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
-
-**Type**: `string`
-
-### `isCollapsed`
-
-Returns `true` if the survey element is collapsed.
-
-**Type**: `boolean`
-
-### `isExpanded`
-
-Returns `true` if the survey element is expanded.
-
-**Type**: `boolean`
-
-### `hasStateButton`
-
-**Type**: `boolean`
-
-### `uiState`
-
-**Type**: `IElementUIState`
-
-### `shortcutText`
-
-**Type**: `string`
-
-### `titleToolbarValue`
-
-**Type**: `AdaptiveActionContainer<Action>`
-
-### `titleActions`
-
-**Type**: `any[]`
-
-### `isTitleActionRequested`
-
-**Type**: `boolean`
-
-### `hasTitleActions`
-
-**Type**: `boolean`
-
-### `hasTitleEvents`
-
-**Type**: `boolean`
-
-### `titleTabIndex`
-
-**Type**: `number`
-
-### `titleAriaExpanded`
-
-**Type**: `any`
-
-### `titleAriaRole`
-
-**Type**: `any`
-
-### `data`
-
-**Type**: `ISurveyData`
-
-### `survey`
-
-Returns the survey object.
-
-**Type**: `ISurvey`
-
-### `titleSettings`
-
-**Type**: `ISurveyTitleSettings`
-
-### `lifecycleCallbacks`
-
-**Type**: `ISurveyElementLifecycle`
-
-### `cssCallbacks`
-
-**Type**: `ISurveyCssCallbacks`
-
-### `singleInput`
-
-**Type**: `ISurveySingleInput`
-
-### `skeletonHeight`
-
-**Type**: `string`
-
-### `isContentElement`
-
-**Type**: `boolean`
-
-### `isEditableTemplateElement`
-
-**Type**: `boolean`
-
-### `isInteractiveDesignElement`
-
-**Type**: `boolean`
-
-### `areInvisibleElementsShowing`
-
-**Type**: `boolean`
-
-### `isVisible`
-
-**Type**: `boolean`
-
-### `isReadOnly`
-
-Returns `true` if the survey element or its parent element is read-only.
-
-If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
-
-**Type**: `boolean`
-
-### `readOnly`
-
-Makes the survey element read-only.
-
-If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
-
-**Type**: `boolean`
-
-### `cssClassesValue`
-
-**Type**: `any`
-
-### `isCalculatingCssClasses`
+This property contains the result of the most recent validation. This result may be outdated. Call the `validate` method to get an up-to-date value.
 
 **Type**: `boolean`
 
@@ -231,89 +47,43 @@ Use the following events of the [`SurveyModel`](https://surveyjs.io/form-library
 
 **Type**: `any`
 
-### `cssTitleNumber`
-
-**Type**: `any`
-
-### `cssRequiredMark`
-
-**Type**: `any`
-
-### `cssError`
-
-**Type**: `string`
-
-### `name`
-
-A survey element identifier.
-
-> Question names must be unique.
-
-**Type**: `string`
-
 ### `errors`
 
 Validation errors. Call the `validate()` method to validate survey element data.
 
 **Type**: `SurveyError[]`
 
-### `renderedErrors`
+### `indent`
 
-**Type**: `SurveyError[]`
+Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0.
 
-### `currentNotificationType`
+**Type**: `number`
 
-**Type**: `string`
+### `isCollapsed`
 
-### `hasVisibleErrors`
-
-**Type**: `boolean`
-
-### `containsErrors`
-
-Returns `true` if the survey element or its child elements have validation errors.
-
-This property contains the result of the most recent validation. This result may be outdated. Call the `validate` method to get an up-to-date value.
+Returns `true` if the survey element is collapsed.
 
 **Type**: `boolean`
 
-### `selectedElementInDesign`
+### `isExpanded`
 
-**Type**: `SurveyElement<any>`
-
-### `wasRenderedValue`
+Returns `true` if the survey element is expanded.
 
 **Type**: `boolean`
 
-### `wasRendered`
+### `isReadOnly`
+
+Returns `true` if the survey element or its parent element is read-only.
+
+If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
 **Type**: `boolean`
 
-### `locOwner`
+### `maxWidth`
 
-**Type**: `ILocalizableOwner`
+Gets or sets maximum survey element width in CSS values.
 
-### `parent`
-
-**Type**: `IPanel`
-
-### `hasParent`
-
-**Type**: `boolean`
-
-### `isSingleInRow`
-
-**Type**: `boolean`
-
-### `isInternalNested`
-
-**Type**: `boolean`
-
-### `width`
-
-Sets survey element width in CSS values.
-
-Default value: ""
+Default value: "100%" (taken from [`settings.maxWidth`](https://surveyjs.io/form-library/documentation/settings#maxWidth))
 
 **Type**: `string`
 
@@ -325,13 +95,29 @@ Default value: "300px" (taken from [`settings.minWidth`](https://surveyjs.io/for
 
 **Type**: `string`
 
-### `maxWidth`
+### `name`
 
-Gets or sets maximum survey element width in CSS values.
+A survey element identifier.
 
-Default value: "100%" (taken from [`settings.maxWidth`](https://surveyjs.io/form-library/documentation/settings#maxWidth))
+> Question names must be unique.
 
 **Type**: `string`
+
+### `parentQuestion`
+
+A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.
+
+This property is `null` for standalone questions.
+
+**Type**: `E`
+
+### `readOnly`
+
+Makes the survey element read-only.
+
+If you want to switch a survey element to the read-only state based on a condition, specify the [`enableIf`](https://surveyjs.io/form-library/documentation/question#enableIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+
+**Type**: `boolean`
 
 ### `renderWidth`
 
@@ -339,150 +125,35 @@ Returns a calculated width of the rendered survey element in CSS values.
 
 **Type**: `string`
 
-### `indent`
+### `state`
 
-Increases or decreases an indent of survey element content from the left edge. Accepts positive integer values and 0.
+Gets and sets the survey element's expand state.
 
-**Type**: `number`
+Possible values:
 
-### `rightIndent`
+- `"default"` (default) - The survey element is displayed in full and cannot be collapsed in the UI.
+- `"expanded"` - The survey element is displayed in full and can be collapsed in the UI.
+- `"collapsed"` - The survey element displays only `title` and `description` and can be expanded in the UI.
 
-**Type**: `number`
+[View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
 
-### `allowRootStyle`
+**Type**: `string`
 
-**Type**: `boolean`
+### `survey`
 
-### `rootStyle`
+Returns the survey object.
 
-**Type**: `any`
+**Type**: `ISurvey`
 
-### `clickTitleFunction`
+### `width`
 
-**Type**: `any`
+Sets survey element width in CSS values.
 
-### `hasAdditionalTitleToolbar`
+Default value: ""
 
-**Type**: `boolean`
-
-### `additionalTitleToolbar`
-
-**Type**: `ActionContainer<Action>`
-
-### `isDisabledStyle`
-
-**Type**: `boolean`
-
-### `isReadOnlyStyle`
-
-**Type**: `boolean`
-
-### `isPreviewStyle`
-
-**Type**: `boolean`
-
-### `wrapperElement`
-
-**Type**: `any`
-
-### `_renderedIsExpanded`
-
-**Type**: `boolean`
-
-### `_isAnimatingCollapseExpand`
-
-**Type**: `boolean`
-
-### `animationCollapsed`
-
-**Type**: `AnimationBoolean`
-
-### `renderedIsExpanded`
-
-**Type**: `boolean`
-
-### `randomSeed`
-
-**Type**: `number`
+**Type**: `string`
 
 ## Methods
-
-### `getProgressInfoByElements()`
-
-**Return value:** `IProgressInfo`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `children` | `SurveyElement<any>[]` |  |
-| `isRequired` | `boolean` |  |
-
-### `ScrollIntoView()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |
-| `scrollIntoViewOptions` | `any` |  |
-| `doneCallback` | `() => void` |  |
-
-### `ScrollElementToTop()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `any` |  |
-| `scrollIfVisible` | `boolean` |  |
-| `scrollIntoViewOptions` | `any` |  |
-| `doneCallback` | `() => void` |  |
-
-### `ScrollElementToViewCore()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `el` | `any` |  |
-| `checkLeft` | `boolean` |  |
-| `scrollIfVisible` | `boolean` |  |
-| `scrollIntoViewOptions` | `any` |  |
-| `doneCallback` | `() => void` |  |
-
-### `GetFirstNonTextElement()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `elements` | `any` |  |
-| `removeSpaces` | `boolean` |  |
-
-### `FocusElement()`
-
-**Return value:** `boolean`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `elementId` | `string` |  |
-| `isTimeOut` | `boolean` |  |
-| `containerEl` | `any` |  |
-
-### `getPanelInDesignMode()`
-
-**Return value:** `PanelModel`
-
-### `updateElementVisibility()`
 
 ### `collapse()`
 
@@ -493,91 +164,6 @@ In collapsed state, the element displays only `title` and `description`.
 ### `expand()`
 
 Expands the survey element.
-
-### `toggleState()`
-
-Toggles the survey element's `state` between collapsed and expanded.
-
-**Return value:** `boolean`
-
-### `getTitleToolbar()`
-
-**Return value:** `AdaptiveActionContainer<Action>`
-
-### `getTitleActions()`
-
-**Return value:** `any[]<any>`
-
-### `locStrsChanged()`
-
-### `setSurveyImpl()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `value` | `ISurveyImpl` |  |
-| `isLight` | `boolean` |  |
-
-### `getValueGetterContext()`
-
-**Return value:** `IValueGetterContext`
-
-### `getDataFilteredProperties()`
-
-**Return value:** `any`
-
-### `getSurvey()`
-
-**Return value:** `ISurvey`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `live` | `boolean` |  |
-
-### `getCssTitleExpandableSvg()`
-
-**Return value:** `string`
-
-### `updateElementCss()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `reNew` | `boolean` |  |
-
-### `calcRenderedErrors()`
-
-**Return value:** `SurveyError[]<SurveyError>`
-
-### `updateContainsErrors()`
-
-### `updateCustomWidgets()`
-
-### `onSurveyLoad()`
-
-### `onFirstRendering()`
-
-### `setVisibleIndex()`
-
-**Return value:** `number`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `index` | `number` |  |
-
-### `delete()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `doDispose` | `boolean` |  |
 
 ### `getLocale()`
 
@@ -592,81 +178,8 @@ const defaultLocale = surveyLocalization.defaultLocale;
 
 **Return value:** `string`
 
-### `getMarkdownHtml()`
+### `toggleState()`
 
-**Return value:** `string`
+Toggles the survey element's `state` between collapsed and expanded.
 
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `text` | `string` |  |
-| `name` | `string` |  |
-| `item` | `any` |  |
-
-### `getRenderer()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `name` | `string` |  |
-| `item` | `ItemValue` |  |
-
-### `getRendererContext()`
-
-**Return value:** `any`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `locStr` | `LocalizableString` |  |
-| `item` | `ItemValue` |  |
-
-### `getProcessedText()`
-
-**Return value:** `string`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `text` | `string` |  |
-| `context` | `any` |  |
-
-### `getRootStyle()`
-
-**Return value:** `object`
-
-### `updateRootStyle()`
-
-### `localeChanged()`
-
-### `setWrapperElement()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `any` |  |
-
-### `getWrapperElement()`
-
-**Return value:** `HTMLElement`
-
-### `afterRenderCore()`
-
-**Parameters:**
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| `element` | `any` |  |
-
-### `dispose()`
-
-### `randomSeedChanged()`
-
-### `ensureRowsVisibility()`
+**Return value:** `boolean`

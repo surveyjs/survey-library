@@ -54,7 +54,9 @@
 
 .sd-progress-buttons__list {
   display: grid;
-  grid-auto-columns: minmax(var(--sjs2-size-x800), 1fr);
+  // wider minimum per step so the row starts scrolling before the labels of adjacent
+  // steps run into each other (keeps a gap between the texts on a narrow screen)
+  grid-auto-columns: minmax(var(--sjs2-size-x1200), 1fr);
   grid-auto-flow: column;
   width: 100%;
   padding: 0;
@@ -182,7 +184,8 @@
 .sd-progress-buttons__page-title,
 .sd-progress-buttons__page-description {
   cursor: pointer;
-  max-width: 100%;
+  // keep a gap between the labels of adjacent steps: the label never fills the whole column
+  max-width: calc(100% - var(--sjs2-size-x400));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -420,9 +423,12 @@
     justify-content: flex-start;
     text-align: start;
     gap: var(--sjs2-size-x100);
-    // every step but the last grows equally; the last one is content-sized so it sits at the right edge
+    // every step but the last grows equally; the last one is content-sized so it sits at the right edge.
+    // A definite min-width gives each step a hard floor: on a narrow screen the steps stop shrinking,
+    // the row overflows and the container (overflow-x: auto) shows a horizontal scrollbar — the label
+    // ellipsises within this floor instead of disappearing.
     flex: 1 1 0;
-    min-width: 0;
+    min-width: var(--sjs2-size-x1500);
 
     &:last-child {
       flex: 0 0 auto;
@@ -469,11 +475,17 @@
     margin-top: 0;
     // the button precedes the label in the inline layout, even though it follows it in the DOM
     order: -1;
+    // the step marker keeps its fixed size and never shrinks under a long title/description
+    flex-shrink: 0;
   }
 
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
     text-align: start;
+    // let the label ellipsis instead of forcing the step to grow (or crushing the marker)
+    min-width: 0;
+    // the inline layout gets its gap from the trailing connector, so the label may use the full width
+    max-width: 100%;
   }
 
   .sd-progress-buttons__page-description {

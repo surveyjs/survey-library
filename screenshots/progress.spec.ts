@@ -79,6 +79,31 @@ const applyHeaderAccentBackgroundColor = async (page: Page) => {
   });
 };
 
+// Inline navigation text is always title-only (no descriptions).
+const inlineTitlesJson = {
+  pages: [
+    { name: "page1", navigationTitle: "Overall satisfaction", elements: [{ type: "text", name: "q1" }] },
+    { name: "page2", navigationTitle: "Pricing", elements: [{ type: "text", name: "q2" }] },
+    { name: "page3", navigationTitle: "Contacts", elements: [{ type: "text", name: "q3" }] },
+    { name: "page4", navigationTitle: "Delivery", elements: [{ type: "text", name: "q4" }] },
+    { name: "page5", navigationTitle: "Payment", elements: [{ type: "text", name: "q5" }] },
+    { name: "page6", navigationTitle: "Review", elements: [{ type: "text", name: "q6" }] }
+  ]
+};
+
+// Enough steps (with titles and descriptions) that the row overflows and scrolls on a narrow, non-mobile screen.
+const topNarrowJson = {
+  pages: [
+    { name: "page1", navigationTitle: "Overall satisfaction", navigationDescription: "Your impression", elements: [{ type: "text", name: "q1" }] },
+    { name: "page2", navigationTitle: "Pricing", navigationDescription: "Plans and cost", elements: [{ type: "text", name: "q2" }] },
+    { name: "page3", navigationTitle: "Contacts", navigationDescription: "How to reach you", elements: [{ type: "text", name: "q3" }] },
+    { name: "page4", navigationTitle: "Delivery", navigationDescription: "Shipping details", elements: [{ type: "text", name: "q4" }] },
+    { name: "page5", navigationTitle: "Payment", navigationDescription: "Billing details", elements: [{ type: "text", name: "q5" }] },
+    { name: "page6", navigationTitle: "Review", navigationDescription: "Check your answers", elements: [{ type: "text", name: "q6" }] },
+    { name: "page7", navigationTitle: "Confirmation", navigationDescription: "Finish the survey", elements: [{ type: "text", name: "q7" }] }
+  ]
+};
+
 const compareMaskedScreenshot = async (page: Page, elementSelector: string | Locator | undefined, screenshotName: string) => {
   await compareScreenshot(page, elementSelector, screenshotName, { mask: [page.locator(".sd-body")] });
 };
@@ -885,17 +910,12 @@ frameworks.forEach(framework => {
       });
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-bottom.png");
-
-      await page.evaluate(() => {
-        (<any>window).survey.progressBarNavigationTextLocation = "inline";
-      });
-
-      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-page-title-location-inline.png");
     });
 
     test("Check survey with progress buttons - inline navigation text", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, json);
+      // inline navigation text is always title-only (no descriptions)
+      await initSurvey(page, framework, inlineTitlesJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarType = "pages";
@@ -913,6 +933,35 @@ frameworks.forEach(framework => {
       });
 
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-inline-navigation-text-numbered.png");
+    });
+
+    test("Check survey with progress buttons - inline navigation text on a narrow screen shows a horizontal scroll", async ({ page }) => {
+      // keep the survey above the 600px mobile breakpoint (below it navigation titles are hidden)
+      await page.setViewportSize({ width: 640, height: 900 });
+      await initSurvey(page, framework, inlineTitlesJson);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.progressBarNavigationTextLocation = "inline";
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-inline-navigation-text-narrow-scroll.png");
+    });
+
+    test("Check survey with progress top buttons on a narrow screen shows a horizontal scroll", async ({ page }) => {
+      // keep the survey above the 600px mobile breakpoint (below it navigation titles are hidden)
+      await page.setViewportSize({ width: 640, height: 900 });
+      await initSurvey(page, framework, topNarrowJson);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.currentPageNo = 1;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-navigation-text-narrow-scroll.png");
     });
 
     test("Check survey with progress top buttons - skipped pages stay gray", async ({ page }) => {

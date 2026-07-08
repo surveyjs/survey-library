@@ -28,7 +28,7 @@ export class SurveyPanel extends SurveyPanelBase {
       />
     );
     // const panelPaddingHorizontal = "var(--sjs2-layout-component-panel-content-area-padding-horizontal, var(--sjs2-spacing-x500))";
-    const panelPaddingHorizontal = "var(--sd-base-padding, var(--sjs2-spacing-x500))";
+    const panelPaddingHorizontal = this.panel.isDesignMode ? "var(--sjs2-spacing-x000)" : "var(--sd-base-padding, var(--sjs2-spacing-x500))";
     const style: React.CSSProperties = {
       paddingInlineStart: this.panel.innerPaddingLeft
         ? `calc(${panelPaddingHorizontal} + ${this.panel.innerPaddingLeft})`

@@ -279,38 +279,33 @@ export default {
     "--sjs2-layout-component-page-footer-padding-horizontal": "var(--sjs2-spacing-large-horizontal)", // not used
     "--sjs2-layout-component-page-footer-padding-vertical": "var(--sjs2-spacing-large-vertical)", // not used
     "--sjs2-layout-component-page-footer-action-group-gap": "var(--sjs2-spacing-x150)", // not used
-    "--sjs2-layout-component-panel-box-padding-horizontal": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-box-padding-top": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-box-padding-bottom": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-box-gap-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-panel-box-padding-horizontal": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-box-padding-top": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-box-padding-bottom": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-box-gap-vertical": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)", // +
     "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-spacing-large-vertical)",
-    "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-spacing-x400)",
-    "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-spacing-x400)",
-    // "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-spacing-medium-vertical)",
-    // "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
-    "--sjs2-layout-component-panel-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-spacing-x400)",
-    // "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-spacing-large-vertical)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-spacing-large-vertical)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)", // +
+    "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-spacing-x400)", // + should be --sjs2-spacing-medium-vertical
     "--sjs2-layout-component-panel-header-padding-left": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-header-padding-right": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-spacing-x400)",
-    "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-x200)",
-    // "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-spacing-medium-vertical)",
-    // "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
-    "--sjs2-layout-component-panel-header-gap-vertical": "var(--sjs2-spacing-x050)",
+    "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-spacing-x400)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-x400)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-header-gap-vertical": "var(--sjs2-spacing-x050)", // +
     "--sjs2-layout-component-panel-header-gap-horizontal": "var(--sjs2-spacing-x150)",
-    "--sjs2-layout-component-panel-title-padding-horizontal": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-title-padding-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-description-padding-horizontal": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-description-padding-top": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-description-padding-bottom": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-footer-padding-left": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-footer-padding-right": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-footer-padding-top": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-footer-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-title-padding-horizontal": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-title-padding-vertical": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-description-padding-horizontal": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-description-padding-top": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-description-padding-bottom": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-footer-padding-left": "var(--sjs2-spacing-large-horizontal)", // +
+    "--sjs2-layout-component-panel-footer-padding-right": "var(--sjs2-spacing-large-horizontal)", // +
+    "--sjs2-layout-component-panel-footer-padding-top": "calc(0.5 * var(--sd-base-vertical-padding))", // + should be var(--sjs2-spacing-x000)
+    "--sjs2-layout-component-panel-footer-padding-bottom": "var(--sjs2-spacing-x200)", // + sholud be --sjs2-spacing-medium-vertical
     "--sjs2-layout-component-panel-footer-gap": "var(--sjs2-spacing-x150)",
-    "--sjs2-layout-component-panel-footer-action-group-gap": "var(--sjs2-spacing-x150)",
+    "--sjs2-layout-component-panel-footer-action-group-gap": "var(--sjs2-spacing-x150)", // +
     "--sjs2-layout-component-panel-header-action-group-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-simple-box-padding-horizontal": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-panel-simple-box-padding-top": "var(--sjs2-spacing-x000)", // +
@@ -331,9 +326,9 @@ export default {
     "--sjs2-layout-component-panel-nested-box-padding-top": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-nested-box-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-nested-box-gap-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-nested-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-nested-content-area-padding-top": "var(--sjs2-spacing-medium-vertical)",
-    "--sjs2-layout-component-panel-nested-content-area-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-nested-content-area-padding-horizontal": "var(--sd-base-padding)", // + should be --sjs2-spacing-large-horizontal
+    "--sjs2-layout-component-panel-nested-content-area-padding-top": "var(--sjs2-spacing-large-vertical)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-nested-content-area-padding-bottom": "var(--sd-base-padding)", // + should be --sjs2-spacing-medium-vertical
     "--sjs2-layout-component-panel-nested-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-nested-content-area-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
     "--sjs2-layout-component-panel-nested-header-padding-left": "var(--sjs2-spacing-large-horizontal)",

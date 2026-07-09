@@ -117,6 +117,8 @@
   --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
   --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 3);
   --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-layout-component-input-medium-label-padding-horizontal: calc(var(--spacing) * 3);
+  --sjs2-layout-component-input-medium-label-padding-vertical: calc(var(--spacing) * 2);
   --sjs2-color-component-input-default-value: var(--foreground);
   --sjs2-color-component-input-default-placeholder: var(--muted-foreground);
   --sjs2-typography-line-height-component-input-content: var(--text-sm--line-height);
@@ -175,6 +177,20 @@
     --sjs2-color-component-toggle-false-default-thumb: var(--foreground);
     --sjs2-color-component-toggle-false-hovered-thumb: var(--foreground);
   }
+
+  /* tagbox */
+  --sjs2-radius-component-tagbox-item: calc(var(--radius) * .8);
+  --sjs2-radius-component-tagbox-item-action: 0;
+  --sjs2-color-component-tagbox-item-default-bg: var(--background);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--background);
+  --sjs2-color-component-tagbox-item-default-border: var(--border);
+  --sjs2-color-component-tagbox-item-hovered-border: var(--border);
+  --sjs2-color-component-tagbox-item-default-label: var(--secondary-foreground);
+  --sjs2-color-component-tagbox-item-hovered-label: var(--secondary-foreground);
+  --sjs2-color-component-tagbox-item-action-default-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-hovered-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab,var(--muted-foreground) 80%,transparent);
+  --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
 
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
@@ -257,6 +273,60 @@
   &:active {
     background-color: transparent;
   }
+}
+
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding: calc(var(--spacing) * 1);
+  gap: calc(var(--spacing) * 1);
+}
+
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input {
+  padding-inline: calc(var(--spacing) * 3);
+  padding-block: calc(var(--spacing) * 2);
+}
+
+.sd-tagbox-item {
+  padding-left: calc(var(--spacing) * 2);
+	padding-right: calc(var(--spacing) * 7);
+  padding-block: 0;
+  height: calc(var(--spacing) * 7);
+  background-color: var(--background);
+  overflow: visible;
+}
+
+.sd-tagbox-item__text {
+  font-weight: var(--font-weight-medium);
+	font-size: var(--text-xs);
+  line-height: var(--tw-leading, var(--text-xs--line-height));
+  padding: 0;
+}
+
+.sd-tagbox-item__clean {
+  cursor: default;
+  opacity: 1;
+  background: transparent;
+  width: calc(var(--spacing) * 7);
+  padding: 0;
+}
+
+.sd-tagbox-item__clean-button {
+  cursor: default;
+  background: transparent;
+  width: calc(var(--spacing) * 7);
+  height: calc(var(--spacing) * 7);
+  justify-content: center;
+  align-items: center;
+}
+
+.sd-tagbox-item__clean-button:focus-visible {
+  border-top-right-radius: calc(var(--radius) * .8);
+  border-bottom-right-radius: calc(var(--radius) * .8);  
+}
+
+.sd-tagbox-item__clean-button-svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* button pressed state (cannot be expressed via variables) */

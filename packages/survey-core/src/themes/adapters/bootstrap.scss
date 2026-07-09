@@ -123,7 +123,12 @@
   --sjs2-color-component-toggle-false-hovered-bg: var(--bs-body-bg);
   --sjs2-color-component-toggle-false-default-border: var(--bs-border-color);
   --sjs2-color-component-toggle-true-default-border: #0d6efd;
-  
+
+  /* tagbox */
+  --sjs2-layout-component-input-small-tag-group-gap: 0.25rem;
+  --sjs2-color-component-tagbox-item-action-default-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-hovered-bg: var(--bs-secondary-bg);
+
   /* common and other */
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--bs-danger) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--bs-secondary-bg);
@@ -230,12 +235,12 @@
   padding: 0;
   box-sizing: content-box;
   margin-top: calc(calc(1lh - 1em) / 2);
-  
+
   &:focus {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2386b7fe'/%3e%3c/svg%3e");
     box-shadow: var(--sjs2-border-effect-component-check-a11y);
   }
-  
+
   &.sd-boolean-switch__button--checked {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
   }
@@ -245,7 +250,7 @@
   }
 }
 
-[data-bs-theme=dark] .sd-boolean-switch__button:not(.sd-boolean-switch__button--checked):not(:focus) {
+[data-bs-theme="dark"] .sd-boolean-switch__button:not(.sd-boolean-switch__button--checked):not(:focus) {
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%28255, 255, 255, 0.25%29'/%3e%3c/svg%3e");
 }
 

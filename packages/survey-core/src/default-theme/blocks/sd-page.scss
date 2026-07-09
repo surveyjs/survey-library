@@ -64,11 +64,11 @@
 .sd-root--compact {
 
   // TODO: remove after new tokens are released, it is a temporary fix to keep screenshot
-  .sd-page__header ~ .sd-page__content {
-    .sd-page__errbox {
-      margin-top: var(--sjs2-spacing-negative-x100);
-    }
-  }
+  // .sd-page__header ~ .sd-page__content {
+  //   .sd-page__errbox {
+  //     margin-top: var(--sjs2-spacing-negative-x100);
+  //   }
+  // }
 
   .sd-page {
     row-gap: var(--sd-base-vertical-padding);

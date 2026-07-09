@@ -1437,8 +1437,8 @@ describe("baseselect", () => {
   });
   test("quesstion commentId/otherId", () => {
     const q1 = new QuestionCheckboxModel("q1");
-    expect(q1.commentId, "Comment id").toBe(q1.id + "_comment");
-    expect(q1.otherId, "Other id").toBe(q1.id + "_" + q1.otherItem.uniqueId);
+    expect(q1.commentId, "Comment id").toBe(q1.renderedId + "_comment");
+    expect(q1.otherId, "Other id").toBe(q1.otherItem.renderedId + "_comment");
   });
   test("selectbase, otherValue&question-Comment", () => {
     const survey = new SurveyModel({ elements: [
@@ -3335,8 +3335,7 @@ describe("baseselect", () => {
     const oldFunc = SurveyElement.FocusElement;
     const els = new Array<string>();
     SurveyElement.FocusElement = function (elId: string): boolean {
-      const index = elId.lastIndexOf("_");
-      els.push(elId.substring(index + 1));
+      els.push(elId);
       return true;
     };
 
@@ -3357,9 +3356,9 @@ describe("baseselect", () => {
       ]
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    let otherId = q1.otherItem.uniqueId.toString();
-    let choice1Id = q1.choices[0].uniqueId.toString();
-    let choice3Id = q1.choices[2].uniqueId.toString();
+    let otherId = q1.getItemCommentId(q1.otherItem);
+    let choice1Id = q1.getItemCommentId(q1.choices[0]);
+    let choice3Id = q1.getItemCommentId(q1.choices[2]);
     q1.selectItem(q1.otherItem, true);
     expect(els, "q1.focus #1").toEqual([otherId]);
     q1.selectItem(q1.otherItem, false);
@@ -3373,9 +3372,9 @@ describe("baseselect", () => {
     expect(els, "q1.focus #5").toEqual([otherId, choice1Id, choice3Id]);
 
     const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
-    otherId = q2.otherItem.uniqueId.toString();
-    choice1Id = q2.choices[0].uniqueId.toString();
-    choice3Id = q2.choices[2].uniqueId.toString();
+    otherId = q2.getItemCommentId(q2.otherItem);
+    choice1Id = q2.getItemCommentId(q2.choices[0]);
+    choice3Id = q2.getItemCommentId(q2.choices[2]);
     els.length = 0;
     q2.selectItem(q2.otherItem);
     expect(els, "q2.focus #1").toEqual([otherId]);
@@ -4105,7 +4104,7 @@ describe("baseselect", () => {
     expect(panel1.getElementByName("q1_1")?.name, "getElementByName works correctly").toBe("q1_1");
     const page = survey.pages[0];
     expect(page.getElementByName("q1_1")?.name, "page.getElementByName works correctly").toBe("q1_1");
-    const name = "choicePanel" + panel1.uniqueId;
+    const name = "choicePanel_" + panel1.id;
     expect(panel1.name, "panel1.name is correct").toBe(name);
     expect(page.getElementByName(name)?.name, "page.getElementByName works correctly for panel1").toBe(name);
   });

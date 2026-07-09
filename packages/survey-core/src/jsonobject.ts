@@ -64,13 +64,6 @@ export interface IJsonPropertyInfo {
   maxValue?: any;
   minValue?: any;
 }
-/**
- * Contains information about a property of a survey element (page, panel, questions, and etc).
- * @see addProperty
- * @see removeProperty
- * @see [Add Properties](https://surveyjs.io/Documentation/Survey-Creator#addproperties)
- * @see [Remove Properties](https://surveyjs.io/Documentation/Survey-Creator#removeproperties)
- */
 export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public static getItemValuesDefaultValue: (val: any, type: string) => any;
   [key: string]: any;
@@ -906,9 +899,6 @@ export class JsonMetadataClass {
   }
 }
 
-/**
- * The metadata object. It contains object properties' runtime information and allows you to modify it.
- */
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};

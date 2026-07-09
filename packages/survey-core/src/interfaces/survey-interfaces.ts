@@ -25,10 +25,6 @@ import type { ISurveyErrorOwner, ISurveyValidation } from "./validation-interfac
 import type { IDropdownMenuOptions, IScrollElementToTopOptions } from "./ui-interfaces";
 import type { IElement, IPage, IPanel, IQuestion, ISurveyElement } from "./element-interfaces";
 
-/**
- * Settings and callbacks for title/numbering display (question titles, numbering, required mark,
- * title tag, element actions).
- */
 export interface ISurveyTitleSettings {
   requiredMark: string;
   questionTitlePattern: string;
@@ -64,9 +60,6 @@ export interface ISurveyTitleSettings {
     question?: QuestionPanelDynamicModel
   ): Array<IAction>;
 }
-/**
- * Settings and callbacks for single-input (single-question-per-page) mode.
- */
 export interface ISurveySingleInput {
   currentSingleQuestion: IQuestion;
   isSingleVisibleInput: boolean;
@@ -75,13 +68,6 @@ export interface ISurveySingleInput {
   supportsNestedSingleInput(question: IQuestion): boolean;
   updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void;
 }
-/**
- * The main survey interface, composed from focused sub-interfaces.
- *
- * Consumers that only need a subset of survey functionality can depend on the
- * narrower sub-interfaces (e.g. `ISurveyFileCallbacks`, `ISurveyMatrixCallbacks`)
- * instead of the full `ISurvey`.
- */
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   ISurveyElementLifecycle, ISurveyFileCallbacks, ISurveyMatrixCallbacks,
   ISurveyDynamicPanelCallbacks, ISurveyChoiceCallbacks, ISurveyCssCallbacks,
@@ -96,6 +82,10 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   state: string;
   cancelPreviewByPage(panel: IPanel): any;
   locEditText: LocalizableString;
+  //#endregion
+
+  //#region Rendered ids
+  getRenderedId(id: string): string;
   //#endregion
 
   //#region Question lookup

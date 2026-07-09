@@ -360,7 +360,6 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
@@ -1188,7 +1187,7 @@ export class Question extends SurveyElement<Question>
     return this.hasInput && !this.isContainer;
   }
   public get inputId(): string {
-    return this.id + "i";
+    return this.renderedId + "i";
   }
   protected getDefaultTitleValue(): string { return this.name; }
   protected getDefaultTitleTagName(): string {
@@ -1748,18 +1747,15 @@ export class Question extends SurveyElement<Question>
     this.showCommentArea = val;
   }
 
-  /**
-   * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
-   */
-  @property() id: string;
+  protected getIdPrefix(): string { return "sq"; }
   public get ariaTitleId(): string {
-    return this.id + "_ariaTitle";
+    return this.renderedId + "_ariaTitle";
   }
   public get ariaDescriptionId(): string {
-    return this.id + "_ariaDescription";
+    return this.renderedId + "_ariaDescription";
   }
   public get commentId(): string {
-    return this.id + "_comment";
+    return this.renderedId + "_comment";
   }
   /**
    * A unique value for the `name` HTML attribute of grouped inputs (e.g. radio buttons), so that questions sharing the same `name` (such as copies inside a Dynamic Panel) do not collapse into one input group.
@@ -3209,7 +3205,7 @@ export class Question extends SurveyElement<Question>
   public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
-    return this.hasCssError() ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.renderedId + "_errors" : null;
   }
   //EO a11y
 
@@ -3241,7 +3237,7 @@ export class Question extends SurveyElement<Question>
     let result = null;
 
     if (this.hasCssError()) {
-      result = this.id + "_errors";
+      result = this.renderedId + "_errors";
     } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       result = this.ariaDescriptionId;
     }

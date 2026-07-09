@@ -651,7 +651,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.locDataListValue;
   }
   public get dataListId(): string {
-    return this.locDataListValue?.hasValue() ? this.id + "_datalist" : undefined;
+    return this.locDataListValue?.hasValue() ? this.renderedId + "_datalist" : undefined;
   }
   protected isPropertyStoredInHash(name: string): boolean {
     if (name === "dataList") return !this.locDataListValue;

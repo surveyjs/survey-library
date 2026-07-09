@@ -179,7 +179,7 @@
   }
 
   /* tagbox */
-  --sjs2-radius-component-tagbox-item: calc(var(--radius) * .8);
+  --sjs2-radius-component-tagbox-item: calc(var(--radius) * 0.8);
   --sjs2-radius-component-tagbox-item-action: 0;
   --sjs2-color-component-tagbox-item-default-bg: var(--background);
   --sjs2-color-component-tagbox-item-hovered-bg: var(--background);
@@ -189,7 +189,7 @@
   --sjs2-color-component-tagbox-item-hovered-label: var(--secondary-foreground);
   --sjs2-color-component-tagbox-item-action-default-bg: transparent;
   --sjs2-color-component-tagbox-item-action-hovered-bg: transparent;
-  --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab,var(--muted-foreground) 80%,transparent);
+  --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
   --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
 
   /* common and other */
@@ -262,9 +262,6 @@
 }
 
 /* dropdown */
-.sd-editor-clean-button {
-  display: none;
-}
 .sd-editor-chevron-button button.sd-action {
   padding-inline: 0;
   cursor: default;
@@ -288,7 +285,7 @@
 
 .sd-tagbox-item {
   padding-left: calc(var(--spacing) * 2);
-	padding-right: calc(var(--spacing) * 7);
+  padding-right: calc(var(--spacing) * 7);
   padding-block: 0;
   height: calc(var(--spacing) * 7);
   background-color: var(--background);
@@ -297,7 +294,7 @@
 
 .sd-tagbox-item__text {
   font-weight: var(--font-weight-medium);
-	font-size: var(--text-xs);
+  font-size: var(--text-xs);
   line-height: var(--tw-leading, var(--text-xs--line-height));
   padding: 0;
 }
@@ -320,8 +317,8 @@
 }
 
 .sd-tagbox-item__clean-button:focus-visible {
-  border-top-right-radius: calc(var(--radius) * .8);
-  border-bottom-right-radius: calc(var(--radius) * .8);  
+  border-top-right-radius: calc(var(--radius) * 0.8);
+  border-bottom-right-radius: calc(var(--radius) * 0.8);
 }
 
 .sd-tagbox-item__clean-button-svg {

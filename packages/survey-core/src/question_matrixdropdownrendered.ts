@@ -1,6 +1,7 @@
 import { property, propertyArray } from "./decorators";
 import { Question } from "./question";
 import { Base, ComputedUpdater } from "./base";
+import { ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
@@ -20,8 +21,7 @@ function getId(id: string, isError: boolean, isDetail: boolean) {
 }
 
 export class QuestionMatrixDropdownRenderedCell {
-  private static counter = 1;
-  private idValue: number;
+  private idValue: string;
   private itemValue: ItemValue;
   public minWidth: string = "";
   public width: string = "";
@@ -44,7 +44,17 @@ export class QuestionMatrixDropdownRenderedCell {
   public isDetailRowCell: boolean = false;
   private classNameValue: string = "";
   public constructor() {
-    this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
+  }
+  public getSurvey(): ISurvey {
+    return this.matrix?.getSurvey() || this.row?.getSurvey() || null;
+  }
+  private getGeneratedId(): string {
+    if (this.idValue === undefined) {
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("scell");
+    }
+    // RenderedCell does not extend Base; delegate id namespacing to the survey directly.
+    const survey = this.getSurvey();
+    return survey ? survey.getRenderedId(this.idValue) : this.idValue;
   }
   public get requiredMark(): string {
     return this.column && this.column.isRenderedRequired ? this.column.requiredMark : undefined;
@@ -59,7 +69,7 @@ export class QuestionMatrixDropdownRenderedCell {
     return !!this.panel;
   }
   public get id(): string {
-    let id = this.question ? this.question.id : this.idValue.toString();
+    let id = this.question ? this.question.renderedId : this.getGeneratedId();
     if (this.isChoice) {
       id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
     }
@@ -178,8 +188,21 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public constructor(public cssClasses: any, public isDetailRow: boolean = false) {
     super();
   }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    return this.row ? this.row.getSurvey() : null;
+  }
+  private generatedIdValue: string;
+  private getGeneratedId(): string {
+    if (this.generatedIdValue === undefined) {
+      this.generatedIdValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("smrow");
+    }
+    return this.composeRenderedId(this.generatedIdValue);
+  }
   public get id(): string {
-    return getId(this.row?.id || this.uniqueId.toString(), this.isErrorsRow, this.isDetailRow);
+    // Base the DOM row id on renderedId (SSR-namespaced). Header/error rows have no model row, so
+    // they draw a generator-produced id instead of leaking the internal uniqueId.
+    const base = this.row ? this.row.renderedId : this.getGeneratedId();
+    return getId(base, this.isErrorsRow, this.isDetailRow);
   }
   public get dropTargetId(): string {
     return this.row?.id;

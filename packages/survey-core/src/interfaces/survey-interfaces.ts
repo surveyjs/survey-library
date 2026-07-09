@@ -98,6 +98,10 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   locEditText: LocalizableString;
   //#endregion
 
+  //#region Rendered ids
+  getRenderedId(id: string): string;
+  //#endregion
+
   //#region Question lookup
   getQuestionByName(name: string): IQuestion;
   getQuestionsByValueName(valueName: string): IQuestion[];

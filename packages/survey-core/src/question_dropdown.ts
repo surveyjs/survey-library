@@ -349,6 +349,7 @@ export class QuestionDropdownModel extends questionDropdownMixin(QuestionSelectB
   public get inputActionBar() {
     if (!this.inputActionBarValue) {
       this.inputActionBarValue = new ActionContainer();
+      this.inputActionBarValue.locOwner = this;
       this.inputActionBarValue.containerCss = this.cssClasses.group;
       this.inputActionBarValue.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 

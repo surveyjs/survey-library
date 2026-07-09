@@ -157,6 +157,7 @@ import {
   triggerRef
 } from "vue";
 import { useBase } from "./base";
+
 const props = defineProps<
   | {
       model: SurveyModel;

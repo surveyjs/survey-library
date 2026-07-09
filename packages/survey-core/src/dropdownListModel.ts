@@ -168,6 +168,7 @@ export class DropdownListModel extends Base {
 
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
+    this.editorButtons.locOwner = this.question;
     this.editorButtons.containerCss = this.question.cssClasses?.group;
     this.editorButtons.setActionsAppearance({ mode: "tertiary", style: "neutral", size: "small" });
 

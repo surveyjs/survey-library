@@ -15,7 +15,12 @@ export class ExpressionRunnerBase {
   private expressionExecutor: IExpressionExecutorBase;
   private variables: string[];
   private containsFunc: boolean;
-  private static IdRunnerCounter = 1;
+  private runIdCounter = 0;
+  /**
+   * Supplies the correlation id for an async run. Injected by the owning `Base` object so ids are
+   * unique across all of that object's runners; standalone runners fall back to a local counter.
+   */
+  public getRunId: () => number;
   public onBeforeAsyncRun: (id: number) => void;
   public onAfterAsyncRun: (id: number) => void;
 
@@ -56,7 +61,7 @@ export class ExpressionRunnerBase {
     return this.expressionExecutor.canRun();
   }
   public runContextCore(context: IValueGetterContext, properties?: HashTable<any>): any {
-    const id = ExpressionRunnerBase.IdRunnerCounter ++;
+    const id = this.getRunId ? this.getRunId() : ++this.runIdCounter;
     if (this.onBeforeAsyncRun && this.isAsync) {
       this.onBeforeAsyncRun(id);
     }

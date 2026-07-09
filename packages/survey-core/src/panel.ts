@@ -118,8 +118,9 @@ export class QuestionRowModel extends Base {
   public isLazyRendering(): boolean {
     return this.isLazyRenderingValue === true;
   }
-  public get id(): string {
-    return "pr_" + this.uniqueId;
+  protected getIdPrefix(): string { return "pr"; }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    return this.panel ? this.panel.getSurvey(isLive) : null;
   }
   protected equalsCore(obj: Base): boolean {
     return this == obj;
@@ -386,7 +387,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onAddElement.bind(this),
       this.onRemoveElement.bind(this)
     );
-    this.setPropertyValueDirectly("id", "sp_" + this.uniqueId);
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
@@ -693,10 +693,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return classes;
   }
-  /**
-   * An auto-generated unique element identifier.
-   */
-  @property() id: string;
+  protected getIdPrefix(): string { return "sp"; }
   public get isPanel(): boolean {
     return false;
   }
@@ -1566,11 +1563,11 @@ export class PanelModelBase extends SurveyElement<Question>
       ["visible", "isVisible"], () => {
         this.onElementVisibilityChanged(element);
       },
-      this.id
+      this.elementHandlersKey
     );
     (<Base>(<any>element)).registerPropertyChangedHandlers(["startWithNewLine"], () => {
       this.onElementStartWithNewLineChanged(element);
-    }, this.id);
+    }, this.elementHandlersKey);
     this.onElementVisibilityChanged(this);
   }
   protected onRemoveElement(element: IElement): void {
@@ -1583,8 +1580,9 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!this.removeElementCallback)this.removeElementCallback(element);
     this.onElementVisibilityChanged(this);
   }
+  private get elementHandlersKey(): string { return "el-handlers-" + this.uniqueId; }
   protected unregisterElementPropertiesChanged(element: IElement): void {
-    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
+    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.elementHandlersKey);
   }
   private onRemoveElementNotifySurvey(element: IElement): void {
     if (!this.canFireAddRemoveNotifications(element)) return;
@@ -1733,7 +1731,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   public get ariaTitleId(): string {
-    return this.id + "_ariaTitle";
+    return this.renderedId + "_ariaTitle";
   }
   public get ariaLabelledBy(): string {
     return this.hasTitle ? this.ariaTitleId : null;
@@ -2173,7 +2171,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return "panel";
   }
   public get contentId(): string {
-    return this.id + "_content";
+    return this.renderedId + "_content";
   }
   public getSurvey(live: boolean = false): ISurvey {
     if (live && this.isPanel) {

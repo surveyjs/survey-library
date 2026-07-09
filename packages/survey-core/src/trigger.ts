@@ -55,7 +55,6 @@ export class Trigger extends Base {
   constructor() {
     super();
   }
-  public get id(): number { return this.uniqueId; }
   public getType(): string {
     return "triggerbase";
   }

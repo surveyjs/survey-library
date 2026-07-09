@@ -315,12 +315,13 @@ export default {
     "--sjs2-layout-component-panel-simple-box-padding-horizontal": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-panel-simple-box-padding-top": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-panel-simple-box-padding-bottom": "var(--sjs2-spacing-x000)", // +
-    "--sjs2-layout-component-panel-simple-box-gap-vertical": "var(--sjs2-spacing-x000)", // +
-    "--sjs2-layout-component-panel-simple-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sjs2-spacing-medium-vertical)",
-    "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
-    "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-simple-content-area-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-simple-box-gap-vertical": "calc(0.5 * var(--sd-base-vertical-padding))", // + should be var(--sjs2-spacing-x000)
+    "--sjs2-layout-component-panel-simple-box-gap-horizontal": "var(--sjs2-spacing-x300)", // new
+    "--sjs2-layout-component-panel-simple-content-area-padding-horizontal": "var(--sd-base-padding)", // + should be --sjs2-spacing-large-horizontal
+    "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sd-base-padding)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sd-base-padding)", // + should be --sjs2-spacing-medium-vertical
+    "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-x300)", // + should be --sjs2-spacing-large-horizontal
+    "--sjs2-layout-component-panel-simple-content-area-gap-vertical": "calc(0.5 * var(--sd-base-vertical-padding))", // + should be var(--sjs2-spacing-medium-vertical)
     "--sjs2-layout-component-panel-nested-footer-padding-left": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-nested-footer-padding-right": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-nested-footer-padding-top": "var(--sjs2-spacing-medium-vertical)",
@@ -383,29 +384,25 @@ export default {
     "--sjs2-layout-component-label-box-padding-vertical": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-label-box-gap-vertical": "var(--sjs2-spacing-x100)",
     "--sjs2-layout-component-label-content-gap-horizontal": "var(--sjs2-spacing-x050)",
-    "--sjs2-layout-component-question-box-gap-vertical": "var(--sjs2-spacing-x200)",
-    "--sjs2-layout-component-question-box-gap-horizontal": "var(--sjs2-spacing-x300)",
-    "--sjs2-layout-component-question-header-padding-left": "var(--sjs2-spacing-x500)",
-    "--sjs2-layout-component-question-header-padding-right": "var(--sjs2-spacing-x500)",
-    "--sjs2-layout-component-question-header-padding-top": "var(--sjs2-spacing-x400)",
-    "--sjs2-layout-component-question-header-padding-bottom": "var(--sjs2-spacing-x200)",
-    // "--sjs2-layout-component-question-header-padding-left": "var(--sjs2-spacing-x000)",
-    // "--sjs2-layout-component-question-header-padding-right": "var(--sjs2-spacing-x000)",
-    // "--sjs2-layout-component-question-header-padding-top": "var(--sjs2-spacing-x000)",
-    // "--sjs2-layout-component-question-header-padding-bottom": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-header-gap-horizontal": "var(--sjs2-spacing-x150)",
-    "--sjs2-layout-component-question-header-gap-vertical": "var(--sjs2-spacing-x050)",
-    "--sjs2-layout-component-question-header-side-padding-left": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-header-side-padding-right": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-header-side-padding-top": "var(--sjs2-spacing-x150)",
-    "--sjs2-layout-component-question-header-side-padding-bottom": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-question-box-gap-vertical": "var(--sjs2-spacing-x200)", // used panel-simple-box-gap instead
+    "--sjs2-layout-component-question-box-gap-horizontal": "var(--sjs2-spacing-x300)", // used panel-simple-box-gap instead
+    "--sjs2-layout-component-question-header-padding-left": "var(--sd-base-padding)", // + should be --sjs2-spacing-x000
+    "--sjs2-layout-component-question-header-padding-right": "var(--sd-base-padding)", // + should be --sjs2-spacing-x000
+    "--sjs2-layout-component-question-header-padding-top": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-header-padding-bottom": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-header-gap-horizontal": "var(--sjs2-spacing-x150)", // +
+    "--sjs2-layout-component-question-header-gap-vertical": "calc(0.25 * var(--sd-base-vertical-padding) - var(--sjs2-size-x050))", // + should be var(--sjs2-spacing-x050)
+    "--sjs2-layout-component-question-header-side-padding-left": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-header-side-padding-right": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-header-side-padding-top": "var(--sjs2-spacing-x150)", // + used as top margin for title left location
+    "--sjs2-layout-component-question-header-side-padding-bottom": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-question-header-side-gap-horizontal": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-question-header-side-gap-vertical": "var(--sjs2-spacing-x050)",
-    "--sjs2-layout-component-question-title-padding-horizontal": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-title-padding-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-description-padding-horizontal": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-description-padding-top": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-question-description-padding-bottom": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-question-title-padding-horizontal": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-title-padding-vertical": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-description-padding-horizontal": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-description-padding-top": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-question-description-padding-bottom": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-question-header-action-group-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-caption-box-padding-left": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-caption-box-padding-right": "var(--sjs2-spacing-x050)",

@@ -3,18 +3,18 @@
 
 .sd-page {
   position: relative;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 0 var(--sjs2-layout-component-page-content-area-padding-horizontal);
-  width: 100%;
   box-sizing: border-box;
+  padding-top: var(--sjs2-layout-component-page-box-padding-top);
+  padding-bottom: var(--sjs2-layout-component-page-box-padding-bottom);
+  padding-left: var(--sjs2-layout-component-page-box-padding-horizontal);
+  padding-right: var(--sjs2-layout-component-page-box-padding-horizontal);
   border-radius: var(--sjs2-radius-component-page);
-
-  // row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
-  // TODO: Discuss with design team about the gap between page header and content. It is not clear if it should be the same as the gap between content areas or not.
-  row-gap: var(--sjs2-spacing-x300);
-  column-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal);
+  row-gap: var(--sjs2-layout-component-page-box-gap-vertical);
+  column-gap: var(--sjs2-layout-component-page-box-gap-horizontal);
 }
 
 .sd-page__header {
@@ -46,11 +46,14 @@
 .sd-page__content {
   display: flex;
   flex-direction: column;
-  gap: var(--sjs2-spacing-x200);
+  padding: var(--sjs2-layout-component-page-content-area-padding-vertical) var(--sjs2-layout-component-page-content-area-padding-horizontal);
+  row-gap: var(--sjs2-layout-component-page-content-area-gap-vertical);
+  column-gap: var(--sjs2-layout-component-page-content-area-gap-horizontal);
   width: 100%;
   box-sizing: border-box;
 }
 
+// TODO: Remove after new tokens are released, it is a temporary fix to keep screenshot
 .sd-root-modern--mobile {
   .sd-page {
     padding: 0;
@@ -58,23 +61,26 @@
 }
 
 .sd-page__errbox {
+  // TODO: Discuss with design team
   padding: calc(0.5 * var(--sd-base-vertical-padding) + var(--sjs2-spacing-x100)) var(--sd-base-padding);
 }
 
 .sd-root--compact {
 
-  // TODO: remove after new tokens are released, it is a temporary fix to keep screenshot
-  // .sd-page__header ~ .sd-page__content {
-  //   .sd-page__errbox {
-  //     margin-top: var(--sjs2-spacing-negative-x100);
-  //   }
-  // }
+  // TODO: Remove after new tokens are released, it is a temporary fix to keep screenshot
+  .sd-page__header ~ .sd-page__content {
+    .sd-page__errbox {
+      margin-top: var(--sjs2-spacing-negative-x100);
+    }
+  }
 
   .sd-page {
+    // TODO: Discuss with design team. To remove in favour of compact theme?
     row-gap: var(--sd-base-vertical-padding);
   }
 
   .sd-page__content {
+    // TODO: Discuss with design team. To remove in favour of compact theme?
     row-gap: var(--sd-base-vertical-padding);
   }
 }

@@ -14,7 +14,7 @@ A class that describes the Multi-Select Dropdown (Tag Box) question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionCheckboxBase` &rarr; `QuestionCheckboxModel` &rarr; `QuestionTagboxModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) &rarr; [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) &rarr; [`QuestionCheckboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxmodel.md) &rarr; `QuestionTagboxModel`
 
 ## Properties
 
@@ -40,11 +40,15 @@ Default value: `false`
 
 Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
 
+**Related APIs:** [`choicesLazyLoadPageSize`](#choicesLazyLoadPageSize), [`SurveyModel.onChoicesLazyLoad`](#SurveyModel.onChoicesLazyLoad)
+
 ### `choicesLazyLoadPageSize`
 
 **Type**: `number`
 
 Specifies the number of choice items to load at a time when choices are loaded on demand.
+
+**Related APIs:** [`choicesLazyLoadEnabled`](#choicesLazyLoadEnabled), [`SurveyModel.onChoicesLazyLoad`](#SurveyModel.onChoicesLazyLoad)
 
 ### `closeOnSelect`
 
@@ -80,3 +84,5 @@ Possible values:
 
 - `"contains"` (default)
 - `"startsWith"`
+
+**Related APIs:** [`[SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)`](#[SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch))

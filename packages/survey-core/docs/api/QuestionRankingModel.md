@@ -14,7 +14,7 @@ A class that describes the Ranking question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionCheckboxBase` &rarr; `QuestionCheckboxModel` &rarr; `QuestionRankingModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) &rarr; [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) &rarr; [`QuestionCheckboxModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxmodel.md) &rarr; `QuestionRankingModel`
 
 ## Properties
 
@@ -41,6 +41,8 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
 
+**Related APIs:** [`selectToRankAreasLayout`](#selectToRankAreasLayout)
+
 ### `selectToRankEmptyRankedAreaText`
 
 **Type**: `string`
@@ -64,3 +66,5 @@ When you enable this property, the Ranking question displays two areas for ranke
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
+
+**Related APIs:** [`selectToRankAreasLayout`](#selectToRankAreasLayout)

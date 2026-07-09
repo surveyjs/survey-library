@@ -14,7 +14,7 @@ A base class for all classes that implement validators.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; `SurveyValidator`
 
 ## Properties
 

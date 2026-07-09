@@ -14,7 +14,7 @@ The `PageModel` object describes a survey page and contains properties and metho
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `PanelModelBase` &rarr; `PanelModel` &rarr; `PageModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`PanelModelBase`](https://surveyjs.io/form-library/documentation/api-reference/panelmodelbase.md) &rarr; [`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panelmodel.md) &rarr; `PageModel`
 
 ## Properties
 
@@ -23,6 +23,8 @@ The `PageModel` object describes a survey page and contains properties and metho
 **Type**: `boolean`
 
 Returns `true` if this is the current page.
+
+**Related APIs:** [`SurveyModel.currentPage`](#SurveyModel.currentPage)
 
 ### `isStartPage`
 
@@ -62,17 +64,23 @@ Default value: 0 (time is unlimited)
 
 Alternatively, you can use the `SurveyModel`'s [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/surveymodel#timeLimitPerPage) property to specify identical time periods for all survey pages.
 
+**Related APIs:** [`timeSpent`](#timeSpent)
+
 ### `timeSpent`
 
 **Type**: `number`
 
 A time period that a respondent has spent on this page so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
+**Related APIs:** [`timeLimit`](#timeLimit)
+
 ### `visibleIndex`
 
 **Type**: `number`
 
 The visible index of the page. It has values from 0 to visible page count - 1.
+
+**Related APIs:** [`SurveyModel.visiblePages`](#SurveyModel.visiblePages), [`SurveyModel.pages`](#SurveyModel.pages)
 
 ### `wasShown`
 

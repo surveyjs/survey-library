@@ -14,7 +14,7 @@ A class that describes the Multiple Text question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionMultipleTextModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionMultipleTextModel`
 
 ## Properties
 
@@ -63,6 +63,8 @@ To enable Markdown support for the `title` property, implement Markdown-to-HTML 
 
 [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
 
+**Related APIs:** [`itemTitleWidth`](#itemTitleWidth), [`addItem`](#addItem)
+
 ### `itemTitleWidth`
 
 **Type**: `string`
@@ -70,6 +72,8 @@ To enable Markdown support for the `title` property, implement Markdown-to-HTML 
 Specifies a uniform width for all text box titles. Accepts CSS values.
 
 Default value: `""` (the width of each title depends on the title length)
+
+**Related APIs:** [`items`](#items), [`itemErrorLocation`](#itemErrorLocation)
 
 ## Methods
 
@@ -85,3 +89,5 @@ Adds a new input item.
 | ---- | ---- | ----------- |
 | `name` | `string` | An item name. |
 | `title` | `string` | *(Optional)* An item title. |
+
+**Related APIs:** [`items`](#items)

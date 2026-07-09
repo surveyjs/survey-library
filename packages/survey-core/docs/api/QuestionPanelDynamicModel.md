@@ -16,7 +16,7 @@ Dynamic Panel allows respondents to add panels based on a panel template and del
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionPanelDynamicModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionPanelDynamicModel`
 
 ## Properties
 
@@ -36,6 +36,8 @@ Default value: `true`
 
 By default, users add new panels to the end. If you want to let users insert a new panel after the current panel, set the [`newPanelPosition`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#newPanelPosition) property to `"next"`.
 
+**Related APIs:** [`canAddPanel`](#canAddPanel), [`allowRemovePanel`](#allowRemovePanel)
+
 ### `allowRemovePanel`
 
 **Type**: `boolean`
@@ -43,6 +45,8 @@ By default, users add new panels to the end. If you want to let users insert a n
 Specifies whether users are allowed to delete panels.
 
 Default value: `true`
+
+**Related APIs:** [`canRemovePanel`](#canRemovePanel), [`allowAddPanel`](#allowAddPanel)
 
 ### `canAddPanel`
 
@@ -56,6 +60,8 @@ This property returns `true` when all of the following conditions apply:
 - Dynamic Panel or its parent survey is not in read-only state.
 - `panelCount` is less than `maxPanelCount`.
 
+**Related APIs:** [`allowAddPanel`](#allowAddPanel), [`isReadOnly`](#isReadOnly), [`panelCount`](#panelCount), [`maxPanelCount`](#maxPanelCount), [`canRemovePanel`](#canRemovePanel)
+
 ### `canRemovePanel`
 
 **Type**: `boolean`
@@ -68,6 +74,8 @@ This property returns `true` when all of the following conditions apply:
 - Dynamic Panel or its parent survey is not in read-only state.
 - `panelCount` exceeds `minPanelCount`.
 
+**Related APIs:** [`allowRemovePanel`](#allowRemovePanel), [`isReadOnly`](#isReadOnly), [`panelCount`](#panelCount), [`minPanelCount`](#minPanelCount), [`canAddPanel`](#canAddPanel)
+
 ### `confirmDelete`
 
 **Type**: `boolean`
@@ -76,11 +84,15 @@ Specifies whether to display a confirmation dialog when a respondent wants to de
 
 [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
 
+**Related APIs:** [`confirmDeleteText`](#confirmDeleteText)
+
 ### `confirmDeleteText`
 
 **Type**: `string`
 
 A message displayed in a confirmation dialog that appears when a respondent wants to delete a panel.
+
+**Related APIs:** [`confirmDelete`](#confirmDelete)
 
 ### `copyDefaultValueFromLastEntry`
 
@@ -90,6 +102,8 @@ Specifies whether default values for a new panel should be copied from the last 
 
 If you also specify `defaultValue`, it will be merged with the copied values.
 
+**Related APIs:** [`defaultValue`](#defaultValue)
+
 ### `currentIndex`
 
 **Type**: `number`
@@ -97,6 +111,8 @@ If you also specify `defaultValue`, it will be merged with the copied values.
 A zero-based index of the currently displayed panel.
 
 When `displayMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains -1.
+
+**Related APIs:** [`currentPanel`](#currentPanel), [`panels`](#panels), [`panelCount`](#panelCount), [`displayMode`](#displayMode)
 
 ### `currentPanel`
 
@@ -106,11 +122,15 @@ A `PanelModel` object that is the currently displayed panel.
 
 When `displayMode` is `"list"` or Dynamic Panel is empty (`panelCount` is 0), this property contains `null`.
 
+**Related APIs:** [`currentIndex`](#currentIndex), [`panels`](#panels), [`panelCount`](#panelCount), [`displayMode`](#displayMode)
+
 ### `defaultPanelValue`
 
 **Type**: `any`
 
 If it is not empty, then this value is set to every new panel, including panels created initially, unless the defaultValue is not empty
+
+**Related APIs:** [`defaultValue`](#defaultValue), [`copyDefaultValueFromLastEntry`](#copyDefaultValueFromLastEntry)
 
 ### `displayMode`
 
@@ -124,6 +144,8 @@ Possible values:
 - `"carousel"` - Displays panels in a carousel. Users can switch between panels using navigation buttons.
 - `"tab"` - Displays each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
 
+**Related APIs:** [`showProgressBar`](#showProgressBar), [`progressBarLocation`](#progressBarLocation)
+
 ### `enableAddPanel`
 
 **Type**: `boolean`
@@ -133,6 +155,8 @@ Indicates whether the add panel button is enabled. When set to `false`, the butt
 Default value: `true`
 
 This property is not serialized.
+
+**Related APIs:** [`allowAddPanel`](#allowAddPanel)
 
 ### `enableRemovePanel`
 
@@ -144,17 +168,23 @@ Default value: `true`
 
 This property is not serialized.
 
+**Related APIs:** [`allowRemovePanel`](#allowRemovePanel)
+
 ### `isNextButtonVisible`
 
 **Type**: `boolean`
 
 Indicates whether the Next button is visible.
 
+**Related APIs:** [`currentIndex`](#currentIndex), [`currentPanel`](#currentPanel), [`nextPanelText`](#nextPanelText)
+
 ### `isPrevButtonVisible`
 
 **Type**: `boolean`
 
 Indicates whether the Previous button is visible.
+
+**Related APIs:** [`currentIndex`](#currentIndex), [`currentPanel`](#currentPanel), [`prevPanelText`](#prevPanelText)
 
 ### `keyDuplicationError`
 
@@ -164,11 +194,15 @@ An error message displayed when users enter a duplicate value into a question th
 
 A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
 
+**Related APIs:** [`keyName`](#keyName)
+
 ### `keyName`
 
 **Type**: `string`
 
 Specifies a key question. Set this property to the name of a question used in the template, and Dynamic Panel will display `keyDuplicationError` if a user tries to enter a duplicate value in this question.
+
+**Related APIs:** [`keyDuplicationError`](#keyDuplicationError)
 
 ### `maxPanelCount`
 
@@ -180,6 +214,8 @@ Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surv
 
 [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
 
+**Related APIs:** [`panelCount`](#panelCount), [`minPanelCount`](#minPanelCount), [`allowAddPanel`](#allowAddPanel)
+
 ### `minPanelCount`
 
 **Type**: `number`
@@ -187,6 +223,8 @@ Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surv
 A minimum number of panels in Dynamic Panel. Users cannot delete panels if `panelCount` equals `minPanelCount`.
 
 Default value: 0
+
+**Related APIs:** [`panelCount`](#panelCount), [`maxPanelCount`](#maxPanelCount), [`allowRemovePanel`](#allowRemovePanel)
 
 ### `newPanelPosition`
 
@@ -199,11 +237,15 @@ Possible values:
 - `"last"` (default) - New panels are added to the end.
 - `"next"` - New panels are inserted after the current panel.
 
+**Related APIs:** [`allowAddPanel`](#allowAddPanel), [`addPanel`](#addPanel)
+
 ### `nextPanelText`
 
 **Type**: `string`
 
 A caption for the Next button. Applies only if `displayMode` is different from `"list"`.
+
+**Related APIs:** [`displayMode`](#displayMode), [`isNextButtonVisible`](#isNextButtonVisible)
 
 ### `noEntriesText`
 
@@ -219,11 +261,15 @@ The number of panels in Dynamic Panel.
 
 [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
 
+**Related APIs:** [`minPanelCount`](#minPanelCount), [`maxPanelCount`](#maxPanelCount)
+
 ### `panels`
 
 **Type**: `PanelModel[]`
 
 An array of `PanelModel` objects created based on a panel template.
+
+**Related APIs:** [`PanelModel`](#PanelModel), [`template`](#template), [`panelCount`](#panelCount)
 
 ### `panelsState`
 
@@ -238,11 +284,15 @@ Possible values:
 - `"collapsed"` - All panels display only their titles and descriptions and can be expanded in the UI.
 - `"firstExpanded"` - Only the first panel is displayed in full; other panels are collapsed and can be expanded in the UI.
 
+**Related APIs:** [`displayMode`](#displayMode), [`templateTitle`](#templateTitle)
+
 ### `prevPanelText`
 
 **Type**: `string`
 
 A caption for the Previous button. Applies only if `displayMode` is different from `"list"`.
+
+**Related APIs:** [`displayMode`](#displayMode), [`isPrevButtonVisible`](#isPrevButtonVisible)
 
 ### `progressBarLocation`
 
@@ -271,6 +321,8 @@ You can include desired prefixes and postfixes alongside the number or letter:
 ```
 Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
 
+**Related APIs:** [`showQuestionNumbers`](#showQuestionNumbers)
+
 ### `removePanelButtonLocation`
 
 **Type**: `string`
@@ -282,11 +334,15 @@ Possible values:
 - `"bottom"` (default) - Displays the Remove Panel button below panel content.
 - `"right"` - Displays the Remove Panel button to the right of panel content.
 
+**Related APIs:** [`removePanelText`](#removePanelText)
+
 ### `removePanelText`
 
 **Type**: `string`
 
 A caption for the Remove Panel button.
+
+**Related APIs:** [`removePanelButtonLocation`](#removePanelButtonLocation)
 
 ### `showProgressBar`
 
@@ -295,6 +351,8 @@ A caption for the Remove Panel button.
 Specifies whether to display the progress bar. Applies only if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"carousel"`.
 
 Default value: `true`
+
+**Related APIs:** [`progressBarLocation`](#progressBarLocation)
 
 ### `showQuestionNumbers`
 
@@ -310,6 +368,8 @@ Possible values:
 - `"onpanel"` - Starts numbering within the dynamic panel from scratch.
 - `"onSurvey"` - Obsolete. Use the `"default"` value instead.
 
+**Related APIs:** [`questionStartIndex`](#questionStartIndex), [`showNumber`](#showNumber)
+
 ### `tabTitlePlaceholder`
 
 **Type**: `string`
@@ -324,11 +384,15 @@ Default value: `"New Panel"` (taken from a [localization dictionary](https://git
 
 A `PanelModel` object used as a template to create dynamic panels.
 
+**Related APIs:** [`PanelModel`](#PanelModel), [`templateElements`](#templateElements), [`templateTitle`](#templateTitle), [`panels`](#panels), [`panelCount`](#panelCount)
+
 ### `templateDescription`
 
 **Type**: `string`
 
 A template for panel descriptions.
+
+**Related APIs:** [`template`](#template), [`templateTitle`](#templateTitle), [`templateElements`](#templateElements), [`panels`](#panels), [`panelCount`](#panelCount)
 
 ### `templateElements`
 
@@ -337,6 +401,8 @@ A template for panel descriptions.
 An array of questions and panels included in a panel template.
 
 [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
+
+**Related APIs:** [`template`](#template), [`panels`](#panels), [`panelCount`](#panelCount)
 
 ### `templateErrorLocation`
 
@@ -362,6 +428,8 @@ Gets or sets the location of question titles relative to their input fields.
 - `"left"` - Displays question titles to the left of input fields.
 - `"hidden"` - Hides question titles.
 
+**Related APIs:** [`titleLocation`](#titleLocation)
+
 ### `templateQuestionTitleWidth`
 
 **Type**: `string`
@@ -385,6 +453,8 @@ If you want to customize individual tab titles, handle `SurveyModel`'s [`onGetDy
 
 [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
 
+**Related APIs:** [`templateTitle`](#templateTitle), [`tabTitlePlaceholder`](#tabTitlePlaceholder), [`displayMode`](#displayMode)
+
 ### `templateTitle`
 
 **Type**: `string`
@@ -398,6 +468,8 @@ The template can contain the following placeholders:
 
 [View Demo](https://surveyjs.io/form-library/examples/breakable-loop/ (linkStyle))
 
+**Related APIs:** [`template`](#template), [`templateDescription`](#templateDescription), [`templateElements`](#templateElements), [`panels`](#panels), [`panelCount`](#panelCount)
+
 ### `templateVisibleIf`
 
 **Type**: `string`
@@ -410,17 +482,23 @@ Use the `{panel}` placeholder to reference the current panel in the expression.
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
 
+**Related APIs:** [`visibleIf`](#visibleIf), [`visiblePanels`](#visiblePanels)
+
 ### `visiblePanelCount`
 
 **Type**: `number`
 
 Returns the number of visible panels in Dynamic Panel.
 
+**Related APIs:** [`templateVisibleIf`](#templateVisibleIf)
+
 ### `visiblePanels`
 
 **Type**: `PanelModel[]`
 
 An array of currently visible panels ([`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panel-model) objects).
+
+**Related APIs:** [`templateVisibleIf`](#templateVisibleIf)
 
 ## Methods
 
@@ -437,11 +515,15 @@ Adds a new panel based on the [template](https://surveyjs.io/form-library/docume
 | `index` | `number` | *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value. |
 | `runAdditionalActions` | `boolean` | *(Optional)* Pass `true` if you want to perform additional actions: check whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expand and focus the new panel, and run animated effects. Default value: `false` (the listed actions are skipped). |
 
+**Related APIs:** [`panelCount`](#panelCount), [`panels`](#panels), [`allowAddPanel`](#allowAddPanel), [`newPanelPosition`](#newPanelPosition)
+
 ### `goToNextPanel()`
 
 **Return value:** `boolean`
 
 Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `displayMode` is `"list"` or the current panel contains validation errors.
+
+**Related APIs:** [`displayMode`](#displayMode)
 
 ### `goToPrevPanel()`
 
@@ -457,3 +539,5 @@ Deletes a panel from the [`panels`](https://surveyjs.io/form-library/documentati
 | ---- | ---- | ----------- |
 | `value` | `any` | A `PanelModel` instance or zero-based panel index. |
 | `confirmDelete` | `boolean` | *(Optional)* Pass `true` if you want to perform additional actions: check whether the panel [can be removed](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canRemovePanel) and display a confirmation dialog. |
+
+**Related APIs:** [`addPanel`](#addPanel)

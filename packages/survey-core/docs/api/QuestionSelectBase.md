@@ -12,7 +12,7 @@ A base class for multiple-choice question types ([Checkboxes](https://surveyjs.i
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionSelectBase`
 
 ## Properties
 
@@ -49,6 +49,8 @@ If you need to specify only the `value` property, you can set the `choices` prop
 
 [Conditionally Display Choice Options](https://surveyjs.io/form-library/examples/how-to-conditionally-display-choice-options/ (linkStyle))
 
+**Related APIs:** [`choicesByUrl`](#choicesByUrl), [`choicesFromQuestion`](#choicesFromQuestion), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
+
 ### `choicesByUrl`
 
 **Type**: `ChoicesRestful`
@@ -56,6 +58,8 @@ If you need to specify only the `value` property, you can set the `choices` prop
 Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
 
 [View Demo](https://surveyjs.io/form-library/examples/dropdown-menu-load-data-from-restful-service/ (linkStyle))
+
+**Related APIs:** [`choices`](#choices), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
 
 ### `choicesEnableIf`
 
@@ -68,6 +72,8 @@ A survey parses and runs all expressions on startup. If any values used in the e
 Use the `{item}` placeholder to reference the current choice item in the expression.
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+
+**Related APIs:** [`enableIf`](#enableIf), [`choicesVisibleIf`](#choicesVisibleIf)
 
 ### `choicesFromQuestion`
 
@@ -110,6 +116,8 @@ Possible values:
 - `"desc"`- Sorts choice items in ascending order.
 - `"random"` - Displays choice items in random order.
 
+**Related APIs:** [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
+
 ### `choicesVisibleIf`
 
 **Type**: `string`
@@ -121,6 +129,8 @@ A survey parses and runs all expressions on startup. If any values used in the e
 Use the `{item}` placeholder to reference the current choice item in the expression.
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+
+**Related APIs:** [`visibleIf`](#visibleIf), [`choicesEnableIf`](#choicesEnableIf)
 
 ### `choiceTextsFromQuestion`
 
@@ -156,17 +166,23 @@ An array of choice items that were added by a user. Applies only if the [`allowC
 
 Returns the "Don't know" choice item. Use this property to change the item's `value` or `text`.
 
+**Related APIs:** [`showDontKnowItem`](#showDontKnowItem)
+
 ### `dontKnowText`
 
 **Type**: `string`
 
 Gets or sets a caption for the "Don't know" choice item.
 
+**Related APIs:** [`showDontKnowItem`](#showDontKnowItem)
+
 ### `enabledChoices`
 
 **Type**: `ItemValue[]`
 
 An array of choice items with which users can interact. Includes the "Select All", "Other", and "None" choice items if they are not disabled. Items are sorted according to the `choicesOrder` value.
+
+**Related APIs:** [`showNoneItem`](#showNoneItem), [`showOtherItem`](#showOtherItem), [`choicesOrder`](#choicesOrder), [`choices`](#choices), [`visibleChoices`](#visibleChoices)
 
 ### `hideIfChoicesEmpty`
 
@@ -181,6 +197,8 @@ This property is useful if you show or hide choice items at runtime based on a [
 **Type**: `boolean`
 
 Returns `true` if the "Other" choice item is selected.
+
+**Related APIs:** [`showOtherItem`](#showOtherItem)
 
 ### `itemComponent`
 
@@ -202,11 +220,15 @@ Specifies whether to keep values that cannot be assigned to this question, for e
 
 > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
 
+**Related APIs:** [`clearIncorrectValues`](#clearIncorrectValues)
+
 ### `noneItem`
 
 **Type**: `ItemValue`
 
 Returns the "None" choice item. Use this property to change the item's `value` or `text`.
+
+**Related APIs:** [`showNoneItem`](#showNoneItem)
 
 ### `noneText`
 
@@ -214,11 +236,15 @@ Returns the "None" choice item. Use this property to change the item's `value` o
 
 Gets or sets a caption for the "None" choice item.
 
+**Related APIs:** [`showNoneItem`](#showNoneItem)
+
 ### `otherErrorText`
 
 **Type**: `string`
 
 Gets or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
+
+**Related APIs:** [`showOtherItem`](#showOtherItem)
 
 ### `otherItem`
 
@@ -226,11 +252,15 @@ Gets or sets an error message displayed when users select the "Other" choice ite
 
 Returns the "Other" choice item. Use this property to change the item's `value` or `text`.
 
+**Related APIs:** [`showOtherItem`](#showOtherItem)
+
 ### `otherPlaceholder`
 
 **Type**: `string`
 
 A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
+
+**Related APIs:** [`showOtherItem`](#showOtherItem), [`showCommentArea`](#showCommentArea)
 
 ### `otherText`
 
@@ -238,17 +268,23 @@ A placeholder for the comment area. Applies when the `showOtherItem` or `showCom
 
 Gets or sets a caption for the "Other" choice item.
 
+**Related APIs:** [`showOtherItem`](#showOtherItem)
+
 ### `refuseItem`
 
 **Type**: `ItemValue`
 
 Returns the "Refuse to answer" choice item. Use this property to change the item's `value` or `text`.
 
+**Related APIs:** [`showRefuseItem`](#showRefuseItem)
+
 ### `refuseText`
 
 **Type**: `string`
 
 Gets or sets a caption for the "Refuse to answer" choice item.
+
+**Related APIs:** [`showRefuseItem`](#showRefuseItem)
 
 ### `separateSpecialChoices`
 
@@ -260,6 +296,8 @@ Displays the "Select All", "None", and "Other" choices on individual rows.
 
 [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
 
+**Related APIs:** [`showNoneItem`](#showNoneItem), [`showOtherItem`](#showOtherItem), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
+
 ### `showDontKnowItem`
 
 **Type**: `boolean`
@@ -267,6 +305,8 @@ Displays the "Select All", "None", and "Other" choices on individual rows.
 Specifies whether to display the "Don't know" choice item.
 
 When users select the "Don't know" item in multi-select questions, all other items become unselected.
+
+**Related APIs:** [`dontKnowItem`](#dontKnowItem), [`dontKnowItemText`](#dontKnowItemText), [`[settings.dontKnowItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#dontKnowItemValue)`](#[settings.dontKnowItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#dontKnowItemValue)), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
 
 ### `showNoneItem`
 
@@ -282,6 +322,8 @@ When users select the "None" item in multi-select questions, all other items bec
 
 [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
 
+**Related APIs:** [`noneItem`](#noneItem), [`noneText`](#noneText), [`[settings.noneItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#noneItemValue)`](#[settings.noneItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#noneItemValue)), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
+
 ### `showOtherItem`
 
 **Type**: `boolean`
@@ -294,6 +336,8 @@ Specifies whether to display the "Other" choice item.
 
 [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
 
+**Related APIs:** [`otherText`](#otherText), [`otherItem`](#otherItem), [`otherErrorText`](#otherErrorText), [`showCommentArea`](#showCommentArea), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
+
 ### `showRefuseItem`
 
 **Type**: `boolean`
@@ -302,11 +346,15 @@ Specifies whether to display the "Refuse to answer" choice item.
 
 When users select the "Refuse to answer" item in multi-select questions, all other items become unselected.
 
+**Related APIs:** [`refuseItem`](#refuseItem), [`refuseItemText`](#refuseItemText), [`[settings.refuseItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#refuseItemValue)`](#[settings.refuseItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#refuseItemValue)), [`[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)`](#[settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder))
+
 ### `visibleChoices`
 
 **Type**: `ChoiceItem[]`
 
 An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.
+
+**Related APIs:** [`showNoneItem`](#showNoneItem), [`showOtherItem`](#showOtherItem), [`choicesOrder`](#choicesOrder), [`choices`](#choices), [`enabledChoices`](#enabledChoices)
 
 ## Methods
 
@@ -323,3 +371,5 @@ To obtain a choice item to check, use the `noneItem` or `otherItem` property or 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `item` | `ItemValue` | A choice item. |
+
+**Related APIs:** [`noneItem`](#noneItem), [`otherItem`](#otherItem), [`choices`](#choices)

@@ -92,6 +92,8 @@ The JSON schema should contain only serializable properties of this survey eleme
 | `options` | `ILoadFromJSONOptions` | An object with configuration options. |
 | `options.validatePropertyValues` | `boolean` | Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors. |
 
+**Related APIs:** [`toJSON`](#toJSON)
+
 ### `getLocalizationJSON()`
 
 **Return value:** `any` &ndash; A locale-strings-only JSON schema.
@@ -162,6 +164,8 @@ Use this method to find out if the current object is of a given `typeName` or in
 | ---- | ---- | ----------- |
 | `typeName` | `string` | One of the values listed in the [getType()](https://surveyjs.io/form-library/documentation/question#getType) description. |
 
+**Related APIs:** [`getType`](#getType)
+
 ### `isValueEmpty()`
 
 **Return value:** `boolean`
@@ -189,6 +193,8 @@ The `registerPropertyChangedHandlers` and [`unregisterPropertyChangedHandlers`](
 | `handler` | `any` | A function to call when one of the listed properties change. Accepts a new property value as an argument. |
 | `key` | `string` | *(Optional)* A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers. |
 
+**Related APIs:** [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers)
+
 ### `setPropertyValue()`
 
 Assigns a new value to a specified property.
@@ -212,6 +218,8 @@ Returns a JSON schema that corresponds to the current survey element.
 | ---- | ---- | ----------- |
 | `options` | `ISaveToJSONOptions` | An [`ISaveToJSONOptions`](https://surveyjs.io/form-library/documentation/api-reference/isavetojsonoptions) object with configuration options. |
 
+**Related APIs:** [`fromJSON`](#fromJSON)
+
 ### `unregisterPropertyChangedHandlers()`
 
 Unregisters value change event handlers for the specified properties.
@@ -222,6 +230,8 @@ Unregisters value change event handlers for the specified properties.
 | ---- | ---- | ----------- |
 | `propertyNames` | `string[]` | An array of one or multiple property names. |
 | `key` | `string` | *(Optional)* A key of the registration that you want to cancel. |
+
+**Related APIs:** [`registerPropertyChangedHandlers`](#registerPropertyChangedHandlers)
 
 ### `validateExpressions()`
 

@@ -14,7 +14,7 @@ A class that describes the HTML question type. Unlike other question types, HTML
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionNonValue` &rarr; `QuestionHtmlModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionNonValue`](https://surveyjs.io/form-library/documentation/api-reference/questionnonvalue.md) &rarr; `QuestionHtmlModel`
 
 ## Properties
 

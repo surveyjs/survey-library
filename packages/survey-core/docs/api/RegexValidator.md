@@ -14,7 +14,7 @@ A class that implements validation using regular expressions.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator` &rarr; `RegexValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) &rarr; `RegexValidator`
 
 ## Properties
 

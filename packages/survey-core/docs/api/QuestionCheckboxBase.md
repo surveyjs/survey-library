@@ -12,7 +12,7 @@ A base class for multiple-selection question types that can display choice items
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionCheckboxBase`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) &rarr; `QuestionCheckboxBase`
 
 ## Properties
 
@@ -23,3 +23,5 @@ A base class for multiple-selection question types that can display choice items
 Gets or sets the number of columns used to arrange choice items.
 
 Set this property to 0 if you want to display all items in one line. The default value depends on the available width.
+
+**Related APIs:** [`separateSpecialChoices`](#separateSpecialChoices)

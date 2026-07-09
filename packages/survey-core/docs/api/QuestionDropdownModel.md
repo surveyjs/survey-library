@@ -14,7 +14,7 @@ A class that describes the Dropdown question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionDropdownModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) &rarr; `QuestionDropdownModel`
 
 ## Properties
 
@@ -42,6 +42,8 @@ Default value: `false`
 
 Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
 
+**Related APIs:** [`choicesLazyLoadPageSize`](#choicesLazyLoadPageSize), [`SurveyModel.onChoicesLazyLoad`](#SurveyModel.onChoicesLazyLoad)
+
 ### `choicesLazyLoadPageSize`
 
 **Type**: `number`
@@ -51,6 +53,8 @@ Specifies the number of choice items to load at a time when choices are loaded o
 Default value: 25
 
 > This property does not accept values below 25 to prevent the server from being flooded with requests.
+
+**Related APIs:** [`choicesLazyLoadEnabled`](#choicesLazyLoadEnabled), [`SurveyModel.onChoicesLazyLoad`](#SurveyModel.onChoicesLazyLoad)
 
 ### `choicesMax`
 
@@ -64,6 +68,8 @@ Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate cho
 "choicesStep": 10
 ```
 
+**Related APIs:** [`choicesMin`](#choicesMin), [`choicesStep`](#choicesStep)
+
 ### `choicesMin`
 
 **Type**: `number`
@@ -75,6 +81,8 @@ Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate cho
 "choicesMax": 30
 "choicesStep": 10
 ```
+
+**Related APIs:** [`choicesMax`](#choicesMax), [`choicesStep`](#choicesStep)
 
 ### `choicesStep`
 
@@ -89,6 +97,8 @@ Use the `choicesMin`, `choicesMax`, and `choicesStep` properties to generate cho
 ```
 
 The default value of the `choicesStep` property is 1.
+
+**Related APIs:** [`choicesMin`](#choicesMin), [`choicesMax`](#choicesMax)
 
 ### `createCustomChoiceText`
 
@@ -112,6 +122,8 @@ Specifies whether users can enter a value into the input field to filter the dro
 
 [View Demo](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/ (linkStyle))
 
+**Related APIs:** [`searchMode`](#searchMode), [`[SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)`](#[SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch))
+
 ### `searchMode`
 
 **Type**: `"contains" | "startsWith"`
@@ -122,6 +134,8 @@ Possible values:
 
 - `"contains"` (default)
 - `"startsWith"`
+
+**Related APIs:** [`[SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)`](#[SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch))
 
 ### `selectedItem`
 

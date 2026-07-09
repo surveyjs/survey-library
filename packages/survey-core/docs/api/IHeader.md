@@ -92,6 +92,8 @@ The header width is the same as the survey width.
 - `"container"` (default)\
 The header width is the same as the survey container width.
 
+**Related APIs:** [`[SurveyModel.width](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#width)`](#[SurveyModel.width](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#width)), [`[SurveyModel.widthMode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#widthMode)`](#[SurveyModel.widthMode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#widthMode))
+
 ### `logoPositionX`
 
 **Type**: `HorizontalAlignment`

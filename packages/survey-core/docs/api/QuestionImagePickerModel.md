@@ -14,7 +14,7 @@ A class that describes the Image Picker question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionCheckboxBase` &rarr; `QuestionImagePickerModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) &rarr; [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) &rarr; `QuestionImagePickerModel`
 
 ## Properties
 
@@ -37,6 +37,8 @@ Specifies how to resize images or videos to fit them into their containers.
 
 Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
 
+**Related APIs:** [`imageHeight`](#imageHeight), [`imageWidth`](#imageWidth)
+
 ### `imageHeight`
 
 **Type**: `number`
@@ -49,6 +51,8 @@ This property allows you to specify the exact image height. If you do not set it
 
 Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
 
+**Related APIs:** [`imageWidth`](#imageWidth)
+
 ### `imageWidth`
 
 **Type**: `number`
@@ -60,6 +64,8 @@ Default value: `auto`
 This property allows you to specify the exact image width. If you do not set it, the width will be calculated automatically based on the [`minImageWidth`](#minImageWidth) and [`maxImageWidth`](#maxImageWidth) values and available screen width.
 
 Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
+
+**Related APIs:** [`imageHeight`](#imageHeight)
 
 ### `maxImageHeight`
 

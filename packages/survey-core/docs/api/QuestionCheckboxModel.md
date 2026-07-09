@@ -14,7 +14,7 @@ A class that describes the Checkboxes question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSelectBase` &rarr; `QuestionCheckboxBase` &rarr; `QuestionCheckboxModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionSelectBase`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase.md) &rarr; [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) &rarr; `QuestionCheckboxModel`
 
 ## Properties
 
@@ -23,6 +23,8 @@ A class that describes the Checkboxes question type.
 **Type**: `boolean`
 
 Returns `true` if all choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices), are selected.
+
+**Related APIs:** [`showSelectAllItem`](#showSelectAllItem)
 
 ### `maxSelectedChoices`
 
@@ -36,6 +38,8 @@ Default value: 0 (unlimited)
 
 [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
 
+**Related APIs:** [`minSelectedChoices`](#minSelectedChoices)
+
 ### `minSelectedChoices`
 
 **Type**: `number`
@@ -48,11 +52,15 @@ Default value: 0 (unlimited)
 
 [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
 
+**Related APIs:** [`maxSelectedChoices`](#maxSelectedChoices)
+
 ### `selectAllItem`
 
 **Type**: `ItemValue`
 
 Returns the "Select All" choice item. Use this property to change the item's `value` or `text`.
+
+**Related APIs:** [`showSelectAllItem`](#showSelectAllItem)
 
 ### `selectAllText`
 
@@ -60,17 +68,23 @@ Returns the "Select All" choice item. Use this property to change the item's `va
 
 Gets or sets a caption for the "Select All" choice item.
 
+**Related APIs:** [`showSelectAllItem`](#showSelectAllItem)
+
 ### `selectedChoices`
 
 **Type**: `ItemValue[]`
 
 An array of selected choice items. Includes the "Other", "None", "Refuse to answer", and "Don't know" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
 
+**Related APIs:** [`visibleChoices`](#visibleChoices), [`enabledChoices`](#enabledChoices)
+
 ### `showSelectAllItem`
 
 **Type**: `boolean`
 
 Enable this property to display a "Select All" item. When users select it, all other choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices), also become selected.
+
+**Related APIs:** [`selectAll`](#selectAll), [`isAllSelected`](#isAllSelected), [`separateSpecialChoices`](#separateSpecialChoices)
 
 ### `valuePropertyName`
 
@@ -89,3 +103,5 @@ Set this property if you want to store selected values in an array of objects in
 Selects all choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices).
 
 To clear selection, call the `clearValue()` method.
+
+**Related APIs:** [`clearValue`](#clearValue)

@@ -28,7 +28,7 @@ Typically, you should assign this object to a question's [`choicesByUrl`](https:
 
 ## Inheritance
 
-`Base` &rarr; `ChoicesRestful`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; `ChoicesRestful`
 
 ## Properties
 
@@ -83,6 +83,8 @@ function retrieveItemData(survey, qName) {
 
 Specifies which property in the obtained data object contains image URLs. Used only in [Image Picker](https://surveyjs.io/Examples/Library?id=questiontype-imagepicker) questions.
 
+**Related APIs:** [`url`](#url), [`path`](#path), [`valueName`](#valueName)
+
 ### `path`
 
 **Type**: `string`
@@ -100,11 +102,15 @@ Specify this property only if the array of choices is nested within the object r
 
 To populate choices with values from the `countries` array, set the `path` property to `"countries"`. To use the `capitals` array, set this property to `"capitals"`.
 
+**Related APIs:** [`url`](#url), [`valueName`](#valueName), [`titleName`](#titleName)
+
 ### `titleName`
 
 **Type**: `string`
 
 Specifies which property in the obtained data object contains display texts for choices.
+
+**Related APIs:** [`url`](#url), [`path`](#path), [`valueName`](#valueName)
 
 ### `url`
 
@@ -120,6 +126,8 @@ url: "https://surveyjs.io/api/CountriesExample?region={region}"
 
 [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
 
+**Related APIs:** [`path`](#path), [`valueName`](#valueName), [`titleName`](#titleName)
+
 ### `valueName`
 
 **Type**: `string`
@@ -127,3 +135,5 @@ url: "https://surveyjs.io/api/CountriesExample?region={region}"
 Specifies which property in the obtained data object contains choice values.
 
 [View Demo](https://surveyjs.io/Examples/Library/?id=questiontype-dropdownrestfull (linkStyle))
+
+**Related APIs:** [`url`](#url), [`path`](#path), [`titleName`](#titleName)

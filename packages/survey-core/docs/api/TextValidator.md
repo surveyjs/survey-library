@@ -14,7 +14,7 @@ A class that implements a validator for text values.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator` &rarr; `TextValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) &rarr; `TextValidator`
 
 ## Properties
 

@@ -20,7 +20,7 @@ A class that describes the Single-Line Input question type, which is used to cre
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionTextBase` &rarr; `QuestionTextModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionTextBase`](https://surveyjs.io/form-library/documentation/api-reference/questiontextbase.md) &rarr; `QuestionTextModel`
 
 ## Properties
 
@@ -76,6 +76,8 @@ Default value: `"text"`
 
 Returns `true` if the specified `inputType` supports the `min` and `max` properties.
 
+**Related APIs:** [`inputType`](#inputType), [`min`](#min), [`max`](#max)
+
 ### `maskSettings`
 
 **Type**: `InputMaskBase`
@@ -109,11 +111,15 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
+**Related APIs:** [`maskSettings`](#maskSettings)
+
 ### `max`
 
 **Type**: `string`
 
 A value passed on to the [`max`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/max) attribute of the underlying `<input>` element.
+
+**Related APIs:** [`maxValueExpression`](#maxValueExpression), [`maxErrorText`](#maxErrorText)
 
 ### `maxErrorText`
 
@@ -121,11 +127,15 @@ A value passed on to the [`max`](https://developer.mozilla.org/en-US/docs/Web/HT
 
 An error message to display when the entered value exceeds the maximum accepted value.
 
+**Related APIs:** [`max`](#max), [`maxValueExpression`](#maxValueExpression)
+
 ### `maxValueExpression`
 
 **Type**: `string`
 
 The maximum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
+
+**Related APIs:** [`max`](#max), [`maxErrorText`](#maxErrorText)
 
 ### `min`
 
@@ -133,11 +143,15 @@ The maximum value specified as an [expression](https://surveyjs.io/form-library/
 
 A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
 
+**Related APIs:** [`minValueExpression`](#minValueExpression), [`minErrorText`](#minErrorText)
+
 ### `minErrorText`
 
 **Type**: `string`
 
 An error message to display when the entered value is less than the minimum accepted value.
+
+**Related APIs:** [`min`](#min), [`minValueExpression`](#minValueExpression)
 
 ### `minValueExpression`
 
@@ -145,11 +159,15 @@ An error message to display when the entered value is less than the minimum acce
 
 The minimum value specified as an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions). For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
 
+**Related APIs:** [`min`](#min), [`minErrorText`](#minErrorText)
+
 ### `step`
 
 **Type**: `string`
 
 A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
+
+**Related APIs:** [`stepErrorText`](#stepErrorText)
 
 ### `stepErrorText`
 

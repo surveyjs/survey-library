@@ -16,7 +16,7 @@ A class that describes the Slider question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionSliderModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionSliderModel`
 
 ## Properties
 
@@ -76,6 +76,8 @@ const surveyJson = {
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
 
+**Related APIs:** [`showLabels`](#showLabels), [`labelCount`](#labelCount), [`labelFormat`](#labelFormat)
+
 ### `labelCount`
 
 **Type**: `number`
@@ -85,6 +87,8 @@ Defines how many auto-generated labels should be displayed along the slider scal
 Default value: -1 (the number of labels is calculated automatically based on the [`min`](#min) and [`max`](#max) values)
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+
+**Related APIs:** [`showLabels`](#showLabels), [`labelFormat`](#labelFormat)
 
 ### `labelFormat`
 
@@ -98,6 +102,8 @@ Default value: `"{0}"`
 
 > If you are using custom labels, `labelFormat` affects only those that do not define the `text` property.
 
+**Related APIs:** [`showLabels`](#showLabels), [`tooltipFormat`](#tooltipFormat)
+
 ### `max`
 
 **Type**: `number`
@@ -109,6 +115,8 @@ Default value: 100
 [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
 
 [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+
+**Related APIs:** [`maxValueExpression`](#maxValueExpression)
 
 ### `maxRangeLength`
 
@@ -140,6 +148,8 @@ Default value: 0
 
 [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
 
+**Related APIs:** [`minValueExpression`](#minValueExpression)
+
 ### `minRangeLength`
 
 **Type**: `number`
@@ -167,6 +177,8 @@ Specifies whether the slider displays value labels along the scale.
 Default value: `true`
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+
+**Related APIs:** [`labelCount`](#labelCount), [`customLabels`](#customLabels), [`labelFormat`](#labelFormat)
 
 ### `sliderType`
 
@@ -203,6 +215,8 @@ A formatting string for thumb tooltips. You can use `{0}` as a placeholder for a
 
 Default value: `"{0}"`
 
+**Related APIs:** [`tooltipVisibility`](#tooltipVisibility)
+
 ### `tooltipVisibility`
 
 **Type**: `"auto" | "always" | "never"`
@@ -214,3 +228,5 @@ Possible values:
 - `"auto"` (default) - Tooltips appear when the thumb or selected range is hovered or focused.
 - `"always"`- Tooltips are always visible.
 - `"never"` - Tooltips are never displayed.
+
+**Related APIs:** [`tooltipFormat`](#tooltipFormat)

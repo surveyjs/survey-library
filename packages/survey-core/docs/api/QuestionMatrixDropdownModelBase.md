@@ -12,7 +12,7 @@ A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-li
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionMatrixBaseModel` &rarr; `QuestionMatrixDropdownModelBase`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) &rarr; `QuestionMatrixDropdownModelBase`
 
 ## Properties
 
@@ -27,6 +27,8 @@ Possible values:
 - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
 - `"top"` - Displays error messages above matrix cells.
 - `"bottom"` - Displays error messages below matrix cells.
+
+**Related APIs:** [`detailErrorLocation`](#detailErrorLocation)
 
 ### `cellType`
 
@@ -75,6 +77,8 @@ If you add custom properties, refer to the following help topic to learn how to 
 
 If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
 
+**Related APIs:** [`cellType`](#cellType)
+
 ### `columnColCount`
 
 **Type**: `number`
@@ -82,6 +86,8 @@ If you need to specify only the `value` property, you can set the `choices` prop
 Specifies the number of columns in Radiogroup and Checkbox cells.
 
 Default value: 0 (the number of columns is selected automatically based on the available column width)
+
+**Related APIs:** [`cellType`](#cellType)
 
 ### `detailElements`
 
@@ -95,6 +101,8 @@ Set the [`detailPanelMode`](#detailPanelMode) property to `"underRow"` or `"unde
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
 
+**Related APIs:** [`detailPanel`](#detailPanel)
+
 ### `detailErrorLocation`
 
 **Type**: `string`
@@ -107,11 +115,15 @@ Possible values:
 - `"top"` - Displays error messages above questions.
 - `"bottom"` - Displays error messages below questions.
 
+**Related APIs:** [`cellErrorLocation`](#cellErrorLocation)
+
 ### `detailPanel`
 
 **Type**: `PanelModel`
 
 Contains a [`PanelModel`](https://surveyjs.io/form-library/documentation/panelmodel) instance that represents a detail section template.
+
+**Related APIs:** [`detailElements`](#detailElements), [`detailPanelMode`](#detailPanelMode)
 
 ### `detailPanelMode`
 
@@ -129,6 +141,8 @@ Use the [`detailElements`](#detailElements) property to specify content of detai
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
 
+**Related APIs:** [`detailPanel`](#detailPanel)
+
 ### `isColumnLayoutHorizontal`
 
 **Type**: `boolean`
@@ -136,6 +150,8 @@ Use the [`detailElements`](#detailElements) property to specify content of detai
 Returns `true` if [`columns`](#columns) are placed in the horizontal direction and [`rows`](#columns) in the vertical direction.
 
 To specify the layout, use the [`transposeData`](#transposeData) property. If you set it to `true`, the survey applies it only when the screen has enough space. Otherwise, the survey falls back to the original layout, but the `transposeData` property remains set to `true`. Unlike `transposeData`, the `isColumnLayoutHorizontal` property always indicates the current layout.
+
+**Related APIs:** [`transposeData`](#transposeData)
 
 ### `keyDuplicationError`
 
@@ -145,11 +161,15 @@ An error message displayed when users enter a duplicate value into a column that
 
 A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
 
+**Related APIs:** [`useCaseSensitiveComparison`](#useCaseSensitiveComparison)
+
 ### `placeholder`
 
 **Type**: `string`
 
 A placeholder for Dropdown matrix cells.
+
+**Related APIs:** [`cellType`](#cellType)
 
 ### `singleInputTitleTemplate`
 
@@ -191,6 +211,8 @@ When this property is `true`, `"ABC"` and `"abc"` are considered different value
 
 Default value: `false`
 
+**Related APIs:** [`keyDuplicationError`](#keyDuplicationError)
+
 ## Methods
 
 ### `getColumnByName()`
@@ -216,6 +238,8 @@ Returns an object with row values. If a row has no answers, this method returns 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `rowIndex` | `number` | A zero-based row index. |
+
+**Related APIs:** [`setRowValue`](#setRowValue)
 
 ### `getType()`
 
@@ -257,3 +281,5 @@ Assigns values to a row.
 | ---- | ---- | ----------- |
 | `rowIndex` | `number` | A zero-based row index. |
 | `rowValue` | `any` | An object with the following structure: `{ "column_name": columnValue, ... }` |
+
+**Related APIs:** [`getRowValue`](#getRowValue)

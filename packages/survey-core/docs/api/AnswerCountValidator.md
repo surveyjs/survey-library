@@ -14,7 +14,7 @@ A class that implements answer count validation in the question types that can h
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator` &rarr; `AnswerCountValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) &rarr; `AnswerCountValidator`
 
 ## Properties
 

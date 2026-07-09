@@ -14,7 +14,7 @@ A class that describes an [item](https://surveyjs.io/form-library/documentation/
 
 ## Inheritance
 
-`Base` &rarr; `MultipleTextItemModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; `MultipleTextItemModel`
 
 ## Properties
 
@@ -23,6 +23,8 @@ A class that describes an [item](https://surveyjs.io/form-library/documentation/
 **Type**: `string`
 
 An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the default item value.
+
+**Related APIs:** [`minValueExpression`](#minValueExpression), [`maxValueExpression`](#maxValueExpression)
 
 ### `inputSize`
 
@@ -93,6 +95,8 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
+**Related APIs:** [`maskSettings`](#maskSettings)
+
 ### `maxLength`
 
 **Type**: `number`
@@ -107,11 +111,15 @@ Default value: -1 (inherits the actual value from the `SurveyModel`'s [`maxTextL
 
 An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the maximum item value.
 
+**Related APIs:** [`minValueExpression`](#minValueExpression), [`defaultValueExpression`](#defaultValueExpression)
+
 ### `minValueExpression`
 
 **Type**: `string`
 
 An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the minimum item value.
+
+**Related APIs:** [`maxValueExpression`](#maxValueExpression), [`defaultValueExpression`](#defaultValueExpression)
 
 ### `name`
 
@@ -120,6 +128,8 @@ An [expression](https://surveyjs.io/form-library/documentation/design-survey/con
 An item ID that is not visible to respondents.
 
 > Item IDs must be unique.
+
+**Related APIs:** [`title`](#title)
 
 ### `placeholder`
 

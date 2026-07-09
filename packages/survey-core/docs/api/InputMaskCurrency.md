@@ -29,7 +29,7 @@ const surveyJson = {
 
 ## Inheritance
 
-`Base` &rarr; `InputMaskBase` &rarr; `InputMaskNumeric` &rarr; `InputMaskCurrency`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) &rarr; [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric.md) &rarr; `InputMaskCurrency`
 
 ## Properties
 
@@ -41,8 +41,12 @@ One or several symbols to be displayed before the currency value.
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
+**Related APIs:** [`suffix`](#suffix)
+
 ### `suffix`
 
 **Type**: `string`
 
 One or several symbols to be displayed after the currency value.
+
+**Related APIs:** [`prefix`](#prefix)

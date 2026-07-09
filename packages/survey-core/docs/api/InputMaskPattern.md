@@ -29,7 +29,7 @@ const surveyJson = {
 
 ## Inheritance
 
-`Base` &rarr; `InputMaskBase` &rarr; `InputMaskPattern`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) &rarr; `InputMaskPattern`
 
 ## Properties
 
@@ -69,3 +69,5 @@ If you set the [`maskType`](https://surveyjs.io/form-library/documentation/api-r
 Example: `mm/dd/yyyy HH:MM:ss`
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+
+**Related APIs:** [`[settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)`](#[settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings))

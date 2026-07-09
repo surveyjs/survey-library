@@ -14,7 +14,7 @@ A class that renders a survey in a pop-up window.
 
 ## Inheritance
 
-`Base` &rarr; `PopupSurveyModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; `PopupSurveyModel`
 
 ## Properties
 
@@ -29,6 +29,8 @@ Default value: `false`
 [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
 
 If you allow users to close the pop-up window, make sure to implement a UI element that opens it. This element should call the [`show()`](#show) method or enable the [`isShowing`](#isShowing) property.
+
+**Related APIs:** [`expand`](#expand), [`collapse`](#collapse), [`hide`](#hide)
 
 ### `allowFullScreen`
 
@@ -88,11 +90,15 @@ Collapses the pop-up window, leaving only the survey title visible.
 
 As an alternative to this method, you can set the [`isExpanded`](#isExpanded) property to `false`.
 
+**Related APIs:** [`expand`](#expand)
+
 ### `expand()`
 
 Expands the pop-up window.
 
 As an alternative to this method, you can set the [`isExpanded`](#isExpanded) property to `true`.
+
+**Related APIs:** [`collapse`](#collapse)
 
 ### `hide()`
 
@@ -100,8 +106,12 @@ Hides the pop-up survey.
 
 As an alternative to this method, you can set the [`isShowing`](#isShowing) property to `false`.
 
+**Related APIs:** [`show`](#show), [`expand`](#expand), [`collapse`](#collapse)
+
 ### `show()`
 
 Shows the pop-up survey. The survey may appear [expanded or collapsed](#isExpanded).
 
 As an alternative to this method, you can set the [`isShowing`](#isShowing) property to `true`.
+
+**Related APIs:** [`hide`](#hide)

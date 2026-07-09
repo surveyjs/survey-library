@@ -23,11 +23,15 @@ Refer to the following articles for more information:
 
 A function that allows you to create nested questions if you do not specify the `elementsJSON` property.
 
+**Related APIs:** [`elementsJSON`](#elementsJSON)
+
 ### `createQuestion`
 
 **Type**: `any`
 
 A function that allows you to create a custom question if you do not specify the `questionJSON` property.
+
+**Related APIs:** [`questionJSON`](#questionJSON)
 
 ### `defaultQuestionTitle`
 
@@ -95,6 +99,8 @@ When you create a [custom specialized question type](https://surveyjs.io/form-li
 
 A name used to identify a custom question type.
 
+**Related APIs:** [`title`](#title)
+
 ### `questionJSON`
 
 **Type**: `any`
@@ -118,6 +124,8 @@ Set this property to `false` if your custom question type is used only to custom
 **Type**: `string`
 
 A title used for this custom question type in the UI. When `title` is not specified, the `name` property value is used.
+
+**Related APIs:** [`name`](#name)
 
 ## Methods
 

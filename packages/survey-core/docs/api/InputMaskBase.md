@@ -17,7 +17,7 @@ A base class for classes that implement input masks:
 
 ## Inheritance
 
-`Base` &rarr; `InputMaskBase`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; `InputMaskBase`
 
 ## Properties
 

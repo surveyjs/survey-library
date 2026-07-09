@@ -12,7 +12,7 @@ A base class for all matrix question types.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionMatrixBaseModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionMatrixBaseModel`
 
 ## Properties
 
@@ -33,6 +33,8 @@ Minimum column width in CSS values.
 [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
 
 [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+
+**Related APIs:** [`width`](#width)
 
 ### `columns`
 
@@ -61,6 +63,8 @@ Use the `{item}` placeholder to reference the current column in the expression.
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
 [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
+
+**Related APIs:** [`rowsVisibleIf`](#rowsVisibleIf)
 
 ### `displayMode`
 
@@ -101,6 +105,8 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
 
+**Related APIs:** [`visibleRows`](#visibleRows), [`columnsVisibleIf`](#columnsVisibleIf)
+
 ### `rowTitleWidth`
 
 **Type**: `string`
@@ -126,3 +132,5 @@ Aligns matrix cell content in the vertical direction.
 **Type**: `TRow[]`
 
 Returns an array of visible matrix rows.
+
+**Related APIs:** [`rowsVisibleIf`](#rowsVisibleIf)

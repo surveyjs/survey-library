@@ -14,7 +14,7 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; `SurveyModel`
 
 ## Properties
 
@@ -23,6 +23,8 @@ The `SurveyModel` object contains properties and methods that allow you to contr
 **Type**: `any`
 
 Returns [`startPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
+
+**Related APIs:** [`startPage`](#startPage), [`currentPage`](#currentPage), [`firstPageIsStartPage`](#firstPageIsStartPage)
 
 ### `allowResizeComment`
 
@@ -34,6 +36,8 @@ Default value: `true`
 
 You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
 
+**Related APIs:** [`autoGrowComment`](#autoGrowComment), [`commentAreaRows`](#commentAreaRows)
+
 ### `autoAdvanceAllowComplete`
 
 **Type**: `boolean`
@@ -41,6 +45,8 @@ You can override this property for individual Long Text questions: [`allowResize
 Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is `true`.
 
 Default value: `true`
+
+**Related APIs:** [`[`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)`](#[`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay))
 
 ### `autoAdvanceEnabled`
 
@@ -56,6 +62,8 @@ If you enable this property, the survey is also completed automatically. Set the
 
 [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
 
+**Related APIs:** [`[`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)`](#[`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay))
+
 ### `autoFocusFirstError`
 
 **Type**: `boolean`
@@ -64,6 +72,8 @@ Specifies whether to focus the first question with a validation error on the cur
 
 Default value: `true`
 
+**Related APIs:** [`validate`](#validate), [`autoFocusFirstQuestion`](#autoFocusFirstQuestion)
+
 ### `autoFocusFirstQuestion`
 
 **Type**: `boolean`
@@ -71,6 +81,8 @@ Default value: `true`
 Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
 
 Default value: `false` in v1.9.114 and later, `true` in earlier versions
+
+**Related APIs:** [`autoFocusFirstError`](#autoFocusFirstError), [`focusFirstQuestion`](#focusFirstQuestion), [`focusQuestion`](#focusQuestion)
 
 ### `autoGrowComment`
 
@@ -82,11 +94,15 @@ Default value: `false`
 
 You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
 
+**Related APIs:** [`allowResizeComment`](#allowResizeComment), [`commentAreaRows`](#commentAreaRows)
+
 ### `backgroundImage`
 
 **Type**: `string`
 
 An image to display in the background of the survey or form. Accepts a base64 or URL string value.
+
+**Related APIs:** [`backgroundOpacity`](#backgroundOpacity)
 
 ### `backgroundOpacity`
 
@@ -118,6 +134,8 @@ Possible values:
 
 Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
 
+**Related APIs:** [`validationEnabled`](#validationEnabled), [`validationAllowSwitchPages`](#validationAllowSwitchPages), [`validationAllowComplete`](#validationAllowComplete), [`validate`](#validate)
+
 ### `clearDisabledChoices`
 
 **Type**: `boolean`
@@ -143,6 +161,8 @@ Possible values:
 - `true` - Equivalent to `"onComplete"`.
 - `false` - Equivalent to `"none"`.
 
+**Related APIs:** [`[Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)`](#[Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)), [`onComplete`](#onComplete)
+
 ### `commentAreaRows`
 
 **Type**: `number`
@@ -153,11 +173,15 @@ Default value: 2
 
 The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
 
+**Related APIs:** [`autoGrowComment`](#autoGrowComment), [`allowResizeComment`](#allowResizeComment)
+
 ### `comments`
 
 **Type**: `any`
 
 An object with all comment values.
+
+**Related APIs:** [`Question.showCommentArea`](#Question.showCommentArea), [`storeOthersAsComment`](#storeOthersAsComment)
 
 ### `commentSuffix`
 
@@ -181,6 +205,8 @@ HTML content displayed to a user who has completed the survey before. To identif
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
 
+**Related APIs:** [`processedCompletedBeforeHtml`](#processedCompletedBeforeHtml)
+
 ### `completedHtml`
 
 **Type**: `string`
@@ -188,6 +214,8 @@ HTML content displayed to a user who has completed the survey before. To identif
 HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
 
 [View Demo](https://surveyjs.io/form-library/examples/modify-survey-navigation-settings/ (linkStyle))
+
+**Related APIs:** [`showCompletePage`](#showCompletePage), [`completedHtmlOnCondition`](#completedHtmlOnCondition)
 
 ### `completedHtmlOnCondition`
 
@@ -205,6 +233,8 @@ Each object should include the [`expression`](https://surveyjs.io/form-library/d
 
 Gets or sets a caption for the Complete button.
 
+**Related APIs:** [`[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)`](#[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization))
+
 ### `cookieName`
 
 **Type**: `string`
@@ -214,6 +244,8 @@ A cookie name used to save information about survey completion.
 When this property has a value, the survey creates a cookie with the specified name on completion. This cookie helps ensure that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
+
+**Related APIs:** [`clientId`](#clientId)
 
 ### `css`
 
@@ -251,6 +283,8 @@ The following table illustrates the dependency between `questionsOnPageMode` val
 | `"questionPerPage"` | Question or Panel |
 | `"inputPerPage"` | Question |
 
+**Related APIs:** [`currentElement`](#currentElement)
+
 ### `currentPage`
 
 **Type**: `any`
@@ -279,6 +313,8 @@ A zero-based index of the current page in the [`visiblePages`](https://surveyjs.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-editprevious/ (linkStyle))
 
+**Related APIs:** [`visiblePages`](#visiblePages)
+
 ### `data`
 
 **Type**: `any`
@@ -299,17 +335,23 @@ When you set the `data` property in code, the new object overrides the old objec
 
 If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
 
+**Related APIs:** [`setValue`](#setValue), [`getValue`](#getValue)
+
 ### `editText`
 
 **Type**: `string`
 
 Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
 
+**Related APIs:** [`showPreviewBeforeComplete`](#showPreviewBeforeComplete), [`cancelPreview`](#cancelPreview), [`previewText`](#previewText)
+
 ### `emptySurveyText`
 
 **Type**: `string`
 
 A message that is displayed when a survey does not contain visible pages or questions.
+
+**Related APIs:** [`[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)`](#[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization))
 
 ### `firstPageIsStartPage`
 
@@ -318,6 +360,8 @@ A message that is displayed when a survey does not contain visible pages or ques
 Gets or sets a Boolean value that specifies whether the first page is a start page.
 
 Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
+
+**Related APIs:** [`startPage`](#startPage), [`activePage`](#activePage)
 
 ### `gridLayoutEnabled`
 
@@ -335,6 +379,8 @@ Specify the [`gridLayoutColumns`](https://surveyjs.io/form-library/documentation
 
 Indicates whether the browser has a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName). If this property's value is `true`, the respondent has passed the survey previously.
 
+**Related APIs:** [`setCookie`](#setCookie), [`deleteCookie`](#deleteCookie)
+
 ### `hideRequiredErrors`
 
 **Type**: `boolean`
@@ -343,11 +389,15 @@ Specifies whether to hide validation errors thrown by the Required validation in
 
 [Built-In Client-Side Validators](https://surveyjs.io/form-library/documentation/data-validation#built-in-client-side-validators (linkStyle))
 
+**Related APIs:** [`validationEnabled`](#validationEnabled), [`validationAllowSwitchPages`](#validationAllowSwitchPages)
+
 ### `isCurrentPageValid`
 
 **Type**: `boolean`
 
 Returns `true` if the current page does not contain errors.
+
+**Related APIs:** [`currentPage`](#currentPage)
 
 ### `isDesignMode`
 
@@ -360,6 +410,8 @@ Indicates whether the survey is being designed in [Survey Creator](https://surve
 **Type**: `boolean`
 
 Returns `true` if the survey contains zero pages.
+
+**Related APIs:** [`emptySurveyText`](#emptySurveyText)
 
 ### `isFirstPage`
 
@@ -401,6 +453,8 @@ Specifies whether to keep values that cannot be assigned to questions, for examp
 
 > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
 
+**Related APIs:** [`clearIncorrectValues`](#clearIncorrectValues)
+
 ### `lazyRenderEnabled`
 
 **Type**: `boolean`
@@ -413,11 +467,15 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
 
+**Related APIs:** [`[settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)`](#[settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender))
+
 ### `loadingHtml`
 
 **Type**: `string`
 
 HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
+
+**Related APIs:** [`processedLoadingHtml`](#processedLoadingHtml)
 
 ### `locale`
 
@@ -439,6 +497,8 @@ An image URL or a Base64-encoded image to use as a survey logo.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
+**Related APIs:** [`logoPosition`](#logoPosition), [`logoFit`](#logoFit)
+
 ### `logoFit`
 
 **Type**: `string`
@@ -456,6 +516,8 @@ Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/obj
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
+**Related APIs:** [`logo`](#logo), [`logoPosition`](#logoPosition)
+
 ### `logoHeight`
 
 **Type**: `any`
@@ -465,6 +527,8 @@ A logo height in CSS-accepted values.
 Default value: `40px`
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+
+**Related APIs:** [`logoWidth`](#logoWidth), [`logo`](#logo), [`logoPosition`](#logoPosition), [`logoFit`](#logoFit)
 
 ### `logoPosition`
 
@@ -480,6 +544,8 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
 
+**Related APIs:** [`logo`](#logo), [`logoFit`](#logoFit)
+
 ### `logoWidth`
 
 **Type**: `any`
@@ -489,6 +555,8 @@ A logo width in CSS-accepted values.
 Default value: `auto` (the width is calculated automatically based on the [`logoHeight`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logoHeight) value to keep the original aspect ratio)
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+
+**Related APIs:** [`logo`](#logo), [`logoPosition`](#logoPosition), [`logoFit`](#logoFit)
 
 ### `matraixDragHandleArea`
 
@@ -509,6 +577,8 @@ Specifies the maximum text length for question comments. Applies to questions wi
 
 Default value: 0 (unlimited)
 
+**Related APIs:** [`maxTextLength`](#maxTextLength)
+
 ### `maxTextLength`
 
 **Type**: `number`
@@ -519,11 +589,15 @@ Default value: 0 (unlimited)
 
 You can override this setting for individual questions if you specify their [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property.
 
+**Related APIs:** [`maxCommentLength`](#maxCommentLength)
+
 ### `navigateToUrl`
 
 **Type**: `string`
 
 A URL to which respondents should be navigated after survey completion.
+
+**Related APIs:** [`onNavigateToUrl`](#onNavigateToUrl), [`navigateToUrlOnCondition`](#navigateToUrlOnCondition)
 
 ### `navigateToUrlOnCondition`
 
@@ -532,6 +606,8 @@ A URL to which respondents should be navigated after survey completion.
 An array of objects that allows you to navigate respondents to different URLs after survey completion.
 
 Each object should include the [`expression`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#url) and [`url`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem#expression) properties. When `expression` evaluates to `true`, the survey navigates to the corresponding `url`. Refer to the following help topic for more information about expressions: [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
+
+**Related APIs:** [`onNavigateToUrl`](#onNavigateToUrl), [`navigateToUrl`](#navigateToUrl)
 
 ### `navigationButtonsLocation`
 
@@ -545,6 +621,8 @@ Possible values:
 - `"top"` - Displays the navigation buttons above survey content.
 - `"topBottom"` - Displays the navigation buttons above and below survey content.
 
+**Related APIs:** [`autoAdvanceEnabled`](#autoAdvanceEnabled), [`showPrevButton`](#showPrevButton), [`showCompleteButton`](#showCompleteButton)
+
 ### `pageCount`
 
 **Type**: `number`
@@ -553,17 +631,23 @@ Returns a total number of survey pages.
 
 To get the number of visible pages, use the [`visiblePageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePageCount) property.
 
+**Related APIs:** [`pages`](#pages)
+
 ### `pageNextText`
 
 **Type**: `string`
 
 Gets or sets a caption for the Next button.
 
+**Related APIs:** [`[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)`](#[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization))
+
 ### `pagePrevText`
 
 **Type**: `string`
 
 Gets or sets a caption for the Previous button.
+
+**Related APIs:** [`[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)`](#[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization))
 
 ### `pages`
 
@@ -572,6 +656,8 @@ Gets or sets a caption for the Previous button.
 Returns an array of all pages in the survey.
 
 To get an array of only visible pages, use the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
+
+**Related APIs:** [`PageModel`](#PageModel)
 
 ### `partialSendEnabled`
 
@@ -599,6 +685,8 @@ Possible values:
 **Type**: `string`
 
 Gets or sets a caption for the Preview button.
+
+**Related APIs:** [`showPreviewBeforeComplete`](#showPreviewBeforeComplete), [`showPreview`](#showPreview), [`editText`](#editText)
 
 ### `processedCompletedBeforeHtml`
 
@@ -637,6 +725,8 @@ The progress bar width is the same as the survey width.
 - `"container"` (default)\
 The progress bar width is the same as the survey container width.
 
+**Related APIs:** [`progressBarShowPageTitles`](#progressBarShowPageTitles), [`progressBarShowPageNumbers`](#progressBarShowPageNumbers)
+
 ### `progressBarLocation`
 
 **Type**: `string`
@@ -653,6 +743,8 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
 
+**Related APIs:** [`showProgressBar`](#showProgressBar), [`progressBarType`](#progressBarType), [`progressValue`](#progressValue)
+
 ### `progressBarShowPageNumbers`
 
 **Type**: `boolean`
@@ -663,6 +755,8 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
 
+**Related APIs:** [`progressBarShowPageTitles`](#progressBarShowPageTitles), [`progressBarInheritWidthFrom`](#progressBarInheritWidthFrom)
+
 ### `progressBarShowPageTitles`
 
 **Type**: `boolean`
@@ -672,6 +766,8 @@ Specifies whether the progress bar displays page titles. Applies only when the [
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
+
+**Related APIs:** [`progressBarShowPageNumbers`](#progressBarShowPageNumbers), [`progressBarInheritWidthFrom`](#progressBarInheritWidthFrom)
 
 ### `progressBarType`
 
@@ -691,17 +787,23 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
 
+**Related APIs:** [`progressValue`](#progressValue)
+
 ### `progressText`
 
 **Type**: `string`
 
 Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
 
+**Related APIs:** [`progressValue`](#progressValue), [`showProgressBar`](#showProgressBar), [`progressBarType`](#progressBarType), [`getProgressInfo`](#getProgressInfo)
+
 ### `progressValue`
 
 **Type**: `number`
 
 Returns a percentage value that indicates user progress in the survey.
+
+**Related APIs:** [`showProgressBar`](#showProgressBar), [`progressBarType`](#progressBarType), [`progressText`](#progressText), [`getProgressInfo`](#getProgressInfo)
 
 ### `questionDescriptionLocation`
 
@@ -742,6 +844,8 @@ Possible values:
 - `"random"` - Displays questions in random order.
 
 You can override this property for individual pages and panels.
+
+**Related APIs:** [`PageModel.questionOrder`](#PageModel.questionOrder), [`PanelModel.questionOrder`](#PanelModel.questionOrder)
 
 ### `questionsOnPageMode`
 
@@ -808,11 +912,15 @@ Default value: `*`
 
 Specifies whether to display the Complete button. Set this property to `false` if respondents should not complete the survey.
 
+**Related APIs:** [`showNavigationButtons`](#showNavigationButtons), [`showPrevButton`](#showPrevButton)
+
 ### `showCompletePage`
 
 **Type**: `boolean`
 
 Specifies whether to show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+
+**Related APIs:** [`onComplete`](#onComplete), [`navigateToUrl`](#navigateToUrl)
 
 ### `showHeaderOnCompletePage`
 
@@ -847,6 +955,8 @@ Possible values:
 - `true` (default) - Displays the navigation buttons.
 - `false` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
 
+**Related APIs:** [`navigationButtonsLocation`](#navigationButtonsLocation), [`autoAdvanceEnabled`](#autoAdvanceEnabled), [`showPrevButton`](#showPrevButton), [`showCompleteButton`](#showCompleteButton)
+
 ### `showPageNumbers`
 
 **Type**: `boolean`
@@ -854,6 +964,8 @@ Possible values:
 Specifies whether page titles contain page numbers.
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
+
+**Related APIs:** [`onGetPageNumber`](#onGetPageNumber)
 
 ### `showPageTitles`
 
@@ -867,6 +979,8 @@ Specifies whether to display [page titles](https://surveyjs.io/form-library/docu
 
 Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
 
+**Related APIs:** [`showNavigationButtons`](#showNavigationButtons), [`showCompleteButton`](#showCompleteButton)
+
 ### `showPreviewBeforeComplete`
 
 **Type**: `any`
@@ -877,6 +991,8 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
 
+**Related APIs:** [`previewMode`](#previewMode), [`showPreview`](#showPreview), [`cancelPreview`](#cancelPreview)
+
 ### `showProgressBar`
 
 **Type**: `boolean`
@@ -886,6 +1002,8 @@ Specifies the visibility of the progress bar.
 Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
+
+**Related APIs:** [`progressBarLocation`](#progressBarLocation), [`progressBarType`](#progressBarType), [`progressValue`](#progressValue), [`getProgressInfo`](#getProgressInfo)
 
 ### `showQuestionNumbers`
 
@@ -904,6 +1022,8 @@ Possible values:
 
 If you want to hide the number of an individual question, disable its [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property.
 
+**Related APIs:** [`onGetQuestionNumber`](#onGetQuestionNumber)
+
 ### `showTimer`
 
 **Type**: `boolean`
@@ -920,6 +1040,8 @@ The timer displays information about time spent on an individual page and the en
 
 You can enable the timer without displaying it. In this case, you need to specify the required time limits and use the [`startTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startTimer) and [`stopTimer()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#stopTimer) methods to control the timer.
 
+**Related APIs:** [`timerLocation`](#timerLocation), [`timeSpent`](#timeSpent), [`onTimerTick`](#onTimerTick)
+
 ### `showTitle`
 
 **Type**: `boolean`
@@ -927,6 +1049,8 @@ You can enable the timer without displaying it. In this case, you need to specif
 Specifies whether to display the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
 
 [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
+
+**Related APIs:** [`title`](#title)
 
 ### `showTOC`
 
@@ -938,6 +1062,8 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
+**Related APIs:** [`tocLocation`](#tocLocation)
+
 ### `startPage`
 
 **Type**: `PageModel`
@@ -946,6 +1072,8 @@ Returns the start page. Applies only if the [`firstPageIsStartPage`](https://sur
 
 Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
 
+**Related APIs:** [`firstPageIsStartPage`](#firstPageIsStartPage), [`activePage`](#activePage)
+
 ### `startSurveyText`
 
 **Type**: `string`
@@ -953,6 +1081,8 @@ Refer to the following help topic for more information: [Start Page](https://sur
 Gets or sets a caption for the Start button.
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
+
+**Related APIs:** [`firstPageIsStartPage`](#firstPageIsStartPage), [`[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)`](#[Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization))
 
 ### `state`
 
@@ -978,6 +1108,8 @@ Specifies whether to store the "Other" option response in a separate property.
 Default value: `true`
 
 Respondents can leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. Comment values are saved in a separate property. The property name is composed of the question `name` and [`commentSuffix`](#commentSuffix). However, you can use the question `name` as a key to store the comment value instead. Disable the `storeOthersAsComment` property in this case.
+
+**Related APIs:** [`maxCommentLength`](#maxCommentLength)
 
 ### `textUpdateMode`
 
@@ -1006,6 +1138,8 @@ Default value: 0 (time is unlimited)
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
 
+**Related APIs:** [`timeLimitPerPage`](#timeLimitPerPage), [`startTimer`](#startTimer), [`timeSpent`](#timeSpent)
+
 ### `timeLimitPerPage`
 
 **Type**: `number`
@@ -1017,6 +1151,8 @@ Default value: 0 (time is unlimited)
 You can also use `PageModel`'s [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeLimit) property to specify a time period for an individual survey page.
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
+
+**Related APIs:** [`timeLimit`](#timeLimit), [`startTimer`](#startTimer), [`timeSpent`](#timeSpent)
 
 ### `timerInfoMode`
 
@@ -1030,6 +1166,8 @@ Possible values:
 - `"page"` - Displays only the page timer.
 - `"combined"` (default) - Displays both the survey and page timers.
 
+**Related APIs:** [`timeSpent`](#timeSpent), [`onTimerTick`](#onTimerTick), [`startTimer`](#startTimer), [`stopTimer`](#stopTimer)
+
 ### `timerLocation`
 
 **Type**: `string`
@@ -1041,6 +1179,8 @@ Possible values:
 - `"top"` (default) - Displays the timer at the top of the survey.
 - `"bottom"` - Displays the timer at the bottom of the survey.
 
+**Related APIs:** [`onTimerTick`](#onTimerTick)
+
 ### `timeSpent`
 
 **Type**: `number`
@@ -1050,6 +1190,8 @@ A time period that a respondent has spent on the survey so far; measured in seco
 Assign a number to this property if you need to start the quiz timer from a specific time (for instance, if you want to continue an interrupted quiz).
 
 You can also find out how many seconds a respondent has spent on an individual survey page. To do this, use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeSpent) property of a [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) object.
+
+**Related APIs:** [`timeLimit`](#timeLimit), [`timeLimitPerPage`](#timeLimitPerPage), [`startTimer`](#startTimer)
 
 ### `tocLocation`
 
@@ -1064,6 +1206,8 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
 
+**Related APIs:** [`showTOC`](#showTOC)
+
 ### `triggers`
 
 **Type**: `SurveyTrigger[]`
@@ -1071,6 +1215,8 @@ Possible values:
 A list of triggers in the survey.
 
 [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
+
+**Related APIs:** [`runTriggers`](#runTriggers), [`onTriggerExecuted`](#onTriggerExecuted)
 
 ### `uiState`
 
@@ -1104,6 +1250,8 @@ This property changes validation behavior for the following question types:
 - [Long Text](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model)
 - [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model)
 
+**Related APIs:** [`validationEnabled`](#validationEnabled), [`validationAllowSwitchPages`](#validationAllowSwitchPages), [`validationAllowComplete`](#validationAllowComplete), [`validate`](#validate)
+
 ### `validationAllowComplete`
 
 **Type**: `boolean`
@@ -1111,6 +1259,8 @@ This property changes validation behavior for the following question types:
 Specifies whether respondents can end a survey with validation errors.
 
 Default value: `false`
+
+**Related APIs:** [`checkErrorsMode`](#checkErrorsMode)
 
 ### `validationAllowSwitchPages`
 
@@ -1120,6 +1270,8 @@ Specifies whether respondents can switch the current page even if it contains va
 
 Default value: `false`
 
+**Related APIs:** [`checkErrorsMode`](#checkErrorsMode)
+
 ### `validationEnabled`
 
 **Type**: `boolean`
@@ -1127,6 +1279,8 @@ Default value: `false`
 Specifies whether data validation is enabled.
 
 Default value: `true`
+
+**Related APIs:** [`checkErrorsMode`](#checkErrorsMode), [`hideRequiredErrors`](#hideRequiredErrors)
 
 ### `visiblePageCount`
 
@@ -1136,6 +1290,8 @@ Returns the number of visible survey pages.
 
 To get a total number of survey pages, use the [`pageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pageCount) property.
 
+**Related APIs:** [`visiblePages`](#visiblePages), [`[Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)`](#[Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility))
+
 ### `visiblePages`
 
 **Type**: `PageModel[]`
@@ -1144,6 +1300,8 @@ Returns an array of visible pages without the start page.
 
 To get an array of all pages, use the [`pages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pages) property. If all pages are visible, the `pages` and `visiblePages` arrays are identical.
 
+**Related APIs:** [`[Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)`](#[Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility))
+
 ### `width`
 
 **Type**: `string`
@@ -1151,6 +1309,8 @@ To get an array of all pages, use the [`pages`](https://surveyjs.io/form-library
 A survey width in CSS values.
 
 Default value: `undefined` (the survey inherits the width from its container)
+
+**Related APIs:** [`onResize`](#onResize)
 
 ### `widthMode`
 
@@ -1223,6 +1383,8 @@ If you want to switch a survey to the newly added page, assign its index to the 
 | `name` | `string` | A page name. If you do not specify this parameter, it will be generated automatically. |
 | `index` | `number` | An index at which to insert the page. If you do not specify this parameter, the page will be added to the end. |
 
+**Related APIs:** [`addPage`](#addPage), [`createNewPage`](#createNewPage)
+
 ### `addPage()`
 
 Adds an existing page to the survey.
@@ -1233,6 +1395,8 @@ Adds an existing page to the survey.
 | ---- | ---- | ----------- |
 | `page` | `PageModel` | A page to add. |
 | `index` | `number` | An index at which to insert the page. If you do not specify this parameter, the page will be added to the end. |
+
+**Related APIs:** [`addNewPage`](#addNewPage), [`createNewPage`](#createNewPage)
 
 ### `applyTheme()`
 
@@ -1250,6 +1414,8 @@ Applies a specified theme to the survey.
 
 Displays the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
 
+**Related APIs:** [`endLoading`](#endLoading)
+
 ### `cancelPreview()`
 
 Cancels a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) and switches the survey to the page specified by the `currentPage` parameter.
@@ -1259,6 +1425,8 @@ Cancels a [preview of given answers](https://surveyjs.io/form-library/documentat
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `currentPage` | `any` | A new current page. If you do not specify this parameter, the survey displays the last page. |
+
+**Related APIs:** [`showPreview`](#showPreview), [`showPreviewBeforeComplete`](#showPreviewBeforeComplete), [`state`](#state)
 
 ### `chooseFiles()`
 
@@ -1271,6 +1439,8 @@ Opens a dialog window for users to select files.
 | `input` | `any` | A [file input HTML element](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement). |
 | `callback` | `(files: any[]) => void` | A callback function that you can use to process selected files. Accepts an array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects. |
 | `context` | `{ element: Base; item?: any; elementType?: string; propertyName?: string; }` |  |
+
+**Related APIs:** [`onOpenFileChooser`](#onOpenFileChooser), [`onUploadFile`](#onUploadFile)
 
 ### `clear()`
 
@@ -1321,9 +1491,13 @@ Call the [`addPage(page)`](https://surveyjs.io/form-library/documentation/api-re
 | ---- | ---- | ----------- |
 | `name` | `string` |  |
 
+**Related APIs:** [`addPage`](#addPage), [`addNewPage`](#addNewPage)
+
 ### `deleteCookie()`
 
 Deletes a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) from the browser.
+
+**Related APIs:** [`hasCookie`](#hasCookie), [`setCookie`](#setCookie)
 
 ### `dispose()`
 
@@ -1357,9 +1531,13 @@ The `doComplete()` method completes the survey regardless of validation errors a
 
 Stops displaying the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
 
+**Related APIs:** [`beginLoading`](#beginLoading)
+
 ### `focusFirstQuestion()`
 
 Focuses the first question on the current page.
+
+**Related APIs:** [`focusQuestion`](#focusQuestion), [`autoFocusFirstQuestion`](#autoFocusFirstQuestion)
 
 ### `focusQuestion()`
 
@@ -1373,6 +1551,8 @@ Focuses a question with a specified name. Switches the current page if needed.
 | ---- | ---- | ----------- |
 | `name` | `string` | A question name. |
 
+**Related APIs:** [`focusFirstQuestion`](#focusFirstQuestion), [`autoFocusFirstQuestion`](#autoFocusFirstQuestion)
+
 ### `getAllPanels()`
 
 **Return value:** `IPanel[]<IPanel>` &ndash; An array of panels.
@@ -1385,6 +1565,8 @@ Returns a list of all [panels](https://surveyjs.io/form-library/documentation/ap
 | ---- | ---- | ----------- |
 | `visibleOnly` | `boolean` | A Boolean value that specifies whether to include only visible panels. |
 | `includeDesignTime` | `boolean` | For internal use. |
+
+**Related APIs:** [`getPanelByName`](#getPanelByName)
 
 ### `getAllQuestions()`
 
@@ -1400,6 +1582,8 @@ Returns a list of all [questions](https://surveyjs.io/form-library/documentation
 | `includeDesignTime` | `boolean` | For internal use. |
 | `includeNested` | `boolean` | A Boolean value that specifies whether to include nested questions, such as questions within matrix cells. |
 
+**Related APIs:** [`getQuestionByName`](#getQuestionByName)
+
 ### `getComment()`
 
 **Return value:** `string` &ndash; A comment.
@@ -1412,6 +1596,8 @@ Returns a comment value from a question with a specified `name`.
 | ---- | ---- | ----------- |
 | `name` | `string` | A question name. |
 
+**Related APIs:** [`setComment`](#setComment)
+
 ### `getCorrectAnswerCount()`
 
 **Return value:** `number` &ndash; The number of correct answers in a quiz.
@@ -1419,6 +1605,8 @@ Returns a comment value from a question with a specified `name`.
 Returns the number of correct answers in a quiz.
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+
+**Related APIs:** [`getQuizQuestionCount`](#getQuizQuestionCount), [`getIncorrectAnswerCount`](#getIncorrectAnswerCount)
 
 ### `getData()`
 
@@ -1454,6 +1642,8 @@ Returns a page, panel, or question with a specified [`name`](https://surveyjs.io
 | ---- | ---- | ----------- |
 | `name` | `string` | A survey element name. |
 
+**Related APIs:** [`currentElementName`](#currentElementName)
+
 ### `getIncorrectAnswerCount()`
 
 **Return value:** `number` &ndash; The number of incorrect answers in a quiz.
@@ -1461,6 +1651,8 @@ Returns a page, panel, or question with a specified [`name`](https://surveyjs.io
 Returns the number of incorrect answers in a quiz.
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+
+**Related APIs:** [`getCorrectAnswerCount`](#getCorrectAnswerCount)
 
 ### `getPageByElement()`
 
@@ -1511,6 +1703,8 @@ Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/p
 | `name` | `string` | A panel name. |
 | `caseInsensitive` | `boolean` |  |
 
+**Related APIs:** [`getAllPanels`](#getAllPanels)
+
 ### `getPlainData()`
 
 **Return value:** `IQuestionPlainData[]<IQuestionPlainData>`
@@ -1547,6 +1741,8 @@ The number of questions marked as required.
 - `requiredAnsweredQuestionCount`: `number`\
 The number of required questions that have been answered.
 
+**Related APIs:** [`showProgressBar`](#showProgressBar), [`progressValue`](#progressValue), [`progressText`](#progressText), [`onGetProgressText`](#onGetProgressText)
+
 ### `getQuestionByName()`
 
 **Return value:** `Question` &ndash; A question with the specified name.
@@ -1559,6 +1755,8 @@ Returns a question with a specified [`name`](https://surveyjs.io/form-library/do
 | ---- | ---- | ----------- |
 | `name` | `string` | A question name. |
 | `caseInsensitive` | `boolean` |  |
+
+**Related APIs:** [`getAllQuestions`](#getAllQuestions), [`getQuestionByValueName`](#getQuestionByValueName)
 
 ### `getQuestionByValueName()`
 
@@ -1575,6 +1773,8 @@ Returns a question with a specified [`valueName`](https://surveyjs.io/form-libra
 | `valueName` | `string` | A question's `valueName` property value. |
 | `caseInsensitive` | `boolean` |  |
 
+**Related APIs:** [`getAllQuestions`](#getAllQuestions), [`getQuestionByName`](#getQuestionByName)
+
 ### `getQuestionsByValueName()`
 
 **Return value:** `Question[]<Question>` &ndash; An array of questions with a specified `valueName`.
@@ -1588,6 +1788,8 @@ Returns all questions with a specified [`valueName`](https://surveyjs.io/form-li
 | `valueName` | `string` | A question's `valueName` property value. |
 | `caseInsensitive` | `boolean` |  |
 
+**Related APIs:** [`getAllQuestions`](#getAllQuestions), [`getQuestionByName`](#getQuestionByName)
+
 ### `getQuizQuestionCount()`
 
 **Return value:** `number` &ndash; The number of quiz questions.
@@ -1598,6 +1800,8 @@ This number may be different from `getQuizQuestions().length` because certain qu
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
 
+**Related APIs:** [`getQuizQuestions`](#getQuizQuestions)
+
 ### `getQuizQuestions()`
 
 **Return value:** `IQuestion[]<IQuestion>` &ndash; An array of quiz questions.
@@ -1605,6 +1809,8 @@ For more information about quizzes, refer to the following tutorial: [Create a Q
 Returns an array of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
 
 For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+
+**Related APIs:** [`getQuizQuestionCount`](#getQuizQuestionCount)
 
 ### `getUsedLocales()`
 
@@ -1628,6 +1834,8 @@ Returns a value (answer) for a question with a specified `name`.
 | ---- | ---- | ----------- |
 | `name` | `string` | A question name. |
 
+**Related APIs:** [`data`](#data), [`setValue`](#setValue)
+
 ### `getVariable()`
 
 **Return value:** `any`
@@ -1642,6 +1850,8 @@ Returns a variable value.
 | ---- | ---- | ----------- |
 | `name` | `string` | A variable name. |
 
+**Related APIs:** [`setVariable`](#setVariable), [`getVariableNames`](#getVariableNames)
+
 ### `getVariableNames()`
 
 **Return value:** `string[]<any>` &ndash; An array of variable names.
@@ -1649,6 +1859,8 @@ Returns a variable value.
 Returns the names of all variables in the survey.
 
 [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+
+**Related APIs:** [`getVariable`](#getVariable), [`setVariable`](#setVariable)
 
 ### `mergeData()`
 
@@ -1661,6 +1873,8 @@ Refer to the following help topic for more information: [Populate Form Fields | 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `data` | `any` | A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }` |
+
+**Related APIs:** [`setValue`](#setValue)
 
 ### `mergeLocalizationJSON()`
 
@@ -1682,6 +1896,8 @@ The JSON schema should contain only locale strings and identifier properties; al
 Switches the survey to the next page.
 
 This method returns a Boolean value that indicates whether the page was successfully switched. `false` is returned if the current page is the last page or if it contains validation errors.
+
+**Related APIs:** [`isLastPage`](#isLastPage), [`prevPage`](#prevPage), [`completeLastPage`](#completeLastPage)
 
 ### `notify()`
 
@@ -1707,6 +1923,8 @@ Switches the survey to the previous page.
 
 This method returns a Boolean value that indicates whether the page was successfully switched. `false` is returned if the current page is the first page.
 
+**Related APIs:** [`isFirstPage`](#isFirstPage), [`nextPage`](#nextPage)
+
 ### `removePage()`
 
 Removes a page from the survey.
@@ -1723,6 +1941,8 @@ survey.removePage(survey.currentPage);
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `page` | `PageModel` | A page to remove. |
+
+**Related APIs:** [`addNewPage`](#addNewPage)
 
 ### `runCondition()`
 
@@ -1759,6 +1979,8 @@ Executes [all triggers](https://surveyjs.io/form-library/documentation/api-refer
 
 [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
 
+**Related APIs:** [`onTriggerExecuted`](#onTriggerExecuted)
+
 ### `setComment()`
 
 Sets a comment value to a question with a specified `name`.
@@ -1771,9 +1993,13 @@ Sets a comment value to a question with a specified `name`.
 | `newValue` | `string` | A new comment value. |
 | `locNotification` | `boolean \| "text"` | For internal use. |
 
+**Related APIs:** [`getComment`](#getComment)
+
 ### `setCookie()`
 
 Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) in the browser. If the `cookieName` property value is defined, this method is automatically called on survey completion.
+
+**Related APIs:** [`hasCookie`](#hasCookie), [`deleteCookie`](#deleteCookie)
 
 ### `setValue()`
 
@@ -1793,6 +2019,8 @@ Sets a question value (answer).
 | `allowNotifyValueChanged` | `boolean` | For internal use. |
 | `questionName` | `string` |  |
 
+**Related APIs:** [`data`](#data), [`getValue`](#getValue)
+
 ### `setVariable()`
 
 Sets a variable value.
@@ -1806,11 +2034,15 @@ Sets a variable value.
 | `name` | `string` | A variable name. |
 | `newValue` | `any` | A new variable value. |
 
+**Related APIs:** [`getVariable`](#getVariable), [`getVariableNames`](#getVariableNames)
+
 ### `showPreview()`
 
 **Return value:** `boolean`
 
 Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
+
+**Related APIs:** [`cancelPreview`](#cancelPreview), [`showPreviewBeforeComplete`](#showPreviewBeforeComplete), [`onShowingPreview`](#onShowingPreview), [`state`](#state)
 
 ### `start()`
 
@@ -1818,13 +2050,19 @@ Displays a [preview of given answers](https://surveyjs.io/form-library/documenta
 
 Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
 
+**Related APIs:** [`firstPageIsStartPage`](#firstPageIsStartPage), [`completeLastPage`](#completeLastPage)
+
 ### `startTimer()`
 
 Starts a timer that calculates how many seconds a respondent has spent on the survey. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
+**Related APIs:** [`stopTimer`](#stopTimer), [`timeLimit`](#timeLimit), [`timeLimitPerPage`](#timeLimitPerPage), [`timeSpent`](#timeSpent), [`onTimerTick`](#onTimerTick)
+
 ### `stopTimer()`
 
 Stops the timer. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+
+**Related APIs:** [`startTimer`](#startTimer), [`timeLimit`](#timeLimit), [`timeLimitPerPage`](#timeLimitPerPage), [`timeSpent`](#timeSpent), [`onTimerTick`](#onTimerTick)
 
 ### `tryComplete()`
 
@@ -1833,6 +2071,8 @@ Stops the timer. Applies only to [quiz surveys](https://surveyjs.io/form-library
 Completes the survey if it currently displays the last page and the page contains no validation errors. If both these conditions are met, this method returns `true`; otherwise, `false`.
 
 If you want to complete the survey regardless of the current page and validation errors, use the [`doComplete()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#doComplete) method.
+
+**Related APIs:** [`isCurrentPageValid`](#isCurrentPageValid), [`nextPage`](#nextPage)
 
 ### `uploadFiles()`
 
@@ -1862,6 +2102,8 @@ survey.uploadFiles(
 | `callback` | `(data: any, errors?: any) => any` | A callback function that allows you to access successfully uploaded files as the first argument. If any files fail to upload, the second argument contains an array of error messages. |
 | `sourceType` | `string` |  |
 
+**Related APIs:** [`onUploadFiles`](#onUploadFiles), [`downloadFile`](#downloadFile)
+
 ### `validate()`
 
 **Return value:** `boolean`
@@ -1879,6 +2121,8 @@ If you use validation expressions and at least one of them calls an async functi
 | `onAsyncValidation` | `(hasErrors: boolean) => void` | *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise. |
 | `changeCurrentPage` | `boolean` |  |
 
+**Related APIs:** [`validateCurrentPage`](#validateCurrentPage), [`validatePage`](#validatePage)
+
 ### `validateCurrentPage()`
 
 **Return value:** `boolean`
@@ -1892,6 +2136,8 @@ If you use validation expressions and at least one of them calls an async functi
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | `onAsyncValidation` | `(hasErrors: boolean) => void` | *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise. |
+
+**Related APIs:** [`currentPage`](#currentPage), [`validate`](#validate), [`validateCurrentPage`](#validateCurrentPage)
 
 ### `validatePage()`
 
@@ -1907,6 +2153,8 @@ If you use validation expressions and at least one of them calls an async functi
 | ---- | ---- | ----------- |
 | `page` | `PageModel` | Pass the `PageModel` that you want to validate. You can pass `undefined` to validate the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage). |
 | `onAsyncValidation` | `(hasErrors: boolean) => void` | *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise. |
+
+**Related APIs:** [`validate`](#validate), [`validateCurrentPage`](#validateCurrentPage)
 
 ## Events
 
@@ -1930,6 +2178,8 @@ A Question instance within the matrix cell.
 A matrix row to which the cell belongs.
 - `options.column`: `MatrixDropdownColumn | MatrixDropdownCell`  
 A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
+
+**Related APIs:** [`onMatrixCellCreated`](#onMatrixCellCreated)
 
 ### `onAfterRenderPage`
 
@@ -2082,6 +2332,8 @@ An array of all choice options.
 - `options.filteredChoices`: `ItemValue[]`  
 A filtered array of choice options. Apply `options.filter` to the `options.choices` array and assign the result to this parameter.
 
+**Related APIs:** [`[QuestionDropdownModel.searchEnabled](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#searchEnabled)`](#[QuestionDropdownModel.searchEnabled](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#searchEnabled)), [`[QuestionDropdownModel.searchMode](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#searchMode)`](#[QuestionDropdownModel.searchMode](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#searchMode))
+
 ### `onClearFiles`
 
 An event that is raised when users clear files in a [File Upload](https://surveyjs.io/form-library/documentation/api-reference/file-model) question or clear signature in a [Signature Pad](https://surveyjs.io/form-library/documentation/api-reference/signature-pad-model) question. Use this event to delete files from your server.
@@ -2105,6 +2357,8 @@ The File Upload question's [`value`](https://surveyjs.io/form-library/documentat
 [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
 
 [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
+
+**Related APIs:** [`clearFiles`](#clearFiles), [`onDownloadFile`](#onDownloadFile), [`onUploadFiles`](#onUploadFiles)
 
 ### `onComplete`
 
@@ -2131,6 +2385,8 @@ Call this method to indicate that the save operation is in progress. You can use
 For an example of how to use the methods described above, refer to the following help topic: [Store Survey Results in Your Own Database](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-your-own-database).
 
 > Do not disable the [`showCompletePage`](https://surveyjs.io/form-library/documentation/surveymodel#showCompletePage) property if you call one of the `options.showSave...` methods. This is required because the UI that indicates data saving progress is integrated into the complete page. If you hide the complete page, the UI also becomes invisible.
+
+**Related APIs:** [`onPartialSend`](#onPartialSend), [`doComplete`](#doComplete), [`autoAdvanceAllowComplete`](#autoAdvanceAllowComplete)
 
 ### `onCompleting`
 
@@ -2187,6 +2443,8 @@ survey.onCompleting.add(async (_, options) => {
   }
 });
 ```
+
+**Related APIs:** [`onComplete`](#onComplete), [`doComplete`](#doComplete), [`autoAdvanceAllowComplete`](#autoAdvanceAllowComplete)
 
 ### `onCreateCustomChoiceItem`
 
@@ -2258,6 +2516,8 @@ This parameter has a value only in [question-per-page mode](https://surveyjs.io/
 
 [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
 
+**Related APIs:** [`currentPageNo`](#currentPageNo), [`nextPage`](#nextPage), [`prevPage`](#prevPage)
+
 ### `onCurrentPageChanging`
 
 An event that is raised before the current page is switched.
@@ -2328,6 +2588,8 @@ survey.onCurrentPageChanging.add(async (_, options) => {
 });
 ```
 
+**Related APIs:** [`currentPageNo`](#currentPageNo), [`nextPage`](#nextPage), [`prevPage`](#prevPage)
+
 ### `onDownloadFile`
 
 An event that is raised when a File Upload question starts to download a file. Use this event to implement file preview when your server stores only file names.
@@ -2349,6 +2611,8 @@ The File Upload question's [`value`](https://surveyjs.io/form-library/documentat
 A file identifier (URL, file name, etc.) stored in survey results.
 
 [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
+
+**Related APIs:** [`downloadFile`](#downloadFile), [`onClearFiles`](#onClearFiles), [`onUploadFiles`](#onUploadFiles)
 
 ### `onDragDropAllow`
 
@@ -2372,6 +2636,8 @@ A survey element after which `draggedElement` will be placed. This parameter is 
 A parent container (page or panel) within which `draggedElement` will be placed.
 - `options.allow`: `boolean`  
 A Boolean property that you can set to `false` if you want to cancel the drag and drop operation.
+
+**Related APIs:** [`isDesignMode`](#isDesignMode)
 
 ### `onDynamicPanelAdded`
 
@@ -2508,6 +2774,8 @@ A survey instance that raised the event.
 - `options.panel`: `PanelModel`  
 A Panel instance for which the event is raised.
 
+**Related APIs:** [`onFocusInQuestion`](#onFocusInQuestion), [`autoFocusFirstQuestion`](#autoFocusFirstQuestion), [`focusQuestion`](#focusQuestion)
+
 ### `onFocusInQuestion`
 
 An event that is raised when an element (input field, checkbox, radio button) within a question gets focus.
@@ -2518,6 +2786,8 @@ Parameters:
 A survey instance that raised the event.
 - `options.question`: `Question`  
 A Question instance for which the event is raised.
+
+**Related APIs:** [`onFocusInPanel`](#onFocusInPanel), [`autoFocusFirstQuestion`](#autoFocusFirstQuestion), [`focusQuestion`](#focusQuestion)
 
 ### `onGetChoiceDisplayValue`
 
@@ -2592,6 +2862,8 @@ A matrix row for which the event is raised.
 
 [View Demo](https://surveyjs.io/form-library/examples/employee-information-form/ (linkStyle))
 
+**Related APIs:** [`[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)`](#[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction))
+
 ### `onGetPageNumber`
 
 An event that is raised before the survey calculates a page number. Handle this event to modify page numbers.
@@ -2607,6 +2879,8 @@ A survey instance that raised the event.
 A Page instance for which the event is raised.
 - `options.number`: `string`  
 A page number. Note that this is a string value that contains not only the number itself but also the characters that separate the number from the page title: `"1. "`, `"2. "`, etc. You can change this parameter's value.
+
+**Related APIs:** [`onGetQuestionTitle`](#onGetQuestionTitle), [`questionStartIndex`](#questionStartIndex)
 
 ### `onGetPageTitleActions`
 
@@ -2624,6 +2898,8 @@ An array of [actions](https://surveyjs.io/form-library/documentation/iaction) as
 
 [View Demo](https://surveyjs.io/form-library/examples/modify-titles-of-survey-elements/ (linkStyle))
 
+**Related APIs:** [`[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)`](#[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction))
+
 ### `onGetPanelFooterActions`
 
 An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel). This panel may belong to a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) or be a standalone survey element.
@@ -2638,6 +2914,8 @@ An array of [actions](https://surveyjs.io/form-library/documentation/iaction). Y
 A Panel instance for which the event is raised.
 - `options.question`: `QuestionPanelDynamicModel`  
 A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel.
+
+**Related APIs:** [`[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)`](#[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction))
 
 ### `onGetPanelNumber`
 
@@ -2667,6 +2945,8 @@ A Panel instance for which the event is raised.
 - `options.actions`: `IAction[]`  
 An array of [actions](https://surveyjs.io/form-library/documentation/iaction) associated with the processed element.
 
+**Related APIs:** [`[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)`](#[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction))
+
 ### `onGetProgressText`
 
 An event that is raised before the survey displays progress text. Handle this event to change the progress text in code.
@@ -2685,6 +2965,8 @@ The number of questions marked as required.
 The number of required questions that have been answered.
 - `options.text`: `string`  
 Progress text rendered in the [progress bar](#showProgressBar). You can change this parameter's value.
+
+**Related APIs:** [`showProgressBar`](#showProgressBar), [`progressBarLocation`](#progressBarLocation), [`progressBarType`](#progressBarType), [`getProgressInfo`](#getProgressInfo)
 
 ### `onGetQuestionDisplayValue`
 
@@ -2715,6 +2997,8 @@ A question number that is calculated based upon the question's [`visibleIndex`](
 
 If you want to hide question numbers, disable the [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property.
 
+**Related APIs:** [`onGetQuestionTitle`](#onGetQuestionTitle), [`questionStartIndex`](#questionStartIndex)
+
 ### `onGetQuestionTitle`
 
 An event that is raised before the survey displays a question title. Handle this event to modify question titles.
@@ -2731,6 +3015,8 @@ A question title taken from the question's `title` or `name` property. You can c
 
 If you want to modify question numbers, handle the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event.
 
+**Related APIs:** [`requiredMark`](#requiredMark)
+
 ### `onGetQuestionTitleActions`
 
 An event that allows you to add, delete, or modify actions in a question title.
@@ -2746,6 +3032,8 @@ A Question instance for which the event is raised.
 An array of [actions](https://surveyjs.io/form-library/documentation/iaction) associated with the processed element.
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-titleactions/ (linkStyle))
+
+**Related APIs:** [`[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)`](#[IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction))
 
 ### `onGetTitleTagName`
 
@@ -2764,6 +3052,8 @@ An HTML tag used to render the title (`"div"`). You can change this parameter's 
 If you want to specify HTML tags for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
 
 [View Demo](https://surveyjs.io/form-library/examples/survey-titletagnames/ (linkStyle))
+
+**Related APIs:** [`onGetQuestionTitle`](#onGetQuestionTitle), [`onGetQuestionNumber`](#onGetQuestionNumber)
 
 ### `onMatrixCellCreated`
 
@@ -2789,6 +3079,8 @@ A matrix cell for which the event is raised.
 - `options.cellQuestion`: `Question`  
 A Question instance within the matrix cell. You can use the properties and methods exposed by the instance to customize it.
 
+**Related APIs:** [`onAfterRenderMatrixCell`](#onAfterRenderMatrixCell)
+
 ### `onMatrixCellCreating`
 
 An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
@@ -2810,6 +3102,8 @@ The values of this matrix row.\
 To access a particular column's value, use the following code: `options.rowValue["columnName"]`
 - `options.cellType`: `string`  
 The type of this matrix cell. You can change this property value to one of the values described in the [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#cellType) documentation.
+
+**Related APIs:** [`onAfterRenderMatrixCell`](#onAfterRenderMatrixCell)
 
 ### `onMatrixCellValidate`
 
@@ -2836,6 +3130,8 @@ A new cell value.
 - `options.error`: `string`  
 A field for your custom error message. Default value: `undefined`.
 
+**Related APIs:** [`onMatrixRowAdding`](#onMatrixRowAdding)
+
 ### `onMatrixCellValueChanged`
 
 An event that is raised after a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
@@ -2861,6 +3157,8 @@ A new cell value.
 - `options.oldValue`: `any`  
 A previous cell value.
 
+**Related APIs:** [`onMatrixRowAdding`](#onMatrixRowAdding)
+
 ### `onMatrixCellValueChanging`
 
 An event that is raised before a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to change the cell value.
@@ -2885,6 +3183,8 @@ A method that returns a Question instance within the matrix cell given a column 
 A new cell value.
 - `options.oldValue`: `any`  
 A previous cell value.
+
+**Related APIs:** [`onMatrixRowAdding`](#onMatrixRowAdding)
 
 ### `onMatrixColumnAdded`
 
@@ -2935,6 +3235,8 @@ A zero-based row index.
 - `options.allow`: `boolean`  
 A Boolean property that you can set to `false` if you want to hide the Remove button for this row.
 
+**Related APIs:** [`onMatrixRowRemoving`](#onMatrixRowRemoving), [`onMatrixRowRemoved`](#onMatrixRowRemoved)
+
 ### `onMatrixRowAdded`
 
 An event that is raised after a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
@@ -2976,6 +3278,8 @@ A deleted matrix row.
 - `options.rowIndex`: `number`  
 A zero-based index of the deleted row.
 
+**Related APIs:** [`onMatrixRenderRemoveButton`](#onMatrixRenderRemoveButton)
+
 ### `onMatrixRowRemoving`
 
 An event that is raised before a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). You can cancel row deletion and clear row data instead.
@@ -2992,6 +3296,8 @@ A matrix row to be deleted. If you want to clear row data, set the `options.row.
 A zero-based index of the matrix row to be deleted.
 - `options.allow`: `boolean`  
 A Boolean property that you can set to `false` if you want to cancel row deletion.
+
+**Related APIs:** [`onMatrixRenderRemoveButton`](#onMatrixRenderRemoveButton)
 
 ### `onMultipleTextItemAdded`
 
@@ -3018,6 +3324,8 @@ A survey instance that raised the event.
 A Boolean property that you can set to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
 - `options.url`: `string`  
 A URL to which respondents should be navigated. You can modify this parameter's value.
+
+**Related APIs:** [`navigateToUrl`](#navigateToUrl), [`navigateToUrlOnCondition`](#navigateToUrlOnCondition)
 
 ### `onOpenDropdownMenu`
 
@@ -3064,6 +3372,8 @@ A choice item for which the event is raised. This parameter has a value only whe
 - `options.callback`: `(files: any[]) => void`  
 A callback function to which you should pass selected files.
 
+**Related APIs:** [`chooseFiles`](#chooseFiles)
+
 ### `onPageAdded`
 
 An event that is raised when a new page is added to the survey.
@@ -3074,6 +3384,8 @@ Parameters:
 A survey instance that raised the event.
 - `options.page`: `PageModel`  
 A Page instance for which the event is raised.
+
+**Related APIs:** [`PanelModel`](#PanelModel)
 
 ### `onPageVisibleChanged`
 
@@ -3194,6 +3506,8 @@ HTML markup. You can modify this parameter's value.
 - `options.reason`: `string`  
 Indicates a page, question, or message for which HTML content is intended: [`"completed"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml) | [`"completed-before"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml) | [`"loading"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml) | [`"html-question"`](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html).
 
+**Related APIs:** [`completedHtml`](#completedHtml), [`loadingHtml`](#loadingHtml), [`[QuestionHtmlModel.html](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html)`](#[QuestionHtmlModel.html](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html))
+
 ### `onQuestionAdded`
 
 An event that is raised when a new question is added to a panel or page.
@@ -3232,6 +3546,8 @@ survey.onQuestionAdded.add((sender, options) => {
 survey.fromJSON(surveyJson);
 ```
 
+**Related APIs:** [`onQuestionCreated`](#onQuestionCreated)
+
 ### `onQuestionCreated`
 
 An event that is raised when the survey creates any new object derived from [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question).
@@ -3263,6 +3579,8 @@ survey.onQuestionCreated.add((sender, options) => {
 // Load the survey JSON schema
 survey.fromJSON(surveyJson);
 ```
+
+**Related APIs:** [`onQuestionAdded`](#onQuestionAdded)
 
 ### `onQuestionRemoved`
 
@@ -3341,6 +3659,8 @@ Question values. You can get an individual question value as follows: `options.d
 
 [View Demo](https://surveyjs.io/form-library/examples/javascript-server-side-form-validation/ (linkStyle))
 
+**Related APIs:** [`onValidateQuestion`](#onValidateQuestion), [`onValidatePanel`](#onValidatePanel), [`isValidatingOnServer`](#isValidatingOnServer)
+
 ### `onShowingChoiceItem`
 
 An event that is raised before a [choice item](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) is displayed. Use this event to change the visibility of individual choice items in [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model), and other similar question types.
@@ -3367,6 +3687,8 @@ A survey instance that raised the event.
 - `options.allow`: `boolean`  
 A Boolean property that you can set to `false` if you want to cancel the preview.
 
+**Related APIs:** [`showPreviewBeforeComplete`](#showPreviewBeforeComplete), [`previewMode`](#previewMode), [`showPreview`](#showPreview), [`cancelPreview`](#cancelPreview)
+
 ### `onStarted`
 
 An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
@@ -3374,6 +3696,8 @@ An event that is raised when the survey [`state`](https://surveyjs.io/form-libra
 For information on event handler parameters, refer to descriptions within the interface.
 
 [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+
+**Related APIs:** [`firstPageIsStartPage`](#firstPageIsStartPage)
 
 ### `onTextMarkdown`
 
@@ -3403,6 +3727,8 @@ An event that is raised every second while the timer is running.
 
 Use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeSpent) property to find out how many seconds have elapsed.
 
+**Related APIs:** [`timeLimit`](#timeLimit), [`timeLimitPerPage`](#timeLimitPerPage), [`showTimer`](#showTimer), [`timerLocation`](#timerLocation), [`startTimer`](#startTimer)
+
 ### `onTriggerExecuted`
 
 An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
@@ -3416,6 +3742,8 @@ A survey instance that raised the event.
 A trigger that has been executed.
 
 [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
+
+**Related APIs:** [`triggers`](#triggers), [`runTriggers`](#runTriggers)
 
 ### `onUIStateChanged`
 
@@ -3464,6 +3792,8 @@ A string with CSS classes applied to the choice item. The CSS classes are separa
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
 
+**Related APIs:** [`css`](#css)
+
 ### `onUpdatePageCssClasses`
 
 An event that is raised before rendering a page. Use it to override default page CSS classes.
@@ -3479,6 +3809,8 @@ A Page instance for which the event is raised.
 An object with CSS classes applied to the element being rendered, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
+
+**Related APIs:** [`css`](#css)
 
 ### `onUpdatePanelCssClasses`
 
@@ -3496,6 +3828,8 @@ An object with CSS classes applied to the element being rendered, for example, `
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
 
+**Related APIs:** [`css`](#css)
+
 ### `onUpdateQuestionCssClasses`
 
 An event that is raised before rendering a question. Use it to override default question CSS classes.
@@ -3511,6 +3845,8 @@ A Question instance for which the event is raised.
 An object with CSS classes applied to the element being rendered, for example, `{ root: "class1", button: "class2" }`. You can modify this object to apply custom CSS classes.
 
 [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
+
+**Related APIs:** [`css`](#css)
 
 ### `onUploadFiles`
 
@@ -3536,6 +3872,8 @@ Possible values: `"file"`, `"camera"`, or `"signature"`.
 [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
 
 [Signature Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
+
+**Related APIs:** [`uploadFiles`](#uploadFiles), [`onDownloadFile`](#onDownloadFile), [`onClearFiles`](#onClearFiles)
 
 ### `onValidatePage`
 
@@ -3572,6 +3910,8 @@ An array of other validation errors that you can modify.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-input-validation/ (linkStyle))
 
+**Related APIs:** [`onValidateQuestion`](#onValidateQuestion), [`onServerValidateQuestions`](#onServerValidateQuestions)
+
 ### `onValidateQuestion`
 
 An event that is raised when a question value is being validated. Use this event to add/remove/modify errors or specify a custom error message.
@@ -3593,6 +3933,8 @@ An error message that you should specify if custom validation fails.
 An array of other validation errors that you can modify. The array is empty if the validated question satisfies all validation rules.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-input-validation/ (linkStyle))
+
+**Related APIs:** [`onServerValidateQuestions`](#onServerValidateQuestions), [`onValidatePanel`](#onValidatePanel), [`onMatrixCellValidate`](#onMatrixCellValidate)
 
 ### `onValueChanged`
 
@@ -3616,6 +3958,8 @@ A new value.
 
 To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event.
 
+**Related APIs:** [`setValue`](#setValue)
+
 ### `onValueChanging`
 
 An event that is raised before a question value is changed.
@@ -3635,6 +3979,8 @@ A new value. You can change it if required.
 - `options.oldValue`: `any`  
 A previous value.
 
+**Related APIs:** [`setValue`](#setValue)
+
 ### `onVariableChanged`
 
 An event that is raised after a [variable](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables) or [calculated value](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values) is changed.
@@ -3647,3 +3993,5 @@ A survey instance that raised the event.
 A new value for the variable or calculated value.
 - `options.name`: `string`  
 The name of the variable or calculated value that has been changed.
+
+**Related APIs:** [`setVariable`](#setVariable), [`calculatedValues`](#calculatedValues)

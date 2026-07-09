@@ -14,7 +14,7 @@ A class that describes the Multi-Select Matrix question type. Multi-Select Matri
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionMatrixBaseModel` &rarr; `QuestionMatrixDropdownModelBase` &rarr; `QuestionMatrixDropdownModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) &rarr; [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) &rarr; `QuestionMatrixDropdownModel`
 
 ## Properties
 
@@ -23,6 +23,8 @@ A class that describes the Multi-Select Matrix question type. Multi-Select Matri
 **Type**: `boolean`
 
 Specifies whether to hide the question when the matrix has no visible rows.
+
+**Related APIs:** [`rowsVisibleIf`](#rowsVisibleIf)
 
 ### `rowOrder`
 
@@ -35,8 +37,12 @@ Possible values:
 - `"initial"` (default) - Preserves the original order of the `rows` array.
 - `"random"` - Arranges matrix rows in random order each time the question is displayed.
 
+**Related APIs:** [`rows`](#rows)
+
 ### `totalText`
 
 **Type**: `string`
 
 A title for the total row. Applies if at least one column displays total values.
+
+**Related APIs:** [`rowTitleWidth`](#rowTitleWidth), [`columns`](#columns)

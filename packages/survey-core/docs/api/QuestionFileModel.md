@@ -14,7 +14,7 @@ A class that describes the File Upload question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionFileModelBase` &rarr; `QuestionFileModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionFileModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodelbase.md) &rarr; `QuestionFileModel`
 
 ## Properties
 
@@ -46,6 +46,8 @@ An [`accept`](https://www.w3schools.com/tags/att_input_accept.asp) attribute val
 
 [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
 
+**Related APIs:** [`acceptedCategories`](#acceptedCategories)
+
 ### `allowImagesPreview`
 
 **Type**: `boolean`
@@ -62,17 +64,23 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
 
+**Related APIs:** [`maxFiles`](#maxFiles)
+
 ### `fileOrPhotoPlaceholder`
 
 **Type**: `string`
 
 A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. Applies only when [`sourceType`](#sourceType) value is `"file-camera"`.
 
+**Related APIs:** [`filePlaceholder`](#filePlaceholder), [`photoPlaceholder`](#photoPlaceholder)
+
 ### `filePlaceholder`
 
 **Type**: `string`
 
 A placeholder text displayed when the File Upload question doesn't contain any files to upload. Applies only when the [`sourceType`](#sourceType) value is `"file"`.
+
+**Related APIs:** [`photoPlaceholder`](#photoPlaceholder), [`fileOrPhotoPlaceholder`](#fileOrPhotoPlaceholder)
 
 ### `imageHeight`
 
@@ -86,6 +94,8 @@ The height of the following images:
 
 > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in [multiple file upload mode](#allowMultiple).
 
+**Related APIs:** [`imageWidth`](#imageWidth)
+
 ### `imageWidth`
 
 **Type**: `string`
@@ -98,6 +108,8 @@ The width of the following images:
 
 > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in [multiple file upload mode](#allowMultiple).
 
+**Related APIs:** [`imageHeight`](#imageHeight)
+
 ### `maxFiles`
 
 **Type**: `number`
@@ -105,6 +117,8 @@ The width of the following images:
 Maximum number of files a user can upload. Applies only if [`allowMultiple`](https://surveyjs.io/form-library/documentation/api-reference/file-model#allowMultiple) is `true`.
 
 Default value: 1000
+
+**Related APIs:** [`maxSize`](#maxSize)
 
 ### `maxSize`
 
@@ -115,6 +129,8 @@ Maximum allowed file size, measured in bytes.
 Default value: 0 (unlimited)
 
 [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+
+**Related APIs:** [`maxFiles`](#maxFiles)
 
 ### `needConfirmRemoveFile`
 
@@ -130,6 +146,8 @@ Default value: `false`
 
 A placeholder text displayed when the File Upload question doesn't contain any photos to upload. Applies only when the [`sourceType`](#sourceType) value is `"camera"`.
 
+**Related APIs:** [`filePlaceholder`](#filePlaceholder), [`fileOrPhotoPlaceholder`](#fileOrPhotoPlaceholder)
+
 ### `showPreview`
 
 **Type**: `boolean`
@@ -137,6 +155,8 @@ A placeholder text displayed when the File Upload question doesn't contain any p
 Disable this property only to implement a custom preview.
 
 [View Demo](https://surveyjs.io/form-library/examples/file-custom-preview/ (linkStyle))
+
+**Related APIs:** [`allowImagesPreview`](#allowImagesPreview)
 
 ### `sourceType`
 
@@ -151,6 +171,8 @@ Possible values:
 - `"file-camera"` - Allows respondents to select a local file or capture a photo.
 
 [View Demo](https://surveyjs.io/form-library/examples/photo-capture/ (linkStyle))
+
+**Related APIs:** [`filePlaceholder`](#filePlaceholder), [`photoPlaceholder`](#photoPlaceholder), [`fileOrPhotoPlaceholder`](#fileOrPhotoPlaceholder)
 
 ## Methods
 

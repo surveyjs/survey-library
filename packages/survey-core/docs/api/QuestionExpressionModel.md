@@ -14,7 +14,7 @@ A class that describes the Expression question type. It is a read-only question 
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionExpressionModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionExpressionModel`
 
 ## Properties
 
@@ -25,6 +25,8 @@ A class that describes the Expression question type. It is a read-only question 
 A three-letter currency code. Applies only if the `displayStyle` property is set to `"currency"`.
 
 Default value: "USD".
+
+**Related APIs:** [`displayStyle`](#displayStyle), [`minimumFractionDigits`](#minimumFractionDigits), [`maximumFractionDigits`](#maximumFractionDigits), [`format`](#format)
 
 ### `displayStyle`
 
@@ -44,6 +46,8 @@ If you use the `"currency"` display style, you can also set the `currency` prope
 
 [View Demo](https://surveyjs.io/form-library/examples/expression-question-for-dynamic-form-calculations/ (linkStyle))
 
+**Related APIs:** [`currency`](#currency), [`minimumFractionDigits`](#minimumFractionDigits), [`maximumFractionDigits`](#maximumFractionDigits), [`format`](#format)
+
 ### `expression`
 
 **Type**: `string`
@@ -60,6 +64,8 @@ Refer to the following help topic for more information: [Expressions](https://su
 
 A string that formats a question value. Use `{0}` to reference the question value in the format string.
 
+**Related APIs:** [`displayStyle`](#displayStyle)
+
 ### `maximumFractionDigits`
 
 **Type**: `number`
@@ -67,6 +73,8 @@ A string that formats a question value. Use `{0}` to reference the question valu
 The maximum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
 
 Default value: -1
+
+**Related APIs:** [`displayStyle`](#displayStyle), [`minimumFractionDigits`](#minimumFractionDigits), [`precision`](#precision)
 
 ### `minimumFractionDigits`
 
@@ -76,6 +84,8 @@ The minimum number of fraction digits. Applies only if the `displayStyle` proper
 
 Default value: -1
 
+**Related APIs:** [`displayStyle`](#displayStyle), [`maximumFractionDigits`](#maximumFractionDigits)
+
 ### `precision`
 
 **Type**: `number`
@@ -83,6 +93,8 @@ Default value: -1
 Specifies how many decimal digits to keep in the expression value.
 
 Default value: -1 (unlimited)
+
+**Related APIs:** [`maximumFractionDigits`](#maximumFractionDigits)
 
 ### `useGrouping`
 

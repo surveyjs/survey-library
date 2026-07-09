@@ -14,4 +14,4 @@ A class that implements a validator for e-mail addresses.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator` &rarr; `EmailValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) &rarr; `EmailValidator`

@@ -14,7 +14,7 @@ An interface used to configure the content and behavior of a modal dialog displa
 
 ## Inheritance
 
-`IPopupOptionsBase` &rarr; `IDialogOptions`
+[`IPopupOptionsBase`](https://surveyjs.io/form-library/documentation/api-reference/ipopupoptionsbase.md) &rarr; `IDialogOptions`
 
 ## Properties
 
@@ -39,3 +39,5 @@ An object with component props.
 A callback function executed when users click the Apply button in the dialog.
 
 This function should return `true` to close the dialog or `false` to keep it open (for example, if validation fails).
+
+**Related APIs:** [`onCancel`](#onCancel)

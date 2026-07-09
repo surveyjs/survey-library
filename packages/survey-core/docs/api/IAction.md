@@ -32,6 +32,8 @@ Specifies whether the action item is active.
 
 Use this property as a flag to specify different action item appearances in different states.
 
+**Related APIs:** [`enabled`](#enabled), [`visible`](#visible)
+
 ### `component`
 
 **Type**: `string`
@@ -50,6 +52,8 @@ To apply several classes, separate them with a space character: `"myclass1 mycla
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
+**Related APIs:** [`innerCss`](#innerCss)
+
 ### `data`
 
 **Type**: `any`
@@ -63,6 +67,8 @@ The action item's data object. Use it to pass required data to a custom template
 Set this property to `true` if you want the item's `title` to be always visible.
 If you set it to `false`, the `title` hides when the screen space is limited, and the item displays only the icon.
 
+**Related APIs:** [`title`](#title), [`iconName`](#iconName)
+
 ### `disableTabStop`
 
 **Type**: `boolean`
@@ -75,17 +81,23 @@ Set this property to `true` if you want to disable keyboard navigation for the a
 
 Specifies whether users can interact with the action item.
 
+**Related APIs:** [`active`](#active), [`visible`](#visible)
+
 ### `iconName`
 
 **Type**: `string`
 
 The action item's icon name.
 
+**Related APIs:** [`iconSize`](#iconSize)
+
 ### `iconSize`
 
 **Type**: `string | number`
 
 The action item's icon size in pixels.
+
+**Related APIs:** [`iconName`](#iconName)
 
 ### `id`
 
@@ -107,6 +119,8 @@ To apply several classes, separate them with a space character: `"myclass1 mycla
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
 
+**Related APIs:** [`css`](#css)
+
 ### `location`
 
 **Type**: `string`
@@ -124,11 +138,15 @@ The following values are available:
 
 Specifies the visibility of the action item's title.
 
+**Related APIs:** [`title`](#title), [`disableShrink`](#disableShrink)
+
 ### `template`
 
 **Type**: `string`
 
 Specifies the name of a template used to render the action item.
+
+**Related APIs:** [`component`](#component)
 
 ### `title`
 
@@ -137,6 +155,8 @@ Specifies the name of a template used to render the action item.
 The action item's title.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
+
+**Related APIs:** [`showTitle`](#showTitle), [`disableShrink`](#disableShrink)
 
 ### `tooltip`
 
@@ -149,6 +169,8 @@ The action item's tooltip.
 **Type**: `boolean | ComputedUpdater<boolean>`
 
 Specifies the action item's visibility.
+
+**Related APIs:** [`enabled`](#enabled), [`active`](#active)
 
 ### `visibleIndex`
 

@@ -14,7 +14,7 @@ A class that describes the Signature question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionFileModelBase` &rarr; `QuestionSignaturePadModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionFileModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodelbase.md) &rarr; `QuestionSignaturePadModel`
 
 ## Properties
 
@@ -38,11 +38,15 @@ This property accepts color values in the following formats:
 - RGB colors (`"rgb(255,0,0)"`)
 - Color names (`"red"`)
 
+**Related APIs:** [`penColor`](#penColor)
+
 ### `backgroundImage`
 
 **Type**: `string`
 
 An image to display in the background of the signature area. Accepts a base64 or URL string value.
+
+**Related APIs:** [`backgroundColor`](#backgroundColor)
 
 ### `dataFormat`
 
@@ -69,6 +73,8 @@ This property accepts color values in the following formats:
 - Color names (`"red"`)
 
 [View Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
+
+**Related APIs:** [`backgroundColor`](#backgroundColor)
 
 ### `penMaxWidth`
 

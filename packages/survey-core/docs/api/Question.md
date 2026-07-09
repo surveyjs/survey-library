@@ -12,7 +12,7 @@ A base class for all questions.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; `Question`
 
 ## Properties
 
@@ -30,11 +30,15 @@ Possible values:
 - `"onComplete"` - Clears the value when the survey is complete.
 - `"none"` - Never clears the value of an invisible question.
 
+**Related APIs:** [`SurveyModel.clearInvisibleValues`](#SurveyModel.clearInvisibleValues), [`visible`](#visible), [`SurveyModel.onComplete`](#SurveyModel.onComplete)
+
 ### `comment`
 
 **Type**: `string`
 
 A comment to the selected question value. Enable the `showCommentArea` property to allow users to leave comments.
+
+**Related APIs:** [`showCommentArea`](#showCommentArea), [`commentText`](#commentText)
 
 ### `commentPlaceholder`
 
@@ -42,11 +46,15 @@ A comment to the selected question value. Enable the `showCommentArea` property 
 
 A placeholder for the comment area. Applies when the `showCommentArea` property is `true`.
 
+**Related APIs:** [`showCommentArea`](#showCommentArea), [`comment`](#comment), [`commentText`](#commentText)
+
 ### `commentText`
 
 **Type**: `string`
 
 Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
+
+**Related APIs:** [`showCommentArea`](#showCommentArea), [`comment`](#comment)
 
 ### `correctAnswer`
 
@@ -55,6 +63,8 @@ Specifies a caption displayed above the comment area. Applies when the `showComm
 A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
 
 [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
+
+**Related APIs:** [`SurveyModel.getCorrectAnswerCount`](#SurveyModel.getCorrectAnswerCount), [`SurveyModel.getIncorrectAnswerCount`](#SurveyModel.getIncorrectAnswerCount)
 
 ### `defaultDisplayValue`
 
@@ -80,6 +90,8 @@ The default value is used as a question value in the following cases:
 
 [View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically (linkStyle))
 
+**Related APIs:** [`defaultValueExpression`](#defaultValueExpression)
+
 ### `defaultValueExpression`
 
 **Type**: `any`
@@ -98,6 +110,8 @@ An expression can also include built-in and custom functions for advanced calcul
 
 [View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically (linkStyle))
 
+**Related APIs:** [`defaultValue`](#defaultValue), [`setValueExpression`](#setValueExpression)
+
 ### `descriptionLocation`
 
 **Type**: `string`
@@ -111,6 +125,8 @@ Possible values:
 - `"underInput"` - Displays the description under the interactive area.
 - `"hidden"` - Hides the description.
 
+**Related APIs:** [`description`](#description), [`hasDescription`](#hasDescription)
+
 ### `enableIf`
 
 **Type**: `string`
@@ -122,6 +138,8 @@ A survey parses and runs all expressions on startup. If any values used in the e
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
 [View Demo](https://surveyjs.io/form-library/examples/how-to-conditionally-make-input-field-read-only/ (linkStyle))
+
+**Related APIs:** [`readOnly`](#readOnly), [`isReadOnly`](#isReadOnly)
 
 ### `errorLocation`
 
@@ -141,11 +159,15 @@ Possible values:
 
 Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel), and similar question types).
 
+**Related APIs:** [`hasSingleInput`](#hasSingleInput)
+
 ### `hasSingleInput`
 
 **Type**: `boolean`
 
 Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel)) or has multiple input fields ([Matrix](https://surveyjs.io/form-library/documentation/questionmatrixmodel), [Multiple Text](https://surveyjs.io/form-library/documentation/questionmultipletextmodel)).
+
+**Related APIs:** [`hasInput`](#hasInput)
 
 ### `hasTitle`
 
@@ -154,6 +176,8 @@ Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/
 Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
 
 If the `title` property is `undefined` or set to an empty string, the `hasTitle` property returns `true`, because the question uses its `name` as a title in this case.
+
+**Related APIs:** [`title`](#title), [`titleLocation`](#titleLocation)
 
 ### `id`
 
@@ -167,6 +191,8 @@ A value to assign to the `id` attribute of the rendered HTML element. A default 
 
 Returns `true` if the question can display its title to the left of the input field.
 
+**Related APIs:** [`titleLocation`](#titleLocation), [`getTitleLocation`](#getTitleLocation), [`hasTitle`](#hasTitle)
+
 ### `isParentVisible`
 
 **Type**: `boolean`
@@ -179,6 +205,8 @@ Returns `true` if a parent element (page or panel) is visible.
 
 Makes the question required. If a respondent skips a required question, the survey displays a validation error.
 
+**Related APIs:** [`requiredIf`](#requiredIf), [`[Data Validation](https://surveyjs.io/form-library/documentation/data-validation)`](#[Data Validation](https://surveyjs.io/form-library/documentation/data-validation))
+
 ### `isVisible`
 
 **Type**: `boolean`
@@ -187,6 +215,8 @@ Returns `true` if the question is visible or the survey is currently in design m
 
 If you want to display or hide a question based on a condition, specify the [`visibleIf`](https://surveyjs.io/form-library/documentation/question#visibleIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
+**Related APIs:** [`visibleIf`](#visibleIf), [`visible`](#visible), [`isParentVisible`](#isParentVisible)
+
 ### `no`
 
 **Type**: `string`
@@ -194,6 +224,8 @@ If you want to display or hide a question based on a condition, specify the [`vi
 A question number or letter (depends on the `questionStartIndex` property of the question container (panel, page, or survey)).
 
 When the question number, title, or the entire question is invisible, this property returns an empty string.
+
+**Related APIs:** [`SurveyModel.questionStartIndex`](#SurveyModel.questionStartIndex), [`showNumber`](#showNumber), [`titleLocation`](#titleLocation), [`visibleIf`](#visibleIf)
 
 ### `page`
 
@@ -219,11 +251,15 @@ A unique value for the `name` HTML attribute of grouped inputs (e.g. radio butto
 
 The number of quiz questions. A question counts if it is visible, has an input field, and specifies `correctAnswer`.
 
+**Related APIs:** [`[Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)`](#[Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz)), [`correctAnswer`](#correctAnswer), [`SurveyModel.getQuizQuestions`](#SurveyModel.getQuizQuestions)
+
 ### `requiredErrorText`
 
 **Type**: `string`
 
 Specifies a custom error message for a required form field.
+
+**Related APIs:** [`isRequired`](#isRequired)
 
 ### `requiredIf`
 
@@ -235,11 +271,15 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
+**Related APIs:** [`isRequired`](#isRequired)
+
 ### `requiredMark`
 
 **Type**: `string`
 
 Returns a character or text string that indicates a required question.
+
+**Related APIs:** [`SurveyModel.requiredMark`](#SurveyModel.requiredMark), [`isRequired`](#isRequired)
 
 ### `resetValueIf`
 
@@ -251,6 +291,8 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
 
+**Related APIs:** [`setValueIf`](#setValueIf)
+
 ### `setValueExpression`
 
 **Type**: `string`
@@ -260,6 +302,8 @@ An [expression](https://surveyjs.io/form-library/documentation/design-survey/con
 The `setValueExpression` is re-evaluated whenever a referenced question's value changes. If you also specify the [`setValueIf`](#setValueIf) expression, re-evaluation occurs only when it returns `true`.
 
 [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
+
+**Related APIs:** [`defaultValueExpression`](#defaultValueExpression), [`resetValueIf`](#resetValueIf)
 
 ### `setValueIf`
 
@@ -271,11 +315,15 @@ A survey parses and runs all expressions on startup. If any values used in the e
 
 [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
 
+**Related APIs:** [`resetValueIf`](#resetValueIf)
+
 ### `showCommentArea`
 
 **Type**: `boolean`
 
 Specifies whether to display a comment area.
+
+**Related APIs:** [`comment`](#comment), [`commentText`](#commentText), [`showOtherItem`](#showOtherItem)
 
 ### `showNumber`
 
@@ -284,6 +332,8 @@ Specifies whether to display a comment area.
 Specifies whether to show a number for this question. Setting this property to `false` hides the question number from the title and excludes the question from numbering.
 
 Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
+
+**Related APIs:** [`no`](#no), [`showQuestionNumbers`](#showQuestionNumbers), [`questionStartIndex`](#questionStartIndex)
 
 ### `startWithNewLine`
 
@@ -308,6 +358,8 @@ Possible values:
 - `"hidden"` - Hides the question title.
 
 > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
+
+**Related APIs:** [`SurveyModel.questionTitleLocation`](#SurveyModel.questionTitleLocation), [`getTitleLocation`](#getTitleLocation), [`isAllowTitleLeft`](#isAllowTitleLeft)
 
 ### `useDisplayValuesInDynamicTexts`
 
@@ -380,6 +432,8 @@ Gets or sets question visibility.
 
 If you want to display or hide a question based on a condition, specify the [`visibleIf`](https://surveyjs.io/form-library/documentation/question#visibleIf) property. Refer to the following help topic for information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
 
+**Related APIs:** [`isVisible`](#isVisible), [`visibleIf`](#visibleIf)
+
 ### `visibleIf`
 
 **Type**: `string`
@@ -392,6 +446,8 @@ Refer to the following help topic for more information: [Conditional Visibility]
 
 [View Demo](https://surveyjs.io/form-library/examples/implement-conditional-logic-to-change-question-visibility/ (linkStyle))
 
+**Related APIs:** [`visible`](#visible), [`isVisible`](#isVisible)
+
 ### `visibleIndex`
 
 **Type**: `number`
@@ -399,11 +455,15 @@ Refer to the following help topic for more information: [Conditional Visibility]
 Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
 The visibleIndex is -1 if the title is 'hidden' or showNumber is false
 
+**Related APIs:** [`titleLocation`](#titleLocation), [`showNumber`](#showNumber)
+
 ## Methods
 
 ### `clearErrors()`
 
 Empties the `errors` array.
+
+**Related APIs:** [`errors`](#errors)
 
 ### `clearIncorrectValues()`
 
@@ -412,6 +472,8 @@ Removes values that cannot be assigned to this question, for example, choices un
 Call this method after you assign new question values in code to ensure that they are acceptable.
 
 > This method does not remove values that fail validation. Call the `validate()` method to validate newly assigned values.
+
+**Related APIs:** [`validate`](#validate)
 
 ### `clearValue()`
 
@@ -423,6 +485,8 @@ Sets the question's `value` and `comment` properties to `undefined`.
 | ---- | ---- | ----------- |
 | `keepComment` | `boolean` |  |
 | `fromUI` | `boolean` |  |
+
+**Related APIs:** [`value`](#value), [`comment`](#comment)
 
 ### `focus()`
 
@@ -485,6 +549,8 @@ Pass an object with the `includeEmpty` property set to `false` if you want to sk
 
 Returns title location calculated based on the question's `titleLocation` property and the `questionTitleLocation` property of the question's containers (survey, page, or panel).
 
+**Related APIs:** [`titleLocation`](#titleLocation), [`SurveyModel.questionTitleLocation`](#SurveyModel.questionTitleLocation)
+
 ### `getType()`
 
 **Return value:** `string`
@@ -521,6 +587,8 @@ Returns `true` if a question answer matches the [`correctAnswer`](#correctAnswer
 
 [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz (linkStyle))
 
+**Related APIs:** [`SurveyModel.getQuizQuestions`](#SurveyModel.getQuizQuestions)
+
 ### `isEmpty()`
 
 **Return value:** `boolean`
@@ -542,6 +610,8 @@ Validates this question and returns `false` if the validation fails.
 | `isOnValueChanged` | `boolean` |  |
 | `callbackResult` | `(res: boolean, question: Question) => void` |  |
 | `isOnValueChanging` | `boolean` |  |
+
+**Related APIs:** [`[Data Validation](https://surveyjs.io/form-library/documentation/data-validation)`](#[Data Validation](https://surveyjs.io/form-library/documentation/data-validation))
 
 ## Events
 

@@ -14,7 +14,7 @@ A class that describes the Image question type. Unlike other question types, Ima
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionNonValue` &rarr; `QuestionImageModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionNonValue`](https://surveyjs.io/form-library/documentation/api-reference/questionnonvalue.md) &rarr; `QuestionImageModel`
 
 ## Properties
 
@@ -47,6 +47,8 @@ Specifies how to resize the image or video to fit it into its container.
 
 Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on accepted values.
 
+**Related APIs:** [`imageHeight`](#imageHeight), [`imageWidth`](#imageWidth)
+
 ### `imageHeight`
 
 **Type**: `string`
@@ -59,6 +61,8 @@ Default value: 150
 
 > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
 
+**Related APIs:** [`imageWidth`](#imageWidth)
+
 ### `imageLink`
 
 **Type**: `string`
@@ -66,6 +70,8 @@ Default value: 150
 Specifies an image or video URL.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
+
+**Related APIs:** [`contentMode`](#contentMode)
 
 ### `imageWidth`
 
@@ -79,8 +85,12 @@ Default value: 200
 
 > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
 
+**Related APIs:** [`imageHeight`](#imageHeight)
+
 ### `renderedMode`
 
 **Type**: `string`
 
 Returns the type of content that the Image question displays: `"image"`, `"video"`, or `"youtube"`.
+
+**Related APIs:** [`contentMode`](#contentMode)

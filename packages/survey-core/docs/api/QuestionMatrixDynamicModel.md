@@ -16,7 +16,7 @@ Dynamic Matrix allows respondents to add and delete matrix rows. You can use the
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionMatrixBaseModel` &rarr; `QuestionMatrixDropdownModelBase` &rarr; `QuestionMatrixDynamicModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) &rarr; [`QuestionMatrixDropdownModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodelbase.md) &rarr; `QuestionMatrixDynamicModel`
 
 ## Properties
 
@@ -34,6 +34,8 @@ Possible values:
 
 Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
 
+**Related APIs:** [`addRowText`](#addRowText)
+
 ### `addRowText`
 
 **Type**: `string`
@@ -41,6 +43,8 @@ Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"
 A caption for the Add Row button.
 
 [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+
+**Related APIs:** [`addRowButtonLocation`](#addRowButtonLocation)
 
 ### `allowAddRows`
 
@@ -50,6 +54,8 @@ Specifies whether users are allowed to add new rows.
 
 Default value: `true`
 
+**Related APIs:** [`canAddRow`](#canAddRow), [`allowRemoveRows`](#allowRemoveRows)
+
 ### `allowRemoveRows`
 
 **Type**: `boolean`
@@ -57,6 +63,8 @@ Default value: `true`
 Specifies whether users are allowed to delete rows.
 
 Default value: `true`
+
+**Related APIs:** [`canRemoveRows`](#canRemoveRows), [`allowAddRows`](#allowAddRows)
 
 ### `allowRowReorder`
 
@@ -78,6 +86,8 @@ This property returns `true` when all of the following conditions apply:
 - The question, its parent panel, or survey is not in read-only state.
 - `rowCount` is less than `maxRowCount`.
 
+**Related APIs:** [`allowAddRows`](#allowAddRows), [`isReadOnly`](#isReadOnly), [`rowCount`](#rowCount), [`maxRowCount`](#maxRowCount), [`canRemoveRows`](#canRemoveRows)
+
 ### `canRemoveRows`
 
 **Type**: `boolean`
@@ -90,6 +100,8 @@ This property returns `true` when all of the following conditions apply:
 - The question, its parent panel, or survey is not in read-only state.
 - `rowCount` exceeds `minRowCount`.
 
+**Related APIs:** [`allowRemoveRows`](#allowRemoveRows), [`isReadOnly`](#isReadOnly), [`rowCount`](#rowCount), [`minRowCount`](#minRowCount), [`canAddRow`](#canAddRow)
+
 ### `confirmDelete`
 
 **Type**: `boolean`
@@ -100,6 +112,8 @@ Default value: `false`
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
 
+**Related APIs:** [`confirmDeleteText`](#confirmDeleteText)
+
 ### `confirmDeleteText`
 
 **Type**: `string`
@@ -107,6 +121,8 @@ Default value: `false`
 A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
+
+**Related APIs:** [`confirmDelete`](#confirmDelete)
 
 ### `copyDefaultValueFromLastEntry`
 
@@ -116,11 +132,15 @@ Specifies whether default values for a new row/column should be copied from the 
 
 If you also specify `defaultValue`, it will be merged with the copied values.
 
+**Related APIs:** [`defaultValue`](#defaultValue)
+
 ### `defaultRowValue`
 
 **Type**: `any`
 
 If it is not empty, then this value is set to every new row, including rows created initially, unless the defaultValue is not empty
+
+**Related APIs:** [`defaultValue`](#defaultValue), [`copyDefaultValueFromLastEntry`](#copyDefaultValueFromLastEntry)
 
 ### `detailPanelShowOnAdding`
 
@@ -130,6 +150,8 @@ Specifies whether to expand the detail section immediately when a respondent add
 
 [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
 
+**Related APIs:** [`detailPanelMode`](#detailPanelMode)
+
 ### `hideColumnsIfEmpty`
 
 **Type**: `boolean`
@@ -138,11 +160,15 @@ Specifies whether to hide columns when the matrix does not contain any rows. If 
 
 Default value: `false`
 
+**Related APIs:** [`noRowsText`](#noRowsText)
+
 ### `keyName`
 
 **Type**: `string`
 
 Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
+
+**Related APIs:** [`keyDuplicationError`](#keyDuplicationError)
 
 ### `maxRowCount`
 
@@ -154,6 +180,8 @@ Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surv
 
 [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
+**Related APIs:** [`rowCount`](#rowCount), [`minRowCount`](#minRowCount), [`allowAddRows`](#allowAddRows)
+
 ### `minRowCount`
 
 **Type**: `number`
@@ -164,11 +192,15 @@ Default value: 0
 
 [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
 
+**Related APIs:** [`rowCount`](#rowCount), [`maxRowCount`](#maxRowCount), [`allowRemoveRows`](#allowRemoveRows)
+
 ### `noRowsText`
 
 **Type**: `string`
 
 A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
+
+**Related APIs:** [`hideColumnsIfEmpty`](#hideColumnsIfEmpty)
 
 ### `removeRowText`
 
@@ -187,6 +219,8 @@ The number of rows in the matrix.
 Default value: 2
 
 [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
+
+**Related APIs:** [`minRowCount`](#minRowCount), [`maxRowCount`](#maxRowCount)
 
 ## Methods
 

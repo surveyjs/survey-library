@@ -29,7 +29,7 @@ const surveyJson = {
 
 ## Inheritance
 
-`Base` &rarr; `InputMaskBase` &rarr; `InputMaskPattern` &rarr; `InputMaskDateTime`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) &rarr; [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern.md) &rarr; `InputMaskDateTime`
 
 ## Properties
 
@@ -39,8 +39,12 @@ const surveyJson = {
 
 A maximum date and time value that respondents can enter.
 
+**Related APIs:** [`min`](#min)
+
 ### `min`
 
 **Type**: `string`
 
 A minimum date and time value that respondents can enter.
+
+**Related APIs:** [`max`](#max)

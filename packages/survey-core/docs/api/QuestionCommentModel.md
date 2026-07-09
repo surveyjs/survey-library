@@ -14,7 +14,7 @@ A class that describes the Long Text question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionTextBase` &rarr; `QuestionCommentModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionTextBase`](https://surveyjs.io/form-library/documentation/api-reference/questiontextbase.md) &rarr; `QuestionCommentModel`
 
 ## Properties
 
@@ -36,6 +36,8 @@ Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](htt
 
 [View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
 
+**Related APIs:** [`autoGrow`](#autoGrow)
+
 ### `autoGrow`
 
 **Type**: `boolean`
@@ -45,6 +47,8 @@ Specifies whether the comment area automatically increases its height to accomod
 Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
 
 [View Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
+
+**Related APIs:** [`allowResize`](#allowResize)
 
 ### `rows`
 

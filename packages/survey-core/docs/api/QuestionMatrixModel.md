@@ -14,7 +14,7 @@ A class that describes the Single-Select Matrix question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionMatrixBaseModel` &rarr; `QuestionMatrixModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; [`QuestionMatrixBaseModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixbasemodel.md) &rarr; `QuestionMatrixModel`
 
 ## Properties
 
@@ -55,17 +55,23 @@ Specifies whether each row requires an answer. If a respondent skips a row, the 
 
 [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
 
+**Related APIs:** [`isRequired`](#isRequired), [`eachRowUnique`](#eachRowUnique), [`validators`](#validators)
+
 ### `eachRowUnique`
 
 **Type**: `boolean`
 
 Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
 
+**Related APIs:** [`eachRowRequired`](#eachRowRequired), [`validators`](#validators)
+
 ### `hideIfRowsEmpty`
 
 **Type**: `boolean`
 
 Specifies whether to hide the question when the matrix has no visible rows.
+
+**Related APIs:** [`rowsVisibleIf`](#rowsVisibleIf)
 
 ### `rowOrder`
 
@@ -77,3 +83,5 @@ Possible values:
 
 - `"initial"` (default) - Preserves the original order of the `rows` array.
 - `"random"` - Arranges matrix rows in random order each time the question is displayed.
+
+**Related APIs:** [`rows`](#rows)

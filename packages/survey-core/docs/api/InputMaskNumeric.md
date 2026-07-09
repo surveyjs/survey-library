@@ -29,7 +29,7 @@ const surveyJson = {
 
 ## Inheritance
 
-`Base` &rarr; `InputMaskBase` &rarr; `InputMaskNumeric`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) &rarr; `InputMaskNumeric`
 
 ## Properties
 
@@ -41,6 +41,8 @@ Specifies whether respondents can enter negative values.
 
 Default value: `true`
 
+**Related APIs:** [`min`](#min), [`max`](#max)
+
 ### `decimalSeparator`
 
 **Type**: `string`
@@ -49,17 +51,23 @@ A symbol used to separate the fractional part from the integer part of a display
 
 Default value: `"."`
 
+**Related APIs:** [`precision`](#precision), [`thousandsSeparator`](#thousandsSeparator)
+
 ### `max`
 
 **Type**: `number`
 
 A maximum value that respondents can enter.
 
+**Related APIs:** [`min`](#min), [`allowNegativeValues`](#allowNegativeValues)
+
 ### `min`
 
 **Type**: `number`
 
 A minimum value that respondents can enter.
+
+**Related APIs:** [`max`](#max), [`allowNegativeValues`](#allowNegativeValues)
 
 ### `precision`
 
@@ -71,6 +79,8 @@ Default value: 2
 
 [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
 
+**Related APIs:** [`decimalSeparator`](#decimalSeparator)
+
 ### `thousandsSeparator`
 
 **Type**: `string`
@@ -78,3 +88,5 @@ Default value: 2
 A symbol used to separate the digits of a large number into groups of three.
 
 Default value: `","`
+
+**Related APIs:** [`decimalSeparator`](#decimalSeparator)

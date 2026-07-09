@@ -14,7 +14,7 @@ A class that implements a validator for numeric values.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator` &rarr; `NumericValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) &rarr; `NumericValidator`
 
 ## Properties
 

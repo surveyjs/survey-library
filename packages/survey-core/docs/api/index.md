@@ -1,5 +1,5 @@
 ---
-title: Classes
+title: Classes and Interfaces
 ---
 
 # Classes
@@ -37,7 +37,6 @@ title: Classes
 - [`QuestionMultipleTextModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmultipletextmodel.md) — A class that describes the Multiple Text question type.
 - [`QuestionRankingModel`](https://surveyjs.io/form-library/documentation/api-reference/questionrankingmodel.md) — A class that describes the Ranking question type.
 - [`QuestionCommentModel`](https://surveyjs.io/form-library/documentation/api-reference/questioncommentmodel.md) — A class that describes the Long Text question type.
-- [`CalculatedValue`](https://surveyjs.io/form-library/documentation/api-reference/calculatedvalue.md) — The calculated value is a way to define the variable in Survey Creator.
 - [`QuestionFileModelBase`](https://surveyjs.io/form-library/documentation/api-reference/questionfilemodelbase.md) — A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
 - [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/api-reference/questionmatrixdropdownmodel.md) — A class that describes the Multi-Select Matrix question type.
 - [`QuestionTextBase`](https://surveyjs.io/form-library/documentation/api-reference/questiontextbase.md) — A base class for the Single-Line Input and Long Text question types.
@@ -50,29 +49,20 @@ title: Classes
 - [`QuestionRadiogroupModel`](https://surveyjs.io/form-library/documentation/api-reference/questionradiogroupmodel.md) — A class that describes the Radio Button Group question type.
 - [`RegexValidator`](https://surveyjs.io/form-library/documentation/api-reference/regexvalidator.md) — A class that implements validation using regular expressions.
 - [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) — A base class for all classes that implement validators.
-- [`ExpressionItem`](https://surveyjs.io/form-library/documentation/api-reference/expressionitem.md) — Base class for HtmlConditionItem and UrlConditionItem classes.
 - [`ExpressionValidator`](https://surveyjs.io/form-library/documentation/api-reference/expressionvalidator.md) — A class that implements validation using expressions.
-- [`HtmlConditionItem`](https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem.md) — A class that contains expression and html propeties.
 - [`InputMaskBase`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskbase.md) — A base class for classes that implement input masks: - `InputMaskNumeric` - `InputMaskCurrency` - `InputMaskDateTime` - `InputMaskPattern`
 - [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern.md) — A class that describes an input mask of the `"pattern"` `maskType`.
-- [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue.md) — Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
-- [`JsonObjectProperty`](https://surveyjs.io/form-library/documentation/api-reference/jsonobjectproperty.md) — Contains information about a property of a survey element (page, panel, questions, and etc).
 - [`QuestionCheckboxBase`](https://surveyjs.io/form-library/documentation/api-reference/questioncheckboxbase.md) — A base class for multiple-selection question types that can display choice items in multiple columns (Checkbox, Radiogroup, Image Picker).
 - [`QuestionHtmlModel`](https://surveyjs.io/form-library/documentation/api-reference/questionhtmlmodel.md) — A class that describes the HTML question type.
-- [`UrlConditionItem`](https://surveyjs.io/form-library/documentation/api-reference/urlconditionitem.md) — A class that contains expression and url propeties.
 - [`EmailValidator`](https://surveyjs.io/form-library/documentation/api-reference/emailvalidator.md) — A class that implements a validator for e-mail addresses.
-- [`FlowPanelModel`](https://surveyjs.io/form-library/documentation/api-reference/flowpanelmodel.md) — The flow panel object.
-- [`JsonMetadata`](https://surveyjs.io/form-library/documentation/api-reference/jsonmetadata.md) — The metadata object.
-- [`LocalizableString`](https://surveyjs.io/form-library/documentation/api-reference/localizablestring.md) — The class represents the string that supports multi-languages and markdown.
-- [`LocalizableStrings`](https://surveyjs.io/form-library/documentation/api-reference/localizablestrings.md) — The class represents the list of strings that supports multi-languages.
-- [`QuestionButtonGroupModel`](https://surveyjs.io/form-library/documentation/api-reference/questionbuttongroupmodel.md) — A Model for a button group question.
-- [`QuestionEmptyModel`](https://surveyjs.io/form-library/documentation/api-reference/questionemptymodel.md) — A Model for an question that renders empty "div" tag.
 - [`QuestionNonValue`](https://surveyjs.io/form-library/documentation/api-reference/questionnonvalue.md) — A base class for question types that cannot have a value (Html, Image).
-- [`SurveyTrigger`](https://surveyjs.io/form-library/documentation/api-reference/surveytrigger.md) — It extends the Trigger base class and add properties required for SurveyJS classes.
-- [`SurveyTriggerComplete`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggercomplete.md) — If expression returns true, it completes the survey.
-- [`SurveyTriggerCopyValue`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggercopyvalue.md) — If expression returns true, the value from question **fromName** will be set into **setToName**.
-- [`SurveyTriggerRunExpression`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggerrunexpression.md) — If expression returns true, the **runExpression** will be run.
-- [`SurveyTriggerSetValue`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggersetvalue.md) — If expression returns true, the value from property **setValue** will be set to **setToName**
-- [`SurveyTriggerSkip`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggerskip.md) — If expression returns true, the survey go to question **gotoName** and focus it.
-- [`SurveyTriggerVisible`](https://surveyjs.io/form-library/documentation/api-reference/surveytriggervisible.md) — If expression returns true, it makes questions/pages visible.
-- [`Trigger`](https://surveyjs.io/form-library/documentation/api-reference/trigger.md) — A base class for all triggers.
+
+# Interfaces
+
+- [`ICustomQuestionTypeConfiguration`](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration.md) — An interface used to create custom question types.
+- [`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction.md) — An action item.
+- [`IHeader`](https://surveyjs.io/form-library/documentation/api-reference/iheader.md) — A survey header configuration interface.
+- [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme.md) — A theme configuration interface.
+- [`IDialogOptions`](https://surveyjs.io/form-library/documentation/api-reference/idialogoptions.md) — An interface used to configure the content and behavior of a modal dialog displayed via the `showDialog()` method.
+- [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/iexpressionvalidationresult.md) — An interface that describes the result returned by the `validateExpressions` method.
+- [`ISaveToJSONOptions`](https://surveyjs.io/form-library/documentation/api-reference/isavetojsonoptions.md) — An interface with configuration options that control how a `SurveyModel` instance is serialized by the `toJSON()` method.

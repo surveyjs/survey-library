@@ -14,7 +14,7 @@ A class that implements validation using [expressions](https://surveyjs.io/form-
 
 ## Inheritance
 
-`Base` &rarr; `SurveyValidator` &rarr; `ExpressionValidator`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyValidator`](https://surveyjs.io/form-library/documentation/api-reference/surveyvalidator.md) &rarr; `ExpressionValidator`
 
 ## Properties
 

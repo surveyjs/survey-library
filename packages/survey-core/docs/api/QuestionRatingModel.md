@@ -14,7 +14,7 @@ A class that describes the Rating Scale question type.
 
 ## Inheritance
 
-`Base` &rarr; `SurveyElementCore` &rarr; `SurveyElement` &rarr; `Question` &rarr; `QuestionRatingModel`
+[`Base`](https://surveyjs.io/form-library/documentation/api-reference/base.md) &rarr; [`SurveyElementCore`](https://surveyjs.io/form-library/documentation/api-reference/surveyelementcore.md) &rarr; [`SurveyElement`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement.md) &rarr; [`Question`](https://surveyjs.io/form-library/documentation/api-reference/question.md) &rarr; `QuestionRatingModel`
 
 ## Properties
 
@@ -32,6 +32,8 @@ Possible values:
 
 [View Demo](https://surveyjs.io/form-library/examples/ui-adaptation-modes-for-rating-scale/ (linkStyle))
 
+**Related APIs:** [`rateType`](#rateType)
+
 ### `displayRateDescriptionsAsExtremeItems`
 
 **Type**: `boolean`
@@ -43,6 +45,8 @@ Default value: `false`
 If this property is disabled, the `minRateDescription` and `maxRateDescription` values are displayed as plain non-clickable texts.
 
 If any of the `minRateDescription` and `maxRateDescription` properties is empty, the corresponding rate value's `value` or `text` is displayed as a button caption.
+
+**Related APIs:** [`rateDescriptionLocation`](#rateDescriptionLocation), [`rateMin`](#rateMin), [`rateMax`](#rateMax), [`rateValues`](#rateValues)
 
 ### `itemComponent`
 
@@ -56,11 +60,15 @@ The name of a component used to render items.
 
 Specifies a description for the maximum (last) rate value.
 
+**Related APIs:** [`rateDescriptionLocation`](#rateDescriptionLocation), [`displayRateDescriptionsAsExtremeItems`](#displayRateDescriptionsAsExtremeItems), [`rateValues`](#rateValues), [`rateMax`](#rateMax)
+
 ### `minRateDescription`
 
 **Type**: `string`
 
 Specifies a description for the minimum (first) rate value.
+
+**Related APIs:** [`rateDescriptionLocation`](#rateDescriptionLocation), [`displayRateDescriptionsAsExtremeItems`](#displayRateDescriptionsAsExtremeItems), [`rateValues`](#rateValues), [`rateMin`](#rateMin)
 
 ### `rateColorMode`
 
@@ -72,6 +80,8 @@ Possible values:
 
 - `"default"` - Displays the selected emoji in default survey color.
 - `"scale"` (default) - Inherits the color from the scale.
+
+**Related APIs:** [`scaleColorMode`](#scaleColorMode)
 
 ### `rateCount`
 
@@ -96,6 +106,8 @@ Possible values:
 - `"bottom"` - Displays both descriptions below the minimum and maximum rate values.
 - `"topBottom"` - Displays `minRateDescription` above the minimum rate value and `maxRateDescription` below the maximum rate value.
 
+**Related APIs:** [`displayRateDescriptionsAsExtremeItems`](#displayRateDescriptionsAsExtremeItems)
+
 ### `rateMax`
 
 **Type**: `number`
@@ -105,6 +117,8 @@ Specifies the last rate value in the generated sequence of rate values. Applies 
 Default value: 5
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
+
+**Related APIs:** [`rateMin`](#rateMin), [`rateStep`](#rateStep), [`rateCount`](#rateCount)
 
 ### `rateMin`
 
@@ -116,6 +130,8 @@ Default value: 1
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
 
+**Related APIs:** [`rateMax`](#rateMax), [`rateStep`](#rateStep), [`rateCount`](#rateCount)
+
 ### `rateStep`
 
 **Type**: `number`
@@ -125,6 +141,8 @@ Specifies a step with which to generate rate values. Applies if the [`rateValues
 Default value: 1
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
+
+**Related APIs:** [`rateMin`](#rateMin), [`rateMax`](#rateMax), [`rateCount`](#rateCount)
 
 ### `rateType`
 
@@ -139,6 +157,8 @@ Possible values:
 - `"smileys"` - Displays rate values as smiley faces.
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
+
+**Related APIs:** [`scaleColorMode`](#scaleColorMode), [`rateColorMode`](#rateColorMode), [`displayMode`](#displayMode)
 
 ### `rateValues`
 
@@ -178,3 +198,5 @@ Possible values:
 - `"colored"` - Displays emojis in color.
 
 [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
+
+**Related APIs:** [`rateColorMode`](#rateColorMode)

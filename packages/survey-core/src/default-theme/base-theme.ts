@@ -264,40 +264,40 @@ export default {
     "--sjs2-layout-component-page-box-padding-top": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-page-box-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-page-box-gap-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-page-content-area-padding-horizontal": "var(--sjs2-layout-large-horizontal)",
-    "--sjs2-layout-component-page-content-area-padding-vertical": "var(--sjs2-layout-large-vertical)",
-    "--sjs2-layout-component-page-content-area-gap-horizontal": "var(--sjs2-layout-medium-horizontal)",
-    "--sjs2-layout-component-page-content-area-gap-vertical": "var(--sjs2-layout-medium-vertical)",
-    "--sjs2-layout-component-page-header-padding-horizontal": "var(--sjs2-layout-large-horizontal)",
-    "--sjs2-layout-component-page-header-padding-vertical": "var(--sjs2-layout-large-vertical)",
+    "--sjs2-layout-component-page-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-page-content-area-padding-vertical": "var(--sjs2-spacing-large-vertical)",
+    "--sjs2-layout-component-page-content-area-gap-horizontal": "var(--sjs2-spacing-medium-horizontal)",
+    "--sjs2-layout-component-page-content-area-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-page-header-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-page-header-padding-vertical": "var(--sjs2-spacing-large-vertical)",
     "--sjs2-layout-component-page-header-gap-vertical": "var(--sjs2-spacing-x050)", // +
     "--sjs2-layout-component-page-title-padding-horizontal": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-page-title-padding-vertical": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-page-description-padding-horizontal": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-page-description-padding-top": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-page-description-padding-bottom": "var(--sjs2-spacing-x000)", // +
-    "--sjs2-layout-component-page-footer-padding-horizontal": "var(--sjs2-layout-large-horizontal)", // not used
-    "--sjs2-layout-component-page-footer-padding-vertical": "var(--sjs2-layout-large-vertical)", // not used
+    "--sjs2-layout-component-page-footer-padding-horizontal": "var(--sjs2-spacing-large-horizontal)", // not used
+    "--sjs2-layout-component-page-footer-padding-vertical": "var(--sjs2-spacing-large-vertical)", // not used
     "--sjs2-layout-component-page-footer-action-group-gap": "var(--sjs2-spacing-x150)", // not used
     "--sjs2-layout-component-panel-box-padding-horizontal": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-box-padding-top": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-box-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-box-gap-vertical": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-layout-large-horizontal)",
-    "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-layout-large-vertical)",
+    "--sjs2-layout-component-panel-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-panel-content-area-padding-vertical": "var(--sjs2-spacing-large-vertical)",
     "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-spacing-x400)",
     "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-spacing-x400)",
-    // "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-layout-medium-vertical)",
-    // "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-layout-medium-vertical)",
-    "--sjs2-layout-component-panel-content-area-gap-horizontal": "var(--sjs2-layout-large-horizontal)",
+    // "--sjs2-layout-component-panel-content-area-padding-top": "var(--sjs2-spacing-medium-vertical)",
+    // "--sjs2-layout-component-panel-content-area-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-spacing-x400)",
-    // "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-layout-medium-vertical)",
-    "--sjs2-layout-component-panel-header-padding-left": "var(--sjs2-layout-large-horizontal)",
-    "--sjs2-layout-component-panel-header-padding-right": "var(--sjs2-layout-large-horizontal)",
+    // "--sjs2-layout-component-panel-content-area-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-header-padding-left": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-panel-header-padding-right": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-spacing-x400)",
     "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-x200)",
-    // "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-layout-medium-vertical)",
-    // "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-layout-medium-vertical)",
+    // "--sjs2-layout-component-panel-header-padding-top": "var(--sjs2-spacing-medium-vertical)",
+    // "--sjs2-layout-component-panel-header-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
     "--sjs2-layout-component-panel-header-gap-vertical": "var(--sjs2-spacing-x050)",
     "--sjs2-layout-component-panel-header-gap-horizontal": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-title-padding-horizontal": "var(--sjs2-spacing-x000)",
@@ -312,10 +312,10 @@ export default {
     "--sjs2-layout-component-panel-footer-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-footer-action-group-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-header-action-group-gap": "var(--sjs2-spacing-x150)",
-    "--sjs2-layout-component-panel-simple-box-padding-horizontal": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-simple-box-padding-top": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-simple-box-padding-bottom": "var(--sjs2-spacing-x000)",
-    "--sjs2-layout-component-panel-simple-box-gap-vertical": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-box-padding-horizontal": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-simple-box-padding-top": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-simple-box-padding-bottom": "var(--sjs2-spacing-x000)", // +
+    "--sjs2-layout-component-panel-simple-box-gap-vertical": "var(--sjs2-spacing-x000)", // +
     "--sjs2-layout-component-panel-simple-content-area-padding-horizontal": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sjs2-spacing-medium-vertical)",
     "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sjs2-spacing-medium-vertical)",

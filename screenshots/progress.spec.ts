@@ -935,6 +935,21 @@ frameworks.forEach(framework => {
       await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-inline-navigation-text-numbered.png");
     });
 
+    test("Check survey with progress buttons - inline navigation text with descriptions", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      // with descriptions the inline label stacks the title over the description next to the marker
+      await initSurvey(page, framework, json);
+      await applyHeaderAccentBackgroundColor(page);
+      await page.evaluate(() => {
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.progressBarShowNavigationText = true;
+        (<any>window).survey.progressBarNavigationTextLocation = "inline";
+        (<any>window).survey.currentPageNo = 2;
+      });
+
+      await compareMaskedScreenshot(page, ".sd-container-modern", "survey-progress-bar-inline-navigation-text-with-descriptions.png");
+    });
+
     test("Check survey with progress buttons - inline navigation text on a narrow screen shows a horizontal scroll", async ({ page }) => {
       // keep the survey above the 600px mobile breakpoint (below it navigation titles are hidden)
       await page.setViewportSize({ width: 640, height: 900 });

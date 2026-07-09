@@ -409,8 +409,9 @@
   }
 }
 
-// Inline navigation text: the label sits next to the step button on one line,
-// and the connector becomes a horizontal line that trails each step up to the next one.
+// Inline navigation text: each step is laid out as [ marker | title over description | connector ].
+// The marker and the connector span both label rows and are centered against the label stack, so the
+// connector line sits at the vertical middle of the title/description block.
 .sd-progress-buttons--titles-inline {
   // lay the steps out in a flex row so they stretch across the full available width
   .sd-progress-buttons__list {
@@ -419,10 +420,13 @@
   }
 
   .sd-progress-buttons__list li {
-    flex-direction: row;
-    justify-content: flex-start;
+    // marker column | label column (title row over description row) | connector column (fills the gap)
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: var(--sjs2-size-x100);
     text-align: start;
-    gap: var(--sjs2-size-x100);
     // every step but the last grows equally; the last one is content-sized so it sits at the right edge.
     // A definite min-width gives each step a hard floor: on a narrow screen the steps stop shrinking,
     // the row overflows and the container (overflow-x: auto) shows a horizontal scrollbar — the label
@@ -432,25 +436,21 @@
 
     &:last-child {
       flex: 0 0 auto;
+      // the last step has no connector column
+      grid-template-columns: auto auto;
     }
 
-    // keep every step vertically centered (reset the column-layout edge pinning)
-    &,
-    &:first-child,
-    &:last-child {
-      align-items: center;
-    }
-
-    // turn the absolute connector into a flex line that fills the space after the label
+    // the connector: a horizontal line in the third column, vertically centered against the label stack
     &::after,
     &:last-child::after,
     &:nth-child(2):not(:last-child)::after,
     &:nth-child(n + 3):last-child::after,
     &:nth-child(2):last-child::after {
       position: static;
-      flex: 1 1 auto;
+      grid-column: 3;
+      grid-row: 1 / 3;
+      align-self: center;
       width: auto;
-      min-width: var(--sjs2-size-x400);
       height: var(--sjs2-border-width-x100);
       margin-inline: var(--sjs2-size-x100);
       background-color: var(--sjs2-color-border-basic-secondary);
@@ -471,24 +471,29 @@
     }
   }
 
+  // marker: first column, spans both label rows, fixed size, vertically centered
   .sd-progress-buttons__button {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: center;
     margin-top: 0;
-    // the button precedes the label in the inline layout, even though it follows it in the DOM
-    order: -1;
-    // the step marker keeps its fixed size and never shrinks under a long title/description
-    flex-shrink: 0;
   }
 
-  .sd-progress-buttons__page-title,
-  .sd-progress-buttons__page-description {
+  // title over description in the second column
+  .sd-progress-buttons__page-title {
+    grid-column: 2;
+    grid-row: 1;
     text-align: start;
-    // let the label ellipsis instead of forcing the step to grow (or crushing the marker)
     min-width: 0;
-    // the inline layout gets its gap from the trailing connector, so the label may use the full width
     max-width: 100%;
   }
 
   .sd-progress-buttons__page-description {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: start;
+    min-width: 0;
+    max-width: 100%;
     margin-top: 0;
   }
 }

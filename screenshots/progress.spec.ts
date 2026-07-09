@@ -81,6 +81,8 @@ const applyHeaderAccentBackgroundColor = async (page: Page) => {
 
 // Inline navigation text is always title-only (no descriptions).
 const inlineTitlesJson = {
+  showProgressBar: true,
+  progressBarType: "pages",
   pages: [
     { name: "page1", navigationTitle: "Overall satisfaction", elements: [{ type: "text", name: "q1" }] },
     { name: "page2", navigationTitle: "Pricing", elements: [{ type: "text", name: "q2" }] },
@@ -93,6 +95,8 @@ const inlineTitlesJson = {
 
 // Enough steps (with titles and descriptions) that the row overflows and scrolls on a narrow, non-mobile screen.
 const topNarrowJson = {
+  showProgressBar: true,
+  progressBarType: "pages",
   pages: [
     { name: "page1", navigationTitle: "Overall satisfaction", navigationDescription: "Your impression", elements: [{ type: "text", name: "q1" }] },
     { name: "page2", navigationTitle: "Pricing", navigationDescription: "Plans and cost", elements: [{ type: "text", name: "q2" }] },
@@ -100,7 +104,8 @@ const topNarrowJson = {
     { name: "page4", navigationTitle: "Delivery", navigationDescription: "Shipping details", elements: [{ type: "text", name: "q4" }] },
     { name: "page5", navigationTitle: "Payment", navigationDescription: "Billing details", elements: [{ type: "text", name: "q5" }] },
     { name: "page6", navigationTitle: "Review", navigationDescription: "Check your answers", elements: [{ type: "text", name: "q6" }] },
-    { name: "page7", navigationTitle: "Confirmation", navigationDescription: "Finish the survey", elements: [{ type: "text", name: "q7" }] }
+    { name: "page7", navigationTitle: "Confirmation", navigationDescription: "Finish the survey", elements: [{ type: "text", name: "q7" }] },
+    { name: "page8", navigationTitle: "Thank you", navigationDescription: "See your results", elements: [{ type: "text", name: "q8" }] }
   ]
 };
 
@@ -952,7 +957,7 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress buttons - inline navigation text on a narrow screen shows a horizontal scroll", async ({ page }) => {
       // keep the survey above the 600px mobile breakpoint (below it navigation titles are hidden)
-      await page.setViewportSize({ width: 640, height: 900 });
+      await page.setViewportSize({ width: 720, height: 900 });
       await initSurvey(page, framework, inlineTitlesJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
@@ -967,7 +972,7 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress top buttons on a narrow screen shows a horizontal scroll", async ({ page }) => {
       // keep the survey above the 600px mobile breakpoint (below it navigation titles are hidden)
-      await page.setViewportSize({ width: 640, height: 900 });
+      await page.setViewportSize({ width: 720, height: 900 });
       await initSurvey(page, framework, topNarrowJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {

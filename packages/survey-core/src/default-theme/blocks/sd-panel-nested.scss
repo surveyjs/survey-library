@@ -1,0 +1,67 @@
+.sd-panel.sd-element--nested {
+  padding-inline-start: var(--sjs2-layout-component-panel-nested-box-padding-horizontal);
+  padding-inline-end: var(--sjs2-layout-component-panel-nested-box-padding-horizontal);
+  padding-top: var(--sjs2-layout-component-panel-nested-box-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-nested-box-padding-bottom);
+  gap: var(--sjs2-layout-component-panel-nested-box-gap-vertical);
+
+  & > .sd-panel__header {
+    padding-top: var(--sjs2-layout-component-panel-nested-header-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-nested-header-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-nested-header-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-panel-nested-header-padding-right);
+  }
+
+  .sd-panel__title {
+    padding: var(--sjs2-layout-component-panel-nested-title-padding-vertical)
+      var(--sjs2-layout-component-panel-nested-title-padding-horizontal);
+  }
+
+  .sd-panel__description {
+    padding-top: var(--sjs2-layout-component-panel-nested-description-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-nested-description-padding-bottom);
+    padding-inline: var(--sjs2-layout-component-panel-nested-description-padding-horizontal);
+  }
+
+  .sd-panel__title ~ .sd-panel__description {
+    margin-top: var(--sjs2-layout-component-panel-nested-header-gap-vertical);
+  }
+
+  & > .sd-panel__content {
+    padding-inline-start: var(--sjs2-layout-component-panel-nested-content-area-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-nested-content-area-padding-horizontal);
+    padding-top: var(--sjs2-layout-component-panel-nested-content-area-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-nested-content-area-padding-bottom);
+    --animation-padding-top: var(--sjs2-layout-component-panel-nested-content-area-padding-bottom);
+    row-gap: var(--sjs2-layout-component-panel-nested-content-area-gap-vertical);
+    column-gap: var(--sjs2-layout-component-panel-nested-content-area-gap-horizontal);
+  }
+
+  & > .sd-panel__footer {
+    padding-top: var(--sjs2-layout-component-panel-nested-footer-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-nested-footer-padding-bottom);
+    padding-inline-start: calc(var(--sjs2-layout-component-panel-nested-footer-padding-left) - 1.75 * var(--sjs2-spacing-x100));
+    padding-inline-end: var(--sjs2-layout-component-panel-nested-footer-padding-right);
+    --sd-action-bar-gap: var(--sjs2-layout-component-panel-nested-footer-action-group-gap);
+  }
+}
+
+// Restore the ".sd-panel--as-page .sd-panel__footer" override (sd-panel.scss) that the
+// higher-specificity nested footer rule above would otherwise beat.
+.sd-panel--as-page .sd-panel.sd-element--nested > .sd-panel__footer {
+  padding: var(--sjs2-spacing-x400) 0 0;
+  margin: 0;
+  border: none;
+  width: initial;
+}
+
+.sd-root-modern--mobile {
+  .sd-element--nested > .sd-panel__header {
+    padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
+  }
+  // Restore the mobile gap (sd-panel.scss mobile ".sd-panel__content" rule) that the
+  // higher-specificity nested content rule above would otherwise beat.
+  .sd-panel.sd-element--nested > .sd-panel__content {
+    gap: var(--sjs2-spacing-x200);
+  }
+}

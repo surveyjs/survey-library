@@ -20,7 +20,7 @@ Survey.FunctionFactory.Instance.register("getItemPrice", getItemPrice);
 
 var json = {
   showProgressBar: true,
-  progressBarLocation: "topBottom",
+  progressBarLocation: "top",
   description: "Survey Description",
   title: "Survey New Design Test",
   logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
@@ -1029,6 +1029,110 @@ var json = {
     }
   ]
 };
+
+json = {
+  "showProgressBar": true,
+  "progressBarLocation": "auto",
+  "progressBarType": "pages",
+  "progressBarShowPageNumbers": true,
+  "progressBarShowNavigationText": true,
+  progressBarNavigationTextLocation: "inline",
+  "title": "Customer Satisfaction Survey",
+  "pages": [{
+    "navigationTitle": "Overall satisfaction",
+    "elements": [{
+      "type": "matrix",
+      "name": "qualities",
+      "title": "Please indicate if you agree or disagree with the following statements",
+      "columns": [{
+        "value": 5,
+        "text": "Strongly agree"
+      }, {
+        "value": 4,
+        "text": "Agree"
+      }, {
+        "value": 3,
+        "text": "Neutral"
+      }, {
+        "value": 2,
+        "text": "Disagree"
+      }, {
+        "value": 1,
+        "text": "Strongly disagree"
+      }],
+      "rows": [{
+        "value": "affordable",
+        "text": "Product is affordable"
+      }, {
+        "value": "does-what-it-claims",
+        "text": "Product does what it claims"
+      }, {
+        "value": "better-than-others",
+        "text": "Product is better than other products on the market"
+      },{
+        "value": "easy-to-use",
+        "text": "Product is easy to use"
+      }]
+    }, {
+      "type": "rating",
+      "name": "satisfaction-score",
+      "title": "How satisfied are you with our product?",
+      "minRateDescription": "Not satisfied",
+      "maxRateDescription": "Completely satisfied"
+    }, {
+      "type": "rating",
+      "name": "recommend",
+      "visibleIf": "{satisfaction-score} > 3",
+      "title": "How likely are you to recommend our product to a friend or co-worker?",
+      "minRateDescription": "Will not recommend",
+      "maxRateDescription": "I will recommend"
+    }, {
+      "type": "comment",
+      "name": "suggestions",
+      "title": "What would make you more satisfied with our product?"
+    }]
+  }, {
+    "navigationTitle": "Pricing",
+    "elements": [{
+      "type": "radiogroup",
+      "name": "price-comparison",
+      "title": "Compared to our competitors, do you feel our product is:",
+      "choices": [
+        "Less expensive",
+        "Priced about the same",
+        "More expensive",
+        "Not sure"
+      ]
+    }, {
+      "type": "radiogroup",
+      "name": "current-price",
+      "title": "Do you feel our current price is merited by our product?",
+      "choices": [
+        "correct|Yes, the price is about right",
+        "low|No, the price is too low for your product",
+        "high|No, the price is too high for your product"
+      ]
+    }, {
+      "type": "multipletext",
+      "name": "price-limits",
+      "title": "What is the highest and lowest price you would pay for a product like ours?",
+      "items": [{
+        "name": "highest",
+        "title": "Highest"
+      }, {
+        "name": "lowest",
+        "title": "Lowest"
+      }]
+    }]
+  }, {
+    "navigationTitle": "Contacts",
+    "elements": [{
+      "type": "text",
+      "name": "email",
+      "title": "Please leave your email address if you would like us to contact you."
+    }]
+  }]
+}
 
 /*
 json = {

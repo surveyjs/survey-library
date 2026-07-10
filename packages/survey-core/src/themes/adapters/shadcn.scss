@@ -154,9 +154,9 @@
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
     var(--sjs2-color-component-check-false-default-border);
 
-  --sjs2-color-component-check-true-default-bg: transparent;
+  --sjs2-color-component-check-true-default-bg: var(--primary);
   --sjs2-color-component-check-true-default-icon: var(--primary-foreground);
-  --sjs2-color-component-check-true-hovered-bg: transparent;
+  --sjs2-color-component-check-true-hovered-bg: var(--primary);
   --sjs2-color-component-check-true-hovered-icon: var(--primary-foreground);
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary), var(--shadow-xs);
   --sjs2-border-effect-component-check-a11y:

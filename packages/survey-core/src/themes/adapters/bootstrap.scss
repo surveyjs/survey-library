@@ -350,6 +350,10 @@
   min-width: 0 !important;
 }
 
+.sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
+  flex-grow: 0;
+}
+
 /* xs — phones */
 @media (width < 576px) {
 }

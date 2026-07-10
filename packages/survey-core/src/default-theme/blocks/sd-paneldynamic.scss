@@ -1,6 +1,12 @@
 @use "../variables.scss" as *;
 
 .sd-paneldynamic {
+    padding-top: var(--sjs2-layout-component-panel-dynamic-box-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-box-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-box-padding-horizontal);
+    gap: var(--sjs2-layout-component-panel-dynamic-box-gap-vertical);
+
     .sd-progress {
         position: absolute;
         left: 0;
@@ -68,8 +74,21 @@
 }
 
 .sd-paneldynamic__header {
-  padding: var(--sjs2-layout-component-panel-header-padding-vertical, var(--sjs2-spacing-x400)) var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-  gap: var(--sjs2-layout-component-panel-header-gap-vertical, var(--sjs2-spacing-x050));
+  padding-top: var(--sjs2-layout-component-panel-dynamic-header-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-dynamic-header-padding-bottom);
+  padding-inline-start: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+  padding-inline-end: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
+  gap: var(--sjs2-layout-component-panel-dynamic-header-gap-vertical);
+}
+
+.sd-paneldynamic__header .sd-question__title {
+  padding: var(--sjs2-layout-component-panel-dynamic-title-padding-vertical) var(--sjs2-layout-component-panel-dynamic-title-padding-horizontal);
+}
+
+.sd-paneldynamic__header .sd-question__description {
+  padding-inline: var(--sjs2-layout-component-panel-dynamic-description-padding-horizontal);
+  padding-top: var(--sjs2-layout-component-panel-dynamic-description-padding-top);
+  padding-bottom: var(--sjs2-layout-component-panel-dynamic-description-padding-bottom);
 }
 
 .sd-paneldynamic__header ~ hr {
@@ -91,8 +110,11 @@
 
 .sd-paneldynamic__footer {
     clear: both;
-    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-    gap: var(--sjs2-layout-component-panel-footer-gap-vertical, var(--sjs2-spacing-x050));
+    padding-top: var(--sjs2-layout-component-panel-dynamic-footer-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-footer-padding-right);
+    gap: var(--sjs2-layout-component-panel-dynamic-footer-gap);
     position: relative;
 
     .sd-progress {
@@ -110,10 +132,10 @@
         padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
     }
     .sd-paneldynamic__footer {
-        padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x100)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-spacing-x300));
+        padding: var(--sjs2-spacing-x100) var(--sjs2-spacing-x300);
     }
     .sd-paneldynamic__panel-footer {
-        padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x200)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-spacing-x300));
+        padding: var(--sjs2-spacing-x200) var(--sjs2-spacing-x300);
         margin-top: calc(var(--sjs2-spacing-negative-x400));
     }
 }
@@ -213,7 +235,7 @@
 .sd-paneldynamic__panel-footer {
     border-top: none;
     position: relative;
-    padding: var(--sjs2-layout-component-panel-footer-padding-vertical, var(--sjs2-spacing-x300)) var(--sjs2-layout-component-panel-footer-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    padding: var(--sjs2-layout-component-panel-dynamic-footer-padding-top) var(--sjs2-layout-component-panel-dynamic-footer-padding-right) var(--sjs2-layout-component-panel-dynamic-footer-padding-bottom) var(--sjs2-layout-component-panel-dynamic-footer-padding-left);
     justify-content: flex-end;
     padding-top: 0;
     margin-top: calc(var(--sjs2-spacing-negative-x300));
@@ -229,8 +251,8 @@
 
 .sd-paneldynamic__tabs-container {
     padding-top: var(--sd-base-padding);
-    padding-left: var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
-    padding-right: var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal));
+    padding-left: var(--sjs2-layout-component-panel-dynamic-header-padding-left);
+    padding-right: var(--sjs2-layout-component-panel-dynamic-header-padding-right);
     .sd-tabs-toolbar {
         margin-bottom: -1px;
     }
@@ -241,7 +263,7 @@
         position: relative;
         background: $border-light;
         bottom: 0;
-        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-header-padding-horizontal, var(--sjs2-layout-component-panel-content-area-padding-horizontal)));
+        margin: 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-right)) 0 calc(-1 * var(--sjs2-layout-component-panel-dynamic-header-padding-left));
     }
 }
 .sd-paneldynamic__tabs-container--with-header {
@@ -366,6 +388,12 @@
 .sd-paneldynamic__panels-container {
     position: relative;
     overflow: hidden;
+    padding-top: var(--sjs2-layout-component-panel-dynamic-content-area-padding-top);
+    padding-bottom: var(--sjs2-layout-component-panel-dynamic-content-area-padding-bottom);
+    padding-inline-start: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    padding-inline-end: var(--sjs2-layout-component-panel-dynamic-content-area-padding-horizontal);
+    row-gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-vertical);
+    column-gap: var(--sjs2-layout-component-panel-dynamic-content-area-gap-horizontal);
 }
 
 .sd-paneldynamic__panel-wrapper {

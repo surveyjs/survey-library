@@ -111,15 +111,19 @@
   width: 1lh;
   height: 1lh;
   box-sizing: content-box;
+
+  use {
+    fill: var(--sjs2-color-component-tagbox-item-action-default-icon)
+  }
 }
 
 .sd-tagbox-item__clean-button-svg:hover {
   border-radius: var(--sjs2-radius-component-tagbox-item-action);
   background: var(--sjs2-color-component-tagbox-item-action-hovered-bg);
-}
 
-.sd-tagbox-item__clean-button-svg use {
-  fill: var(--sjs2-color-component-tagbox-item-action-hovered-icon);
+  use {
+    fill: var(--sjs2-color-component-tagbox-item-action-hovered-icon);
+  }
 }
 
 .sd-tagbox:where(:not(.sd-tagbox--empty, .sd-tagbox--readonly)) {

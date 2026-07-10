@@ -141,6 +141,15 @@
   --sjs2-color-component-toggle-false-default-border: transparent;
   --sjs2-color-component-toggle-false-hovered-border: transparent;
 
+  /* tagbox */
+  --sjs2-radius-component-tagbox-item: 16px;
+  --sjs2-color-component-tagbox-item-default-bg: var(--mui-palette-action-selected);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--mui-palette-action-selected);
+  --sjs2-color-component-tagbox-item-default-border: var(--mui-palette-action-selected);
+  --sjs2-color-component-tagbox-item-hovered-border: var(--mui-palette-action-selected);
+  --sjs2-color-component-tagbox-item-default-label: var(--mui-palette-text-primary);
+  --sjs2-color-component-tagbox-item-hovered-label: var(--mui-palette-text-primary);
+
   /* common and other */
   --sjs2-color-utility-surface-survey: transparent;
 
@@ -281,9 +290,6 @@
 */
 
 /* dropdown */
-.sd-editor-clean-button {
-  display: none;
-}
 .sd-editor-chevron-button button.sd-action {
   padding-inline: 0;
   cursor: default;
@@ -304,6 +310,26 @@
 }
 .sd-dropdown .sd-formbox__group .sd-action--popup-active {
   transform: rotate(180deg);
+}
+
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding: var(--sjs2-layout-component-input-medium-content-padding-vertical)
+    var(--sjs2-layout-component-input-medium-content-padding-horizontal);
+}
+
+.sd-tagbox-item {
+  cursor: pointer;
+}
+
+.sd-tagbox-item__text {
+  padding-block: 0;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.sd-tagbox-item__clean {
+  display: none;
 }
 
 /* button pressed state */

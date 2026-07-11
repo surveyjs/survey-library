@@ -360,7 +360,7 @@
   .sd-question--table.sd-element--nested {
     &>.sd-question__container {
       &>.sd-question__header-and-content-container {
-        &>.sd-question__content:first-child {
+        &>.sd-question__content:first-of-type {
           .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
             margin-top: var(--sjs2-spacing-negative-x200);
           }
@@ -373,7 +373,7 @@
   .sd-question--table.sd-element--nested {
     &>.sd-question__container {
       &>.sd-question__header-and-content-container {
-        &>.sd-question__content:first-child {
+        &>.sd-question__content:first-of-type {
           .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
             margin-top: var(--sjs2-spacing-negative-x200);
           }

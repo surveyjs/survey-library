@@ -161,8 +161,6 @@ export var slovakSurveyStrings = {
   savingDataError: "V dôsledku chyby sa nepodarilo výsledky uložiť.",
   // "The results were saved successfully!"
   savingDataSuccess: "Výsledky sa úspešne uložili.",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Vaša odpoveď presahuje 64 kB. Znížte veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu.",
   // "Try again"
   saveAgainButton: "Skúste to znova",
   // [Auto-translated] "min"

@@ -161,8 +161,6 @@ export var croatianStrings = {
   savingDataError: "Došlo je do pogreške i nismo mogli spremiti rezultate.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultati su uspješno spremljeni!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Vaš odgovor premašuje 64 KB. Smanjite veličinu datoteka/datoteka i pokušajte ponovno ili se obratite vlasniku ankete.",
   // "Try again"
   saveAgainButton: "Pokušaj ponovo",
   // [Auto-translated] "min"

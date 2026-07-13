@@ -29,7 +29,7 @@ frameworks.forEach((framework) => {
       await expect(questionDiv).toHaveCSS("min-width", "min(100%, 300px)");
 
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].minWidth = "200px";
+        document.documentElement.style.setProperty("--sjs-element-min-width", "200px");
       });
 
       await expect(questionDiv).toHaveCSS("min-width", "min(100%, 200px)");

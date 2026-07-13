@@ -57,6 +57,19 @@
   --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px var(--bs-primary);
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px var(--bs-primary);
 
+  /* secondary buttons */
+  --sjs2-color-component-action-neutral-secondary-default-bg: #6c757d;
+  --sjs2-color-component-action-neutral-secondary-default-icon: #fff;
+  --sjs2-color-component-action-neutral-secondary-default-label: #fff;
+
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: #5c636a;
+  --sjs2-color-component-action-neutral-secondary-hovered-icon: #fff;
+  --sjs2-color-component-action-neutral-secondary-hovered-label: #fff;
+
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: rgba(from #6c757d r g b / 0.65);
+  --sjs2-color-component-action-neutral-secondary-disabled-icon: #fff;
+  --sjs2-color-component-action-neutral-secondary-disabled-label: #fff;
+
   /* formboxes */
   --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
     var(--sjs2-color-component-formbox-default-border);
@@ -138,10 +151,12 @@
   --sjs2-color-bg-alert-secondary: rgba(var(--bs-danger-rgb), 0.1);
   --sjs2-color-bg-basic-primary-dim: var(--bs-secondary-bg);
   --sjs2-color-bg-basic-primary: var(--bs-body-bg);
+  --sjs2-color-bg-basic-primary-disabled: var(--bs-secondary-bg); // TODO
   --sjs2-color-bg-basic-secondary: var(--bs-body-bg);
   --sjs2-color-bg-basic-secondary-dim: var(--bs-tertiary-bg);
   --sjs2-color-bg-basic-tertiary: var(--bs-tertiary-bg, var(--bs-secondary-bg));
   --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
+  --sjs2-color-fg-basic-primary-disabled: rgba(from var(--foreground) r g b / 0.5);
 
   --sjs2-color-border-basic-primary: var(--bs-border-color);
   --sjs2-color-border-basic-secondary: var(--bs-border-color);

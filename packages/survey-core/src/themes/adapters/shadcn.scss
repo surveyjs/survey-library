@@ -93,9 +93,21 @@
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px var(--input);
 
   /* secondary buttons */
-  --sjs2-color-component-action-neutral-secondary-default-bg: var(--background);
-  --sjs2-color-component-action-neutral-secondary-hovered-bg: var(--background);
-  --sjs2-color-component-action-neutral-secondary-disabled-bg: var(--background);
+  --sjs2-color-component-action-neutral-secondary-default-bg: --secondary;
+  --sjs2-color-component-action-neutral-secondary-default-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-neutral-secondary-default-label: var(--secondary-foreground);
+
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: color-mix(
+    in oklch,
+    var(--secondary),
+    var(--foreground) 5%
+  );
+  --sjs2-color-component-action-neutral-secondary-hovered-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-neutral-secondary-hovered-label: var(--secondary-foreground);
+
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: rgba(from var(--secondary) r g b / 0.5);
+  --sjs2-color-component-action-neutral-secondary-disabled-icon: rgba(from var(--secondary-foreground) r g b / 0.5);
+  --sjs2-color-component-action-neutral-secondary-disabled-label: rgba(from var(--secondary-foreground) r g b / 0.5);
 
   /* formboxes (input / textarea / dropdown) */
   --sjs2-color-component-formbox-default-bg: var(--background);
@@ -195,6 +207,7 @@
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
   --sjs2-color-bg-basic-primary-dim: var(--muted);
+  --sjs2-color-bg-basic-primary-disabled: rgba(from var(--background) r g b / 0.5);
   --sjs2-color-bg-basic-secondary: var(--background);
   --sjs2-color-bg-basic-secondary-dim: var(--accent);
   --sjs2-color-bg-basic-tertiary: var(--muted);
@@ -205,6 +218,7 @@
 
   --sjs2-color-project-brand-600: var(--primary);
   --sjs2-color-bg-brand-primary-disabled: var(--muted);
+  --sjs2-color-fg-basic-primary-disabled: rgba(from var(--foreground) r g b / 0.5);
   --sjs2-color-fg-brand-on-primary: var(--primary-foreground);
 
   --sjs2-color-bg-brand-secondary: var(--secondary);

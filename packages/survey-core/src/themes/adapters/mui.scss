@@ -57,6 +57,21 @@
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px
     rgba(from var(--mui-palette-primary-main) r g b / 0.5);
 
+  /* secondary buttons */
+  --sjs2-color-component-action-neutral-secondary-default-bg: transparent;
+  --sjs2-color-component-action-neutral-secondary-default-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-neutral-secondary-default-label: var(--mui-palette-primary-main);
+
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: rgba(
+    var(--mui-palette-primary-mainChannel) / var(--mui-palette-action-hoverOpacity)
+  );
+  --sjs2-color-component-action-neutral-secondary-hovered-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-neutral-secondary-hovered-label: var(--mui-palette-primary-main);
+
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-component-action-neutral-secondary-disabled-icon: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-neutral-secondary-disabled-label: var(--mui-palette-action-disabled);
+
   /* formboxes */
   --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-focused: inset 0 0 0 2px var(--mui-palette-primary-main);
@@ -155,6 +170,7 @@
 
   --sjs2-color-bg-basic-primary: var(--mui-palette-background-default);
   --sjs2-color-bg-basic-primary-dim: var(--mui-palette-action-hover);
+  --sjs2-color-bg-basic-primary-disabled: var(--mui-palette-action-disabledBackground);
   --sjs2-color-bg-basic-secondary: var(--mui-palette-background-paper);
   --sjs2-color-bg-basic-secondary-dim: var(--mui-palette-action-hover);
   --sjs2-color-bg-basic-tertiary: var(--mui-palette-action-selected);
@@ -167,6 +183,7 @@
   --sjs2-color-bg-brand-primary: var(--mui-palette-primary-main);
   --sjs2-color-bg-brand-primary-dim: var(--mui-palette-primary-dark);
   --sjs2-color-bg-brand-primary-disabled: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-fg-basic-primary-disabled: var(--mui-palette-action-disabled);
   --sjs2-color-fg-brand-on-primary: var(--mui-palette-primary-contrastText);
 
   --sjs2-color-fg-alert-primary: var(--mui-palette-error-main);
@@ -370,7 +387,7 @@
     transform 0s linear 0.6s;
 }
 /* keyboard focus: ripple pulsates slightly wider than the label (MUI pulsate) */
-.sd-action:focus-visible:after {
+.sd-action:not(:disabled):focus-visible:after {
   width: 85%;
   opacity: 0.3;
   transform: translate(-50%, -50%) scale(1);
@@ -379,7 +396,7 @@
     sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
 }
 /* pressed: ripple expands from center */
-.sd-action:active:not(:focus-visible):after {
+.sd-action:not(:disabled):active:not(:focus-visible):after {
   width: 200%;
   transform: translate(-50%, -50%) scale(1);
   opacity: 0.3;
@@ -388,7 +405,7 @@
     opacity 0s;
 }
 /* released but still mouse-focused: finish the grow (same scale target), then fade out */
-.sd-action:not(:active):focus:not(:focus-visible):after {
+.sd-action:not(:disabled):not(:active):focus:not(:focus-visible):after {
   width: 200%;
   transform: translate(-50%, -50%) scale(1);
   opacity: 0;

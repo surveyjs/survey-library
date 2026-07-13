@@ -247,6 +247,18 @@ describe("SurveyElement", () => {
     expect(q1.rootStyle, "no root style").toEqual({});
     expect(q1.getWrapperCss(), "allowRootStyle is false").toBe("sd-element-wrapper");
   });
+  test("getWrapperCss: an element can add its own wrapper class", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1" }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    q1.onUpdateCssClassesCallback = (css: any): void => {
+      css.questionWrapper = "custom-wrapper";
+    };
+    q1.updateElementCss();
+    expect(q1.getWrapperCss())
+      .toBe("sd-element-wrapper sd-element-wrapper--max-width sd-element-wrapper--min-width custom-wrapper");
+  });
   test("minWidth & maxWidth override the default element widths", () => {
     const survey = new SurveyModel({
       elements: [

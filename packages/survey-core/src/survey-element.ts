@@ -1161,6 +1161,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(css.elementWrapper)
       .append(css.elementWrapperMaxWidth, this.hasRootStyleWidth)
       .append(css.elementWrapperMinWidth, this.hasDefaultMinWidth)
+      .append(this.cssClasses.questionWrapper)
       .toString();
   }
   /**

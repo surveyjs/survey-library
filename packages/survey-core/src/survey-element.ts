@@ -1168,8 +1168,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Returns the minWidth CSS value for an element that overrides the default min-width. It is scaled the same way as the theme's default.
    */
   private calcMinWidth(): string {
-    let minWidth = this.minWidth;
-    if (!minWidth || minWidth === "auto") return "";
+    if (!this.minWidth) return "";
+    let minWidth = "" + this.minWidth;
+    if (minWidth === "auto") return "";
     if (minWidth.indexOf("px") > -1 && !!this.survey) {
       const minWidthNum = parseFloat(minWidth.replace("px", ""));
       if (!isNaN(minWidthNum)) {

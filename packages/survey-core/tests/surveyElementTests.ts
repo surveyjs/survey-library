@@ -296,6 +296,15 @@ describe("SurveyElement", () => {
     q2.maxWidth = "";
     expect(q2.rootStyle.maxWidth, "an empty maxWidth falls back to the theme").toBeUndefined();
   });
+  test("minWidth & maxWidth do not fail on a number, Bug#: composite question", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", minWidth: 100, maxWidth: 300 }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    // A unitless value produces an invalid CSS width that the browser ignores, as it did before.
+    expect(q1.rootStyle["minWidth"]).toBe("min(100%, 100)");
+    expect(q1.rootStyle["maxWidth"]).toBe(300);
+  });
   test("minWidth is scaled the same way as the theme default", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "q1", minWidth: "300px" }]

@@ -1450,6 +1450,7 @@ describe("Survey.editingObj Tests", () => {
     const question = new QuestionMatrixDynamicModel("q1");
     question.addColumn("col1");
     const column = question.columns[0];
+    column.minWidth = "150px";
     var survey = new SurveyModel({
       elements: [
         {
@@ -1461,43 +1462,44 @@ describe("Survey.editingObj Tests", () => {
     survey.editingObj = column;
     const editor = survey.getAllQuestions()[0];
     const property = Serializer.findProperty(column.getType(), "minWidth");
-    expect(editor.value).toBe("300px");
     property.onPropertyEditorUpdate(column, editor);
-    expect(editor.value).toBe("");
+    expect(editor.value, "the editor shows the column's own minWidth").toBe("150px");
   });
   test("Allow to set empty string into localization string & string property with default value", () => {
+    Serializer.addProperty("dropdown", { name: "propWithDefault", defaultFunc: () => "300px" });
     const question = new QuestionDropdownModel("q1");
     const survey = new SurveyModel({
       elements: [
         { type: "text", name: "placeholder" },
-        { type: "text", name: "minWidth" },
+        { type: "text", name: "propWithDefault" },
         { type: "text", name: "valueName" },
       ],
     });
     survey.editingObj = question;
     const placeholderQuestion = survey.getQuestionByName("placeholder");
-    const minWidthQuestion = survey.getQuestionByName("minWidth");
+    const propQuestion = survey.getQuestionByName("propWithDefault");
     const valueNameQuestion = survey.getQuestionByName("valueName");
     expect(placeholderQuestion.value, "placeholder - default value").toBe("Select...");
-    expect(minWidthQuestion.value, "minWidth - default value").toBe("300px");
+    expect(propQuestion.value, "propWithDefault - default value").toBe("300px");
     expect(valueNameQuestion.value, "valueName is empty by default").toBeFalsy();
     placeholderQuestion.value = "";
-    minWidthQuestion.value = "";
+    propQuestion.value = "";
     valueNameQuestion.value = "";
     expect(placeholderQuestion.value, "placeholder question value is empty").toBe("");
-    expect(minWidthQuestion.value, "minWidth question value is empty").toBe("");
+    expect(propQuestion.value, "propWithDefault question value is empty").toBe("");
     expect(question.placeholder, "dropdown.placeholder value is empty").toBe("");
-    expect(question.minWidth, "dropdown.minWidth value is empty").toBe("");
+    expect(question.getPropertyValue("propWithDefault"), "dropdown.propWithDefault value is empty").toBe("");
     expect(question.toJSON()).toEqual({
-      name: "q1", placeholder: "", minWidth: ""
+      name: "q1", placeholder: "", propWithDefault: ""
     });
     const q2 = Serializer.createClass("dropdown");
     q2.fromJSON({
-      name: "q2", placeholder: "", minWidth: ""
+      name: "q2", placeholder: "", propWithDefault: ""
     });
     expect(q2.name, "set the name correctly").toBe("q2");
     expect(q2.placeholder, "q2.placeholder value is empty").toBe("");
-    expect(q2.minWidth, "q2.minWidth value is empty").toBe("");
+    expect(q2.getPropertyValue("propWithDefault"), "q2.propWithDefault value is empty").toBe("");
+    Serializer.removeProperty("dropdown", "propWithDefault");
   });
   test("Edit triggers array", () => {
     const survey = new SurveyModel();

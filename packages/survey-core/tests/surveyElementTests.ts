@@ -220,13 +220,32 @@ describe("SurveyElement", () => {
     expect(q1.rootStyle).toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)",
+      "flexShrink": 1
     });
     q1.allowRootStyle = false;
     survey.css = defaultCss;
     expect(q1.rootStyle).toEqual({});
+  });
+  test("getWrapperCss: only questions get the default element min-width", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "paneldynamic", name: "q2" },
+        { type: "panel", name: "panel1", elements: [{ type: "text", name: "q3" }] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.getWrapperCss(), "a question")
+      .toBe("sd-element-wrapper sd-element-wrapper--max-width sd-element-wrapper--min-width");
+    expect(survey.getQuestionByName("q2").getWrapperCss(), "a dynamic panel shrinks to its content")
+      .toBe("sd-element-wrapper sd-element-wrapper--max-width");
+    expect(survey.getPanelByName("panel1").getWrapperCss(), "a panel shrinks to its content")
+      .toBe("sd-element-wrapper sd-element-wrapper--max-width");
+
+    // An element the survey does not size gets no width constraints at all, as before.
+    q1.allowRootStyle = false;
+    expect(q1.rootStyle, "no root style").toEqual({});
+    expect(q1.getWrapperCss(), "allowRootStyle is false").toBe("sd-element-wrapper");
   });
   test("Do not create rootStyle by default", () => {
     const survey = new SurveyModel({
@@ -251,17 +270,13 @@ describe("SurveyElement", () => {
     expect(q1.rootStyle).toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)",
+      "flexShrink": 1
     });
     survey.setIsMobile(true);
     expect(q1.rootStyle).toEqual({
       "flexBasis": "100%",
       "flexGrow": 1,
-      "flexShrink": 1,
-      "maxWidth": "100%",
-      "minWidth": "min(100%, 300px)"
+      "flexShrink": 1
     });
   });
   test("question.errorLocation", () => {

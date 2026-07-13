@@ -694,6 +694,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return classes;
   }
   protected getIdPrefix(): string { return "sp"; }
+  protected get hasMinWidth(): boolean { return false; }
   public get isPanel(): boolean {
     return false;
   }
@@ -2571,8 +2572,6 @@ Serializer.addClass(
     { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
     { name: "startWithNewLine:boolean", default: true },
     { name: "width" },
-    { name: "minWidth", defaultFunc: () => "auto" },
-    { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
     { name: "colSpan:number", visible: false, onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); } },
     {
       name: "effectiveColSpan:number", minValue: 1, isSerializable: false,

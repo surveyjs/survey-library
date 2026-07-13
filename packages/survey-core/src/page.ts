@@ -456,8 +456,6 @@ Serializer.addClass(
     { name: "isRequired", visible: false },
     { name: "startWithNewLine", visible: false },
     { name: "width", visible: false },
-    { name: "minWidth", visible: false },
-    { name: "maxWidth", visible: false },
     { name: "colSpan", visible: false, isSerializable: false },
     { name: "effectiveColSpan:number", visible: false, isSerializable: false },
     { name: "innerIndent", visible: false },

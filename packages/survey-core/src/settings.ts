@@ -541,22 +541,6 @@ export var settings = {
    */
   confirmActionAsync: <(message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions) => void>undefined,
   /**
-   * A minimum width value for all survey elements.
-   *
-   * Default value: `"300px"`
-   *
-   * You can override this setting for individual elements: [`minWidth`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth).
-   */
-  minWidth: "300px",
-  /**
-   * A maximum width value for all survey elements.
-   *
-   * Default value: `"100%"`
-   *
-   * You can override this setting for individual elements: [`maxWidth`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#maxWidth).
-   */
-  maxWidth: "100%",
-  /**
    * Specifies how many times surveys can re-evaluate expressions when a question value changes. This limit helps avoid recursions in expressions.
    *
    * Default value: 10

@@ -3745,19 +3745,6 @@ describe("Panel", () => {
     expect(panel.toJSON().name).toBe("panel1");
     expect(panel.getPropertyValue("gridLayoutColumns"), "gridLayoutColumns array is not created on serializing").toBeUndefined();
   });
-  test("Panel maxWidth should return to default when set to empty string", () => {
-    const survey = new SurveyModel({
-      elements: [
-        { type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }
-      ]
-    });
-    const panel = survey.getPanelByName("panel1");
-    expect(panel.maxWidth, "panel maxWidth default value").toBe(settings.maxWidth);
-    panel.maxWidth = "50%";
-    expect(panel.maxWidth, "panel maxWidth is set to 50%").toBe("50%");
-    panel.maxWidth = "";
-    expect(panel.maxWidth, "panel maxWidth returns to default on empty string").toBe(settings.maxWidth);
-  });
   test("Required Validation Errors should not appear for Read-only Panels Bug#11136", () => {
     const survey = new SurveyModel({
       elements: [

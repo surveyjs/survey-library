@@ -13,8 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest --no-isolate",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
-    "build:translate": "survey-utils translate library --path ./src/localization",
-    "test:translate": "survey-utils check-strings library --repo ../..",
+    "build:translate": "survey-utils translate library --path ../..",
+    "test:translate": "survey-utils check-strings library --path ../..",
     "build:doc": "survey-utils generate-doc ./entries/chunks/model.ts --serializer ./build/survey.core --json-definition",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },

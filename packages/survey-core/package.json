@@ -14,7 +14,7 @@
     "test:watch": "vitest --no-isolate",
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "doc_gen": "node doc_generator/lib_docgenerator.js ./entries/chunks/model.ts",
-    "doc_update": "chmod +x ./docupdate_npm.sh && ./docupdate_npm.sh",
+    "build:doc": "surveyjs-doc-generator ./entries/chunks/model.ts --serializer ./build/survey.core --json-definition",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "main": "survey.core.js",

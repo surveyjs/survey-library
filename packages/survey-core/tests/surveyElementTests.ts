@@ -247,6 +247,50 @@ describe("SurveyElement", () => {
     expect(q1.rootStyle, "no root style").toEqual({});
     expect(q1.getWrapperCss(), "allowRootStyle is false").toBe("sd-element-wrapper");
   });
+  test("minWidth & maxWidth override the default element widths", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2", minWidth: "200px", maxWidth: "400px" },
+        { type: "panel", name: "panel1", minWidth: "auto", maxWidth: "500px", elements: [{ type: "text", name: "q3" }] }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.minWidth, "q1 minWidth is empty by default").toBe("");
+    expect(q1.maxWidth, "q1 maxWidth is empty by default").toBe("");
+    expect(q1.rootStyle, "q1 is sized by the theme").toEqual({
+      "flexBasis": "100%",
+      "flexGrow": 1,
+      "flexShrink": 1
+    });
+
+    const q2 = survey.getQuestionByName("q2");
+    expect(q2.rootStyle, "q2 overrides the theme widths").toEqual({
+      "flexBasis": "100%",
+      "flexGrow": 1,
+      "flexShrink": 1,
+      "minWidth": "min(100%, 200px)",
+      "maxWidth": "400px"
+    });
+
+    const panel = survey.getPanelByName("panel1");
+    expect(panel.rootStyle, "the panel keeps shrinking to its content").toEqual({
+      "flexBasis": "100%",
+      "flexGrow": 1,
+      "flexShrink": 1,
+      "maxWidth": "500px"
+    });
+
+    q2.maxWidth = "";
+    expect(q2.rootStyle.maxWidth, "an empty maxWidth falls back to the theme").toBeUndefined();
+  });
+  test("minWidth is scaled the same way as the theme default", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "text", name: "q1", minWidth: "300px" }]
+    });
+    survey.widthScale = 200;
+    expect(survey.getQuestionByName("q1").rootStyle["minWidth"]).toBe("min(100%, 600px)");
+  });
   test("Do not create rootStyle by default", () => {
     const survey = new SurveyModel({
       elements: [{

@@ -304,7 +304,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const updateRootStyleProps = ["renderWidth", "allowRootStyle", "parent"];
+    const updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
     if (updateRootStyleProps.indexOf(name) > -1) {
       this.updateRootStyle();
     }
@@ -1045,12 +1045,34 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Sets survey element width in CSS values.
    *
    * Default value: ""
+   * @see minWidth
+   * @see maxWidth
   */
   @property({ defaultValue: "" }) width: string;
+  /**
+   * Gets or sets minimum survey element width in CSS values.
+   *
+   * Default value: "" (the element uses the theme's `--sjs-element-min-width` value)
+   * @see maxWidth
+   * @see renderWidth
+   * @see width
+   */
+  @property({ defaultValue: "" }) minWidth: string;
+  /**
+   * Gets or sets maximum survey element width in CSS values.
+   *
+   * Default value: "" (the element uses the theme's `--sjs-element-max-width` value)
+   * @see minWidth
+   * @see renderWidth
+   * @see width
+   */
+  @property({ defaultValue: "" }) maxWidth: string;
 
   /**
    * Returns a calculated width of the rendered survey element in CSS values.
    * @see width
+   * @see minWidth
+   * @see maxWidth
    */
   @property({ defaultValue: "" }) renderWidth: string;
 
@@ -1141,6 +1163,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(css.elementWrapperMinWidth, this.hasDefaultMinWidth)
       .toString();
   }
+  /**
+   * Returns the minWidth CSS value for an element that overrides the default min-width. It is scaled the same way as the theme's default.
+   */
+  private calcMinWidth(): string {
+    let minWidth = this.minWidth;
+    if (!minWidth || minWidth === "auto") return "";
+    if (minWidth.indexOf("px") > -1 && !!this.survey) {
+      const minWidthNum = parseFloat(minWidth.replace("px", ""));
+      if (!isNaN(minWidthNum)) {
+        minWidth = minWidthNum * (this.survey as any).widthScale / 100 + "px";
+      }
+    }
+    return "min(100%, " + minWidth + ")";
+  }
   protected calcRootStyle(): any {
     const style: { [index: string]: any } = {};
     const gridWidth = this.gridColumnsWidth;
@@ -1152,6 +1188,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       style["flexGrow"] = 1;
       style["flexShrink"] = 1;
       style["flexBasis"] = this.renderWidth;
+    }
+    if (Object.keys(style).length > 0) {
+      const minWidth = this.calcMinWidth();
+      if (!!minWidth) {
+        style["minWidth"] = minWidth;
+      }
+      if (!!this.maxWidth) {
+        style["maxWidth"] = this.maxWidth;
+      }
     }
     return style;
   }

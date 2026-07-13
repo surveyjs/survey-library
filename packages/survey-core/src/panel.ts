@@ -2572,6 +2572,8 @@ Serializer.addClass(
     { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText" },
     { name: "startWithNewLine:boolean", default: true },
     { name: "width" },
+    { name: "minWidth" },
+    { name: "maxWidth" },
     { name: "colSpan:number", visible: false, onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); } },
     {
       name: "effectiveColSpan:number", minValue: 1, isSerializable: false,

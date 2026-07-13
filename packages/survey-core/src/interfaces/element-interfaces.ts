@@ -42,6 +42,8 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;
   renderWidth: string;
   width: string;
+  minWidth?: string;
+  maxWidth?: string;
   isExpanded: boolean;
   isCollapsed: boolean;
   rightIndent: number;

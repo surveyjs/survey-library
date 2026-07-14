@@ -161,8 +161,6 @@ export var norwegianSurveyStrings = {
   savingDataError: "Det oppsto en feil, og vi kunne ikke lagre resultatene.",
   // "The results were saved successfully!"
   savingDataSuccess: "Resultatene ble lagret!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Svaret ditt overstiger 64 kB. Reduser størrelsen på filen(e) og prøv på nytt eller kontakt eieren av undersøkelsen.",
   // "Try again"
   saveAgainButton: "Prøv igjen",
   // [Auto-translated] "min"

@@ -15629,6 +15629,29 @@ describe("Survey", () => {
     survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => show;
     expect(survey.renderedHasDescription, "survey empty description shown when callback keeps the default").toBeTruthy();
   });
+  test("renderedHasDescription: setting/clearing the survey description resets hasDescription so the header re-renders", () => {
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    survey.fromJSON({ title: "My survey", elements: [{ type: "text", name: "q1" }] });
+    // Dynamic decision: show the in-place description editor only while the description is not empty.
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any): boolean => !!element.description;
+
+    const changedProps: Array<string> = [];
+    survey.onPropertyChanged.add((_, opt) => changedProps.push(opt.name));
+
+    // Reading renderedHasDescription primes hasDescription (its reset drives the header re-render).
+    expect(survey.renderedHasDescription, "empty -> hidden").toBeFalsy();
+
+    changedProps.length = 0;
+    survey.description = "Hello";
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on set").toBeTruthy();
+    expect(survey.renderedHasDescription, "non-empty -> shown").toBeTruthy();
+
+    changedProps.length = 0;
+    survey.description = "";
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on clear").toBeTruthy();
+    expect(survey.renderedHasDescription, "cleared -> hidden").toBeFalsy();
+  });
   test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide a page empty description in design mode", () => {
     const pageDescriptionProperty = Serializer.getProperty("page", "description");
     const oldValue = pageDescriptionProperty.placeholder;

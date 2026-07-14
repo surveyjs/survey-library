@@ -134,12 +134,16 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
 
       await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
+      // autoFocusFirstQuestion fires in a 1 ms setTimeout inside afterRenderPage;
+      // wait for it to actually focus the first radio before pressing arrow keys.
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
       await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

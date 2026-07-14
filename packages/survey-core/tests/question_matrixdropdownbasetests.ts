@@ -2747,4 +2747,44 @@ describe("Survey_QuestionMatrixDropdownBase", () => {
     expect(getRenderedRowName(2), "after insert: data row 2 maps to row3").toBe("row3");
     expect(getRenderedRowName(3), "after insert: data row 3 maps to row4").toBe("row4");
   });
+  test("Do not generate rows on running matrix visibleIf expression, bug#11567", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1" },
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          visibleIf: "{q1} = 'a'",
+          columns: [{ name: "col1" }, { name: "col2" }],
+          choices: [1, 2, 3],
+          rows: ["row1", "row2"]
+        }
+      ]
+    });
+    const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+    expect(matrix.isVisible, "matrix is invisible").toBe(false);
+    expect(matrix["generatedVisibleRows"], "rows are not generated on loading").toBeFalsy();
+    survey.setValue("q1", "a");
+    expect(matrix.isVisible, "matrix becomes visible").toBe(true);
+    expect(matrix["generatedVisibleRows"], "rows are not generated on running condition").toBeFalsy();
+    expect(matrix.visibleRows.length, "rows are generated on demand").toBe(2);
+  });
+  test("Resolve a row in expression by its name, bug#11567", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "matrixdropdown",
+          name: "matrix",
+          columns: [{ name: "col1" }, { name: "col2" }],
+          choices: [1, 2, 3],
+          rows: ["row1", "row2"]
+        },
+        { type: "text", name: "q1", visibleIf: "{matrix.row1.col1} = 1" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.isVisible, "q1 is invisible").toBe(false);
+    survey.setValue("matrix", { row1: { col1: 1 } });
+    expect(q1.isVisible, "q1 becomes visible on setting the cell value").toBe(true);
+  });
 });

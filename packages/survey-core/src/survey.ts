@@ -2325,6 +2325,7 @@ export class SurveyModel extends SurveyElementCore
     return !this.titleIsEmpty && this.showTitle;
   }
   public get renderedHasDescription(): boolean {
+    const showInRuntime = !!this.hasDescription && this.showTitle;
     if (this.isDesignMode) {
       let show = this.isPropertyVisible("description");
       if (!!this.beforeShowInplaceDescriptionEditorCallback) {
@@ -2332,7 +2333,7 @@ export class SurveyModel extends SurveyElementCore
       }
       return show;
     }
-    return !!this.hasDescription && this.showTitle;
+    return showInRuntime;
   }
   public get hasTitle(): boolean {
     return this.renderedHasTitle;

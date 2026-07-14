@@ -491,8 +491,9 @@ export class PanelModelBase extends SurveyElement<Question>
     const survey: any = this.survey;
     const showInRuntime = survey && survey.showPageTitles && this.hasDescription;
     if (this.isDesignMode) {
+      const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
       let show = this.hasTitle &&
-        (showInRuntime && !!this.description ||
+        (hasEnteredDescription ||
           (this.showDescription && settings.designMode.showEmptyDescriptions));
       if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
         show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);

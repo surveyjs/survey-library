@@ -1,6 +1,6 @@
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Base } from "./base";
+import { ArrayChanges, Base } from "./base";
 import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -101,15 +101,21 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected resetDescriptionVisibility(): void {
     this.resetPropertyValue("hasDescription");
   }
+  private updateDescriptionVisibility(): void {
+    if (this.getPropertyValueWithoutDefault("hasDescription") === undefined) return;
+    this.setPropertyValue("hasDescription", this.calcDescriptionVisibility());
+  }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
+    super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
+    if (name === "description" || (name === "title" && this.isDesignMode)) {
+      this.updateDescriptionVisibility();
+    }
+  }
   /**
    * Explanatory text displayed under the title.
    * @see hasDescription
    */
-  @property({
-    localizable: { markdown: true }, onSet: (newDescription, self) => {
-      self.resetDescriptionVisibility();
-    }
-  }) description: string;
+  @property({ localizable: { markdown: true } }) description: string;
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }

@@ -35,6 +35,7 @@
 
   /* common and other */
   --sjs2-radius-component-panel: 0;
+  --sjs2-typography-font-size-component-question-title: var(--text-xs);
 }
 
 .sd-comment__grip {
@@ -44,7 +45,7 @@
 
 /* radio: outlined, checked uses --foreground (data-checked:border-foreground, dot bg-foreground) */
 /* classic outlined radio: transparent disc + primary dot */
-.sd-theme-root .sd-item--checked .sd-radio__decorator {
+.sd-item--checked .sd-radio__decorator {
   background-color: var(--background);
   box-shadow: inset 0 0 0 1px var(--foreground);
 }
@@ -54,11 +55,16 @@
   box-shadow: inset 0 0 0 1px var(--foreground);
 }
 
-.sd-theme-root .sd-radio--checked .sd-radio__svg use {
+.sd-radio--checked .sd-radio__svg use {
   fill: var(--foreground);
 }
 
-.sd-theme-root .sd-action__title {
+.sd-action__title {
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: var(--tracking-widest);
+} 
+
+.sd-element__title, .sd-page__title {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
 }

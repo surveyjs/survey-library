@@ -35,7 +35,8 @@
   --sjs2-typography-font-size-default: var(--text-xs);
   --sjs2-typography-line-height-component-action-large-content: var(--text-xs--line-height);
   --sjs2-typography-line-height-component-input-content: var(--text-xs--line-height);
-  --sjs2-typography-font-size-component-question-title: var(--text-sm);
+  --sjs2-typography-font-size-component-question-title: var(--text-xs);
+  --sjs2-typography-font-weight-component-question-title: var(--font-weight-normal);
 }
 
 .sd-theme-root .sd-element--with-frame {

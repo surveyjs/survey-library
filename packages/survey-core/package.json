@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "2.5.33",
+  "version": "2.5.34",
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "build:i18n": "rollup -c rollup.i18n.config.mjs --environment emitMinified",

@@ -161,8 +161,6 @@ export var danishSurveyStrings = {
   savingDataError: "Der opstod en fejl og vi kunne ikke gemme resultatet.",
   // "The results were saved successfully!"
   savingDataSuccess: "Resultatet blev gemt!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Dit svar overstiger 64 KB. Reducer størrelsen på dine filer, og prøv igen, eller kontakt ejeren af undersøgelsen.",
   // "Try again"
   saveAgainButton: "Prøv igen",
   // [Auto-translated] "min"

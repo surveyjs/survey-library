@@ -161,8 +161,6 @@ export var hindiStrings = {
   savingDataError: "एक त्रुटि हुई और हम परिणामों को नहीं सेव कर सके",
   // "The results were saved successfully!"
   savingDataSuccess: "परिणाम सफलतापूर्वक सेव हो गए",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें.",
   // "Try again"
   saveAgainButton: "फिर कोशिश करो",
   // "min"

@@ -161,8 +161,6 @@ export var traditionalChineseSurveyStrings = {
   savingDataError: "在保存結果過程中發生了錯誤，結果未能保存",
   // "The results were saved successfully!"
   savingDataSuccess: "結果保存成功!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "您的回復超過 64KB。請減小檔的大小，然後重試或聯繫調查擁有者。",
   // "Try again"
   saveAgainButton: "請重試",
   // [Auto-translated] "min"

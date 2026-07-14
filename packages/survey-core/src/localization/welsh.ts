@@ -161,8 +161,6 @@ export var welshSurveyStrings = {
   savingDataError: "Roedd gwall a doedd dim modd cadw’r canlyniadau.",
   // "The results were saved successfully!"
   savingDataSuccess: "Wedi llwyddo i gadw’r canlyniadau!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(iau) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg.",
   // "Try again"
   saveAgainButton: "Rhowch gynnig arall arni",
   // "min"

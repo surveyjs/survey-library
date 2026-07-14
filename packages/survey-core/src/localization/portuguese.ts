@@ -161,8 +161,6 @@ export var portugueseSurveyStrings = {
   savingDataError: "Ocorreu um erro e não foi possível guardar os resultados.",
   // "The results were saved successfully!"
   savingDataSuccess: "Os resultados foram guardados com sucesso!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Sua resposta excede 64 KB. Reduza o tamanho do(s) seu(s) arquivo(s) e tente novamente ou entre em contato com o proprietário da pesquisa.",
   // "Try again"
   saveAgainButton: "Tente novamente",
   // [Auto-translated] "min"

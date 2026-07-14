@@ -161,8 +161,6 @@ export var malaySurveyStrings = {
   savingDataError: "Ralat berlaku dan kami tidak dapat menyimpan keputusan.",
   // "The results were saved successfully!"
   savingDataSuccess: "Keputusan berjaya disimpan!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Respons anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan.",
   // "Try again"
   saveAgainButton: "Cuba lagi",
   // [Auto-translated] "min"

@@ -17,6 +17,20 @@
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
   --sjs2-border-effect-component-check-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
+  /* toggle */
+  .sd-boolean-switch {
+    --sd-boolean-switch-thumb-gap: 0;
+    --sd-boolean-switch-button-spacing: 0;
+    --sd-boolean-switch-thumb-width: calc(var(--spacing) * 5);
+    --sd-boolean-switch-thumb-heigth: calc(var(--spacing) * 5);
+    --sd-boolean-switch-button-width: calc(var(--spacing) * 11);
+    --sd-boolean-switch-button-heigth: calc(var(--spacing) * 6);
+  }
+
+  .sd-boolean-switch__button {
+    border: 2px solid transparent;
+  }
+
   /* common and other */
   --sjs2-color-bg-basic-primary-dim: var(--accent);
   --sjs2-border-effect-surface-default: inset 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;

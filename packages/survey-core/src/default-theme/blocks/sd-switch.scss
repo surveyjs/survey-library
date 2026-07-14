@@ -1,14 +1,24 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-$sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sjs2-spacing-x075));
-
 .sd-boolean-switch,
 .sd-boolean-switch * {
   box-sizing: border-box;
 }
 
 .sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: var(--sjs2-spacing-x050);
+  --sd-boolean-switch-thumb-width: var(--sjs2-font-size-x150);
+  --sd-boolean-switch-thumb-height: var(--sjs2-font-size-x150);
+  --sd-boolean-switch-button-spacing: var(--sjs2-spacing-x075);
+  --sd-boolean-switch-button-width: calc(
+    2 * var(--sd-boolean-switch-thumb-width) + 2 * var(--sd-boolean-switch-button-spacing) +
+      var(--sd-boolean-switch-thumb-gap)
+  );
+  --sd-boolean-switch-button-heigth: calc(
+    var(--sd-boolean-switch-thumb-height) + 2 * var(--sd-boolean-switch-button-spacing)
+  );
+
   display: flex;
   flex-direction: row;
   gap: var(--sjs2-spacing-x100);
@@ -17,6 +27,7 @@ $sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sj
   justify-content: flex-start;
   flex-shrink: 0;
   position: relative;
+  cursor: pointer;
 }
 
 .sd-boolean-switch__button {
@@ -24,16 +35,16 @@ $sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sj
   outline: none;
   border-radius: var(--sjs2-radius-component-toggle);
   box-shadow: var(--sjs2-border-effect-component-toggle-false-default);
-  padding: var(--sjs2-spacing-x075);
+  padding: var(--sd-boolean-switch-button-spacing);
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
   flex-shrink: 0;
   position: relative;
-  width: calc(2 * var(--sjs2-font-size-x150) + var(--sjs2-spacing-x050) + 2 * var(--sjs2-spacing-x075));
-  height: $sd-boolean-switch-button-height;
-  margin-top: calc(calc(1lh - $sd-boolean-switch-button-height) / 2);
+  width: var(--sd-boolean-switch-button-width);
+  height: var(--sd-boolean-switch-button-heigth);
+  margin-top: calc(calc(1lh - var(--sd-boolean-switch-button-heigth)) / 2);
   line-height: var(--sjs2-typography-line-height-component-label-content);
 
   &:focus-visible::before {
@@ -62,7 +73,7 @@ $sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sj
   box-shadow: var(--sjs2-border-effect-component-toggle-true-default);
 
   .sd-boolean-switch__thumb {
-    transform: translateX(calc(var(--sjs2-font-size-x150) + var(--sjs2-spacing-x050)));
+    transform: translateX(calc(var(--sd-boolean-switch-thumb-width) + var(--sd-boolean-switch-thumb-gap)));
   }
 
   .sd-boolean-switch__thumb-circle {
@@ -113,8 +124,8 @@ $sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sj
   justify-content: flex-start;
   flex-shrink: 0;
   position: absolute;
-  top: var(--sjs2-spacing-x075, 6px);
-  left: var(--sjs2-spacing-x075, 6px);
+  top: var(--sd-boolean-switch-button-spacing);
+  left: var(--sd-boolean-switch-button-spacing);
   transition: transform var(--sjs-transition-duration, 150ms) ease-in-out;
 }
 
@@ -127,8 +138,8 @@ $sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sj
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: var(--sjs2-font-size-x150);
-  height: var(--sjs2-font-size-x150);
+  width: var(--sd-boolean-switch-thumb-width);
+  height: var(--sd-boolean-switch-thumb-height);
   position: relative;
   overflow: hidden;
   background: var(--sjs2-color-component-toggle-false-default-thumb);
@@ -142,6 +153,7 @@ $sd-boolean-switch-button-height: calc(var(--sjs2-font-size-x150) + 2 * var(--sj
   justify-content: flex-start;
   flex-shrink: 0;
   position: relative;
+  align-self: center;
 }
 
 .sd-boolean-switch__title {

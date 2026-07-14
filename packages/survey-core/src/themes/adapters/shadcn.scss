@@ -408,21 +408,21 @@
 }
 
 /* toggle */
+.sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: 0;
+  --sd-boolean-switch-thumb-width: calc(var(--spacing) * 4);
+  --sd-boolean-switch-thumb-heigth: calc(var(--spacing) * 4);
+  --sd-boolean-switch-button-spacing: 0;
+  --sd-boolean-switch-button-width: 32px;
+  --sd-boolean-switch-button-heigth: 18.4px;
+}
 .sd-boolean-switch__button {
-  height: 1.15rem;
-  padding: 0;
-  gap: 0;
   border: 1px solid transparent;
 }
 
 .sd-boolean-switch__thumb {
   top: 0;
   left: 0;
-}
-
-.sd-boolean-switch__thumb-circle {
-  width: calc(var(--spacing) * 4);
-  height: calc(var(--spacing) * 4);
 }
 
 /* panel / question titles */

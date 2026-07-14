@@ -233,7 +233,7 @@
   transition: none;
 }
 
-.sd-question:not(.sd-question--complex):has(
+.sd-question:not(.sd-element--with-frame):not(.sd-question--complex):has(
     .sd-question__content--text,
     .sd-question__content--comment,
     .sd-question__content--dropdown
@@ -257,11 +257,19 @@
     max-width: calc(100% - 12px);
   }
 
-  .sd-question__title {
+  .sd-question__title:not(:has(.svc-string-editor)) {
     overflow: hidden;
     text-overflow: ellipsis;
 
     .sv-string-viewer--multiline {
+      white-space: nowrap;
+    }
+  }
+
+  .sd-question__title:has(.svc-string-editor) {
+    .sv-string-editor:not(:focus) {
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
   }
@@ -293,7 +301,6 @@
   &:not(:has(input:focus), :has(textarea:focus), .sd-question--answered) {
     .sd-question__header {
       transform: translate(8px, 15px) scale(1);
-      // pointer-events: none;
     }
     input,
     textarea {

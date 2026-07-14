@@ -19,6 +19,8 @@
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-base);
+  --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-border-effect-surface-default: 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
 }
 

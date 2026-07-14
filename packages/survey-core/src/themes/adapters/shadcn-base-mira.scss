@@ -35,6 +35,8 @@
   --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-sm);
+  --sjs2-typography-font-size-component-header-title: var(--text-sm);
   --sjs2-typography-font-size-default: var(--text-xs);
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
 }

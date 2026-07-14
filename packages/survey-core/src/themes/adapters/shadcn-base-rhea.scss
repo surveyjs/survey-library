@@ -32,6 +32,8 @@
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary);
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-base);
+  --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-radius-component-panel: calc(var(--spacing) * 4);
 }
 

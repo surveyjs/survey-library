@@ -18,6 +18,8 @@
   --sjs2-border-effect-component-check-a11y: var(--background) 0px 0px 0px 2px, var(--ring) 0px 0px 0px 4px;
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-2xl);
+  --sjs2-typography-font-size-component-header-title: var(--text-2xl);
   --sjs2-color-bg-basic-primary-dim: var(--accent);
   --sjs2-border-effect-surface-default: inset 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
 }

@@ -93,7 +93,7 @@ export class Trigger extends Base {
   protected isExecutingOnNextPage: boolean;
   protected isExecutingOnNavigation: boolean;
   public checkExpression(options: { isOnNextPage: boolean, isOnComplete: boolean, isOnNavigation: boolean,
-    keys: any, properties?: HashTable<any>, }): void {
+    keys: any, properties?: HashTable<any>, runAll?: boolean, }): void {
     this.isExecutingOnNextPage = options.isOnNextPage;
     this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
     if (!this.canBeExecuted(options.isOnNextPage)) return;
@@ -104,9 +104,9 @@ export class Trigger extends Base {
     if (!this.runExpressionByProperty("expression", props, (val: any) => {
       this.triggerResult(val === true, props);
     }, (runner: ExpressionRunner): boolean => {
-      return this.isCheckRequired(runner, options.keys);
+      return options.runAll === true || this.isCheckRequired(runner, options.keys);
     })) {
-      if (this.isCheckRequired(null, options.keys) && this.canSuccessOnEmptyExpression()) {
+      if ((options.runAll === true || this.isCheckRequired(null, options.keys)) && this.canSuccessOnEmptyExpression()) {
         this.triggerResult(true, props);
       }
     }

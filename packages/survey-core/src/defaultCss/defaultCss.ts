@@ -182,7 +182,6 @@ export var defaultCss = {
   rowReplace: "sd-row--replace",
   pageRow: "sd-page__row",
   elementWrapper: "sd-element-wrapper",
-  elementWrapperMaxWidth: "sd-element-wrapper--max-width",
   elementWrapperMinWidth: "sd-element-wrapper--min-width",
   question: {
     contentEnter: "sd-element__content--enter",

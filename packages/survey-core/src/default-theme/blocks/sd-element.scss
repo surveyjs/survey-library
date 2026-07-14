@@ -152,11 +152,6 @@
   background-color: transparent;
 }
 
-// The element is sized by the survey layout, so it must not grow past its row.
-.sd-element-wrapper--max-width {
-  max-width: #{$sd-element-max-width};
-}
-
 // Below this width the element wraps onto a row of its own. Panels, grid layout columns and
 // elements the survey does not size shrink to their content instead and do not get this class.
 .sd-element-wrapper--min-width {

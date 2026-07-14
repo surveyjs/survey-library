@@ -1061,7 +1061,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   /**
    * Gets or sets maximum survey element width in CSS values.
    *
-   * Default value: "" (the element uses the theme's `--sjs-element-max-width` value)
+   * Default value: "" (the element width is not limited)
    * @see minWidth
    * @see renderWidth
    * @see width
@@ -1142,24 +1142,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    */
   protected get hasMinWidth(): boolean { return true; }
   /**
-   * Returns `true` if calcRootStyle sizes the element, either by a grid column or by the flex basis.
-   * Only then is the element constrained to the width of its row.
-   */
-  private get hasRootStyleWidth(): boolean {
-    return this.isInGridColumn || (this.allowRootStyle && !!this.renderWidth);
-  }
-  /**
    * The default element min-width, which makes an element wrap onto its own row when the row gets too narrow,
    * applies only to elements sized by the flex basis. Grid columns and panels shrink to their content instead.
+   * An element with its own minWidth replaces the default with an inline style.
    */
   private get hasDefaultMinWidth(): boolean {
-    return this.hasMinWidth && !this.isInGridColumn && this.allowRootStyle && !!this.renderWidth;
+    return this.hasMinWidth && !this.minWidth && !this.isInGridColumn && this.allowRootStyle && !!this.renderWidth;
   }
   public getWrapperCss(): string {
     const css = this.survey?.getCss() || {};
     return new CssClassBuilder()
       .append(css.elementWrapper)
-      .append(css.elementWrapperMaxWidth, this.hasRootStyleWidth)
       .append(css.elementWrapperMinWidth, this.hasDefaultMinWidth)
       .append(this.cssClasses.questionWrapper)
       .toString();

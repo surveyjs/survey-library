@@ -236,11 +236,11 @@ describe("SurveyElement", () => {
     });
     const q1 = survey.getQuestionByName("q1");
     expect(q1.getWrapperCss(), "a question")
-      .toBe("sd-element-wrapper sd-element-wrapper--max-width sd-element-wrapper--min-width");
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width");
     expect(survey.getQuestionByName("q2").getWrapperCss(), "a dynamic panel shrinks to its content")
-      .toBe("sd-element-wrapper sd-element-wrapper--max-width");
+      .toBe("sd-element-wrapper");
     expect(survey.getPanelByName("panel1").getWrapperCss(), "a panel shrinks to its content")
-      .toBe("sd-element-wrapper sd-element-wrapper--max-width");
+      .toBe("sd-element-wrapper");
 
     // An element the survey does not size gets no width constraints at all, as before.
     q1.allowRootStyle = false;
@@ -257,7 +257,28 @@ describe("SurveyElement", () => {
     };
     q1.updateElementCss();
     expect(q1.getWrapperCss())
-      .toBe("sd-element-wrapper sd-element-wrapper--max-width sd-element-wrapper--min-width custom-wrapper");
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width custom-wrapper");
+  });
+  test("getWrapperCss: an element minWidth replaces the default one", () => {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", minWidth: "200px" },
+        { type: "text", name: "q2", minWidth: "auto" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    expect(q1.getWrapperCss(), "q1 gets its minWidth from the root style")
+      .toBe("sd-element-wrapper");
+    expect(q1.rootStyle.minWidth, "q1 root style").toBe("min(100%, 200px)");
+
+    const q2 = survey.getQuestionByName("q2");
+    expect(q2.getWrapperCss(), "q2 shrinks to its content").toBe("sd-element-wrapper");
+    expect(q2.rootStyle.minWidth, "q2 root style").toBeUndefined();
+
+    q2.minWidth = "";
+    expect(q2.getWrapperCss(), "an empty minWidth falls back to the theme")
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width");
+    expect(q2.rootStyle.minWidth, "q2 root style is empty again").toBeUndefined();
   });
   test("minWidth & maxWidth override the default element widths", () => {
     const survey = new SurveyModel({

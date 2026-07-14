@@ -610,7 +610,7 @@ describe("Layout:", () => {
     });
     expect(q1.isInGridColumn, "q1 spans the whole row").toBe(false);
     expect(q1.getWrapperCss(), "q1 wrapper css")
-      .toBe("sd-element-wrapper sd-element-wrapper--max-width sd-element-wrapper--min-width");
+      .toBe("sd-element-wrapper sd-element-wrapper--min-width");
 
     const q2 = new QuestionTextModel("q2");
     q2.startWithNewLine = false;
@@ -630,8 +630,8 @@ describe("Layout:", () => {
 
     // Elements sized by grid columns must not get the default element min-width from CSS.
     expect(q1.isInGridColumn, "q1 is in a grid column").toBe(true);
-    expect(q1.getWrapperCss(), "q1 wrapper css").toBe("sd-element-wrapper sd-element-wrapper--max-width");
-    expect(q2.getWrapperCss(), "q2 wrapper css").toBe("sd-element-wrapper sd-element-wrapper--max-width");
+    expect(q1.getWrapperCss(), "q1 wrapper css").toBe("sd-element-wrapper");
+    expect(q2.getWrapperCss(), "q2 wrapper css").toBe("sd-element-wrapper");
   });
 
   test("gridLayoutColumns: serialize last column", () => {

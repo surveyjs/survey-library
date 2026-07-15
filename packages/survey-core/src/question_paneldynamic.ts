@@ -237,10 +237,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
       this.rebuildPanels();
     };
     this.template.onPropertyChanged.add((sender: Base, options: any) => {
-      if (options.name === "title" && options.newValue !== this.templateTitle) {
+      if (options.name === "title") {
         this.propertyValueChanged("templateTitle", options.oldValue, options.newValue);
       }
-      if (options.name === "description" && options.newValue !== this.templateDescription) {
+      if (options.name === "description") {
         this.propertyValueChanged("templateDescription", options.oldValue, options.newValue);
       }
     });
@@ -276,8 +276,8 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     }
   }
   public dispose(): void {
-    this.templateValue.dispose();
     super.dispose();
+    this.templateValue.dispose();
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {

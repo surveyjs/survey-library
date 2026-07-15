@@ -414,6 +414,9 @@ export class QuestionTextModel extends QuestionTextBase {
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);
     }
+    if (!!this.maskInputAdapter) {
+      this.maskInputAdapter.updateInputElementValue(_value);
+    }
   }
   private hasToConvertToUTC(val: any): boolean {
     return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;

@@ -558,10 +558,10 @@
 
 /* toggle */
 .sd-boolean-switch {
-  --sd-boolean-switch-thumb-gap: 0;
+  --sd-boolean-switch-thumb-gap: 0px;
   --sd-boolean-switch-thumb-width: 20px;
-  --sd-boolean-switch-thumb-heigth: 20px;
-  --sd-boolean-switch-button-spacing: 0;
+  --sd-boolean-switch-thumb-height: 20px;
+  --sd-boolean-switch-button-spacing: 0px;
   --sd-boolean-switch-button-width: 34px;
   --sd-boolean-switch-button-heigth: 14px;
 }
@@ -572,7 +572,7 @@
 
 .sd-boolean-switch__thumb {
   top: -3px;
-  left: 0;
+  left: -3px;
 }
 
 .sd-boolean-switch__thumb-circle {

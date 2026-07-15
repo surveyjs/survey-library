@@ -1,10 +1,6 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
-.sd-boolean-switch,
-.sd-boolean-switch * {
-  box-sizing: border-box;
-}
 
 .sd-boolean-switch {
   --sd-boolean-switch-thumb-gap: var(--sjs2-spacing-x050);
@@ -35,7 +31,6 @@
   outline: none;
   border-radius: var(--sjs2-radius-component-toggle);
   box-shadow: var(--sjs2-border-effect-component-toggle-false-default);
-  padding: var(--sd-boolean-switch-button-spacing);
   display: flex;
   flex-direction: row;
   align-items: center;

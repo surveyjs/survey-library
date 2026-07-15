@@ -10,7 +10,7 @@
   --sjs2-layout-component-action-large-box-padding-vertical: 0;
   --sjs2-typography-font-size-component-action-large-content: var(--text-xs);
   --sjs2-typography-font-weight-component-action-large-content: var(--font-weight-semibold);
-  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent; 
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent;
 
   /* formboxes */
   --sjs2-radius-component-formbox: 0;
@@ -41,7 +41,6 @@
   display: none;
 }
 
-
 /* radio: outlined, checked uses --foreground (data-checked:border-foreground, dot bg-foreground) */
 /* classic outlined radio: transparent disc + primary dot */
 .sd-theme-root .sd-item--checked .sd-radio__decorator {
@@ -60,4 +59,25 @@
 .sd-theme-root .sd-action__title {
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+/* toggle */
+.sd-boolean-switch {
+  --sjs2-radius-component-toggle: 0px;
+  --sjs2-radius-component-toggle-thumb: 0px;
+
+  --sd-boolean-switch-thumb-gap: 0px;
+  --sd-boolean-switch-thumb-width: calc(var(--spacing) * 3.5);
+  --sd-boolean-switch-thumb-height: calc(var(--spacing) * 3.5);
+  --sd-boolean-switch-button-spacing: 1px;
+  --sd-boolean-switch-button-width: calc(var(--spacing) * 8.25);
+  --sd-boolean-switch-button-heigth: calc(var(--spacing) * 4.5);
+}
+
+.sd-boolean-switch__thumb {
+  top: 1px;
+}
+
+.sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
+  transform: translateX(calc(100% + 2px));
 }

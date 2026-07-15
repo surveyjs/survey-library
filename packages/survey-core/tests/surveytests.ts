@@ -16097,36 +16097,6 @@ describe("Survey", () => {
     survey.showProgressBar = "bottom";
     expect(survey.getProgressCssClasses()).toBe("test_progress test_progress_bottom");
   });
-  test("settings.minWidth/maxWidth", () => {
-    const oldMinWidth = settings.minWidth;
-    const oldMaxWidth = settings.maxWidth;
-    settings.minWidth = "0px";
-    settings.maxWidth = "500px";
-    const survey = new SurveyModel({
-      "showProgressBar": true,
-      "progressBarLocation": "top",
-      elements: [
-        { type: "text", name: "q1" },
-        { type: "text", name: "q2", minWidth: "50px" },
-        { type: "text", name: "q3", maxWidth: "90%" },
-        { type: "paneldynamic", name: "q4" },
-      ],
-    });
-    const q1 = survey.getQuestionByName("q1");
-    const q2 = survey.getQuestionByName("q2");
-    const q3 = survey.getQuestionByName("q3");
-    const q4 = survey.getQuestionByName("q4");
-    expect(q1.minWidth, "q1 minWidth").toBe("0px");
-    expect(q1.maxWidth, "q1 maxWidth").toBe("500px");
-    expect(q2.minWidth, "q2 minWidth").toBe("50px");
-    expect(q2.maxWidth, "q2 maxWidth").toBe("500px");
-    expect(q3.minWidth, "q3 minWidth").toBe("0px");
-    expect(q3.maxWidth, "q3 maxWidth").toBe("90%");
-    expect(q4.minWidth, "q4 (paneldynamic) minWidth").toBe("auto");
-    settings.minWidth = oldMinWidth;
-    settings.maxWidth = oldMaxWidth;
-  });
-
   test("getContainerContent - navigation", () => {
     const json = {
       pages: [

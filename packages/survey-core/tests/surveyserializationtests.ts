@@ -612,16 +612,18 @@ describe("SurveySerialization", () => {
     expect(q1.placeholder, "ClearLocale for placeholder, #2").toBe("Select...");
   });
   test("Allow to save empty string for trings with default value", () => {
+    Serializer.addProperty("text", { name: "propWithDefault", defaultFunc: () => "300px" });
     const q = new QuestionTextModel("q1");
-    expect(q.minWidth, "Default value is 300px").toBe("300px");
-    q.minWidth = "";
-    expect(q.minWidth, "set empty width").toBe("");
+    expect(q.getPropertyValue("propWithDefault"), "Default value is 300px").toBe("300px");
+    q.setPropertyValue("propWithDefault", "");
+    expect(q.getPropertyValue("propWithDefault"), "set empty value").toBe("");
     const json = q.toJSON();
-    expect(json, "Serialize empty minWidth").toEqual({ name: "q1", minWidth: "" });
-    q.setPropertyValue("minWidth", undefined);
-    expect(q.minWidth, "Default value again").toBe("300px");
-    q.fromJSON({ name: "q1", minWidth: "" });
-    expect(q.minWidth, "empty width was in JSON").toBe("");
+    expect(json, "Serialize empty propWithDefault").toEqual({ name: "q1", propWithDefault: "" });
+    q.setPropertyValue("propWithDefault", undefined);
+    expect(q.getPropertyValue("propWithDefault"), "Default value again").toBe("300px");
+    q.fromJSON({ name: "q1", propWithDefault: "" });
+    expect(q.getPropertyValue("propWithDefault"), "empty value was in JSON").toBe("");
+    Serializer.removeProperty("text", "propWithDefault");
   });
   test("An infinitive loop occurs at e.removePosFromObj Bug#8224", () => {
     ComponentCollection.Instance.add({

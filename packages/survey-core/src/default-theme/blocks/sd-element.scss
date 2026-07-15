@@ -152,6 +152,19 @@
   background-color: transparent;
 }
 
+// The element is sized by the survey layout, so it must never grow past its row. Without this,
+// a flex item's automatic minimum size is its content size, and wide content (a dynamic panel tab
+// strip, for one) makes the element overflow the row instead of letting the content collapse.
+.sd-element-wrapper {
+  max-width: 100%;
+}
+
+// Below this width the element wraps onto a row of its own. Panels, grid layout columns and
+// elements the survey does not size shrink to their content instead and do not get this class.
+.sd-element-wrapper--min-width {
+  min-width: min(100%, #{$sd-element-min-width});
+}
+
 @keyframes elementMoveIn {
   from {
     flex-basis: 0;

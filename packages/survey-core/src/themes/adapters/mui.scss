@@ -1,6 +1,9 @@
 .sjs-theme-overrides {
   --sjs2-base-unit-radius: var(--mui-shape-borderRadius);
   --sjs2-base-unit-spacing: 8px;
+
+  /* Let MUI size the elements in a row instead of the default element min-width. */
+  --sjs-element-min-width: 0;
   --sjs2-color-utility-body: var(--mui-palette-background-default);
   --sjs2-color-utility-sheet: var(--mui-palette-background-default);
   --sjs2-border-effect-a11y: 0 0 0 2px var(--mui-palette-primary-main);
@@ -736,11 +739,6 @@
 .sd-slider__track:after,
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: 4px;
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }
 
 .sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {

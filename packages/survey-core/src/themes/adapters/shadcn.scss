@@ -26,6 +26,9 @@
   --sjs2-base-unit-radius: var(--radius);
   --sjs2-base-unit-spacing: var(--spacing);
 
+  /* Let shadcn size the elements in a row instead of the default element min-width. */
+  --sjs-element-min-width: 0;
+
   --sjs2-color-utility-body: var(--card);
   --sjs2-color-utility-sheet: var(--background);
   --sjs2-color-utility-a11y: color-mix(in oklab, var(--ring) 50%, transparent);
@@ -408,11 +411,6 @@
 .sd-theme-root .sd-slider__track:after,
 .sd-theme-root input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(var(--spacing) * 1.5);
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }
 
 .sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {

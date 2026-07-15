@@ -24,12 +24,23 @@ frameworks.forEach((framework) => {
       await expect(surveyBody).toHaveCSS("max-width", "455px");
     });
 
-    test("Check question width", async ({ page }) => {
+    test("Check question min-width, set it via the element property", async ({ page }) => {
       const questionDiv = page.locator(".sd-row > div");
       await expect(questionDiv).toHaveCSS("min-width", "min(100%, 300px)");
 
       await page.evaluate(() => {
         window["survey"].getAllQuestions()[0].minWidth = "200px";
+      });
+
+      await expect(questionDiv).toHaveCSS("min-width", "min(100%, 200px)");
+    });
+
+    test("Check question min-width, set it via the theme CSS variable", async ({ page }) => {
+      const questionDiv = page.locator(".sd-row > div");
+      await expect(questionDiv).toHaveCSS("min-width", "min(100%, 300px)");
+
+      await page.evaluate(() => {
+        document.documentElement.style.setProperty("--sjs-element-min-width", "200px");
       });
 
       await expect(questionDiv).toHaveCSS("min-width", "min(100%, 200px)");

@@ -3265,8 +3265,8 @@ Serializer.addClass("question", [
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
-  { name: "minWidth", defaultFunc: () => settings.minWidth },
-  { name: "maxWidth", defaultFunc: () => settings.maxWidth, onSettingValue: (obj: any, val: any): any => { return val || undefined; } },
+  { name: "minWidth" },
+  { name: "maxWidth" },
   {
     name: "colSpan:number", visible: false,
     onSerializeValue: (obj) => { return obj.getPropertyValue("colSpan"); },

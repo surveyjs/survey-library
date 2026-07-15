@@ -2,6 +2,9 @@
   --sjs2-base-unit-radius: var(--bs-border-radius);
   --sjs2-base-unit-spacing: 0.25rem;
 
+  /* Let Bootstrap size the elements in a row instead of the default element min-width. */
+  --sjs-element-min-width: 0;
+
   --sjs2-color-utility-body: var(--bs-body-bg);
   --sjs2-color-utility-sheet: var(--bs-body-bg);
   --sjs2-color-utility-a11y: rgba(13, 110, 253, 0.25);
@@ -343,11 +346,6 @@
 .sd-theme-root .sd-slider__track:after,
 .sd-theme-root input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   height: calc(0.25rem * 2);
-}
-
-/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
-.sd-row.sd-row--multiple > * {
-  min-width: 0 !important;
 }
 
 .sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {

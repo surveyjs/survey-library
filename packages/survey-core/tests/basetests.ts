@@ -803,16 +803,18 @@ describe("Base", () => {
     question.resetPropertyValue("width");
     expect(question.width, "width property value is empty").toBeFalsy();
 
-    expect(question.hasDefaultPropertyValue("minWidth"), "question.minWidth has default value").toBe(true);
-    expect(question.getDefaultPropertyValue("minWidth"), "question.minWidth default value is 300px").toBeTruthy();
-    question.minWidth = "200px";
-    expect(question.minWidth, "minWidth property is set to 200px").toBe("200px");
-    question.resetPropertyValue("minWidth");
-    expect(question.minWidth, "minWidth property value is reset, #1").toBe("300px");
-    question.minWidth = "";
-    expect(question.minWidth, "minWidth property value is empty string").toBe("");
-    question.resetPropertyValue("minWidth");
-    expect(question.minWidth, "minWidth property value is reset, #2").toBe("300px");
+    Serializer.addProperty("dropdown", { name: "propWithDefaultFunc", defaultFunc: () => "300px" });
+    expect(question.hasDefaultPropertyValue("propWithDefaultFunc"), "propWithDefaultFunc has default value").toBe(true);
+    expect(question.getDefaultPropertyValue("propWithDefaultFunc"), "propWithDefaultFunc default value is 300px").toBe("300px");
+    question.setPropertyValue("propWithDefaultFunc", "200px");
+    expect(question.getPropertyValue("propWithDefaultFunc"), "propWithDefaultFunc is set to 200px").toBe("200px");
+    question.resetPropertyValue("propWithDefaultFunc");
+    expect(question.getPropertyValue("propWithDefaultFunc"), "propWithDefaultFunc value is reset, #1").toBe("300px");
+    question.setPropertyValue("propWithDefaultFunc", "");
+    expect(question.getPropertyValue("propWithDefaultFunc"), "propWithDefaultFunc value is empty string").toBe("");
+    question.resetPropertyValue("propWithDefaultFunc");
+    expect(question.getPropertyValue("propWithDefaultFunc"), "propWithDefaultFunc value is reset, #2").toBe("300px");
+    Serializer.removeProperty("dropdown", "propWithDefaultFunc");
 
     expect(question.placeholder, "question.locPlaceholder default value").toBe("Select...");
     expect(question.hasDefaultPropertyValue("placeholder"), "question.placeholder has default value").toBe(true);
@@ -904,13 +906,19 @@ describe("Base", () => {
     survey.afterRerender();
     expect(log).toBe("");
   });
-  test("maxWidth should return to default when set to empty string", () => {
+  test("onSettingValue: a property should return to default when set to empty string", () => {
+    Serializer.addProperty("dropdown", {
+      name: "propWithOnSettingValue",
+      defaultFunc: () => "100%",
+      onSettingValue: (obj: any, val: any): any => { return val || undefined; }
+    });
     const question = new QuestionDropdownModel("q1");
-    expect(question.maxWidth, "maxWidth default value is 100%").toBe("100%");
-    question.maxWidth = "50%";
-    expect(question.maxWidth, "maxWidth is set to 50%").toBe("50%");
-    question.maxWidth = "";
-    expect(question.maxWidth, "maxWidth returns to default on empty string").toBe("100%");
+    expect(question.getPropertyValue("propWithOnSettingValue"), "default value is 100%").toBe("100%");
+    question.setPropertyValue("propWithOnSettingValue", "50%");
+    expect(question.getPropertyValue("propWithOnSettingValue"), "value is set to 50%").toBe("50%");
+    question.setPropertyValue("propWithOnSettingValue", "");
+    expect(question.getPropertyValue("propWithOnSettingValue"), "value returns to default on empty string").toBe("100%");
+    Serializer.removeProperty("dropdown", "propWithOnSettingValue");
   });
 
   test("check default value doesn't exist on getPropertyValueDirectly", () => {

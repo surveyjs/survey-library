@@ -161,8 +161,6 @@ export var romanianSurveyStrings = {
   savingDataError: "A intervenit o eroare, rezultatele nu au putut fi salvate.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultatele au fost salvate cu succes!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Răspunsul tău depășește 64KB. Vă rugăm să reduceți dimensiunea fișierelor și să încercați din nou sau să contactați proprietarul sondajului.",
   // "Try again"
   saveAgainButton: "Încercați din nou",
   // [Auto-translated] "min"

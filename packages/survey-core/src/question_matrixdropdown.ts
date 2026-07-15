@@ -32,8 +32,9 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const rows = this.question.visibleRows;
     name = name.toLocaleLowerCase();
+    if (!this.hasRowName(name)) return;
+    const rows = this.question.visibleRows;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const itemName = row.rowName?.toString() || "";
@@ -44,6 +45,14 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
         return;
       }
     }
+  }
+  private hasRowName(name: string): boolean {
+    const rows = this.question.rows;
+    for (let i = 0; i < rows.length; i++) {
+      const val = rows[i].value;
+      if (val !== undefined && val !== null && val.toString().toLocaleLowerCase() === name) return true;
+    }
+    return false;
   }
 }
 

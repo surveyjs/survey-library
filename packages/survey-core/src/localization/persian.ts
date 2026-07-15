@@ -161,8 +161,6 @@ export var persianSurveyStrings = {
   savingDataError: "خطایی در ذخیره سازی نتایج رخ داده است",
   // "The results were saved successfully!"
   savingDataSuccess: "نتایج با موفقیت ذخیره شد",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "پاسخ شما بیش از 64 کیلوبایت است. لطفا حجم فایل(های) خود را کاهش دهید و دوباره امتحان کنید یا با مالک نظرسنجی تماس بگیرید.",
   // "Try again"
   saveAgainButton: "مجدد تلاش کنید",
   // "min"

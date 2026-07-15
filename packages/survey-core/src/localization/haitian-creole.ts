@@ -163,8 +163,6 @@ export var haitianCreoleStrings = {
   savingDataError: "Yon erè te fèt epi nou pa t 'kapab sove rezilta yo.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezilta yo te sove avèk siksè!",
-  // "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Repons ou depase 64KB. Tanpri redwi gwosè fichye w la (yo) epi eseye ankò oswa kontakte pwopriyetè sondaj la.",
   // "Try again"
   saveAgainButton: "Eseye ankò",
   // [Auto-translated] "min"

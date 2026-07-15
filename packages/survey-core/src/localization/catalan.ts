@@ -161,8 +161,6 @@ export var catalanSurveyStrings = {
   savingDataError: "S'ha produït un error i no hem pogut guardar els resultats.",
   // [Auto-translated] "The results were saved successfully!"
   savingDataSuccess: "Els resultats es van salvar amb èxit!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "La teva resposta supera els 64 KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta.",
   // [Auto-translated] "Try again"
   saveAgainButton: "Prova una altra vegada",
   // [Auto-translated] "min"

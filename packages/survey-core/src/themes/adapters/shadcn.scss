@@ -401,12 +401,27 @@
     margin: 0;
   }
 }
-.sd-table__cell--header {
+.sd-table__cell--header,
+.sd-table__cell--row-text {
   height: var(--sjs2-shadcn-table-header-height);
+  box-sizing: border-box;
 }
 
 .sd-table>tbody>tr:hover {
   background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
+  margin: 0;
+  svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+}
+
+.sd-question__placeholder {
+  min-height: unset;
+  align-items: flex-start;
 }
 
 /* stepper */

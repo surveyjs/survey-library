@@ -893,6 +893,19 @@ describe("question text tests", () => {
     const json = q1.toJSON();
     expect(json.dataList, "dataList is stored in the JSON").toEqual(["item1", "item2"]);
   });
+  test("Update question value when leading or trailing whitespace changes, #11581", () => {
+    const question = new QuestionTextModel("q1");
+
+    question.value = "Test ";
+    question.inputValue = "Test";
+    expect(question.value).toBe("Test");
+
+    question.inputValue = " Test";
+    expect(question.value).toBe(" Test");
+
+    question.inputValue = " Test ";
+    expect(question.value).toBe(" Test ");
+  });
 
   test("Numeric input validation - prevent 'e' character", () => {
     const q = new QuestionTextModel("q1");

@@ -66,7 +66,10 @@ export const KNOWN_FORMIO_COMPONENT_TYPES: ReadonlySet<string> = new Set([
   "resource",
   "sketchpad",
   "select2",
-  "nested"
+  "nested",
+  // `custom`: a user-defined component slot. Added from a Job B vendored-diff
+  // alert (see promts/03-eval-corpus.md); it ships upstream in formio.js.
+  "custom"
 ]);
 
 /** True when Form.io defines this component type (i.e. it is not format drift). */

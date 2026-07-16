@@ -1,7 +1,8 @@
 {
-  "_comment": "Provenance for the vendored Form.io type snapshot in component-types.ts. The step-03 diff job compares KNOWN_FORMIO_COMPONENT_TYPES against upstream @formio/core at the ref below and alerts on any new builtin type. Bump `ref` + `capturedFrom` when the snapshot is refreshed; never hand-edit component-types.ts to silence an alarm.",
+  "_comment": "Provenance for the vendored Form.io type snapshot in component-types.ts. The step-03 diff job (corpus/refresh.mjs, Job B) compares KNOWN_FORMIO_COMPONENT_TYPES against upstream at the ref below and alerts on any new builtin type. Bump `ref` + `capturedFrom` when the snapshot is refreshed; never hand-edit component-types.ts to silence an alarm.",
   "package": "@formio/core",
-  "ref": "master",
-  "capturedFrom": "src/base/**/index.ts and src/components/**/*.ts (builtin component `type` registrations)",
+  "upstream": "formio/formio.js",
+  "ref": "main",
+  "capturedFrom": "src/components/<name>/<Name>.js (each builtin component's schema() `type` registration)",
   "note": "Content-free: this file lists type identifiers only, never any user form content."
 }

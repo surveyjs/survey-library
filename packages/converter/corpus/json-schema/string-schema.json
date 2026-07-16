@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "type": "string",
+    "title": "String",
+    "description": "The form output will be a string"
+  },
+  "uiSchema": {
+    "type": "Control",
+    "scope": "#/"
+  }
+}

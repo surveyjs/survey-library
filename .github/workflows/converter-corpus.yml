@@ -1,0 +1,150 @@
+name: Converter corpus
+
+# Two jobs on one schedule, per promts/03-eval-corpus.md:
+#
+#   score   (per-push)  — deterministic regression gate. Runs the oracle +
+#                         fidelity metric against the COMMITTED corpus snapshot.
+#                         No network. Fails on an oracle break or an aggregate
+#                         fidelity regression below corpus/fidelity-baseline.json.
+#
+#   refresh (weekly)    — re-scrapes upstream (Job A) and diffs the vendored
+#                         schema snapshots (Job B). Opens an issue on any new
+#                         construct / vendored drift and a PR with the refreshed
+#                         snapshot so the diff is reviewable. Needs network.
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - "packages/converter/**"
+      - ".github/workflows/converter-corpus.yml"
+  pull_request:
+    paths:
+      - "packages/converter/**"
+      - ".github/workflows/converter-corpus.yml"
+  schedule:
+    # Weekly, Mondays 06:00 UTC — NOT per-push (upstream moves on its own clock).
+    - cron: "0 6 * * 1"
+  workflow_dispatch: {}
+
+jobs:
+  # ---- per-push regression gate -------------------------------------------
+  score:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      # survey-core is the test oracle (converted JSON must construct a
+      # SurveyModel with zero errors), reached via node_modules/survey-core ->
+      # ../survey-core/build. It must be built before the converter is scored.
+      - name: Build survey-core
+        run: |
+          cd ./packages/survey-core
+          npm install
+          npm run build
+
+      - name: Install converter
+        run: |
+          cd ./packages/converter
+          npm install
+
+      - name: Prove the drift-alert mechanism fires (offline self-test)
+        run: |
+          cd ./packages/converter
+          node ./corpus/refresh.mjs --self-test
+
+      - name: Score corpus (oracle + fidelity regression gate)
+        run: |
+          cd ./packages/converter
+          npm run corpus:score
+
+  # ---- weekly re-scrape + diff + alert ------------------------------------
+  refresh:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - name: Build survey-core
+        run: |
+          cd ./packages/survey-core
+          npm install
+          npm run build
+
+      - name: Install converter
+        run: |
+          cd ./packages/converter
+          npm install
+
+      - name: Refresh corpus (Job A scrape+diff, Job B vendored diff)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ./packages/converter
+          node ./corpus/refresh.mjs
+
+      - name: Score the refreshed corpus (oracle must still hold)
+        continue-on-error: true
+        id: rescore
+        run: |
+          cd ./packages/converter
+          npm run corpus:score
+
+      - name: Open an issue on new construct / vendored drift
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'packages/converter/corpus/.alerts.json';
+            if (!fs.existsSync(path)) { core.info('no alerts file'); return; }
+            const { alerts } = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const high = alerts.filter(a => a.severity === 'high');
+            if (high.length === 0) { core.info(`no high alerts (${alerts.length} total)`); return; }
+            const lines = high.map(a => `- \`${a.kind}\`${a.class ? ' ['+a.class+']' : ''} ${a.token || a.type || a.name || ''} — ${a.detail || ''}`);
+            const body = [
+              'The weekly corpus refresh found construct/schema drift the converters have no rule for.',
+              '',
+              '## New / unhandled constructs',
+              ...lines,
+              '',
+              'Content-free: tokens, paths and counts only — no form content.',
+              'Fix by adding a mapping (and, for a vendored-schema drift, refreshing the snapshot), not by silencing the alarm.',
+              '',
+              `Full report: \`packages/converter/corpus/.alerts.json\` (run ${context.runId}).`
+            ].join('\n');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Converter corpus drift: ${high.length} new construct(s)`,
+              labels: ['converter', 'corpus-drift'],
+              body
+            });
+
+      - name: Open a PR with the refreshed snapshot
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: converter/corpus-refresh
+          commit-message: "chore(converter): weekly corpus refresh"
+          title: "chore(converter): weekly corpus refresh"
+          body: |
+            Automated weekly re-scrape of the converter eval corpus (Job A) and
+            vendored-schema diff (Job B). Review the snapshot + `_manifest.json`
+            diff; any new construct is called out in the drift issue this run opened.
+          add-paths: |
+            packages/converter/corpus/**
+            packages/converter/src/formio/vendor/**

@@ -67,7 +67,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "corpus:refresh": "node ./corpus/refresh.mjs",
+    "corpus:refresh:self-test": "node ./corpus/refresh.mjs --self-test",
     "corpus:score": "vitest run corpus",
+    "corpus:score:update-baseline": "node -e \"require('fs').rmSync('corpus/fidelity-baseline.json',{force:true})\" && vitest run corpus",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "peerDependencies": {

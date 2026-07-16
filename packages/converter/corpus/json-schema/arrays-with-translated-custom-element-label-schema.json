@@ -1,0 +1,94 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "article": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "visibility": {
+                  "type": "string",
+                  "enum": [
+                    "PUBLIC",
+                    "PRIVATE"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "oneOf": [
+                    {
+                      "const": "NEW"
+                    },
+                    {
+                      "const": "REVIEWED",
+                      "title": "Reviewed comment"
+                    }
+                  ]
+                },
+                "author": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string",
+                      "enum": [
+                        "AUTHOR",
+                        "WRITER"
+                      ]
+                    },
+                    "role": {
+                      "type": "string",
+                      "oneOf": [
+                        {
+                          "const": "ROLE_1"
+                        },
+                        {
+                          "const": "ROLE_2",
+                          "title": "Second role"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "uiSchema": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/visibility"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/status"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/author/properties/name"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/author/properties/type"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/author/properties/role"
+      }
+    ]
+  }
+}

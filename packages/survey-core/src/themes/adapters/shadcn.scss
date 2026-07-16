@@ -43,6 +43,7 @@
   --sjs2-shadcn-input-height: calc(var(--spacing) * 10);
   --sjs2-shadcn-textarea-min-height: calc(var(--spacing) * 16);
   --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
 
   /* buttons */
   --sjs2-radius-component-action: calc(var(--radius) - 2px);
@@ -379,6 +380,33 @@
 
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
   transform: translateX(calc(100% - 2px));
+}
+
+/* tables */
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+.sd-table>thead>tr>th, 
+.sd-table>thead>tr>td,
+.sd-table>tbody>tr>th,
+.sd-table>tbody>tr>td {
+  border-bottom: 1px solid var(--border);
+  border-top: none;
+  padding: calc(var(--spacing) * 2);
+  .sd-radio {
+    padding: 0;
+  }
+  .sd-radio__decorator {
+    margin: 0;
+  }
+}
+.sd-table__cell--header {
+  height: var(--sjs2-shadcn-table-header-height);
+}
+
+.sd-table>tbody>tr:hover {
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
 /* stepper */

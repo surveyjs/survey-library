@@ -22,6 +22,9 @@
   --sjs2-typography-font-size-component-header-title: var(--text-2xl);
   --sjs2-color-bg-basic-primary-dim: var(--accent);
   --sjs2-border-effect-surface-default: inset 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
 }
 
 /* checkbox / radio pressed state + shadcn radio (ring + primary dot, no fill) */

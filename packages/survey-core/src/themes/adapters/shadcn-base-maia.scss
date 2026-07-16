@@ -23,6 +23,9 @@
   --sjs2-typography-font-size-component-page-title: var(--text-base);
   --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-radius-component-panel: calc(var(--radius) * 1.8);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
 }
 
 .sd-comment {

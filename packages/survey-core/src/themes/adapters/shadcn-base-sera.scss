@@ -38,6 +38,9 @@
   --sjs2-typography-font-size-component-header-title: var(--text-lg);
   --sjs2-radius-component-panel: 0;
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
 }
 
 .sd-comment__grip {

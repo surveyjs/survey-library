@@ -1,0 +1,32 @@
+{
+  "type": "object",
+  "title": "Composition",
+  "definitions": {
+    "phone": { "type": "string", "title": "Phone", "pattern": "^[0-9+ ]+$" }
+  },
+  "allOf": [
+    { "properties": { "firstName": { "type": "string", "title": "First name" } }, "required": ["firstName"] },
+    { "properties": { "lastName": { "type": "string", "title": "Last name" } } }
+  ],
+  "properties": {
+    "hasAccount": { "type": "boolean", "title": "Has an account" },
+    "username": { "type": "string", "title": "Username" },
+    "country": { "type": "string", "title": "Country", "enum": ["us", "ca", "other"] },
+    "phone": { "$ref": "#/definitions/phone" },
+    "avatar": { "$ref": "https://example.com/schemas/avatar.json", "title": "Avatar" }
+  },
+  "required": ["country"],
+  "if": {
+    "properties": { "country": { "const": "us" } }
+  },
+  "then": {
+    "properties": { "ssn": { "type": "string", "title": "SSN" } },
+    "required": ["ssn"]
+  },
+  "else": {
+    "properties": { "postalCode": { "type": "string", "title": "Postal code" } }
+  },
+  "dependencies": {
+    "hasAccount": ["username"]
+  }
+}

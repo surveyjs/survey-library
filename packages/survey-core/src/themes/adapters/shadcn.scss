@@ -200,6 +200,9 @@
   --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
   --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
 
+  /* stepper */
+  --sjs2-radius-component-stepper-item: 100%;
+  
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
   --sjs2-color-bg-basic-primary-dim: var(--muted);
@@ -256,6 +259,8 @@
 
   --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-typography-font-size-component-header-description: 1em;
+
+  --sd-mobile-width: 0px;
 }
 
 .sd-action--large {
@@ -380,6 +385,45 @@
   height: calc(var(--spacing) * 4);
 }
 
+/* stepper */
+.sd-progress-buttons__page-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted-foreground);
+}
+
+.sd-progress-buttons__list li {
+  &:first-child,
+  &:last-child {
+    align-items: center;
+  }
+}
+
+.sd-progress-buttons--numbered {
+
+  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
+    top: 1.125rem;
+    bottom: unset;
+  }
+
+  .sd-progress-buttons__button {
+    color: var(--muted-foreground);
+    font-size: var(--text-xs);
+    width: 2.25rem;
+    height: 2.25rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .sd-progress-buttons__list li {
+    &::after,
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after {
+      width: calc(100% - 2.25em);
+      right: calc(50% + 1.125em);
+    }
+  }
+}
+
 /* panel / question titles */
 .sd-theme-root .sd-panel__title {
   --sjs2-typography-font-size-component-question-title: var(--text-base);
@@ -413,10 +457,6 @@
 /* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
 .sd-row.sd-row--multiple > * {
   min-width: 0 !important;
-}
-
-.sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
-  flex-grow: 0;
 }
 
 /* below sm — phones */

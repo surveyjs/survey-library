@@ -225,6 +225,8 @@
   --sjs2-typography-font-size-component-header-title: 1.5rem;
   --sjs2-typography-font-size-component-header-description: 1.25rem;
   --sjs2-typography-font-weight-component-header-description: 500;
+
+  --sd-mobile-width: 0px;
 }
 
 /* input */
@@ -676,7 +678,7 @@
     color: var(--mui-palette-primary-contrastText);
   }
 
-  .sd-progress-buttons__list li:after {
+  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
     top: 12px;
     bottom: unset;
   }
@@ -688,7 +690,17 @@
   }
 
   .sd-progress-buttons__list li {
-    flex-direction: column-reverse;
+    &:first-child,
+    &:last-child {
+      align-items: center;
+    }
+    &::after,
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after {
+      background-color: var(--mui-palette-text-disabled);
+      width: calc(100% - var(--sjs2-size-x400));
+      right: calc(50% + var(--sjs2-size-x200));
+    }
   }
 }
 
@@ -741,14 +753,6 @@ input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
 /* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
 .sd-row.sd-row--multiple > * {
   min-width: 0 !important;
-}
-
-.sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
-  flex-grow: 0;
-}
-
-.sd-root-modern--mobile .sd-body__navigation .sd-action {
-  padding: var(--sd-action-padding);
 }
 
 /* xs — phones */

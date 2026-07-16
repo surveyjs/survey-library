@@ -142,6 +142,9 @@
   --sjs2-color-component-tagbox-item-action-default-bg: transparent;
   --sjs2-color-component-tagbox-item-action-hovered-bg: var(--bs-secondary-bg);
 
+  /* stepper */
+  --sjs2-radius-component-stepper-item: 100%;
+
   /* common and other */
   --sjs2-color-bg-alert-primary-dim: color-mix(in srgb, var(--bs-danger) 90%, black);
   --sjs2-color-bg-alert-primary-disabled: var(--bs-secondary-bg);
@@ -186,6 +189,11 @@
   --sjs2-typography-line-height-component-question-title: 1.25;
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
+
+  --sjs2-typography-font-size-component-header-title: 2rem;
+  --sjs2-typography-font-size-component-page-title: 1.75rem;
+
+  --sd-mobile-width: 0px;
 }
 
 /* check/radio icon redifinition */
@@ -311,7 +319,7 @@
 }
 
 .sd-theme-root .sd-panel__title {
-  --sjs2-typography-font-size-component-question-title: 1rem;
+  --sjs2-typography-font-size-component-question-title: 1.25rem;
   --sjs2-typography-font-weight-component-question-title: 500;
 }
 
@@ -350,8 +358,44 @@
   min-width: 0 !important;
 }
 
-.sd-root-modern--mobile .sd-body__navigation .sd-action-bar__item:not(.sd-action-bar__item--hidden) {
-  flex-grow: 0;
+/* stepper */
+.sd-progress-buttons__page-title {
+  font-size: 0.875rem;;
+  font-weight: 500;
+  color: var(--bs-body-color)
+}
+
+.sd-progress-buttons__list li {
+  &:first-child,
+  &:last-child {
+    align-items: center;
+  }
+}
+
+.sd-progress-buttons--numbered {
+
+  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
+    top: 0.75rem;
+    bottom: unset;
+  }
+
+  .sd-progress-buttons__button {
+    background-color: var(--bs-secondary-bg);
+    color: var(--bs-secondary-color);;
+    font-size: 0.75rem;
+    font-weight: 400;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .sd-progress-buttons__list li {
+    &::after,
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after {
+      width: calc(100% - 1.5rem);
+      right: calc(50% + 0.75rem);
+    }
+  }
 }
 
 /* xs — phones */

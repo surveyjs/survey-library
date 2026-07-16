@@ -1,0 +1,95 @@
+{
+  "name": "survey-converter",
+  "version": "3.0.0-beta.8",
+  "description": "Convert third-party form definitions (Form.io, JSON Schema) into SurveyJS survey JSON. Pure JSON→JSON, runs client-side, zero runtime dependencies.",
+  "license": "MIT",
+  "keywords": [
+    "surveyjs",
+    "converter",
+    "form.io",
+    "formio",
+    "json-schema",
+    "jsonforms",
+    "rjsf",
+    "migration"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surveyjs/survey-library.git",
+    "directory": "packages/converter"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/typings/index.d.ts",
+  "bin": {
+    "survey-converter": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/typings/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./formio": {
+      "types": "./dist/typings/formio/index.d.ts",
+      "import": "./dist/formio/index.mjs",
+      "require": "./dist/formio/index.js"
+    },
+    "./json-schema": {
+      "types": "./dist/typings/json-schema/index.d.ts",
+      "import": "./dist/json-schema/index.mjs",
+      "require": "./dist/json-schema/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    "*": {
+      "formio": [
+        "./dist/typings/formio/index.d.ts"
+      ],
+      "json-schema": [
+        "./dist/typings/json-schema/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run build:types && rollup -c rollup.config.mjs",
+    "build:types": "tsc -p tsconfig.build.json",
+    "watch:dev": "rollup -c rollup.config.mjs -w",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --max-warnings=0 --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "corpus:refresh": "node ./corpus/refresh.mjs",
+    "corpus:score": "vitest run corpus",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
+  },
+  "peerDependencies": {
+    "survey-core": "^3.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/node": "18.11.12",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
+    "rollup": "^4.34.8",
+    "survey-core": "file:../survey-core/build",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.9"
+  },
+  "commit-and-tag-version": {
+    "bumpFiles": [
+      "package.json"
+    ]
+  }
+}

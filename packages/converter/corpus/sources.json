@@ -1,0 +1,22 @@
+{
+  "_comment": "Upstream sources scraped weekly by refresh.mjs. Keep raw-content URLs or repo+path pairs. Content-free: we store definitions here for scoring, never in the report/telemetry.",
+  "formio": [
+    {
+      "repo": "formio/formio.js",
+      "ref": "master",
+      "globs": ["src/**/fixtures/**/*.json", "test/forms/**/*.json"]
+    }
+  ],
+  "json-schema": [
+    {
+      "repo": "eclipsesource/jsonforms",
+      "ref": "master",
+      "globs": ["packages/examples/src/**/*.ts", "packages/examples/src/**/schema*.json"]
+    },
+    {
+      "repo": "rjsf-team/react-jsonschema-form",
+      "ref": "main",
+      "globs": ["packages/playground/src/samples/**/*.js"]
+    }
+  ]
+}

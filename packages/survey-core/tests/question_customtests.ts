@@ -1506,6 +1506,47 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: addConditionObjectsByContext & getConditionJson delegate to the content question (matrixdropdown), Bug#7879", function (assert) {
+  const matrixJSON = {
+    type: "matrixdropdown",
+    columns: [
+      { name: "Column 1", cellType: "radiogroup", showInMultipleColumns: true },
+    ],
+    choices: [1, 2, 3, 4, 5],
+    rows: ["Row 1", "Row 2"],
+  };
+  ComponentCollection.Instance.add(<any>{ name: "test7879", questionJSON: matrixJSON });
+  try {
+    const survey = new SurveyModel({
+      elements: [
+        { type: "test7879", name: "question2" },
+        { ...matrixJSON, name: "plainMatrix" },
+      ],
+    });
+    const component = <Question>survey.getQuestionByName("question2");
+    const plainMatrix = <Question>survey.getQuestionByName("plainMatrix");
+
+    // A component wrapping a matrixdropdown must expose the inner cells as condition
+    // objects (like a plain matrixdropdown), not the whole component whose value is an object.
+    const componentObjs: Array<any> = [];
+    component.addConditionObjectsByContext(componentObjs, true);
+    const plainObjs: Array<any> = [];
+    plainMatrix.addConditionObjectsByContext(plainObjs, true);
+    const normalizeNames = (arr: Array<any>, prefix: string) =>
+      arr.map((o) => o.name.replace(prefix, "q"));
+    assert.deepEqual(normalizeNames(componentObjs, "question2"), normalizeNames(plainObjs, "plainMatrix"), "condition object names match a plain matrixdropdown");
+    componentObjs.forEach((o) => assert.equal(o.question, component, "question points to the component"));
+    assert.ok(componentObjs.map((o) => o.name).indexOf("question2.Row 1.Column 1") > -1, "inner cell is exposed as a condition object");
+
+    // getConditionJson for an inner cell path must resolve to the cell question,
+    // so the value editor is a radiogroup and not the whole component (which yielded "[object Object]").
+    const cellJson = component.getConditionJson("equal", "Row 1.Column 1");
+    assert.equal(cellJson.type, "radiogroup", "cell condition json type is radiogroup");
+    assert.deepEqual(cellJson.choices, [1, 2, 3, 4, 5], "cell condition json choices are correct");
+  } finally {
+    ComponentCollection.Instance.clear();
+  }
+});
 QUnit.test("Composite: getNestedQuestions", function (assert) {
   var json = {
     name: "testquestion",

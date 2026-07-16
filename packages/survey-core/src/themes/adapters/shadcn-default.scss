@@ -84,3 +84,17 @@
 .sd-theme-root .sd-element--with-frame {
   --sd-base-vertical-padding: calc(var(--spacing) * 7);
 }
+
+/* toggle */
+.sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: 0px;
+  --sd-boolean-switch-thumb-width: calc(var(--spacing) * 5);
+  --sd-boolean-switch-thumb-height: calc(var(--spacing) * 5);
+  --sd-boolean-switch-button-spacing: 2px;
+  --sd-boolean-switch-button-width: calc(var(--spacing) * 11);
+  --sd-boolean-switch-button-heigth: calc(var(--spacing) * 6);
+}
+
+.sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
+  transform: translateX(100%);
+}

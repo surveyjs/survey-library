@@ -250,14 +250,18 @@
 }
 
 /* toggle */
+.sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: 0px;
+  --sd-boolean-switch-thumb-width: 1em;
+  --sd-boolean-switch-thumb-height: 1em;
+  --sd-boolean-switch-button-spacing: 0px;
+  --sd-boolean-switch-button-width: 2em;
+  --sd-boolean-switch-button-heigth: 1em;
+}
+
 .sd-boolean-switch__button {
   --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px #86b7fe, var(--sjs2-border-effect-a11y);
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
-  width: 2em;
-  height: 1em;
-  padding: 0;
-  box-sizing: content-box;
-  margin-top: calc(calc(1lh - 1em) / 2);
 
   &:focus {
     --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2386b7fe'/%3e%3c/svg%3e");
@@ -278,8 +282,6 @@
 }
 
 .sd-boolean-switch__thumb {
-  top: 0;
-  left: 0;
   width: 50%;
   height: 100%;
   background-image: var(--bs-form-switch-bg);

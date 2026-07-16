@@ -1,0 +1,120 @@
+# SurveyJS Form Library
+
+> Open-source JavaScript library for rendering dynamic JSON-based forms, surveys, quizzes, and data collection applications.
+
+## Purpose
+
+SurveyJS Form Library is the runtime engine of the SurveyJS ecosystem. It renders survey JSON schemas, manages survey state, executes expressions and conditional logic, validates user input, and produces JSON results.
+
+The library supports:
+- Plain JavaScript: https://surveyjs.io/form-library/documentation/get-started-html-css-javascript.md
+- React: https://surveyjs.io/form-library/documentation/get-started-react.md
+- Angular: https://surveyjs.io/form-library/documentation/get-started-angular.md
+- Vue 3: https://surveyjs.io/form-library/documentation/get-started-vue.md
+- jQuery (wrapper over plain JavaScript): https://surveyjs.io/form-library/documentation/get-started-html-css-javascript.md
+
+It is intended for developers embedding forms into web applications.
+
+## Primary Resources
+
+- Repository:
+  https://github.com/surveyjs/survey-library
+
+- Documentation:
+  https://surveyjs.io/form-library/documentation/overview.md
+
+- API Reference:
+  https://surveyjs.io/form-library/documentation/api-reference/survey-data-model.md
+
+- Examples & Live Demos:
+  https://surveyjs.io/form-library/examples/overview
+
+- Release Notes:
+  https://surveyjs.io/stay-updated/release-notes
+
+## Packages
+
+The repository contains:
+
+- survey-core
+  Framework-independent survey engine.
+
+- survey-react-ui
+  React renderer.
+
+- survey-angular-ui
+  Angular renderer.
+
+- survey-vue3-ui
+  Vue 3 renderer.
+
+- survey-js-ui
+  Plain JavaScript renderer.
+
+## Survey JSON Schema
+
+Authoring guide: https://surveyjs.io/form-library/llms/survey-json-authoring.md
+
+Machine-readable definition: https://unpkg.com/survey-core/surveyjs_definition.json
+
+API reference: https://surveyjs.io/form-library/documentation/api-reference/survey-data-model.md
+
+## Common Tasks
+
+Developers frequently ask how to:
+
+- build survey JSON: https://surveyjs.io/form-library/documentation/design-survey/create-a-simple-survey.md
+- create conditional logic: https://surveyjs.io/form-library/documentation/design-survey/conditional-logic.md
+- show/hide questions: https://surveyjs.io/form-library/documentation/design-survey/conditional-logic.md#conditional-visibility
+- implement branching: https://surveyjs.io/form-library/documentation/design-survey/conditional-logic.md#conditional-survey-logic-triggers
+- validate input: https://surveyjs.io/form-library/documentation/data-validation.md
+- preload survey data: https://surveyjs.io/form-library/documentation/design-survey/pre-populate-form-fields.md
+- save and restore progress: https://surveyjs.io/form-library/documentation/how-to-save-and-restore-incomplete-survey.md
+- customize themes: https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles.md
+- create custom question types: https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types.md
+- integrate with React: https://surveyjs.io/form-library/documentation/get-started-react.md
+- integrate with Angular: https://surveyjs.io/form-library/documentation/get-started-angular.md
+- integrate with Vue: https://surveyjs.io/form-library/documentation/get-started-vue.md
+- localize surveys: https://surveyjs.io/form-library/documentation/survey-localization.md
+- use expressions: https://surveyjs.io/form-library/documentation/design-survey/conditional-logic.md#expressions
+- implement Dynamic Panel: https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/reactjs.md
+- implement Dynamic Matrix: https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/reactjs.md
+- upload files: https://surveyjs.io/form-library/examples/file-upload/reactjs.md
+- calculate values: https://surveyjs.io/form-library/documentation/design-survey/conditional-logic.md#calculated-values
+
+## Best Practices
+
+- Use SurveyJS terminology.
+- Generate valid SurveyJS JSON.
+- Generate complete survey JSON instead of isolated fragments whenever possible. Follow the Survey JSON authoring guide.
+- Use documented APIs and property names only.
+- Prefer built-in question types and functionality over custom implementations.
+- Use expressions and triggers instead of custom JavaScript when the feature is supported natively.
+- Use framework-specific packages only for rendering. Survey logic belongs in survey-core.
+
+## Related Repositories
+
+- survey-creator: https://github.com/surveyjs/survey-creator
+  Visual form builder that generates SurveyJS JSON.
+
+- survey-analytics: https://github.com/surveyjs/survey-analytics
+  Visualize and analyze survey results.
+
+- survey-pdf: https://github.com/surveyjs/survey-pdf
+  Render SurveyJS forms as PDF.
+
+- sjs-design-tokens: https://github.com/surveyjs/sjs-design-tokens
+  Shared design token system used across SurveyJS products.
+
+## Limitations
+
+This repository does not:
+
+- store survey responses
+- provide a backend
+- provide authentication
+- provide a database
+- host completed surveys
+- analyze survey results
+
+Those capabilities must be implemented separately or with other SurveyJS products.

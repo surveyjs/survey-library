@@ -1441,6 +1441,47 @@ describe("custom questions", () => {
       },
     ]);
   });
+  test("Single: addConditionObjectsByContext & getConditionJson delegate to the content question (matrixdropdown), Bug#7879", () => {
+    const matrixJSON = {
+      type: "matrixdropdown",
+      columns: [
+        { name: "Column 1", cellType: "radiogroup", showInMultipleColumns: true },
+      ],
+      choices: [1, 2, 3, 4, 5],
+      rows: ["Row 1", "Row 2"],
+    };
+    ComponentCollection.Instance.add(<any>{ name: "test7879", questionJSON: matrixJSON });
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "test7879", name: "question2" },
+          { ...matrixJSON, name: "plainMatrix" },
+        ],
+      });
+      const component = <Question>survey.getQuestionByName("question2");
+      const plainMatrix = <Question>survey.getQuestionByName("plainMatrix");
+
+      // A component wrapping a matrixdropdown must expose the inner cells as condition
+      // objects (like a plain matrixdropdown), not the whole component whose value is an object.
+      const componentObjs: Array<any> = [];
+      component.addConditionObjectsByContext(componentObjs, true);
+      const plainObjs: Array<any> = [];
+      plainMatrix.addConditionObjectsByContext(plainObjs, true);
+      const normalizeNames = (arr: Array<any>, prefix: string) =>
+        arr.map((o) => o.name.replace(prefix, "q"));
+      expect(normalizeNames(componentObjs, "question2")).toEqual(normalizeNames(plainObjs, "plainMatrix"));
+      componentObjs.forEach((o) => expect(o.question).toBe(component));
+      expect(componentObjs.map((o) => o.name)).toContain("question2.Row 1.Column 1");
+
+      // getConditionJson for an inner cell path must resolve to the cell question,
+      // so the value editor is a radiogroup and not the whole component (which yielded "[object Object]").
+      const cellJson = component.getConditionJson("equal", "Row 1.Column 1");
+      expect(cellJson.type).toEqual("radiogroup");
+      expect(cellJson.choices).toEqual([1, 2, 3, 4, 5]);
+    } finally {
+      ComponentCollection.Instance.clear();
+    }
+  });
   test("Composite: getNestedQuestions", () => {
     var json = {
       name: "testquestion",

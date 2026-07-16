@@ -50,7 +50,12 @@ describe("formio convert - simple form", () => {
     const { output, report } = convert(simpleForm);
     expect(report.source).toBe("formio");
     expect(Array.isArray(report.entries)).toBe(true);
-    assertConstructsCleanly(output, "simple-form");
+    // Loads into a SurveyModel with zero errors AND that model actually creates
+    // the questions (not just valid-but-empty JSON).
+    const survey = assertConstructsCleanly(output, "simple-form");
+    expect(survey.getQuestionByName("firstName")?.getType()).toBe("text");
+    expect(survey.getQuestionByName("email")?.getType()).toBe("text");
+    expect(survey.getQuestionByName("country")?.getType()).toBe("dropdown");
   });
 
   it("maps leaf types, choices and required", () => {

@@ -48,7 +48,10 @@ describe("json-schema convert - format detection", () => {
     const { output, report } = convert(simpleSchema);
     expect(output).toBeTypeOf("object");
     expect(report.source).toBe("json-schema");
-    assertConstructsCleanly(output, "simple-schema");
+    // Loads into a SurveyModel with zero errors AND that model materializes the
+    // schema's properties as questions (not just valid-but-empty JSON).
+    const survey = assertConstructsCleanly(output, "simple-schema");
+    expect(survey.getAllQuestions().length).toBeGreaterThan(0);
   });
 
   it("accepts a { schema, uiSchema } envelope", () => {

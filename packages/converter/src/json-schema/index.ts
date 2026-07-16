@@ -742,8 +742,19 @@ function appendOneOfVariants(
   depth: number
 ): void {
   void container;
+  if (!Array.isArray(schema.oneOf) || schema.oneOf.length === 0) return;
   const d = detectDiscriminator(schema, ctx);
-  if (!d) return;
+  if (!d) {
+    // A non-discriminated `oneOf` of const branches is a choices set, consumed at
+    // the property level -- not here. Anything else is a `oneOf` of mutually
+    // EXCLUSIVE object shapes: we cannot flatten it (merging would let a user
+    // satisfy two exclusive branches), and with no discriminator there is no
+    // selector to gate on. Surface the loss instead of dropping it silently.
+    if (!hasConstComposition(schema)) {
+      ctx.report.unsupported(JsonSchemaCodes.UNSUPPORTED_KEYWORD, `${sourcePtr}/oneOf`, targetPath);
+    }
+    return;
+  }
   if (!d.explicit) ctx.report.assumed(JsonSchemaCodes.ASSUMED_ONEOF_DISCRIMINATOR, `${sourcePtr}/oneOf`, targetPath);
 
   // Discriminator selector, unless the object already declares the property.

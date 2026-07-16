@@ -24,7 +24,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { convert as convertFormio } from "../src/formio/index";
 import { convert as convertJsonSchema } from "../src/json-schema/index";
-import { assertConstructsCleanly } from "../src/testing/oracle";
+import { assertConstructsCleanly, collectElementNames } from "../src/testing/oracle";
 import { scoreDefinition, aggregate, round4 } from "./scoring.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -45,6 +45,7 @@ interface Scored {
   source: SourceId;
   file: string;
   output: unknown;
+  reportEntries: number;
   score: ReturnType<typeof scoreDefinition>;
 }
 
@@ -68,7 +69,7 @@ for (const source of Object.keys(CONVERTERS) as SourceId[]) {
   for (const { file, def } of loadDefs(source)) {
     try {
       const { output, report } = CONVERTERS[source](def);
-      scored.push({ source, file, output, score: scoreDefinition(source, def, output, report) });
+      scored.push({ source, file, output, reportEntries: report.entries.length, score: scoreDefinition(source, def, output, report) });
     } catch (e) {
       // A throw here means detection rejected the file as wrong-format /
       // unparseable — it is not a scorable definition. Record it so it is
@@ -90,11 +91,29 @@ describe("corpus fidelity — oracle (hard gate)", () => {
         return;
       }
       for (const { file } of defs) {
-        it(`${file} constructs a SurveyModel with zero errors`, () => {
+        it(`${file} constructs a SurveyModel with zero errors and creates its elements`, () => {
           const err = conversionErrors.find((e) => e.source === source && e.file === file);
           expect(err, err ? `convert() threw: ${err.message}` : undefined).toBeUndefined();
           const entry = scored.find((s) => s.source === source && s.file === file)!;
-          assertConstructsCleanly(entry.output, `${source}/${file}`);
+          // Loads with zero errors AND survey-core materializes every element the
+          // converter emitted (no silent drops).
+          const survey = assertConstructsCleanly(entry.output, `${source}/${file}`);
+          // "Creates the needed elements", accountability form: a definition that
+          // carried input fields must NOT convert to an empty survey with an empty
+          // report. Producing no elements is legitimate only when the loss was
+          // surfaced (a refused/unsupported construct is reported). An empty
+          // survey AND an empty report from a non-empty input is a SILENT total
+          // loss — the exact failure a zero-error oracle would otherwise pass
+          // vacuously.
+          if (entry.score.fieldsIn > 0) {
+            const built = collectElementNames(survey.toJSON());
+            if (built.length === 0) {
+              expect(
+                entry.reportEntries,
+                `${source}/${file}: ${entry.score.fieldsIn} input field(s) converted to an EMPTY survey with an EMPTY report — silent total loss`
+              ).toBeGreaterThan(0);
+            }
+          }
         });
       }
     });

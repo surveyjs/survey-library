@@ -7,7 +7,7 @@
     "build:themes": "rollup -c rollup.themes.config.mjs --environment emitMinified",
     "build:icons": "rollup -c rollup.icons.config.mjs --environment emitMinified",
     "watch:dev": "rollup -c rollup.config.mjs -w",
-    "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons",
+    "build:all": "npm run build && npm run build:i18n && npm run build:themes && npm run build:icons && npm run build:doc",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "test": "vitest run",
@@ -15,7 +15,7 @@
     "test:postcss": "postcss build/survey-core.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -u postcss-import -o survey-core.postcss.css && rimraf survey-core.postcss.css",
     "build:translate": "survey-utils translate library --path ../..",
     "test:translate": "survey-utils check-strings library --path ../..",
-    "build:doc": "survey-utils generate-doc library --json --json-definition --path ../..",
+    "build:doc": "survey-utils generate-doc library --md --json --json-definition --path ../.. && node -e \"fs.cpSync('docs/surveyjs_definition.json','build/surveyjs_definition.json')\"",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "main": "survey.core.js",

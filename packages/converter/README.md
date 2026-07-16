@@ -81,7 +81,9 @@ The `json-schema` converter is also the ingest path for anything that emits
 JSON Schema: OpenAPI 3.1 request bodies, Zod/Yup/TypeBox/Valibot (via their
 `*-to-json-schema` bridges), ngx-formly JSON Schema mode, and the RJSF /
 JSONForms / Uniforms **data** schemas. Ceiling for the bridge cases: a flat
-form, no layout, only the labels the schema carries. See the docs page.
+form, no layout, only the labels the schema carries. Full list, copy-paste
+one-liners, and a runnable OpenAPI 3.1 demo:
+[docs/emitters-json-schema.md](./docs/emitters-json-schema.md).
 
 ## Not converting
 

@@ -1,0 +1,54 @@
+{
+  "name": "fio3703",
+  "path": "fio3703",
+  "type": "form",
+  "display": "form",
+  "components": [
+    {
+      "label": "Data Grid",
+      "reorder": false,
+      "addAnotherPosition": "bottom",
+      "layoutFixed": false,
+      "enableRowGroups": false,
+      "initEmpty": false,
+      "tableView": true,
+      "modalEdit": true,
+      "defaultValue": [
+        {
+          "textField": ""
+        }
+      ],
+      "key": "dataGrid",
+      "type": "datagrid",
+      "input": true,
+      "components": [
+        {
+          "collapsible": false,
+          "key": "panel",
+          "type": "panel",
+          "label": "Panel",
+          "input": false,
+          "tableView": false,
+          "components": [
+            {
+              "label": "Text Field",
+              "applyMaskOn": "change",
+              "tableView": true,
+              "key": "textField",
+              "type": "textfield",
+              "input": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "label": "Submit",
+      "key": "submit",
+      "disableOnInvalid": true,
+      "input": true,
+      "tableView": false
+    }
+  ]
+}

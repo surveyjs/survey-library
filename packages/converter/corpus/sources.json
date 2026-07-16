@@ -1,0 +1,30 @@
+{
+  "_comment": "Upstream sources scraped weekly by refresh.mjs. Content-free contract: raw definitions land in corpus/<source>/ for scoring, never in the report/telemetry. Refs are the repos' default branches (pinned by the commit the refresh job records in each snapshot's diff).",
+  "formio": [
+    {
+      "repo": "formio/formio.js",
+      "ref": "main",
+      "globs": [
+        "test/forms/**/*.json",
+        "test/fixtures/**/*.json",
+        "src/**/fixtures/**/*.json"
+      ]
+    }
+  ],
+  "json-schema": [
+    {
+      "repo": "eclipsesource/jsonforms",
+      "ref": "master",
+      "globs": [
+        "packages/examples/src/examples/*.ts"
+      ]
+    },
+    {
+      "repo": "rjsf-team/react-jsonschema-form",
+      "ref": "main",
+      "globs": [
+        "packages/playground/src/samples/*.ts"
+      ]
+    }
+  ]
+}

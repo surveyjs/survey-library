@@ -1,0 +1,61 @@
+{
+  "display": "wizard",
+  "title": "Onboarding",
+  "components": [
+    {
+      "type": "panel",
+      "key": "page1",
+      "title": "Personal details",
+      "label": "Personal details",
+      "components": [
+        {
+          "type": "textfield",
+          "key": "firstName",
+          "label": "First name",
+          "validate": { "required": true, "maxLength": 40 }
+        },
+        {
+          "type": "textfield",
+          "key": "lastName",
+          "label": "Last name"
+        }
+      ]
+    },
+    {
+      "type": "panel",
+      "key": "page2",
+      "title": "Contact",
+      "label": "Contact",
+      "components": [
+        {
+          "type": "email",
+          "key": "email",
+          "label": "Email",
+          "validate": { "required": true }
+        },
+        {
+          "type": "phoneNumber",
+          "key": "phone",
+          "label": "Phone"
+        },
+        {
+          "type": "select",
+          "key": "contactMethod",
+          "label": "Preferred contact method",
+          "data": {
+            "values": [
+              { "label": "Email", "value": "email" },
+              { "label": "Phone", "value": "phone" }
+            ]
+          }
+        },
+        {
+          "type": "textfield",
+          "key": "phoneExt",
+          "label": "Extension",
+          "conditional": { "show": true, "when": "contactMethod", "eq": "phone" }
+        }
+      ]
+    }
+  ]
+}

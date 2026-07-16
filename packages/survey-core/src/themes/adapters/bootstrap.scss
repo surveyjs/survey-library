@@ -325,10 +325,21 @@
   --sjs2-typography-font-weight-component-question-title: 500;
 }
 
-.sd-theme-root .sd-question__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
+/* tables */
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+.sd-table>thead>tr>th, 
+.sd-table>thead>tr>td,
+.sd-table>tbody>tr>th,
+.sd-table>tbody>tr>td {
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color);  
+  border-top: none;
+  padding: 0.5rem;
+  .sd-radio__decorator {
+    margin: 0;
+  }
 }
 
 .sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header {

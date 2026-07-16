@@ -31,6 +31,9 @@
   }
 }
 .sd-table {
+  --sd-table-cell-width: 10000px;
+  --sd-table-cell-min-width: var(--sjs2-size-x1500);
+
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
@@ -55,7 +58,7 @@
   .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(
       .sd-table__cell--empty.sd-table__cell--error
     ) {
-    width: 10000px;
+    width: var(--sd-table-cell-width);
   }
 }
 
@@ -221,7 +224,7 @@
   text-align: center;
 
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
-    min-width: var(--sjs2-size-x1500);
+    min-width: var(--sd-table-cell-min-width);
   }
 
   .sd-item {
@@ -288,12 +291,12 @@
   padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x100);
 
   &:not(.sd-table__cell--empty) {
-    min-width: var(--sjs2-size-x1500);
+    min-width: var(--sd-table-cell-min-width);
   }
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--empty {
-  min-width: var(--sjs2-size-x1500);
+  min-width: var(--sd-table-cell-min-width);
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--action {
@@ -302,7 +305,7 @@
 }
 
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
-  min-width: var(--sjs2-size-x1500);
+  min-width: var(--sd-table-cell-min-width);
 
   &.sd-table__cell--dropdown,
   &.sd-table__cell--rating {

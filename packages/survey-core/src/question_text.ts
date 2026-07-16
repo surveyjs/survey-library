@@ -361,7 +361,7 @@ export class QuestionTextModel extends QuestionTextBase {
       }
     }
     this._inputValue = _inputValue;
-    if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
+    if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
       this.value = value;
     }
   }

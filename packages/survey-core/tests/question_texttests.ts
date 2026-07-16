@@ -828,6 +828,17 @@ describe("question text tests", () => {
     q.inputValue = "test";
     expect(q.value, "value is changed to lower case").toBe("test");
   });
+  test("Update question value when leading or trailing whitespace changes, #11581", () => {
+    const q = new QuestionTextModel("q1");
+    q.inputValue = "Test ";
+    expect(q.value, "value keeps trailing whitespace").toBe("Test ");
+    q.inputValue = "Test";
+    expect(q.value, "trailing whitespace is removed").toBe("Test");
+    q.inputValue = " Test";
+    expect(q.value, "leading whitespace is added").toBe(" Test");
+    q.inputValue = " Test ";
+    expect(q.value, "leading and trailing whitespace is preserved").toBe(" Test ");
+  });
   test("inputType='datetime-local' &currentDate() function, #10610", () => {
     const survey = new SurveyModel({
       elements: [

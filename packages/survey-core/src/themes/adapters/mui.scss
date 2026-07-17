@@ -687,27 +687,29 @@
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
 }
-.sd-table>thead>tr>th, 
-.sd-table>thead>tr>td,
-.sd-table>tbody>tr>th,
-.sd-table>tbody>tr>td {
-  border-bottom: 1px solid var(--mui-palette-TableCell-border);
-  border-top: none;
-  padding: 16px;
-  font-weight: 400;
-  font-size: 0.875rem;
-  line-height: 1.43;
-  color: var(--mui-palette-text-primary);
-  &.sd-table__cell--header span {
-    font-size: 0.875rem;
-    line-height: 1.5rem;
-    font-weight: 500;
-  }
-  .sd-radio {
-    padding: 0;
-  }
-  .sd-radio__decorator {
-    margin: 0;
+
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-top: 1px solid var(--mui-palette-TableCell-border);
+      border-bottom: none;
+      padding: 16px;
+      font-weight: 400;
+      font-size: 0.875rem;
+      line-height: 1.43;
+      color: var(--mui-palette-text-primary);
+      &.sd-table__cell--header span {
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+      }
+      .sd-radio {
+        padding: 0;
+      }
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
   }
 }
 

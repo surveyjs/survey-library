@@ -387,18 +387,19 @@
   --sd-table-cell-width: initial;
   --sd-table-cell-min-width: initial;
 }
-.sd-table>thead>tr>th, 
-.sd-table>thead>tr>td,
-.sd-table>tbody>tr>th,
-.sd-table>tbody>tr>td {
-  border-bottom: 1px solid var(--border);
-  border-top: none;
-  padding: calc(var(--spacing) * 2);
-  .sd-radio {
-    padding: 0;
-  }
-  .sd-radio__decorator {
-    margin: 0;
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-top: 1px solid var(--border);
+      border-bottom: none;
+      padding: calc(var(--spacing) * 2);
+      .sd-radio {
+        padding: 0;
+      }
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
   }
 }
 .sd-table__cell--header,

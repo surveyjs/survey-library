@@ -1,0 +1,5 @@
+@use "./bootstrap-bootswatch.scss";
+
+/* Bootswatch "Flatly": flat, no shadows, navy primary (#2c3e50) + teal accents (Lato).
+   Colors, radius and fonts are all driven by --bs-* variables, so the base map already
+   matches Flatly; this file only provides a self-contained bootstrap-flatly.css entry. */

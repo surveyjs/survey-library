@@ -1,0 +1,41 @@
+@use "./bootstrap-bootswatch.scss";
+
+/* Bootswatch "Zephyr": subtle shadows ($enable-shadows), medium font weights, indigo primary
+   (#3459e6) and a white secondary button (Inter). */
+.sjs-theme-overrides {
+  /* $enable-shadows: true -> soft shadow on buttons and inputs.
+     Button shadows are folded into the border-effect tokens (applied as box-shadow). */
+  --sjs-bs-action-font-weight: 500;
+
+  --sjs2-border-effect-component-action-brand-primary-default:
+    inset 0px 0px 0px 1px var(--bs-primary), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sjs2-border-effect-component-action-brand-primary-hovered:
+    inset 0px 0px 0px 1px var(--sjs-bs-primary-hover-border), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default:
+    inset 0px 0px 0px 1px var(--bs-primary), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered:
+    inset 0px 0px 0px 1px var(--bs-primary), 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
+    var(--sjs2-color-component-formbox-default-border), 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  /* $form-label-font-weight: 500 */
+  --sjs2-typography-font-weight-component-label-content: 500;
+
+  /* secondary buttons are white with a border and dark text */
+  --sjs-bs-secondary-bg: var(--bs-secondary, #fff);
+  --sjs-bs-on-secondary: var(--bs-body-color);
+  --sjs-bs-secondary-hover-bg: var(--bs-tertiary-bg);
+  --sjs2-border-effect-component-action-neutral-secondary-default:
+    inset 0 0 0 1px var(--bs-border-color), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --sjs2-border-effect-component-action-neutral-secondary-hovered:
+    inset 0 0 0 1px var(--bs-border-color), 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  /* $headings-color: primary */
+  --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+}
+
+.sd-theme-root .sd-page__title,
+.sd-theme-root .sd-panel__title {
+  color: var(--bs-primary);
+}

@@ -1,0 +1,15 @@
+@use "./bootstrap-bootswatch.scss" as bootswatch;
+
+/* Bootswatch "Darkly": dark chrome baked into the --bs-* variables (dark body, gray-800 cards,
+   #375a7f primary, #00bc8c accents) but with light form controls (Lato).
+   The shared dark-mode deltas are applied through the `bootstrap-dark` mixin. */
+.sjs-theme-overrides {
+  @include bootswatch.bootstrap-dark;
+
+  /* cards / panels sit on gray-800, a touch lighter than the gray-900 body */
+  --sjs2-color-component-panel-default-bg: var(--bs-card-bg, #303030);
+  --sjs2-color-bg-basic-primary-dim: #303030;
+
+  /* dark themes read better with a slightly stronger contrast on secondary text */
+  --sjs2-color-fg-basic-secondary: var(--bs-secondary-color, rgba(255, 255, 255, 0.75));
+}

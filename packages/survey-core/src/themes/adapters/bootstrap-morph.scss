@@ -1,0 +1,66 @@
+@use "./bootstrap-bootswatch.scss";
+
+/* Bootswatch "Morph": soft neumorphism ($border-width: 0, $enable-shadows) — raised, borderless
+   pill buttons on a tinted body, recessed (inset) inputs and checkboxes, blue primary (#378dfc,
+   Nunito). Directional light/shadow pairs replace borders. */
+.sjs-theme-overrides {
+  /* neumorphic light/shadow pairs (raised = extruded, inset = pressed) */
+  --sjs-morph-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15), -5px -5px 10px rgba(255, 255, 255, 0.7);
+  --sjs-morph-inset: inset 2px 2px 6px rgba(0, 0, 0, 0.2), inset -3px -2px 5px rgba(255, 255, 255, 0.7);
+
+  /* pill, raised, borderless buttons (shadows live in the border-effect tokens) */
+  --sjs2-radius-component-action: 50rem;
+  --sjs-bs-action-font-weight: 600;
+
+  --sjs2-border-effect-component-action-brand-primary-default: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-primary-hovered: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-primary-disabled: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: var(--sjs-morph-shadow);
+
+  /* neutral secondary raised button */
+  --sjs-bs-secondary-bg: var(--bs-secondary, #d9e3f1);
+  --sjs-bs-on-secondary: var(--bs-body-color);
+  --sjs-bs-secondary-hover-bg: var(--bs-secondary, #d9e3f1);
+  --sjs2-border-effect-component-action-neutral-secondary-default: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-neutral-secondary-hovered: var(--sjs-morph-shadow);
+
+  /* recessed, borderless inputs */
+  --sjs2-color-component-formbox-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-formbox-hovered-bg: var(--bs-body-bg);
+  --sjs2-color-component-formbox-focused-bg: var(--bs-body-bg);
+  --sjs2-border-effect-component-formbox-default: var(--sjs-morph-inset);
+  --sjs2-border-effect-component-formbox-hovered: var(--sjs-morph-inset);
+  --sjs2-border-effect-component-formbox-focused: var(--sjs-morph-inset), 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+
+  /* recessed checkboxes / radios */
+  --sjs2-color-component-check-false-default-bg: var(--bs-body-bg);
+  --sjs2-color-component-check-false-hovered-bg: var(--bs-body-bg);
+  --sjs2-color-component-check-false-focused-bg: var(--bs-body-bg);
+  --sjs2-border-effect-component-check-false-default: var(--sjs-morph-inset);
+  --sjs2-border-effect-component-check-false-hovered: var(--sjs-morph-inset);
+
+  /* raised panels */
+  --sjs2-radius-component-panel: 1rem;
+  --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+}
+
+/* pressed (active) buttons get the inset treatment */
+.sd-theme-root .sd-action:active {
+  box-shadow: var(--sjs-morph-inset);
+  transform: none;
+}
+.sd-action--primary:active,
+.sd-action--tertiary:active {
+  border-color: transparent;
+}
+
+.sd-action--small {
+  border-radius: 50rem;
+}
+
+/* raised, borderless framed panels */
+.sd-theme-root .sd-element--with-frame {
+  box-shadow: var(--sjs-morph-shadow);
+  border: none;
+}

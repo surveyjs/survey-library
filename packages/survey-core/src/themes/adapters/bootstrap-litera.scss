@@ -1,0 +1,23 @@
+@use "./bootstrap-bootswatch.scss";
+
+/* Bootswatch "Litera": readable, larger base font (1.1rem), bold headings, blue primary
+   (#4582ec) and pill-rounded buttons. Font size comes through --bs-body-font-size. */
+.sjs-theme-overrides {
+  /* rounded ("pill-ish") buttons */
+  --sjs2-radius-component-action: 1.078em;
+
+  /* $headings-font-weight: 700 */
+  --sjs2-typography-font-weight-component-panel-title: 700;
+
+  /* thin, light table borders */
+  --sjs2-color-border-basic-secondary: rgba(0, 0, 0, 0.1);
+}
+
+/* $btn-font-size: .875rem */
+.sd-theme-root .sd-action--large {
+  font-size: 0.875rem;
+}
+
+.sd-action--small {
+  border-radius: 0.844em;
+}

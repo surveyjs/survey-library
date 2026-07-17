@@ -9,8 +9,8 @@
   "scripts": {
     "build": "rollup -c rollup.config.mjs --environment emitMinified,emitNonSourceFiles",
     "watch:dev": "rollup -c -w",
-    "test": "vitest --no-watch --no-threads",
-    "test:watch": "vitest --no-threads",
+    "test": "node ../../tests/markup/gen-shards.js && vitest --no-watch",
+    "test:watch": "node ../../tests/markup/gen-shards.js && vitest",
     "start": "http-server . -o -c-1",
     "accessibility-tests": "cross-env env=survey-js-ui playwright test --project a11y --ui",
     "accessibility-tests:ci": "cross-env env=survey-js-ui playwright test --project a11y --reporter dot --quiet",

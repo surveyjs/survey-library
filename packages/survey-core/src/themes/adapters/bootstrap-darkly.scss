@@ -1,10 +1,26 @@
-@use "./bootstrap-bootswatch.scss" as bootswatch;
+@use "./bootstrap.scss";
 
 /* Bootswatch "Darkly": dark chrome baked into the --bs-* variables (dark body, gray-800 cards,
-   #375a7f primary, #00bc8c accents) but with light form controls (Lato).
-   The shared dark-mode deltas are applied through the `bootstrap-dark` mixin. */
+   #375a7f primary, #00bc8c accents) but with light form controls (Lato). Darkly is dark by
+   default (no [data-bs-theme] toggle), so the light form-control deltas are applied
+   unconditionally here. */
 .sjs-theme-overrides {
-  @include bootswatch.bootstrap-dark;
+  /* dark Bootswatch themes keep form controls light — forced back to a light surface with dark text */
+  --sjs2-color-component-formbox-default-bg: #fff;
+  --sjs2-color-component-formbox-hovered-bg: #fff;
+  --sjs2-color-component-formbox-focused-bg: #fff;
+  --sjs2-color-component-formbox-default-fg: #212529;
+  --sjs2-color-component-input-default-value: #212529;
+
+  --sjs2-color-component-check-false-default-bg: #fff;
+  --sjs2-color-component-check-false-hovered-bg: #fff;
+  --sjs2-color-component-check-false-focused-bg: #fff;
+
+  /* switch track stays light with a dark knob */
+  --sjs2-color-component-toggle-false-default-bg: #fff;
+  --sjs2-color-component-toggle-false-hovered-bg: #fff;
+  --sjs2-color-component-toggle-false-default-thumb: rgba(0, 0, 0, 0.25);
+  --sjs2-color-component-toggle-false-hovered-thumb: rgba(0, 0, 0, 0.25);
 
   /* cards / panels sit on gray-800, a touch lighter than the gray-900 body */
   --sjs2-color-component-panel-default-bg: var(--bs-card-bg, #303030);
@@ -12,4 +28,11 @@
 
   /* dark themes read better with a slightly stronger contrast on secondary text */
   --sjs2-color-fg-basic-secondary: var(--bs-secondary-color, rgba(255, 255, 255, 0.75));
+
+  /* Darkly enlarges headings ($h1: 3rem, $h2: 2.5rem, $h3: 2rem); weight stays default 500.
+     header = h2, page = h3. panel (h5) keeps the base 1.25rem / 500. */
+  --sjs2-typography-font-size-component-header-title: 2.5rem; /* h2 */
+  --sjs2-typography-font-weight-component-header-title: 500;
+  --sjs2-typography-font-size-component-page-title: 2rem; /* h3 */
+  --sjs2-typography-font-weight-component-page-title: 500;
 }

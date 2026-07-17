@@ -1,4 +1,24 @@
 @use "./bootstrap.scss";
 
-/* Stock Bootstrap 5 look. The shared base is already tuned to default Bootstrap tokens,
-   so this file only exists to provide a self-contained bootstrap-default.css entry. */
+/* Stock Bootstrap 5 palette.
+   The shared base (bootstrap.scss) maps every sjs2 token onto --bs-* variables and --sjs-bs-*
+   helpers. This file supplies the concrete stock values: the default --bs-* palette (so the theme
+   also works when Bootstrap's own stylesheet isn't loaded) and the exact button shades Bootstrap
+   compiles from shade-color/tint-color, so the default look stays identical to plain Bootstrap. */
+.sjs-theme-overrides {
+  /* Bootstrap 5 default palette */
+  --bs-primary: #0d6efd;
+  --bs-primary-rgb: 13, 110, 253;
+  --bs-secondary: #6c757d;
+
+  /* exact stock button shades */
+  --sjs-bs-on-primary: #fff;
+  --sjs-bs-primary-hover-bg: #0b5ed7;
+  --sjs-bs-primary-hover-border: #0a58ca;
+  --sjs-bs-primary-active-bg: #0a58ca;
+  --sjs-bs-primary-active-border: #0a53be;
+  --sjs-bs-primary-focus-border: #86b7fe;
+  --sjs-bs-secondary-bg: #6c757d;
+  --sjs-bs-on-secondary: #fff;
+  --sjs-bs-secondary-hover-bg: #5c636a;
+}

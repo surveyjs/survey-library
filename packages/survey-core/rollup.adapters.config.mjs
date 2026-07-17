@@ -9,9 +9,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");
 const adaptersDir = resolve(__dirname, "src", "themes", "adapters");
 
-// shadcn.scss, bootstrap.scss and bootstrap-bootswatch.scss are shared bases imported by the other
-// shadcn-*.scss / bootstrap-*.scss files, they are not standalone entries.
-const cssSharedPartials = ["shadcn", "bootstrap", "bootstrap-bootswatch"];
+// shadcn.scss and bootstrap.scss are shared bases imported by the other shadcn-*.scss / bootstrap-*.scss
+// files, they are not standalone entries.
+const cssSharedPartials = ["shadcn", "bootstrap"];
 
 function getCssEntries() {
   return readdirSync(adaptersDir)

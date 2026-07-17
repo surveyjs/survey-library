@@ -16,6 +16,7 @@
  * `uniqueId` (used for framework `key`s and creation-order sorting, never rendered to the DOM by
  * itself) is drawn from a single per-instance numeric counter - it needs global creation order
  * within the survey, not per-prefix numbering.
+ * @since 3.0.0
  */
 export class SurveyIdGenerator {
   // Null-prototype map: a prefix comes from getIdPrefix()/getType(), which for a custom component is
@@ -24,6 +25,7 @@ export class SurveyIdGenerator {
   private counters: { [prefix: string]: number } = Object.create(null);
   /**
    * Returns the next raw id for the given `prefix` (the value of `Base.getIdPrefix()`).
+   * @since 3.0.0
    */
   public next(prefix: string): string {
     const n = this.counters[prefix] || 0;

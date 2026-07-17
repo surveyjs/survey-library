@@ -695,6 +695,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Specifies whether users should confirm file deletion.
    *
    * Default value: `true`
+   * @since 3.0.0
    */
   @property() confirmDelete: boolean = true;
 

@@ -1222,6 +1222,7 @@ export class SurveyModel extends SurveyElementCore
    * The id generator that produces deterministic, SSR-safe raw ids for every element of this survey.
    * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`). The survey's
    * `renderedIdPrefix` is applied on top of the raw id in `Base.renderedId`.
+   * @since 3.0.0
    */
   public get idGenerator(): SurveyIdGenerator {
     if (!this.idGeneratorValue) {
@@ -1237,6 +1238,7 @@ export class SurveyModel extends SurveyElementCore
    * the survey is rendered.
    *
    * Default value: `""`
+   * @since 3.0.0
    */
   public get renderedIdPrefix(): string { return this.getPropertyValue("renderedIdPrefix", ""); }
   public set renderedIdPrefix(val: string) {
@@ -1246,6 +1248,7 @@ export class SurveyModel extends SurveyElementCore
    * Wraps a raw, per-survey element `id` with this survey's `renderedIdPrefix` (prepended) to
    * produce the actual DOM id. With it empty the result equals the raw id. This is the single
    * place that knows the id-namespacing policy; elements reach it via `Base.renderedId`.
+   * @since 3.0.0
    */
   public getRenderedId(id: string): string {
     return (this.renderedIdPrefix || "") + id;
@@ -2965,6 +2968,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
+   * @since 3.0.0
    * @see progressBarNavigationTextLocation
    * @see progressBarShowPageNumbers
    * @see progressBarInheritWidthFrom
@@ -2997,6 +3001,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"top"` (default) &ndash; Displays navigation text above the step buttons.
    * - `"bottom"` &ndash; Displays navigation text below the step buttons.
    * - `"inline"` &ndash; Displays navigation text next to the step buttons on the same line.
+   * @since 3.0.0
    */
   @property({
     getDefaultValue: (self: SurveyModel) => {

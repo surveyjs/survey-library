@@ -323,6 +323,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
   /**
    * An error message to display when the entered value does not match the [step size](#step).
+   * @since 2.5.15
    */
   @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
   @property({ localizable: { defaultStr: "invalidInputError", markdown: true } }) invalidInputErrorText: string;

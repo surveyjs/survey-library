@@ -274,11 +274,11 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     return this.idValue;
   }
-  // This class does not extend Base, so it cannot inherit Base.renderedId / composeRenderedId; it
+  // This class does not extend Base, so it cannot inherit Base.renderedId / composeElementId; it
   // delegates the DOM-id namespacing to the owner survey directly (raw id when detached).
   public get renderedId(): string {
     const survey = this.getSurvey();
-    return survey ? survey.getRenderedId(this.id) : this.id;
+    return survey ? survey.getElementId(this.id) : this.id;
   }
   public get rowName(): any {
     return null;

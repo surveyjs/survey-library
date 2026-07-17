@@ -1218,11 +1218,6 @@ export class SurveyModel extends SurveyElementCore
     this.setCalculatedWidthModeUpdater();
   }
   private idGeneratorValue: SurveyIdGenerator;
-  /**
-   * The id generator that produces deterministic, SSR-safe raw ids for every element of this survey.
-   * All survey elements draw their `id`/`uniqueId` from it (see `Base.getIdGenerator`). The survey's
-   * `renderedIdPrefix` is applied on top of the raw id in `Base.renderedId`.
-   */
   public get idGenerator(): SurveyIdGenerator {
     if (!this.idGeneratorValue) {
       this.idGeneratorValue = new SurveyIdGenerator();
@@ -1231,22 +1226,19 @@ export class SurveyModel extends SurveyElementCore
   }
   protected getIdGenerator(): SurveyIdGenerator { return this.idGenerator; }
   /**
-   * A prefix prepended to every DOM id (`renderedId`) generated for this survey's elements. Set a
-   * distinct value per survey when you render **multiple surveys on one page** (especially with SSR)
-   * to keep their ids from colliding. Leave it empty (default) for a single survey. Assign it before
-   * the survey is rendered.
+   * A prefix prepended to every HTML `id` attribute generated for survey elements.
+   *
+   * Assign a unique prefix to each survey when rendering multiple surveys on the same page to prevent duplicate `id` attributes. Leave this property empty (default value) if you render a single survey on the page.
+   *
+   * Set this property *before* rendering the survey.
    *
    * Default value: `""`
+   * @since 3.0.0
    */
   public get renderedIdPrefix(): string { return this.getPropertyValue("renderedIdPrefix", ""); }
   public set renderedIdPrefix(val: string) {
     this.setPropertyValue("renderedIdPrefix", val || "");
   }
-  /**
-   * Wraps a raw, per-survey element `id` with this survey's `renderedIdPrefix` (prepended) to
-   * produce the actual DOM id. With it empty the result equals the raw id. This is the single
-   * place that knows the id-namespacing policy; elements reach it via `Base.renderedId`.
-   */
   public getRenderedId(id: string): string {
     return (this.renderedIdPrefix || "") + id;
   }
@@ -2965,6 +2957,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
+   * @since 3.0.0
    * @see progressBarNavigationTextLocation
    * @see progressBarShowPageNumbers
    * @see progressBarInheritWidthFrom
@@ -2997,6 +2990,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"top"` (default) &ndash; Displays navigation text above the step buttons.
    * - `"bottom"` &ndash; Displays navigation text below the step buttons.
    * - `"inline"` &ndash; Displays navigation text next to the step buttons on the same line.
+   * @since 3.0.0
    */
   @property({
     getDefaultValue: (self: SurveyModel) => {

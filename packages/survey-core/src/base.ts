@@ -239,11 +239,6 @@ export class Base implements IObjectValueContext {
   private static UniqueId = 0;
   private uniqueIdValue: number = Base.UniqueId++;
   private static defaultIdGeneratorValue: SurveyIdGenerator;
-  /**
-   * A shared fallback id generator used by objects that are not attached to a survey (standalone
-   * actions, popup models, unit-test fixtures). Such objects are client-only and do not take part
-   * in SSR hydration; the moment an object is attached to a survey it uses that survey's generator.
-   */
   public static get defaultIdGenerator(): SurveyIdGenerator {
     if (!Base.defaultIdGeneratorValue) {
       Base.defaultIdGeneratorValue = new SurveyIdGenerator();
@@ -419,27 +414,12 @@ export class Base implements IObjectValueContext {
   public get uniqueId(): number {
     return this.uniqueIdValue;
   }
-  /**
-   * Returns the given survey's id generator, or the shared fallback generator when there is no
-   * survey. Used by `getIdGenerator` overrides to avoid repeating the null check.
-   */
   public static getIdGeneratorBySurvey(survey: any): SurveyIdGenerator {
     return (survey && survey.idGenerator) || Base.defaultIdGenerator;
   }
-  /**
-   * Returns the id generator this object draws its `id`/`uniqueId` from, so that its ids are
-   * deterministic and unique within its survey. Resolves to `this.getSurvey()?.idGenerator` (falling
-   * back to the shared generator for detached objects). Classes whose survey is reached through a
-   * different owner (a panel, a question, an action owner) override this to pass that owner's survey.
-   */
   protected getIdGenerator(): SurveyIdGenerator {
     return Base.getIdGeneratorBySurvey(this.getSurvey());
   }
-  /**
-   * Returns the "kind" segment used when this object's `id` is generated (for example, `"sq"` for
-   * questions or `"sp"` for panels/pages). Defaults to `getType()`; override to pin a short, stable,
-   * type-independent prefix. CSS selectors and tests match on this prefix.
-   */
   protected getIdPrefix(): string { return this.getType(); }
   /**
    * The raw, per-survey logical id (`"sq_0"`, `"sp_0"`, ...). Used for internal logic, dictionaries
@@ -454,21 +434,10 @@ export class Base implements IObjectValueContext {
   protected generateElementId(): string {
     return this.getIdGenerator().next(this.getIdPrefix());
   }
-  /**
-   * Turns a raw, per-survey `id` into the actual DOM id by delegating the namespacing policy to the
-   * owner survey (`ISurvey.getRenderedId`). Detached objects (no survey) render the raw id unchanged.
-   * `Base` intentionally does not know *how* the survey wraps ids (prefix/suffix) - that lives in the
-   * survey - so id-composing subclasses only depend on this delegator.
-   */
   protected composeRenderedId(id: string): string {
     const survey = this.getSurvey();
     return survey ? survey.getRenderedId(id) : id;
   }
-  /**
-   * The value assigned to the `id` attribute of the rendered HTML element, and the base for every
-   * derived DOM id. Delegates the survey-level namespacing to `composeRenderedId`. For a single
-   * non-SSR survey (and unit tests / the markup harness) `renderedId === id`.
-   */
   public get renderedId(): string {
     return this.composeRenderedId(this.id);
   }

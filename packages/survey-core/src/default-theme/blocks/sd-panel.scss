@@ -78,13 +78,6 @@
   @include sjs2--typography--component--panel--title;
   padding: var(--sjs2-layout-component-panel-title-padding-vertical)
     var(--sjs2-layout-component-panel-title-padding-horizontal);
-  span {
-    font-family: inherit;
-    font-size: inherit;
-    font-weight: inherit;
-    color: inherit;
-    line-height: inherit;
-  }
 }
 
 .sd-panel__description {

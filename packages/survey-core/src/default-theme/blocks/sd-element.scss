@@ -41,11 +41,6 @@
     color: $foreground-light;
   }
 
-  span {
-    font-size: $font-questiontitle-size;
-    line-height: multiply(1.5, $font-questiontitle-size);
-  }
-
   .sv-title-actions__title {
     font-size: 0;
     line-height: 0;

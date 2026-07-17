@@ -1327,6 +1327,7 @@ export class JsonMetadata {
    * @see getTypeByAlias
    * @see getAliasByType
    * @see removeAlias
+   * @since 2.5.34
    */
   public setAlias(type: string, alias: string): void {
     if (!type || !alias) return;
@@ -1342,6 +1343,7 @@ export class JsonMetadata {
    * @see getAliasByType
    * @see setAlias
    * @see removeAlias
+   * @since 2.5.34
    */
   public getTypeByAlias(alias: string): string {
     if (!alias) return undefined;
@@ -1355,6 +1357,7 @@ export class JsonMetadata {
    * @see getTypeByAlias
    * @see setAlias
    * @see removeAlias
+   * @since 2.5.34
    */
   public getAliasByType(type: string): string {
     if (!type) return undefined;
@@ -1365,6 +1368,7 @@ export class JsonMetadata {
    * @param alias The alias to remove.
    * @see getAliasByType
    * @see getTypeByAlias
+   * @since 2.5.34
    */
   public removeAlias(alias: string): void {
     if (!alias) return;

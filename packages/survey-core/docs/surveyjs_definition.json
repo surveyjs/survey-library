@@ -234,6 +234,9 @@
     "sjsVersion": {
       "type": "string"
     },
+    "$schema": {
+      "type": "string"
+    },
     "surveyId": {
       "type": "string"
     },
@@ -319,7 +322,8 @@
       "type": "string",
       "enum": [
         "underInput",
-        "underTitle"
+        "underTitle",
+        "hidden"
       ]
     },
     "questionErrorLocation": {
@@ -893,7 +897,8 @@
           "enum": [
             "default",
             "underInput",
-            "underTitle"
+            "underTitle",
+            "hidden"
           ]
         },
         "showNumber": {
@@ -1023,6 +1028,12 @@
               "$ref": "locstring"
             }
           ]
+        },
+        "randomize": {
+          "type": "boolean"
+        },
+        "randomizeCategory": {
+          "type": "string"
         }
       },
       "required": [
@@ -1835,6 +1846,13 @@
             },
             "hideIfRowsEmpty": {
               "type": "boolean"
+            },
+            "rowOrder": {
+              "type": "string",
+              "enum": [
+                "initial",
+                "random"
+              ]
             }
           }
         }
@@ -1861,6 +1879,12 @@
           "type": "string"
         },
         "enableIf": {
+          "type": "string"
+        },
+        "randomize": {
+          "type": "boolean"
+        },
+        "randomizeCategory": {
           "type": "string"
         }
       },
@@ -2650,6 +2674,16 @@
             "allowCustomChoices": {
               "type": "boolean"
             },
+            "createCustomChoiceText": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
             "textWrapEnabled": {
               "type": "boolean"
             },
@@ -2908,6 +2942,16 @@
             "allowCustomChoices": {
               "type": "boolean"
             },
+            "createCustomChoiceText": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
             "searchMode": {
               "type": "string",
               "enum": [
@@ -3063,6 +3107,16 @@
               ]
             },
             "maxErrorText": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "$ref": "locstring"
+                }
+              ]
+            },
+            "stepErrorText": {
               "oneOf": [
                 {
                   "type": "string"

@@ -21,6 +21,12 @@
   --sjs2-layout-component-action-large-label-padding-horizontal: 0;
   --sjs2-layout-component-action-large-label-padding-vertical: 0;
 
+  --sjs2-layout-component-action-small-box-padding-horizontal: 0.5rem;
+  --sjs2-layout-component-action-small-box-padding-vertical: 0.25rem;
+  --sjs2-layout-component-action-small-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-small-label-padding-vertical: 0;
+  --sjs2-typography-font-size-component-action-small-content: 0.875rem;
+
   /* primary buttons */
   --sjs2-color-component-action-brand-primary-default-label: #fff; /* --bs-btn-color */
   --sjs2-color-component-action-brand-primary-default-icon: #fff; /* --bs-btn-color */
@@ -190,6 +196,9 @@
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
 
+  --sjs2-typography-font-size-component-panel-title: 1.25rem;
+  --sjs2-typography-font-weight-component-panel-title: 500;
+
   --sjs2-typography-font-size-component-header-title: 2rem;
   --sjs2-typography-font-size-component-page-title: 1.75rem;
 
@@ -320,15 +329,37 @@
   border-color: #0d6efd; /*--bs-btn-active-border-color*/
 }
 
-.sd-theme-root .sd-panel__title {
-  --sjs2-typography-font-size-component-question-title: 1.25rem;
-  --sjs2-typography-font-weight-component-question-title: 500;
+
+.sd-action--small {
+  border-radius: 0.25rem;
 }
 
-.sd-theme-root .sd-question__header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sjs2-spacing-x100);
+/* tables */
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-top: var(--bs-border-width) solid var(--bs-border-color);  
+      border-bottom: none;
+      padding: 0.5rem;
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
+  margin: 0;
+}
+
+.sd-question__placeholder {
+  min-height: unset;
+  align-items: flex-start;
 }
 
 .sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header {

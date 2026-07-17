@@ -39,6 +39,9 @@
   --sjs2-typography-font-size-component-header-title: var(--text-sm);
   --sjs2-typography-font-size-default: var(--text-xs);
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
 .sd-comment__grip {

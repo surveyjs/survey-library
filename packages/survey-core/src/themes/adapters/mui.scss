@@ -21,6 +21,16 @@
   --sjs2-typography-font-weight-component-action-large-content: 500;
   --sjs2-typography-line-height-component-action-large-content: 1.75;
 
+
+  --sjs2-layout-component-action-small-box-padding-horizontal: 5px;
+  --sjs2-layout-component-action-small-box-padding-vertical: 4px;
+  --sjs2-layout-component-action-small-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-small-label-padding-vertical: 0;
+  --sjs2-typography-font-size-component-action-small-content: 0.8125rem;
+  --sjs2-typography-font-weight-component-action-small-content: 500;
+  --sjs2-typography-line-height-component-action-small-content: 1.75;
+
+
   /* primary buttons (contained) */
   --sjs2-color-component-action-brand-primary-default-label: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-action-brand-primary-default-icon: var(--mui-palette-primary-contrastText);
@@ -213,11 +223,17 @@
   --sjs2-typography-font-size-default: 1rem;
   --sjs2-typography-font-size-component-input-content: 1rem;
   --sjs2-typography-font-size-component-question-description: 0.75rem;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
   --sjs2-typography-line-height-component-question-title: 1.25;
   --sjs2-typography-font-weight-component-question-title: 400;
+
+
+  --sjs2-color-component-panel-default-title: var(--mui-palette-text-primary);
+  --sjs2-typography-font-size-component-panel-title: 1.25rem;
+  --sjs2-typography-font-weight-component-panel-title: 500;
 
   --sjs2-typography-font-size-component-page-title: 1.25rem;
   --sjs2-typography-font-weight-component-page-title: 500;
@@ -253,7 +269,7 @@
     z-index: 1;
     transform-origin: top left;
 
-    --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
+    
     background-color: transparent;
 
     max-width: calc(100% - 12px);
@@ -666,6 +682,47 @@
   }
 }
 
+/* tables */
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-top: 1px solid var(--mui-palette-TableCell-border);
+      border-bottom: none;
+      padding: 16px;
+      font-weight: 400;
+      font-size: 0.875rem;
+      line-height: 1.43;
+      color: var(--mui-palette-text-primary);
+      &.sd-table__cell--header span {
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+      }
+      .sd-radio {
+        padding: 0;
+      }
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
+  margin: 0;
+}
+
+.sd-question__placeholder {
+  min-height: unset;
+  align-items: flex-start;
+}
+
+
 /* stepper */
 .sd-progress-buttons--numbered {
   .sd-progress-buttons__button {
@@ -710,12 +767,6 @@
 .sd-progress-buttons,
 .sv-header__content {
   padding: 16px;
-}
-
-.sd-panel__title {
-  --sjs2-color-component-question-default-title: var(--mui-palette-text-primary);
-  --sjs2-typography-font-size-component-question-title: 1rem;
-  --sjs2-typography-font-weight-component-question-title: 600;
 }
 
 .sd-question__header {

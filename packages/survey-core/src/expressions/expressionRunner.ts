@@ -16,11 +16,6 @@ export class ExpressionRunnerBase {
   private variables: string[];
   private containsFunc: boolean;
   private runIdCounter = 0;
-  /**
-   * Supplies the correlation id for an async run. Injected by the owning `Base` object so ids are
-   * unique across all of that object's runners; standalone runners fall back to a local counter.
-   * @since 3.0.0
-   */
   public getRunId: () => number;
   public onBeforeAsyncRun: (id: number) => void;
   public onAfterAsyncRun: (id: number) => void;

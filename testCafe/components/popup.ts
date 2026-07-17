@@ -403,18 +403,20 @@ frameworks.forEach(async framework => {
       ]
     }, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
 
-    const popupHeight = 455;
     await t
       .click(clickButton)
-      .expect(popupSelector.visible).ok()
-      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
+      .expect(popupSelector.visible).ok();
+
+    const popupHeight = await popupSelector.offsetHeight;
+
+    await t
       .typeText(Selector(".sv-list__input"), "2")
-      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
+      .expect(popupSelector.offsetHeight).eql(popupHeight)
       .click(clickButton)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1);
+      .expect(popupSelector.offsetHeight).eql(popupHeight);
   });
 
   test("list model", async t => {

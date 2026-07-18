@@ -1228,19 +1228,19 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A prefix prepended to every HTML `id` attribute generated for survey elements.
    *
-   * Assign a unique prefix to each survey when rendering multiple surveys on the same page to prevent duplicate `id` attributes. Leave this property empty (default value) if you render a single survey on the page.
+   * Assign a unique prefix to each survey when rendering **multiple surveys on the same page** to prevent duplicate `id` attributes. Leave this property empty (default value) if you render a single survey on the page.
    *
    * Set this property *before* rendering the survey.
    *
    * Default value: `""`
    * @since 3.0.0
    */
-  public get renderedIdPrefix(): string { return this.getPropertyValue("renderedIdPrefix", ""); }
-  public set renderedIdPrefix(val: string) {
-    this.setPropertyValue("renderedIdPrefix", val || "");
+  public get elementIdPrefix(): string { return this.getPropertyValue("elementIdPrefix", ""); }
+  public set elementIdPrefix(val: string) {
+    this.setPropertyValue("elementIdPrefix", val || "");
   }
-  public getRenderedId(id: string): string {
-    return (this.renderedIdPrefix || "") + id;
+  public getElementId(id: string): string {
+    return (this.elementIdPrefix || "") + id;
   }
   matrixDragHandleArea: string;
   locEditText: LocalizableString;

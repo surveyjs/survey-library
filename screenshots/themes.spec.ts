@@ -1,14 +1,14 @@
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot } from "../e2e/helper";
 
 const title = "Survey themes Screenshot";
 
 frameworks.forEach(framework => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto(`${url}${framework}`);
-  });
-
   test.describe(`${framework} ${title}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+
     test("Check question title font size", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
@@ -441,12 +441,13 @@ frameworks.forEach(framework => {
           }
         });
       }, jsonWithInputs);
-      await page.waitForTimeout(500);
+      // Wait for React to finish re-rendering all 10 questions after fromJSON
+      await expect(page.locator(".sd-question").nth(9)).toBeVisible();
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });
-      await page.waitForTimeout(500);
       const tagboxDropdownButton = page.locator(".sd-editor-chevron-button").first();
+      await expect(tagboxDropdownButton).toBeVisible();
       await tagboxDropdownButton.scrollIntoViewIfNeeded();
       await tagboxDropdownButton.click();
       await compareScreenshot(page, ".sv-popup__container .sv-popup__content", "survey-theme-mobile-popup-input-size.png");

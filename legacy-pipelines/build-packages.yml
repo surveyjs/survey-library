@@ -279,6 +279,7 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
+        npx playwright install-deps chromium
       displayName: "install chrome"
 
     - script: |
@@ -408,6 +409,7 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
+        npx playwright install-deps chromium
       displayName: "install chrome"
 
     - script: |
@@ -520,6 +522,7 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
+        npx playwright install-deps chromium
       displayName: "install chrome"
 
     - script: |
@@ -633,6 +636,7 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
+        npx playwright install-deps chromium
       displayName: "install chrome"
 
     - script: |
@@ -756,6 +760,7 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
+        npx playwright install-deps chromium
       displayName: "install chrome"
   
     - script: |
@@ -878,6 +883,7 @@ jobs:
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
+        npx playwright install-deps chromium
       displayName: "install chrome"
 
     - script: |

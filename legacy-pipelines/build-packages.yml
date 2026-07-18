@@ -27,6 +27,9 @@ trigger:
     exclude:
       - v*.*.*
 
+pool:
+  vmImage: "Ubuntu-22.04"
+
 jobs:
 
 - job: NPMCache

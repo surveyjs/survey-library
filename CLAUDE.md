@@ -97,3 +97,8 @@ survey-core is framework-agnostic and exposes its own change-notification system
 - Vue/Angular wrap the same model events into their respective reactivity systems.
 
 So a typical UI rendering component is a paper-thin view over a survey-core model object: it reads computed properties (CSS classes, visibility, value) off the model and re-renders when the model notifies a change. New behavior generally belongs in survey-core; the UI layer only renders it.
+
+## Coding conventions
+
+- **Do not generate API doccomments** (`/** ... */`) for either new or existing API members.
+- If an API requires clarification for maintainers, add a regular JavaScript comment (`//` or `/* ... */`) in the implementation instead of a doccomment.

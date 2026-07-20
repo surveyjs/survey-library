@@ -61,9 +61,6 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   if (survey.tocItemComponent) {
     listModel.itemComponent = survey.tocItemComponent;
   }
-  listModel.onGetItemExtraComponentData = (item: Action) => {
-    return { survey: survey, page: item.data?.page };
-  };
   const updateTocItemComponent = () => {
     if (survey.tocItemComponent) {
       listModel.itemComponent = survey.tocItemComponent;

@@ -1252,30 +1252,4 @@ describe("TOC custom item component", () => {
     expect(tocListModel.actions[1].data.survey).toBe(survey);
   });
 
-  test("TOC listModel.onGetItemExtraComponentData returns survey and page", () => {
-    const survey = new SurveyModel({
-      pages: [
-        {
-          name: "page1",
-          elements: [{ type: "text", name: "question1" }]
-        },
-        {
-          name: "page2",
-          elements: [{ type: "text", name: "question2" }]
-        }
-      ],
-      showTOC: true
-    });
-
-    const tocListModel = createTOCListModel(survey);
-
-    expect(tocListModel.onGetItemExtraComponentData).toBeTruthy();
-
-    const extraData = tocListModel.onGetItemExtraComponentData!(tocListModel.actions[0]);
-    expect(extraData.survey).toBe(survey);
-    expect(extraData.page).toBe(survey.pages[0]);
-
-    const extraData2 = tocListModel.onGetItemExtraComponentData!(tocListModel.actions[1]);
-    expect(extraData2.page).toBe(survey.pages[1]);
-  });
 });

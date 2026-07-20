@@ -1723,16 +1723,10 @@ export class SurveyModel extends SurveyElementCore
    * The custom component receives the following props:
    *
    * - `item`: [`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction)\
-   * A TOC item.
+   * A TOC item. Use `item.data.page` and `item.data.survey` to access the corresponding [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model).
    *
    * - `model`: `ListModel`\
    * A TOC item list model.
-   *
-   * - `survey`: [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)\
-   * The survey model.
-   *
-   * - `page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-   * The page model.
    * @see showTOC
    * @see tocLocation
    */

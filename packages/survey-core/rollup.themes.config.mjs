@@ -27,12 +27,14 @@ export default () => {
       tsconfig: resolve(__dirname, "tsconfig.themes.json"),
       version: pkg.version
     }),
+    // d.ts files for all themes are emitted by a single "tsc --emitDeclarationOnly"
+    // pass in the build:themes script; esbuild lanes only transpile JS
     ...Object.entries(getEntries()).map(([name, path]) => createUmdConfig({
       input: { [name]: path },
       tsconfig: resolve(__dirname, "tsconfig.themes.json"),
       external: ["survey-core"],
       dir: resolve(buildPath),
-      declarationDir: resolve(buildPath, "themes"),
+      useEsbuild: true,
       emitMinified: process.env.emitMinified === "true",
       globalName: name == "themes/index" ? "SurveyTheme" : "SurveyTheme." + name.split("/").pop().split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(""),
       exports: name == "themes/index" ? "named" : "default",

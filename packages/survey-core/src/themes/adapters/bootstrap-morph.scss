@@ -12,6 +12,7 @@
      $btn-font-weight: 600; button font sizes stay default (1rem / 0.875rem). Headings keep the
      base: header = h2 = 2rem, page = h3 = 1.75rem, panel = h5 = 1.25rem, weight 500. */
   --sjs2-radius-component-action: 50rem;
+  --sjs2-radius-component-action-small: 50rem; /* $btn-border-radius-sm: $border-radius-pill */
   --sjs-bs-action-font-weight: 600;
 
   /* $input-btn-padding: 1rem 1.5rem (buttons + inputs; $border-width: 0). Input total = formbox
@@ -62,10 +63,6 @@
 .sd-action--primary:active,
 .sd-action--tertiary:active {
   border-color: transparent;
-}
-
-.sd-action--small {
-  border-radius: 50rem;
 }
 
 /* raised, borderless framed panels */

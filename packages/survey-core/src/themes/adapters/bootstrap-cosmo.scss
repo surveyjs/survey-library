@@ -7,6 +7,7 @@
   /* $enable-rounded: false -> squared corners everywhere */
   --sjs2-base-unit-radius: 0;
   --sjs2-radius-component-action: 0;
+  --sjs2-radius-component-action-small: 0;
   --sjs2-radius-component-formbox: 0;
   --sjs2-radius-component-checkbox: 0;
   --sjs2-radius-component-drop: 0;
@@ -17,8 +18,4 @@
   --sjs2-typography-font-weight-component-header-title: 400;
   --sjs2-typography-font-weight-component-page-title: 400;
   --sjs2-typography-font-weight-component-panel-title: 400;
-}
-
-.sd-action--small {
-  border-radius: 0;
 }

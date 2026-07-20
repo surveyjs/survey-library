@@ -29,7 +29,9 @@
         :is="itemComponent"
         :item="item"
         :model="model"
-        v-bind="item.data || {}"
+        :itemData="item.data"
+        :survey="item.data?.survey"
+        :page="item.data?.page"
       ></SvComponent>
     </div>
   </li>

@@ -42,7 +42,14 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
     return this.model.component || this.listModel.itemComponent;
   }
   get itemComponentData(): any {
-    return { model: this.model, listModel: this.listModel, ...this.model.data };
+    const itemData = this.model.data;
+    return {
+      model: this.model,
+      listModel: this.listModel,
+      itemData,
+      survey: itemData?.survey,
+      page: itemData?.page
+    };
   }
 
   getModel() {

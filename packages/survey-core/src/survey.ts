@@ -1730,11 +1730,14 @@ export class SurveyModel extends SurveyElementCore
    * - `model`: `ListModel`\
    * A TOC item list model.
    *
+   * - `itemData`: `any`\
+   * Extra data associated with the TOC item (`item.data`).
+   *
    * - `survey`: [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)\
-   * The survey model.
+   * The survey model (`item.data.survey`).
    *
    * - `page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-   * The page model.
+   * The page model (`item.data.page`).
    * @see showTOC
    * @see tocLocation
    */

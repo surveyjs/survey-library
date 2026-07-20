@@ -1721,23 +1721,6 @@ export class SurveyModel extends SurveyElementCore
    * The name of a component used to render items in the Table of Contents. Applies only when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true`.
    *
    * You can set this property in code or in a survey JSON schema.
-   *
-   * The custom component receives the following props:
-   *
-   * - `item`: [`IAction`](https://surveyjs.io/form-library/documentation/api-reference/iaction)\
-   * A TOC item.
-   *
-   * - `model`: `ListModel`\
-   * A TOC item list model.
-   *
-   * - `itemData`: `any`\
-   * Extra data associated with the TOC item (`item.data`).
-   *
-   * - `survey`: [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model)\
-   * The survey model (`item.data.survey`).
-   *
-   * - `page`: [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model)\
-   * The page model (`item.data.page`).
    * @see showTOC
    * @see tocLocation
    */

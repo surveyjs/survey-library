@@ -236,6 +236,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.template.removeElementCallback = () => {
       this.rebuildPanels();
     };
+    this.template.onPropertyChanged.add((sender: Base, options: any) => {
+      if (options.name === "title") {
+        this.propertyValueChanged("templateTitle", options.oldValue, options.newValue);
+      }
+      if (options.name === "description") {
+        this.propertyValueChanged("templateDescription", options.oldValue, options.newValue);
+      }
+    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -266,6 +274,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (name === "tabAlign" && this.isRenderModeTab) {
       this.tabbedMenu.containerCss = this.getTabbedMenuCss();
     }
+  }
+  public dispose(): void {
+    super.dispose();
+    this.templateValue.dispose();
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {

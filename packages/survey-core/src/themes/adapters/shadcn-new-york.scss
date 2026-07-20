@@ -19,7 +19,12 @@
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-base);
+  --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-border-effect-surface-default: 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
 .sd-action:active {
@@ -34,12 +39,12 @@
 /* classic outlined radio: transparent disc + primary dot */
 .sd-theme-root .sd-item--checked .sd-radio__decorator {
   background-color: var(--background);
-  box-shadow: inset 0 0 0 1px var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-shadow: inset 0 0 0 1px var(--input), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
 .sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-radio__decorator {
   background-color: var(--background);
-  box-shadow: var(--primary), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+  box-shadow: inset 0 0 0 1px var(--input), rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
 }
 
 .sd-theme-root .sd-radio--checked .sd-radio__svg use {

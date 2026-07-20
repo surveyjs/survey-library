@@ -306,6 +306,9 @@ export class PageModel extends PanelModel implements IPage {
       this.resetWasRendered();
     }
   }
+  // MERGE(V3): recurring conflict vs master (V2). V3 tracks the page's progress state as
+  // `shown`/`wasShown`; V2 uses `passed`/`this.passed` + a `pagePassed` lifecycle callback.
+  // On merge, KEEP THIS V3 VERSION (drop master's `passed`/`pagePassed` block).
   protected getUIState(): IElementUIState {
     let result = super.getUIState();
     if (this.wasShown) {
@@ -314,6 +317,8 @@ export class PageModel extends PanelModel implements IPage {
     }
     return result;
   }
+  // MERGE(V3): keep `shown`/`setWasShown` here; discard master's `state.passed`/`this.passed`
+  // and its `onPropertyValueChanged("passed", ...) => pagePassed(this)` override.
   protected setUIState(state: IElementUIState): void {
     super.setUIState(state);
     if (state.shown) {

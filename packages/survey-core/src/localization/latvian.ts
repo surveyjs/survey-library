@@ -161,8 +161,6 @@ export var latvianSurveyStrings = {
   savingDataError: "Radās kļūda, un mēs nevarējām saglabāt rezultātus.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultāti tika veiksmīgi saglabāti!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku.",
   // "Try again"
   saveAgainButton: "Mēģiniet vēlreiz",
   // [Auto-translated] "min"

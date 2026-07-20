@@ -1266,6 +1266,7 @@ export class Question extends SurveyElement<Question>
    * Default value: `""`
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   * @since 2.0.0
    */
   @property({ localizable: true }) defaultDisplayValue: string;
 
@@ -2257,6 +2258,8 @@ export class Question extends SurveyElement<Question>
   protected getCorrectAnswerCount(): number {
     return this.checkIfAnswerCorrect() ? 1 : 0;
   }
+  // MERGE(V3): this doc block conflicts every merge - master (V2) adds `@since 2.5.30`, V3 omits
+  // it (3.0.0 API in V3). Keep the V3 (no `@since`) doc on merge.
   /**
    * Returns the [`correctAnswer`](#correctAnswer) value used in quiz calculations. Descendant
    * classes can override this method to exclude values that cannot be selected (for example,
@@ -2556,6 +2559,7 @@ export class Question extends SurveyElement<Question>
    * Returns a character or text string that indicates a required question.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return this.survey != null && this.isRequired

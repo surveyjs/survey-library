@@ -40,6 +40,9 @@ export class ProgressButtons extends Base {
       if (this.pageTitleLocation === "bottom" && this.survey.css.progressButtonsTitlesBottom) {
         result += " " + this.survey.css.progressButtonsTitlesBottom;
       }
+      if (this.pageTitleLocation === "inline" && this.survey.css.progressButtonsTitlesInline) {
+        result += " " + this.survey.css.progressButtonsTitlesInline;
+      }
     }
     if (this.showItemNumbers && this.survey.css.progressButtonsNumbered) {
       result += " " + this.survey.css.progressButtonsNumbered;
@@ -94,7 +97,7 @@ export class ProgressButtons extends Base {
   public get showItemDescriptions(): boolean {
     return this.showItemTitles;
   }
-  public get pageTitleLocation(): "top" | "bottom" {
+  public get pageTitleLocation(): "top" | "bottom" | "inline" {
     return this.survey.progressBarNavigationTextLocation || "top";
   }
   public getItemNumber(page: PageModel): string {

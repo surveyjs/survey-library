@@ -56,6 +56,11 @@ export class InputMaskBase extends Base implements IInputMask {
 
   public getUnmaskedValue(src: string): any { return src; }
   public getMaskedValue(src: any): string { return src; }
+  // Returns the string to display in the input for a stored model value.
+  // When saveMaskedValue is enabled the stored value is already masked, so it is returned as is.
+  public getMaskedValueBySaveMode(src: any): string {
+    return this.saveMaskedValue ? src : this.getMaskedValue(src);
+  }
   public getTextAlignment(): "left" | "right" | "auto" { return "auto"; }
 
   public getTypeForExpressions(): string {

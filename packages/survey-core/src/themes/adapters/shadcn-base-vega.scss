@@ -21,5 +21,10 @@
   --sjs2-radius-component-checkbox: 4px;
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-base);
+  --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-radius-component-panel: calc(var(--radius) + 2px);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }

@@ -902,6 +902,7 @@ export class JsonMetadataClass {
 export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};
+  private typeAliases: HashTable<string> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
   private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
@@ -1309,6 +1310,69 @@ export class JsonMetadata {
   public addAlterNativeClassName(name: string, alternativeName: string) {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
+  // MERGE(V3): the alias methods below (setAlias / getTypeByAlias / getAliasByType / removeAlias)
+  // each conflict on their doc block - master (V2) adds `@since 2.5.34`, V3 omits it (these are
+  // 3.0.0 API in V3). On merge keep the V3 (no `@since`) doc for all four.
+  /**
+   * Registers an alias for an existing element type.
+   *
+   * When deserializing JSON, the serializer treats the alias as the original type and creates the corresponding model. When serializing the model back to JSON, it writes the alias instead of the original type name. Both the original type name and its alias are accepted in input JSON.
+   *
+   * One element type can have only one alias.
+   *
+   * > [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) always returns the original type.
+   * @param type The original type, for example, `"comment"`.
+   * @param alias The alias to register for the type, for example, `"longtext"`.
+   * @see getTypeByAlias
+   * @see getAliasByType
+   * @see removeAlias
+   */
+  public setAlias(type: string, alias: string): void {
+    if (!type || !alias) return;
+    type = type.toLowerCase();
+    alias = alias.toLowerCase();
+    if (type === alias) return;
+    this.addAlterNativeClassName(type, alias); // forward: alias -> base type (findClass/createClass/getProperties)
+    this.typeAliases[type] = alias; // reverse: base type -> alias (serialization)
+  }
+  /**
+   * Returns the original element type associated with a registered alias, or `undefined` if the specified value is not an alias.
+   * @param alias An alias registered with the [`setAlias`](#setAlias) method.
+   * @see getAliasByType
+   * @see setAlias
+   * @see removeAlias
+   */
+  public getTypeByAlias(alias: string): string {
+    if (!alias) return undefined;
+    alias = alias.toLowerCase();
+    const name = this.alternativeNames[alias];
+    return !!name && this.typeAliases[name] === alias ? name : undefined;
+  }
+  /**
+   * Returns the alias registered for the specified original element type, or `undefined` if no alias is registered.
+   * @param type The original element type.
+   * @see getTypeByAlias
+   * @see setAlias
+   * @see removeAlias
+   */
+  public getAliasByType(type: string): string {
+    if (!type) return undefined;
+    return this.typeAliases[type.toLowerCase()];
+  }
+  /**
+   * Removes an alias registered with the [`setAlias`](#setAlias) method.
+   * @param alias The alias to remove.
+   * @see getAliasByType
+   * @see getTypeByAlias
+   */
+  public removeAlias(alias: string): void {
+    if (!alias) return;
+    alias = alias.toLowerCase();
+    const name = this.alternativeNames[alias];
+    if (!name || this.typeAliases[name] !== alias) return;
+    delete this.typeAliases[name];
+    delete this.alternativeNames[alias];
+  }
   public generateSchema(className: string = undefined): any {
     if (!className) className = "survey";
     var classInfo = this.findClass(className);
@@ -1618,7 +1682,7 @@ export class JsonObject {
     var result = {};
     if (property != null && !property.className) {
       (<any>result)[JsonObject.typePropertyName] = property.getObjType(
-        obj.getType()
+        this.getObjSerializedType(obj)
       );
     }
     const storeDefaults = options === true;
@@ -1644,6 +1708,10 @@ export class JsonObject {
       options
     );
     return result;
+  }
+  private getObjSerializedType(obj: any): string {
+    const type = obj.getType();
+    return Serializer.getAliasByType(type) || type;
   }
   private getDynamicProperties(obj: any): Array<JsonObjectProperty> {
     return Serializer.getDynamicPropertiesByObj(obj);

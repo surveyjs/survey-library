@@ -31,11 +31,17 @@
   --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 1px color-mix(in oklab, var(--ring) 50%, transparent);
 
   /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-sm);
+  --sjs2-typography-font-size-component-header-title: var(--text-sm);
   --sjs2-radius-component-panel: 0;
   --sjs2-typography-font-size-default: var(--text-xs);
   --sjs2-typography-line-height-component-action-large-content: var(--text-xs--line-height);
   --sjs2-typography-line-height-component-input-content: var(--text-xs--line-height);
-  --sjs2-typography-font-size-component-question-title: var(--text-sm);
+  --sjs2-typography-font-size-component-question-title: var(--text-xs);
+  --sjs2-typography-font-weight-component-question-title: var(--font-weight-normal);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
 .sd-theme-root .sd-element--with-frame {

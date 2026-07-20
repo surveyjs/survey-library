@@ -21,6 +21,16 @@
   --sjs2-typography-font-weight-component-action-large-content: 500;
   --sjs2-typography-line-height-component-action-large-content: 1.75;
 
+
+  --sjs2-layout-component-action-small-box-padding-horizontal: 5px;
+  --sjs2-layout-component-action-small-box-padding-vertical: 4px;
+  --sjs2-layout-component-action-small-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-small-label-padding-vertical: 0;
+  --sjs2-typography-font-size-component-action-small-content: 0.8125rem;
+  --sjs2-typography-font-weight-component-action-small-content: 500;
+  --sjs2-typography-line-height-component-action-small-content: 1.75;
+
+
   /* primary buttons (contained) */
   --sjs2-color-component-action-brand-primary-default-label: var(--mui-palette-primary-contrastText);
   --sjs2-color-component-action-brand-primary-default-icon: var(--mui-palette-primary-contrastText);
@@ -56,6 +66,21 @@
   --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent;
   --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px
     rgba(from var(--mui-palette-primary-main) r g b / 0.5);
+
+  /* secondary buttons */
+  --sjs2-color-component-action-neutral-secondary-default-bg: transparent;
+  --sjs2-color-component-action-neutral-secondary-default-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-neutral-secondary-default-label: var(--mui-palette-primary-main);
+
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: rgba(
+    var(--mui-palette-primary-mainChannel) / var(--mui-palette-action-hoverOpacity)
+  );
+  --sjs2-color-component-action-neutral-secondary-hovered-icon: var(--mui-palette-primary-main);
+  --sjs2-color-component-action-neutral-secondary-hovered-label: var(--mui-palette-primary-main);
+
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-component-action-neutral-secondary-disabled-icon: var(--mui-palette-action-disabled);
+  --sjs2-color-component-action-neutral-secondary-disabled-label: var(--mui-palette-action-disabled);
 
   /* formboxes */
   --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px var(--sjs2-color-component-formbox-default-border);
@@ -155,6 +180,7 @@
 
   --sjs2-color-bg-basic-primary: var(--mui-palette-background-default);
   --sjs2-color-bg-basic-primary-dim: var(--mui-palette-action-hover);
+  --sjs2-color-bg-basic-primary-disabled: var(--mui-palette-action-disabledBackground);
   --sjs2-color-bg-basic-secondary: var(--mui-palette-background-paper);
   --sjs2-color-bg-basic-secondary-dim: var(--mui-palette-action-hover);
   --sjs2-color-bg-basic-tertiary: var(--mui-palette-action-selected);
@@ -167,6 +193,7 @@
   --sjs2-color-bg-brand-primary: var(--mui-palette-primary-main);
   --sjs2-color-bg-brand-primary-dim: var(--mui-palette-primary-dark);
   --sjs2-color-bg-brand-primary-disabled: var(--mui-palette-action-disabledBackground);
+  --sjs2-color-fg-basic-primary-disabled: var(--mui-palette-action-disabled);
   --sjs2-color-fg-brand-on-primary: var(--mui-palette-primary-contrastText);
 
   --sjs2-color-fg-alert-primary: var(--mui-palette-error-main);
@@ -196,11 +223,17 @@
   --sjs2-typography-font-size-default: 1rem;
   --sjs2-typography-font-size-component-input-content: 1rem;
   --sjs2-typography-font-size-component-question-description: 0.75rem;
+  --sjs2-color-component-question-default-title: var(--mui-palette-text-secondary);
 
   --sjs2-typography-line-height-default: 1.43;
   --sjs2-typography-line-height-large: 1.5;
   --sjs2-typography-line-height-component-question-title: 1.25;
   --sjs2-typography-font-weight-component-question-title: 400;
+
+
+  --sjs2-color-component-panel-default-title: var(--mui-palette-text-primary);
+  --sjs2-typography-font-size-component-panel-title: 1.25rem;
+  --sjs2-typography-font-weight-component-panel-title: 500;
 
   --sjs2-typography-font-size-component-page-title: 1.25rem;
   --sjs2-typography-font-weight-component-page-title: 500;
@@ -216,7 +249,7 @@
   transition: none;
 }
 
-.sd-question:not(.sd-question--complex):has(
+.sd-question:not(.sd-element--with-frame):not(.sd-question--complex):has(
     .sd-question__content--text,
     .sd-question__content--comment,
     .sd-question__content--dropdown
@@ -234,14 +267,36 @@
     z-index: 1;
     transform-origin: top left;
 
-    --sjs2-color-component-question-default-title: currentColor;
-    background-color: var(--mui-palette-background-default);
+    
+    background-color: transparent;
+
+    max-width: calc(100% - 12px);
   }
 
-  &:focus-within,
+  .sd-question__title:not(:has(.svc-string-editor)) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    .sv-string-viewer--multiline {
+      white-space: nowrap;
+    }
+  }
+
+  .sd-question__title:has(.svc-string-editor) {
+    .sv-string-editor:not(:focus) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &:has(input:focus),
+  &:has(textarea:focus),
   &.sd-question--answered {
     .sd-question__header {
       transform: translate(8px, -8px) scale(0.75);
+      background-color: var(--mui-palette-background-default);
+      max-width: calc(133% - 12px);
     }
     input,
     textarea {
@@ -252,16 +307,16 @@
     }
   }
 
-  &:focus-within {
+  &:has(input:focus),
+  &:has(textarea:focus) {
     .sd-question__header {
       --sjs2-color-component-question-default-title: var(--mui-palette-primary-main);
     }
   }
 
-  &:not(:focus-within, .sd-question--answered) {
+  &:not(:has(input:focus), :has(textarea:focus), .sd-question--answered) {
     .sd-question__header {
       transform: translate(8px, 15px) scale(1);
-      pointer-events: none;
     }
     input,
     textarea {
@@ -358,7 +413,7 @@
     transform 0s linear 0.6s;
 }
 /* keyboard focus: ripple pulsates slightly wider than the label (MUI pulsate) */
-.sd-action:focus-visible:after {
+.sd-action:not(:disabled):focus-visible:after {
   width: 85%;
   opacity: 0.3;
   transform: translate(-50%, -50%) scale(1);
@@ -367,7 +422,7 @@
     sd-action-ripple-pulsate 2500ms cubic-bezier(0.4, 0, 0.2, 1) 550ms infinite;
 }
 /* pressed: ripple expands from center */
-.sd-action:active:not(:focus-visible):after {
+.sd-action:not(:disabled):active:not(:focus-visible):after {
   width: 200%;
   transform: translate(-50%, -50%) scale(1);
   opacity: 0.3;
@@ -376,7 +431,7 @@
     opacity 0s;
 }
 /* released but still mouse-focused: finish the grow (same scale target), then fade out */
-.sd-action:not(:active):focus:not(:focus-visible):after {
+.sd-action:not(:disabled):not(:active):focus:not(:focus-visible):after {
   width: 200%;
   transform: translate(-50%, -50%) scale(1);
   opacity: 0;
@@ -518,23 +573,25 @@
 }
 
 /* toggle */
+.sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: 0px;
+  --sd-boolean-switch-thumb-width: 20px;
+  --sd-boolean-switch-thumb-height: 20px;
+  --sd-boolean-switch-button-spacing: 0px;
+  --sd-boolean-switch-button-width: 34px;
+  --sd-boolean-switch-button-heigth: 14px;
+}
+
 .sd-boolean-switch__button {
-  width: 34px;
-  height: 14px;
-  padding: 0;
-  gap: 0;
   margin-inline: 9px;
-  margin-top: calc(calc(1lh - 14px) / 2);
 }
 
 .sd-boolean-switch__thumb {
   top: -3px;
-  left: 0;
+  left: -3px;
 }
 
 .sd-boolean-switch__thumb-circle {
-  width: 20px;
-  height: 20px;
   box-shadow: var(--mui-shadows-1);
 }
 
@@ -623,6 +680,47 @@
   }
 }
 
+/* tables */
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-top: 1px solid var(--mui-palette-TableCell-border);
+      border-bottom: none;
+      padding: 16px;
+      font-weight: 400;
+      font-size: 0.875rem;
+      line-height: 1.43;
+      color: var(--mui-palette-text-primary);
+      &.sd-table__cell--header span {
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+        font-weight: 500;
+      }
+      .sd-radio {
+        padding: 0;
+      }
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
+  margin: 0;
+}
+
+.sd-question__placeholder {
+  min-height: unset;
+  align-items: flex-start;
+}
+
+
 /* stepper */
 .sd-progress-buttons--numbered {
   .sd-progress-buttons__button {
@@ -637,7 +735,7 @@
     color: var(--mui-palette-primary-contrastText);
   }
 
-  .sd-progress-buttons__list li:after {
+  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
     top: 12px;
     bottom: unset;
   }
@@ -649,7 +747,17 @@
   }
 
   .sd-progress-buttons__list li {
-    flex-direction: column-reverse;
+    &:first-child,
+    &:last-child {
+      align-items: center;
+    }
+    &::after,
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after {
+      background-color: var(--mui-palette-text-disabled);
+      width: calc(100% - var(--sjs2-size-x400));
+      right: calc(50% + var(--sjs2-size-x200));
+    }
   }
 }
 
@@ -657,12 +765,6 @@
 .sd-progress-buttons,
 .sv-header__content {
   padding: 16px;
-}
-
-.sd-panel__title {
-  --sjs2-color-component-question-default-title: var(--mui-palette-text-primary);
-  --sjs2-typography-font-size-component-question-title: 1rem;
-  --sjs2-typography-font-weight-component-question-title: 600;
 }
 
 .sd-question__header {

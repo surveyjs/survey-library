@@ -274,11 +274,11 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     return this.idValue;
   }
-  // This class does not extend Base, so it cannot inherit Base.renderedId / composeRenderedId; it
+  // This class does not extend Base, so it cannot inherit Base.renderedId / composeElementId; it
   // delegates the DOM-id namespacing to the owner survey directly (raw id when detached).
   public get renderedId(): string {
     const survey = this.getSurvey();
-    return survey ? survey.getRenderedId(this.id) : this.id;
+    return survey ? survey.getElementId(this.id) : this.id;
   }
   public get rowName(): any {
     return null;
@@ -1127,6 +1127,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Default value: `false`
    * @see keyDuplicationError
+   * @since 2.0.0
    */
   public get useCaseSensitiveComparison(): boolean {
     return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : settings.comparator.caseSensitive;
@@ -1797,6 +1798,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `{row.columnname}` - The value of a cell in the same row.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
+   * @since 2.0.6
    */
   public get singleInputTitleTemplate(): string {
     return this.getLocStringText(this.locSingleInputTitleTemplate);

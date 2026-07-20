@@ -18,6 +18,8 @@
   --sjs-bs-primary-hover-bg: #000;
   --sjs-bs-primary-active-bg: #000;
 
+  --sjs-bs-primary-focus-border: transparent;
+
   /* $input-btn-padding: .75rem 1.5rem (buttons + inputs; $border-width: 0). Input total = formbox
      (0.125rem) + content, so content = target - 0.125rem.
      btn-sm: $input-btn-padding-y-sm / $input-btn-padding-x-sm */
@@ -25,8 +27,16 @@
   --sjs2-layout-component-action-large-box-padding-horizontal: 1.5rem;
   --sjs2-layout-component-action-small-box-padding-vertical: calc(0.5rem + var(--bs-border-width));
   --sjs2-layout-component-action-small-box-padding-horizontal: calc(1rem + var(--bs-border-width));
-  --sjs2-layout-component-input-medium-content-padding-vertical: 0.625rem;
-  --sjs2-layout-component-input-medium-content-padding-horizontal: 1.375rem;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 0.75rem;
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 1.5rem;
+  --sjs2-typography-line-height-component-action-small-content: 1.5rem;
+
+  --sjs2-layout-component-action-small-box-padding-horizontal: 1rem;
+  --sjs2-layout-component-action-small-box-padding-vertical: 0.5rem;
+
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: 0px 0px 0px 2px var(--bs-primary);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: 0px 0px 0px 2px var(--bs-primary);
+  --sjs2-typography-line-height-component-action-large-content: 1.5rem;
 
   /* white secondary button with dark text */
   --sjs-bs-secondary-bg: var(--bs-secondary, #fff);
@@ -65,13 +75,34 @@
   --sjs2-typography-font-weight-component-page-title: 600;
   --sjs2-typography-font-size-component-panel-title: 1rem; /* h5 */
   --sjs2-typography-font-weight-component-panel-title: 600;
+
+  --sjs2-typography-font-weight-basic: 300;
+  --sjs2-typography-font-weight-component-question-title: 300;
 }
+
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      padding: 1.5rem;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+  }
+}
+
+.sd-table.sd-table.sd-table>thead>tr {
+  &>th, &>td {
+    padding: 1.5rem;
+    font-size: 0.875rem;
+  }
+}
+
 
 /* uppercase, letter-spaced titles */
 .sd-theme-root {
   letter-spacing: 1px;
 }
-.sd-theme-root .sd-title,
+.sd-theme-root .sv-header__title,
 .sd-theme-root .sd-page__title,
 .sd-theme-root .sd-panel__title {
   text-transform: uppercase;

@@ -23,6 +23,7 @@
   --sjs2-layout-component-input-medium-content-padding-horizontal: 0.975rem;
 
   --sjs2-typography-font-weight-component-header-title: 700;
+  --sjs2-color-component-header-default-description: #868e96;
   --sjs2-typography-font-weight-component-page-title: 700;
   --sjs2-typography-font-weight-component-panel-title: 700;
   --sjs2-typography-font-size-component-panel-title: 1.375rem;
@@ -37,4 +38,11 @@
 
 .sd-action--small {
   border-radius: 0.844em;
+  padding-block: 0.25rem;
+  padding-inline: 0.5rem;    
+  font-size: 0.688rem;
+}
+
+.sd-table__cell, .sd-table__cell ызфт {
+  font-size: .9625rem;
 }

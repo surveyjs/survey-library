@@ -214,6 +214,10 @@
   /* headings follow Bootstrap: header = h2, page = h3, panel = h5; weight = $headings-font-weight (500) */
   --sjs2-typography-font-size-component-header-title: 2rem; /* h2 = $font-size-base * 2 */
   --sjs2-typography-font-weight-component-header-title: 500;
+  --sjs2-typography-font-size-component-header-description: 1.25rem;
+  --sjs2-typography-font-weight-component-header-description: 300;
+  --sjs2-color-component-header-default-description: ;
+  --sjs2-typography-font-weight-component-header-title: 500;
   --sjs2-typography-font-size-component-page-title: 1.75rem; /* h3 = $font-size-base * 1.75 */
   --sjs2-typography-font-weight-component-page-title: 500;
   --sjs2-typography-font-size-component-panel-title: 1.25rem; /* h5 = $font-size-base * 1.25 */

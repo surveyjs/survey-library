@@ -2,6 +2,7 @@ import baseTheme from "../default-theme/base-theme";
 import { defaultCss } from "../defaultCss/defaultCss";
 import { DomDocumentHelper } from "../global_variables_utils";
 import { createBoxShadowReset } from "./shadow-effects";
+import { getComputedCssVariableValues } from "./css-variables";
 
 const STYLE_ELEMENT_ATTR = "data-survey-base-theme-variables";
 const VARIABLES_PER_RULE = 50;
@@ -54,6 +55,23 @@ export function createBaseThemeStyle(): string {
  * Injects BaseTheme CSS variables into a local `<style>` element inside `htmlElement`.
  * Called from `SurveyModel.afterRenderSurvey()` after the survey root is mounted.
  */
+/**
+ * Compiles the chained base-theme variables into flat literal values by reading
+ * them back from the live cascade on `htmlElement` (via getComputedStyle). Because
+ * it reads the actual cascaded values, any user override already applied to the
+ * theme root is baked in automatically. Returns `undefined` when there is no real
+ * layout engine to resolve against (jsdom/SSR) so callers keep the chained CSS.
+ */
+export function createCompiledBaseThemeStyle(htmlElement?: Element): string | undefined {
+  if (!DomDocumentHelper.isAvailable() || !htmlElement) return undefined;
+  const cssVariables = baseTheme.cssVariables;
+  if (!cssVariables) return undefined;
+  const names = Object.keys(cssVariables);
+  const flat = getComputedCssVariableValues({}, names, htmlElement as HTMLElement);
+  if (Object.keys(flat).length < names.length / 2) return undefined;
+  return buildBaseThemeCss(flat);
+}
+
 export function ensureBaseThemeStyles(htmlElement?: Element): void {
   if (!DomDocumentHelper.isAvailable() || !htmlElement) return;
   const styleElement = ensureStyleElement(htmlElement);

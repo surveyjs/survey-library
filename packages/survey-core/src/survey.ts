@@ -88,7 +88,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment, patchLegacyCSSVariables } from "./themes";
-import { createBaseThemeStyle, createResetVariablesStyle } from "./utils/base-theme-init";
+import { createBaseThemeStyle, createResetVariablesStyle, createCompiledBaseThemeStyle } from "./utils/base-theme-init";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
@@ -5450,6 +5450,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
     }
     let observedElement: HTMLElement = htmlElement;
+    this.updateCompiledThemeStyle(observedElement);
     this.clearResetVariablesStyle();
     this._processingResponsivenessFunc = undefined;
     const cssVariables = this.css.variables;
@@ -8350,6 +8351,25 @@ export class SurveyModel extends SurveyElementCore
       this._themeStyle = createBaseThemeStyle();
     }
     return this._themeStyle;
+  }
+  /**
+   * Replaces the chained base-theme `<style>` with a compiled (flat) version once
+   * the survey root is mounted. Reads resolved values from the live DOM, so user
+   * overrides already present on the theme root are baked in. Assigning the
+   * `_themeStyle` property re-renders the `<style>` with the flat CSS. No-ops in
+   * SSR/jsdom (no layout engine) and when the compiled result is unchanged.
+   */
+  private updateCompiledThemeStyle(htmlElement: HTMLElement): void {
+    if (!this.generateStylesheet || !htmlElement) return;
+    // Already compiled (no chained var() left) — skip. This also stops the
+    // re-render triggered below from looping: the second pass sees a flat
+    // _themeStyle and returns immediately.
+    if (!!this._themeStyle && this._themeStyle.indexOf("var(--") === -1) return;
+    const compiled = createCompiledBaseThemeStyle(htmlElement);
+    if (compiled !== undefined && compiled !== this._themeStyle) {
+      this._themeStyle = compiled;
+      this.render();
+    }
   }
   @property() private _resetVariablesStyle: string;
   public get resetVariablesStyle(): string {

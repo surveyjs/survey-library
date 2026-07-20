@@ -1,10 +1,28 @@
 .sjs-theme-overrides {
+  /* Bootstrap/Bootswatch helper hooks: looks Bootstrap bakes into compiled component rules
+     (button hover/active shades, focus tint, button font-weight / text-transform).
+     Defaults derive from the live --bs-* palette via color-mix (mirrors Bootstrap's
+     shade-color / tint-color), so the adapter follows any loaded Bootstrap/Bootswatch theme.
+     bootstrap-default.scss pins them to Bootstrap's exact stock hex. */
+  --sjs-bs-on-primary: #fff;
+  --sjs-bs-primary-hover-bg: color-mix(in srgb, var(--bs-primary, #0d6efd), #000 15%);
+  --sjs-bs-primary-hover-border: color-mix(in srgb, var(--bs-primary, #0d6efd), #000 20%);
+  --sjs-bs-primary-active-bg: color-mix(in srgb, var(--bs-primary, #0d6efd), #000 20%);
+  --sjs-bs-primary-active-border: color-mix(in srgb, var(--bs-primary, #0d6efd), #000 25%);
+  --sjs-bs-primary-focus-border: color-mix(in srgb, var(--bs-primary, #0d6efd), #fff 50%);
+  --sjs-bs-secondary-bg: var(--bs-secondary, #6c757d);
+  --sjs-bs-on-secondary: #fff;
+  --sjs-bs-secondary-hover-bg: color-mix(in srgb, var(--sjs-bs-secondary-bg), #000 15%);
+  --sjs-bs-action-font-weight: var(--bs-body-font-weight, 400);
+  --sjs-bs-action-text-transform: none;
+  --sjs-bs-action-letter-spacing: normal;
+
   --sjs2-base-unit-radius: var(--bs-border-radius);
   --sjs2-base-unit-spacing: 0.25rem;
 
   --sjs2-color-utility-body: var(--bs-body-bg);
   --sjs2-color-utility-sheet: var(--bs-body-bg);
-  --sjs2-color-utility-a11y: rgba(13, 110, 253, 0.25);
+  --sjs2-color-utility-a11y: rgba(var(--bs-primary-rgb, 13, 110, 253), 0.25);
   --sjs2-color-utility-toolbox: var(--bs-body-bg);
   --sjs2-color-utility-property-grid: var(--bs-body-bg);
   --sjs2-color-utility-tabs: var(--bs-body-bg);
@@ -14,7 +32,7 @@
   --sjs2-border-effect-a11y: 0px 0px 0px 0.25rem var(--sjs2-color-utility-a11y);
 
   /* buttons */
-  --sjs2-border-effect-component-action-a11y: 0px 0px 0px 0.25rem rgba(rgb(49, 132, 253), 0.5);
+  --sjs2-border-effect-component-action-a11y: var(--sjs2-border-effect-a11y);
   --sjs2-radius-component-action: var(--bs-border-radius);
   --sjs2-layout-component-action-large-box-padding-horizontal: calc(0.75rem + var(--bs-border-width));
   --sjs2-layout-component-action-large-box-padding-vertical: calc(0.375rem + var(--bs-border-width));
@@ -25,62 +43,59 @@
   --sjs2-layout-component-action-small-box-padding-vertical: 0.25rem;
   --sjs2-layout-component-action-small-label-padding-horizontal: 0;
   --sjs2-layout-component-action-small-label-padding-vertical: 0;
-  --sjs2-typography-font-size-component-action-small-content: 0.875rem;
+  --sjs2-typography-font-size-component-action-large-content: 1rem; /* $btn-font-size */
+  --sjs2-typography-font-size-component-action-small-content: 0.875rem; /* $btn-font-size-sm */
 
   /* primary buttons */
-  --sjs2-color-component-action-brand-primary-default-label: #fff; /* --bs-btn-color */
-  --sjs2-color-component-action-brand-primary-default-icon: #fff; /* --bs-btn-color */
-  --sjs2-color-component-action-brand-primary-default-bg: #0d6efd; /* --bs-btn-bg */
-  --sjs2-border-effect-component-action-brand-primary-default: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-border-color */
+  --sjs2-color-component-action-brand-primary-default-label: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-primary-default-icon: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-primary-default-bg: var(--bs-primary);
+  --sjs2-border-effect-component-action-brand-primary-default: inset 0px 0px 0px 1px var(--bs-primary);
 
-  --sjs2-color-component-action-brand-primary-hovered-label: #fff; /* --bs-btn-hover-color */
-  --sjs2-color-component-action-brand-primary-hovered-icon: #fff; /* --bs-btn-hover-color */
-  --sjs2-color-component-action-brand-primary-hovered-bg: #0b5ed7; /* --bs-btn-hover-bg */
-  --sjs2-border-effect-component-action-brand-primary-hovered: inset 0px 0px 0px 1px #0a58ca; /* --bs-btn-hover-border-color */
+  --sjs2-color-component-action-brand-primary-hovered-label: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-primary-hovered-icon: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-primary-hovered-bg: var(--sjs-bs-primary-hover-bg);
+  --sjs2-border-effect-component-action-brand-primary-hovered: inset 0px 0px 0px 1px var(--sjs-bs-primary-hover-border);
 
-  --sjs2-color-component-action-brand-primary-disabled-label: #fff; /* --bs-btn-disabled-color */
-  --sjs2-color-component-action-brand-primary-disabled-icon: #fff; /* --bs-btn-disabled-color */
-  --sjs2-color-component-action-brand-primary-disabled-bg: #0d6efd; /* --bs-btn-disabled-bg */
-  --sjs2-border-effect-component-action-brand-primary-disabled: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-disabled-border-color */
+  --sjs2-color-component-action-brand-primary-disabled-label: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-primary-disabled-icon: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-primary-disabled-bg: var(--bs-primary);
+  --sjs2-border-effect-component-action-brand-primary-disabled: inset 0px 0px 0px 1px var(--bs-primary);
 
-  /* tertiary buttons */
-
-  --sjs2-color-component-action-brand-tertiary-surface-default-label: #0d6efd; /* --bs-btn-color */
-  --sjs2-color-component-action-brand-tertiary-surface-default-icon: #0d6efd; /* --bs-btn-color */
-  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent; /* --bs-btn-bg */
-  --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-border-color */
-
-  --sjs2-color-component-action-brand-tertiary-surface-hovered-label: #fff; /* --bs-btn-hover-color */
-  --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: #fff; /* --bs-btn-hover-color */
-  --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: #0d6efd; /* --bs-btn-hover-bg */
-  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-hover-border-color */
-
-  --sjs2-color-component-action-brand-tertiary-surface-disabled-label: #0d6efd; /* --bs-btn-disabled-color */
-  --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: #0d6efd; /* --bs-btn-disabled-color */
-  --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent; /* --bs-btn-disabled-bg */
-  --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0px 0px 0px 1px #0d6efd; /* --bs-btn-disabled-border-color */
-
+  /* tertiary buttons (outline) */
+  --sjs2-color-component-action-brand-tertiary-surface-default-label: var(--bs-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon: var(--bs-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: transparent;
   --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0px 0px 0px 1px var(--bs-primary);
+
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-label: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: var(--bs-primary);
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0px 0px 0px 1px var(--bs-primary);
 
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-label: var(--bs-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: var(--bs-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: transparent;
+  --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0px 0px 0px 1px var(--bs-primary);
+
   /* secondary buttons */
-  --sjs2-color-component-action-neutral-secondary-default-bg: #6c757d;
-  --sjs2-color-component-action-neutral-secondary-default-icon: #fff;
-  --sjs2-color-component-action-neutral-secondary-default-label: #fff;
+  --sjs2-color-component-action-neutral-secondary-default-bg: var(--sjs-bs-secondary-bg);
+  --sjs2-color-component-action-neutral-secondary-default-icon: var(--sjs-bs-on-secondary);
+  --sjs2-color-component-action-neutral-secondary-default-label: var(--sjs-bs-on-secondary);
 
-  --sjs2-color-component-action-neutral-secondary-hovered-bg: #5c636a;
-  --sjs2-color-component-action-neutral-secondary-hovered-icon: #fff;
-  --sjs2-color-component-action-neutral-secondary-hovered-label: #fff;
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: var(--sjs-bs-secondary-hover-bg);
+  --sjs2-color-component-action-neutral-secondary-hovered-icon: var(--sjs-bs-on-secondary);
+  --sjs2-color-component-action-neutral-secondary-hovered-label: var(--sjs-bs-on-secondary);
 
-  --sjs2-color-component-action-neutral-secondary-disabled-bg: rgba(from #6c757d r g b / 0.65);
-  --sjs2-color-component-action-neutral-secondary-disabled-icon: #fff;
-  --sjs2-color-component-action-neutral-secondary-disabled-label: #fff;
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: rgba(from var(--sjs-bs-secondary-bg) r g b / 0.65);
+  --sjs2-color-component-action-neutral-secondary-disabled-icon: var(--sjs-bs-on-secondary);
+  --sjs2-color-component-action-neutral-secondary-disabled-label: var(--sjs-bs-on-secondary);
 
   /* formboxes */
   --sjs2-border-effect-component-formbox-default: inset 0px 0px 0px 1px
     var(--sjs2-color-component-formbox-default-border);
   --sjs2-border-effect-component-formbox-focused:
-    inset 0px 0px 0px 1px #86b7fe, 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+    inset 0px 0px 0px 1px var(--sjs-bs-primary-focus-border), 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
   --sjs2-border-effect-component-formbox-invalid: inset 0px 0px 0px 1px var(--bs-form-invalid-color);
   --sjs2-border-effect-component-formbox-invalid-focused:
     inset 0px 0px 0px 1px var(--bs-form-invalid-color), 0 0 0 0.25rem rgba(var(--bs-danger-rgb), 0.25);
@@ -97,7 +112,7 @@
 
   /* buttongroup */
   --sjs2-color-component-buttongroup-item-true-default-bg: var(--bs-primary);
-  --sjs2-color-component-buttongroup-item-true-default-value: #fff;
+  --sjs2-color-component-buttongroup-item-true-default-value: var(--sjs-bs-on-primary);
   --sjs2-color-component-buttongroup-item-true-default-border: var(--bs-primary);
 
   /* error message */
@@ -134,14 +149,14 @@
   /* toggle */
   --sjs2-color-component-toggle-true-default-thumb: rgb(255, 255, 255);
   --sjs2-color-component-toggle-true-hovered-thumb: rgb(255, 255, 255);
-  --sjs2-color-component-toggle-true-default-bg: #0d6efd;
-  --sjs2-color-component-toggle-true-hovered-bg: #0d6efd;
+  --sjs2-color-component-toggle-true-default-bg: var(--bs-primary);
+  --sjs2-color-component-toggle-true-hovered-bg: var(--bs-primary);
   --sjs2-color-component-toggle-false-default-thumb: rgba(0, 0, 0, 0.25);
   --sjs2-color-component-toggle-false-hovered-thumb: rgba(0, 0, 0, 0.25);
   --sjs2-color-component-toggle-false-default-bg: var(--bs-body-bg);
   --sjs2-color-component-toggle-false-hovered-bg: var(--bs-body-bg);
   --sjs2-color-component-toggle-false-default-border: var(--bs-border-color);
-  --sjs2-color-component-toggle-true-default-border: #0d6efd;
+  --sjs2-color-component-toggle-true-default-border: var(--bs-primary);
 
   /* tagbox */
   --sjs2-layout-component-input-small-tag-group-gap: 0.25rem;
@@ -165,7 +180,7 @@
   --sjs2-color-bg-basic-secondary-dim: var(--bs-tertiary-bg);
   --sjs2-color-bg-basic-tertiary: var(--bs-tertiary-bg, var(--bs-secondary-bg));
   --sjs2-color-bg-brand-primary-disabled: var(--bs-secondary-bg);
-  --sjs2-color-fg-basic-primary-disabled: rgba(from var(--foreground) r g b / 0.5);
+  --sjs2-color-fg-basic-primary-disabled: rgba(from var(--bs-body-color) r g b / 0.5);
 
   --sjs2-color-border-basic-primary: var(--bs-border-color);
   --sjs2-color-border-basic-secondary: var(--bs-border-color);
@@ -179,8 +194,8 @@
   --sjs2-color-fg-alert-on-primary: #fff;
   --sjs2-color-fg-basic-primary: var(--bs-body-color);
   --sjs2-color-fg-basic-secondary: var(--bs-secondary-color);
-  --sjs2-color-fg-brand-on-primary: var(--bs-btn-color, #fff);
-  --sjs2-color-fg-brand-on-secondary: var(--bs-btn-color, #fff);
+  --sjs2-color-fg-brand-on-primary: var(--sjs-bs-on-primary);
+  --sjs2-color-fg-brand-on-secondary: var(--sjs-bs-on-secondary);
   --sjs2-color-project-brand-600: var(--bs-primary);
   --sjs2-color-utility-shadow-surface-default: var(--bs-border-color-translucent);
   --sjs2-color-utility-shadow-trigger-default: transparent;
@@ -196,13 +211,13 @@
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
 
-  --sjs2-typography-font-size-component-panel-title: 1.25rem;
+  /* headings follow Bootstrap: header = h2, page = h3, panel = h5; weight = $headings-font-weight (500) */
+  --sjs2-typography-font-size-component-header-title: 2rem; /* h2 = $font-size-base * 2 */
+  --sjs2-typography-font-weight-component-header-title: 500;
+  --sjs2-typography-font-size-component-page-title: 1.75rem; /* h3 = $font-size-base * 1.75 */
+  --sjs2-typography-font-weight-component-page-title: 500;
+  --sjs2-typography-font-size-component-panel-title: 1.25rem; /* h5 = $font-size-base * 1.25 */
   --sjs2-typography-font-weight-component-panel-title: 500;
-
-  --sjs2-typography-font-size-component-header-title: 2rem;
-  --sjs2-typography-font-size-component-page-title: 1.75rem;
-
-  --sd-mobile-width: 0px;
 }
 
 /* check/radio icon redifinition */
@@ -233,7 +248,7 @@
 
 /* check focus and pressed state */
 .sd-item:not(.sd-item--checked) {
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px #86b7fe, var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
 }
 .sd-item__control:focus + .sd-item__decorator::before,
 .sd-item__control:active + .sd-item__decorator::before {
@@ -269,7 +284,7 @@
 }
 
 .sd-boolean-switch__button {
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px #86b7fe, var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 
   &:focus {
@@ -318,15 +333,15 @@
   transform: initial;
 }
 .sd-action--primary:active {
-  color: #fff; /*--bs-btn-active-color*/
-  background-color: #0a58ca; /*--bs-btn-active-bg*/
-  border-color: #0a53be; /*--bs-btn-active-border-color*/
+  color: var(--sjs-bs-on-primary);
+  background-color: var(--sjs-bs-primary-active-bg);
+  border-color: var(--sjs-bs-primary-active-border);
 }
 
 .sd-action--tertiary:active {
-  color: #fff; /*--bs-btn-active-color*/
-  background-color: #0d6efd; /*--bs-btn-active-bg*/
-  border-color: #0d6efd; /*--bs-btn-active-border-color*/
+  color: var(--sjs-bs-on-primary);
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
 }
 
 
@@ -371,8 +386,12 @@
   content: initial;
 }
 
+.sd-theme-root .sd-action {
+  text-transform: var(--sjs-bs-action-text-transform);
+  letter-spacing: var(--sjs-bs-action-letter-spacing);
+}
 .sd-theme-root .sd-action__title {
-  font-weight: normal;
+  font-weight: var(--sjs-bs-action-font-weight);
 }
 
 .sd-theme-root .sd-element--with-frame {

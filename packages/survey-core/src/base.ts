@@ -405,12 +405,6 @@ export class Base implements IObjectValueContext {
   public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
-  /**
-   * A process-global numeric identifier assigned eagerly in object-creation order. Used for framework
-   * `key`s, instance-keyed maps, the reactivity dependency hash, and creation-order sorting (e.g.
-   * `Helpers.randomizeArray`). It is **not** rendered to the DOM (that is `renderedId`), so it needs no
-   * per-survey/SSR determinism - hence a plain immutable static counter rather than the id generator.
-   */
   public get uniqueId(): number {
     return this.uniqueIdValue;
   }
@@ -421,12 +415,6 @@ export class Base implements IObjectValueContext {
     return Base.getIdGeneratorBySurvey(this.getSurvey());
   }
   protected getIdPrefix(): string { return this.getType(); }
-  /**
-   * The raw, per-survey logical id (`"sq_0"`, `"sp_0"`, ...). Used for internal logic, dictionaries
-   * and virtual-DOM identity; it is **not** rendered to the DOM directly (see `renderedId`). A
-   * deterministic default is generated lazily on first access; assigning a value explicitly always
-   * wins.
-   */
   public get id(): string {
     return this.getPropertyValue("id", undefined, () => this.generateElementId());
   }
@@ -434,12 +422,12 @@ export class Base implements IObjectValueContext {
   protected generateElementId(): string {
     return this.getIdGenerator().next(this.getIdPrefix());
   }
-  protected composeRenderedId(id: string): string {
+  protected composeElementId(id: string): string {
     const survey = this.getSurvey();
-    return survey ? survey.getRenderedId(id) : id;
+    return survey ? survey.getElementId(id) : id;
   }
   public get renderedId(): string {
-    return this.composeRenderedId(this.id);
+    return this.composeElementId(this.id);
   }
   public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(onCallbacksChanged?: () => void): EventBase<T, Options> {

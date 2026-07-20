@@ -60,9 +60,9 @@ describe("SSR id wiring (survey-react-ui)", () => {
     });
   });
 
-  it("Two surveys with distinct renderedIdPrefix render into one document with zero id collision", () => {
-    const s1 = new SurveyModel(json); s1.renderedIdPrefix = "a-";
-    const s2 = new SurveyModel(json); s2.renderedIdPrefix = "b-";
+  it("Two surveys with distinct elementIdPrefix render into one document with zero id collision", () => {
+    const s1 = new SurveyModel(json); s1.elementIdPrefix = "a-";
+    const s2 = new SurveyModel(json); s2.elementIdPrefix = "b-";
     const html1 = renderToStaticHtml(s1);
     const html2 = renderToStaticHtml(s2);
     expect(html1).toContain("id=\"a-sq_0i\"");

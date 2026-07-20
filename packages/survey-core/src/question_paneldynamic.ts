@@ -237,6 +237,14 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     this.template.removeElementCallback = () => {
       this.rebuildPanels();
     };
+    this.template.onPropertyChanged.add((sender: Base, options: any) => {
+      if (options.name === "title") {
+        this.propertyValueChanged("templateTitle", options.oldValue, options.newValue);
+      }
+      if (options.name === "description") {
+        this.propertyValueChanged("templateDescription", options.oldValue, options.newValue);
+      }
+    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -267,6 +275,10 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
     if (name === "tabAlign" && this.isRenderModeTab) {
       this.tabbedMenu.containerCss = this.getTabbedMenuCss();
     }
+  }
+  public dispose(): void {
+    super.dispose();
+    this.templateValue.dispose();
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
@@ -817,6 +829,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * A caption for the Previous button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
    * @see isPrevButtonVisible
+   * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pagePrevText" } }) prevPanelText: string;
   /**
@@ -829,6 +842,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * A caption for the Next button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
    * @see isNextButtonVisible
+   * @since 2.0.0
    */
   @property({ localizable: { defaultStr: "pageNextText" } }) nextPanelText: string;
   /**
@@ -1149,6 +1163,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * This property is not serialized.
    * @see allowAddPanel
+   * @since 2.5.25
    */
   @property({ defaultValue: true }) enableAddPanel: boolean;
   /**
@@ -1158,6 +1173,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * This property is not serialized.
    * @see allowRemovePanel
+   * @since 2.5.25
    */
   @property({ defaultValue: true }) enableRemovePanel: boolean;
   /**
@@ -1169,6 +1185,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * - `"left"` - Displays question titles to the left of input fields.
    * - `"hidden"` - Hides question titles.
    * @see titleLocation
+   * @since 2.0.0
    */
   @property() templateQuestionTitleLocation: string;
   /**
@@ -1185,6 +1202,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * Sets consistent width for question titles in CSS values. Applies only when [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) evaluates to `"left"`.
    *
    * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
+   * @since 2.0.4
    */
   @property() templateQuestionTitleWidth: string;
   /**
@@ -1246,6 +1264,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    * - `"bottom"` (default) - Displays the Remove Panel button below panel content.
    * - `"right"` - Displays the Remove Panel button to the right of panel content.
    * @see removePanelText
+   * @since 2.0.0
    */
   @property() removePanelButtonLocation: string;
   /**
@@ -1462,6 +1481,7 @@ export class QuestionPanelDynamicModel extends Question implements IDynamicItemM
    *
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
+   * @since 2.0.0
    */
   @property() copyDefaultValueFromLastEntry: boolean;
   /**

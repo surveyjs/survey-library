@@ -1310,6 +1310,9 @@ export class JsonMetadata {
   public addAlterNativeClassName(name: string, alternativeName: string) {
     this.alternativeNames[alternativeName.toLowerCase()] = name.toLowerCase();
   }
+  // MERGE(V3): the alias methods below (setAlias / getTypeByAlias / getAliasByType / removeAlias)
+  // each conflict on their doc block - master (V2) adds `@since 2.5.34`, V3 omits it (these are
+  // 3.0.0 API in V3). On merge keep the V3 (no `@since`) doc for all four.
   /**
    * Registers an alias for an existing element type.
    *

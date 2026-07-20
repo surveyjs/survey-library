@@ -365,6 +365,7 @@ export class MatrixDropdownColumn extends Base
    * Default value: `""`
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   * @since 2.0.0
    */
   public get defaultDisplayValue(): string {
     return this.templateQuestion.defaultDisplayValue;

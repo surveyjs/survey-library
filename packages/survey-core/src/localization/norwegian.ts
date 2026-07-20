@@ -244,6 +244,8 @@ export var norwegianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Innhold",
   progressbar: "Fremdriftsindikator",
+  // MERGE(V3): keep `progressbarPage` (V3-only key). master (V2) has no comma after
+  // `progressbar` and drops this line - on merge keep the trailing comma + `progressbarPage`.
   // [Auto-translated] "Page {0}"
   progressbarPage: "Side {0}"
 };

@@ -18,7 +18,7 @@ pool:
 
 jobs:
 - job: Knockout
-  timeoutInMinutes: 120
+  timeoutInMinutes: 90
   steps:
   - checkout: self
 
@@ -40,20 +40,12 @@ jobs:
       TargetFolder: "$(Build.SourcesDirectory)/Temp/"
       OverWrite: true
     displayName: "Copy package.json for cache key"
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
 
   - task: Npm@1
     displayName: 'NPM install'
     inputs:
       command: install
       verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
   - script: |
       npx puppeteer browsers install chrome
     displayName: "install chrome"
@@ -84,7 +76,7 @@ jobs:
     displayName: 'publish vrt artifacts'
 
 - job: React
-  timeoutInMinutes: 120
+  timeoutInMinutes: 90
   steps:
   - checkout: self
 
@@ -107,20 +99,12 @@ jobs:
       OverWrite: true
     displayName: "Copy package.json for cache key"
 
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
 
   - task: Npm@1
     displayName: 'NPM install'
     inputs:
       command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-  
+      verbose: false  
   - script: |
       npx puppeteer browsers install chrome
     displayName: "install chrome"
@@ -155,7 +139,7 @@ jobs:
     displayName: 'publish vrt artifacts'
 
 - job: Vue
-  timeoutInMinutes: 120
+  timeoutInMinutes: 90
   steps:
   - checkout: self
 
@@ -177,20 +161,12 @@ jobs:
       TargetFolder: "$(Build.SourcesDirectory)/Temp/"
       OverWrite: true
     displayName: "Copy package.json for cache key"
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
 
   - task: Npm@1
     displayName: 'NPM install'
     inputs:
       command: install
-      verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-  
+      verbose: false  
   - script: |
       npx puppeteer browsers install chrome
     displayName: "install chrome"
@@ -222,7 +198,7 @@ jobs:
     displayName: 'publish vrt artifacts'
 
 - job: Angular
-  timeoutInMinutes: 120
+  timeoutInMinutes: 90
   steps:
   - checkout: self
     persistCredentials: true
@@ -247,20 +223,12 @@ jobs:
       OverWrite: true
     displayName: "Copy package.json for cache key"
 
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPMs
 
   - task: Npm@1
     displayName: 'NPM install root'
     inputs:
       command: install
       verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
   - script: |
       npx puppeteer browsers install chrome
     displayName: "install chrome"
@@ -313,7 +281,7 @@ jobs:
     displayName: 'publish vrt artifacts'
 
 - job: Vue3
-  timeoutInMinutes: 120
+  timeoutInMinutes: 90
   steps:
   - checkout: self
     persistCredentials: true
@@ -338,20 +306,12 @@ jobs:
       OverWrite: true
     displayName: "Copy package.json for cache key"
 
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPMs
 
   - task: Npm@1
     displayName: 'NPM install root'
     inputs:
       command: install
       verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
   - script: |
       npx puppeteer browsers install chrome
     displayName: "install chrome"
@@ -471,7 +431,7 @@ jobs:
 #     displayName: 'publish vrt artifacts'
 
 - job: SurveyUI_and_CSSFrameworks
-  timeoutInMinutes: 120
+  timeoutInMinutes: 90
   steps:
   - checkout: self
 
@@ -493,20 +453,12 @@ jobs:
       TargetFolder: "$(Build.SourcesDirectory)/Temp/"
       OverWrite: true
     displayName: "Copy package.json for cache key"
-  - task: Cache@2
-    inputs:
-      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-      path: $(Build.SourcesDirectory)/node_modules
-      cacheHitVar: NPM_CACHE_RESTORED
-    displayName: Cache NPM
 
   - task: Npm@1
     displayName: 'NPM install'
     inputs:
       command: install
       verbose: false
-    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
   - script: |
       npx puppeteer browsers install chrome
     displayName: "install chrome"

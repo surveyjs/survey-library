@@ -32,45 +32,7 @@ pool:
 
 jobs:
 
-- job: NPMCache
-
-  steps:
-    - checkout: self
-    - checkout: EmptyRepo
-      persistCredentials: true
-      clean: true
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "16.x"
-      displayName: "Install Node.js"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
-        Contents: "package.json"
-        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-        OverWrite: true
-      displayName: "Copy package.json for cache key"
-
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
-
-    - task: Npm@1
-      displayName: 'NPM install'
-      inputs:
-        command: install
-        verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
 - job: CoreAngularJquery
-  dependsOn:
-    - NPMCache
 
   steps:
     - checkout: self
@@ -92,12 +54,6 @@ jobs:
         OverWrite: true
       displayName: "Copy package.json for cache key"
 
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -129,8 +85,6 @@ jobs:
         command: install
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npm run release -- --release-as $(SurveyJSVersion)
@@ -217,9 +171,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Knockout
-  timeoutInMinutes: 120
-  dependsOn:
-    - NPMCache
+  timeoutInMinutes: 90
 
   steps:
     - checkout: self
@@ -240,12 +192,6 @@ jobs:
         OverWrite: true
       displayName: "Copy package.json for cache key"
 
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -278,8 +224,6 @@ jobs:
         command: install
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
@@ -348,9 +292,7 @@ jobs:
         publishLocation: "Container"
 
 - job: React
-  timeoutInMinutes: 120
-  dependsOn:
-    - NPMCache
+  timeoutInMinutes: 90
 
   steps:
     - checkout: self
@@ -370,12 +312,6 @@ jobs:
         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
         OverWrite: true
       displayName: "Copy package.json for cache key"
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -408,8 +344,6 @@ jobs:
         command: install
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
@@ -461,9 +395,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Vue
-  timeoutInMinutes: 120
-  dependsOn:
-    - NPMCache
+  timeoutInMinutes: 90
 
   steps:
     - checkout: self
@@ -483,12 +415,6 @@ jobs:
         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
         OverWrite: true
       displayName: "Copy package.json for cache key"
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -521,8 +447,6 @@ jobs:
         command: install
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
@@ -574,9 +498,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Angular
-  timeoutInMinutes: 120
-  dependsOn:
-    - NPMCache
+  timeoutInMinutes: 90
 
   steps:
     - checkout: self
@@ -597,12 +519,6 @@ jobs:
         OverWrite: true
       displayName: "Copy package.json for cache key"
 
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPMs
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -634,9 +550,7 @@ jobs:
       inputs:
         command: install
         verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-  
+        workingDir: $(Build.SourcesDirectory)/survey-library  
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
@@ -698,9 +612,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Vue3
-  timeoutInMinutes: 120
-  dependsOn:
-    - NPMCache
+  timeoutInMinutes: 90
 
   steps:
     - checkout: self
@@ -721,12 +633,6 @@ jobs:
         OverWrite: true
       displayName: "Copy package.json for cache key"
 
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPMs
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -759,8 +665,6 @@ jobs:
         command: install
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome
@@ -822,9 +726,7 @@ jobs:
         publishLocation: "Container"
 
 - job: SurveyUI_and_CSSFrameworks
-  timeoutInMinutes: 120
-  dependsOn:
-    - NPMCache
+  timeoutInMinutes: 90
 
   steps:
     - checkout: self
@@ -844,12 +746,6 @@ jobs:
         TargetFolder: "$(Build.SourcesDirectory)/Temp/"
         OverWrite: true
       displayName: "Copy package.json for cache key"
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
 
     # setup next release version
     - task: DownloadBuildArtifacts@0
@@ -882,8 +778,6 @@ jobs:
         command: install
         verbose: false
         workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
         npx puppeteer browsers install chrome

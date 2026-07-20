@@ -217,6 +217,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Knockout
+  timeoutInMinutes: 120
   dependsOn:
     - NPMCache
 
@@ -347,6 +348,7 @@ jobs:
         publishLocation: "Container"
 
 - job: React
+  timeoutInMinutes: 120
   dependsOn:
     - NPMCache
 
@@ -459,6 +461,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Vue
+  timeoutInMinutes: 120
   dependsOn:
     - NPMCache
 
@@ -571,6 +574,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Angular
+  timeoutInMinutes: 120
   dependsOn:
     - NPMCache
 
@@ -694,6 +698,7 @@ jobs:
         publishLocation: "Container"
 
 - job: Vue3
+  timeoutInMinutes: 120
   dependsOn:
     - NPMCache
 
@@ -817,6 +822,7 @@ jobs:
         publishLocation: "Container"
 
 - job: SurveyUI_and_CSSFrameworks
+  timeoutInMinutes: 120
   dependsOn:
     - NPMCache
 

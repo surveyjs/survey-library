@@ -488,10 +488,19 @@ export class PanelModelBase extends SurveyElement<Question>
 
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
-    if (!this.hasTitle && this.isDesignMode) return false;
-    return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
-      (this.showDescription && this.isDesignMode &&
-        settings.designMode.showEmptyDescriptions);
+    const survey: any = this.survey;
+    const showInRuntime = survey && survey.showPageTitles && this.hasDescription;
+    if (this.isDesignMode) {
+      const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
+      let show = this.hasTitle &&
+        (hasEnteredDescription ||
+          (this.showDescription && settings.designMode.showEmptyDescriptions));
+      if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
+        show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);
+      }
+      return !!show;
+    }
+    return showInRuntime;
   }
   public localeChanged(): void {
     super.localeChanged();
@@ -537,6 +546,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Returns a character or text string that indicates a required panel/page.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return !!this.survey && this.isRequired

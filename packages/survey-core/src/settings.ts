@@ -420,6 +420,7 @@ export var settings = {
    * // %variableName%
    * settings.expressionVariableDelimiters = { start: "%", end: "%" };
    * ```
+   * @since 2.5.15
    */
   expressionVariableDelimiters: {
     start: "{",
@@ -429,6 +430,7 @@ export var settings = {
    * A prefix used to [access element property values](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#element-properties) in expressions and dynamic texts.
    *
    * Default value: `"$"`
+   * @since 2.5.15
    */
   expressionElementPropertyPrefix: "$",
   /**
@@ -436,6 +438,7 @@ export var settings = {
    *
    * - `false` (default) - Recalculate on every value change in the survey.
    * - `true` - Recalculate only on the initial run, when all expressions are re-evaluated, and when a dependent value or property changes. Expressions with parameterless functions or functions whose parameters do not reference survey values still recalculate on every value change.
+   * @since 2.5.27
    */
   expressionQuestionTrackDependencies: false,
   get commentPrefix(): string { return settings.commentSuffix; },
@@ -481,6 +484,7 @@ export var settings = {
    * Default value: `false`
    *
    * If [custom choices are enabled](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices), and this property is set to `true`, clicking outside the editor also saves the entered custom value.
+   * @since 2.5.10
    */
   dropdownSaveOnOutsideClick: false,
   /**
@@ -586,6 +590,7 @@ export var settings = {
    *
    * - `"column"` (default) - Items fill the current column, then move on to the next column.
    * - `"row"` - Items fill the current row, then move on to the next row.
+   * @since 2.0.0
    */
   itemFlowDirection: "column",
   /**
@@ -929,6 +934,7 @@ export var settings = {
    *   archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
    * }
    * ```
+   * @since 2.3.16
    */
   acceptedFileCategories: {
     image: [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".svg"],

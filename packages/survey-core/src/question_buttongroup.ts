@@ -27,9 +27,6 @@ export class ButtonGroupItemValue extends ChoiceItem {
   @property() showCaption: boolean;
 }
 
-/**
- * A Model for a button group question.
- */
 export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);

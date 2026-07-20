@@ -295,12 +295,12 @@ export class DropdownListModel extends Base {
   }
 
   protected onHidePopup(): void {
-    this.question.suggestedItem = null;
     if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
     }
     this.customValue = undefined;
     this.resetCustomItemValue();
+    this.resetKeyboardPreviewState();
   }
 
   protected getAvailableItems(): Array<ItemValue> {
@@ -343,6 +343,10 @@ export class DropdownListModel extends Base {
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };
+    const baseIsItemFocused = res.isItemFocused.bind(res);
+    res.isItemFocused = (action: ItemValue): boolean => {
+      return (this.isListFocusedByKeyboard || !!this.filterString) && baseIsItemFocused(action);
+    };
     return res;
   }
 
@@ -353,12 +357,29 @@ export class DropdownListModel extends Base {
       selectedItem = newChoice;
     }
     if (!!selectedItem) {
-      this.resetFilterString();
       this.question.selectItem(selectedItem);
+      this.resetFilterString();
       if (this.searchEnabled) {
         this.applyInputString(selectedItem as ItemValue);
       }
     }
+  }
+
+  protected resetListKeyboardHighlightState(): void {
+    this.listModel.actions.forEach(action => {
+      const item = action as ItemValue;
+      if (typeof item.selectedValue === "boolean") {
+        item.selectedValue = undefined;
+      }
+    });
+    this.listModel.resetFocusedItem();
+    this.ariaActivedescendant = undefined;
+  }
+
+  protected resetKeyboardPreviewState(): void {
+    this.isListFocusedByKeyboard = false;
+    this.question.suggestedItem = null;
+    this.resetListKeyboardHighlightState();
   }
 
   protected selectAvailableItem(): boolean {
@@ -392,7 +413,11 @@ export class DropdownListModel extends Base {
   }
 
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
-    model.isItemSelected = (action: ItemValue) => !!action.selected;
+    model.isItemSelected = (action: ItemValue) => {
+      if (action.selectedValue === true) return true;
+      if (action.selectedValue === false && this.question.suggestedItem) return false;
+      return !!this.question.isItemSelected(action);
+    };
     model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
     model.disableSearch = this.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
@@ -516,6 +541,7 @@ export class DropdownListModel extends Base {
   @property({}) showInputFieldComponent: boolean;
   @property() ariaActivedescendant: string;
   @property() ariaExpanded : "true" | "false";
+  private isListFocusedByKeyboard: boolean = false;
 
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
@@ -558,6 +584,7 @@ export class DropdownListModel extends Base {
   }
 
   public set inputStringRendered(val: string) {
+    this.isListFocusedByKeyboard = !!val;
     this.inputString = val;
     this.filterString = val;
 
@@ -736,6 +763,7 @@ export class DropdownListModel extends Base {
   public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
+    this.isListFocusedByKeyboard = false;
     this.focusItemOnClickAndPopup();
     this.question.focusInputElement(false);
   }
@@ -757,12 +785,16 @@ export class DropdownListModel extends Base {
       this.setTextWrapEnabled(options.newValue);
     }
   }
-  protected focusItemOnClickAndPopup() {
-    if (this._popupModel.isVisible && this.question.value)
-      this.changeSelectionWithKeyboard(false);
+  protected focusItemOnClickAndPopup(): void {
+    if (this._popupModel.isVisible && this.question.value) {
+      if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
+        this.listModel.focusedItem = this.question.selectedItem;
+      }
+      this.afterScrollToFocusedItem();
+    }
   }
-
   public onClear(event?: any): void {
+    this.resetKeyboardPreviewState();
     this.question.clearValueFromUI();
     this._popupModel.hide();
     if (event) {
@@ -776,6 +808,7 @@ export class DropdownListModel extends Base {
   }
 
   changeSelectionWithKeyboard(reverse: boolean): void {
+    this.isListFocusedByKeyboard = true;
     let focusedItem = this.listModel.focusedItem;
     if (!focusedItem && this.question.selectedItem) {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {

@@ -44,6 +44,7 @@ export interface IExpressionValidationOptions {
 
 /**
  * An interface that describes the result returned by the [`validateExpressions`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
+ * @since 2.5.7
  */
 export interface IExpressionValidationResult {
   /**
@@ -420,6 +421,7 @@ export class Base implements IObjectValueContext {
   /**
    * Returns the survey element that owns this element. Returns `undefined` if called on a `SurveyModel` instance.
    * @returns The owner survey element, or `undefined` if none exists.
+   * @since 2.5.8
    */
   public getOwner(): any {
     return undefined;
@@ -596,6 +598,7 @@ export class Base implements IObjectValueContext {
    * To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
    * @param locales *(Optional)* An array of locale identifiers to include in the JSON schema.
    * @returns A locale-strings-only JSON schema.
+   * @since 2.5.4
    */
   public getLocalizationJSON(locales?: Array<string>): any {
     return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
@@ -1026,6 +1029,7 @@ export class Base implements IObjectValueContext {
    * @param {boolean} options.functions Pass `false` to disable validation of unknown functions.
    * @param {boolean} options.semantics Pass `false` to disable validation of semantic errors.
    * @returns An [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/IExpressionValidationResult) array.
+   * @since 2.5.7
    */
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     const result: IExpressionValidationResult[] = [];
@@ -1134,12 +1138,17 @@ export class Base implements IObjectValueContext {
       const info = this.getExpressionInfoByProperty(propName, expression);
       const runner = info.runner;
       if (!info.isRunning && (!canRun || canRun(runner))) {
+        const doRun = () => runner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, propName));
+        if (!runner.canRun()) {
+          doRun();
+          return false;
+        }
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
           onExecute(value);
           info.isRunning = false;
         };
-        runner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, propName));
+        doRun();
       }
     }
     return true;

@@ -9,9 +9,6 @@ export interface ISurveyErrorOwner extends ILocalizableOwner {
 export interface ISurveyValidatorOwner extends ISurveyErrorOwner {
   createRegexValidator(validator: Base, pattern: string, flags: string): RegExp;
 }
-/**
- * Validation-related members for questions and panels.
- */
 export interface ISurveyValidation {
   validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
   validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;

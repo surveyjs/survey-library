@@ -161,8 +161,6 @@ export var hungarianSurveyStrings = {
   savingDataError: "Egy hiba folytán nem tudtuk elmenteni az eredményt.",
   // "The results were saved successfully!"
   savingDataSuccess: "Eredmény sikeresen mentve!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba a felmérés tulajdonosával.",
   // "Try again"
   saveAgainButton: "Próbálja újra",
   // [Auto-translated] "min"

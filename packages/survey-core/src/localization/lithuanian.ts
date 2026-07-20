@@ -161,8 +161,6 @@ export var lithuaniaSurveyStrings = {
   savingDataError: "Įvyko klaida ir mes negalėjome išsaugoti rezultatų.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultatai buvo išsaugoti sėkmingai!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku.",
   // "Try again"
   saveAgainButton: "Bandyti dar kartą",
   // [Auto-translated] "min"

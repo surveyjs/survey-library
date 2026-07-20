@@ -305,6 +305,35 @@ describe("Question text: Input mask", () => {
     expect(q2.inputValue).toBe("10 000,99");
   });
 
+  test("Masked input value is updated immediately when survey.data is set while the input is focused, Bug#11577", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          maskType: "pattern",
+          maskSettings: { pattern: "+99-99" },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+    expect(testInput.value, "empty masked value is rendered").toBe("+__-__");
+
+    testInput.focus();
+    expect(document.activeElement, "the input is focused").toBe(testInput);
+
+    survey.data = { q1: "1234" };
+    expect(q.value, "q.value is set from survey.data").toBe("1234");
+    expect(q.inputValue, "q.inputValue is masked").toBe("+12-34");
+    expect(testInput.value, "the masked value inside the focused input is updated immediately").toBe("+12-34");
+
+    testInput.remove();
+  });
+
   test("mask settings changes trigger survey.onPropertyValueChangedCallback", () => {
     const survey = new SurveyModel({
       "pages": [

@@ -1123,6 +1123,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Default value: `false`
    * @see keyDuplicationError
+   * @since 2.0.0
    */
   public get useCaseSensitiveComparison(): boolean {
     return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : settings.comparator.caseSensitive;
@@ -1792,6 +1793,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `{row.columnname}` - The value of a cell in the same row.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
+   * @since 2.0.6
    */
   public get singleInputTitleTemplate(): string {
     return this.getLocStringText(this.locSingleInputTitleTemplate);

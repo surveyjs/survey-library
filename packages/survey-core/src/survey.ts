@@ -157,15 +157,14 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
-    const isUnwrapped = name.endsWith(unWrappedNameSuffix);
-    if (isUnwrapped) {
+    if (name.endsWith(unWrappedNameSuffix)) {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);
     }
     const question = this.survey.getQuestionByValueName(name, true);
     if (question) {
       res.isFound = true;
       res.obj = question;
-      res.context = question.getValueGetterContext(isUnwrapped);
+      res.context = question.getValueGetterContext();
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
@@ -530,6 +529,7 @@ export class SurveyModel extends SurveyElementCore
   public onPageAdded: EventBase<SurveyModel, PageAddedEvent> = this.addEvent<SurveyModel, PageAddedEvent>();
   /**
    * An event that is raised when a [`RegexValidator`](https://surveyjs.io/form-library/documentation/api-reference/regexvalidator) instance is created. Use this event to customize the regular expression pattern and its flags.
+   * @since 2.5.6
    */
   public onCreateRegexValidator: EventBase<SurveyModel, CreateRegexValidatorEvent> = this.addEvent<SurveyModel, CreateRegexValidatorEvent>();
   /**
@@ -574,6 +574,7 @@ export class SurveyModel extends SurveyElementCore
   public onErrorCustomText: EventBase<SurveyModel, ErrorCustomTextEvent> = this.addEvent<SurveyModel, ErrorCustomTextEvent>();
   /**
    * An event that is raised when a survey page is being validated. Use this event to add/remove/modify errors.
+   * @since 2.0.0
    */
   public onValidatePage: EventBase<SurveyModel, ValidatePageEvent> = this.addEvent<SurveyModel, ValidatePageEvent>();
   /**
@@ -718,6 +719,7 @@ export class SurveyModel extends SurveyElementCore
   public onClearFiles: EventBase<SurveyModel, ClearFilesEvent> = this.addEvent<SurveyModel, ClearFilesEvent>();
   /**
    * An event that is raised after choices are loaded from a server but before they are assigned to a choice-based question, such as [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) or [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model). Handle this event if you need to modify the loaded choices.
+   * @since 2.0.0
    */
   public onChoicesLoaded: EventBase<SurveyModel, ChoicesLoadedEvent> = this.addEvent<SurveyModel, ChoicesLoadedEvent>();
   /**
@@ -732,6 +734,7 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised when the survey processes [dynamic texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts) and any text in curly brackets. Use this event, for instance, to substitute parameters in a RESTful URL with real values when you [load choices by URL](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#choicesByUrl).
+   * @since 2.0.0
    */
   public onProcessDynamicText: EventBase<SurveyModel, ProcessDynamicTextEvent> = this.addEvent<SurveyModel, ProcessDynamicTextEvent>();
   /**
@@ -996,6 +999,7 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised after a value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
+   * @since 2.0.0
    */
   public onDynamicPanelValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangedEvent>();
   /**
@@ -1004,6 +1008,7 @@ export class SurveyModel extends SurveyElementCore
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.onDynamicPanelValueChanged;
   /**
    * An event that is raised before a value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
+   * @since 2.0.0
    */
   public onDynamicPanelValueChanging: EventBase<SurveyModel, DynamicPanelValueChangingEvent> = this.addEvent<SurveyModel, DynamicPanelValueChangingEvent>();
 
@@ -1038,6 +1043,7 @@ export class SurveyModel extends SurveyElementCore
   public onMatrixRowDragOver: EventBase<SurveyModel, MatrixRowDragOverEvent> = this.addEvent<SurveyModel, MatrixRowDragOverEvent>();
   /**
    * An event that is raised when an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) is about to be evaluated. Use this event to intercept or cancel the evaluation.
+   * @since 2.3.4
    */
   public onExpressionRunning: EventBase<SurveyModel, ExpressionRunningEvent> = this.addEvent<SurveyModel, ExpressionRunningEvent>();
   /**
@@ -1112,6 +1118,7 @@ export class SurveyModel extends SurveyElementCore
    * ```
    *
    * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   * @since 2.4.0
    */
   public onUIStateChanged: EventBase<SurveyModel, UIStateChangedEvent> = this.addEvent<SurveyModel, UIStateChangedEvent>();
 
@@ -1147,6 +1154,7 @@ export class SurveyModel extends SurveyElementCore
    * To let users add their own choice options, enable the [`allowCustomChoices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices) property for individual dropdown questions.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/dropdown-custom-choice-options/ (linkStyle))
+   * @since 2.0.4
    */
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
@@ -1479,6 +1487,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
    * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
+   * @since 2.0.0
    */
   public get lazyRenderEnabled(): boolean {
     return this.lazyRenderEnabledValue === true;
@@ -1585,6 +1594,7 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to save survey results when respondents switch between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
    *
    * Alternatively, you can handle the [`onCurrentPageChanged`](#onCurrentPageChanged) and [`onValueChanged`](#onValueChanged) events, as shown in the following demo: [Continue an Incomplete Survey](https://surveyjs.io/form-library/examples/survey-editprevious/).
+   * @since 2.0.0
    */
   @property() partialSendEnabled: boolean;
   /**
@@ -1602,6 +1612,7 @@ export class SurveyModel extends SurveyElementCore
    * @see autoFocusFirstError
    * @see focusFirstQuestion
    * @see focusQuestion
+   * @since 2.0.0
    */
   @property() autoFocusFirstQuestion: boolean;
   /**
@@ -1619,6 +1630,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `true`
    * @see validate
    * @see autoFocusFirstQuestion
+   * @since 2.0.0
    */
   @property() autoFocusFirstError: boolean;
   /**
@@ -1667,6 +1679,7 @@ export class SurveyModel extends SurveyElementCore
    * @see autoAdvanceEnabled
    * @see showPrevButton
    * @see showCompleteButton
+   * @since 2.0.0
    */
   @property() navigationButtonsLocation: string | any;
   /**
@@ -1739,6 +1752,7 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see onComplete
    * @see navigateToUrl
+   * @since 2.0.0
    */
   @property() showCompletePage: boolean;
   /**
@@ -1791,6 +1805,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `*`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
+   * @since 2.0.0
    */
   @property() requiredMark: string;
   /**
@@ -1864,6 +1879,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: 0 (unlimited)
    * @see maxTextLength
+   * @since 2.0.0
    */
   @property() maxCommentLength: number;
   /**
@@ -1887,6 +1903,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
+   * @since 2.0.0
    */
   @property() autoAdvanceEnabled: boolean;
   /**
@@ -1903,6 +1920,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `true`
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
+   * @since 2.0.0
    */
   @property() autoAdvanceAllowComplete: boolean;
   /**
@@ -2315,8 +2333,15 @@ export class SurveyModel extends SurveyElementCore
     return !this.titleIsEmpty && this.showTitle;
   }
   public get renderedHasDescription(): boolean {
-    if (this.isDesignMode) return this.isPropertyVisible("description");
-    return !!this.hasDescription && this.showTitle;
+    const showInRuntime = !!this.hasDescription && this.showTitle;
+    if (this.isDesignMode) {
+      let show = this.isPropertyVisible("description");
+      if (!!this.beforeShowInplaceDescriptionEditorCallback) {
+        show = this.beforeShowInplaceDescriptionEditorCallback(this, show);
+      }
+      return show;
+    }
+    return showInRuntime;
   }
   public get hasTitle(): boolean {
     return this.renderedHasTitle;
@@ -2704,6 +2729,7 @@ export class SurveyModel extends SurveyElementCore
    */
   @property({ localizable: { defaultStr: true } }) editText: string;
 
+  public beforeShowInplaceDescriptionEditorCallback: (element: Base, show: boolean) => boolean;
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -3172,6 +3198,7 @@ export class SurveyModel extends SurveyElementCore
    * Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   * @since 2.4.0
    */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
@@ -3566,6 +3593,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see firstPageIsStartPage
    * @see activePage
+   * @since 2.0.0
    */
   public get startPage(): PageModel {
     var page =
@@ -3642,6 +3670,7 @@ export class SurveyModel extends SurveyElementCore
    * | `"questionPerPage"` | Question or Panel |
    * | `"inputPerPage"` | Question |
    * @see currentElement
+   * @since 2.1.0
    */
   public get currentElementName(): string {
     return this.currentElement?.name || "";
@@ -3661,6 +3690,7 @@ export class SurveyModel extends SurveyElementCore
    * | `"standard"` or `"singlePage"` | Page |
    * | `"questionPerPage"` | Question or Panel |
    * | `"inputPerPage"` | Question |
+   * @since 2.1.0
    */
   public get currentElement(): ISurveyElement {
     return this.currentSingleElement || this.currentPage;
@@ -3738,6 +3768,7 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * A Boolean value that indicates whether the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page) is currently displayed.
+   * @since 2.0.0
    */
   public get isStartPageActive(): boolean {
     return this.state === "starting";
@@ -3755,6 +3786,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"entireItem"` (default) - Users can use the entire matrix row as a drag handle.
    * - `"icon"` - Users can only use a drag icon as a drag handle.
+   * @since 2.5.9
    */
   @property({ defaultValue: "entireItem" }) matraixDragHandleArea: string;
   public get isShowingPage(): boolean {
@@ -3886,6 +3918,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Displays the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
    * @see endLoading
+   * @since 2.0.0
    */
   public beginLoading(): void {
     this.isLoading = true;
@@ -3893,6 +3926,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Stops displaying the [Loading page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml).
    * @see beginLoading
+   * @since 2.0.0
    */
   public endLoading(): void {
     this.isLoading = false;
@@ -4672,6 +4706,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see startPage
    * @see activePage
+   * @since 2.0.0
    */
   @property() firstPageIsStartPage: boolean;
   /**
@@ -4717,6 +4752,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"answeredQuestions"`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-preview/ (linkStyle))
+   * @since 2.0.0
    */
   @property() previewMode: string;
   protected onFirstPageIsStartedChanged(): void {
@@ -6783,6 +6819,7 @@ export class SurveyModel extends SurveyElementCore
    * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`getLocalizationJSON(locales)`](#getLocalizationJSON) method.
    * @param json A JSON schema that contains locale strings.
    * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
+   * @since 2.5.4
    */
   public mergeLocalizationJSON(json: any, locales?: Array<string>): void {
     const survey = new SurveyModel(json);
@@ -7220,6 +7257,7 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `false`
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
+   * @since 2.0.0
    */
   @property({ defaultValue: false }) clearDisabledChoices: boolean;
   /**

@@ -193,6 +193,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * If you also specify `defaultValue`, it will be merged with the copied values.
    * @see defaultValue
+   * @since 2.0.0
    */
   @property() copyDefaultValueFromLastEntry: boolean;
   /**
@@ -357,6 +358,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Specifies whether users can drag and drop matrix rows to reorder them. Applies only if [`transposeData`](#transposeData) is `false`.
    *
    * Default value: `false`
+   * @since 2.0.0
    */
   @property() allowRowReorder: boolean;
   /**
@@ -761,6 +763,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
    * @see addRowText
+   * @since 2.0.0
    */
   @property() addRowButtonLocation: string;
   /**
@@ -795,6 +798,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
    * @see hideColumnsIfEmpty
+   * @since 2.0.0
    */
   @property({ localizable: { defaultStr: true } }) noRowsText: string;
   public get locEditRowText(): LocalizableString {

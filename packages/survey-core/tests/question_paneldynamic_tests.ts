@@ -4284,6 +4284,61 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel.panelCount, "We still have one panel").toBe(1);
     expect(panel.panels[0].locTitle.textOrHtml, "the first panel title set correctly again").toBe("sample title 2");
   });
+  test("Changing template title/description fires panel onPropertyChanged for templateTitle/templateDescription, #7876", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    const changes: Array<{ name: string, oldValue: any, newValue: any }> = [];
+    question.onPropertyChanged.add((sender, options) => {
+      if (options.name === "templateTitle" || options.name === "templateDescription") {
+        changes.push({ name: options.name, oldValue: options.oldValue, newValue: options.newValue });
+      }
+    });
+
+    question.template.title = "Title from design surface";
+    expect(question.templateTitle, "templateTitle getter reflects template.title").toBe("Title from design surface");
+    expect(changes.length, "templateTitle change is raised").toBe(1);
+    expect(changes[0].name, "templateTitle name is raised").toBe("templateTitle");
+    expect(changes[0].newValue, "templateTitle new value is correct").toBe("Title from design surface");
+
+    question.template.description = "Description from design surface";
+    expect(question.templateDescription, "templateDescription getter reflects template.description").toBe("Description from design surface");
+    expect(changes.length, "templateDescription change is raised").toBe(2);
+    expect(changes[1].name, "templateDescription name is raised").toBe("templateDescription");
+    expect(changes[1].newValue, "templateDescription new value is correct").toBe("Description from design surface");
+
+    question.template.title = "";
+    expect(question.templateTitle, "templateTitle is cleared").toBe("");
+    expect(changes.length, "clearing templateTitle is raised").toBe(3);
+    expect(changes[2].name).toBe("templateTitle");
+  });
+  test("Property grid (editingObj) synchronizes with template title/description changes on design surface, #7876", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    question.templateTitle = "Initial title";
+    question.templateDescription = "Initial description";
+
+    const propertyGrid = new SurveyModel({
+      elements: [
+        { type: "text", name: "templateTitle" },
+        { type: "text", name: "templateDescription" }
+      ]
+    });
+    propertyGrid.editingObj = question;
+    const titleQuestion = propertyGrid.getQuestionByName("templateTitle");
+    const descriptionQuestion = propertyGrid.getQuestionByName("templateDescription");
+    expect(titleQuestion.value, "grid shows the initial title").toBe("Initial title");
+    expect(descriptionQuestion.value, "grid shows the initial description").toBe("Initial description");
+
+    // Emulate editing the template panel title/description inline on the design surface
+    question.template.title = "Edited on surface";
+    question.template.description = "Edited description";
+    expect(titleQuestion.value, "grid title is synchronized with the design surface").toBe("Edited on surface");
+    expect(descriptionQuestion.value, "grid description is synchronized with the design surface").toBe("Edited description");
+
+    // Emulate clearing the values on the design surface
+    question.template.title = "";
+    question.template.description = "";
+    expect(titleQuestion.value, "grid title is cleared").toBeFalsy();
+    expect(descriptionQuestion.value, "grid description is cleared").toBeFalsy();
+  });
   test("defaultValue &  survey.onValueChanged on adding new panel", () => {
     const survey = new SurveyModel({
       elements: [

@@ -161,8 +161,6 @@ export var koreanStrings = {
   savingDataError: "오류가 발생하여 결과를 저장할 수 없습니다.",
   // "The results were saved successfully!"
   savingDataSuccess: "결과가 성공적으로 저장되었습니다.",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "응답이 64KB를 초과합니다. 파일 크기를 줄이고 다시 시도하거나 설문조사 소유자에게 문의하십시오.",
   // "Try again"
   saveAgainButton: "다시 시도하세요.",
   // "min"

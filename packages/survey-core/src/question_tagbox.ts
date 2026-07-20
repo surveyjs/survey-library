@@ -73,6 +73,7 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    * Default value: `false`
    *
    *>  Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * @since 2.0.4
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {

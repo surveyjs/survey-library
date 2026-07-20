@@ -329,6 +329,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
   /**
    * An error message to display when the entered value does not match the [step size](#step).
+   * @since 2.5.15
    */
   @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
   @property({ localizable: { defaultStr: "invalidInputError", markdown: true } }) invalidInputErrorText: string;
@@ -367,7 +368,7 @@ export class QuestionTextModel extends QuestionTextBase {
       }
     }
     this._inputValue = _inputValue;
-    if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
+    if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
       this.value = value;
     }
   }
@@ -419,6 +420,9 @@ export class QuestionTextModel extends QuestionTextBase {
       this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);
+    }
+    if (!!this.maskInputAdapter) {
+      this.maskInputAdapter.updateInputElementValue(_value);
     }
   }
   private hasToConvertToUTC(val: any): boolean {

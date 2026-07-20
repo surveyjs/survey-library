@@ -15,6 +15,7 @@ export interface IScrollElementToTopOptions {
 export interface IElementUIState {
   collapsed?: boolean;
   activePanelIndex?: number; // For Dynamic panel only, current Tab index
+  // MERGE(V3): keep `shown`; master (V2) names this progress flag `passed`. Keep V3 on merge.
   shown?: boolean; // For Page only, indicates that the respondent has already seen the page (progress state)
 }
 export interface ISurveyUIState {

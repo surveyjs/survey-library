@@ -10,6 +10,7 @@
   --sjs2-radius-component-checkbox: 0;
   --sjs2-radius-component-drop: 0;
   --sjs2-radius-component-panel: 0;
+  --sjs2-radius-component-toggle: 0;
 
   /* uppercase, semibold buttons */
   --sjs-bs-action-text-transform: uppercase;
@@ -44,6 +45,11 @@
   --sjs2-color-component-check-false-focused-bg: var(--bs-secondary-bg);
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px transparent;
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px transparent;
+
+  --sjs2-color-component-toggle-false-default-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-toggle-false-hovered-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-toggle-false-default-border: transparent;
+  --sjs2-color-component-toggle-true-default-border: transparent;
 
   /* buttons: .btn { font-size: $font-size-sm } -> 0.875rem; .btn-sm { font-size: 10px }
      $enable-rounded: false -> squared btn-sm */

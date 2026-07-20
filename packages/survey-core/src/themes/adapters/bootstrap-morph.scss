@@ -50,6 +50,19 @@
   --sjs2-border-effect-component-check-false-default: var(--sjs-morph-inset);
   --sjs2-border-effect-component-check-false-hovered: var(--sjs-morph-inset);
 
+
+  /* recessed toggles */
+  --sjs2-color-component-toggle-false-default-bg: #bed1e6;
+  --sjs2-color-component-toggle-false-hovered-bg: #bed1e6;
+  --sjs2-border-effect-component-toggle-false-default: inset 1px 1px 7px rgba(0, 0, 0, .2);
+  --sjs2-border-effect-component-toggle-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, .2);
+  --sjs2-color-component-toggle-true-default-border: transparent;
+  --sjs2-color-component-toggle-true-hovered-border: transparent;
+  --sjs2-color-component-toggle-true-default-bg: #378dfc;
+  --sjs2-color-component-toggle-true-hovered-bg: #378dfc;
+  --sjs2-color-component-toggle-false-default-thumb: #fff;
+  
+
   /* raised panels */
   --sjs2-radius-component-panel: 1rem;
   --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
@@ -64,6 +77,11 @@
 .sd-action--tertiary:active {
   border-color: transparent;
 }
+
+.sd-boolean-switch__thumb {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
 
 /* raised, borderless framed panels */
 .sd-theme-root .sd-element--with-frame {

@@ -85,7 +85,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner,
   //#endregion
 
   //#region Rendered ids
-  getRenderedId(id: string): string;
+  getElementId(id: string): string;
   //#endregion
 
   //#region Question lookup

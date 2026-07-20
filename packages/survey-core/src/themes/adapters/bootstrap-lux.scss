@@ -1,0 +1,72 @@
+@use "./bootstrap.scss";
+
+/* Bootswatch "Lux": borderless, squared, uppercase buttons and headings, near-black primary
+   (gray-900), grey filled inputs and generous padding (Nunito Sans, $enable-rounded: false). */
+.sjs-theme-overrides {
+  /* $enable-rounded: false + $border-width: 0 -> squared, borderless */
+  --sjs2-base-unit-radius: 0;
+  --sjs2-radius-component-action: 0;
+  --sjs2-radius-component-formbox: 0;
+  --sjs2-radius-component-checkbox: 0;
+  --sjs2-radius-component-drop: 0;
+  --sjs2-radius-component-panel: 0;
+
+  /* uppercase, semibold buttons */
+  --sjs-bs-action-text-transform: uppercase;
+  --sjs-bs-action-font-weight: 600;
+  --sjs-bs-primary-hover-bg: #000;
+  --sjs-bs-primary-active-bg: #000;
+
+  /* $input-btn-padding: .75rem 1.5rem (buttons + inputs; $border-width: 0). Input total = formbox
+     (0.125rem) + content, so content = target - 0.125rem. */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0.75rem;
+  --sjs2-layout-component-action-large-box-padding-horizontal: 1.5rem;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 0.625rem;
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 1.375rem;
+
+  /* white secondary button with dark text */
+  --sjs-bs-secondary-bg: var(--bs-secondary, #fff);
+  --sjs-bs-on-secondary: var(--bs-emphasis-color, #000);
+  --sjs-bs-secondary-hover-bg: var(--bs-tertiary-bg);
+
+  /* grey filled, borderless inputs ($input-bg: gray-200) */
+  --sjs2-color-component-formbox-default-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-formbox-hovered-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-formbox-focused-bg: var(--bs-secondary-bg);
+  --sjs2-border-effect-component-formbox-default: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-formbox-hovered: inset 0 0 0 1px transparent;
+
+  --sjs2-color-component-check-false-default-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-check-false-hovered-bg: var(--bs-secondary-bg);
+  --sjs2-color-component-check-false-focused-bg: var(--bs-secondary-bg);
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px transparent;
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px transparent;
+
+  /* buttons: .btn { font-size: $font-size-sm } -> 0.875rem; .btn-sm { font-size: 10px } */
+  --sjs2-typography-font-size-component-action-large-content: 0.875rem;
+  --sjs2-typography-font-size-component-action-small-content: 0.625rem;
+
+  /* Lux shrinks headings ($h1: 2rem, $h2: 1.75rem, $h3: 1.5rem, $h5: 1rem), $headings-font-weight: 600.
+     header = h2, page = h3, panel = h5. */
+  --sjs2-typography-font-size-component-header-title: 1.75rem; /* h2 */
+  --sjs2-typography-font-weight-component-header-title: 600;
+  --sjs2-typography-font-size-component-page-title: 1.5rem; /* h3 */
+  --sjs2-typography-font-weight-component-page-title: 600;
+  --sjs2-typography-font-size-component-panel-title: 1rem; /* h5 */
+  --sjs2-typography-font-weight-component-panel-title: 600;
+}
+
+.sd-action--small {
+  border-radius: 0;
+}
+
+/* uppercase, letter-spaced titles */
+.sd-theme-root {
+  letter-spacing: 1px;
+}
+.sd-theme-root .sd-title,
+.sd-theme-root .sd-page__title,
+.sd-theme-root .sd-panel__title {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}

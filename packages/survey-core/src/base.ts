@@ -45,6 +45,7 @@ export interface IExpressionValidationOptions {
 
 /**
  * An interface that describes the result returned by the [`validateExpressions`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
+ * @since 2.5.7
  */
 export interface IExpressionValidationResult {
   /**
@@ -239,11 +240,6 @@ export class Base implements IObjectValueContext {
   private static UniqueId = 0;
   private uniqueIdValue: number = Base.UniqueId++;
   private static defaultIdGeneratorValue: SurveyIdGenerator;
-  /**
-   * A shared fallback id generator used by objects that are not attached to a survey (standalone
-   * actions, popup models, unit-test fixtures). Such objects are client-only and do not take part
-   * in SSR hydration; the moment an object is attached to a survey it uses that survey's generator.
-   */
   public static get defaultIdGenerator(): SurveyIdGenerator {
     if (!Base.defaultIdGeneratorValue) {
       Base.defaultIdGeneratorValue = new SurveyIdGenerator();
@@ -410,43 +406,16 @@ export class Base implements IObjectValueContext {
   public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
-  /**
-   * A process-global numeric identifier assigned eagerly in object-creation order. Used for framework
-   * `key`s, instance-keyed maps, the reactivity dependency hash, and creation-order sorting (e.g.
-   * `Helpers.randomizeArray`). It is **not** rendered to the DOM (that is `renderedId`), so it needs no
-   * per-survey/SSR determinism - hence a plain immutable static counter rather than the id generator.
-   */
   public get uniqueId(): number {
     return this.uniqueIdValue;
   }
-  /**
-   * Returns the given survey's id generator, or the shared fallback generator when there is no
-   * survey. Used by `getIdGenerator` overrides to avoid repeating the null check.
-   */
   public static getIdGeneratorBySurvey(survey: any): SurveyIdGenerator {
     return (survey && survey.idGenerator) || Base.defaultIdGenerator;
   }
-  /**
-   * Returns the id generator this object draws its `id`/`uniqueId` from, so that its ids are
-   * deterministic and unique within its survey. Resolves to `this.getSurvey()?.idGenerator` (falling
-   * back to the shared generator for detached objects). Classes whose survey is reached through a
-   * different owner (a panel, a question, an action owner) override this to pass that owner's survey.
-   */
   protected getIdGenerator(): SurveyIdGenerator {
     return Base.getIdGeneratorBySurvey(this.getSurvey());
   }
-  /**
-   * Returns the "kind" segment used when this object's `id` is generated (for example, `"sq"` for
-   * questions or `"sp"` for panels/pages). Defaults to `getType()`; override to pin a short, stable,
-   * type-independent prefix. CSS selectors and tests match on this prefix.
-   */
   protected getIdPrefix(): string { return this.getType(); }
-  /**
-   * The raw, per-survey logical id (`"sq_0"`, `"sp_0"`, ...). Used for internal logic, dictionaries
-   * and virtual-DOM identity; it is **not** rendered to the DOM directly (see `renderedId`). A
-   * deterministic default is generated lazily on first access; assigning a value explicitly always
-   * wins.
-   */
   public get id(): string {
     return this.getPropertyValue("id", undefined, () => this.generateElementId());
   }
@@ -454,23 +423,12 @@ export class Base implements IObjectValueContext {
   protected generateElementId(): string {
     return this.getIdGenerator().next(this.getIdPrefix());
   }
-  /**
-   * Turns a raw, per-survey `id` into the actual DOM id by delegating the namespacing policy to the
-   * owner survey (`ISurvey.getRenderedId`). Detached objects (no survey) render the raw id unchanged.
-   * `Base` intentionally does not know *how* the survey wraps ids (prefix/suffix) - that lives in the
-   * survey - so id-composing subclasses only depend on this delegator.
-   */
-  protected composeRenderedId(id: string): string {
+  protected composeElementId(id: string): string {
     const survey = this.getSurvey();
-    return survey ? survey.getRenderedId(id) : id;
+    return survey ? survey.getElementId(id) : id;
   }
-  /**
-   * The value assigned to the `id` attribute of the rendered HTML element, and the base for every
-   * derived DOM id. Delegates the survey-level namespacing to `composeRenderedId`. For a single
-   * non-SSR survey (and unit tests / the markup harness) `renderedId === id`.
-   */
   public get renderedId(): string {
-    return this.composeRenderedId(this.id);
+    return this.composeElementId(this.id);
   }
   public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(onCallbacksChanged?: () => void): EventBase<T, Options> {
@@ -494,6 +452,7 @@ export class Base implements IObjectValueContext {
   /**
    * Returns the survey element that owns this element. Returns `undefined` if called on a `SurveyModel` instance.
    * @returns The owner survey element, or `undefined` if none exists.
+   * @since 2.5.8
    */
   public getOwner(): any {
     return undefined;
@@ -670,6 +629,7 @@ export class Base implements IObjectValueContext {
    * To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
    * @param locales *(Optional)* An array of locale identifiers to include in the JSON schema.
    * @returns A locale-strings-only JSON schema.
+   * @since 2.5.4
    */
   public getLocalizationJSON(locales?: Array<string>): any {
     return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
@@ -1100,6 +1060,7 @@ export class Base implements IObjectValueContext {
    * @param {boolean} options.functions Pass `false` to disable validation of unknown functions.
    * @param {boolean} options.semantics Pass `false` to disable validation of semantic errors.
    * @returns An [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/IExpressionValidationResult) array.
+   * @since 2.5.7
    */
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     const result: IExpressionValidationResult[] = [];

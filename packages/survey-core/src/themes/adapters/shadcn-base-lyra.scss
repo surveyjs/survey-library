@@ -56,6 +56,9 @@
   --sjs2-typography-line-height-component-input-content: var(--text-xs--line-height);
   --sjs2-typography-font-size-component-question-title: var(--text-xs);
   --sjs2-typography-font-weight-component-question-title: var(--font-weight-normal);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
 .sd-theme-root .sd-element--with-frame {

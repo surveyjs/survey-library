@@ -545,6 +545,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Returns a character or text string that indicates a required panel/page.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return !!this.survey && this.isRequired

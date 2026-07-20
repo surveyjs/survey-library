@@ -45,13 +45,17 @@ export class DomWindowHelper {
       return window.requestAnimationFrame(callback);
     }
   }
-  public static addEventListener(type: string, listener: (e?: any) => void): void {
-    if (!DomWindowHelper.isAvailable()) return;
-    window.addEventListener(type, listener);
+  public static isEventListenerAvailable(): boolean {
+    if (!DomWindowHelper.isAvailable()) return false;
+    return typeof window.addEventListener === "function" && typeof window.removeEventListener === "function";
   }
-  public static removeEventListener(type: string, listener: (e?: any) => void): void {
-    if (!DomWindowHelper.isAvailable()) return;
-    window.removeEventListener(type, listener);
+  public static addEventListener(type: string, listener: (e?: any) => void, options?: boolean | AddEventListenerOptions): void {
+    if (!DomWindowHelper.isEventListenerAvailable()) return;
+    window.addEventListener(type, listener, options);
+  }
+  public static removeEventListener(type: string, listener: (e?: any) => void, options?: boolean | EventListenerOptions): void {
+    if (!DomWindowHelper.isEventListenerAvailable()) return;
+    window.removeEventListener(type, listener, options);
   }
 
   public static matchMedia(mediaQueryString: string): {matches:boolean} | null {

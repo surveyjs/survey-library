@@ -33,6 +33,9 @@
   --sjs2-typography-font-size-component-page-title: var(--text-base);
   --sjs2-typography-font-size-component-header-title: var(--text-base);
   --sjs2-border-effect-surface-default: 0px 0px 0px 1px var(--border), rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
 }
 
 .sd-action:active {

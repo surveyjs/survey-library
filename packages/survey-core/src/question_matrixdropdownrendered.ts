@@ -54,7 +54,7 @@ export class QuestionMatrixDropdownRenderedCell {
     }
     // RenderedCell does not extend Base; delegate id namespacing to the survey directly.
     const survey = this.getSurvey();
-    return survey ? survey.getRenderedId(this.idValue) : this.idValue;
+    return survey ? survey.getElementId(this.idValue) : this.idValue;
   }
   public get requiredMark(): string {
     return this.column && this.column.isRenderedRequired ? this.column.requiredMark : undefined;
@@ -196,7 +196,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     if (this.generatedIdValue === undefined) {
       this.generatedIdValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("smrow");
     }
-    return this.composeRenderedId(this.generatedIdValue);
+    return this.composeElementId(this.generatedIdValue);
   }
   public get id(): string {
     // Base the DOM row id on renderedId (SSR-namespaced). Header/error rows have no model row, so

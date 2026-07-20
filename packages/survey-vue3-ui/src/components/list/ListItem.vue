@@ -29,6 +29,7 @@
         :is="itemComponent"
         :item="item"
         :model="model"
+        v-bind="item.data || {}"
       ></SvComponent>
     </div>
   </li>

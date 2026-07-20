@@ -33,7 +33,15 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     if (!this.item) return null;
     const className = this.model.getItemClass(this.item);
     const itemContent = this.item.component || this.model.itemComponent;
-    const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });
+    const itemData = this.item.data;
+    const newElement = ReactElementFactory.Instance.createElement(itemContent, {
+      item: this.item,
+      key: this.item.id,
+      model: this.model,
+      itemData,
+      survey: itemData?.survey,
+      page: itemData?.page
+    });
     const contentWrap =
       <div
         ref={this.elementRef}

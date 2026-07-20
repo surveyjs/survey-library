@@ -224,7 +224,7 @@
   --sjs2-typography-font-size-component-question-description: 0.875em;
   --sjs2-typography-font-size-default: var(--bs-body-font-size);
   --sjs2-typography-font-size-large: 1.25rem;
-  --sjs2-typography-font-weight-component-question-title: 600;
+  --sjs2-typography-font-weight-component-question-title: 400;
   --sjs2-typography-line-height-component-question-title: 1.25;
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
@@ -391,6 +391,14 @@
         margin: 0;
       }
     }
+  }
+}
+
+.sd-table.sd-table.sd-table>thead>tr {
+  &>th, &>td {
+    border-top: none;  
+    border-bottom: none;
+    padding: 0.5rem;
   }
 }
 

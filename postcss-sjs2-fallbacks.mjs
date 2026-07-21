@@ -19,7 +19,9 @@ import { readFileSync } from "node:fs";
  * - A bare var(--sjs2-*) reference whose variable has no default in
  *   defaultsPath FAILS THE BUILD: nothing can be baked in, so the reference
  *   would resolve to nothing at runtime. The error lists every such variable
- *   and where it is used.
+ *   and where it is used. Variables declared as custom properties within the
+ *   processed stylesheet itself (adapter-local variables) are exempt - they
+ *   are guaranteed to exist at runtime without a baked-in fallback.
  *
  * Options:
  *   defaultsPath - path to the generated base-theme.ts (or a JSON file with
@@ -50,6 +52,8 @@ export default function sjs2Fallbacks(opts = {}) {
   // --sjs2-* references that stay without a fallback because the variable has
   // no default in defaultsPath: variable name -> Set of usage locations.
   const variablesWithoutFallback = new Map();
+  // --sjs2-* custom properties declared in the stylesheet being processed.
+  let localDeclarations = new Set();
   let currentDecl = null;
 
   // "<name>-reset" variables are declared at runtime (createResetVariablesStyle
@@ -62,6 +66,7 @@ export default function sjs2Fallbacks(opts = {}) {
 
   function reportVariableWithoutFallback(name) {
     if (!name.startsWith(SJS2_PREFIX) || isRuntimeDeclared(name)) return;
+    if (localDeclarations.has(name)) return;
     if (KNOWN_VARIABLES_WITHOUT_FALLBACK.indexOf(name) !== -1) return;
     let locations = variablesWithoutFallback.get(name);
     if (!locations) {
@@ -95,12 +100,21 @@ export default function sjs2Fallbacks(opts = {}) {
 
   return {
     postcssPlugin: "sjs2-fallbacks",
-    Declaration(decl) {
-      if (decl.value && decl.value.indexOf("var(--sjs2-") !== -1) {
-        currentDecl = decl;
-        decl.value = expandValue(decl.value, new Set());
-        currentDecl = null;
-      }
+    // Once (not a Declaration visitor): local custom-property declarations
+    // must all be collected before any value is expanded, since a usage can
+    // precede the declaration that makes it valid.
+    Once(root) {
+      localDeclarations = new Set();
+      root.walkDecls((decl) => {
+        if (decl.prop.startsWith(SJS2_PREFIX)) localDeclarations.add(decl.prop);
+      });
+      root.walkDecls((decl) => {
+        if (decl.value && decl.value.indexOf("var(--sjs2-") !== -1) {
+          currentDecl = decl;
+          decl.value = expandValue(decl.value, new Set());
+          currentDecl = null;
+        }
+      });
     },
     // Fail the build if any --sjs2-* variable is referenced without a fallback
     // and has no default to bake in: such a reference resolves to nothing at

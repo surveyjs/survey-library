@@ -4,7 +4,7 @@ import { DomDocumentHelper } from "../global_variables_utils";
 import { createBoxShadowReset } from "./shadow-effects";
 
 const STYLE_ELEMENT_ATTR = "data-survey-base-theme-variables";
-const VARIABLES_PER_RULE = 50;
+const VARIABLES_PER_RULE = 300;
 
 let cachedCss: string | undefined;
 

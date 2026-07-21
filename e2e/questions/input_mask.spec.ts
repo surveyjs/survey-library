@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect } from "../helper";
 
 const title = "Input mask";
 
@@ -225,6 +225,62 @@ frameworks.forEach((framework) => {
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ });
+    });
+
+    const twoQuestionsJson = {
+      elements: [
+        {
+          type: "text",
+          name: "phone",
+          maskType: "pattern",
+          maskSettings: {
+            pattern: "+9 (999) 999-99-99"
+          }
+        },
+        {
+          type: "text",
+          name: "comment"
+        }
+      ]
+    };
+    const setDataFromCode = async (page) => {
+      await page.evaluate(() => {
+        (window as any).survey.data = { phone: "12345678901", comment: "abc" };
+      });
+    };
+
+    test("Set survey.data from code, the focus stays in the masked input", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      await phoneInput.click();
+      await expect(phoneInput).toBeFocused();
+
+      await setDataFromCode(page);
+
+      await expect(phoneInput).toBeFocused();
+      await expect(phoneInput).toHaveValue("+1 (234) 567-89-01");
+      await expect(commentInput).toHaveValue("abc");
+      expect(await getData(page)).toEqual({ phone: "12345678901", comment: "abc" });
+    });
+
+    test("Set survey.data from code, the focus stays in the input without mask", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      await commentInput.click();
+      await expect(commentInput).toBeFocused();
+
+      await setDataFromCode(page);
+
+      await expect(commentInput).toBeFocused();
+      await expect(phoneInput).toHaveValue("+1 (234) 567-89-01");
+      await expect(commentInput).toHaveValue("abc");
+      expect(await getData(page)).toEqual({ phone: "12345678901", comment: "abc" });
     });
 
   });

@@ -241,7 +241,7 @@
   --sjs2-typography-font-size-default: var(--bs-body-font-size);
   --sjs2-typography-font-size-large: 1.25rem;
   --sjs2-typography-font-weight-component-question-title: 400;
-  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-line-height-component-question-title: 1.5;
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
 
@@ -251,7 +251,17 @@
   --sjs2-typography-font-size-component-page-title: 1.75rem; /* h3 = $font-size-base * 1.75 */
   --sjs2-typography-font-weight-component-page-title: 500;
   --sjs2-typography-font-size-component-panel-title: 1.25rem; /* h5 = $font-size-base * 1.25 */
+  --sjs2-typography-line-height-component-panel-title: 1.2;
   --sjs2-typography-font-weight-component-panel-title: 500;
+
+  --sjs2-layout-component-panel-header-padding-top: var(--bs-card-spacer-y);
+  --sjs2-layout-component-panel-header-padding-bottom: 0.5rem;
+  --sjs2-layout-component-panel-header-padding-left: var(--bs-card-spacer-x);
+  --sjs2-layout-component-panel-header-padding-right: var(--bs-card-spacer-x);
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--bs-card-spacer-y);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--bs-card-spacer-x);
 }
 
 /* check/radio icon redifinition */
@@ -282,7 +292,8 @@
 
 /* check focus and pressed state */
 .sd-item:not(.sd-item--checked) {
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-check-a11y:
+    inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
 }
 .sd-item__control:focus + .sd-item__decorator::before,
 .sd-item__control:active + .sd-item__decorator::before {
@@ -320,7 +331,8 @@
 }
 
 .sd-boolean-switch__button {
-  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
+  --sjs2-border-effect-component-check-a11y:
+    inset 0 0 0 1px var(--sjs-bs-primary-focus-border), var(--sjs2-border-effect-a11y);
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e");
 
   &:focus {
@@ -371,7 +383,7 @@
 }
 
 /* tagbox */
-.sd-tagbox.sd-tagbox--empty .sd-tagbox__input  {
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input {
   padding-inline: var(--sjs2-layout-component-input-medium-content-padding-horizontal);
   padding-block: var(--sjs2-layout-component-input-medium-content-padding-vertical);
 }
@@ -405,8 +417,9 @@
   --sd-table-cell-min-width: initial;
 }
 
-.sd-table.sd-table.sd-table>tbody>tr {
-  &>th, &>td {
+.sd-table.sd-table.sd-table > tbody > tr {
+  & > th,
+  & > td {
     &:where(:not(.sd-table__cell--error)) {
       border-top: var(--bs-border-width) solid var(--bs-border-color);
       border-bottom: none;
@@ -418,9 +431,10 @@
   }
 }
 
-.sd-table.sd-table.sd-table>thead>tr {
-  &>th, &>td {
-    border-top: none;  
+.sd-table.sd-table.sd-table > thead > tr {
+  & > th,
+  & > td {
+    border-top: none;
     border-bottom: none;
     padding: 0.5rem;
   }

@@ -13,7 +13,8 @@
   --sjs2-color-border-basic-secondary: rgba(0, 0, 0, 0.1);
 
   --sjs2-typography-font-size-component-action-large-content: 0.875rem;
-  --sjs2-typography-font-size-component-action-small-content: 0.688rem;
+  --sjs2-typography-font-size-component-action-small-content: 0.688rem; /* $btn-font-size-sm */
+  --sjs2-radius-component-action-small: 0.844em; /* $btn-border-radius-sm */
 
   /* $input-btn-padding: .5rem 1.1rem (buttons + inputs). Input total = formbox (0.125rem + border)
      + content, so content = target - 0.125rem. */
@@ -23,6 +24,7 @@
   --sjs2-layout-component-input-medium-content-padding-horizontal: 0.975rem;
 
   --sjs2-typography-font-weight-component-header-title: 700;
+  --sjs2-color-component-header-default-description: #868e96;
   --sjs2-typography-font-weight-component-page-title: 700;
   --sjs2-typography-font-weight-component-panel-title: 700;
   --sjs2-typography-font-size-component-panel-title: 1.375rem;
@@ -35,6 +37,6 @@
   font-size: 0.875rem;
 }
 
-.sd-action--small {
-  border-radius: 0.844em;
+.sd-table__cell, .sd-table__cell span {
+  font-size: .9625rem;
 }

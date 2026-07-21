@@ -218,8 +218,14 @@
   --sjs2-color-utility-shadow-surface-default: var(--bs-border-color-translucent);
   --sjs2-color-utility-shadow-trigger-default: transparent;
 
-  --sjs2-radius-component-drop: var(--bs-border-radius);
+  --sjs2-radius-component-drop: 0;
   --sjs2-radius-component-panel: var(--bs-border-radius-lg, var(--bs-border-radius));
+
+  --sjs2-layout-component-drop-box-padding-horizontal: 0px;
+  --sjs2-layout-component-drop-box-padding-vertical: 0px;
+  --sjs2-radius-component-drop-item: 0;
+  --sjs2-layout-component-drop-item-label-padding-horizontal: 6px;
+
   --sjs2-typography-font-family-text: var(--bs-font-sans-serif);
   --sjs2-typography-font-size-component-question-description: 0.875em;
   --sjs2-typography-font-size-default: var(--bs-body-font-size);

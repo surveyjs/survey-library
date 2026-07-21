@@ -18,6 +18,17 @@
   --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px var(--sjs2-color-component-check-false-default-border), var(--shadow-xs);
 
+  /* dropdown */
+  --sjs2-radius-component-drop: var(--radius);
+  --sjs2-radius-component-drop-item: calc(var(--radius) * 0.8);
+  --sjs2-shadcn-drop-action-radius: calc(var(--radius) - 3px);
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: var(--muted);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--muted);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 7);
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
+
   /* common and other */
   --sjs2-typography-font-size-component-page-title: var(--text-base);
   --sjs2-typography-font-size-component-header-title: var(--text-base);
@@ -30,7 +41,6 @@
 .sd-action:active {
   translate: none;
 }
-
 
 .sd-theme-root .sd-element--with-frame {
   --sd-base-vertical-padding: calc(var(--spacing) * 7);

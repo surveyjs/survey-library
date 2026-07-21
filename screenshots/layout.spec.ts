@@ -73,7 +73,7 @@ frameworks.forEach(framework => {
 
       await resetFocusToBody(page);
       await page.evaluate(() => {
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
 
       const bodyRoot = page.locator(".sd-container-modern");
@@ -160,7 +160,7 @@ frameworks.forEach(framework => {
 
       await resetFocusToBody(page);
       await page.evaluate(() => {
-        (window as any).survey.isCompact = true;
+        (window as any).survey.applyTheme((window as any).SurveyTheme.DefaultLightPanelless);
       });
 
       const bodyRoot = page.locator(".sd-container-modern");

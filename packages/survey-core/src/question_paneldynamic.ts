@@ -76,6 +76,9 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   protected getItemVariableNames(): Array<string> {
     return [settings.expressionVariables.panelIndex, settings.expressionVariables.visiblePanelIndex];
   }
+  protected getRelatedItemNames(): Array<string> {
+    return [settings.expressionVariables.parentPanel];
+  }
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {

@@ -1,5 +1,7 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
 
@@ -430,6 +432,147 @@ describe("QuestionExpression", () => {
     } finally {
       settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("depFunc4");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression inside a dynamic panel", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("panelDepFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+            { type: "text", name: "pq1" },
+            { type: "expression", name: "pexp", expression: "panelDepFunc({panel.pq1})" }
+          ] }
+        ]
+      });
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a value outside the panel changes").toBe(0);
+      pd.panels[0].getQuestionByName("pq1").value = "b";
+      expect(count > 0, "runs when the in-panel dependency changes").toBeTruthy();
+      expect(pd.panels[0].getQuestionByName("pexp").value, "in-panel expression is calculated").toBe("b");
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("panelDepFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression inside a dynamic panel depends on an outside question", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("topDepFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+            { type: "expression", name: "pexp", expression: "topDepFunc({q2})" }
+          ] }
+        ]
+      });
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a non-dependent value changes").toBe(0);
+      survey.setValue("q2", "b");
+      expect(count > 0, "runs when the outside dependency changes").toBeTruthy();
+      expect(pd.panels[0].getQuestionByName("pexp").value, "in-panel expression is calculated").toBe("b");
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("topDepFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression inside a nested dynamic panel", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("nestedFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "outerPanel", panelCount: 1, templateElements: [
+            { type: "paneldynamic", name: "innerPanel", panelCount: 1, templateElements: [
+              { type: "text", name: "iq1" },
+              { type: "expression", name: "iexp", expression: "nestedFunc({panel.iq1})" }
+            ] }
+          ] }
+        ]
+      });
+      const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outerPanel");
+      const inner = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("innerPanel");
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a value outside the panels changes").toBe(0);
+      inner.panels[0].getQuestionByName("iq1").value = 5;
+      expect(count > 0, "runs when the nested in-panel dependency changes").toBeTruthy();
+      expect(inner.panels[0].getQuestionByName("iexp").value, "nested in-panel expression is calculated").toBe(5);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("nestedFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression depends on parentPanel", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("parentFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "outerPanel", panelCount: 1, templateElements: [
+            { type: "text", name: "opq1" },
+            { type: "paneldynamic", name: "innerPanel", panelCount: 1, templateElements: [
+              { type: "expression", name: "iexp", expression: "parentFunc({parentPanel.opq1})" }
+            ] }
+          ] }
+        ]
+      });
+      const outer = <QuestionPanelDynamicModel>survey.getQuestionByName("outerPanel");
+      const inner = <QuestionPanelDynamicModel>outer.panels[0].getQuestionByName("innerPanel");
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a value outside the panels changes").toBe(0);
+      outer.panels[0].getQuestionByName("opq1").value = "b";
+      expect(count > 0, "runs when the parent panel dependency changes").toBeTruthy();
+      expect(inner.panels[0].getQuestionByName("iexp").value, "parentPanel expression is calculated").toBe("b");
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("parentFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression column inside a dynamic matrix", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("rowFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "mx", rowCount: 1, columns: [
+            { name: "col1", cellType: "text" },
+            { name: "col2", cellType: "expression", expression: "rowFunc({row.col1})" }
+          ] }
+        ]
+      });
+      const mx = <QuestionMatrixDynamicModel>survey.getQuestionByName("mx");
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a value outside the matrix changes").toBe(0);
+      mx.visibleRows[0].cells[0].question.value = 7;
+      expect(count > 0, "runs when the row dependency changes").toBeTruthy();
+      expect(mx.visibleRows[0].cells[1].question.value, "cell expression is calculated").toBe(7);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("rowFunc");
     }
   });
   test("Custom function returns object&array, #7050", () => {

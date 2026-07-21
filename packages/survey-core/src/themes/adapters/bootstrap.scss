@@ -225,7 +225,7 @@
   --sjs2-typography-font-size-default: var(--bs-body-font-size);
   --sjs2-typography-font-size-large: 1.25rem;
   --sjs2-typography-font-weight-component-question-title: 400;
-  --sjs2-typography-line-height-component-question-title: 1.25;
+  --sjs2-typography-line-height-component-question-title: 1.5;
   --sjs2-typography-line-height-default: var(--bs-body-line-height);
   --sjs2-typography-line-height-large: 1.5;
 
@@ -239,7 +239,17 @@
   --sjs2-typography-font-size-component-page-title: 1.75rem; /* h3 = $font-size-base * 1.75 */
   --sjs2-typography-font-weight-component-page-title: 500;
   --sjs2-typography-font-size-component-panel-title: 1.25rem; /* h5 = $font-size-base * 1.25 */
+  --sjs2-typography-line-height-component-panel-title: 1.2;
   --sjs2-typography-font-weight-component-panel-title: 500;
+
+  --sjs2-layout-component-panel-header-padding-top: var(--bs-card-spacer-y);
+  --sjs2-layout-component-panel-header-padding-bottom: 0.5rem;
+  --sjs2-layout-component-panel-header-padding-left: var(--bs-card-spacer-x);
+  --sjs2-layout-component-panel-header-padding-right: var(--bs-card-spacer-x);
+
+  --sjs2-layout-component-panel-content-area-padding-top: 0;
+  --sjs2-layout-component-panel-content-area-padding-bottom: var(--bs-card-spacer-y);
+  --sjs2-layout-component-panel-content-area-padding-horizontal: var(--bs-card-spacer-x);
 }
 
 /* check/radio icon redifinition */
@@ -412,7 +422,6 @@
 }
 
 .sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header {
-  padding-bottom: 0;
   border: none;
 }
 

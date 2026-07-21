@@ -229,6 +229,9 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     const v = settings.expressionVariables;
     return [v.rowIndex, v.visibleRowIndex, v.item, v.rowName, v.rowValue, v.rowTitle];
   }
+  protected getRelatedItemNames(): Array<string> {
+    return [settings.expressionVariables.totalRow];
+  }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
     const setVar = settings.expressionVariables;

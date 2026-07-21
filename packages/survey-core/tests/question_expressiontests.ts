@@ -564,15 +564,211 @@ describe("QuestionExpression", () => {
         ]
       });
       const mx = <QuestionMatrixDynamicModel>survey.getQuestionByName("mx");
+      const rows = mx.visibleRows;
       count = 0;
       survey.setValue("q1", "a");
       expect(count, "skipped when a value outside the matrix changes").toBe(0);
-      mx.visibleRows[0].cells[0].question.value = 7;
+      rows[0].cells[0].question.value = 7;
       expect(count > 0, "runs when the row dependency changes").toBeTruthy();
-      expect(mx.visibleRows[0].cells[1].question.value, "cell expression is calculated").toBe(7);
+      expect(rows[0].cells[1].question.value, "cell expression is calculated").toBe(7);
     } finally {
       settings.expressionQuestionTrackDependencies = prevTrackDependencies;
       FunctionFactory.Instance.unregister("rowFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression column depends on an outside question", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("rowFunc2", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "matrixdynamic", name: "mx", rowCount: 1, columns: [
+            { name: "col1", cellType: "expression", expression: "rowFunc2({q2})" }
+          ] }
+        ]
+      });
+      const mx = <QuestionMatrixDynamicModel>survey.getQuestionByName("mx");
+      const rows = mx.visibleRows;
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a non-dependent value changes").toBe(0);
+      survey.setValue("q2", "b");
+      expect(count > 0, "runs when the outside dependency changes").toBeTruthy();
+      expect(rows[0].cells[0].question.value, "cell expression is calculated").toBe("b");
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("rowFunc2");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression column inside a matrix nested in a dynamic panel", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("nestedRowFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "pd", panelCount: 1, templateElements: [
+            { type: "matrixdynamic", name: "mx", rowCount: 1, columns: [
+              { name: "col1", cellType: "text" },
+              { name: "col2", cellType: "expression", expression: "nestedRowFunc({row.col1})" }
+            ] }
+          ] }
+        ]
+      });
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      const mx = <QuestionMatrixDynamicModel>pd.panels[0].getQuestionByName("mx");
+      const rows = mx.visibleRows;
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a value outside the panel changes").toBe(0);
+      rows[0].cells[0].question.value = 3;
+      expect(count > 0, "runs when the nested row dependency changes").toBeTruthy();
+      expect(rows[0].cells[1].question.value, "nested cell expression is calculated").toBe(3);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("nestedRowFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression column depends on totalRow", () => {
+    let count = 0;
+    FunctionFactory.Instance.register("totalRowFunc", (params: any[]): any => { count++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "mx", rowCount: 2, columns: [
+            { name: "col1", cellType: "text", totalType: "sum" },
+            { name: "col2", cellType: "expression", expression: "totalRowFunc({totalRow.col1})" }
+          ] }
+        ]
+      });
+      const mx = <QuestionMatrixDynamicModel>survey.getQuestionByName("mx");
+      const rows = mx.visibleRows;
+      count = 0;
+      survey.setValue("q1", "a");
+      expect(count, "skipped when a value outside the matrix changes").toBe(0);
+      rows[0].cells[0].question.value = 5;
+      expect(count > 0, "runs when the total row dependency changes").toBeTruthy();
+      expect(rows[0].cells[1].question.value, "totalRow expression is calculated").toBe(5);
+      count = 0;
+      rows[1].cells[0].question.value = 3;
+      expect(count > 0, "runs when the total changes via another row").toBeTruthy();
+      expect(rows[0].cells[1].question.value, "totalRow expression is recalculated").toBe(8);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("totalRowFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression columns depend on prevRow and nextRow", () => {
+    let prevCount = 0;
+    let nextCount = 0;
+    FunctionFactory.Instance.register("prevRowFunc", (params: any[]): any => { prevCount++; return params[0]; });
+    FunctionFactory.Instance.register("nextRowFunc", (params: any[]): any => { nextCount++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "mx", rowCount: 2, columns: [
+            { name: "col1", cellType: "text" },
+            { name: "col2", cellType: "expression", expression: "prevRowFunc({prevRow.col1})" },
+            { name: "col3", cellType: "expression", expression: "nextRowFunc({nextRow.col1})" }
+          ] }
+        ]
+      });
+      const mx = <QuestionMatrixDynamicModel>survey.getQuestionByName("mx");
+      const rows = mx.visibleRows;
+      prevCount = 0;
+      nextCount = 0;
+      survey.setValue("q1", "a");
+      expect(prevCount, "prevRow is skipped when a value outside the matrix changes").toBe(0);
+      expect(nextCount, "nextRow is skipped when a value outside the matrix changes").toBe(0);
+      rows[0].cells[0].question.value = 5;
+      expect(prevCount > 0, "prevRow runs when a matrix value changes").toBeTruthy();
+      expect(rows[1].cells[1].question.value, "prevRow expression in the second row is calculated").toBe(5);
+      rows[1].cells[0].question.value = 7;
+      expect(nextCount > 0, "nextRow runs when a matrix value changes").toBeTruthy();
+      expect(rows[0].cells[2].question.value, "nextRow expression in the first row is calculated").toBe(7);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("prevRowFunc");
+      FunctionFactory.Instance.unregister("nextRowFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expressions depend on prevPanel and nextPanel", () => {
+    let prevCount = 0;
+    let nextCount = 0;
+    FunctionFactory.Instance.register("prevPanelFunc", (params: any[]): any => { prevCount++; return params[0]; });
+    FunctionFactory.Instance.register("nextPanelFunc", (params: any[]): any => { nextCount++; return params[0]; });
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "pd", panelCount: 2, templateElements: [
+            { type: "text", name: "pq1" },
+            { type: "expression", name: "expPrev", expression: "prevPanelFunc({prevPanel.pq1})" },
+            { type: "expression", name: "expNext", expression: "nextPanelFunc({nextPanel.pq1})" }
+          ] }
+        ]
+      });
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      prevCount = 0;
+      nextCount = 0;
+      survey.setValue("q1", "a");
+      expect(prevCount, "prevPanel is skipped when a value outside the panel changes").toBe(0);
+      expect(nextCount, "nextPanel is skipped when a value outside the panel changes").toBe(0);
+      pd.panels[0].getQuestionByName("pq1").value = 5;
+      expect(prevCount > 0, "prevPanel runs when a panel value changes").toBeTruthy();
+      expect(pd.panels[1].getQuestionByName("expPrev").value, "prevPanel expression in the second panel is calculated").toBe(5);
+      pd.panels[1].getQuestionByName("pq1").value = 7;
+      expect(nextCount > 0, "nextPanel runs when a panel value changes").toBeTruthy();
+      expect(pd.panels[0].getQuestionByName("expNext").value, "nextPanel expression in the first panel is calculated").toBe(7);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
+      FunctionFactory.Instance.unregister("prevPanelFunc");
+      FunctionFactory.Instance.unregister("nextPanelFunc");
+    }
+  });
+  test("settings.expressionQuestionTrackDependencies = true, expression depends on panelIndex and visiblePanelIndex", () => {
+    const prevTrackDependencies = settings.expressionQuestionTrackDependencies;
+    settings.expressionQuestionTrackDependencies = true;
+    try {
+      const survey = new SurveyModel({
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "pd", panelCount: 2,
+            templateVisibleIf: "{q1} != 'hideFirst' or {panelIndex} > 0",
+            templateElements: [
+              { type: "expression", name: "pIdx", expression: "{panelIndex}" },
+              { type: "expression", name: "vIdx", expression: "{visiblePanelIndex}" }
+            ] }
+        ]
+      });
+      const pd = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+      expect(pd.panels[0].getQuestionByName("pIdx").value, "panelIndex in the first panel").toBe(0);
+      expect(pd.panels[1].getQuestionByName("pIdx").value, "panelIndex in the second panel").toBe(1);
+      expect(pd.panels[1].getQuestionByName("vIdx").value, "visiblePanelIndex in the second panel").toBe(1);
+      pd.addPanel();
+      expect(pd.panels[2].getQuestionByName("pIdx").value, "panelIndex in the added panel").toBe(2);
+      expect(pd.panels[2].getQuestionByName("vIdx").value, "visiblePanelIndex in the added panel").toBe(2);
+      survey.setValue("q1", "hideFirst");
+      expect(pd.panels[0].visible, "the first panel is hidden").toBeFalsy();
+      expect(pd.panels[1].getQuestionByName("vIdx").value, "visiblePanelIndex is recalculated in the second panel").toBe(0);
+      expect(pd.panels[2].getQuestionByName("vIdx").value, "visiblePanelIndex is recalculated in the third panel").toBe(1);
+      expect(pd.panels[1].getQuestionByName("pIdx").value, "panelIndex is not changed in the second panel").toBe(1);
+    } finally {
+      settings.expressionQuestionTrackDependencies = prevTrackDependencies;
     }
   });
   test("Custom function returns object&array, #7050", () => {

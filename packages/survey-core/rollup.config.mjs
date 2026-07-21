@@ -4,7 +4,6 @@ import { createEsmConfig, createUmdConfig, createCssConfig } from "../../rollup.
 import fs from "fs-extra";
 import process from "process";
 import pkg from "./package.json" with { type: "json" };
-import { isNotEmittedStatement } from "typescript";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const buildPath = resolve(__dirname, "build");

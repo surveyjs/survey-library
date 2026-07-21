@@ -53,6 +53,10 @@ test-results/*
 tests/bundle/*
 packages/survey-core/tests/bundle/*
 packages/survey-react-ui/tests/bundle/*
+packages/survey-react-ui/tests/shards/
+packages/survey-vue3-ui/tests/shards/
+packages/survey-js-ui/tests/shards/
+packages/survey-react-ui/tests/.snapshot-updates.*.log
 packages/survey-js-ui/tests/bundle/*
 packages/survey-core/test_output.txt
 .claude/

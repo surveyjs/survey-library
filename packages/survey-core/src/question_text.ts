@@ -392,10 +392,15 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   protected convertToCorrectValue(val: any): any {
-    if (val !== undefined && val !== null && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
-      const preserved = this.tryPreserveMaskedStringValue(val);
-      if (preserved !== undefined) return preserved;
-      return this.maskInstance.getMaskedValue(val);
+    if (val !== undefined && val !== null && val !== "" && !this.maskTypeIsEmpty) {
+      if (this.maskSettings.saveMaskedValue) {
+        const preserved = this.tryPreserveMaskedStringValue(val);
+        if (preserved !== undefined) return preserved;
+        return this.maskInstance.getMaskedValue(val);
+      }
+      if (this.maskType === "pattern" && val === this.maskInstance.getMaskedValue(val)) {
+        return this.maskInstance.getUnmaskedValue(val);
+      }
     }
     return super.convertToCorrectValue(val);
   }
@@ -667,6 +672,10 @@ export class QuestionTextModel extends QuestionTextBase {
     super.updateValueFromSurvey(newValue, clearData);
     if (!this.isEmpty()) {
       this.setIsValueChanged();
+    }
+    const val = this.value;
+    if (!this.maskTypeIsEmpty && !this.isValueEmpty(newValue) && !this.isTwoValueEquals(val, newValue)) {
+      this.setValueCore(val);
     }
   }
   protected correctValueType(newValue: any): any {

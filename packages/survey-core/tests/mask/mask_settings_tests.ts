@@ -366,6 +366,60 @@ describe("Question text: Input mask", () => {
     testInput.remove();
   });
 
+  test("Set a value with pattern literals from code, saveMaskedValue is enabled", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          maskType: "pattern",
+          maskSettings: { pattern: "+99-99", saveMaskedValue: true },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+    testInput.focus();
+
+    survey.data = { q1: "+12-34" };
+    expect(q.value, "the value keeps the pattern literals").toBe("+12-34");
+    expect(q.inputValue, "q.inputValue is masked").toBe("+12-34");
+    expect(testInput.value, "the masked value is rendered").toBe("+12-34");
+    expect(survey.data, "survey.data keeps the pattern literals").toEqual({ q1: "+12-34" });
+
+    testInput.remove();
+  });
+
+  test("Set a value with pattern literals from code, saveMaskedValue is disabled", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          maskType: "pattern",
+          maskSettings: { pattern: "+99-99" },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+    testInput.focus();
+
+    survey.data = { q1: "+12-34" };
+    expect(q.value, "the value is stored without the pattern literals").toBe("1234");
+    expect(q.inputValue, "q.inputValue is masked").toBe("+12-34");
+    expect(testInput.value, "the masked value is rendered").toBe("+12-34");
+    expect(survey.data, "survey.data is stored without the pattern literals").toEqual({ q1: "1234" });
+
+    testInput.remove();
+  });
+
   test("mask settings changes trigger survey.onPropertyValueChangedCallback", () => {
     const survey = new SurveyModel({
       "pages": [

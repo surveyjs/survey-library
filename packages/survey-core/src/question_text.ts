@@ -349,10 +349,11 @@ export class QuestionTextModel extends QuestionTextBase {
   public set inputValue(val: string) {
     let value = val;
     let _inputValue = val;
+    let keepEnteredText = false;
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
       if (value === undefined || value === null || value === "") {
-        this.doNotUpdateInputValue = true;
+        keepEnteredText = true;
         value = undefined;
       } else {
         _inputValue = this.maskInstance.getMaskedValue(value);
@@ -363,7 +364,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this._inputValue = _inputValue;
     if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
+      this.doNotUpdateInputValue = keepEnteredText;
       this.value = value;
+      this.doNotUpdateInputValue = false;
     }
   }
   public getFilteredValue(): any {
@@ -403,11 +406,8 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   private updateInputValue() {
+    if (this.doNotUpdateInputValue) return;
     const _value = this.value;
-    if (this.doNotUpdateInputValue) {
-      this.doNotUpdateInputValue = false;
-      return;
-    }
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {

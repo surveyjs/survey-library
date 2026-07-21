@@ -334,6 +334,38 @@ describe("Question text: Input mask", () => {
     testInput.remove();
   });
 
+  test("Masked input value is updated when survey.data is set after an empty focused input lost focus", () => {
+    const testInput = document.createElement("input");
+    document.body.appendChild(testInput);
+
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "text",
+          name: "q1",
+          maskType: "pattern",
+          maskSettings: { pattern: "+99-99" },
+        },
+      ],
+    });
+    const q = survey.getQuestionByName("q1") as QuestionTextModel;
+    q.afterRenderQuestionElement(testInput);
+    expect(testInput.value, "empty masked value is rendered").toBe("+__-__");
+
+    testInput.focus();
+    // Nothing is entered and the input loses focus. The UI pushes the empty masked text back into the model,
+    // the unmasked value is empty and the question value does not change.
+    q.onBlur({ target: testInput });
+    expect(q.value, "the question value is still empty").toBeFalsy();
+
+    survey.data = { q1: "1234" };
+    expect(q.value, "q.value is set from survey.data").toBe("1234");
+    expect(q.inputValue, "q.inputValue is masked").toBe("+12-34");
+    expect(testInput.value, "the masked value inside the input is updated").toBe("+12-34");
+
+    testInput.remove();
+  });
+
   test("mask settings changes trigger survey.onPropertyValueChangedCallback", () => {
     const survey = new SurveyModel({
       "pages": [

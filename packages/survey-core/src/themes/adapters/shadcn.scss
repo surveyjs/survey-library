@@ -48,6 +48,8 @@
   /* dropdown */
   --sjs2-shadcn-drop-action-size: calc(var(--spacing) * 6);
   --sjs2-shadcn-drop-action-radius: var(--sjs2-radius-component-action);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: -0.3rem;
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 2);
 
   /* tagbox input */
   --sjs2-shadcn-tagbox-input-padding-vertical: var(--spacing);
@@ -225,7 +227,7 @@
 
   /* stepper */
   --sjs2-radius-component-stepper-item: 100%;
-  
+
   /* common and other */
   --sjs2-color-bg-basic-primary: var(--background);
   --sjs2-color-bg-basic-primary-dim: var(--muted);
@@ -301,6 +303,7 @@
 .sd-dropdown .sd-action {
   cursor: default;
   padding: 0;
+  box-sizing: border-box;
   width: var(--sjs2-shadcn-drop-action-size);
   height: var(--sjs2-shadcn-drop-action-size);
   border-color: transparent;
@@ -315,8 +318,14 @@
   }
 }
 
-.sd-editor-chevron-button button.sd-action {
-  margin-inline-end: var(--spacing);
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: var(--sjs2-shadcn-drop-action-bar-margin-inline-end);
+  padding-inline-end: var(--sjs2-shadcn-drop-action-bar-padding-inline-end);
+
+  svg {
+    width: var(--sjs2-shadcn-drop-action-size);
+    height: var(--sjs2-shadcn-drop-action-size);
+  }
 }
 
 .sv-popup--menu-popup > .sv-popup__container {

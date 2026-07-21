@@ -32,13 +32,14 @@
   --sjs2-typography-line-height-component-label-content: var(--text-sm--line-height);
   --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
 
-
   /* dropdown */
   --sjs2-layout-component-drop-box-padding-horizontal: calc(var(--spacing) * 1.5);
   --sjs2-layout-component-drop-box-padding-vertical: calc(var(--spacing) * 1.5);
   --sjs2-layout-component-drop-item-box-padding-left: calc(var(--spacing) * 3);
   --sjs2-layout-component-drop-item-box-padding-right: calc(var(--spacing) * 8);
   --sjs2-layout-component-drop-item-box-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: 0;
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: 0;
 
   /* tagbox */
   --sjs2-shadcn-tagbox-input-padding-vertical: calc(var(--spacing) * 1.5);
@@ -113,14 +114,3 @@
 .sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
   transform: translateX(calc(100% + 2px));
 }
-
-/* dropdown */
-.sd-editor-chevron-button button.sd-action {
-  margin-inline-end: 0;
-}
-
-.sd-dropdown__input,
-.sd-tagbox__input.sd-dropdown__input {
-  padding-inline: 0;
-}
-

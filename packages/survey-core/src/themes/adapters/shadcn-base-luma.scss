@@ -31,6 +31,8 @@
   /* dropdown */
   --sjs2-radius-component-drop: calc(var(--radius) * 2.2);
   --sjs2-radius-component-drop-item: calc(var(--radius) * 1.8);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: calc(var(--spacing) * -1);
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 3);
 
   /* tagbox */
   --sjs2-color-component-tagbox-item-default-bg: var(--input);
@@ -88,10 +90,6 @@
 }
 
 /* dropdown */
-.sd-editor-chevron-button button.sd-action {
-  margin-inline-end: calc(var(--spacing) * 2);
-}
-
 .sd-selectlist__item {
   font-family: var(--default-font-family);
   font-weight: var(--font-weight-medium);

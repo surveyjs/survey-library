@@ -37,7 +37,8 @@
   /* dropdown */
   --sjs2-radius-component-drop: var(--radius);
   --sjs2-radius-component-drop-item: calc(var(--radius) * 0.8);
-
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: -0.275rem;
+  
   /* tagbox */
   --sjs2-color-component-tagbox-item-default-bg: color-mix(in oklab, var(--muted-foreground) 10%, transparent);
   --sjs2-color-component-tagbox-item-hovered-bg: color-mix(in oklab, var(--muted-foreground) 10%, transparent);

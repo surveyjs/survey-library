@@ -24,6 +24,7 @@
   --sjs2-radius-component-drop: calc(var(--radius) * 0.8);
   --sjs2-radius-component-drop-item: calc(var(--radius) * 0.6);
   --sjs2-shadcn-drop-action-radius: calc(var(--radius) - 5px);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: calc(var(--spacing) * -1);
 
   /* tagbox */
   --sjs2-color-component-tagbox-item-default-bg: var(--muted);

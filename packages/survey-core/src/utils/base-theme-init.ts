@@ -8,21 +8,13 @@ const VARIABLES_PER_RULE = 50;
 
 const THEME_ROOT_CLASS = "sd-theme-root";
 
-// Describes the `@scope` for a component. A plain string is shorthand for the
-// scope root only; an object additionally sets the scope `limit` so the
-// component variables stop applying at (and below) the limit element, i.e.
-// `@scope (<root>) to (<limit>)`. The values are native CSS selectors written
-// as-is (include the leading `.` for classes); the code does not add it.
-type ThemeComponentScope = string | { root: string, limit?: string };
-
 // Maps a component name (as used in `-component-<name>` CSS variable tokens) to
-// the native CSS selector(s) that serve as the `@scope` root (and optional
-// limit) for that component. A variable that matches one of these components is
-// emitted inside `@scope (<root>) [to (<limit>)] { :scope { ... } }` instead of
-// the shared `sd-theme-root` scope, so it only resolves within the matching
-// component subtree, without introducing any new CSS classes. Everything else
-// stays in `sd-theme-root`.
-const THEME_COMPONENT_SCOPES: { [component: string]: ThemeComponentScope } = {
+// the native CSS selector of the class where that component's variables are
+// defined. Values are written as-is (include the leading `.` for classes); the
+// code does not add it. A variable that matches one of these components is
+// emitted inside `:where(<selector>) { ... }` instead of the shared
+// `sd-theme-root` rule. Everything else stays in `sd-theme-root`.
+const THEME_COMPONENT_SCOPES: { [component: string]: string } = {
   boolean: ".sd-boolean-root",
   buttongroup: ".sv-button-group",
   ranking: ".sv-ranking",
@@ -35,14 +27,13 @@ const THEME_COMPONENT_SCOPES: { [component: string]: ThemeComponentScope } = {
   formbox: ".sd-formbox",
   input: ".sd-formbox",
   radio: ".sd-radio",
-  panel: { root: ".sd-panel, .sd-question", limit: ".sd-panel__content, .sd-question__content" },
+  panel: ".sd-panel, .sd-question",
   // The components below also have `-component-<name>` tokens. Provide the
-  // scope root (and optional limit) selector and uncomment the entry to scope
-  // their variables, e.g. `panel: { root: ".sd-panel", limit: ".sd-question" }`,
-  // which emits `@scope (.sd-panel) to (.sd-question)`.
+  // class selector and uncomment the entry to place their variables there,
+  // e.g. `panel: ".sd-panel"`.
   // caption: "",
   drop: ".sd-dropdown",
-  header: { root: ".sd-root-modern", limit: ".sd-body" },
+  header: ".sd-root-modern",
   // icon: "",
   image: ".sd-image",
   // label: "",
@@ -51,8 +42,8 @@ const THEME_COMPONENT_SCOPES: { [component: string]: ThemeComponentScope } = {
   // message: "",
   modal: ".sv-popup",
   // notifier: ".sv-notifier",
-  page: { root: ".sd-page", limit: ".sd-page__row" },
-  question: { root: ".sd-question", limit: ".sd-question__content" },
+  page: ".sd-page",
+  question: ".sd-question",
   // stepper: "",
   // swatch: "",
   // toggle: "",
@@ -76,14 +67,17 @@ function getThemeComponentName(variableName: string): string | undefined {
   return undefined;
 }
 
-function getThemeScopePrelude(scope: ThemeComponentScope): string {
-  const root = typeof scope === "string" ? scope : scope.root;
-  const limit = typeof scope === "string" ? undefined : scope.limit;
-  return limit ? `@scope (${root}) to (${limit})` : `@scope (${root})`;
-}
-
 function buildDeclarations(names: string[], cssVariables: { [index: string]: string }, indent: string): string {
   return names.map((name) => `${indent}${name}: ${cssVariables[name]};`).join("\n");
+}
+
+function buildVariableRules(selector: string, names: string[], cssVariables: { [index: string]: string }): string[] {
+  const rules: string[] = [];
+  for (let i = 0; i < names.length; i += VARIABLES_PER_RULE) {
+    const declarations = buildDeclarations(names.slice(i, i + VARIABLES_PER_RULE), cssVariables, "  ");
+    rules.push(`:where(${selector}) {\n${declarations}\n}`);
+  }
+  return rules;
 }
 
 function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
@@ -100,20 +94,10 @@ function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
     }
   });
 
-  const rules: string[] = [];
-
-  for (let i = 0; i < rootNames.length; i += VARIABLES_PER_RULE) {
-    const declarations = buildDeclarations(rootNames.slice(i, i + VARIABLES_PER_RULE), cssVariables, "  ");
-    rules.push(`:where(.${THEME_ROOT_CLASS}) {\n${declarations}\n}`);
-  }
+  const rules: string[] = buildVariableRules(`.${THEME_ROOT_CLASS}`, rootNames, cssVariables);
 
   Object.keys(componentNames).forEach((componentName) => {
-    const scopePrelude = getThemeScopePrelude(THEME_COMPONENT_SCOPES[componentName]);
-    const names = componentNames[componentName];
-    for (let i = 0; i < names.length; i += VARIABLES_PER_RULE) {
-      const declarations = buildDeclarations(names.slice(i, i + VARIABLES_PER_RULE), cssVariables, "    ");
-      rules.push(`${scopePrelude} {\n  :scope {\n${declarations}\n  }\n}`);
-    }
+    rules.push(...buildVariableRules(THEME_COMPONENT_SCOPES[componentName], componentNames[componentName], cssVariables));
   });
 
   return rules.join("\n");

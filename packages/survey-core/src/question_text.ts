@@ -349,10 +349,11 @@ export class QuestionTextModel extends QuestionTextBase {
   public set inputValue(val: string) {
     let value = val;
     let _inputValue = val;
+    let keepEnteredText = false;
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
       if (value === undefined || value === null || value === "") {
-        this.doNotUpdateInputValue = true;
+        keepEnteredText = true;
         value = undefined;
       } else {
         _inputValue = this.maskInstance.getMaskedValue(value);
@@ -363,7 +364,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this._inputValue = _inputValue;
     if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
+      this.doNotUpdateInputValue = keepEnteredText;
       this.value = value;
+      this.doNotUpdateInputValue = false;
     }
   }
   public getFilteredValue(): any {
@@ -389,10 +392,15 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   protected convertToCorrectValue(val: any): any {
-    if (val !== undefined && val !== null && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
-      const preserved = this.tryPreserveMaskedStringValue(val);
-      if (preserved !== undefined) return preserved;
-      return this.maskInstance.getMaskedValue(val);
+    if (val !== undefined && val !== null && val !== "" && !this.maskTypeIsEmpty) {
+      if (this.maskSettings.saveMaskedValue) {
+        const preserved = this.tryPreserveMaskedStringValue(val);
+        if (preserved !== undefined) return preserved;
+        return this.maskInstance.getMaskedValue(val);
+      }
+      if (this.maskType === "pattern" && val === this.maskInstance.getMaskedValue(val)) {
+        return this.maskInstance.getUnmaskedValue(val);
+      }
     }
     return super.convertToCorrectValue(val);
   }
@@ -403,11 +411,8 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   private updateInputValue() {
+    if (this.doNotUpdateInputValue) return;
     const _value = this.value;
-    if (this.doNotUpdateInputValue) {
-      this.doNotUpdateInputValue = false;
-      return;
-    }
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {
@@ -667,6 +672,10 @@ export class QuestionTextModel extends QuestionTextBase {
     super.updateValueFromSurvey(newValue, clearData);
     if (!this.isEmpty()) {
       this.setIsValueChanged();
+    }
+    const val = this.value;
+    if (!this.maskTypeIsEmpty && !this.isValueEmpty(newValue) && !this.isTwoValueEquals(val, newValue)) {
+      this.setValueCore(val);
     }
   }
   protected correctValueType(newValue: any): any {

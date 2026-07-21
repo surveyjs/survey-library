@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getData, test, expect } from "../helper";
 
 const title = "Input mask";
 
@@ -225,6 +225,137 @@ frameworks.forEach((framework) => {
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ });
+    });
+
+    const twoQuestionsJson = {
+      elements: [
+        {
+          type: "text",
+          name: "phone",
+          title: "Mobile phone",
+          inputType: "tel",
+          maskType: "pattern",
+          maskSettings: { pattern: "+1 (999) 999-9999" },
+        },
+        {
+          type: "text",
+          name: "comment"
+        }
+      ]
+    };
+    const twoQuestionsSaveMaskedJson = {
+      elements: [
+        {
+          type: "text",
+          name: "phone",
+          title: "Mobile phone",
+          inputType: "tel",
+          maskType: "pattern",
+          maskSettings: { pattern: "+1 (999) 999-9999", saveMaskedValue: true },
+        },
+        {
+          type: "text",
+          name: "comment"
+        }
+      ]
+    };
+    const setDataFromCode = async (page) => {
+      await page.evaluate(() => {
+        (window as any).survey.data = { phone: "2345678901", comment: "abc" };
+      });
+    };
+    const setMaskedDataFromCode = async (page) => {
+      await page.evaluate(() => {
+        (window as any).survey.data = { phone: "+1 (234) 567-8901", comment: "abc" };
+      });
+    };
+
+    test("Set survey.data from code, the focus stays in the masked input", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      await phoneInput.click();
+      await expect(phoneInput).toBeFocused();
+
+      await setDataFromCode(page);
+
+      await expect(phoneInput).toBeFocused();
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-8901");
+      expect(await commentInput.inputValue()).toBe("abc");
+      expect(await getData(page)).toEqual({ phone: "2345678901", comment: "abc" });
+    });
+
+    test("Set survey.data from code, the focus stays in the input without mask", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      await commentInput.click();
+      await expect(commentInput).toBeFocused();
+
+      await setDataFromCode(page);
+
+      await expect(commentInput).toBeFocused();
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-8901");
+      expect(await commentInput.inputValue()).toBe("abc");
+      expect(await getData(page)).toEqual({ phone: "2345678901", comment: "abc" });
+    });
+
+    test("Set survey.data from code after the empty masked input lost focus", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      // focus the masked input, enter nothing and move the focus away
+      await phoneInput.click();
+      await expect(phoneInput).toBeFocused();
+      await commentInput.click();
+      await expect(commentInput).toBeFocused();
+
+      await setDataFromCode(page);
+
+      // the question without a mask is re-rendered by the framework, wait for it
+      await expect(commentInput).toHaveValue("abc");
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-8901");
+      expect(await getData(page)).toEqual({ phone: "2345678901", comment: "abc" });
+    });
+
+    test("Set a value with pattern literals from code, the mask saves the masked value", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsSaveMaskedJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      await phoneInput.click();
+      await expect(phoneInput).toBeFocused();
+
+      await setMaskedDataFromCode(page);
+
+      await expect(phoneInput).toBeFocused();
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-8901");
+      await expect(commentInput).toHaveValue("abc");
+      expect(await getData(page)).toEqual({ phone: "+1 (234) 567-8901", comment: "abc" });
+    });
+
+    test("Set a value with pattern literals from code, the mask saves the unmasked value", async ({ page }) => {
+      await initSurvey(page, framework, twoQuestionsJson);
+
+      const phoneInput = page.locator("input").nth(0);
+      const commentInput = page.locator("input").nth(1);
+
+      await phoneInput.click();
+      await expect(phoneInput).toBeFocused();
+
+      await setMaskedDataFromCode(page);
+
+      await expect(phoneInput).toBeFocused();
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-8901");
+      await expect(commentInput).toHaveValue("abc");
+      expect(await getData(page)).toEqual({ phone: "12345678901", comment: "abc" });
     });
 
   });

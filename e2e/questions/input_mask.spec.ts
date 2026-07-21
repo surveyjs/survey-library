@@ -261,8 +261,8 @@ frameworks.forEach((framework) => {
       await setDataFromCode(page);
 
       await expect(phoneInput).toBeFocused();
-      await expect(phoneInput).toHaveValue("+1 (234) 567-89-01");
-      await expect(commentInput).toHaveValue("abc");
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-89-01");
+      expect(await commentInput.inputValue()).toBe("abc");
       expect(await getData(page)).toEqual({ phone: "12345678901", comment: "abc" });
     });
 
@@ -278,8 +278,8 @@ frameworks.forEach((framework) => {
       await setDataFromCode(page);
 
       await expect(commentInput).toBeFocused();
-      await expect(phoneInput).toHaveValue("+1 (234) 567-89-01");
-      await expect(commentInput).toHaveValue("abc");
+      expect(await phoneInput.inputValue()).toBe("+1 (234) 567-89-01");
+      expect(await commentInput.inputValue()).toBe("abc");
       expect(await getData(page)).toEqual({ phone: "12345678901", comment: "abc" });
     });
 

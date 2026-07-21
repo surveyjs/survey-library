@@ -28,6 +28,27 @@
   --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 0 transparent;
   --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary);
 
+  /* dropdown */
+  --sjs2-radius-component-drop: calc(var(--radius) * 2.2);
+  --sjs2-radius-component-drop-item: calc(var(--radius) * 1.8);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: calc(var(--spacing) * -1);
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 3);
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: var(--input);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--input);
+  --sjs2-shadcn-tagbox-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-gap: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-horizontal: calc(var(--spacing) * 3);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.5);
+  --sjs2-shadcn-tagbox-item-padding-left: calc(var(--spacing) * 2);
+  --sjs2-shadcn-tagbox-item-padding-right: 0;
+  --sjs2-shadcn-tagbox-item-radius: calc(var(--radius) * 2.2);
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 2.6);
+
   /* common and other */
   --sjs2-typography-font-size-component-page-title: var(--text-base);
   --sjs2-typography-font-size-component-header-title: var(--text-base);
@@ -66,4 +87,12 @@
   box-shadow:
     var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
     var(--tw-shadow);
+}
+
+/* dropdown */
+.sd-selectlist__item {
+  font-family: var(--default-font-family);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
 }

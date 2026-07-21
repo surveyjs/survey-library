@@ -47,6 +47,22 @@ function expandVariableValue(value: string, stack: { [index: string]: boolean })
   });
 }
 
+// Expands bare var() references inside theme-provided CSS variable values into
+// fallback chains. Theme values may reference base variables (authored
+// directly, or produced by the legacy variable conversion in themes.ts, e.g.
+// "var(--sjs2-color-bg-brand-primary)"). They are applied as inline styles on
+// the survey root and header, where the fallbacks baked into the compiled CSS
+// do not reach, so without expansion such references resolve to nothing.
+export function expandThemeCssVariables(cssVariables: { [index: string]: string }): void {
+  if (!cssVariables) return;
+  Object.keys(cssVariables).forEach((name) => {
+    const value = cssVariables[name];
+    if (typeof value === "string" && value.indexOf("var(") !== -1) {
+      cssVariables[name] = expandVariableValue(value, {});
+    }
+  });
+}
+
 function buildBaseThemeCss(cssVariables: { [index: string]: string }): string {
   const themeRootClass = "sd-theme-root";
   const names = Object.keys(cssVariables);

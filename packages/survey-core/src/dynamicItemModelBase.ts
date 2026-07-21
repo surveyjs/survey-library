@@ -92,16 +92,32 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   protected getItemVariableNames(): Array<string> {
     return [];
   }
-  public getContextKeys(): { [key: string]: any } {
+  public getContextKeys(keys?: any): { [key: string]: any } {
     const res: { [key: string]: any } = {};
-    const names = [this.variableName, this.questionName, this.getPrevName(), this.getNextName()]
-      .concat(this.getItemVariableNames());
+    let names = this.getItemVariableNames();
+    if (!keys || this.isContainerValueChanged(keys)) {
+      names = names.concat([this.variableName, this.questionName, this.getPrevName(), this.getNextName()])
+        .concat(this.getRelatedItemNames());
+    }
     names.forEach((name) => {
       if (name) {
         res[name] = this.item;
       }
     });
     return res;
+  }
+  protected getRelatedItemNames(): Array<string> {
+    return [];
+  }
+  private isContainerValueChanged(keys: any): boolean {
+    let container: any = this.item.data;
+    while(!!container) {
+      const valueName = typeof container.getValueName === "function" ? container.getValueName() : container.name;
+      if (!!valueName && keys.hasOwnProperty(valueName)) return true;
+      const itemData = container.data;
+      container = itemData instanceof DynamicItemModelBase ? itemData.data : undefined;
+    }
+    return false;
   }
 }
 

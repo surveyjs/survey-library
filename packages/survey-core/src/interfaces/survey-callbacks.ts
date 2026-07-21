@@ -35,6 +35,7 @@ export interface ISurveyElementLifecycle {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
+  // MERGE(V3): keep `pageShown`; master (V2) names this callback `pagePassed`. Keep V3 on merge.
   pageShown(page: IPage): void;
 }
 export interface ISurveyFileCallbacks {

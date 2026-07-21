@@ -109,6 +109,8 @@ describe("SurveyStateTest", () => {
     panel.currentIndex = 1;
 
     survey.whenQuestionFocusIn(panel.panels[1].getQuestionByName("q6"));
+    // MERGE(V3): uiState pages carry `{ shown: true }` in V3; master (V2) expects `{ passed: true }`
+    // (and captures fewer pages). Keep the V3 expectation on merge.
     expect(survey.uiState, "survey state with last active").toEqual({ pages: { page1: { shown: true }, page2: { shown: true } }, currentPageName: "page2", questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" });
 
     survey = new SurveyModel(config);

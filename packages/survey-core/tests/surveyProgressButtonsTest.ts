@@ -262,6 +262,10 @@ describe("ProgressButtons", () => {
         { name: "page3", elements: [{ type: "text", name: "question3" }] }
       ]
     };
+    // MERGE(V3): this test (and "ProgressButtons restores the actually active page" below)
+    // conflicts every merge. V3 captures visited pages as `{ shown: true }` and drives state by
+    // navigation (currentPage/currentPageNo); master (V2) captures `{ passed: true }` and drives
+    // state via ProgressButtons.clickListElement. Keep the V3 body on merge.
     // Source survey: visit page3 directly (page2 stays unvisited), leave all questions empty.
     const survey1: SurveyModel = new SurveyModel(json);
     survey1.currentPage = survey1.pages[2];

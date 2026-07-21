@@ -1230,6 +1230,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
    * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
+   * @since 2.0.4
    */
   public get customChoices(): Array<any> {
     return this.getItemValuesPropertyValue("customChoices");

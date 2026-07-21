@@ -971,6 +971,44 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.contentQuestion.runCondition(properties);
     }
   }
+  public getConditionJson(operator: string = null, path: string = null): any {
+    if (!!this.contentQuestion && this.isContentConditionPath(path)) {
+      return this.contentQuestion.getConditionJson(operator, path);
+    }
+    return super.getConditionJson(operator, path);
+  }
+  private isContentConditionPath(path: string): boolean {
+    if (!path) return false;
+    return path !== this.name && path !== this.getValueName() && path !== this.getFilteredName();
+  }
+  public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
+    if (!!this.contentQuestion) {
+      const nestedObjs: Array<IConditionObject> = [];
+      this.contentQuestion.addConditionObjectsByContext(nestedObjs, context);
+      const contentNames = [this.contentQuestion.getFilteredName(), this.contentQuestion.getValueName()];
+      for (let i = 0; i < nestedObjs.length; i++) {
+        const obj = nestedObjs[i];
+        obj.name = this.replaceContentPrefix(obj.name, contentNames, this.getValueName());
+        obj.text = this.replaceContentPrefix(obj.text, [this.contentQuestion.processedTitle], this.processedTitle);
+        obj.question = this;
+        objects.push(obj);
+      }
+      return;
+    }
+    super.addConditionObjectsByContext(objects, context);
+  }
+  private replaceContentPrefix(name: string, contentNames: Array<string>, newName: string): string {
+    if (!name) return name;
+    for (let i = 0; i < contentNames.length; i++) {
+      const contentName = contentNames[i];
+      if (!contentName) continue;
+      if (name === contentName) return newName;
+      if (name.indexOf(contentName + ".") === 0) {
+        return newName + name.substring(contentName.length);
+      }
+    }
+    return name;
+  }
   protected convertDataName(name: string): string {
     const q = this.contentQuestion;
     if (!q || name === this.getValueName()) return super.convertDataName(name);

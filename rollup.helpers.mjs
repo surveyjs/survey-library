@@ -9,6 +9,7 @@ import pluginAlias from "@rollup/plugin-alias";
 import rollupPostcss from "rollup-plugin-postcss";
 import postcssUrl from "postcss-url";
 import postcssBanner from "postcss-banner";
+import sjs2Fallbacks from "./postcss-sjs2-fallbacks.mjs";
 import postcssDiscardComments from "postcss-discard-comments";
 
 import { resolve, parse, format } from "node:path";
@@ -245,7 +246,7 @@ export function createEsmConfig(options) {
 
 export function createCssConfig(options) {
 
-  const { input, dir, emitMinified, version, onCloseBundle } = options;
+  const { input, dir, emitMinified, version, onCloseBundle, cssVariableDefaults } = options;
 
   if (Object.keys(input).length > 1) throw Error("css config accepts only one input");
 
@@ -267,8 +268,11 @@ export function createCssConfig(options) {
         },
         plugins: [
           postcssUrl({ url: "inline" }),
+          // bakes base-theme defaults into var() fallback chains so the runtime
+          // does not need to declare them (keeps DevTools' Styles panel fast)
+          cssVariableDefaults && sjs2Fallbacks({ defaultsPath: cssVariableDefaults }),
           postcssBanner({ banner: getOwnBanner(version), important: true }),
-        ],
+        ].filter(Boolean),
       }),
       pluginOmit(e => e.endsWith(".omitted")),
       emitMinified && pluginMinify(),

@@ -144,6 +144,7 @@ export default (options = {}) => {
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
       version: pkg.version,
+      cssVariableDefaults: resolve("./src/default-theme/base-theme.ts"),
     }),
     createCssConfig({
       input: {
@@ -152,6 +153,7 @@ export default (options = {}) => {
       dir: buildPath,
       emitMinified: process.env.emitMinified === "true",
       version: pkg.version,
+      cssVariableDefaults: resolve("./src/default-theme/base-theme.ts"),
     })
   ];
 

@@ -138,7 +138,6 @@
 .sd-panel__footer {
   box-sizing: border-box;
   border-top: 1px solid $border-light;
-  margin-top: calc(-1 * var(--sjs2-spacing-x300));
   padding-top: var(--sjs2-layout-component-panel-footer-padding-top);
   padding-bottom: var(--sjs2-layout-component-panel-footer-padding-bottom);
   padding-inline-start: calc(var(--sjs2-layout-component-panel-footer-padding-left) - 1.75 * var(--sjs2-spacing-x100));

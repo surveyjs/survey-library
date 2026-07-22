@@ -302,7 +302,7 @@ export default {
     "--sjs2-layout-component-panel-description-padding-bottom": "var(--sjs2-spacing-x000)",
     "--sjs2-layout-component-panel-footer-padding-left": "var(--sjs2-spacing-large-horizontal)",
     "--sjs2-layout-component-panel-footer-padding-right": "var(--sjs2-spacing-large-horizontal)",
-    "--sjs2-layout-component-panel-footer-padding-top": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-footer-padding-top": "var(--sjs2-spacing-medium-vertical)",
     "--sjs2-layout-component-panel-footer-padding-bottom": "var(--sjs2-spacing-medium-vertical)",
     "--sjs2-layout-component-panel-footer-gap": "var(--sjs2-spacing-x150)",
     "--sjs2-layout-component-panel-footer-action-group-gap": "var(--sjs2-spacing-x150)",

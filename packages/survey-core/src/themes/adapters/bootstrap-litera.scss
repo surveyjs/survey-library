@@ -32,6 +32,11 @@
   --sjs2-typography-font-size-component-page-title: 1.925rem;
 }
 
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding-inline: 0.25rem;
+}
+
 /* $btn-font-size: .875rem */
 .sd-theme-root .sd-action--large {
   font-size: 0.875rem;

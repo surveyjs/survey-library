@@ -5,7 +5,7 @@
    Nunito). Directional light/shadow pairs replace borders. */
 .sjs-theme-overrides {
   /* neumorphic light/shadow pairs (raised = extruded, inset = pressed) */
-  --sjs-morph-shadow: 5px 5px 10px rgba(0, 0, 0, .2), -5px -5px 10px rgba(255, 255, 255, .1);
+  --sjs-morph-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2), -5px -5px 10px rgba(255, 255, 255, 0.1);
   --sjs-morph-inset: inset 2px 2px 6px rgba(0, 0, 0, 0.2), inset -3px -2px 5px rgba(255, 255, 255, 0.7);
 
   /* pill, raised, borderless buttons (shadows live in the border-effect tokens).
@@ -23,8 +23,7 @@
   --sjs2-layout-component-input-medium-content-padding-vertical: 0.875rem;
   --sjs2-layout-component-input-medium-content-padding-horizontal: 1.375rem;
 
-
-/*
+  /*
 .btn {
     position: relative;
     color: #7b8ab8;
@@ -38,13 +37,13 @@
 
   --sjs2-layout-component-action-small-box-padding-horizontal: 0.5rem;
   --sjs2-layout-component-action-small-box-padding-vertical: 0.25rem;
-  
+
   --sjs2-border-effect-component-action-brand-primary-default: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-primary-hovered: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-primary-disabled: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-tertiary-surface-default: var(--sjs-morph-shadow);
   --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: var(--sjs-morph-shadow);
-  
+
   /* neutral secondary raised button */
   --sjs-bs-secondary-bg: var(--bs-secondary, #d9e3f1);
   --sjs-bs-on-secondary: var(--bs-body-color);
@@ -56,9 +55,8 @@
   --sjs-bs-on-light: #7b8ab8;
   --sjs-bs-light-hover-bg: #d9e3f1;
 
-
-  --sjs2-color-component-action-brand-tertiary-surface-default-label:  var(--sjs-bs-on-primary);
-  --sjs2-color-component-action-brand-tertiary-surface-default-icon:  var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-default-label: var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon: var(--sjs-bs-on-primary);
   --sjs2-color-component-action-brand-tertiary-surface-default-bg: var(--bs-primary);
 
   /* recessed, borderless inputs */
@@ -73,30 +71,38 @@
   --sjs2-layout-component-input-medium-content-padding-horizontal: 1.5rem;
   --sjs2-layout-component-input-medium-content-padding-vertical: 1rem;
 
-
   /* recessed checkboxes / radios */
   --sjs2-color-component-check-false-default-bg: #bed1e6;
   --sjs2-color-component-check-false-hovered-bg: #bed1e6;
   --sjs2-color-component-check-false-focused-bg: #bed1e6;
-  --sjs2-border-effect-component-check-false-default: inset 1px 1px 7px rgba(0, 0, 0, .2);;
-  --sjs2-border-effect-component-check-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, .2);;
-
+  --sjs2-border-effect-component-check-false-default: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-check-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
 
   /* recessed toggles */
   --sjs2-color-component-toggle-false-default-bg: #bed1e6;
   --sjs2-color-component-toggle-false-hovered-bg: #bed1e6;
-  --sjs2-border-effect-component-toggle-false-default: inset 1px 1px 7px rgba(0, 0, 0, .2);
-  --sjs2-border-effect-component-toggle-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, .2);
+  --sjs2-border-effect-component-toggle-false-default: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
+  --sjs2-border-effect-component-toggle-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, 0.2);
   --sjs2-color-component-toggle-true-default-border: transparent;
   --sjs2-color-component-toggle-true-hovered-border: transparent;
   --sjs2-color-component-toggle-true-default-bg: #378dfc;
   --sjs2-color-component-toggle-true-hovered-bg: #378dfc;
   --sjs2-color-component-toggle-false-default-thumb: #fff;
-  
 
   /* raised panels */
   --sjs2-radius-component-panel: 1rem;
   --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+}
+
+/* dropdown */
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: 1rem;
+  gap: 0.5rem;
+}
+
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding-inline: 1rem;
 }
 
 .sd-action--brand.sd-action--secondary {
@@ -115,7 +121,6 @@
 .sd-boolean-switch__thumb {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
 }
-
 
 /* raised, borderless framed panels */
 .sd-theme-root .sd-element--with-frame {

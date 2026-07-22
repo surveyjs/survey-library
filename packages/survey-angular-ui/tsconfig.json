@@ -19,8 +19,8 @@
     "target": "ES2019",
     "module": "ES2020",
     "lib": [
-      "es2019",
-      "dom"
+      "DOM",
+      "ES2019"
     ],
     "types": []
   },

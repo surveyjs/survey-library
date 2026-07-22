@@ -4,7 +4,6 @@ export default {
   "colorPalette": "dark",
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#9c40ff",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
     "--sjs2-color-utility-body": "var(--sjs2-palette-gray-999)",
     "--sjs2-color-utility-sheet": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-a11y": "rgba(from var(--sjs2-palette-blue-400) r g b / var(--sjs2-opacity-x040))",
@@ -75,9 +74,6 @@ export default {
     "--sjs2-color-component-action-neutral-tertiary-surface-default-label": "var(--sjs2-color-fg-neutral-primary)",
     "--sjs2-color-component-action-neutral-tertiary-surface-hovered-label": "var(--sjs2-color-fg-neutral-primary)",
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-label": "var(--sjs2-color-fg-neutral-primary)",
-    "--sjs2-color-component-buttongroup-item-false-default-bg": "rgba(from var(--sjs2-color-bg-basic-primary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-buttongroup-item-false-disabled-bg": "rgba(from var(--sjs2-color-bg-basic-primary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-buttongroup-item-false-readonly-bg": "rgba(from var(--sjs2-color-bg-basic-primary) r g b / var(--sjs2-opacity-hidden))",
     "--sjs2-color-component-slider-default-thumb": "var(--sjs2-color-bg-neutral-primary)",
     "--sjs2-color-component-slider-disabled-thumb": "var(--sjs2-color-bg-basic-secondary)",
     "--sjs2-color-component-slider-readonly-thumb": "var(--sjs2-color-bg-basic-secondary)",

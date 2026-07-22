@@ -4,7 +4,7 @@ export default {
   "colorPalette": "light",
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#3A179E",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
+    "--sjs2-color-project-brand-800": "var(--sjs2-color-project-brand-600)",
     "--sjs2-color-utility-surface-survey": "#F4F2FB",
     "--sjs2-color-utility-surface-designer": "#F4F2FB",
     "--sjs2-color-utility-shadow-surface-default": "rgba(from var(--sjs2-palette-gray-999) r g b / var(--sjs2-opacity-x015))",
@@ -44,9 +44,6 @@ export default {
     "--sjs2-color-component-action-neutral-tertiary-surface-default-label": "var(--sjs2-color-fg-neutral-primary)",
     "--sjs2-color-component-action-neutral-tertiary-surface-hovered-label": "var(--sjs2-color-fg-neutral-primary)",
     "--sjs2-color-component-action-neutral-quaternary-surface-hovered-label": "var(--sjs2-color-fg-neutral-primary)",
-    "--sjs2-color-component-buttongroup-item-false-default-bg": "rgba(from var(--sjs2-color-border-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-buttongroup-item-false-default-value": "var(--sjs2-color-fg-basic-primary)",
-    "--sjs2-color-component-buttongroup-item-true-disabled-value": "var(--sjs2-palette-gray-400)",
     "--sjs2-color-component-check-true-disabled-border": "var(--sjs2-color-border-basic-secondary)",
     "--sjs2-color-component-toggle-false-disabled-thumb": "var(--sjs2-color-fg-basic-tertiary)",
     "--sjs2-color-component-toggle-true-hovered-border": "var(--sjs2-color-border-brand-primary)",

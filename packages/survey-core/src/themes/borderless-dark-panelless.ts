@@ -61,9 +61,6 @@ export default {
     "--sjs2-color-border-basic-secondary": "rgba(55, 62, 79, 1)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(158,189,241,0.08)",
     "--sjs2-color-border-basic-secondary-disabled": "rgba(from var(--sjs2-color-border-basic-secondary) r g b / var(--sjs2-opacity-disabled))",
-    "--sjs2-color-component-buttongroup-item-false-readonly-bg": "rgba(from var(--sjs2-color-bg-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-buttongroup-item-true-default-border": "rgba(from var(--sjs2-color-border-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
-    "--sjs2-color-component-buttongroup-item-true-readonly-bg": "rgba(from var(--sjs2-color-bg-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
     "--sjs2-color-component-panel-simple-default-bg": "transparent",
     "--sjs2-color-component-panel-simple-default-border": "transparent",
     "--sjs2-border-spread-form-default": "var(--sjs2-border-width-x000)",
@@ -76,6 +73,7 @@ export default {
     "--sjs2-border-effect-component-formbox-focused": "var(--sjs2-border-offset-x-form-focused) var(--sjs2-border-offset-y-form-focused) var(--sjs2-border-blur-form-focused) var(--sjs2-border-spread-form-focused) var(--sjs2-color-component-formbox-focused-border)",
     "--sjs2-border-effect-component-formbox-invalid-focused": "var(--sjs2-border-offset-x-form-invalid-focused) var(--sjs2-border-offset-y-form-invalid-focused) var(--sjs2-border-blur-form-invalid-focused) var(--sjs2-border-spread-form-invalid-focused) var(--sjs2-color-component-formbox-invalid-focused-border)",
     "--sjs2-border-effect-component-formbox-highlighted": "var(--sjs2-border-offset-x-form-highlighted) var(--sjs2-border-offset-y-form-highlighted) var(--sjs2-border-blur-form-highlighted) var(--sjs2-border-spread-form-highlighted) var(--sjs2-color-component-formbox-highlighted-border)",
+    "--sjs2-border-effect-component-formbox-design": "inset var(--sjs2-border-offset-x-form-design) var(--sjs2-border-offset-y-form-design) var(--sjs2-border-blur-form-design) var(--sjs2-border-spread-form-design)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 0px rgba(0, 0, 0, 0.35)",
     "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.2), 0px 8px 16px 0px rgba(0, 0, 0, 0.2)"
   }

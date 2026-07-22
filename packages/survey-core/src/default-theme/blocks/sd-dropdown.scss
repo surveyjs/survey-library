@@ -6,10 +6,20 @@
   position: relative;
 }
 .sd-dropdown--select {
+  &:before {
+    pointer-events: none;
+    content: "";
+    @include sjs2--typography--component--input--content;
+    min-height: calc(1lh + var(--sjs2-layout-component-input-medium-content-padding-vertical) * 2);
+  }
   justify-content: end;
   select.sd-dropdown__input {
     position: absolute;
-    padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x200);
+    padding: 
+      calc(var(--sjs2-layout-component-input-medium-content-padding-vertical) + 
+        var(--sjs2-layout-component-formbox-medium-padding-vertical))
+      calc(var(--sjs2-layout-component-input-medium-content-padding-horizontal) + 
+        var(--sjs2-layout-component-formbox-medium-padding-horizontal));
     top: 0;
     left: 0;
     right: 0;
@@ -26,7 +36,7 @@
 
 .sd-dropdown--select.sd-dropdown--empty {
   .sd-dropdown__input {
-    color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+    color: var(--sjs2-color-component-input-default-placeholder);
   }
 }
 
@@ -57,6 +67,8 @@
   display: flex;
   width: 100%;
   span {
+    align-self: center;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -86,7 +98,7 @@
 }
 
 .sd-dropdown--empty .sd-dropdown__filter-string-input::placeholder {
-  color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+  color: var(--sjs2-color-component-input-default-placeholder);
 }
 
 .sd-dropdown__filter-string-input::placeholder {
@@ -104,7 +116,7 @@
 }
 .sd-dropdown__hint-prefix,
 .sd-dropdown__hint-suffix {
-  color: var(--sjs2-color-component-input-default-placeholder, rgba(28, 27, 32, 0.6));
+  color: var(--sjs2-color-component-input-default-placeholder);
   display: flex;
 
   span {

@@ -161,8 +161,6 @@ export var romanianSurveyStrings = {
   savingDataError: "A intervenit o eroare, rezultatele nu au putut fi salvate.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultatele au fost salvate cu succes!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Răspunsul tău depășește 64KB. Vă rugăm să reduceți dimensiunea fișierelor și să încercați din nou sau să contactați proprietarul sondajului.",
   // "Try again"
   saveAgainButton: "Încercați din nou",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var romanianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Cuprins",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bara de progres"
+  progressbar: "Bara de progres",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pagina {0}"
 };
 
 setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });

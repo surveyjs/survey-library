@@ -161,8 +161,6 @@ export var polishSurveyStrings = {
   savingDataError: "Wystąpił błąd i wyniki nie mogły zostać zapisane.",
   // "The results were saved successfully!"
   savingDataSuccess: "Wyniki zostały poprawnie zapisane!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety.",
   // "Try again"
   saveAgainButton: "Spróbuj ponownie",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var polishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Spis treści",
   // [Auto-translated] "Progress bar"
-  progressbar: "Pasek postępu"
+  progressbar: "Pasek postępu",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Strona {0}"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

@@ -161,8 +161,6 @@ export var dutchSurveyStrings = {
   savingDataError: "Er was een probleem en we konden de resultaten niet bewaren.",
   // "The results were saved successfully!"
   savingDataSuccess: "De resultaten werden succesvol bewaard!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestanden en probeer het opnieuw of neem contact op met de eigenaar van de enquête.",
   // "Try again"
   saveAgainButton: "Probeer opnieuw",
   // "min"
@@ -246,7 +244,9 @@ export var dutchSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Inhoudsopgave",
   // [Auto-translated] "Progress bar"
-  progressbar: "Voortgangsbalk"
+  progressbar: "Voortgangsbalk",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pagina {0}"
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });

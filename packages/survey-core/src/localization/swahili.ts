@@ -161,8 +161,6 @@ export var swahiliStrings = {
   savingDataError: "Kosa limetokea na hatukuweza kuhifadhi matokeo.",
   // "The results were saved successfully!"
   savingDataSuccess: "Matokeo yamehifadhiwa!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Jibu lako linazidi 64KB. Tafadhali punguza saizi ya faili zako na ujaribu tena au wasiliana na mmiliki wa utafiti.",
   // "Try again"
   saveAgainButton: "Jaribu tena",
   // "min"
@@ -246,7 +244,9 @@ export var swahiliStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Jedwali la yaliyomo",
   // [Auto-translated] "Progress bar"
-  progressbar: "Upau wa maendeleo"
+  progressbar: "Upau wa maendeleo",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Ukurasa {0}"
 };
 
 setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });

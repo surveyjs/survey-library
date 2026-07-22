@@ -21,13 +21,13 @@
 .sd-comment__grip {
   cursor: se-resize;
   position: absolute;
-  right: var(--sjs2-spacing-x050, 4px);
-  bottom: var(--sjs2-spacing-x050, 4px);
+  right: var(--sjs2-spacing-x050);
+  bottom: var(--sjs2-spacing-x050);
   .sv-svg-icon {
     display: block;
-    fill: var(--sjs2-color-component-input-default-icon, rgba(28, 27, 32, 0.4));
-    width: var(--sjs2-size-x200, 16px);
-    height: var(--sjs2-size-x200, 16px);
+    fill: var(--sjs2-color-component-input-default-icon);
+    width: var(--sjs2-size-x200);
+    height: var(--sjs2-size-x200);
   }
 }
 .sd-comment__character-counter {

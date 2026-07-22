@@ -161,8 +161,6 @@ export var japaneseSurveyStrings = {
   savingDataError: "エラーが発生し、結果を保存できませんでした。",
   // "The results were saved successfully!"
   savingDataSuccess: "結果が正常に保存されました",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "回答が64KBを超えています。ファイルのサイズを小さくして、もう一度やり直すか、アンケートの所有者にお問い合わせください。",
   // "Try again"
   saveAgainButton: "もう一度試してみてください。",
   // "min"
@@ -246,7 +244,9 @@ export var japaneseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "目次",
   // [Auto-translated] "Progress bar"
-  progressbar: "進行状況バー"
+  progressbar: "進行状況バー",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "ページ{0}"
 };
 
 setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日本語", englishName: "Japanese" });

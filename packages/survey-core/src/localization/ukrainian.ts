@@ -161,8 +161,6 @@ export var ukrainianSurveyStrings = {
   savingDataError: "Відбулася помилка, результат не був збережений.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резвультат успішно збережений!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір вашого файлу (файлів) і спробуйте ще раз або зверніться до власника опитування.",
   // "Try again"
   saveAgainButton: "Спробувати знову",
   // "min"
@@ -246,7 +244,9 @@ export var ukrainianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Зміст",
   // [Auto-translated] "Progress bar"
-  progressbar: "Індикатор прогресу"
+  progressbar: "Індикатор прогресу",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Сторінка {0}"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

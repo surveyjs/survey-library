@@ -161,8 +161,6 @@ export var thaiStrings = {
   savingDataError: "มีความผิดพลาดเกิดขึ้นส่งผลให้ไม่สามารถบันทึกผลได้",
   // "The results were saved successfully!"
   savingDataSuccess: "บันทึกสำเร็จแล้ว",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ",
   // "Try again"
   saveAgainButton: "รบกวนลองอีกครั้ง",
   // "min"
@@ -246,7 +244,9 @@ export var thaiStrings = {
   // [Auto-translated] "Table of contents"
   toc: "สารบัญ",
   // [Auto-translated] "Progress bar"
-  progressbar: "แถบความคืบหน้า"
+  progressbar: "แถบความคืบหน้า",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "หน้า {0}"
 };
 
 setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", englishName: "Thai" });

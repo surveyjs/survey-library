@@ -161,8 +161,6 @@ export var italianSurveyStrings = {
   savingDataError: "Si è verificato un errore e non è stato possibile salvare i risultati.",
   // "The results were saved successfully!"
   savingDataSuccess: "I risultati sono stati salvati con successo!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "La tua risposta supera i 64 KB. Riduci le dimensioni dei file e riprova o contatta il proprietario dell'indagine.",
   // "Try again"
   saveAgainButton: "Riprova",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var italianSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sommario",
   // [Auto-translated] "Progress bar"
-  progressbar: "Indicatore"
+  progressbar: "Indicatore",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Pagina {0}"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

@@ -67,6 +67,7 @@ export * from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 export * from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
 export * from "./components/renderAs/boolean-radio/boolean-radio.component";
 export * from "./components/renderAs/boolean-radio/boolean-radio-item.component";
+export * from "./components/renderAs/boolean-switch/boolean-switch.component";
 export * from "./components/renderAs/buttongroup-dropdown/button-group-dropdown.component";
 export * from "./components/progress/default/progress.component";
 export * from "./components/progress/buttons/progress.component";

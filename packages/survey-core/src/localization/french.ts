@@ -161,8 +161,6 @@ export var frenchSurveyStrings = {
   savingDataError: "Une erreur est survenue et a empêché la sauvegarde des résultats.",
   // "The results were saved successfully!"
   savingDataSuccess: "Les résultats ont bien été enregistrés !",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de vos fichiers et réessayer ou contacter le propriétaire du sondage.",
   // "Try again"
   saveAgainButton: "Réessayer",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var frenchSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Table des matières",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barre de progression"
+  progressbar: "Barre de progression",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Page {0}"
 };
 
 setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });

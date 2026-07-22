@@ -161,8 +161,6 @@ export var simplifiedChineseSurveyStrings = {
   savingDataError: "在保存结果过程中发生了错误，结果未能保存",
   // "The results were saved successfully!"
   savingDataSuccess: "结果保存成功!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "您的回复超过 64KB。请减小文件的大小，然后重试或联系调查所有者。",
   // "Try again"
   saveAgainButton: "请重试",
   // "min"
@@ -246,7 +244,9 @@ export var simplifiedChineseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "目录",
   // [Auto-translated] "Progress bar"
-  progressbar: "进度条"
+  progressbar: "进度条",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "第{0}页"
 };
 
 setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });

@@ -1,0 +1,66 @@
+@use "./shadcn.scss";
+
+/* shadcn/ui "base-lyra" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  @include shadcn.shadcn-dark-input-bg;
+
+  --sjs2-border-effect-a11y: 0 0 0 calc(1px + 0px) color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* buttons */
+  --sjs2-radius-component-action: 0;
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 8); /* h-8 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+  --sjs2-border-effect-component-action-brand-primary-a11y: 0 0 0 2px color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* formboxes */
+  --sjs2-radius-component-formbox: 0;
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 8); /* h-8 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2); /* py-2 */
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 2.5); /* px-2.5 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1); /* py-1 */
+  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px var(--ring);
+  --sjs2-border-effect-component-formbox-a11y: 0 0 0 1px color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 0;
+  --sjs2-typography-font-weight-component-label-content: normal;
+  --sjs2-typography-line-height-component-label-content: calc(var(--spacing) * 4);
+  --sjs2-typography-font-size-component-label-content: var(--text-xs);
+  --sjs2-border-effect-component-check-a11y: inset 0 0 0 1px var(--ring), 0 0 0 1px color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* dropdown */
+  --sjs2-radius-component-drop: 0;
+  --sjs2-radius-component-drop-item: 0;
+  --sjs2-layout-component-drop-box-padding-horizontal: 0px;
+  --sjs2-layout-component-drop-box-padding-vertical: 0px;
+  --sjs2-layout-component-drop-item-box-padding-left: 8px;
+  --sjs2-layout-component-drop-item-box-padding-right: 32px;
+  --sjs2-layout-component-drop-item-box-padding-vertical: 8px;
+  --sjs2-layout-component-drop-item-label-padding-horizontal: 0px;
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: var(--muted);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--muted);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.25);
+  --sjs2-shadcn-tagbox-item-radius: 0;
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-clean-radius: 0;
+
+  /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-sm);
+  --sjs2-typography-font-size-component-header-title: var(--text-sm);
+  --sjs2-radius-component-panel: 0;
+  --sjs2-typography-font-size-default: var(--text-xs);
+  --sjs2-typography-line-height-component-action-large-content: var(--text-xs--line-height);
+  --sjs2-typography-line-height-component-input-content: var(--text-xs--line-height);
+  --sjs2-typography-font-size-component-question-title: var(--text-xs);
+  --sjs2-typography-font-weight-component-question-title: var(--font-weight-normal);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 10); /* h-10 */
+}
+
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-padding: calc(var(--spacing) * 3);
+}

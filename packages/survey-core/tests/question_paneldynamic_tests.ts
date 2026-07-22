@@ -952,6 +952,60 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(panel2.getQuestionByName("q3").no, "panel2.q3 number").toBe("1.2 b");
     expect(q4.no, "q4 number").toBe("1.3");
   });
+  test("PanelDynamic, nested panels showQuestionNumbers recursive on setting data, Bug#11487", () => {
+    const json = {
+      pages: [{
+        name: "page1",
+        elements: [{
+          type: "paneldynamic",
+          name: "pd_a",
+          showQuestionNumbers: "recursive",
+          templateElements: [
+            { type: "text", name: "t_a" },
+            {
+              type: "paneldynamic",
+              name: "pd_b",
+              showQuestionNumbers: "recursive",
+              templateElements: [
+                { type: "text", name: "t_b" },
+                {
+                  type: "paneldynamic",
+                  name: "pd_c",
+                  showQuestionNumbers: "recursive",
+                  templateElements: [
+                    { type: "text", name: "t_c" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }]
+      }],
+      showQuestionNumbers: "recursive"
+    };
+    const survey = new SurveyModel(json);
+    survey.data = {
+      pd_a: [{
+        t_a: "1",
+        pd_b: [{
+          t_b: "2",
+          pd_c: [{ t_c: "3" }]
+        }]
+      }]
+    };
+    const pd_a = <QuestionPanelDynamicModel>survey.getQuestionByName("pd_a");
+    const pa = pd_a.panels[0];
+    const pd_b = <QuestionPanelDynamicModel>pa.getQuestionByName("pd_b");
+    const pb = pd_b.panels[0];
+    const pd_c = <QuestionPanelDynamicModel>pb.getQuestionByName("pd_c");
+    const pc = pd_c.panels[0];
+    expect(pd_a.no, "pd_a number").toBe("1.");
+    expect(pa.getQuestionByName("t_a").no, "t_a number").toBe("1.1.");
+    expect(pd_b.no, "pd_b number").toBe("1.2.");
+    expect(pb.getQuestionByName("t_b").no, "t_b number").toBe("1.2.1.");
+    expect(pd_c.no, "pd_c number").toBe("1.2.2.");
+    expect(pc.getQuestionByName("t_c").no, "t_c number").toBe("1.2.2.1.");
+  });
   test("PanelDynamic, showQuestionNumbers onpanel & questionStartIndex, Issue#10288", () => {
     const survey = new SurveyModel({
       elements: [
@@ -2357,6 +2411,57 @@ describe("Survey_QuestionPanelDynamic", () => {
     expect(question4.visibleChoices.length, "There is not visible choices by default").toBe(0);
     question2.value = ["item1", "item2"];
     expect(question4.visibleChoices.length, "There are two visible choices by now").toBe(2);
+  });
+
+  test("Page.ensureRowsVisibility updates rows in dynamic panel", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "question1",
+              panelCount: 2,
+              renderMode: "list",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "question2",
+                },
+                {
+                  type: "checkbox",
+                  name: "question3",
+                  choices: ["item1", "item2", "item3"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    let panels = panelDynamic.panels;
+
+    let counter = 0;
+    panels.forEach((p)=> p.rows.forEach((row: any) => {
+      row["_updateVisibility"] = () => counter++;
+    }));
+
+    survey.currentPage.ensureRowsVisibility();
+    expect(counter, "rows from paneldynamic panel were updated").toBe(4);
+
+    panelDynamic.addPanel();
+    panels = panelDynamic.panels;
+
+    counter = 0;
+    panels.forEach((p)=> p.rows.forEach((row: any) => {
+      row["_updateVisibility"] = () => counter++;
+    }));
+
+    survey.currentPage.ensureRowsVisibility();
+    expect(counter, "rows from paneldynamic panel were updated").toBe(6);
   });
 
   test("panel.defaultPanelValue, apply from json and then from UI", () => {
@@ -4178,6 +4283,61 @@ describe("Survey_QuestionPanelDynamic", () => {
     question2.value = question2.choices[1].value;
     expect(panel.panelCount, "We still have one panel").toBe(1);
     expect(panel.panels[0].locTitle.textOrHtml, "the first panel title set correctly again").toBe("sample title 2");
+  });
+  test("Changing template title/description fires panel onPropertyChanged for templateTitle/templateDescription, #7876", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    const changes: Array<{ name: string, oldValue: any, newValue: any }> = [];
+    question.onPropertyChanged.add((sender, options) => {
+      if (options.name === "templateTitle" || options.name === "templateDescription") {
+        changes.push({ name: options.name, oldValue: options.oldValue, newValue: options.newValue });
+      }
+    });
+
+    question.template.title = "Title from design surface";
+    expect(question.templateTitle, "templateTitle getter reflects template.title").toBe("Title from design surface");
+    expect(changes.length, "templateTitle change is raised").toBe(1);
+    expect(changes[0].name, "templateTitle name is raised").toBe("templateTitle");
+    expect(changes[0].newValue, "templateTitle new value is correct").toBe("Title from design surface");
+
+    question.template.description = "Description from design surface";
+    expect(question.templateDescription, "templateDescription getter reflects template.description").toBe("Description from design surface");
+    expect(changes.length, "templateDescription change is raised").toBe(2);
+    expect(changes[1].name, "templateDescription name is raised").toBe("templateDescription");
+    expect(changes[1].newValue, "templateDescription new value is correct").toBe("Description from design surface");
+
+    question.template.title = "";
+    expect(question.templateTitle, "templateTitle is cleared").toBe("");
+    expect(changes.length, "clearing templateTitle is raised").toBe(3);
+    expect(changes[2].name).toBe("templateTitle");
+  });
+  test("Property grid (editingObj) synchronizes with template title/description changes on design surface, #7876", () => {
+    const question = new QuestionPanelDynamicModel("q");
+    question.templateTitle = "Initial title";
+    question.templateDescription = "Initial description";
+
+    const propertyGrid = new SurveyModel({
+      elements: [
+        { type: "text", name: "templateTitle" },
+        { type: "text", name: "templateDescription" }
+      ]
+    });
+    propertyGrid.editingObj = question;
+    const titleQuestion = propertyGrid.getQuestionByName("templateTitle");
+    const descriptionQuestion = propertyGrid.getQuestionByName("templateDescription");
+    expect(titleQuestion.value, "grid shows the initial title").toBe("Initial title");
+    expect(descriptionQuestion.value, "grid shows the initial description").toBe("Initial description");
+
+    // Emulate editing the template panel title/description inline on the design surface
+    question.template.title = "Edited on surface";
+    question.template.description = "Edited description";
+    expect(titleQuestion.value, "grid title is synchronized with the design surface").toBe("Edited on surface");
+    expect(descriptionQuestion.value, "grid description is synchronized with the design surface").toBe("Edited description");
+
+    // Emulate clearing the values on the design surface
+    question.template.title = "";
+    question.template.description = "";
+    expect(titleQuestion.value, "grid title is cleared").toBeFalsy();
+    expect(descriptionQuestion.value, "grid description is cleared").toBeFalsy();
   });
   test("defaultValue &  survey.onValueChanged on adding new panel", () => {
     const survey = new SurveyModel({
@@ -7528,6 +7688,28 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.panelCount = 10;
     expect(panel.panelCount, "#7").toBe(5);
   });
+  test("panelCount property onSettingValue clamps to minPanelCount & maxPanelCount (property grid path), Bug#11458", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          templateElements: [{ type: "text", name: "q1" }],
+          panelCount: 1,
+          minPanelCount: 1,
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+    const prop = Serializer.findProperty("paneldynamic", "panelCount");
+    expect(prop.settingValue(panel, 0), "#1 below min reverts to min").toBe(1);
+    panel.minPanelCount = 0;
+    expect(prop.settingValue(panel, 0), "#2 min is 0 now").toBe(0);
+    panel.maxPanelCount = 5;
+    expect(prop.settingValue(panel, 10), "#3 above max reverts to max").toBe(5);
+    expect(prop.settingValue(panel, 3), "#4 within range unchanged").toBe(3);
+    expect(prop.settingValue(panel, -2), "#5 negative reverts to min").toBe(0);
+  });
   test("maxRowCount & footer buttons, Bug#8865", () => {
     const survey = new SurveyModel({
       "elements": [
@@ -8825,5 +9007,34 @@ describe("Survey_QuestionPanelDynamic", () => {
     panel.addPanelUI();
     expect(panel.panels.length, "panel count after add #2").toBe(3);
     expect(getRemoveAction(2).enabled, "remove[2] enabled on newly added panel when enableRemovePanel=true").toBe(true);
+  });
+  test("templateDescription should be serialized into JSON, Bug#11383", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "question1",
+          panelCount: 1,
+          templateTitle: "My Title",
+          templateDescription: "My Description",
+          templateElements: [{ type: "text", name: "sub1" }],
+        },
+      ],
+    });
+    const question = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+    expect(question.templateTitle, "templateTitle is read from the model").toBe("My Title");
+    expect(question.templateDescription, "templateDescription is read from the model").toBe("My Description");
+    const json = question.toJSON();
+    expect(json.templateTitle, "templateTitle is serialized into JSON").toBe("My Title");
+    expect(json.templateDescription, "templateDescription is serialized into JSON").toBe("My Description");
+
+    expect(question.panels.length, "There is one panel").toBe(1);
+    expect(question.panels[0].title, "The first panel title is taken from templateTitle").toBe("My Title");
+    expect(question.panels[0].description, "The first panel description is taken from templateDescription").toBe("My Description");
+
+    question.addPanel();
+    expect(question.panels.length, "There are two panels after addPanel()").toBe(2);
+    expect(question.panels[1].title, "The added panel title is taken from templateTitle").toBe("My Title");
+    expect(question.panels[1].description, "The added panel description is taken from templateDescription").toBe("My Description");
   });
 });

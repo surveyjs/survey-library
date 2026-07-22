@@ -196,7 +196,8 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     super(row);
   }
   protected get visibleIndex(): number {
-    return this.getQuestionData().visibleRows.indexOf(this.row);
+    const rows = this.getQuestionData().visibleRows;
+    return !!rows ? rows.indexOf(this.row) : this.row.visibleIndex;
   }
   protected getNextName(): string {
     return settings.expressionVariables.nextRow;
@@ -206,8 +207,9 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected getVisibleItem(index: number): DynamicItemModelBase {
     const matrix = this.getQuestionData();
-    if (index < 0 || index >= matrix.visibleRows.length) return null;
-    return matrix.visibleRows[index];
+    const rows = matrix.visibleRows;
+    if (!rows || index < 0 || index >= rows.length) return null;
+    return rows[index];
   }
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
@@ -222,6 +224,10 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
   protected get questionName(): string {
     return settings.expressionVariables.matrix;
+  }
+  protected getItemVariableNames(): Array<string> {
+    const v = settings.expressionVariables;
+    return [v.rowIndex, v.visibleRowIndex, v.item, v.rowName, v.rowValue, v.rowTitle];
   }
   getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
@@ -244,11 +250,6 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
 }
 
 export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
-  private static idCounter: number = 1;
-  private static getId(): string {
-    return "srow_" + MatrixDropdownRowModelBase.idCounter++;
-  }
-
   private idValue: string;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
@@ -266,10 +267,18 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
     };
-    this.idValue = MatrixDropdownRowModelBase.getId();
   }
   public get id(): string {
+    if (this.idValue === undefined) {
+      this.idValue = Base.getIdGeneratorBySurvey(this.getSurvey()).next("srow");
+    }
     return this.idValue;
+  }
+  // This class does not extend Base, so it cannot inherit Base.renderedId / composeElementId; it
+  // delegates the DOM-id namespacing to the owner survey directly (raw id when detached).
+  public get renderedId(): string {
+    const survey = this.getSurvey();
+    return survey ? survey.getElementId(this.id) : this.id;
   }
   public get rowName(): any {
     return null;
@@ -1059,6 +1068,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   @property() transposeData: boolean;
   /**
    * @deprecated Use the [`transposeData`](#transposeData) property instead.
+   * @hidden
    */
   public get columnLayout(): string {
     return this.transposeData ? "vertical" : "horizontal";
@@ -1117,6 +1127,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Default value: `false`
    * @see keyDuplicationError
+   * @since 2.0.0
    */
   public get useCaseSensitiveComparison(): boolean {
     return this.useCaseSensitiveComparisonValue !== undefined ? this.useCaseSensitiveComparisonValue : settings.comparator.caseSensitive;
@@ -1126,6 +1137,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   /**
    * @deprecated Use the [`useCaseSensitiveComparison`](#useCaseSensitiveComparison) property instead.
+   * @hidden
    */
   public get isUniqueCaseSensitive(): boolean {
     return this.useCaseSensitiveComparison;
@@ -1786,6 +1798,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `{row.columnname}` - The value of a cell in the same row.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
+   * @since 2.0.6
    */
   public get singleInputTitleTemplate(): string {
     return this.getLocStringText(this.locSingleInputTitleTemplate);

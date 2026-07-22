@@ -1,0 +1,98 @@
+@use "./shadcn.scss";
+/* shadcn/ui "base-luma" style. Load after shadcn.css (overrides only). */
+.sjs-theme-overrides {
+  --sjs2-border-effect-a11y: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
+
+  /* buttons */
+  --sjs2-radius-component-action: calc(var(--spacing) * 6);
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 9); /* h-9 */
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 3); /* px-3 */
+  --sjs2-layout-component-action-large-box-padding-vertical: 0;
+
+  /* formboxes */
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 9); /* h-9 */
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 3); /* py-3 */
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 1); /* py-1 */
+  --sjs2-radius-component-formbox: calc(var(--spacing) * 6);
+  --sjs2-color-component-formbox-default-border: transparent;
+  --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 50%, transparent);
+  --sjs2-border-effect-component-formbox-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-formbox-focused: inset 0px 0px 0px 1px var(--ring);
+
+  /* checkboxes and radio */
+  --sjs2-radius-component-checkbox: 5px; /* rounded-[5px] */
+  --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-check-false-hovered-bg: color-mix(in oklab, var(--input) 90%, transparent);
+  --sjs2-color-component-check-false-default-border: transparent;
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 0 transparent;
+  --sjs2-border-effect-component-check-true-default: inset 0 0 0 1px var(--primary);
+
+  /* dropdown */
+  --sjs2-radius-component-drop: calc(var(--radius) * 2.2);
+  --sjs2-radius-component-drop-item: calc(var(--radius) * 1.8);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: calc(var(--spacing) * -1);
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 3);
+
+  /* tagbox */
+  --sjs2-color-component-tagbox-item-default-bg: var(--input);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--input);
+  --sjs2-shadcn-tagbox-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-input-gap: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-empty-input-padding-horizontal: calc(var(--spacing) * 3);
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 5.5);
+  --sjs2-shadcn-tagbox-item-padding-left: calc(var(--spacing) * 2);
+  --sjs2-shadcn-tagbox-item-padding-right: 0;
+  --sjs2-shadcn-tagbox-item-radius: calc(var(--radius) * 2.2);
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-clean-radius: calc(var(--radius) * 2.6);
+
+  /* common and other */
+  --sjs2-typography-font-size-component-page-title: var(--text-base);
+  --sjs2-typography-font-size-component-header-title: var(--text-base);
+  --sjs2-radius-component-panel: calc(var(--spacing) * 6);
+
+  /* tables */
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
+}
+
+.sd-comment__grip {
+  display: none;
+}
+
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-padding: calc(var(--spacing) * 5);
+}
+
+/* toggle */
+.sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: 0px;
+  --sd-boolean-switch-thumb-width: calc(var(--spacing) * 6);
+  --sd-boolean-switch-thumb-height: calc(var(--spacing) * 4);
+  --sd-boolean-switch-button-spacing: 2px;
+  --sd-boolean-switch-button-width: calc(var(--spacing) * 11);
+  --sd-boolean-switch-button-heigth: calc(var(--spacing) * 5);
+}
+
+.sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
+  transform: translateX(calc(100% - 8px));
+}
+
+.sd-boolean-switch__thumb-circle {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-color, currentcolor);
+  --tw-shadow:
+    0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow);
+}
+
+/* dropdown */
+.sd-selectlist__item {
+  font-family: var(--default-font-family);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+}

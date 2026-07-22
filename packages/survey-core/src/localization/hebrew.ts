@@ -161,8 +161,6 @@ export var hebrewSurveyStrings = {
   savingDataError: "אירעה שגיאה ולא הצלחנו לשמור את התוצאות.",
   // "The results were saved successfully!"
   savingDataSuccess: "התוצאות נשמרו בהצלחה!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "תגובתך עולה על 64KB. אנא הקטן את גודל הקבצים שלך ונסה שוב או צור קשר עם בעל הסקר.",
   // "Try again"
   saveAgainButton: "נסה שוב",
   // "min"
@@ -246,7 +244,9 @@ export var hebrewSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "תוכן עניינים",
   // [Auto-translated] "Progress bar"
-  progressbar: "מד התקדמות"
+  progressbar: "מד התקדמות",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "עמוד {0}"
 };
 
 setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });

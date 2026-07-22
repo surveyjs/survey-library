@@ -4,8 +4,17 @@ export default {
   "colorPalette": "light",
   "isPanelless": true,
   "cssVariables": {
+    "--sjs2-layout-component-page-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-page-content-area-gap-vertical": "var(--sjs2-spacing-large-vertical)",
+    "--sjs2-layout-component-panel-simple-box-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-simple-content-area-padding-horizontal": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
+    "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
+    "--sjs2-is-panelless": "true",
     "--sjs2-color-project-brand-600": "rgba(35, 101, 200, 1)",
-    "--sjs2-color-utility-surface-survey": "rgba(231, 240, 255, 1)",
+    "--sjs2-color-utility-surface-survey": "var(--sjs2-color-component-panel-default-bg)",
     "--sjs2-color-utility-surface-designer": "rgba(231, 240, 255, 1)",
     "--sjs2-color-bg-basic-secondary": "rgba(238, 245, 255, 1)",
     "--sjs2-color-bg-basic-primary-dim": "rgba(241, 246, 255, 1)",
@@ -21,6 +30,11 @@ export default {
     "--sjs2-color-fg-brand-primary-disabled": "rgba(255, 255, 255, 0.25)",
     "--sjs2-color-border-basic-secondary": "rgba(220, 229, 241, 1)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(4,7,10,0.16)",
+    "--sjs2-color-component-buttongroup-item-false-readonly-bg": "rgba(from var(--sjs2-color-bg-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
+    "--sjs2-color-component-buttongroup-item-true-default-border": "rgba(from var(--sjs2-color-border-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
+    "--sjs2-color-component-buttongroup-item-true-readonly-bg": "rgba(from var(--sjs2-color-bg-basic-secondary) r g b / var(--sjs2-opacity-hidden))",
+    "--sjs2-color-component-panel-simple-default-bg": "transparent",
+    "--sjs2-color-component-panel-simple-default-border": "transparent",
     "--sjs2-border-spread-form-default": "var(--sjs2-border-width-x000)",
     "--sjs2-border-spread-form-hovered": "var(--sjs2-border-width-x000)",
     "--sjs2-border-spread-form-pressed": "var(--sjs2-border-width-x000)",
@@ -31,6 +45,6 @@ export default {
     "--sjs2-border-effect-component-formbox-invalid-focused": "var(--sjs2-border-offset-x-form-invalid-focused) var(--sjs2-border-offset-y-form-invalid-focused) var(--sjs2-border-blur-form-invalid-focused) var(--sjs2-border-spread-form-invalid-focused) var(--sjs2-color-component-formbox-invalid-focused-border)",
     "--sjs2-border-effect-component-formbox-highlighted": "var(--sjs2-border-offset-x-form-highlighted) var(--sjs2-border-offset-y-form-highlighted) var(--sjs2-border-blur-form-highlighted) var(--sjs2-border-spread-form-highlighted) var(--sjs2-color-component-formbox-highlighted-border)",
     "--sjs2-border-effect-surface-default": "0px 0px 0px 0px rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-floating-default": "0px 2 6 0px rgba(0, 0, 0, 0.1), 0px 8 16 0px rgba(0, 0, 0, 0.1)"
+    "--sjs2-border-effect-floating-default": "0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1)"
   }
 };

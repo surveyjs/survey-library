@@ -3,6 +3,9 @@
     v-if="element.hasVisibleErrors"
     :class="element.cssError"
     :id="element.id + '_errors'"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
     ref="root"
   >
     <SvComponent

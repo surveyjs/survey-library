@@ -279,4 +279,138 @@ describe("boolean", () => {
     b2.value = !b2.value;
     expect(exp1.value, "exp1.value #3").toBe(true);
   });
+  test("Boolean keyboard navigation should respect swapOrder", () => {
+    var json = {
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "bool",
+        }
+      ]
+    };
+    var survey = new SurveyModel(json);
+    var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+
+    let pdCount = 0;
+    let spCount = 0;
+    const createEvent = (key: string) => ({
+      key: key,
+      target: document.createElement("div"),
+      preventDefault: () => { pdCount++; },
+      stopPropagation: () => { spCount++; }
+    });
+
+    // Test without swapOrder (default behavior)
+    question.onKeyDownCore(createEvent("ArrowRight"));
+    expect(question.booleanValue).toBe(true);
+    expect(spCount).toBe(1);
+
+    question.booleanValue = null;
+    question.onKeyDownCore(createEvent("ArrowLeft"));
+    expect(question.booleanValue).toBe(false);
+    expect(spCount).toBe(2);
+
+    // Test with swapOrder = true
+    question.swapOrder = true;
+    question.booleanValue = null;
+    spCount = 0;
+
+    // With swapOrder, ArrowRight should select false (No is on the right)
+    question.onKeyDownCore(createEvent("ArrowRight"));
+    expect(question.booleanValue).toBe(false);
+    expect(spCount).toBe(1);
+
+    question.booleanValue = null;
+    // With swapOrder, ArrowLeft should select true (Yes is on the left)
+    question.onKeyDownCore(createEvent("ArrowLeft"));
+    expect(question.booleanValue).toBe(true);
+    expect(spCount).toBe(2);
+  });
+
+  test("check boolean displayMode", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", displayMode: "radio" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("radio");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "radio" });
+
+    q1.displayMode = "checkbox";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
+
+    q1.displayMode = "switch";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "switch" });
+
+    q1.displayMode = "segmented";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1" });
+  });
+
+  test("check boolean displayMode responsiveness", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    q1["processResponsiveness"](500, 600);
+    expect(q1.renderAs).toBe("default");
+    q1["processResponsiveness"](600, 500);
+    expect(q1.renderAs).toBe("radio");
+
+    q1.displayMode = "radio";
+    q1["processResponsiveness"](500, 600);
+    expect(q1.renderAs).toBe("radio");
+    q1["processResponsiveness"](600, 500);
+    expect(q1.renderAs).toBe("radio");
+  });
+
+  test("displayMode and legacy renderAs migration", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", renderAs: "checkbox" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("checkbox");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
+  });
+
+  test("displayMode is custom for a custom renderAs value", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", renderAs: "my-custom-renderer" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("custom");
+    expect(q1.renderAs).toBe("my-custom-renderer");
+    expect(q1.toJSON()).toEqual({ name: "q1", renderAs: "my-custom-renderer" });
+  });
+
+  test("legacy renderAs set in JSON has higher priority than displayMode", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", displayMode: "radio", renderAs: "checkbox" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("checkbox");
+    expect(q1.renderAs).toBe("default");
+    expect(q1.toJSON()).toEqual({ name: "q1", displayMode: "checkbox" });
+  });
+
+  test("custom renderAs is restored when switching displayMode custom -> radio -> custom", () => {
+    const survey = new SurveyModel({
+      elements: [{ type: "boolean", name: "q1", renderAs: "my-custom-renderer" }],
+    });
+    const q1 = <QuestionBooleanModel>survey.getQuestionByName("q1");
+    expect(q1.displayMode).toBe("custom");
+    expect(q1.renderAs).toBe("my-custom-renderer");
+
+    q1.displayMode = "radio";
+    expect(q1.renderAs).toBe("default");
+    expect(q1.getComponentName()).not.toBe("my-custom-renderer");
+
+    q1.displayMode = "custom";
+    expect(q1.renderAs).toBe("my-custom-renderer");
+    expect(q1.toJSON()).toEqual({ name: "q1", renderAs: "my-custom-renderer" });
+  });
+
 });

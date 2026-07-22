@@ -40,6 +40,11 @@ export class QuestionTextModel extends QuestionTextBase {
       this.maskInputAdapter = undefined;
     }
   }
+  public updateInputValueFromMask() {
+    if (this.maskInputAdapter) {
+      this.maskInputAdapter.updateInputValue();
+    }
+  }
   private updateMaskAdapter() {
     this.deleteMaskAdapter();
     this.createMaskAdapter();
@@ -220,6 +225,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
+   * @hidden
    */
   public get size(): number {
     return this.inputSize;
@@ -323,6 +329,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
   /**
    * An error message to display when the entered value does not match the [step size](#step).
+   * @since 2.5.15
    */
   @property({ localizable: { defaultStr: "stepError", markdown: true } }) stepErrorText: string;
   @property({ localizable: { defaultStr: "invalidInputError", markdown: true } }) invalidInputErrorText: string;
@@ -361,7 +368,7 @@ export class QuestionTextModel extends QuestionTextBase {
       }
     }
     this._inputValue = _inputValue;
-    if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
+    if (!Helpers.isTwoValueEquals(this.value, value, false, true, false)) {
       this.value = value;
     }
   }
@@ -413,6 +420,9 @@ export class QuestionTextModel extends QuestionTextBase {
       this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);
+    }
+    if (!!this.maskInputAdapter) {
+      this.maskInputAdapter.updateInputElementValue(_value);
     }
   }
   private hasToConvertToUTC(val: any): boolean {
@@ -645,7 +655,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.locDataListValue;
   }
   public get dataListId(): string {
-    return this.locDataListValue?.hasValue() ? this.id + "_datalist" : undefined;
+    return this.locDataListValue?.hasValue() ? this.renderedId + "_datalist" : undefined;
   }
   protected isPropertyStoredInHash(name: string): boolean {
     if (name === "dataList") return !this.locDataListValue;
@@ -658,6 +668,12 @@ export class QuestionTextModel extends QuestionTextBase {
       this.dateValidationMessage = undefined;
     }
     super.setNewValue(newValue);
+  }
+  public updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    super.updateValueFromSurvey(newValue, clearData);
+    if (!this.isEmpty()) {
+      this.setIsValueChanged();
+    }
   }
   protected correctValueType(newValue: any): any {
     if (!newValue) return newValue;
@@ -680,9 +696,11 @@ export class QuestionTextModel extends QuestionTextBase {
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
-  protected getControlCssClassBuilder(): CssClassBuilder {
-    return super.getControlCssClassBuilder()
-      .append(this.cssClasses.isValueChanged, this._isValueChanged);
+  public getControlClass(): string {
+    return new CssClassBuilder()
+      .append(super.getControlClass())
+      .append(this.cssClasses.isValueChanged, this._isValueChanged)
+      .toString();
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";
@@ -710,7 +728,6 @@ export class QuestionTextModel extends QuestionTextBase {
       this.input.classList.add(this.cssClasses.isValueChanged);
     }
   }
-
   private updateValueOnEvent(event: any) {
     if (this.inputType === "color" && !this._isValueChanged) return;
     const newValue = event.target.value;

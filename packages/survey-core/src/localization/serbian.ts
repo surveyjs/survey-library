@@ -161,8 +161,6 @@ export var serbianStrings = {
   savingDataError: "Došlo je do greške i rezultati nisu sačuvani.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultati su uspešno sačuvani!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Vaš odgovor prelazi 64KB. Smanjite veličinu datoteka/datoteka i pokušajte ponovo ili se obratite vlasniku ankete.",
   // "Try again"
   saveAgainButton: "Pokušajte ponovo",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var serbianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Sadržaj",
   // [Auto-translated] "Progress bar"
-  progressbar: "Traka napretka"
+  progressbar: "Traka napretka",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Stranica {0}"
 };
 
 setupLocale({ localeCode: "sr", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });

@@ -1,4 +1,5 @@
 @use "../variables.scss" as *;
+@use "../typography-mixins.scss" as *;
 
 .sd-selectbase {
   border: none;
@@ -23,16 +24,18 @@
   flex: 1 1 0px;
   flex-wrap: nowrap;
   overflow: auto;
-  padding: var(--sjs2-border-width-a11y, 4px);
-  margin: calc(var(--sjs2-border-width-a11y, 4px) * -1);
+  padding: var(--sjs2-border-width-a11y);
+  margin: calc(var(--sjs2-border-width-a11y) * -1);
 }
 
 .sd-selectbase__label {
+  @include sjs2--typography--component--label--content;
   display: inline-flex;
   position: relative;
-  gap: var(--sjs2-spacing-x100);
+  gap: var(--sjs2-layout-component-labeled-item-box-gap-horizontal);
   vertical-align: top;
   max-width: 100%;
+  cursor: pointer;
 }
 
 .sd-selectbase__column {
@@ -47,7 +50,7 @@
 }
 
 .sd-selectbase__column:not(:last-child) {
-  padding-right: var(--sjs2-spacing-x200);
+  padding-right: var(--sjs2-layout-component-labeled-group-box-gap-horizontal);
 }
 
 // Copied from stylesmanager

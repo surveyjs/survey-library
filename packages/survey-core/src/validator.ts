@@ -52,7 +52,7 @@ export class SurveyValidator extends Base {
   public owner: ISurveyValidatorOwner;
   public get errorOwner(): ISurveyValidatorOwner { return this.owner; }
   public set errorOwner(val: ISurveyValidatorOwner) { this.owner = val; }
-  public get id(): string { return "svd" + this.uniqueId; }
+  protected getIdPrefix(): string { return "svd"; }
   public get isValidator(): boolean { return true; }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner && !!(<any>this.owner)["getSurvey"]
@@ -177,7 +177,7 @@ export class ValidatorRunner {
  * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class NumericValidator extends SurveyValidator {
-  constructor(minValue: number = null, maxValue: number = null) {
+  constructor(minValue: number | null = null, maxValue: number | null = null) {
     super();
     this.minValue = minValue;
     this.maxValue = maxValue;
@@ -221,13 +221,13 @@ export class NumericValidator extends SurveyValidator {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  @property() minValue: number;
+  @property() minValue: number | null;
   /**
    * A maximum allowed numeric value.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
    */
-  @property() maxValue: number;
+  @property() maxValue: number | null;
 }
 /**
  * A class that implements a validator for text values.

@@ -425,10 +425,12 @@ export class QuestionMatrixModel
    * @see isRequired
    * @see eachRowUnique
    * @see validators
+   * @since 2.0.0
    */
   @property() eachRowRequired: boolean;
   /**
    * @deprecated Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
+   * @hidden
    */
   public get isAllRowRequired(): boolean {
     return this.eachRowRequired;
@@ -453,10 +455,12 @@ export class QuestionMatrixModel
    * - `"initial"` (default) - Preserves the original order of the `rows` array.
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
+   * @since 2.0.0
    */
   @property({ isLowerCase: true }) rowOrder: string;
   /**
    * @deprecated Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
+   * @hidden
    */
   public get rowsOrder(): string {
     return this.rowOrder;
@@ -488,7 +492,7 @@ export class QuestionMatrixModel
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
     const isDisabled = this.isReadOnly;
-    const allowHover = !isChecked && !isDisabled;
+    const allowHover = !isDisabled;
     const hasCellText = this.hasCellText;
     const css = this.cssClasses;
     return new CssClassBuilder()
@@ -585,7 +589,7 @@ export class QuestionMatrixModel
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       if (this.isValueEmpty(row.value)) continue;
-      const rowId = this.id + "_" + row.value.toString().replace(/\s/g, "_");
+      const rowId = this.renderedId + "_" + row.value.toString().replace(/\s/g, "_");
       result.push(this.createMatrixRow(row, rowId, val[row.value]));
     }
     this.generatedVisibleRows = result;

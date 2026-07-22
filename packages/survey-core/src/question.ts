@@ -56,7 +56,7 @@ interface ITriggerExpressionInfo {
 }
 
 export class QuestionValueGetterContext implements IValueGetterContext {
-  constructor (protected question: Question, protected isUnwrapped?: boolean) {}
+  constructor (protected question: Question) {}
   public getObj(): Base { return this.question; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
@@ -72,7 +72,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
         return new PropertyGetterContext(this.question.parentQuestion).getValue(params);
       }
     }
-    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.self)) return this.getQuestionValue(index);
+    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.self)) return this.getQuestionValue(index, params.isOriginalValue);
     if (path.length > 1 && path[0].name === expVar.panel) {
       params.isRoot = false;
       const panel: any = this.question.parent;
@@ -104,9 +104,13 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     if (survey) return (<any>survey).getValueGetterContext().getValue({ path, isRoot: false, index });
     return undefined;
   }
-  private getQuestionValue(index: number): IValueGetterInfo {
+  private getQuestionValue(index: number, isOriginalValue?: boolean): IValueGetterInfo {
     const q = this.question;
-    let val = q.getFilteredValue(this.isUnwrapped);
+    // The plain {name} exposes the unwrapped value by default (the "-unwrapped" suffix is kept for
+    // backward compatibility). The wrapped/original value - e.g. a checkbox with valuePropertyName -
+    // is used only when a consumer, such as an aggregate function, requests it via isOriginalValue.
+    const isUnwrapped = !isOriginalValue && q.hasFilteredValue;
+    let val = q.getFilteredValue(isUnwrapped);
     if (index > -1 && Array.isArray(val)) {
       val = index < val.length ? val[index] : undefined;
     }
@@ -163,14 +167,13 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
   protected isSearchNameRevert(): boolean { return true; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const lowName = name.toLocaleLowerCase();
-    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
       const qName = q.getFilteredName().toLocaleLowerCase();
       if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
         res.obj = q;
-        res.context = q.getValueGetterContext(qName.endsWith(unWrappedNameSuffix));
+        res.context = q.getValueGetterContext();
         break;
       }
     }
@@ -357,7 +360,6 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; }, undefined, undefined, () => { this.visible = true; });
@@ -775,6 +777,7 @@ export class Question extends SurveyElement<Question>
   @property() showNumber: boolean;
   /**
    * @deprecated Use the [`showNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#showNumber) property instead.
+   * @hidden
    */
   public get hideNumber(): boolean {
     return !this.showNumber;
@@ -863,8 +866,8 @@ export class Question extends SurveyElement<Question>
     if ((!Array.isArray(vars) || vars.length === 0)) return "const";
     return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
-  public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
-    return new QuestionValueGetterContext(this, isUnwrapped);
+  public getValueGetterContext(): IValueGetterContext {
+    return new QuestionValueGetterContext(this);
   }
   private addTriggersInfo(): void {
     this.addTriggerInfo({
@@ -1184,7 +1187,7 @@ export class Question extends SurveyElement<Question>
     return this.hasInput && !this.isContainer;
   }
   public get inputId(): string {
-    return this.id + "i";
+    return this.renderedId + "i";
   }
   protected getDefaultTitleValue(): string { return this.name; }
   protected getDefaultTitleTagName(): string {
@@ -1263,6 +1266,7 @@ export class Question extends SurveyElement<Question>
    * Default value: `""`
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
+   * @since 2.0.0
    */
   @property({ localizable: true }) defaultDisplayValue: string;
 
@@ -1729,18 +1733,21 @@ export class Question extends SurveyElement<Question>
     this.showCommentArea = val;
   }
 
-  /**
-   * A value to assign to the `id` attribute of the rendered HTML element. A default `id` is generated automatically.
-   */
-  @property() id: string;
+  protected getIdPrefix(): string { return "sq"; }
   public get ariaTitleId(): string {
-    return this.id + "_ariaTitle";
+    return this.renderedId + "_ariaTitle";
   }
   public get ariaDescriptionId(): string {
-    return this.id + "_ariaDescription";
+    return this.renderedId + "_ariaDescription";
   }
   public get commentId(): string {
-    return this.id + "_comment";
+    return this.renderedId + "_comment";
+  }
+  /**
+   * A unique value for the `name` HTML attribute of grouped inputs (e.g. radio buttons), so that questions sharing the same `name` (such as copies inside a Dynamic Panel) do not collapse into one input group.
+   */
+  public get questionName(): string {
+    return this.name + "_" + this.id;
   }
   public get requireUpdateCommentValue(): boolean { return this.showCommentArea; }
   public readOnlyCallback: () => boolean;
@@ -2051,14 +2058,14 @@ export class Question extends SurveyElement<Question>
    * @param keysAsText Applies when the question value is an object (in Matrix, Multiple Text, and similar questions). Pass `true` if not only values in the object should be display texts, but also keys. Default value: `false`.
    * @param value Specify this parameter to get a display text for a specific value, not for the current question value. If the question value is an object, this parameter should be a similar object.
    */
-  public getDisplayValue(keysAsText: boolean, value: any = undefined): any {
-    var res = this.calcDisplayValue(keysAsText, value);
+  public getDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
+    var res = this.calcDisplayValue(keysAsText, value, isReadOnly);
     if (this.survey) {
       res = this.titleSettings.getQuestionDisplayValue(this, res);
     }
     return !!this.displayValueCallback ? this.displayValueCallback(res) : res;
   }
-  private calcDisplayValue(keysAsText: boolean, value: any = undefined): any {
+  private calcDisplayValue(keysAsText: boolean, value: any = undefined, isReadOnly: boolean = false): any {
     if (this.customWidget) {
       var res = this.customWidget.getDisplayValue(this, value);
       if (res) return res;
@@ -2068,9 +2075,9 @@ export class Question extends SurveyElement<Question>
       value = this.defaultDisplayValue;
     }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
-    return this.getDisplayValueCore(keysAsText, value);
+    return this.getDisplayValueCore(keysAsText, value, isReadOnly);
   }
-  protected getDisplayValueCore(keyAsText: boolean, value: any): any {
+  protected getDisplayValueCore(keyAsText: boolean, value: any, isReadOnly?: boolean): any {
     return value;
   }
   protected getDisplayValueEmpty(): string {
@@ -2220,13 +2227,13 @@ export class Question extends SurveyElement<Question>
     if (
       this.isVisible &&
       this.hasInput &&
-      !this.isValueEmpty(this.correctAnswer)
+      !this.isValueEmpty(this.getCorrectAnswerValue())
     )
       return this.getQuizQuestionCount();
     return 0;
   }
   public get correctAnswerCount(): number {
-    if (!this.isEmpty() && !this.isValueEmpty(this.correctAnswer))
+    if (!this.isEmpty() && !this.isValueEmpty(this.getCorrectAnswerValue()))
       return this.getCorrectAnswerCount();
     return 0;
   }
@@ -2236,8 +2243,18 @@ export class Question extends SurveyElement<Question>
   protected getCorrectAnswerCount(): number {
     return this.checkIfAnswerCorrect() ? 1 : 0;
   }
+  // MERGE(V3): this doc block conflicts every merge - master (V2) adds `@since 2.5.30`, V3 omits
+  // it (3.0.0 API in V3). Keep the V3 (no `@since`) doc on merge.
+  /**
+   * Returns the [`correctAnswer`](#correctAnswer) value used in quiz calculations. Descendant
+   * classes can override this method to exclude values that cannot be selected (for example,
+   * non-existent or invisible choices in select-based questions).
+   */
+  protected getCorrectAnswerValue(): any {
+    return this.correctAnswer;
+  }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.getCorrectAnswerValue(), this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
     const correct = isEqual ? 1 : 0;
     const incorrect = this.quizQuestionCount - correct;
     const options = {
@@ -2527,6 +2544,7 @@ export class Question extends SurveyElement<Question>
    * Returns a character or text string that indicates a required question.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return this.survey != null && this.isRequired
@@ -2535,6 +2553,7 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/question#requiredMark) property instead.
+   * @hidden
    */
   public get requiredText(): string {
     return this.requiredMark;
@@ -2799,8 +2818,15 @@ export class Question extends SurveyElement<Question>
     this.setQuestionValue(newValue);
     if (!isEqual) {
       this.resetSingleInput();
+      this.revalidateOnValueChangedFromSurvey();
     }
     this.isChangingViaDefaultValue = false;
+  }
+  private revalidateOnValueChangedFromSurvey(): void {
+    if (!this.survey || this.isLoadingFromJson || !this.survey.isSettingData() ||
+      this.getAllErrors().length === 0) return;
+    const isOnValueChanging = this.validationCallbacks.isValidateOnValueChanging;
+    this.validate(true, false, !isOnValueChanging, undefined, isOnValueChanging);
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
@@ -3168,7 +3194,7 @@ export class Question extends SurveyElement<Question>
   public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
-    return this.hasCssError() ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.renderedId + "_errors" : null;
   }
   //EO a11y
 
@@ -3200,7 +3226,7 @@ export class Question extends SurveyElement<Question>
     let result = null;
 
     if (this.hasCssError()) {
-      result = this.id + "_errors";
+      result = this.renderedId + "_errors";
     } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.getDescriptionLocation() !== "hidden") {
       result = this.ariaDescriptionId;
     }

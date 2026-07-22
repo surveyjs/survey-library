@@ -1,6 +1,6 @@
 import { JsonObjectProperty, Serializer } from "./jsonobject";
 import { property } from "./decorators";
-import { Base } from "./base";
+import { ArrayChanges, Base } from "./base";
 import { EventBase } from "./event";
 import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -89,20 +89,33 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
       showPlaceholder = !!(property?.placeholder);
     }
-    return !!newDescription || (showPlaceholder && this.isDesignMode);
+    let res = !!newDescription || (showPlaceholder && this.isDesignMode);
+    if (this.isDesignMode) {
+      const survey = this.getSurvey();
+      if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
+        res = survey.beforeShowInplaceDescriptionEditorCallback(this, res);
+      }
+    }
+    return res;
   }
   protected resetDescriptionVisibility(): void {
     this.resetPropertyValue("hasDescription");
+  }
+  private updateDescriptionVisibility(): void {
+    if (this.getPropertyValueWithoutDefault("hasDescription") === undefined) return;
+    this.setPropertyValue("hasDescription", this.calcDescriptionVisibility());
+  }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
+    super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
+    if (name === "description" || (name === "title" && this.isDesignMode)) {
+      this.updateDescriptionVisibility();
+    }
   }
   /**
    * Explanatory text displayed under the title.
    * @see hasDescription
    */
-  @property({
-    localizable: { markdown: true }, onSet: (newDescription, self) => {
-      self.resetDescriptionVisibility();
-    }
-  }) description: string;
+  @property({ localizable: { markdown: true } }) description: string;
   get locDescription(): LocalizableString {
     return this.getLocalizableString("description");
   }
@@ -479,7 +492,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public getTitleToolbar(): AdaptiveActionContainer {
     if (!this.titleToolbarValue) {
       this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
-      this.titleToolbarValue.setActionsAppearance({ style: "neutral", size: "small", mode: "quaternary" });
+      this.titleToolbarValue.setActionsAppearance({ style: "neutral", size: "small", mode: "secondary" });
       this.titleToolbarValue.locOwner = this;
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
@@ -711,7 +724,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get cssClasses(): any {
-    if (!this.survey) return this.calcCssClasses(this.css);
+    if (!this.survey || this.isDisposed) return this.calcCssClasses(this.css);
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
@@ -1368,6 +1381,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return seed;
   }
   public randomSeedChanged(): void {}
+  public ensureRowsVisibility() {}
 }
 
 export class RenderingCompletedAwaiter {

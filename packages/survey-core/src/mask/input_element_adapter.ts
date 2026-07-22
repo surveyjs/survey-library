@@ -11,7 +11,7 @@ export class InputElementAdapter {
     }
     this.inputElement.value = value;
   }
-  private updateInputValue() {
+  public updateInputValue() {
     if (!!this.inputElement.placeholder && this.inputElement.value == this.maskedEmptyValue) {
       this.inputElement.value = "";
     }
@@ -22,7 +22,7 @@ export class InputElementAdapter {
       _value = "";
     }
     this.maskedEmptyValue = this.inputMaskInstance.getMaskedValue("");
-    this.setInputValue(inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value));
+    this.setInputValue(inputMaskInstance.getMaskedValueBySaveMode(_value));
     this.updateInputValue();
     this.prevUnmaskedValue = _value;
 
@@ -36,7 +36,17 @@ export class InputElementAdapter {
       this.setInputValue(maskedValue);
     }
   };
-
+  public updateInputElementValue(value: any): void {
+    if (value === null || value === undefined) {
+      value = "";
+    }
+    const maskedValue = this.inputMaskInstance.getMaskedValueBySaveMode(value);
+    if (this.inputElement.value !== maskedValue) {
+      this.setInputValue(maskedValue);
+      this.updateInputValue();
+    }
+    this.prevUnmaskedValue = value;
+  }
   clickHandler = (event: any) => {
     if (this.inputElement.value == this.maskedEmptyValue) {
       this.inputElement.setSelectionRange(0, 0);

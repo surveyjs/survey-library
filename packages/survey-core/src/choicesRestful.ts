@@ -502,6 +502,7 @@ export class ChoicesRestful extends Base {
    *   return null;
    * }
    * ```
+   * @since 2.0.7
    */
   @property() attachData: boolean;
   public get itemValueType(): string {

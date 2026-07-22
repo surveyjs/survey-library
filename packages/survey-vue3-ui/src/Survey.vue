@@ -6,6 +6,10 @@
     :dir="vueSurvey.localeDir"
     ref="root"
   >
+    <template v-if="vueSurvey.generateStylesheet">
+      <component :is="'style'" v-if="vueSurvey.generateStylesheet">{{vueSurvey.themeStyle}}</component>
+      <component :is="'style'" v-if="vueSurvey.generateStylesheet">{{vueSurvey.resetVariablesStyle}}</component>
+    </template>
     <SvComponent :is="'sv-scroll'" :disabled="vueSurvey.rootScrollDisabled">
       <SvComponent
         :is="'sv-svg-bundle'"
@@ -153,6 +157,7 @@ import {
   triggerRef
 } from "vue";
 import { useBase } from "./base";
+
 const props = defineProps<
   | {
       model: SurveyModel;

@@ -20,7 +20,8 @@ import { AnimationGroup, IAnimationGroupConsumer, AnimationBoolean } from "./uti
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { Base } from "./base";
+import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
+import { ExpressionErrorType } from "./expressions/expressionError";
 import { EventBase } from "./event";
 
 const OTHER_ITEM_VALUE = "other";
@@ -176,6 +177,10 @@ export class ChoiceItem extends ItemValue {
   public get panel(): PanelModel {
     if (!this.panelValue) {
       this.panelValue = this.createPanel();
+    } else if (!this.panelValue.survey) {
+      // The panel may have been created while the owner question was detached (e.g. during
+      // fromJSON on question type conversion). Re-link it once the owner has a survey.
+      this.setPanelSurvey(this.panelValue);
     }
     return this.panelValue;
   }
@@ -205,7 +210,7 @@ export class ChoiceItem extends ItemValue {
       pnl.selectedElementInDesign = <any>this.choiceOwner;
       const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
-        pnl.name = "choicePanel" + pnl.uniqueId;
+        pnl.name = "choicePanel_" + pnl.id;
         pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
       }
@@ -259,6 +264,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (visibleChoicesChangedProps.indexOf(name) > -1 && (name !== "choices" || !this.filterItems())) {
       this.onVisibleChoicesChanged();
     }
+    if (visibleChoicesChangedProps.indexOf(name) > -1) {
+      this.updateCorrectAnswerOnChoicesChanged();
+    }
     if (name === "hideIfChoicesEmpty") {
       this.onVisibleChanged();
     }
@@ -271,6 +279,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public getType(): string {
     return "selectbase";
+  }
+  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult | undefined {
+    const res = super.validateExpression(name, expression, options);
+    // {item} is a runtime variable provided per choice for these properties, so it is not an unknown variable.
+    if (!!res && (name === "choicesVisibleIf" || name === "choicesEnableIf")) {
+      res.errors = res.errors.filter(err => err.errorType !== ExpressionErrorType.UnknownVariable ||
+        (err.variableName || "").toLowerCase() !== "item");
+      if (res.errors.length === 0) return undefined;
+    }
+    return res;
   }
   protected getAllChildren(): Base[] {
     return [
@@ -397,7 +415,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.getItemCommentId(this.otherItem);
   }
   public getItemCommentId(item: ItemValue): string {
-    return this.id + "_" + item.uniqueId;
+    // The item's renderedId is a per-survey-deterministic, uniqueId-free, SSR-namespaced token
+    // (unique per item regardless of its position in visibleChoices), so it is a stable base for the
+    // comment textarea DOM id.
+    return item.renderedId + "_comment";
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];
@@ -764,6 +785,39 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       return val.length > 0 ? val[0] : undefined;
     }
     return val;
+  }
+  protected getCorrectAnswerValue(): any {
+    const val = super.getCorrectAnswerValue();
+    if (this.isValueEmpty(val) || this.isLoadingFromJson || this.visibleChoices.length === 0) return val;
+    if (Array.isArray(val)) {
+      const res = val.filter((item) => this.isCorrectAnswerValueExists(item));
+      return res.length > 0 ? res : undefined;
+    }
+    return this.isCorrectAnswerValueExists(val) ? val : undefined;
+  }
+  protected isCorrectAnswerValueExists(val: any): boolean {
+    return !!this.getItemByValue(val, this.visibleChoices);
+  }
+  private updateCorrectAnswerOnChoicesChanged(): void {
+    if (this.isValueEmpty(this.correctAnswer) || this.activeChoices.length === 0 ||
+      !this.canClearIncorrectValues()) return;
+    const newValue = this.getCorrectAnswerOnChoicesChanged(this.correctAnswer);
+    if (Helpers.isTwoValueEquals(this.correctAnswer, newValue)) return;
+    if (this.isValueEmpty(newValue)) {
+      this.correctAnswer = undefined;
+      //an array-valued property keeps an empty array on resetting, so remove it explicitly
+      if (Array.isArray(this.getPropertyValue("correctAnswer"))) {
+        this.clearPropertyValue("correctAnswer");
+      }
+    } else {
+      this.correctAnswer = newValue;
+    }
+  }
+  protected getCorrectAnswerOnChoicesChanged(val: any): any {
+    return this.correctAnswerValueExistsInChoices(val) ? val : undefined;
+  }
+  protected correctAnswerValueExistsInChoices(val: any): boolean {
+    return !this.hasUnknownValueItem(val, true, false);
   }
   protected filterItems(): boolean {
     if (
@@ -1176,6 +1230,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    *
    * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
    * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
+   * @since 2.0.4
    */
   public get customChoices(): Array<any> {
     return this.getItemValuesPropertyValue("customChoices");
@@ -1354,7 +1409,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public set otherText(val: string) {
     this.setLocStringText(this.locOtherText, val);
-    this.onVisibleChoicesChanged(); //TODO: try to remove it
   }
   get locOtherText(): LocalizableString {
     return this.otherItem.locText;
@@ -1563,24 +1617,26 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return questionPlainData;
   }
-  protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+  protected getDisplayValueCore(keysAsText: boolean, value: any, isReadOnly?: boolean): any {
     value = this.getValueFromValueWithComment(value);
     if (!this.useDisplayValuesInDynamicTexts) return value;
-    return this.getChoicesDisplayValue(this.visibleChoices, value);
+    return this.getChoicesDisplayValue(this.visibleChoices, value, isReadOnly);
   }
   protected getDisplayValueEmpty(): string {
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
-  private getChoicesDisplayValue(items: ItemValue[], val: any): any {
-    if (this.isOtherValue(val))
+  private getChoicesDisplayValue(items: ItemValue[], val: any, isReadOnly?: boolean): any {
+    if (this.isOtherValue(val)) {
+      if (isReadOnly) return this.locOtherText.textOrHtml;
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
+    }
     const selItem = this.getSingleSelectedItem();
     if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
   protected getDisplayArrayValue(keysAsText: boolean, value: any,
-    onGetValueCallback?: (index: number) => any): string {
+    onGetValueCallback?: (index: number) => any, isReadOnly?: boolean): string {
     var items = this.visibleChoices;
     var strs = [] as Array<string>;
     const vals = [] as Array<any>;
@@ -1588,11 +1644,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
     }
     if (Helpers.isTwoValueEquals(this.value, vals)) {
-      this.getMultipleSelectedItems().forEach((item, index) => strs.push(this.getItemDisplayValue(item, vals[index])));
+      this.getMultipleSelectedItems().forEach((item, index) => strs.push(this.getItemDisplayValue(item, vals[index], isReadOnly)));
     }
     if (strs.length === 0) {
       for (var i = 0; i < vals.length; i++) {
-        let valStr = this.getChoicesDisplayValue(items, vals[i]);
+        let valStr = this.getChoicesDisplayValue(items, vals[i], isReadOnly);
         if (valStr) {
           strs.push(valStr);
         }
@@ -1600,16 +1656,23 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return strs.join(settings.choicesSeparator);
   }
-  private getItemDisplayValue(item: ItemValue, val?: any): string {
+  private getItemDisplayValue(item: ItemValue, val?: any, isReadOnly?: boolean): string {
     if (this.isOtherItemByInstance(item)) {
-      if (this.showOtherItem && this.showCommentArea && !!val) {
-        return val;
-      }
-      if (this.comment) {
-        return this.comment;
+      const otherDisplayValue = this.getOtherItemDisplayValue(val, isReadOnly);
+      if (otherDisplayValue !== undefined) {
+        return otherDisplayValue;
       }
     }
     return item.locText.textOrHtml;
+  }
+  protected getOtherItemDisplayValue(val?: any, isReadOnly?: boolean): string | undefined {
+    if (this.showOtherItem && this.showCommentArea && !!val) {
+      return val;
+    }
+    if (this.comment) {
+      return this.comment;
+    }
+    return undefined;
   }
   private getFilteredChoices(): Array<ItemValue> {
     return this.filteredChoicesValue
@@ -2232,7 +2295,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     const isReadOnly = readOnlyStyles[0];
     const isDisabled = readOnlyStyles[1];
     const isChecked = this.isItemSelected(item);
-    const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
+    const allowHover = !isDisabled && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItemValue;
     options.isDisabled = isDisabled || isReadOnly;
     options.isChecked = isChecked;
@@ -2498,9 +2561,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public getItemId(item: ItemValue) {
     return this.inputId + "_" + this.getItemIndex(item);
-  }
-  public get questionName() {
-    return this.name + "_" + this.id;
   }
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;

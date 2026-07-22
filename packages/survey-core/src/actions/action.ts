@@ -1,5 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base, ComputedUpdater } from "../base";
+import { ISurvey } from "../base-interfaces";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../decorators";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -70,7 +71,7 @@ export interface IAction {
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
+   * In the rendered markup, an action item consists of a `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -79,9 +80,9 @@ export interface IAction {
    */
   css?: string;
   /**
-   * One or several CSS classes that you want to apply to the inner `<input>` or `<button>` element.
+   * One or several CSS classes that you want to apply to the inner `<button>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`/`<button>` element.
+   * In the rendered markup, an action item consists of a `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<button>` element. The button contains a nested `<span>` element that displays the label text. Use the `span` selector to style it.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -175,11 +176,12 @@ export function setCreatePopupModelWithListModel(fn: (listOptions: IListModel, p
 
 export abstract class BaseAction extends Base implements IAction {
   items?: IAction[];
-  private static renderedId = 1;
-  private static getNextRendredId(): number { return BaseAction.renderedId++; }
   private cssClassesValue: any;
-  private rendredIdValue = BaseAction.getNextRendredId();
   private ownerValue: ILocalizableOwner;
+  public getSurvey(isLive: boolean = false): ISurvey {
+    const owner: any = this.owner;
+    return owner && owner.getSurvey ? owner.getSurvey(isLive) : null;
+  }
   @property() tooltip: string;
   @property() showTitle: boolean;
   @property() innerCss: string;
@@ -220,7 +222,10 @@ export abstract class BaseAction extends Base implements IAction {
   maxDimension: number;
   public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
-  public get renderedId(): number { return this.rendredIdValue; }
+  public get renderedId(): string {
+    const raw = this.getPropertyValue("renderedIdRaw", undefined, () => this.getIdGenerator().next("sv-action"));
+    return this.composeElementId(raw);
+  }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
     if (val !== this.owner) {

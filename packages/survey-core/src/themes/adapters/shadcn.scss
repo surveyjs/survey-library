@@ -1,0 +1,586 @@
+@mixin shadcn-dark-input-bg {
+  :is(.dark *) {
+    --sjs2-color-component-action-brand-tertiary-surface-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-formbox-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+    --sjs2-color-component-check-false-default-bg: color-mix(in oklab, var(--input) 30%, transparent);
+    --sjs2-color-component-check-false-hovered-bg: var(--sjs2-color-component-check-false-default-bg);
+    --sjs2-color-component-check-false-focused-bg: var(--sjs2-color-component-check-false-default-bg);
+  }
+}
+
+/* shadcn/ui -> SurveyJS bridge: shared base.
+   Maps shadcn design tokens (--background, --primary, --radius, --spacing, --text-*, ...)
+   onto SurveyJS --sjs2-* variables, mirroring the structure of bootstrap.css / mui.css.
+
+   Load this file first, then exactly one style file that only overrides the deltas:
+   shadcn-default.css, shadcn-new-york.css, shadcn-base-nova.css, shadcn-base-vega.css,
+   shadcn-base-maia.css, shadcn-base-lyra.css, shadcn-base-mira.css, shadcn-base-luma.css,
+   shadcn-base-sera.css or shadcn-base-rhea.css.
+
+   The variable map lives on .sjs-theme-overrides (the SurveyJS theme root, same element as
+   .sd-theme-root); state-based looks that cannot be expressed via variables (button / check
+   pressed states, radio dot) are written as CSS overrides on .sd-theme-root descendants. */
+.sjs-theme-overrides {
+  --sjs2-base-unit-radius: var(--radius);
+  --sjs2-base-unit-spacing: var(--spacing);
+
+  --sjs2-color-utility-body: var(--card);
+  --sjs2-color-utility-sheet: var(--background);
+  --sjs2-color-utility-a11y: color-mix(in oklab, var(--ring) 50%, transparent);
+  --sjs2-color-utility-toolbox: var(--background);
+  --sjs2-color-utility-property-grid: var(--background);
+  --sjs2-color-utility-tabs: var(--background);
+  --sjs2-color-utility-surface-survey: var(--sjs2-color-bg-brand-secondary);
+  --sjs2-color-utility-surface-designer: var(--sjs2-color-bg-brand-secondary);
+
+  --sjs2-border-effect-a11y: 0 0 0 3px var(--sjs2-color-utility-a11y);
+
+  --shadow-xs: rgba(0, 0, 0, 0.05) 0px 1px 2px 0px;
+
+  --sjs2-shadcn-action-large-height: calc(var(--spacing) * 10);
+  --sjs2-shadcn-input-height: calc(var(--spacing) * 10);
+  --sjs2-shadcn-textarea-min-height: calc(var(--spacing) * 16);
+  --sjs2-shadcn-textarea-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-shadcn-table-header-height: calc(var(--spacing) * 12); /* h-12 */
+
+  /* dropdown */
+  --sjs2-shadcn-drop-action-size: calc(var(--spacing) * 6);
+  --sjs2-shadcn-drop-action-radius: var(--sjs2-radius-component-action);
+  --sjs2-shadcn-drop-action-bar-margin-inline-end: -0.3rem;
+  --sjs2-shadcn-drop-action-bar-padding-inline-end: calc(var(--spacing) * 2);
+
+  /* tagbox input */
+  --sjs2-shadcn-tagbox-input-padding-vertical: var(--spacing);
+  --sjs2-shadcn-tagbox-input-padding-horizontal: var(--spacing);
+  --sjs2-shadcn-tagbox-input-gap: var(--spacing);
+  --sjs2-shadcn-tagbox-empty-input-padding-vertical: var(--spacing);
+  --sjs2-shadcn-tagbox-empty-input-padding-horizontal: calc(var(--spacing) * 2.5);
+
+  /* tagbox item */
+  --sjs2-shadcn-tagbox-item-height: calc(var(--spacing) * 6);
+  --sjs2-shadcn-tagbox-item-padding-left: calc(var(--spacing) * 1.5);
+  --sjs2-shadcn-tagbox-item-padding-right: 0;
+  --sjs2-shadcn-tagbox-item-gap: var(--spacing);
+  --sjs2-shadcn-tagbox-item-radius: calc(var(--radius) * 0.6);
+
+  /* tagbox item clean */
+  --sjs2-shadcn-tagbox-item-clean-size: calc(var(--spacing) * 7);
+  --sjs2-shadcn-tagbox-item-clean-icon-size: calc(var(--spacing) * 3);
+  --sjs2-shadcn-tagbox-item-clean-radius: min(var(--radius-md), 10px);
+  --sjs2-shadcn-tagbox-item-clean-margin-left: calc(var(--spacing) * -1);
+
+  /* buttons */
+  --sjs2-radius-component-action: calc(var(--radius) - 2px);
+  --sjs2-layout-component-action-large-box-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-layout-component-action-large-box-padding-horizontal: calc(var(--spacing) * 4);
+  --sjs2-layout-component-action-large-box-gap: calc(var(--spacing) * 2); /* gap-2 */
+  --sjs2-layout-component-action-large-label-padding-horizontal: 0;
+  --sjs2-layout-component-action-large-label-padding-vertical: 0;
+  --sjs2-border-effect-component-action-large-default: 0px 0px 0px 0px transparent;
+
+  --sjs2-typography-line-height-component-action-large-content: var(--text-sm--line-height);
+  --sjs2-typography-font-weight-component-action-large-content: var(--font-weight-medium);
+
+  /* primary buttons (variant=default: bg-primary text-primary-foreground) */
+  --sjs2-color-component-action-brand-primary-default-label: var(--primary-foreground);
+  --sjs2-color-component-action-brand-primary-default-icon: var(--primary-foreground);
+  --sjs2-color-component-action-brand-primary-default-bg: var(--primary);
+  --sjs2-border-effect-component-action-brand-primary-default: var(--shadow-xs);
+
+  --sjs2-color-component-action-brand-primary-hovered-label: var(--primary-foreground);
+  --sjs2-color-component-action-brand-primary-hovered-icon: var(--primary-foreground);
+  --sjs2-color-component-action-brand-primary-hovered-bg: color-mix(
+    in oklch,
+    var(--primary) 90%,
+    transparent
+  ); /* hover:bg-primary/90 */
+  --sjs2-border-effect-component-action-brand-primary-hovered: var(--shadow-xs);
+
+  --sjs2-color-component-action-brand-primary-disabled-label: var(--muted-foreground);
+  --sjs2-color-component-action-brand-primary-disabled-icon: var(--muted-foreground);
+  --sjs2-color-component-action-brand-primary-disabled-bg: var(--muted);
+  --sjs2-border-effect-component-action-brand-primary-disabled: 0 0 0 0 transparent;
+
+  /* tertiary buttons (variant=outline: border bg-background hover:bg-accent) */
+  --sjs2-color-component-action-brand-tertiary-surface-default-label: var(--foreground);
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon: var(--foreground);
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: var(--background);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: inset 0 0 0 1px var(--input), var(--shadow-xs);
+
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-label: var(--accent-foreground);
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-icon: var(--accent-foreground);
+  --sjs2-color-component-action-brand-tertiary-surface-hovered-bg: var(--accent);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: inset 0 0 0 1px var(--input), var(--shadow-xs);
+
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-label: var(--muted-foreground);
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-icon: var(--muted-foreground);
+  --sjs2-color-component-action-brand-tertiary-surface-disabled-bg: var(--background);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-disabled: inset 0 0 0 1px var(--input);
+
+  /* secondary buttons */
+  --sjs2-color-component-action-neutral-secondary-default-bg: --secondary;
+  --sjs2-color-component-action-neutral-secondary-default-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-neutral-secondary-default-label: var(--secondary-foreground);
+
+  --sjs2-color-component-action-neutral-secondary-hovered-bg: color-mix(
+    in oklch,
+    var(--secondary),
+    var(--foreground) 5%
+  );
+  --sjs2-color-component-action-neutral-secondary-hovered-icon: var(--secondary-foreground);
+  --sjs2-color-component-action-neutral-secondary-hovered-label: var(--secondary-foreground);
+
+  --sjs2-color-component-action-neutral-secondary-disabled-bg: rgba(from var(--secondary) r g b / 0.5);
+  --sjs2-color-component-action-neutral-secondary-disabled-icon: rgba(from var(--secondary-foreground) r g b / 0.5);
+  --sjs2-color-component-action-neutral-secondary-disabled-label: rgba(from var(--secondary-foreground) r g b / 0.5);
+
+  /* formboxes (input / textarea / dropdown) */
+  --sjs2-color-component-formbox-default-bg: var(--background);
+  --sjs2-color-component-formbox-hovered-bg: var(--sjs2-color-component-formbox-default-bg);
+  --sjs2-color-component-formbox-focused-bg: var(--sjs2-color-component-formbox-default-bg);
+
+  --sjs2-color-component-formbox-default-fg: var(--foreground);
+  --sjs2-color-component-formbox-default-border: var(--border);
+  --sjs2-color-component-formbox-focused-border: var(--ring);
+  --sjs2-border-effect-component-formbox-default: 0px 0px 0px 1px var(--sjs2-color-component-formbox-default-border);
+  --sjs2-border-effect-component-formbox-hovered: var(--sjs2-border-effect-component-formbox-default);
+  --sjs2-border-effect-component-formbox-focused: 0px 0px 0px 1px var(--sjs2-color-component-formbox-focused-border);
+  --sjs2-border-effect-component-formbox-invalid: var(--sjs2-border-effect-component-formbox-default);
+  --sjs2-border-effect-component-formbox-invalid-focused: var(--sjs2-border-effect-component-formbox-focused);
+  --sjs2-radius-component-formbox: var(--radius);
+  --sjs2-layout-component-formbox-medium-padding-vertical: 0;
+  --sjs2-layout-component-formbox-medium-padding-horizontal: 0;
+  --sjs2-layout-component-input-medium-content-padding-horizontal: calc(var(--spacing) * 3);
+  --sjs2-layout-component-input-medium-content-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-layout-component-input-medium-label-padding-horizontal: calc(var(--spacing) * 3);
+  --sjs2-layout-component-input-medium-label-padding-vertical: calc(var(--spacing) * 2);
+  --sjs2-color-component-input-default-value: var(--foreground);
+  --sjs2-color-component-input-default-placeholder: var(--muted-foreground);
+  --sjs2-typography-line-height-component-input-content: var(--text-sm--line-height);
+
+  /* error message */
+  --sjs2-color-component-message-error-bg: initial;
+  --sjs2-color-component-message-error-text: var(--destructive);
+  --sjs2-color-component-message-error-icon: var(--destructive);
+  --sjs2-layout-component-message-box-padding-vertical: 0;
+
+  --sjs2-color-component-boolean-invalid-border: var(--destructive);
+
+  --sjs2-border-effect-component-formbox-a11y: var(--sjs2-border-effect-a11y);
+
+  /* checkboxes and radio (size-4 box, rounded-[4px], primary when checked) */
+  --sjs2-radius-component-checkbox: calc(var(--radius) - 4px);
+  --sjs2-size-component-checkbox-box: calc(var(--spacing) * 4);
+  --sjs2-size-component-checkbox-icon: calc(var(--spacing) * 3.5);
+  --sjs2-size-component-radio-box: calc(var(--spacing) * 4);
+  --sjs2-size-component-radio-icon: calc(var(--spacing) * 4);
+  --sjs2-layout-component-labeled-item-box-gap-horizontal: calc(var(--spacing) * 2);
+  --sjs2-layout-component-labeled-group-box-gap-vertical: calc(var(--spacing) * 3);
+  --sjs2-layout-component-labeled-group-box-padding-vertical: 0;
+  --sjs2-typography-font-weight-component-label-content: var(--font-weight-medium);
+  --sjs2-typography-line-height-component-label-content: 1;
+  --sjs2-color-component-label-default-text: var(--foreground);
+
+  --sjs2-color-component-check-false-default-bg: transparent;
+  --sjs2-color-component-check-false-hovered-bg: transparent;
+  --sjs2-color-component-check-true-hovered-bg: var(--primary);
+  --sjs2-color-component-check-false-default-border: var(--input);
+  --sjs2-border-effect-component-check-false-default: inset 0 0 0 1px
+    var(--sjs2-color-component-check-false-default-border);
+  --sjs2-border-effect-component-check-false-hovered: inset 0 0 0 1px
+    var(--sjs2-color-component-check-false-default-border);
+
+  --sjs2-border-effect-component-check-a11y:
+    inset 0 0 0 1px var(--ring), 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+
+  /* toggle */
+  --sjs2-color-component-toggle-true-default-thumb: var(--background);
+  --sjs2-color-component-toggle-true-hovered-thumb: var(--background);
+  --sjs2-color-component-toggle-true-hovered-bg: var(--primary);
+  --sjs2-color-component-toggle-false-default-thumb: var(--background);
+  --sjs2-color-component-toggle-false-hovered-thumb: var(--background);
+  --sjs2-color-component-toggle-false-default-bg: var(--input);
+  --sjs2-color-component-toggle-false-hovered-bg: var(--input);
+  --sjs2-color-component-toggle-false-default-border: transparent;
+  --sjs2-color-component-toggle-true-default-border: transparent;
+
+  :is(.dark *) {
+    --sjs2-color-component-toggle-false-default-thumb: var(--foreground);
+    --sjs2-color-component-toggle-false-hovered-thumb: var(--foreground);
+  }
+
+  /* tagbox */
+  --sjs2-radius-component-tagbox-item: calc(var(--radius) * 0.8);
+  --sjs2-radius-component-tagbox-item-action: 0;
+  --sjs2-color-component-tagbox-item-default-bg: var(--muted);
+  --sjs2-color-component-tagbox-item-hovered-bg: var(--muted);
+  --sjs2-color-component-tagbox-item-default-border: var(--border);
+  --sjs2-color-component-tagbox-item-hovered-border: var(--border);
+  --sjs2-color-component-tagbox-item-default-label: var(--secondary-foreground);
+  --sjs2-color-component-tagbox-item-hovered-label: var(--secondary-foreground);
+  --sjs2-color-component-tagbox-item-action-default-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-hovered-bg: transparent;
+  --sjs2-color-component-tagbox-item-action-default-icon: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
+  --sjs2-color-component-tagbox-item-action-hovered-icon: var(--foreground);
+
+  /* stepper */
+  --sjs2-radius-component-stepper-item: 100%;
+
+  /* common and other */
+  --sjs2-color-bg-basic-primary: var(--background);
+  --sjs2-color-bg-basic-primary-dim: var(--muted);
+  --sjs2-color-bg-basic-primary-disabled: rgba(from var(--background) r g b / 0.5);
+  --sjs2-color-bg-basic-secondary: var(--background);
+  --sjs2-color-bg-basic-secondary-dim: var(--accent);
+  --sjs2-color-bg-basic-tertiary: var(--muted);
+  --sjs2-color-fg-basic-primary: var(--foreground);
+  --sjs2-color-fg-basic-secondary: var(--muted-foreground);
+
+  --sjs2-color-component-panel-default-bg: var(--card);
+
+  --sjs2-color-project-brand-600: var(--primary);
+  --sjs2-color-bg-brand-primary-disabled: var(--muted);
+  --sjs2-color-fg-basic-primary-disabled: rgba(from var(--foreground) r g b / 0.5);
+  --sjs2-color-fg-brand-on-primary: var(--primary-foreground);
+
+  --sjs2-color-bg-brand-secondary: var(--secondary);
+  --sjs2-color-bg-brand-secondary-dim: rgba(from var(--secondary) r g b / var(--sjs2-opacity-x015));
+  --sjs2-color-bg-brand-secondary-disabled: var(--muted);
+  --sjs2-color-fg-brand-on-secondary: var(--secondary-foreground);
+
+  --sjs2-color-fg-alert-primary: var(--destructive);
+  --sjs2-color-bg-alert-primary: var(--destructive);
+  --sjs2-color-bg-alert-primary-dim: color-mix(in oklch, var(--destructive) 90%, black);
+  --sjs2-color-bg-alert-primary-disabled: var(--muted);
+  --sjs2-color-border-alert-primary: var(--destructive);
+  --sjs2-color-fg-alert-on-primary: var(--destructive-foreground);
+  --sjs2-color-bg-alert-secondary: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x010));
+  --sjs2-color-bg-alert-secondary-dim: rgba(from var(--destructive) r g b / var(--sjs2-opacity-x015));
+
+  --sjs2-color-border-basic-primary: var(--border);
+  --sjs2-color-border-basic-secondary: var(--border);
+  --sjs2-color-utility-shadow-surface-default: var(--border);
+  --sjs2-color-utility-shadow-trigger-default: transparent;
+
+  --sjs2-color-component-slider-default-thumb: var(--primary);
+  --sjs2-color-component-slider-default-dot: var(--primary-foreground);
+  --sjs2-color-component-slider-default-fg: var(--primary);
+  --sjs2-color-component-slider-default-bg: var(--secondary);
+
+  --sjs2-radius-component-drop: var(--radius);
+  --sjs2-radius-component-panel: var(--radius);
+
+  --sjs2-typography-font-family-text: var(--default-font-family);
+  --sjs2-typography-font-size-large: var(--text-lg);
+  --sjs2-typography-font-size-default: var(--text-sm);
+  --sjs2-typography-line-height-default: calc(var(--leading-normal) * 1em);
+  --sjs2-typography-line-height-large: calc(var(--text-lg--line-height) * 1em);
+  --sjs2-typography-line-height-component-question-title: calc(var(--leading-snug) * 1em);
+  --sjs2-typography-font-weight-component-question-title: var(--font-weight-medium);
+
+  --sjs2-typography-font-size-component-page-title: var(--text-base);
+
+  --sjs2-typography-font-size-component-header-title: var(--text-base);
+  --sjs2-typography-font-size-component-header-description: 1em;
+}
+
+.sd-action--large {
+  height: var(--sjs2-shadcn-action-large-height);
+  box-sizing: border-box;
+}
+
+.sd-formbox__input {
+  height: var(--sjs2-shadcn-input-height);
+}
+.sd-comment__input {
+  min-height: var(--sjs2-shadcn-textarea-min-height);
+  padding-block: var(--sjs2-shadcn-textarea-padding-vertical);
+}
+
+/* dropdown */
+.sd-dropdown .sd-action {
+  cursor: default;
+  padding: 0;
+  box-sizing: border-box;
+  width: var(--sjs2-shadcn-drop-action-size);
+  height: var(--sjs2-shadcn-drop-action-size);
+  border-color: transparent;
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-radius: var(--sjs2-shadcn-drop-action-radius);
+  --sd-action-icon-color: var(--muted-foreground);
+
+  &:hover {
+    background: var(--muted);
+    --sd-action-icon-color: var(--foreground);
+  }
+}
+
+.sd-dropdown .sd-action-bar {
+  margin-inline-end: var(--sjs2-shadcn-drop-action-bar-margin-inline-end);
+  padding-inline-end: var(--sjs2-shadcn-drop-action-bar-padding-inline-end);
+
+  svg {
+    width: var(--sjs2-shadcn-drop-action-size);
+    height: var(--sjs2-shadcn-drop-action-size);
+  }
+}
+
+.sv-popup--menu-popup > .sv-popup__container {
+  --tw-shadow:
+    0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
+    var(--tw-shadow);
+  background-color: var(--popover);
+}
+
+/* tagbox */
+.sd-tagbox__input.sd-dropdown__input {
+  padding-block: var(--sjs2-shadcn-tagbox-input-padding-vertical);
+  padding-inline: var(--sjs2-shadcn-tagbox-input-padding-horizontal);
+  gap: var(--sjs2-shadcn-tagbox-input-gap);
+}
+
+.sd-tagbox.sd-tagbox--empty .sd-tagbox__input {
+  padding-block: var(--sjs2-shadcn-tagbox-empty-input-padding-vertical);
+  padding-inline: var(--sjs2-shadcn-tagbox-empty-input-padding-horizontal);
+}
+
+.sd-formbox.sd-tagbox:focus-within {
+  box-shadow:
+    var(--sjs2-border-effect-component-formbox-default-reset), var(--sjs2-border-effect-component-formbox-focused),
+    var(--sjs2-border-effect-component-formbox-a11y);
+}
+
+.sd-tagbox-item {
+  height: var(--sjs2-shadcn-tagbox-item-height);
+  padding-left: var(--sjs2-shadcn-tagbox-item-padding-left);
+  padding-right: var(--sjs2-shadcn-tagbox-item-padding-right);
+  padding-block: 0;
+  gap: var(--sjs2-shadcn-tagbox-item-gap);
+  border-radius: var(--sjs2-shadcn-tagbox-item-radius);
+  overflow: visible;
+  box-shadow: none;
+
+  &:hover {
+    box-shadow: none;
+  }
+}
+
+.sd-tagbox-item__text {
+  padding: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--tw-leading, var(--text-xs--line-height));
+}
+
+.sd-tagbox-item__clean {
+  position: static;
+  cursor: default;
+  opacity: 1;
+  background: transparent;
+  height: var(--sjs2-shadcn-tagbox-item-clean-size);
+  width: var(--sjs2-shadcn-tagbox-item-clean-size);
+  padding: 0;
+}
+
+.sd-tagbox-item__clean-button {
+  cursor: default;
+  background: transparent;
+  width: var(--sjs2-shadcn-tagbox-item-clean-size);
+  height: var(--sjs2-shadcn-tagbox-item-clean-size);
+  justify-content: center;
+  align-items: center;
+  border-color: transparent;
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-radius: var(--sjs2-shadcn-tagbox-item-clean-radius);
+  margin-left: var(--sjs2-shadcn-tagbox-item-clean-margin-left);
+
+  &:hover {
+    background-color: var(--muted);
+  }
+}
+
+.sd-tagbox-item__clean-button-svg {
+  width: var(--sjs2-shadcn-tagbox-item-clean-icon-size);
+  height: var(--sjs2-shadcn-tagbox-item-clean-icon-size);
+}
+
+/* button pressed state (cannot be expressed via variables) */
+.sd-action {
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.sd-action:active {
+  transform: none;
+  translate: 0 1px;
+}
+.sd-action--primary:active {
+  background-color: color-mix(in oklch, var(--primary) 90%, black);
+}
+.sd-action--tertiary:active {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.sd-formbox,
+.sd-item__decorator,
+.sd-item__svg use {
+  transition: none;
+}
+
+/* toggle */
+.sd-boolean-switch {
+  --sd-boolean-switch-thumb-gap: 0px;
+  --sd-boolean-switch-thumb-width: calc(var(--spacing) * 4);
+  --sd-boolean-switch-thumb-height: calc(var(--spacing) * 4);
+  --sd-boolean-switch-button-spacing: 1px;
+  --sd-boolean-switch-button-width: 32px;
+  --sd-boolean-switch-button-heigth: 18.4px;
+}
+
+.sd-boolean-switch__button--checked .sd-boolean-switch__thumb {
+  transform: translateX(calc(100% - 2px));
+}
+
+/* tables */
+.sd-table {
+  --sd-table-cell-width: initial;
+  --sd-table-cell-min-width: initial;
+}
+.sd-table.sd-table.sd-table>tbody>tr {
+  &>th, &>td {
+    &:where(:not(.sd-table__cell--error)) {
+      border-top: 1px solid var(--border);
+      border-bottom: none;
+      padding: calc(var(--spacing) * 2);
+      .sd-radio {
+        padding: 0;
+      }
+      .sd-radio__decorator {
+        margin: 0;
+      }
+    }
+  }
+}
+.sd-table__cell--header,
+.sd-table__cell--row-text {
+  height: var(--sjs2-shadcn-table-header-height);
+  box-sizing: border-box;
+}
+
+.sd-table>tbody>tr:hover {
+  background-color: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+.sd-table__cell--actions:not(.sd-table__cell--vertical):last-child .sd-action-bar {
+  margin: 0;
+  svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+}
+
+.sd-question__placeholder {
+  min-height: unset;
+  align-items: flex-start;
+}
+
+/* stepper */
+.sd-progress-buttons__page-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted-foreground);
+}
+
+.sd-progress-buttons__list li {
+  &:first-child,
+  &:last-child {
+    align-items: center;
+  }
+}
+
+.sd-progress-buttons--numbered {
+
+  &.sd-progress-buttons--titles-bottom .sd-progress-buttons__list li:after {
+    top: 1.125rem;
+    bottom: unset;
+  }
+
+  .sd-progress-buttons__button {
+    color: var(--muted-foreground);
+    font-size: var(--text-xs);
+    width: 2.25rem;
+    height: 2.25rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .sd-progress-buttons__list li {
+    &::after,
+    &:nth-child(2):not(:last-child)::after,
+    &:nth-child(n + 3):last-child::after {
+      width: calc(100% - 2.25em);
+      right: calc(50% + 1.125em);
+    }
+  }
+}
+
+/* panel / question titles */
+.sd-theme-root .sd-panel__title {
+  --sjs2-typography-font-size-component-question-title: var(--text-base);
+}
+.sd-theme-root .sd-question__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sjs2-spacing-x100);
+}
+
+/* frames / complex headers */
+.sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header {
+  padding-bottom: 0;
+  border: none;
+}
+.sd-theme-root .sd-element--complex.sd-element--with-frame > .sd-element__header:after {
+  content: initial;
+}
+.sd-theme-root .sd-element--with-frame {
+  --sd-base-padding: calc(var(--spacing) * 4);
+}
+
+/* slider track (h-1.5) */
+.sd-theme-root .sd-slider__track,
+.sd-theme-root .sd-slider__track:before,
+.sd-theme-root .sd-slider__track:after,
+.sd-theme-root input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
+  height: calc(var(--spacing) * 1.5);
+}
+
+/* Override settings.minWidth: https://surveyjs.io/form-library/documentation/api-reference/surveyelement#minWidth */
+.sd-row.sd-row--multiple > * {
+  min-width: 0 !important;
+}
+
+/* below sm — phones */
+@media (width < 640px) {
+  .sd-row.sd-row--multiple {
+    flex-direction: column;
+  }
+}
+
+/* below md — tablets */
+@media (width < 768px) {
+}
+
+/* below lg — small desktops */
+@media (width < 1024px) {
+}
+
+/* 2xl and up — large desktops */
+@media (width >= 1536px) {
+}

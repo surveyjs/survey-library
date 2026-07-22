@@ -85,7 +85,7 @@ describe("Survey", () => {
       content.forEach(item => {
         const resItem: any = {};
         Object.keys(item).forEach(key => {
-          if (["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
+          if (["data", "getData", "processResponsiveness", "isInContainer"].indexOf(key) === -1) {
             resItem[key] = item[key];
           }
         });
@@ -1298,6 +1298,72 @@ describe("Survey", () => {
     expect(question.errors.length, "No error initially").toBe(0);
     survey.data = { q1: "", q2: "abc" };
     expect(question.errors.length, "No error on setting value to data").toBe(0);
+  });
+  test("Required question: error shown on complete, then setting survey.data clears it as a user value change does ,bug#11513", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", isRequired: true }]
+    };
+    const survey = new SurveyModel(json);
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(question.errors.length, "No error initially").toBe(0);
+    expect(survey.tryComplete(), "Survey is not completed because of the error").toBeFalsy();
+    expect(question.errors.length, "The required error is shown on complete").toBe(1);
+    survey.data = { q1: "abc" };
+    expect(question.value, "The value is set into the question").toBe("abc");
+    expect(question.errors.length, "The error is cleared on setting the correct survey.data").toBe(0);
+  });
+  test("Required question: error shown on complete, clears the same way via survey.data and via question.value ,bug#11513", () => {
+    const createSurvey = (): SurveyModel => {
+      return new SurveyModel({ elements: [{ type: "text", name: "q1", isRequired: true }] });
+    };
+    //Baseline: a user modifies the question value directly
+    const surveyByValue = createSurvey();
+    const questionByValue = <Question>surveyByValue.getQuestionByName("q1");
+    expect(surveyByValue.tryComplete(), "By value: not completed").toBeFalsy();
+    expect(questionByValue.errors.length, "By value: error is shown on complete").toBe(1);
+    questionByValue.value = "abc";
+    expect(questionByValue.errors.length, "By value: error is cleared on value change").toBe(0);
+    //The same process should run when the value comes from survey.data
+    const surveyByData = createSurvey();
+    const questionByData = <Question>surveyByData.getQuestionByName("q1");
+    expect(surveyByData.tryComplete(), "By data: not completed").toBeFalsy();
+    expect(questionByData.errors.length, "By data: error is shown on complete").toBe(1);
+    surveyByData.data = { q1: "abc" };
+    expect(questionByData.errors.length, "By data: error is cleared on setting survey.data").toBe(0);
+  });
+  test("Required question with email validator: required error first, then email error, then cleared via survey.data ,bug#11513", () => {
+    const json = {
+      elements: [{ type: "text", name: "q1", isRequired: true, validators: [{ type: "email" }] }]
+    };
+    const survey = new SurveyModel(json);
+    const question = <Question>survey.getQuestionByName("q1");
+    expect(survey.tryComplete(), "Not completed, the question is empty").toBeFalsy();
+    expect(question.errors.length, "The required error is shown first").toBe(1);
+    expect(question.errors[0].getErrorType(), "It is the required error").toBe("required");
+    survey.data = { q1: "it is not e-mail" };
+    expect(question.errors.length, "There is still one error").toBe(1);
+    expect(question.errors[0].getErrorType(), "Now it is the email (custom) error, not the required one").toBe("custom");
+    survey.data = { q1: "a@a.co" };
+    expect(question.errors.length, "The error finally disappeared on setting the correct survey.data").toBe(0);
+  });
+  test("Two required questions: complete shows two errors, setting survey.data clears them one by one ,bug#11513", () => {
+    const json = {
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        { type: "text", name: "q2", isRequired: true }
+      ]
+    };
+    const survey = new SurveyModel(json);
+    const q1 = <Question>survey.getQuestionByName("q1");
+    const q2 = <Question>survey.getQuestionByName("q2");
+    expect(survey.tryComplete(), "Not completed, both questions are empty").toBeFalsy();
+    expect(q1.errors.length, "q1 has the required error").toBe(1);
+    expect(q2.errors.length, "q2 has the required error").toBe(1);
+    survey.data = { q1: "abc" };
+    expect(q1.errors.length, "q1 error is cleared on setting survey.data").toBe(0);
+    expect(q2.errors.length, "q2 still has the error").toBe(1);
+    survey.data = { q1: "abc", q2: "def" };
+    expect(q2.errors.length, "q2 error is cleared on setting survey.data").toBe(0);
   });
   test("survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612", () => {
     var json = {
@@ -6741,6 +6807,135 @@ describe("Survey", () => {
     q1.value = [2, 3];
     expect(survey.getCorrectedAnswerCount(), "The order is correct, #4").toBe(1);
     expect(counter, "counter #3").toBe(3);
+  });
+  test("Quiz, ignore non-existent choices in correctAnswer for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", "c"],
+          correctAnswer: "z" //"z" choice doesn't exist
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", "c"],
+          correctAnswer: ["a", "b", "z"] //"z" choice doesn't exist
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.correctAnswer, "the correctAnswer is set correctly").toBe("z");
+    //radiogroup: correctAnswer references a non-existent choice, so it is ignored
+    expect(q1.quizQuestionCount, "radiogroup is not a quiz question").toBe(0);
+    q1.value = "a";
+    expect(q1.isAnswerCorrect(), "radiogroup answer is not marked incorrect").toBe(true);
+    expect(q2.correctAnswer, "the correctAnswer is set correctly").toEqual(["a", "b", "z"]);
+    //checkbox: only existing choices in correctAnswer are taken into account
+    expect(q2.quizQuestionCount, "checkbox is a quiz question").toBe(1);
+    q2.value = ["a"];
+    expect(q2.isAnswerCorrect(), "checkbox, partial answer is incorrect").toBe(false);
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox, the user can answer correctly").toBe(true);
+    expect(q2.correctAnswerCount, "checkbox, correctAnswerCount").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "survey.getCorrectAnswerCount").toBe(1);
+    expect(survey.getInCorrectAnswerCount(), "survey.getInCorrectAnswerCount").toBe(0);
+  });
+  test("Quiz, ignore invisible choices in correctAnswer for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", { value: "c", visibleIf: "false" }],
+          correctAnswer: "c" //"c" choice is invisible
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", { value: "c", visibleIf: "false" }],
+          correctAnswer: ["a", "b", "c"] //"c" choice is invisible
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    expect(q1.visibleChoices.map(ch => ch.value), "radiogroup visible choices").toEqual(["a", "b"]);
+    //radiogroup: correctAnswer references an invisible choice, so it is ignored
+    expect(q1.quizQuestionCount, "radiogroup is not a quiz question").toBe(0);
+    q1.value = "a";
+    expect(q1.isAnswerCorrect(), "radiogroup answer is not marked incorrect").toBe(true);
+    //checkbox: invisible choice value in correctAnswer is ignored
+    expect(q2.quizQuestionCount, "checkbox is a quiz question").toBe(1);
+    q2.value = ["a"];
+    expect(q2.isAnswerCorrect(), "checkbox, partial answer is incorrect").toBe(false);
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox, the user can answer correctly").toBe(true);
+    expect(q2.correctAnswerCount, "checkbox, correctAnswerCount").toBe(1);
+    expect(survey.getCorrectAnswerCount(), "survey.getCorrectAnswerCount").toBe(1);
+    expect(survey.getInCorrectAnswerCount(), "survey.getInCorrectAnswerCount").toBe(0);
+  });
+  test("Quiz, clear non-existent correctAnswer values on changing choices for radiogroup & checkbox, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", "c"],
+          correctAnswer: "c"
+        },
+        {
+          type: "checkbox",
+          name: "q2",
+          choices: ["a", "b", "c"],
+          correctAnswer: ["a", "b", "c"]
+        },
+        {
+          type: "checkbox",
+          name: "q3",
+          choices: ["a", "b"],
+          correctAnswer: ["a", "b"]
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+    const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+    //correctAnswer is not modified on loading
+    expect(q1.correctAnswer, "radiogroup correctAnswer on load").toBe("c");
+    expect(q2.correctAnswer, "checkbox correctAnswer on load").toEqual(["a", "b", "c"]);
+    expect(q3.correctAnswer, "checkbox correctAnswer on load #2").toEqual(["a", "b"]);
+    //change choices so that some correctAnswer values no longer exist
+    q1.choices = ["a", "b"];
+    q2.choices = ["a", "b"];
+    q3.choices = ["x", "y"];
+    //radiogroup: the correctAnswer value no longer exists, so it is cleared
+    expect(q1.correctAnswer, "radiogroup correctAnswer is cleared").toBe(undefined);
+    //checkbox: non-existent values are removed from the correctAnswer array
+    expect(q2.correctAnswer, "checkbox keeps existing correctAnswer values").toEqual(["a", "b"]);
+    //checkbox: correctAnswer becomes an empty array, so it is set to undefined
+    expect(q3.correctAnswer, "checkbox correctAnswer becomes undefined").toBe(undefined);
+    //a user can still answer the question with the updated correctAnswer
+    q2.value = ["a", "b"];
+    expect(q2.isAnswerCorrect(), "checkbox is answered correctly").toBe(true);
+  });
+  test("Quiz, do not clear correctAnswer for invisible choices on changing choices, Bug#11478", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "radiogroup",
+          name: "q1",
+          choices: ["a", "b", { value: "c", visibleIf: "{val1} = 'x'" }],
+          correctAnswer: "c"
+        }
+      ]
+    });
+    const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+    expect(q1.visibleChoices.map(ch => ch.value), "the 'c' choice is invisible").toEqual(["a", "b"]);
+    //the 'c' choice still exists, it is only invisible, so correctAnswer is preserved
+    expect(q1.correctAnswer, "radiogroup correctAnswer is preserved for invisible choice").toBe("c");
   });
   test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", () => {
     const survey = new SurveyModel({
@@ -12706,7 +12901,7 @@ describe("Survey", () => {
         },
       ],
       progressBarType: "pages",
-      progressBarShowPageTitles: true
+      progressBarShowNavigationText: true
     });
     expect(survey.getQuestionByName("q1"), "Do not produce stack-overflow").toBeTruthy();
   });
@@ -14288,6 +14483,45 @@ describe("Survey", () => {
     q.delete();
     expect(removedCounter, "onQuestionRemoved #2").toBe(1);
   });
+  test("onQuestionAdded fires before the question is placed into a row, so it can be removed safely, Bug#11475", () => {
+    const survey = new SurveyModel();
+    survey.setDesignMode(true);
+    const page = survey.addNewPage("page1");
+    page.addNewQuestion("text", "q1");
+    expect(page.rows).toHaveLength(1);
+
+    // A renderer reacts to a question being placed into a row. If onQuestionAdded fires only
+    // after the row is built, a handler that deletes the question leaves the renderer with a
+    // question detached from its page ("Cannot read properties of undefined (reading 'page')").
+    let inRowWhenAdded: boolean | undefined = undefined;
+    survey.onQuestionAdded.add((_, options) => {
+      const q = options.question;
+      inRowWhenAdded = page.rows.some(row => row.elements.indexOf(q) > -1);
+      if (q.getType() === "text") {
+        q.delete();
+      }
+    });
+    const q2 = page.addNewQuestion("text", "q2");
+
+    expect(inRowWhenAdded, "onQuestionAdded must fire before the question is rendered into a row").toBe(false);
+    expect(page.questions).toHaveLength(1);
+    expect(page.rows).toHaveLength(1);
+    expect(page.rows[0].elements.indexOf(q2)).toBe(-1);
+  });
+  test("cssClasses returns a valid object for a disposed element, Bug#11475", () => {
+    const survey = new SurveyModel({ pages: [{ name: "p1", elements: [{ type: "text", name: "q1" }] }] });
+    survey.setDesignMode(true);
+    // A renderer may render an element right after it was removed and disposed (mid-update).
+    // cssClasses must stay a valid object so rendering does not crash reading cssClasses.page.
+    const page = survey.addNewPage("page2");
+    page.dispose();
+    expect(page.cssClasses).toBeTruthy();
+    expect(page.cssClasses.page).toBeTruthy();
+
+    const q1 = survey.getQuestionByName("q1");
+    q1.dispose();
+    expect(q1.cssClasses).toBeTruthy();
+  });
   test("Set values into radiogroup and checkbox questions before creating them", () => {
     const survey = new SurveyModel();
     survey.data = { q1: 1, q2: [1, 2] };
@@ -14775,32 +15009,32 @@ describe("Survey", () => {
       ]
     });
     survey.css = defaultCss;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages");
 
     survey.setIsMobile(true);
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile");
 
     survey.readOnly = true;
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
     survey.fitToContainer = false;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--mobile sd-root--readonly");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
     survey.readOnly = false;
     survey.setIsMobile(false);
     survey["isCompact"] = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact");
 
     survey.fitToContainer = true;
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root--compact sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root--compact sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -15311,6 +15545,136 @@ describe("Survey", () => {
     expect(q4.hasDescription, "comment description is shown, on adding question").toBeTruthy();
 
     commentDescriptionProperty.placeholder = oldValue;
+  });
+  test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide empty description in design mode", () => {
+    const commentDescriptionProperty = Serializer.getProperty("comment", "description");
+    const oldValue = commentDescriptionProperty.placeholder;
+    commentDescriptionProperty.placeholder = "Q placeholder";
+
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    const calls: Array<string> = [];
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      calls.push(element.name);
+      if (element.name === "q1") return false; // hide even though placeholder would show it
+      if (element.name === "q3") return true; // show even though no placeholder is defined
+      return show;
+    };
+    survey.fromJSON({
+      pages: [{
+        name: "page1",
+        elements: [
+          { type: "comment", name: "q1" },
+          { type: "comment", name: "q2" },
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      }]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    const q3 = survey.getQuestionByName("q3");
+    const q4 = survey.getQuestionByName("q4");
+    expect(q1.hasDescription, "q1 empty description hidden by callback").toBeFalsy();
+    expect(q2.hasDescription, "q2 empty description shown by default").toBeTruthy();
+    expect(q3.hasDescription, "q3 empty description shown by callback").toBeTruthy();
+    expect(q4.hasDescription, "q4 empty description hidden by default").toBeFalsy();
+    expect(calls.indexOf("q1") > -1, "callback is called for q1").toBeTruthy();
+
+    commentDescriptionProperty.placeholder = oldValue;
+  });
+  test("beforeShowInplaceDescriptionEditorCallback is called for both empty and non-empty descriptions", () => {
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    const calledFor: { [key: string]: boolean } = {};
+    const lastShow: { [key: string]: boolean } = {};
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      calledFor[element.name] = true;
+      lastShow[element.name] = show;
+      if (element.name === "q1") return false; // hide a non-empty description
+      if (element.name === "q2") return true; // show an empty description
+      return show;
+    };
+    survey.fromJSON({
+      elements: [
+        { type: "text", name: "q1", description: "desc1" },
+        { type: "text", name: "q2" }
+      ]
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    expect(q1.hasDescription, "q1: non-empty description hidden by the callback").toBeFalsy();
+    expect(q2.hasDescription, "q2: empty description shown by the callback").toBeTruthy();
+    expect(calledFor["q1"], "the callback is called for the non-empty description").toBeTruthy();
+    expect(calledFor["q2"], "the callback is called for the empty description").toBeTruthy();
+    expect(lastShow["q1"], "the default visibility for a non-empty description is true").toBe(true);
+    expect(lastShow["q2"], "the default visibility for an empty description without a placeholder is false").toBe(false);
+  });
+  test("renderedHasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide the survey empty description in design mode", () => {
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    survey.fromJSON({
+      elements: [{ type: "text", name: "q1" }]
+    });
+    expect(survey.renderedHasDescription, "survey empty description shown by default in design mode").toBeTruthy();
+
+    const calls: Array<any> = [];
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      calls.push(element);
+      return false;
+    };
+    expect(survey.renderedHasDescription, "survey empty description hidden by callback").toBeFalsy();
+    expect(calls[0], "callback receives the survey instance").toBe(survey);
+
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => show;
+    expect(survey.renderedHasDescription, "survey empty description shown when callback keeps the default").toBeTruthy();
+  });
+  test("renderedHasDescription: setting/clearing the survey description resets hasDescription so the header re-renders", () => {
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    survey.fromJSON({ title: "My survey", elements: [{ type: "text", name: "q1" }] });
+    // Dynamic decision: show the in-place description editor only while the description is not empty.
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any): boolean => !!element.description;
+
+    const changedProps: Array<string> = [];
+    survey.onPropertyChanged.add((_, opt) => changedProps.push(opt.name));
+
+    // Reading renderedHasDescription primes hasDescription (its reset drives the header re-render).
+    expect(survey.renderedHasDescription, "empty -> hidden").toBeFalsy();
+
+    changedProps.length = 0;
+    survey.description = "Hello";
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on set").toBeTruthy();
+    expect(survey.renderedHasDescription, "non-empty -> shown").toBeTruthy();
+
+    changedProps.length = 0;
+    survey.description = "";
+    expect(changedProps.indexOf("hasDescription") > -1, "hasDescription notified on clear").toBeTruthy();
+    expect(survey.renderedHasDescription, "cleared -> hidden").toBeFalsy();
+  });
+  test("hasDescription: beforeShowInplaceDescriptionEditorCallback can show/hide a page empty description in design mode", () => {
+    const pageDescriptionProperty = Serializer.getProperty("page", "description");
+    const oldValue = pageDescriptionProperty.placeholder;
+    pageDescriptionProperty.placeholder = "Page placeholder";
+
+    const survey = new SurveyModel({});
+    survey["_isDesignMode"] = true;
+    survey.beforeShowInplaceDescriptionEditorCallback = (element: any, show: boolean): boolean => {
+      if (element.name === "page1") return false;
+      return show;
+    };
+    survey.fromJSON({
+      pages: [
+        { name: "page1", elements: [{ type: "text", name: "q1" }] },
+        { name: "page2", elements: [{ type: "text", name: "q2" }] }
+      ]
+    });
+    const page1 = survey.getPageByName("page1");
+    const page2 = survey.getPageByName("page2");
+    expect(page1.hasDescription, "page1 empty description hidden by callback").toBeFalsy();
+    expect(page2.hasDescription, "page2 empty description shown by default").toBeTruthy();
+
+    pageDescriptionProperty.placeholder = oldValue;
   });
   test("Test survey with custom type", () => {
     JsonObject.metaData.addClass(
@@ -16316,7 +16680,7 @@ describe("Survey", () => {
   test("getContainerContent - do not show buttons progress on completed page", () => {
     const json = {
       "progressBarType": "pages",
-      "progressBarShowPageTitles": true,
+      "progressBarShowNavigationText": true,
       "showProgressBar": true,
       "progressBarLocation": "top",
       pages: [
@@ -16393,15 +16757,7 @@ describe("Survey", () => {
     };
 
     let survey = new SurveyModel(json);
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-        delete item["processResponsiveness"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(getContainerContent("header"), "header for running survey").toEqual([{
       "component": "sv-header",
@@ -16447,15 +16803,7 @@ describe("Survey", () => {
 
     let survey = new SurveyModel(json);
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-        delete item["processResponsiveness"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(survey.showHeaderOnCompletePage).toBe("auto");
     survey.showHeaderOnCompletePage = true;
@@ -16810,14 +17158,7 @@ describe("Survey", () => {
 
     let survey = new SurveyModel(json);
     survey.headerView = "basic";
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["data"];
-        delete item["getData"];
-      });
-      return result;
-    }
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(survey.showNavigationButtons).toBe(true);
     expect(survey.navigationButtonsLocation).toBe("bottom");
@@ -16876,15 +17217,6 @@ describe("Survey", () => {
   });
 
   test("getContainerContent - header elements order", () => {
-    function getContainerContent(container: LayoutElementContainer) {
-      let result = survey.getContainerContent(container);
-      result.forEach(item => {
-        delete item["processResponsiveness"];
-        delete item["data"];
-      });
-      return result;
-    }
-
     const json = {
       pages: [
         {
@@ -16913,6 +17245,7 @@ describe("Survey", () => {
       component: "sv-custom",
     });
     survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
+    const getContainerContent = getContainerContentFunction(survey);
 
     expect(getContainerContent("header"), "advanved header first, progress next").toEqual([
       {
@@ -18754,7 +19087,7 @@ describe("Survey", () => {
     expect(survey.showProgressBar, "default show progress bar").toBe(false);
     expect(survey.progressBarType, "default progress bar type").toBe("pages");
     expect(survey.progressBarShowPageNumbers, "don't show page numbers in progress by default").toBe(false);
-    expect(survey.progressBarShowPageTitles, "don't show page titles in progress by default").toBe(false);
+    expect(survey.progressBarShowNavigationText, "don't show page titles in progress by default").toBe(false);
 
     expect(getContainerContent("header"), "empty header").toEqual([]);
     expect(getContainerContent("footer"), "empty footer").toEqual([]);
@@ -18778,7 +19111,7 @@ describe("Survey", () => {
 
     survey.progressBarType = "buttons";
 
-    expect(survey.progressBarShowPageTitles, "show page titles in progress for buttons").toBe(true);
+    expect(survey.progressBarShowNavigationText, "show page titles in progress for buttons").toBe(true);
 
     expect(getContainerContent("header"), "auto buttons header").toEqual([]);
     expect(getContainerContent("footer"), "auto buttons footer").toEqual([]);
@@ -19025,7 +19358,7 @@ describe("Survey", () => {
     expect(survey.css.rootReadOnly).toBe("sd-root--readonly");
     expect(survey.mode).toBe("edit");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
 
     survey.readOnly = true;
     expect(survey.mode).toBe("display");
@@ -19035,7 +19368,7 @@ describe("Survey", () => {
     survey.setDesignMode(true);
     expect(survey.mode).toBe("display");
     expect(survey.isDisplayMode).toBe(false);
-    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sd-progress--pages sd-root-modern--full-container");
+    expect(survey.getRootCss()).toBe("sd-root-modern sd-theme-root sjs-theme-overrides sd-progress--pages sd-root-modern--full-container");
     settings.animationEnabled = false;
   });
 
@@ -19147,7 +19480,7 @@ describe("Survey", () => {
       showProgressBar: true,
       progressBarLocation: "top",
       progressBarType: "pages",
-      progressBarShowPageTitles: true,
+      progressBarShowNavigationText: true,
       pages: [
         {
           elements: [{ type: "text", name: "q1" }]

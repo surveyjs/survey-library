@@ -834,6 +834,177 @@ describe("baseselect", () => {
     expect(q2.isVisible, "#3").toBe(false);
   });
 
+  test("tagbox vs valuePropertyName, use question6 as {question6-unwrapped} in expressions, Bug#11525", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "tagbox",
+              name: "question6",
+              choices: ["Item 4", "Item 5", "Item 2"],
+              showNoneItem: true,
+              valuePropertyName: "selectedCheckbox"
+            },
+            {
+              type: "text",
+              name: "question15",
+              visibleIf: "{question6-unwrapped} contains 'Item 4'"
+            }
+          ]
+        },
+        { name: "page2", elements: [{ type: "text", name: "question52" }] },
+        { name: "page3", elements: [{ type: "text", name: "question53" }] }
+      ],
+      calculatedValues: [
+        { name: "noneSelected", expression: "{question6-unwrapped} anyof ['none']" }
+      ],
+      triggers: [
+        { type: "skip", expression: "{noneSelected} = true", gotoName: "question53" }
+      ]
+    });
+    const q6 = <QuestionCheckboxModel>survey.getQuestionByName("question6");
+    const q15 = survey.getQuestionByName("question15");
+    const noneSelected = survey.getCalculatedValueByName("noneSelected");
+    expect(q15.isVisible, "#1 hidden by default").toBe(false);
+    expect(noneSelected.value, "#1 noneSelected is false by default").toBe(false);
+    expect(survey.currentPageNo, "#1 on the first page").toBe(0);
+
+    q6.renderedValue = ["Item 4"];
+    expect([...(q6.value)], "q6.value stores wrapped objects").toEqual([{ selectedCheckbox: "Item 4" }]);
+    expect(noneSelected.value, "#2 noneSelected is false").toBe(false);
+    expect(q15.isVisible, "#2 visible: unwrapped value contains 'Item 4'").toBe(true);
+
+    q6.renderedValue = ["none"];
+    expect(noneSelected.value, "#3 noneSelected is true: unwrapped value is ['none']").toBe(true);
+    expect(q15.isVisible, "#3 hidden: unwrapped value doesn't contain 'Item 4'").toBe(false);
+    expect(survey.currentPageNo, "#3 skip trigger fired: skipped over page2 to page3").toBe(2);
+  });
+  test("tagbox vs valuePropertyName, use question6 as {question6} in expressions, Bug#11525", () => {
+    const survey = new SurveyModel({
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "tagbox",
+              name: "question6",
+              choices: ["Item 4", "Item 5", "Item 2"],
+              showNoneItem: true,
+              valuePropertyName: "selectedCheckbox"
+            },
+            {
+              type: "text",
+              name: "question15",
+              visibleIf: "{question6} contains 'Item 4'"
+            }
+          ]
+        },
+        { name: "page2", elements: [{ type: "text", name: "question52" }] },
+        { name: "page3", elements: [{ type: "text", name: "question53" }] }
+      ],
+      calculatedValues: [
+        { name: "noneSelected", expression: "{question6} anyof ['none']" }
+      ],
+      triggers: [
+        { type: "skip", expression: "{noneSelected} = true", gotoName: "question53" }
+      ]
+    });
+    const q6 = <QuestionCheckboxModel>survey.getQuestionByName("question6");
+    const q15 = survey.getQuestionByName("question15");
+    const noneSelected = survey.getCalculatedValueByName("noneSelected");
+    expect(q15.isVisible, "#1 hidden by default").toBe(false);
+    expect(noneSelected.value, "#1 noneSelected is false by default").toBe(false);
+    expect(survey.currentPageNo, "#1 on the first page").toBe(0);
+
+    q6.renderedValue = ["Item 4"];
+    // The value is stored wrapped, but {question6} resolves to the unwrapped value in expressions,
+    // exactly like the legacy {question6-unwrapped} name.
+    expect([...(q6.value)], "q6.value stores wrapped objects").toEqual([{ selectedCheckbox: "Item 4" }]);
+    expect(noneSelected.value, "#2 noneSelected is false").toBe(false);
+    expect(q15.isVisible, "#2 visible: unwrapped value contains 'Item 4'").toBe(true);
+
+    q6.renderedValue = ["none"];
+    expect(noneSelected.value, "#3 noneSelected is true: unwrapped value is ['none']").toBe(true);
+    expect(q15.isVisible, "#3 hidden: unwrapped value doesn't contain 'Item 4'").toBe(false);
+    survey.nextPage();
+    expect(survey.currentPageNo, "#3 skip trigger fired: skipped over page2 to page3").toBe(2);
+  });
+  test("checkbox vs valuePropertyName, {question6} is unwrapped for operators but wrapped for *InArray functions, Bug#11525", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "checkbox",
+          name: "question6",
+          choices: ["Item 4", "Item 5", "Item 2"],
+          valuePropertyName: "selectedCheckbox"
+        },
+        {
+          // Panel Dynamic shares the value with the checkbox and writes a rating into each item,
+          // so question6 is stored as [{ selectedCheckbox: "Item 4", rating: 7 }, ...].
+          type: "paneldynamic",
+          name: "panel",
+          valueName: "question6",
+          templateElements: [{ type: "text", name: "rating", inputType: "number" }]
+        },
+        {
+          type: "text",
+          name: "q15",
+          visibleIf: "{question6} anyof ['Item 4']"
+        },
+        {
+          type: "expression",
+          name: "q16",
+          expression: "sumInArray({question6}, 'rating')"
+        }
+      ]
+    });
+    const q6 = <QuestionCheckboxModel>survey.getQuestionByName("question6");
+    q6.renderedValue = ["Item 4", "Item 5"];
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    panel.panels[0].getQuestionByName("rating").value = 7;
+    panel.panels[1].getQuestionByName("rating").value = 3;
+    // Same {question6}: operators see the unwrapped item values...
+    expect(survey.getQuestionByName("q15").isVisible, "operator anyof sees unwrapped value").toBe(true);
+    // ...while sumInArray sees the wrapped objects and reads the 'rating' column.
+    expect(survey.getQuestionByName("q16").value, "sumInArray sees wrapped objects").toBe(10);
+  });
+  test("checkbox vs valuePropertyName, unwrapping works in a panel-scoped {panel.*} context, Bug#11525", () => {
+    const survey = new SurveyModel({
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel",
+          templateElements: [
+            {
+              type: "checkbox",
+              name: "items",
+              choices: ["A", "B", "C"],
+              valuePropertyName: "code"
+            },
+            {
+              type: "text",
+              name: "hasA",
+              visibleIf: "{panel.items} anyof ['A']"
+            }
+          ],
+          panelCount: 1
+        }
+      ]
+    });
+    const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+    const items = <QuestionCheckboxModel>panel.panels[0].getQuestionByName("items");
+    const hasA = panel.panels[0].getQuestionByName("hasA");
+    expect(hasA.isVisible, "#1 hidden by default").toBe(false);
+    items.renderedValue = ["A", "B"];
+    // The value is stored wrapped per panel: [{ code: "A" }, { code: "B" }].
+    expect([...(items.value)], "items.value stores wrapped objects").toEqual([{ code: "A" }, { code: "B" }]);
+    // The panel-scoped {panel.items} resolves through QuestionArrayGetterContext and is unwrapped.
+    expect(hasA.isVisible, "#2 visible: unwrapped value contains 'A'").toBe(true);
+    items.renderedValue = ["B"];
+    expect(hasA.isVisible, "#3 hidden: unwrapped value doesn't contain 'A'").toBe(false);
+  });
   test("checkbox vs valuePropertyName & defaultValue, Bug#8973", () => {
     const survey = new SurveyModel({
       storeOthersAsComment: false,
@@ -1266,8 +1437,8 @@ describe("baseselect", () => {
   });
   test("quesstion commentId/otherId", () => {
     const q1 = new QuestionCheckboxModel("q1");
-    expect(q1.commentId, "Comment id").toBe(q1.id + "_comment");
-    expect(q1.otherId, "Other id").toBe(q1.id + "_" + q1.otherItem.uniqueId);
+    expect(q1.commentId, "Comment id").toBe(q1.renderedId + "_comment");
+    expect(q1.otherId, "Other id").toBe(q1.otherItem.renderedId + "_comment");
   });
   test("selectbase, otherValue&question-Comment", () => {
     const survey = new SurveyModel({ elements: [
@@ -3164,8 +3335,7 @@ describe("baseselect", () => {
     const oldFunc = SurveyElement.FocusElement;
     const els = new Array<string>();
     SurveyElement.FocusElement = function (elId: string): boolean {
-      const index = elId.lastIndexOf("_");
-      els.push(elId.substring(index + 1));
+      els.push(elId);
       return true;
     };
 
@@ -3186,9 +3356,9 @@ describe("baseselect", () => {
       ]
     });
     const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-    let otherId = q1.otherItem.uniqueId.toString();
-    let choice1Id = q1.choices[0].uniqueId.toString();
-    let choice3Id = q1.choices[2].uniqueId.toString();
+    let otherId = q1.getItemCommentId(q1.otherItem);
+    let choice1Id = q1.getItemCommentId(q1.choices[0]);
+    let choice3Id = q1.getItemCommentId(q1.choices[2]);
     q1.selectItem(q1.otherItem, true);
     expect(els, "q1.focus #1").toEqual([otherId]);
     q1.selectItem(q1.otherItem, false);
@@ -3202,9 +3372,9 @@ describe("baseselect", () => {
     expect(els, "q1.focus #5").toEqual([otherId, choice1Id, choice3Id]);
 
     const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
-    otherId = q2.otherItem.uniqueId.toString();
-    choice1Id = q2.choices[0].uniqueId.toString();
-    choice3Id = q2.choices[2].uniqueId.toString();
+    otherId = q2.getItemCommentId(q2.otherItem);
+    choice1Id = q2.getItemCommentId(q2.choices[0]);
+    choice3Id = q2.getItemCommentId(q2.choices[2]);
     els.length = 0;
     q2.selectItem(q2.otherItem);
     expect(els, "q2.focus #1").toEqual([otherId]);
@@ -3934,7 +4104,7 @@ describe("baseselect", () => {
     expect(panel1.getElementByName("q1_1")?.name, "getElementByName works correctly").toBe("q1_1");
     const page = survey.pages[0];
     expect(page.getElementByName("q1_1")?.name, "page.getElementByName works correctly").toBe("q1_1");
-    const name = "choicePanel" + panel1.uniqueId;
+    const name = "choicePanel_" + panel1.id;
     expect(panel1.name, "panel1.name is correct").toBe(name);
     expect(page.getElementByName(name)?.name, "page.getElementByName works correctly for panel1").toBe(name);
   });

@@ -161,8 +161,6 @@ export var malaySurveyStrings = {
   savingDataError: "Ralat berlaku dan kami tidak dapat menyimpan keputusan.",
   // "The results were saved successfully!"
   savingDataSuccess: "Keputusan berjaya disimpan!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Respons anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan.",
   // "Try again"
   saveAgainButton: "Cuba lagi",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var malaySurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Jadual kandungan",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bar kemajuan"
+  progressbar: "Bar kemajuan",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Halaman {0}"
 };
 
 setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });

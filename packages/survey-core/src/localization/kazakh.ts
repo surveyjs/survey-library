@@ -161,8 +161,6 @@ export var kazakhStrings = {
   savingDataError: "Қателік туындады, нәтиже сақталынбады.",
   // "The results were saved successfully!"
   savingDataSuccess: "Нәтиже ойдағыдай сақталды!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз.",
   // "Try again"
   saveAgainButton: "Қайтадан байқап көру",
   // "min"
@@ -246,7 +244,9 @@ export var kazakhStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Мазмұн кестесі",
   // [Auto-translated] "Progress bar"
-  progressbar: "Прогресс тақтасы"
+  progressbar: "Прогресс тақтасы",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "{0}-бет"
 };
 
 setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });

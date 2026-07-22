@@ -161,8 +161,6 @@ export var turkishSurveyStrings = {
   savingDataError: "Bir hata oluştu ve sonuçlar kaydedilemedi.",
   // "The results were saved successfully!"
   savingDataSuccess: "Sonuçlar başarıyla kaydedildi!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Yanıtınız 64 KB'ı aşıyor. Lütfen dosyalarınızın boyutunu küçültün ve tekrar deneyin veya anket sahibiyle iletişime geçin.",
   // "Try again"
   saveAgainButton: "Tekrar deneyin",
   // "min"
@@ -246,7 +244,9 @@ export var turkishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "İçindekiler",
   // [Auto-translated] "Progress bar"
-  progressbar: "İlerleme çubuğu"
+  progressbar: "İlerleme çubuğu",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Sayfa {0}"
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });

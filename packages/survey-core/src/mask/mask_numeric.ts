@@ -127,7 +127,7 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     let displayIntegralPart = parsedNumber.integralPart;
-    if (insertThousandsSeparator && !!displayIntegralPart) {
+    if (insertThousandsSeparator && !!displayIntegralPart && !!this.thousandsSeparator) {
       displayIntegralPart = splitString(displayIntegralPart).join(this.thousandsSeparator);
     }
     let displayFractionalPart = parsedNumber.fractionalPart;
@@ -305,10 +305,6 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public getType(): string {
     return "numericmask";
-  }
-
-  protected isValueUndefined(value: any): boolean {
-    return value === "" || super.isValueUndefined(value);
   }
 }
 

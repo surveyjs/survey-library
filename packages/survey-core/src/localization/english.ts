@@ -82,7 +82,6 @@ export var englishStrings = {
   savingData: "The results are being saved on the server...",
   savingDataError: "An error occurred and we could not save the results.",
   savingDataSuccess: "The results were saved successfully!",
-  savingExceedSize: "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner.",
   saveAgainButton: "Try again",
   timerMin: "min",
   timerSec: "sec",
@@ -124,7 +123,8 @@ export var englishStrings = {
   cancel: "Cancel",
   createCustomItem: "Create \"{0}\" item...",
   toc: "Table of contents",
-  progressbar: "Progress bar"
+  progressbar: "Progress bar",
+  progressbarPage: "Page {0}"
 };
 
 /*

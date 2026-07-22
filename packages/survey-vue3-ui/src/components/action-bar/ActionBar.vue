@@ -9,7 +9,7 @@
     <SvComponent
       :is="'sv-action'"
       v-for="item in model.renderedActions"
-      :key="item.renderedId"
+      :key="item.uniqueId"
       :item="item"
     ></SvComponent>
   </div>

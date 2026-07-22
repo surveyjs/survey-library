@@ -243,5 +243,56 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question--boolean");
       await compareScreenshot(page, questionRoot, "boolean-question-checkbox-useTitleAsLabel.png");
     });
+
+    test("Check switch boolean question", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            "type": "boolean",
+            "name": "question1",
+            "defaultValue": "true",
+          },
+          {
+            "type": "boolean",
+            "name": "question2",
+            "titleLocation": "hidden",
+            "enableIf": "{question1} = true",
+            "defaultValue": "false",
+            "renderAs": "switch"
+          },
+          {
+            "type": "boolean",
+            "name": "question3",
+            "titleLocation": "hidden",
+            "enableIf": "{question1} = true",
+            "defaultValue": "true",
+            "renderAs": "switch"
+          }
+        ]
+      });
+      const questionRoot = page.locator(".sd-question--boolean");
+      await page.waitForTimeout(1000);
+      await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false.png");
+      await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true.png");
+
+      questionRoot.nth(1).locator(".sd-boolean-switch__button").hover();
+      await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-hovered.png");
+
+      questionRoot.nth(2).locator(".sd-boolean-switch__button").hover();
+      await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-hovered.png");
+
+      await page.mouse.move(0, 0);
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+      await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-focused.png");
+
+      await page.keyboard.press("Tab");
+      await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-focused.png");
+
+      await questionRoot.first().locator(".sv-string-viewer").filter({ hasText: "No" }).click();
+      await compareScreenshot(page, questionRoot.nth(1), "boolean-switch-false-readOnly.png");
+      await compareScreenshot(page, questionRoot.nth(2), "boolean-switch-true-readOnly.png");
+    });
   });
 });

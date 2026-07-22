@@ -4,11 +4,20 @@ export default {
   "colorPalette": "light",
   "isPanelless": true,
   "cssVariables": {
+    "--sjs2-layout-component-page-content-area-gap-horizontal": "var(--sjs2-spacing-large-horizontal)",
+    "--sjs2-layout-component-page-content-area-gap-vertical": "var(--sjs2-spacing-large-vertical)",
+    "--sjs2-layout-component-panel-simple-box-gap-vertical": "var(--sjs2-spacing-medium-vertical)",
+    "--sjs2-layout-component-panel-simple-content-area-padding-horizontal": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-content-area-padding-top": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-content-area-padding-bottom": "var(--sjs2-spacing-x000)",
+    "--sjs2-layout-component-panel-simple-content-area-gap-horizontal": "var(--sjs2-spacing-x500)",
+    "--sjs2-radius-component-panel-simple": "var(--sjs2-radius-x000)",
+    "--sjs2-is-panelless": "true",
     "--sjs2-color-project-brand-600": "rgba(85, 181, 52, 1)",
     "--sjs2-color-utility-toolbox": "rgba(246, 246, 246, 1)",
     "--sjs2-color-utility-property-grid": "rgba(246, 246, 246, 1)",
     "--sjs2-color-utility-tabs": "rgba(246, 246, 246, 1)",
-    "--sjs2-color-utility-surface-survey": "rgba(255, 255, 255, 1)",
+    "--sjs2-color-utility-surface-survey": "var(--sjs2-color-component-panel-default-bg)",
     "--sjs2-color-utility-surface-designer": "rgba(255, 255, 255, 1)",
     "--sjs2-color-bg-basic-primary": "rgba(246, 246, 246, 1)",
     "--sjs2-color-bg-basic-secondary": "rgba(255, 255, 255, 1)",
@@ -26,8 +35,11 @@ export default {
     "--sjs2-color-fg-brand-primary-disabled": "rgba(255, 255, 255, 0.25)",
     "--sjs2-color-border-basic-secondary": "rgba(0, 0, 0, 0.12)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(0, 0, 0, 0.16)",
-    "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1 rgba(0, 0, 0, 0.12)",
-    "--sjs2-border-effect-surface-default": "0px 0px 0px 1 rgba(0, 0, 0, 0.15)",
-    "--sjs2-border-effect-floating-default": "0px 0px 0px 1 rgba(0, 0, 0, 0.1), 0px 2 6 0px rgba(0, 0, 0, 0.1), 0px 8 16 0px rgba(0, 0, 0, 0.1)"
+    "--sjs2-color-data-chart-track-color-0": "var(--sjs2-palette-gray-000)",
+    "--sjs2-color-component-panel-simple-default-bg": "transparent",
+    "--sjs2-color-component-panel-simple-default-border": "transparent",
+    "--sjs2-border-effect-component-formbox-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.12)",
+    "--sjs2-border-effect-surface-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
+    "--sjs2-border-effect-floating-default": "0px 0px 0px 1px rgba(0, 0, 0, 0.1), 0px 2px 6px 0px rgba(0, 0, 0, 0.1), 0px 8px 16px 0px rgba(0, 0, 0, 0.1)"
   }
 };

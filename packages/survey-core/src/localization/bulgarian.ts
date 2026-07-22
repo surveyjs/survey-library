@@ -161,8 +161,6 @@ export var bulgarianStrings = {
   savingDataError: "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резултатите бяха запазени успешно!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Вашият отговор надхвърля 64KB. Моля, намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването.",
   // "Try again"
   saveAgainButton: "Нов опит",
   // "min"
@@ -246,7 +244,9 @@ export var bulgarianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Съдържание",
   // [Auto-translated] "Progress bar"
-  progressbar: "Лента за напредъка"
+  progressbar: "Лента за напредъка",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Страница {0}"
 };
 
 setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });

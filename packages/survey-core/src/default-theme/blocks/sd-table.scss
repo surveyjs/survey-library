@@ -1,9 +1,40 @@
 @use "../variables.scss" as *;
 @use "../typography-mixins.scss" as *;
 
+@function table-sticky-background($color_list) {
+  $result: "";
+  @each $color in $color_list {
+    // If it's the first item, don't add the separator
+    @if $result == "" {
+      $result: "linear-gradient(#{$color}, #{$color})";
+    } @else {
+      $result: " #{$result}, linear-gradient(#{$color}, #{$color})";
+    }
+  }
+  $result: "#{$result};";
+  @return $result;
+}
+.sd-table-wrapper {
+  --sd-table-sticky-background-color: #{table-sticky-background(
+      (
+        var(--sjs2-color-component-panel-default-bg),
+        var(--sjs2-color-utility-surface-survey),
+        var(--sjs2-color-utility-body)
+      )
+    )};
+}
+.sd-element--with-frame.sd-element--compact {
+  .sd-table-wrapper {
+    --sd-table-sticky-background-color: #{table-sticky-background(
+        (var(--sjs2-color-utility-surface-survey-panelless), var(--sjs2-color-utility-body))
+      )};
+  }
+}
 .sd-table {
+  --sd-table-cell-width: 10000px;
+  --sd-table-cell-min-width: var(--sjs2-size-x1500);
+
   width: 100%;
-  background: var(--sjs2-color-component-panel-default-bg, #fff);
   border-collapse: separate;
   border-spacing: 0;
   white-space: normal;
@@ -27,7 +58,7 @@
   .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(
       .sd-table__cell--empty.sd-table__cell--error
     ) {
-    width: 10000px;
+    width: var(--sd-table-cell-width);
   }
 }
 
@@ -147,12 +178,15 @@
     }
 
     .sd-table__row:nth-of-type(odd) {
+      --sd-table-sticky-background-color: #{table-sticky-background(
+          (#{$background-dark}, var(--sjs2-color-utility-surface-survey-panelless), var(--sjs2-color-utility-body))
+        )};
+
       & > td.sd-table__cell:not(.sd-table__cell--actions),
       td:first-of-type {
         border-top-color: $background-dark;
         border-bottom-color: $background-dark;
         background-color: $background-dark;
-
         &.sd-matrix__text--checked {
           background-color: var(--sjs2-color-bg-brand-secondary);
         }
@@ -167,7 +201,7 @@
           }
 
           &.sd-item--checked .sd-item__decorator {
-            background-color: var(--sjs2-color-component-check-true-default-bg, #19b394);
+            background-color: var(--sjs2-color-component-check-true-default-bg);
           }
           &.sd-item--readonly.sd-item--readonly .sd-item__decorator {
             background-color: transparent;
@@ -190,7 +224,7 @@
   text-align: center;
 
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
-    min-width: var(--sjs2-size-x1500);
+    min-width: var(--sd-table-cell-min-width);
   }
 
   .sd-item {
@@ -257,12 +291,12 @@
   padding: var(--sjs2-spacing-x150) var(--sjs2-spacing-x100);
 
   &:not(.sd-table__cell--empty) {
-    min-width: var(--sjs2-size-x1500);
+    min-width: var(--sd-table-cell-min-width);
   }
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--empty {
-  min-width: var(--sjs2-size-x1500);
+  min-width: var(--sd-table-cell-min-width);
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--action {
@@ -271,7 +305,7 @@
 }
 
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
-  min-width: var(--sjs2-size-x1500);
+  min-width: var(--sd-table-cell-min-width);
 
   &.sd-table__cell--dropdown,
   &.sd-table__cell--rating {
@@ -347,7 +381,7 @@
 .sd-matrix__cell:first-of-type,
 .sd-matrix tr > td:first-of-type {
   position: sticky;
-  background-color: var(--sjs2-color-component-panel-default-bg, #fff);
+  background: var(--sd-table-sticky-background-color);
   z-index: 12;
 
   &:first-of-type {
@@ -363,7 +397,7 @@
   .sd-action-bar {
     margin-right: var(--sjs2-spacing-negative-x300);
     justify-content: flex-end;
-    background: var(--sjs2-color-component-panel-default-bg, #fff);
+    background: var(--sd-table-sticky-background-color);
   }
 }
 
@@ -391,7 +425,7 @@
     min-height: 100%;
     width: calc(var(--sd-base-padding) - var(--sjs2-spacing-x100));
     flex-shrink: 0;
-    background: var(--sjs2-color-component-panel-default-bg, #fff);
+    background: var(--sd-table-sticky-background-color);
     z-index: 11;
   }
 
@@ -414,34 +448,6 @@
   &::before {
     left: var(--sjs2-spacing-negative-x300);
     width: var(--sjs2-size-x200);
-  }
-}
-//compact styles
-.sd-element--with-frame.sd-element--compact {
-  .sd-table {
-    background-color: $background-dim;
-  }
-
-  .sd-table-wrapper {
-    &:before,
-    &:after {
-      background-color: $background-dim;
-    }
-  }
-
-  .sd-table__cell--actions:not(.sd-table__cell--vertical):last-child {
-    .sd-action-bar {
-      background-color: $background-dim;
-    }
-  }
-
-  .sd-table__cell--actions:not(.sd-table__cell--vertical),
-  .sd-table__cell--empty,
-  .sd-table__cell--row-text,
-  .sd-table__cell--footer-total,
-  .sd-matrix__cell:first-of-type,
-  .sd-matrix tr > td:first-of-type {
-    background-color: $background-dim;
   }
 }
 

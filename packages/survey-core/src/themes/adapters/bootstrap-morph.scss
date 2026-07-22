@@ -1,0 +1,124 @@
+@use "./bootstrap.scss";
+
+/* Bootswatch "Morph": soft neumorphism ($border-width: 0, $enable-shadows) — raised, borderless
+   pill buttons on a tinted body, recessed (inset) inputs and checkboxes, blue primary (#378dfc,
+   Nunito). Directional light/shadow pairs replace borders. */
+.sjs-theme-overrides {
+  /* neumorphic light/shadow pairs (raised = extruded, inset = pressed) */
+  --sjs-morph-shadow: 5px 5px 10px rgba(0, 0, 0, .2), -5px -5px 10px rgba(255, 255, 255, .1);
+  --sjs-morph-inset: inset 2px 2px 6px rgba(0, 0, 0, 0.2), inset -3px -2px 5px rgba(255, 255, 255, 0.7);
+
+  /* pill, raised, borderless buttons (shadows live in the border-effect tokens).
+     $btn-font-weight: 600; button font sizes stay default (1rem / 0.875rem). Headings keep the
+     base: header = h2 = 2rem, page = h3 = 1.75rem, panel = h5 = 1.25rem, weight 500. */
+  --sjs2-radius-component-action: 50rem;
+  --sjs2-radius-component-action-small: 50rem; /* $btn-border-radius-sm: $border-radius-pill */
+  --sjs2-radius-component-panel: var(--bs-border-radius);
+  --sjs-bs-action-font-weight: 600;
+
+  /* $input-btn-padding: 1rem 1.5rem (buttons + inputs; $border-width: 0). Input total = formbox
+     (0.125rem) + content, so content = target - 0.125rem. */
+  --sjs2-layout-component-action-large-box-padding-vertical: 1rem;
+  --sjs2-layout-component-action-large-box-padding-horizontal: 1.5rem;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 0.875rem;
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 1.375rem;
+
+
+/*
+.btn {
+    position: relative;
+    color: #7b8ab8;
+    border-radius: 50rem;
+    background-color: #d9e3f1;
+    border: none;
+    box-shadow: 5px 5px 10px rgba(55, 94, 148, .2), -5px -5px 10px rgba(255, 255, 255, .4);
+    transition: background-color .15s ease-in-out, border .15s ease-in-out, box-shadow .15s ease-in-out, color .15s ease-in-out;
+}
+*/
+
+  --sjs2-layout-component-action-small-box-padding-horizontal: 0.5rem;
+  --sjs2-layout-component-action-small-box-padding-vertical: 0.25rem;
+  
+  --sjs2-border-effect-component-action-brand-primary-default: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-primary-hovered: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-primary-disabled: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-default: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-brand-tertiary-surface-hovered: var(--sjs-morph-shadow);
+  
+  /* neutral secondary raised button */
+  --sjs-bs-secondary-bg: var(--bs-secondary, #d9e3f1);
+  --sjs-bs-on-secondary: var(--bs-body-color);
+  --sjs-bs-secondary-hover-bg: var(--bs-secondary, #d9e3f1);
+  --sjs2-border-effect-component-action-neutral-secondary-default: var(--sjs-morph-shadow);
+  --sjs2-border-effect-component-action-neutral-secondary-hovered: var(--sjs-morph-shadow);
+
+  --sjs-bs-light-bg: #d9e3f1;
+  --sjs-bs-on-light: #7b8ab8;
+  --sjs-bs-light-hover-bg: #d9e3f1;
+
+
+  --sjs2-color-component-action-brand-tertiary-surface-default-label:  var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-default-icon:  var(--sjs-bs-on-primary);
+  --sjs2-color-component-action-brand-tertiary-surface-default-bg: var(--bs-primary);
+
+  /* recessed, borderless inputs */
+  --sjs2-color-component-formbox-default-bg: #f0f5fa;
+  --sjs2-color-component-formbox-hovered-bg: #f0f5fa;
+  --sjs2-color-component-formbox-focused-bg: #f0f5fa;
+  --sjs2-border-effect-component-formbox-default: var(--bs-box-shadow-inset);
+  --sjs2-border-effect-component-formbox-hovered: var(--bs-box-shadow-inset);
+  --sjs2-border-effect-component-formbox-focused: var(--bs-box-shadow-inset), 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25);
+  --sjs2-layout-component-formbox-medium-padding-vertical: var(--bs-border-width);
+  --sjs2-layout-component-formbox-medium-padding-horizontal: var(--bs-border-width);
+  --sjs2-layout-component-input-medium-content-padding-horizontal: 1.5rem;
+  --sjs2-layout-component-input-medium-content-padding-vertical: 1rem;
+
+
+  /* recessed checkboxes / radios */
+  --sjs2-color-component-check-false-default-bg: #bed1e6;
+  --sjs2-color-component-check-false-hovered-bg: #bed1e6;
+  --sjs2-color-component-check-false-focused-bg: #bed1e6;
+  --sjs2-border-effect-component-check-false-default: inset 1px 1px 7px rgba(0, 0, 0, .2);;
+  --sjs2-border-effect-component-check-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, .2);;
+
+
+  /* recessed toggles */
+  --sjs2-color-component-toggle-false-default-bg: #bed1e6;
+  --sjs2-color-component-toggle-false-hovered-bg: #bed1e6;
+  --sjs2-border-effect-component-toggle-false-default: inset 1px 1px 7px rgba(0, 0, 0, .2);
+  --sjs2-border-effect-component-toggle-false-hovered: inset 1px 1px 7px rgba(0, 0, 0, .2);
+  --sjs2-color-component-toggle-true-default-border: transparent;
+  --sjs2-color-component-toggle-true-hovered-border: transparent;
+  --sjs2-color-component-toggle-true-default-bg: #378dfc;
+  --sjs2-color-component-toggle-true-hovered-bg: #378dfc;
+  --sjs2-color-component-toggle-false-default-thumb: #fff;
+  
+
+  /* raised panels */
+  --sjs2-radius-component-panel: 1rem;
+  --sjs2-color-component-panel-default-bg: var(--bs-body-bg);
+}
+
+.sd-action--brand.sd-action--secondary {
+  box-shadow: 5px 5px 10px rgba(55, 94, 148, .2), -5px -5px 10px rgba(255, 255, 255, .4);
+}
+/* pressed (active) buttons get the inset treatment */
+.sd-theme-root .sd-action:active {
+  box-shadow: var(--sjs-morph-inset);
+  transform: none;
+}
+.sd-action--primary:active,
+.sd-action--tertiary:active {
+  border-color: transparent;
+}
+
+.sd-boolean-switch__thumb {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+
+/* raised, borderless framed panels */
+.sd-theme-root .sd-element--with-frame {
+  box-shadow:  inset 2px 2px 6px rgba(109, 114, 121, .2), inset -3px -2px 4px rgba(255, 255, 255, .2);
+  border: none;
+}

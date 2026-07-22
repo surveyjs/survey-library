@@ -1,14 +1,17 @@
-import { test } from "@playwright/test";
+// MERGE(V3): this import conflicts every merge. Keep BOTH sides' additions: `expect` from
+// @playwright/test (used by master-merged assertions) AND `applyTheme` from ../e2e/helper
+// (V3-only helper). i.e. take the union, not one side.
+import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, applyTheme } from "../e2e/helper";
 
 const title = "Survey themes Screenshot";
 
 frameworks.forEach(framework => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto(`${url}${framework}`);
-  });
-
   test.describe(`${framework} ${title}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+
     test("Check question title font size", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
@@ -78,7 +81,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-size.png");
     });
 
-    test("Check question title font size, #2", async ({ page }) => {
+    test("Check question title font weight", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
         "logoPosition": "right",
@@ -208,21 +211,22 @@ frameworks.forEach(framework => {
         ]
       });
       await page.waitForLoadState("networkidle");
-      await applyTheme(page, {
-        "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "36px",
-          "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
-          "--sjs-font-editorfont-size": "24px"
-        } });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
+            "--sjs-font-editorfont-size": "24px"
+          }
+        });
+      });
       await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-color-for-items.png");
 
-      // TODO remove etalon
-      // await page.click(".sd-dropdown");
-      // await compareScreenshot(page, ".sv-popup.sv-dropdown-popup .sv-popup__container", "survey-theme-questiontitle-font-color-for-dropdown-list-items.png");
+      await page.click(".sd-dropdown");
+      await compareScreenshot(page, ".sv-popup.sv-dropdown-popup .sv-popup__container", "survey-theme-questiontitle-font-color-for-dropdown-list-items.png");
     });
 
-    test.skip("Check input element placeholder", async ({ page }) => {
+    test("Check input element placeholder", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: true,
@@ -246,16 +250,6 @@ frameworks.forEach(framework => {
                     "name": "text2"
                   }
                 ]
-              },
-              {
-                "type": "dropdown",
-                "name": "question3",
-                "defaultValue": "Item 1",
-                "choices": [
-                  "Item 1",
-                  "Item 2",
-                  "Item 3"
-                ]
               }
             ]
           }
@@ -268,7 +262,6 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-editorfont-placeholdercolor.png");
     });
 
-    // TODO remove etalon
     test.skip("Check dropdown element colors", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
@@ -396,15 +389,10 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, jsonWithInputs);
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "18px",
           "--sjs-font-editorfont-size": "12px",
           "--sjs-font-size": "20px"
         } });
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-desktop-input-size.png");
-
-      // TODO remove etalon
-      // await page.locator(".sd-formbox.sd-dropdown").first().click();
-      // await compareScreenshot(page, ".sv-popup__container", "survey-theme-desktop-popup-input-size.png");
     });
 
     test("Mobile mode: input font-size less 16px", async ({ page }) => {
@@ -422,7 +410,6 @@ frameworks.forEach(framework => {
       }, jsonWithInputs);
       await applyTheme(page, {
         "cssVariables": {
-          "--sjs2-typography-line-height-component-input-content": "18px",
           "--sjs-font-editorfont-size": "12px",
           "--sjs-font-size": "20px"
         }
@@ -431,8 +418,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });
-      await page.waitForTimeout(500);
       const tagboxDropdownButton = page.locator(".sd-editor-chevron-button").first();
+      await expect(tagboxDropdownButton).toBeVisible();
       await tagboxDropdownButton.scrollIntoViewIfNeeded();
       await tagboxDropdownButton.click();
       await compareScreenshot(page, ".sv-popup__container .sv-popup__content", "survey-theme-mobile-popup-input-size.png");

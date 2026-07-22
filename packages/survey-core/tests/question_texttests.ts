@@ -381,6 +381,16 @@ describe("question text tests", () => {
     expect(ch.remainingCharacterCounter, "#4").toBe("4/7");
   });
 
+  test("Date input: value-changed class when value comes from survey.data, Bug#11334", () => {
+    const valueChanged = "sd-formbox__input--value-changed";
+    const survey = new SurveyModel({ elements: [{ type: "text", name: "q1", inputType: "date" }] });
+    const q = <QuestionTextModel>survey.getQuestionByName("q1");
+    expect(q.getControlClass().indexOf(valueChanged) > -1, "no value, placeholder shown #1").toBeFalsy();
+
+    survey.data = { q1: "2024-01-01" };
+    expect(q.getControlClass().indexOf(valueChanged) > -1, "value set from survey.data #2").toBeTruthy();
+  });
+
   test("Set empty text", () => {
     const survey = new SurveyModel({
       elements: [{ type: "text", name: "q1" }]
@@ -867,6 +877,19 @@ describe("question text tests", () => {
     q1.dataList = ["item1", "item2"];
     const json = q1.toJSON();
     expect(json.dataList, "dataList is stored in the JSON").toEqual(["item1", "item2"]);
+  });
+  test("Update question value when leading or trailing whitespace changes, #11581", () => {
+    const question = new QuestionTextModel("q1");
+
+    question.value = "Test ";
+    question.inputValue = "Test";
+    expect(question.value).toBe("Test");
+
+    question.inputValue = " Test";
+    expect(question.value).toBe(" Test");
+
+    question.inputValue = " Test ";
+    expect(question.value).toBe(" Test ");
   });
 
   test("Numeric input validation - prevent 'e' character", () => {

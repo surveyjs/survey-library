@@ -324,6 +324,7 @@ export class Variable extends Const {
   public static set DisableConversionChar(val: string) { settings.expressionDisableConversionChar = val; }
   private valueInfo: any = {};
   private useValueAsItIs: boolean = false;
+  private returnOriginalValue: boolean = false;
   constructor(private variableName: string) {
     super(variableName);
     if (
@@ -352,8 +353,14 @@ export class Variable extends Const {
   public get variable(): string {
     return this.variableName;
   }
+  // Requests the original (unfiltered) value from the process value context, bypassing the
+  // default unwrapping applied to questions like a checkbox with valuePropertyName.
+  public setReturnOriginalValue(val: boolean): void {
+    this.returnOriginalValue = val;
+  }
   public evaluate(processValue?: ProcessValue): any {
     this.valueInfo.name = this.variableName;
+    this.valueInfo.isOriginalValue = this.returnOriginalValue;
     processValue.getValueInfo(this.valueInfo);
     if (!this.valueInfo.hasValue) {
       return this.returnJSONObject(this.variableName);
@@ -406,8 +413,20 @@ export class FunctionOperand extends Operand {
     if (!!asyncVal) return asyncVal.value;
     return this.evaluateCore(processValue);
   }
+  private markOriginalValueParams(): void {
+    const indexes = FunctionFactory.Instance.getOriginalValueParams(this.functionName);
+    if (!Array.isArray(indexes) || indexes.length === 0) return;
+    const values = this.parameters.values;
+    for (let i = 0; i < indexes.length; i++) {
+      const operand: any = values[indexes[i]];
+      if (operand && typeof operand.setReturnOriginalValue === "function") {
+        operand.setReturnOriginalValue(true);
+      }
+    }
+  }
   private evaluateCore(processValue?: ProcessValue): any {
     let properties = processValue.properties;
+    this.markOriginalValueParams();
     const parameters = this.parameters.evaluate(processValue);
     if (this.isAsyncFunction()) {
       const id = this.id;

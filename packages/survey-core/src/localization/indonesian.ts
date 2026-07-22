@@ -161,8 +161,6 @@ export var indonesianStrings = {
   savingDataError: "Kesalahan terjadi dan kami tidak dapat menyimpan hasil.",
   // "The results were saved successfully!"
   savingDataSuccess: "Hasil telah sukses disimpan!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Respons Anda melebihi 64KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei.",
   // "Try again"
   saveAgainButton: "Coba lagi",
   // "min"
@@ -246,7 +244,9 @@ export var indonesianStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Indeks",
   // [Auto-translated] "Progress bar"
-  progressbar: "Bilah kemajuan"
+  progressbar: "Bilah kemajuan",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Halaman {0}"
 };
 
 setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });

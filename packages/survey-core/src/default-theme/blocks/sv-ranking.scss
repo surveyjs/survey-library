@@ -46,7 +46,7 @@
   align-items: center;
   line-height: 1em;
   padding: var(--sjs2-spacing-x050) 0px;
-  border-radius: var(--sjs2-radius-component-ranking, 9999px);
+  border-radius: var(--sjs2-radius-component-ranking);
 }
 
 .sv-ranking-item__icon-container {
@@ -55,7 +55,8 @@
   bottom: 0;
   flex-shrink: 0;
   width: var(--sjs2-size-x300);
-  height: var(--sjs2-size-x300);
+  @include sjs2--typography--component--label--content;
+  height: calc(1lh + var(--sjs2-spacing-x200));
   align-self: flex-start;
   padding-left: var(--sjs2-spacing-x100);
   padding-right: var(--sjs2-spacing-x100);
@@ -78,28 +79,29 @@
 }
 
 .sv-ranking-item__icon.sv-ranking-item__icon {
+  @include sjs2--typography--component--label--content;
+  height: 1lh;
+  width: 1lh;
   visibility: hidden;
   fill: $primary;
   position: absolute;
   top: var(--sjs2-spacing-x100);
-  width: var(--sjs2-size-x300);
-  height: var(--sjs2-size-x300);
 }
 
 .sv-ranking-item__index.sv-ranking-item__index {
-  @include sjs2--typography--default-strong;
+  @include sjs2--typography--component--label--content;
+  font-weight: var(--sjs2-typography-font-weight-strong);
   display: flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
   background-color: var(--sjs2-color-bg-brand-secondary);
-  color: $font-questiontitle-color;
-  font-size: $font-editorfont-size;
+  color: var(--sjs2-color-fg-basic-primary);
   border-radius: 100%;
-  border: var(--sjs2-border-width-x200) solid transparent;
-  width: var(--sjs2-size-x500);
-  height: var(--sjs2-size-x500);
-  box-sizing: border-box;
+  height: 1lh;
+  width: 1lh;
+  padding: var(--sjs2-spacing-x100);
+  box-sizing: content-box;
   margin-left: var(--sjs2-spacing-x000);
   transition:
     outline $transition-duration,
@@ -108,26 +110,24 @@
   align-self: self-start;
 
   svg {
-    fill: $font-questiontitle-color;
+    fill: currentColor;
     width: $font-editorfont-size;
     height: $font-editorfont-size;
   }
 }
 
 .sv-ranking-item__text {
+  @include sjs2--typography--component--label--content;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: $font-questiontitle-color;
-  font-size: $font-editorfont-size;
-  line-height: multiply(1.5, $font-editorfont-size);
+  color: var(--sjs2-color-component-label-default-text);
   margin: 0 var(--sjs2-spacing-x200);
   overflow-wrap: break-word;
   word-break: normal;
   align-self: self-start;
-  padding-top: var(--sjs2-spacing-x100);
-  padding-bottom: var(--sjs2-spacing-x100);
+  padding-block: var(--sjs2-spacing-x100);
 
   .sv-string-viewer,
   .sv-string-editor {
@@ -137,12 +137,12 @@
 }
 
 .sd-ranking--disabled .sv-ranking-item__text {
-  color: $font-questiontitle-color;
+  color: var(--sjs2-color-fg-basic-primary);
   opacity: 0.25;
 }
 
 .sv-ranking-item--disabled .sv-ranking-item__text {
-  color: $font-questiondescription-color;
+  color: var(--sjs2-color-fg-basic-primary);
   opacity: 0.25;
 }
 
@@ -155,17 +155,17 @@
 .sv-ranking-item--preview {
   .sv-ranking-item__index {
     background-color: transparent;
-    border: 1px solid $foreground;
-    box-sizing: border-box;
+    box-shadow: inset 0 0 0 1px $foreground;
   }
 }
 
 .sv-ranking-item__ghost.sv-ranking-item__ghost {
   display: none;
   background-color: $background-dim;
-  border-radius: var(--sjs2-radius-component-ranking, 9999px);
+  border-radius: var(--sjs2-radius-component-ranking);
   width: calc(var(--sjs2-base-unit-size) * 31);
-  height: var(--sjs2-size-x500);
+  @include sjs2--typography--component--label--content;
+  height: calc(1lh + var(--sjs2-spacing-x200));
   z-index: 1;
   position: absolute;
   left: 0;
@@ -188,7 +188,8 @@
 }
 
 .sv-ranking-item--ghost {
-  height: var(--sjs2-size-x600);
+  @include sjs2--typography--component--label--content;
+  height: calc(1lh + var(--sjs2-spacing-x300));
 
   .sv-ranking-item__text .sv-string-viewer,
   .sv-ranking-item__text .sv-string-editor {
@@ -206,7 +207,7 @@
 
 .sv-ranking-item--drag .sv-ranking-item__content {
   box-shadow: $shadow-medium-large;
-  border-radius: var(--sjs2-radius-component-ranking, 9999px);
+  border-radius: var(--sjs2-radius-component-ranking);
 }
 
 .sv-ranking--drag .sv-ranking-item:hover .sv-ranking-item__icon {
@@ -265,8 +266,9 @@
 }
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
-  width: var(--sjs2-size-x300);
-  height: var(--sjs2-size-x300);
+  @include sjs2--typography--component--label--content;
+  height: 1lh;
+  width: 1lh;
   top: var(--sjs2-spacing-x100);
 }
 
@@ -284,15 +286,14 @@
   cursor: grabbing;
   position: absolute;
   z-index: 10000;
-  border-radius: var(--sjs2-radius-component-ranking, 9999px);
+  border-radius: var(--sjs2-radius-component-ranking);
   min-width: 100px;
   max-width: 400px;
   box-shadow: var(--sjs2-border-effect-floating-default);
   background-color: var(--sjs2-color-bg-basic-primary);
-  font-family: $font-family;
 
   .sv-ranking-item {
-    height: var(--sjs2-size-x600);
+    box-sizing: content-box;
 
     .sv-ranking-item__text {
       .sv-string-viewer,

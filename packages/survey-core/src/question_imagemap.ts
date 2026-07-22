@@ -26,7 +26,7 @@ export class QuestionImageMapModel extends Question {
 
   @property() imageLink: string;
   @property() areas: ImageMapArea[];
-  @property() hoveredUID: number;
+  @property() hoveredUID: string;
   @property() valuePropertyName: string;
 
   @property({ defaultValue: true }) multiSelect: boolean;
@@ -179,7 +179,7 @@ export class QuestionImageMapModel extends Question {
     }
     const uid = (event.target as HTMLElement).dataset["uid"];
     if (!uid) return;
-    const item = this.areas.find(i => i.uniqueId === Number(uid));
+    const item = this.areas.find(i => i.renderedId === uid);
     this.mapItemToggle(item);
   };
 
@@ -187,7 +187,7 @@ export class QuestionImageMapModel extends Question {
     if (this.isInDesignMode && this.selectedArea) return;
     const uid = (event.target as HTMLElement).dataset["uid"];
     if (!uid) return;
-    this.hoveredUID = Number(uid);
+    this.hoveredUID = uid;
   };
 
   onMouseOutHandler = () => {
@@ -368,9 +368,9 @@ export class QuestionImageMapModel extends Question {
 
   public isItemHovered(item: ImageMapArea): boolean {
     if (!this.hoveredUID) return false;
-    const hoveredItem = this.areas.find(i => i.uniqueId === this.hoveredUID);
+    const hoveredItem = this.areas.find(i => i.renderedId === this.hoveredUID);
     if (!hoveredItem) return false;
-    return this.isInDesignMode ? item.uniqueId === this.hoveredUID : item.value === hoveredItem.value;
+    return this.isInDesignMode ? item.renderedId === this.hoveredUID : item.value === hoveredItem.value;
   }
 
   public addItem(value: any): ImageMapArea {
@@ -625,7 +625,7 @@ export class ImageMapArea extends ItemValue {
     const document = DomDocumentHelper.getDocument();
 
     const el = document.createElementNS("http://www.w3.org/2000/svg", shape === "poly" ? "polygon" : shape);
-    el.dataset["uid"] = this.uniqueId.toString();
+    el.dataset["uid"] = this.renderedId;
     this.svg = el;
 
     this.draw();

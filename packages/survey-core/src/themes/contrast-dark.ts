@@ -4,7 +4,6 @@ export default {
   "colorPalette": "dark",
   "cssVariables": {
     "--sjs2-color-project-brand-600": "#9c40ff",
-    "--sjs2-color-project-brand-700": "lch(from var(--sjs2-color-project-brand-600) calc(l * 0.85) c h)",
     "--sjs2-color-utility-body": "var(--sjs2-palette-gray-999)",
     "--sjs2-color-utility-sheet": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-a11y": "rgba(from var(--sjs2-palette-blue-400) r g b / var(--sjs2-opacity-x040))",
@@ -14,6 +13,7 @@ export default {
     "--sjs2-color-utility-tabs": "var(--sjs2-palette-gray-900)",
     "--sjs2-color-utility-surface-survey": "#161519",
     "--sjs2-color-utility-surface-designer": "#161519",
+    "--sjs2-color-utility-surface-presets-manager": "#161519",
     "--sjs2-color-utility-surface-json-editor": "var(--sjs2-color-utility-surface-designer)",
     "--sjs2-color-utility-shadow-surface-default": "var(--sjs2-color-border-basic-secondary)",
     "--sjs2-color-utility-shadow-surface-dragging": "rgba(from var(--sjs2-color-project-brand-600) r g b / var(--sjs2-opacity-x010))",
@@ -39,6 +39,8 @@ export default {
     "--sjs2-color-bg-alert-primary-disabled": "var(--sjs2-palette-gray-750)",
     "--sjs2-color-fg-basic-primary": "rgba(from var(--sjs2-palette-gray-000) r g b / var(--sjs2-opacity-x085))",
     "--sjs2-color-fg-basic-primary-muted": "var(--sjs2-color-fg-basic-primary)",
+    "--sjs2-color-fg-basic-secondary": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x065))",
+    "--sjs2-color-fg-basic-tertiary": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x045))",
     "--sjs2-color-fg-basic-primary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-secondary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-fg-basic-tertiary-disabled": "rgba(from var(--sjs2-color-fg-basic-primary) r g b / var(--sjs2-opacity-x025))",
@@ -56,7 +58,7 @@ export default {
     "--sjs2-color-fg-alert-primary": "var(--sjs2-palette-red-400)",
     "--sjs2-color-fg-alert-primary-disabled": "rgba(from var(--sjs2-color-fg-neutral-primary) r g b / var(--sjs2-opacity-x025))",
     "--sjs2-color-border-basic-primary": "var(--sjs2-palette-gray-000)",
-    "--sjs2-color-border-basic-secondary": "var(--sjs2-palette-gray-750)",
+    "--sjs2-color-border-basic-secondary": "var(--sjs2-palette-gray-700)",
     "--sjs2-color-border-basic-secondary-overlay": "rgba(from var(--sjs2-color-border-basic-primary) r g b / var(--sjs2-opacity-x020))",
     "--sjs2-color-border-basic-secondary-disabled": "var(--sjs2-palette-gray-800)",
     "--sjs2-color-border-neutral-primary": "var(--sjs2-palette-gray-900)",
@@ -85,6 +87,9 @@ export default {
     "--sjs2-opacity-hovered": "var(--sjs2-opacity-x100)",
     "--sjs2-opacity-pressed": "var(--sjs2-opacity-x100)",
     "--sjs2-border-spread-surface-hovered": "var(--sjs2-border-width-x100)",
-    "--sjs2-border-spread-surface-pressed": "var(--sjs2-border-width-x100)"
+    "--sjs2-border-spread-surface-pressed": "var(--sjs2-border-width-x100)",
+    "--sjs2-border-blur-surface-dragging": "0px",
+    "--sjs2-border-blur-floating-default": "12px",
+    "--sjs2-border-offset-y-surface-dragging": "0px"
   }
 };

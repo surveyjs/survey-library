@@ -15,7 +15,7 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
     return this.model;
   }
   public get id() {
-    return this.model.uniqueId + "" || "";
+    return this.model.renderedId;
   }
   public override ngOnDestroy(): void {
     super.ngOnDestroy();

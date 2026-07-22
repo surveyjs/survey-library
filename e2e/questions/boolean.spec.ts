@@ -42,6 +42,23 @@ const jsonRadio = {
   ],
 };
 
+const jsonRadioInDynamicPanel = {
+  elements: [
+    {
+      type: "paneldynamic",
+      name: "dynamicPanel",
+      panelCount: 2,
+      templateElements: [
+        {
+          type: "boolean",
+          name: "booleanAsRadio",
+          renderAs: "radio",
+        },
+      ],
+    },
+  ],
+};
+
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
@@ -111,6 +128,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowLeft");
       expect(await getQuestionValue(page)).toEqual(false);
     });
+
   });
 });
 
@@ -299,6 +317,39 @@ frameworks.forEach((framework) => {
       await expect(page.locator("input[type=radio]").nth(0)).toBeChecked();
       await expect(page.locator("input[type=radio]").nth(1)).not.toBeChecked();
       expect(await checkQuestionValue("No")).toBeTruthy();
+    });
+
+    test("radio boolean in dynamic panel uses a unique radio group name per panel #11337", async ({ page }) => {
+      await initSurvey(page, framework, jsonRadioInDynamicPanel);
+      const radios = page.locator("input[type=radio]");
+      await expect(radios).toHaveCount(4);
+      const names = await radios.evaluateAll((els) => els.map((el) => (el as HTMLInputElement).name));
+      // The two radios of a single boolean question must share a group name...
+      expect(names[0]).toBe(names[1]);
+      expect(names[2]).toBe(names[3]);
+      // ...but radios from different panels must form separate groups, otherwise
+      // keyboard navigation treats them as one group and skips the field in some panels.
+      expect(names[0]).not.toBe(names[2]);
+    });
+
+    test("check arrow keydowns with swapOrder", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "boolean",
+            name: "q",
+            swapOrder: true,
+          },
+        ],
+      });
+      page.keyboard.press("Tab");
+      expect(await getQuestionValue(page)).toEqual(undefined);
+      // With swapOrder, ArrowRight should select false (No is on the right)
+      await page.keyboard.press("ArrowRight");
+      expect(await getQuestionValue(page)).toEqual(false);
+      // With swapOrder, ArrowLeft should select true (Yes is on the left)
+      await page.keyboard.press("ArrowLeft");
+      expect(await getQuestionValue(page)).toBeTruthy();
     });
   });
 });

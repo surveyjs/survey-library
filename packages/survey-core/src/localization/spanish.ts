@@ -161,8 +161,6 @@ export var spanishSurveyStrings = {
   savingDataError: "Los resultados se están guardando en el servidor...",
   // "The results were saved successfully!"
   savingDataSuccess: "¡Los resultados se guardaron con éxito!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Su respuesta supera los 64 KB. Reduzca el tamaño de su(s) archivo(s) e inténtelo de nuevo o póngase en contacto con el propietario de la encuesta.",
   // "Try again"
   saveAgainButton: "Inténtalo de nuevo.",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var spanishSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Tabla de contenidos",
   // [Auto-translated] "Progress bar"
-  progressbar: "Barra de progreso"
+  progressbar: "Barra de progreso",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Página {0}"
 };
 
 setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "español", englishName: "Spanish" });

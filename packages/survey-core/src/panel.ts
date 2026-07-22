@@ -118,8 +118,9 @@ export class QuestionRowModel extends Base {
   public isLazyRendering(): boolean {
     return this.isLazyRenderingValue === true;
   }
-  public get id(): string {
-    return "pr_" + this.uniqueId;
+  protected getIdPrefix(): string { return "pr"; }
+  public getSurvey(isLive: boolean = false): ISurvey {
+    return this.panel ? this.panel.getSurvey(isLive) : null;
   }
   protected equalsCore(obj: Base): boolean {
     return this == obj;
@@ -386,7 +387,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onAddElement.bind(this),
       this.onRemoveElement.bind(this)
     );
-    this.setPropertyValueDirectly("id", "sp_" + this.uniqueId);
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },
@@ -433,7 +433,6 @@ export class PanelModelBase extends SurveyElement<Question>
     };
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    //if(this.surveyImpl === value) return; TODO refactor
     this.blockAnimations();
     super.setSurveyImpl(value, isLight);
     if (this.isDesignMode)this.onVisibleChanged();
@@ -488,10 +487,19 @@ export class PanelModelBase extends SurveyElement<Question>
 
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
-    if (!this.hasTitle && this.isDesignMode) return false;
-    return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
-      (this.showDescription && this.isDesignMode &&
-        settings.designMode.showEmptyDescriptions);
+    const survey: any = this.survey;
+    const showInRuntime = survey && survey.showPageTitles && this.hasDescription;
+    if (this.isDesignMode) {
+      const hasEnteredDescription = survey && survey.showPageTitles && !!this.description;
+      let show = this.hasTitle &&
+        (hasEnteredDescription ||
+          (this.showDescription && settings.designMode.showEmptyDescriptions));
+      if (!!survey && !!survey.beforeShowInplaceDescriptionEditorCallback) {
+        show = survey.beforeShowInplaceDescriptionEditorCallback(this, !!show);
+      }
+      return !!show;
+    }
+    return showInRuntime;
   }
   public localeChanged(): void {
     super.localeChanged();
@@ -537,6 +545,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Returns a character or text string that indicates a required panel/page.
    * @see SurveyModel.requiredMark
    * @see isRequired
+   * @since 2.0.0
    */
   public get requiredMark(): string {
     return !!this.survey && this.isRequired
@@ -545,6 +554,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   /**
    * @deprecated Use the [`requiredMark`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#requiredMark) property instead.
+   * @hidden
    */
   public get requiredText(): string {
     return this.requiredMark;
@@ -580,6 +590,7 @@ export class PanelModelBase extends SurveyElement<Question>
   @property() questionOrder: string;
   /**
    * @deprecated Use the [`questionOrder`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionOrder) property instead.
+   * @hidden
    */
   public get questionsOrder(): string {
     return this.questionOrder;
@@ -692,10 +703,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return classes;
   }
-  /**
-   * An auto-generated unique element identifier.
-   */
-  @property() id: string;
+  protected getIdPrefix(): string { return "sp"; }
   public get isPanel(): boolean {
     return false;
   }
@@ -808,10 +816,13 @@ export class PanelModelBase extends SurveyElement<Question>
     this.collectValues(data, 0);
     return Helpers.getUnbindValue(data);
   }
-  public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
+  public hasValueAnyQuestion(visibleOnly?: boolean, includeDefaultValues: boolean = true): boolean {
     const questions = visibleOnly ? this.visibleQuestions : this.questions;
     for (let i = 0; i < questions.length; i++) {
-      if (!questions[i].isEmpty()) return true;
+      const question = questions[i];
+      if (question.isEmpty()) continue;
+      if (!includeDefaultValues && question.isValueDefault) continue;
+      return true;
     }
     return false;
   }
@@ -1487,6 +1498,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private updateRowsOnElementAdded(element: IElement): void {
     if (!this.wasRendered && this.rows.length === 0 && this.elements.length > 1) return;
+    if (!!this.findRowByElement(element)) return;
     const index = this.elements.indexOf(element);
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
@@ -1541,9 +1553,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     element.parent = this;
     this.markQuestionListDirty();
-    if (this.canBuildRows()) {
-      this.updateRowsOnElementAdded(element);
-    }
     if (fireNotification) {
       if (element.isPanel) {
         survey.panelAdded(<PanelModel>element, index, this, this.root);
@@ -1551,16 +1560,24 @@ export class PanelModelBase extends SurveyElement<Question>
         survey.questionAdded(<Question>element, index, this, this.root);
       }
     }
+    // The add notification above may remove the element synchronously (for example,
+    // an onQuestionAdded handler calls element.delete()). Do not build a row for an
+    // element that no longer belongs to this panel, otherwise the renderer is notified
+    // about an element that is detached from its page (Bug#11475).
+    if (element.parent !== this) return;
+    if (this.canBuildRows()) {
+      this.updateRowsOnElementAdded(element);
+    }
     if (!!this.addElementCallback)this.addElementCallback(element);
     (<Base>(<any>element)).registerPropertyChangedHandlers(
       ["visible", "isVisible"], () => {
         this.onElementVisibilityChanged(element);
       },
-      this.id
+      this.elementHandlersKey
     );
     (<Base>(<any>element)).registerPropertyChangedHandlers(["startWithNewLine"], () => {
       this.onElementStartWithNewLineChanged(element);
-    }, this.id);
+    }, this.elementHandlersKey);
     this.onElementVisibilityChanged(this);
   }
   protected onRemoveElement(element: IElement): void {
@@ -1573,8 +1590,9 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!this.removeElementCallback)this.removeElementCallback(element);
     this.onElementVisibilityChanged(this);
   }
+  private get elementHandlersKey(): string { return "el-handlers-" + this.uniqueId; }
   protected unregisterElementPropertiesChanged(element: IElement): void {
-    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.id);
+    (<Base>(<any>element)).unregisterPropertyChangedHandlers(["visible", "isVisible", "startWithNewLine"], this.elementHandlersKey);
   }
   private onRemoveElementNotifySurvey(element: IElement): void {
     if (!this.canFireAddRemoveNotifications(element)) return;
@@ -1723,7 +1741,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   public get ariaTitleId(): string {
-    return this.id + "_ariaTitle";
+    return this.renderedId + "_ariaTitle";
   }
   public get ariaLabelledBy(): string {
     return this.hasTitle ? this.ariaTitleId : null;
@@ -2163,7 +2181,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return "panel";
   }
   public get contentId(): string {
-    return this.id + "_content";
+    return this.renderedId + "_content";
   }
   public getSurvey(live: boolean = false): ISurvey {
     if (live && this.isPanel) {
@@ -2398,7 +2416,7 @@ export class PanelModel extends PanelModelBase implements IElement {
         actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
-      this.footerToolbarValue.setActionsAppearance(this.hasEditButton ? { mode: "tertiary-surface", size: "medium", style: "brand", showBorder: true } : { style: "neutral", mode: "tertiary", size: "small" });
+      this.footerToolbarValue.setActionsAppearance(this.hasEditButton ? { mode: "tertiary-surface", size: "medium", style: "brand", showBorder: true } : { style: "neutral", mode: "secondary", size: "small" });
       let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
       if (!footerCss) {
         footerCss = this.cssClasses.panel?.footer;

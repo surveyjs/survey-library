@@ -161,8 +161,6 @@ export var basqueSurveyStrings = {
   savingDataError: "Erroreren bat gertatu eta erantzunak ez dira zerbitzarian gorde ahal izan.",
   // "The results were saved successfully!"
   savingDataSuccess: "Erantzunak egoki gorde dira!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkestaren jabearekin.",
   // "Try again"
   saveAgainButton: "Berriro saiatu.",
   // [Auto-translated] "min"
@@ -246,7 +244,9 @@ export var basqueSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Edukien taula",
   // [Auto-translated] "Progress bar"
-  progressbar: "Aurrerapen barra"
+  progressbar: "Aurrerapen barra",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Orrialde {0}"
 };
 
 setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });

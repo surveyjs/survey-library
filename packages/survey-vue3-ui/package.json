@@ -1,6 +1,6 @@
 {
   "name": "survey-vue3-ui",
-  "version": "3.0.0-beta.6",
+  "version": "3.0.0-beta.8",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "license": "MIT",
@@ -55,8 +55,8 @@
     "serve:example:prod": "npm run preview --prefix ./example",
     "build:example:prod": "npm run build --prefix ./example",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
-    "test": "vitest --no-watch --no-threads",
-    "test:watch": "vitest --no-threads",
+    "test": "node ../../tests/markup/gen-shards.js && vitest --no-watch",
+    "test:watch": "node ../../tests/markup/gen-shards.js && vitest",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
     "accessibility-tests": "cross-env env=vue3 playwright test --project a11y --ui",

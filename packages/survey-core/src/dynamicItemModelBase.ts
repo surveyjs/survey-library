@@ -10,7 +10,7 @@ export interface IDynamicItemModelData {
     getItem(index: number): DynamicItemModelBase;
     getItemData(item: ISurveyData): any;
     getItemIndex(item: ISurveyData): number;
-    getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
+    getValueGetterContext(): IValueGetterContext;
     getFilteredData(): any;
     getBindedQuestions(): IQuestion[];
     getSharedQuestionFromArray(name: string, index: number): Question;
@@ -89,9 +89,19 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   }
   protected abstract getVisibleItem(idx: number): DynamicItemModelBase;
   protected abstract get visibleIndex(): number;
+  protected getItemVariableNames(): Array<string> {
+    return [];
+  }
   public getContextKeys(): { [key: string]: any } {
-    const varName = this.variableName;
-    return varName ? { [varName]: this.item } : {};
+    const res: { [key: string]: any } = {};
+    const names = [this.variableName, this.questionName, this.getPrevName(), this.getNextName()]
+      .concat(this.getItemVariableNames());
+    names.forEach((name) => {
+      if (name) {
+        res[name] = this.item;
+      }
+    });
+    return res;
   }
 }
 

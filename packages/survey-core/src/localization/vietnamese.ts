@@ -161,8 +161,6 @@ export var vietnameseSurveyStrings = {
   savingDataError: "Có lỗi xảy ra và chúng ta không thể lưu kết quả.",
   // "The results were saved successfully!"
   savingDataSuccess: "Kết quả đã được lưu thành công!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát.",
   // "Try again"
   saveAgainButton: "Thử lại",
   // "min"
@@ -246,7 +244,9 @@ export var vietnameseSurveyStrings = {
   // [Auto-translated] "Table of contents"
   toc: "Mục lục",
   // [Auto-translated] "Progress bar"
-  progressbar: "Thanh tiến trình"
+  progressbar: "Thanh tiến trình",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "Trang {0}"
 };
 
 setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });

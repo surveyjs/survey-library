@@ -410,6 +410,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
 
   /**
    * @deprecated Use `visibleChoices` instead.
+   * @hidden
    */
   public get renderedRateItems(): RatingItem[] {
     return this.visibleChoices;
@@ -465,9 +466,6 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   }
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
-  }
-  public get questionName() {
-    return this.name + "_" + this.id;
   }
   supportAutoAdvance(): boolean {
     return this.isMouseDown === true || this.isDropdown;

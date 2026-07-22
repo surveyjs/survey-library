@@ -3,7 +3,14 @@
 
 .sd-item {
   display: flex;
-  padding: var(--sjs2-spacing-x150) 0;
+  padding: calc(var(--sjs2-layout-component-labeled-group-box-gap-vertical) / 2) 0;
+
+  &:where(:first-child:not(.sd-selectbase__item--inline)) {
+    padding-top: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
+  }
+  &:where(:last-child:not(.sd-selectbase__item--inline)) {
+    padding-bottom: var(--sjs2-layout-component-labeled-group-box-padding-vertical);
+  }
 }
 
 .sd-item__decorator {
@@ -14,27 +21,28 @@
   width: var(--sjs2-size-x300);
   height: var(--sjs2-size-x300);
   box-sizing: border-box;
-  background-color: var(--sjs2-color-component-check-false-default-bg, #F5F5F5);
+  background-color: var(--sjs2-color-component-check-false-default-bg);
   border: none;
   flex-shrink: 0;
-  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - var(--sjs2-spacing-x300)) / 2);
-  box-shadow: var(--sjs2-border-effect-component-check-false-default, inset 0px 1px 2px 0px #D4D4D4), $shadow-focused-reset;
-  transition: box-shadow $transition-duration, background $transition-duration;
+  margin-bottom: var(--sjs2-layout-component-labeled-item-box-padding-vertical);
+  box-shadow: var(--sjs2-border-effect-component-check-false-default);
+  transition:
+    box-shadow $transition-duration,
+    background $transition-duration;
 }
 
 .sd-item--disabled.sd-item--disabled {
   .sd-item__decorator {
-    background-color: var(--sjs2-color-component-check-false-disabled-bg, #fff);
-    box-shadow: var(--sjs2-border-effect-component-check-false-disabled, inset 0px 0px 0px 1px #F5F5F5), $shadow-focused-reset;
+    background-color: var(--sjs2-color-component-check-false-disabled-bg);
+    box-shadow: var(--sjs2-border-effect-component-check-false-disabled);
   }
 }
-  
 
 .sd-item--readonly.sd-item--readonly {
   &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
   .sd-item__decorator {
-    background-color: var(--sjs2-color-component-check-false-readonly-bg, #fff);
-    box-shadow: var(--sjs2-border-effect-component-check-false-readonly, inset 0px 0px 0px 1px #F5F5F5), $shadow-focused-reset;
+    background-color: var(--sjs2-color-component-check-false-readonly-bg);
+    box-shadow: var(--sjs2-border-effect-component-check-false-readonly);
   }
 }
 
@@ -45,34 +53,40 @@
 }
 
 .sd-item--checked .sd-item__decorator {
-  box-shadow: var(--sjs2-border-effect-component-check-true-default, inset 0px 1px 2px 0px #19B394);
-  background: var(--sjs2-color-component-check-true-default-bg, #19B394);
+  box-shadow: var(--sjs2-border-effect-component-check-true-default);
+  background: var(--sjs2-color-component-check-true-default-bg);
 }
 
-.sd-item__control:focus-visible+.sd-item__decorator {
+.sd-item__control:focus-visible + .sd-item__decorator {
   &::before {
     position: absolute;
     top: 0;
     left: 0;
     content: "";
     display: block;
-    width: var(--sjs2-size-x300);
-    height: var(--sjs2-size-x300);
-    border-radius: var(--sjs2-radius-component-checkbox, 4px);
-    box-shadow: 0px 0px 0px var(--sjs2-border-width-a11y, 4px) var(--sjs2-color-utility-a11y, rgba(102, 180, 252, 0.60));
+    width: 100%;
+    height: 100%;
+    border-radius: var(--sjs2-radius-component-checkbox);
+    box-shadow: var(--sjs2-border-effect-component-check-a11y);
+    transition: box-shadow $transition-duration;
   }
 }
 
 .sd-item--allowhover:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
-  background: var(--sjs2-color-component-check-false-hovered-bg, #EDEDED);
+  background: var(--sjs2-color-component-check-false-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-check-false-hovered);
   outline: none;
 }
 
+.sd-item--allowhover.sd-item--checked:not(.sd-item--readonly) .sd-selectbase__label:hover .sd-item__decorator {
+  background: var(--sjs2-color-component-check-true-hovered-bg);
+  box-shadow: var(--sjs2-border-effect-component-check-true-hovered);
+  outline: none;
+}
 
 .sd-item__control-label {
-  @include sjs2--typography--component--input--content;
-  font-style: normal;
-  color: $font-questiontitle-color;
+  @include sjs2--typography--component--label--content;
+  color: var(--sjs2-color-component-label-default-text);
   white-space: normal;
   width: 100%;
   text-align: start;
@@ -87,7 +101,7 @@
 }
 
 .sd-item--disabled .sd-item__control-label {
-  color: var(--sjs2-color-fg-basic-primary-disabled, rgba(28, 27, 32, 0.40));
+  color: var(--sjs2-color-component-label-disabled-text);
 }
 
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {
@@ -95,6 +109,6 @@
 }
 
 .sd-item--error .sd-item__decorator {
-  background-color: var(--sjs2-color-component-check-false-invalid-bg, #F5F5F5);
-  box-shadow: var(--sjs2-border-effect-component-check-false-invalid, inset 0px 0px 0px 1px #E50A3E);
+  background-color: var(--sjs2-color-component-check-false-invalid-bg);
+  box-shadow: var(--sjs2-border-effect-component-check-false-invalid);
 }

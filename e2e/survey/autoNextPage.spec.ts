@@ -101,19 +101,16 @@ frameworks.forEach((framework) => {
     test("check auto next page", async ({ page }) => {
       await initSurvey(page, framework, json);
       const firstRadioElement = page.locator(".sd-radio__decorator").first();
-      const progressText = page.locator(".sd-progress-buttons__page-title");
+      const stepElements = page.locator(".sd-progress-buttons__list > li");
 
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
       await firstRadioElement.click();
       await page.waitForTimeout(500);
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await firstRadioElement.click();
       await page.waitForTimeout(500);
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await firstRadioElement.click();
       await page.waitForTimeout(500);
@@ -129,23 +126,28 @@ frameworks.forEach((framework) => {
     test("check auto next page with keyboard", async ({ page }) => {
       await initSurvey(page, framework, json);
 
-      const progressText = page.locator(".sd-progress-buttons__page-title");
-      let text = "Page 1 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      // MERGE(V3): this test's progress assertions conflict every merge. V3 asserts the
+      // active step via `.sd-progress-buttons__list > li` + `...--current` class; master (V2)
+      // asserts `.sd-progress-buttons__page-title` text ("Page N of 3"). Keep the V3 step-based
+      // assertions here and at each ArrowDown/Tab/Enter step below.
+      const stepElements = page.locator(".sd-progress-buttons__list > li");
+      await expect(stepElements.nth(0)).toHaveClass(/sd-progress-buttons__list-element--current/);
 
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 2 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(1)).toHaveClass(/sd-progress-buttons__list-element--current/);
+      // autoFocusFirstQuestion fires in a 1 ms setTimeout inside afterRenderPage;
+      // wait for it to actually focus the first radio before pressing arrow keys.
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      text = "Page 3 of 3";
-      expect(await progressText.textContent()).toBe(text);
+      await expect(stepElements.nth(2)).toHaveClass(/sd-progress-buttons__list-element--current/);
+      await expect(page.locator(".sd-radio input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

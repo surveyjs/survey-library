@@ -261,5 +261,67 @@ registerMarkupTests(
     snapshot: "boolean-radio-disabled",
     initSurvey: (survey) => survey.setDesignMode(true),
   },
+  {
+    name: "Test Boolean Switch question markup: defaultValue true",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          titleLocation: "hidden",
+          defaultValue: true,
+          renderAs: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-true",
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue false",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          titleLocation: "hidden",
+          defaultValue: false,
+          renderAs: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-false",
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue true, readOnly",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          titleLocation: "hidden",
+          defaultValue: true,
+          readOnly: true,
+          renderAs: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-true-readonly",
+  },
+  {
+    name: "Test Boolean Switch question markup: defaultValue false, readOnly",
+    json: {
+      elements: [
+        {
+          type: "boolean",
+          name: "q1",
+          titleLocation: "hidden",
+          defaultValue: false,
+          readOnly: true,
+          renderAs: "switch"
+        }
+      ]
+    },
+    snapshot: "boolean-switch-value-false-readonly",
+  },
   ]
 );

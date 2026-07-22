@@ -161,8 +161,6 @@ export var teluguStrings = {
   savingDataError: "ఒక లోపము సంభవించినది అందుకని ఫలితాంశాలను సేవ్ చేయలేకపోయాము  ",
   // "The results were saved successfully!"
   savingDataSuccess: "ఫలితాంశాలను విజయవంతంగా సేవ్ చేసాము",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
-  savingExceedSize: "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి.",
   // "Try again"
   saveAgainButton: "మళ్లీ ప్రయత్నించు",
   // "min"
@@ -246,7 +244,9 @@ export var teluguStrings = {
   // [Auto-translated] "Table of contents"
   toc: "విషయ పట్టిక[మార్చు]",
   // [Auto-translated] "Progress bar"
-  progressbar: "పురోగతి బార్"
+  progressbar: "పురోగతి బార్",
+  // [Auto-translated] "Page {0}"
+  progressbarPage: "పేజీ {0}"
 };
 
 setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "తెలుగు", englishName: "Telugu" });

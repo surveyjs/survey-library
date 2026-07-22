@@ -31,6 +31,13 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
       this.dropdownListModel.setInputPlaceholder(newValue);
     }
   }
+  protected calculateReadOnlyText(): string {
+    return this.getDisplayValue(true, undefined, true);
+  }
+  protected getOtherItemDisplayValue(val?: any, isReadOnly?: boolean): string | undefined {
+    if (isReadOnly) return undefined;
+    return super.getOtherItemDisplayValue(val);
+  }
   supportElementsInChoice(): boolean { return false; }
   public locStrsChanged(): void {
     super.locStrsChanged();
@@ -66,6 +73,7 @@ export class QuestionTagboxModel extends questionDropdownMixin(QuestionCheckboxM
    * Default value: `false`
    *
    *>  Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * @since 2.0.4
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
